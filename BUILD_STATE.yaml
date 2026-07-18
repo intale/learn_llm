@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T12:46:57Z"
+updated_at: "2026-07-18T12:59:22Z"
 
 environment:
   os: "Linux x86_64"
@@ -115,7 +115,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -478,7 +478,7 @@ builds:
         objective: "Specify the bilingual learning contract for text units and vocabulary IDs before implementing the chapter."
         depends_on:
           - establish-content-contract
-        status: pending
+        status: completed
         inputs:
           - AGENTS.md
           - DECISIONS.md
@@ -494,7 +494,61 @@ builds:
         cost:
           class: small
           notes: "Local authored outline and bilingual terminology planning only."
-        runs: []
+        runs:
+          - run_id: 20260718T125121Z-outline-ch01-text-units-01
+            started_at: "2026-07-18T12:51:21Z"
+            finished_at: "2026-07-18T12:59:22Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d75f6268e12dfef2372e00f5eb1aff1eb4ac8493"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:6d71f1705e0c171f47cbe567616701ea6c40deba7a7fb07bc4546d5130acd419"
+                BUILD_STATE.yaml: "sha256:e46c3cd61e6af67de5900a7a158fbef7ed6e086f3297556f4a4391d268fa5868"
+                curriculum/chapter-template.md: "sha256:8c8935a40a018d8b3255b08119a1663d3dde2edf07a6d58776c32d31c3f5267a"
+              tools:
+                node: "23.7.0"
+                npm: "10.9.2"
+            staging_dir: ".build/runs/20260718T125121Z-outline-ch01-text-units-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, the curriculum workflow/template, and the chapter-contract validator"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the latest completed run's publication and visual-artifact checksums"
+              - "Ruby ledger eligibility and stale-running-step check"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml curriculum/chapter-template.md"
+              - "Author the bilingual contract under the run-specific publish tree with a synchronized exact-output specification"
+              - "node scripts/check-chapter-contract.mjs .build/runs/20260718T125121Z-outline-ch01-text-units-01/publish/curriculum/chapters/01-text-units.md"
+              - "Local Node audit of vocabulary ordering, UTF-8 bytes, Unicode scalar values, token IDs, and unknown-token behavior"
+              - "Ruby comparison of frontmatter rust.expected_output with the displayed exact stdout block"
+              - "Manual acceptance review of objective, history, Rust plan, visualization, exercises, decoder connection, and localization"
+              - "sha256sum -c publish.sha256"
+              - "Publish the checksum-verified contract to curriculum/chapters/01-text-units.md with apply_patch and verify byte equality"
+              - "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md"
+            artifacts:
+              - path: ".build/runs/20260718T125121Z-outline-ch01-text-units-01/publish.sha256"
+                checksum: "sha256:43d9946fcb36d71bd13d1be6e44ae32bba158d4dc5d4f3b66c4975ff62be3c4b"
+                notes: "Immutable checksum for the staged chapter-1 contract published to the canonical curriculum path."
+              - path: ".build/runs/20260718T125121Z-outline-ch01-text-units-01/manual-review.md"
+                checksum: "sha256:28ae94667e6b37422cd79968206042f76ee7a5023138c8ef11526c8c2cfc07d7"
+                notes: "Completion-time mapping of the authored contract to the step's human-readable acceptance criteria."
+            validation:
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md"
+                status: passed
+                notes: "The canonical file passed JSON frontmatter, bilingual metadata, planned Rust path, and exact ordered-section validation as one contract."
+              - command: "Deterministic worked-data audit"
+                status: passed
+                notes: "The fixed cat/кот training text produces the documented numeric scalar order, 3-byte/6-byte UTF-8 rows, token IDs [3, 2, 4]/[5, 6, 7], and unknown ID 0."
+              - command: "Exact expected-output synchronization"
+                status: passed
+                notes: "Frontmatter rust.expected_output is byte-identical to the displayed stdout block, including its final newline."
+              - command: "Manual review against all outline acceptance criteria"
+                status: passed
+                notes: "One objective, formula/symbols, historical Rust contrast, implementation behavior, useful accessible visualization, exercises, decoder handoff, terminology, and translation notes are explicit."
+              - command: "Immutable staging manifest and canonical equality"
+                status: passed
+                notes: "The staged contract retains its recorded checksum and is byte-identical to curriculum/chapters/01-text-units.md; no trailing whitespace was found."
+            notes: "Completed locally without network, generation service, paid resource, dependency change, or substantial CPU use. The bilingual contract fixes a deterministic scalar-value vocabulary, exact English/Cyrillic examples and stdout, historical word/scalar contrasts, an accessible shared diagram plan, and the integer-sequence boundary used by the final decoder."
       - id: implement-ch01-text-units-rust
         objective: "Implement and test the shared Rust demo for UTF-8 bytes, Unicode scalar values, and vocabulary IDs."
         depends_on:
