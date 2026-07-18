@@ -1,17 +1,47 @@
 # Bilingual chapter workflow
 
+The reviewed [complete course plan](course-plan.md) is the scheduling source for
+all remaining chapters. It fixes the target architecture, prerequisite order,
+per-chapter learning boundary, cumulative Rust contribution, visualization
+decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
+chapter implementation step per chapter.
+
+Chapter 1 is already published. Its only planned correction is a revision-2
+language-neutral formula. Chapter 2 onward extends one cumulative, dependency-free
+Rust decoder until the capstone can tokenize, train, evaluate, checkpoint, and
+generate with a small causal Transformer.
+
+## One chapter is one delivery step
+
+A chapter step owns the whole bilingual vertical slice:
+
+1. freeze its contract and tiny worked example in the run staging directory;
+2. implement and test the reusable Rust concept;
+3. add the runnable historical contrast and deterministic expected output;
+4. implement a useful visualization, or record why one would not help;
+5. author English and Russian lessons together;
+6. validate the formula, terminology, Rust evidence, localization, static routes,
+   links, accessibility, responsive rendering, and focused browser behavior;
+7. publish the complete slice atomically, finalize its build checkpoint, and
+   commit that chapter by itself.
+
+Outline, Rust, visualization, localization, and browser work are internal phases,
+not separate scheduling steps. A split requires one of the narrow criteria in the
+course plan, such as an expensive reusable artifact or genuinely cross-cutting
+infrastructure. A partial chapter never receives a public route.
+
 The curriculum contract is the reviewed handoff between course planning, shared
 Rust implementation, visualization work, and localized lesson authoring. Copy
-chapter-template.md to curriculum/chapters/NN-slug.md and validate the contract
+`chapter-template.md` to `curriculum/chapters/NN-slug.md` and validate the contract
 before writing code or lesson prose.
 
 ## Why the metadata is strict
 
 English and Russian lessons are separate authored files, but they describe the
-same executable concept. A stable chapter_id and content_revision connect the
+same executable concept. A stable `chapter_id` and `content_revision` connect the
 pair. The following fields are locale-neutral and must match exactly:
 
-- chapter_id, content_revision, order, and concept_id;
+- `chapter_id`, `content_revision`, `order`, and `concept_id`;
 - the formula and ordered mathematical symbols;
 - Rust source paths and optional source regions;
 - the historical contrast source path; and
@@ -22,6 +52,10 @@ captions, exercises, and other prose are localized. The content gate rejects a
 pair when a shared field or revision differs. An individually valid lesson may
 remain in source for review, but the course index and static chapter route omit it
 until its matching translation is complete.
+
+Shared formulas must contain notation only. Put words such as “when,” “otherwise,”
+or their Russian equivalents in the localized explanation or symbol glossary, not
+inside shared LaTeX.
 
 ## Contract format
 
@@ -40,7 +74,7 @@ Each contract records:
 7. bilingual terminology and translation notes.
 
 Stable contract-section comments must remain in the order shown by the template.
-Localized MDX uses corresponding JSX comments named chapter-section. The marker
+Localized MDX uses corresponding JSX comments named `chapter-section`. The marker
 text is machine-readable and is not rendered to students, so headings themselves
 remain naturally localized.
 
@@ -52,9 +86,9 @@ Place lesson sources at:
     site/src/content/chapters/ru/NN-slug.mdx
 
 The filename, directory locale, and frontmatter must agree. Astro validates
-frontmatter through site/src/content.config.ts. The deterministic content check
+frontmatter through `site/src/content.config.ts`. The deterministic content check
 also verifies section order, catalog parity, paired shared fields, source
-existence, and literal RustSource references.
+existence, and literal `RustSource` references.
 
 Only a complete, same-revision English/Russian pair is returned by the static
 course route. Both locale indexes always exist, even before the first lesson is
@@ -62,8 +96,8 @@ publishable.
 
 ## Rust source inclusion
 
-Lesson code must use the RustSource component with a literal path already listed
-in rust_sources. Allowed files are restricted to:
+Lesson code must use the `RustSource` component with a literal path already listed
+in `rust_sources`. Allowed files are restricted to:
 
     rust/crates/llm-from-scratch/src/**/*.rs
     rust/demos/<package>/src/**/*.rs
@@ -76,22 +110,34 @@ the Rust file:
     let observable_code = true;
     // endregion:example-name
 
-Then declare the same region in frontmatter and pass it to RustSource. The build
+Then declare the same region in frontmatter and pass it to `RustSource`. The build
 fails if the marker pair is missing, duplicated, or reversed.
 
 ## Validation commands
 
-From the repository root:
+From the repository root, the standard chapter gate is:
 
+    node scripts/check-course-plan.mjs
     npm --prefix site run check:contract -- ../curriculum/chapters/NN-slug.md
+    cargo fmt --all -- --check
+    cargo clippy --workspace --all-targets --locked -- -D warnings
+    cargo test --workspace --locked
+    scripts/check-rust-dependencies.sh
+    scripts/check-rust-demos.sh
+    cargo run --quiet --locked -p chNN-slug | diff -u rust/demos/chNN-slug/expected.txt -
     npm --prefix site run check:chapter -- --locale en --chapter NN-slug
     npm --prefix site run check:chapter -- --locale ru --chapter NN-slug
     npm --prefix site run check:parity -- --chapter NN-slug
     npm --prefix site run check:content
+    npm --prefix site run check
+    npm --prefix site run test -- --run
     npm --prefix site run build
     npm --prefix site run test:links
+    npm --prefix site run test:e2e -- --grep '@chapter:NN-slug'
+    npm --prefix site run test:e2e
 
 The chapter command validates one locale without requiring its partner. The
 parity and full-content commands are publication gates. The static-link command
 audits every built local link, stylesheet/font/image reference, HTML language,
-and hreflang target.
+and `hreflang` target. Focused browser checks diagnose the new chapter; the full
+suite prevents regressions in earlier chapters.

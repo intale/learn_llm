@@ -467,3 +467,86 @@ rendered navigation coverage. Adding a locale requires its home to expose the
 same course-entry relationship.
 
 **Affected steps:** `link-localized-homes-to-course`
+
+## 2026-07-18 — Complete the course as a 39-chapter tiny decoder curriculum
+
+**Status:** Accepted; supersedes the earlier informal 25-topic curriculum sketch.
+
+**Context:** The original topic list named many important concepts but did not form
+a sufficient dependency graph for the learning objective of implementing a
+functional LLM. It omitted or compressed several places where students otherwise
+would have to accept unexplained machinery: partitioning documents before tokenizer
+learning, learning versus applying BPE, tensor axis transformations, broadcasting
+and reductions, structural versus model-critical tensor reverse-mode
+differentiation, initialization, the distinct roles of Q/K/V, complete decoder
+assembly, validation selection versus untouched-test evidence, reproducible
+checkpoints, and layer-local versus model-wide incremental decoding.
+An audit also found that Chapter 1 is pedagogically complete but its shared formula
+contains the English word “when,” which leaks into the Russian lesson.
+
+**Decision:** Use `curriculum/course-plan.md` as the reviewed curriculum and
+scheduling map. It defines 39 dependency-ordered chapters, with Chapter 1 receiving
+only a content-revision-2 language-neutral formula repair. The target implementation
+is a bounded CPU-only, dependency-free teaching model with deterministic byte-level
+BPE; `f64` tensors and reverse-mode tensor autodiff; a pre-norm causal decoder using
+RMSNorm, RoPE, multi-head attention, SwiGLU, residual connections, and tied token
+and output weights; AdamW training on a bundled original bilingual corpus;
+temperature/top-k sampling; versioned checkpoints; and a key/value cache.
+
+Keep the final model intentionally small and transparent. Exclude padding-heavy
+serving, dropout, mixed precision, distributed training, quantization, mixture of
+experts, retrieval, instruction tuning, preference training, and production serving.
+Those are valuable extensions, but none is required to understand and implement the
+agreed functional decoder-only LLM.
+
+**Consequences:** Each chapter has one observable outcome, explicit non-goals,
+formula, historical contrast, from-scratch Rust contribution, visualization
+decision, practice, integration evidence, and handoff. The extra granularity is a
+pedagogical dependency, not optional enrichment. Changing the target architecture,
+removing a prerequisite, or merging chapter objectives requires a new plan revision,
+an explicit superseding decision, and corresponding ledger replacement steps.
+
+**Affected steps:** `define-complete-curriculum`,
+`revise-ch01-language-neutral-formula`, and `implement-ch02-corpus-partitions`
+through `implement-ch39-end-to-end-llm`
+
+## 2026-07-18 — Deliver every future chapter as one committed vertical slice
+
+**Status:** Accepted; refines the bilingual authoring sequence and the existing
+per-step commit rule.
+
+**Context:** Chapter 1 was split into outline, Rust, visualization, English,
+Russian, and integration steps while the repository delivery system was being
+established. Repeating that scaffold-oriented split would make partial lesson work
+the scheduling unit, fragment context across agents, and delay the moment when
+teaching claims are checked against executable Rust and both localized renderings.
+The human explicitly prioritized learning-content quality and requested one agentic
+step per chapter, splitting only where capacity or resource cost makes it meaningful.
+
+**Decision:** After the Chapter 1 repair and one cross-cutting
+`establish-scalable-chapter-delivery` prerequisite, one chapter equals one complete
+bilingual vertical-slice step and one Git commit. Its single owner freezes the
+contract in run staging, implements the cumulative Rust API and runnable historical
+contrast, records deterministic output, builds a useful accessible visualization or
+a reviewed not-useful rationale, authors English and Russian side by side, validates
+the staged overlay, publishes the whole slice atomically, reruns canonical gates,
+finalizes the checkpoint, and commits before the next chapter begins.
+
+Do not split a chapter merely by outline, Rust, visualization, locale, or browser
+test. First narrow a topic with multiple learning objectives into separate real
+chapters. Split one chapter implementation only for an expensive or non-repeatable
+artifact with its own useful acceptance boundary, a new cross-cutting dependency or
+infrastructure approval used by later chapters, or concrete preflight evidence that
+the already-narrow vertical slice cannot fit one agent context. Record such a split
+before execution; keep its core and publication steps consecutive; never publish a
+partial route. Training chapters 31 and 35 remain single planned steps but must be
+benchmarked at preflight and escalated before any substantial-CPU expansion.
+
+**Consequences:** Rust behavior, mathematics, historical explanation,
+visualization, exercises, and natural bilingual prose are reviewed together, and
+every published chapter has one revertible history boundary. Read-only reviewers
+may assist without owning overlapping outputs. The Chapter 1 multi-step history is
+the documented scaffold exception, not a template for later chapters.
+
+**Affected steps:** `establish-scalable-chapter-delivery` and every
+`implement-chNN-*` step from Chapter 2 onward
