@@ -188,6 +188,12 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
     unicode-bidi: isolate;
   }
 
+  .lesson-body .katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
   .lesson-body table {
     display: block;
     width: 100%;

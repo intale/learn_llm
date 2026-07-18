@@ -7,6 +7,13 @@ name = "ch01-text-units"
 version = "0.1.0"
 
 [[package]]
+name = "ch02-corpus-partitions"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

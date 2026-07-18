@@ -664,8 +664,8 @@ describe('curriculum and catalog contracts', () => {
 
     const tagDrift = replaceOnce(
       stateSource,
-      "npm --prefix site run test:e2e -- --grep '@chapter:02-corpus-partitions'",
-      "npm --prefix site run test:e2e -- --grep '@chapter:wrong'",
+      `          - "npm --prefix site run test:e2e -- --grep '@chapter:02-corpus-partitions'"`,
+      `          - "npm --prefix site run test:e2e -- --grep '@chapter:wrong'"`,
     );
     expect(() => validateLedgerText(tagDrift, metadata)).toThrow(
       /missing validation/,
@@ -731,7 +731,10 @@ describe('curriculum and catalog contracts', () => {
     expect(chapterThreeStart).toBeGreaterThan(chapterTwoStart);
     const completedChapterTwo = expandedState
       .slice(chapterTwoStart, chapterThreeStart)
-      .replace('        status: pending', '        status: completed')
+      .replace(
+        /^        status: (?:pending|running|completed)$/m,
+        '        status: completed',
+      )
       .replace(
         `          - "site/src/content/chapters/es/02-corpus-partitions.mdx"\n`,
         '',

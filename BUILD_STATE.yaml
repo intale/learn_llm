@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T19:59:33Z"
+updated_at: "2026-07-18T20:56:47Z"
 
 environment:
   os: "Linux x86_64"
@@ -2250,7 +2250,7 @@ builds:
         objective: "Partition an original bilingual corpus into disjoint train, validation, and test documents before learning any tokenizer or model statistic."
         depends_on:
           - generalize-localization-infrastructure
-        status: pending
+        status: completed
         inputs:
           - "curriculum/course-plan.md"
           - "curriculum/chapters/01-text-units.md"
@@ -2268,6 +2268,9 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "https://doi.org/10.1111/j.2517-6161.1974.tb00994.x"
+          - "https://arxiv.org/abs/1609.07843"
+          - "https://arxiv.org/abs/2005.14165"
         outputs:
           - "curriculum/chapters/02-corpus-partitions.md"
           - "rust/crates/llm-from-scratch/src/corpus.rs"
@@ -2276,7 +2279,10 @@ builds:
           - "site/src/content/chapters/en/02-corpus-partitions.mdx"
           - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
           - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/lib/corpus-partitions-diagram.ts"
           - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
           - "rust/data/tiny-bilingual-corpus.txt"
           - "rust/data/README.md"
           - "rust/data/splits.json"
@@ -2310,8 +2316,104 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete localized chapter translation set using local deterministic work plus read-only primary-source verification; no dependency download, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260718T200355Z-implement-ch02-corpus-partitions-01
+            started_at: "2026-07-18T20:03:55Z"
+            finished_at: "2026-07-18T20:56:47Z"
+            status: succeeded
+            input_fingerprint:
+              git: "48179a02ae33b21a9083997085ebbec8b7e4582c"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:67b2e5f94a8a143457d53d2278c10f8b06e13bf108ddf85c7482a32386f67911"
+                DECISIONS.md: "sha256:6265647d7d0d5ce82e169243eab31e1b251354dce39e2f376c4c28ffa7639c1a"
+                curriculum/course-plan.md: "sha256:dd27d1833147853a0f81f30c9413df7b65bef3eb4115f042fdc7d874ed15cfac"
+                curriculum/chapters/01-text-units.md: "sha256:52d93bfb14ffee76d6ee7e2c6affd1fb7cb335d389f013280bb1888d0817dda4"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                rust/crates/llm-from-scratch/src/lib.rs: "sha256:2aea7224334fa4b4e24f5cde1ccea6e499ade8383f3ea1ed1b7dfc8054b1ccea"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-rust-demos.sh: "sha256:7e20345825b0241c982929d3349603d99af07d50d1faf70d4b15c416f5410b0a"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:9f655ee7c982b8578bd01aae09fd1e543ac227d410bee4dce677e17d6ee772bd"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T200355Z-implement-ch02-corpus-partitions-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read and validate the complete BUILD_STATE.yaml ledger, latest DECISIONS.md entries, Chapter 2 step contract, and prior successful localization run"
+              - "Verify the prior publication manifest, declared inputs, dependencies, clean working tree, and exact recorded toolchain"
+              - "sha256sum all material orchestration, curriculum, Rust, validation, lockfile, site, and locale inputs"
+              - "Create the run-specific staging directory"
+              - "Author and review the bilingual contract, original 12-document corpus, frozen manifest, cumulative Rust module, historical demo, locale-neutral diagram, English/Russian lessons, and browser coverage in the run staging tree"
+              - "Compile and test staged Rust directly; validate staged contract structure, localized projections, parity, Rust regions, diagram integration, and exact stdout before publication"
+              - "Publish the complete staged slice together, run cargo fmt, and regenerate Cargo.lock offline"
+              - "Verify Stone (1974), Merity et al. (2016), and Brown et al. (2020) primary-source pages before adding historical citations"
+              - "Run every declared canonical validation command, final read-only pedagogy/Rust/visual audits, and canonical/staged checksum verification"
+            artifacts:
+              - path: ".build/runs/20260718T200355Z-implement-ch02-corpus-partitions-01/publication.sha256"
+                sha256: "09527a6f5bf6b703be6c98cad7bf8e9eea7663a95836a80b8fa05469bef621fe"
+                notes: "Checksums for all 19 declared canonical product, fixture, shared integration, validation, and lockfile outputs; verified from both the repository and the synchronized staging tree."
+            validation:
+              - command: "staged rustc tests, demo build/output, contract structure, localized lesson projections, parity, Rust regions, diagram integration, and expected-output comparison"
+                status: passed
+                notes: "The unpublished overlay passed before canonical publication; the hardened corpus module has one real successful split plus independent invariant mutations."
+              - command: "first canonical cargo clippy and site unit passes"
+                status: failed
+                notes: "Clippy found one manual-contains lint; the global locale-ledger test exposed a pending-only synthetic status assumption, then its completion-state mutation needed scoping to the validate declaration rather than run history. All were corrected and their complete gates later passed."
+              - command: "first escalated focused Playwright pass"
+                status: failed
+                notes: "All Chapter 2 assertions except narrow overflow passed; diagnostics isolated the plan-mandated KaTeX formula, and the shared lesson shell now contains long display math locally."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The 39-chapter plan, 43 scheduled steps, and implemented prefix through Chapter 2 are coherent."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/02-corpus-partitions.md"
+                status: passed
+                notes: "The integrated contract, primary cumulative module, exact stdout, both locale projections, shared diagram, and primary historical citations pass."
+              - command: "cargo fmt --all -- --check"
+                status: passed
+              - command: "cargo clippy --workspace --all-targets --locked -- -D warnings"
+                status: passed
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All 16 workspace unit tests and all doc tests passed."
+              - command: "scripts/check-rust-dependencies.sh && scripts/check-rust-demos.sh && cargo run --quiet --locked -p ch02-corpus-partitions | diff -u rust/demos/ch02-corpus-partitions/expected.txt -"
+                status: passed
+                notes: "No external Rust crates are used, both demos are discovered, and Chapter 2 stdout is byte-exact."
+              - command: "npm --prefix site run check:chapter -- --locale en --chapter 02-corpus-partitions && npm --prefix site run check:chapter -- --locale ru --chapter 02-corpus-partitions && npm --prefix site run check:parity -- --chapter 02-corpus-partitions && npm --prefix site run check:content"
+                status: passed
+                notes: "Both natural lessons form one same-revision configured locale set; four localized sources and two chapters publish contiguously."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro reported zero errors, warnings, or hints across 29 files."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 40 Vitest assertions passed, including exact fixture/mutation, label completeness, locale activation, and component-source contracts."
+              - command: "npm --prefix site run build && npm --prefix site run test:links"
+                status: passed
+                notes: "The static build emitted nine pages; 139 local references across 70 artifacts passed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:02-corpus-partitions'"
+                status: passed
+                notes: "All three focused cached-browser tests passed for both locales at desktop/narrow widths, exact highlighted Rust, formula direction, fixture membership, responsive diagram, navigation, focus, overflow, and zero client scripts."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All ten complete cached-browser regression tests passed; the local preview/browser run required sandbox escalation only to bind loopback."
+              - command: "git diff --check && sha256sum -c .build/runs/20260718T200355Z-implement-ch02-corpus-partitions-01/publication.sha256 (canonical and staging)"
+                status: passed
+                notes: "No whitespace errors remain, and every declared publication artifact matches in both trees."
+            notes: "Completed as one localized chapter vertical slice with no new dependency, paid or generation service, or substantial CPU work. Read-only network access verified the three primary citations. Independent audits found and verified fixes for FNV collision wording, validation/test permissions, Russian naturalness, strict JSON whitespace, future-chapter E2E cardinality, RTL-safe localized styling, and the future-step traceability reference."
       - id: implement-ch03-learn-bpe-merges
         objective: "Learn one deterministic sequence of byte-pair merges from training documents only."
         depends_on:

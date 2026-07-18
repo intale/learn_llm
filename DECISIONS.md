@@ -892,3 +892,115 @@ keeps a stable reading order and localized prose follows its configured directio
 
 **Affected steps:** `generalize-localization-infrastructure`, any future
 locale-activation step, and all localized chapter routes
+
+## 2026-07-18 — Keep Chapter 2 diagram data locale-neutral and independently testable
+
+**Status:** Accepted within `implement-ch02-corpus-partitions` before product
+publication.
+
+**Context:** The Chapter 2 figure must render the checked-in Rust split fixture,
+reject incomplete or repeated assignments at static-build time, and accept natural
+copy for every configured spoken language without branching on locale inside the
+shared component. Keeping fixture parsing and label validation only in an Astro
+component would make those invariants difficult to unit-test directly.
+
+**Decision:** Add `site/src/lib/corpus-partitions-diagram.ts` to the step's declared
+outputs. It owns the locale-independent roles, manifest parser, exact-coverage
+validation, and structural label type. The Astro component owns semantic rendering
+and styling; each lesson owns all spoken-language strings. Counts use neutral
+label/value copy instead of English-specific plural templates.
+
+**Consequences:** A future locale supplies one reviewed labels object and lesson
+projection without modifying visualization logic. Fixture mutations, missing copy,
+and unknown roles fail locally before static publication.
+
+**Affected steps:** `implement-ch02-corpus-partitions`
+
+## 2026-07-18 — Freeze a hand-inspectable bilingual Chapter 2 corpus and track capstone scale risk
+
+**Status:** Accepted within `implement-ch02-corpus-partitions` before product
+publication.
+
+**Context:** Six English/Russian provenance pairs make whole-document leakage and
+paired-source boundaries directly inspectable. Four pairs train, one validates,
+and one tests. The resulting training partition is intentionally tiny (2,250 UTF-8
+bytes, roughly 254 whitespace-delimited units), while a later course gate requires
+the selected decoder to beat a frozen bigram baseline on untouched test loss.
+
+**Decision:** Freeze the original repository-authored 12-document fixture and its
+8/2/2 document assignment for Chapters 2 and 3. Treat 4/1/1 as a fixture-specific
+paired-group holdout, not a recommended universal ratio. Record final baseline
+feasibility as an explicit dependency to validate before the decoder-comparison
+chapters rely on this corpus; enlarge or regularize the corpus only through a new
+invalidating decision and replacement run.
+
+**Consequences:** Early lessons remain small enough to audit byte-for-byte, and
+English/Russian translations cannot cross holdout roles. The course does not assume
+that this pedagogical sample is already large enough for a statistically robust
+capstone comparison.
+
+**Affected steps:** `implement-ch02-corpus-partitions`, `implement-ch03-learn-bpe-merges`,
+and the future baseline/capstone comparison steps
+
+## 2026-07-18 — Make synthetic locale-ledger coverage independent of the live step transition
+
+**Status:** Accepted within `implement-ch02-corpus-partitions` after the first
+canonical unit-test pass exposed the stale assumption.
+
+**Context:** The synthetic third-locale test proves that completed chapters retain
+their historical locale outputs while pending or running chapters expand to the
+active locale set. Its Chapter 2 fixture converted only a literal `pending` status
+to `completed`. During the required lifecycle checkpoint, the real step is
+`running`, so the synthetic fixture stayed active and failed for the wrong reason.
+
+**Decision:** Include `site/tests/content-contract.test.ts` in this step's shared
+validation outputs and normalize Chapter 2's `pending`, `running`, or already
+`completed` status to `completed` inside that isolated synthetic block.
+
+**Consequences:** The locale-derivation assertion keeps testing immutable-versus-
+completable output behavior at every legitimate checkpoint transition. Product
+publication rules and the canonical ledger are unchanged.
+
+**Affected steps:** `implement-ch02-corpus-partitions` and future chapter runs that
+execute the global unit suite while their ledger status is `running`
+
+## 2026-07-18 — Contain long display formulas within the shared lesson column
+
+**Status:** Accepted within `implement-ch02-corpus-partitions` after narrow browser
+validation identified the overflowing element.
+
+**Context:** Chapter 2's plan-mandated disjoint-union formula is wider than the
+available lesson column at 390 CSS pixels. KaTeX correctly keeps the notation on
+one line, but its visible children extended the document to 419 pixels in both
+locales. The locale-neutral corpus diagram and all prose remained within bounds.
+
+**Decision:** Include the shared localized lesson route in this step's necessary
+integration outputs. Constrain `.katex-display` to the lesson width and give it an
+internal horizontal overflow boundary while preserving left-to-right mathematical
+direction and isolation.
+
+**Consequences:** Long notation remains unbroken and readable through local
+horizontal scrolling without making the page itself overflow. The behavior is
+shared by current and future spoken-language lessons and requires no locale branch.
+
+**Affected steps:** `implement-ch02-corpus-partitions` and future chapters with
+displayed formulas
+
+## 2026-07-18 — Scope ledger mutation tests to declarations, not immutable run history
+
+**Status:** Accepted within `implement-ch02-corpus-partitions` after the first
+completion-state validation rerun.
+
+**Context:** The ledger test that mutates Chapter 2's focused browser tag searched
+for the bare command text. Once a successful run record correctly repeated that
+command, the test could no longer identify a unique occurrence even though the
+ledger itself was valid.
+
+**Decision:** Match and replace the fully indented entry in the step's `validate`
+list. Leave the immutable command recorded under `runs.validation` untouched.
+
+**Consequences:** The test continues to prove that a malformed declared browser
+gate is rejected, while completed run evidence may faithfully repeat the command.
+
+**Affected steps:** `implement-ch02-corpus-partitions` and future completed steps
+whose run records repeat their declared validation commands

@@ -1,0 +1,347 @@
+---
+// @ts-ignore Node APIs are available during Astro's build-only component execution.
+import { readFile } from 'node:fs/promises';
+// @ts-ignore Node APIs are available during Astro's build-only component execution.
+import nodePath from 'node:path';
+
+import {
+  assertCorpusPartitionsDiagramLabels,
+  corpusPartitionsDiagramId,
+  createCorpusPartitionsDiagramData,
+  type CorpusPartitionsDiagramLabels,
+} from '../../lib/corpus-partitions-diagram';
+
+declare const process: { cwd(): string };
+
+interface Props {
+  labels: CorpusPartitionsDiagramLabels;
+  id?: string;
+}
+
+const { labels, id = corpusPartitionsDiagramId } = Astro.props;
+assertCorpusPartitionsDiagramLabels(labels);
+
+const workingDirectory = nodePath.resolve(process.cwd());
+const repositoryRoot =
+  nodePath.basename(workingDirectory) === 'site'
+    ? nodePath.dirname(workingDirectory)
+    : workingDirectory;
+const dataDirectory = nodePath.join(repositoryRoot, 'rust', 'data');
+const [corpusSource, manifestSource] = await Promise.all([
+  readFile(nodePath.join(dataDirectory, 'tiny-bilingual-corpus.txt'), 'utf8'),
+  readFile(nodePath.join(dataDirectory, 'splits.json'), 'utf8'),
+]);
+const partitions = createCorpusPartitionsDiagramData(
+  JSON.parse(manifestSource) as unknown,
+  corpusSource,
+);
+const assignedCount = partitions.reduce(
+  (count, partition) => count + partition.documents.length,
+  0,
+);
+const titleId = `${id}-title`;
+const descriptionId = `${id}-description`;
+---
+
+<figure
+  class="corpus-partitions-diagram"
+  data-visualization-id={corpusPartitionsDiagramId}
+  id={id}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId} dir="auto">{labels.title}</figcaption>
+  <p class="diagram-description" id={descriptionId} dir="auto">
+    {labels.description}
+  </p>
+
+  <ul class="partition-grid" aria-label={labels.partitionListLabel}>
+    {
+      partitions.map((partition) => {
+        const headingId = `${id}-${partition.role}-title`;
+        return (
+          <li class="partition-card" data-partition={partition.role}>
+            <section aria-labelledby={headingId}>
+              <header>
+                <code class="role-badge" dir="ltr">[{partition.badge}]</code>
+                <h3 id={headingId} dir="auto">
+                  {labels.roles[partition.role].title}
+                </h3>
+              </header>
+              <p class="partition-purpose" dir="auto">
+                {labels.roles[partition.role].purpose}
+              </p>
+              <p class="document-count" data-document-count={partition.documents.length}>
+                <span dir="auto">{labels.fields.documents}</span>
+                <strong dir="ltr">{partition.documents.length}</strong>
+              </p>
+              <ol
+                class="document-list"
+                aria-label={labels.roles[partition.role].documentListLabel}
+              >
+                {partition.documents.map((document) => (
+                  <li
+                    class="document-card"
+                    data-document-id={document.id}
+                    data-language={document.language}
+                    data-provenance-group={document.provenanceGroup}
+                  >
+                    <strong class="whole-document" dir="auto">
+                      {labels.fields.wholeDocument}
+                    </strong>
+                    <dl>
+                      <div>
+                        <dt dir="auto">{labels.fields.documentId}</dt>
+                        <dd><code dir="ltr">{document.id}</code></dd>
+                      </div>
+                      <div>
+                        <dt dir="auto">{labels.fields.language}</dt>
+                        <dd><code dir="ltr">{document.language}</code></dd>
+                      </div>
+                      <div>
+                        <dt dir="auto">{labels.fields.provenanceGroup}</dt>
+                        <dd><code dir="ltr">{document.provenanceGroup}</code></dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <div class="partition-summary" aria-live="off">
+    <p>
+      <span dir="auto">{labels.summary.assignedDocuments}</span>
+      <strong dir="ltr" data-assigned-count={assignedCount}>{assignedCount} / {assignedCount}</strong>
+    </p>
+    <p>
+      <span dir="auto">{labels.summary.repeatedIds}</span>
+      <strong dir="ltr" data-repeated-count="0">0</strong>
+    </p>
+  </div>
+
+  <ul class="partition-invariants" aria-label={labels.invariantsLabel}>
+    <li data-invariant="complete" dir="auto">{labels.invariants.complete}</li>
+    <li data-invariant="disjoint" dir="auto">{labels.invariants.disjoint}</li>
+    <li data-invariant="provenance" dir="auto">{labels.invariants.provenance}</li>
+  </ul>
+</figure>
+
+<style>
+  .corpus-partitions-diagram {
+    margin-block: 2rem;
+    padding: clamp(1rem, 3vw, 1.6rem);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .corpus-partitions-diagram:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.25rem;
+  }
+
+  figcaption {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .diagram-description {
+    max-width: 68ch;
+    margin: 0.65rem 0 0;
+    color: var(--muted);
+  }
+
+  .partition-grid,
+  .document-list,
+  .partition-invariants {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .partition-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-block-start: 1.5rem;
+  }
+
+  .partition-card {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-block-start: 0.32rem solid var(--accent);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .partition-card[data-partition="validation"] {
+    border-block-start-color: var(--warm);
+  }
+
+  .partition-card[data-partition="test"] {
+    border-block-start-color: var(--accent-dark);
+  }
+
+  .partition-card > section {
+    padding: 0.9rem;
+  }
+
+  header {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    min-width: 0;
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .role-badge,
+  .document-card code,
+  .partition-summary strong {
+    direction: ltr;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    unicode-bidi: isolate;
+  }
+
+  .role-badge {
+    flex: 0 0 auto;
+    color: var(--accent-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .partition-purpose {
+    min-height: 2.6em;
+    margin-block-start: 0.45rem;
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.3;
+  }
+
+  .document-count {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-block-start: 0.8rem;
+    padding-block: 0.45rem;
+    border-block: 1px solid var(--line);
+    font-size: 0.82rem;
+  }
+
+  .document-list {
+    display: grid;
+    gap: 0.65rem;
+    margin-block-start: 0.75rem;
+  }
+
+  .document-card {
+    min-width: 0;
+    padding: 0.65rem;
+    border: 1px dashed var(--line);
+    border-radius: 0.55rem;
+    background: rgba(247, 244, 236, 0.8);
+  }
+
+  .whole-document {
+    display: block;
+    color: var(--warm);
+    font-size: 0.7rem;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0.5rem 0 0;
+  }
+
+  dl > div {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 0.4rem;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.68rem;
+    overflow-wrap: anywhere;
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+    text-align: end;
+  }
+
+  dd code {
+    font-size: 0.68rem;
+    overflow-wrap: anywhere;
+  }
+
+  .partition-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin-block-start: 1.25rem;
+    padding: 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 0.65rem;
+  }
+
+  .partition-summary p {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .partition-invariants {
+    display: grid;
+    gap: 0.45rem;
+    margin-block-start: 1rem;
+  }
+
+  .partition-invariants li::before {
+    margin-inline-end: 0.45rem;
+    color: var(--accent-dark);
+    content: "✓";
+    font-weight: 800;
+  }
+
+  @media (max-width: 44rem) {
+    .partition-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .partition-purpose {
+      min-height: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .partition-card,
+    .document-card,
+    .partition-summary {
+      border-color: CanvasText;
+    }
+
+    .partition-invariants li::before {
+      color: CanvasText;
+    }
+  }
+</style>

@@ -1,0 +1,15 @@
+[package]
+name = "ch02-corpus-partitions"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true

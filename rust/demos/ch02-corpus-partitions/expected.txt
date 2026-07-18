@@ -1,0 +1,14 @@
+corpus checksum: fnv1a64:04786e7303f1dfd6
+documents: 12
+train: ["en-river-dawn", "ru-river-dawn", "en-clock-shop", "ru-clock-shop", "en-rain-library", "ru-rain-library", "en-bee-garden", "ru-bee-garden"]
+validation: ["en-night-station", "ru-night-station"]
+test: ["en-winter-window", "ru-winter-window"]
+complete: yes
+disjoint: yes
+provenance groups intact: yes
+historical excerpt A: ["north", "star", "glows"]
+historical excerpt B: ["star", "glows", "softly"]
+shared context: ["star", "glows"]
+safe split unit: whole source document
+chapter 3 tokenizer input: train only (8 documents)
+held out: validation=2 test=2

@@ -1,0 +1,374 @@
+---
+{
+  "chapter_id": "02-corpus-partitions",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 2,
+  "concept_id": "document-level-corpus-partitions",
+  "title": "Corpus documents and frozen partitions",
+  "description": "Freeze whole source documents into disjoint training, validation, and test partitions before a tokenizer or model can learn from them.",
+  "objective": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
+  "worked_inputs": "Repair a six-document manifest that assigns doc-04 twice and omits doc-06, then inspect the frozen 12-document bilingual corpus split.",
+  "formula": {
+    "latex": "\\mathcal{D}=\\mathcal{D}_{tr}\\mathbin{\\dot\\cup}\\mathcal{D}_{va}\\mathbin{\\dot\\cup}\\mathcal{D}_{te},\\quad \\mathcal{D}_{a}\\cap\\mathcal{D}_{b}=\\varnothing\\;(a\\ne b)",
+    "symbols": [
+      {
+        "symbol": "\\mathcal{D}",
+        "meaning": "the corpus as a set of whole source documents"
+      },
+      {
+        "symbol": "\\mathcal{D}_{tr}",
+        "meaning": "training documents, the only source of learned tokenizer or model statistics"
+      },
+      {
+        "symbol": "\\mathcal{D}_{va}",
+        "meaning": "validation documents reserved for later choices and checkpoint selection"
+      },
+      {
+        "symbol": "\\mathcal{D}_{te}",
+        "meaning": "test documents reserved for the final report"
+      },
+      {
+        "symbol": "tr,va,te",
+        "meaning": "the training, validation, and test partition labels"
+      },
+      {
+        "symbol": "\\dot\\cup",
+        "meaning": "disjoint union: every document is covered and none is repeated"
+      },
+      {
+        "symbol": "a,b",
+        "meaning": "any two partition labels chosen from tr, va, and te"
+      },
+      {
+        "symbol": "\\cap",
+        "meaning": "set intersection, the documents shared by two partitions"
+      },
+      {
+        "symbol": "\\varnothing",
+        "meaning": "the empty set, meaning no shared document"
+      },
+      {
+        "symbol": "a\\ne b",
+        "meaning": "the intersection condition compares distinct partitions only"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Training-set evaluation and random splitting of overlapping excerpts",
+    "summary": "An in-sample score measures performance on the text used for fitting, not out-of-sample behavior. Even with a holdout label, creating overlapping excerpts first and assigning them independently can place shared source context on both sides; stable whole-document assignment prevents that leakage class.",
+    "rust_source": "rust/demos/ch02-corpus-partitions/src/lib.rs"
+  },
+  "decoder_connection": "Chapter 3's BPE pair counter receives the validated partition's explicit training-only view of eight documents; validation and test bytes remain frozen, and every document boundary remains a barrier between pair-count sequences.",
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch02-corpus-partitions/src/lib.rs",
+      "region": "overlapping-excerpts",
+      "purpose": "Reveal the shared context hidden by separately named overlapping excerpts."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/corpus.rs",
+      "region": "document-loader",
+      "purpose": "Load stable whole-document boundaries and metadata before tokenization."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/corpus.rs",
+      "region": "partition-invariants",
+      "purpose": "Validate the frozen split before exposing borrowed document views."
+    },
+    {
+      "path": "rust/demos/ch02-corpus-partitions/src/main.rs",
+      "region": "chapter-output",
+      "purpose": "Run the canonical fixture and print its deterministic audit trail."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "corpus-partitions",
+    "rationale": "Three peer lists of whole document cards make exact coverage, partition counts, preserved provenance pairs, and the absence of repeated IDs easier to verify than prose alone."
+  }
+}
+---
+
+import CorpusPartitionsDiagram from '../../../components/chapters/CorpusPartitionsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'One corpus, three disjoint document sets',
+  description:
+    'Inspect the frozen whole-document assignments. Every translated pair stays together, and no document can teach the tokenizer from a held-out role.',
+  partitionListLabel: 'Corpus partitions',
+  roles: {
+    train: {
+      title: 'Training',
+      purpose: 'Used to learn',
+      documentListLabel: 'Training documents',
+    },
+    validation: {
+      title: 'Validation',
+      purpose: 'Used to choose',
+      documentListLabel: 'Validation documents',
+    },
+    test: {
+      title: 'Test',
+      purpose: 'Used once for final evidence',
+      documentListLabel: 'Test documents',
+    },
+  },
+  fields: {
+    documents: 'Documents',
+    wholeDocument: 'Whole document',
+    documentId: 'Document ID',
+    language: 'Language',
+    provenanceGroup: 'Provenance group',
+  },
+  summary: {
+    assignedDocuments: 'Assigned documents',
+    repeatedIds: 'Repeated IDs',
+  },
+  invariantsLabel: 'Verified partition invariants',
+  invariants: {
+    complete: 'Complete: every corpus ID appears',
+    disjoint: 'Disjoint: no corpus ID repeats',
+    provenance: 'Paired provenance stays in one partition',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Audit IDs before looking at text
+
+Suppose a six-document corpus has the stable IDs `doc-01` through `doc-06`.
+Before reading further, find the faults in this tempting split:
+
+```text
+train      = [doc-01, doc-02]
+validation = [doc-03, doc-04]
+test       = [doc-04, doc-05]
+```
+
+There are two independent failures. `doc-04` belongs to both validation and test,
+so those sets intersect. `doc-06` belongs to no set, so their union does not cover
+the corpus. One repair is:
+
+```text
+train      = [doc-01, doc-02]
+validation = [doc-03, doc-04]
+test       = [doc-05, doc-06]
+```
+
+Now ask a harder question: what is the unit represented by each ID? If two IDs
+name overlapping slices of one source document, distinct labels do not prevent
+shared words or surrounding context from crossing the boundary. This chapter
+therefore assigns the original whole document first. Token units and learning
+windows may be created only afterward and only inside the selected role.
+
+The repository fixture contains twelve short UTF-8 documents: English and Russian
+versions of six scenes. A translated pair shares one provenance group and must stay
+together. Four pairs supply eight training documents; one pair supplies two
+validation documents; the final pair supplies two test documents. These are small,
+auditable fixture counts—not a universal recommendation for split ratios.
+
+{/* chapter-section:formula */}
+
+## Coverage and separation in one statement
+
+The split's set invariant is:
+
+$$
+\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)
+$$
+
+The dotted union says two things at once: the three roles cover the entire corpus,
+and their membership does not overlap. The intersection clause repeats the second
+promise explicitly for every pair of distinct roles. Only the training set may
+teach BPE merges or model parameters. Validation may later guide choices, while
+test remains sealed for the final report.
+
+This notation is necessary but not sufficient for the code contract. It says
+nothing about empty roles, byte drift, unknown IDs, source order, provenance pairs,
+or whether the sample represents a broader population. Rust checks those operational
+properties separately.
+
+{/* chapter-section:symbol-glossary */}
+
+## Symbol glossary
+
+| Symbol | Meaning |
+| :--- | :--- |
+| $\mathcal{D}$ | the corpus as a set of whole source documents |
+| $\mathcal{D}_{tr}$ | training documents, the only source of learned tokenizer or model statistics |
+| $\mathcal{D}_{va}$ | validation documents reserved for later choices and checkpoint selection |
+| $\mathcal{D}_{te}$ | test documents reserved for the final report |
+| $tr,va,te$ | the training, validation, and test partition labels |
+| $\dot\cup$ | disjoint union: every document is covered and none is repeated |
+| $a,b$ | any two partition labels chosen from $tr$, $va$, and $te$ |
+| $\cap$ | set intersection, the documents shared by two partitions |
+| $\varnothing$ | the empty set, meaning no shared document |
+| $a\ne b$ | the intersection condition compares distinct partitions only |
+
+Notice what is absent: there is no required percentage in the formula. The
+appropriate ratio depends on data volume and evaluation goals. Here the invariant
+is exact membership, while `8 / 2 / 2` is merely the checked fixture assignment.
+
+{/* chapter-section:history */}
+
+## Before dependable holdout boundaries
+
+Evaluating on fitted text was historically convenient, but a training score answers
+how well a system fits observations it already saw. It does not provide independent
+evidence about new text. Cross-validation and fixed holdouts developed to separate
+fitting from predictive assessment; language modeling adds the subtle question of
+where the underlying source boundary lies.
+
+A common-looking but unsafe sequence is: create many partly overlapping excerpts,
+give each excerpt a fresh ID, then randomly distribute those IDs. The runnable
+contrast starts from `north star glows softly` and makes two three-word windows.
+They have different positions and names, yet both contain `star glows`:
+
+<RustSource
+  path="rust/demos/ch02-corpus-partitions/src/lib.rs"
+  region="overlapping-excerpts"
+  caption="Different excerpt IDs with shared source context"
+  label="Rust functions that build overlapping word windows and reveal their shared words"
+/>
+
+For the historical trail, Stone's 1974 paper formalizes
+[cross-validatory choice and assessment](https://doi.org/10.1111/j.2517-6161.1974.tb00994.x).
+Merity et al. later introduce the long-context
+[WikiText language-modeling corpus](https://arxiv.org/abs/1609.07843), while Brown
+et al. include a dedicated
+[training-data contamination analysis](https://arxiv.org/abs/2005.14165) for a
+large language model.
+
+Whole-document assignment prevents that particular leakage path. It does not prove
+that the corpus is representative, nor does an ID detect every copied or
+near-duplicate passage. Validation also is not untouched once it guides a decision.
+The test partition, by contrast, is reserved for final evidence in this course.
+
+{/* chapter-section:rust-implementation */}
+
+## Enforce the boundary in Rust
+
+`Corpus::from_utf8` accepts bytes rather than a prevalidated string, so invalid
+UTF-8 remains observable. Explicit `%% document` and `%% end` markers preserve the
+unit that will be partitioned. The loader rejects missing boundaries, blank bodies,
+duplicate IDs, and byte-identical duplicate bodies while retaining source order,
+language, and provenance metadata:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/corpus.rs"
+  region="document-loader"
+  caption="Load whole documents before tokenization"
+  label="Rust implementation that parses UTF-8 corpus bytes into stable whole documents"
+/>
+
+The loader computes a deterministic 64-bit FNV-1a checksum of the original bytes.
+A match detects the accidental mutations exercised by the tests, but FNV collisions
+exist: it is not proof of byte identity, authorship, licensing, or trustworthy
+provenance.
+
+The manifest parser handles only this repository's narrow JSON schema. Parsing is
+plumbing; the learning boundary is `partition`. It rejects a wrong schema or
+strategy, checksum drift, unknown or repeated IDs, omissions, empty roles, reordered
+IDs, and a provenance group split between roles. Only after every check succeeds
+does it return borrowed document views:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/corpus.rs"
+  region="partition-invariants"
+  caption="Validate before exposing partition views"
+  label="Rust implementation of checksum, coverage, disjointness, order, and provenance validation"
+/>
+
+The executable joins the canonical corpus and manifest, prints every assignment,
+then uses `training_documents()` for the Chapter 3 handoff:
+
+<RustSource
+  path="rust/demos/ch02-corpus-partitions/src/main.rs"
+  region="chapter-output"
+  caption="The deterministic Chapter 2 audit"
+  label="Rust main function that validates and reports the frozen corpus partitions"
+/>
+
+Run the tests before comparing the checked output:
+
+```text
+cargo test --workspace --locked
+cargo run --quiet --locked -p ch02-corpus-partitions | diff -u rust/demos/ch02-corpus-partitions/expected.txt -
+```
+
+The focused tests include a successful three-way assignment and independent
+mutations for malformed UTF-8 and JSON, checksum drift, missing, repeated, unknown,
+or reordered IDs, empty roles, and split provenance. A successful `diff` prints
+nothing.
+
+{/* chapter-section:visualization */}
+
+## Verify all twelve assignments at a glance
+
+The three regions below are peer sets, not steps in a left-to-right pipeline.
+Read each card as one indivisible source document. Badges, headings, counts, borders,
+stable IDs, and the summary carry the partition information without relying on
+color. English and Russian partners share a provenance label and appear in the same
+region.
+
+<CorpusPartitionsDiagram labels={diagramLabels} />
+
+The diagram is built directly from the same corpus and `splits.json` used by Rust.
+It refuses duplicate, missing, unknown, reordered, or cross-provenance assignments
+during the static build. On a narrow screen the regions stack, but membership and
+source order remain unchanged.
+
+{/* chapter-section:exercises */}
+
+## Predict, then validate
+
+1. For the rejected six-ID split, write the union and the three pairwise
+   intersections before repairing it.
+2. Decide which role may count BPE pairs, which may choose a checkpoint, and which
+   may supply the final reported loss.
+3. Explain why two separately named overlapping excerpts can still leak context.
+4. Predict the error after adding `doc-07` to the corpus without changing the
+   manifest.
+5. Explain why reversing a role's IDs preserves set membership but breaks the
+   reproducible ordering contract.
+6. State what a matching FNV value reports and why it is not proof of byte identity.
+7. Name one risk that a valid deterministic document split still cannot eliminate.
+
+<details>
+  <summary>Check your predictions</summary>
+
+  1. The union omits `doc-06`; validation intersects test at `doc-04`. The other
+     pairwise intersections are empty. A valid repair assigns `doc-05` and
+     `doc-06` to test once each.
+  2. Training counts BPE pairs, validation may choose a checkpoint, and test is
+     used once for final evidence.
+  3. New IDs do not erase shared source words or surrounding context.
+  4. Validation reports that the manifest does not cover `doc-07`.
+  5. Sets ignore order, but deterministic downstream iteration and audit output do
+     not; the validator therefore preserves corpus source order.
+  6. It reports that recomputation produced the recorded 64-bit drift value. A
+     collision is possible, so this is not proof of identical bytes, authorship,
+     licensing, or cryptographic authenticity.
+  7. Examples include sampling bias, unrelated near-duplicates, and future
+     distribution shift.
+</details>
+
+Change a copied manifest only after the fixed case passes. For each mutation,
+predict which invariant rejects it before running the test.
+
+{/* chapter-section:decoder-connection */}
+
+## Hand only training documents to BPE
+
+Chapter 3 receives `partitions.training_documents()`: eight borrowed whole
+documents and no validation or test view. Its adjacent-byte pair counter will reset
+at every document boundary, so neither a pair nor a later training window may bridge
+two sources. Holdout bytes contribute no learned vocabulary or merge rank.
+
+Each candidate tokenizer or model configuration fits its normalization rules,
+merge statistics, vocabulary, and weights on training documents. Validation may
+compare those training-fitted candidates and select a checkpoint; it contributes
+no fitting counts or gradients. Test neither fits nor selects and is used only for
+the final loss report. This role boundary survives every later chapter, from BPE
+through the final decoder comparison.

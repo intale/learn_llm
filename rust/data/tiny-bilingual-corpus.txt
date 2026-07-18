@@ -1,0 +1,47 @@
+%% document en-river-dawn en pair-river-dawn
+At dawn, Mira carries a blue notebook to the river. She writes down the wind direction, counts three boats, and circles the quietest bend. Before leaving, she checks every number once more.
+%% end
+
+%% document ru-river-dawn ru pair-river-dawn
+На рассвете Мира приносит к реке синюю тетрадь. Она записывает направление ветра, считает три лодки и обводит самое тихое излучье. Перед уходом она ещё раз проверяет каждое число.
+%% end
+
+%% document en-clock-shop en pair-clock-shop
+The clock shop opens when the square is still empty. Leon listens to each mechanism, replaces one worn spring, and sets the hands to noon. By the first customer, twelve clocks are ticking together.
+%% end
+
+%% document ru-clock-shop ru pair-clock-shop
+Часовая мастерская открывается, когда площадь ещё пуста. Леон слушает каждый механизм, меняет одну изношенную пружину и ставит стрелки на полдень. К приходу первого посетителя двенадцать часов тикают вместе.
+%% end
+
+%% document en-rain-library en pair-rain-library
+Rain taps the library windows while Ada sorts returned books. She places travel journals on the lower shelf and astronomy guides above them. A paper list helps her return every volume to the right room.
+%% end
+
+%% document ru-rain-library ru pair-rain-library
+Дождь стучит по окнам библиотеки, пока Ада разбирает возвращённые книги. Путевые дневники она ставит на нижнюю полку, а справочники по астрономии — выше. Бумажный список помогает вернуть каждый том в нужный зал.
+%% end
+
+%% document en-bee-garden en pair-bee-garden
+In the garden, Noor marks the flowers that open before noon. Bees visit the yellow cups first, then move toward the purple rows. Noor keeps the paths clear so the same walk can be repeated tomorrow.
+%% end
+
+%% document ru-bee-garden ru pair-bee-garden
+В саду Нур отмечает цветы, которые раскрываются до полудня. Пчёлы сначала летят к жёлтым чашечкам, затем перемещаются к фиолетовым рядам. Нур освобождает дорожки, чтобы завтра повторить тот же маршрут.
+%% end
+
+%% document en-night-station en pair-night-station
+At the evening station, a red lamp signals the last local train. Ilya reads the platform number aloud and waits until every door is closed. The rails become quiet after the carriage turns north.
+%% end
+
+%% document ru-night-station ru pair-night-station
+На вечерней станции красный фонарь подаёт сигнал последнему пригородному поезду. Илья вслух называет номер платформы и ждёт, пока закроется каждая дверь. Когда вагон поворачивает на север, рельсы затихают.
+%% end
+
+%% document en-winter-window en pair-winter-window
+Frost draws pale branches across the kitchen window. Sonya warms a small cup, watches sparrows gather by the fence, and notes the time of sunrise. The marks melt when the room grows bright.
+%% end
+
+%% document ru-winter-window ru pair-winter-window
+Мороз рисует светлые ветви на кухонном окне. Соня греет маленькую чашку, наблюдает, как воробьи собираются у забора, и записывает время восхода. Когда комната наполняется светом, узоры тают.
+%% end
