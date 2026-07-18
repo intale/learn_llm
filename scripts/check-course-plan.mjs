@@ -124,8 +124,8 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
 
   assert(metadata.plan_id === "tiny-decoder-llm-rust", `${path}: unexpected plan_id`);
   assert(
-    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 3,
-    `${path}: plan_revision must include the derived implementation-state contract`,
+    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 4,
+    `${path}: plan_revision must include the static Rust-highlighting prerequisite`,
   );
   assert(Array.isArray(chapters), `${path}: chapters must be an array`);
   assert(metadata.chapter_count === chapters.length, `${path}: chapter_count does not match chapters`);
@@ -140,6 +140,14 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
     `${path}: chapter 1 must record its completed revision-2 disposition`,
   );
   assert(metadata.scheduling?.default?.includes("one complete bilingual chapter"), `${path}: missing one-step-per-chapter scheduling rule`);
+  assert(
+    JSON.stringify(metadata.scheduling?.pre_chapter_2_steps) ===
+      JSON.stringify([
+        "establish-scalable-chapter-delivery",
+        "add-static-rust-syntax-highlighting",
+      ]),
+    `${path}: pre-Chapter-2 prerequisites must include delivery hardening and static Rust highlighting`,
+  );
   assert(Array.isArray(metadata.scheduling?.planned_chapter_splits), `${path}: planned_chapter_splits must be an array`);
   assert(Array.isArray(metadata.scheduling?.split_requires) && metadata.scheduling.split_requires.length >= 4, `${path}: split criteria are incomplete`);
 
@@ -244,7 +252,7 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
   const expectedIds = [
     "define-complete-curriculum",
     chapterSteps[0],
-    "establish-scalable-chapter-delivery",
+    ...metadata.scheduling.pre_chapter_2_steps,
     ...chapterSteps.slice(1),
   ];
 

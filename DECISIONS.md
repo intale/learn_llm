@@ -721,3 +721,36 @@ authoring metadata is migrated to the stricter reusable contract.
 
 **Affected steps:** `establish-scalable-chapter-delivery` and every
 `implement-chNN-*` step from Chapter 2 onward
+
+## 2026-07-18 — Highlight Rust excerpts at static build time
+
+**Status:** Accepted; adds a user-requested cross-cutting prerequisite before
+Chapter 2.
+
+**Context:** The shared `RustSource.astro` component safely reads canonical Rust
+files and regions, but renders their contents as one unstyled text node. Astro's
+Markdown pipeline already uses the locked Shiki highlighter at build time, so
+fenced blocks receive token markup while the course's four visible Chapter 1 Rust
+excerpts do not. A browser-side highlighter would add runtime JavaScript to a
+site that deliberately ships static HTML.
+
+**Decision:** Add `add-static-rust-syntax-highlighting` immediately before the
+first remaining chapter step. Render `RustSource` excerpts through Astro's public
+`Code` component with the Rust grammar and `github-dark-high-contrast` theme, and
+explicitly use the same Shiki theme for Markdown fences. The ordinary
+`github-dark` comment color does not meet normal-text contrast against its
+background at the course's code size. Preserve source-path validation, region
+extraction, exact visible source text, captions, accessible labels, keyboard
+focus, and overflow behavior. Add rendered checks in both locales for tokenized
+markup, multiple syntax colors, shared fenced-code theme, focus, and absence of
+client scripts. Do not add a package or browser runtime.
+
+**Consequences:** Current and future Rust excerpts are highlighted in generated
+HTML consistently with Markdown code fences. The plan advances to revision 4 and
+derives its pre-Chapter-2 prerequisite sequence from metadata; Chapter 2 remains
+one untouched vertical slice and starts only after this step is validated and
+committed independently.
+
+**Affected steps:** `add-static-rust-syntax-highlighting`,
+`implement-ch02-corpus-partitions`, and every later chapter step that uses
+`RustSource`

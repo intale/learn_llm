@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 3,
+  "plan_revision": 4,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "chapter_1_disposition": {
@@ -22,6 +22,10 @@
   "scheduling": {
     "default": "one complete bilingual chapter vertical slice per agent step and commit",
     "legacy_exception": "Chapter 1 used separate scaffold/outline/Rust/visualization/locale/integration steps while the delivery system was being proven.",
+    "pre_chapter_2_steps": [
+      "establish-scalable-chapter-delivery",
+      "add-static-rust-syntax-highlighting"
+    ],
     "planned_chapter_splits": [],
     "split_requires": [
       "an expensive or non-repeatable artifact with its own useful acceptance boundary",
@@ -484,9 +488,10 @@ These are actual chapters with their own learning outcomes, not workflow fragmen
 
 ## One chapter, one vertical-slice step
 
-After the Chapter 1 revision and one reusable delivery-gate hardening step, every
-chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit. Outline,
-Rust, visualization, English, Russian, and integration are phases of the same run.
+After the Chapter 1 revision and the two recorded cross-cutting prerequisites,
+every chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
+Outline, Rust, visualization, English, Russian, and integration are phases of the
+same run.
 
 Each chapter run must:
 
@@ -525,7 +530,13 @@ ID/order/dependency/terminology checks, contract-to-both-lessons checks,
 contract-to-demo-output equality, an all-demo runner, stable browser tags, shared
 bilingual route assertions, useful-diagram presence, and previous/next navigation.
 
-The post-infrastructure gate for every chapter is:
+The user-requested `add-static-rust-syntax-highlighting` prerequisite then makes
+the shared Rust-source renderer emit build-time Shiki token markup, using the same
+explicit theme as Markdown fences and no client-side script. It is intentionally
+separate from Chapter 2 so every later chapter inherits readable code without
+expanding that chapter's teaching objective.
+
+The post-prerequisite gate for every chapter is:
 
 ```text
 node scripts/check-course-plan.mjs

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T18:20:45Z"
+updated_at: "2026-07-18T18:42:21Z"
 
 environment:
   os: "Linux x86_64"
@@ -1419,7 +1419,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -1886,10 +1886,151 @@ builds:
                 status: passed
                 notes: "All 18 canonical outputs match the staged manifest; the runner is executable; BUILD_STATE.yaml parses; git diff --check passes; only declared outputs plus state and decisions changed."
             notes: "Completed locally with locked Rust/Astro/Vitest dependencies and cached Chromium, without network downloads, dependency changes, paid services, generation services, or substantial CPU use. Plan revision 3 derives implementation state from contracts; every future chapter remains one bilingual committed vertical slice with exact plan/contract/lesson/Rust/diagram identity, meaningful rendered evidence, scalable static navigation, and data-driven demo validation. Chapter 1 remains content revision 2; only its authoring metadata migrated to the stronger reusable schema. The next eligible step is implement-ch02-corpus-partitions."
+      - id: add-static-rust-syntax-highlighting
+        objective: "Render every course Rust excerpt with readable build-time syntax highlighting in the generated static HTML."
+        depends_on:
+          - establish-scalable-chapter-delivery
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+          - curriculum/course-plan.md
+          - rust/demos/ch01-text-units/src/lib.rs
+          - rust/demos/ch01-text-units/src/main.rs
+          - scripts/check-course-plan.mjs
+          - site/astro.config.mjs
+          - site/src/components/RustSource.astro
+          - site/tests/content-contract.test.ts
+          - site/tests/e2e/ch01-text-units.spec.ts
+          - site/package.json
+          - site/package-lock.json
+        outputs:
+          - curriculum/course-plan.md
+          - scripts/check-course-plan.mjs
+          - site/astro.config.mjs
+          - site/src/components/RustSource.astro
+          - site/tests/content-contract.test.ts
+          - site/tests/e2e/ch01-text-units.spec.ts
+        acceptance:
+          - "All RustSource excerpts in both Chapter 1 locales render Rust token spans with more than one syntax color while preserving the exact source text."
+          - "Highlighting is produced during the Astro build, adds no client-side script, and uses the same explicit theme as fenced Markdown code."
+          - "Highlighted code keeps its caption, accessible label, keyboard focus, bounded height, and horizontal scrolling without page overflow."
+          - "The course plan and ledger record this prerequisite before Chapter 2, and this completed step is persisted in its own Git commit."
+        validate:
+          - "node --check scripts/check-course-plan.mjs"
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:01-text-units'"
+          - "npm --prefix site run test:e2e"
+          - "git diff --check"
+        cost:
+          class: small
+          notes: "Local static-site and regression-test edits using Astro's already locked build-time Shiki integration; no network, dependency change, browser download, paid service, generation service, or substantial CPU use."
+        runs:
+          - run_id: 20260718T183202Z-add-static-rust-syntax-highlighting-01
+            started_at: "2026-07-18T18:32:02Z"
+            finished_at: "2026-07-18T18:42:21Z"
+            status: succeeded
+            input_fingerprint:
+              git: "e6390937f495752e1f0f2d459dff39b2b8541112"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:bf1e04e2e039f49f286cb59c23a2033f18f9dbbd795ae98db4e0a68abc985b93"
+                DECISIONS.md: "sha256:6ff2828510ce880be72edc8806652e8d6c585102cb2437089a34647c2c08ddac"
+                curriculum/course-plan.md: "sha256:0bc38d66ed5f055a9014599e63d50364007c5420845bff8b78ecd2449f85eaa4"
+                rust/demos/ch01-text-units/src/lib.rs: "sha256:84a7c2023949b880ff10cc0f41b05294dfd2484ab91f74c0ef9fd2f21671d700"
+                rust/demos/ch01-text-units/src/main.rs: "sha256:6a1ff4c54cb23d4a2ff976cfdb74394ec92f53e35deccd6944cb27856879ab8a"
+                scripts/check-course-plan.mjs: "sha256:d16e80cec83b9c022692078b16bf70f6fbf30f94990975de27833e645c6ad35e"
+                site/astro.config.mjs: "sha256:a5817d8e6526aa96f9f4f9ccb9f63b90193bd82feecd432cbaa182492c54fc33"
+                site/src/components/RustSource.astro: "sha256:35a88a9b5b0ba1dc88fdf8f18680447c9a634f4ca95f39dd331ec680754b2436"
+                site/tests/content-contract.test.ts: "sha256:e68afda9c5e927cc7701bca626b84aec7741a990697ca7101defbdbaa1cd0206"
+                site/tests/e2e/ch01-text-units.spec.ts: "sha256:093b793108cb490084f6fb9a98636274aee21810ab393875df0647536f10be7f"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T183202Z-add-static-rust-syntax-highlighting-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md and BUILD_STATE.yaml, inspect relevant DECISIONS.md entries and the latest completed run, and compare the recorded toolchain"
+              - "Audit RustSource, Astro Markdown configuration, locked packages, existing tests, and generated HTML"
+              - "Run an independent read-only highlighting audit"
+              - "sha256sum material plan, configuration, component, browser-test, and package inputs"
+              - "Create the run-specific staging directory"
+              - "Insert the cross-cutting prerequisite into plan revision 4 and the dependency ledger"
+              - "Render RustSource through Astro's public build-time Code component and configure one high-contrast Shiki theme for component and Markdown paths"
+              - "Add plan-drift and bilingual rendered highlighting regressions, including exact canonical source-text comparison"
+              - "Build and inspect both localized static chapter outputs"
+              - "Run focused and complete cached-Chromium browser suites against an approved localhost preview"
+              - "Run two independent read-only implementation and generated-output reviews"
+              - "Create and verify the immutable publication manifest and manual review"
+            artifacts:
+              - path: ".build/runs/20260718T183202Z-add-static-rust-syntax-highlighting-01/publication.sha256"
+                checksum: "sha256:e646a350c129a6614a984bf82d1b952ea4beba0152d62817b5f5b6820dfe68f7"
+                notes: "Checksums for the six declared canonical outputs."
+              - path: ".build/runs/20260718T183202Z-add-static-rust-syntax-highlighting-01/manual-review.md"
+                checksum: "sha256:9711660d5234b643bc0af2f88553038c805efac9b164225b4c1475857d0dbae1"
+                notes: "Static-runtime, exact-source, theme-contrast, accessibility, dependency, and independent-review evidence."
+            validation:
+              - command: "node --check scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The revised plan validator parses as JavaScript."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Validated 39 reviewed chapters, the exact 42-step ledger, and one implemented contract through Chapter 1."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "Both localized sources, their publishable pair, and all 18 catalog keys remain valid."
+              - command: "npm --prefix site run check (intermediate exact-source-test edit)"
+                status: failed
+                notes: "The first exact-source browser assertion used Node APIs without the repository's local TypeScript declarations; build-only test-runner declarations were added before rerunning."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro reported 0 errors, 0 warnings, and 0 hints across 24 files after the correction."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 21 Vitest checks passed, including the new plan-prerequisite drift mutation."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "The production static build emitted all seven routes with high-contrast token markup."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "Validated 115 local references across seven HTML files and 68 static artifacts."
+              - command: "Localized generated-HTML highlighting inspection"
+                status: passed
+                notes: "Each locale contains four Rust blocks and one fenced text block on the shared high-contrast theme, with zero script elements."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:01-text-units' (initial sandboxed attempt)"
+                status: failed
+                notes: "The restricted sandbox denied the local preview bind with listen EPERM before any test ran; no product validation failed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:01-text-units'"
+                status: passed
+                notes: "All three focused browser tests passed for English, Russian, desktop, narrow, exact source text, token colors, shared theme, focus, overflow, and zero client scripts."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All six canonical cached-Chromium tests passed."
+              - command: "git diff --check"
+                status: passed
+                notes: "All reviewed changes are free of whitespace errors."
+              - command: "Independent implementation and generated-output reviews"
+                status: passed
+                notes: "Two read-only reviewers found no remaining correctness, accessibility, static-runtime, dependency, test-robustness, plan-ledger, or scope blockers after the high-contrast correction."
+              - command: "sha256sum -c .build/runs/20260718T183202Z-add-static-rust-syntax-highlighting-01/publication.sha256"
+                status: passed
+                notes: "All six declared canonical outputs match the immutable run manifest."
+            notes: "Completed locally with Astro 7.1.1's already locked Shiki integration and cached Chromium. Both locales now ship exact canonical Rust regions as accessible high-contrast static token markup, fenced code uses the same theme, and no runtime script or dependency was added. No external network, browser download, paid service, generation service, or substantial CPU was used; elevated permission only allowed the local Playwright preview to bind to 127.0.0.1. The next eligible step is implement-ch02-corpus-partitions."
       - id: implement-ch02-corpus-partitions
         objective: "Partition an original bilingual corpus into disjoint train, validation, and test documents before learning any tokenizer or model statistic."
         depends_on:
-          - establish-scalable-chapter-delivery
+          - add-static-rust-syntax-highlighting
         status: pending
         inputs:
           - "curriculum/course-plan.md"

@@ -1,3 +1,8 @@
+// @ts-ignore Node APIs are available in the Playwright test runner.
+import { readFileSync } from 'node:fs';
+// @ts-ignore Node APIs are available in the Playwright test runner.
+import { resolve } from 'node:path';
+
 import { expect, test, type Page } from '@playwright/test';
 
 import {
@@ -13,9 +18,34 @@ import {
   type CourseChapterLink,
 } from './chapter-helpers';
 
+declare const process: { cwd(): string };
+
 const chapterId = '01-text-units';
 const contentRevision = 2;
 const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
+const rustDemoDirectory = resolve(
+  process.cwd(),
+  '../rust/demos/ch01-text-units/src',
+);
+
+function readRustRegion(fileName: string, region: string): string {
+  const lines = readFileSync(resolve(rustDemoDirectory, fileName), 'utf8').split(
+    /\r?\n/,
+  );
+  const start = lines.indexOf(`// region:${region}`);
+  const end = lines.indexOf(`// endregion:${region}`);
+  if (start === -1 || end <= start) {
+    throw new Error(`Missing ordered Rust region ${region} in ${fileName}`);
+  }
+  return lines.slice(start + 1, end).join('\n');
+}
+
+const expectedRustSources = [
+  readRustRegion('lib.rs', 'historical-splitting'),
+  readRustRegion('lib.rs', 'text-representations'),
+  readRustRegion('lib.rs', 'vocabulary'),
+  readRustRegion('main.rs', 'chapter-output'),
+];
 
 const copy = {
   en: {
@@ -128,6 +158,42 @@ async function expectChapterContent(
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(4);
+  const highlightedRust = rustSources.locator(
+    'pre.rust-source-code.astro-code.github-dark-high-contrast[data-language="rust"]',
+  );
+  await expect(highlightedRust).toHaveCount(4);
+  await expect(
+    page.locator(
+      '.lesson-body pre.astro-code.github-dark-high-contrast[data-language="text"]',
+    ),
+  ).toHaveCount(1);
+  const highlightingEvidence = await highlightedRust.evaluateAll((blocks) =>
+    blocks.map((block) => ({
+      lineCount: block.querySelectorAll('code > span.line').length,
+      tokenColors: [
+        ...new Set(
+          Array.from(
+            block.querySelectorAll<HTMLElement>('code span[style*="color"]'),
+          )
+            .map((token) => token.style.color)
+            .filter(Boolean),
+        ),
+      ],
+      tabIndex: block.getAttribute('tabindex'),
+      label: block.getAttribute('aria-label'),
+    })),
+  );
+  for (const evidence of highlightingEvidence) {
+    expect(evidence.lineCount).toBeGreaterThan(0);
+    expect(evidence.tokenColors.length).toBeGreaterThan(1);
+    expect(evidence.tabIndex).toBe('0');
+    expect(evidence.label).toBeTruthy();
+  }
+  expect(
+    await highlightedRust.locator('code').evaluateAll((blocks) =>
+      blocks.map((block) => block.textContent),
+    ),
+  ).toEqual(expectedRustSources);
   expect(
     await rustSources.evaluateAll((sources) =>
       sources.map((source) => source.getAttribute('data-source-region')),

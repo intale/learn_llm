@@ -3,6 +3,7 @@
 import { readFile } from 'node:fs/promises';
 // @ts-ignore Node APIs are available during Astro's build-only component execution.
 import nodePath from 'node:path';
+import { Code } from 'astro:components';
 
 declare const process: { cwd(): string };
 
@@ -88,7 +89,14 @@ const sourceLabel =
       </figcaption>
     )
   }
-  <pre tabindex="0" aria-label={sourceLabel}><code class="language-rust">{source}</code></pre>
+  <Code
+    code={source}
+    lang="rust"
+    theme="github-dark-high-contrast"
+    class="rust-source-code"
+    tabindex="0"
+    aria-label={sourceLabel}
+  />
 </figure>
 
 <style>
@@ -97,7 +105,7 @@ const sourceLabel =
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
-    background: #15201c;
+    background: #0a0c10;
     box-shadow: var(--shadow);
     color: #f5f1e8;
   }
@@ -118,7 +126,7 @@ const sourceLabel =
     font-size: 0.75rem;
   }
 
-  pre {
+  .rust-source :global(.rust-source-code) {
     max-height: 38rem;
     margin: 0;
     overflow: auto;
@@ -129,7 +137,7 @@ const sourceLabel =
     tab-size: 2;
   }
 
-  pre:focus-visible {
+  .rust-source :global(.rust-source-code:focus-visible) {
     outline: 0.2rem solid var(--focus);
     outline-offset: -0.3rem;
   }

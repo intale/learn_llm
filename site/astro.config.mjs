@@ -13,6 +13,13 @@ export default defineConfig({
   },
   integrations: [mdx()],
   markdown: {
+    syntaxHighlight: {
+      type: 'shiki',
+      excludeLangs: ['math'],
+    },
+    shikiConfig: {
+      theme: 'github-dark-high-contrast',
+    },
     processor: unified({
       remarkPlugins: [remarkMath],
       rehypePlugins: [rehypeKatex],

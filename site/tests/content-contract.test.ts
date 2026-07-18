@@ -414,6 +414,15 @@ describe('curriculum and catalog contracts', () => {
       /must describe the completed revision-2 repair/,
     );
 
+    const highlightingPrerequisiteDrift = replaceOnce(
+      planSource,
+      '"add-static-rust-syntax-highlighting"',
+      '"missing-rust-highlighting"',
+    );
+    expect(() => validateCoursePlanText(highlightingPrerequisiteDrift)).toThrow(
+      /pre-Chapter-2 prerequisites/,
+    );
+
     const dependencyDrift = replaceOnce(
       planSource,
       '- **Depends on:** `01-text-units`.',
