@@ -27,6 +27,8 @@ export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
 const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const PACKAGE_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const LATEX_PROSE_PATTERN =
+  /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -60,6 +62,12 @@ function validateFormula(issues, formula, sourceName) {
     return;
   }
   requireText(issues, formula.latex, 'formula.latex', sourceName);
+  if (hasText(formula.latex) && LATEX_PROSE_PATTERN.test(formula.latex)) {
+    issues.push(
+      sourceName +
+        ': formula.latex must contain notation only; put localized prose in symbol definitions',
+    );
+  }
   if (!Array.isArray(formula.symbols) || formula.symbols.length === 0) {
     issues.push(sourceName + ': formula.symbols must contain bilingual symbol definitions');
     return;

@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "concept_id": "text-units-vocabulary-ids",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 1,
   "objective": {
     "en": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
@@ -13,7 +13,7 @@
     "ru": "Использовать кот как кириллический вход и cat как парный вход ASCII."
   },
   "formula": {
-    "latex": "z_i = V(u_i), \\quad V(u) = 0 \\text{ when } u \\notin S",
+    "latex": "z_i = V(u_i), \\quad u_i \\notin S \\Rightarrow V(u_i)=0",
     "symbols": [
       {
         "symbol": "u_i",
@@ -173,7 +173,9 @@ iteration and therefore reproducible.
 This chapter does not teach grapheme segmentation, byte-pair encoding, learned
 tokenization, embeddings, or neural prediction. In particular, Rust `char` means
 a Unicode scalar value, not necessarily one glyph or user-perceived character.
-Byte-pair encoding replaces this pedagogical scalar vocabulary in chapter 2.
+Chapter 2 first preserves document boundaries and freezes the data partitions;
+chapters 3 and 4 then learn and apply the BPE tokenizer that replaces this
+pedagogical scalar vocabulary.
 
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
@@ -214,7 +216,7 @@ the fixed vocabulary emits token ID `[0]` and decodes it as the literal `<UNK>`.
 For scalar position (i), encoding is:
 
 $$
-z_i = V(u_i), \qquad V(u) = 0 \text{ when } u \notin S.
+z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0.
 $$
 
 Here (S) is the known scalar set derived from `cat кот`. The deterministic map
@@ -253,9 +255,10 @@ fn split_scalars(text: &str) -> Vec<char> {
 
 `split_scalars("кот")` produces `['к', 'о', 'т']`, which avoids the whole-word
 boundary but lengthens sequences and still does not implement grapheme-cluster
-segmentation. The demo prints and tests both functions. Chapter 2 will motivate
-subword units as a compromise; this chapter does not present scalar splitting as
-the final tokenizer.
+segmentation. The demo prints and tests both functions. Chapter 2 first protects
+document and partition boundaries, chapter 3 learns subword merge rules, and
+chapter 4 applies them; this chapter does not present scalar splitting as the
+final tokenizer.
 
 Историческое сравнение в русском уроке сохраняет те же исполняемые функции и
 объясняет обе стороны компромисса: словарю целых слов мешают неизвестные формы,
@@ -351,12 +354,16 @@ reading the explanation.
 The chapter contributes a deterministic `String -> Vec<usize>` boundary. Later,
 each token ID selects one embedding row before entering the decoder-only model;
 the model predicts another ID, and the inverse vocabulary turns generated IDs
-back into text. Chapter 2 changes how text units are chosen, but preserves this
-integer-sequence interface for every later model component.
+back into text. Chapter 2 preserves the documents and data partitions, chapter 3
+learns BPE merge rules, and chapter 4 changes how text units are chosen while
+preserving this integer-sequence interface for every later model component.
 
 Глава добавляет детерминированную границу `String -> Vec<usize>`. В следующих
 главах каждый идентификатор выбирает строку таблицы эмбеддингов, а выходной
-идентификатор декодера через обратный словарь снова превращается в текст.
+идентификатор декодера через обратный словарь снова превращается в текст. Во
+второй главе сохраняются границы документов и фиксируется разбиение данных, в
+третьей изучаются правила слияния BPE, а в четвёртой они применяются с
+сохранением интерфейса целочисленной последовательности.
 
 <!-- contract-section:localization -->
 ## Localization notes
@@ -405,7 +412,7 @@ npm --prefix site run test:e2e -- --grep 'chapter 1'
 
 The Rust gates must establish the exact vocabulary, English/Cyrillic rows,
 round-trip behavior, `<UNK>` behavior, historical contrast, and committed stdout.
-The site gates must establish paired revision-1 lessons, shared formula/source/
+The site gates must establish paired revision-2 lessons, shared formula/source/
 visualization metadata, both locale routes, responsive diagram semantics,
 localized accessible labels, working hreflang links, and static output without a
 runtime server.

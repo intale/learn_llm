@@ -550,3 +550,30 @@ the documented scaffold exception, not a template for later chapters.
 
 **Affected steps:** `establish-scalable-chapter-delivery` and every
 `implement-chNN-*` step from Chapter 2 onward
+
+## 2026-07-18 — Align Chapter 1's handoff with the reviewed corpus/BPE sequence
+
+**Status:** Accepted; supersedes the formula-only editorial boundary stated for
+Chapter 1 revision 2 in the initial course-plan publication.
+
+**Context:** The reviewed 39-chapter map inserted document boundaries and
+train/validation/test partitioning as Chapter 2, then separated BPE merge learning
+and frozen-tokenizer application into Chapters 3 and 4. The already-published
+Chapter 1 prose still says Chapter 2 directly replaces scalar units with BPE.
+Leaving that statement in revision 2 would send students to the wrong next concept.
+
+**Decision:** Keep the revision's implementation scope unchanged: do not alter the
+Chapter 1 Rust behavior, examples, expected output, visualization, or observable
+learning objective. Alongside the notation-only formula and revision bump, update
+the contract and both naturally authored lessons so their handoff names corpus
+partitioning as Chapter 2, merge learning as Chapter 3, and reversible BPE
+application as Chapter 4.
+
+**Consequences:** Chapter 1 remains one coherent text-unit lesson while its forward
+references match the authoritative dependency map. The formula and handoff edits
+publish together in one bilingual content revision and one dedicated step commit;
+no completed generated artifact or Rust result is relabeled.
+
+**Affected steps:** `revise-ch01-language-neutral-formula`,
+`implement-ch02-corpus-partitions`, `implement-ch03-learn-bpe-merges`, and
+`implement-ch04-apply-bpe-tokenizer`

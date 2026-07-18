@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const chapterId = '01-text-units';
+const contentRevision = 2;
+const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
 const locales = ['en', 'ru'] as const;
 
 type Locale = (typeof locales)[number];
@@ -80,7 +82,9 @@ async function expectChapterContent(page: Page, locale: Locale, expectedColumns:
 
   await expect(page.locator('html')).toHaveAttribute('lang', locale);
   await expect(page.getByRole('heading', { level: 1, name: localized.chapterTitle })).toBeVisible();
-  await expect(page.locator('.eyebrow')).toContainText(`01 · ${localized.revisionLabel} 1`);
+  await expect(page.locator('.eyebrow')).toContainText(
+    `01 · ${localized.revisionLabel} ${contentRevision}`,
+  );
   await expect(page.locator('.lesson-objective strong')).toHaveText(localized.objectiveLabel);
 
   await expect(
@@ -101,8 +105,12 @@ async function expectChapterContent(page: Page, locale: Locale, expectedColumns:
   await expect(
     page.getByRole('heading', { level: 2, name: localized.headings.formula }),
   ).toBeVisible();
-  await expect(page.locator('.katex-display')).toHaveCount(1);
-  await expect(page.locator('.katex-display')).toBeVisible();
+  const displayedFormula = page.locator('.katex-display');
+  await expect(displayedFormula).toHaveCount(1);
+  await expect(displayedFormula).toBeVisible();
+  await expect(
+    displayedFormula.locator('annotation[encoding="application/x-tex"]'),
+  ).toHaveText(formulaLatex);
 
   await expect(
     page.getByRole('heading', { level: 2, name: localized.headings.history }),
@@ -200,7 +208,7 @@ async function expectChapterContent(page: Page, locale: Locale, expectedColumns:
   await expect(page.locator('script')).toHaveCount(0);
 }
 
-test.describe('chapter 1 bilingual vertical slice', () => {
+test.describe('chapter 1 bilingual vertical slice @chapter:01-text-units', () => {
   test('chapter 1 course indexes and locale switch preserve the lesson route', async ({ page }) => {
     for (const locale of locales) {
       const localized = copy[locale];
@@ -209,7 +217,9 @@ test.describe('chapter 1 bilingual vertical slice', () => {
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
       await expect(page.getByRole('heading', { level: 1, name: localized.indexTitle })).toBeVisible();
       await expect(page.locator('.course-list > li')).toHaveCount(1);
-      await expect(page.getByText(`${localized.indexRevision}: 1`, { exact: true })).toBeVisible();
+      await expect(
+        page.getByText(`${localized.indexRevision}: ${contentRevision}`, { exact: true }),
+      ).toBeVisible();
       await expect(
         page.locator(`link[rel="alternate"][hreflang="${locale}"]`),
       ).toHaveAttribute('href', `/${locale}/course/`);

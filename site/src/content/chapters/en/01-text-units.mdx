@@ -2,14 +2,14 @@
 {
   "chapter_id": "01-text-units",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 1,
   "concept_id": "text-units-vocabulary-ids",
   "title": "Text units and vocabulary IDs",
   "description": "Follow English and Cyrillic text from UTF-8 bytes to Unicode scalar values and deterministic integer IDs.",
   "objective": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
   "formula": {
-    "latex": "z_i = V(u_i), \\quad V(u) = 0 \\text{ when } u \\notin S",
+    "latex": "z_i = V(u_i), \\quad u_i \\notin S \\Rightarrow V(u_i)=0",
     "symbols": [
       {
         "symbol": "u_i",
@@ -141,7 +141,7 @@ decoding returns `<UNK>` rather than the original question mark.
 For every scalar position, encoding applies the same vocabulary lookup:
 
 $$
-z_i = V(u_i), \quad V(u) = 0 \text{ when } u \notin S
+z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0
 $$
 
 In plain language, take the scalar value at position `i`, look it up in the fixed
@@ -188,8 +188,9 @@ still contain more than one scalar.
 Try the two functions mentally before running them:
 `split_words("red fox")` yields `["red", "fox"]`, while
 `split_scalars("кот")` yields `['к', 'о', 'т']`. Modern subword methods seek a
-useful compromise between huge whole-word vocabularies and long scalar sequences;
-chapter 2 will build that next layer.
+useful compromise between huge whole-word vocabularies and long scalar sequences.
+Chapter 2 first preserves documents and freezes the data partitions; chapter 3
+learns the BPE merge rules, and chapter 4 applies the frozen tokenizer.
 
 {/* chapter-section:rust-implementation */}
 
@@ -289,7 +290,8 @@ cumulative model, each `usize` will select one row from an embedding table befor
 the sequence enters the decoder. The decoder will eventually predict another ID,
 and the inverse vocabulary will turn generated IDs back into text.
 
-Chapter 2 will replace scalar-sized units with learned subword units, but it will
-preserve this integer-sequence interface. Everything that follows—embeddings,
-attention, and next-token prediction—can therefore operate on IDs without needing
-to know how many UTF-8 bytes produced each one.
+Chapter 2 first preserves document boundaries and freezes the data partitions.
+Chapter 3 learns BPE merge rules, and chapter 4 applies them to replace scalar-sized
+units while preserving this integer-sequence interface. Everything that follows—
+embeddings, attention, and next-token prediction—can therefore operate on IDs
+without needing to know how many UTF-8 bytes produced each one.
