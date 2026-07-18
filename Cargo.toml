@@ -1,0 +1,10 @@
+[workspace]
+resolver = "3"
+members = ["rust/crates/*", "rust/demos/*"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.93"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"

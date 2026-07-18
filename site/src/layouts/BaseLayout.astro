@@ -1,0 +1,64 @@
+---
+import 'katex/dist/katex.min.css';
+import '../styles/global.css';
+
+import { getMessages, localePath, locales, otherLocale, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description?: string;
+  routeSuffix?: string;
+}
+
+const { locale, routeSuffix = '/' } = Astro.props;
+const copy = getMessages(locale);
+const title = Astro.props.title ?? copy.siteTitle;
+const description = Astro.props.description ?? copy.siteDescription;
+const fullTitle = title === copy.siteTitle ? title : `${title} · ${copy.siteTitle}`;
+const alternateLocale = otherLocale(locale);
+const alternateCopy = getMessages(alternateLocale);
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light" />
+    <title>{fullTitle}</title>
+    {
+      locales.map((alternate) => (
+        <link rel="alternate" hreflang={alternate} href={localePath(alternate, routeSuffix)} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href="/" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">{copy.skipToContent}</a>
+    <header class="site-header">
+      <a class="wordmark" href={localePath(locale)} aria-label={copy.homeLabel}>
+        <span aria-hidden="true" class="wordmark-mark">λ</span>
+        <span>{copy.siteTitle}</span>
+      </a>
+      <nav class="locale-switch" aria-label={copy.languageSwitchLabel}>
+        <span>{copy.languageSwitchLabel}</span>
+        <a
+          href={localePath(alternateLocale, routeSuffix)}
+          lang={alternateLocale}
+          hreflang={alternateLocale}
+        >
+          {alternateCopy.languageName}
+        </a>
+      </nav>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>{copy.footerNote}</p>
+    </footer>
+  </body>
+</html>

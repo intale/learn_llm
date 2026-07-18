@@ -1,0 +1,36 @@
+{
+  "name": "learn-llm-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "npm@10.9.2",
+  "scripts": {
+    "dev": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "check": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "test": "vitest",
+    "build": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "cross-env ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "test:e2e": "playwright test",
+    "check:content": "node ../scripts/check-site-content.mjs",
+    "check:contract": "node ../scripts/check-chapter-contract.mjs",
+    "check:chapter": "node ../scripts/check-site-content.mjs chapter",
+    "check:parity": "node ../scripts/check-site-content.mjs parity",
+    "test:links": "node ../scripts/check-static-links.mjs"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@astrojs/markdown-remark": "7.2.1",
+    "@astrojs/mdx": "7.0.3",
+    "@playwright/test": "1.61.1",
+    "astro": "7.1.1",
+    "cross-env": "10.1.0",
+    "katex": "0.18.0",
+    "rehype-katex": "7.0.1",
+    "remark-math": "6.0.0",
+    "typescript": "6.0.3",
+    "vitest": "3.2.7"
+  }
+}

@@ -1,0 +1,143 @@
+---
+// @ts-ignore Node APIs are available during Astro's build-only component execution.
+import { readFile } from 'node:fs/promises';
+// @ts-ignore Node APIs are available during Astro's build-only component execution.
+import nodePath from 'node:path';
+
+declare const process: { cwd(): string };
+
+interface Props {
+  path: string;
+  region?: string;
+  caption?: string;
+  label?: string;
+}
+
+const {
+  path: requestedPath,
+  region,
+  caption,
+  label,
+} = Astro.props;
+const rustPathPattern =
+  /^rust\/(?:crates\/llm-from-scratch|demos\/[a-z0-9][a-z0-9-]*)\/src\/(?:[A-Za-z0-9_-]+\/)*[A-Za-z0-9_-]+\.rs$/;
+const regionPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+
+if (
+  !rustPathPattern.test(requestedPath) ||
+  requestedPath.includes('\\') ||
+  requestedPath.split('/').includes('..')
+) {
+  throw new Error(
+    'RustSource rejected "' +
+      requestedPath +
+      '": use a declared .rs path below rust/crates/llm-from-scratch/src or rust/demos/<name>/src.',
+  );
+}
+
+if (region !== undefined && !regionPattern.test(region)) {
+  throw new Error('RustSource rejected invalid region "' + region + '".');
+}
+
+const workingDirectory = nodePath.resolve(process.cwd());
+const repositoryRoot =
+  nodePath.basename(workingDirectory) === 'site'
+    ? nodePath.dirname(workingDirectory)
+    : workingDirectory;
+const absolutePath = nodePath.resolve(repositoryRoot, requestedPath);
+if (!absolutePath.startsWith(repositoryRoot + nodePath.sep)) {
+  throw new Error('RustSource rejected path traversal in "' + requestedPath + '".');
+}
+
+let source = await readFile(absolutePath, 'utf8');
+if (region) {
+  const lines = source.split(/\r?\n/);
+  const startMarker = '// region:' + region;
+  const endMarker = '// endregion:' + region;
+  const starts = lines.flatMap((line: string, index: number) =>
+    line.trim() === startMarker ? [index] : [],
+  );
+  const ends = lines.flatMap((line: string, index: number) =>
+    line.trim() === endMarker ? [index] : [],
+  );
+
+  if (starts.length !== 1 || ends.length !== 1 || starts[0] >= ends[0]) {
+    throw new Error(
+      'RustSource expected one ordered ' +
+        startMarker +
+        ' / ' +
+        endMarker +
+        ' pair in "' +
+        requestedPath +
+        '".',
+    );
+  }
+  source = lines.slice(starts[0] + 1, ends[0]).join('\n');
+}
+
+const sourceLabel =
+  label ?? caption ?? requestedPath + (region ? ', region ' + region : '');
+---
+
+<figure class="rust-source" data-source-path={requestedPath} data-source-region={region}>
+  {
+    (caption || region) && (
+      <figcaption>
+        {caption && <span>{caption}</span>}
+        <code>{requestedPath}{region ? '#' + region : ''}</code>
+      </figcaption>
+    )
+  }
+  <pre tabindex="0" aria-label={sourceLabel}><code class="language-rust">{source}</code></pre>
+</figure>
+
+<style>
+  .rust-source {
+    margin-block: 1.75rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: #15201c;
+    box-shadow: var(--shadow);
+    color: #f5f1e8;
+  }
+
+  figcaption {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    color: #dce8e2;
+    font-size: 0.82rem;
+  }
+
+  figcaption code {
+    color: #9ad8cf;
+    font-size: 0.75rem;
+  }
+
+  pre {
+    max-height: 38rem;
+    margin: 0;
+    overflow: auto;
+    padding: 1.1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+
+  pre:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
+  }
+
+  @media (max-width: 40rem) {
+    figcaption {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

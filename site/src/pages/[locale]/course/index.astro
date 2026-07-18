@@ -1,0 +1,159 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+import { locales, type Locale } from '../../../i18n';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale }, props: { locale } }));
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const chapterModules = import.meta.glob(
+  '../../../content/chapters/{en,ru}/**/*.{md,mdx}',
+);
+const allChapters =
+  Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
+
+function sharedSignature(entry: CollectionEntry<'chapters'>) {
+  return JSON.stringify({
+    chapter_id: entry.data.chapter_id,
+    content_revision: entry.data.content_revision,
+    order: entry.data.order,
+    concept_id: entry.data.concept_id,
+    formula: {
+      latex: entry.data.formula.latex,
+      symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
+    },
+    history_rust_source: entry.data.history.rust_source,
+    rust_sources: entry.data.rust_sources.map((source) => ({
+      path: source.path,
+      region: source.region ?? null,
+    })),
+    visualization: {
+      decision: entry.data.visualization.decision,
+      id: entry.data.visualization.id,
+    },
+  });
+}
+
+const groups = new Map<string, CollectionEntry<'chapters'>[]>();
+for (const entry of allChapters) {
+  const group = groups.get(entry.data.chapter_id) ?? [];
+  group.push(entry);
+  groups.set(entry.data.chapter_id, group);
+}
+
+const publishableIds = new Set<string>();
+for (const [chapterId, group] of groups) {
+  const english = group.filter((entry) => entry.data.locale === 'en');
+  const russian = group.filter((entry) => entry.data.locale === 'ru');
+  if (
+    english.length === 1 &&
+    russian.length === 1 &&
+    english[0].data.content_revision === russian[0].data.content_revision &&
+    sharedSignature(english[0]) === sharedSignature(russian[0])
+  ) {
+    publishableIds.add(chapterId);
+  }
+}
+
+const chapters = allChapters
+  .filter(
+    (entry) =>
+      entry.data.locale === locale && publishableIds.has(entry.data.chapter_id),
+  )
+  .sort((left, right) => left.data.order - right.data.order);
+
+const courseCopy = {
+  en: {
+    eyebrow: 'The course',
+    title: 'From text to a tiny language model',
+    description:
+      'Each bilingual chapter adds one tested idea to the same Rust implementation.',
+    empty:
+      'The chapter contract is ready. Lessons appear here only after English and Russian pass together.',
+    revision: 'Content revision',
+  },
+  ru: {
+    eyebrow: 'Курс',
+    title: 'От текста до небольшой языковой модели',
+    description:
+      'Каждая двуязычная глава добавляет одну проверенную идею в общую реализацию на Rust.',
+    empty:
+      'Контракт главы готов. Уроки появятся здесь только после совместной проверки английской и русской версий.',
+    revision: 'Версия материала',
+  },
+} as const;
+const copy = courseCopy[locale];
+---
+
+<BaseLayout
+  locale={locale}
+  routeSuffix="/course/"
+  title={copy.title}
+  description={copy.description}
+>
+  <section class="hero shell-container course-hero">
+    <p class="eyebrow">{copy.eyebrow}</p>
+    <h1>{copy.title}</h1>
+    <p class="hero-intro">{copy.description}</p>
+  </section>
+
+  {
+    chapters.length > 0 ? (
+      <ol class="feature-grid shell-container course-list">
+        {chapters.map((chapter) => (
+          <li>
+            <article class="feature-card">
+              <span class="feature-number" aria-hidden="true">
+                {String(chapter.data.order).padStart(2, '0')}
+              </span>
+              <h2>
+                <a href={'/' + locale + '/course/' + chapter.data.chapter_id + '/'}>
+                  {chapter.data.title}
+                </a>
+              </h2>
+              <p>{chapter.data.description}</p>
+              <small>{copy.revision}: {chapter.data.content_revision}</small>
+            </article>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <aside class="course-note shell-container">
+        <span aria-hidden="true">⌁</span>
+        <p>{copy.empty}</p>
+      </aside>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .course-hero {
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .course-list {
+    margin-top: 0;
+    margin-bottom: 6rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .course-list li {
+    min-width: 0;
+  }
+
+  .course-list h2 a {
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .course-list small {
+    display: block;
+    margin-top: 1.25rem;
+    color: var(--accent-dark);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+</style>

@@ -1,0 +1,636 @@
+schema_version: 1
+updated_at: "2026-07-18T12:46:57Z"
+
+environment:
+  os: "Linux x86_64"
+  rustc: "1.93.1"
+  cargo: "1.93.1"
+  node: "23.7.0"
+  npm: "10.9.2"
+  git: "2.53.0"
+  notes: "Bootstrap snapshot; pin exact versions when the implementation toolchain is selected."
+
+active_build: foundation-and-chapter-01
+
+builds:
+  - build_id: bootstrap-course
+    objective: "Select the course architecture and establish the first implementable course plan."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource budget has been supplied. Estimate and seek approval for large or paid work."
+    completion_criteria:
+      - "Architecture and toolchain decisions are recorded."
+      - "The course is decomposed into dependency-ordered, independently verifiable steps."
+    steps:
+      - id: define-course-architecture
+        objective: "Choose the static-site toolchain, repository layout, validation strategy, and initial chapter sequence."
+        depends_on: []
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+        outputs:
+          - DECISIONS.md
+          - BUILD_STATE.yaml
+        acceptance:
+          - "Decisions cover the static-site toolchain, Rust example layout, tests, and chapter template."
+          - "Decisions cover English/Russian localization, locale routing, translation parity, and locale-aware validation."
+          - "Follow-up implementation work is split into ordered steps with explicit acceptance and validation."
+        validate:
+          - "Manual review against AGENTS.md learning objectives and orchestration rules"
+        cost:
+          class: small
+          notes: "Local planning and repository edits only."
+        runs:
+          - run_id: 20260718T082007Z-define-course-architecture-01
+            started_at: "2026-07-18T08:20:07Z"
+            finished_at: "2026-07-18T08:26:12Z"
+            status: interrupted
+            input_fingerprint:
+              git: "unborn master; no commits"
+              files:
+                AGENTS.md: "sha256:06897a01680da6767dd2da2de22e0304393c4825be84dbe27283ea2791f40c4a"
+                DECISIONS.md: "sha256:52a5ab168c43fccb1a0bb75d77f6d47d4900235f4d3468bf72552e61d351be1a"
+                BUILD_STATE.yaml: "sha256:bfc6847242a6c068a052d117243fe1497272e9bde558c3073b551e5007b7ae1f"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T082007Z-define-course-architecture-01/"
+            commands:
+              - "git status"
+              - "rustc --version && cargo --version && node --version && npm --version && git --version"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml"
+            artifacts: []
+            validation: []
+            notes: "Interrupted after AGENTS.md changed materially during execution to add learning objective 8 (English/Russian localization). The partial architecture decision in DECISIONS.md is preserved and requires a superseding localization decision."
+          - run_id: 20260718T082625Z-define-course-architecture-02
+            started_at: "2026-07-18T08:26:25Z"
+            finished_at: "2026-07-18T08:32:45Z"
+            status: succeeded
+            input_fingerprint:
+              git: "unborn master; no commits"
+              files:
+                AGENTS.md: "sha256:dcb6c5c9520635753a179c2e6f6e6c39fcbb22335bb6fd6e5498cf93f6150b52"
+                DECISIONS.md: "sha256:97fabc9d78047db49e015237c24dd1b19180befd69d07107fde5598ff2fdb3ad"
+                BUILD_STATE.yaml: "sha256:a9bbe467a25ca40fa157ae46f8ac6bbfb5682be92f51782f415cb4a7f33b7dc3"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T082625Z-define-course-architecture-02/"
+            commands:
+              - "git status --short --branch"
+              - "sed -n '1,80p' AGENTS.md"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml"
+              - "Manual review against AGENTS.md learning objectives and orchestration rules"
+              - "Ruby ledger structural validation for YAML, fields, dependency order, exact output ownership, costs, and active/running counts"
+              - "Ruby trailing-whitespace check for reviewed files"
+            artifacts:
+              - path: ".build/runs/20260718T082625Z-define-course-architecture-02/DECISIONS.snapshot.md"
+                checksum: "sha256:2c8e29f0fdbc270e8b404f41de1be03a55a9dae1e240ee1af5d96cba67d4d2ae"
+              - path: ".build/runs/20260718T082625Z-define-course-architecture-02/manual-review.md"
+                checksum: "sha256:00933b3edf2eb414a8d92755c7b210478308737ef6725b071e6de8bcbe3a68eb"
+            validation:
+              - command: "Manual review against AGENTS.md learning objectives and orchestration rules"
+                status: passed
+                notes: "All eight objectives map to explicit architecture, chapter-contract, curriculum, localization, and validation decisions."
+              - command: "Ruby ledger structural validation"
+                status: passed
+                notes: "Valid YAML; 10 unique ordered steps; unique exact output paths; valid cost classes; one active build and one running step before finalization."
+              - command: "Ruby trailing-whitespace check"
+                status: passed
+                notes: "No trailing whitespace in AGENTS.md, DECISIONS.md, BUILD_STATE.yaml, or the review record."
+            notes: "Architecture and bilingual course plan accepted. Objective 8 is implemented in the plan through explicit locale routes, paired content, shared assets, and translation-parity publication gates."
+  - build_id: foundation-and-chapter-01
+    objective: "Establish the bilingual static/Rust toolchains and deliver a validated English/Russian chapter about text units and vocabulary IDs."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 3
+      notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
+    completion_criteria:
+      - "The Rust workspace and localized static site build reproducibly from lockfiles."
+      - "Chapter 1 meets the content contract in English and Russian and uses tested shared Rust source."
+      - "Both localized routes, visualization, links, language switcher, and translation parity pass production and browser checks."
+    steps:
+      - id: scaffold-rust-workspace
+        objective: "Create the locked Cargo workspace, empty cumulative teaching crate, and dependency-policy check."
+        depends_on:
+          - define-course-architecture
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - "environment.rustc=1.93.1"
+          - "environment.cargo=1.93.1"
+        outputs:
+          - .gitignore
+          - Cargo.toml
+          - Cargo.lock
+          - rust/crates/llm-from-scratch/Cargo.toml
+          - rust/crates/llm-from-scratch/src/lib.rs
+          - rust/demos/chapter-demo-template/Cargo.toml
+          - rust/demos/chapter-demo-template/src/main.rs
+          - scripts/check-rust-dependencies.sh
+        acceptance:
+          - "The root workspace discovers cumulative crates and chapter demos without later edits to the workspace manifest."
+          - "A dependency-free chapter-demo template keeps Cargo's demo-member glob valid before chapter 1 exists."
+          - "The teaching crate formats, compiles, and tests with a locked dependency graph."
+          - "The dependency check rejects undeclared concept-implementing crates."
+          - "Rust and already-planned static-site build artifacts are ignored without discarding existing ignore rules."
+        validate:
+          - "cargo metadata --no-deps --format-version 1"
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+        cost:
+          class: small
+          notes: "Local Rust scaffolding only; begin with the standard library and no network dependency resolution."
+        runs:
+          - run_id: 20260718T083746Z-scaffold-rust-workspace-01
+            started_at: "2026-07-18T08:37:46Z"
+            finished_at: "2026-07-18T08:48:44Z"
+            status: succeeded
+            input_fingerprint:
+              git: "unborn master; no commits"
+              files:
+                AGENTS.md: "sha256:dcb6c5c9520635753a179c2e6f6e6c39fcbb22335bb6fd6e5498cf93f6150b52"
+                DECISIONS.md: "sha256:2c8e29f0fdbc270e8b404f41de1be03a55a9dae1e240ee1af5d96cba67d4d2ae"
+                BUILD_STATE.yaml: "sha256:a281f4274d829745cfba90f2f59072657f2bf880ef9fe9e4023e8d01e7985b61"
+                .gitignore: "sha256:bd55cfb1fe2dbd1e4ee1de4210b56720e6aee885b80b0c5bf441f3b8ad7819f4"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+            staging_dir: ".build/runs/20260718T083746Z-scaffold-rust-workspace-01/"
+            commands:
+              - "git status"
+              - "rustc --version && cargo --version && node --version && npm --version && git --version"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml .gitignore"
+              - "cargo generate-lockfile (staging; initial attempt failed because Cargo treats an unmatched rust/demos/* member glob as a literal path)"
+              - "Archive the architecture run's completion-time DECISIONS.md as an immutable checksum-matching snapshot and correct its artifact path"
+              - "cargo generate-lockfile (staging; succeeded after adding chapter-demo-template)"
+              - "Run all declared validations in staging"
+              - "Inject a disposable external ndarray path dependency and verify the policy check exits 1, then restore and revalidate staging"
+              - "Publish staged files to canonical paths with apply_patch and verify byte-for-byte equality"
+              - "Run all declared validations from the repository root"
+              - "sha256sum -c .build/runs/20260718T083746Z-scaffold-rust-workspace-01/publish.sha256"
+            artifacts:
+              - path: ".build/runs/20260718T083746Z-scaffold-rust-workspace-01/publish.sha256"
+                checksum: "sha256:6efaeadd7bf9325427462fe98d8e5986e65368dde113313b26c43ea0acc96fdf"
+                notes: "Immutable checksums for the eight-file staged publication tree."
+            validation:
+              - command: "cargo metadata --no-deps --format-version 1"
+                status: passed
+                notes: "Found llm-from-scratch and chapter-demo-template as Rust 2024 workspace members with no dependencies."
+              - command: "cargo fmt --all -- --check"
+                status: passed
+                notes: "Canonical Rust sources and manifests require no formatting changes."
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "Both dependency-free scaffold targets and doc tests completed successfully."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "Canonical locked graph contains workspace packages only and no external crates."
+              - command: "Disposable external ndarray policy fixture"
+                status: passed
+                notes: "The check rejected the concept-implementing crate with exit code 1; the fixture was removed and the clean lockfile regenerated before publication."
+              - command: "Staged publication checksum and canonical equality checks"
+                status: passed
+                notes: "All eight staged files match their immutable checksums and their canonical counterparts byte for byte."
+              - command: "git check-ignore -v --no-index for Cargo, Astro, npm, coverage, and Playwright outputs"
+                status: passed
+                notes: "Every declared generated-output path matches a narrow root ignore rule."
+            notes: "Completed locally without network or paid services. Published a locked Rust 2024 workspace, cumulative teaching crate, permanent demo-template anchor, strict external dependency policy, and central build-output ignore rules. The prior mutable-ledger artifact path was repaired using an exact immutable snapshot."
+      - id: scaffold-localized-static-site
+        objective: "Create a pinned Astro static shell with explicit English and Russian routes, catalogs, and browser-test support."
+        depends_on:
+          - define-course-architecture
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - "environment.node=23.7.0"
+          - "environment.npm=10.9.2"
+          - "npm registry and Playwright Chromium download (network; versions locked by this step)"
+        outputs:
+          - site/package.json
+          - site/package-lock.json
+          - site/astro.config.mjs
+          - site/tsconfig.json
+          - site/vitest.config.ts
+          - site/playwright.config.ts
+          - site/src/layouts/BaseLayout.astro
+          - site/src/i18n/index.ts
+          - site/src/i18n/en.ts
+          - site/src/i18n/ru.ts
+          - site/src/pages/index.astro
+          - "site/src/pages/[locale]/index.astro"
+          - site/src/styles/global.css
+          - site/tests/i18n.test.ts
+          - site/tests/e2e/localized-shell.spec.ts
+        acceptance:
+          - "Astro is configured for static output with no server adapter and all front-end versions are locked."
+          - "Astro commands disable telemetry without requiring user-global configuration."
+          - "The root language chooser and /en/ and /ru/ landing pages work without client JavaScript and emit matching lang and hreflang metadata."
+          - "Typed English/Russian catalogs have identical keys, and the locale switcher preserves known route suffixes."
+          - "Unit, production-build, and localized-shell browser checks pass."
+        validate:
+          - "npm --prefix site ci"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site exec -- playwright install chromium"
+          - "npm --prefix site run test:e2e -- --grep 'localized shell'"
+        cost:
+          class: medium
+          notes: "Uses the npm registry and a cached-or-downloaded Chromium binary; no paid service or generated content."
+        runs:
+          - run_id: 20260718T113340Z-scaffold-localized-static-site-01
+            started_at: "2026-07-18T11:33:40Z"
+            finished_at: "2026-07-18T11:58:57Z"
+            status: succeeded
+            input_fingerprint:
+              git: "unborn master; no commits"
+              files:
+                AGENTS.md: "sha256:dcb6c5c9520635753a179c2e6f6e6c39fcbb22335bb6fd6e5498cf93f6150b52"
+                DECISIONS.md: "sha256:2e78dbdd84518eaee82f74cc6045e4d027595ce6f93ebd30ca56bad328c8b0e4"
+                BUILD_STATE.yaml: "sha256:680d52031084b4b1c6ed562a41c31da471607ce98d800147eddf25c70542e3af"
+              tools:
+                node: "23.7.0"
+                npm: "10.9.2"
+            staging_dir: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/"
+            commands:
+              - "git status"
+              - "rustc --version && cargo --version && node --version && npm --version && git --version"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml"
+              - "npm cache ls astro --json"
+              - "npm install --save-dev --save-exact astro @astrojs/mdx @astrojs/check typescript vitest @playwright/test remark-math rehype-katex katex (sandbox attempt interrupted after no registry response)"
+              - "npm install --save-dev --save-exact astro @astrojs/mdx @astrojs/check typescript vitest @playwright/test remark-math rehype-katex katex (approved npm-registry access; added 443 packages, audited 444, 0 vulnerabilities)"
+              - "npm ls --depth=0 --json (recorded Astro 7.1.1, MDX 7.0.3, Playwright 1.61.1, TypeScript 6.0.3, Vitest 3.2.7, KaTeX 0.18.0, rehype-katex 7.0.1, remark-math 6.0.0, and @astrojs/check 0.9.9)"
+              - "npm ci (sandbox attempt interrupted after no registry response; approved retry added 450 packages, audited 451, 0 vulnerabilities)"
+              - "npm run check (failed before analysis because Astro attempted to create /home/int/.config/astro for telemetry)"
+              - "npm install --save-dev --save-exact cross-env (approved npm-registry access; pinned 10.1.0, added 8 packages, audited 459, 0 vulnerabilities)"
+              - "npm ci (approved clean install after telemetry wrapper; added 458 packages, audited 459, 0 vulnerabilities)"
+              - "npm run check (reached project diagnostics; failed on two unnecessary process.env references and warned that Astro 7 deprecated markdown.remarkPlugins/rehypePlugins)"
+              - "npm install --save-dev --save-exact @astrojs/markdown-remark (approved registry access; pinned 7.2.1 and migrated math plugins to markdown.processor unified API)"
+              - "npm run check (passed with 0 errors, 0 warnings, and 0 hints after telemetry, processor, and Playwright-config fixes)"
+              - "npm run test -- --run (four locale unit tests passed, but the run failed because Vitest also discovered the Playwright spec)"
+              - "npm run test -- --run (passed after explicit test discovery: 1 file, 4 tests)"
+              - "npm run build (static mode; emitted /, /en/, and /ru/)"
+              - "npm exec -- playwright install chromium (approved download: Chrome for Testing 149.0.7827.55 / Chromium v1228, headless shell v1228, and FFmpeg v1011)"
+              - "npm run test:e2e -- --grep 'localized shell' (sandbox preview failed with listen EPERM; approved localhost/browser retry passed 1 test)"
+              - "Temporary Playwright visual review at 1440px English and 390px Russian (passed; capture spec removed before final validation)"
+              - "npm ci (final staged clean install: added 458 packages, audited 459, 0 vulnerabilities)"
+              - "npm run check (final staged diagnostics: 12 files, 0 errors, 0 warnings, 0 hints)"
+              - "npm run test -- --run (final staged unit gate: 1 file and 4 tests passed)"
+              - "npm run build (final staged static build: exactly /, /en/, and /ru/)"
+              - "npm exec -- playwright install chromium (final staged browser prerequisite passed from verified cache)"
+              - "npm run test:e2e -- --grep 'localized shell' (final staged Chromium gate: 1 test passed)"
+              - "sha256sum -c publish.sha256 (first invocation used the repository root and could not resolve run-relative paths; rerun from the run staging root passed all 15 files)"
+              - "Published 15 staged source files to site/ with apply_patch and verified the canonical tree is byte-identical to staging"
+              - "npm --prefix site ci (canonical clean install: added 458 packages, audited 459, 0 vulnerabilities)"
+              - "npm --prefix site run check (canonical diagnostics: 12 files, 0 errors, 0 warnings, 0 hints)"
+              - "npm --prefix site run test -- --run (canonical unit gate: 1 file and 4 tests passed)"
+              - "npm --prefix site run build (canonical static build: exactly /, /en/, and /ru/)"
+              - "npm --prefix site exec -- playwright install chromium (canonical browser prerequisite passed from verified cache)"
+              - "npm --prefix site run test:e2e -- --grep 'localized shell' (canonical Chromium gate: 1 test passed)"
+              - "Canonical toolchain/static audit (11 exact direct dependencies, pinned Node/npm metadata, no adapter or UI framework, and no script elements in built HTML)"
+            artifacts:
+              - path: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/publish/site/package-lock.json"
+                checksum: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                notes: "Final npm lockfile after exact toolchain resolution, cross-env 10.1.0, and direct Astro unified processor 7.2.1; audit reported zero vulnerabilities."
+              - path: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/browser-cache.sha256"
+                checksum: "sha256:2fdcb66055f955e2b1d9c6ead7840fb4d7e1e7977d0d1c4e743313bfac283944"
+                notes: "Checksums for reusable Playwright Chromium v1228, headless shell v1228, and FFmpeg v1011 binaries downloaded under /home/int/.cache/ms-playwright (approximately 646 MiB unpacked)."
+              - path: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/visual-review-en.png"
+                checksum: "sha256:62ce964c83e511a1ca9ee7077f07b95b0672df3135871cb2fd382f8883799f8a"
+                notes: "Full-page English static shell at 1440 by 1000 CSS pixels."
+              - path: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/visual-review-ru.png"
+                checksum: "sha256:91831e1b43af0e2a8b67380f06b54450c5ea0a97ee70928f58724da576007a8f"
+                notes: "Full-page Russian static shell at 390 by 844 CSS pixels; no clipped or overflowing controls observed."
+              - path: ".build/runs/20260718T113340Z-scaffold-localized-static-site-01/publish.sha256"
+                checksum: "sha256:77e1a0cfdde01ee66ce3754c3200f190e6281fc25c989c8a00354c01d370432c"
+                notes: "Immutable checksums for all 15 source files validated in staging and after publication to the canonical site tree."
+            validation:
+              - command: "npm --prefix site ci"
+                status: passed
+                notes: "Lockfile-pinned canonical install added 458 packages, audited 459, and reported 0 vulnerabilities."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro checked 12 files with 0 errors, 0 warnings, and 0 hints."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "Vitest passed 1 locale test file with 4 tests."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Astro static mode emitted exactly /, /en/, and /ru/ as directory-format HTML routes."
+              - command: "npm --prefix site exec -- playwright install chromium"
+                status: passed
+                notes: "Playwright found the checksummed Chromium v1228 browser prerequisite in its verified cache."
+              - command: "npm --prefix site run test:e2e -- --grep 'localized shell'"
+                status: passed
+                notes: "Chromium passed the root chooser, English/Russian lang and hreflang metadata, locale switching, ordinary-link, and no-client-script assertions."
+              - command: "sha256sum -c publish.sha256 and canonical staging-tree comparison"
+                status: passed
+                notes: "All 15 immutable staged source checksums passed and every canonical source file is byte-identical."
+              - command: "Canonical exact-toolchain and static-output audit"
+                status: passed
+                notes: "All 11 expected direct versions are exact; Node/npm metadata is pinned; no adapter or UI framework is declared; built HTML contains no script elements."
+              - command: "Desktop and narrow rendered-page visual review"
+                status: passed
+                notes: "English 1440x1000 and Russian 390x844 screenshots are readable, responsive, and free of observed clipping or horizontal overflow."
+            notes: "Completed with approved npm-registry, Playwright-download, localhost-preview, and browser execution access; no paid service and no budget limit. Published a pinned Astro 7 static shell with typed English/Russian catalogs, explicit locale routes, build-time MDX/math support, responsive styling, and separate unit/browser gates. Staging and canonical validations both passed."
+      - id: establish-content-contract
+        objective: "Implement the bilingual chapter schema, static chapter routing, source inclusion, and deterministic content checks."
+        depends_on:
+          - scaffold-localized-static-site
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - site/package.json
+          - site/package-lock.json
+        outputs:
+          - curriculum/README.md
+          - curriculum/chapter-template.md
+          - site/src/content.config.ts
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - site/src/components/RustSource.astro
+          - scripts/check-chapter-contract.mjs
+          - scripts/check-site-content.mjs
+          - scripts/check-static-links.mjs
+          - site/tests/content-contract.test.ts
+        acceptance:
+          - "The schema requires stable chapter ID, locale, content revision, formula metadata, history, Rust sources, and a visualization decision."
+          - "Only complete same-revision English/Russian pairs are emitted as static chapter routes."
+          - "Build-time Rust inclusion is restricted to declared repository paths."
+          - "Checks cover chapter sections, catalog and shared-field parity, localized links, hreflang routes, and static assets."
+        validate:
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+        cost:
+          class: small
+          notes: "Local schema, route, component, and validation work using dependencies already locked by the site scaffold."
+        runs:
+          - run_id: 20260718T120555Z-establish-content-contract-01
+            started_at: "2026-07-18T12:05:55Z"
+            finished_at: "2026-07-18T12:39:30Z"
+            status: succeeded
+            input_fingerprint:
+              git: "unborn master; no commits"
+              files:
+                AGENTS.md: "sha256:dcb6c5c9520635753a179c2e6f6e6c39fcbb22335bb6fd6e5498cf93f6150b52"
+                DECISIONS.md: "sha256:30d940ca66270fdf1d4c31ba14c9a73bf04ce95bcc0a897ec1aae0cbb27b0b52"
+                BUILD_STATE.yaml: "sha256:58aa29e517446c815a383116d056966537d137ca17fc3caa98573035197169c3"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/layouts/BaseLayout.astro: "sha256:4e000219fc19d340fefd6c86f8e764c775fdcc5e299ea603cc75631003611acd"
+                site/src/i18n/index.ts: "sha256:ac9ca08e18e7cf9ed8a23875edfc83bf228f618302c2af927143dde9e36960aa"
+              tools:
+                node: "23.7.0"
+                npm: "10.9.2"
+            staging_dir: ".build/runs/20260718T120555Z-establish-content-contract-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, and the localized site component sources"
+              - "rustc --version && cargo --version && node --version && npm --version && git --version"
+              - "sha256sum -c for the latest scaffold publication and Playwright browser-cache manifests"
+              - "Ruby ledger eligibility and stale-run check"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml site/package.json site/package-lock.json site/src/layouts/BaseLayout.astro site/src/i18n/index.ts"
+              - "Created all ten owned outputs under the run-specific publish tree and assembled a validation workspace from owned hard links plus read-only scaffold links"
+              - "node --check for all three validators; staged chapter template, empty-content catalog gate, and prior static output audit passed"
+              - "npm --prefix site run check (initial staging diagnostics exposed deprecated Astro content z import and missing Node ambient types; fixed without dependency changes)"
+              - "npm --prefix site run check (later paired build exposed getStaticPaths helper hoisting and bundled import.meta.url source-root assumptions; both were corrected in staging)"
+              - "Disposable English-only MDX: single-locale check passed, full publication gate failed as expected, and production build omitted both chapter routes"
+              - "Disposable stale Russian revision: single-locale check passed and parity gate failed as expected"
+              - "Disposable matching bilingual pair: parity, full content, type, unit, production-build, Rust-source inclusion, hreflang, no-script, and static-link checks passed; both locale routes were emitted"
+              - "npm --prefix site exec -- playwright test --config visual-review.config.ts (first invocation used a workspace-relative config path and failed before launch; corrected site/ path passed 1 test in cached Chromium)"
+              - "Removed disposable MDX and browser specs, then reran all five declared gates plus the chapter-template validator on the clean staging tree"
+              - "sha256sum -c publish.sha256"
+              - "Appended the deterministic fail-closed bilingual content publication decision to DECISIONS.md"
+              - "Published all ten staged outputs to canonical paths with apply_patch; immutable manifest and byte-for-byte canonical comparisons passed"
+              - "npm --prefix site run check (canonical: 17 files, 0 errors, 0 warnings, 0 hints)"
+              - "npm --prefix site run test -- --run (canonical: 2 files and 11 tests passed)"
+              - "npm --prefix site run check:content (canonical: 0 localized sources, 0 publishable pairs, 17 matching catalog keys)"
+              - "npm --prefix site run build (canonical static mode: /, /en/, /ru/, /en/course/, and /ru/course/)"
+              - "npm --prefix site run test:links (canonical: 5 HTML files, 93 local references, 66 total artifacts)"
+              - "npm --prefix site run check:contract -- ../curriculum/chapter-template.md (canonical template passed)"
+              - "Canonical no-script, exact-route, trailing-whitespace, artifact-checksum, and worktree audits"
+            artifacts:
+              - path: ".build/runs/20260718T120555Z-establish-content-contract-01/publish.sha256"
+                checksum: "sha256:a112bf847c40d83c6df66febb4be4b06e3267ceafff7bd12b5f32a7b5c5fc757"
+                notes: "Immutable checksums for the ten-file staged publication tree."
+              - path: ".build/runs/20260718T120555Z-establish-content-contract-01/visual-review-course-en.png"
+                checksum: "sha256:33b198d82fb0b5dd66bb0b2c2194f86c5609da13d910834e6cc25d97b0f7ea32"
+                notes: "Desktop English course index rendered with a complete disposable bilingual pair."
+              - path: ".build/runs/20260718T120555Z-establish-content-contract-01/visual-review-fixture-ru.png"
+                checksum: "sha256:c777aae82992dc8e457350182ed14bee04767907bd2877d97c2b858181c796f8"
+                notes: "Narrow Russian disposable chapter route showing localized chrome, content, formula, and the allowlisted Rust source component without observed clipping."
+            validation:
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Canonical Astro diagnostics covered 17 files with 0 errors, 0 warnings, and 0 hints."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "Vitest passed both files and all 11 catalog, schema, pairing, contract, allowlist, and broken-link tests."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "The clean empty course has 17 matching message keys and no unpaired source; disposable fixtures separately proved fail-closed pair publication."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Astro static mode emitted exactly the root chooser, two localized landings, and two localized course indexes with no server adapter."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 93 local HTML/CSS references across 5 HTML files and 66 total artifacts resolve; lang and locale-preserving hreflang checks pass."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapter-template.md"
+                status: passed
+                notes: "The checked-in bilingual chapter template satisfies all metadata and ordered-section requirements."
+              - command: "Disposable incomplete, stale, and matching bilingual MDX fixtures"
+                status: passed
+                notes: "A single locale validated but emitted no route; a revision mismatch failed parity; a matching pair passed content checks and emitted both localized routes."
+              - command: "Allowlisted Rust source inclusion and negative path checks"
+                status: passed
+                notes: "The matching fixture rendered a declared repository Rust file in both locales; tests reject traversal and undeclared/out-of-allowlist paths."
+              - command: "Cached Chromium desktop and narrow rendered-page review"
+                status: passed
+                notes: "English course index at 1440x1000 and Russian chapter at 390x844 were readable, localized, keyboard-addressable, and free of observed clipping; 1 browser test passed."
+              - command: "Immutable staging manifest and canonical equality"
+                status: passed
+                notes: "All ten published files retain their recorded checksums and are byte-identical to staging; both visual artifacts retain their checksums."
+              - command: "Canonical static-source audit"
+                status: passed
+                notes: "Built HTML contains no script elements, exactly five clean routes exist, and the ten published text files contain no trailing whitespace."
+            notes: "Completed locally using the already locked Astro toolchain and cached Chromium, with no dependency changes, new download, paid service, or budget limit. Published a strict bilingual schema, fail-closed same-revision route pairing, allowlisted build-time Rust inclusion, chapter workflow/template, localized course routes, and deterministic content/link validators. Both staged fixture coverage and clean canonical acceptance pass."
+      - id: outline-ch01-text-units
+        objective: "Specify the bilingual learning contract for text units and vocabulary IDs before implementing the chapter."
+        depends_on:
+          - establish-content-contract
+        status: pending
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - curriculum/chapter-template.md
+        outputs:
+          - curriculum/chapters/01-text-units.md
+        acceptance:
+          - "The outline defines one objective, worked English and Cyrillic inputs, the token-ID formula and symbols, and deterministic expected behavior."
+          - "It specifies historical word/character splitting, related Rust contrast code, a useful visualization, exercises, and the connection to the final decoder."
+          - "It includes an English/Russian terminology glossary and translation notes."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md"
+        cost:
+          class: small
+          notes: "Local authored outline and bilingual terminology planning only."
+        runs: []
+      - id: implement-ch01-text-units-rust
+        objective: "Implement and test the shared Rust demo for UTF-8 bytes, Unicode scalar values, and vocabulary IDs."
+        depends_on:
+          - scaffold-rust-workspace
+          - outline-ch01-text-units
+        status: pending
+        inputs:
+          - curriculum/chapters/01-text-units.md
+          - Cargo.toml
+          - scripts/check-rust-dependencies.sh
+        outputs:
+          - rust/demos/ch01-text-units/Cargo.toml
+          - rust/demos/ch01-text-units/src/lib.rs
+          - rust/demos/ch01-text-units/src/main.rs
+          - rust/demos/ch01-text-units/expected.txt
+        acceptance:
+          - "The from-scratch demo maps English and Cyrillic text through bytes, Unicode scalar values, and deterministic vocabulary IDs."
+          - "A historical whitespace/character contrast is runnable, and round-trip, unknown-token, and multilingual cases are tested."
+          - "The demo uses no crate that implements tokenization and produces the committed output exactly."
+        validate:
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+        cost:
+          class: small
+          notes: "Local Rust implementation and tests; no network or substantial CPU use."
+        runs: []
+      - id: implement-ch01-text-units-visualization
+        objective: "Create a shared, localizable visualization of text becoming bytes, scalar values, and token IDs."
+        depends_on:
+          - scaffold-localized-static-site
+          - outline-ch01-text-units
+        status: pending
+        inputs:
+          - curriculum/chapters/01-text-units.md
+          - site/src/i18n/en.ts
+          - site/src/i18n/ru.ts
+        outputs:
+          - site/src/components/chapters/TextUnitsDiagram.astro
+          - site/src/lib/text-units-diagram.ts
+          - site/tests/text-units-diagram.test.ts
+        acceptance:
+          - "The diagram exposes the relationship among UTF-8 bytes, Unicode scalar values, and vocabulary IDs for English and Cyrillic examples."
+          - "All prose and accessible labels are supplied by locale data rather than embedded in the shared component."
+          - "The diagram is keyboard-readable, responsive, and does not rely on color alone."
+        validate:
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run tests/text-units-diagram.test.ts"
+          - "npm --prefix site run build"
+        cost:
+          class: small
+          notes: "Local Astro, SVG, and TypeScript work using locked dependencies."
+        runs: []
+      - id: author-ch01-text-units-en
+        objective: "Author and validate the English chapter-1 lesson using the shared Rust demo and visualization."
+        depends_on:
+          - establish-content-contract
+          - implement-ch01-text-units-rust
+          - implement-ch01-text-units-visualization
+        status: pending
+        inputs:
+          - curriculum/chapters/01-text-units.md
+          - rust/demos/ch01-text-units/src/lib.rs
+          - rust/demos/ch01-text-units/src/main.rs
+          - site/src/components/chapters/TextUnitsDiagram.astro
+        outputs:
+          - site/src/content/chapters/en/01-text-units.mdx
+        acceptance:
+          - "The English lesson satisfies every chapter-contract section, renders the formula and symbol glossary, and uses the tested Rust source component."
+          - "The historical contrast, shared visualization, prediction checks, and final-model connection are concise and accurate."
+          - "An unpaired lesson validates as authored source but is excluded from published static chapter routes."
+        validate:
+          - "npm --prefix site run check:chapter -- --locale en --chapter 01-text-units"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+        cost:
+          class: medium
+          notes: "English technical authoring and local validation; no paid translation or generation service."
+        runs: []
+      - id: author-ch01-text-units-ru
+        objective: "Author and validate the Russian chapter-1 lesson at the same content revision as English."
+        depends_on:
+          - author-ch01-text-units-en
+        status: pending
+        inputs:
+          - curriculum/chapters/01-text-units.md
+          - site/src/content/chapters/en/01-text-units.mdx
+          - rust/demos/ch01-text-units/src/lib.rs
+          - site/src/components/chapters/TextUnitsDiagram.astro
+        outputs:
+          - site/src/content/chapters/ru/01-text-units.mdx
+        acceptance:
+          - "The Russian lesson is a complete technical translation with localized prose, captions, accessible labels, history, and exercises."
+          - "Stable ID, content revision, formula, Rust sources, visualization ID, and order match the English lesson."
+          - "Both locale routes are emitted only after pair and parity checks pass."
+        validate:
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 01-text-units"
+          - "npm --prefix site run check:parity -- --chapter 01-text-units"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+        cost:
+          class: medium
+          notes: "Human-quality Russian technical authoring and local validation; no paid or automated translation service."
+        runs: []
+      - id: integrate-ch01-text-units
+        objective: "Prove the complete English/Russian chapter-1 vertical slice in the production static site."
+        depends_on:
+          - author-ch01-text-units-en
+          - author-ch01-text-units-ru
+        status: pending
+        inputs:
+          - site/src/content/chapters/en/01-text-units.mdx
+          - site/src/content/chapters/ru/01-text-units.mdx
+          - site/package-lock.json
+          - rust/demos/ch01-text-units/expected.txt
+        outputs:
+          - site/tests/e2e/ch01-text-units.spec.ts
+        acceptance:
+          - "English and Russian course indexes link to the chapter, and both static pages expose correct lang, hreflang, and locale-preserving switches."
+          - "The formula, history, tested Rust excerpt, visualization, and exercises render in both locales at desktop and narrow viewports."
+          - "All Rust, dependency, content, translation-parity, build, link, asset, and browser checks pass together."
+        validate:
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+          - "npm --prefix site ci"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep 'chapter 1'"
+        cost:
+          class: medium
+          notes: "Local full-suite and cached browser validation; npm access is explicit if the cache is cold, with no paid service."
+        runs: []

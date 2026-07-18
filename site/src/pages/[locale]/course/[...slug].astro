@@ -1,0 +1,211 @@
+---
+import {
+  getCollection,
+  render,
+  type CollectionEntry,
+} from 'astro:content';
+
+import RustSource from '../../../components/RustSource.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  function sharedSignature(entry: CollectionEntry<'chapters'>) {
+    return JSON.stringify({
+      chapter_id: entry.data.chapter_id,
+      content_revision: entry.data.content_revision,
+      order: entry.data.order,
+      concept_id: entry.data.concept_id,
+      formula: {
+        latex: entry.data.formula.latex,
+        symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
+      },
+      history_rust_source: entry.data.history.rust_source,
+      rust_sources: entry.data.rust_sources.map((source) => ({
+        path: source.path,
+        region: source.region ?? null,
+      })),
+      visualization: {
+        decision: entry.data.visualization.decision,
+        id: entry.data.visualization.id,
+      },
+    });
+  }
+
+  const chapterModules = import.meta.glob(
+    '../../../content/chapters/{en,ru}/**/*.{md,mdx}',
+  );
+  const chapters =
+    Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
+  const groups = new Map<string, CollectionEntry<'chapters'>[]>();
+  for (const entry of chapters) {
+    const group = groups.get(entry.data.chapter_id) ?? [];
+    group.push(entry);
+    groups.set(entry.data.chapter_id, group);
+  }
+
+  const publishable = [];
+  for (const group of groups.values()) {
+    const english = group.filter((entry) => entry.data.locale === 'en');
+    const russian = group.filter((entry) => entry.data.locale === 'ru');
+    if (
+      english.length === 1 &&
+      russian.length === 1 &&
+      english[0].data.content_revision === russian[0].data.content_revision &&
+      sharedSignature(english[0]) === sharedSignature(russian[0])
+    ) {
+      publishable.push(english[0], russian[0]);
+    }
+  }
+
+  return publishable.map((entry) => ({
+    params: {
+      locale: entry.data.locale,
+      slug: entry.data.chapter_id,
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as {
+  entry: CollectionEntry<'chapters'>;
+};
+const { Content } = await render(entry);
+const locale = entry.data.locale;
+const pageCopy = {
+  en: {
+    back: 'All chapters',
+    objective: 'In this chapter',
+    revision: 'Content revision',
+  },
+  ru: {
+    back: 'Все главы',
+    objective: 'В этой главе',
+    revision: 'Версия материала',
+  },
+} as const;
+const copy = pageCopy[locale];
+const routeSuffix = '/course/' + entry.data.chapter_id + '/';
+---
+
+<BaseLayout
+  locale={locale}
+  routeSuffix={routeSuffix}
+  title={entry.data.title}
+  description={entry.data.description}
+>
+  <article class="lesson shell-container">
+    <header class="lesson-header">
+      <a class="lesson-back" href={'/' + locale + '/course/'}>← {copy.back}</a>
+      <p class="eyebrow">
+        {String(entry.data.order).padStart(2, '0')} · {copy.revision} {entry.data.content_revision}
+      </p>
+      <h1>{entry.data.title}</h1>
+      <p class="lesson-description">{entry.data.description}</p>
+      <aside class="lesson-objective">
+        <strong>{copy.objective}</strong>
+        <p>{entry.data.objective}</p>
+      </aside>
+    </header>
+
+    <div class="lesson-body">
+      <Content components={{ RustSource }} />
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .lesson {
+    max-width: 52rem;
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+
+  .lesson-header {
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .lesson-back {
+    display: inline-block;
+    margin-bottom: 2.5rem;
+    color: var(--accent-dark);
+    font-weight: 750;
+    text-underline-offset: 0.2rem;
+  }
+
+  .lesson h1 {
+    max-width: 15ch;
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+
+  .lesson-description {
+    margin: 1.5rem 0 0;
+    color: var(--muted);
+    font-size: 1.2rem;
+  }
+
+  .lesson-objective {
+    margin-top: 2rem;
+    padding: 1.1rem 1.25rem;
+    border-left: 0.25rem solid var(--accent);
+    background: rgba(15, 118, 110, 0.08);
+  }
+
+  .lesson-objective p {
+    margin: 0.35rem 0 0;
+  }
+
+  .lesson-body {
+    padding-top: 2rem;
+  }
+
+  .lesson-body h2 {
+    margin: 3.5rem 0 1rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  .lesson-body h3 {
+    margin-top: 2rem;
+    font-size: 1.25rem;
+  }
+
+  .lesson-body p,
+  .lesson-body li {
+    max-width: 70ch;
+  }
+
+  .lesson-body blockquote {
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.25rem;
+    border-left: 0.2rem solid var(--warm);
+    color: var(--muted);
+  }
+
+  .lesson-body :not(pre) > code {
+    padding: 0.12rem 0.3rem;
+    border-radius: 0.3rem;
+    background: rgba(22, 33, 29, 0.08);
+    font-size: 0.9em;
+  }
+
+  .lesson-body table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  .lesson-body th,
+  .lesson-body td {
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--line);
+    text-align: start;
+  }
+</style>

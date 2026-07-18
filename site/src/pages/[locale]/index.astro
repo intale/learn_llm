@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getMessages, locales, type Locale } from '../../i18n';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({ params: { locale }, props: { locale } }));
+}
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = getMessages(locale);
+const features = [
+  [copy.examplesTitle, copy.examplesDescription],
+  [copy.formulasTitle, copy.formulasDescription],
+  [copy.historyTitle, copy.historyDescription],
+];
+---
+
+<BaseLayout locale={locale} routeSuffix="/">
+  <section class="hero shell-container">
+    <p class="eyebrow">{copy.eyebrow}</p>
+    <h1>{copy.homeTitle}</h1>
+    <p class="hero-intro">{copy.homeIntro}</p>
+  </section>
+
+  <section class="feature-grid shell-container" aria-label={copy.homeTitle}>
+    {
+      features.map(([title, description], index) => (
+        <article class="feature-card">
+          <span class="feature-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </article>
+      ))
+    }
+  </section>
+
+  <aside class="course-note shell-container">
+    <span aria-hidden="true">⌁</span>
+    <p>{copy.courseNote}</p>
+  </aside>
+</BaseLayout>

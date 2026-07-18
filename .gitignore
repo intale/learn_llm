@@ -1,0 +1,14 @@
+# Per-run staging, logs, and reusable local artifacts. Promote intentional outputs
+# to a canonical tracked path only after their validation succeeds.
+.build/runs/
+
+# Rust build output. Cargo.lock remains tracked.
+/target/
+
+# Static-site dependencies and reproducible build/test output.
+/site/node_modules/
+/site/dist/
+/site/.astro/
+/site/coverage/
+/site/test-results/
+/site/playwright-report/
