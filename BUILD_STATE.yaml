@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T14:42:26Z"
+updated_at: "2026-07-18T15:03:21Z"
 
 environment:
   os: "Linux x86_64"
@@ -1269,3 +1269,147 @@ builds:
                 status: passed
                 notes: "The README retains its staged checksum and is byte-identical to canonical; both local Markdown targets exist, all named npm scripts exist, and README/decision/state files contain no trailing whitespace."
             notes: "Completed locally with the locked project toolchains and a temporary approved localhost static server, without external network access, dependency changes, browser download, paid service, or substantial CPU use. Published a student/contributor usage guide and durable clarification that site/dist is served as the origin document root rather than opened directly or below a nested prefix."
+  - build_id: connect-localized-homes-to-course
+    objective: "Make each localized home page a current, tested entry point to its matching course index."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource budget has been supplied. This is a small local UI and regression-test change using cached toolchains, with no network or paid service planned."
+    completion_criteria:
+      - "The English and Russian home pages visibly link to their same-locale course indexes with current localized copy."
+      - "Static and browser checks fail if a localized home becomes a course-navigation dead end."
+      - "The complete localized static-site validation passes at desktop and narrow widths."
+    steps:
+      - id: link-localized-homes-to-course
+        objective: "Add localized course calls to action to /en/ and /ru/ and lock their reachability into automated checks."
+        depends_on:
+          - integrate-ch01-text-units
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - site/package.json
+          - site/package-lock.json
+          - site/src/layouts/BaseLayout.astro
+          - "site/src/pages/[locale]/index.astro"
+          - site/src/i18n/index.ts
+          - site/src/i18n/en.ts
+          - site/src/i18n/ru.ts
+          - site/src/styles/global.css
+          - scripts/check-static-links.mjs
+          - site/tests/content-contract.test.ts
+          - site/tests/e2e/localized-shell.spec.ts
+        outputs:
+          - "site/src/pages/[locale]/index.astro"
+          - site/src/i18n/en.ts
+          - site/src/i18n/ru.ts
+          - site/src/styles/global.css
+          - scripts/check-static-links.mjs
+          - site/tests/content-contract.test.ts
+          - site/tests/e2e/localized-shell.spec.ts
+        acceptance:
+          - "Each localized home shows current course-availability copy and an ordinary, keyboard-accessible link to /<locale>/course/."
+          - "The call to action remains readable without client JavaScript and at a 390 CSS-pixel viewport."
+          - "The static audit rejects an English or Russian landing page that lacks its same-locale course link."
+          - "Browser coverage follows both localized calls to action and reaches the matching course index."
+          - "Catalog parity, Astro diagnostics, unit/content checks, production build, static links, and the complete browser suite pass."
+        validate:
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep 'localized shell'"
+          - "npm --prefix site run test:e2e"
+        cost:
+          class: small
+          notes: "Local source edits plus cached Astro, Vitest, static-link, and Chromium checks; no dependency change, network input, generation, or paid service."
+        runs:
+          - run_id: 20260718T144905Z-link-localized-homes-to-course-01
+            started_at: "2026-07-18T14:49:05Z"
+            finished_at: "2026-07-18T15:03:21Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d2e06e89eefaa74dd9f7da5f463ec6f8926fb6c1"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:2af0d2b73a026fe509c4f0e499075c89fc2f1a9c54d757b7aa7d0fe08fb0d17b"
+                BUILD_STATE.yaml: "sha256:0b46fb56b20f4a035ca30ccf510fe730b778012796ecc4e4e65c37cec1c2571e"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/layouts/BaseLayout.astro: "sha256:4e000219fc19d340fefd6c86f8e764c775fdcc5e299ea603cc75631003611acd"
+                "site/src/pages/[locale]/index.astro": "sha256:4d663764985168328dcffffb094011c85a9658351770ef3d64359a9ad8476b77"
+                site/src/i18n/index.ts: "sha256:ac9ca08e55b3d2fd02d4257b5689a0311e08139414f158a07c6d6610d01354a8"
+                site/src/i18n/en.ts: "sha256:0c177e87790c4508b7c3801810539b616e9e60f31e2b267cf2dca144ce9e4eb3"
+                site/src/i18n/ru.ts: "sha256:f5112178ba58576fb0bbd1013e20b5fafe8cb2a75824133d4f82a2d9a276bbdd"
+                site/src/styles/global.css: "sha256:7fee145758e3ef8a6a9f6c4d76fb38889a848c6f05cd142dfc1f0a5b307bd0ca"
+                scripts/check-static-links.mjs: "sha256:fb268fda1e789950c9b17bd3930a29e7bde2a9483447505bb00d597f96b9dee2"
+                site/tests/content-contract.test.ts: "sha256:9fc5f7dc6d2c5716dde72b1cab476ae24fec3f0ec53e6fb43e8ab0563d66a9d6"
+                site/tests/e2e/localized-shell.spec.ts: "sha256:b4e77e652e74ab55e0991359aa1328b3ba9801bdfd863efb00732af0b95ed1a1"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T144905Z-link-localized-homes-to-course-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, latest DECISIONS.md entries, the completed usage-documentation run, localized home/catalog/styles, static-link checker, and unit/browser coverage"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the completed usage-documentation run publication manifest, manual review, and canonical README equality"
+              - "Confirm /en/course/ and /ru/course/ exist while neither localized home references its matching index"
+              - "sha256sum material localized-home inputs"
+              - "Create the run-specific publish tree"
+              - "Append the accepted localized-home course-entry contract to DECISIONS.md"
+              - "Stage localized availability copy, same-locale course calls to action, responsive styling, static reachability enforcement, and unit/browser regression coverage"
+              - "Assemble an isolated validation repository with canonical sources, staged outputs, and the locked node_modules tree"
+              - "Run staged Astro diagnostics, 14 unit tests, bilingual content checks, seven-route production build, 113-reference static audit, and three focused cached-Chromium tests"
+              - "Publish all seven checksum-verified source and test outputs with apply_patch and verify byte equality"
+              - "npm --prefix site run check"
+              - "npm --prefix site run test -- --run"
+              - "npm --prefix site run check:content"
+              - "npm --prefix site run build"
+              - "npm --prefix site run test:links"
+              - "Run the canonical focused localized-shell browser suite with a run-specific config on port 43118 because the configured port 4321 was already occupied"
+              - "Run the complete canonical browser suite with the same run-specific config"
+              - "Create the manual acceptance review, browser completion marker, and immutable seven-file publication manifest"
+              - "Canonical generated-link, no-overflow, no-script, lockfile, manifest, equality, YAML, trailing-whitespace, diff, and worktree audits"
+            artifacts:
+              - path: ".build/runs/20260718T144905Z-link-localized-homes-to-course-01/publish.sha256"
+                checksum: "sha256:4295fe8d5e2a07cbf850b5ca941b396b493102b54a64a285ab0e36dedf0359b9"
+                notes: "Immutable checksums for the seven staged source and regression-test files published byte-for-byte to canonical paths."
+              - path: ".build/runs/20260718T144905Z-link-localized-homes-to-course-01/manual-review.md"
+                checksum: "sha256:7bea7a1fb0a48d0e9f63fd596f7144606d2bb533c7ee8c365dba4a94e24ebc21"
+                notes: "Completion-time review of localized copy, course navigation, keyboard access, narrow layout, static reachability, and browser behavior."
+              - path: ".build/runs/20260718T144905Z-link-localized-homes-to-course-01/browser-results/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+                notes: "Playwright completion marker for the passing six-test canonical browser suite."
+            validation:
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Canonical Astro diagnostics covered 21 files with 0 errors, warnings, or hints; the isolated staged tree passed the same check."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "Vitest passed 3 files and all 14 tests in staged and canonical trees; the static fixture independently rejects missing English and Russian course-entry anchors."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "The bilingual content gate reports 2 localized sources, 1 publishable pair, and 18 synchronized catalog keys."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Static mode emitted exactly 7 pages; generated English and Russian homes contain /en/course/ and /ru/course/ anchors with their localized labels."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 113 local references across 7 HTML files and 68 static artifacts resolve, including both new course-entry links."
+              - command: "npm --prefix site run test:e2e -- --grep 'localized shell'"
+                status: passed
+                notes: "Three staged and three canonical cached-Chromium tests proved ordinary links, keyboard focus, same-locale navigation, localized course headings, one published chapter, no narrow overflow, and zero runtime scripts. A run-specific equivalent config used ports 43117/43118 because sandboxed localhost was initially denied and canonical port 4321 was occupied."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "The complete canonical six-test browser suite passed, preserving the chapter-1 bilingual desktop/narrow contract alongside all localized-home journeys."
+              - command: "Immutable staging manifest, canonical equality, lockfile, YAML, diff, and manual acceptance audit"
+                status: passed
+                notes: "All seven staged outputs retain their checksums and are byte-identical to canonical files; package manifests remain unchanged, state parses as YAML, and reviewed files contain no whitespace errors."
+            notes: "Completed locally with the locked Astro/Vitest toolchain and cached Chromium, without dependency changes, external network access, browser download, paid service, or substantial CPU use. Published current English/Russian home copy and accessible same-locale course calls to action, plus static and rendered-navigation gates that prevent the dead end from recurring."

@@ -15,6 +15,7 @@ export interface Messages {
   historyTitle: string;
   historyDescription: string;
   courseNote: string;
+  courseLinkLabel: string;
   footerNote: string;
 }
 
@@ -35,6 +36,8 @@ export const en: Messages = {
   formulasDescription: 'Symbols are introduced only when they explain the behavior you can observe.',
   historyTitle: 'See what came before',
   historyDescription: 'Each chapter contrasts the modern component with the historical approach it replaced.',
-  courseNote: 'The first bilingual chapter is being assembled from these verified building blocks.',
+  courseNote:
+    'Chapter 1 is ready: follow English and Cyrillic text from UTF-8 bytes through Unicode scalar values to vocabulary IDs.',
+  courseLinkLabel: 'Start the course',
   footerNote: 'A static, bilingual course for understanding language models from the inside.',
 };

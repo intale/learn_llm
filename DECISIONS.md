@@ -443,3 +443,27 @@ browser-test changes rather than an implicit rewrite of the current output.
 
 **Affected steps:** `scaffold-localized-static-site`,
 `integrate-ch01-text-units`, `document-course-usage`
+
+## 2026-07-18 — Make localized homes explicit course entry points
+
+**Status:** Accepted
+
+**Context:** The English and Russian course indexes and first chapter are
+published, but both localized home pages still show scaffold-era “being
+assembled” copy and offer no route into the course. Existing link checks prove
+only that links which happen to exist resolve, so this dead end passed every
+publication gate.
+
+**Decision:** Give every localized home an ordinary, visible link to the matching
+`/<locale>/course/` index, with both its availability copy and link label sourced
+from the typed locale catalogs. Make same-locale home-to-course reachability a
+static-output contract, and exercise the actual links in the localized-shell
+browser test at desktop and narrow viewports. Keep navigation functional without
+client JavaScript.
+
+**Consequences:** Students can enter the course directly from either localized
+home, and future regressions fail both deterministic artifact validation and
+rendered navigation coverage. Adding a locale requires its home to expose the
+same course-entry relationship.
+
+**Affected steps:** `link-localized-homes-to-course`

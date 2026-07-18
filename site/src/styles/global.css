@@ -195,13 +195,36 @@ a:focus-visible {
   background: rgba(15, 118, 110, 0.08);
 }
 
-.course-note span {
+.course-note > span {
   color: var(--accent-dark);
   font-size: 2rem;
 }
 
+.course-note-content {
+  display: grid;
+  min-width: 0;
+  gap: 0.75rem;
+}
+
 .course-note p {
   margin: 0;
+}
+
+.course-cta {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.7rem;
+  background: var(--accent-dark);
+  color: white;
+  font-weight: 750;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.course-cta:hover {
+  background: var(--accent);
 }
 
 .site-footer {
@@ -310,6 +333,10 @@ a:focus-visible {
 
   .feature-number {
     margin-bottom: 2.5rem;
+  }
+
+  .course-note {
+    align-items: flex-start;
   }
 }
 

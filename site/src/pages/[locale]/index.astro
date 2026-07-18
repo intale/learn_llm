@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getMessages, locales, type Locale } from '../../i18n';
+import { getMessages, localePath, locales, type Locale } from '../../i18n';
 
 export function getStaticPaths() {
   return locales.map((locale) => ({ params: { locale }, props: { locale } }));
@@ -36,6 +36,11 @@ const features = [
 
   <aside class="course-note shell-container">
     <span aria-hidden="true">⌁</span>
-    <p>{copy.courseNote}</p>
+    <div class="course-note-content">
+      <p>{copy.courseNote}</p>
+      <a class="course-cta" href={localePath(locale, '/course/')}>
+        {copy.courseLinkLabel}
+      </a>
+    </div>
   </aside>
 </BaseLayout>

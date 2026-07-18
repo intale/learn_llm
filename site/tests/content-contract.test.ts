@@ -189,15 +189,20 @@ describe('curriculum and catalog contracts', () => {
 });
 
 describe('static link and locale audit', () => {
-  it('accepts complete locale alternates and rejects a missing local asset', () => {
+  it('requires localized course entry links and rejects a missing local asset', () => {
     const root = mkdtempSync(join(tmpdir(), 'learn-llm-links-'));
     temporaryDirectories.push(root);
-    mkdirSync(join(root, 'en'), { recursive: true });
-    mkdirSync(join(root, 'ru'), { recursive: true });
+    mkdirSync(join(root, 'en/course'), { recursive: true });
+    mkdirSync(join(root, 'ru/course'), { recursive: true });
 
     const alternates = [
       '<link rel="alternate" hreflang="en" href="/en/">',
       '<link rel="alternate" hreflang="ru" href="/ru/">',
+      '<link rel="alternate" hreflang="x-default" href="/">',
+    ].join('');
+    const courseAlternates = [
+      '<link rel="alternate" hreflang="en" href="/en/course/">',
+      '<link rel="alternate" hreflang="ru" href="/ru/course/">',
       '<link rel="alternate" hreflang="x-default" href="/">',
     ].join('');
     writeFileSync(
@@ -211,7 +216,46 @@ describe('static link and locale audit', () => {
       join(root, 'en/index.html'),
       '<html lang="en"><head>' +
         alternates +
+        '</head><body><a href="/ru/">Русский</a>' +
+        '<a href="/en/course/">Course</a></body></html>',
+    );
+    writeFileSync(
+      join(root, 'ru/index.html'),
+      '<html lang="ru"><head>' +
+        alternates +
+        '</head><body><a href="/en/">English</a>' +
+        '<a href="/ru/course/">Курс</a></body></html>',
+    );
+    writeFileSync(
+      join(root, 'en/course/index.html'),
+      '<html lang="en"><head>' + courseAlternates + '</head><body></body></html>',
+    );
+    writeFileSync(
+      join(root, 'ru/course/index.html'),
+      '<html lang="ru"><head>' + courseAlternates + '</head><body></body></html>',
+    );
+    writeFileSync(root + '/style.css', '@font-face{src:url("/font.woff2")}');
+    writeFileSync(root + '/font.woff2', '');
+
+    expect(auditStaticSite(root)).toEqual(
+      expect.objectContaining({ htmlCount: 5 }),
+    );
+
+    writeFileSync(
+      join(root, 'en/index.html'),
+      '<html lang="en"><head>' +
+        alternates +
         '</head><body><a href="/ru/">Русский</a></body></html>',
+    );
+    expect(() => auditStaticSite(root)).toThrow(
+      /localized home must include an ordinary link to \/en\/course\//,
+    );
+
+    writeFileSync(
+      join(root, 'en/index.html'),
+      '<html lang="en"><head>' +
+        alternates +
+        '</head><body><a href="/en/course/">Course</a></body></html>',
     );
     writeFileSync(
       join(root, 'ru/index.html'),
@@ -219,18 +263,22 @@ describe('static link and locale audit', () => {
         alternates +
         '</head><body><a href="/en/">English</a></body></html>',
     );
-    writeFileSync(root + '/style.css', '@font-face{src:url("/font.woff2")}');
-    writeFileSync(root + '/font.woff2', '');
-
-    expect(auditStaticSite(root)).toEqual(
-      expect.objectContaining({ htmlCount: 3 }),
+    expect(() => auditStaticSite(root)).toThrow(
+      /localized home must include an ordinary link to \/ru\/course\//,
     );
 
+    writeFileSync(
+      join(root, 'ru/index.html'),
+      '<html lang="ru"><head>' +
+        alternates +
+        '</head><body><a href="/ru/course/">Курс</a></body></html>',
+    );
     writeFileSync(
       join(root, 'en/index.html'),
       '<html lang="en"><head>' +
         alternates +
-        '</head><body><img src="/missing.svg"></body></html>',
+        '</head><body><a href="/en/course/">Course</a>' +
+        '<img src="/missing.svg"></body></html>',
     );
     expect(() => auditStaticSite(root)).toThrow(/missing\.svg/);
   });

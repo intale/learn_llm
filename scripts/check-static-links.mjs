@@ -186,6 +186,25 @@ function validateHreflang(relativePath, source, issues) {
   }
 }
 
+function validateLocalizedCourseEntry(relativePath, source, issues) {
+  const route = htmlRoute(relativePath);
+  const localeMatch = route.match(/^\/(en|ru)\/$/);
+  if (!localeMatch) return;
+
+  const expected = '/' + localeMatch[1] + '/course/';
+  const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
+    .map((match) => attributes(match[0]).href)
+    .filter(Boolean);
+
+  if (!anchorHrefs.includes(expected)) {
+    issues.push(
+      relativePath +
+        ': localized home must include an ordinary link to ' +
+        expected,
+    );
+  }
+}
+
 export function auditStaticSite(distDirectory) {
   if (!existsSync(distDirectory)) {
     throw new ContentValidationError([
@@ -217,6 +236,7 @@ export function auditStaticSite(distDirectory) {
     if (extension === '.html') {
       htmlCount += 1;
       validateHreflang(relative, source, issues);
+      validateLocalizedCourseEntry(relative, source, issues);
     }
 
     for (const reference of references) {
