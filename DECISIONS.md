@@ -389,3 +389,28 @@ later completed step has an independently inspectable and revertible publication
 boundary that includes its final state and decision updates.
 
 **Affected steps:** `outline-ch01-text-units` and every later step
+
+## 2026-07-18 — Advance the root lockfile with new demo packages
+
+**Status:** Accepted
+
+**Context:** The root `rust/demos/*` workspace glob intentionally discovers new
+chapter packages without editing `Cargo.toml`. Cargo's version-4 lockfile also
+enumerates local workspace packages, so adding a dependency-free demo requires a
+new local package stanza before workspace validation can pass with `--locked`.
+
+**Decision:** A step that adds a chapter demo may update the root `Cargo.lock` as
+a necessary shared integration file even though the workspace scaffold originally
+created it. The expected change is limited to the new local package unless the
+step separately declares, justifies, and approves a supporting dependency. Keep
+the root workspace manifest unchanged, fingerprint the prior lockfile, and use
+workspace metadata plus the dependency-policy check to reject hidden external
+packages.
+
+**Consequences:** New demos remain automatically discoverable and locked tests
+stay reproducible. The scaffold run's lockfile remains its immutable historical
+artifact; an intentional local-member addition does not invalidate the scaffold's
+workspace architecture or dependency policy.
+
+**Affected steps:** `scaffold-rust-workspace`,
+`implement-ch01-text-units-rust`, and later chapter-demo implementation steps

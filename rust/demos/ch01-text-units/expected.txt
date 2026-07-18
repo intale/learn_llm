@@ -1,0 +1,16 @@
+vocabulary: <UNK>=0 ' '=1 'a'=2 'c'=3 't'=4 'к'=5 'о'=6 'т'=7
+input: cat
+utf8 bytes: [99, 97, 116]
+unicode scalars: [U+0063, U+0061, U+0074]
+token ids: [3, 2, 4]
+decoded: cat
+input: кот
+utf8 bytes: [208, 186, 208, 190, 209, 130]
+unicode scalars: [U+043A, U+043E, U+0442]
+token ids: [5, 6, 7]
+decoded: кот
+historical words: ["red", "fox"] | ["рыжий", "кот"]
+historical scalars: ['c', 'a', 't'] | ['к', 'о', 'т']
+unknown input: ?
+unknown token ids: [0]
+unknown decoded: <UNK>

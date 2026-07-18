@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T12:59:22Z"
+updated_at: "2026-07-18T13:10:28Z"
 
 environment:
   os: "Linux x86_64"
@@ -115,7 +115,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 4
+      spent: 5
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -554,7 +554,7 @@ builds:
         depends_on:
           - scaffold-rust-workspace
           - outline-ch01-text-units
-        status: pending
+        status: completed
         inputs:
           - curriculum/chapters/01-text-units.md
           - Cargo.toml
@@ -576,7 +576,79 @@ builds:
         cost:
           class: small
           notes: "Local Rust implementation and tests; no network or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260718T130358Z-implement-ch01-text-units-rust-01
+            started_at: "2026-07-18T13:03:58Z"
+            finished_at: "2026-07-18T13:10:28Z"
+            status: succeeded
+            input_fingerprint:
+              git: "01d8d369645b4351a891584e710eb9d81b119515"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:6d71f1705e0c171f47cbe567616701ea6c40deba7a7fb07bc4546d5130acd419"
+                BUILD_STATE.yaml: "sha256:4a13e650cabcab72d8f54e80aabc1ab59e9708da66c90b8207fff1eb1c90c6bf"
+                curriculum/chapters/01-text-units.md: "sha256:f85384e06f6e7df111392a85d5f2df4d66496f07021778557909a517e2b74826"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:29c9823c8e57b9e87de386d20a58b9516bc45214301d66119f9271933b58307a"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+            staging_dir: ".build/runs/20260718T130358Z-implement-ch01-text-units-rust-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, the completed chapter contract, root Cargo files, existing workspace packages, and dependency policy"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the latest outline run's publication manifest, review checksum, and canonical contract checksum"
+              - "Ruby ledger eligibility and stale-running-step check"
+              - "sha256sum AGENTS.md DECISIONS.md BUILD_STATE.yaml curriculum/chapters/01-text-units.md Cargo.toml Cargo.lock scripts/check-rust-dependencies.sh"
+              - "Record the necessary shared Cargo.lock integration rule in DECISIONS.md"
+              - "Author the four owned files under the run-specific publish tree and create an isolated staged Cargo workspace"
+              - "cargo generate-lockfile --manifest-path .build/runs/20260718T130358Z-implement-ch01-text-units-rust-01/Cargo.toml"
+              - "cargo fmt --manifest-path ... --all -- --check (initial check found one import-line layout difference); cargo fmt --manifest-path ... --all"
+              - "Run staged Rustfmt, six-test, metadata, dependency-tree, Clippy, exact-output, contract-sync, source-region, and trailing-whitespace checks"
+              - "Create the manual acceptance review and immutable four-file publication manifest"
+              - "Publish all four checksum-verified files to rust/demos/ch01-text-units with apply_patch and verify byte equality"
+              - "cargo generate-lockfile --offline (canonical root; added only the dependency-free ch01-text-units package stanza)"
+              - "cargo fmt --all -- --check"
+              - "cargo test --workspace --locked"
+              - "scripts/check-rust-dependencies.sh"
+              - "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+              - "Canonical cargo clippy --workspace --all-targets --locked -- -D warnings, metadata, and contract-output synchronization checks"
+              - "sha256sum -c publish.sha256 (repository-root invocation could not resolve run-relative paths; rerun from the run staging root passed all four files)"
+            artifacts:
+              - path: ".build/runs/20260718T130358Z-implement-ch01-text-units-rust-01/publish.sha256"
+                checksum: "sha256:16fd28d7b6ef593b90b30c527f495b838f4bfa0f00f4328adf0722d2f7433212"
+                notes: "Immutable checksums for the four dependency-free Rust demo files published to the canonical workspace."
+              - path: ".build/runs/20260718T130358Z-implement-ch01-text-units-rust-01/manual-review.md"
+                checksum: "sha256:822c56cbd4416c6bf3e632989f1ddc9c76838d5ae6b5a84fb7f5edc3be37f4c6"
+                notes: "Completion-time mapping of the implementation and tests to the step's human-readable acceptance criteria."
+              - path: ".build/runs/20260718T130358Z-implement-ch01-text-units-rust-01/Cargo.lock.snapshot"
+                checksum: "sha256:9f655ee7c982b8578bd01aae09fd1e543ac227d410bee4dce677e17d6ee772bd"
+                notes: "Immutable completion-time root lockfile containing the new local package and no external dependencies."
+            validation:
+              - command: "cargo fmt --all -- --check"
+                status: passed
+                notes: "All canonical workspace Rust sources match Rustfmt after the staged import layout was normalized."
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All workspace tests and doc tests passed; chapter 1 contributes six tests for exact representations, IDs, round trips, edge cases, and historical splits."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "The locked workspace contains local packages only and no external or concept-implementing crate."
+              - command: "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+                status: passed
+                notes: "English, Cyrillic, historical, and unknown-token stdout is byte-identical to the committed expected file."
+              - command: "Staged isolated-workspace validation"
+                status: passed
+                notes: "Rustfmt, six tests, dependency-free metadata/tree, Clippy with warnings denied, exact output, contract synchronization, and source-region checks passed before publication."
+              - command: "Canonical Clippy, metadata, and chapter-contract output synchronization"
+                status: passed
+                notes: "All targets are warning-free; the workspace discovers ch01-text-units through the existing glob with zero dependencies; expected.txt exactly matches contract metadata."
+              - command: "Immutable staging manifest, canonical equality, and lockfile audit"
+                status: passed
+                notes: "All four staged files retain their checksums and equal canonical files; Cargo.lock equals its snapshot and differs from baseline only by the local ch01-text-units stanza."
+            notes: "Completed locally without network, paid service, external crate, unsafe code, or substantial CPU use. Published a from-scratch deterministic Unicode-scalar vocabulary, exact multilingual demo, historical word/scalar contrast, six behavioral tests, and synchronized expected output."
       - id: implement-ch01-text-units-visualization
         objective: "Create a shared, localizable visualization of text becoming bytes, scalar values, and token IDs."
         depends_on:
