@@ -414,3 +414,32 @@ workspace architecture or dependency policy.
 
 **Affected steps:** `scaffold-rust-workspace`,
 `implement-ch01-text-units-rust`, and later chapter-demo implementation steps
+
+## 2026-07-18 — Serve the static artifact from the URL root
+
+**Status:** Accepted; clarifies the hosting consequence of “Static Rust-first
+course architecture” and the locale route contract.
+
+**Context:** The generated site uses root-relative localized routes and asset
+URLs. Opening `site/dist/index.html` directly, or serving the repository root and
+browsing to `/site/dist/`, therefore resolves `/en/`, `/ru/`, and `/_astro/`
+outside the generated artifact. After observing the resulting 404 responses, the
+human explicitly declined direct `file://` navigation support and requested usage
+documentation instead.
+
+**Decision:** Treat the contents of `site/dist/` as the static deployment payload
+and serve that directory as the web host's document root with normal directory
+`index.html` support. For local production review, use the repository's Astro
+preview command or an ordinary static file server rooted at `site/dist`; open the
+server's `/` URL rather than an individual generated file. Deployment at a nested
+URL prefix and direct filesystem browsing are not supported by the current build.
+State this boundary prominently in the root README.
+
+**Consequences:** The deployed course still needs no server-side application or
+runtime rendering, but it does require a static HTTP host or CDN. Link and browser
+checks continue to validate the artifact at the origin root. Direct-file or
+subpath portability would be a separate explicit build with routing, asset, and
+browser-test changes rather than an implicit rewrite of the current output.
+
+**Affected steps:** `scaffold-localized-static-site`,
+`integrate-ch01-text-units`, `document-course-usage`

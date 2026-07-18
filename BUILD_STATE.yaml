@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T14:19:53Z"
+updated_at: "2026-07-18T14:42:26Z"
 
 environment:
   os: "Linux x86_64"
@@ -1142,3 +1142,130 @@ builds:
                 status: passed
                 notes: "Staging passed the same site/content/build/link/browser gates; the published spec is byte-identical, all 7 pages remain script-free, and Cargo/npm locks plus both lesson sources retain their preflight hashes."
             notes: "Completed locally with the locked Rust and Astro toolchains and cached Chromium. The explicit locked npm install required approved native-binary execution but caused no lock or dependency change; no paid service or substantial CPU use was used. The persistent bilingual browser contract closes the build by proving the complete chapter-1 learning slice at desktop and narrow widths, and all build completion criteria now pass."
+  - build_id: document-course-usage
+    objective: "Publish clear root-level instructions for learning with, building, serving, validating, and extending the bilingual static course."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource budget has been supplied. This is local documentation and cached validation only, with no network or paid service planned."
+    completion_criteria:
+      - "A root README gives a student a working path from checkout to the localized course and runnable Rust example."
+      - "The README states the static hosting boundary and accurately documents development, validation, localization, and repository structure."
+      - "Every documented repository command and local reference is checked against the canonical project."
+    steps:
+      - id: document-course-usage
+        objective: "Add a root README that accurately explains how to use and validate the learning tool."
+        depends_on:
+          - integrate-ch01-text-units
+        status: completed
+        inputs:
+          - AGENTS.md
+          - DECISIONS.md
+          - Cargo.toml
+          - Cargo.lock
+          - site/package.json
+          - site/package-lock.json
+          - site/astro.config.mjs
+          - site/playwright.config.ts
+          - curriculum/README.md
+        outputs:
+          - README.md
+        acceptance:
+          - "Quick-start instructions install, build, and serve site/dist as the document root, and explicitly distinguish static hosting from directly opening generated HTML files."
+          - "Student instructions cover English/Russian navigation, chapter exercises, and the runnable tested Rust example."
+          - "Contributor instructions cover development, production validation, browser prerequisites, bilingual lesson workflow, and the main repository paths."
+          - "Commands, routes, prerequisites, links, and the no-server-side-runtime statement agree with canonical configuration and decisions."
+        validate:
+          - "ruby -e 'text=File.read(%q[README.md]); required=[%q[npm --prefix site ci],%q[npm --prefix site run build],%q[npm --prefix site run preview -- --host 127.0.0.1],%q[python3 -m http.server 8000 --directory site/dist],%q[cargo run --locked -p ch01-text-units],%q[npm --prefix site run test:e2e],%q[site/dist],%q[http://127.0.0.1:4321/]]; missing=required.reject{|value| text.include?(value)}; abort(missing.join(%q[, ])) unless missing.empty?; puts %q[README usage contract passed]'"
+          - "cargo test --workspace --locked"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Manual review of README.md against package scripts, Cargo metadata, localized routes, curriculum workflow, and the static-hosting decision"
+        cost:
+          class: small
+          notes: "Local documentation, deterministic audits, cached Rust tests, and cached static-site validation only; no network or paid service."
+        runs:
+          - run_id: 20260718T143327Z-document-course-usage-01
+            started_at: "2026-07-18T14:33:27Z"
+            finished_at: "2026-07-18T14:42:26Z"
+            status: succeeded
+            input_fingerprint:
+              git: "00e4764eaf617d7a93868efcca3152388a65a419"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:6a3af3d35acbd3ea5d3c8c970d3ef66641e495ab9e4e0038d6746315c195cd00"
+                BUILD_STATE.yaml: "sha256:738e420b1532c43e24cd69f3a4b2a2cc59e883992b7af9420e4b61d658c70304"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:9f655ee7c982b8578bd01aae09fd1e543ac227d410bee4dce677e17d6ee772bd"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/astro.config.mjs: "sha256:a5817d8e6526aa96f9f4f9ccb9f63b90193bd82feecd432cbaa182492c54fc33"
+                site/playwright.config.ts: "sha256:0d5ba60fd5809340e7b987f7c9094250ac2a7ce435d972ed7f2dbd0684a4d199"
+                curriculum/README.md: "sha256:51b798e5f863a7056003b7c45e9e63e25b6c8b1c3e9e6c0c48930406f8502a43"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T143327Z-document-course-usage-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, latest DECISIONS.md entries, the completed integration run, package/Cargo configuration, curriculum workflow, generated routes, and static-link behavior"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the completed integration run publication manifest, manual review, and browser result checksums"
+              - "Confirm root-relative generated links resolve only when site/dist is the static host document root"
+              - "sha256sum material usage-documentation inputs"
+              - "Create the run-specific publish directory"
+              - "Append the accepted origin-root static-hosting clarification to DECISIONS.md"
+              - "Author the root usage guide under the run-specific publish tree"
+              - "Run staged README usage, heading, local-link, package-script, route, Python server syntax, and trailing-whitespace audits"
+              - "Run cached workspace tests, exact chapter-output diff, Astro diagnostics, production build, and static-link gates"
+              - "Serve site/dist as a temporary document root and verify HTTP 200 for all seven pages plus the generated global stylesheet"
+              - "Create the manual acceptance review and immutable one-file publication manifest"
+              - "Publish the checksum-verified README.md with apply_patch and verify byte equality"
+              - "ruby -e 'text=File.read(%q[README.md]); required=[%q[npm --prefix site ci],%q[npm --prefix site run build],%q[npm --prefix site run preview -- --host 127.0.0.1],%q[python3 -m http.server 8000 --directory site/dist],%q[cargo run --locked -p ch01-text-units],%q[npm --prefix site run test:e2e],%q[site/dist],%q[http://127.0.0.1:4321/]]; missing=required.reject{|value| text.include?(value)}; abort(missing.join(%q[, ])) unless missing.empty?; puts %q[README usage contract passed]'"
+              - "cargo test --workspace --locked"
+              - "npm --prefix site run check"
+              - "npm --prefix site run build"
+              - "npm --prefix site run test:links"
+              - "Canonical README heading/link/script/route, manifest, equality, trailing-whitespace, decision, diff, and worktree audits"
+            artifacts:
+              - path: ".build/runs/20260718T143327Z-document-course-usage-01/publish/README.md"
+                checksum: "sha256:4747c8403bb7f5977c4a6766f44978e413816d879f955d0e9e4a559da26432cd"
+                notes: "Root usage guide published byte-for-byte to README.md."
+              - path: ".build/runs/20260718T143327Z-document-course-usage-01/publish.sha256"
+                checksum: "sha256:339ee892c3da99370be0ceb0b47e26693065fdfd6e12b9bc8c379288106d9282"
+                notes: "Immutable checksum for the staged README published to the repository root."
+              - path: ".build/runs/20260718T143327Z-document-course-usage-01/manual-review.md"
+                checksum: "sha256:934b5cb00cc5f882f33277f1e7f9596b1c4ebaa48081b62893bf2d3d6da2534b"
+                notes: "Completion-time review of reader flow, commands, routes, hosting boundary, localization, validation, and repository layout."
+            validation:
+              - command: "ruby -e 'text=File.read(%q[README.md]); required=[%q[npm --prefix site ci],%q[npm --prefix site run build],%q[npm --prefix site run preview -- --host 127.0.0.1],%q[python3 -m http.server 8000 --directory site/dist],%q[cargo run --locked -p ch01-text-units],%q[npm --prefix site run test:e2e],%q[site/dist],%q[http://127.0.0.1:4321/]]; missing=required.reject{|value| text.include?(value)}; abort(missing.join(%q[, ])) unless missing.empty?; puts %q[README usage contract passed]'"
+                status: passed
+                notes: "The canonical README contains every required setup, origin-root serving, Rust, browser, artifact, and local URL instruction."
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All six chapter-1 tests and every other workspace/doc-test target passed; the additionally documented exact stdout diff was empty."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro diagnostics covered 21 files with 0 errors, warnings, or hints."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Static mode emitted the documented root chooser, localized homes, course indexes, and chapter pages as exactly seven routes."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 111 local references across 7 HTML files and 68 static artifacts resolve."
+              - command: "Manual review of README.md against package scripts, Cargo metadata, localized routes, curriculum workflow, and the static-hosting decision"
+                status: passed
+                notes: "Prerequisites, commands, student flow, deployment boundary, bilingual publication, authoring link, and repository layout agree with canonical sources."
+              - command: "Temporary Python static-host document-root audit"
+                status: passed
+                notes: "The documented server syntax is supported; all seven pages and the generated global stylesheet returned HTTP 200 when site/dist was the document root."
+              - command: "Immutable staging manifest, canonical equality, local Markdown link, and trailing-whitespace audit"
+                status: passed
+                notes: "The README retains its staged checksum and is byte-identical to canonical; both local Markdown targets exist, all named npm scripts exist, and README/decision/state files contain no trailing whitespace."
+            notes: "Completed locally with the locked project toolchains and a temporary approved localhost static server, without external network access, dependency changes, browser download, paid service, or substantial CPU use. Published a student/contributor usage guide and durable clarification that site/dist is served as the origin document root rather than opened directly or below a nested prefix."
