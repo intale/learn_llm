@@ -20,6 +20,8 @@ export const REQUIRED_CHAPTER_SECTIONS = Object.freeze([
 const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const REGION_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const LATEX_PROSE_PATTERN =
+  /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
 const RUST_SOURCE_PATTERN =
   /^rust\/(?:crates\/llm-from-scratch|demos\/[a-z0-9][a-z0-9-]*)\/src\/(?:[A-Za-z0-9_-]+\/)*[A-Za-z0-9_-]+\.rs$/;
 
@@ -129,6 +131,166 @@ export function extractChapterSectionMarkers(body) {
   );
 }
 
+function maskMdxRange(value) {
+  return value.replace(/[^\n]/g, ' ');
+}
+
+function maskCodeBlocks(source) {
+  const parts = source.split(/(\r?\n)/);
+  let fence = null;
+
+  for (let index = 0; index < parts.length; index += 2) {
+    const line = parts[index];
+    if (fence) {
+      const closingCharacter = fence.character === '~' ? '~' : '\\x60';
+      const closing = new RegExp(
+        '^[ \\t]{0,3}' +
+          closingCharacter +
+          '{' +
+          fence.length +
+          ',}[ \\t]*$',
+      );
+      parts[index] = maskMdxRange(line);
+      if (closing.test(line)) fence = null;
+      continue;
+    }
+
+    const opening = line.match(/^[ \t]{0,3}([\x60~])\1{2,}/);
+    if (opening) {
+      const run = opening[0].trimStart();
+      fence = { character: opening[1], length: run.length };
+      parts[index] = maskMdxRange(line);
+      continue;
+    }
+
+    if (/^(?: {4}|\t)/.test(line)) {
+      parts[index] = maskMdxRange(line);
+    }
+  }
+
+  return parts.join('');
+}
+
+export function renderableMdxSource(source) {
+  const backtick = String.fromCharCode(96);
+  const inlineCode = new RegExp(
+    '(' + backtick + '+)([^\\n]*?)\\1',
+    'g',
+  );
+
+  return maskCodeBlocks(source)
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, maskMdxRange)
+    .replace(/<!--[\s\S]*?-->/g, maskMdxRange)
+    .replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi, maskMdxRange)
+    .replace(/<code\b[^>]*>[\s\S]*?<\/code>/gi, maskMdxRange)
+    .replace(inlineCode, maskMdxRange);
+}
+
+function sliceChapterSections(body) {
+  const matches = [...body.matchAll(
+    /\{\/\*\s*chapter-section:([a-z-]+)\s*\*\/\}/g,
+  )];
+  const sections = new Map();
+  matches.forEach((match, index) => {
+    const end = index + 1 < matches.length ? matches[index + 1].index : body.length;
+    sections.set(match[1], body.slice(match.index + match[0].length, end));
+  });
+  return sections;
+}
+
+function visibleSectionEvidence(section) {
+  return section
+    .replace(/^\s*##[^\n]*$/m, '')
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[\`*_#|[\]{}$\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizedFormula(value) {
+  return String(value).replace(/\s+/g, ' ').trim();
+}
+
+function validateChapterSections(data, body, issues, sourceName) {
+  const sections = sliceChapterSections(body);
+  for (const name of REQUIRED_CHAPTER_SECTIONS) {
+    const section = sections.get(name) ?? '';
+    if (!/^\s*##\s+\S/m.test(section)) {
+      issues.push(sourceName + ': ' + name + ' section must start with a level-two heading');
+    }
+    if (visibleSectionEvidence(section).length < 40) {
+      issues.push(sourceName + ': ' + name + ' section lacks meaningful teaching evidence');
+    }
+  }
+
+  const formulaSection = renderableMdxSource(sections.get('formula') ?? '');
+  const displayedFormulae = [...formulaSection.matchAll(/\$\$\s*([\s\S]*?)\s*\$\$/g)].map(
+    (match) => normalizedFormula(match[1]),
+  );
+  if (!displayedFormulae.includes(normalizedFormula(data.formula?.latex))) {
+    issues.push(
+      sourceName + ': formula section must display formula.latex exactly once as notation',
+    );
+  } else if (
+    displayedFormulae.filter(
+      (formula) => formula === normalizedFormula(data.formula?.latex),
+    ).length !== 1
+  ) {
+    issues.push(sourceName + ': formula section must display formula.latex exactly once');
+  }
+
+  const rustSection = renderableMdxSource(
+    sections.get('rust-implementation') ?? '',
+  );
+  if (extractRustSourceReferences(rustSection).length === 0) {
+    issues.push(sourceName + ': rust-implementation section must contain <RustSource> evidence');
+  }
+
+  const visualizationSection = renderableMdxSource(
+    sections.get('visualization') ?? '',
+  );
+  const diagramInvocation = /<[A-Z][A-Za-z0-9]*Diagram(?:\s|\/|>)/;
+  if (data.visualization?.decision === 'useful' && !diagramInvocation.test(visualizationSection)) {
+    issues.push(sourceName + ': useful visualization must be invoked inside its section');
+  }
+  if (
+    data.visualization?.decision === 'not-useful' &&
+    diagramInvocation.test(renderableMdxSource(body))
+  ) {
+    issues.push(sourceName + ': not-useful visualization must not invoke a diagram');
+  }
+
+  const exercises = renderableMdxSource(sections.get('exercises') ?? '');
+  const answerStart = exercises.indexOf('<details');
+  const predictionPrompts =
+    answerStart === -1 ? exercises : exercises.slice(0, answerStart);
+  const checkedAnswers = answerStart === -1 ? '' : exercises.slice(answerStart);
+  const predictionCount = [...predictionPrompts.matchAll(/^\s*\d+\.\s+\S/gm)].length;
+  if (!/^\s*1\.\s+\S/m.test(predictionPrompts)) {
+    issues.push(sourceName + ': exercises section must contain a predict-first ordered list');
+  }
+  const answerBlock = checkedAnswers.match(
+    /^<details\b[^>]*>\s*<summary\b[^>]*>\s*\S[\s\S]*?<\/summary>([\s\S]*?)<\/details>/,
+  );
+  if (!answerBlock) {
+    issues.push(sourceName + ': exercises section must contain checked answers in <details>');
+  } else {
+    const answerCount = [...answerBlock[1].matchAll(/^\s*\d+\.\s+\S/gm)].length;
+    if (
+      visibleSectionEvidence(answerBlock[1]).length < 40 ||
+      answerCount !== predictionCount
+    ) {
+      issues.push(
+        sourceName +
+          ': checked answers must contain one substantive ordered answer per prediction',
+      );
+    }
+  }
+
+  return sections;
+}
+
 function literalAttribute(tag, name) {
   const patterns = [
     new RegExp('\\b' + name + '\\s*=\\s*"([^"]*)"'),
@@ -160,6 +322,12 @@ function validateFormula(formula, issues, sourceName) {
   }
 
   addTextIssue(issues, formula.latex, 'formula.latex', sourceName);
+  if (hasText(formula.latex) && LATEX_PROSE_PATTERN.test(formula.latex)) {
+    issues.push(
+      sourceName +
+        ': formula.latex must contain notation only; put localized prose in the symbol glossary',
+    );
+  }
   if (!Array.isArray(formula.symbols) || formula.symbols.length === 0) {
     issues.push(sourceName + ': formula.symbols must contain at least one symbol');
     return;
@@ -287,7 +455,13 @@ export function validateChapterMetadata(data, sourceName = 'chapter') {
     issues.push(sourceName + ': concept_id must be lowercase kebab-case');
   }
 
-  for (const field of ['title', 'description', 'objective']) {
+  for (const field of [
+    'title',
+    'description',
+    'objective',
+    'worked_inputs',
+    'decoder_connection',
+  ]) {
     addTextIssue(issues, data[field], field, sourceName);
   }
 
@@ -374,12 +548,17 @@ export function validateChapterDocument(
     );
   }
 
-  const references = extractRustSourceReferences(parsed.body);
+  if (JSON.stringify(markers) === JSON.stringify(REQUIRED_CHAPTER_SECTIONS)) {
+    validateChapterSections(parsed.data, parsed.body, issues, sourceName);
+  }
+
+  const references = extractRustSourceReferences(renderableMdxSource(parsed.body));
   if (references.length === 0) {
     issues.push(sourceName + ': body must include at least one <RustSource> component');
   }
 
   const declared = new Set(parsed.data.rust_sources.map(sourceIdentity));
+  const rendered = new Set();
   references.forEach((reference) => {
     if (!reference.path) {
       issues.push(sourceName + ': every <RustSource> path must be a string literal');
@@ -402,6 +581,7 @@ export function validateChapterDocument(
       );
     }
     const identity = reference.path + '#' + (reference.region ?? '');
+    rendered.add(identity);
     if (!declared.has(identity)) {
       issues.push(
         sourceName +
@@ -411,6 +591,14 @@ export function validateChapterDocument(
       );
     }
   });
+
+  for (const identity of declared) {
+    if (!rendered.has(identity)) {
+      issues.push(
+        sourceName + ': declared Rust source evidence is not rendered: "' + identity + '"',
+      );
+    }
+  }
 
   if (repositoryRoot && checkSourceFiles) {
     parsed.data.rust_sources.forEach((declaration) => {
@@ -494,10 +682,6 @@ export function validateChapterPair(english, russian) {
         ': locale-neutral formula, source, visualization, order, or concept fields differ',
     );
   }
-  if (english.data.title === russian.data.title) {
-    issues.push(english.data.chapter_id + ': localized titles must not be identical');
-  }
-
   if (issues.length > 0) {
     throw new ContentValidationError(issues, 'Chapter parity validation failed');
   }
@@ -530,7 +714,124 @@ export function findPublishablePairs(documents) {
     }
   }
 
-  return pairs.sort((left, right) => left.en.data.order - right.en.data.order);
+  return pairs.sort(
+    (left, right) =>
+      left.en.data.order - right.en.data.order ||
+      left.chapterId.localeCompare(right.chapterId),
+  );
+}
+
+export function validatePublishedChapterSequence(pairs) {
+  const ordered = [...pairs].sort(
+    (left, right) =>
+      left.en.data.order - right.en.data.order ||
+      left.chapterId.localeCompare(right.chapterId),
+  );
+  const orders = new Set();
+  const concepts = new Set();
+  const issues = [];
+
+  ordered.forEach((pair, index) => {
+    const expectedOrder = index + 1;
+    const expectedPrefix = String(expectedOrder).padStart(2, '0') + '-';
+    const order = pair.en.data.order;
+    const concept = pair.en.data.concept_id;
+    if (orders.has(order)) {
+      issues.push('duplicate published chapter order ' + order);
+    }
+    if (concepts.has(concept)) {
+      issues.push('duplicate published concept_id "' + concept + '"');
+    }
+    if (order !== expectedOrder || !pair.chapterId.startsWith(expectedPrefix)) {
+      issues.push(
+        pair.chapterId +
+          ': published chapters must form a contiguous ordered prefix; expected order ' +
+          expectedOrder,
+      );
+    }
+    orders.add(order);
+    concepts.add(concept);
+  });
+
+  if (issues.length > 0) {
+    throw new ContentValidationError(issues, 'Published chapter sequence failed');
+  }
+  return ordered;
+}
+
+export function validatePublishedContractSequence(pairs, contracts) {
+  const orderedPairs = validatePublishedChapterSequence(pairs);
+  const orderedContracts = [...contracts].sort(
+    (left, right) =>
+      left.data.order - right.data.order ||
+      left.data.chapter_id.localeCompare(right.data.chapter_id),
+  );
+  const issues = [];
+  const contractIds = new Set();
+  const contractOrders = new Set();
+  const contractConcepts = new Set();
+
+  orderedContracts.forEach((contract, index) => {
+    const data = contract.data;
+    if (contractIds.has(data.chapter_id)) {
+      issues.push('duplicate implemented contract chapter_id "' + data.chapter_id + '"');
+    }
+    if (contractOrders.has(data.order)) {
+      issues.push('duplicate implemented contract order ' + data.order);
+    }
+    if (contractConcepts.has(data.concept_id)) {
+      issues.push('duplicate implemented contract concept_id "' + data.concept_id + '"');
+    }
+    if (data.order !== index + 1) {
+      issues.push(
+        data.chapter_id + ': implemented contracts must form a contiguous ordered prefix',
+      );
+    }
+    contractIds.add(data.chapter_id);
+    contractOrders.add(data.order);
+    contractConcepts.add(data.concept_id);
+  });
+
+  if (orderedPairs.length !== orderedContracts.length) {
+    issues.push(
+      'published bilingual lesson count ' +
+        orderedPairs.length +
+        ' differs from implemented contract count ' +
+        orderedContracts.length,
+    );
+  }
+
+  const count = Math.max(orderedPairs.length, orderedContracts.length);
+  for (let index = 0; index < count; index += 1) {
+    const pair = orderedPairs[index];
+    const contract = orderedContracts[index]?.data;
+    if (!pair || !contract) continue;
+    const lessonIdentity = {
+      chapter_id: pair.chapterId,
+      content_revision: pair.en.data.content_revision,
+      order: pair.en.data.order,
+      concept_id: pair.en.data.concept_id,
+    };
+    const contractIdentity = {
+      chapter_id: contract.chapter_id,
+      content_revision: contract.content_revision,
+      order: contract.order,
+      concept_id: contract.concept_id,
+    };
+    if (JSON.stringify(lessonIdentity) !== JSON.stringify(contractIdentity)) {
+      issues.push(
+        'published lesson identity ' +
+          JSON.stringify(lessonIdentity) +
+          ' differs from implemented contract ' +
+          JSON.stringify(contractIdentity),
+      );
+    }
+  }
+
+  if (issues.length > 0) {
+    throw new ContentValidationError(issues, 'Published contract sequence failed');
+  }
+  return orderedPairs;
 }
 
 function listFiles(directory) {
@@ -559,6 +860,23 @@ export function readChapterDocuments(repositoryRoot) {
       checkSourceFiles: true,
     }),
   );
+}
+
+export function readChapterContractSummaries(repositoryRoot) {
+  const contractRoot = nodePath.join(repositoryRoot, 'curriculum/chapters');
+  if (!existsSync(contractRoot)) return [];
+  return readdirSync(contractRoot, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
+    .map((entry) => {
+      const filePath = nodePath.join(contractRoot, entry.name);
+      return {
+        filePath,
+        data: parseJsonFrontmatter(
+          readFileSync(filePath, 'utf8'),
+          nodePath.relative(repositoryRoot, filePath),
+        ).data,
+      };
+    });
 }
 
 function catalogKeys(source, locale, sourceName) {
@@ -611,7 +929,10 @@ function groupsForDocuments(documents) {
   return groups;
 }
 
-export function validateAllChapterPairs(documents) {
+export function validateAllChapterPairs(
+  documents,
+  { requireContiguousPrefix = true } = {},
+) {
   const issues = [];
   for (const [chapterId, group] of groupsForDocuments(documents)) {
     const english = group.filter((document) => document.data.locale === 'en');
@@ -637,7 +958,10 @@ export function validateAllChapterPairs(documents) {
     throw new ContentValidationError(issues, 'Bilingual publication gate failed');
   }
 
-  return findPublishablePairs(documents);
+  const pairs = findPublishablePairs(documents);
+  return requireContiguousPrefix
+    ? validatePublishedChapterSequence(pairs)
+    : pairs;
 }
 
 export function repositoryRootFromCwd(cwd = process.cwd()) {
@@ -693,7 +1017,15 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     if (chapter && selected.length === 0) {
       throw new ContentValidationError(['no sources found for chapter ' + chapter]);
     }
-    const pairs = validateAllChapterPairs(selected);
+    const pairs = validateAllChapterPairs(selected, {
+      requireContiguousPrefix: !chapter,
+    });
+    if (!chapter) {
+      validatePublishedContractSequence(
+        pairs,
+        readChapterContractSummaries(repositoryRoot),
+      );
+    }
     return { mode, documents: selected, pairs, catalogCount };
   }
 
@@ -702,6 +1034,10 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
   }
 
   const pairs = validateAllChapterPairs(documents);
+  validatePublishedContractSequence(
+    pairs,
+    readChapterContractSummaries(repositoryRoot),
+  );
   return { mode, documents, pairs, catalogCount };
 }
 

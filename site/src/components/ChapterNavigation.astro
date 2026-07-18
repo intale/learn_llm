@@ -1,0 +1,141 @@
+---
+import type { Locale } from '../i18n';
+import type { ChapterNavigationTarget } from '../lib/chapter-navigation';
+
+interface Props {
+  locale: Locale;
+  previous: ChapterNavigationTarget | null;
+  next: ChapterNavigationTarget | null;
+}
+
+const { locale, previous, next } = Astro.props;
+const navigationCopy = {
+  en: {
+    label: 'Chapter navigation',
+    previous: 'Previous chapter',
+    all: 'All chapters',
+    next: 'Next chapter',
+  },
+  ru: {
+    label: 'Навигация по главам',
+    previous: 'Предыдущая глава',
+    all: 'Все главы',
+    next: 'Следующая глава',
+  },
+} as const;
+const copy = navigationCopy[locale];
+const chapterHref = (chapterId: string) =>
+  `/${locale}/course/${chapterId}/`;
+---
+
+<nav
+  class="chapter-navigation"
+  aria-label={copy.label}
+  data-chapter-navigation
+>
+  {
+    previous && (
+      <a
+        class="chapter-navigation__chapter chapter-navigation__chapter--previous"
+        href={chapterHref(previous.chapterId)}
+        rel="prev"
+        data-chapter-direction="previous"
+        data-chapter-id={previous.chapterId}
+        data-chapter-order={previous.order}
+      >
+        <span>← {copy.previous}</span>
+        <strong>{previous.title}</strong>
+      </a>
+    )
+  }
+
+  <a class="chapter-navigation__all" href={`/${locale}/course/`}>
+    {copy.all}
+  </a>
+
+  {
+    next && (
+      <a
+        class="chapter-navigation__chapter chapter-navigation__chapter--next"
+        href={chapterHref(next.chapterId)}
+        rel="next"
+        data-chapter-direction="next"
+        data-chapter-id={next.chapterId}
+        data-chapter-order={next.order}
+      >
+        <span>{copy.next} →</span>
+        <strong>{next.title}</strong>
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .chapter-navigation {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 1rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .chapter-navigation a {
+    min-width: 0;
+    border-radius: 0.65rem;
+    text-underline-offset: 0.2rem;
+  }
+
+  .chapter-navigation__chapter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    background: rgba(15, 118, 110, 0.08);
+    overflow-wrap: anywhere;
+  }
+
+  .chapter-navigation__chapter span,
+  .chapter-navigation__all {
+    color: var(--accent-dark);
+    font-size: 0.85rem;
+    font-weight: 750;
+  }
+
+  .chapter-navigation__chapter strong {
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .chapter-navigation__chapter--next {
+    grid-column: 3;
+    text-align: end;
+  }
+
+  .chapter-navigation__all {
+    grid-column: 2;
+    align-self: center;
+    padding: 0.9rem 0.35rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 42rem) {
+    .chapter-navigation {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .chapter-navigation__chapter--previous,
+    .chapter-navigation__all,
+    .chapter-navigation__chapter--next {
+      grid-column: 1;
+      text-align: start;
+    }
+
+    .chapter-navigation__all {
+      justify-self: start;
+    }
+  }
+</style>

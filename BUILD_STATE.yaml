@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T17:02:01Z"
+updated_at: "2026-07-18T18:20:45Z"
 
 environment:
   os: "Linux x86_64"
@@ -1419,7 +1419,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 2
+      spent: 3
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -1713,7 +1713,7 @@ builds:
         objective: "Make the complete course order and every future bilingual chapter vertical slice enforceable by reusable deterministic gates."
         depends_on:
           - revise-ch01-language-neutral-formula
-        status: pending
+        status: completed
         inputs:
           - "curriculum/course-plan.md"
           - "curriculum/README.md"
@@ -1723,26 +1723,37 @@ builds:
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-site-content.mjs"
           - "scripts/check-static-links.mjs"
-          - "site/src/pages/[lang]/course/index.astro"
-          - "site/src/pages/[lang]/course/[...chapter].astro"
+          - "site/src/content.config.ts"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
           - "Cargo.toml"
           - "Cargo.lock"
           - "site/package.json"
           - "site/package-lock.json"
         outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/01-text-units.md"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-site-content.mjs"
           - "scripts/check-rust-demos.sh"
           - "site/src/components/ChapterNavigation.astro"
-          - "site/src/pages/[lang]/course/[...chapter].astro"
+          - "site/src/lib/chapter-navigation.ts"
+          - "site/src/content.config.ts"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/tests/content-contract.test.ts"
           - "site/tests/e2e/chapter-helpers.ts"
           - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
         acceptance:
           - "Course-wide IDs, orders, dependencies, terminology, and ledger mappings fail deterministically when inconsistent."
-          - "Each contract is checked against both lessons, its expected-output fixture, and its visualization decision."
+          - "Each contract is checked against both lessons, localized teaching metadata, meaningful section evidence, its exact expected-output fixture, and the resolved path of its chapter-specific visualization."
           - "One command discovers every chapter demo and checks deterministic output without a hard-coded package list."
           - "Stable chapter tags, shared bilingual route checks, rendered useful-visualization checks, and ordered previous/next navigation scale to later chapters."
           - "Chapter 1 and the complete existing static site pass all strengthened gates."
@@ -1764,7 +1775,117 @@ builds:
         cost:
           class: medium
           notes: "Local reusable validator, navigation, and browser-test infrastructure; no network, dependency change, paid service, generation, or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260718T170642Z-establish-scalable-chapter-delivery-01
+            started_at: "2026-07-18T17:06:42Z"
+            finished_at: "2026-07-18T18:20:45Z"
+            status: succeeded
+            input_fingerprint:
+              git: "ea2ffc935d04297ad1571d98a1db084ae21bd0eb"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:321103ac1c81298b2903dba54ab78e5ed7469bdc841932d773651261d9f3b06a"
+                DECISIONS.md: "sha256:5ce713dea2482d03ba61c628faff51eab742e4b80b7852025027cfd1943bea7d"
+                curriculum/course-plan.md: "sha256:a7ba1e3232440270240dd73b135389c91b153a49aea609a9447fb18f81e586e5"
+                curriculum/README.md: "sha256:c590c71490e8cd9d1b7f11541b2f9ee4923971ff84a8b35760537a3a7ceaa6dc"
+                curriculum/chapter-template.md: "sha256:8c8935a40a018d8b3255b08119a1663d3dde2edf07a6d58776c32d31c3f5267a"
+                curriculum/chapters/01-text-units.md: "sha256:d7c8ead349aa58aa0b94f991620177f469ee3e98182c641a96245b90e50fedf5"
+                scripts/check-course-plan.mjs: "sha256:a1602c8de57f6334279fd42e7d92ff11e77a6172ad6af44f05efc1ac6ebd709f"
+                scripts/check-chapter-contract.mjs: "sha256:dcc1ec3ba819e178918e2650c66f92ad905fdd51a3d0fe95db953e459d18227e"
+                scripts/check-site-content.mjs: "sha256:4373804c4693f788c78214e03c3be63e3cbbf6ec83cd72fb8d06ce1b945f8170"
+                scripts/check-static-links.mjs: "sha256:a843bf9b6e8dc0eadc370b09665277eb209991a655d6d29be8a5b3adb2dad26d"
+                site/src/content.config.ts: "sha256:df2e5ac20237986f0711eb35aa3e659601a807a54c47d3581482faad5c000eac"
+                site/src/pages/[locale]/course/index.astro: "sha256:9aff6d7388b84829e1b05f6c3006307f05c0be359bc7f54328884a45c691cb46"
+                site/src/pages/[locale]/course/[...slug].astro: "sha256:d083ff1f085b92dd2ecec94884dd36215a73142607be7569d8af61e4d3697d89"
+                site/tests/content-contract.test.ts: "sha256:7bdfbb19f271bb50a65f11ae173b125738697cb14123ab88db491ea9561c0f7c"
+                site/tests/e2e/ch01-text-units.spec.ts: "sha256:44452096c59955f330255aacba2b084b62000086a4e99bde37be16cf259a1e79"
+                site/tests/e2e/localized-shell.spec.ts: "sha256:ef82bcb4659480dd2f6eda00bc3c0b1f974a4a2dfe49d58a45531cf7c41d4e64"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:9f655ee7c982b8578bd01aae09fd1e543ac227d410bee4dce677e17d6ee772bd"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T170642Z-establish-scalable-chapter-delivery-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, parse all of BUILD_STATE.yaml, read relevant DECISIONS.md entries, and inspect the latest completed run"
+              - "Verify the prior Chapter 1 publication manifest and manual-review checksum"
+              - "Compare rustc, cargo, Node, npm, and Git with the recorded environment"
+              - "Inspect the delivery step, curriculum workflow/template, validators, route, content tests, browser test, manifests, and lockfiles"
+              - "sha256sum material delivery-infrastructure inputs and existing outputs"
+              - "Create the run-specific publication and validation directories"
+              - "Stage the plan/workflow/schema migrations, reusable course/contract/content/Rust-demo gates, chapter navigation, and shared browser helpers"
+              - "Assemble an isolated repository overlay with canonical locked dependencies and validate all staged outputs there"
+              - "Run independent navigation, Rust-runner, and adversarial validator reviews; correct every blocker and rerun the reviews"
+              - "Run sixteen adversarial content/contract mutations and three Rust-runner mutation fixtures"
+              - "Run the complete staged Rust, Astro, Vitest, build, link, focused-browser, and full-browser acceptance suite"
+              - "Create the immutable 18-file publication manifest and manual review, then publish canonical outputs with apply_patch"
+              - "Verify canonical outputs byte-for-byte against the staged manifest and run the complete canonical acceptance suite"
+            artifacts:
+              - path: ".build/runs/20260718T170642Z-establish-scalable-chapter-delivery-01/publication.sha256"
+                checksum: "sha256:6f8811b744f47def269237ad044eca515e66d3ad601cf4f519f1c601767a827a"
+                notes: "Immutable checksums for all 18 staged outputs published byte-for-byte to canonical paths."
+              - path: ".build/runs/20260718T170642Z-establish-scalable-chapter-delivery-01/manual-review.md"
+                checksum: "sha256:0efea17092c147a5ce9b91f5f4fe6f6e685d8182b38f582906142a8d25355318"
+                notes: "Course-map, cross-layer identity, lesson-evidence, localization, navigation, runner, adversarial, and final blocker review."
+            validation:
+              - command: "node --check scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The canonical course-plan validator parses as JavaScript."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Validated 39 reviewed chapters, 41 scheduled steps, and the derived one-contract implementation prefix through Chapter 1."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md"
+                status: passed
+                notes: "Joined the Chapter 1 contract to both lessons, localized commitments, rendered diagram path, demo package, and exact expected output."
+              - command: "cargo fmt --all -- --check"
+                status: passed
+                notes: "The complete Rust workspace is formatted."
+              - command: "cargo clippy --workspace --all-targets --locked -- -D warnings"
+                status: passed
+                notes: "All locked workspace targets passed with warnings denied."
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All six Chapter 1 behavior tests plus workspace and documentation targets passed."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "The workspace contains local packages only and no dependency that implements a taught LLM concept."
+              - command: "scripts/check-rust-demos.sh"
+                status: passed
+                notes: "Data-driven discovery joined one contract, immediate demo directory, Cargo package/bin, exact fixture, and locked offline runtime output."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "Two localized sources, one exact contract-backed pair, meaningful rendered evidence, and all 18 catalog keys passed."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro reported 0 errors, 0 warnings, and 0 hints across 24 files."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 21 Vitest checks passed across three files, including the reusable adversarial fixtures."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "The static production build emitted all seven root, localized home, course, and Chapter 1 pages."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "Validated 115 local references across seven HTML files and 68 static artifacts."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:01-text-units'"
+                status: passed
+                notes: "Three staged focused tests proved the stable chapter tag, both locales, visualization, and responsive navigation."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All six canonical cached-Chromium tests passed."
+              - command: "Independent adversarial and scalability reviews"
+                status: passed
+                notes: "Three read-only reviewers found no remaining blockers after sixteen content mutations, three runner mutations, navigation boundary checks, and documentation/schema re-review."
+              - command: "Publication manifest, canonical equality, YAML, diff, mode, and worktree scope audit"
+                status: passed
+                notes: "All 18 canonical outputs match the staged manifest; the runner is executable; BUILD_STATE.yaml parses; git diff --check passes; only declared outputs plus state and decisions changed."
+            notes: "Completed locally with locked Rust/Astro/Vitest dependencies and cached Chromium, without network downloads, dependency changes, paid services, generation services, or substantial CPU use. Plan revision 3 derives implementation state from contracts; every future chapter remains one bilingual committed vertical slice with exact plan/contract/lesson/Rust/diagram identity, meaningful rendered evidence, scalable static navigation, and data-driven demo validation. Chapter 1 remains content revision 2; only its authoring metadata migrated to the stronger reusable schema. The next eligible step is implement-ch02-corpus-partitions."
       - id: implement-ch02-corpus-partitions
         objective: "Partition an original bilingual corpus into disjoint train, validation, and test documents before learning any tokenizer or model statistic."
         depends_on:

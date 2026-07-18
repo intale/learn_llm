@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REQUIRED_CHAPTER_FIELDS = [
@@ -27,6 +27,10 @@ const VALID_STEP_STATUSES = new Set([
   "invalidated",
   "skipped",
 ]);
+const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const LATEX_PROSE_PATTERN =
+  /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
 
 function fail(message) {
   throw new Error(message);
@@ -109,20 +113,31 @@ function hasTopLevelField(step, field) {
   return new RegExp(`^        ${field}:`, "m").test(step.block);
 }
 
+function scalarField(step, field) {
+  const match = step.block.match(new RegExp(`^        ${field}: ([^\\n]+)$`, "m"));
+  return match ? unquoteYamlScalar(match[1]) : null;
+}
+
 export function validateCoursePlanText(source, path = "curriculum/course-plan.md") {
   const { metadata, body } = parseFrontmatter(source, path);
   const chapters = metadata.chapters;
 
   assert(metadata.plan_id === "tiny-decoder-llm-rust", `${path}: unexpected plan_id`);
-  assert(Number.isInteger(metadata.plan_revision) && metadata.plan_revision > 0, `${path}: plan_revision must be positive`);
+  assert(
+    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 3,
+    `${path}: plan_revision must include the derived implementation-state contract`,
+  );
   assert(Array.isArray(chapters), `${path}: chapters must be an array`);
   assert(metadata.chapter_count === chapters.length, `${path}: chapter_count does not match chapters`);
   assert(chapters.length === 39, `${path}: the reviewed plan must contain 39 chapters`);
-  assert(metadata.implemented_through === "01-text-units", `${path}: implemented_through must identify chapter 1`);
   assert(
-    metadata.chapter_1_disposition?.status === "complete-with-revision-required" &&
+    metadata.implementation_state_source === "curriculum/chapters",
+    `${path}: implementation state must be derived from curriculum/chapters`,
+  );
+  assert(
+    metadata.chapter_1_disposition?.status === "complete" &&
       metadata.chapter_1_disposition?.step_id === "revise-ch01-language-neutral-formula",
-    `${path}: chapter 1 must retain its reviewed revision disposition`,
+    `${path}: chapter 1 must record its completed revision-2 disposition`,
   );
   assert(metadata.scheduling?.default?.includes("one complete bilingual chapter"), `${path}: missing one-step-per-chapter scheduling rule`);
   assert(Array.isArray(metadata.scheduling?.planned_chapter_splits), `${path}: planned_chapter_splits must be an array`);
@@ -136,6 +151,7 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
   for (const [index, chapter] of chapters.entries()) {
     const order = index + 1;
     const prefix = String(order).padStart(2, "0");
+    assert(CHAPTER_ID_PATTERN.test(chapter.chapter_id), `${path}: invalid chapter_id ${chapter.chapter_id}`);
     assert(chapter.order === order, `${path}: chapter order must be contiguous at ${chapter.chapter_id}`);
     assert(chapter.chapter_id.startsWith(`${prefix}-`), `${path}: ${chapter.chapter_id} does not match order ${order}`);
     assert(
@@ -157,6 +173,17 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
 
   const modulePaths = chapters.slice(1).map((chapter) => chapter.primary_module);
   unique(modulePaths, "primary_module");
+  const auditStart = body.indexOf("## Chapter 1 audit");
+  const auditEnd = body.indexOf("## Target model and explicit boundaries", auditStart);
+  assert(auditStart !== -1 && auditEnd > auditStart, `${path}: missing Chapter 1 audit`);
+  const chapterOneAudit = body.slice(auditStart, auditEnd);
+  assert(
+    chapterOneAudit.includes("revision-2 repair") &&
+      chapterOneAudit.includes("gates now pass") &&
+      !chapterOneAudit.includes("One defect remains") &&
+      !chapterOneAudit.includes("first scheduled step"),
+    `${path}: Chapter 1 audit must describe the completed revision-2 repair`,
+  );
   assert(chapterIds.at(-1) === "39-end-to-end-llm", `${path}: the final chapter must be the end-to-end LLM capstone`);
 
   const headings = [...body.matchAll(/^## (\d{2})\. (.+)$/gm)];
@@ -178,11 +205,33 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
 
     const writtenId = section.match(/^- \*\*Chapter ID:\*\* `([^`]+)`/m)?.[1];
     const writtenStep = section.match(/^- \*\*Implementation step:\*\* `([^`]+)`/m)?.[1];
+    const writtenDependency = section.match(/^- \*\*Depends on:\*\* ([^\n]+)$/m)?.[1];
+    const outcome = section.match(/^- \*\*Outcome:\*\* ([^\n]+)$/m)?.[1];
     const formula = section.match(/^- \*\*Formula:\*\* `([^\n]+)`\./m)?.[1];
+    const visualization = section.match(/^- \*\*Visualization:\*\* (Useful|Not useful)\b/m)?.[1];
     assert(writtenId === chapter.chapter_id, `${path}: body chapter ID mismatch for ${chapter.chapter_id}`);
     assert(writtenStep === chapter.implementation_step, `${path}: body implementation step mismatch for ${chapter.chapter_id}`);
+    assert(outcome, `${path}: missing outcome for ${chapter.chapter_id}`);
+    if (index === 0) {
+      assert(
+        writtenDependency === "the completed chapter-1 foundation.",
+        `${path}: body dependency mismatch for ${chapter.chapter_id}`,
+      );
+    } else {
+      assert(
+        writtenDependency === `\`${chapters[index - 1].chapter_id}\`.`,
+        `${path}: body dependency mismatch for ${chapter.chapter_id}`,
+      );
+    }
     assert(formula, `${path}: missing single-line formula for ${chapter.chapter_id}`);
-    assert(!/\\text\s*\{/.test(formula), `${path}: ${chapter.chapter_id} formula contains locale-specific prose`);
+    assert(!LATEX_PROSE_PATTERN.test(formula), `${path}: ${chapter.chapter_id} formula contains locale-specific prose`);
+    assert(
+      visualization === (chapter.visualization === "useful" ? "Useful" : "Not useful"),
+      `${path}: body visualization decision mismatch for ${chapter.chapter_id}`,
+    );
+
+    chapter.outcome = outcome;
+    chapter.formula = formula;
   }
 
   return metadata;
@@ -222,6 +271,21 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
   const byId = new Map(steps.map((step) => [step.id, step]));
   for (const chapter of metadata.chapters.slice(1)) {
     const step = byId.get(chapter.implementation_step);
+    assert(
+      scalarField(step, "objective") === chapter.outcome,
+      `${statePath}: ${step.id} objective does not match the reviewed outcome`,
+    );
+    const acceptance = listField(step, "acceptance") ?? [];
+    assert(
+      acceptance[0] === chapter.outcome,
+      `${statePath}: ${step.id} first acceptance item does not match the reviewed outcome`,
+    );
+    const inputs = listField(step, "inputs") ?? [];
+    const previousChapter = metadata.chapters[chapter.order - 2];
+    assert(
+      inputs.includes(`curriculum/chapters/${previousChapter.chapter_id}.md`),
+      `${statePath}: ${step.id} does not consume its predecessor contract`,
+    );
     const outputs = listField(step, "outputs") ?? [];
     const id = chapter.chapter_id;
     const demo = `ch${id}`;
@@ -235,6 +299,14 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
       `site/tests/e2e/ch${id}.spec.ts`,
     ]) {
       assert(outputs.includes(required), `${statePath}: ${step.id} does not own ${required}`);
+    }
+    if (chapter.primary_module) {
+      const cumulativeSource =
+        `rust/crates/llm-from-scratch/src/${chapter.primary_module}`;
+      assert(
+        outputs.includes(cumulativeSource),
+        `${statePath}: ${step.id} does not own its primary module ${cumulativeSource}`,
+      );
     }
 
     const diagramName = id
@@ -250,9 +322,90 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
     } else {
       assert(!outputs.includes(diagram) && !outputs.includes(diagramTest), `${statePath}: ${step.id} contradicts its not-useful decision`);
     }
+
+    const validation = listField(step, "validate") ?? [];
+    for (const required of [
+      `npm --prefix site run check:contract -- ../curriculum/chapters/${id}.md`,
+      "scripts/check-rust-demos.sh",
+      `npm --prefix site run check:chapter -- --locale en --chapter ${id}`,
+      `npm --prefix site run check:chapter -- --locale ru --chapter ${id}`,
+      `npm --prefix site run check:parity -- --chapter ${id}`,
+      `npm --prefix site run test:e2e -- --grep '@chapter:${id}'`,
+    ]) {
+      assert(validation.includes(required), `${statePath}: ${step.id} is missing validation "${required}"`);
+    }
   }
 
   return steps;
+}
+
+export function validateImplementedContracts(
+  metadata,
+  contracts,
+  path = "curriculum/chapters",
+) {
+  assert(Array.isArray(contracts) && contracts.length > 0, `${path}: expected at least one implemented contract`);
+  const ordered = [...contracts].sort(
+    (left, right) => left.data.order - right.data.order || left.data.chapter_id.localeCompare(right.data.chapter_id),
+  );
+  unique(ordered.map((contract) => contract.data.chapter_id), "implemented contract chapter_id");
+  unique(ordered.map((contract) => contract.data.order), "implemented contract order");
+  unique(ordered.map((contract) => contract.data.concept_id), "implemented contract concept_id");
+
+  const terminology = new Map();
+  for (const [index, contract] of ordered.entries()) {
+    const data = contract.data;
+    const planChapter = metadata.chapters[index];
+    assert(planChapter, `${contract.path}: contract exceeds the reviewed chapter plan`);
+    assert(
+      data.chapter_id === planChapter.chapter_id && data.order === planChapter.order,
+      `${contract.path}: contract ID/order does not form the implemented plan prefix`,
+    );
+    assert(
+      data.formula?.latex === planChapter.formula,
+      `${contract.path}: contract formula differs from the reviewed plan`,
+    );
+    assert(
+      data.visualization?.decision === planChapter.visualization,
+      `${contract.path}: contract visualization differs from the reviewed plan`,
+    );
+    if (planChapter.primary_module) {
+      const cumulativeSource =
+        `rust/crates/llm-from-scratch/src/${planChapter.primary_module}`;
+      assert(
+        data.rust?.sources?.includes(cumulativeSource),
+        `${contract.path}: contract must teach its reviewed primary module ${cumulativeSource}`,
+      );
+    }
+    assert(CONCEPT_ID_PATTERN.test(data.concept_id), `${contract.path}: invalid concept_id`);
+    assert(Array.isArray(data.terminology), `${contract.path}: terminology must be an array`);
+
+    for (const term of data.terminology) {
+      assert(CONCEPT_ID_PATTERN.test(term.concept_id), `${contract.path}: invalid terminology concept_id`);
+      const normalized = {
+        en: String(term.en ?? "").normalize("NFC").trim(),
+        ru: String(term.ru ?? "").normalize("NFC").trim(),
+      };
+      const prior = terminology.get(term.concept_id);
+      assert(
+        !prior || JSON.stringify(prior) === JSON.stringify(normalized),
+        `${contract.path}: terminology concept_id "${term.concept_id}" conflicts with an earlier contract`,
+      );
+      terminology.set(term.concept_id, normalized);
+    }
+  }
+
+  return ordered;
+}
+
+function readImplementedContracts(root) {
+  const directory = join(root, "curriculum/chapters");
+  return readdirSync(directory, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
+    .map((entry) => {
+      const path = join(directory, entry.name);
+      return { path, data: parseFrontmatter(readFileSync(path, "utf8"), path).metadata };
+    });
 }
 
 function argumentValue(name, fallback) {
@@ -267,7 +420,14 @@ function main() {
   const statePath = resolve(root, argumentValue("--state", "BUILD_STATE.yaml"));
   const metadata = validateCoursePlanText(readFileSync(planPath, "utf8"), planPath);
   const steps = validateLedgerText(readFileSync(statePath, "utf8"), metadata, statePath);
-  process.stdout.write(`Course plan valid: ${metadata.chapters.length} chapters, ${steps.length} scheduled steps.\n`);
+  const contracts = validateImplementedContracts(
+    metadata,
+    readImplementedContracts(root),
+  );
+  const implementedThrough = contracts.at(-1).data.chapter_id;
+  process.stdout.write(
+    `Course plan valid: ${metadata.chapters.length} chapters, ${steps.length} scheduled steps, ${contracts.length} implemented contract(s) through ${implementedThrough}.\n`,
+  );
 }
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : null;

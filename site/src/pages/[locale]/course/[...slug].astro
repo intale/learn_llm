@@ -5,7 +5,12 @@ import {
   type CollectionEntry,
 } from 'astro:content';
 
+import ChapterNavigation from '../../../components/ChapterNavigation.astro';
 import RustSource from '../../../components/RustSource.astro';
+import {
+  findChapterNeighbors,
+  type ChapterNavigationTarget,
+} from '../../../lib/chapter-navigation';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
@@ -43,7 +48,7 @@ export async function getStaticPaths() {
     groups.set(entry.data.chapter_id, group);
   }
 
-  const publishable = [];
+  const publishable: CollectionEntry<'chapters'>[] = [];
   for (const group of groups.values()) {
     const english = group.filter((entry) => entry.data.locale === 'en');
     const russian = group.filter((entry) => entry.data.locale === 'ru');
@@ -57,17 +62,33 @@ export async function getStaticPaths() {
     }
   }
 
-  return publishable.map((entry) => ({
-    params: {
-      locale: entry.data.locale,
-      slug: entry.data.chapter_id,
-    },
-    props: { entry },
-  }));
+  return publishable.map((entry) => {
+    const localizedTargets = publishable
+      .filter((candidate) => candidate.data.locale === entry.data.locale)
+      .map((candidate) => ({
+        chapterId: candidate.data.chapter_id,
+        order: candidate.data.order,
+        title: candidate.data.title,
+      }));
+    const { previous, next } = findChapterNeighbors(
+      localizedTargets,
+      entry.data.chapter_id,
+    );
+
+    return {
+      params: {
+        locale: entry.data.locale,
+        slug: entry.data.chapter_id,
+      },
+      props: { entry, previous, next },
+    };
+  });
 }
 
-const { entry } = Astro.props as {
+const { entry, previous, next } = Astro.props as {
   entry: CollectionEntry<'chapters'>;
+  previous: ChapterNavigationTarget | null;
+  next: ChapterNavigationTarget | null;
 };
 const { Content } = await render(entry);
 const locale = entry.data.locale;
@@ -110,6 +131,8 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
     <div class="lesson-body">
       <Content components={{ RustSource }} />
     </div>
+
+    <ChapterNavigation locale={locale} previous={previous} next={next} />
   </article>
 </BaseLayout>
 

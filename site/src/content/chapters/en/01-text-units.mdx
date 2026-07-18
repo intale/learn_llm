@@ -8,6 +8,7 @@
   "title": "Text units and vocabulary IDs",
   "description": "Follow English and Cyrillic text from UTF-8 bytes to Unicode scalar values and deterministic integer IDs.",
   "objective": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
+  "worked_inputs": "Use cat as the ASCII input and кот as the paired Cyrillic input.",
   "formula": {
     "latex": "z_i = V(u_i), \\quad u_i \\notin S \\Rightarrow V(u_i)=0",
     "symbols": [
@@ -39,9 +40,10 @@
   },
   "history": {
     "approach": "Whitespace-delimited word vocabularies and Unicode-scalar splitting",
-    "summary": "Whole-word vocabularies are intuitive but make unseen forms unknown; scalar-level vocabularies stay small at the cost of longer sequences and still do not represent user-perceived grapheme clusters.",
+    "summary": "Early pipelines often split on whitespace into whole words; character-level models instead used much smaller symbol inventories. Whole-word vocabularies make unseen forms unknown, while scalar-level sequences are longer and still do not represent user-perceived grapheme clusters.",
     "rust_source": "rust/demos/ch01-text-units/src/lib.rs"
   },
+  "decoder_connection": "The resulting Vec<usize> is the discrete sequence that will index embedding rows and enter the decoder; generated IDs travel through the inverse vocabulary mapping to become text.",
   "rust_sources": [
     {
       "path": "rust/demos/ch01-text-units/src/lib.rs",

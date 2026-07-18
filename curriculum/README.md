@@ -6,10 +6,10 @@ per-chapter learning boundary, cumulative Rust contribution, visualization
 decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
 chapter implementation step per chapter.
 
-Chapter 1 is already published. Its only planned correction is a revision-2
-language-neutral formula. Chapter 2 onward extends one cumulative, dependency-free
-Rust decoder until the capstone can tokenize, train, evaluate, checkpoint, and
-generate with a small causal Transformer.
+Chapter 1 is published at content revision 2 with language-neutral shared
+mathematics. Chapter 2 onward extends one cumulative, dependency-free Rust decoder
+until the capstone can tokenize, train, evaluate, checkpoint, and generate with a
+small causal Transformer.
 
 ## One chapter is one delivery step
 
@@ -53,6 +53,14 @@ pair when a shared field or revision differs. An individually valid lesson may
 remain in source for review, but the course index and static chapter route omit it
 until its matching translation is complete.
 
+The contract is also authoritative for each locale's objective, worked-input
+commitment, symbol meanings, historical approach and summary, visualization
+rationale, and decoder connection. Copy those localized values into the matching
+lesson frontmatter; the integration gate rejects drift while leaving the rendered
+teaching prose free to explain them naturally. The implemented-course boundary is
+derived from the contiguous curriculum/chapters files, never from a manually
+updated chapter counter in the plan.
+
 Shared formulas must contain notation only. Put words such as “when,” “otherwise,”
 or their Russian equivalents in the localized explanation or symbol glossary, not
 inside shared LaTeX.
@@ -73,10 +81,23 @@ Each contract records:
 6. exercises, the cumulative-decoder connection, and acceptance examples; and
 7. bilingual terminology and translation notes.
 
+For Chapter 2 onward, `rust.sources` must include
+`rust/crates/llm-from-scratch/src/<primary_module>` from the reviewed plan as well
+as the runnable demo. Each lesson turns contract symbol entries into localized
+`{symbol, meaning}` entries and path strings into `{path, region?, purpose}`
+entries. Every declared lesson source or region must appear in a rendered
+`RustSource`; declarations cannot stand in for teaching evidence.
+
 Stable contract-section comments must remain in the order shown by the template.
 Localized MDX uses corresponding JSX comments named `chapter-section`. The marker
 text is machine-readable and is not rendered to students, so headings themselves
 remain naturally localized.
+
+Markers are boundaries, not evidence by themselves. Every lesson section needs a
+heading and substantive teaching content; the formula section displays the exact
+frontmatter notation, the Rust section contains its source evidence, a useful
+visualization invokes the chapter-specific diagram in its own section, and the
+exercise section pairs predict-first questions with checked answers.
 
 ## Lesson locations and publication
 
@@ -87,12 +108,18 @@ Place lesson sources at:
 
 The filename, directory locale, and frontmatter must agree. Astro validates
 frontmatter through `site/src/content.config.ts`. The deterministic content check
-also verifies section order, catalog parity, paired shared fields, source
-existence, and literal `RustSource` references.
+also verifies section order and evidence, catalog parity, paired shared fields,
+source existence, literal `RustSource` references, and an exact one-to-one mapping
+between the published bilingual prefix and implemented contracts.
 
 Only a complete, same-revision English/Russian pair is returned by the static
 course route. Both locale indexes always exist, even before the first lesson is
 publishable.
+
+Useful diagram names are derived from the chapter slug: `NN-foo-bar` must use
+`site/src/components/chapters/FooBarDiagram.astro` in both locales. This keeps the
+plan, ledger output, import path, and rendered chapter-specific visualization on
+one deterministic identity.
 
 ## Rust source inclusion
 

@@ -577,3 +577,147 @@ no completed generated artifact or Rust result is relabeled.
 **Affected steps:** `revise-ch01-language-neutral-formula`,
 `implement-ch02-corpus-partitions`, `implement-ch03-learn-bpe-merges`, and
 `implement-ch04-apply-bpe-tokenizer`
+
+## 2026-07-18 — Keep the established Astro route parameter filenames
+
+**Status:** Accepted; corrects path typos in the initial
+`establish-scalable-chapter-delivery` ledger entry.
+
+**Context:** The established static route files are
+`site/src/pages/[locale]/course/index.astro` and
+`site/src/pages/[locale]/course/[...slug].astro`. The new infrastructure step
+mistakenly named nonexistent `[lang]` and `[...chapter]` input/output paths. Astro
+uses these bracketed names only as internal parameter keys; the public localized
+course URLs remain `/<locale>/course/<chapter>/` either way.
+
+**Decision:** Strengthen the existing `[locale]/[...slug]` route and correct the
+step's declared inputs and outputs to those canonical paths. Do not create a
+parallel route or rename the established page tree solely to match the typo.
+
+**Consequences:** Previous/next navigation is integrated without route conflicts,
+unnecessary file churn, or a change to public URLs. Future browser helpers continue
+to describe public locale and chapter IDs independently of Astro's internal
+parameter names.
+
+**Affected steps:** `establish-scalable-chapter-delivery`
+
+## 2026-07-18 — Remove fixed single-chapter browser assumptions now
+
+**Status:** Accepted; expands the reusable delivery-gate step by one existing
+regression-test output.
+
+**Context:** Both the Chapter 1 browser specification and
+`site/tests/e2e/localized-shell.spec.ts` assert that each course index contains
+exactly one item. The next vertical slice will correctly add a second item, making
+the mandatory full browser suite fail even if Chapter 2 is otherwise valid. The
+localized-shell file was not listed in the infrastructure step's initial outputs.
+
+**Decision:** Include `site/tests/e2e/localized-shell.spec.ts` in
+`establish-scalable-chapter-delivery`. Preserve its home-to-course journey, but
+replace the fixed cardinality with assertions that the ordered course list is
+non-empty and contains the expected Chapter 1 entry. Shared chapter navigation
+checks derive their expected neighbors from the ordered localized course index so
+later chapters do not require edits to earlier chapter specifications.
+
+**Consequences:** Adding a valid chapter grows the course without invalidating
+shell or earlier-chapter tests, while missing, unordered, or unreachable Chapter 1
+still fails. The change ships in the same dedicated infrastructure commit and does
+not alter site behavior.
+
+**Affected steps:** `establish-scalable-chapter-delivery`,
+`implement-ch02-corpus-partitions`, and every later chapter step
+
+## 2026-07-18 — Keep chapter adjacency pure and independently testable
+
+**Status:** Accepted; adds one small shared library output to the reusable
+delivery-gate step.
+
+**Context:** The current static site has only Chapter 1, so a rendered browser test
+cannot exercise middle or final chapter adjacency without publishing fixture
+lessons. Computing neighbors only inside the Astro route would leave shuffled,
+duplicate-order, and first/middle/last behavior untested until later chapters ship.
+
+**Decision:** Add `site/src/lib/chapter-navigation.ts` as a pure build-time helper.
+It validates unique chapter IDs and orders, sorts publishable same-locale chapters
+deterministically, and returns the previous/current/next entries. The Astro route
+uses it, and unit fixtures cover boundaries, shuffled input, missing current IDs,
+and ambiguous order/ID data.
+
+**Consequences:** Navigation correctness is proven before Chapter 2 exists, while
+the rendered component remains static HTML with ordinary locale-preserving links.
+No client JavaScript or runtime server behavior is added.
+
+**Affected steps:** `establish-scalable-chapter-delivery` and every later chapter
+step that becomes a navigation neighbor
+
+## 2026-07-18 — Advance the course plan after the Chapter 1 repair
+
+**Status:** Accepted; supersedes the Chapter 1 disposition in course-plan revision
+1 without changing the 39-chapter architecture or scheduling order.
+
+**Context:** Course-plan revision 1 correctly scheduled a language-neutral formula
+repair and marked Chapter 1 `complete-with-revision-required`. Commit `ea2ffc9`
+completed that repair at content revision 2, but the canonical plan and workflow
+introduction still describe it as pending. A new course-wide consistency gate must
+represent current repository state rather than preserve a stale requirement.
+
+**Decision:** Advance `curriculum/course-plan.md` to plan revision 2, mark the
+Chapter 1 disposition complete, and state that revision 2 is published. Update the
+workflow introduction accordingly. Keep `implemented_through` at
+`01-text-units`, the target architecture, chapter count, dependencies, and all
+future implementation steps unchanged.
+
+**Consequences:** The plan validator can enforce a truthful completed disposition,
+and contributors no longer see an already-finished repair as future work. The
+original revision-1 run and manifest remain immutable historical evidence.
+
+**Affected steps:** `define-complete-curriculum`,
+`revise-ch01-language-neutral-formula`, and
+`establish-scalable-chapter-delivery`
+
+## 2026-07-18 — Derive implementation state and bind every published layer
+
+**Status:** Accepted; supersedes manual `implemented_through` tracking in the
+course plan and expands the reusable delivery-gate schema.
+
+**Context:** Adversarial review of the staged infrastructure showed that the plan,
+implemented contracts, and bilingual lessons were each internally checked but not
+joined into one exact published prefix. An extra bilingual lesson pair could
+therefore pass without a contract. The plan also hard-coded Chapter 1 as
+`implemented_through`; that duplicate ledger would become false after Chapter 2,
+while future chapter steps do not own the stable architecture plan. Contract
+history and other localized teaching commitments were not projected into lesson
+metadata, lesson section markers could surround empty content, and useful diagrams
+were compared by import alias rather than by resolved component path.
+
+**Decision:** Treat the ordered files in `curriculum/chapters/` as the source of
+implemented-course state, remove the mutable `implemented_through` snapshot from
+the architecture plan, and advance that plan to revision 3. Full content validation
+must match the exact bilingual lesson prefix to those contracts by chapter ID,
+revision, order, and concept ID;
+the plan gate continues to match that contract prefix to the reviewed 39-chapter
+map. Make historical approach bilingual in the contract and project localized
+worked-input, history, and decoder-connection commitments into both lesson
+frontmatters. Require meaningful content in every ordered lesson section, exact
+frontmatter mathematics in the formula section, Rust evidence in the Rust section,
+a checked prediction block in exercises, and the declared useful diagram inside
+the visualization section. Evidence inside code blocks, inline code, or comments is
+not rendered evidence. Every declared Rust source or region must be shown, and each
+post-Chapter-1 contract must include the cumulative primary module fixed by the
+course plan. Resolve diagram imports relative to the lesson and require the
+chapter-specific canonical component path. Do not use English/Russian string
+inequality as a localization proxy: technical names, numeric inputs, and code may
+legitimately be identical, while human bilingual review remains mandatory. Migrate
+the template and Chapter 1 metadata under this infrastructure step; these are
+schema bindings, not a new Chapter 1 learning revision.
+
+**Consequences:** A future chapter is publishable only when plan, contract, both
+locales, Rust evidence, exact output, and visualization identity agree. Adding a
+contract automatically advances derived implementation state, so later chapter
+steps do not edit the stable course plan. Structural checks prevent empty shells
+while human bilingual review remains responsible for explanatory quality. The
+completed Chapter 1 content and rendered prose remain revision 2; only its
+authoring metadata is migrated to the stricter reusable contract.
+
+**Affected steps:** `establish-scalable-chapter-delivery` and every
+`implement-chNN-*` step from Chapter 2 onward

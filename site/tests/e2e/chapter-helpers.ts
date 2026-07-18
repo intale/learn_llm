@@ -1,0 +1,201 @@
+import { expect, type Page } from '@playwright/test';
+
+export const chapterLocales = ['en', 'ru'] as const;
+export type ChapterLocale = (typeof chapterLocales)[number];
+
+export interface CourseChapterLink {
+  chapterId: string;
+  href: string;
+  order: number;
+  title: string;
+}
+
+interface LocalizedChapterRoute {
+  alternateLanguage: string;
+  chapterId: string;
+  locale: ChapterLocale;
+  order: number;
+  revision: number;
+  title: string;
+}
+
+const routeCopy = {
+  en: {
+    alternateLocale: 'ru',
+    navigation: 'Chapter navigation',
+    revision: 'Content revision',
+  },
+  ru: {
+    alternateLocale: 'en',
+    navigation: 'Навигация по главам',
+    revision: 'Версия материала',
+  },
+} as const;
+
+export function chapterTag(chapterId: string) {
+  return `@chapter:${chapterId}`;
+}
+
+export function chapterPath(locale: ChapterLocale, chapterId: string) {
+  return `/${locale}/course/${chapterId}/`;
+}
+
+export async function readOrderedCourseChapters(
+  page: Page,
+  locale: ChapterLocale,
+): Promise<CourseChapterLink[]> {
+  await page.goto(`/${locale}/course/`);
+  const items = page.locator('.course-list > li');
+  const count = await items.count();
+  expect(
+    count,
+    `${locale} course index must contain a published chapter`,
+  ).toBeGreaterThan(0);
+
+  const chapters = await items.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const orderText =
+        node.querySelector('.feature-number')?.textContent?.trim() ?? '';
+      const link = node.querySelector<HTMLAnchorElement>('h2 a');
+      return {
+        order: Number(orderText),
+        title: link?.textContent?.trim() ?? '',
+        href: link?.getAttribute('href') ?? '',
+      };
+    }),
+  );
+
+  return chapters.map((chapter, index) => {
+    const expectedOrder = index + 1;
+    const match = chapter.href.match(
+      new RegExp(`^/${locale}/course/(\\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)/$`),
+    );
+    expect(chapter.order).toBe(expectedOrder);
+    expect(
+      match,
+      `invalid ${locale} chapter href ${chapter.href}`,
+    ).not.toBeNull();
+    expect(
+      match?.[1].startsWith(String(expectedOrder).padStart(2, '0') + '-'),
+    ).toBe(true);
+    expect(chapter.title.length).toBeGreaterThan(0);
+    return {
+      ...chapter,
+      chapterId: match?.[1] ?? '',
+    };
+  });
+}
+
+export async function expectLocalizedChapterRoute(
+  page: Page,
+  chapter: LocalizedChapterRoute,
+) {
+  const copy = routeCopy[chapter.locale];
+  const currentPath = chapterPath(chapter.locale, chapter.chapterId);
+  const alternatePath = chapterPath(copy.alternateLocale, chapter.chapterId);
+
+  await expect(page).toHaveURL(new RegExp(`${currentPath}$`));
+  await expect(page.locator('html')).toHaveAttribute('lang', chapter.locale);
+  await expect(
+    page.getByRole('heading', { level: 1, name: chapter.title }),
+  ).toBeVisible();
+  await expect(page.locator('.eyebrow')).toContainText(
+    `${String(chapter.order).padStart(2, '0')} · ${copy.revision} ${chapter.revision}`,
+  );
+  await expect(
+    page.locator(`link[rel="alternate"][hreflang="${chapter.locale}"]`),
+  ).toHaveAttribute('href', currentPath);
+  await expect(
+    page.locator(`link[rel="alternate"][hreflang="${copy.alternateLocale}"]`),
+  ).toHaveAttribute('href', alternatePath);
+  await expect(
+    page.locator('link[rel="alternate"][hreflang="x-default"]'),
+  ).toHaveAttribute('href', '/');
+  await expect(
+    page.getByRole('link', { name: chapter.alternateLanguage }),
+  ).toHaveAttribute('href', alternatePath);
+}
+
+export async function expectOrderedChapterNavigation(
+  page: Page,
+  locale: ChapterLocale,
+  currentChapterId: string,
+  chapters: readonly CourseChapterLink[],
+) {
+  const currentIndex = chapters.findIndex(
+    (chapter) => chapter.chapterId === currentChapterId,
+  );
+  expect(
+    currentIndex,
+    `${currentChapterId} must appear in the course index`,
+  ).toBeGreaterThanOrEqual(0);
+  const previous = chapters[currentIndex - 1] ?? null;
+  const next = chapters[currentIndex + 1] ?? null;
+  const navigation = page.getByRole('navigation', {
+    name: routeCopy[locale].navigation,
+  });
+  await expect(navigation).toBeVisible();
+  await expect(
+    navigation.locator('a[href="/' + locale + '/course/"]'),
+  ).toHaveCount(1);
+
+  for (const [direction, expected, relation] of [
+    ['previous', previous, 'prev'],
+    ['next', next, 'next'],
+  ] as const) {
+    const link = navigation.locator(`a[data-chapter-direction="${direction}"]`);
+    if (expected === null) {
+      await expect(link).toHaveCount(0);
+      continue;
+    }
+    await expect(link).toHaveCount(1);
+    await expect(link).toHaveAttribute('href', expected.href);
+    await expect(link).toHaveAttribute('rel', relation);
+    await expect(link).toHaveAttribute('data-chapter-id', expected.chapterId);
+    await expect(link).toHaveAttribute(
+      'data-chapter-order',
+      String(expected.order),
+    );
+    await expect(link).toContainText(expected.title);
+  }
+}
+
+export async function expectVisualizationDecision(
+  page: Page,
+  visualization:
+    { decision: 'useful'; id: string } | { decision: 'not-useful'; id: null },
+) {
+  const figures = page.locator('figure[data-visualization-id]');
+  if (visualization.decision === 'not-useful') {
+    await expect(figures).toHaveCount(0);
+    return;
+  }
+
+  const figure = page.locator(
+    `figure[data-visualization-id="${visualization.id}"]`,
+  );
+  await expect(figure).toHaveCount(1);
+  await expect(figure).toBeVisible();
+  await expect(figure.locator('figcaption')).not.toHaveText('');
+  await expect(figure).toHaveAttribute('tabindex', '0');
+  const labelledBy = await figure.getAttribute('aria-labelledby');
+  const describedBy = await figure.getAttribute('aria-describedby');
+  expect(labelledBy).toBeTruthy();
+  expect(describedBy).toBeTruthy();
+  for (const id of `${labelledBy} ${describedBy}`.trim().split(/\s+/)) {
+    await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+  }
+  await figure.focus();
+  await expect(figure).toBeFocused();
+}
+
+export async function expectNoOverflowOrClientScripts(page: Page) {
+  const widths = await page.evaluate(() => ({
+    viewport: window.innerWidth,
+    document: document.documentElement.scrollWidth,
+    body: document.body.scrollWidth,
+  }));
+  expect(widths.document).toBeLessThanOrEqual(widths.viewport);
+  expect(widths.body).toBeLessThanOrEqual(widths.viewport);
+  await expect(page.locator('script')).toHaveCount(0);
+}

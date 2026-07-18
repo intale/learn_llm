@@ -8,7 +8,10 @@ import {
   ContentValidationError,
   isAllowedRustSourcePath,
   parseJsonFrontmatter,
+  renderableMdxSource,
   repositoryRootFromCwd,
+  validateChapterDocument,
+  validateChapterPair,
 } from './check-site-content.mjs';
 
 export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
@@ -51,9 +54,6 @@ function requireLocalizedText(issues, value, field, sourceName) {
   }
   requireText(issues, value.en, field + '.en', sourceName);
   requireText(issues, value.ru, field + '.ru', sourceName);
-  if (hasText(value.en) && value.en === value.ru) {
-    issues.push(sourceName + ': ' + field + ' English and Russian text must differ');
-  }
 }
 
 function validateFormula(issues, formula, sourceName) {
@@ -93,7 +93,7 @@ function validateHistory(issues, history, sourceName) {
     issues.push(sourceName + ': history must be an object');
     return;
   }
-  requireText(issues, history.approach, 'history.approach', sourceName);
+  requireLocalizedText(issues, history.approach, 'history.approach', sourceName);
   requireLocalizedText(issues, history.summary, 'history.summary', sourceName);
   requireText(issues, history.rust_contrast, 'history.rust_contrast', sourceName);
 }
@@ -292,6 +292,263 @@ export function validateChapterContractText(
   return parsed;
 }
 
+function sortedUnique(values) {
+  return [...new Set(values)].sort();
+}
+
+export function localizedContractProjection(contract, locale) {
+  return {
+    chapter_id: contract.chapter_id,
+    content_revision: contract.content_revision,
+    order: contract.order,
+    concept_id: contract.concept_id,
+    objective: contract.objective[locale],
+    worked_inputs: contract.worked_inputs[locale],
+    formula: {
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map((symbol) => ({
+        symbol: symbol.symbol,
+        meaning: symbol[locale],
+      })),
+    },
+    rust_source_paths: sortedUnique(contract.rust.sources),
+    history: {
+      approach: contract.history.approach[locale],
+      summary: contract.history.summary[locale],
+    },
+    visualization: {
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale[locale],
+    },
+    decoder_connection: contract.decoder_connection[locale],
+  };
+}
+
+function localizedLessonProjection(lesson) {
+  return {
+    chapter_id: lesson.chapter_id,
+    content_revision: lesson.content_revision,
+    order: lesson.order,
+    concept_id: lesson.concept_id,
+    objective: lesson.objective,
+    worked_inputs: lesson.worked_inputs,
+    formula: {
+      latex: lesson.formula.latex,
+      symbols: lesson.formula.symbols.map((symbol) => ({
+        symbol: symbol.symbol,
+        meaning: symbol.meaning,
+      })),
+    },
+    rust_source_paths: sortedUnique(lesson.rust_sources.map((source) => source.path)),
+    history: {
+      approach: lesson.history.approach,
+      summary: lesson.history.summary,
+    },
+    visualization: {
+      decision: lesson.visualization.decision,
+      id: lesson.visualization.id,
+      rationale: lesson.visualization.rationale,
+    },
+    decoder_connection: lesson.decoder_connection,
+  };
+}
+
+function expectedDiagramPath(chapterId) {
+  const componentName = chapterId
+    .slice(3)
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+  return 'site/src/components/chapters/' + componentName + 'Diagram.astro';
+}
+
+function visualizationComponent(body, decision, sourceName, chapterId) {
+  const renderableBody = renderableMdxSource(body);
+  const imports = [...renderableBody.matchAll(
+    /import\s+([A-Z][A-Za-z0-9]*Diagram)\s+from\s+['"]([^'"]+Diagram\.astro)['"];?/g,
+  )].map((match) => ({ alias: match[1], importPath: match[2] }));
+  const marker = '{/* chapter-section:visualization */}';
+  const start = body.indexOf(marker);
+  const end = body.indexOf('{/* chapter-section:exercises */}', start + marker.length);
+  const section =
+    start === -1 || end === -1
+      ? ''
+      : renderableMdxSource(body.slice(start, end));
+  const invoked = imports.filter((entry) =>
+    new RegExp('<' + entry.alias + '(?:\\s|/|>)').test(section),
+  );
+
+  if (decision === 'useful') {
+    if (imports.length !== 1 || invoked.length !== 1) {
+      throw new ContentValidationError([
+        sourceName +
+          ': useful visualization must import and invoke exactly one shared *Diagram component inside the visualization section',
+      ], 'Chapter integration validation failed');
+    }
+    const sourcePath = sourceName.replaceAll('\\', '/');
+    const resolvedPath = nodePath.posix.normalize(
+      nodePath.posix.join(nodePath.posix.dirname(sourcePath), invoked[0].importPath),
+    );
+    const expectedPath = expectedDiagramPath(chapterId);
+    if (resolvedPath !== expectedPath) {
+      throw new ContentValidationError([
+        sourceName +
+          ': useful visualization must resolve to the chapter-specific component ' +
+          expectedPath +
+          '; found ' +
+          resolvedPath,
+      ], 'Chapter integration validation failed');
+    }
+    return resolvedPath;
+  }
+
+  if (
+    imports.length !== 0 ||
+    /<[A-Z][A-Za-z0-9]*Diagram(?:\s|\/|>)/.test(renderableBody)
+  ) {
+    throw new ContentValidationError([
+      sourceName + ': not-useful visualization must not import or invoke a *Diagram component',
+    ], 'Chapter integration validation failed');
+  }
+  return null;
+}
+
+export function validateContractLesson(contract, lesson, locale, sourceName = 'lesson') {
+  const expected = localizedContractProjection(contract, locale);
+  const actual = localizedLessonProjection(lesson.data);
+  if (JSON.stringify(expected) !== JSON.stringify(actual)) {
+    throw new ContentValidationError([
+      sourceName +
+        ': ID, revision, order, concept, objective, worked input, formula, history, Rust source set, visualization, or decoder connection differs from the contract',
+    ], 'Chapter integration validation failed');
+  }
+  if (!contract.rust.sources.includes(lesson.data.history.rust_source)) {
+    throw new ContentValidationError([
+      sourceName + ': history.rust_source is absent from contract rust.sources',
+    ], 'Chapter integration validation failed');
+  }
+  return visualizationComponent(
+    lesson.body,
+    contract.visualization.decision,
+    sourceName,
+    contract.chapter_id,
+  );
+}
+
+export function validateExpectedOutput(
+  contract,
+  expectedOutput,
+  sourceName = 'chapter contract',
+) {
+  if (expectedOutput !== contract.rust.expected_output) {
+    throw new ContentValidationError([
+      sourceName + ': rust.expected_output differs byte-for-byte from expected.txt',
+    ], 'Chapter integration validation failed');
+  }
+  return true;
+}
+
+export function validateChapterContractIntegration(
+  parsed,
+  { repositoryRoot, sourceName = 'chapter contract' },
+) {
+  const contract = parsed.data;
+  const issues = [];
+  const expectedPackage = 'ch' + contract.chapter_id;
+  if (contract.rust.package !== expectedPackage) {
+    issues.push(
+      sourceName + ': rust.package must equal "' + expectedPackage + '"',
+    );
+  }
+
+  const demoPrefix = 'rust/demos/' + contract.rust.package + '/';
+  const demoSources = contract.rust.sources.filter((path) => path.startsWith('rust/demos/'));
+  if (!demoSources.includes(demoPrefix + 'src/main.rs')) {
+    issues.push(sourceName + ': rust.sources must include ' + demoPrefix + 'src/main.rs');
+  }
+  for (const path of demoSources) {
+    if (!path.startsWith(demoPrefix)) {
+      issues.push(sourceName + ': Rust demo source belongs to another package: ' + path);
+    }
+  }
+
+  const manifestPath = nodePath.join(repositoryRoot, demoPrefix, 'Cargo.toml');
+  const expectedPath = nodePath.join(repositoryRoot, demoPrefix, 'expected.txt');
+  if (!existsSync(manifestPath)) {
+    issues.push(sourceName + ': demo manifest does not exist: ' + demoPrefix + 'Cargo.toml');
+  } else {
+    const manifest = readFileSync(manifestPath, 'utf8');
+    const packageName = manifest.match(/^name\s*=\s*"([^"]+)"/m)?.[1];
+    if (packageName !== contract.rust.package) {
+      issues.push(sourceName + ': Cargo package name differs from rust.package');
+    }
+  }
+  if (!existsSync(expectedPath)) {
+    issues.push(sourceName + ': expected-output fixture does not exist: ' + demoPrefix + 'expected.txt');
+  } else {
+    try {
+      validateExpectedOutput(
+        contract,
+        readFileSync(expectedPath, 'utf8'),
+        sourceName,
+      );
+    } catch (error) {
+      issues.push(...(error.issues ?? [error.message]));
+    }
+  }
+
+  if (issues.length > 0) {
+    throw new ContentValidationError(issues, 'Chapter integration validation failed');
+  }
+
+  const lessons = {};
+  const diagrams = {};
+  for (const locale of ['en', 'ru']) {
+    const lessonPath = nodePath.join(
+      repositoryRoot,
+      'site/src/content/chapters',
+      locale,
+      contract.chapter_id + '.mdx',
+    );
+    if (!existsSync(lessonPath)) {
+      throw new ContentValidationError([
+        sourceName + ': missing ' + locale + ' lesson ' + nodePath.relative(repositoryRoot, lessonPath),
+      ], 'Chapter integration validation failed');
+    }
+    const lesson = validateChapterDocument(readFileSync(lessonPath, 'utf8'), {
+      sourceName: nodePath.relative(repositoryRoot, lessonPath),
+      filePath: lessonPath,
+      repositoryRoot,
+      checkSourceFiles: true,
+    });
+    lessons[locale] = lesson;
+    diagrams[locale] = validateContractLesson(
+      contract,
+      lesson,
+      locale,
+      nodePath.relative(repositoryRoot, lessonPath),
+    );
+    if (
+      diagrams[locale] &&
+      !existsSync(nodePath.join(repositoryRoot, diagrams[locale]))
+    ) {
+      throw new ContentValidationError([
+        sourceName + ': visualization component does not exist: ' + diagrams[locale],
+      ], 'Chapter integration validation failed');
+    }
+  }
+
+  validateChapterPair(lessons.en, lessons.ru);
+  if (diagrams.en !== diagrams.ru) {
+    throw new ContentValidationError([
+      sourceName + ': English and Russian lessons must invoke the same visualization component',
+    ], 'Chapter integration validation failed');
+  }
+
+  return { lessons, visualizationComponent: diagrams.en, expectedPath };
+}
+
 function defaultContractPaths(repositoryRoot) {
   const directory = nodePath.join(repositoryRoot, 'curriculum/chapters');
   if (!existsSync(directory)) return [];
@@ -306,7 +563,14 @@ export function runChapterContractCheck(
   cwd = process.cwd(),
 ) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
-  const requested = args.filter((argument) => !argument.startsWith('--'));
+  const structureOnly = args.includes('--structure-only');
+  const unknownOptions = args.filter(
+    (argument) => argument.startsWith('--') && argument !== '--structure-only',
+  );
+  if (unknownOptions.length > 0) {
+    throw new ContentValidationError(['unknown option(s): ' + unknownOptions.join(', ')]);
+  }
+  const requested = args.filter((argument) => argument !== '--structure-only');
   const paths =
     requested.length > 0
       ? requested.map((value) => nodePath.resolve(cwd, value))
@@ -316,10 +580,17 @@ export function runChapterContractCheck(
     if (!existsSync(filePath)) {
       throw new ContentValidationError(['chapter contract does not exist: ' + filePath]);
     }
-    return validateChapterContractText(readFileSync(filePath, 'utf8'), {
+    const parsed = validateChapterContractText(readFileSync(filePath, 'utf8'), {
       sourceName: nodePath.relative(repositoryRoot, filePath),
       filePath,
     });
+    const integration = structureOnly
+      ? null
+      : validateChapterContractIntegration(parsed, {
+          repositoryRoot,
+          sourceName: nodePath.relative(repositoryRoot, filePath),
+        });
+    return { parsed, integration };
   });
 
   return { paths, results };
@@ -336,7 +607,7 @@ if (isMainModule()) {
   try {
     const result = runChapterContractCheck();
     console.log(
-      'Chapter contract check passed: ' + result.results.length + ' file(s).',
+      'Chapter contract check passed: ' + result.results.length + ' integrated file(s).',
     );
   } catch (error) {
     console.error(error.message);

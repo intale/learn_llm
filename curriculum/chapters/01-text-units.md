@@ -48,7 +48,10 @@
     ]
   },
   "history": {
-    "approach": "Whitespace-delimited word vocabularies and character-level splitting",
+    "approach": {
+      "en": "Whitespace-delimited word vocabularies and Unicode-scalar splitting",
+      "ru": "Разбиение на целые слова по пробельным символам и на скалярные значения Unicode"
+    },
     "summary": {
       "en": "Early pipelines often split on whitespace into whole words; character-level models instead used much smaller symbol inventories. Whole-word vocabularies make unseen forms unknown, while scalar-level sequences are longer and still do not represent user-perceived grapheme clusters.",
       "ru": "Ранние конвейеры часто делили текст по пробельным символам на целые слова; модели посимвольного уровня использовали гораздо меньшие наборы единиц. Словари целых слов не знают новых форм, а последовательности скалярных значений длиннее и всё равно не совпадают с воспринимаемыми пользователем графемами."

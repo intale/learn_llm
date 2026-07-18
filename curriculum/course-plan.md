@@ -1,13 +1,13 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 1,
+  "plan_revision": 3,
   "chapter_count": 39,
-  "implemented_through": "01-text-units",
+  "implementation_state_source": "curriculum/chapters",
   "chapter_1_disposition": {
-    "status": "complete-with-revision-required",
+    "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
-    "reason": "The implementation and teaching content are complete, but shared LaTeX contains English prose and must become language-neutral at content revision 2."
+    "reason": "Content revision 2 is published with language-neutral shared LaTeX and the reviewed chapter 2–4 handoff."
   },
   "target": {
     "data_protocol": "document-level train/validation/test partition frozen before tokenizer learning",
@@ -440,11 +440,10 @@ tests and exact output, an accessible visualization, exercises, paired locales, 
 rendered integration. Its scalar vocabulary remains a useful baseline and is not
 copied into the cumulative crate because BPE replaces it.
 
-One defect remains. The shared formula uses the English prose `\\text{ when }`,
-which appears unchanged in Russian. The first scheduled step replaces it with
-notation-only mathematics, advances the contract and both lessons to content revision
-2, strengthens the formula gate, and reruns every Chapter 1 regression. No additional
-Chapter 1 part is justified.
+The revision-2 repair replaced the shared formula's English prose with
+notation-only mathematics and aligned the contract and both lessons with the
+reviewed chapters 2–4 handoff. The strengthened formula and bilingual regression
+gates now pass. No additional Chapter 1 part is justified.
 
 ## Target model and explicit boundaries
 
@@ -563,7 +562,7 @@ exercises, misconceptions, and rendered browser evidence.
 - **Implementation step:** `revise-ch01-language-neutral-formula`
 - **Depends on:** the completed chapter-1 foundation.
 - **Outcome:** Distinguish UTF-8 bytes, Unicode scalar values, and vocabulary IDs, then round-trip known English and Cyrillic text.
-- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. Revision 2 only removes English prose from shared mathematics.
+- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. The completed revision 2 removes English prose from shared mathematics without changing Rust behavior.
 - **Formula:** `z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`.
 - **Historical contrast:** Contrast whitespace-delimited whole-word vocabularies with scalar-level splitting and their respective unknown-word and sequence-length costs.
 - **Rust contribution:** Retain the dependency-free chapter-1 demo and exact output; the revision step changes contract/lesson metadata and strengthens the language-neutral formula gate.

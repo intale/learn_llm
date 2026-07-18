@@ -82,6 +82,7 @@ const chapters = defineCollection({
       title: z.string().min(1),
       description: z.string().min(1),
       objective: z.string().min(1),
+      worked_inputs: z.string().min(1),
       formula,
       history: z
         .object({
@@ -92,6 +93,7 @@ const chapters = defineCollection({
         .strict(),
       rust_sources: z.array(rustSource).min(1),
       visualization,
+      decoder_connection: z.string().min(1),
     })
     .strict(),
 });

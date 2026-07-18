@@ -28,7 +28,10 @@
     ]
   },
   "history": {
-    "approach": "Name the earlier approach being contrasted.",
+    "approach": {
+      "en": "Name the earlier approach being contrasted.",
+      "ru": "Назовите более ранний подход, с которым проводится сравнение."
+    },
     "summary": {
       "en": "Briefly state what the historical approach did and why the modern component changed it.",
       "ru": "Кратко опишите исторический подход и причину перехода к современному компоненту."
@@ -38,6 +41,7 @@
   "rust": {
     "package": "ch00-chapter-slug",
     "sources": [
+      "rust/crates/llm-from-scratch/src/chapter_concept.rs",
       "rust/demos/ch00-chapter-slug/src/main.rs"
     ],
     "expected_output": "Replace this with deterministic stdout, preserving exact spacing and line endings."
@@ -74,6 +78,21 @@
 ---
 
 # Chapter NN: working title / рабочее название
+
+The matching English and Russian lesson frontmatters copy the localized
+`worked_inputs`, `history`, and `decoder_connection` values from this contract.
+Every ordered lesson section contains teaching prose, the formula section renders
+the exact `formula.latex`, the Rust section owns its `<RustSource>` evidence, useful
+visualizations invoke the chapter-specific diagram there, and exercises include a
+predict-first ordered list with answers in `<details>`.
+
+For every chapter after Chapter 1, replace `chapter_concept.rs` with the exact
+`primary_module` path named in `course-plan.md`; both localized lessons declare
+and render every contract source (and every declared source region). Contract
+`{symbol, en, ru}` entries become locale-specific lesson `{symbol, meaning}`
+entries. Contract Rust path strings become lesson `{path, region?, purpose}`
+entries. A useful `NN-foo-bar` chapter uses the canonical component
+`site/src/components/chapters/FooBarDiagram.astro` in both lessons.
 
 <!-- contract-section:scope -->
 ## Scope
