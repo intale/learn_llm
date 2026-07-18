@@ -1,0 +1,295 @@
+---
+{
+  "chapter_id": "01-text-units",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 1,
+  "concept_id": "text-units-vocabulary-ids",
+  "title": "Text units and vocabulary IDs",
+  "description": "Follow English and Cyrillic text from UTF-8 bytes to Unicode scalar values and deterministic integer IDs.",
+  "objective": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
+  "formula": {
+    "latex": "z_i = V(u_i), \\quad V(u) = 0 \\text{ when } u \\notin S",
+    "symbols": [
+      {
+        "symbol": "u_i",
+        "meaning": "the Unicode scalar value at input position i"
+      },
+      {
+        "symbol": "S",
+        "meaning": "the fixed set of known Unicode scalar values"
+      },
+      {
+        "symbol": "V",
+        "meaning": "the deterministic mapping from a scalar value to a vocabulary ID"
+      },
+      {
+        "symbol": "z_i",
+        "meaning": "the token ID at sequence position i"
+      },
+      {
+        "symbol": "i",
+        "meaning": "a zero-based position in the scalar and token sequences"
+      },
+      {
+        "symbol": "0",
+        "meaning": "the reserved ID for the unknown token <UNK>"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Whitespace-delimited word vocabularies and Unicode-scalar splitting",
+    "summary": "Whole-word vocabularies are intuitive but make unseen forms unknown; scalar-level vocabularies stay small at the cost of longer sequences and still do not represent user-perceived grapheme clusters.",
+    "rust_source": "rust/demos/ch01-text-units/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch01-text-units/src/lib.rs",
+      "region": "text-representations",
+      "purpose": "Show the distinct UTF-8 byte and Unicode-scalar representations."
+    },
+    {
+      "path": "rust/demos/ch01-text-units/src/lib.rs",
+      "region": "historical-splitting",
+      "purpose": "Contrast historical whitespace-delimited words with scalar-level units."
+    },
+    {
+      "path": "rust/demos/ch01-text-units/src/lib.rs",
+      "region": "vocabulary",
+      "purpose": "Implement deterministic vocabulary construction, encoding, and decoding."
+    },
+    {
+      "path": "rust/demos/ch01-text-units/src/main.rs",
+      "region": "chapter-output",
+      "purpose": "Run the fixed multilingual example and expose its checked output."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "text-units-pipeline",
+    "rationale": "Aligned input, UTF-8 byte, Unicode scalar, and token-ID rows make the many-bytes-to-one-scalar relationship visible for Cyrillic text."
+  }
+}
+---
+
+import TextUnitsDiagram from '../../../components/chapters/TextUnitsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'The same three positions, represented four ways',
+  description:
+    'Read each example from input units through UTF-8 bytes and Unicode scalar values to the IDs owned by the fixed vocabulary.',
+  pipelineLabel: 'Text representation stages',
+  examples: {
+    ascii: 'ASCII example: cat',
+    cyrillic: 'Cyrillic example: кот',
+  },
+  stages: {
+    input: 'Input units',
+    bytes: 'UTF-8 bytes',
+    scalars: 'Unicode scalar values',
+    tokenIds: 'Vocabulary IDs',
+  },
+  byteCount: {
+    one: '{count} byte',
+    many: '{count} bytes',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Start with two three-letter inputs
+
+Rust stores both `cat` and `кот` as UTF-8, but equal-looking lengths do not imply
+equal byte lengths. Before reading the table, predict three counts for each input:
+its bytes, its Unicode scalar values, and its vocabulary IDs.
+
+| Representation | `cat` | `кот` |
+| :--- | :--- | :--- |
+| UTF-8 bytes | `[99, 97, 116]` | `[208, 186, 208, 190, 209, 130]` |
+| Unicode scalar values | `[U+0063, U+0061, U+0074]` | `[U+043A, U+043E, U+0442]` |
+| Vocabulary IDs | `[3, 2, 4]` | `[5, 6, 7]` |
+| Decoded text | `cat` | `кот` |
+
+The result is `3 / 3 / 3` for `cat` and `6 / 3 / 3` for `кот`. Each Cyrillic
+scalar occupies two UTF-8 bytes here, but both inputs still contain three scalar
+positions and produce three IDs.
+
+The IDs come from one fixed training string, `cat кот`. ID `0` is reserved for
+`<UNK>`; known scalar values are sorted by numeric Unicode value and receive IDs
+from `1`:
+
+| ID | Unit | Unicode value |
+| ---: | :---: | :--- |
+| 0 | `<UNK>` | unknown |
+| 1 | space | `U+0020` |
+| 2 | `a` | `U+0061` |
+| 3 | `c` | `U+0063` |
+| 4 | `t` | `U+0074` |
+| 5 | `к` | `U+043A` |
+| 6 | `о` | `U+043E` |
+| 7 | `т` | `U+0442` |
+
+This rule is deterministic: it does not depend on hash-map iteration order. The
+round trip is reversible for known units. For the unseen input `?`, byte `63` and
+scalar `U+003F` are observable before lookup, but encoding produces `[0]` and
+decoding returns `<UNK>` rather than the original question mark.
+
+{/* chapter-section:formula */}
+
+## One lookup per scalar position
+
+For every scalar position, encoding applies the same vocabulary lookup:
+
+$$
+z_i = V(u_i), \quad V(u) = 0 \text{ when } u \notin S
+$$
+
+In plain language, take the scalar value at position `i`, look it up in the fixed
+vocabulary, and place the resulting integer ID at the same position. A scalar may
+use several UTF-8 bytes, but it contributes exactly one position to this chapter's
+token sequence. The inverse lookup recovers every known scalar; ID `0` deliberately
+recovers only the marker `<UNK>`.
+
+{/* chapter-section:symbol-glossary */}
+
+## Symbol glossary
+
+| Symbol | Meaning |
+| :--- | :--- |
+| $u_i$ | the Unicode scalar value at input position $i$ |
+| $S$ | the fixed set of known Unicode scalar values |
+| $V$ | the deterministic map from a scalar value to a vocabulary ID |
+| $z_i$ | the token ID at sequence position $i$ |
+| $i$ | a zero-based position in the scalar and token sequences |
+| $0$ | the reserved vocabulary ID for `<UNK>` |
+
+{/* chapter-section:history */}
+
+## Before subword tokenizers
+
+A straightforward early approach was a vocabulary of whitespace-delimited whole
+words: `red fox` becomes `["red", "fox"]`. It is easy to explain, but each unseen
+spelling, inflection, or punctuation-attached form needs a new entry or becomes
+unknown.
+
+Character-level models moved to much smaller units. In this lesson, “character
+level” specifically means the Unicode scalar values returned by Rust's
+`str::chars`; it does **not** mean user-perceived grapheme clusters. Scalar
+sequences avoid whole-word unknowns but are longer, and a visible grapheme can
+still contain more than one scalar.
+
+<RustSource
+  path="rust/demos/ch01-text-units/src/lib.rs"
+  region="historical-splitting"
+  caption="Historical word and scalar boundaries"
+  label="Rust functions that contrast whitespace-delimited words with Unicode scalar values"
+/>
+
+Try the two functions mentally before running them:
+`split_words("red fox")` yields `["red", "fox"]`, while
+`split_scalars("кот")` yields `['к', 'о', 'т']`. Modern subword methods seek a
+useful compromise between huge whole-word vocabularies and long scalar sequences;
+chapter 2 will build that next layer.
+
+{/* chapter-section:rust-implementation */}
+
+## Implement the mapping in Rust
+
+The demo uses only Rust's standard library. First, make the byte/scalar distinction
+explicit instead of hiding it behind the word “character”:
+
+<RustSource
+  path="rust/demos/ch01-text-units/src/lib.rs"
+  region="text-representations"
+  caption="Two observable text representations"
+  label="Rust functions that return UTF-8 bytes and Unicode scalar values"
+/>
+
+`Vocabulary::from_training_text` then sorts and deduplicates the scalar values.
+Because the sorted vector is both the ID order and the inverse table, known units
+can travel in either direction without a tokenization library:
+
+<RustSource
+  path="rust/demos/ch01-text-units/src/lib.rs"
+  region="vocabulary"
+  caption="A deterministic scalar vocabulary"
+  label="Rust implementation of vocabulary construction, encoding, and decoding"
+/>
+
+The executable fixes the inputs and prints every intermediate representation:
+
+<RustSource
+  path="rust/demos/ch01-text-units/src/main.rs"
+  region="chapter-output"
+  caption="The checked chapter example"
+  label="Rust main function for the English, Cyrillic, historical, and unknown-unit examples"
+/>
+
+Run the behavioral tests and compare stdout with the committed result:
+
+```text
+cargo test --workspace --locked
+cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -
+```
+
+The tests cover deterministic ordering, exact English and Cyrillic values, known
+round trips, empty input, unknown and invalid IDs, and both historical split
+functions. A successful `diff` prints nothing.
+
+{/* chapter-section:visualization */}
+
+## Trace each position across representations
+
+The diagram groups the bytes that belong to each scalar, then keeps that scalar
+aligned with its final ID. Read the numbered stages in order. The brackets and
+byte-count labels carry the grouping even without color, and the whole figure can
+receive keyboard focus.
+
+<TextUnitsDiagram labels={diagramLabels} />
+
+Notice the structural invariant: both examples have three scalar groups and three
+IDs. Only the number of bytes inside each group changes. The unseen `?` would
+still have a byte and scalar stage, but its final stage would contain the reserved
+ID `0`.
+
+{/* chapter-section:exercises */}
+
+## Predict, then check
+
+1. Without running the demo, write the byte/scalar/ID counts for `cat` and `кот`.
+2. Use numeric scalar sorting to predict the IDs for both inputs.
+3. Decide what information remains observable, and what is lost, when `?` becomes
+   ID `0`.
+4. Explain why `text.len()`, `text.chars().count()`, and the number of
+   user-perceived graphemes can disagree.
+5. Predict the historical word and scalar lines printed by the executable.
+
+<details>
+  <summary>Check your predictions</summary>
+
+  1. `cat` has `3 / 3 / 3`; `кот` has `6 / 3 / 3`.
+  2. The ID sequences are `[3, 2, 4]` and `[5, 6, 7]`.
+  3. Byte `63` and scalar `U+003F` are visible before lookup. After lookup, `[0]`
+     preserves only “unknown”, so decoding yields `<UNK>` rather than `?`.
+  4. `len()` counts UTF-8 bytes; `chars().count()` counts Unicode scalar values;
+     one displayed grapheme may contain multiple scalar values.
+  5. The program prints words `["red", "fox"] | ["рыжий", "кот"]` and scalars
+     `['c', 'a', 't'] | ['к', 'о', 'т']`.
+</details>
+
+Change one input only after the fixed example passes. When you add a scalar that
+is absent from `cat кот`, predict `0` before confirming it with `encode`.
+
+{/* chapter-section:decoder-connection */}
+
+## The boundary the decoder will consume
+
+This chapter contributes a deterministic `String -> Vec<usize>` boundary. In the
+cumulative model, each `usize` will select one row from an embedding table before
+the sequence enters the decoder. The decoder will eventually predict another ID,
+and the inverse vocabulary will turn generated IDs back into text.
+
+Chapter 2 will replace scalar-sized units with learned subword units, but it will
+preserve this integer-sequence interface. Everything that follows—embeddings,
+attention, and next-token prediction—can therefore operate on IDs without needing
+to know how many UTF-8 bytes produced each one.

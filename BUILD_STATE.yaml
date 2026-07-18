@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T13:26:44Z"
+updated_at: "2026-07-18T13:46:39Z"
 
 environment:
   os: "Linux x86_64"
@@ -115,7 +115,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 6
+      spent: 7
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -761,7 +761,7 @@ builds:
           - establish-content-contract
           - implement-ch01-text-units-rust
           - implement-ch01-text-units-visualization
-        status: pending
+        status: completed
         inputs:
           - curriculum/chapters/01-text-units.md
           - rust/demos/ch01-text-units/src/lib.rs
@@ -780,7 +780,96 @@ builds:
         cost:
           class: medium
           notes: "English technical authoring and local validation; no paid translation or generation service."
-        runs: []
+        runs:
+          - run_id: 20260718T133214Z-author-ch01-text-units-en-01
+            started_at: "2026-07-18T13:32:14Z"
+            finished_at: "2026-07-18T13:46:39Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6ce40adf46ccf91314017b01a1f3d852ca12eb8d"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:6a3af3d35acbd3ea5d3c8c970d3ef66641e495ab9e4e0038d6746315c195cd00"
+                BUILD_STATE.yaml: "sha256:eefde602fd0fc71ccac6e98c2581443b2776878998d9e9a3d943c3c210af4799"
+                curriculum/chapters/01-text-units.md: "sha256:f85384e06f6e7df111392a85d5f2df4d66496f07021778557909a517e2b74826"
+                rust/demos/ch01-text-units/src/lib.rs: "sha256:84a7c2023949b880ff10cc0f41b05294dfd2484ab91f74c0ef9fd2f21671d700"
+                rust/demos/ch01-text-units/src/main.rs: "sha256:6a1ff4c54cb23d4a2ff976cfdb74394ec92f53e35deccd6944cb27856879ab8a"
+                site/src/components/chapters/TextUnitsDiagram.astro: "sha256:0a7895ce55a63f01cc6e1198e8c6ac9a8f3c3b9f9892fe7b81f6d4152d199e6c"
+                site/src/lib/text-units-diagram.ts: "sha256:1acce5c0b12f8e1a2df26d402aee892e83cdfb16d0385051a9c942bdf62f3a67"
+                site/src/content.config.ts: "sha256:df2e5ac20237986f0711eb35aa3e659601a807a54c47d3581482faad5c000eac"
+                site/src/components/RustSource.astro: "sha256:35a88a9b5b0ba1dc88fdf8f18680447c9a634f4ca95f39dd331ec680754b2436"
+                site/src/pages/[locale]/course/[...slug].astro: "sha256:d083ff1f085b92dd2ecec94884dd36215a73142607be7569d8af61e4d3697d89"
+                scripts/check-site-content.mjs: "sha256:4373804c4693f788c78214e03c3be63e3cbbf6ec83cd72fb8d06ce1b945f8170"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/astro.config.mjs: "sha256:a5817d8e6526aa96f9f4f9ccb9f63b90193bd82feecd432cbaa182492c54fc33"
+              tools:
+                node: "23.7.0"
+                npm: "10.9.2"
+            staging_dir: ".build/runs/20260718T133214Z-author-ch01-text-units-en-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, the completed visualization run, chapter contract, Rust sources, content schema and validators, route, shared components, styles, and locked toolchain configuration"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the latest visualization run's publication manifest, manual review, and desktop/narrow screenshot checksums"
+              - "Ruby ledger eligibility and stale-running-step check"
+              - "sha256sum material English-authoring inputs"
+              - "Create run-specific staging and validation directories"
+              - "Author the English revision-1 MDX lesson under the run-specific publish tree"
+              - "Direct validateChapterDocument source check against canonical Rust files"
+              - "Assemble an isolated validation site from canonical sources, the staged lesson, locked node_modules, copied validator scripts, and read-only Rust link"
+              - "Initial staged check:chapter invocation through a scripts symlink did not execute its main-module branch; replace the validation-only symlink with a script copy and rerun successfully"
+              - "Run staged check:chapter, Astro diagnostics, and production build"
+              - "Prove the full bilingual content gate rejects en=1/ru=0 and the unmodified static route emits five shell/index pages with no chapter or script element"
+              - "Add a run-only English route projection and Playwright specification without creating a Russian fixture"
+              - "Run cached-Chromium desktop/narrow review, inspect both full-page screenshots, and restore the production route byte-for-byte"
+              - "Run contract synchronization audit; correct the visualization-rationale wording and exact Rust word-vector quotes; regenerate final-byte browser artifacts"
+              - "Run final staged contract audit, check:chapter, Astro diagnostics, static build, route/script audit, manifest, and trailing-whitespace checks"
+              - "Create the manual acceptance review and immutable one-file publication manifest"
+              - "Publish the checksum-verified lesson to site/src/content/chapters/en/01-text-units.mdx with apply_patch and verify byte equality"
+              - "npm --prefix site run check:chapter -- --locale en --chapter 01-text-units"
+              - "npm --prefix site run check"
+              - "npm --prefix site run build"
+              - "Canonical full Vitest, static-link, fail-closed content, exact-route, no-script, manifest, equality, and worktree audits"
+            artifacts:
+              - path: ".build/runs/20260718T133214Z-author-ch01-text-units-en-01/publish.sha256"
+                checksum: "sha256:825c92ead2402d55c126eff6d94f330d9532840b1d156eca1d593752b63ffb59"
+                notes: "Immutable checksum for the staged English lesson published to the canonical content path."
+              - path: ".build/runs/20260718T133214Z-author-ch01-text-units-en-01/manual-review.md"
+                checksum: "sha256:95e57018aea261e4a37b2c84068ebfeb95e632ae7c53634fdc685c1f0949bf31"
+                notes: "Completion-time acceptance review covering contract accuracy, learning flow, rendering, and fail-closed publication."
+              - path: ".build/runs/20260718T133214Z-author-ch01-text-units-en-01/visual-review-english-desktop.png"
+                checksum: "sha256:a813d093fb2e6a2275adee8fe8d1f69c3ffb4bb1b47d4fd20eb8b7da007c3056"
+                notes: "Final English lesson at 1440 by 1000 CSS pixels, captured as a 1440 by 7982 full-page image."
+              - path: ".build/runs/20260718T133214Z-author-ch01-text-units-en-01/visual-review-english-narrow.png"
+                checksum: "sha256:ae91d4de55635e8348fd98f45aa69c97ee0612cbb90854ca0aec6b63e21340a2"
+                notes: "Final English lesson at 390 by 844 CSS pixels, captured as a 390 by 11400 full-page image."
+            validation:
+              - command: "npm --prefix site run check:chapter -- --locale en --chapter 01-text-units"
+                status: passed
+                notes: "The canonical lesson is one valid English revision-1 source with four declared Rust excerpts, zero publishable pairs, and 17 synchronized catalog keys."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Canonical Astro diagnostics covered 20 files with 0 errors, 0 warnings, and 0 hints."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Static mode emitted exactly five existing shell/index routes and deliberately omitted both unpaired chapter routes."
+              - command: "Chapter-contract synchronization and source audit"
+                status: passed
+                notes: "Objective, exact formula, six localized symbol meanings, diagram metadata, worked arrays, two Rust paths/four regions, commands, ordered markers, and decoder handoff match their sources of truth."
+              - command: "Run-only cached Chromium rendered review"
+                status: passed
+                notes: "One focused test found the title, eight sections, KaTeX, four Rust excerpts, both diagram examples, focusability, responsive one-column stages, exact narrow document width, and no script element."
+              - command: "Expected fail-closed bilingual publication checks"
+                status: passed
+                notes: "Both staged and canonical all-content gates reject en=1/ru=0; exact-route audits find five shell/index pages, no English or Russian chapter route, and no runtime script."
+              - command: "Canonical full unit and static-link integration checks"
+                status: passed
+                notes: "Vitest passed 3 files and all 14 tests; all 93 local references across 5 HTML files and 66 artifacts resolve."
+              - command: "Immutable staging manifest, canonical equality, trailing whitespace, and manual screenshot review"
+                status: passed
+                notes: "The staged lesson retains its checksum and is byte-identical to canonical source; final screenshots retain their hashes and show no observed clipping or hierarchy issue."
+            notes: "Completed locally using the locked Astro/MDX toolchain and cached Chromium, without network, dependency change, paid service, automated translation, or substantial CPU use. Published a contract-synchronized English lesson with prediction-led examples, formula/glossary, tested Rust excerpts, localized shared visualization, exercises, and decoder connection while keeping bilingual routes fail-closed."
       - id: author-ch01-text-units-ru
         objective: "Author and validate the Russian chapter-1 lesson at the same content revision as English."
         depends_on:
