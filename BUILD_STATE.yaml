@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T14:02:59Z"
+updated_at: "2026-07-18T14:19:53Z"
 
 environment:
   os: "Linux x86_64"
@@ -10,7 +10,7 @@ environment:
   git: "2.53.0"
   notes: "Bootstrap snapshot; pin exact versions when the implementation toolchain is selected."
 
-active_build: foundation-and-chapter-01
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -111,11 +111,11 @@ builds:
             notes: "Architecture and bilingual course plan accepted. Objective 8 is implemented in the plan through explicit locale routes, paired content, shared assets, and translation-parity publication gates."
   - build_id: foundation-and-chapter-01
     objective: "Establish the bilingual static/Rust toolchains and deliver a validated English/Russian chapter about text units and vocabulary IDs."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
-      spent: 8
+      spent: 9
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -992,7 +992,7 @@ builds:
         depends_on:
           - author-ch01-text-units-en
           - author-ch01-text-units-ru
-        status: pending
+        status: completed
         inputs:
           - site/src/content/chapters/en/01-text-units.mdx
           - site/src/content/chapters/ru/01-text-units.mdx
@@ -1020,4 +1020,125 @@ builds:
         cost:
           class: medium
           notes: "Local full-suite and cached browser validation; npm access is explicit if the cache is cold, with no paid service."
-        runs: []
+        runs:
+          - run_id: 20260718T140830Z-integrate-ch01-text-units-01
+            started_at: "2026-07-18T14:08:30Z"
+            finished_at: "2026-07-18T14:19:53Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d319d675d9572e020810b9f71387611878961c72"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:6a3af3d35acbd3ea5d3c8c970d3ef66641e495ab9e4e0038d6746315c195cd00"
+                BUILD_STATE.yaml: "sha256:924dfdc996af43e13ffb923b452110e97d4eaaf607525fb9e8880c910ec3cd6d"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:9f655ee7c982b8578bd01aae09fd1e543ac227d410bee4dce677e17d6ee772bd"
+                rust/demos/ch01-text-units/src/lib.rs: "sha256:84a7c2023949b880ff10cc0f41b05294dfd2484ab91f74c0ef9fd2f21671d700"
+                rust/demos/ch01-text-units/src/main.rs: "sha256:6a1ff4c54cb23d4a2ff976cfdb74394ec92f53e35deccd6944cb27856879ab8a"
+                rust/demos/ch01-text-units/expected.txt: "sha256:e814baa505252dee2b358476d0e52d579eaaec126fc76b21e338f193c1be6c0d"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-site-content.mjs: "sha256:4373804c4693f788c78214e03c3be63e3cbbf6ec83cd72fb8d06ce1b945f8170"
+                scripts/check-static-links.mjs: "sha256:fb268fda1e789950c9b17bd3930a29e7bde2a9483447505bb00d597f96b9dee2"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/playwright.config.ts: "sha256:0d5ba60fd5809340e7b987f7c9094250ac2a7ce435d972ed7f2dbd0684a4d199"
+                site/src/content/chapters/en/01-text-units.mdx: "sha256:921cb692ee76d32e67c575d15e5c55096b2bb4ef79da1b48050547d5ad389712"
+                site/src/content/chapters/ru/01-text-units.mdx: "sha256:e846c748a4d0f0de1a906b6e4acc70e16a32fc08e6ec320bd3fea33e29b7c041"
+                site/src/pages/[locale]/course/index.astro: "sha256:9aff6d7388b84829e1b05f6c3006307f05c0be359bc7f54328884a45c691cb46"
+                site/src/pages/[locale]/course/[...slug].astro: "sha256:d083ff1f085b92dd2ecec94884dd36215a73142607be7569d8af61e4d3697d89"
+                site/src/layouts/BaseLayout.astro: "sha256:4e000219fc19d340fefd6c86f8e764c775fdcc5e299ea603cc75631003611acd"
+                site/src/components/RustSource.astro: "sha256:35a88a9b5b0ba1dc88fdf8f18680447c9a634f4ca95f39dd331ec680754b2436"
+                site/src/components/chapters/TextUnitsDiagram.astro: "sha256:0a7895ce55a63f01cc6e1198e8c6ac9a8f3c3b9f9892fe7b81f6d4152d199e6c"
+                site/src/lib/text-units-diagram.ts: "sha256:1acce5c0b12f8e1a2df26d402aee892e83cdfb16d0385051a9c942bdf62f3a67"
+                site/tests/e2e/localized-shell.spec.ts: "sha256:b4e77e652e74ab55e0991359aa1328b3ba9801bdfd863efb00732af0b95ed1a1"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260718T140830Z-integrate-ch01-text-units-01/"
+            commands:
+              - "git status --short --branch"
+              - "Read AGENTS.md, BUILD_STATE.yaml, latest DECISIONS.md entries, the completed Russian run, integration inputs, routes, components, validators, and locked toolchain configuration"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "Verify the latest Russian run publication manifest, manual review, desktop/narrow screenshot checksums, and canonical equality"
+              - "Ruby ledger eligibility and stale-running-step check"
+              - "sha256sum material bilingual integration inputs"
+              - "Create run-specific publish and validation directories"
+              - "Author a persistent three-test bilingual Playwright contract in the run-specific publish tree"
+              - "Assemble an isolated validation repository with canonical sources, the staged specification, locked node_modules, and read-only Rust/curriculum inputs"
+              - "Run staged Astro diagnostics, 14 unit tests, bilingual content/parity checks, seven-route build, 111-reference link audit, exact-route/no-script audit, and three focused cached-Chromium tests"
+              - "Publish the checksum-verified specification to site/tests/e2e/ch01-text-units.spec.ts with apply_patch and verify byte equality"
+              - "cargo fmt --all -- --check"
+              - "cargo test --workspace --locked"
+              - "scripts/check-rust-dependencies.sh"
+              - "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+              - "npm --prefix site ci"
+              - "npm --prefix site run check"
+              - "npm --prefix site run test -- --run"
+              - "npm --prefix site run check:content"
+              - "npm --prefix site run check:parity"
+              - "npm --prefix site run build"
+              - "npm --prefix site run test:links"
+              - "npm --prefix site run test:e2e -- --grep 'chapter 1'"
+              - "npm --prefix site run test:e2e"
+              - "Create the manual acceptance review, browser result copy, and immutable one-file publication manifest"
+              - "Canonical exact-route/no-script, lock/source hash, manifest, equality, complete-browser-result, diff, and worktree audits"
+            artifacts:
+              - path: ".build/runs/20260718T140830Z-integrate-ch01-text-units-01/publish/site/tests/e2e/ch01-text-units.spec.ts"
+                checksum: "sha256:2f0d5e12a5f3bca81c7a1032b4b663c09661518fb865459a97a3fe9716ff0bc9"
+                notes: "Persistent browser contract published byte-for-byte to the canonical E2E path."
+              - path: ".build/runs/20260718T140830Z-integrate-ch01-text-units-01/publish.sha256"
+                checksum: "sha256:a9298a2f5cdb4cbfedd4fbbbced615d68d3b8759caa4db5aa0e1f02a35ac5d5b"
+                notes: "Immutable checksum for the staged Playwright specification published to the canonical path."
+              - path: ".build/runs/20260718T140830Z-integrate-ch01-text-units-01/manual-review.md"
+                checksum: "sha256:6f49482e75ae891afa24e46ad0a8b86281b9d0e149fa4b11205447bef817eada"
+                notes: "Completion-time review of index navigation, localization metadata, learning elements, responsive layout, static output, and full validation."
+              - path: ".build/runs/20260718T140830Z-integrate-ch01-text-units-01/canonical-browser-result.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+                notes: "Playwright completion marker for the passing four-test canonical browser suite."
+            validation:
+              - command: "cargo fmt --all -- --check"
+                status: passed
+                notes: "All workspace Rust sources match rustfmt."
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "Six chapter-1 behavioral tests passed; all other workspace and documentation test targets passed."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "The workspace contains only its declared packages and no external crates."
+              - command: "cargo run --quiet -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+                status: passed
+                notes: "The English, Cyrillic, historical, and unknown-unit demo output exactly matches the committed fixture."
+              - command: "npm --prefix site ci"
+                status: passed
+                notes: "After the sandbox correctly denied native-binary execution, the approved retry installed 458 locked packages, audited 459 packages with 0 reported vulnerabilities, and retained the lockfile hash."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Canonical Astro diagnostics covered 21 files with 0 errors, warnings, or hints, including the new Playwright contract."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "Vitest passed 3 files and all 14 tests."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "The full content gate reports 2 localized sources, 1 publishable pair, and 17 synchronized catalog keys."
+              - command: "npm --prefix site run check:parity"
+                status: passed
+                notes: "The English/Russian revision-1 pair satisfies shared metadata, formula, Rust-source, visualization, and catalog parity."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "Static mode emitted exactly 7 pages, including both course indexes and both localized chapter routes."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 111 local references across 7 HTML files and 68 output artifacts resolve."
+              - command: "npm --prefix site run test:e2e -- --grep 'chapter 1'"
+                status: passed
+                notes: "Three cached-Chromium tests proved both indexes, reciprocal chapter switching, localized metadata and learning elements, keyboard focus, four-to-one-column responsive diagrams, narrow overflow safety, and zero runtime scripts."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "The complete canonical browser suite passed all 4 tests, including the pre-existing localized-shell contract."
+              - command: "Staged validation, manifest, canonical equality, exact-route/no-script, and immutable-input audit"
+                status: passed
+                notes: "Staging passed the same site/content/build/link/browser gates; the published spec is byte-identical, all 7 pages remain script-free, and Cargo/npm locks plus both lesson sources retain their preflight hashes."
+            notes: "Completed locally with the locked Rust and Astro toolchains and cached Chromium. The explicit locked npm install required approved native-binary execution but caused no lock or dependency change; no paid service or substantial CPU use was used. The persistent bilingual browser contract closes the build by proving the complete chapter-1 learning slice at desktop and narrow widths, and all build completion criteria now pass."
