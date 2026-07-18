@@ -1,9 +1,9 @@
 # LLM, piece by piece
 
-A bilingual English/Russian course for learning how modern large language models
-work by implementing each part from first principles in Rust. The current course
-includes chapter 1, which follows text through UTF-8 bytes, Unicode scalar values,
-and deterministic vocabulary IDs.
+A localized course, currently available in English and Russian, for learning how
+modern large language models work by implementing each part from first principles
+in Rust. The current course includes chapter 1, which follows text through UTF-8
+bytes, Unicode scalar values, and deterministic vocabulary IDs.
 
 ## Quick start
 
@@ -122,15 +122,47 @@ npm --prefix site run test:e2e
 
 ## Content and localization
 
-English and Russian lessons live in `site/src/content/chapters/en/` and
-`site/src/content/chapters/ru/`. A chapter is published only when both lessons
-exist at the same content revision and their shared formula, Rust-source,
-visualization, and ordering metadata agree. Interface translations live in
-`site/src/i18n/`.
+Configured languages are declared once in `site/src/i18n/locales.json`. English
+and Russian lessons currently live in `site/src/content/chapters/en/` and
+`site/src/content/chapters/ru/`. A chapter is published only when exactly one
+lesson for every configured locale exists at the same content revision and their
+shared formula, Rust-source, visualization, and ordering metadata agree. Interface
+translations live in matching, schema-checked
+`site/src/i18n/catalogs/<locale>.json` catalogs.
 
-See the [bilingual chapter workflow](curriculum/README.md) before adding or
+See the [localized chapter workflow](curriculum/README.md) before adding or
 translating a lesson. Reviewed contracts in `curriculum/chapters/` define the
 learning objective and observable behavior before implementation begins.
+
+To add a spoken language, prepare one atomic change that:
+
+1. registers a dedicated activation step in
+   `curriculum/course-plan.md` under `scheduling.cross_cutting_steps`, immediately
+   before the first pending chapter, or after the final chapter when the course
+   is already complete;
+2. adds its URL-safe locale code, BCP-47 language tag, native name, and `ltr` or
+   `rtl` direction to `site/src/i18n/locales.json`;
+3. adds a complete, schema-checked
+   `site/src/i18n/catalogs/<locale>.json` message catalog;
+4. adds that locale key to every localized field in each implemented chapter
+   contract and supplies one matching lesson under
+   `site/src/content/chapters/<locale>/`; and
+5. adds the locale's concrete lesson output and `check:chapter` command to each
+   still-pending chapter step in `BUILD_STATE.yaml`;
+6. runs the complete plan, content, type, build, link, and browser gates below.
+
+The activation step owns translations, contract/catalog extensions, and browser
+expectations for chapters that were already completed. Never rewrite those
+chapters' completed step declarations or commits; only pending chapter steps adopt
+the expanded locale output set directly.
+
+Routes, the root chooser, language switches, `hreflang` links, page direction,
+content loading, publication parity, and validators all derive from the manifest.
+The course-plan gate checks the declarative pending-step ledger against that same
+locale set while preserving historical locale sets on completed steps, so expanding
+the ledger does not require validator code changes.
+The checks fail closed if a catalog, contract value, lesson, or alternate route is
+missing, so do not enable a locale with placeholder or partial public content.
 
 ## Repository layout
 

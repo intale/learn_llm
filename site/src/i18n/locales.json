@@ -1,0 +1,15 @@
+{
+  "defaultLocale": "en",
+  "locales": {
+    "en": {
+      "languageTag": "en",
+      "nativeName": "English",
+      "direction": "ltr"
+    },
+    "ru": {
+      "languageTag": "ru",
+      "nativeName": "Русский",
+      "direction": "ltr"
+    }
+  }
+}

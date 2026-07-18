@@ -1,7 +1,14 @@
 import { expect, type Page } from '@playwright/test';
 
-export const chapterLocales = ['en', 'ru'] as const;
-export type ChapterLocale = (typeof chapterLocales)[number];
+import localeManifest from '../../src/i18n/locales.json' with { type: 'json' };
+
+export type ChapterLocale = keyof typeof localeManifest.locales;
+export const chapterLocales = Object.freeze(
+  Object.keys(localeManifest.locales) as ChapterLocale[],
+);
+export const chapterLocaleDefinitions = Object.freeze(
+  chapterLocales.map((code) => ({ code, ...localeManifest.locales[code] })),
+);
 
 export interface CourseChapterLink {
   chapterId: string;
@@ -11,26 +18,13 @@ export interface CourseChapterLink {
 }
 
 interface LocalizedChapterRoute {
-  alternateLanguage: string;
   chapterId: string;
   locale: ChapterLocale;
   order: number;
   revision: number;
+  revisionLabel: string;
   title: string;
 }
-
-const routeCopy = {
-  en: {
-    alternateLocale: 'ru',
-    navigation: 'Chapter navigation',
-    revision: 'Content revision',
-  },
-  ru: {
-    alternateLocale: 'en',
-    navigation: 'Навигация по главам',
-    revision: 'Версия материала',
-  },
-} as const;
 
 export function chapterTag(chapterId: string) {
   return `@chapter:${chapterId}`;
@@ -90,30 +84,47 @@ export async function expectLocalizedChapterRoute(
   page: Page,
   chapter: LocalizedChapterRoute,
 ) {
-  const copy = routeCopy[chapter.locale];
+  const definition = chapterLocaleDefinitions.find(
+    ({ code }) => code === chapter.locale,
+  );
+  expect(definition).toBeDefined();
   const currentPath = chapterPath(chapter.locale, chapter.chapterId);
-  const alternatePath = chapterPath(copy.alternateLocale, chapter.chapterId);
 
   await expect(page).toHaveURL(new RegExp(`${currentPath}$`));
-  await expect(page.locator('html')).toHaveAttribute('lang', chapter.locale);
+  await expect(page.locator('html')).toHaveAttribute(
+    'lang',
+    definition?.languageTag ?? '',
+  );
+  await expect(page.locator('html')).toHaveAttribute(
+    'dir',
+    definition?.direction ?? '',
+  );
   await expect(
     page.getByRole('heading', { level: 1, name: chapter.title }),
   ).toBeVisible();
   await expect(page.locator('.eyebrow')).toContainText(
-    `${String(chapter.order).padStart(2, '0')} · ${copy.revision} ${chapter.revision}`,
+    `${String(chapter.order).padStart(2, '0')} · ${chapter.revisionLabel} ${chapter.revision}`,
   );
-  await expect(
-    page.locator(`link[rel="alternate"][hreflang="${chapter.locale}"]`),
-  ).toHaveAttribute('href', currentPath);
-  await expect(
-    page.locator(`link[rel="alternate"][hreflang="${copy.alternateLocale}"]`),
-  ).toHaveAttribute('href', alternatePath);
+  for (const alternate of chapterLocaleDefinitions) {
+    const expectedPath = chapterPath(alternate.code, chapter.chapterId);
+    await expect(
+      page.locator(
+        `link[rel="alternate"][hreflang="${alternate.languageTag}"]`,
+      ),
+    ).toHaveAttribute('href', expectedPath);
+    const switchLink = page.locator(
+      `.locale-switch a[data-locale="${alternate.code}"]`,
+    );
+    if (alternate.code === chapter.locale) {
+      await expect(switchLink).toHaveCount(0);
+    } else {
+      await expect(switchLink).toHaveAttribute('href', expectedPath);
+      await expect(switchLink).toContainText(alternate.nativeName);
+    }
+  }
   await expect(
     page.locator('link[rel="alternate"][hreflang="x-default"]'),
   ).toHaveAttribute('href', '/');
-  await expect(
-    page.getByRole('link', { name: chapter.alternateLanguage }),
-  ).toHaveAttribute('href', alternatePath);
 }
 
 export async function expectOrderedChapterNavigation(
@@ -131,10 +142,9 @@ export async function expectOrderedChapterNavigation(
   ).toBeGreaterThanOrEqual(0);
   const previous = chapters[currentIndex - 1] ?? null;
   const next = chapters[currentIndex + 1] ?? null;
-  const navigation = page.getByRole('navigation', {
-    name: routeCopy[locale].navigation,
-  });
+  const navigation = page.locator('nav[data-chapter-navigation]');
   await expect(navigation).toBeVisible();
+  await expect(navigation).toHaveAttribute('aria-label', /.+/);
   await expect(
     navigation.locator('a[href="/' + locale + '/course/"]'),
   ).toHaveCount(1);

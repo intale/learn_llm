@@ -1,8 +1,15 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 
-import { locales, type Locale } from '../../../i18n';
+import {
+  defaultLocale,
+  getMessages,
+  localePath,
+  locales,
+  type Locale,
+} from '../../../i18n';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { findPublishableChapterSets } from '../../../lib/chapter-publication';
 
 export function getStaticPaths() {
   return locales.map((locale) => ({ params: { locale }, props: { locale } }));
@@ -10,53 +17,15 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props as { locale: Locale };
 const chapterModules = import.meta.glob(
-  '../../../content/chapters/{en,ru}/**/*.{md,mdx}',
+  '../../../content/chapters/**/*.{md,mdx}',
 );
 const allChapters =
   Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
-
-function sharedSignature(entry: CollectionEntry<'chapters'>) {
-  return JSON.stringify({
-    chapter_id: entry.data.chapter_id,
-    content_revision: entry.data.content_revision,
-    order: entry.data.order,
-    concept_id: entry.data.concept_id,
-    formula: {
-      latex: entry.data.formula.latex,
-      symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
-    },
-    history_rust_source: entry.data.history.rust_source,
-    rust_sources: entry.data.rust_sources.map((source) => ({
-      path: source.path,
-      region: source.region ?? null,
-    })),
-    visualization: {
-      decision: entry.data.visualization.decision,
-      id: entry.data.visualization.id,
-    },
-  });
-}
-
-const groups = new Map<string, CollectionEntry<'chapters'>[]>();
-for (const entry of allChapters) {
-  const group = groups.get(entry.data.chapter_id) ?? [];
-  group.push(entry);
-  groups.set(entry.data.chapter_id, group);
-}
-
-const publishableIds = new Set<string>();
-for (const [chapterId, group] of groups) {
-  const english = group.filter((entry) => entry.data.locale === 'en');
-  const russian = group.filter((entry) => entry.data.locale === 'ru');
-  if (
-    english.length === 1 &&
-    russian.length === 1 &&
-    english[0].data.content_revision === russian[0].data.content_revision &&
-    sharedSignature(english[0]) === sharedSignature(russian[0])
-  ) {
-    publishableIds.add(chapterId);
-  }
-}
+const publishableIds = new Set(
+  findPublishableChapterSets(allChapters, locales, defaultLocale).map(
+    (set) => set.chapterId,
+  ),
+);
 
 const chapters = allChapters
   .filter(
@@ -65,39 +34,19 @@ const chapters = allChapters
   )
   .sort((left, right) => left.data.order - right.data.order);
 
-const courseCopy = {
-  en: {
-    eyebrow: 'The course',
-    title: 'From text to a tiny language model',
-    description:
-      'Each bilingual chapter adds one tested idea to the same Rust implementation.',
-    empty:
-      'The chapter contract is ready. Lessons appear here only after English and Russian pass together.',
-    revision: 'Content revision',
-  },
-  ru: {
-    eyebrow: 'Курс',
-    title: 'От текста до небольшой языковой модели',
-    description:
-      'Каждая двуязычная глава добавляет одну проверенную идею в общую реализацию на Rust.',
-    empty:
-      'Контракт главы готов. Уроки появятся здесь только после совместной проверки английской и русской версий.',
-    revision: 'Версия материала',
-  },
-} as const;
-const copy = courseCopy[locale];
+const copy = getMessages(locale);
 ---
 
 <BaseLayout
   locale={locale}
   routeSuffix="/course/"
-  title={copy.title}
-  description={copy.description}
+  title={copy.courseTitle}
+  description={copy.courseDescription}
 >
   <section class="hero shell-container course-hero">
-    <p class="eyebrow">{copy.eyebrow}</p>
-    <h1>{copy.title}</h1>
-    <p class="hero-intro">{copy.description}</p>
+    <p class="eyebrow">{copy.courseEyebrow}</p>
+    <h1>{copy.courseTitle}</h1>
+    <p class="hero-intro">{copy.courseDescription}</p>
   </section>
 
   {
@@ -110,12 +59,12 @@ const copy = courseCopy[locale];
                 {String(chapter.data.order).padStart(2, '0')}
               </span>
               <h2>
-                <a href={'/' + locale + '/course/' + chapter.data.chapter_id + '/'}>
+                <a href={localePath(locale, `/course/${chapter.data.chapter_id}/`)}>
                   {chapter.data.title}
                 </a>
               </h2>
               <p>{chapter.data.description}</p>
-              <small>{copy.revision}: {chapter.data.content_revision}</small>
+              <small>{copy.contentRevisionLabel}: {chapter.data.content_revision}</small>
             </article>
           </li>
         ))}
@@ -123,7 +72,7 @@ const copy = courseCopy[locale];
     ) : (
       <aside class="course-note shell-container">
         <span aria-hidden="true">⌁</span>
-        <p>{copy.empty}</p>
+        <p>{copy.courseEmpty}</p>
       </aside>
     )
   }

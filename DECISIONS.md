@@ -754,3 +754,141 @@ committed independently.
 **Affected steps:** `add-static-rust-syntax-highlighting`,
 `implement-ch02-corpus-partitions`, and every later chapter step that uses
 `RustSource`
+
+## 2026-07-18 — Make configured locales an atomic extensible set
+
+**Status:** Accepted; adds a user-requested cross-cutting prerequisite before
+Chapter 2.
+
+**Context:** English and Russian routes are static and localized, but the locale
+list is duplicated across Astro and Node tooling. Binary `otherLocale` logic,
+`{en,ru}` content globs, pairwise publication, direct `.en`/`.ru` contract checks,
+and two-language link fixtures would either ignore a third translation or emit
+alternate links to incomplete routes. Adding chapters on that foundation would
+multiply the later migration cost.
+
+**Decision:** Add `generalize-localization-infrastructure` after static Rust
+highlighting. Make `site/src/i18n/locales.json` the machine-readable authority for
+the reference locale and each public locale's route code, BCP-47 language tag,
+native name, and `ltr`/`rtl` direction. Astro code derives its exact `Locale` union
+from the manifest; Node gates read the same file. Enabling a locale is atomic: its
+typed catalog, localized contract fields, and one same-revision lesson for every
+implemented chapter must exist before any route is publishable.
+
+Replace bilingual pairs with complete locale-keyed translation sets; compare all
+locale-neutral metadata against the configured reference locale. Generate the
+root chooser, static paths, alternate-link matrix, and every other-language switch
+from the registry. Move course, lesson-shell, and chapter-navigation copy into the
+typed catalogs. Use broad chapter globs followed by manifest membership checks,
+logical CSS properties and page direction metadata, while forcing Rust code to
+remain left-to-right. Synthetic three-locale fixtures must prove completeness,
+parity, contract, route-switch, and static-link behavior without enabling a third
+production locale or changing Chapter 1 prose.
+
+**Consequences:** Adding a future language requires a registry entry, catalog,
+localized contract keys, lesson files, and their human review, but no edits to
+routing, content schemas, publication algorithms, or validators. A registry-only
+addition fails clearly instead of creating partial routes. English and Russian
+remain the only enabled locales for now, existing URLs remain stable, and all
+locale routes continue to be generated as static HTML without client JavaScript.
+
+**Affected steps:** `generalize-localization-infrastructure`,
+`implement-ch02-corpus-partitions`, and every later chapter step
+
+## 2026-07-18 — Treat locale activation as one documented publication change
+
+**Status:** Accepted within `generalize-localization-infrastructure` before its
+publication checkpoint.
+
+**Context:** The manifest-driven runtime can generate another language without a
+route-code edit, but maintainers also need an explicit safe activation sequence.
+Enabling a registry entry before its catalog, contract fields, and implemented
+lesson set are ready intentionally makes the fail-closed gates reject the build.
+
+**Decision:** Include the root `README.md` in this step's declared documentation
+surface. Document that a new spoken language is enabled in one atomic change with
+its manifest metadata, complete typed catalog, exact localized contract-key set,
+and one lesson for every implemented chapter. Keep English and Russian as the only
+current public locales; do not publish placeholders or partial translations.
+
+**Consequences:** The extension seam and its failure mode are discoverable from
+the project entry point. Adding a language changes declarative locale/content data
+and human-reviewed prose, while routing, schemas, publication algorithms, and
+validators remain reusable.
+
+**Affected steps:** `generalize-localization-infrastructure` and every future
+`implement-chNN-*` chapter step
+
+## 2026-07-18 — Preserve completed chapter checkpoints during locale activation
+
+**Status:** Accepted within `generalize-localization-infrastructure` before its
+publication checkpoint.
+
+**Context:** Requiring every historical chapter step to list the current locale
+manifest would make a later language addition rewrite completed step declarations,
+contradicting immutable run/checkpoint history.
+
+**Decision:** Replace the fixed pre-Chapter-2 list with an ordered
+`scheduling.cross_cutting_steps` registry whose entries name the chapter they
+precede. A future locale activation gets its own step immediately before the first
+pending chapter. It owns catalog, contract, lesson, and browser additions for
+already-completed chapters. Pending, running, and blocked chapter steps must list
+exactly the current locale outputs and per-locale checks; completed, skipped, and
+invalidated chapter steps retain their historical locale set.
+
+**Consequences:** New languages can be added at any point without validator-code
+changes or completed-step mutation. The activation remains atomic and committed
+independently, and every later chapter is authored for the expanded locale set.
+
+**Affected steps:** `generalize-localization-infrastructure`, any future
+locale-activation step, and chapter steps pending at activation time
+
+## 2026-07-18 — Validate catalogs as data against one typed message schema
+
+**Status:** Accepted within `generalize-localization-infrastructure` before its
+publication checkpoint; clarifies the earlier typed-catalog decision.
+
+**Context:** TypeScript catalog modules gave Astro typed consumers, but the
+dependency-free Node publication gate could verify their exported key names only
+with source-text heuristics. A newly added key could therefore be blank or malformed
+without one shared data-level check.
+
+**Decision:** Keep the canonical message-key tuple in `messages.ts`, store each
+locale catalog as flat JSON under `site/src/i18n/catalogs/`, and validate exact key
+parity, string types, and nonblank values in both the Astro loader and the Node
+content gate. The Node gate additionally inspects raw JSON to reject duplicate
+properties before parsing can collapse them. Derive the public `Messages` type
+from the same key tuple.
+
+**Consequences:** Adding a language remains a data addition with typed consumers,
+while malformed, partial, extra-keyed, duplicate-keyed, or placeholder-blank
+catalogs fail before static publication.
+
+**Affected steps:** `generalize-localization-infrastructure` and any future
+locale-activation step
+
+## 2026-07-18 — Support post-course locale activation and isolate bidi content
+
+**Status:** Accepted within `generalize-localization-infrastructure` before its
+publication checkpoint; extends the earlier locale-activation decision.
+
+**Context:** Positioning an activation only before the first pending chapter has no
+valid target after all 39 chapters are complete. Future right-to-left locales also
+need more than an HTML `dir` value: mixed-language chooser copy, formulas, source
+code, numeric diagrams, and script-sensitive letter spacing can otherwise render
+in the wrong order or impair shaping.
+
+**Decision:** Let each `scheduling.cross_cutting_steps` entry declare exactly one
+`before_chapter` or `after_chapter` anchor. Use the former before the first pending
+chapter and the latter after Chapter 39 when the course is complete. Preserve
+locale metadata on mixed-language chooser fragments, avoid concatenated
+mixed-direction accessible labels, remove forced casing/tracking for RTL text, and
+isolate code, formulas, and the ordered technical pipeline as left-to-right.
+
+**Consequences:** Locale activation remains independently schedulable without
+rewriting completed history at every course stage. Compound route codes and RTL
+metadata are exercised by synthetic static fixtures, while technical notation
+keeps a stable reading order and localized prose follows its configured direction.
+
+**Affected steps:** `generalize-localization-infrastructure`, any future
+locale-activation step, and all localized chapter routes

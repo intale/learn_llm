@@ -8,6 +8,7 @@ import {
   ContentValidationError,
   repositoryRootFromCwd,
 } from './check-site-content.mjs';
+import { LOCALE_CONFIGURATION } from './locale-config.mjs';
 
 function listFiles(directory) {
   const files = [];
@@ -125,71 +126,149 @@ function htmlRoute(relativePath) {
   return '/' + normalized;
 }
 
-function validateHreflang(relativePath, source, issues) {
+function validateHreflang(
+  relativePath,
+  source,
+  issues,
+  localeConfiguration,
+) {
   const route = htmlRoute(relativePath);
   const htmlTag = source.match(/<html\b[^>]*>/);
-  const language = htmlTag ? attributes(htmlTag[0]).lang : undefined;
-  const localeMatch = route.match(/^\/(en|ru)(\/.*)$/);
+  const htmlAttributes = htmlTag ? attributes(htmlTag[0]) : {};
+  const language = htmlAttributes.lang;
+  const direction = htmlAttributes.dir;
+  const routeMatch = route.match(/^\/([^/]+)(\/.*)$/);
+  const routeLocale = routeMatch?.[1];
+  const localeDefinition = localeConfiguration.definitions.find(
+    (candidate) => candidate.code === routeLocale,
+  );
   const alternateLinks = [...source.matchAll(/<link\b[^>]*>/g)]
     .map((match) => attributes(match[0]))
     .filter((entry) => entry.rel?.split(/\s+/).includes('alternate'));
-  const alternates = new Map(
-    alternateLinks
-      .filter((entry) => entry.hreflang && entry.href)
-      .map((entry) => [entry.hreflang, entry.href]),
-  );
+  const alternatesByLanguage = new Map();
+  for (const alternate of alternateLinks) {
+    if (!alternate.hreflang || !alternate.href) {
+      issues.push(
+        relativePath +
+          ': every alternate link must contain non-empty hreflang and href attributes',
+      );
+      continue;
+    }
+    const entries = alternatesByLanguage.get(alternate.hreflang) ?? [];
+    entries.push(alternate.href);
+    alternatesByLanguage.set(alternate.hreflang, entries);
+  }
+  const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
+    .map((match) => attributes(match[0]).href)
+    .filter(Boolean);
+  const expectedAlternateTags = new Set([
+    ...localeConfiguration.definitions.map((definition) => definition.languageTag),
+    'x-default',
+  ]);
+  for (const alternate of alternatesByLanguage.keys()) {
+    if (!expectedAlternateTags.has(alternate)) {
+      issues.push(relativePath + ': unexpected hreflang "' + alternate + '"');
+    }
+  }
+  for (const tag of expectedAlternateTags) {
+    const count = alternatesByLanguage.get(tag)?.length ?? 0;
+    if (count !== 1) {
+      issues.push(
+        relativePath +
+          ': expected exactly one hreflang ' +
+          tag +
+          '; found ' +
+          count,
+      );
+    }
+  }
+  const alternateHref = (tag) =>
+    alternatesByLanguage.get(tag)?.length === 1
+      ? alternatesByLanguage.get(tag)[0]
+      : undefined;
 
   if (route === '/') {
     if (language !== 'mul') {
       issues.push(relativePath + ': root language chooser must use html lang="mul"');
     }
-    for (const [locale, expected] of [
-      ['en', '/en/'],
-      ['ru', '/ru/'],
-      ['x-default', '/'],
-    ]) {
-      if (alternates.get(locale) !== expected) {
+    for (const definition of localeConfiguration.definitions) {
+      const expected = '/' + definition.code + '/';
+      if (alternateHref(definition.languageTag) !== expected) {
         issues.push(
           relativePath +
             ': expected hreflang ' +
-            locale +
+            definition.languageTag +
             ' to point to ' +
             expected,
         );
       }
+      if (!anchorHrefs.includes(expected)) {
+        issues.push(
+          relativePath + ': root language chooser must link to ' + expected,
+        );
+      }
+    }
+    if (alternateHref('x-default') !== '/') {
+      issues.push(relativePath + ': expected hreflang x-default to point to /');
     }
     return;
   }
 
-  if (!localeMatch) return;
-  const locale = localeMatch[1];
-  const suffix = localeMatch[2];
-  if (language !== locale) {
+  if (!localeDefinition) return;
+  const suffix = routeMatch[2];
+  if (language !== localeDefinition.languageTag) {
     issues.push(
-      relativePath + ': html lang="' + language + '" does not match route locale ' + locale,
+      relativePath +
+        ': html lang="' +
+        language +
+        '" does not match route locale ' +
+        localeDefinition.code,
     );
   }
-  for (const alternateLocale of ['en', 'ru']) {
-    const expected = '/' + alternateLocale + suffix;
-    if (alternates.get(alternateLocale) !== expected) {
+  if (direction !== localeDefinition.direction) {
+    issues.push(
+      relativePath +
+        ': html dir="' +
+        direction +
+        '" does not match locale direction ' +
+        localeDefinition.direction,
+    );
+  }
+  for (const alternate of localeConfiguration.definitions) {
+    const expected = '/' + alternate.code + suffix;
+    if (alternateHref(alternate.languageTag) !== expected) {
       issues.push(
         relativePath +
           ': expected hreflang ' +
-          alternateLocale +
+          alternate.languageTag +
           ' to point to ' +
           expected,
       );
     }
+    if (
+      alternate.code !== localeDefinition.code &&
+      !anchorHrefs.includes(expected)
+    ) {
+      issues.push(
+        relativePath + ': locale switch must include an ordinary link to ' + expected,
+      );
+    }
   }
-  if (alternates.get('x-default') !== '/') {
+  if (alternateHref('x-default') !== '/') {
     issues.push(relativePath + ': localized page must include hreflang x-default="/"');
   }
 }
 
-function validateLocalizedCourseEntry(relativePath, source, issues) {
+function validateLocalizedCourseEntry(
+  relativePath,
+  source,
+  issues,
+  localeConfiguration,
+) {
   const route = htmlRoute(relativePath);
-  const localeMatch = route.match(/^\/(en|ru)\/$/);
+  const localeMatch = route.match(/^\/([^/]+)\/$/);
   if (!localeMatch) return;
+  if (!localeConfiguration.locales.includes(localeMatch[1])) return;
 
   const expected = '/' + localeMatch[1] + '/course/';
   const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
@@ -205,7 +284,10 @@ function validateLocalizedCourseEntry(relativePath, source, issues) {
   }
 }
 
-export function auditStaticSite(distDirectory) {
+export function auditStaticSite(
+  distDirectory,
+  localeConfiguration = LOCALE_CONFIGURATION,
+) {
   if (!existsSync(distDirectory)) {
     throw new ContentValidationError([
       'static output does not exist: ' + distDirectory + '; run the production build first',
@@ -235,8 +317,13 @@ export function auditStaticSite(distDirectory) {
 
     if (extension === '.html') {
       htmlCount += 1;
-      validateHreflang(relative, source, issues);
-      validateLocalizedCourseEntry(relative, source, issues);
+      validateHreflang(relative, source, issues, localeConfiguration);
+      validateLocalizedCourseEntry(
+        relative,
+        source,
+        issues,
+        localeConfiguration,
+      );
     }
 
     for (const reference of references) {

@@ -1,40 +1,99 @@
 ---
 import '../styles/global.css';
+
+import {
+  defaultLocale,
+  getMessages,
+  localeDefinitions,
+  localePath,
+} from '../i18n';
+
+const pickerCopy = localeDefinitions.map((locale) => ({
+  ...locale,
+  messages: getMessages(locale.code),
+}));
+const defaultCopy = getMessages(defaultLocale);
 ---
 
 <!doctype html>
-<html lang="mul">
+<html lang="mul" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta
       name="description"
-      content="Choose English or Russian for a course about building a language model in Rust."
+      content={defaultCopy.siteDescription}
     />
     <meta name="color-scheme" content="light" />
-    <title>Choose a language · Выберите язык</title>
-    <link rel="alternate" hreflang="en" href="/en/" />
-    <link rel="alternate" hreflang="ru" href="/ru/" />
+    <title>{defaultCopy.languagePickerTitle}</title>
+    {
+      pickerCopy.map((entry) => (
+        <link
+          rel="alternate"
+          hreflang={entry.languageTag}
+          href={localePath(entry.code)}
+        />
+      ))
+    }
     <link rel="alternate" hreflang="x-default" href="/" />
   </head>
   <body class="language-page">
     <main class="language-picker" aria-labelledby="language-title">
       <span class="language-picker-mark" aria-hidden="true">λ</span>
-      <p class="eyebrow">LLM, piece by piece · LLM по частям</p>
-      <h1 id="language-title">Choose a language<br /><span lang="ru">Выберите язык</span></h1>
-      <p class="language-intro">
-        Build a language model from first principles in Rust.<br />
-        <span lang="ru">Соберите языковую модель с нуля на Rust.</span>
+      <p class="eyebrow">
+        {
+          pickerCopy.map((entry, index) => (
+            <>
+              <span lang={entry.languageTag} dir={entry.direction}>
+                {entry.messages.siteTitle}
+              </span>
+              {index < pickerCopy.length - 1 && <span aria-hidden="true"> · </span>}
+            </>
+          ))
+        }
       </p>
-      <nav class="language-options" aria-label="Language · Язык">
-        <a href="/en/" lang="en" hreflang="en">
-          <span>English</span>
-          <span aria-hidden="true">EN →</span>
-        </a>
-        <a href="/ru/" lang="ru" hreflang="ru">
-          <span>Русский</span>
-          <span aria-hidden="true">RU →</span>
-        </a>
+      <h1 id="language-title">
+        {
+          pickerCopy.map((entry) => (
+            <span lang={entry.languageTag} dir={entry.direction}>
+              {entry.messages.languagePickerTitle}
+            </span>
+          ))
+        }
+      </h1>
+      <p class="language-intro">
+        {
+          pickerCopy.map((entry) => (
+            <span lang={entry.languageTag} dir={entry.direction}>
+              {entry.messages.languagePickerIntro}
+            </span>
+          ))
+        }
+      </p>
+      <nav
+        class="language-options"
+        aria-label={defaultCopy.languageSwitchLabel}
+      >
+        {
+          pickerCopy.map((entry) => (
+            <a
+              href={localePath(entry.code)}
+              lang={entry.languageTag}
+              dir={entry.direction}
+              hreflang={entry.languageTag}
+              data-locale={entry.code}
+            >
+              <span>{entry.nativeName}</span>
+              <span aria-hidden="true" dir="ltr">
+                {
+                  entry.direction === 'rtl'
+                    ? `← ${entry.code.toLocaleUpperCase()}`
+                    : `${entry.code.toLocaleUpperCase()} →`
+                }
+              </span>
+            </a>
+          ))
+        }
       </nav>
     </main>
   </body>

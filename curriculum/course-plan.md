@@ -1,9 +1,10 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 4,
+  "plan_revision": 6,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
+  "localization_registry": "site/src/i18n/locales.json",
   "chapter_1_disposition": {
     "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
@@ -20,11 +21,21 @@
     "runtime": "bounded CPU-only reference implementation"
   },
   "scheduling": {
-    "default": "one complete bilingual chapter vertical slice per agent step and commit",
+    "default": "one complete localized chapter translation set per agent step and commit",
     "legacy_exception": "Chapter 1 used separate scaffold/outline/Rust/visualization/locale/integration steps while the delivery system was being proven.",
-    "pre_chapter_2_steps": [
-      "establish-scalable-chapter-delivery",
-      "add-static-rust-syntax-highlighting"
+    "cross_cutting_steps": [
+      {
+        "step_id": "establish-scalable-chapter-delivery",
+        "before_chapter": "02-corpus-partitions"
+      },
+      {
+        "step_id": "add-static-rust-syntax-highlighting",
+        "before_chapter": "02-corpus-partitions"
+      },
+      {
+        "step_id": "generalize-localization-infrastructure",
+        "before_chapter": "02-corpus-partitions"
+      }
     ],
     "planned_chapter_splits": [],
     "split_requires": [
@@ -488,28 +499,35 @@ These are actual chapters with their own learning outcomes, not workflow fragmen
 
 ## One chapter, one vertical-slice step
 
-After the Chapter 1 revision and the two recorded cross-cutting prerequisites,
+After the Chapter 1 revision and the three recorded cross-cutting prerequisites,
 every chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
-Outline, Rust, visualization, English, Russian, and integration are phases of the
-same run.
+Outline, Rust, visualization, every configured translation, and integration are
+phases of the same run.
 
 Each chapter run must:
 
-1. freeze its bilingual contract and tiny predict-first fixture in run staging;
+1. freeze its localized contract and tiny predict-first fixture in run staging;
 2. implement the cumulative Rust API, historical contrast, edge/invariant tests,
    deterministic demo, and `expected.txt`;
 3. implement a locale-neutral accessible visualization when useful, or record the
    reviewed `not-useful` rationale;
-4. author natural English and Russian side by side, explaining every symbol and one
-   common misconception;
-5. validate the full staged overlay, publish both locales and supporting artifacts
-   together, rerun canonical gates, finalize the checkpoint, and commit the step
-   before the next chapter starts.
+4. author one natural lesson per locale listed in `site/src/i18n/locales.json`,
+   explaining every symbol and one common misconception;
+5. validate the full staged overlay, publish the complete translation set and
+   supporting artifacts together, rerun canonical gates, finalize the checkpoint,
+   and commit the step before the next chapter starts.
 
 A split is not justified by file type. First narrow multiple objectives into real
 chapters, as this plan does. A later implementation split requires a criterion in
 the machine metadata, a decision before execution, consecutive core/publication
 steps, and no partial public route.
+
+The ordered `scheduling.cross_cutting_steps` registry supports future shared work
+without rewriting completed chapter checkpoints. A locale-activation step is
+inserted immediately before the first pending chapter, or after Chapter 39 when
+the course is already complete. It owns translations for already-completed
+chapters, while pending chapter steps adopt the expanded locale set in their
+declared outputs and validation commands.
 
 ## Standard integration contract
 
@@ -519,22 +537,29 @@ Every ordinary chapter step owns:
 - its primary cumulative module and export under
   `rust/crates/llm-from-scratch/src/`;
 - `rust/demos/chNN-slug/` with historical contrast, tests, and exact output;
-- paired `site/src/content/chapters/{en,ru}/NN-slug.mdx`;
+- one `site/src/content/chapters/<locale>/NN-slug.mdx` for every locale in
+  `site/src/i18n/locales.json`;
 - `site/tests/e2e/chNN-slug.spec.ts` tagged `@chapter:NN-slug`;
 - when useful, a shared accessible diagram tied to tested Rust fixture data and a
   focused unit test;
 - necessary `Cargo.lock`, state-ledger, and durable decision updates.
 
 The one-time `establish-scalable-chapter-delivery` step adds course-wide
-ID/order/dependency/terminology checks, contract-to-both-lessons checks,
+ID/order/dependency/terminology checks, contract-to-localized-lessons checks,
 contract-to-demo-output equality, an all-demo runner, stable browser tags, shared
-bilingual route assertions, useful-diagram presence, and previous/next navigation.
+localized-route assertions, useful-diagram presence, and previous/next navigation.
 
 The user-requested `add-static-rust-syntax-highlighting` prerequisite then makes
 the shared Rust-source renderer emit build-time Shiki token markup, using the same
 explicit theme as Markdown fences and no client-side script. It is intentionally
 separate from Chapter 2 so every later chapter inherits readable code without
 expanding that chapter's teaching objective.
+
+The `generalize-localization-infrastructure` prerequisite makes the locale manifest
+the shared authority for routes, catalogs, translation-set publication, contract
+fields, directionality, alternate links, and validation. English and Russian are
+the currently configured locales; enabling another locale is an atomic change that
+also supplies its complete catalog, contract fields, and lesson files.
 
 The post-prerequisite gate for every chapter is:
 
@@ -547,8 +572,7 @@ cargo test --workspace --locked
 scripts/check-rust-dependencies.sh
 scripts/check-rust-demos.sh
 cargo run --quiet --locked -p chNN-slug | diff -u rust/demos/chNN-slug/expected.txt -
-npm --prefix site run check:chapter -- --locale en --chapter NN-slug
-npm --prefix site run check:chapter -- --locale ru --chapter NN-slug
+npm --prefix site run check:chapter -- --locale LOCALE_CODE --chapter NN-slug
 npm --prefix site run check:parity -- --chapter NN-slug
 npm --prefix site run check:content
 npm --prefix site run check
@@ -562,8 +586,8 @@ npm --prefix site run test:e2e
 Numerical chapters specify invariants and tolerances; randomized work uses fixed
 seeds and rounded output. Training chapters declare a bounded step/runtime budget
 and retain corpus/split/tokenizer/config provenance. Every run archives a manual
-mapping from its contract through Rust evidence, both locales, visualization choice,
-exercises, misconceptions, and rendered browser evidence.
+mapping from its contract through Rust evidence, every configured locale,
+visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 ## Dependency-ordered chapter map
 

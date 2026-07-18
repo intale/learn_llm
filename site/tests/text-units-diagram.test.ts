@@ -148,12 +148,14 @@ describe('text-unit diagram component contract', () => {
     expect(source).toContain('aria-labelledby={titleId}');
     expect(source).toContain('aria-describedby={descriptionId}');
     expect(source).toContain('aria-label={labels.pipelineLabel}');
-    expect(source).toContain('<ol class="text-units-pipeline"');
+    expect(source).toMatch(/<ol\s+class="text-units-pipeline"[\s\S]*?dir="ltr"/);
     expect(source).toContain('data-stage="bytes"');
     expect(source).toContain('data-stage="scalars"');
     expect(source).toContain('data-stage="token-ids"');
     expect(source).toContain('content: "→"');
     expect(source).toContain('content: "↓"');
+    expect(source).toContain('inset-inline-start: calc(100% + 0.25rem)');
+    expect(source).toContain('unicode-bidi: isolate');
     expect(source).toContain('@media (max-width: 44rem)');
     expect(source).toContain('@media (forced-colors: active)');
     expect(source).not.toContain('<script');

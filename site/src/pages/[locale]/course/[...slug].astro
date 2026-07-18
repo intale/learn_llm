@@ -8,59 +8,30 @@ import {
 import ChapterNavigation from '../../../components/ChapterNavigation.astro';
 import RustSource from '../../../components/RustSource.astro';
 import {
+  defaultLocale,
+  getLocaleDefinition,
+  getMessages,
+  localePath,
+  locales,
+} from '../../../i18n';
+import {
   findChapterNeighbors,
   type ChapterNavigationTarget,
 } from '../../../lib/chapter-navigation';
+import { findPublishableChapterSets } from '../../../lib/chapter-publication';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  function sharedSignature(entry: CollectionEntry<'chapters'>) {
-    return JSON.stringify({
-      chapter_id: entry.data.chapter_id,
-      content_revision: entry.data.content_revision,
-      order: entry.data.order,
-      concept_id: entry.data.concept_id,
-      formula: {
-        latex: entry.data.formula.latex,
-        symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
-      },
-      history_rust_source: entry.data.history.rust_source,
-      rust_sources: entry.data.rust_sources.map((source) => ({
-        path: source.path,
-        region: source.region ?? null,
-      })),
-      visualization: {
-        decision: entry.data.visualization.decision,
-        id: entry.data.visualization.id,
-      },
-    });
-  }
-
   const chapterModules = import.meta.glob(
-    '../../../content/chapters/{en,ru}/**/*.{md,mdx}',
+    '../../../content/chapters/**/*.{md,mdx}',
   );
   const chapters =
     Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
-  const groups = new Map<string, CollectionEntry<'chapters'>[]>();
-  for (const entry of chapters) {
-    const group = groups.get(entry.data.chapter_id) ?? [];
-    group.push(entry);
-    groups.set(entry.data.chapter_id, group);
-  }
-
-  const publishable: CollectionEntry<'chapters'>[] = [];
-  for (const group of groups.values()) {
-    const english = group.filter((entry) => entry.data.locale === 'en');
-    const russian = group.filter((entry) => entry.data.locale === 'ru');
-    if (
-      english.length === 1 &&
-      russian.length === 1 &&
-      english[0].data.content_revision === russian[0].data.content_revision &&
-      sharedSignature(english[0]) === sharedSignature(russian[0])
-    ) {
-      publishable.push(english[0], russian[0]);
-    }
-  }
+  const publishable = findPublishableChapterSets(
+    chapters,
+    locales,
+    defaultLocale,
+  ).flatMap((set) => locales.map((locale) => set.byLocale[locale]));
 
   return publishable.map((entry) => {
     const localizedTargets = publishable
@@ -92,19 +63,8 @@ const { entry, previous, next } = Astro.props as {
 };
 const { Content } = await render(entry);
 const locale = entry.data.locale;
-const pageCopy = {
-  en: {
-    back: 'All chapters',
-    objective: 'In this chapter',
-    revision: 'Content revision',
-  },
-  ru: {
-    back: 'Все главы',
-    objective: 'В этой главе',
-    revision: 'Версия материала',
-  },
-} as const;
-const copy = pageCopy[locale];
+const copy = getMessages(locale);
+const backArrow = getLocaleDefinition(locale).direction === 'rtl' ? '→' : '←';
 const routeSuffix = '/course/' + entry.data.chapter_id + '/';
 ---
 
@@ -116,14 +76,16 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
 >
   <article class="lesson shell-container">
     <header class="lesson-header">
-      <a class="lesson-back" href={'/' + locale + '/course/'}>← {copy.back}</a>
+      <a class="lesson-back" href={localePath(locale, '/course/')}>
+        {backArrow} {copy.allChaptersLabel}
+      </a>
       <p class="eyebrow">
-        {String(entry.data.order).padStart(2, '0')} · {copy.revision} {entry.data.content_revision}
+        {String(entry.data.order).padStart(2, '0')} · {copy.contentRevisionLabel} {entry.data.content_revision}
       </p>
       <h1>{entry.data.title}</h1>
       <p class="lesson-description">{entry.data.description}</p>
       <aside class="lesson-objective">
-        <strong>{copy.objective}</strong>
+        <strong>{copy.chapterObjectiveLabel}</strong>
         <p>{entry.data.objective}</p>
       </aside>
     </header>
@@ -174,7 +136,7 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
   .lesson-objective {
     margin-top: 2rem;
     padding: 1.1rem 1.25rem;
-    border-left: 0.25rem solid var(--accent);
+    border-inline-start: 0.25rem solid var(--accent);
     background: rgba(15, 118, 110, 0.08);
   }
 
@@ -207,15 +169,23 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
   .lesson-body blockquote {
     margin: 1.5rem 0;
     padding: 0.75rem 1.25rem;
-    border-left: 0.2rem solid var(--warm);
+    border-inline-start: 0.2rem solid var(--warm);
     color: var(--muted);
   }
 
   .lesson-body :not(pre) > code {
+    direction: ltr;
     padding: 0.12rem 0.3rem;
     border-radius: 0.3rem;
     background: rgba(22, 33, 29, 0.08);
     font-size: 0.9em;
+    unicode-bidi: isolate;
+  }
+
+  .lesson-body .katex,
+  .lesson-body .katex-display {
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 
   .lesson-body table {
@@ -230,5 +200,9 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
     padding: 0.65rem 0.8rem;
     border: 1px solid var(--line);
     text-align: start;
+  }
+
+  html[dir="rtl"] .lesson h1 {
+    letter-spacing: normal;
   }
 </style>

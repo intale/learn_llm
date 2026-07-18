@@ -16,21 +16,24 @@ import {
 } from '../../scripts/check-chapter-contract.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import {
+  deriveScheduledStepIds,
   validateCoursePlanText,
   validateImplementedContracts,
   validateLedgerText,
 } from '../../scripts/check-course-plan.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import {
-  findPublishablePairs,
+  findPublishableChapterSets,
   validateCatalogParity,
   validateChapterDocument,
-  validateChapterPair,
+  validateChapterLocaleSet,
   validatePublishedContractSequence,
   validatePublishedChapterSequence,
 } from '../../scripts/check-site-content.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import { auditStaticSite } from '../../scripts/check-static-links.mjs';
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import { validateLocaleConfiguration } from '../../scripts/locale-config.mjs';
 import {
   findChapterNeighbors,
   orderChapterTargets,
@@ -76,58 +79,63 @@ function canonicalLesson(locale: 'en' | 'ru') {
   });
 }
 
-function chapterMetadata(locale: 'en' | 'ru' = 'en') {
+function chapterMetadata(locale: string = 'en') {
   const english = locale === 'en';
+  const russian = locale === 'ru';
+  const localized = (englishText: string, russianText: string) =>
+    english ? englishText : russian ? russianText : `[${locale}] ${englishText}`;
   return {
     chapter_id: '01-text-units',
     locale,
     content_revision: 1,
     order: 1,
     concept_id: 'text-units',
-    title: english ? 'Text units' : 'Единицы текста',
-    description: english
-      ? 'Map text to stable IDs.'
-      : 'Преобразуйте текст в устойчивые ID.',
-    objective: english
-      ? 'Implement an observable mapping.'
-      : 'Реализуйте наблюдаемое отображение.',
-    worked_inputs: english
-      ? 'Use one tiny fixed input and predict its IDs.'
-      : 'Используйте один небольшой фиксированный вход и предскажите его ID.',
+    title: localized('Text units', 'Единицы текста'),
+    description: localized(
+      'Map text to stable IDs.',
+      'Преобразуйте текст в устойчивые ID.',
+    ),
+    objective: localized(
+      'Implement an observable mapping.',
+      'Реализуйте наблюдаемое отображение.',
+    ),
+    worked_inputs: localized(
+      'Use one tiny fixed input and predict its IDs.',
+      'Используйте один небольшой фиксированный вход и предскажите его ID.',
+    ),
     formula: {
       latex: 'i = V(t)',
       symbols: [
         {
           symbol: 't',
-          meaning: english ? 'text unit' : 'единица текста',
+          meaning: localized('text unit', 'единица текста'),
         },
         {
           symbol: 'i',
-          meaning: english ? 'vocabulary ID' : 'ID словаря',
+          meaning: localized('vocabulary ID', 'ID словаря'),
         },
       ],
     },
     history: {
-      approach: english ? 'Whitespace splitting' : 'Разбиение по пробелам',
-      summary: english ? 'Words came first.' : 'Сначала использовали слова.',
+      approach: localized('Whitespace splitting', 'Разбиение по пробелам'),
+      summary: localized('Words came first.', 'Сначала использовали слова.'),
       rust_source: 'rust/demos/ch01-text-units/src/main.rs',
     },
     rust_sources: [
       {
         path: 'rust/demos/ch01-text-units/src/main.rs',
-        purpose: english ? 'Runnable contrast' : 'Исполняемое сравнение',
+        purpose: localized('Runnable contrast', 'Исполняемое сравнение'),
       },
     ],
     visualization: {
       decision: 'useful' as const,
       id: 'text-units',
-      rationale: english
-        ? 'Shows each mapping.'
-        : 'Показывает каждое отображение.',
+      rationale: localized('Shows each mapping.', 'Показывает каждое отображение.'),
     },
-    decoder_connection: english
-      ? 'The resulting IDs become the discrete input to the decoder.'
-      : 'Полученные ID становятся дискретным входом декодера.',
+    decoder_connection: localized(
+      'The resulting IDs become the discrete input to the decoder.',
+      'Полученные ID становятся дискретным входом декодера.',
+    ),
   };
 }
 
@@ -154,7 +162,7 @@ function chapterBody(formula = 'i = V(t)') {
     '{/* chapter-section:rust-implementation */}',
     '## Rust',
     'Run the dependency-free implementation and inspect the exact deterministic output before editing it.',
-    '<RustSource path="rust/demos/ch01-text-units/src/main.rs" />',
+    '<RustSource path="rust/demos/ch01-text-units/src/main.rs" caption="Runnable source" label="Rust source code" />',
     '{/* chapter-section:visualization */}',
     '## Visualization',
     'Trace the same position through every representation using labels in addition to color.',
@@ -181,10 +189,14 @@ function chapterSource(
   return ['---', JSON.stringify(data, null, 2), '---', '', body].join('\n');
 }
 
-function parsedChapter(locale: 'en' | 'ru') {
+function parsedChapter(
+  locale: string,
+  supportedLocales: readonly string[] = ['en', 'ru'],
+) {
   return validateChapterDocument(chapterSource(chapterMetadata(locale)), {
     sourceName: locale + ' fixture',
     checkSourceFiles: false,
+    supportedLocales,
   });
 }
 
@@ -223,6 +235,27 @@ describe('localized chapter documents', () => {
         checkSourceFiles: false,
       }),
     ).toThrow(/repository Rust path|repository-relative/);
+
+    const misleadingAriaLabel = chapterBody().replace(
+      'label="Rust source code"',
+      'aria-label="Wrong component prop"',
+    );
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(chapterMetadata(), misleadingAriaLabel),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/RustSource> label must be localized literal text/);
+
+    const misleadingDataPath = chapterBody().replace(
+      'path="rust/demos/ch01-text-units/src/main.rs"',
+      'data-path="rust/demos/ch01-text-units/src/main.rs"',
+    );
+    expect(() =>
+      validateChapterDocument(chapterSource(chapterMetadata(), misleadingDataPath), {
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/RustSource> path must be a string literal/);
   });
 
   it('rejects empty teaching shells and misplaced section evidence', () => {
@@ -263,7 +296,8 @@ describe('localized chapter documents', () => {
       ).toThrow(/must display formula\.latex exactly once/);
     }
 
-    const rustTag = '<RustSource path="rust/demos/ch01-text-units/src/main.rs" />';
+    const rustTag =
+      '<RustSource path="rust/demos/ch01-text-units/src/main.rs" caption="Runnable source" label="Rust source code" />';
     const misplacedRust = rustTag + '\n' + replaceOnce(chapterBody(), rustTag, '');
     expect(() =>
       validateChapterDocument(chapterSource(chapterMetadata(), misplacedRust), {
@@ -317,19 +351,58 @@ describe('localized chapter documents', () => {
     ).toThrow(/substantive ordered answer/);
   });
 
-  it('publishes only one complete, same-revision bilingual pair', () => {
+  it('publishes only complete, same-revision configured locale sets', () => {
     const english = parsedChapter('en');
     const russian = parsedChapter('ru');
 
-    expect(findPublishablePairs([english])).toEqual([]);
-    expect(findPublishablePairs([english, russian])).toHaveLength(1);
+    expect(findPublishableChapterSets([english], ['en', 'ru'], 'en')).toEqual([]);
+    expect(
+      findPublishableChapterSets([english, russian], ['en', 'ru'], 'en'),
+    ).toHaveLength(1);
 
     const staleData = chapterMetadata('ru');
     staleData.content_revision = 2;
     const staleRussian = validateChapterDocument(chapterSource(staleData), {
       checkSourceFiles: false,
     });
-    expect(findPublishablePairs([english, staleRussian])).toEqual([]);
+    expect(
+      findPublishableChapterSets([english, staleRussian], ['en', 'ru'], 'en'),
+    ).toEqual([]);
+  });
+
+  it('requires exactly one translation for every locale in a synthetic three-locale set', () => {
+    const configured = ['en', 'ru', 'es'];
+    const documents = configured.map((locale) =>
+      parsedChapter(locale, configured),
+    );
+
+    const complete = validateChapterLocaleSet(documents, configured, 'en');
+    expect(Object.keys(complete.byLocale).sort()).toEqual([...configured].sort());
+    expect(
+      findPublishableChapterSets(documents, configured, 'en'),
+    ).toHaveLength(1);
+    expect(() =>
+      validateChapterLocaleSet(documents.slice(0, 2), configured, 'en'),
+    ).toThrow(/exactly one es source/);
+    expect(() =>
+      validateChapterLocaleSet([...documents, documents[2]], configured, 'en'),
+    ).toThrow(/exactly one es source/);
+
+    const stale = structuredClone(documents[2]);
+    stale.data.content_revision = 2;
+    expect(() =>
+      validateChapterLocaleSet([documents[0], documents[1], stale], configured, 'en'),
+    ).toThrow(/revision/);
+
+    const drifted = structuredClone(documents[2]);
+    drifted.data.formula.latex = 'i = W(t)';
+    expect(() =>
+      validateChapterLocaleSet(
+        [documents[0], documents[1], drifted],
+        configured,
+        'en',
+      ),
+    ).toThrow(/locale-neutral/);
   });
 
   it('allows intentionally shared technical titles and worked inputs', () => {
@@ -339,7 +412,9 @@ describe('localized chapter documents', () => {
     const russian = validateChapterDocument(chapterSource(russianData), {
       checkSourceFiles: false,
     });
-    expect(() => validateChapterPair(english, russian)).not.toThrow();
+    expect(() =>
+      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+    ).not.toThrow();
 
     const contract = canonicalContract();
     const sharedInputContract = structuredClone(contract.data);
@@ -363,9 +438,9 @@ describe('localized chapter documents', () => {
       checkSourceFiles: false,
     });
 
-    expect(() => validateChapterPair(english, russian)).toThrow(
-      /locale-neutral/,
-    );
+    expect(() =>
+      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+    ).toThrow(/locale-neutral/);
   });
 });
 
@@ -382,10 +457,100 @@ describe('curriculum and catalog contracts', () => {
     expect(result.data.visualization.decision).toBe('useful');
   });
 
-  it('keeps English and Russian message catalog keys in parity', () => {
+  it('requires every localized contract field for a synthetic third locale', () => {
+    const canonical = canonicalContract();
+    const contract = structuredClone(canonical.data);
+    contract.objective.es = 'Objetivo localizado';
+    contract.worked_inputs.es = 'Entradas localizadas';
+    for (const symbol of contract.formula.symbols) {
+      symbol.es = `Significado de ${symbol.symbol}`;
+    }
+    contract.history.approach.es = 'Enfoque histórico';
+    contract.history.summary.es = 'Resumen histórico';
+    contract.visualization.rationale.es = 'Justificación visual';
+    contract.decoder_connection.es = 'Conexión con el decodificador';
+    for (const term of contract.terminology) {
+      term.es = `Término ${term.concept_id}`;
+    }
+    const source = [
+      '---',
+      JSON.stringify(contract, null, 2),
+      '---',
+      canonical.body,
+    ].join('\n');
+
+    expect(() =>
+      validateChapterContractText(source, {
+        sourceName: 'three-locale contract',
+        supportedLocales: ['en', 'ru', 'es'],
+      }),
+    ).not.toThrow();
+
+    delete contract.decoder_connection.es;
+    expect(() =>
+      validateChapterContractText(
+        ['---', JSON.stringify(contract, null, 2), '---', canonical.body].join(
+          '\n',
+        ),
+        {
+          sourceName: 'incomplete three-locale contract',
+          supportedLocales: ['en', 'ru', 'es'],
+        },
+      ),
+    ).toThrow(/decoder_connection locale keys must be exactly en, es, ru/);
+  });
+
+  it('keeps every configured message catalog in exact key parity', () => {
     expect(validateCatalogParity(resolve(process.cwd(), '..'))).toBeGreaterThan(
       0,
     );
+  });
+
+  it('fails closed when a newly configured locale lacks a complete catalog', () => {
+    const root = mkdtempSync(join(tmpdir(), 'learn-llm-catalogs-'));
+    temporaryDirectories.push(root);
+    const directory = join(root, 'site/src/i18n');
+    const catalogDirectory = join(directory, 'catalogs');
+    mkdirSync(catalogDirectory, { recursive: true });
+    writeFileSync(
+      join(directory, 'locales.json'),
+      JSON.stringify({
+        defaultLocale: 'en',
+        locales: {
+          en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
+          es: { languageTag: 'es', nativeName: 'Español', direction: 'ltr' },
+        },
+      }),
+    );
+    writeFileSync(
+      join(directory, 'messages.ts'),
+      "export const messageKeys = [\n  'title',\n  'subtitle',\n] as const;\n",
+    );
+    writeFileSync(
+      join(catalogDirectory, 'en.json'),
+      JSON.stringify({ title: 'Title', subtitle: 'Subtitle' }),
+    );
+
+    expect(() => validateCatalogParity(root)).toThrow(/missing catalog.*es\.json/);
+    writeFileSync(
+      join(catalogDirectory, 'es.json'),
+      JSON.stringify({ title: 'Título', extra: 'No' }),
+    );
+    expect(() => validateCatalogParity(root)).toThrow(/catalog keys differ/);
+
+    writeFileSync(
+      join(catalogDirectory, 'es.json'),
+      JSON.stringify({ title: 'Título', subtitle: '   ' }),
+    );
+    expect(() => validateCatalogParity(root)).toThrow(
+      /subtitle must be a non-empty string/,
+    );
+
+    writeFileSync(
+      join(catalogDirectory, 'es.json'),
+      '{"title":"Uno","title":"Dos","subtitle":"Subtítulo"}',
+    );
+    expect(() => validateCatalogParity(root)).toThrow(/contains duplicate keys/);
   });
 
   it('rejects plan-body, ledger, and implemented-prefix drift', () => {
@@ -420,7 +585,54 @@ describe('curriculum and catalog contracts', () => {
       '"missing-rust-highlighting"',
     );
     expect(() => validateCoursePlanText(highlightingPrerequisiteDrift)).toThrow(
-      /pre-Chapter-2 prerequisites/,
+      /cross-cutting prerequisites/,
+    );
+
+    const finalPlacement = replaceOnce(
+      planSource,
+      [
+        '      {',
+        '        "step_id": "generalize-localization-infrastructure",',
+        '        "before_chapter": "02-corpus-partitions"',
+        '      }',
+      ].join('\n'),
+      [
+        '      {',
+        '        "step_id": "generalize-localization-infrastructure",',
+        '        "before_chapter": "02-corpus-partitions"',
+        '      },',
+        '      {',
+        '        "step_id": "activate-locale-ar-eg",',
+        '        "after_chapter": "39-end-to-end-llm"',
+        '      }',
+      ].join('\n'),
+    );
+    const finalPlacementMetadata = validateCoursePlanText(
+      finalPlacement,
+      'post-course locale activation plan',
+    );
+    expect(deriveScheduledStepIds(finalPlacementMetadata).at(-1)).toBe(
+      'activate-locale-ar-eg',
+    );
+
+    const ambiguousPlacement = replaceOnce(
+      planSource,
+      [
+        '      {',
+        '        "step_id": "generalize-localization-infrastructure",',
+        '        "before_chapter": "02-corpus-partitions"',
+        '      }',
+      ].join('\n'),
+      [
+        '      {',
+        '        "step_id": "generalize-localization-infrastructure",',
+        '        "before_chapter": "02-corpus-partitions",',
+        '        "after_chapter": "01-text-units"',
+        '      }',
+      ].join('\n'),
+    );
+    expect(() => validateCoursePlanText(ambiguousPlacement)).toThrow(
+      /exactly one of before_chapter or after_chapter/,
     );
 
     const dependencyDrift = replaceOnce(
@@ -460,7 +672,89 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('keeps repeated bilingual terminology mappings stable across contracts', () => {
+  it('derives every future chapter output and command from a synthetic locale set', () => {
+    const root = repositoryRoot();
+    const planSource = readFileSync(
+      join(root, 'curriculum/course-plan.md'),
+      'utf8',
+    );
+    const stateSource = readFileSync(join(root, 'BUILD_STATE.yaml'), 'utf8');
+    const localeConfiguration = validateLocaleConfiguration({
+      defaultLocale: 'en',
+      locales: {
+        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
+        ru: { languageTag: 'ru', nativeName: 'Русский', direction: 'ltr' },
+        es: { languageTag: 'es', nativeName: 'Español', direction: 'ltr' },
+      },
+    });
+    const metadata = validateCoursePlanText(
+      planSource,
+      'synthetic three-locale plan',
+      localeConfiguration,
+    );
+
+    expect(() =>
+      validateLedgerText(
+        stateSource,
+        metadata,
+        'synthetic three-locale ledger',
+        localeConfiguration,
+      ),
+    ).toThrow(/active locale outputs must be exactly en, ru, es/);
+
+    const expandedState = stateSource
+      .replace(
+        /^(\s+- "site\/src\/content\/chapters\/)ru(\/[^"\n]+\.mdx")$/gm,
+        '$1ru$2\n$1es$2',
+      )
+      .replace(
+        /^(\s+- "npm --prefix site run check:chapter -- --locale )ru( --chapter [^"\n]+")$/gm,
+        '$1ru$2\n$1es$2',
+      );
+    expect(() =>
+      validateLedgerText(
+        expandedState,
+        metadata,
+        'expanded synthetic three-locale ledger',
+        localeConfiguration,
+      ),
+    ).not.toThrow();
+
+    const chapterTwoStart = expandedState.indexOf(
+      '      - id: implement-ch02-corpus-partitions\n',
+    );
+    const chapterThreeStart = expandedState.indexOf(
+      '      - id: implement-ch03-learn-bpe-merges\n',
+      chapterTwoStart,
+    );
+    expect(chapterTwoStart).toBeGreaterThanOrEqual(0);
+    expect(chapterThreeStart).toBeGreaterThan(chapterTwoStart);
+    const completedChapterTwo = expandedState
+      .slice(chapterTwoStart, chapterThreeStart)
+      .replace('        status: pending', '        status: completed')
+      .replace(
+        `          - "site/src/content/chapters/es/02-corpus-partitions.mdx"\n`,
+        '',
+      )
+      .replace(
+        `          - "npm --prefix site run check:chapter -- --locale es --chapter 02-corpus-partitions"\n`,
+        '',
+      );
+    const mixedState =
+      expandedState.slice(0, chapterTwoStart) +
+      completedChapterTwo +
+      expandedState.slice(chapterThreeStart);
+    expect(() =>
+      validateLedgerText(
+        mixedState,
+        metadata,
+        'mixed immutable/completable three-locale ledger',
+        localeConfiguration,
+      ),
+    ).not.toThrow();
+  });
+
+  it('keeps repeated localized terminology mappings stable across contracts', () => {
     const plan = validateCoursePlanText(
       readFileSync(join(repositoryRoot(), 'curriculum/course-plan.md'), 'utf8'),
     );
@@ -506,7 +800,7 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('ties each contract to both lessons, its useful diagram, and exact stdout', () => {
+  it('ties each contract to every lesson, its useful diagram, and exact stdout', () => {
     const contract = canonicalContract();
     const integration = validateChapterContractIntegration(contract, {
       repositoryRoot: repositoryRoot(),
@@ -649,9 +943,9 @@ describe('published order and chapter navigation', () => {
       /absent from published navigation/,
     );
 
-    const pair = (chapterId: string, order: number, conceptId: string) => ({
+    const localeSet = (chapterId: string, order: number, conceptId: string) => ({
       chapterId,
-      en: {
+      reference: {
         data: {
           chapter_id: chapterId,
           content_revision: 1,
@@ -659,31 +953,27 @@ describe('published order and chapter navigation', () => {
           concept_id: conceptId,
         },
       },
-      ru: {
-        data: {
-          chapter_id: chapterId,
-          content_revision: 1,
-          order,
-          concept_id: conceptId,
-        },
-      },
+      byLocale: {},
     });
     expect(() =>
       validatePublishedChapterSequence([
-        pair('01-first', 1, 'first'),
-        pair('03-third', 3, 'third'),
+        localeSet('01-first', 1, 'first'),
+        localeSet('03-third', 3, 'third'),
       ]),
     ).toThrow(/contiguous ordered prefix/);
     expect(() =>
       validatePublishedChapterSequence([
-        pair('01-first', 1, 'shared'),
-        pair('02-second', 2, 'shared'),
+        localeSet('01-first', 1, 'shared'),
+        localeSet('02-second', 2, 'shared'),
       ]),
     ).toThrow(/duplicate published concept_id/);
 
     expect(() =>
       validatePublishedContractSequence(
-        [pair('01-first', 1, 'first'), pair('02-unplanned', 2, 'second')],
+        [
+          localeSet('01-first', 1, 'first'),
+          localeSet('02-unplanned', 2, 'second'),
+        ],
         [
           {
             data: {
@@ -695,11 +985,11 @@ describe('published order and chapter navigation', () => {
           },
         ],
       ),
-    ).toThrow(/lesson count 2 differs from implemented contract count 1/);
+    ).toThrow(/lesson-set count 2 differs from implemented contract count 1/);
 
     expect(() =>
       validatePublishedContractSequence(
-        [pair('01-first', 1, 'drifted-concept')],
+        [localeSet('01-first', 1, 'drifted-concept')],
         [
           {
             data: {
@@ -716,6 +1006,146 @@ describe('published order and chapter navigation', () => {
 });
 
 describe('static link and locale audit', () => {
+  it('audits a complete synthetic three-locale route and alternate matrix', () => {
+    const root = mkdtempSync(join(tmpdir(), 'learn-llm-three-locales-'));
+    temporaryDirectories.push(root);
+    const configuration = validateLocaleConfiguration({
+      defaultLocale: 'en',
+      locales: {
+        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
+        'pt-br': {
+          languageTag: 'pt-BR',
+          nativeName: 'Português (Brasil)',
+          direction: 'ltr',
+        },
+        'ar-eg': {
+          languageTag: 'ar-EG',
+          nativeName: 'العربية (مصر)',
+          direction: 'rtl',
+        },
+      },
+    });
+    const definitions = configuration.definitions;
+    const alternateMarkup = (suffix: string) =>
+      definitions
+        .map(
+          ({ code, languageTag }: { code: string; languageTag: string }) =>
+            `<link rel="alternate" hreflang="${languageTag}" href="/${code}${suffix}">`,
+        )
+        .join('') + '<link rel="alternate" hreflang="x-default" href="/">';
+    const localeLinks = (current: string, suffix: string) =>
+      definitions
+        .filter(({ code }: { code: string }) => code !== current)
+        .map(
+          ({ code, nativeName }: { code: string; nativeName: string }) =>
+            `<a href="/${code}${suffix}">${nativeName}</a>`,
+        )
+        .join('');
+
+    writeFileSync(
+      join(root, 'index.html'),
+      '<html lang="mul" dir="ltr"><head>' +
+        alternateMarkup('/') +
+        '</head><body>' +
+        definitions
+          .map(
+            ({ code, nativeName }: { code: string; nativeName: string }) =>
+              `<a href="/${code}/">${nativeName}</a>`,
+          )
+          .join('') +
+        '</body></html>',
+    );
+    for (const definition of definitions) {
+      mkdirSync(join(root, definition.code, 'course'), { recursive: true });
+      writeFileSync(
+        join(root, definition.code, 'index.html'),
+        `<html lang="${definition.languageTag}" dir="${definition.direction}"><head>` +
+          alternateMarkup('/') +
+          '</head><body>' +
+          localeLinks(definition.code, '/') +
+          `<a href="/${definition.code}/course/">Course</a>` +
+          '</body></html>',
+      );
+      writeFileSync(
+        join(root, definition.code, 'course/index.html'),
+        `<html lang="${definition.languageTag}" dir="${definition.direction}"><head>` +
+          alternateMarkup('/course/') +
+          '</head><body>' +
+          localeLinks(definition.code, '/course/') +
+          '</body></html>',
+      );
+    }
+
+    expect(auditStaticSite(root, configuration)).toEqual(
+      expect.objectContaining({ htmlCount: 7 }),
+    );
+
+    const arabicHome = join(root, 'ar-eg/index.html');
+    const validArabicHome = readFileSync(arabicHome, 'utf8');
+    writeFileSync(
+      arabicHome,
+      validArabicHome.replace('dir="rtl"', 'dir="ltr"'),
+    );
+    expect(() => auditStaticSite(root, configuration)).toThrow(
+      /does not match locale direction rtl/,
+    );
+    writeFileSync(arabicHome, validArabicHome);
+
+    const arabicCourse = join(root, 'ar-eg/course/index.html');
+    writeFileSync(
+      arabicCourse,
+      readFileSync(arabicCourse, 'utf8').replace(
+        '<a href="/pt-br/course/">Português (Brasil)</a>',
+        '',
+      ),
+    );
+    expect(() => auditStaticSite(root, configuration)).toThrow(
+      /locale switch must include an ordinary link to \/pt-br\/course\//,
+    );
+
+    writeFileSync(
+      arabicCourse,
+      readFileSync(arabicCourse, 'utf8').replace(
+        '</body>',
+        '<a href="/pt-br/course/">Português (Brasil)</a></body>',
+      ),
+    );
+    const rootIndex = join(root, 'index.html');
+    const validRoot = readFileSync(rootIndex, 'utf8');
+    writeFileSync(
+      rootIndex,
+      validRoot.replace('<a href="/pt-br/">Português (Brasil)</a>', ''),
+    );
+    expect(() => auditStaticSite(root, configuration)).toThrow(
+      /root language chooser must link to \/pt-br\//,
+    );
+
+    writeFileSync(rootIndex, validRoot);
+    const englishHome = join(root, 'en/index.html');
+    const validEnglishHome = readFileSync(englishHome, 'utf8');
+    writeFileSync(
+      englishHome,
+      validEnglishHome.replace(
+        '<link rel="alternate" hreflang="pt-BR" href="/pt-br/">',
+        '',
+      ),
+    );
+    expect(() => auditStaticSite(root, configuration)).toThrow(
+      /expected hreflang pt-BR to point to \/pt-br\//,
+    );
+
+    writeFileSync(
+      englishHome,
+      validEnglishHome.replace(
+        '</head>',
+        '<link rel="alternate" hreflang="pt-BR" href="/pt-br/"></head>',
+      ),
+    );
+    expect(() => auditStaticSite(root, configuration)).toThrow(
+      /expected exactly one hreflang pt-BR; found 2/,
+    );
+  });
+
   it('requires localized course entry links and rejects a missing local asset', () => {
     const root = mkdtempSync(join(tmpdir(), 'learn-llm-links-'));
     temporaryDirectories.push(root);
@@ -734,36 +1164,36 @@ describe('static link and locale audit', () => {
     ].join('');
     writeFileSync(
       join(root, 'index.html'),
-      '<html lang="mul"><head>' +
+      '<html lang="mul" dir="ltr"><head>' +
         alternates +
         '<link rel="stylesheet" href="/style.css"></head>' +
         '<body><a href="/en/">English</a><a href="/ru/">Русский</a></body></html>',
     );
     writeFileSync(
       join(root, 'en/index.html'),
-      '<html lang="en"><head>' +
+      '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a>' +
         '<a href="/en/course/">Course</a></body></html>',
     );
     writeFileSync(
       join(root, 'ru/index.html'),
-      '<html lang="ru"><head>' +
+      '<html lang="ru" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/en/">English</a>' +
         '<a href="/ru/course/">Курс</a></body></html>',
     );
     writeFileSync(
       join(root, 'en/course/index.html'),
-      '<html lang="en"><head>' +
+      '<html lang="en" dir="ltr"><head>' +
         courseAlternates +
-        '</head><body></body></html>',
+        '</head><body><a href="/ru/course/">Русский</a></body></html>',
     );
     writeFileSync(
       join(root, 'ru/course/index.html'),
-      '<html lang="ru"><head>' +
+      '<html lang="ru" dir="ltr"><head>' +
         courseAlternates +
-        '</head><body></body></html>',
+        '</head><body><a href="/en/course/">English</a></body></html>',
     );
     writeFileSync(root + '/style.css', '@font-face{src:url("/font.woff2")}');
     writeFileSync(root + '/font.woff2', '');
@@ -774,7 +1204,7 @@ describe('static link and locale audit', () => {
 
     writeFileSync(
       join(root, 'en/index.html'),
-      '<html lang="en"><head>' +
+      '<html lang="en" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/ru/">Русский</a></body></html>',
     );
@@ -784,13 +1214,14 @@ describe('static link and locale audit', () => {
 
     writeFileSync(
       join(root, 'en/index.html'),
-      '<html lang="en"><head>' +
+      '<html lang="en" dir="ltr"><head>' +
         alternates +
-        '</head><body><a href="/en/course/">Course</a></body></html>',
+        '</head><body><a href="/ru/">Русский</a>' +
+        '<a href="/en/course/">Course</a></body></html>',
     );
     writeFileSync(
       join(root, 'ru/index.html'),
-      '<html lang="ru"><head>' +
+      '<html lang="ru" dir="ltr"><head>' +
         alternates +
         '</head><body><a href="/en/">English</a></body></html>',
     );
@@ -800,15 +1231,17 @@ describe('static link and locale audit', () => {
 
     writeFileSync(
       join(root, 'ru/index.html'),
-      '<html lang="ru"><head>' +
+      '<html lang="ru" dir="ltr"><head>' +
         alternates +
-        '</head><body><a href="/ru/course/">Курс</a></body></html>',
+        '</head><body><a href="/en/">English</a>' +
+        '<a href="/ru/course/">Курс</a></body></html>',
     );
     writeFileSync(
       join(root, 'en/index.html'),
-      '<html lang="en"><head>' +
+      '<html lang="en" dir="ltr"><head>' +
         alternates +
-        '</head><body><a href="/en/course/">Course</a>' +
+        '</head><body><a href="/ru/">Русский</a>' +
+        '<a href="/en/course/">Course</a>' +
         '<img src="/missing.svg"></body></html>',
     );
     expect(() => auditStaticSite(root)).toThrow(/missing\.svg/);

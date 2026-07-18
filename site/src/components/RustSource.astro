@@ -10,8 +10,8 @@ declare const process: { cwd(): string };
 interface Props {
   path: string;
   region?: string;
-  caption?: string;
-  label?: string;
+  caption: string;
+  label: string;
 }
 
 const {
@@ -76,26 +76,21 @@ if (region) {
   source = lines.slice(starts[0] + 1, ends[0]).join('\n');
 }
 
-const sourceLabel =
-  label ?? caption ?? requestedPath + (region ? ', region ' + region : '');
 ---
 
 <figure class="rust-source" data-source-path={requestedPath} data-source-region={region}>
-  {
-    (caption || region) && (
-      <figcaption>
-        {caption && <span>{caption}</span>}
-        <code>{requestedPath}{region ? '#' + region : ''}</code>
-      </figcaption>
-    )
-  }
+  <figcaption>
+    <span>{caption}</span>
+    <code dir="ltr">{requestedPath}{region ? '#' + region : ''}</code>
+  </figcaption>
   <Code
     code={source}
     lang="rust"
     theme="github-dark-high-contrast"
     class="rust-source-code"
     tabindex="0"
-    aria-label={sourceLabel}
+    aria-label={label}
+    dir="ltr"
   />
 </figure>
 

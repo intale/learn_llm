@@ -1,5 +1,10 @@
 ---
-import type { Locale } from '../i18n';
+import {
+  getLocaleDefinition,
+  getMessages,
+  localePath,
+  type Locale,
+} from '../i18n';
 import type { ChapterNavigationTarget } from '../lib/chapter-navigation';
 
 interface Props {
@@ -9,28 +14,17 @@ interface Props {
 }
 
 const { locale, previous, next } = Astro.props;
-const navigationCopy = {
-  en: {
-    label: 'Chapter navigation',
-    previous: 'Previous chapter',
-    all: 'All chapters',
-    next: 'Next chapter',
-  },
-  ru: {
-    label: 'Навигация по главам',
-    previous: 'Предыдущая глава',
-    all: 'Все главы',
-    next: 'Следующая глава',
-  },
-} as const;
-const copy = navigationCopy[locale];
+const copy = getMessages(locale);
+const isRightToLeft = getLocaleDefinition(locale).direction === 'rtl';
+const previousArrow = isRightToLeft ? '→' : '←';
+const nextArrow = isRightToLeft ? '←' : '→';
 const chapterHref = (chapterId: string) =>
-  `/${locale}/course/${chapterId}/`;
+  localePath(locale, `/course/${chapterId}/`);
 ---
 
 <nav
   class="chapter-navigation"
-  aria-label={copy.label}
+  aria-label={copy.chapterNavigationLabel}
   data-chapter-navigation
 >
   {
@@ -43,14 +37,14 @@ const chapterHref = (chapterId: string) =>
         data-chapter-id={previous.chapterId}
         data-chapter-order={previous.order}
       >
-        <span>← {copy.previous}</span>
+        <span>{previousArrow} {copy.previousChapterLabel}</span>
         <strong>{previous.title}</strong>
       </a>
     )
   }
 
-  <a class="chapter-navigation__all" href={`/${locale}/course/`}>
-    {copy.all}
+  <a class="chapter-navigation__all" href={localePath(locale, '/course/')}>
+    {copy.allChaptersLabel}
   </a>
 
   {
@@ -63,7 +57,7 @@ const chapterHref = (chapterId: string) =>
         data-chapter-id={next.chapterId}
         data-chapter-order={next.order}
       >
-        <span>{copy.next} →</span>
+        <span>{copy.nextChapterLabel} {nextArrow}</span>
         <strong>{next.title}</strong>
       </a>
     )

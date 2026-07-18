@@ -5,6 +5,8 @@ import { defineCollection } from 'astro:content';
 import { glob, type Loader } from 'astro/loaders';
 import { z } from 'astro/zod';
 
+import { isLocale, type Locale } from './i18n';
+
 const kebabId = z.string().regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/);
 const chapterId = z.string().regex(/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const rustPath = z
@@ -61,7 +63,7 @@ const chapterDirectory = new URL('./content/chapters/', import.meta.url);
 const chapterLoader: Loader = existsSync(chapterDirectory)
   ? glob({
       base: './src/content/chapters',
-      pattern: '{en,ru}/**/*.{md,mdx}',
+      pattern: '**/*.{md,mdx}',
     })
   : {
       name: 'empty-chapter-directory',
@@ -75,7 +77,10 @@ const chapters = defineCollection({
   schema: z
     .object({
       chapter_id: chapterId,
-      locale: z.enum(['en', 'ru']),
+      locale: z.custom<Locale>(
+        (value) => typeof value === 'string' && isLocale(value),
+        'locale must be configured in src/i18n/locales.json',
+      ),
       content_revision: z.number().int().positive(),
       order: z.number().int().positive(),
       concept_id: kebabId,

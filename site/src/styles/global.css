@@ -51,7 +51,7 @@ a:focus-visible {
   position: fixed;
   z-index: 10;
   top: 0.75rem;
-  left: 0.75rem;
+  inset-inline-start: 0.75rem;
   padding: 0.6rem 0.9rem;
   border-radius: 999px;
   background: var(--ink);
@@ -102,6 +102,7 @@ a:focus-visible {
 
 .locale-switch {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.7rem;
   color: var(--muted);
@@ -113,6 +114,8 @@ a:focus-visible {
 .locale-switch a {
   color: var(--ink);
   font-weight: 750;
+  letter-spacing: normal;
+  text-transform: none;
   text-underline-offset: 0.25rem;
 }
 
@@ -165,11 +168,13 @@ a:focus-visible {
 
 .feature-number {
   display: block;
+  direction: ltr;
   margin-bottom: 5rem;
   color: var(--warm);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.8rem;
   font-weight: 800;
+  unicode-bidi: isolate;
 }
 
 .feature-card h2 {
@@ -191,7 +196,7 @@ a:focus-visible {
   gap: 1rem;
   margin-block: 2rem 6rem;
   padding: 1.2rem 1.35rem;
-  border-left: 0.25rem solid var(--accent);
+  border-inline-start: 0.25rem solid var(--accent);
   background: rgba(15, 118, 110, 0.08);
 }
 
@@ -274,7 +279,18 @@ a:focus-visible {
 }
 
 .language-picker h1 span {
+  display: block;
   color: var(--accent-dark);
+}
+
+.language-picker h1 span:first-child {
+  color: inherit;
+}
+
+.language-picker h1 span[dir="rtl"],
+.language-picker .eyebrow span[dir="rtl"] {
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 .language-intro {
@@ -284,9 +300,13 @@ a:focus-visible {
   font-size: 1.08rem;
 }
 
+.language-intro span {
+  display: block;
+}
+
 .language-options {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: 0.75rem;
 }
 
@@ -314,6 +334,18 @@ a:focus-visible {
   color: var(--accent-dark);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
+}
+
+html[dir="rtl"] .wordmark,
+html[dir="rtl"] .eyebrow,
+html[dir="rtl"] .locale-switch,
+html[dir="rtl"] .hero h1 {
+  letter-spacing: normal;
+}
+
+html[dir="rtl"] .eyebrow,
+html[dir="rtl"] .locale-switch {
+  text-transform: none;
 }
 
 @media (max-width: 48rem) {

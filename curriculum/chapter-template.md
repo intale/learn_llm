@@ -79,20 +79,23 @@
 
 # Chapter NN: working title / рабочее название
 
-The matching English and Russian lesson frontmatters copy the localized
-`worked_inputs`, `history`, and `decoder_connection` values from this contract.
-Every ordered lesson section contains teaching prose, the formula section renders
+The matching lesson frontmatter for every locale in `site/src/i18n/locales.json`
+copies the localized `worked_inputs`, `history`, and `decoder_connection` values
+from this contract. Add the same exact configured locale-key set to every localized
+contract object when enabling another spoken language. Every ordered lesson
+section contains teaching prose, the formula section renders
 the exact `formula.latex`, the Rust section owns its `<RustSource>` evidence, useful
 visualizations invoke the chapter-specific diagram there, and exercises include a
 predict-first ordered list with answers in `<details>`.
 
 For every chapter after Chapter 1, replace `chapter_concept.rs` with the exact
-`primary_module` path named in `course-plan.md`; both localized lessons declare
-and render every contract source (and every declared source region). Contract
-`{symbol, en, ru}` entries become locale-specific lesson `{symbol, meaning}`
-entries. Contract Rust path strings become lesson `{path, region?, purpose}`
-entries. A useful `NN-foo-bar` chapter uses the canonical component
-`site/src/components/chapters/FooBarDiagram.astro` in both lessons.
+`primary_module` path named in `course-plan.md`; every localized lesson declares
+and renders every contract source (and every declared source region). Contract
+`{symbol, <each configured locale>}` entries become locale-specific lesson
+`{symbol, meaning}` entries. Contract Rust path strings become lesson
+`{path, region?, purpose}` entries. A useful `NN-foo-bar` chapter uses the
+canonical component `site/src/components/chapters/FooBarDiagram.astro` in every
+lesson.
 
 <!-- contract-section:scope -->
 ## Scope
@@ -103,14 +106,15 @@ leaves to later chapters.
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
-Walk through the tiny English and Russian or language-neutral inputs. For chapter
-1, include both ASCII and Cyrillic text.
+Walk through tiny inputs natural for the configured locales, or use one
+language-neutral input. For chapter 1, include both ASCII and Cyrillic text.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
 
 Explain the formula in plain language and account for every symbol. Mathematical
-notation is shared; definitions and teaching prose are bilingual.
+notation is shared; definitions and teaching prose are localized for every
+configured locale.
 
 <!-- contract-section:history -->
 ## Before the modern approach
@@ -147,8 +151,8 @@ decoder-only language model.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Review the bilingual terminology table, code-independent labels, accessible
-names, examples, and any phrase that should not be translated literally.
+Review the complete localized terminology table, code-independent labels,
+accessible names, examples, and any phrase that should not be translated literally.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

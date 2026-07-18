@@ -4,6 +4,19 @@ import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 
+function rehypeLeftToRightCode() {
+  return (tree) => {
+    const pending = [tree];
+    while (pending.length > 0) {
+      const node = pending.pop();
+      if (node?.type === 'element' && node.tagName === 'pre') {
+        node.properties = { ...node.properties, dir: 'ltr' };
+      }
+      if (Array.isArray(node?.children)) pending.push(...node.children);
+    }
+  };
+}
+
 export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
@@ -22,7 +35,7 @@ export default defineConfig({
     },
     processor: unified({
       remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex],
+      rehypePlugins: [rehypeKatex, rehypeLeftToRightCode],
     }),
   },
 });

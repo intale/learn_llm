@@ -11,8 +11,12 @@ import {
   renderableMdxSource,
   repositoryRootFromCwd,
   validateChapterDocument,
-  validateChapterPair,
+  validateChapterLocaleSet,
 } from './check-site-content.mjs';
+import {
+  SUPPORTED_LOCALES,
+  readLocaleConfiguration,
+} from './locale-config.mjs';
 
 export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
   'scope',
@@ -47,16 +51,39 @@ function requireText(issues, value, field, sourceName) {
   }
 }
 
-function requireLocalizedText(issues, value, field, sourceName) {
+function requireLocalizedText(
+  issues,
+  value,
+  field,
+  sourceName,
+  supportedLocales,
+) {
   if (!isObject(value)) {
-    issues.push(sourceName + ': ' + field + ' must contain en and ru strings');
+    issues.push(
+      sourceName +
+        ': ' +
+        field +
+        ' must contain one string per configured locale',
+    );
     return;
   }
-  requireText(issues, value.en, field + '.en', sourceName);
-  requireText(issues, value.ru, field + '.ru', sourceName);
+  const actualKeys = Object.keys(value).sort();
+  const expectedKeys = [...supportedLocales].sort();
+  if (JSON.stringify(actualKeys) !== JSON.stringify(expectedKeys)) {
+    issues.push(
+      sourceName +
+        ': ' +
+        field +
+        ' locale keys must be exactly ' +
+        expectedKeys.join(', '),
+    );
+  }
+  for (const locale of supportedLocales) {
+    requireText(issues, value[locale], field + '.' + locale, sourceName);
+  }
 }
 
-function validateFormula(issues, formula, sourceName) {
+function validateFormula(issues, formula, sourceName, supportedLocales) {
   if (!isObject(formula)) {
     issues.push(sourceName + ': formula must be an object');
     return;
@@ -69,7 +96,10 @@ function validateFormula(issues, formula, sourceName) {
     );
   }
   if (!Array.isArray(formula.symbols) || formula.symbols.length === 0) {
-    issues.push(sourceName + ': formula.symbols must contain bilingual symbol definitions');
+    issues.push(
+      sourceName +
+        ': formula.symbols must contain one localized definition per configured locale',
+    );
     return;
   }
   const symbols = new Set();
@@ -79,8 +109,16 @@ function validateFormula(issues, formula, sourceName) {
       return;
     }
     requireText(issues, entry.symbol, 'formula.symbols[' + index + '].symbol', sourceName);
-    requireText(issues, entry.en, 'formula.symbols[' + index + '].en', sourceName);
-    requireText(issues, entry.ru, 'formula.symbols[' + index + '].ru', sourceName);
+    const localizedMeanings = Object.fromEntries(
+      Object.entries(entry).filter(([key]) => key !== 'symbol'),
+    );
+    requireLocalizedText(
+      issues,
+      localizedMeanings,
+      'formula.symbols[' + index + ']',
+      sourceName,
+      supportedLocales,
+    );
     if (symbols.has(entry.symbol)) {
       issues.push(sourceName + ': duplicate formula symbol "' + entry.symbol + '"');
     }
@@ -88,13 +126,25 @@ function validateFormula(issues, formula, sourceName) {
   });
 }
 
-function validateHistory(issues, history, sourceName) {
+function validateHistory(issues, history, sourceName, supportedLocales) {
   if (!isObject(history)) {
     issues.push(sourceName + ': history must be an object');
     return;
   }
-  requireLocalizedText(issues, history.approach, 'history.approach', sourceName);
-  requireLocalizedText(issues, history.summary, 'history.summary', sourceName);
+  requireLocalizedText(
+    issues,
+    history.approach,
+    'history.approach',
+    sourceName,
+    supportedLocales,
+  );
+  requireLocalizedText(
+    issues,
+    history.summary,
+    'history.summary',
+    sourceName,
+    supportedLocales,
+  );
   requireText(issues, history.rust_contrast, 'history.rust_contrast', sourceName);
 }
 
@@ -128,7 +178,12 @@ function validateRustPlan(issues, rust, sourceName) {
   requireText(issues, rust.expected_output, 'rust.expected_output', sourceName);
 }
 
-function validateVisualization(issues, visualization, sourceName) {
+function validateVisualization(
+  issues,
+  visualization,
+  sourceName,
+  supportedLocales,
+) {
   if (!isObject(visualization)) {
     issues.push(sourceName + ': visualization must be an object');
     return;
@@ -143,6 +198,7 @@ function validateVisualization(issues, visualization, sourceName) {
     visualization.rationale,
     'visualization.rationale',
     sourceName,
+    supportedLocales,
   );
   if (
     visualization.decision === 'useful' &&
@@ -159,9 +215,12 @@ function validateVisualization(issues, visualization, sourceName) {
   }
 }
 
-function validateTerminology(issues, terminology, sourceName) {
+function validateTerminology(issues, terminology, sourceName, supportedLocales) {
   if (!Array.isArray(terminology) || terminology.length === 0) {
-    issues.push(sourceName + ': terminology must contain at least one bilingual term');
+    issues.push(
+      sourceName +
+        ': terminology must contain at least one term localized for every configured locale',
+    );
     return;
   }
   const concepts = new Set();
@@ -175,8 +234,16 @@ function validateTerminology(issues, terminology, sourceName) {
         sourceName + ': terminology[' + index + '].concept_id must be kebab-case',
       );
     }
-    requireText(issues, term.en, 'terminology[' + index + '].en', sourceName);
-    requireText(issues, term.ru, 'terminology[' + index + '].ru', sourceName);
+    const localizedTerm = Object.fromEntries(
+      Object.entries(term).filter(([key]) => key !== 'concept_id'),
+    );
+    requireLocalizedText(
+      issues,
+      localizedTerm,
+      'terminology[' + index + ']',
+      sourceName,
+      supportedLocales,
+    );
     if (concepts.has(term.concept_id)) {
       issues.push(
         sourceName + ': duplicate terminology concept_id "' + term.concept_id + '"',
@@ -229,7 +296,11 @@ export function extractContractSectionMarkers(body) {
 
 export function validateChapterContractText(
   source,
-  { sourceName = 'chapter contract', filePath } = {},
+  {
+    sourceName = 'chapter contract',
+    filePath,
+    supportedLocales = SUPPORTED_LOCALES,
+  } = {},
 ) {
   const parsed = parseJsonFrontmatter(source, sourceName);
   const data = parsed.data;
@@ -248,19 +319,37 @@ export function validateChapterContractText(
     issues.push(sourceName + ': order must be a positive integer');
   }
 
-  requireLocalizedText(issues, data.objective, 'objective', sourceName);
-  requireLocalizedText(issues, data.worked_inputs, 'worked_inputs', sourceName);
-  validateFormula(issues, data.formula, sourceName);
-  validateHistory(issues, data.history, sourceName);
+  requireLocalizedText(
+    issues,
+    data.objective,
+    'objective',
+    sourceName,
+    supportedLocales,
+  );
+  requireLocalizedText(
+    issues,
+    data.worked_inputs,
+    'worked_inputs',
+    sourceName,
+    supportedLocales,
+  );
+  validateFormula(issues, data.formula, sourceName, supportedLocales);
+  validateHistory(issues, data.history, sourceName, supportedLocales);
   validateRustPlan(issues, data.rust, sourceName);
-  validateVisualization(issues, data.visualization, sourceName);
+  validateVisualization(
+    issues,
+    data.visualization,
+    sourceName,
+    supportedLocales,
+  );
   requireLocalizedText(
     issues,
     data.decoder_connection,
     'decoder_connection',
     sourceName,
+    supportedLocales,
   );
-  validateTerminology(issues, data.terminology, sourceName);
+  validateTerminology(issues, data.terminology, sourceName, supportedLocales);
   validateStringArray(issues, data.translation_notes, 'translation_notes', sourceName);
   validateAcceptanceExamples(issues, data.acceptance_examples, sourceName);
 
@@ -451,7 +540,11 @@ export function validateExpectedOutput(
 
 export function validateChapterContractIntegration(
   parsed,
-  { repositoryRoot, sourceName = 'chapter contract' },
+  {
+    repositoryRoot,
+    sourceName = 'chapter contract',
+    localeConfiguration = readLocaleConfiguration(repositoryRoot),
+  },
 ) {
   const contract = parsed.data;
   const issues = [];
@@ -504,7 +597,7 @@ export function validateChapterContractIntegration(
 
   const lessons = {};
   const diagrams = {};
-  for (const locale of ['en', 'ru']) {
+  for (const locale of localeConfiguration.locales) {
     const lessonPath = nodePath.join(
       repositoryRoot,
       'site/src/content/chapters',
@@ -521,6 +614,7 @@ export function validateChapterContractIntegration(
       filePath: lessonPath,
       repositoryRoot,
       checkSourceFiles: true,
+      supportedLocales: localeConfiguration.locales,
     });
     lessons[locale] = lesson;
     diagrams[locale] = validateContractLesson(
@@ -539,14 +633,23 @@ export function validateChapterContractIntegration(
     }
   }
 
-  validateChapterPair(lessons.en, lessons.ru);
-  if (diagrams.en !== diagrams.ru) {
+  validateChapterLocaleSet(
+    Object.values(lessons),
+    localeConfiguration.locales,
+    localeConfiguration.defaultLocale,
+  );
+  const diagramPaths = new Set(Object.values(diagrams));
+  if (diagramPaths.size !== 1) {
     throw new ContentValidationError([
-      sourceName + ': English and Russian lessons must invoke the same visualization component',
+      sourceName + ': all localized lessons must invoke the same visualization component',
     ], 'Chapter integration validation failed');
   }
 
-  return { lessons, visualizationComponent: diagrams.en, expectedPath };
+  return {
+    lessons,
+    visualizationComponent: diagrams[localeConfiguration.defaultLocale],
+    expectedPath,
+  };
 }
 
 function defaultContractPaths(repositoryRoot) {
@@ -563,6 +666,7 @@ export function runChapterContractCheck(
   cwd = process.cwd(),
 ) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
+  const localeConfiguration = readLocaleConfiguration(repositoryRoot);
   const structureOnly = args.includes('--structure-only');
   const unknownOptions = args.filter(
     (argument) => argument.startsWith('--') && argument !== '--structure-only',
@@ -583,12 +687,14 @@ export function runChapterContractCheck(
     const parsed = validateChapterContractText(readFileSync(filePath, 'utf8'), {
       sourceName: nodePath.relative(repositoryRoot, filePath),
       filePath,
+      supportedLocales: localeConfiguration.locales,
     });
     const integration = structureOnly
       ? null
       : validateChapterContractIntegration(parsed, {
           repositoryRoot,
           sourceName: nodePath.relative(repositoryRoot, filePath),
+          localeConfiguration,
         });
     return { parsed, integration };
   });

@@ -7,6 +7,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 import {
   chapterLocales,
+  chapterLocaleDefinitions,
   chapterPath,
   chapterTag,
   expectLocalizedChapterRoute,
@@ -49,8 +50,6 @@ const expectedRustSources = [
 
 const copy = {
   en: {
-    alternateLocale: 'ru',
-    alternateLanguage: 'Русский',
     indexTitle: 'From text to a tiny language model',
     indexRevision: 'Content revision',
     chapterTitle: 'Text units and vocabulary IDs',
@@ -83,8 +82,6 @@ const copy = {
     exerciseAnswer: 'The ID sequences are [3, 2, 4] and [5, 6, 7].',
   },
   ru: {
-    alternateLocale: 'en',
-    alternateLanguage: 'English',
     indexTitle: 'От текста до небольшой языковой модели',
     indexRevision: 'Версия материала',
     chapterTitle: 'Единицы текста и идентификаторы токенов',
@@ -117,7 +114,7 @@ const copy = {
     exerciseAnswer:
       'Последовательности идентификаторов: [3, 2, 4] и [5, 6, 7].',
   },
-} as const;
+} as const satisfies Record<ChapterLocale, unknown>;
 
 async function expectChapterContent(
   page: Page,
@@ -128,11 +125,11 @@ async function expectChapterContent(
   const localized = copy[locale];
 
   await expectLocalizedChapterRoute(page, {
-    alternateLanguage: localized.alternateLanguage,
     chapterId,
     locale,
     order: 1,
     revision: contentRevision,
+    revisionLabel: localized.revisionLabel,
     title: localized.chapterTitle,
   });
   await expect(page.locator('.lesson-objective strong')).toHaveText(
@@ -145,6 +142,7 @@ async function expectChapterContent(
   const displayedFormula = page.locator('.katex-display');
   await expect(displayedFormula).toHaveCount(1);
   await expect(displayedFormula).toBeVisible();
+  await expect(displayedFormula).toHaveCSS('direction', 'ltr');
   await expect(
     displayedFormula.locator('annotation[encoding="application/x-tex"]'),
   ).toHaveText(formulaLatex);
@@ -162,11 +160,11 @@ async function expectChapterContent(
     'pre.rust-source-code.astro-code.github-dark-high-contrast[data-language="rust"]',
   );
   await expect(highlightedRust).toHaveCount(4);
-  await expect(
-    page.locator(
-      '.lesson-body pre.astro-code.github-dark-high-contrast[data-language="text"]',
-    ),
-  ).toHaveCount(1);
+  const fencedOutput = page.locator(
+    '.lesson-body pre.astro-code.github-dark-high-contrast[data-language="text"]',
+  );
+  await expect(fencedOutput).toHaveCount(1);
+  await expect(fencedOutput).toHaveAttribute('dir', 'ltr');
   const highlightingEvidence = await highlightedRust.evaluateAll((blocks) =>
     blocks.map((block) => ({
       lineCount: block.querySelectorAll('code > span.line').length,
@@ -181,6 +179,7 @@ async function expectChapterContent(
       ],
       tabIndex: block.getAttribute('tabindex'),
       label: block.getAttribute('aria-label'),
+      direction: block.getAttribute('dir'),
     })),
   );
   for (const evidence of highlightingEvidence) {
@@ -188,6 +187,7 @@ async function expectChapterContent(
     expect(evidence.tokenColors.length).toBeGreaterThan(1);
     expect(evidence.tabIndex).toBe('0');
     expect(evidence.label).toBeTruthy();
+    expect(evidence.direction).toBe('ltr');
   }
   expect(
     await highlightedRust.locator('code').evaluateAll((blocks) =>
@@ -250,7 +250,21 @@ async function expectChapterContent(
     ).toBeVisible();
   }
   await expect(diagram.locator('.text-units-pipeline')).toHaveCount(2);
+  expect(
+    await diagram.locator('.text-units-pipeline').evaluateAll((pipelines) =>
+      pipelines.map((pipeline) => pipeline.getAttribute('dir')),
+    ),
+  ).toEqual(['ltr', 'ltr']);
   await expect(diagram.locator('.pipeline-stage')).toHaveCount(8);
+  expect(
+    await diagram.locator('code').evaluateAll((blocks) =>
+      blocks.every(
+        (block) =>
+          block.getAttribute('dir') === 'ltr' &&
+          window.getComputedStyle(block).direction === 'ltr',
+      ),
+    ),
+  ).toBe(true);
   for (const stage of localized.diagramStages) {
     await expect(
       diagram.getByRole('heading', { level: 4, name: stage }),
@@ -307,17 +321,28 @@ async function expectChapterContent(
 }
 
 test.describe(
-  'chapter 1 bilingual vertical slice',
+  'chapter 1 localized vertical slice',
   { tag: chapterTag(chapterId) },
   () => {
     test('chapter 1 course indexes and locale switch preserve the lesson route', async ({
       page,
-    }) => {
+      }) => {
       for (const locale of chapterLocales) {
         const localized = copy[locale];
+        const localeDefinition = chapterLocaleDefinitions.find(
+          ({ code }) => code === locale,
+        );
+        expect(localeDefinition).toBeDefined();
         const chapters = await readOrderedCourseChapters(page, locale);
 
-        await expect(page.locator('html')).toHaveAttribute('lang', locale);
+        await expect(page.locator('html')).toHaveAttribute(
+          'lang',
+          localeDefinition?.languageTag ?? '',
+        );
+        await expect(page.locator('html')).toHaveAttribute(
+          'dir',
+          localeDefinition?.direction ?? '',
+        );
         await expect(
           page.getByRole('heading', { level: 1, name: localized.indexTitle }),
         ).toBeVisible();
@@ -333,18 +358,24 @@ test.describe(
             exact: true,
           }),
         ).toBeVisible();
-        await expect(
-          page.locator(`link[rel="alternate"][hreflang="${locale}"]`),
-        ).toHaveAttribute('href', `/${locale}/course/`);
-        await expect(
-          page.locator(
-            `link[rel="alternate"][hreflang="${localized.alternateLocale}"]`,
-          ),
-        ).toHaveAttribute('href', `/${localized.alternateLocale}/course/`);
-        await expect(page.locator('.locale-switch a')).toHaveAttribute(
-          'href',
-          `/${localized.alternateLocale}/course/`,
-        );
+        for (const alternate of chapterLocaleDefinitions) {
+          await expect(
+            page.locator(
+              `link[rel="alternate"][hreflang="${alternate.languageTag}"]`,
+            ),
+          ).toHaveAttribute('href', `/${alternate.code}/course/`);
+          const switchLink = page.locator(
+            `.locale-switch a[data-locale="${alternate.code}"]`,
+          );
+          if (alternate.code === locale) {
+            await expect(switchLink).toHaveCount(0);
+          } else {
+            await expect(switchLink).toHaveAttribute(
+              'href',
+              `/${alternate.code}/course/`,
+            );
+          }
+        }
 
         const chapterLink = page.getByRole('link', {
           name: localized.chapterTitle,
@@ -355,35 +386,40 @@ test.describe(
         );
         await chapterLink.click();
         await expectLocalizedChapterRoute(page, {
-          alternateLanguage: localized.alternateLanguage,
           chapterId,
           locale,
           order: 1,
           revision: contentRevision,
+          revisionLabel: localized.revisionLabel,
           title: localized.chapterTitle,
         });
         await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
         await expectNoOverflowOrClientScripts(page);
       }
 
-      await page.goto(chapterPath('en', chapterId));
-      await page.getByRole('link', { name: copy.en.alternateLanguage }).click();
-      await expect(page).toHaveURL(
-        new RegExp(`${chapterPath('ru', chapterId)}$`),
-      );
-      await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-      await expect(
-        page.getByRole('heading', { level: 1, name: copy.ru.chapterTitle }),
-      ).toBeVisible();
-
-      await page.getByRole('link', { name: copy.ru.alternateLanguage }).click();
-      await expect(page).toHaveURL(
-        new RegExp(`${chapterPath('en', chapterId)}$`),
-      );
-      await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-      await expect(
-        page.getByRole('heading', { level: 1, name: copy.en.chapterTitle }),
-      ).toBeVisible();
+      for (const source of chapterLocaleDefinitions) {
+        for (const target of chapterLocaleDefinitions.filter(
+          ({ code }) => code !== source.code,
+        )) {
+          await page.goto(chapterPath(source.code, chapterId));
+          await page
+            .locator(`.locale-switch a[data-locale="${target.code}"]`)
+            .click();
+          await expect(page).toHaveURL(
+            new RegExp(`${chapterPath(target.code, chapterId)}$`),
+          );
+          await expect(page.locator('html')).toHaveAttribute(
+            'lang',
+            target.languageTag,
+          );
+          await expect(
+            page.getByRole('heading', {
+              level: 1,
+              name: copy[target.code].chapterTitle,
+            }),
+          ).toBeVisible();
+        }
+      }
     });
 
     for (const locale of chapterLocales) {

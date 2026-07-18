@@ -1,4 +1,4 @@
-# Bilingual chapter workflow
+# Localized chapter workflow
 
 The reviewed [complete course plan](course-plan.md) is the scheduling source for
 all remaining chapters. It fixes the target architecture, prerequisite order,
@@ -13,13 +13,13 @@ small causal Transformer.
 
 ## One chapter is one delivery step
 
-A chapter step owns the whole bilingual vertical slice:
+A chapter step owns the whole localized vertical slice:
 
 1. freeze its contract and tiny worked example in the run staging directory;
 2. implement and test the reusable Rust concept;
 3. add the runnable historical contrast and deterministic expected output;
 4. implement a useful visualization, or record why one would not help;
-5. author English and Russian lessons together;
+5. author the lessons for every locale in `site/src/i18n/locales.json` together;
 6. validate the formula, terminology, Rust evidence, localization, static routes,
    links, accessibility, responsive rendering, and focused browser behavior;
 7. publish the complete slice atomically, finalize its build checkpoint, and
@@ -37,9 +37,10 @@ before writing code or lesson prose.
 
 ## Why the metadata is strict
 
-English and Russian lessons are separate authored files, but they describe the
-same executable concept. A stable `chapter_id` and `content_revision` connect the
-pair. The following fields are locale-neutral and must match exactly:
+Localized lessons are separate authored files, but they describe the same
+executable concept. A stable `chapter_id` and `content_revision` connect the
+complete translation set. The following fields are locale-neutral and must match
+exactly:
 
 - `chapter_id`, `content_revision`, `order`, and `concept_id`;
 - the formula and ordered mathematical symbols;
@@ -49,9 +50,9 @@ pair. The following fields are locale-neutral and must match exactly:
 
 Titles, descriptions, objectives, symbol meanings, historical explanations,
 captions, exercises, and other prose are localized. The content gate rejects a
-pair when a shared field or revision differs. An individually valid lesson may
-remain in source for review, but the course index and static chapter route omit it
-until its matching translation is complete.
+translation set when a shared field or revision differs. An individually valid
+lesson may remain in source for review, but the course index and static chapter
+route omit it until every configured translation is complete.
 
 The contract is also authoritative for each locale's objective, worked-input
 commitment, symbol meanings, historical approach and summary, visualization
@@ -62,24 +63,24 @@ derived from the contiguous curriculum/chapters files, never from a manually
 updated chapter counter in the plan.
 
 Shared formulas must contain notation only. Put words such as “when,” “otherwise,”
-or their Russian equivalents in the localized explanation or symbol glossary, not
-inside shared LaTeX.
+or their localized equivalents in the explanation or symbol glossary, not inside
+shared LaTeX.
 
 ## Contract format
 
-Contract and lesson frontmatter uses a JSON object between Markdown frontmatter
+Contract and lesson frontmatter use a JSON object between Markdown frontmatter
 delimiters. JSON is valid YAML, so Astro reads it normally, while the standalone
 repository checks can parse it without a second YAML dependency.
 
 Each contract records:
 
-1. one bilingual observable objective and tiny worked inputs;
-2. the formula plus a bilingual symbol glossary;
+1. one localized observable objective and tiny worked inputs;
+2. the formula plus a symbol glossary localized for every configured locale;
 3. the historical approach and planned Rust contrast;
 4. the Cargo package, source files, and deterministic expected output;
 5. a useful visualization plan or a not-useful rationale;
 6. exercises, the cumulative-decoder connection, and acceptance examples; and
-7. bilingual terminology and translation notes.
+7. terminology for every configured locale and translation notes.
 
 For Chapter 2 onward, `rust.sources` must include
 `rust/crates/llm-from-scratch/src/<primary_module>` from the reviewed plan as well
@@ -101,30 +102,44 @@ exercise section pairs predict-first questions with checked answers.
 
 ## Lesson locations and publication
 
-Place lesson sources at:
+For every locale code in `site/src/i18n/locales.json`, place the lesson source at:
 
-    site/src/content/chapters/en/NN-slug.mdx
-    site/src/content/chapters/ru/NN-slug.mdx
+    site/src/content/chapters/<locale>/NN-slug.mdx
 
 The filename, directory locale, and frontmatter must agree. Astro validates
 frontmatter through `site/src/content.config.ts`. The deterministic content check
-also verifies section order and evidence, catalog parity, paired shared fields,
-source existence, literal `RustSource` references, and an exact one-to-one mapping
-between the published bilingual prefix and implemented contracts.
+also verifies section order and evidence, catalog parity, shared fields across the
+complete locale set, source existence, literal `RustSource` references, and an
+exact one-to-one mapping between the published localized prefix and implemented
+contracts.
 
-Only a complete, same-revision English/Russian pair is returned by the static
-course route. Both locale indexes always exist, even before the first lesson is
-publishable.
+Only a complete, same-revision translation set is returned by the static course
+route. Every configured locale index always exists, even before the first lesson
+is publishable.
+
+### Adding a locale after chapters are complete
+
+Do not rewrite a completed chapter step. Add one locale-activation step to the
+course plan's `scheduling.cross_cutting_steps` immediately before the first pending
+chapter. If every chapter is already complete, position it after the final chapter
+instead. That step owns the new catalog, localized contract fields, lesson files,
+and browser expectations for every already-implemented chapter. Add the new
+locale's concrete lesson output and `check:chapter` command only to pending chapter
+steps. The plan gate accepts either explicit placement, requires the current
+manifest locale set for pending, running, or blocked work, and preserves the
+historical declared locale set of immutable completed, skipped, or invalidated
+steps.
 
 Useful diagram names are derived from the chapter slug: `NN-foo-bar` must use
-`site/src/components/chapters/FooBarDiagram.astro` in both locales. This keeps the
+`site/src/components/chapters/FooBarDiagram.astro` in every locale. This keeps the
 plan, ledger output, import path, and rendered chapter-specific visualization on
 one deterministic identity.
 
 ## Rust source inclusion
 
 Lesson code must use the `RustSource` component with a literal path already listed
-in `rust_sources`. Allowed files are restricted to:
+in `rust_sources`, plus localized literal `caption` and accessible `label` props.
+Allowed files are restricted to:
 
     rust/crates/llm-from-scratch/src/**/*.rs
     rust/demos/<package>/src/**/*.rs
@@ -152,8 +167,7 @@ From the repository root, the standard chapter gate is:
     scripts/check-rust-dependencies.sh
     scripts/check-rust-demos.sh
     cargo run --quiet --locked -p chNN-slug | diff -u rust/demos/chNN-slug/expected.txt -
-    npm --prefix site run check:chapter -- --locale en --chapter NN-slug
-    npm --prefix site run check:chapter -- --locale ru --chapter NN-slug
+    npm --prefix site run check:chapter -- --locale LOCALE_CODE --chapter NN-slug
     npm --prefix site run check:parity -- --chapter NN-slug
     npm --prefix site run check:content
     npm --prefix site run check
@@ -163,7 +177,8 @@ From the repository root, the standard chapter gate is:
     npm --prefix site run test:e2e -- --grep '@chapter:NN-slug'
     npm --prefix site run test:e2e
 
-The chapter command validates one locale without requiring its partner. The
+Repeat the chapter command for every locale in `site/src/i18n/locales.json`; it
+validates one lesson without requiring the rest of its translation set. The
 parity and full-content commands are publication gates. The static-link command
 audits every built local link, stylesheet/font/image reference, HTML language,
 and `hreflang` target. Focused browser checks diagnose the new chapter; the full

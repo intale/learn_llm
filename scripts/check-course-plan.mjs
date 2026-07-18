@@ -4,6 +4,11 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  LOCALE_CONFIGURATION,
+  SUPPORTED_LOCALES,
+} from "./locale-config.mjs";
+
 const REQUIRED_CHAPTER_FIELDS = [
   "Chapter ID",
   "Implementation step",
@@ -118,14 +123,18 @@ function scalarField(step, field) {
   return match ? unquoteYamlScalar(match[1]) : null;
 }
 
-export function validateCoursePlanText(source, path = "curriculum/course-plan.md") {
+export function validateCoursePlanText(
+  source,
+  path = "curriculum/course-plan.md",
+  localeConfiguration = LOCALE_CONFIGURATION,
+) {
   const { metadata, body } = parseFrontmatter(source, path);
   const chapters = metadata.chapters;
 
   assert(metadata.plan_id === "tiny-decoder-llm-rust", `${path}: unexpected plan_id`);
   assert(
-    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 4,
-    `${path}: plan_revision must include the static Rust-highlighting prerequisite`,
+    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 6,
+    `${path}: plan_revision must include extensible locale activation placement`,
   );
   assert(Array.isArray(chapters), `${path}: chapters must be an array`);
   assert(metadata.chapter_count === chapters.length, `${path}: chapter_count does not match chapters`);
@@ -135,18 +144,66 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
     `${path}: implementation state must be derived from curriculum/chapters`,
   );
   assert(
+    metadata.localization_registry === "site/src/i18n/locales.json",
+    `${path}: localization_registry must name the shared locale manifest`,
+  );
+  assert(
     metadata.chapter_1_disposition?.status === "complete" &&
       metadata.chapter_1_disposition?.step_id === "revise-ch01-language-neutral-formula",
     `${path}: chapter 1 must record its completed revision-2 disposition`,
   );
-  assert(metadata.scheduling?.default?.includes("one complete bilingual chapter"), `${path}: missing one-step-per-chapter scheduling rule`);
   assert(
-    JSON.stringify(metadata.scheduling?.pre_chapter_2_steps) ===
-      JSON.stringify([
-        "establish-scalable-chapter-delivery",
-        "add-static-rust-syntax-highlighting",
-      ]),
-    `${path}: pre-Chapter-2 prerequisites must include delivery hardening and static Rust highlighting`,
+    metadata.scheduling?.default?.includes(
+      "one complete localized chapter translation set",
+    ),
+    `${path}: missing one-step-per-chapter scheduling rule`,
+  );
+  const crossCuttingSteps = metadata.scheduling?.cross_cutting_steps;
+  assert(
+    Array.isArray(crossCuttingSteps),
+    `${path}: scheduling.cross_cutting_steps must be an array`,
+  );
+  const crossCuttingIds = crossCuttingSteps.map((step) => step?.step_id);
+  unique(crossCuttingIds, "cross-cutting step_id");
+  for (const step of crossCuttingSteps) {
+    assert(
+      typeof step?.step_id === "string" && CONCEPT_ID_PATTERN.test(step.step_id),
+      `${path}: invalid cross-cutting step_id`,
+    );
+    const placementKeys = ["before_chapter", "after_chapter"].filter(
+      (key) => typeof step[key] === "string",
+    );
+    assert(
+      placementKeys.length === 1,
+      `${path}: ${step.step_id} must declare exactly one of before_chapter or after_chapter`,
+    );
+    const placementKey = placementKeys[0];
+    const target = chapters.find(
+      (chapter) => chapter.chapter_id === step[placementKey],
+    );
+    assert(
+      target,
+      `${path}: ${step.step_id} must name a valid ${placementKey}`,
+    );
+  }
+  for (const required of [
+    "establish-scalable-chapter-delivery",
+    "add-static-rust-syntax-highlighting",
+    "generalize-localization-infrastructure",
+  ]) {
+    assert(
+      crossCuttingSteps.some(
+        (step) =>
+          step.step_id === required &&
+          step.before_chapter === "02-corpus-partitions",
+      ),
+      `${path}: required cross-cutting prerequisites are incomplete`,
+    );
+  }
+  assert(
+    localeConfiguration.locales.length > 0 &&
+      localeConfiguration.locales.includes(localeConfiguration.defaultLocale),
+    `${path}: locale configuration must include its reference locale`,
   );
   assert(Array.isArray(metadata.scheduling?.planned_chapter_splits), `${path}: planned_chapter_splits must be an array`);
   assert(Array.isArray(metadata.scheduling?.split_requires) && metadata.scheduling.split_requires.length >= 4, `${path}: split criteria are incomplete`);
@@ -245,16 +302,31 @@ export function validateCoursePlanText(source, path = "curriculum/course-plan.md
   return metadata;
 }
 
-export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STATE.yaml") {
+export function deriveScheduledStepIds(metadata) {
+  const expectedIds = ["define-complete-curriculum"];
+  for (const chapter of metadata.chapters) {
+    expectedIds.push(
+      ...metadata.scheduling.cross_cutting_steps
+        .filter((step) => step.before_chapter === chapter.chapter_id)
+        .map((step) => step.step_id),
+      chapter.implementation_step,
+      ...metadata.scheduling.cross_cutting_steps
+        .filter((step) => step.after_chapter === chapter.chapter_id)
+        .map((step) => step.step_id),
+    );
+  }
+  return expectedIds;
+}
+
+export function validateLedgerText(
+  stateSource,
+  metadata,
+  statePath = "BUILD_STATE.yaml",
+  localeConfiguration = LOCALE_CONFIGURATION,
+) {
   const build = extractBuild(stateSource, "complete-decoder-course", statePath);
   const steps = extractSteps(build, statePath);
-  const chapterSteps = metadata.chapters.map((chapter) => chapter.implementation_step);
-  const expectedIds = [
-    "define-complete-curriculum",
-    chapterSteps[0],
-    ...metadata.scheduling.pre_chapter_2_steps,
-    ...chapterSteps.slice(1),
-  ];
+  const expectedIds = deriveScheduledStepIds(metadata);
 
   assert(
     JSON.stringify(steps.map((step) => step.id)) === JSON.stringify(expectedIds),
@@ -294,6 +366,10 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
       inputs.includes(`curriculum/chapters/${previousChapter.chapter_id}.md`),
       `${statePath}: ${step.id} does not consume its predecessor contract`,
     );
+    assert(
+      inputs.includes(metadata.localization_registry),
+      `${statePath}: ${step.id} does not consume ${metadata.localization_registry}`,
+    );
     const outputs = listField(step, "outputs") ?? [];
     const id = chapter.chapter_id;
     const demo = `ch${id}`;
@@ -302,12 +378,25 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
       `rust/crates/llm-from-scratch/src/${chapter.primary_module}`,
       "rust/crates/llm-from-scratch/src/lib.rs",
       `rust/demos/${demo}/`,
-      `site/src/content/chapters/en/${id}.mdx`,
-      `site/src/content/chapters/ru/${id}.mdx`,
       `site/tests/e2e/ch${id}.spec.ts`,
     ]) {
       assert(outputs.includes(required), `${statePath}: ${step.id} does not own ${required}`);
     }
+    const lessonPrefix = "site/src/content/chapters/";
+    const lessonSuffix = `/${id}.mdx`;
+    const outputLocales = outputs
+      .filter(
+        (output) =>
+          output.startsWith(lessonPrefix) && output.endsWith(lessonSuffix),
+      )
+      .map((output) =>
+        output.slice(lessonPrefix.length, -lessonSuffix.length),
+      );
+    assert(
+      outputLocales.length > 0 &&
+        new Set(outputLocales).size === outputLocales.length,
+      `${statePath}: ${step.id} must own exactly one lesson output per declared locale`,
+    );
     if (chapter.primary_module) {
       const cumulativeSource =
         `rust/crates/llm-from-scratch/src/${chapter.primary_module}`;
@@ -335,12 +424,34 @@ export function validateLedgerText(stateSource, metadata, statePath = "BUILD_STA
     for (const required of [
       `npm --prefix site run check:contract -- ../curriculum/chapters/${id}.md`,
       "scripts/check-rust-demos.sh",
-      `npm --prefix site run check:chapter -- --locale en --chapter ${id}`,
-      `npm --prefix site run check:chapter -- --locale ru --chapter ${id}`,
       `npm --prefix site run check:parity -- --chapter ${id}`,
       `npm --prefix site run test:e2e -- --grep '@chapter:${id}'`,
     ]) {
       assert(validation.includes(required), `${statePath}: ${step.id} is missing validation "${required}"`);
+    }
+    const validationPrefix =
+      "npm --prefix site run check:chapter -- --locale ";
+    const validationSuffix = ` --chapter ${id}`;
+    const validationLocales = validation
+      .filter(
+        (command) =>
+          command.startsWith(validationPrefix) &&
+          command.endsWith(validationSuffix),
+      )
+      .map((command) =>
+        command.slice(validationPrefix.length, -validationSuffix.length),
+      );
+    assert(
+      JSON.stringify([...validationLocales].sort()) ===
+        JSON.stringify([...outputLocales].sort()),
+      `${statePath}: ${step.id} lesson outputs and per-locale checks differ`,
+    );
+    if (["pending", "running", "blocked"].includes(step.status)) {
+      assert(
+        JSON.stringify([...outputLocales].sort()) ===
+          JSON.stringify([...localeConfiguration.locales].sort()),
+        `${statePath}: ${step.id} active locale outputs must be exactly ${localeConfiguration.locales.join(", ")}`,
+      );
     }
   }
 
@@ -351,6 +462,7 @@ export function validateImplementedContracts(
   metadata,
   contracts,
   path = "curriculum/chapters",
+  supportedLocales = SUPPORTED_LOCALES,
 ) {
   assert(Array.isArray(contracts) && contracts.length > 0, `${path}: expected at least one implemented contract`);
   const ordered = [...contracts].sort(
@@ -390,10 +502,20 @@ export function validateImplementedContracts(
 
     for (const term of data.terminology) {
       assert(CONCEPT_ID_PATTERN.test(term.concept_id), `${contract.path}: invalid terminology concept_id`);
-      const normalized = {
-        en: String(term.en ?? "").normalize("NFC").trim(),
-        ru: String(term.ru ?? "").normalize("NFC").trim(),
-      };
+      const actualLocaleKeys = Object.keys(term)
+        .filter((key) => key !== "concept_id")
+        .sort();
+      const expectedLocaleKeys = [...supportedLocales].sort();
+      assert(
+        JSON.stringify(actualLocaleKeys) === JSON.stringify(expectedLocaleKeys),
+        `${contract.path}: terminology concept_id "${term.concept_id}" locale keys must be exactly ${expectedLocaleKeys.join(", ")}`,
+      );
+      const normalized = Object.fromEntries(
+        supportedLocales.map((locale) => [
+          locale,
+          String(term[locale] ?? "").normalize("NFC").trim(),
+        ]),
+      );
       const prior = terminology.get(term.concept_id);
       assert(
         !prior || JSON.stringify(prior) === JSON.stringify(normalized),
@@ -427,10 +549,17 @@ function main() {
   const planPath = resolve(root, argumentValue("--plan", "curriculum/course-plan.md"));
   const statePath = resolve(root, argumentValue("--state", "BUILD_STATE.yaml"));
   const metadata = validateCoursePlanText(readFileSync(planPath, "utf8"), planPath);
-  const steps = validateLedgerText(readFileSync(statePath, "utf8"), metadata, statePath);
+  const steps = validateLedgerText(
+    readFileSync(statePath, "utf8"),
+    metadata,
+    statePath,
+    LOCALE_CONFIGURATION,
+  );
   const contracts = validateImplementedContracts(
     metadata,
     readImplementedContracts(root),
+    "curriculum/chapters",
+    LOCALE_CONFIGURATION.locales,
   );
   const implementedThrough = contracts.at(-1).data.chapter_id;
   process.stdout.write(

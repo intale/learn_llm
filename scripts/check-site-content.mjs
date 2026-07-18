@@ -4,7 +4,13 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import nodePath from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const SUPPORTED_LOCALES = Object.freeze(['en', 'ru']);
+import {
+  REFERENCE_LOCALE,
+  SUPPORTED_LOCALES,
+  readLocaleConfiguration,
+} from './locale-config.mjs';
+
+export { REFERENCE_LOCALE, SUPPORTED_LOCALES } from './locale-config.mjs';
 
 export const REQUIRED_CHAPTER_SECTIONS = Object.freeze([
   'worked-example',
@@ -293,10 +299,14 @@ function validateChapterSections(data, body, issues, sourceName) {
 
 function literalAttribute(tag, name) {
   const patterns = [
-    new RegExp('\\b' + name + '\\s*=\\s*"([^"]*)"'),
-    new RegExp("\\b" + name + "\\s*=\\s*'([^']*)'"),
-    new RegExp('\\b' + name + '\\s*=\\s*\\{\\s*"([^"]*)"\\s*\\}'),
-    new RegExp("\\b" + name + "\\s*=\\s*\\{\\s*'([^']*)'\\s*\\}"),
+    new RegExp('(?:^|\\s)' + name + '\\s*=\\s*"([^"]*)"'),
+    new RegExp("(?:^|\\s)" + name + "\\s*=\\s*'([^']*)'"),
+    new RegExp(
+      '(?:^|\\s)' + name + '\\s*=\\s*\\{\\s*"([^"]*)"\\s*\\}',
+    ),
+    new RegExp(
+      "(?:^|\\s)" + name + "\\s*=\\s*\\{\\s*'([^']*)'\\s*\\}",
+    ),
   ];
 
   for (const pattern of patterns) {
@@ -311,6 +321,8 @@ export function extractRustSourceReferences(body) {
   return [...body.matchAll(/<RustSource\b[^>]*\/?\s*>/g)].map((match) => ({
     path: literalAttribute(match[0], 'path'),
     region: literalAttribute(match[0], 'region'),
+    caption: literalAttribute(match[0], 'caption'),
+    label: literalAttribute(match[0], 'label'),
     tag: match[0],
   }));
 }
@@ -436,14 +448,22 @@ function validateVisualization(visualization, issues, sourceName) {
   }
 }
 
-export function validateChapterMetadata(data, sourceName = 'chapter') {
+export function validateChapterMetadata(
+  data,
+  sourceName = 'chapter',
+  supportedLocales = SUPPORTED_LOCALES,
+) {
   const issues = [];
 
   if (!hasText(data.chapter_id) || !CHAPTER_ID_PATTERN.test(data.chapter_id)) {
     issues.push(sourceName + ': chapter_id must match NN-lowercase-kebab-case');
   }
-  if (!SUPPORTED_LOCALES.includes(data.locale)) {
-    issues.push(sourceName + ': locale must be exactly "en" or "ru"');
+  if (!supportedLocales.includes(data.locale)) {
+    issues.push(
+      sourceName +
+        ': locale must be configured; expected one of ' +
+        supportedLocales.join(', '),
+    );
   }
   if (!Number.isInteger(data.content_revision) || data.content_revision < 1) {
     issues.push(sourceName + ': content_revision must be a positive integer');
@@ -499,11 +519,15 @@ function sourceIdentity(source) {
   return source.path + '#' + (source.region ?? '');
 }
 
-function validateFileLocation(data, filePath, issues) {
+function validateFileLocation(data, filePath, issues, supportedLocales) {
   const normalized = normalizedRelativePath(filePath);
-  const match = normalized.match(/\/chapters\/(en|ru)\/([^/]+)\.mdx?$/);
+  const match = normalized.match(/\/chapters\/([^/]+)\/([^/]+)\.mdx?$/);
   if (!match) {
-    issues.push(filePath + ': chapter file must live under chapters/en or chapters/ru');
+    issues.push(filePath + ': chapter file must live under chapters/<configured-locale>');
+    return;
+  }
+  if (!supportedLocales.includes(match[1])) {
+    issues.push(filePath + ': directory locale "' + match[1] + '" is not configured');
     return;
   }
   if (match[1] !== data.locale) {
@@ -529,14 +553,15 @@ export function validateChapterDocument(
     filePath,
     repositoryRoot,
     checkSourceFiles = true,
+    supportedLocales = SUPPORTED_LOCALES,
   } = {},
 ) {
   const parsed = parseJsonFrontmatter(source, sourceName);
-  validateChapterMetadata(parsed.data, sourceName);
+  validateChapterMetadata(parsed.data, sourceName, supportedLocales);
   const issues = [];
 
   if (filePath) {
-    validateFileLocation(parsed.data, filePath, issues);
+    validateFileLocation(parsed.data, filePath, issues, supportedLocales);
   }
 
   const markers = extractChapterSectionMarkers(parsed.body);
@@ -579,6 +604,12 @@ export function validateChapterDocument(
           reference.region +
           '" is not kebab-case',
       );
+    }
+    if (!hasText(reference.caption)) {
+      issues.push(sourceName + ': every <RustSource> caption must be localized literal text');
+    }
+    if (!hasText(reference.label)) {
+      issues.push(sourceName + ': every <RustSource> label must be localized literal text');
     }
     const identity = reference.path + '#' + (reference.region ?? '');
     rendered.add(identity);
@@ -656,39 +687,92 @@ export function sharedChapterData(data) {
   };
 }
 
-export function validateChapterPair(english, russian) {
+export function validateChapterLocaleSet(
+  documents,
+  requiredLocales = SUPPORTED_LOCALES,
+  referenceLocale = REFERENCE_LOCALE,
+) {
   const issues = [];
-  if (english.data.locale !== 'en' || russian.data.locale !== 'ru') {
-    issues.push('pair arguments must be ordered as English then Russian');
-  }
-  if (english.data.chapter_id !== russian.data.chapter_id) {
-    issues.push('paired chapter_id values differ');
-  }
-  if (english.data.content_revision !== russian.data.content_revision) {
-    issues.push(
-      english.data.chapter_id +
-        ': English revision ' +
-        english.data.content_revision +
-        ' differs from Russian revision ' +
-        russian.data.content_revision,
-    );
-  }
   if (
-    JSON.stringify(sharedChapterData(english.data)) !==
-    JSON.stringify(sharedChapterData(russian.data))
+    requiredLocales.length === 0 ||
+    new Set(requiredLocales).size !== requiredLocales.length ||
+    !requiredLocales.includes(referenceLocale)
   ) {
+    issues.push('required locales must be unique and include the reference locale');
+  }
+  const byLocale = {};
+  for (const locale of requiredLocales) {
+    const localized = documents.filter((document) => document.data.locale === locale);
+    if (localized.length !== 1) {
+      issues.push(
+        'expected exactly one ' + locale + ' source; found ' + localized.length,
+      );
+    } else {
+      byLocale[locale] = localized[0];
+    }
+  }
+  const unknown = documents.filter(
+    (document) => !requiredLocales.includes(document.data.locale),
+  );
+  if (unknown.length > 0) {
     issues.push(
-      english.data.chapter_id +
-        ': locale-neutral formula, source, visualization, order, or concept fields differ',
+      'translation set contains unconfigured locale(s): ' +
+        [...new Set(unknown.map((document) => document.data.locale))].join(', '),
     );
+  }
+
+  const reference = byLocale[referenceLocale];
+  if (reference) {
+    for (const locale of requiredLocales) {
+      const localized = byLocale[locale];
+      if (!localized || locale === referenceLocale) continue;
+      if (localized.data.chapter_id !== reference.data.chapter_id) {
+        issues.push('localized chapter_id values differ');
+      }
+      if (localized.data.content_revision !== reference.data.content_revision) {
+        issues.push(
+          reference.data.chapter_id +
+            ': ' +
+            referenceLocale +
+            ' revision ' +
+            reference.data.content_revision +
+            ' differs from ' +
+            locale +
+            ' revision ' +
+            localized.data.content_revision,
+        );
+      }
+      if (
+        JSON.stringify(sharedChapterData(localized.data)) !==
+        JSON.stringify(sharedChapterData(reference.data))
+      ) {
+        issues.push(
+          reference.data.chapter_id +
+            ': locale-neutral formula, source, visualization, order, or concept fields differ for ' +
+            locale,
+        );
+      }
+    }
   }
   if (issues.length > 0) {
-    throw new ContentValidationError(issues, 'Chapter parity validation failed');
+    throw new ContentValidationError(
+      issues,
+      'Localized chapter-set validation failed',
+    );
   }
-  return true;
+  return {
+    chapterId: reference.data.chapter_id,
+    revision: reference.data.content_revision,
+    reference,
+    byLocale: Object.freeze(byLocale),
+  };
 }
 
-export function findPublishablePairs(documents) {
+export function findPublishableChapterSets(
+  documents,
+  requiredLocales = SUPPORTED_LOCALES,
+  referenceLocale = REFERENCE_LOCALE,
+) {
   const groups = new Map();
   for (const document of documents) {
     const group = groups.get(document.data.chapter_id) ?? [];
@@ -696,55 +780,48 @@ export function findPublishablePairs(documents) {
     groups.set(document.data.chapter_id, group);
   }
 
-  const pairs = [];
-  for (const [chapterId, group] of groups) {
-    const english = group.filter((document) => document.data.locale === 'en');
-    const russian = group.filter((document) => document.data.locale === 'ru');
-    if (english.length !== 1 || russian.length !== 1) continue;
+  const sets = [];
+  for (const group of groups.values()) {
     try {
-      validateChapterPair(english[0], russian[0]);
-      pairs.push({
-        chapterId,
-        revision: english[0].data.content_revision,
-        en: english[0],
-        ru: russian[0],
-      });
+      sets.push(
+        validateChapterLocaleSet(group, requiredLocales, referenceLocale),
+      );
     } catch {
-      // Invalid or stale pairs are deliberately not publishable.
+      // Incomplete, duplicate, stale, or drifting sets are deliberately not publishable.
     }
   }
 
-  return pairs.sort(
+  return sets.sort(
     (left, right) =>
-      left.en.data.order - right.en.data.order ||
+      left.reference.data.order - right.reference.data.order ||
       left.chapterId.localeCompare(right.chapterId),
   );
 }
 
-export function validatePublishedChapterSequence(pairs) {
-  const ordered = [...pairs].sort(
+export function validatePublishedChapterSequence(sets) {
+  const ordered = [...sets].sort(
     (left, right) =>
-      left.en.data.order - right.en.data.order ||
+      left.reference.data.order - right.reference.data.order ||
       left.chapterId.localeCompare(right.chapterId),
   );
   const orders = new Set();
   const concepts = new Set();
   const issues = [];
 
-  ordered.forEach((pair, index) => {
+  ordered.forEach((set, index) => {
     const expectedOrder = index + 1;
     const expectedPrefix = String(expectedOrder).padStart(2, '0') + '-';
-    const order = pair.en.data.order;
-    const concept = pair.en.data.concept_id;
+    const order = set.reference.data.order;
+    const concept = set.reference.data.concept_id;
     if (orders.has(order)) {
       issues.push('duplicate published chapter order ' + order);
     }
     if (concepts.has(concept)) {
       issues.push('duplicate published concept_id "' + concept + '"');
     }
-    if (order !== expectedOrder || !pair.chapterId.startsWith(expectedPrefix)) {
+    if (order !== expectedOrder || !set.chapterId.startsWith(expectedPrefix)) {
       issues.push(
-        pair.chapterId +
+        set.chapterId +
           ': published chapters must form a contiguous ordered prefix; expected order ' +
           expectedOrder,
       );
@@ -759,8 +836,8 @@ export function validatePublishedChapterSequence(pairs) {
   return ordered;
 }
 
-export function validatePublishedContractSequence(pairs, contracts) {
-  const orderedPairs = validatePublishedChapterSequence(pairs);
+export function validatePublishedContractSequence(sets, contracts) {
+  const orderedSets = validatePublishedChapterSequence(sets);
   const orderedContracts = [...contracts].sort(
     (left, right) =>
       left.data.order - right.data.order ||
@@ -792,25 +869,25 @@ export function validatePublishedContractSequence(pairs, contracts) {
     contractConcepts.add(data.concept_id);
   });
 
-  if (orderedPairs.length !== orderedContracts.length) {
+  if (orderedSets.length !== orderedContracts.length) {
     issues.push(
-      'published bilingual lesson count ' +
-        orderedPairs.length +
+      'published localized lesson-set count ' +
+        orderedSets.length +
         ' differs from implemented contract count ' +
         orderedContracts.length,
     );
   }
 
-  const count = Math.max(orderedPairs.length, orderedContracts.length);
+  const count = Math.max(orderedSets.length, orderedContracts.length);
   for (let index = 0; index < count; index += 1) {
-    const pair = orderedPairs[index];
+    const set = orderedSets[index];
     const contract = orderedContracts[index]?.data;
-    if (!pair || !contract) continue;
+    if (!set || !contract) continue;
     const lessonIdentity = {
-      chapter_id: pair.chapterId,
-      content_revision: pair.en.data.content_revision,
-      order: pair.en.data.order,
-      concept_id: pair.en.data.concept_id,
+      chapter_id: set.chapterId,
+      content_revision: set.reference.data.content_revision,
+      order: set.reference.data.order,
+      concept_id: set.reference.data.concept_id,
     };
     const contractIdentity = {
       chapter_id: contract.chapter_id,
@@ -831,7 +908,7 @@ export function validatePublishedContractSequence(pairs, contracts) {
   if (issues.length > 0) {
     throw new ContentValidationError(issues, 'Published contract sequence failed');
   }
-  return orderedPairs;
+  return orderedSets;
 }
 
 function listFiles(directory) {
@@ -850,7 +927,10 @@ function listFiles(directory) {
   return files.sort();
 }
 
-export function readChapterDocuments(repositoryRoot) {
+export function readChapterDocuments(
+  repositoryRoot,
+  supportedLocales = SUPPORTED_LOCALES,
+) {
   const contentRoot = nodePath.join(repositoryRoot, 'site/src/content/chapters');
   return listFiles(contentRoot).map((filePath) =>
     validateChapterDocument(readFileSync(filePath, 'utf8'), {
@@ -858,6 +938,7 @@ export function readChapterDocuments(repositoryRoot) {
       filePath,
       repositoryRoot,
       checkSourceFiles: true,
+      supportedLocales,
     }),
   );
 }
@@ -879,44 +960,104 @@ export function readChapterContractSummaries(repositoryRoot) {
     });
 }
 
-function catalogKeys(source, locale, sourceName) {
+function messageSchemaKeys(source, sourceName) {
   const declaration = source.match(
-    new RegExp(
-      'export const ' + locale + '(?::[^=]+)?\\s*=\\s*\\{([\\s\\S]*?)\\n\\};',
-    ),
+    /export const messageKeys\s*=\s*\[([\s\S]*?)\]\s*as const;/,
   );
   if (!declaration) {
     throw new ContentValidationError([
-      sourceName + ': could not find the exported ' + locale + ' catalog object',
+      sourceName + ': could not find the messageKeys schema',
     ]);
   }
-  return [...declaration[1].matchAll(/^\s{2}([A-Za-z][A-Za-z0-9]*):/gm)].map(
-    (match) => match[1],
+  const keys = [...declaration[1].matchAll(/(['"])([A-Za-z][A-Za-z0-9]*)\1/g)].map(
+    (match) => match[2],
   );
+  if (keys.length === 0 || new Set(keys).size !== keys.length) {
+    throw new ContentValidationError([
+      sourceName + ': messageKeys must contain unique string keys',
+    ]);
+  }
+  return keys;
 }
 
-export function validateCatalogParity(repositoryRoot) {
-  const enPath = nodePath.join(repositoryRoot, 'site/src/i18n/en.ts');
-  const ruPath = nodePath.join(repositoryRoot, 'site/src/i18n/ru.ts');
-  const english = catalogKeys(readFileSync(enPath, 'utf8'), 'en', enPath);
-  const russian = catalogKeys(readFileSync(ruPath, 'utf8'), 'ru', ruPath);
-  const enSorted = [...english].sort();
-  const ruSorted = [...russian].sort();
+function parseMessageCatalog(source, sourceName) {
+  const lexicalKeys = [...source.matchAll(/"((?:\\.|[^"\\])*)"\s*:/g)].map(
+    (match) => JSON.parse('"' + match[1] + '"'),
+  );
+  const issues = [];
+  if (new Set(lexicalKeys).size !== lexicalKeys.length) {
+    issues.push(sourceName + ': message catalog contains duplicate keys');
+  }
+  let catalog;
+  try {
+    catalog = JSON.parse(source);
+  } catch (error) {
+    issues.push(sourceName + ': invalid JSON: ' + error.message);
+  }
+  if (catalog !== undefined && !isObject(catalog)) {
+    issues.push(sourceName + ': message catalog must be an object');
+  }
+  if (isObject(catalog)) {
+    for (const [key, value] of Object.entries(catalog)) {
+      if (!hasText(value)) {
+        issues.push(sourceName + ': ' + key + ' must be a non-empty string');
+      }
+    }
+  }
+  if (issues.length > 0) throw new ContentValidationError(issues);
+  return catalog;
+}
 
-  if (JSON.stringify(enSorted) !== JSON.stringify(ruSorted)) {
+export function validateCatalogParity(
+  repositoryRoot,
+  localeConfiguration = readLocaleConfiguration(repositoryRoot),
+) {
+  const schemaPath = nodePath.join(
+    repositoryRoot,
+    'site/src/i18n/messages.ts',
+  );
+  if (!existsSync(schemaPath)) {
     throw new ContentValidationError([
-      'message catalog keys differ: en=[' +
-        enSorted.join(', ') +
-        '], ru=[' +
-        ruSorted.join(', ') +
-        ']',
+      'message schema does not exist: ' + schemaPath,
     ]);
   }
-  if (new Set(english).size !== english.length || new Set(russian).size !== russian.length) {
-    throw new ContentValidationError(['message catalogs contain duplicate keys']);
+  const expected = messageSchemaKeys(readFileSync(schemaPath, 'utf8'), schemaPath)
+    .sort();
+  const catalogs = new Map();
+  for (const locale of localeConfiguration.locales) {
+    const path = nodePath.join(
+      repositoryRoot,
+      'site/src/i18n/catalogs',
+      locale + '.json',
+    );
+    if (!existsSync(path)) {
+      throw new ContentValidationError([
+        'configured locale "' + locale + '" is missing catalog ' + path,
+      ]);
+    }
+    catalogs.set(
+      locale,
+      parseMessageCatalog(readFileSync(path, 'utf8'), path),
+    );
   }
 
-  return english.length;
+  const issues = [];
+  for (const [locale, catalog] of catalogs) {
+    const actual = Object.keys(catalog).sort();
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      issues.push(
+        'message catalog keys differ from the message schema: expected=[' +
+          expected.join(', ') +
+          '], ' +
+          locale +
+          '=[' +
+          actual.join(', ') +
+          ']',
+      );
+    }
+  }
+  if (issues.length > 0) throw new ContentValidationError(issues);
+  return expected.length;
 }
 
 function groupsForDocuments(documents) {
@@ -929,39 +1070,39 @@ function groupsForDocuments(documents) {
   return groups;
 }
 
-export function validateAllChapterPairs(
+export function validateAllChapterSets(
   documents,
-  { requireContiguousPrefix = true } = {},
+  {
+    requireContiguousPrefix = true,
+    requiredLocales = SUPPORTED_LOCALES,
+    referenceLocale = REFERENCE_LOCALE,
+  } = {},
 ) {
   const issues = [];
   for (const [chapterId, group] of groupsForDocuments(documents)) {
-    const english = group.filter((document) => document.data.locale === 'en');
-    const russian = group.filter((document) => document.data.locale === 'ru');
-    if (english.length !== 1 || russian.length !== 1) {
-      issues.push(
-        chapterId +
-          ': expected exactly one English and one Russian source; found en=' +
-          english.length +
-          ', ru=' +
-          russian.length,
-      );
-      continue;
-    }
     try {
-      validateChapterPair(english[0], russian[0]);
+      validateChapterLocaleSet(group, requiredLocales, referenceLocale);
     } catch (error) {
-      issues.push(...(error.issues ?? [error.message]));
+      issues.push(
+        ...(error.issues ?? [error.message]).map(
+          (issue) => chapterId + ': ' + issue,
+        ),
+      );
     }
   }
 
   if (issues.length > 0) {
-    throw new ContentValidationError(issues, 'Bilingual publication gate failed');
+    throw new ContentValidationError(issues, 'Localized publication gate failed');
   }
 
-  const pairs = findPublishablePairs(documents);
+  const sets = findPublishableChapterSets(
+    documents,
+    requiredLocales,
+    referenceLocale,
+  );
   return requireContiguousPrefix
-    ? validatePublishedChapterSequence(pairs)
-    : pairs;
+    ? validatePublishedChapterSequence(sets)
+    : sets;
 }
 
 export function repositoryRootFromCwd(cwd = process.cwd()) {
@@ -976,16 +1117,21 @@ function readOption(args, name) {
 
 export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd()) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
+  const localeConfiguration = readLocaleConfiguration(repositoryRoot);
+  const requiredLocales = localeConfiguration.locales;
+  const referenceLocale = localeConfiguration.defaultLocale;
   const mode = args[0] && !args[0].startsWith('--') ? args[0] : 'all';
   const chapter = readOption(args, '--chapter');
   const locale = readOption(args, '--locale');
-  const catalogCount = validateCatalogParity(repositoryRoot);
-  const documents = readChapterDocuments(repositoryRoot);
+  const catalogCount = validateCatalogParity(repositoryRoot, localeConfiguration);
+  const documents = readChapterDocuments(repositoryRoot, requiredLocales);
 
   if (mode === 'chapter') {
-    if (!chapter || !SUPPORTED_LOCALES.includes(locale)) {
+    if (!chapter || !requiredLocales.includes(locale)) {
       throw new ContentValidationError([
-        'chapter mode requires --locale en|ru and --chapter NN-slug',
+        'chapter mode requires --locale ' +
+          requiredLocales.join('|') +
+          ' and --chapter NN-slug',
       ]);
     }
     const selected = documents.filter(
@@ -1005,7 +1151,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     return {
       mode,
       documents: selected,
-      pairs: [],
+      sets: [],
       catalogCount,
     };
   }
@@ -1017,28 +1163,33 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     if (chapter && selected.length === 0) {
       throw new ContentValidationError(['no sources found for chapter ' + chapter]);
     }
-    const pairs = validateAllChapterPairs(selected, {
+    const sets = validateAllChapterSets(selected, {
       requireContiguousPrefix: !chapter,
+      requiredLocales,
+      referenceLocale,
     });
     if (!chapter) {
       validatePublishedContractSequence(
-        pairs,
+        sets,
         readChapterContractSummaries(repositoryRoot),
       );
     }
-    return { mode, documents: selected, pairs, catalogCount };
+    return { mode, documents: selected, sets, catalogCount };
   }
 
   if (mode !== 'all') {
     throw new ContentValidationError(['unknown content-check mode "' + mode + '"']);
   }
 
-  const pairs = validateAllChapterPairs(documents);
+  const sets = validateAllChapterSets(documents, {
+    requiredLocales,
+    referenceLocale,
+  });
   validatePublishedContractSequence(
-    pairs,
+    sets,
     readChapterContractSummaries(repositoryRoot),
   );
-  return { mode, documents, pairs, catalogCount };
+  return { mode, documents, sets, catalogCount };
 }
 
 function isMainModule() {
@@ -1055,8 +1206,8 @@ if (isMainModule()) {
       'Content check passed: ' +
         result.documents.length +
         ' localized source(s), ' +
-        result.pairs.length +
-        ' publishable pair(s), ' +
+        result.sets.length +
+        ' publishable locale set(s), ' +
         result.catalogCount +
         ' catalog key(s).',
     );
