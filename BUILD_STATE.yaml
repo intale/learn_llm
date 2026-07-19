@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T16:06:58Z"
+updated_at: "2026-07-19T16:44:24Z"
 
 environment:
   os: "Linux x86_64"
@@ -3567,10 +3567,100 @@ builds:
               - "Chapter 6 Playwright browser gate with ephemeral Chromium and runtime libraries: passed"
               - "Full Playwright suite: 18 passed, 2 pre-existing Russian overflow failures in chapters 3 and 5"
             notes: "Chapter 6 acceptance gates passed. The full browser suite still reports unrelated narrow-layout overflow in existing Russian chapters 3 and 5; no Chapter 6 test failed."
+      - id: add-staged-review-release-workflow
+        objective: "Provide safe Docker-only commands to review a run-specific staged chapter in a browser and export a canonical static release to site/dist."
+        depends_on:
+          - implement-ch06-bigram-baseline
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
+          - ".dockerignore"
+          - ".gitignore"
+          - "scripts/check-host-artifacts.sh"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/i18n/locales.json"
+          - ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/publish/"
+          - ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/publish.sha256"
+          - "docker:25.0.2"
+          - "docker-compose:2.17.3"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "Dockerfile"
+          - "course"
+          - "README.md"
+          - "scripts/check-host-artifacts.sh"
+          - "scripts/check-course-cli.sh"
+          - "scripts/fixtures/mock-release-docker.sh"
+          - "site/dist/"
+        acceptance:
+          - "`./course review RUN_ID [PORT]` validates a safe run ID and port, overlays that run's publish tree through a named Docker build context, renders the static site without changing the staged source, binds only loopback, and prints each staged lesson's direct localized URL."
+          - "A non-serving review check proves the frozen Chapter 6 overlay emits both localized revision-2 article routes before a human is asked to approve it."
+          - "`./course release` builds the deployable static image and atomically replaces site/dist with its exact HTML/assets, so stale files cannot survive a later release."
+          - "The host audit permits only the intentional site/dist static release while rejecting Rust, Node.js, Python, dependency, compiler-cache, and browser-test artifacts anywhere else in the repository."
+          - "The root README accurately documents review, release, image preview, direct routes, Ctrl+C cleanup, static hosting, and the Docker-only host boundary without raw host Rust/Node/Python commands."
+          - "All command guards, Docker builds, route smoke checks, immutable staged checksums, release replacement, and host-boundary checks pass before this step is committed independently."
+        validate:
+          - "bash -n course scripts/check-host-artifacts.sh scripts/check-course-cli.sh scripts/fixtures/mock-release-docker.sh"
+          - "scripts/check-course-cli.sh"
+          - "docker compose config --quiet"
+          - "./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01 --check"
+          - "./course release"
+          - "test -f site/dist/index.html && test -f site/dist/en/course/06-bigram-baseline/index.html && test -f site/dist/ru/course/06-bigram-baseline/index.html"
+          - "./course audit-host"
+          - "sha256sum -c .build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/publish.sha256"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "Local shell/documentation work plus cached Docker static builds and localhost smoke checks. A cold cache may use the already approved Docker/npm registries; no paid service, content generation, host language toolchain, or substantial CPU work is planned."
+        runs:
+          - run_id: 20260719T160959Z-add-staged-review-release-workflow-01
+            started_at: "2026-07-19T16:09:59Z"
+            finished_at: "2026-07-19T16:44:24Z"
+            status: succeeded
+            input_fingerprint: "commit ca6ba40a63d12726d9c5ea4875d6f03b72c84ed2; AGENTS.md sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73; BUILD_STATE.yaml sha256:680b740802adea50c892727ba7263bd62d7063f5cec93c83a67d46c8d9b39650; DECISIONS.md sha256:4b69b119e75090f21cd67f68b7c6c82ac6cd4eb373a91c336ce796c85cddab; course-plan sha256:88f5c4b8bd7bfa1f71aa3bbdb039fa47bc3f37ed09fd0c34e5d22839863cccd2; Dockerfile sha256:43865be770062e3a6162cbc634186e8292b7328a1565bc520dbd51a254190a8f; course sha256:73d40026c55acca4916739aa5778b514da89e311729e472fc4a7d20396437c96; README.md sha256:7670c339a99f08a53b29eb3d78e1acb6fd7cad4041b738cebb402298b3f5108c; frozen Chapter 6 publish manifest sha256:c6c81425062b383a8c11fba96385b8449e4f149749d0b1df0827b76def877be6; Docker 25.0.2/Compose 2.17.3"
+            staging_dir: ".build/runs/20260719T160959Z-add-staged-review-release-workflow-01/"
+            commands:
+              - "git status --short --branch and verify checkpoint commit ca6ba40 with a clean tracked worktree"
+              - "Read complete BUILD_STATE.yaml, relevant DECISIONS.md entries, AGENTS.md, SKILLS.md, Docker wrapper/image configuration, README, host audit, and the preserved Chapter 6 run"
+              - "Verify all 14 frozen Chapter 6 staged source checksums and compare the recorded Docker/Compose/Git environment"
+              - "Run three independent read-only audits of CLI architecture, documentation/testing, and checkpoint/commit boundaries"
+              - "Implement named-context staged rendering, closed manifest verification, loopback serving, signal-safe cleanup, canonical image export, serialized atomic directory exchange, and static-link validation"
+              - "Run the frozen Chapter 6 review in non-serving and live modes; request both localized routes and stop the live server with Ctrl+C"
+              - "Export the canonical image twice around a stale sentinel and verify exact replacement under site/dist"
+              - "Remove 1.1 GiB of obsolete ignored host compiler, dependency, framework, and browser-test caches after confirming they were untracked and not ledger artifacts"
+              - "Run the canonical production image on loopback and inspect it for absence of Rust, Node/npm, and Python commands"
+            artifacts:
+              - path: ".build/runs/20260719T160959Z-add-staged-review-release-workflow-01/outputs.sha256"
+                checksum: "sha256:9d95e5cd5c868a1261c9b74328d5e11e31475d8fe784b6b9f144c438d0bdaafb"
+              - path: ".build/runs/20260719T160959Z-add-staged-review-release-workflow-01/review-summary.md"
+                checksum: "sha256:8488aaa3f623a15f20f68fa8737091dfdb8874bed5b93b44c82a413425b19833"
+              - path: ".build/runs/20260719T160959Z-add-staged-review-release-workflow-01/validation-summary.md"
+                checksum: "sha256:8e096ca21f0f8af109b3f02951320b3f31e3e434cc09f794c814987876782be1"
+              - path: "site/dist/"
+                checksum: "aggregate-sha256:bb73919e991468ec37d8c203111c803fbe5e4270de6c5f710753fbd72921e8e8"
+            validation:
+              - "Bash syntax, CLI behavioral contract, Docker Compose configuration, and git diff checks: passed"
+              - "Frozen staged manifest: exact 14-file closure passed before and after rendering"
+              - "Staged Docker checks: 12 localized sources, 6 locale sets, 45 Astro files without diagnostics, 17 pages, 277 local references, and 81 artifacts passed"
+              - "Live staged English and Russian Chapter 6 routes: HTTP 200; Ctrl+C exit 130 and container cleanup passed"
+              - "Canonical Docker checks: all 46 Rust unit tests plus doc tests, Astro/content/parity, 17-page build, and 81-artifact static-link graph passed"
+              - "Canonical image route smoke and toolchain-absence inspection: passed"
+              - "Atomic release replacement removed a stale sentinel and emitted root, English Chapter 6, and Russian Chapter 6 indexes: passed"
+              - "Course plan: 39 chapters, 49 scheduled steps, and 6 implemented contracts passed"
+              - "Host audit: passed with site/dist as the sole intentional generated static tree"
+              - "Three independent final reviews: no remaining blocker or regression"
+            notes: "Completed without publishing the frozen Chapter 6 revision-2 source. The human can now review that immutable candidate in a browser; explicit English/Russian content approval is still required before the rewrite step resumes."
       - id: rewrite-ch06-bigram-baseline
         objective: "Replace Chapter 6 with a content-revision-2 vertical slice that derives a smoothed bigram distribution from valid wrapped training documents and clearly distinguishes unseen successors from unseen contexts."
         depends_on:
-          - implement-ch06-bigram-baseline
+          - add-staged-review-release-workflow
         status: pending
         inputs:
           - "AGENTS.md"

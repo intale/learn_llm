@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 9,
+  "plan_revision": 10,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -51,6 +51,10 @@
       {
         "step_id": "document-docker-workflow",
         "before_chapter": "06-bigram-baseline"
+      },
+      {
+        "step_id": "add-staged-review-release-workflow",
+        "after_chapter": "06-bigram-baseline"
       },
       {
         "step_id": "rewrite-ch06-bigram-baseline",
@@ -699,6 +703,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `06-bigram-baseline`
 - **Implementation step:** `implement-ch06-bigram-baseline`
+- **Revision status:** Revision 1 remains canonical; revision 2 is frozen under `rewrite-ch06-bigram-baseline` and is unpublished until its rendered English and Russian pages receive human approval.
 - **Depends on:** `05-autoregressive-examples`.
 - **Outcome:** Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.
 - **Scope boundary:** Teach transition counts, row normalization, additive smoothing, prediction, and train-only fitting. Include BOS/EOS transitions, exclude padding, and do not refit from overlapping context windows; defer all scoring to chapter 7.

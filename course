@@ -1,12 +1,339 @@
 #!/usr/bin/env bash
 set -euo pipefail
-case "${1:-help}" in
-  build) docker build --target site -t learn-llm-site:local . ;;
-  run) shift; docker build --target workspace -t learn-llm-workspace:local . >/dev/null; docker run --rm learn-llm-workspace:local "$@" ;;
-  check) docker build --target workspace -t learn-llm-workspace:local . ;;
-  preview) docker compose up site ;;
-  smoke) curl --fail --silent http://127.0.0.1:4321/ >/dev/null ;;
-  audit-host) scripts/check-host-artifacts.sh ;;
-  help) printf '%s\n' 'Usage: ./course {build|run COMMAND|check|preview|smoke|audit-host|help}' ;;
-  *) echo "unknown command: $1" >&2; exit 2 ;;
+
+repository_root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+workspace_image=learn-llm-workspace:local
+site_image=learn-llm-site:local
+
+fail() {
+  printf 'error: %s\n' "$*" >&2
+  exit 2
+}
+
+usage() {
+  cat <<'EOF'
+Usage: ./course COMMAND [ARGUMENTS]
+
+Commands:
+  build                         Build the deployable static-site image.
+  release                       Atomically export that image to site/dist.
+  review RUN_ID [PORT]          Render and serve a staged run on loopback.
+  review RUN_ID --port PORT     Choose a loopback port (default: 4321).
+  review RUN_ID --check         Build and verify the staged site without serving.
+  run COMMAND [ARGUMENTS]       Run one command in the workspace image.
+  check                         Build the validated workspace image.
+  preview                       Serve the canonical deployable image on port 4321.
+  smoke                         Check the canonical preview at 127.0.0.1:4321.
+  audit-host                    Reject host toolchain/dependency/cache artifacts.
+  help                          Show this help.
+EOF
+}
+
+build_workspace_image() {
+  docker build --target workspace -t "$workspace_image" "$repository_root"
+}
+
+build_site_image() {
+  docker build --target site -t "$site_image" "$repository_root"
+}
+
+cleanup_release() {
+  local status=$?
+
+  if [[ -n ${release_container_name:-} ]]; then
+    docker rm -f "$release_container_name" >/dev/null 2>&1 || true
+  fi
+
+  if [[ -n ${release_temporary:-} ]]; then
+    case "$release_temporary" in
+      "$repository_root"/site/.release-*) rm -rf -- "$release_temporary" ;;
+    esac
+  fi
+
+  if [[ -n ${release_lock_directory:-} ]]; then
+    rmdir "$release_lock_directory" >/dev/null 2>&1 || true
+  fi
+
+  return "$status"
+}
+
+cleanup_review() {
+  local status=$?
+
+  if [[ -n ${review_logs_pid:-} ]]; then
+    kill "$review_logs_pid" >/dev/null 2>&1 || true
+    wait "$review_logs_pid" >/dev/null 2>&1 || true
+  fi
+
+  if [[ -n ${review_container_name:-} ]]; then
+    docker rm -f "$review_container_name" >/dev/null 2>&1 || true
+  fi
+
+  return "$status"
+}
+
+release_site() {
+  local export_directory mv_help
+
+  release_lock_directory="$repository_root/site/.release.lock"
+  release_temporary=
+  release_container_name=
+  trap cleanup_release EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  mkdir "$release_lock_directory" 2>/dev/null || {
+    release_lock_directory=
+    fail "another release is running, or a stale lock exists: $repository_root/site/.release.lock"
+  }
+
+  mv_help=$(mv --help 2>&1)
+  [[ $mv_help == *'--exchange'* && $mv_help == *'--no-copy'* ]] ||
+    fail 'release requires GNU mv with --exchange and --no-copy support'
+  build_site_image
+  release_temporary=$(mktemp -d "$repository_root/site/.release-XXXXXXXX")
+  export_directory="$release_temporary/export"
+  mkdir -p "$export_directory"
+  release_container_name="learn-llm-release-${release_temporary##*/}"
+  docker create --name "$release_container_name" "$site_image" >/dev/null
+
+  docker cp "$release_container_name:/usr/share/nginx/html/." "$export_directory"
+  docker rm "$release_container_name" >/dev/null
+  release_container_name=
+
+  [[ -f "$export_directory/index.html" ]] || fail 'the site image has no root index.html'
+  [[ -f "$export_directory/en/course/index.html" ]] || fail 'the site image has no English course index'
+  [[ -f "$export_directory/ru/course/index.html" ]] || fail 'the site image has no Russian course index'
+
+  if [[ -e "$repository_root/site/dist" ]]; then
+    mv --exchange --no-copy -T "$export_directory" "$repository_root/site/dist"
+    rm -rf -- "$export_directory"
+  else
+    mv --no-copy -T "$export_directory" "$repository_root/site/dist"
+  fi
+
+  rmdir "$release_temporary"
+  release_temporary=
+  rmdir "$release_lock_directory"
+  release_lock_directory=
+  trap - EXIT INT TERM
+
+  printf 'Static release written atomically to %s\n' "$repository_root/site/dist"
+}
+
+validate_run_id() {
+  local run_id=$1
+  [[ ${#run_id} -le 128 ]] || fail 'run ID is too long'
+  [[ $run_id =~ ^[0-9]{8}T[0-9]{6}Z-[a-z0-9][a-z0-9-]*-[0-9]{2}$ ]] ||
+    fail 'run ID must match YYYYMMDDTHHMMSSZ-lowercase-step-name-NN'
+}
+
+validate_port() {
+  local port=$1
+  [[ $port =~ ^[1-9][0-9]*$ ]] || fail 'port must be a canonical positive integer'
+  ((port >= 1024 && port <= 65535)) || fail 'port must be between 1024 and 65535'
+}
+
+verify_staged_manifest() {
+  local run_directory=$1
+  local publish_directory="$run_directory/publish"
+  local manifest="$run_directory/publish.sha256"
+  local unsafe_entry manifest_prefix line expected_hash staged_path
+  local actual_hash hash_output repository_relative_path
+  local manifest_count=0
+  local staged_count=0
+  declare -A expected_hashes=()
+
+  unsafe_entry=$(find "$publish_directory" -mindepth 1 ! -type d ! -type f -print -quit)
+  [[ -z $unsafe_entry ]] || fail "staged trees may contain only regular files and directories: $unsafe_entry"
+
+  if [[ -L $manifest || ( -e $manifest && ! -f $manifest ) ]]; then
+    fail "staged manifest must be a regular non-symlink file: $manifest"
+  fi
+  [[ -f $manifest ]] || return 0
+
+  manifest_prefix=${publish_directory#"$repository_root/"}/
+  while IFS= read -r line || [[ -n $line ]]; do
+    [[ $line =~ ^([[:xdigit:]]{64})[[:space:]][[:space:]](.+)$ ]] ||
+      fail "invalid staged manifest line: $line"
+    expected_hash=${BASH_REMATCH[1],,}
+    staged_path=${BASH_REMATCH[2]}
+    [[ $staged_path == "$manifest_prefix"* ]] ||
+      fail "staged manifest path escapes publish/: $staged_path"
+    [[ -z ${expected_hashes[$staged_path]+present} ]] ||
+      fail "duplicate staged manifest path: $staged_path"
+    expected_hashes[$staged_path]=$expected_hash
+    ((manifest_count += 1))
+  done < "$manifest"
+
+  while IFS= read -r -d '' staged_path; do
+    repository_relative_path=${staged_path#"$repository_root/"}
+    [[ -n ${expected_hashes[$repository_relative_path]+present} ]] ||
+      fail "unlisted staged file: $repository_relative_path"
+    hash_output=$(sha256sum -- "$staged_path")
+    hash_output=${hash_output#\\}
+    actual_hash=${hash_output%%[[:space:]]*}
+    [[ $actual_hash == "${expected_hashes[$repository_relative_path]}" ]] ||
+      fail "staged checksum mismatch: $repository_relative_path"
+    unset 'expected_hashes[$repository_relative_path]'
+    ((staged_count += 1))
+  done < <(find "$publish_directory" -type f -print0 | sort -z)
+
+  ((manifest_count == staged_count)) ||
+    fail "staged manifest lists files that are missing or outside publish/"
+}
+
+discover_review_routes() {
+  local publish_directory=$1
+  local lesson_root="$publish_directory/site/src/content/chapters"
+  local lesson relative locale filename slug
+
+  review_routes=()
+  review_files=()
+  [[ -d $lesson_root ]] || return 0
+
+  while IFS= read -r lesson; do
+    relative=${lesson#"$lesson_root/"}
+    locale=${relative%%/*}
+    filename=${relative#*/}
+    slug=${filename%.mdx}
+    [[ $locale =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || fail "unsafe staged locale path: $locale"
+    [[ $slug =~ ^[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$ ]] || fail "unsafe staged chapter path: $slug"
+    review_routes+=("/$locale/course/$slug/")
+    review_files+=("/usr/share/nginx/html/$locale/course/$slug/index.html")
+  done < <(find "$lesson_root" -mindepth 2 -maxdepth 2 -type f -name '*.mdx' -print | sort)
+}
+
+verify_review_image() {
+  local review_image=$1
+  local check_script='set -eu; test -f /usr/share/nginx/html/index.html'
+  local route_file
+
+  for route_file in "${review_files[@]}"; do
+    check_script+="; test -f $route_file"
+  done
+  docker run --rm --entrypoint /bin/sh "$review_image" -c "$check_script"
+}
+
+review_run() {
+  (($# >= 1)) || fail 'review requires a run ID'
+
+  local run_id=$1
+  local port=4321
+  local check_only=false
+  local port_was_set=false
+  local run_directory publish_directory review_image argument route
+  shift
+
+  validate_run_id "$run_id"
+  while (($# > 0)); do
+    argument=$1
+    shift
+    case "$argument" in
+      --check)
+        $check_only && fail '--check was supplied more than once'
+        check_only=true
+        ;;
+      --port)
+        (($# > 0)) || fail '--port requires a value'
+        $port_was_set && fail 'review port was supplied more than once'
+        port=$1
+        port_was_set=true
+        shift
+        ;;
+      [0-9]*)
+        $port_was_set && fail 'review port was supplied more than once'
+        port=$argument
+        port_was_set=true
+        ;;
+      *) fail "unknown review argument: $argument" ;;
+    esac
+  done
+  validate_port "$port"
+
+  run_directory="$repository_root/.build/runs/$run_id"
+  publish_directory="$run_directory/publish"
+  [[ -d $run_directory && ! -L $run_directory ]] || fail "unknown or unsafe run: $run_id"
+  [[ -d $publish_directory && ! -L $publish_directory ]] || fail "run has no safe publish directory: $run_id"
+  [[ -n $(find "$publish_directory" -mindepth 1 -print -quit) ]] || fail "run publish directory is empty: $run_id"
+
+  verify_staged_manifest "$run_directory"
+  discover_review_routes "$publish_directory"
+  review_image="learn-llm-review:${run_id,,}"
+
+  docker build \
+    --build-context "staged=$publish_directory" \
+    --target review-site \
+    -t "$review_image" \
+    "$repository_root"
+  verify_review_image "$review_image"
+  verify_staged_manifest "$run_directory"
+
+  printf 'Rendered staged run %s without changing its publish tree.\n' "$run_id"
+  if ((${#review_routes[@]} == 0)); then
+    printf '  http://127.0.0.1:%s/\n' "$port"
+  else
+    for route in "${review_routes[@]}"; do
+      printf '  http://127.0.0.1:%s%s\n' "$port" "$route"
+    done
+  fi
+
+  $check_only && return 0
+
+  printf 'Press Ctrl+C to stop the review server.\n'
+  review_container_name="learn-llm-review-${run_id,,}-$$"
+  review_logs_pid=
+  trap cleanup_review EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+  docker run --rm --init -d --name "$review_container_name" \
+    -p "127.0.0.1:$port:80" "$review_image" >/dev/null
+  docker logs --follow "$review_container_name" &
+  review_logs_pid=$!
+  wait "$review_logs_pid"
+  review_logs_pid=
+  review_container_name=
+  trap - EXIT INT TERM
+}
+
+command=${1:-help}
+case "$command" in
+  build)
+    (($# == 1)) || fail 'build takes no arguments'
+    build_site_image
+    ;;
+  release)
+    (($# == 1)) || fail 'release takes no arguments'
+    release_site
+    ;;
+  review)
+    shift
+    review_run "$@"
+    ;;
+  run)
+    shift
+    (($# > 0)) || fail 'run requires a command'
+    build_workspace_image >/dev/null
+    docker run --rm "$workspace_image" "$@"
+    ;;
+  check)
+    (($# == 1)) || fail 'check takes no arguments'
+    build_workspace_image
+    ;;
+  preview)
+    (($# == 1)) || fail 'preview takes no arguments'
+    docker compose -f "$repository_root/compose.yaml" up site
+    ;;
+  smoke)
+    (($# == 1)) || fail 'smoke takes no arguments'
+    curl --fail --silent http://127.0.0.1:4321/ >/dev/null
+    ;;
+  audit-host)
+    (($# == 1)) || fail 'audit-host takes no arguments'
+    "$repository_root/scripts/check-host-artifacts.sh"
+    ;;
+  help|-h|--help)
+    (($# == 1)) || fail 'help takes no arguments'
+    usage
+    ;;
+  *) fail "unknown command: $command" ;;
 esac

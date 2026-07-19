@@ -1479,3 +1479,70 @@ artifacts.
 
 **Affected steps:** `rewrite-ch06-bigram-baseline` and the forthcoming staged
 review/release workflow prerequisite.
+
+## 2026-07-19 — Allow intentional static exports while keeping toolchains in Docker
+
+**Status:** Supersedes the earlier blanket prohibition on host `dist`
+directories where it conflicts with the requested deployable release.
+
+**Context:** The Docker migration correctly keeps Cargo, Node/npm, Python,
+dependencies, compiler output, and browser caches out of the host workspace, but
+its wrapper only tagged an image while its README claimed that `site/dist` was
+created. It also rejected that path in the host audit. The human now explicitly
+requires a release under `site/dist` and a browser view of run-specific staged
+content.
+
+**Decision:** Keep Docker as the only process that compiles, checks, or renders
+the course. Add a named-context review image that starts from canonical source,
+overlays exactly `.build/runs/<safe-run-id>/publish/`, runs the static content and
+site gates in Docker, and serves the result from a disposable Nginx container
+bound to `127.0.0.1`. The staged tree is read-only input and remains unchanged.
+
+Retain `./course build` for the deployable Nginx image and add `./course release`
+to copy that image's exact document root into a temporary sibling, verify it,
+and replace `site/dist` as one publication operation. `site/dist` is the sole
+intentional generated release tree allowed on the host. Continue rejecting
+`target`, `node_modules`, `.astro`, coverage, browser results, Python bytecode,
+and equivalent toolchain/cache artifacts throughout the repository, including
+ignored run directories.
+
+**Consequences:** Human review and static deployment require only Docker, Git,
+and the root wrapper. Direct `file://` browsing remains unsupported; both review
+and preview use a local HTTP origin. Static HTML/CSS/assets may exist at
+`site/dist`, but no Rust, Node.js, Python executable, dependency tree, or build
+cache is permitted on the host.
+
+**Affected steps:** `add-staged-review-release-workflow`,
+`rewrite-ch06-bigram-baseline`, and all later chapter delivery steps.
+
+## 2026-07-19 — Close staged manifests and exchange releases atomically
+
+**Status:** Accepted after independent implementation review.
+
+**Context:** The initial staged-review command verified only files named by a
+manifest, so an unlisted or linked file could still enter the review image. Its
+foreground log follower also delayed a signal sent directly to the wrapper. The
+first release implementation serialized neither competing exporters nor the
+replacement itself, and the canonical image did not run the static-link gate.
+
+**Decision:** When `publish.sha256` exists, accept it only as a regular
+non-symlink file, constrain every entry to that run's `publish/` tree, reject
+non-regular staged entries, and require the manifest and staged regular-file
+sets to match exactly. Verify the closed manifest before and after Docker
+rendering. Follow container logs in the background and wait through Bash's
+interruptible builtin so INT/TERM always reaches cleanup.
+
+Serialize releases with a repository-local lock and use GNU `mv --exchange`
+with `--no-copy` to swap a fully verified sibling tree into `site/dist` in one
+same-filesystem operation. Make the required Linux/Bash/GNU/BuildKit host
+surface explicit, run the static-link check in both canonical and staged image
+builds, and keep behavioral shell tests for manifest closure, signal cleanup,
+locking, and stale-file removal.
+
+**Consequences:** A rendered candidate is exactly the staged regular-file set
+whose checksums were reviewed; Ctrl+C and direct termination remove disposable
+containers. Concurrent releases fail closed, readers see either the prior or
+new complete `site/dist`, and broken local links cannot reach either release
+path. The static export remains the only allowed generated host tree.
+
+**Affected step:** `add-staged-review-release-workflow`.

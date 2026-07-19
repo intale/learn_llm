@@ -1,17 +1,23 @@
 # LLM, piece by piece
 
-A localized course, currently available in English and Russian, for learning how
-modern large language models work by implementing each part from first principles
-in Rust. The current course includes chapter 1, which follows text through UTF-8
-bytes, Unicode scalar values, and deterministic vocabulary IDs.
+A static, localized course for learning how modern large language models work by
+implementing each part from first principles in Rust. English and Russian are
+currently enabled, and the published course covers text units, corpus partitions,
+BPE training and application, autoregressive examples, and a bigram baseline.
 
-## Quick start
+## Requirements
 
-The build runs in pinned Docker images. No Rust, Node.js, npm, Python, or project
-dependencies need to be installed on the host; Docker and Docker Compose are the
-only prerequisites.
+The supported host is Linux with Bash 4 or newer, Git, `curl`, GNU
+findutils/coreutils (including `sha256sum` and `mv --exchange`), Docker Engine
+with BuildKit, and Docker Compose. The current workflow is tested with Docker
+25.0.2, Compose 2.17.3, and GNU coreutils 9.7. Rust, Cargo, Node.js, npm, Python,
+project dependencies, browser binaries, and compiler caches stay in Docker.
 
-From the repository root:
+Run every command below from the repository root.
+
+## Open the published course
+
+Build the deployable Nginx image and serve it:
 
 ```bash
 ./course build
@@ -19,138 +25,142 @@ From the repository root:
 ```
 
 Open <http://127.0.0.1:4321/> and choose English or Russian. Press `Ctrl+C` in
-the terminal to stop the preview server.
+the terminal to stop the server.
 
-> [!IMPORTANT]
-> Do not open `site/dist/index.html` directly, and do not serve the repository
-> root and browse to `/site/dist/`. Generated pages use root-relative URLs and
-> directory routes. `site/dist` must be the web server's document root. The
-> preview command above handles this correctly.
+The localized course indexes are available directly at:
 
-The `site/dist/` directory is produced through a bind mount and is served by the
-Nginx preview container. Stop it with `Ctrl+C`.
+- <http://127.0.0.1:4321/en/course/>
+- <http://127.0.0.1:4321/ru/course/>
 
-## Learn with the course
+The indexes are the authoritative list of published chapters. Each lesson starts
+with a small prediction, derives the relevant formula, contrasts the historical
+approach, shows the exact tested Rust implementation, and ends with checks and
+exercises.
 
-The generated site currently contains these routes:
+## Review an unpublished chapter
 
-- `/` — language chooser;
-- `/en/` and `/ru/` — localized home pages;
-- `/en/course/` and `/ru/course/` — chapter indexes; and
-- `/en/course/01-text-units/` and `/ru/course/01-text-units/` — chapter 1.
-
-Each chapter starts with a small worked example. Predict its output, connect the
-observable behavior to the formula and historical approach, inspect the exact
-Rust implementation, and then expand the exercise answers after checking your
-prediction. English and Russian lessons use the same tested Rust sources.
-
-## Run the Rust example
-
-Run chapter 1 and its focused tests from the repository root:
+Agents stage candidate files under `.build/runs/<run-id>/publish/`. Review a
+candidate as a real static site instead of reading its MDX and source files:
 
 ```bash
-./course run cargo run --locked -p ch01-text-units
+./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01
 ```
 
-The implementation is in
-[`rust/demos/ch01-text-units/src/`](rust/demos/ch01-text-units/src/), and its
-deterministic output is recorded in
-[`expected.txt`](rust/demos/ch01-text-units/expected.txt). Verify the output
-byte-for-byte with:
+The command validates the run ID, verifies its source manifest when present,
+overlays the staged files through a Docker build context, runs the content,
+parity, type, static-build, and link gates in Docker, and prints direct URLs for
+every staged lesson. For the current Chapter 6 candidate it prints:
+
+- <http://127.0.0.1:4321/en/course/06-bigram-baseline/>
+- <http://127.0.0.1:4321/ru/course/06-bigram-baseline/>
+
+Press `Ctrl+C` to stop the review server. To use another loopback port:
 
 ```bash
-./course run cargo run --quiet --locked -p ch01-text-units
+./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01 --port 4400
 ```
 
-A successful `diff` prints nothing.
-
-## Development and deployment
-
-For a live development server, use the site image and mount the source tree:
+For an automated render check without starting a server:
 
 ```bash
-docker run --rm -it -p 4321:4321 -v "$PWD/site:/workspace/site" \
-  -v course_site_node_modules:/workspace/site/node_modules \
-  -w /workspace/site node:22.12.0-bookworm-slim \
-  sh -c 'npm ci && npm run dev -- --host 0.0.0.0'
+./course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01 --check
 ```
 
-After editing the site or lessons, rebuild the production artifact:
+Review builds never publish the candidate or modify its `publish/` tree. Their
+images and build cache remain in the Docker daemon. Human approval should name
+the reviewed run and cover both localized pages, including captions and
+accessible labels.
+
+## Export a static release
+
+Create a deployable static tree at `site/dist`:
 
 ```bash
-./course build
+./course release
 ```
 
-Deploy the **contents** of `site/dist/` at the host's URL root. The host must
-support normal directory `index.html` routes. The current configuration is not
-set up for direct `file://` browsing or deployment below a nested URL prefix.
+The command builds the canonical deployable image used by `./course build`; it
+never includes an unpublished `.build` candidate. It copies that image's document
+root into a temporary sibling directory, verifies the localized indexes, and
+atomically exchanges it with `site/dist`. Releasing again removes stale files
+from an older build.
 
-## Validation
+Deploy the **contents** of `site/dist/` at the host's URL root. The static host
+must support directory `index.html` routes. Do not open
+`site/dist/index.html` with `file://`, and do not serve the repository root and
+browse to `/site/dist/`: generated links are root-relative, so `site/dist` must
+be the HTTP document root.
 
-Run the repository gates in containers:
+`site/dist` is the one intentional generated host tree. It contains only static
+HTML, CSS, fonts, and other browser assets; it contains no Rust, Node.js, or
+Python toolchain.
+
+## Run a Rust example
+
+Run any chapter package inside the pinned workspace image. For example:
+
+```bash
+./course run cargo run --quiet --locked -p ch05-autoregressive-examples
+```
+
+Chapter demos live under `rust/demos/`, and each implemented demo has a committed
+deterministic output fixture. The cumulative implementation lives in
+`rust/crates/llm-from-scratch/`. No Rust artifact is written to the host.
+
+## Validate changes
+
+Build the canonical validated workspace image and audit the host boundary:
 
 ```bash
 ./course check
 ./course audit-host
 ```
 
-The production build must exist before browser tests because Playwright previews
-`site/dist`. Install its pinned Chromium browser once, then run the suite:
+The workspace image checks Rust formatting and tests plus Astro diagnostics,
+configured-locale content/parity, the static build, and every local link and
+asset reference. Additional repository gates can be run in the same ephemeral
+image, for example:
 
 ```bash
-./course build
+./course run scripts/validate-in-container.sh
+```
+
+Show every supported wrapper command with:
+
+```bash
+./course help
 ```
 
 ## Content and localization
 
-Configured languages are declared once in `site/src/i18n/locales.json`. English
-and Russian lessons currently live in `site/src/content/chapters/en/` and
-`site/src/content/chapters/ru/`. A chapter is published only when exactly one
-lesson for every configured locale exists at the same content revision and their
-shared formula, Rust-source, visualization, and ordering metadata agree. Interface
-translations live in matching, schema-checked
-`site/src/i18n/catalogs/<locale>.json` catalogs.
+Configured languages are declared in `site/src/i18n/locales.json`. Lessons live
+under `site/src/content/chapters/<locale>/`; interface messages live in
+schema-checked `site/src/i18n/catalogs/<locale>.json` files. A chapter publishes
+only when every configured locale has one same-revision lesson and the shared
+formula, Rust-source, visualization, and order metadata agree.
 
-See the [localized chapter workflow](curriculum/README.md) before adding or
-translating a lesson. Reviewed contracts in `curriculum/chapters/` define the
-learning objective and observable behavior before implementation begins.
+Read the [chapter delivery playbook](SKILLS.md) and the
+[localized curriculum workflow](curriculum/README.md) before authoring or
+translating a lesson. Translation is meaning-first: establish terminology,
+rewrite naturally in the target language, compare critical claims, perform an
+anti-calque and monolingual pass, inspect the rendered page, and obtain the
+required fluent-human approval before publication.
 
-To add a spoken language, prepare one atomic change that:
-
-1. registers a dedicated activation step in
-   `curriculum/course-plan.md` under `scheduling.cross_cutting_steps`, immediately
-   before the first pending chapter, or after the final chapter when the course
-   is already complete;
-2. adds its URL-safe locale code, BCP-47 language tag, native name, and `ltr` or
-   `rtl` direction to `site/src/i18n/locales.json`;
-3. adds a complete, schema-checked
-   `site/src/i18n/catalogs/<locale>.json` message catalog;
-4. adds that locale key to every localized field in each implemented chapter
-   contract and supplies one matching lesson under
-   `site/src/content/chapters/<locale>/`; and
-5. adds the locale's concrete lesson output and `check:chapter` command to each
-   still-pending chapter step in `BUILD_STATE.yaml`;
-6. runs the complete plan, content, type, build, link, and browser gates below.
-
-The activation step owns translations, contract/catalog extensions, and browser
-expectations for chapters that were already completed. Never rewrite those
-chapters' completed step declarations or commits; only pending chapter steps adopt
-the expanded locale output set directly.
-
-Routes, the root chooser, language switches, `hreflang` links, page direction,
-content loading, publication parity, and validators all derive from the manifest.
-The course-plan gate checks the declarative pending-step ledger against that same
-locale set while preserving historical locale sets on completed steps, so expanding
-the ledger does not require validator code changes.
-The checks fail closed if a catalog, contract value, lesson, or alternate route is
-missing, so do not enable a locale with placeholder or partial public content.
+Adding another spoken language is one atomic activation step. It extends the
+locale registry, message catalog, localized fields in every implemented chapter
+contract, complete lesson set, pending-step outputs, and browser expectations.
+Routes, `hreflang`, language switches, page direction, publication parity, and
+validators derive from that registry rather than an English/Russian special
+case.
 
 ## Repository layout
 
-- `site/` — Astro/MDX static site, localized content, and browser/unit tests;
-- `rust/demos/` — runnable chapter examples;
+- `site/` — Astro/MDX static site, localized lessons, and browser/unit tests;
+- `rust/demos/` — runnable deterministic chapter examples;
 - `rust/crates/llm-from-scratch/` — cumulative model implementation;
-- `curriculum/` — reviewed chapter contracts and authoring workflow;
-- `scripts/` — deterministic content, dependency, and static-link checks;
-- `BUILD_STATE.yaml` — ordered build and checkpoint ledger; and
-- `DECISIONS.md` — durable architecture and process decisions.
+- `curriculum/` — reviewed chapter contracts, course plan, and workflow;
+- `scripts/` — deterministic content, dependency, link, CLI, and host checks;
+- `.build/runs/` — ignored run-specific staging, manifests, and review evidence;
+- `BUILD_STATE.yaml` — ordered build and checkpoint ledger;
+- `DECISIONS.md` — durable architecture and process decisions; and
+- `course` — the Docker-only host interface.
