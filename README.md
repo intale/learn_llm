@@ -7,18 +7,15 @@ bytes, Unicode scalar values, and deterministic vocabulary IDs.
 
 ## Quick start
 
-Prerequisites:
-
-- Node.js 22.12 or newer and npm 10.9.2;
-- Rust 1.93 or newer (the repository is validated with Rust 1.93.1); and
-- Bash and `diff` for the complete validation matrix.
+The build runs in pinned Docker images. No Rust, Node.js, npm, Python, or project
+dependencies need to be installed on the host; Docker and Docker Compose are the
+only prerequisites.
 
 From the repository root:
 
 ```bash
-npm --prefix site ci
-npm --prefix site run build
-npm --prefix site run preview -- --host 127.0.0.1
+./course build
+./course preview
 ```
 
 Open <http://127.0.0.1:4321/> and choose English or Russian. Press `Ctrl+C` in
@@ -30,15 +27,8 @@ the terminal to stop the preview server.
 > directory routes. `site/dist` must be the web server's document root. The
 > preview command above handles this correctly.
 
-To use a generic static file server instead of Astro preview, run this from the
-repository root:
-
-```bash
-python3 -m http.server 8000 --directory site/dist
-```
-
-Then open <http://127.0.0.1:8000/>. This serves only static files; the deployed
-course does not require a server-side application.
+The `site/dist/` directory is produced through a bind mount and is served by the
+Nginx preview container. Stop it with `Ctrl+C`.
 
 ## Learn with the course
 
@@ -59,8 +49,7 @@ prediction. English and Russian lessons use the same tested Rust sources.
 Run chapter 1 and its focused tests from the repository root:
 
 ```bash
-cargo run --locked -p ch01-text-units
-cargo test --locked -p ch01-text-units
+./course run cargo run --locked -p ch01-text-units
 ```
 
 The implementation is in
@@ -70,23 +59,26 @@ deterministic output is recorded in
 byte-for-byte with:
 
 ```bash
-cargo run --quiet --locked -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -
+./course run cargo run --quiet --locked -p ch01-text-units
 ```
 
 A successful `diff` prints nothing.
 
 ## Development and deployment
 
-Run the source development server without creating a production build:
+For a live development server, use the site image and mount the source tree:
 
 ```bash
-npm --prefix site run dev -- --host 127.0.0.1
+docker run --rm -it -p 4321:4321 -v "$PWD/site:/workspace/site" \
+  -v course_site_node_modules:/workspace/site/node_modules \
+  -w /workspace/site node:22.12.0-bookworm-slim \
+  sh -c 'npm ci && npm run dev -- --host 0.0.0.0'
 ```
 
 After editing the site or lessons, rebuild the production artifact:
 
 ```bash
-npm --prefix site run build
+./course build
 ```
 
 Deploy the **contents** of `site/dist/` at the host's URL root. The host must
@@ -95,29 +87,18 @@ set up for direct `file://` browsing or deployment below a nested URL prefix.
 
 ## Validation
 
-Install the locked site dependencies with `npm --prefix site ci`, then run the
-repository gates from the root:
+Run the repository gates in containers:
 
 ```bash
-cargo fmt --all -- --check
-cargo test --workspace --locked
-scripts/check-rust-dependencies.sh
-cargo run --quiet --locked -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -
-
-npm --prefix site run check
-npm --prefix site run test -- --run
-npm --prefix site run check:content
-npm --prefix site run check:parity
-npm --prefix site run build
-npm --prefix site run test:links
+./course check
+./course audit-host
 ```
 
 The production build must exist before browser tests because Playwright previews
 `site/dist`. Install its pinned Chromium browser once, then run the suite:
 
 ```bash
-npm --prefix site exec -- playwright install chromium
-npm --prefix site run test:e2e
+./course build
 ```
 
 ## Content and localization
