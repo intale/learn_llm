@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 10,
+  "plan_revision": 11,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -699,20 +699,20 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Integration evidence:** No pair crosses a document or split boundary; counts, stride, BOS as input, EOS as target, short documents, too-short suffixes, repeated iteration, and exact fixtures pass.
 - **Handoff:** Chapter 6 counts every adjacent training-document transition exactly once for an inspectable baseline.
 
-## 06. A count-based bigram language model
+## 06. From transition counting to a bigram model
 
 - **Chapter ID:** `06-bigram-baseline`
 - **Implementation step:** `implement-ch06-bigram-baseline`
-- **Revision status:** Revision 1 remains canonical; revision 2 is frozen under `rewrite-ch06-bigram-baseline` and is unpublished until its rendered English and Russian pages receive human approval.
+- **Revision status:** Revision 2 is delivered by `rewrite-ch06-bigram-baseline`; publication is gated on explicit fluent-human approval of its rendered Russian page, recorded in `BUILD_STATE.yaml`.
 - **Depends on:** `05-autoregressive-examples`.
 - **Outcome:** Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.
-- **Scope boundary:** Teach transition counts, row normalization, additive smoothing, prediction, and train-only fitting. Include BOS/EOS transitions, exclude padding, and do not refit from overlapping context windows; defer all scoring to chapter 7.
-- **Formula:** `C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=1}^{|d|-1}\mathbf{1}[z_t=i\land z_{t+1}=j],\quad P(j\mid i)=\frac{C_{ij}+\alpha}{\sum_k C_{ik}+\alpha|V|}`.
-- **Historical contrast:** Present n-gram counting as the classical finite-context language-model baseline that neural models must beat.
-- **Rust contribution:** Add one-pass per-document transition-table fitting and deterministic prediction from training documents only; freeze the fitted table and its provenance before any evaluation.
-- **Visualization:** Useful — render a localized count/probability heatmap with numeric cell labels and row totals.
-- **Practice:** Predict the most likely successor before and after smoothing an unseen row.
-- **Integration evidence:** Every source transition contributes once; document boundaries, smoothing, row sums, deterministic ties, unseen contexts, and exact output pass.
+- **Scope boundary:** Teach a one-token context, one count per transition in each original wrapped training document, maximum-likelihood row normalization, and add-alpha smoothing. Include BOS/EOS transitions, exclude padding, keep documents separate, fit only on the training partition, and distinguish an unobserved successor in a defined row from a context whose whole MLE row is undefined. Defer scoring to chapter 7.
+- **Formula:** `C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)`.
+- **Historical contrast:** Present maximum-likelihood n-gram tables and established smoothing work as a transparent classical baseline, while showing why uniform add-alpha mass is not a strong practical model.
+- **Rust contribution:** Add checked, row-major bigram fitting over separate training documents, preserve the distinction between a defined zero and an undefined MLE row in the query API, and emit deterministic learner and diagram evidence from one fixture.
+- **Visualization:** Useful — compare complete token-labeled rows for a known context and a context with no outgoing observations, including counts, totals, pseudocounts, denominators, probabilities, and the forbidden `EOS→BOS` boundary transition.
+- **Practice:** Enumerate the seven source transitions, calculate complete MLE and smoothed rows, explain the zero-versus-undefined distinction, detect document flattening and overlapping-window overcounting, vary alpha, and interpret ties.
+- **Integration evidence:** Exact Rust output and trace data, all table rows, the seven-transition total, train-only selection, document boundaries, normalization, invalid inputs, deterministic ties, contract/locale parity, static rendering, and accessible desktop/narrow layouts pass.
 - **Handoff:** Chapter 7 scores the frozen table on train and validation while keeping test unopened.
 
 ## 07. Likelihood, cross-entropy, and perplexity

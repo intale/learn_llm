@@ -1,83 +1,144 @@
 ---
 {
-  "chapter_id":"06-bigram-baseline","concept_id":"smoothed-bigram-distribution","content_revision":1,"order":6,
-  "objective":{"en":"Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.","ru":"Оценить и запросить сглаженное распределение следующего токена, посчитав каждый соседний переход в обучающих документах ровно один раз."},
-  "worked_inputs":{"en":"Count transitions in [0,1,1,2] and [0,1,2], then predict the most likely successor before and after smoothing.","ru":"Посчитать переходы в [0,1,1,2] и [0,1,2], затем предсказать наиболее вероятный следующий токен до и после сглаживания."},
-  "formula":{"latex":"C_{ij}=\\sum_{d\\in\\mathcal{D}_{tr}}\\sum_{t=1}^{|d|-1}\\mathbf{1}[z_t=i\\land z_{t+1}=j],\\quad P(j\\mid i)=\\frac{C_{ij}+\\alpha}{\\sum_k C_{ik}+\\alpha|V|}","symbols":[{"symbol":"C_{ij}","en":"count of transitions from token i to token j","ru":"число переходов от токена i к токену j"},{"symbol":"z_t","en":"token at position t in one training document","ru":"токен в позиции t одного обучающего документа"},{"symbol":"\\mathcal{D}_{tr}","en":"the training documents only","ru":"только обучающие документы"},{"symbol":"P(j\\mid i)","en":"smoothed probability of next token j after i","ru":"сглаженная вероятность токена j после i"},{"symbol":"\\alpha","en":"positive additive smoothing amount","ru":"положительная добавка аддитивного сглаживания"},{"symbol":"|V|","en":"vocabulary size","ru":"размер словаря"},{"symbol":"\\mathbf{1}","en":"indicator that is one when the transition matches","ru":"индикатор, равный единице при совпадении перехода"}]},
-  "history":{"approach":{"en":"Maximum-likelihood n-gram language models","ru":"Языковые модели n-грамм с оценкой максимального правдоподобия"},"summary":{"en":"Classical n-gram models count finite-context transitions. Their unsmoothed rows assign zero probability to unseen continuations, so additive smoothing gives every vocabulary item a controlled nonzero baseline.","ru":"Классические модели n-грамм считают переходы в конечном контексте. В несглаженной строке невидимые продолжения получают нулевую вероятность, поэтому аддитивное сглаживание задаёт всем токенам небольшой ненулевой базовый шанс."},"rust_contrast":"Print an unsmoothed zero for an unseen continuation beside the smoothed probability from the same count table."},
-  "rust":{"package":"ch06-bigram-baseline","sources":["rust/crates/llm-from-scratch/src/bigram.rs","rust/demos/ch06-bigram-baseline/src/main.rs"],"expected_output":"vocabulary: 3\nalpha: 1.0\ncounts row 0: [0, 2, 0]\ncounts row 1: [0, 1, 2]\nprobabilities row 0: [0.200, 0.600, 0.200]\nprobabilities unseen row 2: [0.333, 0.333, 0.333]\nprediction row 0: [0.2, 0.6, 0.2]\n"},
-  "visualization":{"decision":"useful","id":"bigram-baseline","rationale":{"en":"A count/probability row makes normalization, smoothing mass, and an unseen context visible together.","ru":"Строка счётчиков и вероятностей одновременно показывает нормировку, массу сглаживания и невидимый контекст."}},
-  "decoder_connection":{"en":"The model consumes the [BOS, content..., EOS] sequences from Chapter 5 and supplies a first next-token distribution; Chapter 7 will score it without changing the frozen table.","ru":"Модель получает последовательности [BOS, содержимое..., EOS] из главы 5 и задаёт первое распределение следующего токена; глава 7 оценит его, не изменяя зафиксированную таблицу."},
-  "terminology":[{"concept_id":"bigram","en":"bigram","ru":"биграмма"},{"concept_id":"transition-count","en":"transition count","ru":"число переходов"},{"concept_id":"additive-smoothing","en":"additive smoothing","ru":"аддитивное сглаживание"},{"concept_id":"next-token-distribution","en":"next-token distribution","ru":"распределение следующего токена"}],
-  "translation_notes":["Keep count, probability, row, and unseen-context terminology consistent; explain that smoothing is a teaching baseline, not a learned neural representation."],
-  "acceptance_examples":[{"input":"fit vocabulary 3, alpha 1 on [0,1,1,2] and [0,1,2]","expected":"Each within-document transition is counted once; row 0 is [0,2,0] and row 1 is [0,1,2]."},{"input":"query unseen context 2","expected":"The smoothed row is uniform [1/3,1/3,1/3]."},{"input":"cargo run --quiet --locked -p ch06-bigram-baseline","expected":"stdout equals rust/demos/ch06-bigram-baseline/expected.txt byte-for-byte."}]
+  "chapter_id": "06-bigram-baseline",
+  "concept_id": "smoothed-bigram-distribution",
+  "content_revision": 2,
+  "order": 6,
+  "objective": {
+    "en": "Build and inspect a smoothed bigram next-token distribution by counting each transition in the original wrapped training documents exactly once.",
+    "ru": "Построить и проверить сглаженное распределение вероятностей следующего токена в биграммной модели. Для этого каждый переход между соседними токенами внутри исходных документов обучающей выборки с BOS и EOS нужно подсчитать ровно один раз."
+  },
+  "worked_inputs": {
+    "en": "With BOS=0, EOS=1, content tokens A=2 and B=3, unseen token C=4, and alpha=1, derive count, maximum-likelihood, and smoothed rows from [0,2,2,3,1] and [0,2,3,1].",
+    "ru": "Пусть BOS=0, EOS=1, A=2, B=3, C=4 и α=1; токен C входит в словарь, но не встречается в документах обучающей выборки. Для документов [0,2,2,3,1] и [0,2,3,1] подсчитать переходы, а затем получить для контекстов A и C строки счётчиков, распределения MLE и сглаженные распределения."
+  },
+  "formula": {
+    "latex": "C_{ij}=\\sum_{d\\in\\mathcal{D}_{tr}}\\sum_{t=0}^{|d|-2}\\mathbf{1}[z_t^{(d)}=i\\land z_{t+1}^{(d)}=j],\\quad N_i=\\sum_{k\\in V}C_{ik},\\quad \\widehat P_{\\mathrm{MLE}}(j\\mid i)=\\frac{C_{ij}}{N_i}\\;(N_i>0),\\quad \\widehat P_{\\alpha}(j\\mid i)=\\frac{C_{ij}+\\alpha}{N_i+\\alpha|V|}\\;(\\alpha>0)",
+    "symbols": [
+      {"symbol": "\\mathcal{D}_{tr}", "en": "the set of original wrapped training documents", "ru": "множество исходных документов обучающей выборки; каждый документ начинается с BOS и заканчивается EOS"},
+      {"symbol": "d", "en": "one training document", "ru": "один документ обучающей выборки"},
+      {"symbol": "|d|", "en": "the number of tokens in document d", "ru": "число токенов в документе d"},
+      {"symbol": "t", "en": "a zero-based position whose next position is still inside d", "ru": "позиция с нумерацией от нуля, после которой в документе d есть следующий токен"},
+      {"symbol": "z_t^{(d)}", "en": "the token ID at zero-based position t in document d", "ru": "ID токена в позиции t документа d"},
+      {"symbol": "i", "en": "the current-token ID and count-table row", "ru": "ID текущего токена и номер строки в таблице счётчиков"},
+      {"symbol": "j", "en": "a candidate next-token ID and count-table column", "ru": "ID возможного следующего токена и номер столбца в таблице счётчиков"},
+      {"symbol": "k", "en": "an index ranging over every token ID in V", "ru": "индекс, перебирающий все ID токенов из V"},
+      {"symbol": "V", "en": "the vocabulary of possible token IDs", "ru": "множество допустимых ID токенов"},
+      {"symbol": "|V|", "en": "the number of token IDs in V", "ru": "число ID токенов в V, то есть размер словаря"},
+      {"symbol": "C_{ij}", "en": "the number of observed i-to-j transitions", "ru": "сколько раз в обучающей выборке встретился переход i→j"},
+      {"symbol": "N_i", "en": "the total number of observed transitions leaving i", "ru": "сколько наблюдавшихся переходов начинается с i"},
+      {"symbol": "\\mathbf{1}[\\cdot]", "en": "one when its condition is true and zero otherwise", "ru": "единица, если условие выполнено, и ноль в противном случае"},
+      {"symbol": "\\widehat P_{\\mathrm{MLE}}(j\\mid i)", "en": "the maximum-likelihood next-token estimate, defined only when N_i is positive", "ru": "оценка вероятности следующего токена методом максимального правдоподобия; определена только при N_i>0"},
+      {"symbol": "\\alpha", "en": "the positive pseudocount added to every candidate next token", "ru": "положительная псевдочастота, добавляемая к каждому возможному продолжению при сглаживании"},
+      {"symbol": "\\widehat P_{\\alpha}(j\\mid i)", "en": "the add-alpha smoothed next-token estimate", "ru": "сглаженная с параметром α оценка вероятности следующего токена"}
+    ]
+  },
+  "history": {
+    "approach": {
+      "en": "Maximum-likelihood n-gram tables with count smoothing",
+      "ru": "Оценка максимального правдоподобия и сглаживание в n-граммных моделях"
+    },
+    "summary": {
+      "en": "A bigram model keeps only the current token as context and estimates the next token from observed pair counts. Maximum likelihood gives zero to an unobserved successor after a seen context and cannot normalize a context with no outgoing observations. Add-alpha smoothing makes every row defined, but distributes its extra mass uniformly and is retained here for transparency rather than strength.",
+      "ru": "Биграммная модель учитывает только текущий токен и оценивает вероятность каждого следующего токена по тому, сколько раз соответствующая пара встретилась в обучающей выборке. Если конкретное продолжение не встречалось после известного контекста, его оценка максимального правдоподобия равна нулю. Если же после текущего токена не наблюдалось ни одного продолжения, строку нельзя нормировать этим методом. Аддитивное сглаживание задаёт распределение и для такой строки: к каждому возможному продолжению добавляется одинаковая псевдочастота. В курсе этот метод используется ради прозрачности расчёта, а не потому, что считается сильным практическим методом."
+    },
+    "rust_contrast": "Print a zero maximum-likelihood probability for A-to-C, an undefined maximum-likelihood row for C, and the corresponding add-one probabilities from the same Rust table."
+  },
+  "rust": {
+    "package": "ch06-bigram-baseline",
+    "sources": [
+      "rust/crates/llm-from-scratch/src/bigram.rs",
+      "rust/demos/ch06-bigram-baseline/src/lib.rs",
+      "rust/demos/ch06-bigram-baseline/src/main.rs"
+    ],
+    "expected_output": "tokens: BOS=0 EOS=1 A=2 B=3 C=4\nalpha: 1.0\ntraining document d1: [0, 2, 2, 3, 1]\ntraining document d2: [0, 2, 3, 1]\ncounted transitions: 7\nA counts: [0, 0, 1, 2, 0] total=3\nA MLE: [0.000, 0.000, 0.333, 0.667, 0.000]\nA add-alpha: [0.125, 0.125, 0.250, 0.375, 0.125] denominator=8\nunseen successor A->C: MLE=0.000 add-alpha=0.125\nC counts: [0, 0, 0, 0, 0] total=0\nC MLE: undefined\nC add-alpha: [0.200, 0.200, 0.200, 0.200, 0.200] denominator=5\nflattening would invent: EOS(1)->BOS(0)\n"
+  },
+  "visualization": {
+    "decision": "useful",
+    "id": "bigram-baseline",
+    "rationale": {
+      "en": "Two token-labeled rows can show observed counts, row totals, maximum-likelihood values, smoothing pseudocounts, denominators, and final probabilities without hiding the unseen-context case inside an array.",
+      "ru": "Две строки с подписями токенов позволяют сопоставить результаты подсчёта, суммы строк, псевдочастоты, знаменатели и итоговые вероятности. На строке C видно, почему строку с нулевой суммой нельзя нормировать методом максимального правдоподобия и как правило сглаживания строит для неё распределение."
+    }
+  },
+  "decoder_connection": {
+    "en": "The model scans each original wrapped training document once, never the overlapping Chapter 5 pairs, and freezes its table before Chapter 7 computes train and validation loss and perplexity without opening test data or refitting the model.",
+    "ru": "Модель один раз просматривает каждый исходный документ обучающей выборки с BOS и EOS и не использует перекрывающиеся пары из главы 5. После обучения таблица остаётся неизменной: в главе 7 по ней вычисляются потери и перплексия на обучающей и валидационной выборках без повторной подгонки модели и без обращения к тестовой выборке."
+  },
+  "terminology": [
+    {"concept_id": "bigram", "en": "bigram", "ru": "биграмма"},
+    {"concept_id": "transition-count", "en": "transition count", "ru": "счётчик перехода"},
+    {"concept_id": "maximum-likelihood-estimate", "en": "maximum-likelihood estimate", "ru": "оценка максимального правдоподобия"},
+    {"concept_id": "add-alpha-smoothing", "en": "add-alpha smoothing", "ru": "аддитивное сглаживание с параметром α"},
+    {"concept_id": "unseen-successor", "en": "unseen successor", "ru": "продолжение, не встретившееся после данного токена"},
+    {"concept_id": "unseen-context", "en": "context with no outgoing observations", "ru": "контекст без наблюдавшихся продолжений"}
+  ],
+  "translation_notes": [
+    "Use the mathematical symbol α throughout rendered Russian prose and metadata.",
+    "Do not translate unseen as visible or invisible. Describe whether a successor or outgoing transition occurred in the training data.",
+    "Translate by context rather than forcing one phrase everywhere: use подсчёт переходов for the process, счётчик перехода or an explicit сколько раз встретился переход for a cell, строка счётчиков for a row, псевдочастота for the smoothing addition, and аддитивное сглаживание с параметром α for add-alpha smoothing; avoid числа переходов as a generic label and avoid the calque счётная модель.",
+    "Keep BOS, EOS, MLE, token symbols A/B/C, IDs, arrays, arithmetic, URLs, code, and trace records identical across locales."
+  ],
+  "acceptance_examples": [
+    {"input": "fit alpha=1 and vocabulary size 5 on d1=[0,2,2,3,1], d2=[0,2,3,1]", "expected": "Seven within-document transitions are counted; row A is [0,0,1,2,0], and no EOS-to-BOS transition is recorded."},
+    {"input": "query A-to-C and the complete A row", "expected": "MLE(A-to-C)=0, add-one(A-to-C)=1/8, and the smoothed A row is [1/8,1/8,2/8,3/8,1/8]."},
+    {"input": "query the complete C row", "expected": "Its zero count total makes the MLE row undefined; add-one smoothing produces the uniform row [1/5,1/5,1/5,1/5,1/5]."},
+    {"input": "cargo run --quiet --locked -p ch06-bigram-baseline", "expected": "stdout equals rust/demos/ch06-bigram-baseline/expected.txt byte for byte."},
+    {"input": "cargo run --quiet --locked -p ch06-bigram-baseline --example diagram_trace", "expected": "stdout equals rust/demos/ch06-bigram-baseline/diagram-trace.txt byte for byte."}
+  ]
 }
 ---
 
-# Chapter 06: A count-based bigram language model / Счётная биграммная языковая модель
+# Chapter 06: From transition counts to a bigram model / От подсчета переходов к биграммной модели
 
 <!-- contract-section:scope -->
 ## Scope
 
-This chapter counts adjacent transitions inside each training document, normalizes one row at a time, and applies additive smoothing. It includes BOS/EOS transitions and never crosses document boundaries. It does not teach loss, gradients, neural logits, or evaluation; those follow in Chapter 7.
+Revision 2 replaces the earlier fixture. It teaches the one-token bigram context, one count per transition in each original wrapped training document, maximum-likelihood normalization, and add-alpha smoothing. It includes BOS and EOS, uses no padding, never flattens documents, never fits from overlapping Chapter 5 pairs, and does not open validation or test data. Chapter 7 will score the frozen table; gradients come later.
 
 <!-- contract-section:worked-inputs -->
 ## Worked example
 
-For documents `[0,1,1,2]` and `[0,1,2]`, count each neighboring pair once. Row 0 sees two `0→1` transitions; row 1 sees one `1→1` and two `1→2` transitions. With vocabulary size 3 and `α=1`, row 0 becomes `[1/5,3/5,1/5]`. An unseen row has equal probability for all three tokens.
+Use `BOS=0`, `EOS=1`, `A=2`, `B=3`, `C=4`, `alpha=1`, and the two training documents `[0,2,2,3,1]` and `[0,2,3,1]`. Before seeing the table, list the seven adjacent transitions and predict which next token is most likely after `A`. Then distinguish `A->C`, an unobserved successor after a seen context, from row `C`, a context with no outgoing observations.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
 
-$$C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t=i\land z_{t+1}=j],\quad P(j\mid i)=\frac{C_{ij}+\alpha}{\sum_k C_{ik}+\alpha|V|}$$
+$$C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)$$
 
-The first expression counts only adjacent positions within one training document. The second adds `α` to every candidate and divides by the row total after adding `α|V|`, so every row sums to one.
-
-## Symbol glossary
-
-`Cᵢⱼ` is the transition count, `zₜ` is a token, `D_tr` is the training partition, `P(j|i)` is the next-token probability, `α` is positive smoothing, and `|V|` is vocabulary size.
+Positions are zero-based, matching Rust slices. The document superscript prevents a transition from using the end of one document and the start of another. Here `V` is the vocabulary and `|V|` is its number of token IDs. The MLE row exists only for `N_i>0`; add-alpha smoothing defines every row by adding the same positive pseudocount to every candidate next token.
 
 <!-- contract-section:history -->
 ## Historical contrast
 
-Finite-context n-gram models were a practical pre-neural language-model baseline: count a context and estimate the next symbol. Maximum-likelihood counts expose an important weakness: an unseen continuation receives probability zero. The Rust demo prints the same row after adding one unit of smoothing, making the historical limitation observable without importing a language-model library.
+Classical n-gram models estimate a token from a fixed-length suffix of prior tokens; a bigram uses only the current token. Chen and Goodman compare established smoothing methods and explain why distributing probability among unseen n-grams is central to language modeling ([ACL 1996](https://aclanthology.org/P96-1041.pdf)). Bengio, Ducharme, and Vincent describe n-gram conditional tables and motivate distributed representations that generalize across similar sequences ([NeurIPS 2000](https://proceedings.neurips.cc/paper/2000/hash/728f206c2a01bf572b5940d7d9a8fa4c-Abstract.html)). This course keeps uniform add-alpha smoothing because its arithmetic is inspectable, while explicitly showing that it also assigns mass to implausible or structurally forbidden successors such as BOS in the middle of a document.
 
 <!-- contract-section:rust-behavior -->
-## Rust implementation
+## Rust behavior
 
-`BigramModel::fit` iterates `windows(2)` separately for each document, stores a deterministic row-major count table, and exposes `count`, `probability`, and `predict`. It rejects an empty vocabulary, invalid smoothing, and out-of-range IDs. Tests cover repeated transitions and uniform unseen rows.
+The generic Rust fitter scans every supplied slice separately and trusts the caller to provide one wrapped, unpadded training document per slice. It stores a checked row-major `|V| x |V|` count table, records document and transition totals, returns `None` for an undefined zero-total MLE row, and returns a normalized add-alpha row for every valid context. A partition-aware constructor obtains separately wrapped documents from `Partition::Train` only. The learner demo and diagram trace share one valid wrapped fixture and identify the exact `EOS->BOS` transition that flattening would invent.
 
 <!-- contract-section:visualization -->
 ## Visualization
 
-The diagram should show one count row beside its smoothed probability row, with numeric labels and row totals. The relationship remains readable without color: borders, headings, and exact values carry the distinction.
+The static figure reads the exact Rust trace. In separate panels for contexts `A` and `C`, it gives each possible next token its own labeled table row, then shows its count, MLE result, added pseudocount, smoothed numerator, and final probability alongside `N_i` and the smoothed denominator. Text, borders, headings, and numeric values carry every distinction without relying on color.
 
 <!-- contract-section:exercises -->
-## Predict, then check
+## Predict, calculate, explain
 
-1. Count the transitions in `[0,1,1,2]` and `[0,1,2]`.
-2. Predict the unsmoothed row for context `2`.
-3. Explain why flattening the two documents would create a transition that does not exist.
-4. Explain why smoothing changes probabilities but not observed counts.
-
-<details><summary>Check your predictions</summary>
-
-The counts are row 0 `[0,2,0]` and row 1 `[0,1,2]`; context 2 has no observed outgoing transition, so its unsmoothed row is undefined/zero while its smoothed row is uniform. Flattening would invent a cross-document pair. Smoothing leaves counts intact and changes only the normalized estimate.
-</details>
-
-**Misconception check:** “The most likely next token is the model’s confidence.” False: the full row is the prediction; the argmax alone discards uncertainty.
+Exercises must ask learners to enumerate the seven source transitions, calculate the complete `A` rows, distinguish MLE zero from undefined MLE, identify `EOS->BOS` as the flattening error, explain why Chapter 5 windows would overcount, test a different alpha, verify row sums, and interpret ties. Checked answers must show the arithmetic rather than repeat only the final arrays.
 
 <!-- contract-section:decoder-connection -->
 ## Handoff to scoring
 
-The fitted table consumes complete wrapped sequences from Chapter 5 and produces a distribution for every current token. Chapter 7 will calculate likelihood and perplexity on train and validation while keeping the table and test partition fixed.
+The bigram table is the first complete next-token model in the course. Freeze it after training-only fitting. Chapter 7 will assign probabilities to train and validation targets, convert those probabilities to loss and perplexity, and leave both the table and unopened test partition unchanged.
 
 <!-- contract-section:localization -->
 ## Localization
 
-Both locale lessons use the same numeric fixture, formula, Rust sources, navigation, and expected output. Only explanatory prose and labels are translated.
+English and Russian share formula notation, token meanings, IDs, arrays, Rust regions, trace records, primary-source URLs, and revision metadata. Russian prose must describe training-data observations directly rather than translating unseen with visibility metaphors, and its complete staged surface requires explicit fluent-human approval.
 
 <!-- contract-section:acceptance -->
 ## Acceptance
 
-The Rust demo output is byte-for-byte frozen in `rust/demos/ch06-bigram-baseline/expected.txt`; contract, content, parity, Rust, static-build, link, and browser checks validate the complete slice.
+Contract projections, exact Rust output, trace parsing, mathematical invariants, locale parity, static rendering, responsive accessibility, primary-source claims, natural-language reviews, and Docker-only canonical regression gates must all pass. Revision 1 remains available only through its immutable Git history and run record.

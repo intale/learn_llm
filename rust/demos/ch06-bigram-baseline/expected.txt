@@ -1,7 +1,13 @@
-vocabulary: 3
+tokens: BOS=0 EOS=1 A=2 B=3 C=4
 alpha: 1.0
-counts row 0: [0, 2, 0]
-counts row 1: [0, 1, 2]
-probabilities row 0: [0.200, 0.600, 0.200]
-probabilities unseen row 2: [0.333, 0.333, 0.333]
-prediction row 0: [0.2, 0.6, 0.2]
+training document d1: [0, 2, 2, 3, 1]
+training document d2: [0, 2, 3, 1]
+counted transitions: 7
+A counts: [0, 0, 1, 2, 0] total=3
+A MLE: [0.000, 0.000, 0.333, 0.667, 0.000]
+A add-alpha: [0.125, 0.125, 0.250, 0.375, 0.125] denominator=8
+unseen successor A->C: MLE=0.000 add-alpha=0.125
+C counts: [0, 0, 0, 0, 0] total=0
+C MLE: undefined
+C add-alpha: [0.200, 0.200, 0.200, 0.200, 0.200] denominator=5
+flattening would invent: EOS(1)->BOS(0)

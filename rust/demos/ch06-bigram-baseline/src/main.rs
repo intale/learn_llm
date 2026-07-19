@@ -1,31 +1,70 @@
-use llm_from_scratch::bigram::BigramModel;
+use ch06_bigram_baseline::{
+    A, ALPHA, C, DOCUMENT_1, DOCUMENT_2, EOS, TRAINING_DOCUMENTS, fitted_model, format_counts,
+    format_probabilities,
+};
 
 fn main() {
-    let documents: [&[u32]; 2] = [&[0, 1, 1, 2], &[0, 1, 2]];
-    let model = BigramModel::fit(3, 1.0, documents).expect("fixture is valid");
-    println!("vocabulary: {}", model.vocabulary_size());
-    println!("alpha: {:.1}", model.alpha());
+    let model = fitted_model().expect("the frozen teaching fixture is valid");
+    let a_mle = model
+        .maximum_likelihood_distribution(A)
+        .expect("A is in the vocabulary")
+        .expect("A has outgoing transitions");
+    let a_smoothed = model
+        .smoothed_distribution(A)
+        .expect("A is in the vocabulary");
+    let c_smoothed = model
+        .smoothed_distribution(C)
+        .expect("C is in the vocabulary");
+    let c_mle = model
+        .maximum_likelihood_distribution(C)
+        .expect("C is in the vocabulary")
+        .map(|row| format_probabilities(&row))
+        .unwrap_or_else(|| "undefined".to_owned());
+
+    // region:learner-output
+    println!("tokens: BOS=0 EOS=1 A=2 B=3 C=4");
+    println!("alpha: {ALPHA:.1}");
+    println!("training document d1: {DOCUMENT_1:?}");
+    println!("training document d2: {DOCUMENT_2:?}");
+    println!("counted transitions: {}", model.fitted_transitions());
     println!(
-        "counts row 0: [0, {}, {}]",
-        model.count(0, 1).unwrap(),
-        model.count(0, 2).unwrap()
+        "A counts: {} total={}",
+        format_counts(model.counts_row(A).expect("A is in the vocabulary")),
+        model.row_total(A).expect("A is in the vocabulary")
+    );
+    println!("A MLE: {}", format_probabilities(&a_mle));
+    println!(
+        "A add-alpha: {} denominator={:.0}",
+        format_probabilities(&a_smoothed),
+        model
+            .smoothing_denominator(A)
+            .expect("A is in the vocabulary")
     );
     println!(
-        "counts row 1: [0, {}, {}]",
-        model.count(1, 1).unwrap(),
-        model.count(1, 2).unwrap()
+        "unseen successor A->C: MLE={:.3} add-alpha={:.3}",
+        model
+            .maximum_likelihood_probability(A, C)
+            .expect("A and C are in the vocabulary")
+            .expect("A has outgoing transitions"),
+        model
+            .smoothed_probability(A, C)
+            .expect("A and C are in the vocabulary")
     );
     println!(
-        "probabilities row 0: [{:.3}, {:.3}, {:.3}]",
-        model.probability(0, 0).unwrap(),
-        model.probability(0, 1).unwrap(),
-        model.probability(0, 2).unwrap()
+        "C counts: {} total={}",
+        format_counts(model.counts_row(C).expect("C is in the vocabulary")),
+        model.row_total(C).expect("C is in the vocabulary")
     );
+    println!("C MLE: {c_mle}");
     println!(
-        "probabilities unseen row 2: [{:.3}, {:.3}, {:.3}]",
-        model.probability(2, 0).unwrap(),
-        model.probability(2, 1).unwrap(),
-        model.probability(2, 2).unwrap()
+        "C add-alpha: {} denominator={:.0}",
+        format_probabilities(&c_smoothed),
+        model
+            .smoothing_denominator(C)
+            .expect("C is in the vocabulary")
     );
-    println!("prediction row 0: {:?}", model.predict(0).unwrap());
+    println!("flattening would invent: EOS({EOS})->BOS(0)");
+    // endregion:learner-output
+
+    assert_eq!(model.fitted_documents(), TRAINING_DOCUMENTS.len());
 }

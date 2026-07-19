@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T16:44:24Z"
+updated_at: "2026-07-19T17:42:14Z"
 
 environment:
   os: "Linux x86_64"
@@ -3661,7 +3661,7 @@ builds:
         objective: "Replace Chapter 6 with a content-revision-2 vertical slice that derives a smoothed bigram distribution from valid wrapped training documents and clearly distinguishes unseen successors from unseen contexts."
         depends_on:
           - add-staged-review-release-workflow
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -3776,6 +3776,66 @@ builds:
               - "All 14 frozen staged source checksums and git diff --check passed."
               - "Exact final redundant site-wide repeat was not run: Docker execution was refused when the approval quota was reached; canonical validation remains mandatory after approval/publication."
             notes: "Interrupted without publication after the human reviewer identified that the repository had no safe browser command for the frozen run-specific candidate. The verified revision-2 publish tree, reviews, screenshots, and checksums remain immutable and reusable. Resume under a new run only after the review/release workflow is completed and committed; do not publish Chapter 6 until fluent-human approval and the remaining staged/canonical Docker gates pass."
+          - run_id: 20260719T165212Z-rewrite-ch06-bigram-baseline-02
+            started_at: "2026-07-19T16:52:12Z"
+            finished_at: "2026-07-19T17:42:14Z"
+            status: succeeded
+            input_fingerprint: "commit 9ea4a6b72f854388403b54397006bca76f857763; AGENTS.md sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73; SKILLS.md sha256:3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3; BUILD_STATE.yaml sha256:430244024fc6ca98fe268aa2788efa83f1128e31193160960e083f7ce94d1630; DECISIONS.md sha256:5b436432938499f24dbdd02686172bc801e15a6ff3cd3ae2b0da784913d6237c; course-plan sha256:40e1ca0e81d6b1f67e11b200a412ad045159967f96c087d4315ce23e039090ea; canonical old chapter contract sha256:d64d577359095400e449cb3336ad164edc19bb611a39eb3cf26c4657b991ad34; locales sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad; frozen revision-2 manifest sha256:c6c81425062b383a8c11fba96385b8449e4f149749d0b1df0827b76def877be6; frozen English lesson sha256:9a3a62d401c95a623d6ec14d31cc6456546eacea358bdc703aaf70204476f0b0; rejected Russian lesson sha256:039ed5956459636adac6c48e21ed0c0eb2a056f2cff431a6d26080d7c527cf89; Docker 25.0.2/Compose 2.17.3, Bash 5.3.9 and GNU coreutils 9.7"
+            staging_dir: ".build/runs/20260719T165212Z-rewrite-ch06-bigram-baseline-02/"
+            commands:
+              - "git status --short --branch and verify dedicated tooling commit 9ea4a6b with a clean tracked worktree"
+              - "Read AGENTS.md, SKILLS.md, the complete current ledger context, relevant decisions, curriculum workflow, Chapter 6 declarations, and configured locale registry"
+              - "Verify all 14 files in the prior frozen candidate and inspect its manual/validation reviews"
+              - "Copy the prior candidate's 14 verified sources into a new publish tree; preserve the earlier run and manifest unchanged"
+              - "Write a Russian meaning lock and context-sensitive terminology plan before drafting"
+              - "Reauthor the complete Russian metadata, prose, diagram labels, accessibility strings, Rust captions, exercises, answers, and Chapter 7 handoff; synchronize the localized contract and browser assertions"
+              - "Run independent native-Russian, English/contract/Rust parity, and accessibility audits; incorporate their findings without treating them as human approval"
+              - "Add the missing revision-2 curriculum/course-plan.md projection after the broad plan gate exposed formula drift"
+              - "docker build a run-specific Playwright image from learn-llm-ch06-playwright:20260719, install pinned Chromium 1228, overlay the staged tree, and rebuild site/dist inside the image"
+              - "Run the declared Rust, contract, locale, static-site, exact-output, focused-browser, full-browser, host-boundary, and diff validations in Docker or through the repository wrapper"
+              - "Freeze and verify the closed 15-file publish.sha256 manifest"
+              - "Start the frozen review server on 127.0.0.1:4400 after the default port 4321 was already occupied; verify the served HTML contains the exact corrected title"
+              - "Record the fluent human reviewer's explicit 'I approve' response against manifest sha256:5c4264648b02f0f26d49a587c046486429cd3a1e5914fc93565d9f1240689f23 and stop the review container cleanly"
+              - "Verify the frozen manifest and promote only its 15 source files to their declared canonical paths"
+              - "./course check"
+              - "Run the complete declared Chapter 6 Rust, exact-output, contract, locale, site-unit, static-build, and link matrix in learn-llm-workspace:local"
+              - "Build learn-llm-ch06-playwright:20260719-canonical directly from the canonical repository context and run focused plus full Playwright suites"
+              - "./course release"
+              - "Move the unexpected generated host target/ tree recoverably to /tmp/learn-llm-host-artifact-Dirav3TY/target after the first post-release audit rejected it"
+              - "./course audit-host; verify released localized routes, approved manifest identity, git diff --check, and final working-tree scope"
+            artifacts:
+              - path: ".build/runs/20260719T165212Z-rewrite-ch06-bigram-baseline-02/publish.sha256"
+                checksum: "sha256:5c4264648b02f0f26d49a587c046486429cd3a1e5914fc93565d9f1240689f23"
+                notes: "Closed checksums for the 15 frozen revision-2 publish sources, including the updated course plan; every entry passed."
+              - path: ".build/runs/20260719T165212Z-rewrite-ch06-bigram-baseline-02/meaning-lock.md"
+                checksum: "sha256:0a5612cde0d8c28022caf1b5e2bca6f0934c775dae70b4ca115270ec554de62d"
+                notes: "Facts, arithmetic, implementation constraints, and context-sensitive Russian terminology fixed before reauthoring."
+              - path: ".build/runs/20260719T165212Z-rewrite-ch06-bigram-baseline-02/russian-review.md"
+                checksum: "sha256:98ef79974a8f29b01aa857d3f4d0027d6c4708dde08371f4d14893114385d24f"
+                notes: "Resolved language findings, completed agent review passes, and the fluent human reviewer's explicit approval of the frozen rendered candidate."
+              - path: ".build/runs/20260719T165212Z-rewrite-ch06-bigram-baseline-02/validation-summary.md"
+                checksum: "sha256:7a542fd6f02feeb1b1755f1ac78f96bbe8fce39b70d336f412a80edc148a19c3"
+                notes: "Passing staged, canonical, browser, release, host-boundary, and final identity gates; corrected validation attempts; explicit approval; and independent publication-boundary audit."
+            validation:
+              - "Prior frozen revision-2 publish manifest: all 14 files passed; the prior run remains immutable"
+              - "Course plan: 39 chapters, 49 scheduled steps, and six implemented contracts passed after adding the revision-2 Chapter 6 definition"
+              - "Chapter 6 integrated contract, English chapter, Russian chapter, full configured-locale content, and locale-parity gates passed"
+              - "Rust format, Clippy with warnings denied, all workspace and doc tests including 38 cumulative crate tests, dependency policy, six-demo policy, learner-output diff, and diagram-trace diff passed"
+              - "Astro diagnostics reported zero errors/warnings/hints; 70 site unit tests, the 17-page static build, and 277 local-link references passed"
+              - "Focused Chapter 6 browser suite passed 3/3 at desktop and narrow widths; full browser regression passed 22/22"
+              - "Final ./course review 20260719T165212Z-rewrite-ch06-bigram-baseline-02 --check passed with the closed 15-file manifest before and after rendering"
+              - "Frozen Russian review route is reachable at http://127.0.0.1:4400/ru/course/06-bigram-baseline/ and serves the exact title 'От подсчета переходов к биграммной модели'"
+              - "Host artifact audit, manifest checksum verification, and git diff --check passed"
+              - "Three independent agent audits plus final monolingual and anti-calque passes found no unresolved numerical, parity, accessibility, or Russian-language blocker; these do not replace human approval"
+              - "The fluent human reviewer opened the frozen rendered Russian route and explicitly replied 'I approve'; approval is bound to the unchanged 15-file manifest"
+              - "All 15 promoted canonical source files matched their approved manifest checksums byte for byte before canonical validation"
+              - "Canonical ./course check and the complete declared Rust/site matrix passed: Clippy denied warnings, all workspace/doc tests passed, both exact traces matched, both locales and parity passed, 70 site unit tests passed, 17 pages built, and 277 local references passed"
+              - "Canonical Docker browser validation passed: focused Chapter 6 suite 3/3 and complete regression suite 22/22"
+              - "Independent read-only publication audit passed manifest closure, exact canonical identity, stale-file, symlink, unrelated-change, and diff checks"
+              - "Atomic ./course release passed with 81 static artifacts; root and localized course indexes exist and both Chapter 6 pages contain their approved titles"
+              - "The first post-release host audit rejected an unexpected 516 KiB generated target/ cache; no Rust process was active, the exact tree was moved recoverably to /tmp, and the repeated audit passed with site/dist as the sole generated exception"
+              - "Final canonical-to-manifest comparison, host audit, git diff --check, and working-tree scope checks passed after release"
+            notes: "Succeeded after explicit human approval. The exact 15-file candidate is canonical, the complete Docker matrix passed, and site/dist contains the atomic static release with the title 'От подсчета переходов к биграммной модели'. The completion checkpoint is ready for this step's dedicated commit; Chapter 7 must not start before that commit is verified."
       - id: implement-ch07-language-model-metrics
         objective: "Compute average negative log-likelihood and perplexity for predicted token distributions."
         depends_on:

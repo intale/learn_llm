@@ -1,11 +1,310 @@
 ---
-const { labels } = Astro.props;
-const rows: Array<{ from: string; counts: string; probabilities: string }> = labels?.rows ?? [];
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertBigramBaselineDiagramLabels,
+  bigramBaselineDiagramId,
+  parseBigramBaselineTrace,
+  type BigramBaselineDiagramLabels,
+  type BigramTraceRow,
+} from '../../lib/bigram-baseline-diagram';
+
+interface Props {
+  labels: BigramBaselineDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'bigram-baseline-diagram' } = Astro.props as Props;
+assertBigramBaselineDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch06-bigram-baseline/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseBigramBaselineTrace(readFileSync(fixtureUrl, 'utf8'));
+const knownRow = trace.rows.find((row) => row.total > 0);
+const unseenRow = trace.rows.find((row) => row.total === 0);
+if (!knownRow || !unseenRow) {
+  throw new Error('Chapter 6 diagram evidence requires one observed and one unseen context row.');
+}
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+const tokenById = (id: number) => trace.tokens[id];
+const rowSections: ReadonlyArray<{
+  row: BigramTraceRow;
+  title: string;
+  note: string;
+  kind: 'known' | 'unseen';
+}> = [
+  { row: knownRow, title: labels.sections.knownContext, note: labels.notes.unseenSuccessor, kind: 'known' },
+  { row: unseenRow, title: labels.sections.unseenContext, note: labels.notes.unseenContext, kind: 'unseen' },
+];
 ---
-<figure class="bigram-diagram" tabindex="0" aria-label={labels?.description}>
-  <figcaption>{labels?.title}</figcaption>
-  <table>
-    <thead><tr><th>{labels?.from}</th><th>{labels?.counts}</th><th>{labels?.probabilities}</th></tr></thead>
-    <tbody>{rows.map((row) => <tr><th scope="row">{row.from}</th><td>{row.counts}</td><td>{row.probabilities}</td></tr>)}</tbody>
-  </table>
+
+<figure
+  class="bigram-diagram"
+  data-visualization-id={bigramBaselineDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="summary-facts">
+      <div><dt>{labels.summary.vocabularySize}</dt><dd><bdi dir="ltr">{trace.config.vocabularySize}</bdi></dd></div>
+      <div><dt>{labels.summary.alpha}</dt><dd><bdi dir="ltr">{trace.config.alphaDisplay}</bdi></dd></div>
+      <div><dt>{labels.summary.trainingDocuments}</dt><dd><bdi dir="ltr">{trace.config.documentCount}</bdi></dd></div>
+      <div><dt>{labels.summary.countedTransitions}</dt><dd><bdi dir="ltr">{trace.config.transitionCount}</bdi></dd></div>
+    </dl>
+  </figcaption>
+
+  <section class="training-evidence" aria-labelledby={`${instanceId}-documents-title`}>
+    <h4 id={`${instanceId}-documents-title`}>{labels.sections.trainingDocuments}</h4>
+    <ol class="document-list">
+      {trace.documents.map((document) => (
+        <li data-document={document.id}>
+          <strong>{labels.fields.document} <code dir="ltr">{document.id}</code></strong>
+          <span
+            class="token-sequence"
+            role="group"
+            tabindex="0"
+            aria-label={`${labels.fields.document} ${document.id}: ${document.tokens.map((id) => `${tokenById(id).symbol} ${id}`).join(', ')}`}
+            dir="ltr"
+          >
+            {document.tokens.map((id, index) => {
+              const token = tokenById(id);
+              return (
+                <>
+                  {index > 0 && <span class="transition-arrow" aria-hidden="true">→</span>}
+                  <code data-token-id={id} data-token-role={token.role} aria-hidden="true">
+                    {token.symbol}<sub>{id}</sub>
+                  </code>
+                </>
+              );
+            })}
+          </span>
+        </li>
+      ))}
+    </ol>
+    <ul class="token-legend" aria-label={labels.sections.tokenLegend}>
+      {trace.tokens.map((token) => (
+        <li data-token-id={token.id} data-token-role={token.role}>
+          <code dir="ltr">{token.symbol}<sub>{token.id}</sub></code>
+          <span>{labels.roles[token.role]}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="evidence-note">{labels.notes.countOnce}</p>
+  </section>
+
+  <div class="row-grid">
+    {rowSections.map(({ row, title, note, kind }) => {
+      const headingId = `${instanceId}-${kind}-title`;
+      return (
+        <section
+          class="probability-row"
+          data-context-id={row.context}
+          data-context-kind={kind}
+          aria-labelledby={headingId}
+        >
+          <header>
+            <h4 id={headingId}>{title}</h4>
+            <p class="context-label">
+              {labels.fields.context}: <code dir="ltr">{row.symbol}<sub>{row.context}</sub></code>
+            </p>
+            <dl class="row-facts">
+              <div><dt>{labels.fields.rowTotal}</dt><dd><bdi dir="ltr">{row.total}</bdi></dd></div>
+              <div><dt>{labels.fields.denominator}</dt><dd><bdi dir="ltr">{row.denominator}</bdi></dd></div>
+            </dl>
+          </header>
+          <div class="table-scroll" role="region" tabindex="0" aria-labelledby={headingId}>
+            <table aria-labelledby={headingId}>
+              <thead>
+                <tr>
+                  <th scope="col">{labels.columns.nextToken}</th>
+                  <th scope="col">{labels.columns.count}</th>
+                  <th scope="col">{labels.columns.pseudocount}</th>
+                  <th scope="col">{labels.columns.smoothedNumerator}</th>
+                  <th scope="col">{labels.columns.mle}</th>
+                  <th scope="col">{labels.columns.smoothed}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {trace.tokens.map((token) => (
+                  <tr
+                    data-candidate-id={token.id}
+                    data-candidate-role={token.role}
+                    data-unseen-successor={kind === 'known' && token.role === 'unseen' ? 'true' : undefined}
+                  >
+                    <th scope="row"><code dir="ltr">{token.symbol}<sub>{token.id}</sub></code></th>
+                    <td data-value="count"><bdi dir="ltr">{row.counts[token.id]}</bdi></td>
+                    <td data-value="pseudocount"><bdi dir="ltr">+{row.pseudocount}</bdi></td>
+                    <td data-value="numerator"><bdi dir="ltr">{row.numerators[token.id]}</bdi></td>
+                    <td data-value="mle">{row.mle ? <bdi dir="ltr">{row.mle[token.id]}</bdi> : labels.values.undefinedMle}</td>
+                    <td data-value="smoothed"><bdi dir="ltr">{row.smoothed[token.id]}</bdi></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="row-note">{note}</p>
+        </section>
+      );
+    })}
+  </div>
+
+  <section class="boundary-guard" aria-labelledby={`${instanceId}-boundary-title`}>
+    <h4 id={`${instanceId}-boundary-title`}>{labels.sections.boundaryGuard}</h4>
+    <p
+      class="forbidden-transition"
+      dir="ltr"
+      role="img"
+      aria-label={`${tokenById(trace.boundary.forbiddenFrom).symbol} ${trace.boundary.forbiddenFrom} ${labels.values.boundaryTransition} ${tokenById(trace.boundary.forbiddenTo).symbol} ${trace.boundary.forbiddenTo}`}
+    >
+      <code aria-hidden="true">{tokenById(trace.boundary.forbiddenFrom).symbol}<sub>{trace.boundary.forbiddenFrom}</sub></code>
+      <span aria-hidden="true">↛</span>
+      <code aria-hidden="true">{tokenById(trace.boundary.forbiddenTo).symbol}<sub>{trace.boundary.forbiddenTo}</sub></code>
+    </p>
+    <p>{labels.notes.boundary}</p>
+  </section>
 </figure>
+
+<style>
+  .bigram-diagram {
+    --diagram-border: color-mix(in srgb, currentColor 20%, transparent);
+    --diagram-surface: color-mix(in srgb, currentColor 4%, transparent);
+    display: grid;
+    gap: 1.25rem;
+    margin-block: 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.85rem;
+  }
+
+  .bigram-diagram:focus-visible,
+  .token-sequence:focus-visible,
+  .table-scroll:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  figcaption h3,
+  section h4,
+  figcaption p,
+  section p { margin-block-start: 0; }
+
+  .summary-facts,
+  .row-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin: 0;
+  }
+
+  .summary-facts div,
+  .row-facts div { display: flex; gap: 0.35rem; }
+  .summary-facts dt,
+  .row-facts dt { font-weight: 650; }
+  .summary-facts dd,
+  .row-facts dd { margin: 0; }
+
+  .training-evidence,
+  .probability-row,
+  .boundary-guard {
+    padding: 1rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.65rem;
+    background: var(--diagram-surface);
+  }
+
+  .document-list,
+  .token-legend {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .document-list li { display: grid; gap: 0.45rem; }
+
+  .token-sequence {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: max-content;
+    max-width: 100%;
+    padding: 0.55rem;
+    overflow-x: auto;
+    border-radius: 0.45rem;
+    background: color-mix(in srgb, currentColor 7%, transparent);
+  }
+
+  .token-sequence code,
+  .token-legend code,
+  .probability-row code,
+  .forbidden-transition code { white-space: nowrap; }
+
+  .token-legend {
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    margin-block: 1rem;
+  }
+
+  .token-legend li { display: flex; align-items: baseline; gap: 0.5rem; }
+
+  .row-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .probability-row { min-width: 0; }
+
+  .context-label { font-weight: 650; }
+
+  .table-scroll {
+    min-width: 0;
+    max-width: 100%;
+    margin-block: 1rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
+
+  table {
+    width: 100%;
+    min-width: 35rem;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    border-block-end: 1px solid var(--diagram-border);
+    text-align: start;
+  }
+
+  td[data-value] { font-variant-numeric: tabular-nums; }
+  tr[data-unseen-successor='true'] { border-inline-start: 0.35rem double currentColor; }
+
+  .row-note,
+  .evidence-note,
+  .boundary-guard > p:last-child { margin-block-end: 0; }
+
+  .boundary-guard { border-style: dashed; }
+
+  .forbidden-transition {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  @media (forced-colors: active) {
+    .bigram-diagram,
+    .training-evidence,
+    .probability-row,
+    .boundary-guard { border-color: CanvasText; }
+  }
+</style>

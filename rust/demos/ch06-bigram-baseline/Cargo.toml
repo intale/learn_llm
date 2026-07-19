@@ -10,3 +10,7 @@ llm-from-scratch = { path = "../../crates/llm-from-scratch" }
 
 [lints]
 workspace = true
+
+[[bin]]
+name = "ch06-bigram-baseline"
+path = "src/main.rs"

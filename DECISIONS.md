@@ -1546,3 +1546,60 @@ new complete `site/dist`, and broken local links cannot reach either release
 path. The static export remains the only allowed generated host tree.
 
 **Affected step:** `add-staged-review-release-workflow`.
+
+## 2026-07-19 — Human rejection overrides the Chapter 6 Russian self-review
+
+**Status:** Human linguistic correction; publication remains prohibited.
+
+**Context:** The first revision-2 run recorded an agent review that called the
+Russian lesson natural. Browser review disproved that verdict immediately: its
+title rendered “От чисел переходов к биграммной модели,” a literal and
+meaning-changing treatment of “transition counts.” The intended idea is the
+act of counting transitions, and the human supplied “От подсчета переходов к
+биграммной модели.” One visible error is sufficient to invalidate the earlier
+language-pass claim; changing only the title would not establish that the rest
+of the lesson reads naturally.
+
+**Decision:** Preserve the rejected run and its manifest unchanged. Start a new
+`rewrite-ch06-bigram-baseline` run from the verified technical and English
+evidence, then repeat the Russian meaning lock, terminology, native-draft,
+critical-claim, anti-calque, monolingual, accessible-language, and rendered
+passes across the contract fields, lesson frontmatter, prose, diagram labels,
+captions, accessible names, exercises, answers, and handoff. Use the
+human-specified title exactly. Treat agent review only as draft feedback; only
+the human's explicit approval of the new rendered Russian page can satisfy the
+publication gate.
+
+**Consequences:** Chapter 6 revision 2 stays staged and Chapter 7 remains
+ineligible. The new run may reuse checksum-verified locale-neutral and English
+files, but it must freeze a new closed manifest after the Russian surface is
+rewritten and must pass the complete staged Docker gates before another review
+request.
+
+**Affected step:** `rewrite-ch06-bigram-baseline`.
+
+## 2026-07-19 — Human approves the frozen Chapter 6 Russian rewrite
+
+**Status:** Approved for publication.
+
+**Context:** Run `20260719T165212Z-rewrite-ch06-bigram-baseline-02` froze a
+closed 15-file candidate under manifest checksum
+`5c4264648b02f0f26d49a587c046486429cd3a1e5914fc93565d9f1240689f23`.
+It was served at the run-specific Russian route on loopback, including the exact
+title “От подсчета переходов к биграммной модели.” The human opened the rendered
+page and explicitly replied “I approve.”
+
+**Decision:** Treat that approval as applying to the exact manifest-verified
+candidate, including the complete Russian lesson, its localized contract
+surface, course-plan revision, and browser assertions. Promote only those frozen
+sources to their declared canonical paths, run the complete canonical Docker
+matrix, publish the static release, and commit the completed
+`rewrite-ch06-bigram-baseline` step before Chapter 7 begins.
+
+**Consequences:** The fluent-human gate is satisfied. Any content change after
+promotion would require a new run and renewed review; validation-only state and
+decision updates do not alter the approved lesson. Chapter 7 remains blocked
+until canonical validation, the completion checkpoint, and the dedicated step
+commit all succeed.
+
+**Affected step:** `rewrite-ch06-bigram-baseline`.

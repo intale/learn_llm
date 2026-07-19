@@ -1,0 +1,13 @@
+TRACE bigram-baseline-v2 BEGIN
+CONFIG vocabulary=5 alpha=1.000 documents=2 transitions=7
+TOKEN id=0 symbol=BOS role=boundary
+TOKEN id=1 symbol=EOS role=boundary
+TOKEN id=2 symbol=A role=content
+TOKEN id=3 symbol=B role=content
+TOKEN id=4 symbol=C role=unseen
+DOCUMENT id=d1 tokens=0,2,2,3,1
+DOCUMENT id=d2 tokens=0,2,3,1
+ROW context=2 symbol=A counts=0,0,1,2,0 total=3 pseudocount=1.000 numerators=1.000,1.000,2.000,3.000,1.000 denominator=8 mle=0.000,0.000,0.333,0.667,0.000 smoothed=0.125,0.125,0.250,0.375,0.125
+ROW context=4 symbol=C counts=0,0,0,0,0 total=0 pseudocount=1.000 numerators=1.000,1.000,1.000,1.000,1.000 denominator=5 mle=undefined smoothed=0.200,0.200,0.200,0.200,0.200
+BOUNDARY forbidden-from=1 forbidden-to=0
+TRACE bigram-baseline-v2 END
