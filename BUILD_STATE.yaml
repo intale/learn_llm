@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T08:37:59Z"
+updated_at: "2026-07-19T09:01:30Z"
 
 environment:
   os: "Linux x86_64"
@@ -2975,7 +2975,7 @@ builds:
         objective: "Publish a root playbook that turns the proven one-chapter vertical-slice flow and meaning-first localization standard into repeatable instructions for every future chapter."
         depends_on:
           - review-published-russian-localization
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -3007,13 +3007,75 @@ builds:
         cost:
           class: small
           notes: "Local documentation and deterministic checks only; no network, dependency change, paid service, generation service, or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260719T084103Z-document-chapter-delivery-skill-01
+            started_at: "2026-07-19T08:41:03Z"
+            finished_at: "2026-07-19T09:01:30Z"
+            status: succeeded
+            input_fingerprint:
+              git: "fb7ee7c7963f68c5b31b9dc25d3f140e8f9e97b0"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:7cdc3f0aeee6808859ac12f9e793f6eb0c2ccd268911d94c5429a1fe5e1bfff8"
+                DECISIONS.md: "sha256:8363b9ee89940617983d2b70d637cc29230c43da9c255d271ba3125578a406de"
+                curriculum/course-plan.md: "sha256:93bba3af65ed2383169a902f3c8ba9bb099fd258d675e6bd120f40d77b864951"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-rust-demos.sh: "sha256:7e20345825b0241c982929d3349603d99af07d50d1faf70d4b15c416f5410b0a"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T084103Z-document-chapter-delivery-skill-01/"
+            commands:
+              - "git status --short --branch; verify review-published-russian-localization commit fb7ee7c and a clean worktree"
+              - "sha256sum every declared playbook input and verify recorded tool versions"
+              - "Read the curriculum workflow/template, exact localization and vertical-slice decisions, locale registry, validator behavior, and Chapters 2-4 plus Russian-review run evidence"
+              - "Author SKILLS.md only in run-specific staging; perform independent lifecycle, technical, and localization/extensibility audits; resolve every finding"
+              - "Create and verify publication.sha256, publish the staged SKILLS.md to the repository root, and verify byte identity"
+              - "Add SKILLS.md as an input to all 35 pending Chapter 5-39 steps without changing completed step declarations"
+              - "Run every declared staged and canonical validation plus YAML, Markdown, checksum, input-coverage, and whitespace checks"
+            artifacts:
+              - path: ".build/runs/20260719T084103Z-document-chapter-delivery-skill-01/publication.sha256"
+                sha256: "15c9a7128bdda8986b7eb3a9931acd5a4dccac6284d521a44f06016fdab44f13"
+                notes: "Checksum manifest for canonical SKILLS.md; verified in staging and after publication."
+              - path: ".build/runs/20260719T084103Z-document-chapter-delivery-skill-01/manual-review.md"
+                sha256: "f173b2a2a52324978a0fafbd6713864a67b82070f24f5303e8309395f1ab5b51"
+                notes: "Acceptance mapping and resolution record for lifecycle, technical, static-site, localization, and locale-activation review."
+            validation:
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The 39-chapter, 45-step plan remains coherent through implemented Chapter 4, and all 35 pending Chapter 5-39 steps consume SKILLS.md."
+              - command: "ruby -e 'text=File.read(%q[SKILLS.md]); required=[%q[BUILD_STATE.yaml],%q[DECISIONS.md],%q[one chapter],%q[run-specific staging],%q[Rust],%q[configured locale],%q[meaning],%q[calque],%q[rendered],%q[Git commit]]; missing=required.reject{|item| text.downcase.include?(item.downcase)}; abort(missing.join(%q[, ])) unless missing.empty?; puts %q[SKILLS chapter-delivery contract passed]'"
+                status: passed
+                notes: "The canonical playbook contains every required chapter-delivery and localization contract marker."
+              - command: "Manual review against AGENTS.md, DECISIONS.md, the curriculum template, Chapters 2-4 run evidence, and the completed Russian-localization review"
+                status: passed
+                notes: "Independent lifecycle, technical, and localization/extensibility audits found actionable gaps; every finding was corrected and rechecked in the final 495-line playbook."
+              - command: "BUILD_STATE.yaml parse and exact pending-step SKILLS.md input count"
+                status: passed
+                notes: "The ledger is valid YAML and exactly 35 Chapter 5-39 step declarations consume the completed playbook."
+              - command: "Markdown structure/trailing-whitespace checks, git diff --check, sha256sum -c publication.sha256, and staged/canonical cmp"
+                status: passed
+                notes: "The playbook has balanced fences, no whitespace defect, and is byte-identical to its validated staged publication with SHA-256 3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3."
+            notes: "Completed as a small local documentation step. Root SKILLS.md is a repository playbook, not a formal Codex SKILL.md package. It captures the proven one-owner vertical slice, deterministic Rust evidence, static integration, meaning-first language-agnostic translation, fluent-human approval, locale activation, recovery, and per-step commit workflow. No network, dependency change, paid service, generation service, substantial CPU work, or Chapter 5 product work occurred."
       - id: implement-ch05-autoregressive-examples
         objective: "Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries."
         depends_on:
           - document-chapter-delivery-skill
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/04-apply-bpe-tokenizer.md"
           - "curriculum/chapter-template.md"
@@ -3077,6 +3139,7 @@ builds:
           - implement-ch05-autoregressive-examples
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/05-autoregressive-examples.md"
           - "curriculum/chapter-template.md"
@@ -3140,6 +3203,7 @@ builds:
           - implement-ch06-bigram-baseline
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/06-bigram-baseline.md"
           - "curriculum/chapter-template.md"
@@ -3203,6 +3267,7 @@ builds:
           - implement-ch07-language-model-metrics
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/07-language-model-metrics.md"
           - "curriculum/chapter-template.md"
@@ -3266,6 +3331,7 @@ builds:
           - implement-ch08-tensor-storage
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/08-tensor-storage.md"
           - "curriculum/chapter-template.md"
@@ -3329,6 +3395,7 @@ builds:
           - implement-ch09-tensor-views
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/09-tensor-views.md"
           - "curriculum/chapter-template.md"
@@ -3392,6 +3459,7 @@ builds:
           - implement-ch10-broadcasting-reductions
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/10-broadcasting-reductions.md"
           - "curriculum/chapter-template.md"
@@ -3455,6 +3523,7 @@ builds:
           - implement-ch11-matrix-multiplication
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/11-matrix-multiplication.md"
           - "curriculum/chapter-template.md"
@@ -3518,6 +3587,7 @@ builds:
           - implement-ch12-stable-softmax
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/12-stable-softmax.md"
           - "curriculum/chapter-template.md"
@@ -3581,6 +3651,7 @@ builds:
           - implement-ch13-gradient-checking
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/13-gradient-checking.md"
           - "curriculum/chapter-template.md"
@@ -3644,6 +3715,7 @@ builds:
           - implement-ch14-scalar-autodiff
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/14-scalar-autodiff.md"
           - "curriculum/chapter-template.md"
@@ -3707,6 +3779,7 @@ builds:
           - implement-ch15-tensor-autodiff-core
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/15-tensor-autodiff-core.md"
           - "curriculum/chapter-template.md"
@@ -3770,6 +3843,7 @@ builds:
           - implement-ch16-model-autodiff-ops
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/16-model-autodiff-ops.md"
           - "curriculum/chapter-template.md"
@@ -3833,6 +3907,7 @@ builds:
           - implement-ch17-parameter-initialization
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/17-parameter-initialization.md"
           - "curriculum/chapter-template.md"
@@ -3896,6 +3971,7 @@ builds:
           - implement-ch18-token-embeddings
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/18-token-embeddings.md"
           - "curriculum/chapter-template.md"
@@ -3959,6 +4035,7 @@ builds:
           - implement-ch19-linear-layers
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/19-linear-layers.md"
           - "curriculum/chapter-template.md"
@@ -4022,6 +4099,7 @@ builds:
           - implement-ch20-swiglu-feed-forward
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/20-swiglu-feed-forward.md"
           - "curriculum/chapter-template.md"
@@ -4085,6 +4163,7 @@ builds:
           - implement-ch21-mini-batches
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/21-mini-batches.md"
           - "curriculum/chapter-template.md"
@@ -4148,6 +4227,7 @@ builds:
           - implement-ch22-adamw
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/22-adamw.md"
           - "curriculum/chapter-template.md"
@@ -4211,6 +4291,7 @@ builds:
           - implement-ch23-neural-ngram
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/23-neural-ngram.md"
           - "curriculum/chapter-template.md"
@@ -4274,6 +4355,7 @@ builds:
           - implement-ch24-residual-connections
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/24-residual-connections.md"
           - "curriculum/chapter-template.md"
@@ -4337,6 +4419,7 @@ builds:
           - implement-ch25-rmsnorm
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/25-rmsnorm.md"
           - "curriculum/chapter-template.md"
@@ -4400,6 +4483,7 @@ builds:
           - implement-ch26-qkv-projections
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/26-qkv-projections.md"
           - "curriculum/chapter-template.md"
@@ -4463,6 +4547,7 @@ builds:
           - implement-ch27-self-attention
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/27-self-attention.md"
           - "curriculum/chapter-template.md"
@@ -4526,6 +4611,7 @@ builds:
           - implement-ch28-causal-masking
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/28-causal-masking.md"
           - "curriculum/chapter-template.md"
@@ -4589,6 +4675,7 @@ builds:
           - implement-ch29-rope
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/29-rope.md"
           - "curriculum/chapter-template.md"
@@ -4652,6 +4739,7 @@ builds:
           - implement-ch30-multi-head-attention
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/30-multi-head-attention.md"
           - "curriculum/chapter-template.md"
@@ -4715,6 +4803,7 @@ builds:
           - implement-ch31-decoder-block
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/31-decoder-block.md"
           - "curriculum/chapter-template.md"
@@ -4778,6 +4867,7 @@ builds:
           - implement-ch32-decoder-model
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/32-decoder-model.md"
           - "curriculum/chapter-template.md"
@@ -4841,6 +4931,7 @@ builds:
           - implement-ch33-training-selection
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/33-training-selection.md"
           - "curriculum/chapter-template.md"
@@ -4904,6 +4995,7 @@ builds:
           - implement-ch34-final-evaluation
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/34-final-evaluation.md"
           - "curriculum/chapter-template.md"
@@ -4965,6 +5057,7 @@ builds:
           - implement-ch35-checkpoints
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/35-checkpoints.md"
           - "curriculum/chapter-template.md"
@@ -5028,6 +5121,7 @@ builds:
           - implement-ch36-temperature-top-k
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/36-temperature-top-k.md"
           - "curriculum/chapter-template.md"
@@ -5091,6 +5185,7 @@ builds:
           - implement-ch37-incremental-attention
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/37-incremental-attention.md"
           - "curriculum/chapter-template.md"
@@ -5154,6 +5249,7 @@ builds:
           - implement-ch38-cached-generation
         status: pending
         inputs:
+          - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/38-cached-generation.md"
           - "curriculum/chapter-template.md"
