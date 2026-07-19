@@ -8,6 +8,8 @@ pub mod corpus;
 
 /// Tokenizer construction and application taught in Chapters 3 and 4.
 pub mod tokenizer {
+    #[path = "bpe.rs"]
+    pub mod bpe;
     #[path = "bpe_trainer.rs"]
     pub mod bpe_trainer;
 }

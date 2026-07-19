@@ -1,0 +1,48 @@
+layout version: 1
+control ids: BOS=0 EOS=1
+content ranges: bytes=2..257 merges=258..265 vocabulary=266
+frozen merge ranks: 8 (train only)
+historical input: lowering
+historical ids: [0]
+historical decoded: <UNK> (original bytes lost)
+unseen UTF-8 input: 🦀
+unseen content ids: [242,161,168,130]
+unseen decoded: 🦀
+empty document ids: [0,1]
+malformed input bytes: [ff,fe]
+malformed content ids: [257,256]
+malformed decoded bytes: [ff,fe]
+malformed UTF-8: decoded bytes are not valid UTF-8 at byte 0
+interior control rejected: document control token 0 is not allowed at position 2
+canonical " а" content ids: [258,178]
+noncanonical same-byte ids: [34,259]
+noncanonical re-encodes as: [258,178]
+TRACE apply-bpe-tokenizer-v1 BEGIN
+LAYOUT version=1 bos=0 eos=1 content_offset=2 byte_count=256 merge_count=8 vocabulary_size=266
+RULE rank=0 training_pair=32,208 training_token=256 content_pair=34,210 content_token=258 bytes_hex=20,d0
+RULE rank=1 training_pair=208,176 training_token=257 content_pair=210,178 content_token=259 bytes_hex=d0,b0
+RULE rank=2 training_pair=209,130 training_token=258 content_pair=211,132 content_token=260 bytes_hex=d1,82
+RULE rank=3 training_pair=208,181 training_token=259 content_pair=210,183 content_token=261 bytes_hex=d0,b5
+RULE rank=4 training_pair=208,190 training_token=260 content_pair=210,192 content_token=262 bytes_hex=d0,be
+RULE rank=5 training_pair=208,184 training_token=261 content_pair=210,186 content_token=263 bytes_hex=d0,b8
+RULE rank=6 training_pair=209,128 training_token=262 content_pair=211,130 content_token=264 bytes_hex=d1,80
+RULE rank=7 training_pair=101,32 training_token=263 content_pair=103,34 content_token=265 bytes_hex=65,20
+CASE id=ascii-bee input_hex=62,65,65,20
+INITIAL case=ascii-bee tokens=100,103,103,34
+APPLIED case=ascii-bee ranks=7
+CONTENT case=ascii-bee tokens=100,103,265
+DOCUMENT case=ascii-bee tokens=0,100,103,265,1
+PIECE case=ascii-bee index=0 token=100 bytes_hex=62
+PIECE case=ascii-bee index=1 token=103 bytes_hex=65
+PIECE case=ascii-bee index=2 token=265 bytes_hex=65,20
+DECODED case=ascii-bee bytes_hex=62,65,65,20
+CASE id=cyrillic-a input_hex=20,d0,b0
+INITIAL case=cyrillic-a tokens=34,210,178
+APPLIED case=cyrillic-a ranks=0
+CONTENT case=cyrillic-a tokens=258,178
+DOCUMENT case=cyrillic-a tokens=0,258,178,1
+PIECE case=cyrillic-a index=0 token=258 bytes_hex=20,d0
+PIECE case=cyrillic-a index=1 token=178 bytes_hex=b0
+DECODED case=cyrillic-a bytes_hex=20,d0,b0
+TRACE apply-bpe-tokenizer-v1 END
+chapter 5 handoff: preserve each wrapped document boundary

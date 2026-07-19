@@ -1,0 +1,390 @@
+---
+{
+  "chapter_id": "04-apply-bpe-tokenizer",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 4,
+  "concept_id": "reversible-byte-bpe-tokenizer",
+  "title": "Applying and reversing a BPE tokenizer",
+  "description": "Replay frozen byte-pair ranks, reserve document controls, and recover every content byte exactly.",
+  "objective": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
+  "worked_inputs": "Predict how the frozen ranks encode the bytes of a space followed by Cyrillic а, then compare that canonical sequence with a different valid sequence that decodes to the same bytes.",
+  "formula": {
+    "latex": "\\operatorname{decode}_{content}(\\operatorname{encode}_{content}(x))=\\operatorname{bytes}(x)",
+    "symbols": [
+      {
+        "symbol": "x",
+        "meaning": "the input content, supplied as UTF-8 text or directly as bytes"
+      },
+      {
+        "symbol": "\\operatorname{encode}_{content}",
+        "meaning": "byte initialization followed by every frozen merge rank in ascending order, without BOS or EOS"
+      },
+      {
+        "symbol": "\\operatorname{decode}_{content}",
+        "meaning": "concatenation of the stored byte expansion for every content token ID"
+      },
+      {
+        "symbol": "\\operatorname{bytes}(x)",
+        "meaning": "the exact input byte sequence, with no Unicode normalization or replacement"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Closed whole-word vocabularies with an unknown token and byte-level fallback",
+    "summary": "A closed word table loses the spelling of every unseen word behind <UNK>. Sennrich, Haddow, and Birch used learned subwords to address rare words, while the GPT-2 report described UTF-8 byte-level BPE with a 256-symbol base that can cover any Unicode string. Byte coverage removes the unknown-string hole but can spend several positions on one character; this course uses its own document-boundary policy and explicit BOS/EOS layout.",
+    "rust_source": "rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs",
+      "region": "unknown-token-loss",
+      "purpose": "Expose how a closed whole-word table loses every unseen spelling behind one unknown ID."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
+      "region": "token-id-layout",
+      "purpose": "Freeze the versioned control, byte, and merge ID ranges."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
+      "region": "ranked-content-encoding",
+      "purpose": "Map bytes through the content offset and replay frozen ranks in order."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
+      "region": "byte-exact-decoding",
+      "purpose": "Recover exact bytes first and validate UTF-8 only as a separate strict view."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
+      "region": "document-wrapping",
+      "purpose": "Add and strictly validate BOS and EOS outside the content merge path."
+    },
+    {
+      "path": "rust/demos/ch04-apply-bpe-tokenizer/src/main.rs",
+      "region": "chapter-output",
+      "purpose": "Print exact layout, edge-case, canonicalization, and diagram evidence."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "apply-bpe-tokenizer",
+    "rationale": "Parallel English and Cyrillic pipelines make ranked byte grouping, the shifted ID namespace, boundary-only controls, and exact inverse byte concatenation visible together."
+  },
+  "decoder_connection": "The tokenizer now turns each document into one exact sequence [BOS, content..., EOS]. Chapter 5 creates shifted causal examples inside each such sequence without joining documents or partitions."
+}
+---
+
+import ApplyBpeTokenizerDiagram from '../../../components/chapters/ApplyBpeTokenizerDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Ranked byte groups reverse to the exact input',
+  description:
+    'Follow one ASCII and one Cyrillic input through canonical content IDs and document controls, then follow the pipeline back and concatenate stored bytes in token order.',
+  caseTitles: {
+    asciiBee: 'ASCII example: bee plus a space',
+    cyrillicA: 'Cyrillic example: a space plus а',
+  },
+  lanes: {
+    input: 'Input text',
+    bytes: 'UTF-8 bytes (hex)',
+    initial: 'Shifted byte-token content IDs',
+    grouped: 'Canonical ranked groups',
+    document: 'Document IDs',
+    decoded: 'Recovered bytes (hex)',
+  },
+  fields: {
+    layoutVersion: 'Layout version',
+    contentOffset: 'Content offset',
+    tokenId: 'Token ID',
+    byteExpansion: 'Stored bytes',
+    appliedRank: 'Applied rank',
+    byteFallback: 'One-byte fallback',
+    bos: 'beginning boundary',
+    eos: 'ending boundary',
+  },
+  values: {
+    exactMatch: 'Exact byte match',
+  },
+  invariantsLabel: 'What both pipelines prove',
+  invariants: {
+    ranks: 'Frozen ranks run in ascending order; the input never changes their priority.',
+    offset: 'Every content ID is its Chapter 3 training ID plus two.',
+    controls: 'BOS and EOS appear only after encoding and only at document endpoints.',
+    bytes: 'Stored piece bytes concatenate to the exact input without normalization.',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict the first merge before running it
+
+Take a space followed by Cyrillic `а`:
+
+```text
+text          = " а"
+UTF-8 bytes   = [20, d0, b0]
+trainer IDs   = [32, 208, 176]
+```
+
+Chapter 3 learned these two relevant rules:
+
+| Rank | Trainer-space pair | New trainer ID | Stored bytes |
+| ---: | :--- | ---: | :--- |
+| 0 | `(32,208)` | `256` | `20 d0` |
+| 1 | `(208,176)` | `257` | `d0 b0` |
+
+Which rule wins on this input? Rank is priority, not a frequency to recompute.
+Rank 0 runs first and consumes `32,208`, leaving `[256,176]`. Rank 1 can no
+longer see adjacent `208,176`. After reserving two controls, every trainer ID is
+shifted by two:
+
+```text
+canonical content IDs = [258, 178]
+wrapped document IDs  = [0, 258, 178, 1]
+                         ^             ^
+                        BOS           EOS
+```
+
+Now reverse the content. Token `258` stores bytes `20 d0`; token `178` is raw
+byte `b0`. Concatenating them gives `20 d0 b0`, exactly the input. Notice that
+token `258` is not valid standalone UTF-8: its final `d0` is a lead byte whose
+continuation arrives from the next token. Tokens are byte pieces, not guaranteed
+characters.
+
+There is a subtle trap. `[34,259]` is also a valid content sequence: `34` stores
+the space byte `20`, and rank-1 token `259` stores `d0 b0`. It decodes to the same
+three bytes. But re-encoding those bytes returns canonical `[258,178]`, because
+rank 0 has priority. Exact decoding does **not** make every valid token sequence a
+canonical encoding.
+
+{/* chapter-section:formula */}
+
+## Guarantee exact bytes in one direction
+
+The tokenizer promises:
+
+$$
+\operatorname{decode}_{content}(\operatorname{encode}_{content}(x))=\operatorname{bytes}(x)
+$$
+
+`encode_content` starts from one shifted ID per byte and replays the frozen rules
+from rank 0 upward. It does not inspect validation/test frequencies, learn a new
+pair, normalize Unicode, lowercase text, or split on words. `decode_content`
+looks up each content token's stored byte expansion and concatenates the results.
+
+The equation intentionally does not claim
+`encode_content(decode_content(z)) = z` for every token sequence `z`. The worked
+pair `[34,259]` is a counterexample. This one-way statement is exactly what the
+model needs: one deterministic encoder and a lossless decoder for its outputs.
+
+{/* chapter-section:symbol-glossary */}
+
+## Symbol glossary and ID layout
+
+| Symbol | Meaning |
+| :--- | :--- |
+| $x$ | the input content, supplied as UTF-8 text or directly as bytes |
+| $\operatorname{encode}_{content}$ | byte initialization followed by every frozen merge rank in ascending order, without BOS or EOS |
+| $\operatorname{decode}_{content}$ | concatenation of the stored byte expansion for every content token ID |
+| $\operatorname{bytes}(x)$ | the exact input byte sequence, with no Unicode normalization or replacement |
+
+Layout version 1 has one contiguous namespace:
+
+| IDs | Meaning | Mapping |
+| :--- | :--- | :--- |
+| `0` | BOS control | fixed |
+| `1` | EOS control | fixed |
+| `2..=257` | 256 one-byte content tokens | byte `b` maps to `b+2` |
+| `258..` | learned content tokens | rank `r` maps to `258+r` |
+
+There is no PAD ID in this course. The later training path uses fixed-length
+windows; padding-heavy serving is deliberately deferred. That is a scope choice,
+not a claim that production systems never pad.
+
+{/* chapter-section:history */}
+
+## Replace the unknown-string hole with byte coverage
+
+A closed whole-word vocabulary can assign one token ID to each common fitted word, but
+an unseen spelling has no row. The historical Rust contrast maps both `lowering`
+and any other absent word to ID `0`; decoding can recover only the marker `<UNK>`,
+not the original spelling:
+
+<RustSource
+  path="rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs"
+  region="unknown-token-loss"
+  caption="A closed word table that cannot reverse an unseen spelling"
+  label="Rust functions that map unseen whole words to one unknown ID and decode only the unknown marker"
+/>
+
+Sennrich, Haddow, and Birch's
+[2016 paper on rare words](https://aclanthology.org/P16-1162/) adapted repeated
+pair merging to character-sequence subwords. That creates useful units between
+whole words and characters, but that paper is not our evidence for a universal
+byte base.
+
+The GPT-2 report's
+[input-representation section](https://cdn.openai.com/better-language-models/language-models.pdf)
+explains the byte-level step: UTF-8 bytes need a base alphabet of only 256 symbols
+and can represent any Unicode string. Coverage has a cost. A Cyrillic letter uses
+two UTF-8 bytes before merges; an emoji often uses four. A learned vocabulary may
+shorten frequent sequences, but byte-level coverage does not guarantee the
+smallest final vocabulary or equally short sequences for every script.
+
+GPT-2 also applied category-boundary rules with a space exception. This course is
+not a clone of that tokenizer: it uses the exact Chapter 3 rules, permits any pair
+inside a document, and treats only document boundaries as barriers. Naming these
+differences prevents “BPE” from hiding important policy choices.
+
+{/* chapter-section:rust-implementation */}
+
+## Build a frozen, strict tokenizer in Rust
+
+The layout code makes the control/content separation executable rather than a
+comment. It validates the final `u32` extent and exposes the byte and merge ranges:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+  region="token-id-layout"
+  caption="Tokenizer layout version 1 and its checked ID ranges"
+  label="Rust constants and checked layout type for BOS, EOS, byte tokens, and merge tokens"
+/>
+
+`BpeTokenizer::from_training` copies the ordered pair table and rebuilds every
+byte expansion, so the tokenizer remains usable after the trainer is dropped. A
+validated pair-table constructor gives exercises—and later checkpoints—the same
+invariant: at rank `r`, both operands must already exist, and a pair cannot be
+repeated.
+
+Encoding takes `&[u8]` as the fundamental input. The `&str` helper simply exposes
+its UTF-8 bytes. Each rule is shifted through `+2` and applied once in ascending
+rank order with Chapter 3's left-to-right replacement. The optional trace records
+only ranks that changed this particular input; it never changes the result:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+  region="ranked-content-encoding"
+  caption="Initialize byte IDs and replay every frozen rank"
+  label="Rust implementation of canonical rank-ordered BPE content encoding"
+/>
+
+Decoding fundamentally returns `Vec<u8>`. That makes all 256 fallback symbols
+reversible, including `ff fe`, which is not valid UTF-8. A separate helper asks
+for `String` and reports the exact invalid byte position instead of replacing it:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+  region="byte-exact-decoding"
+  caption="Recover bytes first; validate text only on request"
+  label="Rust content decoder and strict UTF-8 conversion helpers"
+/>
+
+Document controls are a structural layer. The encoder merges content first and
+only then adds `[BOS, ..., EOS]`, so no rule can consume a control. The decoder
+requires both endpoints and rejects BOS/EOS inside:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+  region="document-wrapping"
+  caption="Add endpoint controls after encoding and validate them strictly"
+  label="Rust document wrapper and decoder with endpoint-only BOS and EOS validation"
+/>
+
+The runnable chapter retrains the exact eight Chapter 3 ranks from the training
+partition, freezes them, demonstrates the lossy historical table, exercises
+unseen and malformed bytes, exposes canonicalization, and emits the strict diagram
+trace:
+
+<RustSource
+  path="rust/demos/ch04-apply-bpe-tokenizer/src/main.rs"
+  region="chapter-output"
+  caption="Print exact tokenizer, edge-case, and visualization evidence"
+  label="Rust main function that freezes eight ranks and prints reversible English and Cyrillic pipelines"
+/>
+
+Run the executable checks from the repository root:
+
+```text
+cargo test --workspace --locked
+cargo run --quiet --locked -p ch04-apply-bpe-tokenizer | diff -u rust/demos/ch04-apply-bpe-tokenizer/expected.txt -
+```
+
+The second command is silent on success. The tests round-trip every possible byte,
+empty content, ASCII, Cyrillic, emoji, NUL/newline mixtures, and malformed UTF-8;
+they also reject overflow, future merge operands, duplicate pairs, unknown IDs,
+and every invalid control placement.
+
+{/* chapter-section:visualization */}
+
+## Follow grouping and exact inverse concatenation
+
+<ApplyBpeTokenizerDiagram labels={diagramLabels} />
+
+Both pipelines come from the exact Rust output fixture. In `bee `, rank 7 groups
+the last `e` and space as token `265`; the preceding `b` and `e` remain one-byte
+fallbacks. In ` а`, rank 0 groups a space with the first byte of `а`, leaving its
+continuation byte separate. That second case makes it impossible to pretend that
+token boundaries are character boundaries.
+
+Read each pipeline downward to encode, then inspect each piece's stored bytes to
+decode. BOS and EOS are outside the content pieces. The check mark, border, text,
+and byte values all carry the equality cue, so color is never the only signal.
+The tapes are keyboard-focusable and horizontally scroll within the figure; the
+two examples stack on a narrow screen without a client script.
+
+{/* chapter-section:exercises */}
+
+## Predict, then check
+
+1. For bytes `20 d0 b0`, predict the result if rank 1 were incorrectly applied
+   before rank 0. Then give the canonical result.
+2. Map ASCII `?` (byte `3f`), trainer merge ID `257`, and merge rank `7` into
+   layout version 1.
+3. Predict `encode_content("")` and `encode_document("")`.
+4. Predict the content IDs for unseen `🦀` with no matching learned pair.
+5. Cyrillic `т` is UTF-8 `d1 82`, and rank 2 learned `(209,130)`. Predict its
+   final content sequence.
+6. Decode `[34,259]`, then predict the result of re-encoding those bytes.
+7. Identify the first error in document `[0,100,0,1]` and content `[100,1]`.
+8. Decide whether exact byte decoding of `[257,256]` must produce a valid `String`.
+
+<details>
+  <summary>Check your predictions</summary>
+
+  1. Wrong order would create trainer `[32,257]`, shifted `[34,259]`. Correct
+     rank order creates `[256,176]`, shifted `[258,178]`.
+  2. `3f` is decimal 63, so `?` maps to `65`. Trainer ID `257` maps to `259`;
+     rank 7 maps to `258+7=265`.
+  3. Empty content is `[]`; its document is `[0,1]`. Both decode to zero bytes.
+  4. `🦀` is `f0 9f a6 80`, so the shifted fallback IDs are
+     `[242,161,168,130]`.
+  5. Shifted operands `(211,132)` merge at rank 2 into ID `260`, so the result is
+     `[260]`.
+  6. `[34,259]` expands to `20 d0 b0`, or `" а"`. Re-encoding applies rank 0
+     first and returns `[258,178]`, not the original token sequence.
+  7. The BOS at document position 2 is an interior control. EOS at content
+     position 1 is forbidden because content decoding accepts no control IDs.
+  8. No. IDs `[257,256]` recover bytes `ff fe` exactly; strict UTF-8 conversion
+     rejects them at byte 0. Byte reversibility is the primary contract.
+</details>
+
+**Misconception check:** “If decoding is lossless, every valid token sequence is
+the encoder output for its bytes.” False. Lossless decoding permits multiple
+segmentations; frozen rank priority chooses one canonical encoding.
+
+{/* chapter-section:decoder-connection */}
+
+## Preserve one boundary-aware sequence per document
+
+The cumulative implementation can now transform every source document into one
+deterministic sequence `[BOS, content..., EOS]` and recover the original bytes.
+Merge statistics still come only from Chapter 2's training documents; applying
+the frozen tokenizer to validation or test content does not refit it.
+
+Chapter 5 receives these wrapped sequences separately. It will create shifted
+context/target windows inside each one, never concatenate two documents, and
+never cross a train/validation/test boundary. BOS and EOS therefore become
+part of the causal sequence without becoming mergeable text: BOS anchors the
+initial context, while EOS is the terminal prediction target.

@@ -1,0 +1,409 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  applyBpeTokenizerDiagramId,
+  assertApplyBpeTokenizerDiagramLabels,
+  parseApplyBpeTokenizerTrace,
+  type ApplyBpeTokenizerDiagramLabels,
+} from '../../lib/apply-bpe-tokenizer-diagram';
+
+interface Props {
+  labels: ApplyBpeTokenizerDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'apply-bpe-tokenizer-diagram' } = Astro.props as Props;
+assertApplyBpeTokenizerDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch04-apply-bpe-tokenizer/expected.txt',
+  import.meta.url,
+);
+const trace = parseApplyBpeTokenizerTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+const caseTitles = {
+  'ascii-bee': labels.caseTitles.asciiBee,
+  'cyrillic-a': labels.caseTitles.cyrillicA,
+} as const;
+---
+
+<figure
+  class="apply-bpe-diagram"
+  data-visualization-id={applyBpeTokenizerDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="layout-facts">
+      <div>
+        <dt>{labels.fields.layoutVersion}</dt>
+        <dd><bdi dir="ltr">{trace.layout.version}</bdi></dd>
+      </div>
+      <div>
+        <dt><bdi dir="ltr">BOS</bdi></dt>
+        <dd><bdi dir="ltr">{trace.layout.bos}</bdi></dd>
+      </div>
+      <div>
+        <dt><bdi dir="ltr">EOS</bdi></dt>
+        <dd><bdi dir="ltr">{trace.layout.eos}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.contentOffset}</dt>
+        <dd><bdi dir="ltr">{trace.layout.contentOffset}</bdi></dd>
+      </div>
+    </dl>
+  </figcaption>
+
+  <ol class="example-list">
+    {
+      trace.cases.map((sample, sampleIndex) => {
+        const caseId = `${instanceId}-${sample.id}`;
+        return (
+          <li>
+            <section class="example" data-case={sample.id} aria-labelledby={`${caseId}-title`}>
+              <header>
+                <p class="step-number" aria-hidden="true">{sampleIndex + 1}</p>
+                <div>
+                  <h4 id={`${caseId}-title`}>{caseTitles[sample.id]}</h4>
+                  <p class="input-text">
+                    <span>{labels.lanes.input}</span>{' '}
+                    <code dir="ltr">{JSON.stringify(sample.inputText)}</code>
+                  </p>
+                </div>
+              </header>
+
+              <ol class="pipeline">
+                <li data-lane="bytes">
+                  <h5>{labels.lanes.bytes}</h5>
+                  <p class="token-tape" tabindex="0" dir="ltr">
+                    {sample.inputBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
+                  </p>
+                </li>
+                <li class="flow-arrow" aria-hidden="true">↓</li>
+                <li data-lane="initial">
+                  <h5>{labels.lanes.initial}</h5>
+                  <p class="token-tape" tabindex="0" dir="ltr">
+                    {sample.initialTokens.map((token) => <code data-token-id={token}>{token}</code>)}
+                  </p>
+                </li>
+                <li class="flow-arrow" aria-hidden="true">↓</li>
+                <li data-lane="grouped">
+                  <h5>{labels.lanes.grouped}</h5>
+                  <p class="applied-ranks">
+                    {labels.fields.appliedRank}:{' '}
+                    <bdi dir="ltr">{sample.appliedRanks.join(', ')}</bdi>
+                  </p>
+                  <ol class="piece-list">
+                    {sample.pieces.map((piece) => (
+                      <li data-piece-index={piece.index} data-merge-rank={piece.mergeRank ?? 'byte'}>
+                        <dl>
+                          <div>
+                            <dt>{labels.fields.tokenId}</dt>
+                            <dd><code dir="ltr" data-token-id={piece.token}>{piece.token}</code></dd>
+                          </div>
+                          <div>
+                            <dt>{labels.fields.byteExpansion}</dt>
+                            <dd><code dir="ltr">{piece.bytesHex.join(' ')}</code></dd>
+                          </div>
+                        </dl>
+                        <p class="piece-kind">
+                          <span aria-hidden="true">{piece.mergeRank === null ? '◇' : '◆'}</span>{' '}
+                          {piece.mergeRank === null
+                            ? labels.fields.byteFallback
+                            : <>{labels.fields.appliedRank}{' '}<bdi dir="ltr">{piece.mergeRank}</bdi></>}
+                        </p>
+                      </li>
+                    ))}
+                  </ol>
+                </li>
+                <li class="flow-arrow" aria-hidden="true">↓</li>
+                <li data-lane="document">
+                  <h5>{labels.lanes.document}</h5>
+                  <p class="token-tape document-tape" tabindex="0" dir="ltr">
+                    {sample.documentTokens.map((token, index) => {
+                      const isBos = index === 0;
+                      const isEos = index === sample.documentTokens.length - 1;
+                      return (
+                        <code
+                          data-token-id={token}
+                          data-control={isBos ? 'bos' : isEos ? 'eos' : undefined}
+                        >
+                          {isBos ? `BOS:${token}` : isEos ? `EOS:${token}` : token}
+                        </code>
+                      );
+                    })}
+                  </p>
+                  <p class="control-key">
+                    <span><bdi dir="ltr">BOS</bdi> — {labels.fields.bos}</span>
+                    <span><bdi dir="ltr">EOS</bdi> — {labels.fields.eos}</span>
+                  </p>
+                </li>
+                <li class="flow-arrow reverse" aria-hidden="true">↓</li>
+                <li data-lane="decoded">
+                  <h5>{labels.lanes.decoded}</h5>
+                  <p class="token-tape" tabindex="0" dir="ltr">
+                    {sample.decodedBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
+                  </p>
+                  <p class="exact-cue" data-round-trip="exact">
+                    <span aria-hidden="true">✓</span> {labels.values.exactMatch}
+                  </p>
+                </li>
+              </ol>
+            </section>
+          </li>
+        );
+      })
+    }
+  </ol>
+
+  <section class="invariants" aria-labelledby={`${instanceId}-invariants`}>
+    <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
+    <ul>
+      <li><span aria-hidden="true">1→</span> {labels.invariants.ranks}</li>
+      <li><span aria-hidden="true">+2</span> {labels.invariants.offset}</li>
+      <li><span aria-hidden="true">║</span> {labels.invariants.controls}</li>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.bytes}</li>
+    </ul>
+  </section>
+</figure>
+
+<style>
+  .apply-bpe-diagram {
+    margin-block: 2rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .apply-bpe-diagram:focus-visible,
+  .token-tape:focus-visible {
+    outline: 0.2rem solid var(--accent-dark);
+    outline-offset: 0.2rem;
+  }
+
+  figcaption h3,
+  .example h4,
+  .pipeline h5,
+  .invariants h4 {
+    margin: 0;
+  }
+
+  figcaption > p {
+    max-inline-size: 70ch;
+  }
+
+  .layout-facts,
+  .piece-list dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .layout-facts > div,
+  .piece-list dl > div {
+    display: flex;
+    gap: 0.35rem;
+    align-items: baseline;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: var(--surface);
+  }
+
+  .layout-facts dt,
+  .piece-list dt {
+    font-weight: 750;
+  }
+
+  .layout-facts dd,
+  .piece-list dd {
+    margin: 0;
+  }
+
+  .example-list,
+  .pipeline,
+  .piece-list,
+  .invariants ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .example-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-block-start: 1.5rem;
+  }
+
+  .example {
+    min-inline-size: 0;
+    block-size: 100%;
+    padding: 1rem;
+    border: 2px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--surface);
+  }
+
+  .example header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .step-number {
+    display: grid;
+    flex: 0 0 2rem;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    margin: 0;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-weight: 800;
+  }
+
+  .input-text {
+    margin-block: 0.35rem 0;
+  }
+
+  .pipeline {
+    display: grid;
+    gap: 0.45rem;
+    margin-block-start: 1rem;
+  }
+
+  .pipeline > li:not(.flow-arrow) {
+    min-inline-size: 0;
+    padding: 0.75rem;
+    border-inline-start: 0.3rem solid var(--accent-dark);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--surface) 82%, var(--accent-soft));
+  }
+
+  .flow-arrow {
+    padding-inline-start: 1rem;
+    color: var(--accent-dark);
+    font-size: 1.35rem;
+    font-weight: 900;
+  }
+
+  .flow-arrow.reverse {
+    color: var(--text);
+  }
+
+  .token-tape {
+    display: flex;
+    gap: 0.4rem;
+    max-inline-size: 100%;
+    margin-block: 0.5rem 0;
+    padding: 0.35rem;
+    overflow-x: auto;
+    border: 1px dashed var(--line);
+    border-radius: 0.45rem;
+  }
+
+  .token-tape code {
+    flex: 0 0 auto;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid currentColor;
+    border-radius: 0.35rem;
+    background: var(--surface);
+  }
+
+  .document-tape code[data-control] {
+    border-width: 2px;
+    border-style: double;
+    font-weight: 800;
+  }
+
+  .applied-ranks,
+  .piece-kind,
+  .control-key,
+  .exact-cue {
+    margin-block: 0.45rem 0;
+  }
+
+  .piece-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.6rem;
+    margin-block-start: 0.65rem;
+  }
+
+  .piece-list > li {
+    padding: 0.6rem;
+    border: 2px solid var(--line);
+    border-radius: 0.55rem;
+  }
+
+  .piece-list dl {
+    display: grid;
+  }
+
+  .piece-list dl > div {
+    justify-content: space-between;
+  }
+
+  .control-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .exact-cue {
+    padding: 0.45rem 0.65rem;
+    border: 2px solid var(--accent-dark);
+    border-radius: 0.45rem;
+    font-weight: 800;
+  }
+
+  .invariants {
+    margin-block-start: 1.25rem;
+    padding-block-start: 1rem;
+    border-block-start: 2px solid var(--line);
+  }
+
+  .invariants ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-block-start: 0.75rem;
+  }
+
+  .invariants li {
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+  }
+
+  .invariants li > span {
+    flex: 0 0 auto;
+    min-inline-size: 2rem;
+    font-weight: 900;
+  }
+
+  @media (max-width: 48rem) {
+    .example-list,
+    .invariants ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .example,
+    .pipeline > li:not(.flow-arrow),
+    .piece-list > li,
+    .exact-cue,
+    .token-tape code {
+      border-color: CanvasText;
+    }
+  }
+</style>

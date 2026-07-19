@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T06:40:06Z"
+updated_at: "2026-07-19T07:41:35Z"
 
 environment:
   os: "Linux x86_64"
@@ -1419,7 +1419,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 6
+      spent: 7
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -2601,13 +2601,17 @@ builds:
         objective: "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes."
         depends_on:
           - implement-ch03-learn-bpe-merges
-        status: pending
+        status: completed
         inputs:
           - "curriculum/course-plan.md"
           - "curriculum/chapters/03-learn-bpe-merges.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "rust/data/tiny-bilingual-corpus.txt"
+          - "rust/data/splits.json"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -2619,6 +2623,8 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "https://aclanthology.org/P16-1162/"
+          - "https://cdn.openai.com/better-language-models/language-models.pdf"
         outputs:
           - "curriculum/chapters/04-apply-bpe-tokenizer.md"
           - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
@@ -2627,6 +2633,7 @@ builds:
           - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
           - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
           - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
           - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
           - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
           - "Cargo.lock"
@@ -2658,8 +2665,125 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete localized chapter translation set using local deterministic work plus read-only verification of primary subword and byte-level-BPE sources; no dependency download, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260719T065018Z-implement-ch04-apply-bpe-tokenizer-01
+            started_at: "2026-07-19T06:50:18Z"
+            finished_at: "2026-07-19T07:41:35Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7f1601b34803fa2b32d46198a4620dbf4ec4cf80"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:1be709022bed8908a223d6b2795414ba9714142bba68c1095baa6f1cd6b5e7eb"
+                BUILD_STATE.yaml: "sha256:51ada3deeb9ad70936dfaaaa467c2a371a5c7939e7483f35172b6459b56e5bfa"
+                curriculum/course-plan.md: "sha256:e322caa3f3108a924f6d7eb5091440bee6d4778bb4af23aa78bf00cec232be6d"
+                curriculum/chapters/03-learn-bpe-merges.md: "sha256:e49be5c38dc6f4d7fec17505c3fcf1571e29a55b7d2281ad5191b1baa4510c57"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                rust/crates/llm-from-scratch/src/lib.rs: "sha256:0de12e26944213dc78abbb5f667fdd4d7b8fd3b7ae815620fb9a9c3a03e37566"
+                rust/crates/llm-from-scratch/src/corpus.rs: "sha256:208e27d58077a3a04013a7a0607c830b3ba644e4b344afed0815ee3fc597e911"
+                rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs: "sha256:de81dfbd8f98e3bb93f6ff25b18b29f10e35cb759bf7f46114d8e84e2e16e586"
+                rust/data/tiny-bilingual-corpus.txt: "sha256:46d794060e882b5c2b974deedeff6d7a113aab7cadbccdf82065b44dbff639ae"
+                rust/data/splits.json: "sha256:68ed7592fe1efc63f7ca3b59c81f121c3e66ed0f8d8a57aaa4419c782e9d3344"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-rust-demos.sh: "sha256:7e20345825b0241c982929d3349603d99af07d50d1faf70d4b15c416f5410b0a"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:b3605c8e780e8d6849cb07e75fe8dd17b522ba5bb19de478dd0a4d2a95d1ce5d"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T065018Z-implement-ch04-apply-bpe-tokenizer-01/"
+            commands:
+              - "git status --short --branch; git log -3 --oneline"
+              - "Read all of BUILD_STATE.yaml, the latest and referenced DECISIONS.md entries, the Chapter 4 plan and step contract, curriculum workflow/template, Chapter 3 contract/artifacts, cumulative Rust API, localization registry, and site validation boundaries"
+              - "Verify the Chapter 3 publication manifest, manual-review checksum, and every canonical published checksum"
+              - "Confirm no stale running step and select implement-ch04-apply-bpe-tokenizer as the first eligible pending step"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "sha256sum all declared Chapter 4 file inputs"
+              - "Verify Sennrich, Haddow, and Birch (2016) and Radford et al. (2019) primary sources for the open-vocabulary and byte-level historical contrast"
+              - "Create the run-specific staging directory"
+              - "Implement the version-1 Rust byte-level BPE tokenizer, exact demo trace, chapter contract, complete EN/RU lessons, structural trace parser, static diagram, and unit/browser coverage under the run-specific publish staging tree"
+              - "Validate an isolated full-repository overlay, correct findings from independent Rust, content, and site audits, and rerun every declared gate"
+              - "Freeze and verify the 14-file publication.sha256 manifest"
+              - "Publish only the checksum-locked staged files to canonical paths and verify byte equality"
+              - "Rerun every declared validation command against canonical paths"
+            artifacts:
+              - path: ".build/runs/20260719T065018Z-implement-ch04-apply-bpe-tokenizer-01/publication.sha256"
+                checksum: "sha256:6325dec30ca593f8249271b80c5e0bab293db2724d41b644ded58c2e06f280b5"
+              - path: ".build/runs/20260719T065018Z-implement-ch04-apply-bpe-tokenizer-01/manual-review.md"
+                checksum: "sha256:88cafe3f8a504e34d88ded4b593108ca77baeca4adf6e25c789c04654d204323"
+            validation:
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The plan has 39 chapters, 43 scheduled steps, and four contiguous implemented contracts through Chapter 4."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/04-apply-bpe-tokenizer.md"
+                status: passed
+                notes: "The contract, cumulative Rust sources, exact stdout, both locale projections, visualization, and evidence links agree."
+              - command: "cargo fmt --all -- --check"
+                status: passed
+              - command: "cargo clippy --workspace --all-targets --locked -- -D warnings"
+                status: passed
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All 23 cumulative library tests plus ten chapter-demo tests and all doc tests passed, including every byte, empty/zero-rank input, layout bounds, malformed UTF-8, wrappers, and canonicalization."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "The workspace contains only local packages and no dependency that implements BPE."
+              - command: "scripts/check-rust-demos.sh"
+                status: passed
+                notes: "All four implemented chapter demos were discovered and validated."
+              - command: "cargo run --quiet --locked -p ch04-apply-bpe-tokenizer | diff -u rust/demos/ch04-apply-bpe-tokenizer/expected.txt -"
+                status: passed
+                notes: "Historical loss, layout, unseen and malformed inputs, canonicalization, diagnostics, all eight rules, and both diagram cases are byte-exact."
+              - command: "npm --prefix site run check:chapter -- --locale en --chapter 04-apply-bpe-tokenizer"
+                status: passed
+              - command: "npm --prefix site run check:chapter -- --locale ru --chapter 04-apply-bpe-tokenizer"
+                status: passed
+              - command: "npm --prefix site run check:parity -- --chapter 04-apply-bpe-tokenizer"
+                status: passed
+                notes: "English and Russian form one complete same-revision locale set with matching shared metadata and Rust evidence."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "Eight localized sources publish as four contiguous configured-locale chapter sets."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro reported zero errors, warnings, or hints across 37 files."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 55 Vitest assertions passed across seven files, including trace grammar/provenance mutations, every locale label leaf, and static component contracts."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "The production static build emitted 13 pages, including both localized Chapter 4 routes."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 207 local references across 76 artifacts passed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:04-apply-bpe-tokenizer'"
+                status: passed
+                notes: "All three focused tests passed both locales at desktop and 390-pixel widths with highlighting, exact pipelines, navigation, focus, bidi-safe labels, no overflow, and zero scripts."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 16 complete cached-browser regression tests passed in staged and canonical trees; loopback preview required sandbox escalation only."
+              - command: "Interim targeted Vitest invocations"
+                status: failed
+                notes: "Two invocations used a prefix relative to the run root and one exposed error-check ordering in an experimental parser replay; the replay was removed to keep Rust authoritative, and the final full 55-test gate passed."
+              - command: "Interim focused Chapter 4 Playwright invocation"
+                status: failed
+                notes: "A corrected Russian history heading left one stale expected string in the E2E fixture; the fixture was updated and both final browser gates passed."
+              - command: "Rendered KaTeX/script scans, three independent final audits, git diff --check, YAML parse, and staging/canonical publication checksum verification"
+                status: passed
+                notes: "Generated Chapter 4 HTML has no KaTeX error or script element; all audit findings were corrected; state is valid YAML; no whitespace error remains; all 14 outputs retain their staged checksums."
+            notes: "Completed as one high-quality localized Chapter 4 vertical slice using local deterministic work and read-only primary-source verification. Rust remains the sole BPE implementation; the extensible static presentation owns no spoken-language literals or client runtime. No dependency download, generation service, paid resource, substantial CPU work, or Chapter 5 product work occurred."
       - id: implement-ch05-autoregressive-examples
         objective: "Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries."
         depends_on:

@@ -1068,3 +1068,58 @@ instead of an error node. Future chapter steps inherit standard starred-symbol
 syntax.
 
 **Affected step:** `implement-ch03-learn-bpe-merges`
+
+## 2026-07-19 — Freeze the reversible BPE tokenizer layout and byte contract
+
+**Status:** Accepted within `implement-ch04-apply-bpe-tokenizer` before product
+implementation.
+
+**Context:** Chapter 3 froze trainer-local byte IDs and ranked pairs, but Chapter
+4 still needed a durable serialized namespace, a distinction between content and
+document decoding, and a precise statement of what reversibility guarantees. A
+byte-level tokenizer must preserve malformed as well as valid UTF-8 byte strings,
+while BOS and EOS must never become merge operands. The useful static figure also
+needs exact Rust evidence without making the Astro component a second tokenizer.
+
+**Decision:** Define tokenizer layout version 1 with `BOS=0`, `EOS=1`, raw byte
+`b` at content ID `b+2` (`2..=257`), and merge rank `r` at ID `258+r`. Do not
+reserve `PAD`; fixed-length training windows need none, and padding-heavy serving
+remains outside the course target. Construct an owned `BpeTokenizer` either from
+the validated Chapter 3 training result or from a validated ordered trainer-space
+pair table. Reject layout overflow, an operand that does not exist before its
+rank, and duplicate pairs. Map every frozen pair and token through `+2`, then
+replay ranks exactly once in ascending order. Encoding begins from content bytes
+and adds BOS/EOS only after all merges, so neither control ID can enter a merge.
+
+Make byte slices the fundamental encode/decode boundary. Content decode rejects
+control and unknown IDs; document decode additionally requires exactly one BOS at
+the first position, one EOS at the last position, and no interior control. UTF-8
+helpers are strict views over successfully decoded bytes rather than the storage
+contract. Guarantee
+`decode_content(encode_content(x)) = bytes(x)` without normalization. Do not
+promise the converse for arbitrary valid token sequences: a noncanonical sequence
+may decode to the same bytes and re-encode to the rank-ordered canonical sequence.
+
+Emit one strict `TRACE apply-bpe-tokenizer-v1` block from the runnable Rust
+fixture. It records the versioned layout, all shifted rules, one ASCII and one
+Cyrillic encode/decode pipeline, content IDs, document controls, token byte
+expansions, and recovered bytes. Add
+`site/src/lib/apply-bpe-tokenizer-diagram.ts` to parse and validate that grammar,
+ID mapping, wrapper structure, and byte concatenation without choosing or applying
+BPE rules. Keep `ApplyBpeTokenizerDiagram.astro` presentation-only, static, and
+driven entirely by locale-owned labels. Use Sennrich, Haddow, and Birch (2016) for
+the subword rare-word transition and the GPT-2 report's input-representation
+section for the 256-byte base and coverage tradeoff; explicitly distinguish the
+course's document-barrier-only variant from GPT-2's additional category rules.
+
+**Consequences:** Every byte has a fallback content ID, unseen spellings do not
+collapse to `<UNK>`, incomplete UTF-8 token pieces remain legal bytes, and strict
+text conversion can still report malformed UTF-8. Empty content encodes to an
+empty content sequence and an empty document to `[0,1]`. Chapter 5 receives one
+boundary-preserving encoded sequence per document. Future checkpoints can persist
+the layout version and ordered pair table without depending on the trainer object,
+and future spoken languages add prose and diagram labels without branching the
+tokenizer, parser, or component.
+
+**Affected steps:** `implement-ch04-apply-bpe-tokenizer`,
+`implement-ch05-autoregressive-examples`, and `implement-ch35-checkpoints`
