@@ -1,0 +1,37 @@
+corpus checksum: fnv1a64:04786e7303f1dfd6
+statistics source: train only
+training documents: ["en-river-dawn", "ru-river-dawn", "en-clock-shop", "ru-clock-shop", "en-rain-library", "ru-rain-library", "en-bee-garden", "ru-bee-garden"]
+held out from trainer: validation=2 test=2
+merge rounds: requested=8 learned=8
+corpus rank 0: pair=(32,208) count=81 replacements=81 token=256 bytes=[20, d0]
+corpus rank 1: pair=(208,176) count=62 replacements=62 token=257 bytes=[d0, b0]
+corpus rank 2: pair=(209,130) count=57 replacements=57 token=258 bytes=[d1, 82]
+corpus rank 3: pair=(208,181) count=56 replacements=56 token=259 bytes=[d0, b5]
+corpus rank 4: pair=(208,190) count=49 replacements=49 token=260 bytes=[d0, be]
+corpus rank 5: pair=(208,184) count=38 replacements=38 token=261 bytes=[d0, b8]
+corpus rank 6: pair=(209,128) count=36 replacements=36 token=262 bytes=[d1, 80]
+corpus rank 7: pair=(101,32) count=35 replacements=35 token=263 bytes=[65, 20]
+TRACE bpe-merges-v1 BEGIN
+STAGE index=0
+DOCUMENT stage=0 id=train-aaa tokens=97,97,97
+DOCUMENT stage=0 id=train-aba tokens=97,98,97
+CANDIDATE rank=0 left=97 right=97 count=2 winner=yes
+CANDIDATE rank=0 left=97 right=98 count=1 winner=no
+CANDIDATE rank=0 left=98 right=97 count=1 winner=no
+MERGE rank=0 left=97 right=97 count=2 replacements=1 token=256 bytes_hex=61,61
+STAGE index=1
+DOCUMENT stage=1 id=train-aaa tokens=256,97
+DOCUMENT stage=1 id=train-aba tokens=97,98,97
+CANDIDATE rank=1 left=97 right=98 count=1 winner=yes
+CANDIDATE rank=1 left=98 right=97 count=1 winner=no
+CANDIDATE rank=1 left=256 right=97 count=1 winner=no
+MERGE rank=1 left=97 right=98 count=1 replacements=1 token=257 bytes_hex=61,62
+STAGE index=2
+DOCUMENT stage=2 id=train-aaa tokens=256,97
+DOCUMENT stage=2 id=train-aba tokens=257,97
+TRACE bpe-merges-v1 END
+document barrier candidates for A="a" B="a": 0
+historical whole-word types: 4
+historical lookup lower: 2
+historical lookup lowering: 0 (unknown)
+chapter 4 handoff: freeze ranks and encode arbitrary bytes

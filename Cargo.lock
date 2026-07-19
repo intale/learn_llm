@@ -14,6 +14,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch03-learn-bpe-merges"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

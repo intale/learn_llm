@@ -628,7 +628,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `02-corpus-partitions`.
 - **Outcome:** Learn one deterministic sequence of byte-pair merges from training documents only.
 - **Scope boundary:** Teach overlapping adjacent-pair counting, numeric lexicographic tie-breaking, and left-to-right non-overlapping replacement within each document. Boundary markers are barriers; validation/test documents and arbitrary-input encoding are deferred.
-- **Formula:** `(a^\*,b^\*)=\arg\max_{(a,b)}\bigl(C(a,b),-a,-b\bigr),\quad m^\*=a^\*\Vert b^\*`.
+- **Formula:** `(a^{*},b^{*})=\arg\max_{(a,b)}\bigl(C(a,b),-a,-b\bigr),\quad m^{*}=a^{*}\Vert b^{*}`.
 - **Historical contrast:** Begin with fixed whole-word/scalar vocabularies, then connect the compression-era byte-pair idea to subword vocabulary construction.
 - **Rust contribution:** Add a cumulative BPE trainer whose counts include overlapping candidates but whose chosen merge is replaced left-to-right without overlap; train it only on the Chapter 2 training partition.
 - **Visualization:** Useful — animate semantically ordered merge rounds as static stages, showing pair counts and the chosen deterministic winner without color-only cues.

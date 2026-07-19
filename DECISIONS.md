@@ -1004,3 +1004,67 @@ gate is rejected, while completed run evidence may faithfully repeat the command
 
 **Affected steps:** `implement-ch02-corpus-partitions` and future completed steps
 whose run records repeat their declared validation commands
+
+## 2026-07-19 — Freeze deterministic BPE learning and parse its Rust trace separately
+
+**Status:** Accepted within `implement-ch03-learn-bpe-merges` before product
+publication.
+
+**Context:** The planned formula fixes frequency and numeric tie order, but the
+implementation boundary still needed to distinguish overlapping candidate counts
+from non-overlapping replacements, trainer-local IDs from Chapter 4's final
+control-token layout, and the course's byte/document behavior from historical BPE
+variants. The useful static figure also needs to consume exact Rust evidence.
+Validating its multi-stage trace only inside an Astro component would leave stage,
+rank, document, candidate, and winner invariants difficult to unit-test.
+
+**Decision:** Initialize training symbols as raw byte IDs `0..=255`; assign each
+successful rule ID `256 + rank`; count every adjacent position independently inside
+each training document; choose the greatest count and then the numerically smallest
+left and right IDs; and replace the winner once per round with a single left-to-right
+non-overlapping pass. Allow count-one rules, stop only at the requested cap or when
+no adjacent pair remains, retain byte expansions rather than coercing tokens to
+UTF-8, and make the canonical fitting API accept `CorpusPartitions` so it reads only
+`training_documents()`. Present numeric tie-breaking as this course's reproducibility
+policy, not a property shared by every historical implementation.
+
+Emit a strict, delimited `TRACE bpe-merges-v1` block from the runnable Rust fixture.
+Add `site/src/lib/learn-bpe-merges-diagram.ts` to parse and validate that trace and
+locale-owned label leaves without reimplementing BPE. Keep
+`LearnBpeMergesDiagram.astro` presentation-only and static.
+
+**Consequences:** Chapter 3 freezes ordered ranks, provenance, counts, replacement
+counts, fresh IDs, and byte expansions, but does not tokenize arbitrary new text.
+Chapter 4 may reserve `BOS=0` and `EOS=1` by mapping every content ID through `+2`
+without changing rank order. Diagram data stays byte-identical to executable Rust,
+while future spoken languages supply labels only and never branch the algorithm or
+trace parser.
+
+**Affected steps:** `implement-ch03-learn-bpe-merges` and
+`implement-ch04-apply-bpe-tokenizer`
+
+## 2026-07-19 — Correct Chapter 3's starred-symbol notation for KaTeX
+
+**Status:** Accepted within `implement-ch03-learn-bpe-merges` after staged browser
+and independent content review.
+
+**Context:** The reviewed course plan wrote the winner marker as `^\*`. The
+content and browser checks preserved that source string, but direct rendering with
+the locked KaTeX version reports `Undefined control sequence: \*`. The ordinary
+LaTeX form `^{*}` has the same mathematical meaning and renders correctly. Because
+the chapter contract must match the reviewed plan exactly, correcting only the
+lesson or contract would make the course-plan gate fail.
+
+**Decision:** Treat `curriculum/course-plan.md` as a necessary shared integration
+output of this chapter step. Replace only Chapter 3's notation-equivalent starred
+symbols with `a^{*}`, `b^{*}`, and `m^{*}` in the plan, contract, localized
+metadata, displayed formulas, glossaries, and focused browser expectation. Do not
+change the selection rule, symbol meanings, acceptance criteria, or any later
+chapter scope.
+
+**Consequences:** The plan, contract, and every locale remain byte-for-byte
+consistent at the metadata boundary, while the formula produces valid KaTeX
+instead of an error node. Future chapter steps inherit standard starred-symbol
+syntax.
+
+**Affected step:** `implement-ch03-learn-bpe-merges`

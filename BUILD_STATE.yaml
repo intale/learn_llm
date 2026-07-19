@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-18T20:56:47Z"
+updated_at: "2026-07-19T06:40:06Z"
 
 environment:
   os: "Linux x86_64"
@@ -1419,7 +1419,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 5
+      spent: 6
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -2418,7 +2418,7 @@ builds:
         objective: "Learn one deterministic sequence of byte-pair merges from training documents only."
         depends_on:
           - implement-ch02-corpus-partitions
-        status: pending
+        status: completed
         inputs:
           - "curriculum/course-plan.md"
           - "curriculum/chapters/02-corpus-partitions.md"
@@ -2436,7 +2436,10 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "https://aclanthology.org/P16-1162/"
+          - "https://jacobfilipp.com/DrDobbs/articles/CUJ/1994/9402/gage/gage.htm"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/03-learn-bpe-merges.md"
           - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
@@ -2444,6 +2447,7 @@ builds:
           - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
           - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
           - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/lib/learn-bpe-merges-diagram.ts"
           - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
           - "Cargo.lock"
@@ -2475,8 +2479,124 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete localized chapter translation set using local deterministic work plus read-only verification of the primary BPE paper; no dependency download, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260719T055338Z-implement-ch03-learn-bpe-merges-01
+            started_at: "2026-07-19T05:53:38Z"
+            finished_at: "2026-07-19T06:40:06Z"
+            status: succeeded
+            input_fingerprint:
+              git: "da21be6505193d23a40ea9abcfb8c9c34d7d5383"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                DECISIONS.md: "sha256:8ed394878e002d6a402d01a084e3dfa961e5162fee22e8486bc45b6dd87dcbb2"
+                BUILD_STATE.yaml: "sha256:acac8ee1fca01cdce74a2a779103d93615d42efd14cb378426a79642b2d23ac7"
+                curriculum/course-plan.md: "sha256:dd27d1833147853a0f81f30c9413df7b65bef3eb4115f042fdc7d874ed15cfac"
+                curriculum/chapters/02-corpus-partitions.md: "sha256:0dc8baeb6dae02ecd426bf14add8b3c56364a77704c2690aa0e4e22c4bfa86b6"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                rust/crates/llm-from-scratch/src/lib.rs: "sha256:c00632f50efb80199b00496cc0141f8fbc2acb2d11cf9038d8c4abe2cf53842c"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-rust-demos.sh: "sha256:7e20345825b0241c982929d3349603d99af07d50d1faf70d4b15c416f5410b0a"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:6fc6b92b6986340eb986b0155c9fd23faaa2845cb59bebeeeafc77d8386e074b"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T055338Z-implement-ch03-learn-bpe-merges-01/"
+            commands:
+              - "git status --short --branch; git log -3 --oneline"
+              - "Read all of BUILD_STATE.yaml, relevant DECISIONS.md entries, the Chapter 3 plan/step contract, curriculum workflow/template, and cumulative crate entry point"
+              - "Verify the Chapter 2 publication manifest and every canonical published checksum"
+              - "Confirm no stale running step and select implement-ch03-learn-bpe-merges as the first eligible pending step"
+              - "rustc --version; cargo --version; node --version; npm --version; git --version"
+              - "sha256sum all declared Chapter 3 inputs"
+              - "Create the run-specific staging directory"
+              - "Record the trainer-local ID layout, count/replacement semantics, and tested Rust-trace parser boundary before implementation"
+              - "Author the contract, cumulative BPE trainer, historical Rust demo, exact stdout/trace fixture, strict trace parser, static diagram, natural English/Russian lessons, unit tests, and focused browser coverage in the run staging tree"
+              - "Verify Gage (1994) and Sennrich, Haddow, and Birch (2016) primary sources before finalizing the historical comparison"
+              - "Assemble an isolated repository overlay and run the complete staged Rust, contract, configured-locale, parity, type, unit, build, link, focused-browser, and full-browser gates"
+              - "Run independent read-only pedagogy/history/localization, Rust/contract, and site/accessibility audits; correct KaTeX notation, trace vocabulary membership, and the locale-derived training badge; then obtain focused re-audits"
+              - "Publish the checksum-locked staged slice to canonical paths and verify every declared output before canonical validation"
+              - "Run every declared canonical validation command plus the rendered KaTeX error scan and canonical/staging checksum checks"
+            artifacts:
+              - path: ".build/runs/20260719T055338Z-implement-ch03-learn-bpe-merges-01/publication.sha256"
+                sha256: "181c078eddfa18d9520508173b6b60ea748433bc81282c039647cd5abc3baa33"
+                notes: "Checksums for all 15 declared canonical chapter, plan, Rust, fixture, site, test, and lockfile outputs; verified from staging and canonical paths."
+              - path: ".build/runs/20260719T055338Z-implement-ch03-learn-bpe-merges-01/manual-review.md"
+                sha256: "56e918d4a7a68b838c45d5cbf787b9b0de58a6663fa8ab4dead951ba2410b423"
+                notes: "Concise pedagogy, history, localization, Rust-source, formula, visualization, browser, and independent-audit review record."
+            validation:
+              - command: "complete staged overlay validation"
+                status: passed
+                notes: "All final declared Rust/site commands passed before publication; the staged full browser suite passed 13 tests with cached Chromium."
+              - command: "early staged Vitest, focused Playwright, and independent audit passes"
+                status: failed
+                notes: "An over-high label-count assertion and two text assertions that included aria-hidden non-color cues failed before correction. Final audits then found invalid plan-mandated KaTeX star syntax, unchecked traced stage/candidate IDs, and an English-derived decorative badge; all were corrected, regression-tested, and independently re-audited before publication."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The 39-chapter plan, 43 scheduled steps, and implemented prefix through Chapter 3 are coherent with valid KaTeX notation."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/03-learn-bpe-merges.md"
+                status: passed
+                notes: "The integrated contract, primary cumulative module, exact stdout, both locale projections, shared diagram, and primary historical citations pass."
+              - command: "cargo fmt --all -- --check"
+                status: passed
+              - command: "cargo clippy --workspace --all-targets --locked -- -D warnings"
+                status: passed
+              - command: "cargo test --workspace --locked"
+                status: passed
+                notes: "All 23 workspace unit tests and all doc tests passed, including seven cumulative BPE tests and the historical whole-word contrast."
+              - command: "scripts/check-rust-dependencies.sh"
+                status: passed
+                notes: "The workspace uses no external Rust crate or concept-implementing dependency."
+              - command: "scripts/check-rust-demos.sh"
+                status: passed
+                notes: "All three implemented chapter demos are discovered and valid."
+              - command: "cargo run --quiet --locked -p ch03-learn-bpe-merges | diff -u rust/demos/ch03-learn-bpe-merges/expected.txt -"
+                status: passed
+                notes: "Training provenance, eight real ranks, two tiny rounds, document barrier, historical contrast, and Chapter 4 handoff are byte-exact."
+              - command: "npm --prefix site run check:chapter -- --locale en --chapter 03-learn-bpe-merges"
+                status: passed
+              - command: "npm --prefix site run check:chapter -- --locale ru --chapter 03-learn-bpe-merges"
+                status: passed
+              - command: "npm --prefix site run check:parity -- --chapter 03-learn-bpe-merges"
+                status: passed
+                notes: "English and Russian form one complete same-revision locale set with identical shared metadata and evidence."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "Six localized sources publish as three contiguous configured-locale chapter sets."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro reported zero errors, warnings, or hints across 33 files."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 47 Vitest assertions passed, including exact trace, adversarial grammar/provenance/vocabulary mutations, every locale label leaf, and component-source contracts."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "The production static build emitted 11 pages, including both localized Chapter 3 routes."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "All 171 local references across 73 artifacts passed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:03-learn-bpe-merges'"
+                status: passed
+                notes: "All three focused tests passed both locales at desktop and 390-pixel widths with exact highlighted Rust, rendered formula, trace stages, accessibility, navigation, no overflow, and zero client scripts."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 13 complete cached-browser regression tests passed; preview binding required sandbox escalation only for loopback."
+              - command: "rendered KaTeX error scan, independent final audits, git diff --check, and canonical/staging publication checksum verification"
+                status: passed
+                notes: "Generated HTML has no KaTeX error marker; all audit fixes were independently verified; no whitespace error remains; every declared output retains its staged checksum after publication."
+            notes: "Completed as one localized Chapter 3 vertical slice with no new dependency, paid or generation service, browser download, or substantial CPU work. Read-only primary-source verification supported the historical comparison. The deterministic trainer learns only from the frozen training partition, and the extensible static figure owns no spoken-language literals or client runtime."
       - id: implement-ch04-apply-bpe-tokenizer
         objective: "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes."
         depends_on:

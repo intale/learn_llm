@@ -1,0 +1,405 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertLearnBpeMergesDiagramLabels,
+  learnBpeMergesDiagramId,
+  parseLearnBpeMergesTrace,
+  type LearnBpeMergesDiagramLabels,
+} from '../../lib/learn-bpe-merges-diagram';
+
+interface Props {
+  labels: LearnBpeMergesDiagramLabels;
+}
+
+const { labels } = Astro.props as Props;
+assertLearnBpeMergesDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch03-learn-bpe-merges/expected.txt',
+  import.meta.url,
+);
+const trace = parseLearnBpeMergesTrace(readFileSync(fixtureUrl, 'utf8'));
+const instance = 'learn-bpe-merges-diagram';
+const titleId = `${instance}-title`;
+const descriptionId = `${instance}-description`;
+---
+
+<figure
+  class="bpe-merge-diagram"
+  data-visualization-id={learnBpeMergesDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <p class="bpe-training-source">
+      <span aria-hidden="true">◆</span>
+      {labels.trainingSource}
+    </p>
+  </figcaption>
+
+  <h4 class="visually-hidden">{labels.stagesLabel}</h4>
+  <ol class="bpe-timeline">
+    {
+      trace.stages.map((stage, stageIndex) => {
+        const round = trace.rounds[stageIndex];
+        return (
+          <li class="bpe-timeline-step" data-stage={stage.index}>
+            <section class="bpe-stage" aria-labelledby={`${instance}-stage-${stage.index}`}>
+              <h5 id={`${instance}-stage-${stage.index}`}>
+                {labels.fields.stage}{' '}
+                <bdi class="numeric" dir="ltr">{stage.index}</bdi>
+              </h5>
+              <ol class="bpe-documents">
+                {stage.documents.map((document, documentIndex) => (
+                  <li data-document={document.id}>
+                    {documentIndex > 0 && (
+                      <p class="bpe-boundary" aria-label={labels.documentBoundary}>
+                        <span aria-hidden="true">║</span> {labels.documentBoundary}
+                      </p>
+                    )}
+                    <dl>
+                      <div>
+                        <dt>{labels.fields.document}</dt>
+                        <dd><code dir="ltr">{document.id}</code></dd>
+                      </div>
+                      <div>
+                        <dt>{labels.fields.tokens}</dt>
+                        <dd class="token-tape" dir="ltr">
+                          {document.tokens.map((token) => (
+                            <code data-token-id={token}>{token}</code>
+                          ))}
+                        </dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            {round && (
+              <section
+                class="bpe-round"
+                data-round={round.rank}
+                aria-labelledby={`${instance}-round-${round.rank}`}
+              >
+                <h5 id={`${instance}-round-${round.rank}`}>
+                  {labels.fields.rank}{' '}
+                  <bdi class="numeric" dir="ltr">{round.rank}</bdi>
+                </h5>
+                <p class="visually-hidden">{labels.roundsLabel}</p>
+                <div class="candidate-scroll" tabindex="0">
+                  <table>
+                    <caption>{labels.fields.candidates}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{labels.fields.pair}</th>
+                        <th scope="col">{labels.fields.count}</th>
+                        <th scope="col">{labels.fields.selected}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {round.candidates.map((candidate) => (
+                        <tr data-winner={candidate.winner ? 'true' : 'false'}>
+                          <th scope="row" dir="ltr">
+                            <code>({candidate.left},{candidate.right})</code>
+                          </th>
+                          <td class="numeric" dir="ltr">{candidate.count}</td>
+                          <td>
+                            <span class="winner-cue" aria-hidden="true">
+                              {candidate.winner ? '★' : '—'}
+                            </span>{' '}
+                            {candidate.winner
+                              ? labels.values.winner
+                              : labels.values.notWinner}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <dl class="merge-facts">
+                  <div>
+                    <dt>{labels.fields.newToken}</dt>
+                    <dd class="numeric" dir="ltr">{round.merge.token}</dd>
+                  </div>
+                  <div>
+                    <dt>{labels.fields.bytesHex}</dt>
+                    <dd><code dir="ltr">{round.merge.bytesHex.join(' ')}</code></dd>
+                  </div>
+                  <div>
+                    <dt>{labels.fields.count}</dt>
+                    <dd class="numeric" dir="ltr">{round.merge.count}</dd>
+                  </div>
+                  <div>
+                    <dt>{labels.fields.replacements}</dt>
+                    <dd class="numeric" dir="ltr">{round.merge.replacements}</dd>
+                  </div>
+                </dl>
+              </section>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+
+  <section class="bpe-invariants" aria-labelledby={`${instance}-invariants`}>
+    <h4 id={`${instance}-invariants`}>{labels.invariantsLabel}</h4>
+    <ul>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.overlap}</li>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.replacement}</li>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.tie}</li>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.barrier}</li>
+    </ul>
+  </section>
+</figure>
+
+<style>
+  .bpe-merge-diagram {
+    margin: 2rem 0;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .bpe-merge-diagram:focus-visible,
+  .candidate-scroll:focus-visible {
+    outline: 0.2rem solid var(--accent-dark);
+    outline-offset: 0.2rem;
+  }
+
+  figcaption h3,
+  .bpe-stage h5,
+  .bpe-round h5,
+  .bpe-invariants h4 {
+    margin: 0;
+  }
+
+  figcaption p {
+    max-width: 68ch;
+  }
+
+  .bpe-training-source {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--accent-dark);
+    border-radius: 999px;
+    font-weight: 750;
+  }
+
+  .bpe-timeline,
+  .bpe-documents,
+  .bpe-invariants ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bpe-timeline {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .bpe-timeline-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.9fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .bpe-timeline-step:last-child {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bpe-stage,
+  .bpe-round,
+  .bpe-invariants {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--paper, #fffdf7);
+  }
+
+  .bpe-documents {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .bpe-documents > li {
+    position: relative;
+    min-width: 0;
+  }
+
+  .bpe-boundary {
+    margin: 0 0 0.75rem;
+    padding-block: 0.3rem;
+    border-block: 1px dashed var(--muted);
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  .bpe-documents dl,
+  .merge-facts {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .bpe-documents dl > div,
+  .merge-facts > div {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 750;
+  }
+
+  .token-tape {
+    display: flex;
+    gap: 0.35rem;
+    min-width: 0;
+    overflow-x: auto;
+    unicode-bidi: isolate;
+  }
+
+  .token-tape code {
+    flex: 0 0 auto;
+    min-width: 2.25rem;
+    padding: 0.3rem 0.4rem;
+    border: 1px solid var(--accent-dark);
+    border-radius: 0.35rem;
+    background: rgba(15, 118, 110, 0.08);
+    text-align: center;
+  }
+
+  .candidate-scroll {
+    max-width: 100%;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  caption {
+    padding-bottom: 0.5rem;
+    font-weight: 750;
+    text-align: start;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    text-align: start;
+  }
+
+  tr[data-winner='true'] {
+    border: 0.18rem solid var(--accent-dark);
+    background: rgba(15, 118, 110, 0.1);
+    font-weight: 750;
+  }
+
+  .winner-cue {
+    display: inline-block;
+    min-width: 1em;
+  }
+
+  .merge-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0.85rem;
+  }
+
+  .merge-facts > div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    padding: 0.55rem;
+    border-inline-start: 0.2rem solid var(--warm);
+    background: rgba(176, 105, 45, 0.08);
+  }
+
+  .numeric,
+  code {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .bpe-invariants {
+    margin-top: 1.25rem;
+  }
+
+  .bpe-invariants ul {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+  }
+
+  .bpe-invariants li {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 48rem) {
+    .bpe-timeline-step {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .merge-facts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bpe-documents dl > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .bpe-stage,
+    .bpe-round,
+    .bpe-invariants,
+    .token-tape code,
+    tr[data-winner='true'] {
+      border-color: CanvasText;
+    }
+
+    tr[data-winner='true'] {
+      border-style: double;
+    }
+  }
+</style>

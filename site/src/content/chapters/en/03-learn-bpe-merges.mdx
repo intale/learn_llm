@@ -1,0 +1,393 @@
+---
+{
+  "chapter_id": "03-learn-bpe-merges",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 3,
+  "concept_id": "deterministic-bpe-merge-learning",
+  "title": "Learning deterministic BPE merges",
+  "description": "Learn an ordered byte-pair merge table from training documents with explicit rules for overlap, replacement, ties, and document boundaries.",
+  "objective": "Learn an ordered byte-pair merge table from the frozen training documents only, with overlapping candidate counts, an explicit numeric tie rule, and left-to-right non-overlapping replacement.",
+  "worked_inputs": "Predict two merge rounds for separate training documents aaa and aba, then compare the tiny trace with the first eight ranks learned from the Chapter 2 training partition.",
+  "formula": {
+    "latex": "(a^{*},b^{*})=\\arg\\max_{(a,b)}\\bigl(C(a,b),-a,-b\\bigr),\\quad m^{*}=a^{*}\\Vert b^{*}",
+    "symbols": [
+      {
+        "symbol": "a,b",
+        "meaning": "numeric IDs of the left and right adjacent symbols in the current round"
+      },
+      {
+        "symbol": "(a,b)",
+        "meaning": "an ordered adjacent pair; reversing the IDs makes a different candidate"
+      },
+      {
+        "symbol": "C(a,b)",
+        "meaning": "the number of adjacent positions carrying this pair across training documents, with overlaps counted and document boundaries excluded"
+      },
+      {
+        "symbol": "\\arg\\max",
+        "meaning": "selection of the candidate with the lexicographically greatest three-part score"
+      },
+      {
+        "symbol": "-a,-b",
+        "meaning": "the course's deterministic tie rule: after count, smaller left and then smaller right numeric IDs win"
+      },
+      {
+        "symbol": "a^{*},b^{*}",
+        "meaning": "the selected left and right IDs; the star marks the winner and is not multiplication"
+      },
+      {
+        "symbol": "m^{*}",
+        "meaning": "one fresh training-space symbol assigned ID 256 plus its zero-based rank"
+      },
+      {
+        "symbol": "\\Vert",
+        "meaning": "concatenation of the byte expansions represented by the two IDs, not arithmetic on the IDs"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Fixed whole-word vocabularies and compression-era byte-pair substitution",
+    "summary": "A fitted whole-word table maps every unseen spelling to one unknown bucket. Gage's compression BPE repeatedly replaced frequent adjacent byte pairs with unused bytes, and Sennrich, Haddow, and Birch adapted repeated pair merging to character-sequence subwords. This course makes a separate reproducible byte-level variant: spaces may merge inside a document, document boundaries never do, and numeric-smallest ties are an explicit local policy rather than a historical invariant.",
+    "rust_source": "rust/demos/ch03-learn-bpe-merges/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch03-learn-bpe-merges/src/lib.rs",
+      "region": "whole-word-unknown",
+      "purpose": "Show how a closed whole-word vocabulary collapses distinct unseen spellings into one unknown ID."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs",
+      "region": "overlapping-pair-counting",
+      "purpose": "Count adjacent pairs within each document and choose one reproducible winner."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs",
+      "region": "non-overlapping-replacement",
+      "purpose": "Replace the selected pair left to right while consuming each input token at most once."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs",
+      "region": "deterministic-training",
+      "purpose": "Accept the validated partition and derive sequences from training documents only."
+    },
+    {
+      "path": "rust/demos/ch03-learn-bpe-merges/src/main.rs",
+      "region": "chapter-output",
+      "purpose": "Print the exact real-corpus ranks and a strict two-round trace for the diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "learn-bpe-merges",
+    "rationale": "Three static token stages joined to two numeric candidate tables make overlap counting, one-pass replacement, document barriers, and deterministic ties visible without pretending that a client-side animation is required."
+  },
+  "decoder_connection": "The ordered rules and their byte expansions become frozen tokenizer data in Chapter 4. That chapter reserves BOS and EOS, shifts every Chapter 3 content ID by two, applies ranks to arbitrary UTF-8, and decodes exact bytes; validation and test still contribute no merge statistic."
+}
+---
+
+import LearnBpeMergesDiagram from '../../../components/chapters/LearnBpeMergesDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Two deterministic BPE merge rounds',
+  description:
+    'Follow two separate documents through the exact Rust trace. Candidate counts include overlaps, while each replacement pass does not.',
+  trainingSource: 'Training documents only',
+  stagesLabel: 'Token stages',
+  roundsLabel: 'Merge rounds',
+  documentBoundary: 'Document boundary: pairs stop here',
+  fields: {
+    stage: 'Stage',
+    document: 'Document',
+    tokens: 'Token IDs',
+    candidates: 'Adjacent-pair candidates',
+    pair: 'Pair',
+    count: 'Overlapping count',
+    selected: 'Selected',
+    rank: 'Merge rank',
+    newToken: 'New token ID',
+    bytesHex: 'Byte expansion (hex)',
+    replacements: 'Non-overlapping replacements',
+  },
+  values: {
+    winner: 'Selected pair',
+    notWinner: 'Not selected',
+  },
+  invariantsLabel: 'What the trace proves',
+  invariants: {
+    overlap: 'Candidate counting includes overlapping positions.',
+    replacement: 'Replacement scans left to right without overlap.',
+    tie: 'Equal counts use the numerically smallest pair.',
+    barrier: 'No pair crosses a document boundary.',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict two rounds before running them
+
+Keep these as **two documents**, not one concatenated string:
+
+```text
+train-aaa = aaa = [97, 97, 97]
+train-aba = aba = [97, 98, 97]
+```
+
+Here `97` is byte `61` in hexadecimal (`a`), and `98` is byte `62` (`b`).
+Before reading the next paragraph, list every adjacent position. In `aaa`, the
+pair `(97,97)` starts at positions 0 and 1. Those occurrences overlap at the
+middle byte, but they are still two candidate positions. The second document adds
+one `(97,98)` and one `(98,97)`:
+
+| Pair | Positions across the two documents | Count |
+| :--- | :--- | ---: |
+| `(97,97)` | `train-aaa: 0–1, 1–2` | 2 |
+| `(97,98)` | `train-aba: 0–1` | 1 |
+| `(98,97)` | `train-aba: 1–2` | 1 |
+
+Rank 0 therefore selects `(97,97)` and assigns fresh ID `256`. Now make one
+left-to-right replacement pass. The match at positions 0–1 consumes both input
+tokens, so the scan resumes at position 2. It cannot reuse the middle `97` for a
+second replacement. The new stages are:
+
+```text
+train-aaa = [256, 97]
+train-aba = [97, 98, 97]
+```
+
+This is the chapter's most important distinction: the **candidate count is 2**,
+but the **replacement count is 1**. Counting asks which rule to learn; replacement
+asks how that one rule transforms a sequence without consuming a token twice.
+
+Predict rank 1. The candidates `(97,98)`, `(98,97)`, and `(256,97)` each occur
+once. This course compares numeric pairs, so `(97,98)` wins: its left ID `97` is
+smaller than `98` and `256`. Fresh ID `257` represents bytes `61 62`, producing:
+
+```text
+train-aaa = [256, 97]
+train-aba = [257, 97]
+```
+
+Finally consider two one-byte documents, `a | a`. The bar marks a document
+boundary; it is not a byte in either document. Each sequence has length one, so
+neither supplies a window of length two. The candidate map is empty—there is no
+synthetic `(97,97)` across the boundary.
+
+{/* chapter-section:formula */}
+
+## Select one reproducible rule
+
+For each round, the course fixes the winner and its new symbol with:
+
+$$
+(a^{*},b^{*})=\arg\max_{(a,b)}\bigl(C(a,b),-a,-b\bigr),\quad m^{*}=a^{*}\Vert b^{*}
+$$
+
+The three-part tuple is compared lexicographically. First maximize the frequency
+`C(a,b)`. If counts tie, maximizing `-a` chooses the smaller left ID; if those also
+tie, maximizing `-b` chooses the smaller right ID. This numeric tie rule is a
+course reproducibility policy, not a claim about every BPE implementation.
+
+The second expression operates on **byte expansions**. If token `256` expands to
+`61 61` and token `97` expands to `61`, merging `(256,97)` would store `61 61 61`.
+It does not concatenate the decimal strings `"256"` and `"97"`. If no document
+has an adjacent pair, training stops early; a winner with count one is otherwise
+valid.
+
+{/* chapter-section:symbol-glossary */}
+
+## Symbol glossary
+
+| Symbol | Meaning |
+| :--- | :--- |
+| $a,b$ | numeric IDs of the left and right adjacent symbols in the current round |
+| $(a,b)$ | an ordered adjacent pair; reversing the IDs makes a different candidate |
+| $C(a,b)$ | the number of adjacent positions carrying this pair across training documents, with overlaps counted and document boundaries excluded |
+| $\arg\max$ | selection of the candidate with the lexicographically greatest three-part score |
+| $-a,-b$ | the course's deterministic tie rule: after count, smaller left and then smaller right numeric IDs win |
+| $a^{*},b^{*}$ | the selected left and right IDs; the star marks the winner and is not multiplication |
+| $m^{*}$ | one fresh training-space symbol assigned ID 256 plus its zero-based rank |
+| $\Vert$ | concatenation of the byte expansions represented by the two IDs, not arithmetic on the IDs |
+
+Raw byte symbols occupy IDs `0..=255`. A successful zero-based rank `r` receives
+ID `256+r`, so `k` successful rounds make a training-space vocabulary of
+`256+k` symbols. Chapter 4 will map these content IDs into its final layout after
+reserving control tokens.
+
+{/* chapter-section:history */}
+
+## From closed word tables to repeated pair merging
+
+A fixed whole-word vocabulary assigns an ID to every spelling seen during fitting.
+It is simple, but every unseen spelling needs a fallback. In the runnable contrast,
+`lower` has its own fitted ID while `lowering` and any other unseen word collapse
+to the same ID `0`:
+
+<RustSource
+  path="rust/demos/ch03-learn-bpe-merges/src/lib.rs"
+  region="whole-word-unknown"
+  caption="A deterministic whole-word table with one unknown bucket"
+  label="Rust functions that fit whole-word IDs and map every unseen word to ID zero"
+/>
+
+Philip Gage's 1994 compression algorithm took a different route: repeatedly find
+a frequent adjacent byte pair, substitute an unused byte, and save enough of the
+substitution table to reverse the compression. Read the
+[original byte-pair compression article](https://jacobfilipp.com/DrDobbs/articles/CUJ/1994/9402/gage/gage.htm).
+Its goal and finite-byte substitution machinery differ from this tokenizer, which
+uses `u32` IDs and retains each symbol's byte expansion.
+
+Rico Sennrich, Barry Haddow, and Alexandra Birch later adapted repeated pair
+merging to open-vocabulary neural translation. Their
+[2016 subword paper](https://aclanthology.org/P16-1162/) starts from character
+sequences and prevents merges across word boundaries. This course deliberately
+implements another variant: it begins with raw UTF-8 bytes, permits a space to
+participate in a pair inside one document, and treats only document boundaries as
+hard barriers.
+
+Those distinctions matter. “BPE” names a family of repeated-pair procedures, not
+one universal tie rule or boundary policy. Our numeric-smallest tie rule is stated
+and tested so the same corpus produces the same ranks on every run.
+
+{/* chapter-section:rust-implementation */}
+
+## Implement the trainer without a tokenizer library
+
+The pair counter receives a slice of token sequences rather than one flattened
+array. Calling `windows(2)` separately for each sequence counts both overlapping
+windows in `aaa` and makes crossing a document boundary impossible. A `BTreeMap`
+keeps candidates in numeric pair order; scanning it while replacing the winner
+only for a strictly larger count preserves the first—therefore smallest—pair on a
+tie:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+  region="overlapping-pair-counting"
+  caption="Count overlapping candidates and resolve ties numerically"
+  label="Rust pair counter and deterministic most-frequent-pair selector"
+/>
+
+Selection does not decide how overlapping matches are rewritten. The replacement
+function scans with an index. A match emits one new ID and advances by two; a
+non-match copies one ID and advances by one:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+  region="non-overlapping-replacement"
+  caption="Replace left to right without consuming an input token twice"
+  label="Rust implementation of one non-overlapping pair-replacement pass"
+/>
+
+The public trainer accepts `CorpusPartitions`, not a free-form list that might
+quietly include held-out text. It records the exact stable IDs returned by
+`training_documents()` and converts only those document bodies from bytes to
+initial IDs:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+  region="deterministic-training"
+  caption="Build initial token sequences from the training view only"
+  label="Rust BPE trainer entry point that accepts validated corpus partitions"
+/>
+
+The internal loop assigns the current vocabulary length as the next ID, stores the
+concatenated byte expansion, replaces the pair in every training sequence, and
+records both candidate and replacement counts. Tests cover overlap, ties,
+document barriers, zero rounds, token-ID overflow, exact provenance, vocabulary
+growth, rule uniqueness, and repeatability.
+
+The executable then audits eight real ranks and emits the small strict trace used
+by the page:
+
+<RustSource
+  path="rust/demos/ch03-learn-bpe-merges/src/main.rs"
+  region="chapter-output"
+  caption="Learn from the frozen corpus and emit an inspectable trace"
+  label="Rust main function that prints exact corpus ranks and two worked merge rounds"
+/>
+
+Run it from the repository root:
+
+```text
+cargo test --workspace --locked
+cargo run --quiet --locked -p ch03-learn-bpe-merges | diff -u rust/demos/ch03-learn-bpe-merges/expected.txt -
+```
+
+A successful `diff` is silent. On the real training partition, rank 0 is
+`(32,208)` with count `81`, new ID `256`, and bytes `20 d0`. Byte `20` is a space;
+`d0` begins many two-byte Cyrillic UTF-8 encodings but is incomplete alone.
+Consequently `20 d0` is **not a standalone character or valid standalone UTF-8
+string**. Preserve and display it as bytes or hex.
+
+{/* chapter-section:visualization */}
+
+## Inspect the same trace as a static figure
+
+<LearnBpeMergesDiagram labels={diagramLabels} />
+
+The figure is parsed at build time from the exact Rust expected-output fixture.
+Each stage keeps both documents visible; each candidate table distinguishes the
+overlapping count from the non-overlapping replacement count. The selected row has
+text, a star, weight, and a border, so color is not required. Numeric and hex lanes
+remain left-to-right in every spoken language, and the layout stacks at a narrow
+viewport without any client-side script.
+
+Read stage 0 again and point to the shared middle `97` in `aaa`. Then compare the
+rank-0 count `2` with replacements `1`. At rank 1, ignore display position and
+apply the numeric tuple rule: `(97,98)` must beat `(98,97)` and `(256,97)`.
+
+{/* chapter-section:exercises */}
+
+## Predict, then check
+
+1. For one document `[97,97,97,97]`, compute `C(97,97)` and the number of
+   replacements in one left-to-right pass.
+2. After rank 0 in the worked example, write the score tuple for each of the three
+   count-one candidates and select the winner.
+3. Explain why documents `[97] | [98]` do not create candidate `(97,98)`.
+4. Predict the vocabulary size after 12 requested rounds if training stops after
+   only 9 successful rounds.
+5. Decide whether adding 10,000 repetitions to a validation document can alter
+   the learned rank table.
+6. Expand a hypothetical merge `(256,97)` when token `256` stores bytes `61 61`.
+7. Explain why printing real rank 0's bytes `20 d0` as a character is incorrect.
+
+<details>
+  <summary>Check your predictions</summary>
+
+  1. Four identical tokens have three adjacent positions, so `C(97,97)=3`.
+     One pass replaces positions 0–1 and 2–3, producing `[256,256]` with two
+     replacements.
+  2. The scores are `(1,-97,-98)`, `(1,-98,-97)`, and `(1,-256,-97)`.
+     Lexicographic maximization selects `(97,98)`.
+  3. Windows are formed independently inside each document. Both sequences have
+     length one, so neither has an adjacent position.
+  4. The vocabulary has `256+9=265` symbols. Requested rounds are an upper bound;
+     only successful rounds add symbols.
+  5. No. The trainer can obtain statistics only from `training_documents()`;
+     validation and test remain held out.
+  6. Concatenate expansions: `61 61` followed by `61`, giving `61 61 61`.
+  7. `d0` is a UTF-8 lead byte without its continuation byte. A learned token is
+     a byte sequence and need not be a character, word, or valid standalone text.
+</details>
+
+When testing a modification, predict its first changed rank before running the
+demo. If the output changes, inspect the corpus provenance, boundary handling,
+counting policy, tie rule, and replacement policy separately rather than treating
+all “BPE” implementations as interchangeable.
+
+{/* chapter-section:decoder-connection */}
+
+## Freeze ranks before applying them
+
+This chapter has learned an ordered rule table, but it has not yet defined how to
+encode arbitrary input. The distinction is deliberate: training discovers ranks;
+encoding later applies the already frozen ranks without recounting candidates on
+the new text.
+
+Chapter 4 will reserve BOS and EOS, shift every Chapter 3 content ID by two, apply
+these ranks to arbitrary UTF-8 bytes, and decode each ID through its stored byte
+expansion. The order matters because an earlier merge can create an operand for a
+later one. Validation and test bytes remain absent from every merge statistic,
+even when Chapter 4 tests round trips on held-out examples.
