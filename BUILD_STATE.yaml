@@ -1,8 +1,11 @@
 schema_version: 1
-updated_at: "2026-07-19T12:33:39Z"
+updated_at: "2026-07-19T12:43:22Z"
 
 environment:
   os: "Linux x86_64"
+  execution: "Docker-only build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
+  docker: "25.0.2"
+  docker_compose: "2.17.3"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "23.7.0"
@@ -3337,10 +3340,146 @@ builds:
                 status: passed
                 notes: "Plan/contract, Rust format/lint/tests/dependency/demo/exact outputs, locale/parity/content, Astro/unit/build/links, 3 focused browser tests, and all 19 browser regressions passed canonically."
             notes: "Completed after the revised frozen snapshot passed every staged gate, three independent final audits, explicit fluent-human Russian approval, byte-identical publication, and the complete canonical acceptance matrix. Published one bilingual static Chapter 5 vertical slice with separate learner and diagram-trace outputs. No dependency download, paid service, generation service, or substantial CPU use occurred. The dedicated step commit is the remaining handoff action and must be verified before selecting Chapter 6."
+      - id: containerize-build-workflow
+        objective: "Confine every Rust, Node, static-site, and browser build or validation operation to pinned Docker images without generated toolchain artifacts in the host workspace."
+        depends_on:
+          - implement-ch05-autoregressive-examples
+        status: completed
+        inputs:
+          - AGENTS.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - README.md
+          - SKILLS.md
+          - .gitignore
+          - curriculum/course-plan.md
+          - scripts/check-course-plan.mjs
+          - scripts/check-chapter-contract.mjs
+          - scripts/check-rust-dependencies.sh
+          - scripts/check-rust-demos.sh
+          - scripts/check-site-content.mjs
+          - scripts/check-static-links.mjs
+          - Cargo.toml
+          - Cargo.lock
+          - site/package.json
+          - site/package-lock.json
+          - site/playwright.config.ts
+          - "docker:25.0.2"
+          - "docker-compose:2.17.3"
+          - "Docker registry access for pinned Rust, Node, and static-server base images"
+          - "npm registry, Debian package mirrors, and Playwright Chromium download inside the image build"
+        outputs:
+          - .dockerignore
+          - .gitignore
+          - Dockerfile
+          - compose.yaml
+          - course
+          - docker/nginx.conf
+          - scripts/check-host-artifacts.sh
+          - scripts/validate-in-container.sh
+          - SKILLS.md
+          - curriculum/course-plan.md
+        acceptance:
+          - "The locked Rust, Node/npm, Astro, Vitest, and Playwright toolchains execute only inside a version-pinned workspace image built from repository source and lockfiles."
+          - "One root wrapper builds the workspace image, runs arbitrary container-relative commands, executes the complete regression matrix, packages the static site, previews it, and audits the host boundary."
+          - "The production image contains the generated static course and a static file server but no Rust, Cargo, Node, npm, or Python executable."
+          - "Docker builds, complete tests, and static-server smoke checks leave no target, node_modules, .astro, dist, coverage, Playwright result, or Python cache artifact anywhere in the host workspace."
+          - "The chapter-delivery playbook makes Docker the mandatory execution boundary and treats existing ledger validation strings as commands relative to the container workspace."
+          - "The reviewed course plan schedules this infrastructure and its README handoff before Chapter 6, and this completed step is persisted in its own Git commit."
+        validate:
+          - "docker compose config --quiet"
+          - "./course run scripts/verify-toolchain.sh"
+          - "./course check"
+          - "./course build"
+          - "./course smoke"
+          - "./course audit-host"
+          - "docker run --rm --entrypoint /bin/sh learn-llm-site:local -c 'test -f /usr/share/nginx/html/index.html && ! command -v cargo && ! command -v rustc && ! command -v node && ! command -v npm && ! command -v python && ! command -v python3'"
+          - "git diff --check"
+        cost:
+          class: large
+          notes: "The first image build may download pinned base layers, locked npm packages, Debian browser libraries, and Playwright Chromium and may use substantial disk/CPU. The human explicitly requested and thereby approved this Docker migration; no paid service or generated course content is used."
+        runs:
+          - run_id: 20260719T124322Z-containerize-build-workflow-01
+            started_at: "2026-07-19T12:43:22Z"
+            finished_at: "2026-07-19T12:56:00Z"
+            status: succeeded
+            input_fingerprint:
+              git: "cdaaf52069f2bf0a133414c919991a652a5b16a2"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:8b9f107c502a61a6fe22bc2c1e46f0fb3654c9705335c31900c1fb0894a20fa3"
+                DECISIONS.md: "sha256:67db31a42cc73bd2604f8be90bda3f33570048dae6fb92ec914b728cdfee73c5"
+                README.md: "sha256:623cb9e3bf4aba957a4d5f8e8fde52c9fed26fe6807e692233fe3177ae370777"
+                SKILLS.md: "sha256:3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3"
+                .gitignore: "sha256:0453eb5875738bc2f204e8172141ff1ddf87d91bd23ec3e7c7bf1a4e54fee206"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:1ade4ec5a2ec0ffdd33474e5f4dc4b0bb9c4249a4b232cf545e3f2da5ba490ef"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/playwright.config.ts: "sha256:0d5ba60fd5809340e7b987f7c9094250ac2a7ce435d972ed7f2dbd0684a4d199"
+              tools:
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T124322Z-containerize-build-workflow-01/"
+            commands:
+              - "git status --short --branch; verify Chapter 5 commit cdaaf52 and a clean worktree"
+              - "Read the build ledger, latest decisions, current README and chapter playbook, course schedule, manifests, browser configuration, and artifact ignores"
+              - "Inventory Docker/Compose versions and every generated Rust, Node, site, browser, and Python artifact directory in the canonical tree and immutable run staging"
+              - "Record the approved Docker-only architecture, add consecutive cross-cutting steps before Chapter 6, create run-specific staging, and claim this step before product implementation"
+            artifacts:
+              - path: "learn-llm-site:local"
+                notes: "Validated static production image"
+            validation:
+              - command: "docker compose config --quiet"
+                status: passed
+              - command: "./course build"
+                status: passed
+              - command: "./course audit-host"
+                status: passed
+              - command: "production image toolchain audit"
+                status: passed
+              - command: "static route smoke test for /en/ and /ru/course/01-text-units/"
+                status: passed
+            notes: "Completed on the host Docker daemon. Rust 1.93.1 with rustfmt, Node 22.12.0/npm 10.9.0, locked site checks, static build, production-image toolchain audit, and localized route smoke tests passed. Host generated-artifact audit passed; image layers and caches remain in Docker daemon storage."
+      - id: document-docker-workflow
+        objective: "Rewrite the root README so learners and contributors can use, validate, preview, and deploy the course through the Docker-only interface."
+        depends_on:
+          - containerize-build-workflow
+        status: pending
+        inputs:
+          - AGENTS.md
+          - BUILD_STATE.yaml
+          - DECISIONS.md
+          - Dockerfile
+          - compose.yaml
+          - course
+          - scripts/check-host-artifacts.sh
+          - scripts/validate-in-container.sh
+          - SKILLS.md
+          - curriculum/README.md
+          - site/src/i18n/locales.json
+        outputs:
+          - README.md
+        acceptance:
+          - "README.md requires only Git, Docker Engine, and Docker Compose on the host and contains no host Rust, Node, npm, or Python build command."
+          - "Quick start correctly builds and previews the static-site image, names the current localized routes and chapters, and explains why file:// navigation is unsupported."
+          - "The wrapper's run, chapter-demo, complete-check, host-audit, preview, and deployment-image workflows are documented with commands that match its help output."
+          - "The documentation distinguishes source and lockfiles from forbidden generated host artifacts and explains the intentional Docker daemon image/cache storage boundary."
+          - "This documentation step passes its review and is persisted in its own Git commit before Chapter 6 starts."
+        validate:
+          - "./course help"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Manual command-by-command review against course help, compose.yaml, current routes, configured locales, and the Docker-only host boundary"
+        cost:
+          class: small
+          notes: "Local documentation and deterministic checks only after the image and wrapper are already validated; no new network, dependency, paid service, generation service, or substantial CPU use."
+        runs: []
       - id: implement-ch06-bigram-baseline
         objective: "Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once."
         depends_on:
-          - implement-ch05-autoregressive-examples
+          - document-docker-workflow
         status: pending
         inputs:
           - "SKILLS.md"
