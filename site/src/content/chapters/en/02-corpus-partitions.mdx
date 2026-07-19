@@ -210,6 +210,8 @@ Notice what is absent: there is no required percentage in the formula. The
 appropriate ratio depends on data volume and evaluation goals. Here the invariant
 is exact membership, while `8 / 2 / 2` is merely the checked fixture assignment.
 
+> **Key idea:** assign whole source documents before creating token windows; otherwise new IDs can hide shared context across partitions.
+
 {/* chapter-section:history */}
 
 ## Before dependable holdout boundaries
@@ -244,6 +246,8 @@ Whole-document assignment prevents that particular leakage path. It does not pro
 that the corpus is representative, nor does an ID detect every copied or
 near-duplicate passage. Validation also is not untouched once it guides a decision.
 The test partition, by contrast, is reserved for final evidence in this course.
+
+> **Carry forward:** a clean holdout boundary makes later tokenizer and model measurements interpretable, but it does not make a small corpus representative by itself.
 
 {/* chapter-section:rust-implementation */}
 
@@ -302,6 +306,8 @@ The focused tests include a successful three-way assignment and independent
 mutations for malformed UTF-8 and JSON, checksum drift, missing, repeated, unknown,
 or reordered IDs, empty roles, and split provenance. A successful `diff` prints
 nothing.
+
+> **Implementation takeaway:** validation happens before a training view is exposed, so Chapter 3 cannot accidentally learn from held-out documents.
 
 {/* chapter-section:visualization */}
 

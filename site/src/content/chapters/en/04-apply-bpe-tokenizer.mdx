@@ -159,6 +159,8 @@ three bytes. But re-encoding those bytes returns canonical `[258,178]`, because
 rank 0 has priority. Exact decoding does **not** make every valid token sequence a
 canonical encoding.
 
+> **Key idea:** the tokenizer promises exact bytes for its own outputs; canonical encoding is a separate promise from accepting every decodable segmentation.
+
 {/* chapter-section:formula */}
 
 ## Guarantee exact bytes in one direction
@@ -237,6 +239,8 @@ GPT-2 also applied category-boundary rules with a space exception. This course i
 not a clone of that tokenizer: it uses the exact Chapter 3 rules, permits any pair
 inside a document, and treats only document boundaries as barriers. Naming these
 differences prevents “BPE” from hiding important policy choices.
+
+> **Historical takeaway:** byte coverage solves the unknown-string problem, while rank policy and boundary policy determine the actual tokenizer behavior.
 
 {/* chapter-section:rust-implementation */}
 
@@ -388,3 +392,5 @@ context/target windows inside each one, never concatenate two documents, and
 never cross a train/validation/test boundary. BOS and EOS therefore become
 part of the causal sequence without becoming mergeable text: BOS anchors the
 initial context, while EOS is the terminal prediction target.
+
+> **Carry forward:** Chapter 5 can now train on complete, reversible, boundary-aware token sequences without changing their content bytes.

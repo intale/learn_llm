@@ -250,6 +250,8 @@ Those distinctions matter. “BPE” names a family of repeated-pair procedures,
 one universal tie rule or boundary policy. Our numeric-smallest tie rule is stated
 and tested so the same corpus produces the same ranks on every run.
 
+> **Key idea:** BPE training is a deterministic sequence of count, tie-break, and non-overlapping replacement decisions—not a vague “merge frequent pairs” operation.
+
 {/* chapter-section:rust-implementation */}
 
 ## Implement the trainer without a tokenizer library
@@ -319,6 +321,8 @@ A successful `diff` is silent. On the real training partition, rank 0 is
 `d0` begins many two-byte Cyrillic UTF-8 encodings but is incomplete alone.
 Consequently `20 d0` is **not a standalone character or valid standalone UTF-8
 string**. Preserve and display it as bytes or hex.
+
+> **Implementation takeaway:** keep byte expansions attached to each new ID; a merge token is useful because the tokenizer can later expand it exactly.
 
 {/* chapter-section:visualization */}
 

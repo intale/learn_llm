@@ -136,6 +136,8 @@ round trip is reversible for known units. For the unseen input `?`, byte `63` an
 scalar `U+003F` are observable before lookup, but encoding produces `[0]` and
 decoding returns `<UNK>` rather than the original question mark.
 
+> **Key idea:** UTF-8 byte length, Unicode-scalar length, and vocabulary length are different measurements; this chapter deliberately preserves only known scalar values.
+
 {/* chapter-section:formula */}
 
 ## One lookup per scalar position
@@ -193,6 +195,8 @@ Try the two functions mentally before running them:
 useful compromise between huge whole-word vocabularies and long scalar sequences.
 Chapter 2 first preserves documents and freezes the data partitions; chapter 3
 learns the BPE merge rules, and chapter 4 applies the frozen tokenizer.
+
+> **Carry forward:** the next tokenizer must shorten sequences without giving up the ability to represent unfamiliar text.
 
 {/* chapter-section:rust-implementation */}
 
