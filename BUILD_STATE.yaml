@@ -3446,7 +3446,7 @@ builds:
         objective: "Rewrite the root README so learners and contributors can use, validate, preview, and deploy the course through the Docker-only interface."
         depends_on:
           - containerize-build-workflow
-        status: pending
+        status: completed
         inputs:
           - AGENTS.md
           - BUILD_STATE.yaml
@@ -3480,7 +3480,7 @@ builds:
         objective: "Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once."
         depends_on:
           - document-docker-workflow
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -3539,7 +3539,34 @@ builds:
         cost:
           class: medium
           notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+        runs:
+          - run_id: 20260719T133000Z-implement-ch06-bigram-baseline-01
+            started_at: "2026-07-19T13:30:00Z"
+            finished_at: "2026-07-19T13:39:00Z"
+            status: succeeded
+            input_fingerprint: "commit dafd41c86a8d93d6531677d488a091833d1856fb; curriculum/chapters/05-autoregressive-examples.md sha256:67cc7124c5b45c72763fedb31211b428ac32c5377004a7d326cdbb11483c2106; Cargo.toml sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1; Cargo.lock sha256:c5a4695dbd8f5efa9236fc164c128c34beca22fcbd82d10774635e13debeccdf; Docker node:22.12.0-bookworm, Rust 1.93.1"
+            staging_dir: ".build/runs/20260719T133000Z-implement-ch06-bigram-baseline-01/"
+            commands:
+              - "./course check"
+              - "docker run --rm -v $PWD:/workspace -w /workspace learn-llm-workspace:local cargo fmt --all"
+              - "docker run --rm -v $PWD:/workspace -w /workspace learn-llm-workspace:local cargo generate-lockfile"
+            artifacts:
+              - path: "curriculum/chapters/06-bigram-baseline.md"
+              - path: "rust/crates/llm-from-scratch/src/bigram.rs"
+              - path: "rust/demos/ch06-bigram-baseline/expected.txt"
+              - path: "site/src/content/chapters/en/06-bigram-baseline.mdx"
+              - path: "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+              - path: "site/src/components/chapters/BigramBaselineDiagram.astro"
+            validation:
+              - "node scripts/check-course-plan.mjs: passed"
+              - "npm --prefix site run check:contract -- ../curriculum/chapters/06-bigram-baseline.md: passed"
+              - "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked: passed"
+              - "scripts/check-rust-dependencies.sh; scripts/check-rust-demos.sh: passed"
+              - "ch06 demo expected output diff: passed"
+              - "localized chapter, parity, Astro check, Vitest, build, and static links: passed"
+              - "Chapter 6 Playwright browser gate with ephemeral Chromium and runtime libraries: passed"
+              - "Full Playwright suite: 18 passed, 2 pre-existing Russian overflow failures in chapters 3 and 5"
+            notes: "Chapter 6 acceptance gates passed. The full browser suite still reports unrelated narrow-layout overflow in existing Russian chapters 3 and 5; no Chapter 6 test failed."
       - id: implement-ch07-language-model-metrics
         objective: "Compute average negative log-likelihood and perplexity for predicted token distributions."
         depends_on:

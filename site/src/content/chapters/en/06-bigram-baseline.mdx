@@ -1,0 +1,73 @@
+---
+{"chapter_id":"06-bigram-baseline","locale":"en","content_revision":1,"order":6,"concept_id":"smoothed-bigram-distribution","title":"A count-based bigram language model","description":"Count within-document transitions and turn one row into a smoothed next-token distribution.","objective":"Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.","worked_inputs":"Count transitions in [0,1,1,2] and [0,1,2], then predict the most likely successor before and after smoothing.","formula":{"latex":"C_{ij}=\\sum_{d\\in\\mathcal{D}_{tr}}\\sum_{t=1}^{|d|-1}\\mathbf{1}[z_t=i\\land z_{t+1}=j],\\quad P(j\\mid i)=\\frac{C_{ij}+\\alpha}{\\sum_k C_{ik}+\\alpha|V|}","symbols":[{"symbol":"C_{ij}","meaning":"count of transitions from token i to token j"},{"symbol":"z_t","meaning":"token at position t in one training document"},{"symbol":"\\mathcal{D}_{tr}","meaning":"the training documents only"},{"symbol":"P(j\\mid i)","meaning":"smoothed probability of next token j after i"},{"symbol":"\\alpha","meaning":"positive additive smoothing amount"},{"symbol":"|V|","meaning":"vocabulary size"},{"symbol":"\\mathbf{1}","meaning":"indicator that is one when the transition matches"}]},"history":{"approach":"Maximum-likelihood n-gram language models","summary":"Classical n-gram models count finite-context transitions. Their unsmoothed rows assign zero probability to unseen continuations, so additive smoothing gives every vocabulary item a controlled nonzero baseline.","rust_source":"rust/demos/ch06-bigram-baseline/src/main.rs"},"rust_sources":[{"path":"rust/crates/llm-from-scratch/src/bigram.rs","purpose":"Count transitions and query smoothed probabilities."},{"path":"rust/demos/ch06-bigram-baseline/src/main.rs","purpose":"Print deterministic counts and probabilities."}],"visualization":{"decision":"useful","id":"bigram-baseline","rationale":"A count/probability row makes normalization, smoothing mass, and an unseen context visible together."},"decoder_connection":"The model consumes the [BOS, content..., EOS] sequences from Chapter 5 and supplies a first next-token distribution; Chapter 7 will score it without changing the frozen table."}
+---
+
+import BigramBaselineDiagram from '../../../components/chapters/BigramBaselineDiagram.astro';
+
+export const diagramLabels = { title: 'Counts become a next-token distribution', description: 'A transition-count row beside its smoothed probabilities.', from: 'Current token', counts: 'Counts', probabilities: 'Smoothed probabilities', rows: [{ from: '0', counts: '[0, 2, 0]', probabilities: '[.200, .600, .200]' }, { from: '2 (unseen)', counts: '[0, 0, 0]', probabilities: '[.333, .333, .333]' }] };
+
+## What this chapter teaches
+
+We count adjacent transitions inside each training document, normalize one row at a time, and apply additive smoothing. BOS/EOS transitions are included, but no transition crosses a document boundary. Loss, gradients, and evaluation belong to Chapter 7.
+
+{/* chapter-section:worked-example */}
+## Predict before counting
+
+For `[0,1,1,2]` and `[0,1,2]`, row 0 sees two `0→1` transitions. Row 1 sees one `1→1` and two `1→2` transitions. With vocabulary size 3 and `α=1`, row 0 becomes `[.200,.600,.200]`; an unseen row becomes uniform.
+
+{/* chapter-section:formula */}
+## Formula
+
+$$C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=1}^{|d|-1}\mathbf{1}[z_t=i\land z_{t+1}=j],\quad P(j\mid i)=\frac{C_{ij}+\alpha}{\sum_k C_{ik}+\alpha|V|}$$
+
+Counts are made only from adjacent positions within one training document. Adding `α` to every candidate and dividing by the row total gives a row that sums to one.
+
+{/* chapter-section:symbol-glossary */}
+## Symbols
+
+`Cᵢⱼ` is a transition count; `zₜ` is a token; `D_tr` is the training partition; `P(j|i)` is the next-token probability; `α` is positive smoothing; `|V|` is vocabulary size.
+
+{/* chapter-section:history */}
+## Historical baseline
+
+Finite-context n-gram models were practical pre-neural language models. Maximum-likelihood counts expose a weakness: an unseen continuation receives probability zero. Our Rust contrast prints that missing evidence beside the smoothed row.
+
+{/* chapter-section:rust-implementation */}
+## Rust implementation
+
+`BigramModel::fit` iterates `windows(2)` separately for each document and stores a row-major count table. `count`, `probability`, and `predict` expose the result. Invalid vocabulary sizes, smoothing values, and token IDs are rejected.
+
+<RustSource path="rust/crates/llm-from-scratch/src/bigram.rs" caption="Count transitions and smooth each row" label="Rust bigram model implementation" />
+<RustSource path="rust/demos/ch06-bigram-baseline/src/main.rs" caption="Deterministic chapter output" label="Rust demo of counts and probabilities" />
+
+{/* chapter-section:visualization */}
+## See one row
+
+<BigramBaselineDiagram labels={diagramLabels} />
+
+The exact labels and numbers show counts, normalization, and smoothing without relying on color.
+
+{/* chapter-section:exercises */}
+## Predict, then check
+
+1. Count transitions in `[0,1,1,2]` and `[0,1,2]`.
+2. Predict the unsmoothed row for context `2`.
+3. Explain why flattening the documents invents a transition.
+4. Explain why smoothing changes probabilities but not counts.
+
+<details>
+  <summary>Check your predictions</summary>
+
+1. The rows are `[0,2,0]` and `[0,1,2]`.
+2. Context 2 is unseen, so smoothing makes its row uniform.
+3. Flattening creates a cross-document pair.
+4. Smoothing changes only the normalized estimate.
+
+</details>
+
+**Misconception check:** the argmax token is not the model’s full confidence; the whole probability row matters.
+
+{/* chapter-section:decoder-connection */}
+## Handoff to scoring
+
+The fitted table consumes complete wrapped sequences from Chapter 5. Chapter 7 will calculate likelihood and perplexity on train and validation while keeping this table and the test partition fixed.

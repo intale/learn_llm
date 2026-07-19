@@ -1,0 +1,7 @@
+vocabulary: 3
+alpha: 1.0
+counts row 0: [0, 2, 0]
+counts row 1: [0, 1, 2]
+probabilities row 0: [0.200, 0.600, 0.200]
+probabilities unseen row 2: [0.333, 0.333, 0.333]
+prediction row 0: [0.2, 0.6, 0.2]

@@ -1376,3 +1376,21 @@ Chapter 6 becomes eligible.
 **Affected steps:** `containerize-build-workflow`,
 `document-docker-workflow`, and `implement-ch06-bigram-baseline` through
 `implement-ch39-end-to-end-llm`
+
+## 2026-07-19 — Chapter 6 baseline and browser-gate scope
+
+**Context:** Chapter 6 adds the first count-based next-token distribution and
+its bilingual static lesson. The complete browser suite also exercises older
+Russian lessons.
+
+**Decision:** Accept Chapter 6 when its dedicated browser test and all
+chapter-specific, Rust, content, parity, build, link, and unit gates pass.
+Record unrelated full-suite failures without folding their fixes into this
+chapter commit.
+
+**Consequences:** Chapter 6 is independently reproducible and committed. The
+full suite currently has two pre-existing narrow-layout overflow failures in
+Russian Chapters 3 and 5; they remain visible in the Chapter 6 run record and
+must be addressed by a later scoped layout step.
+
+**Affected steps:** `implement-ch06-bigram-baseline`.

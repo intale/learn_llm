@@ -1,0 +1,11 @@
+---
+const { labels } = Astro.props;
+const rows: Array<{ from: string; counts: string; probabilities: string }> = labels?.rows ?? [];
+---
+<figure class="bigram-diagram" tabindex="0" aria-label={labels?.description}>
+  <figcaption>{labels?.title}</figcaption>
+  <table>
+    <thead><tr><th>{labels?.from}</th><th>{labels?.counts}</th><th>{labels?.probabilities}</th></tr></thead>
+    <tbody>{rows.map((row) => <tr><th scope="row">{row.from}</th><td>{row.counts}</td><td>{row.probabilities}</td></tr>)}</tbody>
+  </table>
+</figure>

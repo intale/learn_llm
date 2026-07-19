@@ -4,6 +4,7 @@
 //! tested building block after its behavior has been established by a runnable
 //! demo.
 
+pub mod bigram;
 pub mod corpus;
 pub mod data;
 
