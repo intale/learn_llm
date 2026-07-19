@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '02-corpus-partitions';
-const contentRevision = 1;
+const contentRevision = 2;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const manifest = JSON.parse(
@@ -100,39 +100,40 @@ const copy = {
     exerciseAnswer: 'Validation reports that the manifest does not cover doc-07.',
   },
   ru: {
-    indexTitle: 'От текста до небольшой языковой модели',
-    chapterTitle: 'Документы корпуса и зафиксированные выборки',
+    indexTitle: 'От текста к небольшой языковой модели',
+    chapterTitle: 'Документы корпуса и фиксированное разбиение на выборки',
     revisionLabel: 'Версия материала',
     headings: {
       formula: 'Полнота и непересечение в одной записи',
-      history: 'До надёжных границ отложенных данных',
-      rust: 'Закрепите границу в Rust',
-      visualization: 'Проверьте все двенадцать назначений одним взглядом',
+      history: 'До появления надёжного разделения обучающих и отложенных данных',
+      rust: 'Проверьте границу данных в Rust',
+      visualization:
+        'Проверьте распределение всех двенадцати документов на одной диаграмме',
       exercises: 'Сначала предскажите, затем проверьте',
-      decoder: 'Передайте BPE только обучающие документы',
+      decoder: 'Передайте алгоритму BPE только обучающие документы',
     },
     rustCaptions: [
       'Разные ID фрагментов с общим исходным контекстом',
       'Загрузка целых документов до токенизации',
-      'Проверка до выдачи представлений выборок',
-      'Детерминированная проверка главы 2',
+      'Проверка перед возвратом заимствованных ссылок на документы',
+      'Воспроизводимая проверка главы 2',
     ],
     roles: {
       train: { title: 'Обучающая', purpose: 'Для обучения' },
-      validation: { title: 'Валидационная', purpose: 'Для выбора' },
+      validation: { title: 'Валидационная', purpose: 'Для выбора настроек' },
       test: { title: 'Тестовая', purpose: 'Один раз для итоговой оценки' },
     },
     diagramTitle: 'Один корпус, три непересекающиеся выборки',
     documentCountLabel: 'Документов',
     wholeDocument: 'Целый документ',
-    assignedLabel: 'Назначено документов',
-    repeatedLabel: 'Повторяющихся идентификаторов',
+    assignedLabel: 'Распределено документов',
+    repeatedLabel: 'Повторяющихся ID',
     invariants: [
-      'Полнота: присутствует каждый идентификатор корпуса',
-      'Непересечение: идентификаторы не повторяются',
-      'Связанная пара происхождения остаётся в одной выборке',
+      'Полнота: присутствует каждый ID корпуса',
+      'Непересечение: ID не повторяются',
+      'Документы из одной группы происхождения остаются в одной выборке',
     ],
-    exerciseSummary: 'Проверить ответы',
+    exerciseSummary: 'Проверьте ответы',
     exerciseAnswer: 'Проверка сообщит, что манифест не покрывает doc-07.',
   },
 } as const satisfies Record<ChapterLocale, unknown>;

@@ -2,15 +2,15 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
-    "ru": "Загрузить в Rust зафиксированный манифест разбиения корпуса и проверить, что каждый документ целиком входит ровно в одну непустую выборку — обучающую, валидационную или тестовую, — до вычисления статистики токенизатора."
+    "ru": "С помощью Rust загрузить зафиксированный манифест разбиения корпуса и проверить, что каждый документ целиком входит ровно в одну непустую выборку — обучающую, валидационную или тестовую, — прежде чем будет вычислена какая-либо статистика токенизатора."
   },
   "worked_inputs": {
     "en": "Repair a six-document manifest that assigns doc-04 twice and omits doc-06, then inspect the frozen 12-document bilingual corpus split.",
-    "ru": "Исправить манифест из шести документов, в котором doc-04 назначен дважды, а doc-06 пропущен, затем изучить зафиксированное разбиение двуязычного корпуса из 12 документов."
+    "ru": "Исправить манифест из шести документов, в котором doc-04 включён сразу в две выборки, а doc-06 пропущен, затем изучить зафиксированное разбиение двуязычного корпуса из 12 документов."
   },
   "formula": {
     "latex": "\\mathcal{D}=\\mathcal{D}_{tr}\\mathbin{\\dot\\cup}\\mathcal{D}_{va}\\mathbin{\\dot\\cup}\\mathcal{D}_{te},\\quad \\mathcal{D}_{a}\\cap\\mathcal{D}_{b}=\\varnothing\\;(a\\ne b)",
@@ -23,12 +23,12 @@
       {
         "symbol": "\\mathcal{D}_{tr}",
         "en": "training documents, the only source of learned tokenizer or model statistics",
-        "ru": "обучающие документы — единственный источник статистик, вычисляемых по обучающим данным"
+        "ru": "обучающие документы — единственный источник статистики, вычисляемой при обучении токенизатора и модели"
       },
       {
         "symbol": "\\mathcal{D}_{va}",
         "en": "validation documents reserved for later choices and checkpoint selection",
-        "ru": "валидационные документы, зарезервированные для последующего выбора настроек и контрольной точки"
+        "ru": "валидационные документы, зарезервированные для последующего подбора настроек и выбора контрольной точки"
       },
       {
         "symbol": "\\mathcal{D}_{te}",
@@ -63,18 +63,18 @@
       {
         "symbol": "a\\ne b",
         "en": "the intersection condition compares distinct partitions only",
-        "ru": "условие пересечения сравнивает только разные выборки"
+        "ru": "условие о пересечении относится только к разным выборкам"
       }
     ]
   },
   "history": {
     "approach": {
       "en": "Training-set evaluation and random splitting of overlapping excerpts",
-      "ru": "Оценка на обучающем тексте и случайное разбиение перекрывающихся фрагментов"
+      "ru": "Оценка на данных, использованных для обучения, и случайное разбиение перекрывающихся фрагментов"
     },
     "summary": {
       "en": "An in-sample score measures performance on the text used for fitting, not out-of-sample behavior. Even with a holdout label, creating overlapping excerpts first and assigning them independently can place shared source context on both sides; stable whole-document assignment prevents that leakage class.",
-      "ru": "Оценка на тексте, использованном для обучения, измеряет качество на уже виденных данных, а не поведение на новых данных. Даже при наличии отложенной выборки предварительное создание перекрывающихся фрагментов и их независимое распределение может поместить общий исходный контекст по обе стороны границы; назначение целых документов предотвращает этот вид утечки."
+      "ru": "Оценка на тексте, использованном для обучения, измеряет качество на уже виденных, а не на новых данных. Даже при наличии отложенной выборки предварительное создание перекрывающихся фрагментов и их независимое распределение может привести к тому, что общий исходный контекст окажется по обе стороны границы; распределение целых документов предотвращает этот вид утечки."
     },
     "rust_contrast": "Create two separately named overlapping three-word windows from one source sentence, print their shared context, then contrast them with the validated manifest that assigns every whole source document and provenance group once."
   },
@@ -92,12 +92,12 @@
     "id": "corpus-partitions",
     "rationale": {
       "en": "Three peer lists of whole document cards make exact coverage, partition counts, preserved provenance pairs, and the absence of repeated IDs easier to verify than prose alone.",
-      "ru": "Три равноправных списка карточек целых документов позволяют легче, чем по одному тексту, проверить полное покрытие, размеры выборок, то, что связанные пары остаются вместе, и отсутствие повторяющихся идентификаторов."
+      "ru": "Три равноправных списка карточек целых документов позволяют проще, чем текстовое описание, проверить полноту покрытия, размеры выборок, совместное размещение связанных пар и отсутствие повторяющихся ID."
     }
   },
   "decoder_connection": {
     "en": "Chapter 3's BPE pair counter receives the validated partition's explicit training-only view of eight documents; validation and test bytes remain frozen, and every document boundary remains a barrier between pair-count sequences.",
-    "ru": "Счётчик пар BPE из главы 3 получает из проверенного разбиения явное представление только восьми обучающих документов; байты валидационной и тестовой выборок остаются зафиксированными, а каждая граница документа остаётся барьером между последовательностями подсчёта пар."
+    "ru": "Счётчик пар BPE из главы 3 получает через проверенное разбиение доступ только к восьми обучающим документам; данные валидационной и тестовой выборок не участвуют в обучении, а пары не подсчитываются через границы документов."
   },
   "terminology": [
     {
@@ -179,7 +179,7 @@
 }
 ---
 
-# Chapter 02: Corpus documents and frozen partitions / Документы корпуса и зафиксированные выборки
+# Chapter 02: Corpus documents and frozen partitions / Документы корпуса и фиксированное разбиение на выборки
 
 <!-- contract-section:scope -->
 ## Scope
@@ -188,15 +188,15 @@ This chapter fixes one data boundary before tokenization: a stable source docume
 is the indivisible unit assigned to train, validation, or test. Students load the
 original UTF-8 fixture and its frozen manifest, then prove that every document is
 covered exactly once, every partition is nonempty, source order is stable, related
-provenance stays together, and the recomputed drift checksum still matches the
+provenance stays together, and the recomputed corpus checksum still matches the
 manifest.
 
 В этой главе до токенизации фиксируется одна граница данных: стабильный исходный
-документ служит неделимой единицей, назначаемой в обучающую, валидационную или
-тестовую выборку. Учащиеся загружают исходный файл UTF-8 и его зафиксированный
-манифест, а затем проверяют полное однократное покрытие, непустоту выборок,
-стабильный порядок, целостность групп происхождения и совпадение вычисленной
-контрольной суммы с записанной в манифесте.
+документ служит неделимой единицей, которую целиком относят к обучающей,
+валидационной или тестовой выборке. Учащиеся загружают исходный файл UTF-8 и его
+зафиксированный манифест, а затем проверяют, что каждый документ включён ровно один
+раз, все выборки непусты, исходный порядок сохранён, группы происхождения не
+разделены, а вычисленная контрольная сумма совпадает с записанной в манифесте.
 
 The chapter does not choose a universal split ratio, tokenize bytes, learn BPE
 merges, construct autoregressive windows, compute loss, select checkpoints, or
@@ -270,17 +270,18 @@ et al. include a dedicated
 large language model.
 
 This is one leakage defense, not a claim that every historical experiment leaked
-or that every overlap inflates every score. A matching 64-bit FNV value detects the
-tested accidental changes but, because collisions exist, does not establish byte
-identity, authorship, or licensing; the separate data README records provenance.
+or that every overlap inflates every score. A checksum mismatch detects the tested
+accidental byte changes. A matching 64-bit FNV value only reports that recomputation
+produced the recorded value; because collisions exist, it does not establish byte
+identity, authorship, or licensing. The separate data README records provenance.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
 `Corpus::from_utf8` accepts bytes so invalid UTF-8 is observable. It parses explicit
 `%% document` / `%% end` markers, rejects empty or duplicate documents, preserves
-body line boundaries and source order, and calculates a deterministic FNV-1a drift
-checksum. FNV is deliberately not described as cryptographic.
+body line boundaries and source order, and calculates a deterministic FNV-1a
+checksum of the corpus. FNV is deliberately not described as cryptographic.
 
 `SplitManifest::from_json` reads the narrow checked-in schema without an external
 JSON or machine-learning crate. Its parsing plumbing is not the teaching concept.

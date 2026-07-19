@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 1,
   "concept_id": "text-units-vocabulary-ids",
   "title": "Text units and vocabulary IDs",
@@ -293,7 +293,8 @@ the sequence enters the decoder. The decoder will eventually predict another ID,
 and the inverse vocabulary will turn generated IDs back into text.
 
 Chapter 2 first preserves document boundaries and freezes the data partitions.
-Chapter 3 learns BPE merge rules, and chapter 4 applies them to replace scalar-sized
-units while preserving this integer-sequence interface. Everything that follows—
+Chapter 3 learns BPE merge rules over UTF-8 bytes, and Chapter 4 applies those
+frozen rules to byte sequences while preserving this integer-sequence interface.
+Everything that follows—
 embeddings, attention, and next-token prediction—can therefore operate on IDs
 without needing to know how many UTF-8 bytes produced each one.

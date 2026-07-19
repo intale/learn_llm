@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T07:41:35Z"
+updated_at: "2026-07-19T08:37:59Z"
 
 environment:
   os: "Linux x86_64"
@@ -2784,10 +2784,234 @@ builds:
                 status: passed
                 notes: "Generated Chapter 4 HTML has no KaTeX error or script element; all audit findings were corrected; state is valid YAML; no whitespace error remains; all 14 outputs retain their staged checksums."
             notes: "Completed as one high-quality localized Chapter 4 vertical slice using local deterministic work and read-only primary-source verification. Rust remains the sole BPE implementation; the extensible static presentation owns no spoken-language literals or client runtime. No dependency download, generation service, paid resource, substantial CPU work, or Chapter 5 product work occurred."
+      - id: review-published-russian-localization
+        objective: "Replace literal or awkward Russian copy in every published lesson and the shared site chrome with natural technical Russian that preserves the English source meaning."
+        depends_on:
+          - implement-ch04-apply-bpe-tokenizer
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "DECISIONS.md"
+          - "BUILD_STATE.yaml"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/01-text-units.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/01-text-units.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/i18n/catalogs/ru.json"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/text-units-diagram.test.ts"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+        acceptance:
+          - "Every published Russian page reads as natural technical Russian rather than a sentence-by-sentence rendering of English."
+          - "The Russian copy preserves every mathematical, historical, Rust, exercise, visualization, and chapter-handoff claim from the English source without adding or dropping meaning."
+          - "Terminology is consistent across site chrome and Chapters 1–4; headings, captions, accessible labels, prompts, answers, and transitions use idiomatic Russian syntax and information order."
+          - "Each revised locale set advances its content revision, retains exact shared metadata parity, and passes an independent monolingual read plus rendered desktop and narrow-page review."
+          - "The complete static site, content contracts, links, unit tests, and full browser regression suite pass before the review is published and committed independently."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md ../curriculum/chapters/02-corpus-partitions.md ../curriculum/chapters/03-learn-bpe-merges.md ../curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 01-text-units"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 02-corpus-partitions"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 03-learn-bpe-merges"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 04-apply-bpe-tokenizer"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e"
+          - "Manual meaning-parity, terminology, monolingual-flow, anti-calque, and rendered-page review"
+        cost:
+          class: medium
+          notes: "Local editorial work and cached static/browser validation only; no automated translation, network input, paid service, dependency change, or substantial CPU use."
+        runs:
+          - run_id: 20260719T075121Z-review-published-russian-localization-01
+            started_at: "2026-07-19T07:51:21Z"
+            finished_at: "2026-07-19T08:37:59Z"
+            status: succeeded
+            input_fingerprint:
+              git: "4b2cb2934c004c4fde269126caef72f2b374ce56"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                BUILD_STATE.yaml: "sha256:1c0ae4a4623a221da6a8d0c0e06efa08d1693c6d2416eb3c4a20a6100b96a5d5"
+                DECISIONS.md: "sha256:cc5d000c9190147a0328847b59ed498d64ac152cb0000a1018622d8fe65c6c42"
+                curriculum/course-plan.md: "sha256:e322caa3f3108a924f6d7eb5091440bee6d4778bb4af23aa78bf00cec232be6d"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                curriculum/chapters/01-text-units.md: "sha256:52d93bfb14ffee76d6ee7e2c6affd1fb7cb335d389f013280bb1888d0817dda4"
+                curriculum/chapters/02-corpus-partitions.md: "sha256:0dc8baeb6dae02ecd426bf14add8b3c56364a77704c2690aa0e4e22c4bfa86b6"
+                curriculum/chapters/03-learn-bpe-merges.md: "sha256:e49be5c38dc6f4d7fec17505c3fcf1571e29a55b7d2281ad5191b1baa4510c57"
+                curriculum/chapters/04-apply-bpe-tokenizer.md: "sha256:8b0df13c36f6fa68a27f921ea34fc7c02638c3d88e3dbb05d7e69d67a107a038"
+                site/src/content/chapters/en/01-text-units.mdx: "sha256:7d5de6cd4b5f2a0eb959fca6697b0006f51f5ffc20f502e077783744d88654b3"
+                site/src/content/chapters/en/02-corpus-partitions.mdx: "sha256:5810e7cd9eb029e90f4f9ac5109dbe4048f05989a5e0bc6102a5dc1a754aafc7"
+                site/src/content/chapters/en/03-learn-bpe-merges.mdx: "sha256:060ff45df5ebf230e6c8e72ba3edbd3129c0db6dabdb067139639b7b644d292b"
+                site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx: "sha256:ae691489dd9f40c14b86fc1226777f971132a6dfb8b078fbb66a68522c5af334"
+                site/src/content/chapters/ru/01-text-units.mdx: "sha256:99594277061d7e4ab919fcf7b3aed67b9edbd9a3e9a27f60172f6739c78e6e55"
+                site/src/content/chapters/ru/02-corpus-partitions.mdx: "sha256:c24b73ed918d67f5e1c89207da7f7a9e267d14e65d2730a7825adcfc6c3ec01d"
+                site/src/content/chapters/ru/03-learn-bpe-merges.mdx: "sha256:b113a6996b9c158c860fb1c8a159dc712a8b8019e27b5d0c1b3954c75b80d499"
+                site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx: "sha256:5846d9853c6172b576125c3751a3810b8364b361231fbb59190d1c5d3d232190"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+                site/src/i18n/catalogs/en.json: "sha256:e8eb6c13f309c5b2250dcbb3381525d5da1c73b5f74b1a0d9f1e71c8fcb93f51"
+                site/src/i18n/catalogs/ru.json: "sha256:4cf5c8da622fec371348a7a111b715a5c56ae43dcf81adf65e479d7c0d765f60"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T075121Z-review-published-russian-localization-01/"
+            commands:
+              - "git status --short --branch; git log -5 --oneline"
+              - "Read the authoritative state/decisions, localization architecture, Chapter 4 completion artifacts, all configured-locale lesson and catalog sources, and validation boundaries"
+              - "Verify the Chapter 4 publication manifest, manual-review checksums, canonical outputs, tool versions, and absence of stale running work"
+              - "sha256sum all material localization-review inputs"
+              - "Create the run-specific publish and validation directories"
+              - "Audit the shared Russian catalog and Chapters 1-4 for meaning parity, terminology, monolingual flow, calques, accessibility wording, and technical correctness"
+              - "Advance Chapter 1 to revision 3 and Chapters 2-4 to revision 2; correct the Chapter 2 checksum claim and Chapter 1 English BPE handoff"
+              - "Create a full tracked validation overlay, apply the 24 staged outputs, and verify the overlay byte-for-byte"
+              - "Run contract, per-locale, parity, content, Astro, unit, static build/link, focused browser, and full browser gates"
+              - "sha256sum -c publication.sha256 in staging and after per-file atomic publication"
+              - "Rerun all declared validation commands against canonical outputs"
+            artifacts:
+              - path: ".build/runs/20260719T075121Z-review-published-russian-localization-01/publication.sha256"
+                sha256: "4bc8e815666336dc18581994fb170edc40b08a2d9ccbf80c2095600c5647a3b7"
+              - path: ".build/runs/20260719T075121Z-review-published-russian-localization-01/manual-review.md"
+                sha256: "e9ec395a45920a12020000a7b83bc71447ddfb54b5beca768db9726e299789a0"
+            validation:
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "39 chapters, 45 scheduled steps, and 4 implemented contracts through Chapter 4; passed in staging and after publication."
+              - command: "npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md ../curriculum/chapters/02-corpus-partitions.md ../curriculum/chapters/03-learn-bpe-merges.md ../curriculum/chapters/04-apply-bpe-tokenizer.md"
+                status: passed
+                notes: "All four revised contracts integrate with their configured locale sets in staging and canonical paths."
+              - command: "npm --prefix site run check:chapter -- --locale ru --chapter 01-text-units; repeat for Chapters 2-4"
+                status: passed
+                notes: "Every revised Russian lesson passes its contract projection and source checks."
+              - command: "npm --prefix site run check:parity -- --chapter <01-04>"
+                status: passed
+                notes: "All four English/Russian locale sets share exact technical metadata and revisions."
+              - command: "npm --prefix site run check:content"
+                status: passed
+                notes: "8 localized sources, 4 publishable locale sets, and 29 catalog keys pass in staging and canonical paths."
+              - command: "npm --prefix site run check"
+                status: passed
+                notes: "Astro checked 37 files with zero errors, warnings, or hints in staging and canonical paths."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 55 assertions in 7 test files pass in staging and canonical paths."
+              - command: "npm --prefix site run build"
+                status: passed
+                notes: "The static build emits all 13 routes in staging and canonical paths."
+              - command: "npm --prefix site run test:links"
+                status: passed
+                notes: "207 local references across 76 artifacts pass in staging and canonical paths."
+              - command: "Initial sandboxed npm --prefix site run test:e2e"
+                status: failed
+                notes: "The sandbox denied binding 127.0.0.1:4321 with EPERM; the same local-only command was rerun with approved port binding."
+              - command: "First approved full npm --prefix site run test:e2e"
+                status: failed
+                notes: "A revised Chapter 3 document-boundary label left one stale exact E2E expectation; the expectation was synchronized."
+              - command: "npm --prefix site run test:e2e -- --grep @chapter:03-learn-bpe-merges"
+                status: passed
+                notes: "All 3 focused Chapter 3 browser checks pass after the copy synchronization."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 16 browser tests pass in the final staged overlay and again after canonical publication, including desktop/narrow layout, exact localized copy, navigation, accessibility, syntax highlighting, and no client scripts."
+              - command: "Manual meaning-parity, terminology, monolingual-flow, anti-calque, accessible-label, and rendered-page review"
+                status: passed
+                notes: "Three independent read-only audits and a final HTML scan found no remaining material localization or technical defect; details are recorded in manual-review.md."
+              - command: "sha256sum -c publication.sha256 and staged/validation cmp"
+                status: passed
+                notes: "All 24 staged, validated, and canonical outputs are byte-identical to the publication manifest."
+            notes: "Completed as a local meaning-first editorial review of all published Russian-facing content. Russian prose was rewritten by meaning rather than English sentence shape; terminology and accessibility labels were normalized; two source-language technical defects were corrected for parity. No automated translation, network input, paid service, dependency change, generated content, or Chapter 5 product work occurred."
+      - id: document-chapter-delivery-skill
+        objective: "Publish a root playbook that turns the proven one-chapter vertical-slice flow and meaning-first localization standard into repeatable instructions for every future chapter."
+        depends_on:
+          - review-published-russian-localization
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "site/src/i18n/locales.json"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+          - "scripts/check-static-links.mjs"
+          - "site/package.json"
+          - "Cargo.toml"
+        outputs:
+          - "SKILLS.md"
+        acceptance:
+          - "SKILLS.md defines one complete chapter as one staged, validated, atomically published, independently committed vertical slice with a single owner."
+          - "It specifies the learning contract, primary-source research boundary, dependency-free Rust implementation and deterministic evidence, visualization decision, static-site integration, configured-locale projection, rendered review, checkpoint lifecycle, and handoff."
+          - "Its localization workflow is meaning-first and language-agnostic: terminology planning, natural target-language structure, critical-claim comparison, anti-calque and monolingual passes, accessible-label review, rendered review, and explicit human approval are required."
+          - "It includes exact repository paths, common validation commands, failure/recovery rules, output ownership, and the per-step Git commit boundary without duplicating or contradicting AGENTS.md."
+          - "Every pending chapter step consumes SKILLS.md before Chapter 5 begins."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "ruby -e 'text=File.read(%q[SKILLS.md]); required=[%q[BUILD_STATE.yaml],%q[DECISIONS.md],%q[one chapter],%q[run-specific staging],%q[Rust],%q[configured locale],%q[meaning],%q[calque],%q[rendered],%q[Git commit]]; missing=required.reject{|item| text.downcase.include?(item.downcase)}; abort(missing.join(%q[, ])) unless missing.empty?; puts %q[SKILLS chapter-delivery contract passed]'"
+          - "Manual review against AGENTS.md, DECISIONS.md, the curriculum template, Chapters 2–4 run evidence, and the completed Russian-localization review"
+        cost:
+          class: small
+          notes: "Local documentation and deterministic checks only; no network, dependency change, paid service, generation service, or substantial CPU use."
+        runs: []
       - id: implement-ch05-autoregressive-examples
         objective: "Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries."
         depends_on:
-          - implement-ch04-apply-bpe-tokenizer
+          - document-chapter-delivery-skill
         status: pending
         inputs:
           - "curriculum/course-plan.md"

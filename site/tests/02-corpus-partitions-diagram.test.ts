@@ -83,7 +83,7 @@ const englishLabels: CorpusPartitionsDiagramLabels = {
 
 const russianLabels: CorpusPartitionsDiagramLabels = {
   title: 'Один корпус, три непересекающиеся выборки',
-  description: 'Проверьте каждое зафиксированное назначение целого документа.',
+  description: 'Проверьте зафиксированное распределение целых документов по выборкам.',
   partitionListLabel: 'Выборки корпуса',
   roles: {
     train: {
@@ -93,7 +93,7 @@ const russianLabels: CorpusPartitionsDiagramLabels = {
     },
     validation: {
       title: 'Валидационная',
-      purpose: 'Для выбора',
+      purpose: 'Для выбора настроек',
       documentListLabel: 'Валидационные документы',
     },
     test: {
@@ -105,19 +105,19 @@ const russianLabels: CorpusPartitionsDiagramLabels = {
   fields: {
     documents: 'Документов',
     wholeDocument: 'Целый документ',
-    documentId: 'Идентификатор документа',
+    documentId: 'ID документа',
     language: 'Язык',
     provenanceGroup: 'Группа происхождения',
   },
   summary: {
-    assignedDocuments: 'Назначено документов',
-    repeatedIds: 'Повторяющихся идентификаторов',
+    assignedDocuments: 'Распределено документов',
+    repeatedIds: 'Повторяющихся ID',
   },
   invariantsLabel: 'Проверенные свойства разбиения',
   invariants: {
-    complete: 'Полнота: присутствует каждый идентификатор корпуса',
-    disjoint: 'Непересечение: идентификаторы не повторяются',
-    provenance: 'Связанная пара происхождения остаётся в одной выборке',
+    complete: 'Полнота: присутствует каждый ID корпуса',
+    disjoint: 'Непересечение: ID не повторяются',
+    provenance: 'Документы из одной группы происхождения остаются в одной выборке',
   },
 };
 

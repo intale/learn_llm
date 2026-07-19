@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -263,9 +263,10 @@ language, and provenance metadata:
 />
 
 The loader computes a deterministic 64-bit FNV-1a checksum of the original bytes.
-A match detects the accidental mutations exercised by the tests, but FNV collisions
-exist: it is not proof of byte identity, authorship, licensing, or trustworthy
-provenance.
+A mismatch from the recorded checksum detects the accidental byte mutations
+exercised by the tests. A match only reports that recomputation produced the
+recorded 64-bit value; because FNV collisions exist, it is not proof of byte
+identity, authorship, licensing, or trustworthy provenance.
 
 The manifest parser handles only this repository's narrow JSON schema. Parsing is
 plumbing; the learning boundary is `partition`. It rejects a wrong schema or
@@ -347,7 +348,7 @@ source order remain unchanged.
   4. Validation reports that the manifest does not cover `doc-07`.
   5. Sets ignore order, but deterministic downstream iteration and audit output do
      not; the validator therefore preserves corpus source order.
-  6. It reports that recomputation produced the recorded 64-bit drift value. A
+  6. It reports that recomputation produced the recorded 64-bit checksum. A
      collision is possible, so this is not proof of identical bytes, authorship,
      licensing, or cryptographic authenticity.
   7. Examples include sampling bias, unrelated near-duplicates, and future

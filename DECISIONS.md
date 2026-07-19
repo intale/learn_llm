@@ -1123,3 +1123,55 @@ tokenizer, parser, or component.
 
 **Affected steps:** `implement-ch04-apply-bpe-tokenizer`,
 `implement-ch05-autoregressive-examples`, and `implement-ch35-checkpoints`
+
+## 2026-07-19 — Require meaning-first localization and a chapter-delivery playbook
+
+**Status:** Accepted before Chapter 5 in response to human review of the published
+Russian course.
+
+**Context:** The configured-locale gates prove completeness, shared metadata,
+route parity, and nonblank localized labels, but they cannot determine whether a
+translation sounds natural to a target-language reader. The first four Russian
+lessons preserve the English facts yet contain recurring English information
+order, nominal chains, literal metaphors, and sentence-level calques. Passing
+structural parity is therefore necessary but not sufficient for learning quality.
+The successful Chapter 2–4 runs also established a richer delivery flow than was
+captured in one contributor-facing document.
+
+**Decision:** Insert `review-published-russian-localization` and
+`document-chapter-delivery-skill` as consecutive cross-cutting prerequisites
+before Chapter 5. The review covers all currently published Russian lesson prose,
+frontmatter, diagram labels, exercises, accessible copy, chapter handoffs, and
+shared site chrome. Advance each affected complete locale set to a new content
+revision, even when the English body changes only in its revision metadata, so
+the improved Russian publication has explicit provenance.
+
+Translate meaning first, not sentence shape. Before drafting, freeze the facts,
+formula symbols, identifiers, code, trace values, historical distinctions, and
+terminology. Then write the target-language explanation in its natural syntax and
+information order. Finish with separate semantic-comparison, terminology,
+anti-calque, monolingual-flow, accessible-label, and rendered desktop/narrow
+passes. A target sentence may split, combine, or reorder English sentences when
+that improves clarity without changing meaning. Human-reviewed target-language
+prose is canonical; structural validators do not substitute for linguistic
+review.
+
+After that review, publish root `SKILLS.md` as the project playbook for future
+chapter delivery. It is a repository guide, not a runtime dependency or a Codex
+skill package. It must describe the one-owner vertical slice, run staging,
+contracts and sources, cumulative Rust and exact evidence, visualization and
+static integration, configured-locale authoring, meaning-first translation,
+validation, atomic publication, checkpointing, and the one-step Git commit. Add
+`SKILLS.md` as an input to every still-pending chapter step when the playbook is
+completed.
+
+**Consequences:** Chapter 5 cannot begin until existing Russian pages have been
+edited as Russian technical writing and the repeatable workflow is documented.
+Future languages reuse the same meaning-first quality gates without assuming
+English word order or Russian terminology. Existing locale extensibility,
+shared-code boundaries, fail-closed publication, and static routes remain
+unchanged.
+
+**Affected steps:** `review-published-russian-localization`,
+`document-chapter-delivery-skill`, and `implement-ch05-autoregressive-examples`
+through `implement-ch39-end-to-end-llm`

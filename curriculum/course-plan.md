@@ -1,14 +1,14 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 6,
+  "plan_revision": 7,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_1_disposition": {
     "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
-    "reason": "Content revision 2 is published with language-neutral shared LaTeX and the reviewed chapter 2–4 handoff."
+    "reason": "Content revision 3 retains the language-neutral shared LaTeX and publishes the reviewed natural-Russian localization."
   },
   "target": {
     "data_protocol": "document-level train/validation/test partition frozen before tokenizer learning",
@@ -35,6 +35,14 @@
       {
         "step_id": "generalize-localization-infrastructure",
         "before_chapter": "02-corpus-partitions"
+      },
+      {
+        "step_id": "review-published-russian-localization",
+        "before_chapter": "05-autoregressive-examples"
+      },
+      {
+        "step_id": "document-chapter-delivery-skill",
+        "before_chapter": "05-autoregressive-examples"
       }
     ],
     "planned_chapter_splits": [],
@@ -457,8 +465,9 @@ copied into the cumulative crate because BPE replaces it.
 
 The revision-2 repair replaced the shared formula's English prose with
 notation-only mathematics and aligned the contract and both lessons with the
-reviewed chapters 2–4 handoff. The strengthened formula and bilingual regression
-gates now pass. No additional Chapter 1 part is justified.
+reviewed chapters 2–4 handoff. Revision 3 keeps that repair and records the
+meaning-first Russian editorial review. The strengthened formula, localization,
+and bilingual regression gates now pass. No additional Chapter 1 part is justified.
 
 ## Target model and explicit boundaries
 
@@ -499,8 +508,8 @@ These are actual chapters with their own learning outcomes, not workflow fragmen
 
 ## One chapter, one vertical-slice step
 
-After the Chapter 1 revision and the three recorded cross-cutting prerequisites,
-every chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
+After the Chapter 1 revision and the recorded cross-cutting prerequisites, every
+chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
 Outline, Rust, visualization, every configured translation, and integration are
 phases of the same run.
 
@@ -597,13 +606,13 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Implementation step:** `revise-ch01-language-neutral-formula`
 - **Depends on:** the completed chapter-1 foundation.
 - **Outcome:** Distinguish UTF-8 bytes, Unicode scalar values, and vocabulary IDs, then round-trip known English and Cyrillic text.
-- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. The completed revision 2 removes English prose from shared mathematics without changing Rust behavior.
+- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. Revision 2 removed English prose from shared mathematics without changing Rust behavior; revision 3 retains that repair and replaces literal Russian phrasing with a reviewed meaning-first localization.
 - **Formula:** `z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`.
 - **Historical contrast:** Contrast whitespace-delimited whole-word vocabularies with scalar-level splitting and their respective unknown-word and sequence-length costs.
 - **Rust contribution:** Retain the dependency-free chapter-1 demo and exact output; the revision step changes contract/lesson metadata and strengthens the language-neutral formula gate.
 - **Visualization:** Useful — retain the aligned text → UTF-8 bytes → scalar values → IDs pipeline and its localized accessible labels.
 - **Practice:** Predict byte, scalar, and ID counts for `cat`, `кот`, and an unseen scalar before running the demo.
-- **Integration evidence:** Revision-2 contract and lessons agree; existing six Rust tests, exact stdout, bilingual parity, seven routes, and desktop/narrow browser checks pass.
+- **Integration evidence:** Revision-3 contract and lessons agree; existing six Rust tests, exact stdout, bilingual parity, seven routes, and desktop/narrow browser checks pass.
 - **Handoff:** Chapter 2 preserves documents and partitions the corpus before any vocabulary is learned.
 
 ## 02. Corpus documents, boundaries, and data partitions

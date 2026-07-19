@@ -49,22 +49,22 @@ const englishLabels: TextUnitsDiagramLabels = {
 };
 
 const russianLabels: TextUnitsDiagramLabels = {
-  title: 'От текста к идентификаторам токенов',
-  description: 'Сравните четыре представления.',
-  pipelineLabel: 'Последовательные этапы обработки текста',
+  title: 'Одни и те же три позиции в четырёх представлениях',
+  description: 'Проследите путь от входных единиц к ID фиксированного словаря.',
+  pipelineLabel: 'Этапы представления текста',
   examples: {
-    ascii: 'Пример ASCII',
-    cyrillic: 'Пример на кириллице',
+    ascii: 'Пример ASCII: cat',
+    cyrillic: 'Пример на кириллице: кот',
   },
   stages: {
-    input: 'Вход',
+    input: 'Входные единицы',
     bytes: 'Байты UTF-8',
     scalars: 'Скалярные значения Unicode',
-    tokenIds: 'Идентификаторы токенов',
+    tokenIds: 'ID токенов',
   },
   byteCount: {
-    one: '{count} байт',
-    many: '{count} байта',
+    one: 'Число байтов: {count}',
+    many: 'Число байтов: {count}',
   },
 };
 
@@ -119,8 +119,9 @@ describe('text-unit diagram data', () => {
     expect(() => assertTextUnitsDiagramLabels(russianLabels)).not.toThrow();
     expect(formatByteCount(englishLabels.byteCount, 1)).toBe('1 byte');
     expect(formatByteCount(englishLabels.byteCount, 2)).toBe('2 bytes');
-    expect(formatByteCount(russianLabels.byteCount, 1)).toBe('1 байт');
-    expect(formatByteCount(russianLabels.byteCount, 2)).toBe('2 байта');
+    expect(formatByteCount(russianLabels.byteCount, 1)).toBe('Число байтов: 1');
+    expect(formatByteCount(russianLabels.byteCount, 2)).toBe('Число байтов: 2');
+    expect(formatByteCount(russianLabels.byteCount, 6)).toBe('Число байтов: 6');
 
     expect(() =>
       assertTextUnitsDiagramLabels({

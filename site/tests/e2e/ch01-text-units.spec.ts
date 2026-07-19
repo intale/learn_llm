@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '01-text-units';
-const contentRevision = 2;
+const contentRevision = 3;
 const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
 const rustDemoDirectory = resolve(
   process.cwd(),
@@ -82,37 +82,44 @@ const copy = {
     exerciseAnswer: 'The ID sequences are [3, 2, 4] and [5, 6, 7].',
   },
   ru: {
-    indexTitle: 'От текста до небольшой языковой модели',
+    indexTitle: 'От текста к небольшой языковой модели',
     indexRevision: 'Версия материала',
     chapterTitle: 'Единицы текста и идентификаторы токенов',
     objectiveLabel: 'В этой главе',
     revisionLabel: 'Версия материала',
     headings: {
-      formula: 'Одно обращение к словарю для каждой позиции',
+      formula: 'Один поиск в словаре для каждого скалярного значения',
       history: 'До субсловных токенизаторов',
       rust: 'Реализуйте отображение на Rust',
-      visualization: 'Проследите позицию через все представления',
+      visualization: 'Проследите каждую позицию во всех представлениях',
       exercises: 'Сначала предскажите, затем проверьте',
-      decoder: 'Граница данных для декодера',
+      decoder: 'Интерфейс между токенизатором и декодером',
     },
     rustCaptions: [
-      'Исторические границы слов и скалярных значений',
-      'Два наблюдаемых представления текста',
+      'Разбиение на слова и скалярные значения',
+      'Два представления текста',
       'Детерминированный словарь скалярных значений',
       'Проверяемый пример главы',
     ],
-    diagramTitle: 'Три позиции в четырёх представлениях',
+    diagramTitle: 'Одни и те же три позиции в четырёх представлениях',
     diagramExamples: ['Пример ASCII: cat', 'Пример на кириллице: кот'],
     diagramStages: [
       'Входные единицы',
       'Байты UTF-8',
       'Скалярные значения Unicode',
-      'Идентификаторы словаря',
+      'ID токенов',
     ],
-    byteCounts: ['1 байт', '1 байт', '1 байт', '2 байта', '2 байта', '2 байта'],
-    exerciseSummary: 'Проверить ответы',
+    byteCounts: [
+      'Число байтов: 1',
+      'Число байтов: 1',
+      'Число байтов: 1',
+      'Число байтов: 2',
+      'Число байтов: 2',
+      'Число байтов: 2',
+    ],
+    exerciseSummary: 'Проверьте ответы',
     exerciseAnswer:
-      'Последовательности идентификаторов: [3, 2, 4] и [5, 6, 7].',
+      'Последовательности ID токенов: [3, 2, 4] и [5, 6, 7].',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 

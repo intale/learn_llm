@@ -2,15 +2,15 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
-    "ru": "Применять зафиксированные ранги пар байтов к произвольному UTF-8, добавлять к документам зарезервированные управляющие ID и точно восстанавливать байты содержимого."
+    "ru": "Применять зафиксированные ранги слияний к любой строке UTF-8 или последовательности байтов, добавлять по краям документа зарезервированные управляющие ID и без потерь восстанавливать исходные байты."
   },
   "worked_inputs": {
     "en": "Predict how the frozen ranks encode the bytes of a space followed by Cyrillic а, then compare that canonical sequence with a different valid sequence that decodes to the same bytes.",
-    "ru": "Предсказать, как зафиксированные ранги кодируют байты пробела и кириллической а, а затем сравнить каноническую последовательность с другой допустимой последовательностью, которая декодируется в те же байты."
+    "ru": "Предсказать, как зафиксированные ранги кодируют байты пробела, за которым следует кириллическая «а», а затем сравнить полученное каноническое кодирование с другой допустимой последовательностью ID, из которой восстанавливаются те же байты."
   },
   "formula": {
     "latex": "\\operatorname{decode}_{content}(\\operatorname{encode}_{content}(x))=\\operatorname{bytes}(x)",
@@ -23,28 +23,28 @@
       {
         "symbol": "\\operatorname{encode}_{content}",
         "en": "byte initialization followed by every frozen merge rank in ascending order, without BOS or EOS",
-        "ru": "преобразование байтов в исходные ID и последующее применение всех зафиксированных рангов по возрастанию, без BOS и EOS"
+        "ru": "преобразование каждого байта в начальный ID токена содержимого с учётом смещения и последующее применение всех зафиксированных правил слияния по возрастанию ранга, без BOS и EOS"
       },
       {
         "symbol": "\\operatorname{decode}_{content}",
         "en": "concatenation of the stored byte expansion for every content token ID",
-        "ru": "конкатенация сохранённых байтовых развёрток всех ID токенов содержимого"
+        "ru": "последовательное объединение байтов, сохранённых для каждого ID токена содержимого"
       },
       {
         "symbol": "\\operatorname{bytes}(x)",
         "en": "the exact input byte sequence, with no Unicode normalization or replacement",
-        "ru": "точная входная последовательность байтов без нормализации Unicode и подстановок"
+        "ru": "исходная последовательность байтов без нормализации Unicode и замен"
       }
     ]
   },
   "history": {
     "approach": {
       "en": "Closed whole-word vocabularies with an unknown token and byte-level fallback",
-      "ru": "Закрытые словари целых слов с неизвестным токеном и резервное представление на уровне байтов"
+      "ru": "Закрытые словари целых слов с неизвестным токеном и побайтовое резервное кодирование"
     },
     "summary": {
       "en": "A closed word table loses the spelling of every unseen word behind <UNK>. Sennrich, Haddow, and Birch used learned subwords to address rare words, while the GPT-2 report described UTF-8 byte-level BPE with a 256-symbol base that can cover any Unicode string. Byte coverage removes the unknown-string hole but can spend several positions on one character; this course uses its own document-boundary policy and explicit BOS/EOS layout.",
-      "ru": "Закрытая таблица слов скрывает написание любого невиданного слова за <UNK>. Сеннич, Хэддоу и Бёрч применили обучаемые подслова для работы с редкими словами, а в отчёте GPT-2 описан BPE на уровне байтов UTF-8 с базой из 256 символов, способной покрыть любую строку Unicode. Байтовое покрытие решает проблему неизвестных строк, но может занимать несколько позиций на один символ; в курсе используются собственная политика границ документов и явная схема BOS/EOS."
+      "ru": "В закрытом словаре написание любого слова, которое не встречалось при обучении, теряется за маркером <UNK>. Сеннич, Хэддоу и Бёрч предложили обучать подсловные единицы для работы с редкими словами. Позднее в отчёте GPT-2 описали BPE на уровне байтов UTF-8 с базовым алфавитом из 256 значений, достаточным для представления любой строки Unicode. Байтовая основа устраняет необходимость заменять незнакомые строки на <UNK>, но для одного символа может потребоваться несколько позиций в последовательности токенов. В этом курсе отдельно определены правила обработки границ документов и схема ID для BOS и EOS."
     },
     "rust_contrast": "Fit a closed whole-word table that maps unseen lowering to ID 0 and decodes only <UNK>, then show that the frozen byte tokenizer preserves every byte of unseen 🦀."
   },
@@ -62,12 +62,12 @@
     "id": "apply-bpe-tokenizer",
     "rationale": {
       "en": "Parallel English and Cyrillic pipelines make ranked byte grouping, the shifted ID namespace, boundary-only controls, and exact inverse byte concatenation visible together.",
-      "ru": "Параллельные конвейеры для английского и кириллического примеров одновременно показывают группировку байтов по рангам, сдвинутое пространство ID, управляющие токены только на границах и точную обратную конкатенацию байтов."
+      "ru": "Параллельные схемы для ASCII и кириллицы показывают, как слияния группируют байты, почему ID содержимого сдвинуты, где появляются управляющие токены и как из байтов отдельных токенов без потерь восстанавливается вход."
     }
   },
   "decoder_connection": {
     "en": "The tokenizer now turns each document into one exact sequence [BOS, content..., EOS]. Chapter 5 creates shifted causal examples inside each such sequence without joining documents or partitions.",
-    "ru": "Теперь токенизатор превращает каждый документ в точную последовательность [BOS, содержимое..., EOS]. В главе 5 внутри каждой такой последовательности будут построены сдвинутые авторегрессионные примеры без объединения документов или выборок."
+    "ru": "Теперь токенизатор преобразует каждый документ в отдельную последовательность [BOS, содержимое..., EOS], из которой можно без потерь восстановить исходные байты. В главе 5 пары «контекст — целевая последовательность» будут строиться только внутри каждого документа, без объединения документов и пересечения границ между выборками."
   },
   "terminology": [
     {
@@ -78,7 +78,7 @@
     {
       "concept_id": "byte-fallback",
       "en": "byte fallback",
-      "ru": "резервное представление байтами"
+      "ru": "побайтовое резервное кодирование"
     },
     {
       "concept_id": "content-token",
@@ -108,11 +108,11 @@
     {
       "concept_id": "byte-exact-decoding",
       "en": "byte-exact decoding",
-      "ru": "точное восстановление байтов"
+      "ru": "восстановление байтов без потерь"
     }
   ],
   "translation_notes": [
-    "Prefer «точное восстановление байтов» to a literal translation of round trip, and «добавить BOS/EOS по краям» when describing document wrapping.",
+    "Translate the meaning rather than English sentence structure. Prefer «восстановление байтов без потерь» or «исходные байты» where exact means byte identity, and «добавить BOS/EOS по краям» when describing document wrapping.",
     "Keep formulas, Rust identifiers, layout version, IDs, ranges, hex bytes, arrays, trace keywords, BOS, EOS, PAD, UTF-8, <UNK>, and stdout identical in every locale.",
     "Do not imply that every token is valid standalone UTF-8: token 258 stores bytes 20 d0, whose final byte is an incomplete lead byte until the next token contributes b0.",
     "State the guarantee in one direction only. Arbitrary valid content IDs may decode correctly but need not be the canonical output of ranked encoding.",
@@ -148,7 +148,7 @@
 }
 ---
 
-# Chapter 04: Applying and reversing BPE / Применение и обращение BPE
+# Chapter 04: Applying and reversing BPE / Кодирование и декодирование с помощью BPE
 
 <!-- contract-section:scope -->
 ## Scope
@@ -158,10 +158,11 @@ add exactly one BOS and EOS at document boundaries, and decode content back to
 the exact bytes. No frequency is recounted on new text. Do not add PAD,
 pretokenization, normalization, or batching.
 
-Зафиксировать ранги главы 3 в схеме версии 1, кодировать произвольные байты
-содержимого, добавлять ровно по одному BOS и EOS на границах документа и точно
+Зафиксировать ранги главы 3 в схеме версии 1, кодировать любую последовательность
+байтов, добавлять ровно по одному BOS и EOS по краям документа и без потерь
 восстанавливать исходные байты. Для нового текста частоты не пересчитываются.
-Не добавлять PAD, претокенизацию, нормализацию и формирование пакетов.
+Не добавлять PAD, предварительную токенизацию, нормализацию или пакетную
+обработку.
 
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
@@ -171,10 +172,11 @@ Begin with the UTF-8 bytes of `" а"`: `20 d0 b0`. Initial trainer IDs are
 the canonical trainer sequence is `[256,176]`, content IDs are `[258,178]`, and
 the wrapped document is `[0,258,178,1]`.
 
-Начните с байтов UTF-8 строки `" а"`: `20 d0 b0`. Исходные ID пространства
-обучения — `[32,208,176]`. Ранг 0 объединяет `(32,208)` до того, как ранг 1 мог
-бы объединить `(208,176)`, поэтому каноническая последовательность равна
-`[256,176]`, ID содержимого — `[258,178]`, а документ — `[0,258,178,1]`.
+Начните с байтов UTF-8 строки `" а"`: `20 d0 b0`. Начальные ID в пространстве
+обучения — `[32,208,176]`. Слияние ранга 0 объединяет `(32,208)` раньше, чем
+слияние ранга 1 успевает объединить `(208,176)`. Поэтому каноническая
+последовательность в пространстве обучения равна `[256,176]`, ID содержимого —
+`[258,178]`, а ID документа — `[0,258,178,1]`.
 
 The valid sequence `[34,259]` expands to the same bytes, but it is not what the
 ranked encoder produces. This distinguishes exact decoding from canonical
@@ -262,8 +264,8 @@ data partitions.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Use «точное восстановление байтов», «применение слияний в порядке рангов»,
-«резервное представление байтами», and «управляющий токен». Preserve all IDs,
+Use «восстановление байтов без потерь», «применение слияний в порядке рангов»,
+«побайтовое резервное кодирование», and «управляющий токен». Preserve all IDs,
 hex, formula notation, arrays, trace grammar, Rust names, BOS/EOS/PAD, UTF-8, and
 `<UNK>`. Do not describe an incomplete byte expansion as a character and do not
 turn this course's no-PAD scope into a universal serving recommendation.
