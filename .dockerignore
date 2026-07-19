@@ -1,0 +1,10 @@
+.git
+.build
+target
+site/node_modules
+site/dist
+site/.astro
+site/coverage
+site/test-results
+site/playwright-report
+

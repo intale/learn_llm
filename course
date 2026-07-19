@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+case "${1:-help}" in
+  build) docker build --target site -t learn-llm-site:local . ;;
+  run) shift; docker build --target workspace -t learn-llm-workspace:local . >/dev/null; docker run --rm learn-llm-workspace:local "$@" ;;
+  check) docker build --target workspace -t learn-llm-workspace:local . ;;
+  preview) docker compose up site ;;
+  smoke) curl --fail --silent http://127.0.0.1:4321/ >/dev/null ;;
+  audit-host) scripts/check-host-artifacts.sh ;;
+  help) printf '%s\n' 'Usage: ./course {build|run COMMAND|check|preview|smoke|audit-host|help}' ;;
+  *) echo "unknown command: $1" >&2; exit 2 ;;
+esac

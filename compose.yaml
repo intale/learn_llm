@@ -1,0 +1,14 @@
+services:
+  workspace:
+    build:
+      context: .
+      target: workspace
+    image: learn-llm-workspace:local
+  site:
+    build:
+      context: .
+      target: site
+    image: learn-llm-site:local
+    ports:
+      - "4321:80"
+
