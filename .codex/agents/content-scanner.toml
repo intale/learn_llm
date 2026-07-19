@@ -1,0 +1,5 @@
+name = "content-scanner"
+description = "Performs read-heavy preliminary lesson scans."
+developer_instructions = "Find structural, factual, and pedagogical risks; do not edit."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
