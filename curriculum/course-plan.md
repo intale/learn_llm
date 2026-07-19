@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 7,
+  "plan_revision": 8,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -43,6 +43,14 @@
       {
         "step_id": "document-chapter-delivery-skill",
         "before_chapter": "05-autoregressive-examples"
+      },
+      {
+        "step_id": "containerize-build-workflow",
+        "before_chapter": "06-bigram-baseline"
+      },
+      {
+        "step_id": "document-docker-workflow",
+        "before_chapter": "06-bigram-baseline"
       }
     ],
     "planned_chapter_splits": [],
@@ -537,6 +545,14 @@ inserted immediately before the first pending chapter, or after Chapter 39 when
 the course is already complete. It owns translations for already-completed
 chapters, while pending chapter steps adopt the expanded locale set in their
 declared outputs and validation commands.
+
+The build and validation toolchains run only in the pinned Docker workspace.
+Host commands enter that workspace through the root `course` wrapper; raw Rust,
+Node, npm, Astro, Vitest, and Playwright commands in chapter contracts and ledger
+entries are container-relative commands. The default production artifact is a
+static-site image, so ordinary builds and tests do not create `target`,
+`node_modules`, `.astro`, `dist`, browser results, or Python caches in the source
+tree.
 
 ## Standard integration contract
 

@@ -1325,3 +1325,54 @@ all declared canonical gates pass, the run and step are finalized, and the resul
 is committed independently.
 
 **Affected step:** `implement-ch05-autoregressive-examples`
+
+## 2026-07-19 — Make Docker the only build and validation boundary
+
+**Status:** Human-requested and accepted before Chapter 6.
+
+**Context:** The established workflow ran Cargo, npm, Astro, Vitest, and
+Playwright directly in the repository. It left approximately 630 MB in canonical
+`target` and `site/node_modules` directories, additional site outputs, and more
+than 1 GB of duplicated generated data below preserved run directories. The human
+requested that the complete build move into Docker and that the host contain no
+Rust, Node.js, or Python artifacts before course work continues.
+
+**Decision:** Insert `containerize-build-workflow` and
+`document-docker-workflow` as consecutive prerequisites before Chapter 6. The
+first step owns a multi-stage Docker build with exact Rust 1.93.1 and Node 23.7.0
+base versions, dependencies from the existing npm lockfile, and the lockfile's
+Playwright Chromium. Repository source is copied into the image; it is not
+bind-mounted for builds or tests. Containers are ephemeral, and the default
+production result is a separate static-site image whose runtime contains neither
+Rust, Cargo, Node, npm, nor Python. A root `course` wrapper is the sole supported
+host entry point for arbitrary container commands, the full regression suite,
+static packaging, preview, smoke testing, and host-artifact auditing.
+
+Treat the existing raw validation strings in chapter contracts and
+`BUILD_STATE.yaml` as commands relative to `/workspace` inside the workspace
+image. From the host, invoke them through `./course run` (or `run-shell` for a
+pipeline), and use `./course check` for the complete canonical matrix. Update
+`SKILLS.md` so later chapter runs stage source on the host but perform every
+Rust/Node/build/browser operation inside Docker. No Python command or Python
+dependency is part of the workflow.
+
+The artifact-free boundary covers the whole repository, including ignored run
+directories: remove `target`, `node_modules`, `.astro`, `dist`, coverage and
+Playwright result directories, Python bytecode/caches, and equivalent generated
+copies under `.build/runs/`, while preserving source drafts, manifests, reviews,
+checksums, and ledger provenance. Docker images, layers, package caches, and
+browser binaries are allowed only in Docker daemon storage. The initial image
+build is `large` because it may use registry, Debian-mirror, browser-download,
+CPU, and disk resources; the human's explicit migration request is the recorded
+approval for that cost.
+
+**Consequences:** A developer needs Docker and Compose, but not a host Rust,
+Node/npm, Playwright, or Python installation. Ordinary build and test commands
+cannot repopulate language-toolchain output in the workspace. Source changes
+require an image rebuild, which Docker layer caching keeps incremental; the
+follow-up README step documents the exact interface and deployment image before
+Chapter 6 becomes eligible.
+
+**Affected steps:** `containerize-build-workflow`,
+`document-docker-workflow`, and `implement-ch06-bigram-baseline` through
+`implement-ch39-end-to-end-llm`
