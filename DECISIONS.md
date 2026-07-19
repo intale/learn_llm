@@ -1394,3 +1394,88 @@ Russian Chapters 3 and 5; they remain visible in the Chapter 6 run record and
 must be addressed by a later scoped layout step.
 
 **Affected steps:** `implement-ch06-bigram-baseline`.
+
+## 2026-07-19 — Supersede Chapter 6 instead of patching revision 1
+
+**Status:** Human-requested after an independent content audit.
+
+**Context:** Chapter 6 revision 1 passed structural checks but used documents
+that contradict the frozen BOS/EOS token IDs, conflated an unseen successor with
+an unseen context, presented inconsistent indexing, promised a Rust historical
+contrast that was not emitted, and published literal Russian phrasing without
+the required fluent-human approval. Its diagram duplicated unverified values and
+did not show the row totals required by the reviewed plan.
+
+**Decision:** Add `rewrite-ch06-bigram-baseline` immediately after the original
+Chapter 6 step and before Chapter 7. Re-author content revision 2 from a new,
+valid wrapped training fixture; replace the contract, Rust evidence, diagram,
+tests, and both lessons as one staged vertical slice. Preserve the original run
+and commit unchanged. After the replacement passes and publishes, mark the
+original step `invalidated` and make Chapter 7 depend on the rewrite.
+
+The rewrite must distinguish zero-probability unseen successors from undefined
+zero-total contexts, declare one indexing convention, cite verified primary
+sources, demonstrate train-only fitting from original documents, and derive the
+static visualization from exact Rust output. Russian is authored by meaning and
+cannot publish without explicit fluent-human approval of the staged revision.
+
+**Consequences:** Chapter 7 remains ineligible until the replacement is
+validated, approved, published, checkpointed, and independently committed. The
+old revision remains inspectable in Git and its immutable run record is not
+relabeled.
+
+**Affected steps:** `implement-ch06-bigram-baseline`,
+`rewrite-ch06-bigram-baseline`, and `implement-ch07-language-model-metrics`.
+
+## 2026-07-19 — Keep Chapter 6 browser dependencies ephemeral
+
+**Status:** Validation-environment correction within the approved Docker-only workflow.
+
+**Context:** The revision-2 staged static build, content checks, type checks, and
+unit tests passed in `learn-llm-workspace:local`, but its focused Playwright run
+could not launch the already cached Chromium binary because the workspace image
+does not contain Chromium's Debian shared libraries. The earlier Chapter 6 run
+installed those libraries only in its disposable browser container; they are not
+present in the reusable workspace image.
+
+**Decision:** Declare Debian package mirrors as an explicit validation input for
+`rewrite-ch06-bigram-baseline`. Install only the locked Playwright Chromium
+runtime libraries in a disposable Docker container, mount the existing browser
+cache read-only, run the staged and canonical browser gates there, and discard
+the container. Do not install a browser, Node package, Python package, or system
+library on the host, and do not add a course dependency or product artifact.
+
+**Consequences:** Browser rendering remains reproducible within Docker and may
+perform a bounded network download of Debian runtime packages. The failed
+preflight launches remain recorded as failed attempts; a passing rerun is still
+required before publication.
+
+**Affected step:** `rewrite-ch06-bigram-baseline`.
+
+## 2026-07-19 — Pause Chapter 6 until its frozen candidate is browser-reviewable
+
+**Status:** Human-identified workflow prerequisite.
+
+**Context:** Chapter 6 revision 2 is frozen under its run-specific `publish/`
+tree and its source manifest still verifies, but the approval request exposed a
+workflow defect: a human had to inspect raw staged files because the root Docker
+interface could neither render a run-specific overlay nor print its localized
+article URLs. The same interface also claimed to produce `site/dist` without
+actually exporting a static release from Docker.
+
+**Decision:** Interrupt the current rewrite run without publishing or changing
+its staged candidate. Add and independently commit a prerequisite that renders a
+named run's immutable `publish/` overlay entirely in Docker, serves it on
+loopback for human review, and exports a canonical Docker-built release to
+`site/dist`. Resume Chapter 6 in a new run after that prerequisite is complete,
+reverify the preserved manifest, and scope any approval to the rendered frozen
+candidate.
+
+**Consequences:** Chapter 7 remains blocked. The interrupted run is evidence,
+not a completed step; no Chapter 6 product file is published or committed by this
+checkpoint. The new workflow must explicitly reconcile intentional static HTML
+exports with the prohibition on host Rust, Node.js, Python, dependency, and cache
+artifacts.
+
+**Affected steps:** `rewrite-ch06-bigram-baseline` and the forthcoming staged
+review/release workflow prerequisite.

@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 8,
+  "plan_revision": 9,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -51,6 +51,10 @@
       {
         "step_id": "document-docker-workflow",
         "before_chapter": "06-bigram-baseline"
+      },
+      {
+        "step_id": "rewrite-ch06-bigram-baseline",
+        "after_chapter": "06-bigram-baseline"
       }
     ],
     "planned_chapter_splits": [],

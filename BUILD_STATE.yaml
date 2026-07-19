@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T12:43:22Z"
+updated_at: "2026-07-19T16:06:58Z"
 
 environment:
   os: "Linux x86_64"
@@ -3567,10 +3567,129 @@ builds:
               - "Chapter 6 Playwright browser gate with ephemeral Chromium and runtime libraries: passed"
               - "Full Playwright suite: 18 passed, 2 pre-existing Russian overflow failures in chapters 3 and 5"
             notes: "Chapter 6 acceptance gates passed. The full browser suite still reports unrelated narrow-layout overflow in existing Russian chapters 3 and 5; no Chapter 6 test failed."
+      - id: rewrite-ch06-bigram-baseline
+        objective: "Replace Chapter 6 with a content-revision-2 vertical slice that derives a smoothed bigram distribution from valid wrapped training documents and clearly distinguishes unseen successors from unseen contexts."
+        depends_on:
+          - implement-ch06-bigram-baseline
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/bigram.rs"
+          - "rust/demos/ch06-bigram-baseline/"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/i18n/locales.json"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
+          - "https://aclanthology.org/P96-1041.pdf"
+          - "https://proceedings.neurips.cc/paper/2000/hash/728f206c2a01bf572b5940d7d9a8fa4c-Abstract.html"
+          - "Debian package mirrors for ephemeral Playwright Chromium runtime libraries (network; container-only)"
+          - "Cargo.toml"
+          - "Cargo.lock"
+          - "site/package.json"
+          - "site/package-lock.json"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "rust/crates/llm-from-scratch/src/bigram.rs"
+          - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch06-bigram-baseline/"
+          - "site/src/content/chapters/en/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/components/chapters/BigramBaselineDiagram.astro"
+          - "site/src/lib/bigram-baseline-diagram.ts"
+          - "site/tests/06-bigram-baseline-diagram.test.ts"
+          - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "Cargo.lock"
+        acceptance:
+          - "A valid BOS=0/EOS=1 toy training fixture exposes every within-document transition exactly once, the forbidden EOS-to-BOS flattening transition, a seen-context unseen successor, and an unseen outgoing context."
+          - "The lesson derives maximum-likelihood and add-alpha rows step by step, uses one declared zero-based indexing convention, defines every formula symbol, and separates a zero probability from an undefined zero-total row."
+          - "Primary sources support the historical n-gram and smoothing claims, and both lessons explain why add-alpha is an inspectable teaching baseline rather than a strong modern smoothing method."
+          - "Rust is the sole implementation and emits exact learner and diagram evidence; tests cover boundaries, train-only input selection, normalization, invalid inputs, deterministic ties, and the documented edge cases."
+          - "The locale-neutral static diagram parses the exact Rust fixture and shows labeled candidate next-token entries, counts, row totals, pseudocount denominators, and probabilities without relying on color or client scripts."
+          - "English and Russian are meaning-first authored, natural, contract-synchronized, rendered at desktop and narrow widths, and the Russian surface receives explicit fluent-human approval before publication."
+          - "The staged and canonical Docker-only validation matrices pass, the superseded Chapter 6 run remains immutable, and the rewrite is persisted in its own commit before Chapter 7 starts."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/06-bigram-baseline.md"
+          - "cargo fmt --all -- --check"
+          - "cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+          - "cargo run --quiet --locked -p ch06-bigram-baseline | diff -u rust/demos/ch06-bigram-baseline/expected.txt -"
+          - "cargo run --quiet --locked -p ch06-bigram-baseline --example diagram_trace | diff -u rust/demos/ch06-bigram-baseline/diagram-trace.txt -"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 06-bigram-baseline"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 06-bigram-baseline"
+          - "npm --prefix site run check:parity -- --chapter 06-bigram-baseline"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:06-bigram-baseline'"
+          - "npm --prefix site run test:e2e"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "One complete bilingual chapter rewrite using primary-source read-only research and deterministic Docker validation. The cached Chromium browser may require Debian runtime libraries downloaded into an ephemeral container; no host toolchain artifact, paid service, generation service, concept-implementing dependency, or substantial CPU work is used."
+        runs:
+          - run_id: 20260719T135559Z-rewrite-ch06-bigram-baseline-01
+            started_at: "2026-07-19T13:55:59Z"
+            finished_at: "2026-07-19T16:06:58Z"
+            status: interrupted
+            input_fingerprint: "commit 703aa9ee0c19ea954eb210bec364f30e50387908; AGENTS.md sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73; SKILLS.md sha256:3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3; course-plan sha256:7c0e2fd5a06644e3224770f3866e2b55656aae36c6f837ed837c7b5bf644208d; old chapter contract sha256:d64d577359095400e449cb3336ad164edc19bb611a39eb3cf26c4657b991ad34; locales sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad; Cargo.toml sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1; Cargo.lock sha256:c5a4695dbd8f5efa9236fc164c128c34beca22fcbd82d10774635e13debeccdf; Docker 25.0.2/Compose 2.17.3, workspace Rust 1.93.1 and Node 22.12.0"
+            staging_dir: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/"
+            commands:
+              - "git status --short"
+              - "Read AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, SKILLS.md, the Chapter 6 review findings, prior chapters, current Chapter 6 artifacts, validators, and recorded environment"
+              - "Verify primary-source claims against Chen and Goodman (1996) and Bengio et al. (2000)"
+              - "Author the revision-2 contract, Rust model/demo/trace, English and Russian lessons, trace parser, static diagram, and focused unit/browser tests under the run-specific publish directory"
+              - "Build learn-llm-ch06-playwright:20260719 from the workspace image with ephemeral Chromium runtime libraries"
+              - "Run the declared Rust and site validations through Docker-mounted staged sources"
+              - "Render English and Russian desktop/narrow screenshots and inspect the complete pages and diagrams"
+              - "sha256sum -c .build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/publish.sha256"
+            artifacts:
+              - path: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/publish.sha256"
+                checksum: "sha256:c6c81425062b383a8c11fba96385b8449e4f149749d0b1df0827b76def877be6"
+                notes: "Immutable checksums for the 14 frozen staged source artifacts; all entries passed."
+              - path: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/source-review.md"
+                checksum: "sha256:9299300299d1586156f7a55f7233fc020a89b7b231511d3c92b2193409bd9739"
+                notes: "Primary-source claim boundary and independently checked arithmetic."
+              - path: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/manual-review.md"
+                checksum: "sha256:112bf9c9d422c53084a8bf94581bddbe99c9bd10baa1751b0d265aeecf86152b"
+                notes: "Final English, Russian, technical, accessibility, and rendered-layout review."
+              - path: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/validation-summary.md"
+                checksum: "sha256:fa6d773be9f76122e278f1366124ed53a0d2b0ef7e977f1ca66f1eaa873fcb77"
+                notes: "Passing gates, corrected failed attempts, approval-quota refusal, and remaining publication work."
+              - path: ".build/runs/20260719T135559Z-rewrite-ch06-bigram-baseline-01/validation/screenshots.sha256"
+                checksum: "sha256:de2b763799e0d930a0a5539f0123e4f8cde3aab56ae7e18690ce3e2dfc472237"
+                notes: "Verified checksums for eight Docker-rendered English and Russian screenshots at 1440x1000 and 390x844."
+            validation:
+              - "Rust final staged matrix: format, Clippy, 38 tests, dependency policy, six-demo policy, learner stdout diff, and diagram-trace diff passed."
+              - "Site staged gates passed during the run: course plan, integrated contract, English, Russian, parity, full content, Astro diagnostics, focused unit tests, 17-page static build, static links, focused browser, and a 22/22 full browser regression suite."
+              - "Final frozen static build and four-locale/viewport screenshot render passed after the last wording and header-layout edits."
+              - "Three independent final audits passed: English pedagogy, natural Russian, and technical consistency."
+              - "All 14 frozen staged source checksums and git diff --check passed."
+              - "Exact final redundant site-wide repeat was not run: Docker execution was refused when the approval quota was reached; canonical validation remains mandatory after approval/publication."
+            notes: "Interrupted without publication after the human reviewer identified that the repository had no safe browser command for the frozen run-specific candidate. The verified revision-2 publish tree, reviews, screenshots, and checksums remain immutable and reusable. Resume under a new run only after the review/release workflow is completed and committed; do not publish Chapter 6 until fluent-human approval and the remaining staged/canonical Docker gates pass."
       - id: implement-ch07-language-model-metrics
         objective: "Compute average negative log-likelihood and perplexity for predicted token distributions."
         depends_on:
-          - implement-ch06-bigram-baseline
+          - rewrite-ch06-bigram-baseline
         status: pending
         inputs:
           - "SKILLS.md"
