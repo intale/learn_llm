@@ -658,22 +658,22 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — show bytes grouping into ranked subwords and the exact inverse concatenation for one English and one Russian input.
 - **Practice:** Predict the tokenization of a seen word, an unseen spelling, and Cyrillic text under a fixed merge table.
 - **Integration evidence:** Empty/ASCII/Cyrillic/unseen/malformed-byte cases, fixed ID offsets, rank order, BOS/EOS placement, interior-control rejection, non-merging controls, determinism, and round trips pass.
-- **Handoff:** Chapter 5 turns each boundary-preserving encoded training document into causal examples.
+- **Handoff:** Chapter 5 turns each boundary-preserving encoded document into input–target pairs for next-token prediction.
 
-## 05. Autoregressive context and target windows
+## 05. Building autoregressive input–target pairs
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
 - **Depends on:** `04-apply-bpe-tokenizer`.
-- **Outcome:** Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries.
-- **Scope boundary:** Teach context length, stride, shifted targets, short-document and incomplete-tail policy; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.
+- **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
+- **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.
 - **Formula:** `x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}`.
-- **Historical contrast:** Contrast hand-labeled language examples with self-supervision obtained by shifting raw sequences.
-- **Rust contribution:** Add per-document causal window iterators that preserve BOS/EOS and never concatenate documents or partitions.
-- **Visualization:** Useful — align separate document token tapes with sliding input/target windows, keeping train, validation, and test regions visibly isolated.
-- **Practice:** For six IDs and context length three, predict every valid input/target window and the discarded tail.
-- **Integration evidence:** No window crosses a document or split boundary; counts, stride, BOS/EOS targets, short inputs, repeated iteration, and exact fixtures pass.
-- **Handoff:** Chapter 6 counts every adjacent training-document transition exactly once for a transparent baseline.
+- **Historical contrast:** Contrast task-specific examples with human-supplied labels against next-token targets derived directly from sequence order.
+- **Rust contribution:** Add `CausalWindow` iterators for one caller-supplied document slice and an `EncodedCorpusPartitions` traversal that opens them on separately wrapped documents without flattening documents or partitions.
+- **Visualization:** Useful — align separate document token tapes with input and target slices, keeping train, validation, and test regions visibly isolated.
+- **Practice:** For six IDs and context length three, predict every complete input–target pair and the suffix at the next candidate start that is too short for another pair.
+- **Integration evidence:** No pair crosses a document or split boundary; counts, stride, BOS as input, EOS as target, short documents, too-short suffixes, repeated iteration, and exact fixtures pass.
+- **Handoff:** Chapter 6 counts every adjacent training-document transition exactly once for an inspectable baseline.
 
 ## 06. A count-based bigram language model
 

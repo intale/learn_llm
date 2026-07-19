@@ -1175,3 +1175,153 @@ unchanged.
 **Affected steps:** `review-published-russian-localization`,
 `document-chapter-delivery-skill`, and `implement-ch05-autoregressive-examples`
 through `implement-ch39-end-to-end-llm`
+
+## 2026-07-19 — Make Chapter 5 evidence and language approval explicit before execution
+
+**Status:** Accepted during `implement-ch05-autoregressive-examples` preflight.
+
+**Context:** The scheduled Chapter 5 outputs include a useful fixture-driven
+diagram and its unit test, but omit the independently testable parser used by the
+proven Chapter 2–4 pattern. The newly completed chapter-delivery playbook also
+requires a recorded fluent-human approval for non-reference-locale prose; that
+publication gate is not named in the older generic chapter acceptance list.
+
+**Decision:** Add `site/src/lib/autoregressive-examples-diagram.ts` to Chapter 5's
+owned outputs. It may parse and validate the deterministic Rust trace and derive
+presentation data, but it must not independently choose causal windows. Add the
+actual cumulative Rust, corpus, tokenizer, site-shell, previous-lesson, and
+primary-source inputs that affect this vertical slice. Make the staged manual gate
+explicit: the English lesson receives factual and monolingual review, while the
+Russian lesson and all rendered labels require meaning, terminology, anti-calque,
+monolingual, accessibility, desktop/narrow, and recorded fluent-human approval
+before publication.
+
+**Consequences:** The diagram remains a static projection of executable Rust, the
+run fingerprint reflects its real dependencies, and structural locale parity can
+no longer be mistaken for permission to publish unreviewed Russian prose. Chapter
+5 may be implemented and validated in staging, but it cannot publish or complete
+until that approval is recorded.
+
+**Affected step:** `implement-ch05-autoregressive-examples`
+
+## 2026-07-19 — Teach Chapter 5 as input–target construction, not site plumbing
+
+**Status:** Accepted within `implement-ch05-autoregressive-examples` after the
+first staged human review rejected learner-visible implementation language.
+
+**Context:** The first staged revision mentioned a TypeScript implementation of
+the static diagram in both lessons. That detail did not help a student understand
+autoregressive training data. The same review found related terminology problems:
+it used “window,” “pair,” and “example” interchangeably, described a valid suffix
+as “incomplete,” and claimed that partition-preserving storage itself prevents
+leakage. The API preserves document identity and split membership, but later code
+can still misuse validation or test documents when fitting a model.
+
+**Decision:** Revise the Chapter 5 plan, contract, lessons, source excerpts,
+diagram copy, exercises, and tests around one explicit teaching unit: an input
+sequence and its one-token-shifted target form an autoregressive training example,
+represented in Rust by `CausalWindow`. Reserve “window” for the Rust API or an
+individual slice where needed. Describe the terminal suffix as too short to form
+another pair; retain `incomplete_tail` and the trace keyword `TAIL` only as code
+identifiers. Remove the trace-serialization source excerpt from the rendered
+lesson, while retaining its tested Rust evidence as the diagram input. State that
+separate documents and partitions preserve the fixed split so fitting code can
+select training data explicitly; do not claim the container makes leakage
+impossible. Treat `curriculum/course-plan.md` as a necessary shared integration
+output for these terminology and accuracy corrections.
+
+**Consequences:** Learners see the mathematical construction, stride tradeoff,
+boundary reason, and model-side causality distinction before implementation
+details. The static diagram remains derived from exact Rust output, but its
+serialization machinery is no longer presented as course content. The chapter
+must repeat every staged gate and receive fresh fluent-human approval; the earlier
+manifest and review artifacts are not publication evidence for the revision.
+
+**Affected step:** `implement-ch05-autoregressive-examples`
+
+## 2026-07-19 — Separate Chapter 5's learner demo from its diagram trace
+
+**Status:** Accepted within `implement-ch05-autoregressive-examples` after the
+reopened content audit.
+
+**Context:** Removing the trace-printer excerpt did not remove the underlying
+teaching problem: the learner-facing `cargo run` command and displayed `main`
+still emitted a long `TRACE/PARTITION/WINDOW/TAIL` serialization block used only
+by the static diagram. The same executable encoded the real 8/2/2 corpus but did
+not open any `CausalWindow` iterator over those encoded documents, so it printed
+integration counts without demonstrating the chapter operation on that data.
+
+**Decision:** Keep `rust/demos/ch05-autoregressive-examples/expected.txt` as the
+concise learner-demo output. Move the strict visualization trace to
+`diagram-trace.txt`, generated by the dedicated dependency-free Rust example
+target `diagram_trace`. Make the static parser and its unit tests consume that
+fixture, and add an exact command for it to the step gate. The main demo must
+traverse every encoded document within its explicit partition and print aggregate
+pair counts without flattening the corpus. Tests must cover that traversal, the
+exact `S=2` suffix, the exact-fit exercise shape, and the forbidden EOS-to-BOS
+pair that concatenation would create.
+
+**Consequences:** Students running the primary demo see only the historical
+contrast, input–target pairs, suffix policy, real-corpus partition/pair counts,
+and Chapter 6 handoff. The diagram remains a deterministic projection of exact
+Rust evidence through a separately verifiable command. The demo directory already
+belongs to the active step, but the additional exact trace command becomes a
+declared validation requirement. All staged gates and human review must restart
+after this change.
+
+**Affected step:** `implement-ch05-autoregressive-examples`
+
+## 2026-07-19 — Distinguish pair construction from model fitting and state the document-slice precondition
+
+**Status:** Accepted within `implement-ch05-autoregressive-examples` after the
+final content and API audit; this entry narrows the earlier generic use of
+“training example.”
+
+**Context:** Chapter 5 constructs the same shifted input/target shape for train,
+validation, and test documents, but only the training partition may supply
+examples for fitting. The lower-level `CausalWindowConfig::windows` method also
+accepts an arbitrary token slice: it cannot infer a document boundary from IDs
+and will reproduce an EOS-to-BOS transition if a caller first flattens documents.
+Finally, a short document can emit no pair, so diagram copy must not claim that
+every document yields one.
+
+**Decision:** Use “input–target pair” for the construction and “autoregressive
+example” for its representation. Call it a fitting example only when it comes
+from the training partition and is actually used to optimize parameters. State
+that `CausalWindowConfig::windows` requires a slice containing exactly one
+document; boundary preservation comes from the canonical
+`EncodedDocument::windows` traversal over separately stored documents, not from
+scanning for BOS or EOS. Title the diagram as an instruction to build pairs one
+document at a time rather than as a promise that every document emits a pair.
+
+**Consequences:** Held-out pairs remain valid evaluation data without being
+misnamed as training data. The API contract and cross-boundary exercise now agree:
+incorrect flattening can create the forbidden pair, while the canonical traversal
+cannot. Short documents and too-short suffixes are described without implying a
+missing or discarded example.
+
+**Affected step:** `implement-ch05-autoregressive-examples`
+
+## 2026-07-19 — Approve the revised Russian Chapter 5 publication
+
+**Status:** Human-approved after the final staged review.
+
+**Context:** The first Chapter 5 draft failed human review because learner-facing
+prose mentioned TypeScript and contained broader terminology, boundary, stride,
+suffix, and localization-quality problems. The complete English/Russian surface
+was revised, independently re-audited, rendered at desktop and phone widths, and
+revalidated without publishing it. The human reviewer then replied “I approve”
+to the explicit request to approve the Russian lesson and rendered labels.
+
+**Decision:** Accept Russian content revision 1 and its rendered labels as fluent-
+human approved. Authorize publication of the frozen 17-file Chapter 5 manifest,
+followed by canonical validation, completion checkpointing, and the dedicated
+step commit. This approval applies only to that checksum-verified staged snapshot;
+later language changes require a new review.
+
+**Consequences:** The final manual localization gate is satisfied. Chapter 5 may
+now publish, but it is not complete until the canonical tree matches the manifest,
+all declared canonical gates pass, the run and step are finalized, and the result
+is committed independently.
+
+**Affected step:** `implement-ch05-autoregressive-examples`

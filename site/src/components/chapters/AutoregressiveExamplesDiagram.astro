@@ -1,0 +1,597 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertAutoregressiveExamplesDiagramLabels,
+  autoregressiveExamplesDiagramId,
+  parseAutoregressiveExamplesTrace,
+  type AutoregressiveExamplesDiagramLabels,
+} from '../../lib/autoregressive-examples-diagram';
+
+interface Props {
+  labels: AutoregressiveExamplesDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'autoregressive-examples-diagram' } = Astro.props as Props;
+assertAutoregressiveExamplesDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch05-autoregressive-examples/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseAutoregressiveExamplesTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+---
+
+<figure
+  class="autoregressive-diagram"
+  data-visualization-id={autoregressiveExamplesDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="config-facts">
+      <div>
+        <dt>{labels.fields.contextLength}</dt>
+        <dd><bdi dir="ltr">{trace.config.contextLength}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.stride}</dt>
+        <dd><bdi dir="ltr">{trace.config.stride}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.requiredSourceTokens}</dt>
+        <dd><bdi dir="ltr">{trace.config.requiredSourceTokens}</bdi></dd>
+      </div>
+    </dl>
+  </figcaption>
+
+  <ol class="partition-list">
+    {
+      trace.partitions.map((partition) => {
+        const partitionId = `${instanceId}-${partition.name}`;
+        return (
+          <li>
+            <section
+              class="partition"
+              data-partition={partition.name}
+              aria-labelledby={`${partitionId}-title`}
+            >
+              <header class="partition-header">
+                <span class="boundary-symbol" aria-hidden="true">║</span>
+                <div>
+                  <p class="boundary-label">{labels.boundaryLabel}</p>
+                  <h4 id={`${partitionId}-title`}>{labels.partitionTitles[partition.name]}</h4>
+                </div>
+              </header>
+
+              <ol class="document-list">
+                {partition.documents.map((document) => {
+                  const documentId = `${partitionId}-${document.id}`;
+                  const incompleteTail = document.incompleteTail;
+                  return (
+                    <li>
+                      <article
+                        class="document"
+                        data-document={document.id}
+                        data-partition={partition.name}
+                        aria-labelledby={`${documentId}-title`}
+                      >
+                        <header class="document-header">
+                          <h5 id={`${documentId}-title`}>
+                            {labels.fields.document}{' '}
+                            <code dir="ltr">{document.id}</code>
+                          </h5>
+                          <span class="document-boundary" aria-hidden="true">║ … ║</span>
+                        </header>
+
+                        <section class="source-lane" aria-labelledby={`${documentId}-source`}>
+                          <h6 id={`${documentId}-source`}>{labels.lanes.source}</h6>
+                          <span id={`${documentId}-source-sequence`} class="visually-hidden">
+                            {document.tokens.map((token, position) =>
+                              position === 0
+                                ? `BOS:${token}`
+                                : position === document.tokens.length - 1
+                                  ? `EOS:${token}`
+                                  : token,
+                            ).join(', ')}
+                          </span>
+                          <p
+                            class="token-tape"
+                            role="group"
+                            tabindex="0"
+                            dir="ltr"
+                            style={`--token-count: ${document.tokens.length}`}
+                            aria-labelledby={`${documentId}-source ${documentId}-source-sequence`}
+                          >
+                            {document.tokens.map((token, position) => {
+                              const isBos = position === 0;
+                              const isEos = position === document.tokens.length - 1;
+                              return (
+                                <code
+                                  data-position={position}
+                                  data-token-id={token}
+                                  data-control={isBos ? 'bos' : isEos ? 'eos' : undefined}
+                                  aria-hidden="true"
+                                >
+                                  {isBos ? `BOS:${token}` : isEos ? `EOS:${token}` : token}
+                                </code>
+                              );
+                            })}
+                          </p>
+                        </section>
+
+                        <ol class="window-list">
+                          {document.windows.map((window) => (
+                            <li
+                              class="window"
+                              data-window-index={window.index}
+                              data-window-start={window.start}
+                              data-status="emitted"
+                            >
+                              <header>
+                                <strong id={`${documentId}-window-${window.index}-title`}>
+                                  {labels.values.emitted}{' '}
+                                  <bdi dir="ltr">#{window.index}</bdi>
+                                </strong>
+                                <span id={`${documentId}-window-${window.index}-start`}>
+                                  {labels.fields.start}: <bdi dir="ltr">{window.start}</bdi>
+                                </span>
+                              </header>
+                              <div
+                                class="aligned-window"
+                                style={`--token-count: ${document.tokens.length}`}
+                              >
+                                <p id={`${documentId}-window-${window.index}-input`} class="lane-label">
+                                  {labels.lanes.input}
+                                </p>
+                                <span
+                                  id={`${documentId}-window-${window.index}-input-sequence`}
+                                  class="visually-hidden"
+                                >
+                                  {window.input.join(', ')}
+                                </span>
+                                <p
+                                  class="aligned-tape"
+                                  role="group"
+                                  tabindex="0"
+                                  dir="ltr"
+                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-input ${documentId}-window-${window.index}-input-sequence`}
+                                >
+                                  {document.tokens.map((_, position) => {
+                                    const offset = position - window.start;
+                                    const token = window.input[offset];
+                                    return token === undefined ? (
+                                      <span class="empty-cell" aria-hidden="true">·</span>
+                                    ) : (
+                                      <code
+                                        data-input-position={offset}
+                                        data-token-id={token}
+                                        aria-hidden="true"
+                                      >
+                                        {token}
+                                      </code>
+                                    );
+                                  })}
+                                </p>
+                                <p class="shift-cue">
+                                  <span aria-hidden="true">↳ +1</span> {labels.shiftLabel}
+                                </p>
+                                <p id={`${documentId}-window-${window.index}-target`} class="lane-label">
+                                  {labels.lanes.target}
+                                </p>
+                                <span
+                                  id={`${documentId}-window-${window.index}-target-sequence`}
+                                  class="visually-hidden"
+                                >
+                                  {window.target.join(', ')}
+                                </span>
+                                <p
+                                  class="aligned-tape target"
+                                  role="group"
+                                  tabindex="0"
+                                  dir="ltr"
+                                  aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-target ${documentId}-window-${window.index}-target-sequence`}
+                                >
+                                  {document.tokens.map((_, position) => {
+                                    const offset = position - window.start - 1;
+                                    const token = window.target[offset];
+                                    return token === undefined ? (
+                                      <span class="empty-cell" aria-hidden="true">·</span>
+                                    ) : (
+                                      <code
+                                        data-target-position={offset}
+                                        data-token-id={token}
+                                        aria-hidden="true"
+                                      >
+                                        {token}
+                                      </code>
+                                    );
+                                  })}
+                                </p>
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+
+                        {incompleteTail && (
+                          <section
+                            class="incomplete-tail"
+                            data-tail-start={incompleteTail.start}
+                            data-status="not-emitted"
+                            aria-labelledby={`${documentId}-tail`}
+                          >
+                            <header>
+                              <h6 id={`${documentId}-tail`}>{labels.lanes.incompleteTail}</h6>
+                              <span class="not-emitted">
+                                <span aria-hidden="true">×</span> {labels.values.notEmitted}
+                              </span>
+                            </header>
+                            <p id={`${documentId}-tail-facts`}>
+                              {labels.fields.start}:{' '}
+                              <bdi dir="ltr">{incompleteTail.start}</bdi>
+                              {' · '}{labels.fields.requiredSourceTokens}:{' '}
+                              <bdi dir="ltr">{incompleteTail.requiredSourceTokens}</bdi>
+                            </p>
+                            <span id={`${documentId}-tail-sequence`} class="visually-hidden">
+                              {incompleteTail.tokens.join(', ')}
+                            </span>
+                            <p
+                              class="tail-tape"
+                              role="group"
+                              tabindex="0"
+                              dir="ltr"
+                              style={`--token-count: ${document.tokens.length}`}
+                              aria-labelledby={`${documentId}-tail ${documentId}-tail-facts ${documentId}-tail-sequence`}
+                            >
+                              {document.tokens.map((_, position) => {
+                                const offset = position - incompleteTail.start;
+                                const token = incompleteTail.tokens[offset];
+                                return token === undefined ? (
+                                  <span class="empty-cell" aria-hidden="true">·</span>
+                                ) : (
+                                  <code
+                                    data-tail-position={offset}
+                                    data-token-id={token}
+                                    aria-hidden="true"
+                                  >
+                                    {token}
+                                  </code>
+                                );
+                              })}
+                            </p>
+                            <p class="tail-note">{labels.tailNote}</p>
+                          </section>
+                        )}
+
+                        <p class="control-key">
+                          <span><bdi dir="ltr">BOS</bdi> — {labels.fields.bos}</span>
+                          <span><bdi dir="ltr">EOS</bdi> — {labels.fields.eos}</span>
+                        </p>
+                      </article>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          </li>
+        );
+      })
+    }
+  </ol>
+
+  <p class="boundary-note"><span aria-hidden="true">║</span> {labels.boundaryNote}</p>
+  <section class="invariants" aria-labelledby={`${instanceId}-invariants`}>
+    <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
+    <ul>
+      <li><span aria-hidden="true">+1</span> {labels.invariants.shift}</li>
+      <li><span aria-hidden="true">✓</span> {labels.invariants.complete}</li>
+      <li><span aria-hidden="true">║</span> {labels.invariants.boundaries}</li>
+      <li><span aria-hidden="true">↔</span> {labels.invariants.overlap}</li>
+    </ul>
+  </section>
+</figure>
+
+<style>
+  .autoregressive-diagram {
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    margin-block: 2rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .autoregressive-diagram:focus-visible,
+  .token-tape:focus-visible,
+  .aligned-tape:focus-visible,
+  .tail-tape:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    border: 0;
+    white-space: nowrap;
+  }
+
+  figcaption > p,
+  .tail-note,
+  .boundary-note {
+    max-inline-size: 72ch;
+  }
+
+  .config-facts,
+  .control-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+  }
+
+  .config-facts > div {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 0.55rem;
+    background: var(--surface);
+  }
+
+  .config-facts dt,
+  .config-facts dd {
+    margin: 0;
+  }
+
+  .partition-list,
+  .document-list,
+  .window-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .partition-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+
+  .partition-list > li,
+  .document-list > li,
+  .window-list > li {
+    min-inline-size: 0;
+  }
+
+  .partition {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding: 1rem;
+    border: 2px solid var(--line);
+    border-inline-start-width: 0.55rem;
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  }
+
+  .partition-header,
+  .document-header,
+  .window > header,
+  .incomplete-tail > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .partition-header h4,
+  .partition-header p,
+  .document-header h5,
+  .window > header,
+  .incomplete-tail h6 {
+    margin: 0;
+  }
+
+  .boundary-symbol,
+  .document-boundary {
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .boundary-label {
+    color: var(--muted);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .document-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-block-start: 0.9rem;
+  }
+
+  .document {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding: 0.9rem;
+    border: 1px dashed var(--line);
+    border-inline: 0.3rem double var(--line);
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  .source-lane h6,
+  .source-lane p {
+    margin-block: 0.55rem;
+  }
+
+  .token-tape,
+  .aligned-tape,
+  .tail-tape {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(var(--token-count), minmax(2.25rem, 1fr));
+    gap: 0.3rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-gutter: stable;
+  }
+
+  .aligned-tape {
+    inline-size: calc(100% + 1.5rem + 2px);
+    margin-inline: calc(-0.75rem - 1px);
+  }
+
+  .tail-tape {
+    inline-size: calc(100% + 1.5rem + 4px);
+    margin-inline: calc(-0.75rem - 2px);
+  }
+
+  code[data-token-id],
+  .empty-cell {
+    display: inline-grid;
+    min-inline-size: 2.25rem;
+    min-block-size: 2rem;
+    place-items: center;
+    padding-inline: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 0.4rem;
+    background: var(--surface);
+  }
+
+  code[data-control] {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .window-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+    margin-block: 0.8rem;
+  }
+
+  .window {
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.65rem;
+  }
+
+  .window > header {
+    margin-block-end: 0.55rem;
+  }
+
+  .aligned-window {
+    min-inline-size: 0;
+  }
+
+  .aligned-tape {
+    margin-block: 0.25rem;
+  }
+
+  .empty-cell {
+    border-style: dotted;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .target code {
+    border-block-end-width: 3px;
+  }
+
+  .lane-label,
+  .shift-cue {
+    margin-block: 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .shift-cue {
+    color: var(--muted);
+  }
+
+  .incomplete-tail {
+    padding: 0.75rem;
+    border: 2px dotted var(--line);
+    border-radius: 0.65rem;
+  }
+
+  .not-emitted {
+    font-weight: 700;
+  }
+
+  .control-key {
+    margin-block: 0.75rem 0;
+    font-size: 0.88rem;
+  }
+
+  .boundary-note {
+    padding: 0.65rem 0.8rem;
+    border-inline-start: 0.35rem double var(--line);
+  }
+
+  .invariants {
+    margin-block-start: 1rem;
+    padding-block-start: 1rem;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .invariants ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .invariants li {
+    padding: 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 0.55rem;
+  }
+
+  @media (max-width: 48rem) {
+    .document-list,
+    .invariants ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .partition-header,
+    .document-header,
+    .window > header,
+    .incomplete-tail > header {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .partition,
+    .document,
+    .window,
+    .incomplete-tail,
+    code[data-token-id] {
+      forced-color-adjust: auto;
+      border-color: CanvasText;
+    }
+  }
+</style>

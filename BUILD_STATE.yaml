@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T09:01:30Z"
+updated_at: "2026-07-19T12:33:39Z"
 
 environment:
   os: "Linux x86_64"
@@ -1419,7 +1419,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 7
+      spent: 8
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -3070,10 +3070,10 @@ builds:
                 notes: "The playbook has balanced fences, no whitespace defect, and is byte-identical to its validated staged publication with SHA-256 3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3."
             notes: "Completed as a small local documentation step. Root SKILLS.md is a repository playbook, not a formal Codex SKILL.md package. It captures the proven one-owner vertical slice, deterministic Rust evidence, static integration, meaning-first language-agnostic translation, fluent-human approval, locale activation, recovery, and per-step commit workflow. No network, dependency change, paid service, generation service, substantial CPU work, or Chapter 5 product work occurred."
       - id: implement-ch05-autoregressive-examples
-        objective: "Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries."
+        objective: "Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries."
         depends_on:
           - document-chapter-delivery-skill
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -3081,6 +3081,11 @@ builds:
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "rust/data/tiny-bilingual-corpus.txt"
+          - "rust/data/splits.json"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -3092,7 +3097,19 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/content.config.ts"
+          - "site/src/components/RustSource.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "https://www.jmlr.org/papers/v3/bengio03a.html"
+          - "https://cdn.openai.com/better-language-models/language-models.pdf"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/05-autoregressive-examples.md"
           - "rust/crates/llm-from-scratch/src/data.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
@@ -3100,15 +3117,17 @@ builds:
           - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
           - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
           - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/lib/autoregressive-examples-diagram.ts"
           - "site/tests/05-autoregressive-examples-diagram.test.ts"
           - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
           - "Cargo.lock"
         acceptance:
-          - "Turn each encoded document into leakage-free, shifted causal examples without crossing document or partition boundaries."
+          - "Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The Russian lesson and rendered labels pass meaning-first semantic, terminology, anti-calque, monolingual, accessibility, desktop/narrow, and recorded fluent-human approval gates before publication."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -3119,6 +3138,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch05-autoregressive-examples | diff -u rust/demos/ch05-autoregressive-examples/expected.txt -"
+          - "cargo run --quiet --locked -p ch05-autoregressive-examples --example diagram_trace | diff -u rust/demos/ch05-autoregressive-examples/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 05-autoregressive-examples"
           - "npm --prefix site run check:chapter -- --locale ru --chapter 05-autoregressive-examples"
           - "npm --prefix site run check:parity -- --chapter 05-autoregressive-examples"
@@ -3129,10 +3149,194 @@ builds:
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples'"
           - "npm --prefix site run test:e2e"
+          - "Manual contract-to-Rust, pedagogy, primary-source, visualization, meaning-first localization, rendered-page, and fluent-human approval review"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete localized chapter translation set using local deterministic work plus read-only verification of two declared primary sources; no dependency download, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260719T095039Z-implement-ch05-autoregressive-examples-01
+            started_at: "2026-07-19T09:50:39Z"
+            finished_at: "2026-07-19T12:33:39Z"
+            status: succeeded
+            input_fingerprint:
+              git: "2d9ddf641750bb794fe0ac994ba3f6deb71c9737"
+              files:
+                AGENTS.md: "sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73"
+                SKILLS.md: "sha256:3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3"
+                BUILD_STATE.yaml: "sha256:a2dd117127c1c856e64903f4a704be9bf94afedc5cee4feef06d5fbcb676fc28"
+                DECISIONS.md: "sha256:8363b9ee89940617983d2b70d637cc29230c43da9c255d271ba3125578a406de"
+                curriculum/course-plan.md: "sha256:93bba3af65ed2383169a902f3c8ba9bb099fd258d675e6bd120f40d77b864951"
+                curriculum/chapters/04-apply-bpe-tokenizer.md: "sha256:3c07220c76a27600dff79772fb92a104b51b0e0840f124a4be4c52c1942a6295"
+                curriculum/chapter-template.md: "sha256:bd649f7cb4f7f4f525f621a3670f92c73df1dc5e13d6b14253ae71916ec38271"
+                curriculum/README.md: "sha256:c7baa2a5bd1a79fa0f493653cf34cddcc565fc816aa1b38e87ad094370ccc877"
+                rust/crates/llm-from-scratch/src/lib.rs: "sha256:c47d3014b5c46bdc9c2125bba6d277fb0e1a3ea3e1b2de7f2d0d12e08a8bbd79"
+                rust/crates/llm-from-scratch/src/corpus.rs: "sha256:208e27d58077a3a04013a7a0607c830b3ba644e4b344afed0815ee3fc597e911"
+                rust/crates/llm-from-scratch/src/tokenizer/bpe.rs: "sha256:e39d6e09f9fe5f013b809f0727e319c97e52ac0533a0cff8742d2bb28d81e5c9"
+                rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs: "sha256:de81dfbd8f98e3bb93f6ff25b18b29f10e35cb759bf7f46114d8e84e2e16e586"
+                rust/data/tiny-bilingual-corpus.txt: "sha256:46d794060e882b5c2b974deedeff6d7a113aab7cadbccdf82065b44dbff639ae"
+                rust/data/splits.json: "sha256:68ed7592fe1efc63f7ca3b59c81f121c3e66ed0f8d8a57aaa4419c782e9d3344"
+                scripts/check-course-plan.mjs: "sha256:cd26b9f33ea000738fe154b30a0b7d63524f236fc6e275330f868ea52dbff83f"
+                scripts/check-chapter-contract.mjs: "sha256:58363fab76b38c381a657944c8d0d7999833a121ea53e80e9db9f301fde06e33"
+                scripts/check-rust-dependencies.sh: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"
+                scripts/check-rust-demos.sh: "sha256:7e20345825b0241c982929d3349603d99af07d50d1faf70d4b15c416f5410b0a"
+                scripts/check-site-content.mjs: "sha256:0fa51ea7a0056700270c04a1ce89a13af1f32a74454a1a32908ed1a60dfb712b"
+                scripts/check-static-links.mjs: "sha256:09da06dfe841e813ac782063bcf48476c4ef53321ba0ef868331023dea0db513"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:347b36a0d97588c8fdf203aa6d2ee75973d023fdc308381e676c4f08a13e2bc7"
+                site/package.json: "sha256:0e29afc556d723d5f471a5bedeb01d77005defe1aac7cffe0250cc1bdb4008ba"
+                site/package-lock.json: "sha256:adfc2436400fd48226c1e6a813684fb2b4e5c8780ce66c855afe74bcfc237267"
+                site/src/i18n/locales.json: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad"
+                site/src/content.config.ts: "sha256:a323f7e01c7010239f77ae545c89660a7dc5c8a2750a6d3bedfe8fbc5cdcf03f"
+                site/src/components/RustSource.astro: "sha256:f643249fe71e050f01ab26a5ed603ae1f90cbc0e4fdd771a6fd80bf0b5f5ea35"
+                site/src/pages/[locale]/course/[...slug].astro: "sha256:ebe04e5824930664d60e8097f07628ace4078d0ce750410c51a4c105088f33a1"
+                site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx: "sha256:d135a20aff5ae89c025254bfd2a48a6d8b7d4a05d4fb0f4e8c9a8167f73df031"
+                site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx: "sha256:c9f8ccb1dcada4bbff5d7fb8fec2f3f8cec425bc25ac457f6359d1e75e476dc1"
+                site/src/components/chapters/ApplyBpeTokenizerDiagram.astro: "sha256:6b4aff0c12103266f69c91d2cccf398a21721fd1bd2e87156390428f46fbedd6"
+                site/src/lib/apply-bpe-tokenizer-diagram.ts: "sha256:2b0ed2e472cbe0c93ff7d9c955f97b4c8c12fc86b54170a5a776cda3edb0d9f3"
+                site/tests/04-apply-bpe-tokenizer-diagram.test.ts: "sha256:dc09a12cdcc26674267e0f8beb1da239058530f9319a4bace2e972c0b26177cd"
+                site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts: "sha256:0210a46ad207a06b4b36bd47deaf3e0bc0bffde71d0fe5d892fd8f75e6e98caa"
+              external:
+                - "https://www.jmlr.org/papers/v3/bengio03a.html (verified primary source; claim boundary recorded in source-review.md)"
+                - "https://cdn.openai.com/better-language-models/language-models.pdf (verified primary source; claim boundary recorded in source-review.md)"
+              tools:
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "23.7.0"
+                npm: "10.9.2"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/"
+            commands:
+              - "git status --short --branch; verify dedicated playbook commit 2d9ddf6 and a clean worktree"
+              - "Read the complete ledger inventory, current playbook, relevant decisions, Chapter 5 plan/template/workflow, predecessor contract, cumulative API surface, locale registry, and static lesson shell"
+              - "Verify the latest skill and Russian-review canonical manifests; verify the superseded Chapter 4 manifest in its immutable staging tree"
+              - "Verify all declared local inputs, record SHA-256 fingerprints, and confirm the exact recorded Rust/Node/Git toolchain"
+              - "Create the run-specific publish and validation directories"
+              - "Record the parser/input/meaning-first approval preflight decision and claim the step before product work"
+              - "Verify Bengio et al. (2003) at JMLR and Radford et al. (2019) at OpenAI; freeze supported claims and course-specific window policy in source-review.md"
+              - "Author the bilingual Chapter 5 contract in staging and run its structure-only contract check"
+              - "Implement and format the cumulative borrowed-window API, frozen-partition encoder, historical contrast, strict Rust trace, exact output fixture, and offline lockfile in the validation overlay"
+              - "Run focused Rust tests and clippy plus the all-demo exact-output gate; incorporate read-only overflow, boundary, pedagogy, and Russian contract audits"
+              - "Implement the exact-trace parser, fail-closed localized label validator, static accessible diagram, paired English/Russian lessons, unit tests, and desktop/narrow browser specification"
+              - "Run meaning-first Russian terminology, anti-calque, monolingual-flow, caption, accessibility-copy, and semantic-parity audits; correct every actionable finding"
+              - "Correct the historical contrast to an explicit human-labeled sentiment task and distinguish target alignment from model-side causal visibility"
+              - "Align source, input, target, and incomplete-tail tapes on one checked source-position grid; expose every focusable tape as a localized named group with a delimited sequence"
+              - "Run the complete staged Rust, contract, locale, type, unit, build, link, focused-browser, and full-browser gates; preserve intermediate failure outcomes in validation-summary.md"
+              - "Complete independent final content and technical audits; correct the final empty-token-slice wording and receive a clean no-actionable-issues audit"
+              - "Create and verify the 14-file staged publication manifest plus manual and validation reviews; leave canonical publication gated on fluent-human Russian approval"
+              - "Human review rejected learner-visible TypeScript/site-plumbing language and exposed related terminology and leakage overclaims; invalidate the prior publication surface and reopen the complete bilingual content pass"
+              - "Reframe the chapter around document-local input/target pairs; correct stride, suffix, boundary, causal-visibility, held-out-data, and Chapter 6 counting explanations in the contract, plan, lessons, Rust comments, exercises, and tests"
+              - "Separate the concise learner executable from the exact diagram trace; traverse every real encoded document within its named partition and add exact S=2, exact-fit, and forbidden EOS-to-BOS coverage"
+              - "Run independent full English, Russian, and contract/Rust re-audits; resolve every actionable finding and receive clean final-snapshot reports"
+              - "Run the complete frozen contract, Rust, locale, type, unit, build, link, focused-browser, and full-browser acceptance matrix"
+              - "Inspect temporary desktop and phone renders, then create and verify the superseding 17-file publication manifest plus revised manual and validation reviews"
+              - "Receive explicit fluent-human approval of the frozen Russian lesson and rendered labels; record the approval scope in DECISIONS.md before publication"
+              - "Publish all 17 checksum-verified staged artifacts to canonical paths with apply_patch and verify byte-for-byte equality"
+              - "Run every declared validation from the canonical repository, including both exact Rust outputs and the focused and full browser suites"
+            artifacts:
+              - path: ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/source-review.md"
+                sha256: "9ae1adf0a5e3334815ca41c7b55bcfebe90337a431830ad9c0662fd62045b82c"
+                notes: "Primary-source claim boundaries and the explicit course-specific context/stride/full-window/tail policy; captured immediately after read-only verification."
+              - path: ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/publication-manifest.sha256"
+                sha256: "a5266e4bb4bbd88a72e05f859b5f024b4128d080bbde5a1ae49aec73071522b9"
+                notes: "Superseding checksum manifest for all 17 frozen staged canonical artifacts after the rejected content surface was replaced."
+              - path: ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/manual-review.md"
+                sha256: "7bd30f000706e132e39393f65d320d33f2521b2b85b84c6653cdf64367832d1a"
+                notes: "Final staged contract, pedagogy, source, visualization, accessibility, language, and rendered review; explicitly not fluent-human publication approval."
+              - path: ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/validation-summary.md"
+                sha256: "f9f8b5a036c023aab743b4646dbb0cd60a5e9a80af6748a5e2f94cd714eec486"
+                notes: "Final frozen acceptance outcomes plus retained rejected-draft and intermediate-failure history."
+            validation:
+              - command: "npm --prefix site run check:contract -- ../.build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/publish/curriculum/chapters/05-autoregressive-examples.md --structure-only"
+                status: passed
+                notes: "Staged contract JSON, required sections, configured locale keys, and structural invariants passed before implementation and again after audit corrections."
+              - command: "cargo test --locked -p llm-from-scratch -p ch05-autoregressive-examples"
+                status: passed
+                notes: "32 cumulative-crate tests and 2 demo-library tests passed in the staged validation overlay."
+              - command: "cargo clippy --locked -p llm-from-scratch -p ch05-autoregressive-examples --all-targets -- -D warnings"
+                status: passed
+                notes: "Focused cumulative crate and Chapter 5 demo are warning-free."
+              - command: "scripts/check-rust-demos.sh"
+                status: passed
+                notes: "All 5 discovered demos, including Chapter 5, matched their exact checked-in output fixtures."
+              - command: "npm --prefix site run check (intermediate label-shape attempt)"
+                status: failed
+                notes: "TypeScript rejected a recursively aliased label-shape type; a recursive interface replaced it before the final pass."
+              - command: "cargo fmt --all -- --check and npm --prefix site run check (intermediate audit correction)"
+                status: failed
+                notes: "Rustfmt exposed one long println and Astro exposed a nullable tail captured by a callback; both were corrected before the final pass."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples' (first accessible-name attempt)"
+                status: failed
+                notes: "Chromium correctly reported empty names for focusable paragraphs; every tape received nameable group semantics and the rerun passed."
+              - command: "node scripts/check-course-plan.mjs and integrated Chapter 5 contract check"
+                status: passed
+                notes: "Validated 39 chapters, 45 scheduled steps, five implemented contracts, exact metadata, sections, Rust fixture, and configured locales."
+              - command: "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked"
+                status: passed
+                notes: "The final staged workspace is formatted and warning-free; all cumulative, demo, and documentation targets passed, including 32 cumulative and 2 Chapter 5 library tests."
+              - command: "scripts/check-rust-dependencies.sh; scripts/check-rust-demos.sh; exact Chapter 5 stdout diff"
+                status: passed
+                notes: "No external crate is present; all five demos and the explicit Chapter 5 diff match byte-for-byte."
+              - command: "Configured-locale Chapter 5 checks, same-revision parity, and full site content check"
+                status: passed
+                notes: "English and Russian form one publishable revision-1 set; all 10 localized sources and 5 chapter sets are complete with 29 catalog keys."
+              - command: "npm --prefix site run check and npm --prefix site run test -- --run"
+                status: passed
+                notes: "Astro reported zero diagnostics across 41 files; all 8 Vitest files and 62 tests passed."
+              - command: "npm --prefix site run build and npm --prefix site run test:links"
+                status: passed
+                notes: "Built 15 static pages; checked 247 local references across 79 artifacts."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples'"
+                status: passed
+                notes: "Three focused tests passed across both locales and desktop/narrow viewport runs, including exact grid coordinates and computed accessible names."
+              - command: "npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 19 browser regressions passed against the staged static preview."
+              - command: "sha256sum -c publication-manifest.sha256"
+                status: passed
+                notes: "All 14 staged canonical artifacts match the final publication manifest."
+              - command: "Manual contract-to-Rust, pedagogy, primary-source, visualization, meaning-first localization draft, and rendered-page review"
+                status: passed
+                notes: "Independent final audit found no remaining substantive issue; this outcome does not substitute for or claim fluent-human Russian approval."
+              - command: "Human review of the staged English and Russian teaching content"
+                status: failed
+                notes: "Rejected a learner-visible TypeScript implementation aside and identified broader concept naming, too-short-suffix, stride, and leakage-claim problems. All earlier staged publication hashes and review surfaces are stale until the revised slice passes again."
+              - command: "cargo clippy --workspace --all-targets --locked -- -D warnings (reopened boundary-test attempt)"
+                status: failed
+                notes: "The exact-fit test shadowed its config helper before constructing the forbidden flattened pair; the binding was renamed and the complete final Rust matrix passed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples' (reopened rendered-heading attempt)"
+                status: failed
+                notes: "The exact English heading expectation did not account for rendered smart punctuation; the expected accessible name was corrected and both final browser suites passed."
+              - command: "node scripts/check-course-plan.mjs; integrated Chapter 5 contract; configured-locale chapter, parity, and full-content checks"
+                status: passed
+                notes: "The frozen plan has 39 chapters and 45 steps; five contracts integrate exactly; 10 localized sources form five complete revision sets with 29 catalog keys."
+              - command: "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked"
+                status: passed
+                notes: "The frozen workspace is formatted and warning-free; all targets passed, including 32 cumulative and 2 Chapter 5 demo-library tests."
+              - command: "scripts/check-rust-dependencies.sh; scripts/check-rust-demos.sh; exact Chapter 5 learner-output diff; exact diagram-trace diff"
+                status: passed
+                notes: "The workspace has no external crate; all five demos and both explicit Chapter 5 outputs match their separate fixtures byte-for-byte."
+              - command: "npm --prefix site run check; npm --prefix site run test -- --run; npm --prefix site run build; npm --prefix site run test:links"
+                status: passed
+                notes: "Astro found zero diagnostics across 41 files; 62 unit tests passed; 15 static pages built; 247 local references across 79 artifacts passed."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples'; npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 3 focused Chapter 5 tests and all 19 browser regressions passed across English/Russian and desktop/narrow layouts."
+              - command: "Independent final English, Russian, and contract/Rust audits plus desktop/phone rendered inspection"
+                status: passed
+                notes: "All actionable findings were corrected; each independent final audit reported the frozen snapshot clean. This does not substitute for fluent-human Russian approval."
+              - command: "sha256sum -c publication-manifest.sha256"
+                status: passed
+                notes: "All 17 frozen staged canonical artifacts match the superseding publication manifest."
+              - command: "Explicit fluent-human approval of the frozen Russian lesson and rendered labels"
+                status: passed
+                notes: "The human reviewer replied 'I approve' to the explicit revision-1 approval request; DECISIONS.md records the checksum-scoped publication authorization."
+              - command: "Byte-for-byte comparison of all 17 staged and canonical publication artifacts"
+                status: passed
+                notes: "Every approved manifest path matches its canonical counterpart after apply_patch publication."
+              - command: "Complete declared Chapter 5 validation matrix from the canonical repository"
+                status: passed
+                notes: "Plan/contract, Rust format/lint/tests/dependency/demo/exact outputs, locale/parity/content, Astro/unit/build/links, 3 focused browser tests, and all 19 browser regressions passed canonically."
+            notes: "Completed after the revised frozen snapshot passed every staged gate, three independent final audits, explicit fluent-human Russian approval, byte-identical publication, and the complete canonical acceptance matrix. Published one bilingual static Chapter 5 vertical slice with separate learner and diagram-trace outputs. No dependency download, paid service, generation service, or substantial CPU use occurred. The dedicated step commit is the remaining handoff action and must be verified before selecting Chapter 6."
       - id: implement-ch06-bigram-baseline
         objective: "Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once."
         depends_on:

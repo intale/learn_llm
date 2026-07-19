@@ -28,6 +28,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch05-autoregressive-examples"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

@@ -1,0 +1,419 @@
+---
+{
+  "chapter_id": "05-autoregressive-examples",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 5,
+  "concept_id": "boundary-safe-causal-windows",
+  "title": "Building autoregressive input–target pairs",
+  "description": "Build next-token input–target pairs inside one encoded document at a time.",
+  "objective": "Turn each encoded document into fixed-length input–target pairs for next-token prediction without joining documents or data partitions.",
+  "worked_inputs": "For the document [BOS, 41, 42, 43, 44, EOS], context length three, and stride one, find every complete input–target pair and the suffix at the next candidate start, which is too short to form another pair.",
+  "formula": {
+    "latex": "x^{(s)}=z_{s:s+T}, \\quad y^{(s)}=z_{s+1:s+T+1}",
+    "symbols": [
+      {
+        "symbol": "z",
+        "meaning": "one encoded document, including its BOS and EOS boundary tokens"
+      },
+      {
+        "symbol": "T",
+        "meaning": "the positive context length and the length of both the input and target"
+      },
+      {
+        "symbol": "s",
+        "meaning": "a candidate start kS selected by the stride; it produces a pair only when the document contains all T+1 required source tokens"
+      },
+      {
+        "symbol": "S",
+        "meaning": "the positive distance between consecutive candidate starts"
+      },
+      {
+        "symbol": "x^{(s)}",
+        "meaning": "the T-token input sequence beginning at s"
+      },
+      {
+        "symbol": "y^{(s)}",
+        "meaning": "the T-token target slice beginning one source position after the input, so each position names the next-token target"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Task-specific hand-labeled examples and next-token targets derived from the sequence itself",
+    "summary": "Task-specific supervised NLP uses answers supplied separately from the input. A language model can instead use the next token in the same sequence as the target at every usable position. Bengio et al. factorized a sentence into next-word conditionals over recent context, and the GPT-2 report emphasized learning from naturally occurring sequences rather than task-specific labeled datasets. Neither source defines this course's document boundaries, fixed train/validation/test split, stride, or too-short-suffix policy. Those choices preserve document and split identity so later fitting code can explicitly select training data, and they make example counts reproducible.",
+    "rust_source": "rust/demos/ch05-autoregressive-examples/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch05-autoregressive-examples/src/lib.rs",
+      "region": "hand-labeled-contrast",
+      "purpose": "Contrast human-supplied sentiment classes with next-token targets already present in a sequence."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data.rs",
+      "region": "causal-window-policy",
+      "purpose": "Define valid context and stride values, count complete pairs, and identify a suffix that is too short for another pair."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data.rs",
+      "region": "causal-window-iterator",
+      "purpose": "Borrow each complete input and target slice with the target shifted by one source position."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/data.rs",
+      "region": "partition-encoding",
+      "purpose": "Encode and retain every frozen document separately inside its original partition."
+    },
+    {
+      "path": "rust/demos/ch05-autoregressive-examples/src/main.rs",
+      "region": "chapter-output",
+      "purpose": "Run the worked example, preserve the real 8/2/2 corpus split, and state the Chapter 6 transition-counting rule."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "autoregressive-examples",
+    "rationale": "Separate partition and document tapes make the one-token shift, overlapping pairs, too-short suffixes, and boundaries between unrelated sequences visible at the same time."
+  },
+  "decoder_connection": "Each pair supplies an input sequence and the expected next-token ID at every position. The alignment defines targets but does not prevent a model from reading later input positions; model-side causal computation must enforce that limit. Chapter 6 returns to the original training documents so overlapping pairs do not multiply transition counts, and validation and test documents do not influence fitting."
+}
+---
+
+import AutoregressiveExamplesDiagram from '../../../components/chapters/AutoregressiveExamplesDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Build aligned next-token pairs one document at a time',
+  description:
+    'The diagram shows four short encoded documents. In every complete pair, the target begins one source position after the input; no pair crosses a document or partition boundary.',
+  partitionTitles: {
+    train: 'Training partition',
+    validation: 'Validation partition',
+    test: 'Test partition',
+  },
+  fields: {
+    contextLength: 'Context length',
+    stride: 'Stride',
+    requiredSourceTokens: 'Source tokens required',
+    document: 'Document',
+    start: 'Candidate start',
+    bos: 'document beginning',
+    eos: 'document ending',
+  },
+  lanes: {
+    source: 'Wrapped source tokens',
+    input: 'Input context',
+    target: 'Next-token targets',
+    incompleteTail: 'Too few tokens for another pair',
+  },
+  values: {
+    emitted: 'Complete pair',
+    notEmitted: 'No new pair',
+  },
+  shiftLabel: 'Each target lies one source position to the right',
+  boundaryLabel: 'Hard boundary',
+  boundaryNote: 'Pair construction restarts at every document and partition boundary; no arrow joins two tapes.',
+  tailNote:
+    'This start cannot form a new pair, although these tokens may already occur in earlier complete pairs.',
+  invariantsLabel: 'Rules shown in the diagram',
+  invariants: {
+    shift: 'Every target is the matching input shifted by exactly one token.',
+    complete: 'Only spans containing all required source tokens become pairs.',
+    boundaries: 'No pair joins documents or data partitions.',
+    overlap: 'A suffix that is too short for a new pair may overlap earlier complete pairs.',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict all three input–target pairs before running the code
+
+An autoregressive language model predicts each token from earlier tokens. This
+chapter builds the input–target pairs that provide the correct next-token answers
+without joining unrelated documents. The pairs define what to predict; the model
+will still need a separate rule that prevents it from looking ahead.
+
+Chapter 4 produced one sequence with BOS and EOS for every document. Start with
+this tiny one:
+
+```text
+position  0   1   2   3   4   5
+token     0  41  42  43  44   1
+          ^                   ^
+         BOS                 EOS
+```
+
+Choose context length `T=3` and stride `S=1`. One pair needs four
+source tokens: three for the input and one more to shift the target. Before you
+read on, write the input and target at starts 0, 1, and 2.
+
+At start 0, take source positions 0 through 3. The first three become the input;
+the last three become the target:
+
+```text
+start 0   input  [0, 41, 42]
+          target    [41, 42, 43]
+```
+
+Moving one position at a time gives the complete set:
+
+| Start | Input `x` | Target `y` |
+| ---: | :--- | :--- |
+| `0` | `[0,41,42]` | `[41,42,43]` |
+| `1` | `[41,42,43]` | `[42,43,44]` |
+| `2` | `[42,43,44]` | `[43,44,1]` |
+
+Each row is one autoregressive pair. Its input and target together form one
+autoregressive example; the Rust API represents it as a `CausalWindow`.
+
+The final target includes EOS. That is intentional: after token `44`, the model
+should learn that this document ends. At the next candidate start, 3, only
+`[43,44,1]` remains. A pair requires four source tokens, so there is no fourth
+pair; we do not invent padding tokens to complete it.
+
+“No pair starts at 3” does **not** mean that tokens 43, 44, and EOS are thrown
+away. All three already occur in the complete pairs above. This suffix is simply
+too short to begin another pair.
+
+{/* chapter-section:formula */}
+
+## Express the one-token shift with slices
+
+For one encoded document `z`, a valid candidate start `s` produces:
+
+$$
+x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}
+$$
+
+Rust ranges are half-open, so both slices contain exactly `T` IDs. The target
+starts one position later: target element `i` is the source token immediately
+after input element `i`. A start is valid exactly when `s+T < |z|`, or,
+equivalently, when `z` contains all `T+1` source tokens from that start.
+
+The stride selects candidate starts `s=kS` for `k=0,1,2,...`. With `S=2`, the
+worked sequence considers starts 0, 2, and then 4. Starts 0 and 2 produce pairs;
+start 1 is skipped by the stride, while start 4 leaves only `[44,1]`, too few
+tokens for another pair.
+
+`T` is the input length, the target length, and the maximum context available
+inside one pair. At target position `i`, causal computation may use only
+`x_0` through `x_i`, not later input positions. `S` is the distance between
+candidate starts: `S=1` considers every possible start and repeats some adjacent
+transitions across overlapping pairs. A larger stride produces fewer pairs,
+skips some otherwise complete starts, and can leave gaps when `S>T`. Restarting
+for every document avoids
+teaching an invented transition between unrelated texts. Keeping the partitions
+separate preserves the fixed split so later fitting code can choose training
+documents explicitly.
+
+The shifted pair says which next token is correct at each position, but it does
+not stop a model from reading later entries of `x`. A left-to-right recurrent
+model enforces that limit through sequential state. A decoder using self-attention
+needs an explicit causal mask.
+
+{/* chapter-section:symbol-glossary */}
+
+## What each symbol means
+
+| Symbol | Meaning in this chapter |
+| :--- | :--- |
+| $z$ | exactly one encoded `[BOS, content..., EOS]` document |
+| $T$ | positive context length; the input and target each contain `T` IDs |
+| $S$ | positive distance between candidate starts |
+| $s$ | one candidate start `kS`; it yields a pair only when `T+1` source tokens remain |
+| $x^{(s)}$ | input slice beginning at `s` |
+| $y^{(s)}$ | target slice beginning at `s+1` |
+
+Apply the rule to each document separately; do not concatenate a partition into
+one global `z`. A short document may produce no pair and leave only a suffix that
+is too short for one. Even a document with empty content is encoded as
+`[BOS,EOS]`: with `T=1`, it produces the valid pair `[BOS] -> [EOS]`.
+
+{/* chapter-section:history */}
+
+## Derive next-token targets from the sequence itself
+
+In a classification task, each answer is supplied separately from its input. The
+Rust demonstration contains two token sequences with human-assigned sentiment
+labels. Those labels are not next tokens:
+
+<RustSource
+  path="rust/demos/ch05-autoregressive-examples/src/lib.rs"
+  region="hand-labeled-contrast"
+  caption="Two token sequences with separately supplied sentiment labels"
+  label="Rust types and two token sequences with sentiment labels supplied separately from their inputs"
+/>
+
+Language modeling has a different source of supervision: the observed next token
+already follows every context that has a successor. [Bengio et al. (2003)](https://www.jmlr.org/papers/v3/bengio03a.html)
+factor a sentence probability into next-word conditional probabilities and use
+a fixed recent context. The [GPT-2 report (2019)](https://cdn.openai.com/better-language-models/language-models.pdf)
+uses the same autoregressive factorization and contrasts task-specific labeled
+datasets with learning from naturally occurring sequences.
+
+Bengio's model predicts one next word from a fixed recent context. Here, one
+aligned pair packages `T` consecutive next-token targets while deriving every
+target from the same observed sequence order.
+
+This contrast does not imply that early language models needed people to label
+every next word. The cited papers also do not prescribe this course's fixed split,
+document boundaries, stride, or full-pair rule. Those are our data-handling
+choices: they preserve document identity and train/validation/test membership so
+later fitting code can select training documents only, and they make the number
+of examples reproducible.
+
+{/* chapter-section:rust-implementation */}
+
+## Build complete pairs without flattening the corpus
+
+`CausalWindowConfig::new` rejects a zero context length or stride. It also rejects
+`T=usize::MAX`, because `T+1` would overflow. For a valid configuration, the
+policy counts candidate starts with a complete `T+1`-token span and reports the
+suffix at the next start when it is too short for another pair:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data.rs"
+  region="causal-window-policy"
+  caption="Set the context, stride, count, and too-short-suffix policy"
+  label="Rust configuration that validates context and stride, counts complete pairs, and reports a suffix that is too short for another pair"
+/>
+
+`CausalWindows` then visits those starts. Its central operation borrows the input
+slice and the target slice one position to its right. Building a pair neither
+copies nor changes token IDs:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data.rs"
+  region="causal-window-iterator"
+  caption="Borrow the input and its one-token-shifted target"
+  label="Rust iterator that borrows complete input and target slices from one encoded document"
+/>
+
+The iterator cannot discover document boundaries from token IDs alone: its input
+slice must contain exactly one document. The corpus wrapper below makes that
+intended traversal explicit by opening the iterator on an `EncodedDocument`.
+
+The counting and suffix methods use checked arithmetic for extreme sizes.
+`incomplete_tail` is the API name for the suffix at the first candidate start
+that cannot form a pair. It returns `None` when that start is already at or beyond
+the document end. A returned suffix may overlap earlier complete pairs.
+
+`EncodedCorpusPartitions` preserves each encoded sequence's document ID and its
+train/validation/test membership. It encodes every document with the frozen
+Chapter 4 tokenizer and exposes documents only inside their original partition.
+It does not reuse the temporary IDs on which Chapter 3 learned merge rules, and
+it offers no flattened corpus view:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/data.rs"
+  region="partition-encoding"
+  caption="Keep encoded documents owned and separated by frozen partition"
+  label="Rust owned encoded-document and encoded-partition types that expose only per-partition document slices"
+/>
+
+The same iterator is applied separately to each of the four short documents in
+the diagram below. Complete pairs and a possible too-short suffix are computed
+inside one document at a time, so no input or target can span two tapes.
+
+The executable also loads the course's bilingual corpus and fixed split manifest.
+As in Chapters 3–4, it trains BPE on the training partition only, obtains eight
+merge rules, freezes the tokenizer, and confirms that encoding preserves 8
+training, 2 validation, and 2 test documents. It then opens the iterator on every
+encoded document and reports pair totals for each partition:
+
+<RustSource
+  path="rust/demos/ch05-autoregressive-examples/src/main.rs"
+  region="chapter-output"
+  caption="Run the worked pairs and preserve the frozen 8/2/2 corpus split"
+  label="Rust main function printing the worked input–target pairs, document and pair counts by partition, and the Chapter 6 transition-counting rule"
+/>
+
+Run the deterministic checks from the repository root:
+
+```text
+cargo test --workspace --locked
+cargo run --quiet --locked -p ch05-autoregressive-examples | diff -u rust/demos/ch05-autoregressive-examples/expected.txt -
+```
+
+The second command prints nothing when the executable exactly matches the recorded
+output. Tests cover the shifted-slice rule, invalid sizes, empty token slices,
+empty-content wrapped documents, exact fits, too-short suffixes, document and
+partition separation, and byte-exact decoding with the frozen tokenizer.
+
+{/* chapter-section:visualization */}
+
+## Inspect shifts and hard boundaries on separate token tapes
+
+<AutoregressiveExamplesDiagram labels={diagramLabels} />
+
+The four tapes are small examples, not an enumeration of all twelve corpus
+documents. Held-out pairs demonstrate the same construction, but only pairs from
+the training partition may be used to fit model parameters.
+
+Read each input row with its target beneath it: the target begins one source
+position later. No arrow crosses the double line at a document or partition
+boundary; pair construction restarts on the next tape. A dotted outline marks a
+suffix that is too short for another pair. Its tokens are not deleted and may
+already appear in earlier complete pairs.
+
+{/* chapter-section:exercises */}
+
+## Predict the pairs, then check them
+
+1. List every input and target for `[0,41,42,43,44,1]` with `T=3, S=1`.
+2. Repeat with `S=2`. Which starts produce pairs, which otherwise valid start is skipped, and what remains at the next candidate start?
+3. For `[0,61,1]` with `T=3`, predict the pair count and suffix. Why would padding it define a different target policy?
+4. For `[0,1]` with `T=1`, decide whether BOS can predict EOS.
+5. Two documents are `[0,10,1]` and `[0,20,1]`. With `T=2`, could `[10,1] -> [1,0]` ever be emitted?
+6. With `T=3, S=5` and a four-token document, should an empty suffix be reported after the exact-fit pair?
+7. Explain how tokens in a suffix that is too short for a new pair can still occur in earlier complete pairs.
+8. Explain why Chapter 6 should not count transitions by iterating all overlapping pairs.
+9. Does shifting the stored target by one position prevent a model from reading later input positions?
+
+<details>
+  <summary>Check your predictions</summary>
+
+  1. Starts 0, 1, and 2 produce the three pairs in the worked table. At start 3, the suffix is too short for another pair.
+  2. Starts 0 and 2 produce pairs. Start 1 is skipped by the stride, not rejected for being short. The next candidate start is 4, where `[44,1]` remains—too few tokens for a pair at `T=3`.
+  3. It emits zero pairs. The suffix begins at 0 and contains `[0,61,1]`; it is not padded. Padding would invent extra input positions and would require a mask plus an explicit rule for which padded targets count, so it is a different data policy.
+  4. Yes. The complete two-token source span gives `[0] -> [1]`.
+  5. No. Such a pair exists only in an incorrectly flattened slice: its final prediction would be EOS -> BOS across documents. The first document's slice ends after EOS, and construction starts a new iterator on `[0,20,1]`.
+  6. One exact-fit pair is produced at start 0. The next candidate start is 5, beyond the document, so `incomplete_tail` returns `None`; no phantom empty suffix appears.
+  7. No new pair can begin in that suffix, but its tokens may already occur in complete pairs that began earlier. In the worked example, `[43,44,1]` already appears across earlier inputs and targets.
+  8. Overlap repeats the same adjacent transition in several views. Chapter 6 must scan each original training document once so every transition contributes once.
+  9. No. The shifted arrays define the correct targets. The model must separately enforce causal visibility through left-to-right recurrent state or a causal self-attention mask.
+</details>
+
+To test one policy change, first predict the changed starts, pairs, and suffix for
+the six-token source. Then temporarily change only the stride in
+`CausalWindowConfig::new(3, 1)` in
+`rust/demos/ch05-autoregressive-examples/src/main.rs` from `1` to `2` and run
+`cargo run --quiet --locked -p ch05-autoregressive-examples`. Alternatively,
+change only the context length from `3` to `2`. The full-corpus pair totals will
+also change, but you are not expected to calculate those by hand. Compare the
+worked example's pairs and suffix with your prediction, then restore
+`CausalWindowConfig::new(3, 1)` so later examples use the original configuration.
+
+**Misconception check:** “A suffix that is too short to begin another pair is
+discarded from the dataset.” False. No new pair begins there, but its tokens may
+already occur in complete pairs that began earlier.
+
+{/* chapter-section:decoder-connection */}
+
+## Connect the pairs to the decoder's task
+
+Each complete pair states the decoder's task position by position. At position
+`i`, predict `y_i` from `x_0` through `x_i`; causal computation must hide
+`x_{i+1}` and later inputs. BOS can anchor an initial prediction, and EOS can be
+the final target. Neither is padding.
+
+The shifted arrays identify what to predict at each position; they do not prevent
+a model from inspecting later input positions. A left-to-right recurrent model
+enforces that limit through its sequential state. A decoder using self-attention
+needs a causal mask that blocks access to later positions.
+
+Later chapters will replace integer counts with tensors, embeddings, attention,
+and learned parameters that produce logits, but this alignment remains the target
+relation. Chapter 6 takes one deliberate detour through an inspectable bigram
+baseline. It reads the original encoded **training documents**, not the
+overlapping pairs, so each adjacent transition is counted exactly once and
+validation and test documents do not influence the fitted transition counts.

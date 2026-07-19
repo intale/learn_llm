@@ -5,6 +5,7 @@
 //! demo.
 
 pub mod corpus;
+pub mod data;
 
 /// Tokenizer construction and application taught in Chapters 3 and 4.
 pub mod tokenizer {
