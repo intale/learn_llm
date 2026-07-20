@@ -1675,3 +1675,877 @@ them.
 
 **Affected steps:** `configure-multi-agent-orchestration` and every chapter from
 `implement-ch07-language-model-metrics` through `implement-ch39-end-to-end-llm`.
+
+## 2026-07-20 — Make Chapter 7 metric semantics and approval boundaries explicit
+
+**Status:** Accepted during Chapter 7 preflight; this clarifies the existing
+chapter objective without splitting or expanding it.
+
+**Context:** The generic Chapter 7 ledger entry named average negative
+log-likelihood and perplexity, but did not pin the logarithm base, aggregation
+unit, invalid and zero-probability behavior, held-out partition boundary, exact
+visualization evidence, primary sources, or fluent-human Russian publication
+gate. Those omissions would permit mathematically different implementations to
+pass the same prose acceptance and would repeat the localization failure exposed
+by the first Chapter 6 rewrite.
+
+**Decision:** Use natural logarithms and report average negative log-likelihood
+in nats per predicted target. Perplexity is `exp(mean_nll)`, so a perfect
+prediction has loss zero and perplexity one, while a uniform distribution over
+`|V|` tokens has loss `ln |V|` and perplexity `|V|`. Aggregate the sum of token
+surprises by the total target count; do not average document means equally.
+Reject an empty target set, NaN or infinite probabilities, and values outside
+`[0,1]`. A zero probability assigned to the observed target is valid evidence of
+an impossible event under that distribution and produces positive-infinite
+surprise, mean loss, and perplexity rather than a finite clamp or a generic input
+error.
+
+Keep the generic probability metric independent of a model, then score the
+already frozen add-alpha bigram through a partition-aware Chapter 7 path that can
+select only train or validation. It must fit nothing, must retain corpus/split/
+tokenizer/model provenance in deterministic evidence, and must not expose a
+Chapter 7 test-partition choice. Average over every adjacent target transition in
+the separately stored wrapped documents. Chapter 34 remains the first step that
+may score the untouched test partition.
+
+Use Shannon (1948), Good (1952), and Bengio, Ducharme, Vincent, and Jauvin (2003)
+as declared primary-source candidates for information, logarithmic scoring, and
+language-model perplexity; research must record the exact supported claim and
+remove any unsupported attribution. Rust emits both a concise learner result and
+a separate exact diagram trace. A small site parser may validate and project that
+trace, but cannot recompute the metric. The static figure connects target
+probability, surprise, target-count-weighted mean loss, and perplexity without a
+second implementation.
+
+Both lessons receive factual and monolingual review. Russian terminology and
+prose follow the complete meaning-first workflow, and publication requires the
+human reviewer to approve the exact frozen Russian lesson and rendered labels at
+desktop and narrow routes. Bind that approval to locale, content revision,
+manifest checksum, routes, surfaces, and approval reference; any later content
+or label change invalidates it.
+
+**Consequences:** Chapter 7 remains one medium-cost bilingual vertical slice and
+one commit. Its declared inputs now include the actual cumulative bigram/data
+surface and read-only primary-source URLs; its outputs include the Rust-trace
+parser; and its gates include the exact diagram trace, host-boundary check,
+rendered qualitative review, and fluent-human approval. No test score, logits,
+gradient, tensor implementation, dependency, or chapter split is introduced.
+
+**Affected step:** `implement-ch07-language-model-metrics`.
+
+## 2026-07-20 — Interrupt the first Chapter 7 run at the primary-source gate
+
+**Status:** Recovery decision; the chapter objective and acceptance criteria are
+unchanged.
+
+**Context:** Run
+`20260720T070700Z-implement-ch07-language-model-metrics-01` delegated only its
+bounded read-only research phase. The declared Shannon DOI resolved to an IEEE
+JavaScript or anti-bot surface and its Wiley route returned HTTP 403. Good's
+Wiley route also returned HTTP 403; an exact OUP landing was visible, but the
+specialist did not return a verified full text or complete claim map. Bengio's
+JMLR landing and PDF were accessible, but accessibility alone did not establish
+page- and claim-level evidence. The specialist then failed to settle promptly
+after the stop request.
+
+**Decision:** Interrupt the specialist and the run before contract or product
+work. Preserve the returned access outcomes and teaching-scope reconstruction as
+explicitly incomplete recovery evidence. They cannot satisfy the `source_review`
+DAG node and cannot authorize any descendant. Keep the Chapter 7 step pending;
+all canonical product paths remain absent or at their pre-run hashes.
+
+Do not silently retry the blocked publisher routes or reuse this run. If an
+accessible same-work primary-text location is introduced, record it as a new
+external input and create a new run with a new fingerprint. If the historical
+claim set is narrowed instead, record that scope decision before a new run.
+
+**Consequences:** No authored content depends on partially inspected sources.
+The next Chapter 7 attempt may reuse only the durable semantic decisions and
+verified local inputs, not the interrupted research node or its checksum.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T070700Z-implement-ch07-language-model-metrics-01`.
+
+## 2026-07-20 — Restart Chapter 7 with inspectable Shannon and Bengio primary text
+
+**Status:** Accepted recovery input and historical-claim clarification.
+
+**Context:** The first Chapter 7 research attempt established that the original
+publisher routes for Shannon (1948) and Good (1952) could not support a complete,
+repeatable claim review in this environment. A root preflight then located the
+complete 55-page Shannon paper hosted by Harvard Mathematics and confirmed the
+direct 19-page JMLR PDF for Bengio et al. (2003). In those inspectable primary
+texts, Shannon develops a logarithmic measure of choice and uncertainty and the
+uniform/certain entropy cases, while Bengio et al. explicitly define perplexity
+as both a geometric average of inverse assigned probability and the exponential
+of average negative log-likelihood. Good's full text still could not be inspected
+reliably enough for a claim-level attribution.
+
+**Decision:** Keep Shannon's DOI as bibliographic identity, add the Harvard-hosted
+full paper as the inspectable primary text, and add Bengio's direct JMLR PDF next
+to its landing page. Remove Good's DOI from the Chapter 7 inputs and make no
+lesson claim that Good established this chapter's logarithmic scoring API,
+natural-log convention, zero-probability semantics, or aggregation policy.
+
+The historical section will use Shannon only for the information-theoretic
+logarithmic measure and certain/uniform boundary cases, and Bengio et al. for the
+language-model probability product, average-log-likelihood accounting, and
+perplexity definition and use. The repository's natural-log unit, input errors,
+`p = 0` behavior, target-count aggregation, smoothing, document boundaries, and
+train/validation-only API remain explicit implementation decisions rather than
+historical attributions. A new run and external-input fingerprint are required;
+the interrupted research checksum is not reusable.
+
+**Consequences:** The chapter retains a meaningful and verifiable historical
+contrast without relying on an inaccessible paper or overstating what either
+source establishes. This changes research inputs, not the chapter objective,
+acceptance criteria, or one-chapter/one-commit boundary.
+
+**Affected step:** `implement-ch07-language-model-metrics`.
+
+## 2026-07-20 — Split Chapter 7 Rust evidence after two empty writer stalls
+
+**Status:** Accepted orchestration recovery; product scope and acceptance are unchanged.
+
+**Context:** After the frozen Chapter 7 contract was released and root-checkpointed,
+two consecutive full-scope `rust_implementer` assignments were dispatched in fresh,
+isolated trees. Each was stopped after missing an explicit progress boundary. Both
+trees contained directories only: no regular file, Docker command, release, or
+reusable artifact existed. The frozen-contract checksum, all product inputs,
+canonical guards, and Git scope remained unchanged. Repeating the same broad
+assignment would not address the observed context/execution failure.
+
+**Decision:** Keep `implement-ch07-language-model-metrics` as one chapter step and
+one future commit, but refine the internal `rust_evidence` DAG into two serialized,
+checksum-gated assignments. `rust_core` owns only the cumulative metrics module and
+the guarded `lib.rs` derivative. After root reviews and checkpoints that release,
+`rust_demo` owns only the Chapter 7 demo tree and guarded `Cargo.lock` derivative,
+using the integrated `rust_core` checksum as a prerequisite. The chapter lead then
+forms `rust_evidence` only from both current releases and reruns the complete staged
+Rust matrix. Site and lesson descendants continue to depend on the aggregate
+`rust_evidence` checksum, never either partial node.
+
+This is an execution-boundary change, not a new content or implementation input:
+the frozen contract, public API, exact outputs, tests, dependency policy, declared
+canonical outputs, acceptance criteria, and run input fingerprint remain unchanged.
+Neither interrupted empty assignment may be resumed or reused.
+
+**Consequences:** Each writer receives a smaller coherent task with disjoint output
+ownership, while the learner-visible Rust evidence is still accepted and published
+as one indivisible contract implementation. Any `rust_core` change invalidates
+`rust_demo`, the aggregate `rust_evidence`, and every transitive site or lesson
+descendant. No dependent assignment may begin before the prerequisite release has
+been root-checkpointed.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Recover the partial Chapter 7 site component in checksum-gated phases
+
+**Status:** Accepted orchestration recovery; product scope and acceptance are unchanged.
+
+**Context:** The first Chapter 7 site writer was initially interrupted before its
+assignment tree existed. A fresh replacement tree was then pre-created, but the
+collaboration runtime rejected the replacement before task creation at its thread
+cap. Root therefore re-established the original stopped child under the unchanged
+run fingerprint and exact empty-tree guards. That child completed a bounded phase-1
+parser and test skeleton, which root read and checkpointed at checksums
+`c4e8d6a046ba21647fcfeb6f715c9552ab6d5ccbb5909d2aec1977be8b989873`
+and `5c7a4a8b6224bcf2459be3ae27e1b738ff0b02147fc6d1639df6d364b8cf3fc1`.
+On the next broad parser-test refinement request, it ran no command, changed no
+byte, and returned no blocker before the explicit progress deadline; the lead
+interrupted and settled it. No Astro component, Docker validation, evidence,
+release, run-publish integration, canonical write, or descendant work occurred.
+
+**Decision:** Preserve the two root-reviewed phase-1 files as unreleased partial
+evidence and keep `site_component` incomplete. Because the interrupted phase-2
+operation never began, its inputs and fingerprint remain unchanged, and both
+partial checksums are exact, a further continuation of the same stopped child is
+restart-safe only when guarded by those two hashes and an explicit root recovery
+checkpoint. Narrow the remaining work into serialized one-purpose phases: first
+couple the test file to the real staged Rust trace and add deterministic helpers;
+then add malformed-input/parser cases in small bounded groups; then author and
+test the locale-neutral Astro component; finally run Docker validation and close
+one three-product release. Stop and recover again at any missing progress boundary.
+
+The spawn-failed `site-component-02` reservation remains permanently retired.
+Neither the accepted partial files nor a later phase report constitutes a DAG
+release. The chapter lead may integrate only the final closed assignment, and
+every lesson and later descendant remains blocked until `site_component` has a
+concrete current checksum.
+
+**Consequences:** This reduces orchestration/context pressure without changing
+the visualization contract, learner-visible behavior, declared outputs, cost,
+run fingerprint, chapter-step boundary, or one-commit requirement. Any partial
+artifact mismatch or newly discovered command invalidates restart safety and
+requires another root recovery decision before work continues.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Diagnose the silent Chapter 7 Vitest failure by collection only
+
+**Status:** Accepted fail-closed recovery diagnostic; product scope and acceptance
+are unchanged.
+
+**Context:** The first focused Chapter 7 parser validation ran exactly once in the
+pinned, network-disabled, read-only site image. It exited with status 1 after only
+the Vitest runner banner, without a test-file count, test count, stack trace, or
+other diagnostic. The exact command and outcome are frozen in
+`evidence/site-parser-validation.md`. Parser and test bytes, their Rust trace,
+every prerequisite release, canonical files, host-artifact boundary, and Git
+scope remained unchanged. Retrying the same command would provide no new evidence
+and is forbidden.
+
+**Decision:** Run one checksum-gated diagnostic that invokes Vitest's `list`
+operation with JSON output for only the frozen Chapter 7 test file. Keep the same
+pinned image and isolation envelope, mount the exact package/config files and
+staged parser/test/Rust inputs read-only, impose a 45-second timeout, and execute
+no test body. Treat only exit 0 plus valid JSON naming one target file and 49
+unique leaf tests as evidence that configuration, discovery, transform, and
+collection work under that isolation. Preserve every other outcome as failed or
+inconclusive evidence and stop without a retry or product correction.
+
+The diagnostic may create only
+`evidence/site-parser-diagnostic-collection-01.md`. It cannot satisfy the focused
+test gate, complete `site_component`, authorize a descendant, or justify a source
+change by itself. Any input or control checksum mismatch invalidates the command
+before execution; any later artifact change invalidates its conclusion.
+
+**Consequences:** The next recovery decision will be based on a narrow observable
+boundary rather than an inferred cause. If collection succeeds, a separately
+checkpointed diagnostic or corrected validation command must still isolate test
+execution. If collection fails or remains silent, its exact output becomes the
+new recovery evidence and all dependent work stays blocked.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — A/B the Chapter 7 collection failure with one synthetic leaf
+
+**Status:** Accepted fail-closed recovery diagnostic; product scope and acceptance
+are unchanged.
+
+**Context:** The collection-only diagnostic for the frozen Chapter 7 parser test
+also exited 1 without timeout and emitted zero bytes, so it did not reveal whether
+the failure belongs to Vitest/configuration under the isolation envelope or to
+transforming and collecting the staged test module and its dependency surface.
+The failed validation, failed collection evidence, staged parser/test, site
+configuration, Rust evidence, canonical files, host boundary, and Git scope are
+all frozen at their recorded checksums.
+
+**Decision:** Add one non-product diagnostic fixture under the run evidence tree.
+It contains one deterministic Vitest leaf and no repository import, filesystem
+read, hook, dynamic code, or chapter logic. Run one collection-only A/B command
+with the same pinned image, package/config inputs, filter path, JSON option,
+network/read-only/capability/process/cache isolation, and timeout as the failed
+collection probe; change only the mounted target-test directory to the frozen
+synthetic fixture.
+
+Only exit 0 plus valid JSON naming one target file and one unique leaf establishes
+that the common Vitest/config/isolation layer can collect a trivial module. A
+silent or other nonzero result places the failure below Chapter 7 product logic;
+an explicit error is preserved verbatim. Every branch writes one immutable
+evidence file and stops. It does not authorize a parser/test correction, focused
+test rerun, site-component completion, or descendant work.
+
+**Consequences:** The comparison changes one controlled input and can localize the
+next recovery investigation without modifying or executing learner-facing code.
+The synthetic fixture is diagnostic provenance only and will never be published.
+Any changed control, fixture, config, image, product, or prerequisite checksum
+invalidates the A/B authorization.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — A/B the original Chapter 7 test runner with the synthetic leaf
+
+**Status:** Accepted fail-closed recovery diagnostic; product scope and acceptance
+are unchanged.
+
+**Context:** Both collection-only commands exited silently, including the A/B with
+the one-import synthetic fixture. Those results place their failure below Chapter
+7 product logic but still mix the `vitest list --json` command path with the common
+runner/configuration/isolation layer. The original focused validation instead used
+the repository's npm test script, Vitest run mode, and verbose reporter.
+
+**Decision:** Compare directly with the original focused validation. Reuse the
+same frozen synthetic fixture and preserve every original Docker and npm/Vitest
+command line byte except one: substitute the source of the read-only
+`/workspace/site/tests` bind mount. Execute its no-op synthetic test body and
+expect exactly one passed file and one passed test. Prove the one-line delta before
+execution and preserve the exact outcome afterward.
+
+A pass establishes that the original npm/Vitest runner and isolation envelope can
+execute a trivial module, localizing the original failure to the frozen staged
+module or its dependencies. A silent or banner-only failure places it in the
+common runner/isolation path. An explicit error is retained verbatim. Every branch
+is evidence-only and stops without retry, product correction, release, or
+descendant authorization.
+
+**Consequences:** This is the closest controlled comparison to the failed focused
+gate and does not modify or execute Chapter 7 product code. The diagnostic result
+cannot itself satisfy the focused gate. Any command delta beyond the one frozen
+test-mount source substitution invalidates authorization.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Isolate the read-only container root from the Chapter 7 Vitest failure
+
+**Status:** Accepted fail-closed recovery diagnostic; product scope and acceptance
+are unchanged.
+
+**Context:** A direct run-mode A/B replaced the frozen Chapter 7 test module with a
+one-import, one-leaf synthetic module while preserving every other byte of the
+original focused Docker and npm/Vitest command. It reproduced the same banner-only
+exit 1, so the observed failure is in the common runner-or-isolation path rather
+than the Chapter 7 product logic. The command still combined several isolation
+controls, including a read-only container root, and therefore did not identify the
+underlying cause. All product, fixture, configuration, evidence, canonical, host,
+and Git guards remain frozen at their recorded checksums.
+
+**Decision:** Run one direct A/B of that synthetic run-mode diagnostic. Remove
+exactly the Docker `--read-only` option and preserve the same pinned image,
+synthetic fixture, npm/Vitest command, network prohibition, dropped capabilities,
+`no-new-privileges`, PID limit, tmpfs caches, environment, working directory, and
+three read-only host mounts. The writable container filesystem is ephemeral and
+is discarded by `--rm`; no host product or cache path becomes writable.
+
+Only exit 0 with exactly one passed file and one passed test establishes that the
+read-only container root is the causal envelope difference. Even that result does
+not validate the Chapter 7 product: the next recovery must identify the minimal
+writable path or paths before rerunning the official focused gate. The same
+banner-only failure means removing read-only is insufficient; any other result is
+inconclusive. Every branch creates one immutable evidence file and stops without
+retry, product correction, release, integration, publication, or descendant work.
+
+**Consequences:** The diagnostic changes one security-envelope option while
+leaving every host bind read-only and offline. It can safely narrow the validation
+command without changing the run fingerprint or learner-facing bytes. Any stale
+input, control, image, fixture, configuration, product, or evidence checksum
+invalidates authorization.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — A/B the Chapter 7 Vitest worker pool under strict isolation
+
+**Status:** Accepted fail-closed recovery diagnostic; product scope and acceptance
+are unchanged.
+
+**Context:** The synthetic run-mode control reproduced the same banner-only exit 1
+with both read-only and writable ephemeral container roots. The frozen Vitest
+3.2.7 configuration does not select a worker pool; its standard run path therefore
+crosses the child-process pool boundary before a test-file result appears. The
+synthetic fixture has one pure no-op test and uses no process API, so it can run
+unchanged in Vitest's supported worker-thread pool. All product, fixture,
+configuration, evidence, canonical, host, and Git guards remain frozen.
+
+**Decision:** Run one direct A/B of diagnostic 03 under the original strict
+read-only isolation envelope. Preserve every baseline command byte and append only
+`--pool=threads` to the Vitest arguments. Do not add worker-count flags or change
+the image, mounts, caches, security controls, environment, test filter, reporter,
+or synthetic test.
+
+Only exit 0 with exactly one passed file and one passed test establishes that the
+fork-pool boundary is the causal command difference under this envelope. It still
+does not validate the Chapter 7 parser: the product test requires a separately
+checkpointed run with the same thread-pool option. A repeated banner-only or other
+nonzero result means the pool switch is insufficient; any other result is
+inconclusive. Every branch writes one immutable evidence file and stops without
+retry, product correction, release, integration, publication, or descendant work.
+
+**Consequences:** The probe changes execution transport, not test semantics or
+learner-facing bytes. A pass may justify a deterministic focused product-test
+command; it cannot justify a repository configuration change or satisfy any
+official gate by itself. Any stale input or control invalidates authorization.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Validate the frozen Chapter 7 parser with Vitest's thread pool
+
+**Status:** Accepted fail-closed product-validation recovery; product scope and
+acceptance are unchanged.
+
+**Context:** The strict synthetic A/B passed one file and one test when its only
+command change was the `--pool=threads` suffix. That establishes an executable
+transport for the frozen real parser test without weakening the read-only,
+network-disabled container envelope. The real parser and 49-case test remain at
+their reviewed checksums; no learner-facing or configuration byte has changed.
+
+The chapter lead was interrupted at the preparation reporting boundary. Before
+reuse, root found that both control manifests had already been fully written,
+were valid YAML, retained the prior control checksums, described the same exact
+two-file assignment, and authorized no execution. Root independently reproduced
+the baseline and candidate command checksums, the exact 15-byte suffix delta,
+every prerequisite and canonical guard, the absent evidence target, blocked DAG
+descendants, empty Git index, and host-artifact boundary. The recovered controls
+are therefore a restart-safe preparation artifact, not evidence that the test ran.
+
+**Decision:** Run the original frozen focused-product command once with only the
+trailing ` --pool=threads` argument added. Keep the pinned image, real assignment
+mounts, read-only root and host binds, disabled network, dropped capabilities,
+`no-new-privileges`, PID limit, and tmpfs caches unchanged. The sole permitted
+new artifact is `evidence/site-parser-validation-threads-06.md`.
+
+Only exit 0 with exactly one passed file and all 49 passed tests establishes the
+parser/test gate. Every other result is preserved once and stops recovery without
+a retry or product correction. Even an exact pass completes only this partial
+validation: the Astro component, assignment validation evidence, release,
+integration, lessons, and all descendants require later checksum-gated phases.
+
+**Consequences:** The worker-pool choice is local to this isolated validation
+command; it does not alter repository Vitest configuration or course behavior.
+Any changed input, control, command, assignment, or evidence-path state
+invalidates authorization. Exact rendered fluent-human English and Russian
+approval remains unresolved.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Replace the stalled Chapter 7 validation executor without reusing authorization
+
+**Status:** Accepted orchestration recovery; the prepared command, product scope,
+and acceptance are unchanged.
+
+**Context:** The existing chapter lead received the one-time live authorization
+for parser validation 06 but did not finish its pre-execution boundary, run a
+Docker command, change either prepared control, or create the declared evidence
+artifact. Root revoked the live authorization and interrupted the lead. A Docker
+process inventory showed no Chapter 7 validation container; all other running
+containers predated and are unrelated to this repository. The prepared controls,
+two assignment files, absent evidence path, canonical guards, and Git scope still
+match the root-checkpointed state exactly.
+
+**Decision:** Do not resume or reinterpret the unused live authorization. Assign
+the same frozen, already-prepared validation contract to a fresh depth-1 chapter
+validation lead with no inherited conversation. Issue a new one-time root ACK
+bound to the same prepared control and command checksums only after recording this
+recovery and rerunning the checkpoint gates. The replacement may execute no other
+command and may not dispatch a specialist.
+
+**Consequences:** Executor identity changes, but inputs, outputs, isolation,
+command bytes, evidence path, decision branches, and transitive blocking do not.
+Any unexpected write or surviving process would invalidate replacement dispatch;
+none was found. An eventual exact pass still validates only the frozen parser and
+test, not the incomplete site component or any descendant.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Reject the malformed Chapter 7 validation prerequisite checksum
+
+**Status:** Failed closed before execution; a new corrected control checkpoint is
+required.
+
+**Context:** The fresh validation lead independently traversed the prepared
+manifest before running Docker. It found that
+`prepared_thread_pool_product_validation.declared_inputs.rust_evidence_node` in
+the ownership manifest contains a 62-digit digest,
+`f0c3f8fcf2aa6c3ab0e01ac9eff639ec7df45a9ea4ec49d5c308a469967e6a`.
+The immutable `rust-evidence.sha256` artifact and the DAG node both contain the
+current 64-digit digest,
+`f0c3f8fcf2aa6c3ab0e01ac9eff639ec7dfdd45a9ea4ec49d5c308a469967e6a`.
+Every other completed preflight guard matched, but one stale prerequisite is
+sufficient to invalidate the authorization.
+
+**Decision:** Consume and revoke the failed live ACK without executing the test.
+Do not silently interpret or repair the malformed checksum during execution.
+Prepare a new version of both run controls that records the failed preflight and
+changes exactly this prerequisite value in the ownership contract; the DAG must
+record the superseding preparation and keep `site_component` and every descendant
+blocked. Root must independently verify the exact one-field correction, all
+transitive hashes, and the complete canonical checkpoint before issuing another
+one-time ACK.
+
+**Consequences:** No Docker command, evidence file, product byte, canonical file,
+or Git state changed. The candidate test command remains unchanged, but it is not
+authorized until corrected controls receive new checksums. The guard failure is
+part of run provenance and cannot be relabeled as a test attempt.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Correct the Chapter 7 marker test's expected-object construction
+
+**Status:** Accepted narrow product-test correction after an immutable failed
+validation; parser and chapter semantics are unchanged.
+
+**Context:** The corrected thread-pool validation executed the complete frozen
+product suite once. Vitest reached all 49 cases: 47 passed and the header/footer
+marker cases failed. Both failures arose in the shared assertion helper, not in
+the parser. Each table row contains a human-readable case label named `name`.
+The callback removes only `search` and `replacement`, then spreads the rest of
+the row into the expected error object. That unintentionally asks Vitest to match
+`error.name` against `header` or `footer`. The parser instead returns the intended
+typed `LanguageModelMetricsTraceError`, with the correct code, line, and expected
+record. The full output and unchanged input hashes are frozen in
+`evidence/site-parser-validation-threads-06.md`.
+
+**Decision:** Change only the marker table callback so the assertion object is
+constructed explicitly from `code`, `line`, and `expectedRecord`; the descriptive
+`name` field must remain a test title parameter and never enter the error match.
+Do not change the parser, error class, marker cases, fixture, expected codes or
+locations, any other test, or any chapter product. Perform the edit in a fresh
+isolated depth-2 assignment under a depth-1 chapter lead, close its checksum
+manifest, and integrate it only after root reviews the exact diff.
+
+The old 49-test validation remains failed and immutable. A corrected test gets a
+new checksum and requires a separately prepared one-shot validation with a new
+evidence artifact; it is not a retry of the old bytes. No Astro component or
+lesson work may begin until that new validation passes and is checkpointed.
+
+**Consequences:** The correction restores the intended contract of the two tests:
+prove the typed error plus its semantic `code`, `line`, and `expectedRecord`.
+Changing the staged test invalidates the failed validation's use as a positive
+prerequisite and keeps `site_component` and every transitive descendant blocked.
+No learning-content meaning, Rust evidence, trace, or runtime parser behavior is
+altered.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Recover Chapter 7 correction integration after a pre-write orchestration failure
+
+**Status:** Accepted restart-safe recovery; the failed authorization is consumed
+and may not be reused.
+
+**Context:** The callback-only correction was independently reviewed and closed
+under release manifest
+`8370015f474d56272dcaea96d6a2d370b615c169879b59aaa8f3a277fead866f`.
+Root then authorized the depth-1 lead to copy its single released test into the
+run publish tree. Before invoking `apply_patch`, the lead attempted an additional
+byte-length guard inside its orchestration JavaScript isolate. That isolate does
+not expose `TextEncoder`, so the cell raised `ReferenceError: TextEncoder is not
+defined`. The target remained absent, no partial artifact was created, all
+source/release/canonical hashes remained current, and no validation or dependent
+work ran.
+
+**Decision:** Preserve the first integration ACK as consumed and interrupted
+before write. A replacement integration requires a fresh checksum-bound root ACK
+against the new controls. It must not use `TextEncoder`, another encoding API, or
+an in-isolate byte reconstruction. Use the already-recorded source checksum and
+release manifest as the precondition, perform the literal one-file `apply_patch`,
+then prove byte identity with repository read-only `cmp`, `wc -c`, and
+`sha256sum`. Target absence remains a mandatory pre-write guard; any unexpected
+target or checksum change fails closed.
+
+**Consequences:** The correction release remains reusable under its exact
+checksum and the run fingerprint is unchanged. No retry is implicit in the
+failed authorization. Corrected Vitest validation, Astro component work,
+lessons, localization, publication, and all transitive descendants remain
+blocked until a newly authorized integration succeeds and is checkpointed.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Recover Chapter 7 corrected-validation control preparation after an atomic patch-context failure
+
+**Status:** Accepted controls-only recovery; no validation authorization or
+product state changed.
+
+**Context:** After the corrected test was integrated byte-identically, the lead
+successfully preflighted a new one-shot 49-test validation contract. Its command
+differs from immutable validation 06 only in the read-only test bind source:
+the old unrevised assignment test directory is replaced by the run-publish
+directory containing the corrected test. The candidate command is 1,161 bytes,
+11 lines, and has SHA-256
+`cdf66a7379ab8022149c51da87af063af48ee962e0371dcb20404c5e9552d6a3`.
+All prerequisites matched and the new evidence target was absent.
+
+The subsequent controls-only multi-file `apply_patch` placed DAG hunks out of
+file order and failed atomically while locating the existing
+`future_validation` context. Ownership and DAG controls retained checksums
+`a7aa5d40b8b9c2932c054ac55347178f77274f5f935b1ddea0f980bc094368cc`
+and `e7ca3a60705e38f04fbbeab5da123c3cce3409829d657492a22262be2dabb932`.
+No evidence, execution, product byte, or authorization was created.
+
+**Decision:** Preserve the failed preparation as a no-change attempt. A fresh
+controls-only preparation may reuse the verified input and command analysis only
+after the recovery checkpoint. Its patch must use exact current anchors and
+order all hunks monotonically within each file so the ownership and DAG update
+remain atomic. It must still finish unauthorized and unconsumed; execution needs
+a later root checksum review, complete canonical checkpoint, and explicit ACK.
+
+**Consequences:** The integrated corrected test and closed release remain valid.
+Validation 06 remains immutable. Corrected validation, Astro component work,
+lessons, localization, publication, and all transitive descendants remain
+blocked; the run fingerprint and chapter acceptance are unchanged.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Recover Chapter 7 validation 07 after post-execution evidence interruption
+
+**Status:** Execution consumed; reported pass is deliberately not accepted as a
+positive prerequisite.
+
+**Context:** Root checkpointed corrected-validation-07 against ownership
+`c5f1a1ec711b4d9c82a34a4f17bbabf8341e278967f3e5a7a5ead60851e1e54d`
+and DAG
+`ea37427a871314d8f8705a9287797a3e79c576987f9b66c9dfc63b16f957e8c5`,
+then issued one checksum-bound ACK. The depth-1 lead reported that the sole exact
+command exited 0 with one of one test files and all 49 tests passing. It then
+stalled before writing the required complete stdout/stderr evidence or outcome
+controls and missed repeated explicit progress boundaries. Root interrupted it,
+confirmed that no validation container or partial evidence remained, and found
+the prepared controls and every product, canonical, host, and Git guard
+unchanged. A later no-tool recovery request to the same lead also failed to
+return the raw capture.
+
+**Decision:** Preserve validation 07 as exactly one consumed execution, never
+rerun or relabel it, and do not infer or reconstruct its missing output. Record
+the recoverable command, timestamps, tool identifiers, reported summary, and
+post-interruption inventory in
+`evidence/site-parser-validation-threads-corrected-07.md` at checksum
+`d2d62b55dd073548b2bd7ef04a931a002504ebfb7ddd53e2cae5b24e4ef246bd`.
+That artifact proves provenance and interruption only; it does not satisfy the
+positive validation gate. Outcome controls
+`5db4abc831450b91e2051394a80bb134d7b3c7e77b50de6d261159a4eeed7cb7`
+and `9afdc3c1c3f1a32bfb5a75d7331bb4cd1f0abe178f77048378fd84d4657f5c21`
+must keep every descendant blocked.
+
+After the complete recovery checkpoint, root may prepare an independent
+`site-component-parser-thread-pool-corrected-validation-08` phase against the
+same unchanged product inputs. It must use a new evidence path, fresh control
+checksums, a fresh depth-1 lead, and a new explicit one-time ACK. Its execution
+contract must make the complete output durable before any post-run reasoning so
+another lead interruption cannot discard the acceptance evidence. This is an
+explicit recovery replay, not a silent retry of validation 07.
+
+**Consequences:** No Chapter 7 product or canonical byte changed. The reported
+49/49 result remains historical context only. Astro component work, lessons,
+localization, publication, and exact rendered EN/RU approvals remain blocked
+until a fully captured successor validation passes and receives a root
+checkpoint.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Recover the empty Chapter 7 validation-08 control preparation
+
+**Status:** No-change orchestration interruption; validation execution remains
+forbidden.
+
+**Context:** After the complete validation-07 recovery checkpoint, root
+dispatched a fresh depth-1 lead only to prepare validation-08 ownership and DAG
+controls. The lead preflighted the current controls and reported that both
+intended evidence paths were absent, but it crossed no write boundary after
+multiple explicit progress requests. Root interrupted it and independently
+confirmed that ownership
+`5db4abc831450b91e2051394a80bb134d7b3c7e77b50de6d261159a4eeed7cb7`
+and DAG
+`9afdc3c1c3f1a32bfb5a75d7331bb4cd1f0abe178f77048378fd84d4657f5c21`
+were byte-unchanged. No evidence, Docker command, test, product write, or
+authorization was created.
+
+**Decision:** Preserve the empty attempt as interrupted and do not reuse that
+lead or infer an unrecorded wrapper contract from its analysis. Root may now
+prepare validation-08 controls directly from the already-approved recovery
+decision. The new contract must make combined Docker output durable during the
+sole execution with Bash `pipefail` and a non-appending host `tee`, while keeping
+the inner pinned validation command unchanged. Preparation remains controls-only
+and must finish unauthorized, unconsumed, and zero-of-one before a complete root
+checkpoint and dispatch to a different fresh depth-1 executor.
+
+**Consequences:** Validation 07 remains consumed and not accepted. Both
+validation-08 evidence paths remain absent; site-component work and every
+transitive descendant remain blocked. This recovery changes only orchestration,
+not the run fingerprint, product bytes, acceptance criteria, or chapter scope.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Accept durable Chapter 7 validation 08 after outcome-control recovery
+
+**Status:** Exact parser/test pass accepted for checkpoint; dependent work remains
+blocked until the complete root gate succeeds.
+
+**Context:** Root prepared validation-08 with the unchanged pinned inner test
+command and a Bash `pipefail` plus non-appending host `tee` wrapper. A fresh
+depth-1 executor passed every preflight guard and invoked that wrapper exactly
+once. It returned zero and immediately reported raw artifact
+`d5d90883b258d0463a0014c57eb9fdd9283c27d5f3b21497b23431e966e5c85c`.
+The 11,210-byte, 62-line log contains the complete combined output, all 49
+verbose passing records, and the exact summary: one test file passed, 49 tests
+passed, and zero failures. Metadata
+`336bafe453c729470f82795ab262aa8686859b3671008efd97303b11fbc0efb3`
+binds the authorized controls, wrapper and inner-command identities, timing,
+raw checksum, outcome, pre/post guards, and no-retry boundary.
+
+The executor then stalled after writing metadata but before updating the two
+controls. Root interrupted it, confirmed no validation container remained, read
+both evidence artifacts completely, independently parsed the ANSI-stripped
+summary and counted 49 verbose passes, and verified every frozen product,
+canonical, tool, host, Git, and blocked-descendant guard. Root recovered only
+the outcome fields in ownership
+`51a4467287cedfc1f2a0c1a88860131519a9b994ed131370cfc81296794d52a8`
+and DAG
+`066c2d586fe0e5a927107bc3ae04ace3fa268c0b67d354c7e902166203a0b57e`.
+No test was rerun and no product byte changed.
+
+**Decision:** Treat validation 08 as the accepted positive parser/test
+prerequisite once the complete root checkpoint passes. Its raw log and metadata
+are immutable and must never be appended to, overwritten, reconstructed, or
+rerun. Validation 07 remains separately immutable, consumed, and not accepted.
+The validation-08 executor interruption is safely recoverable because the new
+wrapper made the complete command output durable before any post-run reasoning;
+root control recovery does not alter or reinterpret the evidence.
+
+**Consequences:** After the complete checkpoint, the existing Chapter 7 lead may
+receive a new, separately checksum-bound authorization to author the missing
+locale-neutral Astro component and close the site-component release. Lessons,
+localization, publication, and exact rendered fluent-human EN/RU approvals remain
+blocked on their declared DAG prerequisites. No canonical publication or Git
+commit is yet allowed.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Retire the empty Chapter 7 Astro authoring assignment after model capacity failure
+
+**Status:** Fail-closed orchestration recovery; no product artifact was created.
+
+**Context:** After validation 08 and the complete pre-authoring checkpoint passed,
+root issued one checksum-bound authorization for the fresh
+`site-component-astro-01` assignment. The depth-1 chapter lead independently
+revalidated ownership
+`46227b7433e279fa601fb440b16f3c5c1796d727af3f86ea2cb98306b46386e9`,
+DAG `e675c7c03d00c277488560fc4a74c0c424e41bd084dffc81758182cef7be8bcd`,
+every declared input, the two immutable seed checksums, canonical guards, host
+boundary, and Git scope before dispatching exactly one depth-2 site writer. The
+writer remained in preflight and then failed because its selected model was at
+capacity. It produced neither an `Add File` boundary nor a blocker response.
+After two progress requests and a final no-write boundary, the parent interrupted
+and settled it.
+
+Root independently confirmed that the assignment still contains exactly the
+parser seed
+`c4e8d6a046ba21647fcfeb6f715c9552ab6d5ccbb5909d2aec1977be8b989873`
+and corrected-test seed
+`1a98eee8819acac64c5efa87c5fcdb9619426854bb06a6c4be2016a7dcaf5a5f`,
+with no component, harness, review, release, symlink, or special file. No Docker
+validation, integration, descendant dispatch, canonical write, Git-index
+operation, or commit occurred. The parent returned its complete recovery report
+before its own turn surfaced the same model-capacity error.
+
+**Decision:** Consume the authorization and permanently retire
+`site-component-astro-01`; neither its assignment nor either failed agent turn may
+be resumed or treated as a released candidate. Because the input fingerprint,
+prerequisites, intended output, and acceptance criteria remain unchanged and the
+failed operation crossed no write boundary, root may prepare one fresh isolated
+assignment with new ownership after the complete recovery checkpoint. That is a
+new explicit authorization, not a retry of the consumed assignment. If model
+capacity fails again before a write boundary, stop and return the external
+capacity blocker rather than cycling assignments indefinitely.
+
+**Consequences:** `site_component` and every lesson, localization, route,
+validation, review, approval, publication, and commit descendant remain blocked.
+Validation 08 remains the immutable positive parser/test prerequisite; its
+wrapper is not rerun. The run fingerprint, chapter scope, cost class, canonical
+workspace, and unresolved exact rendered EN/RU human approval gates do not
+change.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Stop Chapter 7 and preserve its staged progress
+
+**Status:** Accepted explicit user interruption; no chapter output is published.
+
+**Context:** The user stopped the active work after the Chapter 7 Astro writer
+failed at model capacity and asked that progress be persisted. All non-root
+agents are settled. Root reverified the final ownership and DAG controls, the
+two immutable site seeds, the accepted parser-test evidence, canonical shared
+file guards, the empty Git index, and the absence of every new canonical Chapter
+7 product path.
+
+**Decision:** Mark run
+`20260720T073239Z-implement-ch07-language-model-metrics-02` interrupted and return
+`implement-ch07-language-model-metrics` to `pending`. Preserve the complete run
+tree under `.build/runs/` and its recorded checksums, but do not publish or
+commit any incomplete Chapter 7 product. Removing the project `.codex/`
+configuration changes a material run input, so Chapter 7 may continue only in a
+new run with a fresh fingerprint; reusable staged artifacts must first pass
+their recorded checksum and prerequisite checks.
+
+**Consequences:** Research, contract, Rust, and parser/test evidence remain
+available for review without being presented as a completed chapter. Chapter 7
+still retains its English/Russian publication contract because the user's
+English-only direction begins with the following chapter. No later chapter may
+start until Chapter 7 is eventually completed or explicitly rescheduled under a
+separate approved decision.
+
+**Affected step and run:** `implement-ch07-language-model-metrics`, run
+`20260720T073239Z-implement-ch07-language-model-metrics-02`.
+
+## 2026-07-20 — Retire project orchestration and defer new Russian lessons after Chapter 7
+
+**Status:** Accepted explicit user scope and workflow change.
+
+**Context:** The user asked to stop current work, remove the project-scoped
+orchestration configuration including the complete `.codex/` directory, and
+stop producing Russian translations starting with the chapter after the
+currently interrupted Chapter 7. The localization capability must remain
+available for future activation, and completed English/Russian chapters must
+remain intact.
+
+**Decision:** Insert two ordered cross-cutting steps after the historical
+`configure-multi-agent-orchestration` step. First,
+`retire-multi-agent-orchestration` removes the exact project `.codex/` tree,
+settles all agents, and preserves the interrupted Chapter 7 staging evidence.
+Second, `adopt-english-only-future-chapter-policy` makes the chapter locale set
+explicit and changes Chapters 8 through 39 to English-only authoring until
+further notice. Chapter 7 retains its existing English/Russian contract because
+the user placed the new boundary after it.
+
+Do not remove Russian from the locale registry, delete existing Russian lessons,
+or weaken the meaning-first activation and fluent-human approval rules. The
+policy step must schedule a separate shared-infrastructure prerequisite before
+Chapter 8 so static discovery, parity, navigation, and routes can distinguish
+registered locales from the locales active for a particular chapter. Any later
+Russian or other-language activation requires an explicit reviewed step that
+backfills applicable chapters before those routes publish.
+
+**Consequences:** The historical orchestration step and its rationale remain in
+the append-only ledger, while future sessions no longer load project agent
+configuration. Chapter authoring remains stopped. After the two requested
+control steps are committed separately, Chapter 7 is pending with preserved
+staging; no Chapter 8 work is eligible until Chapter 7 and the planned
+selective-locale infrastructure are completed.
+
+**Affected steps:** `retire-multi-agent-orchestration`,
+`adopt-english-only-future-chapter-policy`,
+`implement-ch07-language-model-metrics`, and future Chapters 8 through 39.
+
+## 2026-07-20 — Treat the empty runtime .codex mount as external environment state
+
+**Status:** Accepted environment-boundary clarification after the authorized
+repository deletion.
+
+**Context:** Root deleted all thirteen manifest-listed project `.codex/` files
+and successfully removed the two empty directories. The active execution
+environment immediately recreated `/home/int/learn_llm/.codex` as an empty,
+mode-0555 `tmpfs` mount. `findmnt` and `/proc/self/mountinfo` confirm that it
+is a read-only runtime mount rather than a repository directory. It contains no
+files or subdirectories and cannot be removed while this session owns the
+mountpoint.
+
+**Decision:** Define completion of the retirement step by repository and Git
+state: the exact thirteen tracked files are deleted, the committed tree contains
+no `.codex` path, and any runtime-provided mount is empty and contains no project
+configuration. Do not treat the external empty mountpoint as a product artifact
+or recreate files inside it. Preserve the pre-removal checksum manifest and Git
+history as the recovery mechanism.
+
+**Consequences:** Future checkouts and sessions without an injected mount have no
+project `.codex/` directory. This active session may continue to display the
+empty mount until it ends, but no project orchestration configuration remains or
+can be loaded from it. The step's validation distinguishes repository deletion
+from external mount lifecycle instead of asserting the impossible removal of a
+live environment mount.
+
+**Affected step:** `retire-multi-agent-orchestration`, run
+`20260720T175507Z-retire-multi-agent-orchestration-01`.
