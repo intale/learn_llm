@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 11,
+  "plan_revision": 12,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -58,6 +58,10 @@
       },
       {
         "step_id": "rewrite-ch06-bigram-baseline",
+        "after_chapter": "06-bigram-baseline"
+      },
+      {
+        "step_id": "configure-multi-agent-orchestration",
         "after_chapter": "06-bigram-baseline"
       }
     ],

@@ -1,0 +1,99 @@
+# Project-scoped Codex defaults for the course repository.
+# This layer is active only when the repository is trusted.
+
+model = "gpt-5.6"
+model_reasoning_effort = "max"
+developer_instructions = """
+Act as the depth-0 lead orchestrator for this repository.
+
+Follow AGENTS.md and SKILLS.md exactly. Treat BUILD_STATE.yaml and DECISIONS.md
+as authoritative, select only an eligible step, and create its run checkpoint
+before product work. The root session alone may edit BUILD_STATE.yaml or
+DECISIONS.md, publish run-staged files to canonical paths, manipulate the Git
+index, or create the required per-step commit.
+
+For a chapter step, delegate one already-claimed run to chapter_lead. Give it the
+stable step ID, run ID, staging directory, declared inputs and outputs,
+acceptance criteria, validation commands, cost boundary, and unresolved human
+approval gates. For a future locale-activation step, delegate the same complete
+contract to locale_activation_lead instead. Each depth-1 lead may delegate only
+bounded specialist work at depth 2. Do not ask depth-2 specialists to spawn more
+agents, and do not bypass a lead by dispatching its write specialists directly.
+
+Before dispatch, require a run ownership manifest and checksum-gated artifact
+DAG. Specialists write only to isolated assignment trees; the depth-1 lead
+integrates released assignments serially into the run publish tree. Parent live
+permission overrides can supersede role sandbox defaults, so verify Git status
+and canonical hashes around every writer rather than trusting the sandbox label.
+Any artifact change invalidates every transitive DAG descendant. Reject a final
+manifest if a recorded prerequisite checksum is stale.
+
+After an expensive or non-repeatable operation, require its command, outcome,
+artifact path, and checksum, then checkpoint the run before authorizing dependent
+work. On any failure, timeout, or interruption, stop dependent dispatch, settle
+siblings, inventory partial output, and perform the AGENTS.md recovery protocol.
+Never silently retry or reuse a run whose fingerprint or restart safety changed.
+
+Wait for delegated work, reconcile findings against the chapter contract, run
+the complete staged gates, and obtain every required fluent-human approval
+against a frozen manifest checksum, locale, content revision, and exact rendered
+surface. Any later content or label change invalidates that approval. Publish
+atomically, verify canonical files against the same manifest, rerun the complete
+canonical gates, checkpoint completion, and commit before selecting the next
+step.
+"""
+
+[agents]
+max_threads = 4
+max_depth = 2
+interrupt_message = true
+
+[agents.chapter_lead]
+description = "Owns one already-claimed chapter run and coordinates bounded specialists."
+config_file = "./agents/chapter_lead.toml"
+nickname_candidates = ["Curie", "Euler", "Noether"]
+
+[agents.locale_activation_lead]
+description = "Owns one future locale-activation run across all existing course surfaces."
+config_file = "./agents/locale_activation_lead.toml"
+nickname_candidates = ["Al-Khwarizmi", "Murasaki", "Tagore"]
+
+[agents.learning_researcher]
+description = "Builds a primary-source claim map and predict-first teaching outline without editing."
+config_file = "./agents/learning_researcher.toml"
+nickname_candidates = ["Faraday", "Hopper", "Turing"]
+
+[agents.rust_implementer]
+description = "Implements assigned staged Rust evidence and deterministic tests without publishing."
+config_file = "./agents/rust_implementer.toml"
+nickname_candidates = ["Ferris", "Shannon", "Wilkes"]
+
+[agents.site_visualization_implementer]
+description = "Implements assigned static site integration, visualization, and browser-evidence paths."
+config_file = "./agents/site_visualization_implementer.toml"
+nickname_candidates = ["Berners-Lee", "Engelbart", "Hamilton"]
+
+[agents.content_author]
+description = "Authors the staged contract and reference lesson for pedagogical meaning and precision."
+config_file = "./agents/content_author.toml"
+nickname_candidates = ["Sagan", "Feynman", "Lovelace"]
+
+[agents.localization_author]
+description = "Authors one assigned non-reference locale bundle from frozen meaning locks in natural prose."
+config_file = "./agents/localization_author.toml"
+nickname_candidates = ["Akhmatova", "Babel", "Nabokov"]
+
+[agents.learning_reviewer]
+description = "Audits whether a staged chapter genuinely teaches its concept and matches executable evidence."
+config_file = "./agents/learning_reviewer.toml"
+nickname_candidates = ["Socrates", "Hypatia", "Popper"]
+
+[agents.localization_reviewer]
+description = "Audits one locale bundle monolingually and then for meaning parity without claiming human approval."
+config_file = "./agents/localization_reviewer.toml"
+nickname_candidates = ["Chekhov", "Orwell", "LeGuin"]
+
+[agents.validation_runner]
+description = "Runs assigned deterministic Docker gates and reports exact results without fixing sources."
+config_file = "./agents/validation_runner.toml"
+nickname_candidates = ["Gauss", "Knuth", "Ritchie"]

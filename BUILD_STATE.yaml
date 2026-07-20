@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-19T17:42:14Z"
+updated_at: "2026-07-20T06:54:43Z"
 
 environment:
   os: "Linux x86_64"
@@ -3836,10 +3836,103 @@ builds:
               - "The first post-release host audit rejected an unexpected 516 KiB generated target/ cache; no Rust process was active, the exact tree was moved recoverably to /tmp, and the repeated audit passed with site/dist as the sole generated exception"
               - "Final canonical-to-manifest comparison, host audit, git diff --check, and working-tree scope checks passed after release"
             notes: "Succeeded after explicit human approval. The exact 15-file candidate is canonical, the complete Docker matrix passed, and site/dist contains the atomic static release with the title 'От подсчета переходов к биграммной модели'. The completion checkpoint is ready for this step's dedicated commit; Chapter 7 must not start before that commit is verified."
+      - id: configure-multi-agent-orchestration
+        objective: "Install a project-scoped two-level Codex agent hierarchy that keeps chapter ownership coherent while delegating bounded research, implementation, localization, review, and validation work."
+        depends_on:
+          - rewrite-ch06-bigram-baseline
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "https://learn.chatgpt.com/docs/agent-configuration/subagents.md (read-only official Codex documentation)"
+          - "codex-cli 0.144.6"
+          - "historical commits 0717fcd and 527bef6"
+        outputs:
+          - ".codex/config.toml"
+          - ".codex/README.md"
+          - ".codex/check-orchestration.sh"
+          - ".codex/agents/chapter_lead.toml"
+          - ".codex/agents/locale_activation_lead.toml"
+          - ".codex/agents/learning_researcher.toml"
+          - ".codex/agents/rust_implementer.toml"
+          - ".codex/agents/site_visualization_implementer.toml"
+          - ".codex/agents/content_author.toml"
+          - ".codex/agents/localization_author.toml"
+          - ".codex/agents/learning_reviewer.toml"
+          - ".codex/agents/localization_reviewer.toml"
+          - ".codex/agents/validation_runner.toml"
+          - "curriculum/course-plan.md"
+        acceptance:
+          - "Project configuration defines a bounded depth-2 hierarchy: the root orchestrates, one chapter lead integrates one claimed chapter run, a separate lead owns any future locale activation, and only the applicable lead delegates narrow depth-2 specialist tasks."
+          - "The root alone mutates BUILD_STATE.yaml and DECISIONS.md, publishes canonical files, stages Git, and commits; specialist agents cannot claim completion or bypass human approval."
+          - "Every run uses a path-complete ownership manifest, isolated writer assignments, serialized candidate integration, prerequisite checksums, transitive invalidation, and an explicit contract-to-terminology-to-Rust-to-optional-site-component-to-reference-to-locales-to-integrated-rendered-review artifact DAG."
+          - "Failure, timeout, interruption, costly-operation checkpoint, and stale-run recovery behavior is fail-closed and consistent with AGENTS.md."
+          - "Demanding pedagogical, authoring, localization, and review roles use gpt-5.6 with maximum reasoning; Rust and site implementation use gpt-5.6 with high reasoning and deterministic validation uses gpt-5.6-terra with high reasoning."
+          - "Localization roles derive languages from site/src/i18n/locales.json, author by meaning rather than sentence substitution, cover future whole-course locale activation, and bind fluent-human approval to the frozen manifest and exact rendered surfaces."
+          - "Every custom agent has the required name, description, and developer_instructions fields, an intentional sandbox mode, and explicit repository source/ownership boundaries."
+          - "The current Codex CLI accepts the project configuration in strict mode, the hierarchy checker passes, and a repository-local README documents topology, handoffs, restart/trust requirements, and safe usage."
+          - "The configuration step is persisted in its own commit before Chapter 7 begins."
+        validate:
+          - "bash -n .codex/check-orchestration.sh"
+          - ".codex/check-orchestration.sh"
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Manual review against AGENTS.md, SKILLS.md, the official Codex subagent schema, and the documented hierarchy"
+        cost:
+          class: small
+          notes: "Project configuration and documentation using one read-only official-manual fetch plus local Codex/Git/Docker checks; no paid service, dependency change, generated learning content, or substantial CPU work."
+        runs:
+          - run_id: 20260720T060642Z-configure-multi-agent-orchestration-01
+            started_at: "2026-07-20T06:06:42Z"
+            finished_at: "2026-07-20T06:54:43Z"
+            status: succeeded
+            input_fingerprint: "commit 527bef62747caa97d9048ae6ad570735e709c3f0; AGENTS.md sha256:ac8d8bf20100295a436f4b1cce39d86af6f9c98c7c226bfb91c1820a7389ab73; SKILLS.md sha256:3a1a0c13dfe1486cb7146ac5f565632beec224d9227ededeae72ee96ffb5bcc3; BUILD_STATE.yaml sha256:cfde16af9621924f3ff88cf36e5ca6def78cfe882af3da33c96c8cbc5951769a; DECISIONS.md sha256:b91e104f4a431404f8f2b77cb9c59bac1f82e1eb36905dd5c686e4c4e2bf62e7; course-plan sha256:10c1f76d969aa54ea25b053df2166886232e6b9d1187823d1f3f2605132884e2; official Codex manual sha256:9d2115a51a4e633804fda8a95b1ecd473e68dc61106f48b8b51b61a58708406e; codex-cli 0.144.6; Git 2.53.0; Docker 25.0.2; Compose 2.17.3"
+            staging_dir: ".build/runs/20260720T060642Z-configure-multi-agent-orchestration-01/"
+            commands:
+              - "git status --short --branch and inspect all ordered step statuses, the completed Chapter 6 run, latest decisions, AGENTS.md, SKILLS.md, curriculum workflow, and historical Codex-config commits"
+              - "Fetch the current official Codex manual with the openai-docs helper; the sandboxed DNS attempt failed and the approved network retry succeeded"
+              - "Inspect Codex manual sections for subagent topology, custom-agent schema, project configuration precedence, model choice, reasoning effort, sandbox inheritance, max_threads, and max_depth"
+              - "Inspect codex-cli 0.144.6 strict-config, doctor, debug, and features surfaces"
+              - "Create the run-specific staging and validation directories"
+              - "Run the staged structural hierarchy checker; correct two initially over-specific phrase assertions before the passing rerun"
+              - "Probe a staged custom-agent file through codex --strict-config doctor --json; config loading passed while unrelated sandboxed network and historical-thread health checks kept the overall doctor status nonzero"
+              - "Run three independent schema, orchestration-safety, and content/localization audits; correct dependency cycles, incomplete ownership, rendered-review gaps, recovery behavior, sandbox claims, locale activation, optional visualization branches, transitive invalidation, and approval binding until all final re-audits passed"
+              - "Run the final staged structural and strict Codex checkers; both passed for ten registered roles, depth two, and thread cap four while the strict checker surfaced an unrelated Doctor health-check failure"
+              - "Run ./course run node scripts/check-course-plan.mjs; the sandboxed attempt failed on read-only Docker buildx state and the approved Docker-only retry passed the complete workspace image gate and course-plan check"
+              - "Run ./course audit-host; inspect the rejected pre-run target/ cache, verify no Cargo/Rust process was active, move it recoverably to /tmp/learn-llm-host-artifacts-oyDyLWKH/target, and pass the repeated host audit"
+              - "Freeze and verify the 13-file staged publish.sha256 manifest"
+              - "Atomically exchange the empty canonical .codex/ directory with the exact frozen candidate and verify recursive staged-to-canonical equality"
+              - "Run canonical bash syntax and full strict Codex configuration checks"
+              - "Run the canonical ./course run node scripts/check-course-plan.mjs Docker gate, then repeat host-boundary, manifest equality, git diff, and working-tree scope checks"
+            artifacts:
+              - path: ".build/runs/20260720T060642Z-configure-multi-agent-orchestration-01/publish.sha256"
+                checksum: "sha256:0a3ba5c451d13846a1dec6e60458f6ac8307ebe695a5b6e528ed89980b7e5c6f"
+                notes: "Closed checksums for the 13 staged project-configuration files; all entries passed."
+              - path: ".build/runs/20260720T060642Z-configure-multi-agent-orchestration-01/schema-review.md"
+                checksum: "sha256:14a8b1dd12b7df5e89d7f913b2fce62cb13aafaf2d3f4277f8d405230c32fda1"
+                notes: "Official schema, strict-loader behavior, sandbox-precedence, and model-alias review."
+              - path: ".build/runs/20260720T060642Z-configure-multi-agent-orchestration-01/orchestration-review.md"
+                checksum: "sha256:33e319c3d5676f4aeab628c56d9df9184c5cbe2a91d0781ce911f8cdfd518370"
+                notes: "Independent safety and learning-workflow findings, corrections, and final clean audits."
+              - path: ".build/runs/20260720T060642Z-configure-multi-agent-orchestration-01/validation-summary.md"
+                checksum: "sha256:515bf3268fc8b76928a147aac14f43c65b34eba2b80e2292d84d8fc790d4ad32"
+                notes: "Passing staged and canonical checks, Docker gates, exact publication equality, and recoverable host-boundary correction."
+            validation:
+              - "Preflight passed: working tree clean, no running step exists, Chapter 6 is the latest successful dependency, and Chapter 7 was the first pending chapter before this explicit prerequisite"
+              - "Official manual fetch passed after the recorded sandbox DNS failure; project-scoped custom agents, required fields, depth controls, model settings, and trust behavior are documented"
+              - "Historical audit passed: the removed flat configuration contained only a root model, one author, and one scanner, with no hierarchy, ownership contract, depth/thread controls, localization role, validation role, or checkpointed workflow"
+              - "Final independent audits passed: no schema issue, dependency cycle, stale-checksum escape, output-ownership conflict, recovery ambiguity, content-quality blocker, or localization blocker remains."
+              - "Staged bash syntax, structural hierarchy, strict Codex loading, manifest verification, Docker workspace/course-plan gate, git diff check, and repeated host artifact audit passed."
+              - "Canonical publication passed: all 13 .codex files equal the frozen manifest, checker mode is executable, strict loading passed, the full Docker workspace/course-plan rerun passed, and the final host/diff/scope audits passed."
+            notes: "Succeeded. The project now has a bounded ten-role depth-2 hierarchy with one durable root owner, chapter and locale-activation leads, checksum-gated isolated assignments, fail-closed recovery, content-quality review, and exact human-approval handoffs. This completion checkpoint and only this step's declared outputs are ready for the dedicated commit; Chapter 7 has not started."
       - id: implement-ch07-language-model-metrics
         objective: "Compute average negative log-likelihood and perplexity for predicted token distributions."
         depends_on:
-          - rewrite-ch06-bigram-baseline
+          - configure-multi-agent-orchestration
         status: pending
         inputs:
           - "SKILLS.md"

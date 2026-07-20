@@ -1603,3 +1603,75 @@ until canonical validation, the completion checkpoint, and the dedicated step
 commit all succeed.
 
 **Affected step:** `rewrite-ch06-bigram-baseline`.
+
+## 2026-07-20 — Adopt a two-level Codex hierarchy for chapter delivery
+
+**Status:** Accepted by explicit human request before Chapter 7.
+
+**Context:** The earlier project configuration pinned one content author and one
+scanner in a flat pool. It did not define orchestration ownership, delegation
+depth, write boundaries, localization review, validation responsibility, or the
+human approval handoff, and the human removed it in commit `527bef6`. The human
+now requests a proper project-scoped multi-agent configuration with a meaningful
+orchestration hierarchy. Current official Codex documentation supports
+project-local `.codex/agents/*.toml` roles, global `[agents]` thread/depth limits,
+per-role models and sandbox modes, and depth-2 delegation when explicitly enabled.
+
+**Decision:** Configure the root session as the lead orchestrator at depth 0. It
+alone selects and checkpoints steps, mutates `BUILD_STATE.yaml` and
+`DECISIONS.md`, publishes canonical outputs, controls the Git index, and creates
+the required per-step commit. For a chapter, it delegates one already-claimed
+run to a `chapter_lead` at depth 1. That lead owns synthesis and may delegate
+bounded, non-overlapping work at depth 2 to research, Rust implementation,
+static site and visualization implementation, reference-language authoring,
+locale authoring, learning review, localization review, and deterministic
+validation specialists. A separate `locale_activation_lead` owns any future
+cross-cutting locale activation across all implemented chapters and shared
+surfaces. Depth-2 specialists never spawn further agents, publish canonical
+files, edit the ledger, or commit.
+
+Set `agents.max_depth = 2` and a conservative concurrent-thread cap of four.
+Each depth-1 lead closes a path-complete ownership manifest and checksum-gated
+artifact DAG before dispatch. Write specialists work in isolated assignment
+trees and release checksummed results; only the lead integrates them serially
+into the run publication tree. For chapters, order work as research, contract
+core and evidence specification, locale terminology reconciliation, complete
+contract freeze, executable Rust, an optional Rust-driven site component,
+verified reference lesson, localized lessons, integrated site/browser checks,
+frozen rendered review, and deterministic validation. A not-useful visualization
+requires no trace/component/parser branch. Any artifact change invalidates every
+transitive descendant whose prerequisite checksum is stale. Failure, timeout,
+interruption, and expensive-work milestones return immediately to the root for
+ledger checkpointing and recovery.
+
+Parallelize only dependency-independent work within the thread cap. Use
+`gpt-5.6` with maximum reasoning for both leads and all content-critical roles,
+`gpt-5.6` with high reasoning for Rust and site implementation, and
+`gpt-5.6-terra` with high reasoning only for bounded deterministic validation.
+Role sandbox settings are requested defaults, not dynamic path containment;
+inherit live approval and network settings and enforce ownership with isolated
+trees, instructions, Git status checks, and canonical hashes.
+
+Localization roles are language-generic and read the locale registry. They use
+the meaning-lock, terminology, native-draft, anti-calque, monolingual,
+accessible-language, parity, and rendered-review workflow. Agent review remains
+supporting evidence; fluent-human approval remains mandatory before publishing
+any non-reference locale. Bind that approval to the locale, content revision,
+frozen manifest checksum, exact rendered routes and surfaces, and approval
+reference; changing content or labels invalidates it. A future activation freezes
+the proposed registry entry before delegating locale prose and non-prose
+registry/route/layout work separately. Localization authors propose per-chapter
+terminology and fields; content authors alone integrate assigned staged contracts
+and freeze them before target prose begins. Only the root records the human
+response and authorizes publication.
+
+**Consequences:** Chapter 7 depends on the independently committed
+`configure-multi-agent-orchestration` prerequisite. The hierarchy costs more
+tokens than a single-agent run, but bounds fan-out and preserves one accountable
+root step owner plus one candidate-integration lead. Project configuration loads
+only in a trusted repository and is picked up by a new Codex session; the current
+session validates and commits the files but does not claim that it hot-reloaded
+them.
+
+**Affected steps:** `configure-multi-agent-orchestration` and every chapter from
+`implement-ch07-language-model-metrics` through `implement-ch39-end-to-end-llm`.
