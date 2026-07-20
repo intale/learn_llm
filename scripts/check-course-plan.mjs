@@ -64,6 +64,106 @@ function unique(values, label) {
   assert(new Set(values).size === values.length, `duplicate ${label}`);
 }
 
+function validateChapterLocalePolicy(
+  metadata,
+  chapters,
+  path,
+  localeConfiguration,
+) {
+  const policy = metadata.chapter_locale_policy;
+  assert(
+    policy && typeof policy === "object" && !Array.isArray(policy),
+    `${path}: chapter_locale_policy must be an object`,
+  );
+  assert(
+    policy.policy_id ===
+      "english-only-from-chapter-08-until-further-notice",
+    `${path}: unexpected chapter locale policy`,
+  );
+  assert(
+    policy.reference_locale === localeConfiguration.defaultLocale,
+    `${path}: chapter locale policy must use the registered reference locale`,
+  );
+  assert(
+    Array.isArray(policy.ranges) && policy.ranges.length > 0,
+    `${path}: chapter locale policy requires at least one range`,
+  );
+
+  const activeByChapter = new Map();
+  let nextIndex = 0;
+  for (const [rangeIndex, range] of policy.ranges.entries()) {
+    const fromIndex = chapters.findIndex(
+      (chapter) => chapter.chapter_id === range?.from_chapter,
+    );
+    const throughIndex = chapters.findIndex(
+      (chapter) => chapter.chapter_id === range?.through_chapter,
+    );
+    assert(
+      fromIndex === nextIndex && throughIndex >= fromIndex,
+      `${path}: chapter locale range ${rangeIndex + 1} must continue the exact chapter sequence`,
+    );
+    assert(
+      Array.isArray(range.locales) && range.locales.length > 0,
+      `${path}: chapter locale range ${rangeIndex + 1} requires locales`,
+    );
+    unique(range.locales, `locale in chapter range ${rangeIndex + 1}`);
+    assert(
+      range.locales.includes(policy.reference_locale),
+      `${path}: every chapter locale range must include ${policy.reference_locale}`,
+    );
+    for (const locale of range.locales) {
+      assert(
+        localeConfiguration.locales.includes(locale),
+        `${path}: chapter locale range ${rangeIndex + 1} names unregistered locale ${locale}`,
+      );
+    }
+    assert(
+      typeof range.reason === "string" && range.reason.trim().length > 0,
+      `${path}: chapter locale range ${rangeIndex + 1} requires a reason`,
+    );
+    for (let index = fromIndex; index <= throughIndex; index += 1) {
+      activeByChapter.set(
+        chapters[index].chapter_id,
+        Object.freeze([...range.locales]),
+      );
+    }
+    nextIndex = throughIndex + 1;
+  }
+  assert(
+    nextIndex === chapters.length,
+    `${path}: chapter locale ranges must cover every chapter exactly once`,
+  );
+
+  assert(
+    Array.isArray(policy.deferred_locales),
+    `${path}: chapter locale policy requires deferred_locales`,
+  );
+  unique(policy.deferred_locales, "deferred chapter locale");
+  const finalLocales = activeByChapter.get(chapters.at(-1).chapter_id);
+  const expectedDeferred = localeConfiguration.locales
+    .filter((locale) => !finalLocales.includes(locale))
+    .sort();
+  assert(
+    JSON.stringify([...policy.deferred_locales].sort()) ===
+      JSON.stringify(expectedDeferred),
+    `${path}: deferred_locales must be the registered locales outside the final active range`,
+  );
+
+  const activation = policy.future_activation;
+  assert(
+    activation?.requires_cross_cutting_step === true &&
+      activation?.requires_backfill_for_implemented_chapters === true &&
+      activation?.requires_fluent_human_approval === true &&
+      typeof activation?.strategy === "string" &&
+      activation.strategy.trim().length > 0,
+    `${path}: future locale activation policy is incomplete`,
+  );
+
+  for (const chapter of chapters) {
+    chapter.active_locales = activeByChapter.get(chapter.chapter_id);
+  }
+}
+
 function unquoteYamlScalar(value) {
   const trimmed = value.trim();
   if (
@@ -153,9 +253,7 @@ export function validateCoursePlanText(
     `${path}: chapter 1 must record its completed revision-2 disposition`,
   );
   assert(
-    metadata.scheduling?.default?.includes(
-      "one complete localized chapter translation set",
-    ),
+    metadata.scheduling?.default?.includes("one complete chapter-active locale set"),
     `${path}: missing one-step-per-chapter scheduling rule`,
   );
   const crossCuttingSteps = metadata.scheduling?.cross_cutting_steps;
@@ -205,6 +303,12 @@ export function validateCoursePlanText(
       localeConfiguration.locales.includes(localeConfiguration.defaultLocale),
     `${path}: locale configuration must include its reference locale`,
   );
+  validateChapterLocalePolicy(
+    metadata,
+    chapters,
+    path,
+    localeConfiguration,
+  );
   assert(Array.isArray(metadata.scheduling?.planned_chapter_splits), `${path}: planned_chapter_splits must be an array`);
   assert(Array.isArray(metadata.scheduling?.split_requires) && metadata.scheduling.split_requires.length >= 4, `${path}: split criteria are incomplete`);
 
@@ -233,6 +337,11 @@ export function validateCoursePlanText(
     assert(
       order === 1 ? chapter.primary_module === null : /^[-a-z0-9_/]+\.rs$/.test(chapter.primary_module),
       `${path}: invalid primary_module for ${chapter.chapter_id}`,
+    );
+    assert(
+      Array.isArray(chapter.active_locales) &&
+        chapter.active_locales.length > 0,
+      `${path}: missing active locales for ${chapter.chapter_id}`,
     );
   }
 
@@ -446,13 +555,11 @@ export function validateLedgerText(
         JSON.stringify([...outputLocales].sort()),
       `${statePath}: ${step.id} lesson outputs and per-locale checks differ`,
     );
-    if (["pending", "running", "blocked"].includes(step.status)) {
-      assert(
-        JSON.stringify([...outputLocales].sort()) ===
-          JSON.stringify([...localeConfiguration.locales].sort()),
-        `${statePath}: ${step.id} active locale outputs must be exactly ${localeConfiguration.locales.join(", ")}`,
-      );
-    }
+    assert(
+      JSON.stringify([...outputLocales].sort()) ===
+        JSON.stringify([...chapter.active_locales].sort()),
+      `${statePath}: ${step.id} lesson outputs must match chapter-active locales ${chapter.active_locales.join(", ")}`,
+    );
   }
 
   return steps;
@@ -505,23 +612,26 @@ export function validateImplementedContracts(
       const actualLocaleKeys = Object.keys(term)
         .filter((key) => key !== "concept_id")
         .sort();
-      const expectedLocaleKeys = [...supportedLocales].sort();
+      const expectedLocaleKeys = [...planChapter.active_locales].sort();
       assert(
         JSON.stringify(actualLocaleKeys) === JSON.stringify(expectedLocaleKeys),
         `${contract.path}: terminology concept_id "${term.concept_id}" locale keys must be exactly ${expectedLocaleKeys.join(", ")}`,
       );
       const normalized = Object.fromEntries(
-        supportedLocales.map((locale) => [
+        planChapter.active_locales.map((locale) => [
           locale,
           String(term[locale] ?? "").normalize("NFC").trim(),
         ]),
       );
-      const prior = terminology.get(term.concept_id);
+      const prior = terminology.get(term.concept_id) ?? {};
       assert(
-        !prior || JSON.stringify(prior) === JSON.stringify(normalized),
+        planChapter.active_locales.every(
+          (locale) =>
+            prior[locale] === undefined || prior[locale] === normalized[locale],
+        ),
         `${contract.path}: terminology concept_id "${term.concept_id}" conflicts with an earlier contract`,
       );
-      terminology.set(term.concept_id, normalized);
+      terminology.set(term.concept_id, { ...prior, ...normalized });
     }
   }
 

@@ -672,7 +672,7 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('derives every future chapter output and command from a synthetic locale set', () => {
+  it('keeps registry expansion deferred until chapter policy activation', () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, 'curriculum/course-plan.md'),
@@ -687,8 +687,22 @@ describe('curriculum and catalog contracts', () => {
         es: { languageTag: 'es', nativeName: 'Español', direction: 'ltr' },
       },
     });
-    const metadata = validateCoursePlanText(
+    const deferredPlanSource = replaceOnce(
       planSource,
+      [
+        '    "deferred_locales": [',
+        '      "ru"',
+        '    ],',
+      ].join('\n'),
+      [
+        '    "deferred_locales": [',
+        '      "ru",',
+        '      "es"',
+        '    ],',
+      ].join('\n'),
+    );
+    const metadata = validateCoursePlanText(
+      deferredPlanSource,
       'synthetic three-locale plan',
       localeConfiguration,
     );
@@ -700,61 +714,69 @@ describe('curriculum and catalog contracts', () => {
         'synthetic three-locale ledger',
         localeConfiguration,
       ),
-    ).toThrow(/active locale outputs must be exactly en, ru, es/);
+    ).not.toThrow();
 
-    const expandedState = stateSource
+    const missingActiveLocale = stateSource.replace(
+      `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
+      '',
+    );
+    expect(() =>
+      validateLedgerText(
+        missingActiveLocale,
+        metadata,
+        'missing active Chapter 8 locale ledger',
+        localeConfiguration,
+      ),
+    ).toThrow(/must own exactly one lesson output per declared locale/);
+
+    const extraDeferredLocale = stateSource
       .replace(
-        /^(\s+- "site\/src\/content\/chapters\/)ru(\/[^"\n]+\.mdx")$/gm,
-        '$1ru$2\n$1es$2',
+        `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
+        [
+          `          - "site/src/content/chapters/en/08-tensor-storage.mdx"`,
+          `          - "site/src/content/chapters/es/08-tensor-storage.mdx"`,
+          '',
+        ].join('\n'),
       )
       .replace(
-        /^(\s+- "npm --prefix site run check:chapter -- --locale )ru( --chapter [^"\n]+")$/gm,
-        '$1ru$2\n$1es$2',
+        `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"\n`,
+        [
+          `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"`,
+          `          - "npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage"`,
+          '',
+        ].join('\n'),
       );
     expect(() =>
       validateLedgerText(
-        expandedState,
+        extraDeferredLocale,
         metadata,
-        'expanded synthetic three-locale ledger',
+        'extra deferred Chapter 8 locale ledger',
         localeConfiguration,
       ),
-    ).not.toThrow();
+    ).toThrow(/lesson outputs must match chapter-active locales en/);
 
-    const chapterTwoStart = expandedState.indexOf(
-      '      - id: implement-ch02-corpus-partitions\n',
+    const uncoveredChapter = replaceOnce(
+      deferredPlanSource,
+      '        "through_chapter": "07-language-model-metrics",',
+      '        "through_chapter": "06-bigram-baseline",',
     );
-    const chapterThreeStart = expandedState.indexOf(
-      '      - id: implement-ch03-learn-bpe-merges\n',
-      chapterTwoStart,
-    );
-    expect(chapterTwoStart).toBeGreaterThanOrEqual(0);
-    expect(chapterThreeStart).toBeGreaterThan(chapterTwoStart);
-    const completedChapterTwo = expandedState
-      .slice(chapterTwoStart, chapterThreeStart)
-      .replace(
-        /^        status: (?:pending|running|completed)$/m,
-        '        status: completed',
-      )
-      .replace(
-        `          - "site/src/content/chapters/es/02-corpus-partitions.mdx"\n`,
-        '',
-      )
-      .replace(
-        `          - "npm --prefix site run check:chapter -- --locale es --chapter 02-corpus-partitions"\n`,
-        '',
-      );
-    const mixedState =
-      expandedState.slice(0, chapterTwoStart) +
-      completedChapterTwo +
-      expandedState.slice(chapterThreeStart);
     expect(() =>
-      validateLedgerText(
-        mixedState,
-        metadata,
-        'mixed immutable/completable three-locale ledger',
+      validateCoursePlanText(
+        uncoveredChapter,
+        'gapped synthetic chapter-locale plan',
         localeConfiguration,
       ),
-    ).not.toThrow();
+    ).toThrow(/must continue the exact chapter sequence/);
+
+    expect(() =>
+      validateCoursePlanText(
+        planSource,
+        'unacknowledged synthetic registry expansion',
+        localeConfiguration,
+      ),
+    ).toThrow(
+      /deferred_locales must be the registered locales outside the final active range/,
+    );
   });
 
   it('keeps repeated localized terminology mappings stable across contracts', () => {

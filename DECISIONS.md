@@ -2549,3 +2549,40 @@ live environment mount.
 
 **Affected step:** `retire-multi-agent-orchestration`, run
 `20260720T175507Z-retire-multi-agent-orchestration-01`.
+
+## 2026-07-20 — Separate registered locales from chapter-active locales
+
+**Status:** Implemented the approved future-chapter language boundary in the
+course plan and scheduling ledger; runtime projection remains a separate step.
+
+**Context:** Russian must remain a supported site language and all existing
+Russian lessons must remain published, but no Russian lesson should be authored
+after Chapter 7 until the user explicitly reactivates it. Treating every
+registered locale as mandatory for every future chapter would either violate
+that direction or require placeholder routes.
+
+**Decision:** Course-plan revision 14 defines a machine-readable chapter-locale
+policy. Chapters 1 through 7 have the active set `en, ru`; Chapters 8 through 39
+have the active set `en`. `site/src/i18n/locales.json` remains the authoritative
+registry and is unchanged, so Russian site chrome, completed lessons, and the
+future localization path remain available. Pending chapter declarations must
+own and validate exactly their active lesson set. The plan validator rejects
+missing and extra lesson locales.
+
+Schedule `support-selective-chapter-locales` after Chapter 7 and before Chapter
+8. That independent step must project the policy into static content discovery,
+parity, navigation, alternate links, and route generation without hard-coded
+English/Russian branches. No Chapter 8 content may start before it completes.
+Any later Russian or other-language activation remains an explicit cross-cutting
+backfill with checksum-frozen fluent-human approval of the exact rendered
+localized surfaces.
+
+**Consequences:** The current step changes policy, workflow guidance, validator
+rules, and future ledger contracts only; it does not author or publish a chapter
+or alter any existing locale content. Chapter 7 keeps its bilingual contract
+and remains pending with preserved interrupted staging. Chapters 8 through 39
+are English-only until this decision is superseded by an approved activation.
+
+**Affected steps:** `adopt-english-only-future-chapter-policy`,
+`support-selective-chapter-locales`, `implement-ch07-language-model-metrics`, and
+future Chapters 8 through 39.

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-20T18:01:30Z"
+updated_at: "2026-07-20T18:27:37Z"
 
 environment:
   os: "Linux x86_64"
@@ -4062,7 +4062,7 @@ builds:
         objective: "Declare English as the only active lesson locale for Chapters 8 through 39 while preserving existing Russian content and future locale activation."
         depends_on:
           - retire-multi-agent-orchestration
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -4074,10 +4074,12 @@ builds:
           - "scripts/check-site-content.mjs"
           - "site/src/content.config.ts"
           - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/content-contract.test.ts"
         outputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "scripts/check-course-plan.mjs"
+          - "site/tests/content-contract.test.ts"
         acceptance:
           - "The course plan declares English and Russian for Chapter 7 and every earlier chapter, and English only for Chapters 8 through 39 until a later explicit activation."
           - "The Russian locale remains registered, all existing Russian content and routes remain intact, and localization architecture is not removed or hard-coded to two languages."
@@ -4085,16 +4087,111 @@ builds:
           - "The chapter workflow distinguishes registered locales from chapter-active locales and retains meaning-first, fluent-human-approved backfill rules for any future activation."
           - "A separate infrastructure step is scheduled before Chapter 8 to make content discovery, parity, navigation, and static routes honor chapter-active locale sets."
           - "The plan validator rejects missing or extra locale outputs relative to the machine-readable chapter policy."
+          - "Focused validator tests cover the locale ranges, exact active-set enforcement, deferred locales, and registry extension without restoring global per-chapter parity."
           - "No Chapter 7 or later learning-content file is authored, published, or committed by this policy step."
         validate:
           - "./course run node scripts/check-course-plan.mjs"
+          - "npm --prefix site run test -- --run tests/content-contract.test.ts"
           - "./course audit-host"
           - "git diff --check"
           - "Manual review that Chapters 1-7 retain en/ru, Chapters 8-39 declare en only, and future locale activation remains explicit"
         cost:
           class: small
           notes: "Local scheduling, workflow, and validator changes only; no chapter authoring, translation, network, dependency change, paid service, or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260720T180448Z-adopt-english-only-future-chapter-policy-01
+            started_at: "2026-07-20T18:04:48Z"
+            finished_at: "2026-07-20T18:24:53Z"
+            status: succeeded
+            input_fingerprint:
+              git: "21155453bed6beaf450f95a9b60946e7acd2c04b"
+              manifest: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/input-fingerprint.txt"
+              checksum: "sha256:f6d72a5acf6da9b16f87c0c5b94fe8f4863ef0d4b08bc51c2ad8f8d5e5de67d4"
+              tools:
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/"
+            commands:
+              - "Verify retire-multi-agent-orchestration commit 2115545, clean tracked worktree, empty Git index, no running step, and policy step eligibility"
+              - "Read the course plan, chapter workflow, plan validator, locale registry, content/parity validator, publication library/tests, content schema, and static course routes"
+              - "Fingerprint all policy outputs and read-only localization inputs"
+              - "Create root-only ownership and transitive artifact-DAG controls; dispatch no agent"
+              - "Project machine-readable Chapter 1-7 en/ru and Chapter 8-39 en locale ranges into the plan, workflow, validator, and all thirty-two future chapter contracts; schedule selective-locale infrastructure before Chapter 8"
+              - "./course run node scripts/check-course-plan.mjs"
+              - "./course run node --input-type=module -e <in-memory missing/extra Chapter 8 locale fixtures>"
+              - "Audit focused validator tests; add site/tests/content-contract.test.ts as a direct input/output and invalidate the provisional projection manifest before editing"
+              - "./course run npm --prefix site run test -- --run tests/content-contract.test.ts (stale-test diagnostic)"
+              - "Replace the obsolete global-locale synthetic test with deferred-registry, exact active-set, range-gap, and registry-policy fixtures; freeze replacement policy manifest"
+              - "./course run npm --prefix site run test -- --run tests/content-contract.test.ts"
+              - "./course run npm --prefix site run test -- --run"
+              - "./course run node scripts/check-course-plan.mjs"
+              - "./course run node --input-type=module -e <BUILD_STATE YAML parse>"
+              - "Exact 32-step future-contract, immutable locale/content, Git scope, .codex tree, agent-settlement, diff, and host-boundary audit"
+              - "Post-completion ./course run node scripts/check-course-plan.mjs; focused content-contract test; BUILD_STATE YAML/no-running-step check"
+            artifacts:
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/input-fingerprint.txt"
+                checksum: "sha256:f6d72a5acf6da9b16f87c0c5b94fe8f4863ef0d4b08bc51c2ad8f8d5e5de67d4"
+                notes: "Clean commit, Docker/Git versions, current policy/workflow/validator hashes, registered locales, and exact no-content-change scope."
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/ownership-manifest.yaml"
+                checksum: "sha256:9f46d2f31cee92fb69fa4f6f690a3828ebe9815b69ec6f38f92fd9e5c1653b9a"
+                notes: "Root-only ownership for the plan, workflow, validator, ledgers, Git index, and commit; runtime localization inputs are read-only."
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/artifact-dag.yaml"
+                checksum: "sha256:186c8058768b6eb6b8d48c28420b6a78018e941c34e482bcbd759b0995de688c"
+                notes: "Projection and validation are complete; the commit checkpoint is ready and checksum-gated by the final validation summary. The resolved invalidation and superseded manifest remain recorded."
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/policy-manifest.sha256"
+                checksum: "sha256:626701f570f7593e211ebaccad20c300fe4a562e9d05ee0de7f75f405dc7a563"
+                notes: "Superseded but preserved provisional checksums; this manifest predates the newly declared focused-test output and cannot authorize dependent work."
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/policy-manifest-02.sha256"
+                checksum: "sha256:c78c67a68936c8c634c3c916f8891a5d4a9994db69097075f568820c02124ffe"
+                notes: "Current frozen projection: plan revision 14, workflow, validator, focused policy tests, decision, and unchanged en/ru locale registry."
+              - path: ".build/runs/20260720T180448Z-adopt-english-only-future-chapter-policy-01/validation-summary.md"
+                checksum: "sha256:5409ba38f6c9520911e3b31ccd6b49ee7397c96c6deb311b2c91e9f0dd096b11"
+                notes: "Complete policy, focused/full test, Docker workspace, YAML, exact-contract, host, scope, Git, locale-registry, agent, and runtime-boundary results."
+            validation:
+              - command: "Preflight Git, eligibility, locale-registry, scope, ownership, and DAG guards"
+                status: passed
+                notes: "The completed retirement commit is current, the policy step is first eligible, registered locales remain en/ru with en as reference, no chapter or locale file is modified, and the index is empty."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Docker passed the locked Rust workspace, Astro diagnostics, configured-locale content/parity, 17-page static build, 277-link check, and plan validation with 39 chapters, 53 scheduled steps, and six implemented contracts through Chapter 6."
+              - command: "In-memory missing-active-locale and extra-deferred-locale Chapter 8 ledger fixtures"
+                status: passed
+                notes: "The validator rejected a missing English lesson and rejected a matched extra Russian lesson/check against the declared English-only active set. No fixture file or host-language artifact was created."
+              - command: "sha256sum -c policy-manifest.sha256"
+                status: passed
+                notes: "The provisional projection matched before its dependency set expanded; the result is retained as history but is not a final prerequisite."
+              - command: "Focused validator-test dependency audit and transitive DAG invalidation"
+                status: passed
+                notes: "The test suite contains old global-locale assumptions. The test file is now a declared policy input/output, and the provisional manifest plus all dependent validation are fail-closed before any test edit."
+              - command: "./course run npm --prefix site run test -- --run tests/content-contract.test.ts (stale-test diagnostic)"
+                status: failed
+                notes: "Eighteen of nineteen tests passed. The only failure was the expected obsolete synthetic assumption that adding registered Spanish must globally activate it; no product or build regression failed."
+              - command: "sha256sum -c policy-manifest-02.sha256"
+                status: passed
+                notes: "The replacement manifest includes the rewritten focused policy test and matches every stable policy output plus the unchanged locale registry."
+              - command: "./course run npm --prefix site run test -- --run tests/content-contract.test.ts"
+                status: passed
+                notes: "All 19 focused content-contract tests passed, including deferred synthetic registry expansion, missing/extra active-set rejection, range coverage, and required policy acknowledgement."
+              - command: "./course run npm --prefix site run test -- --run"
+                status: passed
+                notes: "All 70 site unit tests across nine files passed."
+              - command: "./course run node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Fresh Docker validation accepted 39 chapters, 53 scheduled steps, and six implemented contracts; the cached complete workspace image includes passing Rust, Astro, content/parity, static build, and link gates."
+              - command: "Docker YAML parse of BUILD_STATE.yaml"
+                status: passed
+                notes: "The ledger parses as schema version 1 YAML with five builds."
+              - command: "Exact future-contract and immutable-scope audit"
+                status: passed
+                notes: "All 32 Chapter 8-39 contracts contain the three planned selective-locale inputs, exactly one English lesson/check, no Russian lesson/check, and the English active-set acceptance. No curriculum chapter, Rust source, lesson, route, catalog, or locale-registry file changed; the registered en/ru manifest remains 9adc55bf...4ad."
+              - command: "./course audit-host; git diff --check; Git .codex tree/runtime mount; agent and index audit"
+                status: passed
+                notes: "Host artifacts and diff hygiene pass; every non-root agent is terminal; the Git index is empty; HEAD contains no .codex path; the active runtime mount is empty, read-only, and external."
+              - command: "Post-completion canonical Docker workspace/plan, focused-test, and YAML/no-running-step gates"
+                status: passed
+                notes: "Against the succeeded checkpoint, Docker again passed Rust, Astro, content/parity, 17-page build, 277-link, and 39-chapter/53-step plan gates; all 19 focused tests passed; the ledger parsed as schema version 1 with five builds and no running step."
+            notes: "Succeeded without chapter authoring, translation, route publication, or locale-registry change. Plan revision 14 and future contracts preserve Chapters 1-7 as en/ru and make Chapters 8-39 English-only until explicit activation. The separate support-selective-chapter-locales step is required after pending Chapter 7 and before Chapter 8. Completion and post-completion canonical validation are checkpointed for the dedicated commit."
       - id: implement-ch07-language-model-metrics
         objective: "Compute average negative log-likelihood and perplexity for predicted token distributions."
         depends_on:
@@ -5308,10 +5405,75 @@ builds:
                 status: passed
                 notes: "All non-root agents are settled. Ownership 7dba1495...efac, DAG fec3d967...8b92, parser seed c4e8d6a0...9873, corrected-test seed 1a98eee8...5a5f, canonical lib.rs 2370f96d...27f, and Cargo.lock c5a4695d...cdf remain exact. No Chapter 7 canonical product or Git-index change exists. The run is interrupted at the user's request; the authorized removal of project .codex inputs will invalidate this fingerprint, so future work requires a new run while preserving these staged artifacts for checksum-gated review."
             notes: "Fresh recovery run after an explicit accessible-source input change. Research, content-design, Russian-terminology, frozen-contract, rust_core, rust_demo, and aggregate rust_evidence nodes are complete, released, and root-checkpointed; no canonical product file has changed. The terminology node was recovered from an interrupted writer under an unchanged fingerprint and integrated from its verified closed manifest without rewrite. Two broad Rust writers were interrupted empty before execution; the narrowed core/demo assignments then succeeded, with rejected uncheckpointed validation explicitly rerun before release. The first site-component writer was interrupted empty because its isolated root was not pre-created; a pre-created replacement remained empty because the runtime thread cap rejected spawn before task creation. The recovered parser/test partials remain unreleased. Controlled diagnostics placed their silent failure in the common runner/isolation path, ruled out --read-only as the sole cause, then passed exactly one synthetic file/test under the original strict envelope when only --pool=threads was added. After a malformed-checksum preflight was corrected, the real product suite ran once: 47 of 49 passed and two marker assertions exposed a test-only expected-object construction defect. Immutable failure evidence remains checkpointed. The isolated callback-only correction has a closed verified release at sha256:8370015f474d56272dcaea96d6a2d370b615c169879b59aaa8f3a277fead866f. Its first integration ACK failed before apply_patch because TextEncoder was unavailable, but the separately checkpointed replacement integrated the one corrected test byte-identically at sha256:1a98eee8819acac64c5efa87c5fcdb9619426854bb06a6c4be2016a7dcaf5a5f while preserving that failure history. Corrected validation 07 consumed its only execution and was reported as an exact 49/49 pass, but complete output capture was interrupted; recovery evidence d2d62b55...46bd preserves the event and is explicitly not a positive prerequisite. A fresh validation-08 controls lead then stalled and was interrupted without changing controls or creating either evidence path. Root prepared replacement controls at 67811159...2f55/4f1e1475...8db3, then a fresh executor produced complete raw d5d90883...5c85c and metadata 336bafe4...fb3 for an exact 49/49 pass before stalling after metadata. Root recovered only outcome controls 51a44672...52a8/066c2d58...b57e without rerunning. The complete root checkpoint accepted validation 08 as the positive parser/test prerequisite. The checksum-bound site-component-astro-01 authorization was consumed by a writer that failed at model capacity before its first write; root retired the still-two-seed assignment at controls 7dba1495...efac/fec3d967...8b92. A fresh assignment is permitted only after the complete recovery checkpoint, and a second capacity failure must stop rather than cycle. All lesson work stays blocked. Medium cost remains within the unlimited build budget, and Russian publication remains gated on exact rendered checksum-bound fluent-human approval."
+      - id: support-selective-chapter-locales
+        objective: "Make static chapter publication, validation, navigation, alternate links, and routes honor each chapter's active locale set while preserving every registered locale for site chrome and future activation."
+        depends_on:
+          - implement-ch07-language-model-metrics
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/locale-config.mjs"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/index.ts"
+          - "site/src/content.config.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+        outputs:
+          - "site/src/i18n/chapter-locales.json"
+          - "scripts/chapter-locale-config.mjs"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-site-content.mjs"
+          - "site/src/lib/chapter-locales.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+        acceptance:
+          - "A checked runtime projection maps every planned chapter to a unique non-empty active-locale set that is a subset of the registered locale manifest and always includes English."
+          - "The course plan remains authoritative, and validators reject a missing, stale, extra, unregistered, or plan-drifting runtime chapter-locale projection."
+          - "Content and parity gates require exactly the active locales for each chapter; registered deferred locales are neither treated as missing nor allowed to publish placeholders."
+          - "Static course indexes and previous/next navigation contain only routes available in the current locale, while the English sequence remains a contiguous implemented prefix."
+          - "Chapter routes, hreflang metadata, and locale switching never link to a missing translation; a deferred locale remains available through its localized course index and existing chapters."
+          - "The implementation derives arbitrary registered locale codes and directions from manifests, retains fail-closed same-revision/shared-field checks, and supports future reviewed backfill without English/Russian conditionals."
+          - "Focused unit and browser fixtures prove an English-only chapter beside earlier multilingual chapters, including desktop/narrow, no-script, accessibility, and missing-route behavior."
+          - "No Chapter 8 lesson or Rust content is authored by this infrastructure step, and the completed change is persisted in its own commit."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "npm --prefix site run test -- --run tests/chapter-locales.test.ts tests/chapter-publication.test.ts"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter-locales'"
+          - "npm --prefix site run test:e2e"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Manual review of locale availability, route fallback, hreflang, navigation, extensibility, and future activation behavior"
+        cost:
+          class: medium
+          notes: "Deterministic shared localization infrastructure and cached-browser validation only; no chapter authoring, translation, network, dependency change, paid service, generation service, or substantial CPU use."
+        runs: []
       - id: implement-ch08-tensor-storage
         objective: "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
         depends_on:
-          - implement-ch07-language-model-metrics
+          - support-selective-chapter-locales
         status: pending
         inputs:
           - "SKILLS.md"
@@ -5331,13 +5493,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/08-tensor-storage.md"
           - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch08-tensor-storage/"
           - "site/src/content/chapters/en/08-tensor-storage.mdx"
-          - "site/src/content/chapters/ru/08-tensor-storage.mdx"
           - "site/src/components/chapters/TensorStorageDiagram.astro"
           - "site/tests/08-tensor-storage-diagram.test.ts"
           - "site/tests/e2e/ch08-tensor-storage.spec.ts"
@@ -5347,7 +5511,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5359,7 +5523,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch08-tensor-storage | diff -u rust/demos/ch08-tensor-storage/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage"
           - "npm --prefix site run check:parity -- --chapter 08-tensor-storage"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5370,7 +5533,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch09-tensor-views
         objective: "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
@@ -5395,13 +5558,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/09-tensor-views.md"
           - "rust/crates/llm-from-scratch/src/tensor/view.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch09-tensor-views/"
           - "site/src/content/chapters/en/09-tensor-views.mdx"
-          - "site/src/content/chapters/ru/09-tensor-views.mdx"
           - "site/src/components/chapters/TensorViewsDiagram.astro"
           - "site/tests/09-tensor-views-diagram.test.ts"
           - "site/tests/e2e/ch09-tensor-views.spec.ts"
@@ -5411,7 +5576,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5423,7 +5588,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch09-tensor-views | diff -u rust/demos/ch09-tensor-views/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 09-tensor-views"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 09-tensor-views"
           - "npm --prefix site run check:parity -- --chapter 09-tensor-views"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5434,7 +5598,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch10-broadcasting-reductions
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
@@ -5459,13 +5623,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/10-broadcasting-reductions.md"
           - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch10-broadcasting-reductions/"
           - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
-          - "site/src/content/chapters/ru/10-broadcasting-reductions.mdx"
           - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
           - "site/tests/10-broadcasting-reductions-diagram.test.ts"
           - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
@@ -5475,7 +5641,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5487,7 +5653,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch10-broadcasting-reductions | diff -u rust/demos/ch10-broadcasting-reductions/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 10-broadcasting-reductions"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 10-broadcasting-reductions"
           - "npm --prefix site run check:parity -- --chapter 10-broadcasting-reductions"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5498,7 +5663,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch11-matrix-multiplication
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
@@ -5523,13 +5688,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/11-matrix-multiplication.md"
           - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch11-matrix-multiplication/"
           - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
-          - "site/src/content/chapters/ru/11-matrix-multiplication.mdx"
           - "site/src/components/chapters/MatrixMultiplicationDiagram.astro"
           - "site/tests/11-matrix-multiplication-diagram.test.ts"
           - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
@@ -5539,7 +5706,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5551,7 +5718,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch11-matrix-multiplication | diff -u rust/demos/ch11-matrix-multiplication/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 11-matrix-multiplication"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 11-matrix-multiplication"
           - "npm --prefix site run check:parity -- --chapter 11-matrix-multiplication"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5562,7 +5728,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch12-stable-softmax
         objective: "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
@@ -5587,13 +5753,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/12-stable-softmax.md"
           - "rust/crates/llm-from-scratch/src/nn/probability.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch12-stable-softmax/"
           - "site/src/content/chapters/en/12-stable-softmax.mdx"
-          - "site/src/content/chapters/ru/12-stable-softmax.mdx"
           - "site/src/components/chapters/StableSoftmaxDiagram.astro"
           - "site/tests/12-stable-softmax-diagram.test.ts"
           - "site/tests/e2e/ch12-stable-softmax.spec.ts"
@@ -5603,7 +5771,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5615,7 +5783,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch12-stable-softmax | diff -u rust/demos/ch12-stable-softmax/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 12-stable-softmax"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 12-stable-softmax"
           - "npm --prefix site run check:parity -- --chapter 12-stable-softmax"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5626,7 +5793,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch13-gradient-checking
         objective: "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
@@ -5651,13 +5818,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/13-gradient-checking.md"
           - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch13-gradient-checking/"
           - "site/src/content/chapters/en/13-gradient-checking.mdx"
-          - "site/src/content/chapters/ru/13-gradient-checking.mdx"
           - "site/src/components/chapters/GradientCheckingDiagram.astro"
           - "site/tests/13-gradient-checking-diagram.test.ts"
           - "site/tests/e2e/ch13-gradient-checking.spec.ts"
@@ -5667,7 +5836,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5679,7 +5848,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch13-gradient-checking | diff -u rust/demos/ch13-gradient-checking/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 13-gradient-checking"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 13-gradient-checking"
           - "npm --prefix site run check:parity -- --chapter 13-gradient-checking"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5690,7 +5858,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch14-scalar-autodiff
         objective: "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
@@ -5715,13 +5883,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/14-scalar-autodiff.md"
           - "rust/crates/llm-from-scratch/src/autograd/scalar.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch14-scalar-autodiff/"
           - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
-          - "site/src/content/chapters/ru/14-scalar-autodiff.mdx"
           - "site/src/components/chapters/ScalarAutodiffDiagram.astro"
           - "site/tests/14-scalar-autodiff-diagram.test.ts"
           - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
@@ -5731,7 +5901,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5743,7 +5913,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch14-scalar-autodiff | diff -u rust/demos/ch14-scalar-autodiff/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 14-scalar-autodiff"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 14-scalar-autodiff"
           - "npm --prefix site run check:parity -- --chapter 14-scalar-autodiff"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5754,7 +5923,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch15-tensor-autodiff-core
         objective: "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."
@@ -5779,13 +5948,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/15-tensor-autodiff-core.md"
           - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch15-tensor-autodiff-core/"
           - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
-          - "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx"
           - "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
           - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
           - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
@@ -5795,7 +5966,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5807,7 +5978,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch15-tensor-autodiff-core | diff -u rust/demos/ch15-tensor-autodiff-core/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 15-tensor-autodiff-core"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 15-tensor-autodiff-core"
           - "npm --prefix site run check:parity -- --chapter 15-tensor-autodiff-core"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5818,7 +5988,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch16-model-autodiff-ops
         objective: "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss."
@@ -5843,13 +6013,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/16-model-autodiff-ops.md"
           - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch16-model-autodiff-ops/"
           - "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
-          - "site/src/content/chapters/ru/16-model-autodiff-ops.mdx"
           - "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
           - "site/tests/16-model-autodiff-ops-diagram.test.ts"
           - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
@@ -5859,7 +6031,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5871,7 +6043,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch16-model-autodiff-ops | diff -u rust/demos/ch16-model-autodiff-ops/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 16-model-autodiff-ops"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 16-model-autodiff-ops"
           - "npm --prefix site run check:parity -- --chapter 16-model-autodiff-ops"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5882,7 +6053,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch17-parameter-initialization
         objective: "Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths."
@@ -5907,13 +6078,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/17-parameter-initialization.md"
           - "rust/crates/llm-from-scratch/src/nn/init.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch17-parameter-initialization/"
           - "site/src/content/chapters/en/17-parameter-initialization.mdx"
-          - "site/src/content/chapters/ru/17-parameter-initialization.mdx"
           - "site/src/components/chapters/ParameterInitializationDiagram.astro"
           - "site/tests/17-parameter-initialization-diagram.test.ts"
           - "site/tests/e2e/ch17-parameter-initialization.spec.ts"
@@ -5923,7 +6096,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5935,7 +6108,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch17-parameter-initialization | diff -u rust/demos/ch17-parameter-initialization/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 17-parameter-initialization"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 17-parameter-initialization"
           - "npm --prefix site run check:parity -- --chapter 17-parameter-initialization"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -5946,7 +6118,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch18-token-embeddings
         objective: "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
@@ -5971,13 +6143,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/18-token-embeddings.md"
           - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch18-token-embeddings/"
           - "site/src/content/chapters/en/18-token-embeddings.mdx"
-          - "site/src/content/chapters/ru/18-token-embeddings.mdx"
           - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
           - "site/tests/18-token-embeddings-diagram.test.ts"
           - "site/tests/e2e/ch18-token-embeddings.spec.ts"
@@ -5987,7 +6161,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -5999,7 +6173,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch18-token-embeddings | diff -u rust/demos/ch18-token-embeddings/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 18-token-embeddings"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 18-token-embeddings"
           - "npm --prefix site run check:parity -- --chapter 18-token-embeddings"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6010,7 +6183,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch19-linear-layers
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
@@ -6035,13 +6208,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/19-linear-layers.md"
           - "rust/crates/llm-from-scratch/src/nn/linear.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch19-linear-layers/"
           - "site/src/content/chapters/en/19-linear-layers.mdx"
-          - "site/src/content/chapters/ru/19-linear-layers.mdx"
           - "site/src/components/chapters/LinearLayersDiagram.astro"
           - "site/tests/19-linear-layers-diagram.test.ts"
           - "site/tests/e2e/ch19-linear-layers.spec.ts"
@@ -6051,7 +6226,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6063,7 +6238,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch19-linear-layers | diff -u rust/demos/ch19-linear-layers/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 19-linear-layers"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 19-linear-layers"
           - "npm --prefix site run check:parity -- --chapter 19-linear-layers"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6074,7 +6248,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch20-swiglu-feed-forward
         objective: "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
@@ -6099,13 +6273,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/20-swiglu-feed-forward.md"
           - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch20-swiglu-feed-forward/"
           - "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
-          - "site/src/content/chapters/ru/20-swiglu-feed-forward.mdx"
           - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
           - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
           - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
@@ -6115,7 +6291,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6127,7 +6303,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch20-swiglu-feed-forward | diff -u rust/demos/ch20-swiglu-feed-forward/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 20-swiglu-feed-forward"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 20-swiglu-feed-forward"
           - "npm --prefix site run check:parity -- --chapter 20-swiglu-feed-forward"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6138,7 +6313,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch21-mini-batches
         objective: "Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly."
@@ -6163,13 +6338,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/21-mini-batches.md"
           - "rust/crates/llm-from-scratch/src/training/batch.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch21-mini-batches/"
           - "site/src/content/chapters/en/21-mini-batches.mdx"
-          - "site/src/content/chapters/ru/21-mini-batches.mdx"
           - "site/src/components/chapters/MiniBatchesDiagram.astro"
           - "site/tests/21-mini-batches-diagram.test.ts"
           - "site/tests/e2e/ch21-mini-batches.spec.ts"
@@ -6179,7 +6356,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6191,7 +6368,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch21-mini-batches | diff -u rust/demos/ch21-mini-batches/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 21-mini-batches"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 21-mini-batches"
           - "npm --prefix site run check:parity -- --chapter 21-mini-batches"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6202,7 +6378,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch22-adamw
         objective: "Update named parameters with bias-corrected Adam moments and decoupled weight decay."
@@ -6227,13 +6403,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/22-adamw.md"
           - "rust/crates/llm-from-scratch/src/training/adamw.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch22-adamw/"
           - "site/src/content/chapters/en/22-adamw.mdx"
-          - "site/src/content/chapters/ru/22-adamw.mdx"
           - "site/src/components/chapters/AdamwDiagram.astro"
           - "site/tests/22-adamw-diagram.test.ts"
           - "site/tests/e2e/ch22-adamw.spec.ts"
@@ -6243,7 +6421,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6255,7 +6433,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch22-adamw | diff -u rust/demos/ch22-adamw/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 22-adamw"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 22-adamw"
           - "npm --prefix site run check:parity -- --chapter 22-adamw"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6266,7 +6443,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch23-neural-ngram
         objective: "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
@@ -6291,13 +6468,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/23-neural-ngram.md"
           - "rust/crates/llm-from-scratch/src/models/neural_ngram.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch23-neural-ngram/"
           - "site/src/content/chapters/en/23-neural-ngram.mdx"
-          - "site/src/content/chapters/ru/23-neural-ngram.mdx"
           - "site/src/components/chapters/NeuralNgramDiagram.astro"
           - "site/tests/23-neural-ngram-diagram.test.ts"
           - "site/tests/e2e/ch23-neural-ngram.spec.ts"
@@ -6307,7 +6486,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6319,7 +6498,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch23-neural-ngram | diff -u rust/demos/ch23-neural-ngram/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 23-neural-ngram"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 23-neural-ngram"
           - "npm --prefix site run check:parity -- --chapter 23-neural-ngram"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6330,7 +6508,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete bilingual chapter vertical slice with a bounded deterministic CPU fixture; preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []
       - id: implement-ch24-residual-connections
         objective: "Add a shape-preserving residual branch and verify identity/gradient paths through stacked transformations."
@@ -6355,13 +6533,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/24-residual-connections.md"
           - "rust/crates/llm-from-scratch/src/nn/residual.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch24-residual-connections/"
           - "site/src/content/chapters/en/24-residual-connections.mdx"
-          - "site/src/content/chapters/ru/24-residual-connections.mdx"
           - "site/src/components/chapters/ResidualConnectionsDiagram.astro"
           - "site/tests/24-residual-connections-diagram.test.ts"
           - "site/tests/e2e/ch24-residual-connections.spec.ts"
@@ -6371,7 +6551,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6383,7 +6563,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch24-residual-connections | diff -u rust/demos/ch24-residual-connections/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 24-residual-connections"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 24-residual-connections"
           - "npm --prefix site run check:parity -- --chapter 24-residual-connections"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6394,7 +6573,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch25-rmsnorm
         objective: "Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero."
@@ -6419,13 +6598,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/25-rmsnorm.md"
           - "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch25-rmsnorm/"
           - "site/src/content/chapters/en/25-rmsnorm.mdx"
-          - "site/src/content/chapters/ru/25-rmsnorm.mdx"
           - "site/src/components/chapters/RmsnormDiagram.astro"
           - "site/tests/25-rmsnorm-diagram.test.ts"
           - "site/tests/e2e/ch25-rmsnorm.spec.ts"
@@ -6435,7 +6616,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6447,7 +6628,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch25-rmsnorm | diff -u rust/demos/ch25-rmsnorm/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 25-rmsnorm"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 25-rmsnorm"
           - "npm --prefix site run check:parity -- --chapter 25-rmsnorm"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6458,7 +6638,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch26-qkv-projections
         objective: "Project one hidden-state sequence into query, key, and value tensors with explicit attention dimensions."
@@ -6483,13 +6663,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/26-qkv-projections.md"
           - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch26-qkv-projections/"
           - "site/src/content/chapters/en/26-qkv-projections.mdx"
-          - "site/src/content/chapters/ru/26-qkv-projections.mdx"
           - "site/src/components/chapters/QkvProjectionsDiagram.astro"
           - "site/tests/26-qkv-projections-diagram.test.ts"
           - "site/tests/e2e/ch26-qkv-projections.spec.ts"
@@ -6499,7 +6681,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6511,7 +6693,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch26-qkv-projections | diff -u rust/demos/ch26-qkv-projections/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 26-qkv-projections"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 26-qkv-projections"
           - "npm --prefix site run check:parity -- --chapter 26-qkv-projections"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6522,7 +6703,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch27-self-attention
         objective: "Compute one unmasked attention head and explain every score, probability, and weighted value."
@@ -6547,13 +6728,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/27-self-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch27-self-attention/"
           - "site/src/content/chapters/en/27-self-attention.mdx"
-          - "site/src/content/chapters/ru/27-self-attention.mdx"
           - "site/src/components/chapters/SelfAttentionDiagram.astro"
           - "site/tests/27-self-attention-diagram.test.ts"
           - "site/tests/e2e/ch27-self-attention.spec.ts"
@@ -6563,7 +6746,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6575,7 +6758,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch27-self-attention | diff -u rust/demos/ch27-self-attention/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 27-self-attention"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 27-self-attention"
           - "npm --prefix site run check:parity -- --chapter 27-self-attention"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6586,7 +6768,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch28-causal-masking
         objective: "Apply a lower-triangular mask so position `t` attends only to positions `≤t`."
@@ -6611,13 +6793,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/28-causal-masking.md"
           - "rust/crates/llm-from-scratch/src/attention/causal_mask.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch28-causal-masking/"
           - "site/src/content/chapters/en/28-causal-masking.mdx"
-          - "site/src/content/chapters/ru/28-causal-masking.mdx"
           - "site/src/components/chapters/CausalMaskingDiagram.astro"
           - "site/tests/28-causal-masking-diagram.test.ts"
           - "site/tests/e2e/ch28-causal-masking.spec.ts"
@@ -6627,7 +6811,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6639,7 +6823,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch28-causal-masking | diff -u rust/demos/ch28-causal-masking/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 28-causal-masking"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 28-causal-masking"
           - "npm --prefix site run check:parity -- --chapter 28-causal-masking"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6650,7 +6833,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch29-rope
         objective: "Rotate query/key feature pairs by position and observe relative offsets in their dot products."
@@ -6675,13 +6858,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/29-rope.md"
           - "rust/crates/llm-from-scratch/src/attention/rope.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch29-rope/"
           - "site/src/content/chapters/en/29-rope.mdx"
-          - "site/src/content/chapters/ru/29-rope.mdx"
           - "site/src/components/chapters/RopeDiagram.astro"
           - "site/tests/29-rope-diagram.test.ts"
           - "site/tests/e2e/ch29-rope.spec.ts"
@@ -6691,7 +6876,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6703,7 +6888,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch29-rope | diff -u rust/demos/ch29-rope/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 29-rope"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 29-rope"
           - "npm --prefix site run check:parity -- --chapter 29-rope"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6714,7 +6898,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch30-multi-head-attention
         objective: "Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result."
@@ -6739,13 +6923,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/30-multi-head-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/multi_head.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch30-multi-head-attention/"
           - "site/src/content/chapters/en/30-multi-head-attention.mdx"
-          - "site/src/content/chapters/ru/30-multi-head-attention.mdx"
           - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
           - "site/tests/30-multi-head-attention-diagram.test.ts"
           - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
@@ -6755,7 +6941,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6767,7 +6953,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch30-multi-head-attention | diff -u rust/demos/ch30-multi-head-attention/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 30-multi-head-attention"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 30-multi-head-attention"
           - "npm --prefix site run check:parity -- --chapter 30-multi-head-attention"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6778,7 +6963,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
@@ -6803,13 +6988,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/31-decoder-block.md"
           - "rust/crates/llm-from-scratch/src/models/decoder_block.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch31-decoder-block/"
           - "site/src/content/chapters/en/31-decoder-block.mdx"
-          - "site/src/content/chapters/ru/31-decoder-block.mdx"
           - "site/src/components/chapters/DecoderBlockDiagram.astro"
           - "site/tests/31-decoder-block-diagram.test.ts"
           - "site/tests/e2e/ch31-decoder-block.spec.ts"
@@ -6819,7 +7006,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6831,7 +7018,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch31-decoder-block | diff -u rust/demos/ch31-decoder-block/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 31-decoder-block"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 31-decoder-block"
           - "npm --prefix site run check:parity -- --chapter 31-decoder-block"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6842,7 +7028,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch32-decoder-model
         objective: "Assemble token embeddings, repeated decoder blocks, final RMSNorm, and a tied vocabulary projection into logits."
@@ -6867,13 +7053,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/32-decoder-model.md"
           - "rust/crates/llm-from-scratch/src/models/decoder.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch32-decoder-model/"
           - "site/src/content/chapters/en/32-decoder-model.mdx"
-          - "site/src/content/chapters/ru/32-decoder-model.mdx"
           - "site/src/components/chapters/DecoderModelDiagram.astro"
           - "site/tests/32-decoder-model-diagram.test.ts"
           - "site/tests/e2e/ch32-decoder-model.spec.ts"
@@ -6883,7 +7071,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6895,7 +7083,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch32-decoder-model | diff -u rust/demos/ch32-decoder-model/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 32-decoder-model"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 32-decoder-model"
           - "npm --prefix site run check:parity -- --chapter 32-decoder-model"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6906,7 +7093,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch33-training-selection
         objective: "Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data."
@@ -6931,13 +7118,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/33-training-selection.md"
           - "rust/crates/llm-from-scratch/src/training/trainer.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch33-training-selection/"
           - "site/src/content/chapters/en/33-training-selection.mdx"
-          - "site/src/content/chapters/ru/33-training-selection.mdx"
           - "site/src/components/chapters/TrainingSelectionDiagram.astro"
           - "site/tests/33-training-selection-diagram.test.ts"
           - "site/tests/e2e/ch33-training-selection.spec.ts"
@@ -6947,7 +7136,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -6959,7 +7148,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch33-training-selection | diff -u rust/demos/ch33-training-selection/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 33-training-selection"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 33-training-selection"
           - "npm --prefix site run check:parity -- --chapter 33-training-selection"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -6970,7 +7158,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete bilingual chapter vertical slice with a bounded deterministic CPU fixture; preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []
       - id: implement-ch34-final-evaluation
         objective: "Evaluate the frozen selected decoder once on the untouched test partition and compare it fairly with the frozen bigram."
@@ -6995,13 +7183,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/34-final-evaluation.md"
           - "rust/crates/llm-from-scratch/src/evaluation.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch34-final-evaluation/"
           - "site/src/content/chapters/en/34-final-evaluation.mdx"
-          - "site/src/content/chapters/ru/34-final-evaluation.mdx"
           - "site/src/components/chapters/FinalEvaluationDiagram.astro"
           - "site/tests/34-final-evaluation-diagram.test.ts"
           - "site/tests/e2e/ch34-final-evaluation.spec.ts"
@@ -7011,7 +7201,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7023,7 +7213,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch34-final-evaluation | diff -u rust/demos/ch34-final-evaluation/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 34-final-evaluation"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 34-final-evaluation"
           - "npm --prefix site run check:parity -- --chapter 34-final-evaluation"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7034,7 +7223,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete bilingual chapter vertical slice with a bounded deterministic CPU fixture; preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []
       - id: implement-ch35-checkpoints
         objective: "Save and load a versioned checkpoint that reproduces tokenizer/configuration, parameters, optimizer/RNG state, logits, and one resumed update."
@@ -7059,13 +7248,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/35-checkpoints.md"
           - "rust/crates/llm-from-scratch/src/checkpoint.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch35-checkpoints/"
           - "site/src/content/chapters/en/35-checkpoints.mdx"
-          - "site/src/content/chapters/ru/35-checkpoints.mdx"
           - "site/tests/e2e/ch35-checkpoints.spec.ts"
           - "Cargo.lock"
         acceptance:
@@ -7073,7 +7264,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "The contract records why a diagram would not improve understanding and uses an accessible table or executable evidence instead."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7085,7 +7276,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch35-checkpoints | diff -u rust/demos/ch35-checkpoints/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 35-checkpoints"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 35-checkpoints"
           - "npm --prefix site run check:parity -- --chapter 35-checkpoints"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7096,7 +7286,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch36-temperature-top-k
         objective: "Sample the next token reproducibly after temperature scaling and top-k filtering."
@@ -7121,13 +7311,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/36-temperature-top-k.md"
           - "rust/crates/llm-from-scratch/src/generation/sampling.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch36-temperature-top-k/"
           - "site/src/content/chapters/en/36-temperature-top-k.mdx"
-          - "site/src/content/chapters/ru/36-temperature-top-k.mdx"
           - "site/src/components/chapters/TemperatureTopKDiagram.astro"
           - "site/tests/36-temperature-top-k-diagram.test.ts"
           - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
@@ -7137,7 +7329,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7149,7 +7341,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch36-temperature-top-k | diff -u rust/demos/ch36-temperature-top-k/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 36-temperature-top-k"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 36-temperature-top-k"
           - "npm --prefix site run check:parity -- --chapter 36-temperature-top-k"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7160,7 +7351,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch37-incremental-attention
         objective: "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
@@ -7185,13 +7376,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/37-incremental-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/incremental.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch37-incremental-attention/"
           - "site/src/content/chapters/en/37-incremental-attention.mdx"
-          - "site/src/content/chapters/ru/37-incremental-attention.mdx"
           - "site/src/components/chapters/IncrementalAttentionDiagram.astro"
           - "site/tests/37-incremental-attention-diagram.test.ts"
           - "site/tests/e2e/ch37-incremental-attention.spec.ts"
@@ -7201,7 +7394,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7213,7 +7406,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch37-incremental-attention | diff -u rust/demos/ch37-incremental-attention/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 37-incremental-attention"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 37-incremental-attention"
           - "npm --prefix site run check:parity -- --chapter 37-incremental-attention"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7224,7 +7416,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch38-cached-generation
         objective: "Thread independent layer caches through the decoder so prefill plus one-token decode reproduces uncached generation."
@@ -7249,13 +7441,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/38-cached-generation.md"
           - "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch38-cached-generation/"
           - "site/src/content/chapters/en/38-cached-generation.mdx"
-          - "site/src/content/chapters/ru/38-cached-generation.mdx"
           - "site/src/components/chapters/CachedGenerationDiagram.astro"
           - "site/tests/38-cached-generation-diagram.test.ts"
           - "site/tests/e2e/ch38-cached-generation.spec.ts"
@@ -7265,7 +7459,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7277,7 +7471,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch38-cached-generation | diff -u rust/demos/ch38-cached-generation/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 38-cached-generation"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 38-cached-generation"
           - "npm --prefix site run check:parity -- --chapter 38-cached-generation"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7288,7 +7481,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete localized chapter translation set using local deterministic work; no hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
         runs: []
       - id: implement-ch39-end-to-end-llm
         objective: "Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust."
@@ -7313,13 +7506,15 @@ builds:
           - "site/package.json"
           - "site/package-lock.json"
           - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/chapter-locales.ts"
+          - "scripts/chapter-locale-config.mjs"
         outputs:
           - "curriculum/chapters/39-end-to-end-llm.md"
           - "rust/crates/llm-from-scratch/src/pipeline.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch39-end-to-end-llm/"
           - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
-          - "site/src/content/chapters/ru/39-end-to-end-llm.mdx"
           - "site/src/components/chapters/EndToEndLlmDiagram.astro"
           - "site/tests/39-end-to-end-llm-diagram.test.ts"
           - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
@@ -7329,7 +7524,7 @@ builds:
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
-          - "One natural lesson per configured locale publishes in a complete same-revision translation set with matching shared metadata, source evidence, course navigation, locale links, and rendered browser coverage."
+          - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -7341,7 +7536,6 @@ builds:
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch39-end-to-end-llm | diff -u rust/demos/ch39-end-to-end-llm/expected.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 39-end-to-end-llm"
-          - "npm --prefix site run check:chapter -- --locale ru --chapter 39-end-to-end-llm"
           - "npm --prefix site run check:parity -- --chapter 39-end-to-end-llm"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check"
@@ -7352,5 +7546,5 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete bilingual chapter vertical slice with a bounded deterministic CPU fixture; preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []

@@ -16,7 +16,7 @@ One chapter is one owned, localized vertical slice:
 - one narrow learning objective and chapter contract;
 - one cumulative Rust capability plus a runnable historical contrast;
 - one useful visualization, or a reviewed explanation of why none helps;
-- one naturally written lesson for every configured locale;
+- one naturally written lesson for every locale active for that chapter;
 - one staged and canonical validation record;
 - one atomic publication boundary; and
 - one Git commit whose subject contains the stable step ID.
@@ -242,26 +242,34 @@ Test the parser, data-to-view mapping, label completeness, failure cases, and th
 component's no-script/accessibility contract. Browser tests must confirm both
 desktop and narrow rendering rather than relying on source inspection alone.
 
-## 6. Author every configured locale by meaning
+## 6. Author every chapter-active locale by meaning
 
-Read `site/src/i18n/locales.json` at the start of the run. Its locale set,
-reference locale, language tags, native names, and directions are authoritative.
-Do not hard-code an English/Russian pair in chapter logic. For each configured
-locale, create:
+Read `site/src/i18n/locales.json` and the machine-readable
+`chapter_locale_policy` in `curriculum/course-plan.md` at the start of the
+run. The registry defines installed site languages, the reference locale,
+language tags, native names, and directions. The course plan defines which of
+those registered locales are active for a particular chapter. Do not hard-code
+an English/Russian pair in chapter logic.
+
+For the current approved policy, Chapters 1 through 7 use English and Russian;
+Chapters 8 through 39 use English only until a later explicit activation. A
+registered but deferred locale keeps its site chrome, existing lessons, and
+future activation path, but it does not require a new lesson or receive a
+chapter route. For each locale active for the selected chapter, create:
 
 ```text
 site/src/content/chapters/<locale>/NN-slug.mdx
 ```
 
-All locale files form one same-revision publication set. They share the frozen
+All chapter-active locale files form one same-revision publication set. They share the frozen
 fields but are authored prose, not sentence-shaped substitutions. The reference
 lesson receives factual, pedagogical, terminology, accessible-language, and
 monolingual review too; the translation passes below additionally apply to every
-non-reference locale.
+active non-reference locale.
 
 ### Meaning-first translation workflow
 
-For every non-reference locale, perform these passes separately and record them
+For every active non-reference locale, perform these passes separately and record them
 in the run's manual review.
 
 1. **Meaning lock.** Before drafting, list the facts, causal relationships,
@@ -299,7 +307,7 @@ in the run's manual review.
 9. **Rendered pass.** Inspect the built page at desktop and narrow widths. Check
    line breaks, formula overflow, code direction, mixed-script isolation,
    diagrams, keyboard order, visible labels, and the full lesson flow. Include an
-   RTL locale's direction-sensitive checks whenever one is configured.
+   RTL locale's direction-sensitive checks whenever one is active for the chapter.
 
 Counts and plural forms require the locale's real grammatical categories. When a
 full plural system is unnecessary, prefer a localized noun-neutral count label
@@ -311,18 +319,21 @@ rendered labels before publication. Record the locale, revision, reviewer or
 approval reference, and reviewed surface in the run. Agent-authored or automated
 translation may be a draft only; structural parity, an author's self-review, or a
 machine score is not linguistic approval. If competent review is unavailable,
-keep the locale set staged and the chapter step blocked rather than publishing a
+keep the chapter-active locale set staged and the chapter step blocked rather than publishing a
 partial or unreviewed translation.
 
 When enabling a new spoken language, register a separate locale-activation step
 in `curriculum/course-plan.md` under `scheduling.cross_cutting_steps`, immediately
 before the first pending chapter or after Chapter 39 when the course is complete.
-Declare its outputs and checks in `BUILD_STATE.yaml`. Publish its manifest
-metadata, complete typed catalog, localized contract fields, and lessons for every
-already implemented chapter in one change. Then add its concrete outputs and
-per-locale validation to all pending chapter steps.
+Declare its outputs and checks in `BUILD_STATE.yaml`. Update the reviewed
+chapter-locale ranges and their runtime projection, then publish manifest
+metadata, a complete typed catalog when needed, localized contract fields, and
+lessons for every applicable already implemented chapter in one change. Add the
+locale's concrete outputs and per-locale validation only to pending chapters
+whose active sets now include it.
 
-Before enabling the manifest entry, a fluent human must explicitly approve the
+Before activating chapter routes (and before enabling a manifest entry for a new
+registered language), a fluent human must explicitly approve the
 complete catalog, contract fields, every already implemented lesson, and the
 rendered chooser, home, course, chapter, switcher, and navigation surfaces. Record
 the reviewed surfaces and approval references. Verify that the manifest derives
@@ -361,14 +372,17 @@ navigation, and all output static. Every localized page emits manifest-derived
 islands are isolated without changing the direction of surrounding prose.
 
 The publication gate is intentionally fail-closed: a missing, extra, duplicate,
-stale-revision, or shared-field-drifting locale file does not create an incomplete
-public route.
+stale-revision, or shared-field-drifting chapter-active locale file does not
+create an incomplete public route. Registered but deferred locales are not
+treated as missing and must not receive a placeholder chapter route.
 
 ## 8. Validate the staged overlay
 
 Run cheap, focused checks while iterating, then run the declared gate in the
 validation overlay. Replace `NN-slug` and `chNN-slug`; repeat the locale command
-for every entry in `site/src/i18n/locales.json`.
+for every locale active for the selected chapter in
+`curriculum/course-plan.md`. Do not synthesize commands for registered but
+deferred locales.
 
 ```sh
 node scripts/check-course-plan.mjs
@@ -407,7 +421,7 @@ language. Add a manual mapping that answers all of these:
 - Does each rendered Rust excerpt prove the surrounding claim?
 - Does the visualization clarify the intended relationship without a second
   implementation or a color-only cue?
-- Does every locale preserve meaning and read naturally on its own?
+- Does every chapter-active locale preserve meaning and read naturally on its own?
 - Do exercises, answers, accessibility labels, and the handoff agree?
 - Do desktop and narrow pages remain readable, keyboard-usable, and script-free?
 
@@ -484,7 +498,7 @@ A chapter is complete only when all answers are yes:
   concept-implementing library?
 - Are the demo, contract, `expected.txt`, rendered sources, and diagram fixture
   exact views of the same evidence?
-- Does every configured locale form a same-revision set and pass meaning,
+- Does every chapter-active locale form a same-revision set and pass meaning,
   terminology, anti-calque, monolingual, accessible-label, rendered, and fluent
   human review?
 - Is the visualization useful, accessible, locale-neutral, static, and driven by

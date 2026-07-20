@@ -1,10 +1,42 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 13,
+  "plan_revision": 14,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
+  "chapter_locale_policy": {
+    "policy_id": "english-only-from-chapter-08-until-further-notice",
+    "reference_locale": "en",
+    "ranges": [
+      {
+        "from_chapter": "01-text-units",
+        "through_chapter": "07-language-model-metrics",
+        "locales": [
+          "en",
+          "ru"
+        ],
+        "reason": "Preserve every completed bilingual chapter and the already-started Chapter 7 bilingual contract."
+      },
+      {
+        "from_chapter": "08-tensor-storage",
+        "through_chapter": "39-end-to-end-llm",
+        "locales": [
+          "en"
+        ],
+        "reason": "Produce English only from the chapter after Chapter 7 until a later explicit locale activation."
+      }
+    ],
+    "deferred_locales": [
+      "ru"
+    ],
+    "future_activation": {
+      "requires_cross_cutting_step": true,
+      "requires_backfill_for_implemented_chapters": true,
+      "requires_fluent_human_approval": true,
+      "strategy": "Activate a registered or new spoken language only through a reviewed locale-activation step that backfills every applicable implemented chapter before publishing its routes."
+    }
+  },
   "chapter_1_disposition": {
     "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
@@ -21,7 +53,7 @@
     "runtime": "bounded CPU-only reference implementation"
   },
   "scheduling": {
-    "default": "one complete localized chapter translation set per agent step and commit",
+    "default": "one complete chapter-active locale set per agent step and commit; registered but deferred locales do not produce a lesson or route until an explicit backfill activation",
     "legacy_exception": "Chapter 1 used separate scaffold/outline/Rust/visualization/locale/integration steps while the delivery system was being proven.",
     "cross_cutting_steps": [
       {
@@ -71,6 +103,10 @@
       {
         "step_id": "adopt-english-only-future-chapter-policy",
         "after_chapter": "06-bigram-baseline"
+      },
+      {
+        "step_id": "support-selective-chapter-locales",
+        "before_chapter": "08-tensor-storage"
       }
     ],
     "planned_chapter_splits": [],
