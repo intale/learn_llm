@@ -2950,3 +2950,28 @@ makes ownership and diagnostics match behavior already required and validated.
 
 **Affected step and run:** `support-selective-chapter-locales`, run
 `20260721T125802Z-support-selective-chapter-locales-02`.
+
+## 2026-07-21 — Repair the selective-locale completion ledger after file corruption
+
+**Status:** Applied before scheduling subsequent course work.
+
+**Context:** After commit `d51681a`, the committed `BUILD_STATE.yaml` blob was
+found to contain 8,468 null bytes in its final deployment-run section. The
+working copy had recovered the intended complete, null-free ledger and the exact
+selective-locale completion checkpoint, but therefore appeared as an
+uncommitted change at the next startup. Product sources and the immutable staged
+publication manifest were unaffected.
+
+**Decision:** Preserve the recovered working ledger byte-for-byte, validate it
+with the canonical course-plan checker, reverify the previous run's fingerprint,
+publication manifest, and final audit artifact, and commit the ledger repair
+separately before adding or running a new step. Do not amend the product commit
+or combine this repair with SEO implementation.
+
+**Consequences:** Repository history retains the original product commit and an
+explicit follow-up ledger repair. The active build once again has a valid source
+of truth with `support-selective-chapter-locales` completed and Chapter 8 still
+pending; no product, build, dependency, or generated site file changes.
+
+**Affected step and run:** `support-selective-chapter-locales`, run
+`20260721T125802Z-support-selective-chapter-locales-02`.
