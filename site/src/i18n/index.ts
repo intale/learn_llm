@@ -1,3 +1,4 @@
+import { sitePath } from '../lib/site-path';
 import localeManifest from './locales.json';
 import { messageKeys, type Messages } from './messages';
 
@@ -135,7 +136,7 @@ export function alternateLocales(locale: Locale): readonly LocaleDefinition[] {
 export function localePath(locale: Locale, suffix = '/'): string {
   const normalizedSuffix =
     suffix === '' || suffix === '/' ? '/' : `/${suffix.replace(/^\/+/, '')}`;
-  return `/${locale}${normalizedSuffix}`;
+  return sitePath(`/${locale}${normalizedSuffix}`);
 }
 
 export function switchLocalePathForLocales(
@@ -162,7 +163,7 @@ export function switchLocalePathForLocales(
 }
 
 export function switchLocalePath(path: string, targetLocale: Locale): string {
-  return switchLocalePathForLocales(path, targetLocale, locales);
+  return sitePath(switchLocalePathForLocales(path, targetLocale, locales));
 }
 
 export type { Messages } from './messages';

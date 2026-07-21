@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-21T10:00:09Z"
+updated_at: "2026-07-21T11:29:22Z"
 
 environment:
   os: "Linux x86_64"
@@ -8272,3 +8272,247 @@ builds:
           class: medium
           notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []
+  - build_id: github-pages-deployment
+    objective: "Deploy the current repository as a validated GitHub Pages project site without changing the curriculum schedule."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource budget has been supplied. The build uses deterministic local Docker validation and future GitHub-hosted Actions compute; no paid service or secret is planned."
+    completion_criteria:
+      - "The current repository deploys a validated static artifact through GitHub's native Pages workflow on every main-branch push and on manual dispatch."
+      - "The project-base artifact works beneath /learn_llm/ while canonical local releases remain rooted at /."
+      - "Workflow permissions, job ordering, artifact boundaries, documentation, and both URL-base variants pass their declared checks."
+    steps:
+      - id: deploy-site-to-github-pages-repository
+        objective: "Deploy every validated main-branch revision to the separate intale/learn-llm.github.io GitHub Pages project repository."
+        depends_on:
+          - implement-ch07-language-model-metrics
+        status: invalidated
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Dockerfile"
+          - "README.md"
+          - "site/astro.config.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/i18n/index.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "https://github.com/intale/learn-llm.github.io"
+          - "Current GitHub Pages, Actions token, workflow syntax, and actions/checkout documentation (read-only network input)"
+        outputs:
+          - ".github/workflows/deploy-pages.yml"
+          - "Dockerfile"
+          - "README.md"
+          - "scripts/check-deployment-workflow.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/astro.config.mjs"
+          - "site/public/.nojekyll"
+          - "site/src/i18n/index.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/i18n.test.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "A push to main, or an explicit manual dispatch, builds the canonical static site in the pinned Docker toolchain before publishing anything."
+          - "The deployment build uses /learn-llm.github.io/ as its project-site base while the ordinary local release remains rooted at /."
+          - "Every generated internal route, alternate link, and Astro asset resolves beneath the configured base, and the static audit rejects references that escape it."
+          - "The payload contains .nojekyll and complete English/Russian course routes, then replaces the target repository tree in one generated commit without retaining stale files."
+          - "Cross-repository write access uses only a documented PAGES_DEPLOY_TOKEN secret; the source repository GITHUB_TOKEN remains read-only and no credential is committed or printed."
+          - "The workflow is concurrency-safe, fails closed on a missing token or failed validation, skips an empty deployment commit, and can be rerun manually."
+          - "README documents the actual project-site URL, least-privilege token, source-repository secret, target Pages branch settings, generated-repository boundary, and first deployment."
+          - "Root and project-base production builds, workflow validation, static link/asset audits, focused tests, and repository hygiene all pass before the step is committed."
+        validate:
+          - "./course check"
+          - "./course run node scripts/check-deployment-workflow.mjs"
+          - "./course run npm --prefix site run test -- --run tests/i18n.test.ts tests/content-contract.test.ts tests/deployment.test.ts"
+          - "docker build --build-arg SITE_BASE=/learn-llm.github.io/ --target workspace -t learn-llm-workspace:pages ."
+          - "Inspect the project-base workspace image for .nojekyll, complete localized routes, prefixed internal links/assets, and no root-escaping references"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Ruby ledger validation for YAML, dependency order, exact output ownership, one running step, and immutable prior runs"
+          - "Manual security and failure-boundary review of the cross-repository workflow and setup documentation"
+        cost:
+          class: medium
+          notes: "Deterministic local Docker builds and tests plus read-only official-document research; future Actions runs use GitHub-hosted compute and normal registry downloads. No paid service, generated content, browser download, concept-implementing dependency, or substantial CPU use."
+        runs:
+          - run_id: 20260721T105949Z-deploy-site-to-github-pages-repository-01
+            started_at: "2026-07-21T10:59:49Z"
+            finished_at: "2026-07-21T11:02:18Z"
+            status: interrupted
+            input_fingerprint:
+              git: "883317f6d552f0df65f8116764751971725e3c0d"
+              manifest: ".build/runs/20260721T105949Z-deploy-site-to-github-pages-repository-01/input-fingerprint.txt"
+              checksum: "sha256:11bba566a0c87e1fd35d0d9c38cd94a913b7f180ca8c8ad65fb71b50a3178e2e"
+              external:
+                - "https://github.com/intale/learn-llm.github.io (user-supplied deployment target)"
+                - "Official GitHub Pages site-type and branch-publishing documentation, reverified 2026-07-21"
+                - "Official GitHub Actions GITHUB_TOKEN, workflow syntax, secrets, and actions/checkout documentation, reverified 2026-07-21"
+              tools:
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "22.12.0"
+                npm: "10.9.0"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260721T105949Z-deploy-site-to-github-pages-repository-01/"
+            commands:
+              - "Run the session startup protocol; inspect Git state, the complete build ledger, latest decisions, latest succeeded/interrupted run evidence, and pinned/local environment versions"
+              - "Verify current official GitHub Pages project-site naming, branch publication, cross-repository GITHUB_TOKEN boundary, workflow syntax, secrets, and actions/checkout guidance"
+              - "Resolve the user-confirmed target as the project site https://intale.github.io/learn-llm.github.io/ and retain root hosting for ordinary local releases"
+              - "Fingerprint every material local input and create the run-specific staging directory before product edits"
+              - "Stop before product execution when the user clarified that the desired host was not the intale-owned project URL and then selected native Pages deployment from the current repository"
+            artifacts:
+              - path: ".build/runs/20260721T105949Z-deploy-site-to-github-pages-repository-01/input-fingerprint.txt"
+                checksum: "sha256:11bba566a0c87e1fd35d0d9c38cd94a913b7f180ca8c8ad65fb71b50a3178e2e"
+                notes: "Current commit, material local input hashes, pinned tool versions, target repository/URL, and official external documentation boundary."
+            validation:
+              - command: "Ruby ledger parse, dependency-order, running-step, fingerprint checksum, and git diff hygiene checks"
+                status: passed
+                notes: "The preflight checkpoint was valid with one running step and its immutable fingerprint matched; BUILD_STATE.yaml was the only tracked change."
+            notes: "Interrupted before any site, workflow, documentation, or decision file changed. The user rejected the inferred intale/learn-llm.github.io project URL, clarified the intended clean domain, and then selected native GitHub Pages deployment from intale/learn_llm instead of a separate repository. The input fingerprint and preflight ledger record remain immutable; this step is invalidated and replaced by deploy-current-repository-to-github-pages."
+      - id: deploy-current-repository-to-github-pages
+        objective: "Build and deploy the current intale/learn_llm main branch as a native GitHub Pages project site."
+        depends_on:
+          - implement-ch07-language-model-metrics
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Dockerfile"
+          - "README.md"
+          - "site/astro.config.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/i18n/index.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "https://github.com/intale/learn_llm"
+          - "Current official GitHub Pages custom-workflow and Pages-action documentation (read-only network input)"
+        outputs:
+          - ".github/workflows/deploy-pages.yml"
+          - "Dockerfile"
+          - "README.md"
+          - "scripts/check-deployment-workflow.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/astro.config.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/i18n/index.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/lib/site-path.ts"
+          - "site/src/pages/index.astro"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/i18n.test.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "A push to main, or an explicit manual dispatch, builds the canonical static site in the pinned Docker toolchain before uploading or deploying anything."
+          - "The Pages build consumes configure-pages base_path metadata, so the current repository publishes beneath /learn_llm/ while ordinary local releases remain rooted at /."
+          - "Every generated internal route, alternate link, and Astro asset resolves beneath the configured base, and the static audit rejects references that escape it."
+          - "The uploaded artifact contains complete English/Russian course routes, only regular files/directories, no server runtime, and no stale output from an earlier build."
+          - "Deployment uses the current repository GITHUB_TOKEN with only contents:read, pages:write, and id-token:write; no personal token or cross-repository credential is required."
+          - "Build and deployment jobs are explicitly ordered, target the github-pages environment, expose the deployed URL, serialize deployments safely, and can be rerun manually."
+          - "README documents https://intale.github.io/learn_llm/, the one-time Pages source setting, automatic main-branch behavior, manual dispatch, and the consequence of renaming the repository."
+          - "Root and project-base production builds, workflow validation, static link/asset audits, focused tests, and repository hygiene all pass before the step is committed."
+        validate:
+          - "./course check"
+          - "./course run node scripts/check-deployment-workflow.mjs"
+          - "./course run npm --prefix site run test -- --run tests/i18n.test.ts tests/content-contract.test.ts tests/deployment.test.ts"
+          - "docker build --build-arg SITE_BASE=/learn_llm/ --target site -t learn-llm-site:pages ."
+          - "Inspect the project-base site image for complete localized routes, prefixed internal links/assets, and no root-escaping references"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Ruby ledger validation for YAML, dependency order, exact output ownership, one running step, and immutable prior runs"
+          - "Manual security and failure-boundary review of the native Pages workflow and setup documentation"
+        cost:
+          class: medium
+          notes: "Deterministic local Docker builds and tests plus read-only official-document research; future Actions runs use GitHub-hosted compute and normal registry downloads. No paid service, secret, browser download, generated content, concept-implementing dependency, or substantial CPU use."
+        runs:
+          - run_id: 20260721T110218Z-deploy-current-repository-to-github-pages-01
+            started_at: "2026-07-21T11:02:18Z"
+            finished_at: "2026-07-21T11:29:22Z"
+            status: succeeded
+            input_fingerprint:
+              git: "883317f6d552f0df65f8116764751971725e3c0d"
+              manifest: ".build/runs/20260721T110218Z-deploy-current-repository-to-github-pages-01/input-fingerprint.txt"
+              checksum: "sha256:9aa0d9786d46966685c51dc3bcdac24dcb83089a27964e559b46867cb3d94cae"
+              external:
+                - "https://github.com/intale/learn_llm (current source and Pages repository)"
+                - "Official GitHub Pages custom-workflow documentation, reverified 2026-07-21"
+                - "Official actions/configure-pages base_path output and current v5 action, reverified 2026-07-21"
+                - "Official actions/upload-pages-artifact v5, actions/deploy-pages v5, and actions/checkout v7 documentation, reverified 2026-07-21"
+              tools:
+                docker: "25.0.2"
+                docker_compose: "2.17.3"
+                rustc: "1.93.1"
+                cargo: "1.93.1"
+                node: "22.12.0"
+                npm: "10.9.0"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260721T110218Z-deploy-current-repository-to-github-pages-01/"
+            commands:
+              - "Interrupt and invalidate the separate-repository deployment attempt before product execution when the user selected native Pages on the current repository"
+              - "Verify the current repository origin/name and resolve its default project Pages URL as https://intale.github.io/learn_llm/"
+              - "Verify current official configure-pages base_path, artifact upload, Pages deployment/OIDC permission, environment, job-dependency, and action-version guidance"
+              - "Fingerprint the replacement run against the unchanged product inputs plus the immutable interrupted-run boundary"
+              - "Implement validated SITE_BASE propagation through Astro, locale routes, alternate links, Docker, and the static link/asset audit while retaining / as the default"
+              - "Add a native configure-pages/upload-pages-artifact/deploy-pages workflow, deterministic workflow validator, focused regression tests, and operator documentation"
+              - "Run the root-host Docker gates, workflow check, focused tests, and curriculum-plan validation; separate operational deployment tracking from the exact 53-step curriculum build after the focused suite exposed the initial ledger placement"
+              - "Build learn-llm-site:pages with SITE_BASE=/learn_llm/ and inspect its complete regular-file artifact plus every absolute HTML reference"
+              - "Make the already locked YAML parser an explicit dev dependency, reject unreviewed workflow steps, and constrain manual dispatches to main before repeating the exact root/project validation"
+            artifacts:
+              - path: ".build/runs/20260721T110218Z-deploy-current-repository-to-github-pages-01/input-fingerprint.txt"
+                checksum: "sha256:9aa0d9786d46966685c51dc3bcdac24dcb83089a27964e559b46867cb3d94cae"
+                notes: "Current commit, material product hashes, interrupted-run boundary, pinned tool versions, native Pages URL, and official action inputs/versions."
+            validation:
+              - command: "Initial sandboxed ./course check"
+                status: failed
+                notes: "The restricted sandbox could not update Docker buildx activity under /home/int/.docker; no repository or image defect was reported and no product file changed."
+              - command: "Approved ./course check"
+                status: passed
+                notes: "Root-base workspace image sha256:6b4fee3f...b8d2 passed Rust formatting/tests, Astro diagnostics, content/parity, the 19-page root build, and all 323 local reference checks."
+              - command: "./course run node scripts/check-deployment-workflow.mjs"
+                status: passed
+                notes: "The parsed workflow has only main push/manual triggers, ordered build/deploy jobs, current official action majors, configure-pages-derived SITE_BASE, regular static artifact export, no persisted Git credentials, no secret/git push, and least-scoped job tokens."
+              - command: "First focused Vitest run"
+                status: failed
+                notes: "The new base-path and workflow tests passed, but two pre-existing plan/ledger tests correctly rejected placing operational deployment steps inside the exact curriculum build. No site behavior failed."
+              - command: "Separate github-pages-deployment build; ./course run node scripts/check-course-plan.mjs; rerun focused Vitest"
+                status: passed
+                notes: "The curriculum validator again sees exactly 39 chapters and 53 scheduled steps through Chapter 7. All 32 focused tests pass, including root/project routes, base escapes, workflow drift, credentials, triggers, and dependency order; refreshed root workspace image sha256:7d79802b...abe3 passed its complete prerequisite gate."
+              - command: "docker build --build-arg SITE_BASE=/learn_llm/ --target site -t learn-llm-site:pages ."
+                status: passed
+                notes: "Pages image sha256:054631e5...5dcb built 19 pages and passed the base-aware 323-reference static audit inside the pinned Docker toolchain."
+              - command: "Inspect learn-llm-site:pages regular-file boundary, routes, hreflang, assets, and absolute references"
+                status: passed
+                notes: "The image contains root, both localized course indexes, both Chapter 7 routes, exactly 19 HTML files, no non-file/directory entries, /learn_llm/ x-default and locale routes, prefixed Astro assets, and no absolute HTML reference outside /learn_llm/."
+              - command: "./course audit-host; git diff --check"
+                status: passed
+                notes: "Only the intentional existing site/dist release is present outside tracked sources, and the complete patch has no whitespace errors."
+              - command: "Final root workspace prerequisite, workflow checker, and focused regression suite after dependency/security hardening"
+                status: passed
+                notes: "The explicit yaml 2.9.0 lock installs with zero reported vulnerabilities. Root workspace image sha256:99a8bcd6...1f35 passes every canonical Docker gate; the main-only native Pages workflow passes its parser/security contract; all 32 focused tests pass."
+              - command: "Final exact /learn_llm/ site build and image inspection"
+                status: passed
+                notes: "Pages image sha256:054631e5...5dcb again passes the full workspace and base-aware 323-reference gates. Its 19 HTML pages, localized indexes/Chapter 7 routes, hreflang, Astro assets, regular-file boundary, and all absolute HTML references are correct beneath /learn_llm/."
+              - command: "Ruby ledger/dependency/output/fingerprint validation; manual native Pages security and failure-boundary review; final host/diff audit"
+                status: passed
+                notes: "Six builds and 67 unique steps parse with one active operational run before completion, declared changed outputs only, and intact fingerprints. Manual review confirms main-only execution, no pull-request trigger/secret/git push, no persisted checkout credential, least-scoped per-job permissions, configure→validate→export→upload ordering, build-gated deployment, github-pages environment/OIDC, exposed page_url, and serialized non-interrupting deployments. Host and whitespace audits pass."
+            notes: "Succeeded. The current repository now owns a fail-closed native GitHub Pages artifact workflow for https://intale.github.io/learn_llm/. Root releases remain unchanged at /; Pages consumes configure-pages base_path and has a fully audited /learn_llm/ artifact. The separate-repository attempt remains immutable and invalidated, deployment never entered the 53-step curriculum schedule, and complete-decoder-course is restored as the sole active build. GitHub repository settings remain the documented one-time human action; no external state or secret was changed."

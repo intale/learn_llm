@@ -31,7 +31,10 @@ import {
   validatePublishedChapterSequence,
 } from '../../scripts/check-site-content.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
-import { auditStaticSite } from '../../scripts/check-static-links.mjs';
+import {
+  auditStaticSite,
+  referenceCandidates,
+} from '../../scripts/check-static-links.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import { validateLocaleConfiguration } from '../../scripts/locale-config.mjs';
 import {
@@ -1270,5 +1273,85 @@ describe('static link and locale audit', () => {
         '<img src="/missing.svg"></body></html>',
     );
     expect(() => auditStaticSite(root)).toThrow(/missing\.svg/);
+  });
+
+  it('audits a project-site base and rejects root references that escape it', () => {
+    const root = mkdtempSync(join(tmpdir(), 'learn-llm-project-base-'));
+    temporaryDirectories.push(root);
+    const basePath = '/learn_llm/';
+    mkdirSync(join(root, 'en/course'), { recursive: true });
+    mkdirSync(join(root, 'ru/course'), { recursive: true });
+
+    const alternates = [
+      `<link rel="alternate" hreflang="en" href="${basePath}en/">`,
+      `<link rel="alternate" hreflang="ru" href="${basePath}ru/">`,
+      `<link rel="alternate" hreflang="x-default" href="${basePath}">`,
+    ].join('');
+    const courseAlternates = [
+      `<link rel="alternate" hreflang="en" href="${basePath}en/course/">`,
+      `<link rel="alternate" hreflang="ru" href="${basePath}ru/course/">`,
+      `<link rel="alternate" hreflang="x-default" href="${basePath}">`,
+    ].join('');
+    writeFileSync(
+      join(root, 'index.html'),
+      '<html lang="mul" dir="ltr"><head>' +
+        alternates +
+        `<link rel="stylesheet" href="${basePath}style.css"></head>` +
+        `<body><a href="${basePath}en/">English</a>` +
+        `<a href="${basePath}ru/">Русский</a></body></html>`,
+    );
+    writeFileSync(
+      join(root, 'en/index.html'),
+      '<html lang="en" dir="ltr"><head>' +
+        alternates +
+        `</head><body><a href="${basePath}ru/">Русский</a>` +
+        `<a href="${basePath}en/course/">Course</a></body></html>`,
+    );
+    writeFileSync(
+      join(root, 'ru/index.html'),
+      '<html lang="ru" dir="ltr"><head>' +
+        alternates +
+        `</head><body><a href="${basePath}en/">English</a>` +
+        `<a href="${basePath}ru/course/">Курс</a></body></html>`,
+    );
+    writeFileSync(
+      join(root, 'en/course/index.html'),
+      '<html lang="en" dir="ltr"><head>' +
+        courseAlternates +
+        `</head><body><a href="${basePath}ru/course/">Русский</a></body></html>`,
+    );
+    writeFileSync(
+      join(root, 'ru/course/index.html'),
+      '<html lang="ru" dir="ltr"><head>' +
+        courseAlternates +
+        `</head><body><a href="${basePath}en/course/">English</a></body></html>`,
+    );
+    writeFileSync(
+      join(root, 'style.css'),
+      `@font-face{src:url("${basePath}font.woff2")}`,
+    );
+    writeFileSync(join(root, 'font.woff2'), '');
+
+    expect(auditStaticSite(root, undefined, { basePath })).toEqual(
+      expect.objectContaining({ htmlCount: 5 }),
+    );
+    expect(referenceCandidates(`${basePath}en/`, 'index.html', basePath)).toEqual([
+      'en/index.html',
+    ]);
+    expect(referenceCandidates('/en/', 'index.html', basePath)).toEqual({
+      error: `escapes configured site base ${basePath}`,
+    });
+
+    const englishHome = join(root, 'en/index.html');
+    writeFileSync(
+      englishHome,
+      readFileSync(englishHome, 'utf8').replace(
+        `href="${basePath}ru/"`,
+        'href="/ru/"',
+      ),
+    );
+    expect(() => auditStaticSite(root, undefined, { basePath })).toThrow(
+      /escapes configured site base \/learn_llm\//,
+    );
   });
 });

@@ -89,11 +89,34 @@ Deploy the **contents** of `site/dist/` at the host's URL root. The static host
 must support directory `index.html` routes. Do not open
 `site/dist/index.html` with `file://`, and do not serve the repository root and
 browse to `/site/dist/`: generated links are root-relative, so `site/dist` must
-be the HTTP document root.
+be the HTTP document root. This remains the contract for `./course release`;
+the GitHub Actions deployment below creates a separately validated project-base
+build.
 
 `site/dist` is the one intentional generated host tree. It contains only static
 HTML, CSS, fonts, and other browser assets; it contains no Rust, Node.js, or
 Python toolchain.
+
+## Deploy with GitHub Pages
+
+The Pages workflow publishes this repository at
+<https://intale.github.io/learn_llm/>. One repository setting is required before
+the first deployment: open **Settings → Pages**, then set **Build and deployment
+→ Source** to **GitHub Actions**.
+
+Every push to `main` runs `.github/workflows/deploy-pages.yml`. The workflow asks
+GitHub Pages for the repository's current base path, builds and validates the
+static site in the pinned Docker toolchain, uploads that exact static artifact,
+and deploys it through the `github-pages` environment. To rerun it without a
+commit, open **Actions → Deploy GitHub Pages → Run workflow** and select `main`.
+Manual runs from other branches are skipped.
+
+No personal access token, deployment branch, generated-site commit, or separate
+repository is involved. The workflow uses only the current repository's scoped
+`GITHUB_TOKEN`. The unused `intale/learn-llm.github.io` repository is not part of
+this deployment. If this repository is renamed, its default Pages URL changes;
+the workflow derives the new project base from GitHub rather than hard-coding
+`/learn_llm/`.
 
 ## Run a Rust example
 

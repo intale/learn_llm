@@ -2805,3 +2805,51 @@ release, the succeeded checkpoint, and its dedicated commit all finish.
 
 **Affected step:** `implement-ch07-language-model-metrics`, run
 `20260721T045544Z-implement-ch07-language-model-metrics-04`.
+
+## 2026-07-21 — Deploy the current repository as a GitHub Pages project site
+
+**Status:** Accepted after correcting the deployment target before product work.
+
+**Context:** The first deployment preflight treated the newly created
+`intale/learn-llm.github.io` repository as the requested publication target. A
+repository with that name under the `intale` account would be a project site at
+`https://intale.github.io/learn-llm.github.io/`; it cannot claim
+`https://learn-llm.github.io/`, which belongs to a GitHub user or organization
+named `learn-llm`. The user then chose to avoid the extra repository and publish
+the existing `intale/learn_llm` repository directly.
+
+**Decision:** Use GitHub's native Pages artifact workflow in this repository.
+On pushes to `main` and manual dispatches, build the complete static site in the
+pinned Docker toolchain, upload only the validated artifact, and deploy it from
+a dependent job to the `github-pages` environment. Grant the built-in
+`GITHUB_TOKEN` only `contents: read`, `pages: write`, and `id-token: write`; do
+not introduce a personal access token or cross-repository push.
+
+Use `actions/configure-pages` as the authority for the deployment base path and
+pass its `base_path` output into the Docker build. The current repository
+therefore publishes at `https://intale.github.io/learn_llm/`, while a future
+repository rename or custom domain can change the Pages base without rewriting
+the workflow. Extend route generation and static link validation to honor that
+build-time base. Preserve `/` as the default for `./course build`, `./course
+release`, local preview, and every existing root-host validation.
+
+The original root-only decision remains the default artifact contract; this
+decision explicitly adds a separately validated Pages project-base build rather
+than silently changing local release behavior. The unexecuted separate-repository
+attempt is retained as an interrupted run and its step is invalidated.
+
+Track deployment in the separate `github-pages-deployment` operational build.
+It may depend on the latest completed chapter, but it does not become a chapter
+prerequisite or alter the reviewed 53-step curriculum schedule. Pause the course
+build only while this overlapping integration work is active, then restore it as
+the sole active build when deployment is complete.
+
+**Consequences:** The source repository needs one GitHub setting after this
+commit: Settings → Pages → Source must be **GitHub Actions**. No generated site
+files or deployment branch are committed, and the unused
+`intale/learn-llm.github.io` repository is outside this workflow. Renaming
+`learn_llm` changes the default Pages URL, but the configure-pages-derived build
+remains base-aware.
+
+**Affected steps:** `deploy-site-to-github-pages-repository` (invalidated) and
+`deploy-current-repository-to-github-pages`.

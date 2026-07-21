@@ -14,6 +14,10 @@ import {
   validateMessageCatalog,
   validateLocaleManifest,
 } from '../src/i18n';
+import {
+  normalizeSiteBase,
+  sitePathForBase,
+} from '../src/lib/site-path';
 
 describe('localized message catalogs', () => {
   it('loads one exact-shape catalog for every configured locale', () => {
@@ -69,6 +73,35 @@ describe('localized message catalogs', () => {
 });
 
 describe('localized route helpers', () => {
+  it('keeps root builds unchanged and prefixes project-site routes exactly once', () => {
+    expect(normalizeSiteBase('/')).toBe('/');
+    expect(normalizeSiteBase('/learn_llm/')).toBe('/learn_llm/');
+    expect(sitePathForBase('/', '/')).toBe('/');
+    expect(sitePathForBase('/en/course/', '/')).toBe('/en/course/');
+    expect(sitePathForBase('/', '/learn_llm/')).toBe('/learn_llm/');
+    expect(sitePathForBase('/en/course/', '/learn_llm/')).toBe(
+      '/learn_llm/en/course/',
+    );
+    expect(
+      sitePathForBase(
+        '/ru/course/01-text-units/?view=code#formula',
+        '/learn_llm/',
+      ),
+    ).toBe('/learn_llm/ru/course/01-text-units/?view=code#formula');
+  });
+
+  it('rejects ambiguous or escaping deployment paths', () => {
+    expect(() => normalizeSiteBase('learn_llm/')).toThrow(/start with/);
+    expect(() => normalizeSiteBase('/learn_llm')).toThrow(/normalized/);
+    expect(() => normalizeSiteBase('/learn_llm/../')).toThrow(/unsafe/);
+    expect(() => sitePathForBase('//example.test/path', '/learn_llm/')).toThrow(
+      /absolute-path reference/,
+    );
+    expect(() => sitePathForBase('/../en/', '/learn_llm/')).toThrow(
+      /dot segments/,
+    );
+  });
+
   it('builds locale-prefixed static paths', () => {
     expect(localePath('en')).toBe('/en/');
     expect(localePath('ru', '/course/01-text-units/')).toBe('/ru/course/01-text-units/');

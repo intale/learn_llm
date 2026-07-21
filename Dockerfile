@@ -10,6 +10,8 @@ COPY Cargo.toml Cargo.lock ./
 COPY rust/ rust/
 COPY site/package.json site/package-lock.json site/
 RUN npm --prefix site ci --ignore-scripts
+ARG SITE_BASE=/
+ENV SITE_BASE=${SITE_BASE}
 COPY . .
 
 FROM source AS workspace

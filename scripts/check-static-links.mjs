@@ -45,7 +45,47 @@ function cleanReference(value) {
     .split('?', 1)[0];
 }
 
-export function referenceCandidates(reference, ownerRelativePath) {
+const siteBaseSegmentPattern = /^[A-Za-z0-9._~-]+$/;
+
+export function normalizeSiteBase(value) {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error('Site base must be a non-empty absolute path.');
+  }
+  if (!value.startsWith('/') || value.includes('\\') || /[?#]/.test(value)) {
+    throw new Error(
+      'Site base must start with / and contain no query, fragment, or backslash.',
+    );
+  }
+
+  const segments = value.split('/').filter(Boolean);
+  if (
+    segments.some(
+      (segment) =>
+        segment === '.' ||
+        segment === '..' ||
+        !siteBaseSegmentPattern.test(segment),
+    )
+  ) {
+    throw new Error('Site base contains an unsafe path segment.');
+  }
+
+  const normalized = segments.length === 0 ? '/' : `/${segments.join('/')}/`;
+  if (value !== normalized) {
+    throw new Error(`Site base must use normalized directory syntax: ${normalized}`);
+  }
+  return normalized;
+}
+
+function siteReference(path, siteBase) {
+  return siteBase === '/' ? path : siteBase + path.slice(1);
+}
+
+export function referenceCandidates(
+  reference,
+  ownerRelativePath,
+  siteBase = '/',
+) {
+  const normalizedBase = normalizeSiteBase(siteBase);
   if (
     typeof reference !== 'string' ||
     reference.length === 0 ||
@@ -65,9 +105,20 @@ export function referenceCandidates(reference, ownerRelativePath) {
   const ownerDirectory = nodePath.posix.dirname(
     ownerRelativePath.replaceAll('\\', '/'),
   );
-  let relative = cleaned.startsWith('/')
-    ? cleaned.slice(1)
-    : nodePath.posix.join(ownerDirectory, cleaned);
+  let relative;
+  if (cleaned.startsWith('/')) {
+    if (normalizedBase === '/') {
+      relative = cleaned.slice(1);
+    } else if (cleaned === normalizedBase.slice(0, -1)) {
+      relative = '';
+    } else if (cleaned.startsWith(normalizedBase)) {
+      relative = cleaned.slice(normalizedBase.length);
+    } else {
+      return { error: `escapes configured site base ${normalizedBase}` };
+    }
+  } else {
+    relative = nodePath.posix.join(ownerDirectory, cleaned);
+  }
   relative = nodePath.posix.normalize(relative);
   if (relative === '.' || relative === '') relative = '';
 
@@ -131,6 +182,7 @@ function validateHreflang(
   source,
   issues,
   localeConfiguration,
+  siteBase,
 ) {
   const route = htmlRoute(relativePath);
   const htmlTag = source.match(/<html\b[^>]*>/);
@@ -192,7 +244,7 @@ function validateHreflang(
       issues.push(relativePath + ': root language chooser must use html lang="mul"');
     }
     for (const definition of localeConfiguration.definitions) {
-      const expected = '/' + definition.code + '/';
+      const expected = siteReference('/' + definition.code + '/', siteBase);
       if (alternateHref(definition.languageTag) !== expected) {
         issues.push(
           relativePath +
@@ -208,8 +260,10 @@ function validateHreflang(
         );
       }
     }
-    if (alternateHref('x-default') !== '/') {
-      issues.push(relativePath + ': expected hreflang x-default to point to /');
+    if (alternateHref('x-default') !== siteBase) {
+      issues.push(
+        relativePath + ': expected hreflang x-default to point to ' + siteBase,
+      );
     }
     return;
   }
@@ -235,7 +289,7 @@ function validateHreflang(
     );
   }
   for (const alternate of localeConfiguration.definitions) {
-    const expected = '/' + alternate.code + suffix;
+    const expected = siteReference('/' + alternate.code + suffix, siteBase);
     if (alternateHref(alternate.languageTag) !== expected) {
       issues.push(
         relativePath +
@@ -254,8 +308,13 @@ function validateHreflang(
       );
     }
   }
-  if (alternateHref('x-default') !== '/') {
-    issues.push(relativePath + ': localized page must include hreflang x-default="/"');
+  if (alternateHref('x-default') !== siteBase) {
+    issues.push(
+      relativePath +
+        ': localized page must include hreflang x-default="' +
+        siteBase +
+        '"',
+    );
   }
 }
 
@@ -264,13 +323,14 @@ function validateLocalizedCourseEntry(
   source,
   issues,
   localeConfiguration,
+  siteBase,
 ) {
   const route = htmlRoute(relativePath);
   const localeMatch = route.match(/^\/([^/]+)\/$/);
   if (!localeMatch) return;
   if (!localeConfiguration.locales.includes(localeMatch[1])) return;
 
-  const expected = '/' + localeMatch[1] + '/course/';
+  const expected = siteReference('/' + localeMatch[1] + '/course/', siteBase);
   const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
     .map((match) => attributes(match[0]).href)
     .filter(Boolean);
@@ -287,6 +347,7 @@ function validateLocalizedCourseEntry(
 export function auditStaticSite(
   distDirectory,
   localeConfiguration = LOCALE_CONFIGURATION,
+  { basePath = '/' } = {},
 ) {
   if (!existsSync(distDirectory)) {
     throw new ContentValidationError([
@@ -295,6 +356,7 @@ export function auditStaticSite(
   }
 
   const absoluteDist = nodePath.resolve(distDirectory);
+  const siteBase = normalizeSiteBase(basePath);
   const files = listFiles(absoluteDist);
   const knownFiles = new Set(
     files.map((filePath) =>
@@ -317,17 +379,24 @@ export function auditStaticSite(
 
     if (extension === '.html') {
       htmlCount += 1;
-      validateHreflang(relative, source, issues, localeConfiguration);
+      validateHreflang(
+        relative,
+        source,
+        issues,
+        localeConfiguration,
+        siteBase,
+      );
       validateLocalizedCourseEntry(
         relative,
         source,
         issues,
         localeConfiguration,
+        siteBase,
       );
     }
 
     for (const reference of references) {
-      const candidates = referenceCandidates(reference, relative);
+      const candidates = referenceCandidates(reference, relative, siteBase);
       if (Array.isArray(candidates) && candidates.length === 0) continue;
       referenceCount += 1;
       if (!Array.isArray(candidates)) {
@@ -363,7 +432,11 @@ export function auditStaticSite(
 
 export function runStaticLinkCheck(cwd = process.cwd()) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
-  return auditStaticSite(nodePath.join(repositoryRoot, 'site/dist'));
+  return auditStaticSite(
+    nodePath.join(repositoryRoot, 'site/dist'),
+    LOCALE_CONFIGURATION,
+    { basePath: process.env.SITE_BASE ?? '/' },
+  );
 }
 
 function isMainModule() {
