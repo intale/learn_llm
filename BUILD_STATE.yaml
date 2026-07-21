@@ -6946,6 +6946,63 @@ builds:
                 status: passed
                 notes: "The host-artifact audit passed with only the intentional ignored static release; all 18 canonical hashes still match publish.sha256; Git diff whitespace and course-plan validation pass; build definitions, dependency manifests, and locale registries have no diff; no Russian placeholder exists; unrelated desktop.ini remains untracked and untouched."
             notes: "Succeeded after independent defect-finding and clean re-review, immutable 18-file staged review, manifest-only promotion, complete canonical Linux and Chromium regression, and final repository-boundary validation. Chapter 9 adds English tensor-view instruction and no build change or Russian placeholder."
+          - run_id: 20260721T153554Z-implement-ch09-tensor-views-02
+            started_at: "2026-07-21T15:35:54Z"
+            finished_at: "2026-07-21T15:46:08Z"
+            status: succeeded
+            input_fingerprint:
+              git: "f54488853288ea07268ad3ee698d1f6334bc469c"
+              manifest: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/input-fingerprint.txt"
+              checksum: "sha256:3cbd2133860b3355c996bcf1708a44ac2b3d71a041e21ffee6c0e992fffae8e1"
+              prior_artifact: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish.sha256 (all 18 canonical outputs reverified)"
+              tools: "Docker client/server 29.6.2; rustc/cargo 1.93.1; Node 22.12.0; npm 10.9.0; container Git 2.39.5; Windows Git 2.55.0.windows.3; core.fileMode=false"
+              user_evidence: "The standalone Start with one owned storage buffer card extends farther below its content than intended in the rebuilt preview."
+            staging_dir: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/"
+            commands:
+              - "Session restart: Windows Git status and HEAD; complete BUILD_STATE YAML parse; latest DECISIONS and Chapter 9 run inspection; Docker tool and preview-image comparison"
+              - "Reverify the immutable Chapter 9 manifest against all 18 canonical outputs"
+              - "Inspect the locale-neutral diagram markup and CSS box model; attempt the in-app browser connection and preserve its unavailable status"
+              - "Add and run the focused box-model regression against the unchanged Chapter 9 CSS, then scope `height: 100%` to comparison-grid cards"
+              - "Run staged Astro diagnostics, all 243 Vitest cases, production build/static-link validation, and all 35 Chromium 1228 cases"
+              - "Freeze the two-file publish manifest and run `./course review 20260721T153554Z-implement-ch09-tensor-views-02 --check`"
+              - "Promote exactly the two manifest-listed files with apply_patch and verify their canonical SHA-256 values"
+              - "Run canonical unchanged `./course check`, all 243 Vitest cases in the resulting network-disabled workspace, and all 35 checksum-verified Chromium 1228 cases"
+              - "Run the final host-artifact, course-plan, YAML, manifest, whitespace, scope, build-file, and repository-boundary audits"
+            artifacts:
+              - path: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/input-fingerprint.txt"
+                checksum: "sha256:3cbd2133860b3355c996bcf1708a44ac2b3d71a041e21ffee6c0e992fffae8e1"
+              - path: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/publish/site/src/components/chapters/TensorViewsDiagram.astro"
+                checksum: "sha256:ad6d0feaf2526ae72ab90f16cac41936cb19826e98353dfa0cbf28603bc71e9d"
+              - path: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/publish/site/tests/e2e/ch09-tensor-views.spec.ts"
+                checksum: "sha256:c0707210f56d9bb457513df2e4d8a3d30cf2c4c62fb453c15b14449bf4751827"
+              - path: ".build/runs/20260721T153554Z-implement-ch09-tensor-views-02/publish.sha256"
+                checksum: "sha256:88e0ad841cbb0f4a9c47a43533527c09c76a82f731d4ba87664b998b43f89808"
+            validation:
+              - command: "Startup state, dependency, environment, and repository-boundary audit"
+                status: passed
+                notes: "Parsed six builds and all 68 scheduled steps with no stale running work; Chapter 10 was otherwise next eligible. HEAD is the completed Chapter 9 commit f544888 and only unrelated desktop.ini is untracked."
+              - command: "Prior Chapter 9 immutable publication handoff"
+                status: passed
+                notes: "All 18 prior manifest hashes still match canonical files; the user's rebuilt preview image is sha256:7c154b...c6bd and serves the current source."
+              - command: "CSS defect isolation"
+                status: passed
+                notes: "The shared `.view-card, .error-card` rule applies `height: 100%` to the standalone base card even though equal-height stretching is only required for cards inside `.view-grid` and `.error-list`. The in-app browser backend is unavailable, so rendered verification will use the repository's retained Chromium 1228 test environment."
+              - command: "Focused regression before and after the staged CSS correction"
+                status: passed
+                notes: "The new rendered assertion first failed against the unchanged CSS with 114.0375 pixels of excess bottom space. After scoping equal-height stretching to `.view-grid .view-card` and `.error-list .error-card`, all three Chapter 9 browser cases pass at desktop and 390-pixel widths; the paired comparison cards retain equal heights."
+              - command: "Complete staged site and Chromium regression"
+                status: passed
+                notes: "Astro reports zero diagnostics; all 243 Vitest cases pass; the static production build emits 21 pages; 371 local references and 21 SEO routes pass; all 35 Chromium 1228 cases pass. An independent read-only review found no concrete defect."
+              - command: "Frozen-manifest staged review"
+                status: passed
+                notes: "The manifest names exactly two regular staged files and matches both checksums. `./course review 20260721T153554Z-implement-ch09-tensor-views-02 --check` rebuilt the immutable overlay, repeated content/parity, zero-diagnostic Astro, 21-page build, 371-reference, and 21-SEO-route checks, and left publish/ unchanged."
+              - command: "Checksum-verified canonical Linux and browser validation"
+                status: passed
+                notes: "Both canonical product hashes match the frozen manifest. The unchanged Docker build passed formatting, every Rust test, content/parity, zero Astro diagnostics, a 21-page production build, 371 local references, and 21 SEO routes; the resulting network-disabled workspace passed the course plan and all 243 Vitest cases. A fresh browser build using the exact canonical hashes passed all 35 Chromium cases."
+              - command: "Final manifest, host, state, whitespace, scope, and repository-boundary audit"
+                status: passed
+                notes: "The two canonical hashes and the immutable manifest checksum still match; host artifacts and Git diff whitespace pass; BUILD_STATE is valid YAML and the course plan reports nine implemented contracts. Only the component, its focused E2E test, BUILD_STATE, and DECISIONS changed; build, dependency, locale, lesson, trace, and Rust files have no diff; unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded after reproducing 114.0375 pixels of excess rendered space, scoping equal-height CSS to comparison grids, independent defect review, immutable two-file staged review, manifest-only promotion, and complete canonical Linux and Chromium regression. No build definition or lesson content changed."
       - id: implement-ch10-broadcasting-reductions
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:

@@ -299,11 +299,13 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
   .view-card,
   .error-card {
     min-width: 0;
-    height: 100%;
     padding: 0.9rem;
     border: 0.15rem solid currentColor;
     border-radius: 0.55rem;
   }
+
+  .view-grid .view-card,
+  .error-list .error-card { height: 100%; }
 
   .view-card.shared { border-style: solid; }
   .view-card.materialized { border-style: double; border-width: 0.3rem; }

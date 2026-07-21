@@ -166,6 +166,24 @@ async function expectChapterContent(
     { offset: '5', value: '22.0' },
   ]);
 
+  const storageCardFit = await diagram
+    .locator('.storage-panel > .view-card')
+    .evaluate((card) => {
+      const finalContent = card.querySelector<HTMLElement>('.buffer-scroll');
+      if (!finalContent) throw new Error('The storage card has no final buffer region.');
+      const cardStyle = window.getComputedStyle(card);
+      return {
+        actualBottomGap:
+          card.getBoundingClientRect().bottom - finalContent.getBoundingClientRect().bottom,
+        expectedBottomGap:
+          Number.parseFloat(cardStyle.paddingBottom) +
+          Number.parseFloat(cardStyle.borderBottomWidth),
+      };
+    });
+  expect(
+    Math.abs(storageCardFit.actualBottomGap - storageCardFit.expectedBottomGap),
+  ).toBeLessThan(1);
+
   await expectViewCard(page, 'reshape', {
     storage: 'base',
     contiguous: 'yes',

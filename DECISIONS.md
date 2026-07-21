@@ -3150,3 +3150,29 @@ remain unchanged.
 
 **Affected step and run:** `implement-ch09-tensor-views`, run
 `20260721T143340Z-implement-ch09-tensor-views-01`.
+
+## 2026-07-21 — Stretch only comparison-grid cards in the Chapter 9 diagram
+
+**Status:** Accepted after the user's rendered Chapter 9 review.
+
+**Context:** The base-storage card is the only standalone `.view-card` in the
+diagram. A shared rule gives every view and error card `height: 100%`, which is
+useful for equal-height cards inside comparison grids but makes the standalone
+base card extend below its last content region. The user's rebuilt preview made
+that empty bottom area visible. Source inspection isolates the rule; the in-app
+browser backend is unavailable in this session.
+
+**Decision:** Keep equal-height stretching for `.view-card` elements inside
+`.view-grid` and `.error-card` elements inside `.error-list`, but let the
+standalone storage card use its intrinsic content height. Add a rendered
+box-model assertion at both the existing desktop and narrow Chapter 9 widths so
+the card's bottom edge equals its final content edge plus declared padding and
+border.
+
+**Consequences:** The storage card fits its contents while the paired transform,
+copy, and rejection cards retain equal heights. The change touches only the
+locale-neutral diagram CSS and its focused browser regression; Rust evidence,
+lesson copy, SEO, locales, dependencies, and build definitions remain unchanged.
+
+**Affected step and run:** `implement-ch09-tensor-views`, run
+`20260721T153554Z-implement-ch09-tensor-views-02`.
