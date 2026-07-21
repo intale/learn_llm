@@ -9,9 +9,10 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
-/// Contiguous tensor foundations introduced in Chapter 8.
+/// Contiguous tensor foundations and borrowed views from Chapters 8 and 9.
 pub mod tensor {
     pub mod storage;
+    pub mod view;
 }
 
 /// Tokenizer construction and application taught in Chapters 3 and 4.

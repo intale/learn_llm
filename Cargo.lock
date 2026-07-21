@@ -56,6 +56,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch09-tensor-views"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

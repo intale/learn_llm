@@ -3080,3 +3080,73 @@ Cargo metadata. Existing completed examples remain untouched.
 
 **Affected step and run:** `implement-ch08-tensor-storage`, run
 `20260721T151611Z-implement-ch08-tensor-storage-01`.
+
+## 2026-07-21 — Make Chapter 9 view evidence and ownership explicit
+
+**Status:** Accepted during Chapter 9 preflight.
+
+**Context:** The scheduled Chapter 9 step owns a Rust-backed visualization, but
+its output list omitted the locale-neutral TypeScript trace parser and its gate
+did not regenerate the diagram fixture byte for byte. The cumulative view API
+also needs a small internal refactor of Chapter 8 storage helpers so owned tensors
+and borrowed views share the same checked layout and offset rules. Read-only
+preflight found no need to change the shared build, dependency policy, routing,
+locale projection, SEO infrastructure, or browser helpers.
+
+**Decision:** Add `tensor/storage.rs` and the Chapter 8 implementation and
+fixture-projection files as explicit material inputs, add `tensor/storage.rs` and
+`site/src/lib/tensor-views-diagram.ts` to the exact outputs, and add a locked,
+byte-exact `ch09-tensor-views-trace` regeneration command. Give the new Cargo
+example a unique target name from the outset.
+
+Freeze one owned `2 x 3` tensor whose reshape, transpose, inner-axis slice, and
+materialized copy expose shape, element strides, base offset, logical order, and
+storage identity. Views remain immutable and borrow the owned tensor; reshape is
+allowed only for equal-element-count row-major-contiguous views; slicing is
+half-open and unit-step; materialization is the explicit value-copy boundary.
+Scalar, empty, singleton-axis, overflow, invalid-permutation, invalid-slice, and
+non-contiguous cases remain part of the checked API. Arithmetic, broadcasting,
+negative or stepped strides, mutable views, dtype/device behavior, and gradients
+remain later work.
+
+The historical account must not claim that virtual rearrangement is recent:
+Iliffe's 1961 Genie paper explicitly describes virtual row interchange and
+transposition without moving stored elements, while also naming codeword-space
+and indirect-addressing costs. Official NumPy documentation supplies the modern
+shape/stride/offset and copy-versus-view behavior; the official Rust slice
+reference bounds the borrowed-view terminology. These exact URLs are declared
+step inputs, and the lesson must distinguish source facts from this course's
+local API policy.
+
+**Consequences:** Chapter 9 can prove one Rust source of truth for values,
+offsets, contiguity, and copy boundaries before static rendering. The parser may
+validate and project the trace but may not reimplement tensor decisions. Chapter
+9 publishes English only; Russian receives no placeholder route. No package,
+shared build edit, host-only path, or Linux divergence is introduced, and the
+unrelated untracked `desktop.ini` remains outside the step.
+
+**Affected step:** `implement-ch09-tensor-views`.
+
+## 2026-07-21 — Keep selective-locale coverage stable as English chapters grow
+
+**Status:** Accepted after the first complete Chapter 9 browser regression.
+
+**Context:** The shared selective-locale browser fixture intentionally replaces
+Chapter 8 and verifies that English publishes it while Russian remains deferred.
+Its index assertion used the last two English entries as a shortcut for the
+Chapter 7-to-8 boundary. Publishing Chapter 9 makes Chapter 8 penultimate, so the
+shortcut fails even though the fixture route, locale availability, and navigation
+are correct.
+
+**Decision:** Add `site/tests/e2e/chapter-locales.spec.ts` as a declared Chapter 9
+integration output. Locate the Chapter 8 fixture in the ordered English catalog
+and assert that its immediate predecessor is Chapter 7; do not assume that the
+fixture is the final published English chapter.
+
+**Consequences:** The test continues to prove the intended selective-locale
+boundary and remains valid when later English-only chapters are added. Production
+routing, locale data, shared build configuration, and completed chapter content
+remain unchanged.
+
+**Affected step and run:** `implement-ch09-tensor-views`, run
+`20260721T143340Z-implement-ch09-tensor-views-01`.

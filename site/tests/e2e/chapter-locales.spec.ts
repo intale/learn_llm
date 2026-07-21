@@ -382,10 +382,20 @@ test.describe(
       const englishChapters = await readOrderedCourseChapters(page, 'en', {
         origin: fixtureOrigin,
       });
-      expect(englishChapters.slice(-2).map(({ chapterId }) => chapterId)).toEqual([
+      const fixtureChapterIndex = englishChapters.findIndex(
+        ({ chapterId }) => chapterId === fixtureChapterId,
+      );
+      expect(fixtureChapterIndex).toBeGreaterThan(0);
+      expect(
+        englishChapters
+          .slice(fixtureChapterIndex - 1, fixtureChapterIndex + 1)
+          .map(({ chapterId }) => chapterId),
+      ).toEqual([
         previousChapterId,
         fixtureChapterId,
       ]);
+      const nextEnglishChapter = englishChapters[fixtureChapterIndex + 1];
+      expect(nextEnglishChapter).toBeDefined();
       for (const definition of chapterLocaleDefinitions) {
         await expect(
           page.locator(
@@ -463,7 +473,7 @@ test.describe(
       ).toHaveAttribute('data-chapter-id', previousChapterId);
       await expect(
         page.locator('a[data-chapter-direction="next"]'),
-      ).toHaveCount(0);
+      ).toHaveAttribute('data-chapter-id', nextEnglishChapter!.chapterId);
 
       const russianFallback = page.locator(
         '.locale-switch a[data-locale="ru"]',

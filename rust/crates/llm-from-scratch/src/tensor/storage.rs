@@ -57,7 +57,9 @@ impl fmt::Display for TensorError {
 impl Error for TensorError {}
 
 // region:tensor-storage-invariants
-fn checked_row_major_layout(shape: &[usize]) -> Result<(Vec<usize>, usize), TensorError> {
+pub(crate) fn checked_row_major_layout(
+    shape: &[usize],
+) -> Result<(Vec<usize>, usize), TensorError> {
     if shape.is_empty() {
         return Ok((Vec::new(), 1));
     }
@@ -73,6 +75,42 @@ fn checked_row_major_layout(shape: &[usize]) -> Result<(Vec<usize>, usize), Tens
         .checked_mul(strides[0])
         .ok_or(TensorError::ShapeOverflow)?;
     Ok((strides, element_count))
+}
+
+pub(crate) fn checked_offset(
+    shape: &[usize],
+    strides: &[usize],
+    base_offset: usize,
+    coordinate: &[usize],
+) -> Result<usize, TensorError> {
+    debug_assert_eq!(shape.len(), strides.len());
+
+    if coordinate.len() != shape.len() {
+        return Err(TensorError::RankMismatch {
+            expected: shape.len(),
+            actual: coordinate.len(),
+        });
+    }
+
+    let mut offset = base_offset;
+    for (axis, ((&index, &dimension), &stride)) in
+        coordinate.iter().zip(shape).zip(strides).enumerate()
+    {
+        if index >= dimension {
+            return Err(TensorError::IndexOutOfBounds {
+                axis,
+                index,
+                dimension,
+            });
+        }
+        let contribution = index
+            .checked_mul(stride)
+            .ok_or(TensorError::ShapeOverflow)?;
+        offset = offset
+            .checked_add(contribution)
+            .ok_or(TensorError::ShapeOverflow)?;
+    }
+    Ok(offset)
 }
 
 impl Tensor {
@@ -135,35 +173,7 @@ impl Tensor {
     // region:row-major-indexing
     /// Maps one in-bounds coordinate to its row-major flat-buffer offset.
     pub fn offset(&self, coordinate: &[usize]) -> Result<usize, TensorError> {
-        if coordinate.len() != self.rank() {
-            return Err(TensorError::RankMismatch {
-                expected: self.rank(),
-                actual: coordinate.len(),
-            });
-        }
-
-        let mut offset = 0_usize;
-        for (axis, ((&index, &dimension), &stride)) in coordinate
-            .iter()
-            .zip(&self.shape)
-            .zip(&self.strides)
-            .enumerate()
-        {
-            if index >= dimension {
-                return Err(TensorError::IndexOutOfBounds {
-                    axis,
-                    index,
-                    dimension,
-                });
-            }
-            let contribution = index
-                .checked_mul(stride)
-                .ok_or(TensorError::ShapeOverflow)?;
-            offset = offset
-                .checked_add(contribution)
-                .ok_or(TensorError::ShapeOverflow)?;
-        }
-        Ok(offset)
+        checked_offset(&self.shape, &self.strides, 0, coordinate)
     }
 
     /// Borrows the value at one checked coordinate.

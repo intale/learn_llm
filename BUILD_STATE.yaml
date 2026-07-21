@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-21T14:12:09Z"
+updated_at: "2026-07-21T14:44:09Z"
 
 environment:
   os: "Linux x86_64"
@@ -6756,7 +6756,7 @@ builds:
         objective: "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
         depends_on:
           - implement-ch08-tensor-storage
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -6764,6 +6764,20 @@ builds:
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/demos/ch08-tensor-storage/Cargo.toml"
+          - "rust/demos/ch08-tensor-storage/diagram-trace.txt"
+          - "rust/demos/ch08-tensor-storage/src/lib.rs"
+          - "rust/demos/ch08-tensor-storage/src/main.rs"
+          - "rust/demos/ch08-tensor-storage/src/diagram_trace.rs"
+          - "site/src/content.config.ts"
+          - "site/src/components/chapters/TensorStorageDiagram.astro"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/src/lib/tensor-storage-diagram.ts"
+          - "site/tests/08-tensor-storage-diagram.test.ts"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -6778,15 +6792,22 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://archive.computerhistory.org/resources/access/text/2015/09/102726217-05-01-acc.pdf"
+          - "https://numpy.org/doc/stable/user/basics.copies.html"
+          - "https://numpy.org/doc/stable/dev/internals.html"
+          - "https://doc.rust-lang.org/stable/reference/types/slice.html"
         outputs:
           - "curriculum/chapters/09-tensor-views.md"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "rust/crates/llm-from-scratch/src/tensor/view.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch09-tensor-views/"
           - "site/src/content/chapters/en/09-tensor-views.mdx"
           - "site/src/components/chapters/TensorViewsDiagram.astro"
+          - "site/src/lib/tensor-views-diagram.ts"
           - "site/tests/09-tensor-views-diagram.test.ts"
           - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
@@ -6804,6 +6825,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch09-tensor-views | diff -u rust/demos/ch09-tensor-views/expected.txt -"
+          - "cargo run --quiet --locked -p ch09-tensor-views --example ch09-tensor-views-trace | diff -u rust/demos/ch09-tensor-views/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 09-tensor-views"
           - "npm --prefix site run check:parity -- --chapter 09-tensor-views"
           - "npm --prefix site run check:content"
@@ -6815,8 +6837,115 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work. Preflight source review reads four declared primary or official URLs; subsequent implementation and validation reuse local Docker caches. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build-definition change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260721T143340Z-implement-ch09-tensor-views-01
+            started_at: "2026-07-21T14:33:40Z"
+            finished_at: "2026-07-21T15:25:00Z"
+            status: succeeded
+            input_fingerprint:
+              git: "40954507fcbbb27843cb20ec66d5ecbbc694aa05"
+              manifest: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/input-fingerprint.txt"
+              checksum: "sha256:d3ea3a17547f5ac2619d894a3fd3b962e3e8edb1c82dae0d7f411ac05c003f8d"
+              prior_artifact: ".build/runs/20260721T151611Z-implement-ch08-tensor-storage-01/publish.sha256 (16 staged and canonical outputs reverified)"
+              tools: "Docker client/server 29.6.2; Compose 5.3.1; rustc/cargo 1.93.1; Node 22.12.0; npm 10.9.0; container Git 2.39.5; Windows Git 2.55.0.windows.3; core.fileMode=false"
+              external_sources: "Iliffe 1961 Genie scan; official NumPy copies/views and internals; official Rust slice reference"
+            staging_dir: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/"
+            commands:
+              - "Session startup: Windows Git status/log/config; complete BUILD_STATE YAML parse and ordered eligibility audit; latest DECISIONS and Chapter 8 run inspection; Docker tool-version comparison"
+              - "Read-only Chapter 9 Rust/API, content/source, and visualization/publication preflight reviews"
+              - "Primary-source review of Iliffe virtual transpose and official NumPy/Rust view semantics"
+              - "Chapter 8 immutable publish-manifest verification against all staged and canonical outputs"
+              - "Preflight ownership correction, course-plan validation, and isolated run-directory creation"
+              - "Staged Rust view implementation, unique trace target, offline lockfile regeneration, focused formatting, Clippy, tests, doctests, and exact-output gates in learn-llm-ch09-candidate"
+              - "Staged lesson, trace parser, static diagram, focused tests, complete deterministic validation, and Chromium 1228 focused/full browser review"
+              - "Three independent read-only Rust, pedagogy/source, and visualization/accessibility reviews; staged corrections and focused re-reviews"
+              - "Complete corrected deterministic and Chromium 1228 regression matrices, including future-safe selective-locale fixture navigation"
+              - "Freeze the exact 18-file publish.sha256 manifest and run the official staged review image check through Git Bash with selective /bin/sh conversion exclusion"
+              - "Promote exactly the 18 manifest-listed files with apply_patch and verify every canonical SHA-256 against frozen staging"
+              - "Run unchanged canonical ./course check, the complete supplemental locked command matrix, and checksum-verified focused/full Chromium 1228 regressions"
+              - "Run host-artifact, whitespace, state, no-build-change, no-Russian-placeholder, manifest, and final Git-boundary audits"
+            artifacts:
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/input-fingerprint.txt"
+                checksum: "sha256:d3ea3a17547f5ac2619d894a3fd3b962e3e8edb1c82dae0d7f411ac05c003f8d"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/Cargo.lock"
+                checksum: "sha256:8c328fad4af5cfb90e878a57faf199e0825944bd85f6d900c8712c459b9e5fe2"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/crates/llm-from-scratch/src/lib.rs"
+                checksum: "sha256:73bd90cefc92add8d12a82b2c016709e787480592fe33d9b4eca2516c8f51476"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/crates/llm-from-scratch/src/tensor/storage.rs"
+                checksum: "sha256:9721f3b68d43d3b48ff6f2d7e26527f606ac1602bedd7b111e0ad6da01ea7ad2"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/crates/llm-from-scratch/src/tensor/view.rs"
+                checksum: "sha256:098628f3abdec332e8ebf15aefabff21e816c5bd6159dda7dc9a1c7dd2818a66"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/Cargo.toml"
+                checksum: "sha256:64d7698719041ba0b3c623ab59c6240cd23dbe9cfdeefba6a7df871befac8a97"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/expected.txt"
+                checksum: "sha256:e357300814ad9dae91c5a9191279c8e9b6cf09bad7b700925cbc77f6e9771b7b"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/diagram-trace.txt"
+                checksum: "sha256:183584f1183f1ee8bc6a51dbc7613f35b20d1317dbe21a992f1afca94328fcb6"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/src/lib.rs"
+                checksum: "sha256:43544e2b24fdcfcb715e75ed25f7241b709e1bd016a71309407501368e06868b"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/src/main.rs"
+                checksum: "sha256:78e71a03689d6f915f37f1a96f02738b8492900af09c1f98b218e5c8b9a83160"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/src/diagram_trace.rs"
+                checksum: "sha256:b2d262743423740463973b92bcdd0f3e88bb9dbfc123983a9b2fe2f86a18296c"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish/rust/demos/ch09-tensor-views/examples/diagram_trace.rs"
+                checksum: "sha256:147256862a07d166dd3a83979a7bc701449be0a4e8d4806d1f0a382177e50c92"
+              - path: ".build/runs/20260721T143340Z-implement-ch09-tensor-views-01/publish.sha256"
+                checksum: "sha256:a4db1e3191b9e00e15bc0c6aafe8ee434faa83885d34bfdf88dac33a852a5286"
+                notes: "Verified immutable path-sorted manifest for exactly 18 reviewed publication files."
+            validation:
+              - command: "Complete BUILD_STATE structural and eligibility audit"
+                status: passed
+                notes: "Parsed all 866,643 pre-run UTF-8 bytes as YAML: six builds, 68 unique steps, no running run, and implement-ch09-tensor-views as the only eligible pending step."
+              - command: "Chapter 8 immutable staged/canonical handoff verification"
+                status: passed
+                notes: "All 16 frozen publication hashes match both retained staging and canonical files; no completed output is stale or corrupt."
+              - command: "Preflight node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "The corrected ledger reports 39 chapters, 54 scheduled course steps, and eight implemented contracts through Chapter 8."
+              - command: "Preflight git diff --check and repository boundary audit"
+                status: passed
+                notes: "Only declared BUILD_STATE and DECISIONS preflight changes exist; unrelated desktop.ini remains untracked and untouched."
+              - command: "Focused staged Rust formatting, locked Clippy, 80 cumulative core tests, three demo tests, two doctests, learner stdout diff, and unique trace diff"
+                status: passed
+                notes: "The immutable borrowed-view API covers compatible/incompatible reshape, transpose, rank-N permutation, half-open slicing, row-major contiguity including singleton/scalar/empty conventions, pointer identity, exact-bit materialization, deterministic error precedence, and compile-fail aliasing. Both checked-in output fixtures match Rust byte for byte."
+              - command: "Initial focused parser and browser attempts"
+                status: failed
+                notes: "A duplicate mutation-test anchor was made record-unique and then all 65 focused parser tests passed. The general validation image lacked Playwright Chromium 1228, so the browser gate was replayed in the retained environment-matched browser container; its first product run exposed and corrected only the Chapter 9 expected Rust-region ordering."
+              - command: "Staged deterministic contract, Rust, content, type, unit, build, link, and focused Chromium gates"
+                status: passed
+                notes: "The candidate passes the 39-chapter/54-step/9-contract projection, Chapter 9 contract, formatting, locked Clippy and tests, dependency and nine-demo policies, exact learner/trace diffs, 16-source/9-locale-set content checks, zero Astro diagnostics across 64 files, all 232 Vitest cases, a 21-page static build, 371 local references, 21 SEO routes, and all three focused Chromium cases."
+              - command: "First complete staged Chromium regression"
+                status: failed
+                notes: "Thirty-three cases passed before the selective-locale fixture found its inherited `slice(-2)` assumption that Chapter 8 was the final English chapter; one serial follower did not run. Chapter 9 correctly follows Chapter 8, so the shared assertion must test Chapter 7-to-8 adjacency without assuming that no later English chapter exists."
+              - command: "Independent staged Rust, pedagogy/source, and visualization/accessibility reviews"
+                status: failed
+                notes: "The reviewers held publication for a demo-only unchecked empty-shape product and huge-empty transpose loop, unconstrained transpose/slice trace metadata and reshape consistency, a non-determinate predict-first prompt, one non-self-contained contract example, contradictory error headings, and numeric diagram evidence duplicated outside the Rust trace. The cumulative TensorView core, history, SEO, locale policy, and accessibility design otherwise reviewed cleanly."
+              - command: "Corrected focused Rust, contract, parser, type, unit, exact-output, and independent re-review gates"
+                status: passed
+                notes: "The demo reuses checked view length and returns before huge empty iteration with two regressions; all 80 cumulative core tests, five Chapter 9 demo tests, and two doctests pass. The contract is self-contained and predict-first; 76 parser tests enforce operation metadata and cross-record identity; every displayed number is trace-projected; Astro reports zero diagnostics; all three re-reviews found no remaining defect."
+              - command: "Second complete staged Chromium regression"
+                status: failed
+                notes: "Thirty-three cases passed before the same shared locale fixture's redundant assertion demanded that English Chapter 8 have no next link; one serial follower did not run. Ordered navigation had already correctly identified Chapter 9, so the assertion was made catalog-relative while the Russian Chapter 7 boundary remained unchanged."
+              - command: "Corrected final staged deterministic and Chromium matrices"
+                status: passed
+                notes: "The final bytes pass the 39-chapter/54-step/9-contract projection, formatting, locked Clippy and tests, dependency and nine-demo policies, exact learner and trace diffs, 16-source/9-locale-set content checks, zero Astro diagnostics across 64 files, all 243 Vitest cases, a 21-page static build, 371 local references, 21 SEO routes, all three focused Chapter 9 cases, both selective-locale cases, and all 35 browser regressions."
+              - command: "Official `./course review 20260721T143340Z-implement-ch09-tensor-views-01 --check` staged review"
+                status: passed
+                notes: "The unmodified command passed with Git Bash `MSYS2_ARG_CONV_EXCL=/bin/sh`, verified the 18-file manifest before and after building, reproduced 16 sources, nine locale sets, zero Astro diagnostics, 21 pages, 371 references, and 21 SEO routes, and produced review image sha256:3ff655c951c930abd6fbe7f76783607951afd184048149f14861d47c1f550f95 without changing publish/."
+              - command: "Canonical promotion and byte-identity audit"
+                status: passed
+                notes: "Exactly 18 manifest-listed files were added or updated through apply_patch; all canonical SHA-256 values equal frozen staging. No build definition, package dependency, locale registry, Russian Chapter 9 placeholder, or unrelated file changed; desktop.ini remains untracked and untouched."
+              - command: "Canonical unchanged `./course check` and complete supplemental command matrix"
+                status: passed
+                notes: "The canonical Docker build passed formatting, all Rust tests, content/parity, zero Astro diagnostics, 21-page build, 371 references, and 21 SEO routes. The separate network-disabled canonical workspace then passed the course-plan, Chapter 9 contract, locked Clippy/tests, dependency and nine-demo policies, exact learner/trace diffs, 16-source/9-locale-set rules, all 243 Vitest cases, production build, and static-link audit. The inherited Chapter 5-7 Cargo target-collision warnings remain unchanged; Chapter 9's target is unique."
+              - command: "Checksum-verified canonical focused and complete Chromium 1228 regressions"
+                status: passed
+                notes: "All 18 canonical product hashes were verified inside the retained environment-matched browser container before a fresh build. All three Chapter 9 cases and all 35 browser regressions passed, including 390-pixel local scrolling, forced colors, SEO, and selective locale navigation."
+              - command: "Final host, manifest, whitespace, state, scope, and repository-boundary audit"
+                status: passed
+                notes: "The host-artifact audit passed with only the intentional ignored static release; all 18 canonical hashes still match publish.sha256; Git diff whitespace and course-plan validation pass; build definitions, dependency manifests, and locale registries have no diff; no Russian placeholder exists; unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded after independent defect-finding and clean re-review, immutable 18-file staged review, manifest-only promotion, complete canonical Linux and Chromium regression, and final repository-boundary validation. Chapter 9 adds English tensor-view instruction and no build change or Russian placeholder."
       - id: implement-ch10-broadcasting-reductions
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:

@@ -1,0 +1,12 @@
+TRACE tensor-views-v1 BEGIN
+STORAGE id=base ownership=owned values=10.0,11.0,12.0,20.0,21.0,22.0
+VIEW id=base operation=identity storage=base shape=2,3 strides=3,1 base=0 row-major-contiguous=yes offsets=0,1,2,3,4,5 values=10.0,11.0,12.0,20.0,21.0,22.0
+VIEW id=reshape operation=reshape storage=base shape=3,2 strides=2,1 base=0 row-major-contiguous=yes offsets=0,1,2,3,4,5 values=10.0,11.0,12.0,20.0,21.0,22.0
+VIEW id=transpose operation=transpose axes=0,1 storage=base shape=3,2 strides=1,3 base=0 row-major-contiguous=no offsets=0,3,1,4,2,5 values=10.0,20.0,11.0,21.0,12.0,22.0
+VIEW id=slice operation=slice axis=1 start=1 end=3 storage=base shape=2,2 strides=3,1 base=1 row-major-contiguous=no offsets=1,2,4,5 values=11.0,12.0,21.0,22.0
+STORAGE id=materialized ownership=owned source=slice values=11.0,12.0,21.0,22.0
+VIEW id=materialized operation=identity storage=materialized shape=2,2 strides=2,1 base=0 row-major-contiguous=yes offsets=0,1,2,3 source-offsets=1,2,4,5 values=11.0,12.0,21.0,22.0
+ERROR operation=reshape source=base requested-shape=4,2 status=element-count-mismatch source-elements=6 requested-elements=8
+ERROR operation=reshape source=transpose requested-shape=2,3 status=non-row-major-contiguous
+ERROR operation=slice source=base axis=1 start=1 end=4 status=out-of-bounds size=3
+TRACE tensor-views-v1 END
