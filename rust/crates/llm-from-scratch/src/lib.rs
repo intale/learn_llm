@@ -9,6 +9,11 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Contiguous tensor foundations introduced in Chapter 8.
+pub mod tensor {
+    pub mod storage;
+}
+
 /// Tokenizer construction and application taught in Chapters 3 and 4.
 pub mod tokenizer {
     #[path = "bpe.rs"]

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-21T14:45:27Z"
+updated_at: "2026-07-21T14:12:09Z"
 
 environment:
   os: "Linux x86_64"
@@ -6586,7 +6586,7 @@ builds:
         objective: "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
         depends_on:
           - enforce-basic-seo-descriptions
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -6594,6 +6594,12 @@ builds:
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -6604,10 +6610,16 @@ builds:
           - "Cargo.lock"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/src/content.config.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://bitsavers.computerhistory.org/pdf/ibm/704/704_FortranProgRefMan_Oct56.pdf"
+          - "https://archive.computerhistory.org/resources/access/text/2015/09/102726217-05-01-acc.pdf"
+          - "https://doc.rust-lang.org/std/vec/"
+          - "https://doc.rust-lang.org/stable/std/primitive.usize.html#method.checked_mul"
+          - "https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray"
         outputs:
           - "curriculum/chapters/08-tensor-storage.md"
           - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
@@ -6615,6 +6627,7 @@ builds:
           - "rust/demos/ch08-tensor-storage/"
           - "site/src/content/chapters/en/08-tensor-storage.mdx"
           - "site/src/components/chapters/TensorStorageDiagram.astro"
+          - "site/src/lib/tensor-storage-diagram.ts"
           - "site/tests/08-tensor-storage-diagram.test.ts"
           - "site/tests/e2e/ch08-tensor-storage.spec.ts"
           - "Cargo.lock"
@@ -6634,6 +6647,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch08-tensor-storage | diff -u rust/demos/ch08-tensor-storage/expected.txt -"
+          - "cargo run --quiet --locked -p ch08-tensor-storage --example ch08-tensor-storage-trace | diff -u rust/demos/ch08-tensor-storage/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"
           - "npm --prefix site run check:parity -- --chapter 08-tensor-storage"
           - "npm --prefix site run check:content"
@@ -6645,8 +6659,99 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic implementation and validation; registered deferred locales require no lesson or route. Read-only network access is an explicit preflight input for primary historical and official technical sources. No build-time network requirement, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260721T151611Z-implement-ch08-tensor-storage-01
+            started_at: "2026-07-21T13:16:11Z"
+            finished_at: "2026-07-21T14:12:09Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b20505f116e2f31a070141fe812ff065b5ed705b"
+              manifest: ".build/runs/20260721T151611Z-implement-ch08-tensor-storage-01/input-fingerprint.txt"
+              checksum: "sha256:74d54a677ccb8b908e5b79b1f477629df6f67c5190ec2be87859dfa56f1b9560"
+              tools:
+                host: "Windows PowerShell with Ubuntu on WSL 2 orchestration"
+                docker_client: "29.6.2"
+                docker_server: "29.6.2 linux amd64"
+                docker_compose: "5.3.1"
+                rustc: "1.93.1 (repository Docker pin)"
+                cargo: "1.93.1 (repository Docker pin)"
+                node: "22.12.0 (repository Docker pin)"
+                npm: "10.9.0 (recorded environment)"
+                git: "2.53.0 in WSL; 2.55.0.windows.3 for commit operations"
+            staging_dir: ".build/runs/20260721T151611Z-implement-ch08-tensor-storage-01/"
+            commands:
+              - "Run the session startup protocol, verify the completed SEO boundary and clean tracked worktree, and confirm Chapter 8 is the first eligible step"
+              - "Read the chapter workflow, template, course plan, Chapter 7 handoff, validators, cumulative Rust API, selective-locale policy, and representative Rust-trace visualization slices"
+              - "Run three independent read-only Rust, contract, and visual/test audits; add the missing parser output and exact diagram-trace validation before claiming work"
+              - "Read bounded primary historical and official technical sources, fingerprint material inputs, and create isolated publish/, validation/, and evidence/ staging directories"
+              - "Author the complete staged Rust, contract, English lesson, trace parser, diagram, unit-test, and browser-test slice without changing canonical product files"
+              - "Run the initial staged Linux review-workspace build; preserve its SEO static-link failure and correct only the Chapter 8 description source before retrying"
+              - "Rerun the staged Linux review-workspace gate with equivalent plain-language SEO copy; pass content, parity, zero-diagnostic Astro, 20-page build, and 20-route static-link audit"
+              - "Run the staged full Rust gate; preserve the final trace-diff failure caused by Cargo's shared diagram_trace example output name and assign Chapter 8 a unique example target before retrying"
+              - "Rebuild the staged candidate after the unique example-target correction; rerun the complete Linux site, Rust, contract, content, parity, and unit-test gates without network access"
+              - "Run three independent read-only implementation, pedagogy/source, and visualization/browser-test reviews; correct the bounded Iliffe wording, one Rust call example, and a Chapter 9-hostile exact route count"
+              - "Reuse the previously verified local Chromium 1228 cache in a new network-disabled Chapter 8 container; preserve and diagnose the narrow rendered overflow before correcting the staged scroller and long inline answer"
+              - "Restore the verified cached Playwright font set after the reconstructed runtime exposed font-metric-only failures in two unchanged Russian chapters; pass the focused and complete browser suites without downloading anything"
+              - "Freeze the exact 16-file publish.sha256 manifest and run the official staged review image check; preserve two Git Bash path-conversion probe failures before the selective conversion exclusion passes"
+              - "Promote only the 16 manifest-listed files through apply_patch and verify every canonical SHA-256 against the frozen staged manifest before canonical validation"
+              - "Run the unchanged canonical `./course check`, then execute the complete locked Rust, policy, exact-output, contract, content, type, unit, production-build, and static-link command matrix in the network-disabled workspace image"
+              - "Copy and checksum-verify all 16 canonical files in the environment-matched browser container; run the three focused Chapter 8 cases and all 32 browser regressions"
+              - "Run the host-artifact, whitespace, course-plan, canonical-manifest, and final Git-boundary audits before completion"
+            artifacts:
+              - path: ".build/runs/20260721T151611Z-implement-ch08-tensor-storage-01/input-fingerprint.txt"
+                checksum: "sha256:74d54a677ccb8b908e5b79b1f477629df6f67c5190ec2be87859dfa56f1b9560"
+                notes: "Commit, material source hashes, exact external reference URLs, tool versions, unrelated desktop.ini boundary, and explicit no-build-change/no-Russian-placeholder scope."
+              - path: ".build/runs/20260721T151611Z-implement-ch08-tensor-storage-01/publish.sha256"
+                checksum: "sha256:2f636d706d75c8ae0a2e13ee8dd58ae14d4c0f49db3c754a6ea512c134616aa4"
+                notes: "Verified immutable path-sorted manifest for exactly 16 reviewed publication files."
+            validation:
+              - command: "Startup, dependency, ownership, source, cost, environment, and Git audit"
+                status: passed
+                notes: "SEO is completed in commit b20505f; no stale running step or canonical Chapter 8 output exists; Chapter 8 is medium local work with explicit read-only source research, no dependency or build change, and only unrelated untracked desktop.ini."
+              - command: "Initial staged Linux review-workspace content, parity, Astro, build, and static-link gate"
+                status: failed
+                notes: "Content/parity passed for 15 lessons and 8 locale sets, Astro reported zero diagnostics, and 20 pages built. The static SEO audit then parsed the literal greater-than character in the valid technical description `Vec<f64>` as the end of the meta tag and reported blank/stale content. Nothing was published; replace the Chapter 8 description with equivalent plain-language copy that contains no angle-bracket syntax, then rerun every staged gate."
+              - command: "Corrected staged Linux review-workspace content, parity, Astro, build, and static-link gate"
+                status: passed
+                notes: "Equivalent Chapter 8 copy now says `one flat Rust vector`; content/parity passed for 15 lessons and 8 locale sets, Astro reported zero diagnostics, 20 pages built, and all 20 SEO routes plus 338 local references passed."
+              - command: "Initial staged full Rust formatting, Clippy, tests, policies, demo, and byte-exact output gate"
+                status: failed
+                notes: "Formatting, locked Clippy, all workspace tests including 64 cumulative tests, dependency policy, eight-demo discovery, and exact main stdout passed. The final `--example diagram_trace` command read Chapter 7's trace after workspace example-output collisions; no Rust behavior or fixture failed. Give the Chapter 8 example a unique Cargo target name and rerun the complete gate."
+              - command: "Corrected staged full Rust formatting, Clippy, tests, policies, demo, and byte-exact output gate"
+                status: passed
+                notes: "Formatting, locked Clippy, all workspace tests including 64 cumulative core tests, dependency policy, eight-demo discovery, exact learner stdout, and the uniquely named Chapter 8 trace target all passed. Existing Chapter 5-7 shared-target warnings remain outside this step; Chapter 8 creates no collision."
+              - command: "Staged course-plan, Chapter 8 contract, focused content/parity, and complete Vitest gate"
+                status: passed
+                notes: "The plan reports 39 chapters, 54 steps, and eight implemented chapters; the Chapter 8 contract and English active-locale projection passed; all 14 Vitest files and 167 tests passed, including seven exact-trace parser cases."
+              - command: "Three independent read-only Chapter 8 reviews"
+                status: passed
+                notes: "The Rust/API review found no defect. The content review narrowed the Iliffe statement to non-adjacent rows and corrected `get_mut` slice syntax. The visual/test review made the English route count future-safe for Chapter 9; no other parser, accessibility, fixture-projection, locale, SEO, or test concern remained."
+              - command: "Initial focused rendered Chapter 8 Playwright gate in cached Chromium 1228"
+                status: failed
+                notes: "Routing and forced-colors cases passed, but the 390-pixel lesson reported a 710-pixel document width. The flat-buffer grid escaped root overflow accounting despite its local scroll region; after paint containment, the opened exercise answer still reached 500 pixels because one inline buffer literal had no break opportunities. Nothing was published."
+              - command: "Corrected final staged course-plan, contract, content/parity, Astro, Vitest, production-build, static-link, focused Playwright, and full Playwright gates"
+                status: passed
+                notes: "The final staged bytes pass 39-chapter/54-step projection, the Chapter 8 contract, 15-source/8-locale-set content rules, zero Astro diagnostics across 60 files, all 167 unit tests, a 20-page build, 338 references and 20 SEO routes, all three focused Chapter 8 browser cases, and all 32 browser regressions. Narrow scrolling remains local and keyboard focusable; forced-colors and selective English-only routing pass."
+              - command: "Initial complete browser regression in the reconstructed network-disabled validation container"
+                status: failed
+                notes: "Thirty cases passed; two unchanged Russian Chapter 3/5 narrow pages failed only because the reconstructed container had three font families instead of the retained verified runtime's 23. Restoring that checksummed cached font set made both isolated cases and the unchanged 32-test suite pass; no source correction or network access was used."
+              - command: "Official `./course review 20260721T151611Z-implement-ch08-tensor-storage-01 --check` staged review"
+                status: passed
+                notes: "The first run built and validated the review site but Git Bash rewrote `/bin/sh` during the final image probe; a broad conversion disable then prevented Docker from resolving the Windows context. A selective `/bin/sh` conversion exclusion passed the unmodified command, reverified the 16-file manifest, and produced review image sha256:0338d2d7...27e4."
+              - command: "Canonical promotion and byte-identity audit"
+                status: passed
+                notes: "Exactly 16 manifest-listed files were added or updated with apply_patch; every canonical SHA-256 equals its frozen staged hash. No build definition, registered locale configuration, Russian lesson, package manifest, or unrelated file changed; desktop.ini remains untracked and untouched."
+              - command: "Canonical unchanged `./course check` and complete supplemental command matrix"
+                status: passed
+                notes: "Workspace image sha256:6a9d84c9...88db passes formatting, locked tests with 64 cumulative core cases, locked Clippy with denied warnings, dependency and eight-demo policies, exact learner stdout and uniquely named trace bytes, 39-chapter/54-step projection, Chapter 8 contract, 15-source/8-locale-set content rules, zero Astro diagnostics across 60 files, all 167 Vitest cases, 20-page production build, 338 references, and 20 SEO routes. Only the inherited Chapter 5-7 Cargo collision warnings remain; Chapter 8 adds none."
+              - command: "Canonical focused and complete Playwright gates after 16-file checksum verification"
+                status: passed
+                notes: "All 16 canonical product hashes were verified inside the environment-matched Chromium 1228 container before a fresh build. All three Chapter 8 cases and all 32 browser regressions passed. One intervening stdin invocation appended a Windows carriage return to `test:e2e` and failed before launch; the direct unchanged command then passed."
+              - command: "Final host, manifest, whitespace, state, and repository-boundary audit"
+                status: passed
+                notes: "The host-artifact audit passed with only the intentional ignored static release, all 16 canonical hashes still match publish.sha256, Git diff whitespace checks and BUILD_STATE YAML/course-plan validation pass, and unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded after exact staged review, 16-file manifest promotion, independent review, complete canonical Linux and browser regression, and host-boundary validation. The active run's originally recorded wall-clock value was corrected to UTC while its already-created stable run identifier was retained. No build definition or Russian Chapter 8 placeholder was added."
       - id: implement-ch09-tensor-views
         objective: "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
         depends_on:

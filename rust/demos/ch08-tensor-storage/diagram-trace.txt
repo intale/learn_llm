@@ -1,0 +1,12 @@
+TRACE tensor-storage-v1 BEGIN
+TENSOR id=tiny rank=3 shape=2,2,3 strides=6,3,1 length=12
+SLICE axis0=0 row0=10.0,11.0,12.0 row1=20.0,21.0,22.0
+SLICE axis0=1 row0=30.0,31.0,32.0 row1=40.0,41.0,42.0
+BUFFER values=10.0,11.0,12.0,20.0,21.0,22.0,30.0,31.0,32.0,40.0,41.0,42.0
+COORDINATE indices=1,0,2
+TERM axis=0 index=1 stride=6 contribution=6
+TERM axis=1 index=0 stride=3 contribution=0
+TERM axis=2 index=2 stride=1 contribution=2
+LOOKUP offset=8 value=32.0
+BOUNDS coordinate=1,2,0 status=out-of-bounds axis=1 index=2 size=2
+TRACE tensor-storage-v1 END

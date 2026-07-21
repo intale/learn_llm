@@ -1,0 +1,12 @@
+nested rows: lengths=[3, 2] rectangular=false
+tensor shape: [2, 2, 3]
+tensor strides: [6, 3, 1]
+flat data: [10.0, 11.0, 12.0, 20.0, 21.0, 22.0, 30.0, 31.0, 32.0, 40.0, 41.0, 42.0]
+coordinate [1, 0, 2]: offset=8 value=32.0
+after [0, 1, 1] = 99: [10.0, 11.0, 12.0, 20.0, 99.0, 22.0, 30.0, 31.0, 32.0, 40.0, 41.0, 42.0]
+scalar: shape=[] strides=[] offset=0 value=7.0
+empty: shape=[2, 0, 3] strides=[0, 3, 1] values=0
+rank error: coordinate rank 2 does not match tensor rank 3
+bounds error: index 2 is out of bounds for axis 1 with size 2
+overflow error: shape does not fit a row-major usize layout
+chapter 9 handoff: same storage, new shape/strides/base offset

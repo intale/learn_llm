@@ -1,0 +1,342 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertTensorStorageDiagramLabels,
+  parseTensorStorageTrace,
+  tensorStorageDiagramId,
+  type TensorStorageDiagramLabels,
+  type TensorTraceNumber,
+} from '../../lib/tensor-storage-diagram';
+
+interface Props {
+  labels: TensorStorageDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'tensor-storage-diagram' } = Astro.props as Props;
+assertTensorStorageDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch08-tensor-storage/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseTensorStorageTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+const tuple = (values: readonly TensorTraceNumber[]) =>
+  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+const selected = trace.coordinate.map(({ value }) => value);
+---
+
+<figure
+  class="tensor-storage-diagram"
+  data-visualization-id={tensorStorageDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="summary-facts">
+      <div>
+        <dt>{labels.summary.shape}</dt>
+        <dd><code dir="ltr">{tuple(trace.tensor.shape)}</code></dd>
+      </div>
+      <div>
+        <dt>{labels.summary.strides}</dt>
+        <dd><code dir="ltr">{tuple(trace.tensor.strides)}</code></dd>
+      </div>
+      <div>
+        <dt>{labels.summary.length}</dt>
+        <dd><bdi dir="ltr">{trace.tensor.length.lexeme}</bdi></dd>
+      </div>
+    </dl>
+  </figcaption>
+
+  <section class="diagram-panel slice-panel" aria-labelledby={`${instanceId}-slices-title`}>
+    <h4 id={`${instanceId}-slices-title`}>{labels.sections.slices}</h4>
+    <p>{labels.notes.slices}</p>
+    <ol class="slice-list">
+      {trace.slices.map((slice) => (
+        <li data-slice-axis0={slice.axis0.lexeme}>
+          <div
+            class="table-scroll"
+            role="region"
+            tabindex="0"
+            aria-label={`${labels.fields.slice} ${slice.axis0.lexeme}`}
+          >
+            <table>
+              <caption>
+                {labels.fields.slice} <code dir="ltr">i<sub>0</sub> = {slice.axis0.lexeme}</code>
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{labels.fields.row}</th>
+                  {[0, 1, 2].map((column) => (
+                    <th scope="col"><code dir="ltr">i<sub>2</sub> = {column}</code></th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {slice.rows.map((row, rowIndex) => (
+                  <tr data-row={rowIndex}>
+                    <th scope="row"><code dir="ltr">i<sub>1</sub> = {rowIndex}</code></th>
+                    {row.map((value, columnIndex) => {
+                      const isSelected =
+                        slice.axis0.value === selected[0] &&
+                        rowIndex === selected[1] &&
+                        columnIndex === selected[2];
+                      return (
+                        <td
+                          data-column={columnIndex}
+                          data-selected={isSelected ? 'true' : undefined}
+                        >
+                          {isSelected && (
+                            <>
+                              <span class="selection-marker" aria-hidden="true">◆</span>
+                              <span class="visually-hidden">{labels.symbols.selected}: </span>
+                            </>
+                          )}
+                          <bdi dir="ltr">{value.lexeme}</bdi>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section
+    class="diagram-panel calculation-panel"
+    data-coordinate={trace.coordinate.map(({ lexeme }) => lexeme).join(',')}
+    aria-labelledby={`${instanceId}-calculation-title`}
+  >
+    <h4 id={`${instanceId}-calculation-title`}>{labels.sections.calculation}</h4>
+    <p>{labels.notes.calculation}</p>
+    <p class="coordinate-line">
+      <strong>{labels.fields.coordinate}:</strong>
+      <code dir="ltr">{tuple(trace.coordinate)}</code>
+    </p>
+    <ol class="term-list" aria-label={labels.sections.calculation}>
+      {trace.terms.map((term) => (
+        <li data-term-axis={term.axis.lexeme}>
+          <code dir="ltr">
+            i<sub>{term.axis.lexeme}</sub> s<sub>{term.axis.lexeme}</sub>
+            {' = '}{term.index.lexeme}{' × '}{term.stride.lexeme}
+          </code>
+          <span aria-hidden="true"> = </span>
+          <span class="visually-hidden">{labels.fields.contribution}: </span>
+          <bdi dir="ltr" data-contribution={term.contribution.lexeme}>
+            {term.contribution.lexeme}
+          </bdi>
+        </li>
+      ))}
+    </ol>
+    <dl class="lookup-result" data-lookup-offset={trace.lookup.offset.lexeme}>
+      <div><dt>{labels.fields.offset}</dt><dd><bdi dir="ltr">{trace.lookup.offset.lexeme}</bdi></dd></div>
+      <div><dt>{labels.fields.value}</dt><dd><bdi dir="ltr">{trace.lookup.value.lexeme}</bdi></dd></div>
+    </dl>
+  </section>
+
+  <section class="diagram-panel buffer-panel" aria-labelledby={`${instanceId}-buffer-title`}>
+    <h4 id={`${instanceId}-buffer-title`}>{labels.sections.buffer}</h4>
+    <p>{labels.notes.buffer}</p>
+    <div
+      class="buffer-scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={`${instanceId}-buffer-title`}
+    >
+      <ol class="flat-buffer" start="0">
+        {trace.buffer.map((value, offset) => {
+          const isSelected = offset === trace.lookup.offset.value;
+          return (
+            <li data-buffer-offset={offset} data-selected={isSelected ? 'true' : undefined}>
+              <span class="offset-label">{labels.fields.offset} <bdi dir="ltr">{offset}</bdi></span>
+              {isSelected && (
+                <>
+                  <span class="selection-marker" aria-hidden="true">◆</span>
+                  <span class="visually-hidden">{labels.symbols.selected}: </span>
+                </>
+              )}
+              <bdi dir="ltr" data-buffer-value={value.lexeme}>{value.lexeme}</bdi>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  </section>
+
+  <section
+    class="diagram-panel bounds-panel"
+    data-status={trace.bounds.status}
+    aria-labelledby={`${instanceId}-bounds-title`}
+  >
+    <h4 id={`${instanceId}-bounds-title`}>{labels.sections.bounds}</h4>
+    <p>{labels.notes.bounds}</p>
+    <dl class="bounds-facts">
+      <div><dt>{labels.fields.coordinate}</dt><dd><code dir="ltr">{tuple(trace.bounds.coordinate)}</code></dd></div>
+      <div><dt>{labels.fields.axis}</dt><dd><bdi dir="ltr" data-bounds-axis={trace.bounds.axis.lexeme}>{trace.bounds.axis.lexeme}</bdi></dd></div>
+      <div><dt>{labels.fields.index}</dt><dd><bdi dir="ltr" data-bounds-index={trace.bounds.index.lexeme}>{trace.bounds.index.lexeme}</bdi></dd></div>
+      <div><dt>{labels.fields.size}</dt><dd><bdi dir="ltr" data-bounds-size={trace.bounds.size.lexeme}>{trace.bounds.size.lexeme}</bdi></dd></div>
+    </dl>
+  </section>
+</figure>
+
+<style>
+  .tensor-storage-diagram {
+    --diagram-border: color-mix(in srgb, currentColor 24%, transparent);
+    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+    display: grid;
+    gap: 1rem;
+    max-width: 100%;
+    margin-block: 1.5rem;
+    padding: clamp(0.9rem, 3vw, 1.5rem);
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.85rem;
+  }
+
+  .tensor-storage-diagram:focus-visible,
+  .table-scroll:focus-visible,
+  .buffer-scroll:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  figcaption h3,
+  figcaption p,
+  .diagram-panel h4,
+  .diagram-panel > p { margin-block-start: 0; }
+
+  .summary-facts,
+  .lookup-result,
+  .bounds-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1.25rem;
+    margin: 0;
+  }
+
+  .summary-facts div,
+  .lookup-result div,
+  .bounds-facts div { display: flex; gap: 0.4rem; align-items: baseline; }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+
+  .diagram-panel {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.65rem;
+    background: var(--diagram-surface);
+  }
+
+  .slice-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .table-scroll,
+  .buffer-scroll {
+    contain: paint;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 27rem;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  caption { padding-block-end: 0.5rem; font-weight: 700; text-align: start; }
+  th,
+  td { padding: 0.55rem; border: 1px solid var(--diagram-border); text-align: center; }
+  th:first-child { text-align: start; }
+
+  [data-selected='true'] {
+    border: 0.2rem double currentColor;
+    font-weight: 750;
+  }
+
+  .selection-marker { margin-inline-end: 0.35rem; }
+
+  .term-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .term-list li {
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.45rem;
+  }
+
+  .lookup-result { margin-block-start: 1rem; }
+
+  .flat-buffer {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(4.25rem, 1fr));
+    min-width: 55rem;
+    margin: 0;
+    padding: 0.4rem;
+    list-style: none;
+  }
+
+  .flat-buffer li {
+    display: grid;
+    place-items: center;
+    min-height: 4.5rem;
+    padding: 0.4rem;
+    border: 1px solid var(--diagram-border);
+  }
+
+  .offset-label { font-size: 0.75rem; }
+  .bounds-panel { border-style: dashed; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  code,
+  bdi { direction: ltr; unicode-bidi: isolate; }
+
+  @media (max-width: 48rem) {
+    .slice-list { grid-template-columns: minmax(0, 1fr); }
+    .summary-facts,
+    .lookup-result,
+    .bounds-facts { display: grid; }
+  }
+
+  @media (forced-colors: active) {
+    .tensor-storage-diagram,
+    .diagram-panel,
+    th,
+    td,
+    .term-list li,
+    .flat-buffer li { border-color: CanvasText; }
+    [data-selected='true'] { border-color: Highlight; }
+  }
+</style>

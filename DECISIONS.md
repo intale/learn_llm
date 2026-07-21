@@ -3010,3 +3010,73 @@ pending until the new gate completes in its own commit.
 
 **Affected step and run:** `enforce-basic-seo-descriptions`, run
 `20260721T141510Z-enforce-basic-seo-descriptions-01`.
+
+## 2026-07-21 — Make the Chapter 8 Rust trace a separately testable publication input
+
+**Status:** Accepted during Chapter 8 preflight.
+
+**Context:** The scheduled Chapter 8 outputs included a Rust-authored diagram
+fixture, an Astro component, and focused tests, but omitted the locale-neutral
+TypeScript module that parses and projects the checked-in trace. Every existing
+fixture-backed chapter diagram keeps that parser outside its component so malformed
+or reordered evidence can fail before rendering. The step also lacked a byte-exact
+command for regenerating its diagram trace. Independent Rust, contract, and visual
+audits found no need to change the shared build, locale, routing, schema, SEO, or
+browser-helper infrastructure.
+
+**Decision:** Add `site/src/lib/tensor-storage-diagram.ts` to the exact Chapter 8
+outputs and add a locked Rust example-to-fixture diff to its validation. Keep the
+component locale-neutral and feed it only the checked-in Rust trace plus localized
+labels. Freeze one rank-3 teaching fixture with two two-dimensional slices, one
+checked coordinate calculation, and one out-of-bounds coordinate; the parser may
+validate the trace grammar and project its lexemes but does not become a second
+tensor implementation.
+
+The cumulative Rust tensor uses one contiguous `Vec<f64>` with shape and checked
+row-major element strides. Rank zero is a one-value scalar; any zero extent makes
+the tensor empty; every required shape and suffix product is checked for `usize`
+overflow; coordinate rank and bounds fail deterministically before access. Views,
+arbitrary strides, reshaping, arithmetic, broadcasting, and gradients remain Chapter
+9 or later work. Historical prose must describe parallel representation choices,
+not a false progression: the 1956 IBM FORTRAN manual documents sequential
+column-major arrays, while Iliffe's 1961 Genie paper documents indirect row
+codewords that could support noncontiguous or unequal rows. Official Rust `Vec`,
+checked multiplication, and NumPy layout documentation bound the modern technical
+claims. These exact URLs are explicit step inputs.
+
+**Consequences:** Parser ownership, trace provenance, scalar/empty semantics, and
+the Chapter 9 boundary are reviewable before implementation. Chapter 8 still owns
+one English lesson only; Russian receives no placeholder route. No dependency,
+lockfile-only package change, Dockerfile edit, host-only build path, or Linux build
+divergence is introduced. The user's repository-local `core.fileMode=false`
+workaround remains orchestration-only and unrelated `desktop.ini` remains untouched.
+
+**Affected step and run:** `implement-ch08-tensor-storage`, run
+`20260721T151611Z-implement-ch08-tensor-storage-01`.
+
+## 2026-07-21 — Give the Chapter 8 trace example a unique Cargo target name
+
+**Status:** Accepted after the first complete staged Rust gate.
+
+**Context:** Chapters 5, 6, and 7 each contain an example target inferred from
+`examples/diagram_trace.rs`. Chapter 8 initially followed that convention. Cargo
+warned that all four workspace examples wrote the same
+`target/debug/examples/diagram_trace` path; after the workspace test build, the
+locked Chapter 8 regeneration command executed Chapter 7's bytes and failed its
+exact fixture diff. Chapter 8's own trace tests and source were correct, but a
+validation command whose result depends on build order is not acceptable.
+
+**Decision:** Keep the source file and checked-in fixture paths unchanged, but
+declare the Chapter 8 example explicitly as `ch08-tensor-storage-trace` in its
+owned demo `Cargo.toml`. Use that unique target name in the contract, lesson, and
+step validation command. Do not rename or otherwise rewrite completed earlier
+chapters inside this step.
+
+**Consequences:** Chapter 8's trace regeneration addresses a unique executable
+regardless of workspace build order and can be compared byte for byte. The
+change adds no dependency, lockfile package, shared build definition, runtime
+server, or host-only behavior; native Linux and container builds use the same
+Cargo metadata. Existing completed examples remain untouched.
+
+**Affected step and run:** `implement-ch08-tensor-storage`, run
+`20260721T151611Z-implement-ch08-tensor-storage-01`.
