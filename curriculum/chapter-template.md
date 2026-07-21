@@ -82,6 +82,11 @@ Rust section owns its `<RustSource>` evidence, useful visualizations invoke the
 chapter-specific diagram there, and exercises include a predict-first ordered list
 with answers in `<details>`.
 
+Give each active localized lesson a concise, nonblank frontmatter `description`
+that says what the page teaches. That exact string is the visible summary in the
+course index and lesson header and the sole basic `<meta name="description">` for
+the rendered chapter page; do not create separate visible and SEO descriptions.
+
 For every chapter after Chapter 1, replace `chapter_concept.rs` with the exact
 `primary_module` path named in `course-plan.md`; every active localized lesson
 declares and renders every contract source (and every declared source region).

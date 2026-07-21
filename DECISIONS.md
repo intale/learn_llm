@@ -2975,3 +2975,38 @@ pending; no product, build, dependency, or generated site file changes.
 
 **Affected step and run:** `support-selective-chapter-locales`, run
 `20260721T125802Z-support-selective-chapter-locales-02`.
+
+## 2026-07-21 — Reuse authored page descriptions as the basic SEO contract
+
+**Status:** Accepted from the user's requested pre-Chapter-8 SEO scope.
+
+**Context:** A complete rendered-page audit found that all 19 current static
+pages already emit one relevant description meta tag. The multilingual root and
+localized homes use catalog `siteDescription`, course indexes use localized
+`courseDescription`, and all fourteen Chapter 1–7 routes use their lesson's
+localized frontmatter `description`. The missing boundary is enforcement: the
+layout still permits an implicit fallback and the static artifact gate does not
+prove that every route retains the exact intended description.
+
+**Decision:** Add `enforce-basic-seo-descriptions` as a reviewed cross-cutting
+step immediately before Chapter 8. Reuse existing localized copy instead of
+introducing a second SEO-only field. Require `BaseLayout` callers to supply a
+description explicitly, derive an exact expected route/description matrix from
+locale catalogs and active lesson frontmatter, and make the existing static
+artifact audit reject missing, extra, blank, placeholder, duplicated, stale, or
+locale-swapped descriptions. Exercise the same contract in focused unit and
+browser tests at both root and `/learn_llm/` deployment bases.
+
+Keep SEO deliberately basic: one `meta name="description"` per HTML head. Do not
+add keywords, robots, Open Graph, Twitter cards, canonical URLs, a dependency,
+or a build-definition change. Existing lesson bodies and content revisions do
+not change because their already-reviewed descriptions are the metadata source.
+
+**Consequences:** Every current and future published chapter gets meaningful SEO
+metadata through the same required localized description that learners see, so
+copy cannot drift between page and head. General pages remain localized, future
+English-only chapters inherit the contract automatically, and Chapter 8 remains
+pending until the new gate completes in its own commit.
+
+**Affected step and run:** `enforce-basic-seo-descriptions`, run
+`20260721T141510Z-enforce-basic-seo-descriptions-01`.

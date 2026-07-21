@@ -41,6 +41,19 @@ export function chapterPath(locale: ChapterLocale, chapterId: string) {
   return `/${locale}/course/${chapterId}/`;
 }
 
+export async function expectSeoDescription(page: Page, expected: string) {
+  expect(expected).toBe(expected.trim());
+  expect(expected.length, 'SEO description must not be empty').toBeGreaterThan(0);
+
+  const descriptions = page.locator('head meta[name="description"]');
+  await expect(descriptions).toHaveCount(1);
+  await expect(descriptions).toHaveAttribute('content', expected);
+
+  const content = await descriptions.getAttribute('content');
+  expect(content).toBe(content?.trim());
+  expect(content?.length ?? 0, 'SEO description must not be empty').toBeGreaterThan(0);
+}
+
 export async function readOrderedCourseChapters(
   page: Page,
   locale: ChapterLocale,
@@ -123,6 +136,9 @@ export async function expectLocalizedChapterRoute(
   await expect(page.locator('.eyebrow')).toContainText(
     `${String(chapter.order).padStart(2, '0')} · ${chapter.revisionLabel} ${chapter.revision}`,
   );
+  const lessonDescription = page.locator('.lesson-description');
+  await expect(lessonDescription).toBeVisible();
+  await expectSeoDescription(page, (await lessonDescription.innerText()).trim());
   const equivalentLocales = chapter.equivalentLocales ?? chapterLocales;
   expect(new Set(equivalentLocales).size).toBe(equivalentLocales.length);
   expect(equivalentLocales).toContain(chapter.locale);

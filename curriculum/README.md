@@ -56,6 +56,13 @@ missing, or a deferred locale supplies an extra lesson. An individually valid
 active lesson may remain in source for review, but the course index and static
 chapter route omit the chapter until its exact active set is complete.
 
+Each lesson frontmatter `description` is the single localized summary for that
+page. It appears visibly on the course index and in the lesson header, and the
+same unmodified string is the exact content of that page's sole basic
+`<meta name="description">`. Keep it concise, nonblank, and specific to what the
+chapter teaches. This SEO contract deliberately excludes keywords, robots, Open
+Graph, Twitter cards, canonical links, and other metadata.
+
 The contract is also authoritative for each locale's objective, worked-input
 commitment, symbol meanings, historical approach and summary, visualization
 rationale, and decoder connection. Copy those localized values into the matching
@@ -196,5 +203,8 @@ Repeat the chapter command for every locale active for that chapter in
 rest of its active set. The parity and full-content commands are publication gates.
 The static-link command audits every built local link, stylesheet/font/image
 reference, HTML language, active equivalent-page `hreflang` target, and deferred
-locale fallback. Focused browser checks diagnose the new chapter; the full suite
-prevents regressions in earlier chapters.
+locale fallback. It also checks every built general page and every active chapter
+HTML file for exactly one nonblank description meta tag whose content exactly
+matches the relevant localized catalog value or lesson frontmatter `description`.
+Focused browser checks diagnose the new chapter; the full suite prevents
+regressions in earlier chapters.

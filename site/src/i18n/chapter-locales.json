@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 14,
+  "planRevision": 15,
   "policyId": "english-only-from-chapter-08-until-further-notice",
   "referenceLocale": "en",
   "chapters": [

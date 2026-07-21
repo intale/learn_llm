@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   ContentValidationError,
+  parseJsonFrontmatter,
   repositoryRootFromCwd,
 } from './check-site-content.mjs';
 import { LOCALE_CONFIGURATION } from './locale-config.mjs';
@@ -179,6 +180,389 @@ function htmlRoute(relativePath) {
     return '/' + normalized.slice(0, -'index.html'.length);
   }
   return '/' + normalized;
+}
+
+export const SEO_PLACEHOLDER_SENTINELS = Object.freeze([
+  'todo',
+  'tbd',
+  'placeholder',
+  'placeholder text',
+  'description',
+  'page description',
+  'seo description',
+  'coming soon',
+  'replace me',
+  'заполнитель',
+  'текст-заполнитель',
+  'описание',
+  'описание страницы',
+  'seo-описание',
+  'скоро',
+  'будет позже',
+]);
+
+const seoPlaceholderSentinels = new Set(SEO_PLACEHOLDER_SENTINELS);
+const namedHtmlEntities = Object.freeze({
+  amp: '&',
+  apos: "'",
+  emsp: '\u2003',
+  ensp: '\u2002',
+  gt: '>',
+  lt: '<',
+  nbsp: '\u00a0',
+  newline: '\n',
+  quot: '"',
+  tab: '\t',
+  thinsp: '\u2009',
+  zwj: '\u200d',
+  zwnj: '\u200c',
+});
+
+function decodeHtmlEntities(value) {
+  return String(value).replace(
+    /&(?:#([0-9]+)|#x([0-9a-f]+)|([a-z][a-z0-9]+));/gi,
+    (entity, decimal, hexadecimal, named) => {
+      if (decimal !== undefined || hexadecimal !== undefined) {
+        const codePoint = Number.parseInt(decimal ?? hexadecimal, hexadecimal ? 16 : 10);
+        if (
+          !Number.isInteger(codePoint) ||
+          codePoint < 0 ||
+          codePoint > 0x10ffff ||
+          (codePoint >= 0xd800 && codePoint <= 0xdfff)
+        ) {
+          return '\ufffd';
+        }
+        return String.fromCodePoint(codePoint);
+      }
+      return namedHtmlEntities[named.toLowerCase()] ?? entity;
+    },
+  );
+}
+
+function normalizedDescriptionText(value) {
+  return value
+    .replace(/\p{Cf}/gu, '')
+    .trim()
+    .replace(/\s+/gu, ' ');
+}
+
+function isPlaceholderDescription(value) {
+  const normalized = normalizedDescriptionText(value).toLocaleLowerCase();
+  return (
+    seoPlaceholderSentinels.has(normalized) ||
+    /^(?:todo|tbd)(?::.*)?$/iu.test(normalized) ||
+    /^(?:add|write|replace)(?:\s+\S+)*\s+description(?:\s+here)?[.!]?$/iu.test(
+      normalized,
+    ) ||
+    /^(?:добавьте|напишите|замените)(?:\s+\S+)*\s+описани\p{L}*[.!]?$/iu.test(
+      normalized,
+    ) ||
+    /^здесь\s+будет\s+описани\p{L}*[.!]?$/iu.test(normalized)
+  );
+}
+
+function normalizeSeoExpectationMap(value, issues) {
+  if (!(value instanceof Map)) {
+    issues.push('SEO expectations must be a Map from logical routes to descriptions');
+    return new Map();
+  }
+
+  const normalized = new Map();
+  for (const [route, description] of value) {
+    if (
+      typeof route !== 'string' ||
+      (route !== '/' &&
+        !/^\/(?:[A-Za-z0-9._~-]+\/)+$/.test(route))
+    ) {
+      issues.push(
+        'SEO expectation route "' + String(route) +
+          '" must be / or a normalized logical directory route',
+      );
+      continue;
+    }
+    if (typeof description !== 'string') {
+      issues.push(route + ': expected SEO description must be a string');
+      continue;
+    }
+    const trimmed = description.trim();
+    if (normalizedDescriptionText(trimmed) === '') {
+      issues.push(route + ': expected SEO description must not be blank');
+    } else if (isPlaceholderDescription(trimmed)) {
+      issues.push(route + ': expected SEO description is placeholder text');
+    }
+    normalized.set(route, trimmed);
+  }
+  return normalized;
+}
+
+function readSeoCatalog(repositoryRoot, locale, issues) {
+  const path = nodePath.join(
+    repositoryRoot,
+    'site/src/i18n/catalogs',
+    locale + '.json',
+  );
+  let value;
+  try {
+    value = JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    issues.push(path + ': cannot read SEO catalog data: ' + error.message);
+    return null;
+  }
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    issues.push(path + ': SEO catalog data must be an object');
+    return null;
+  }
+  return { path, value };
+}
+
+function addSeoExpectation(expectations, route, description, sourceName, issues) {
+  if (expectations.has(route)) {
+    issues.push(sourceName + ': duplicates SEO route ' + route);
+    return;
+  }
+  if (typeof description !== 'string') {
+    issues.push(sourceName + ': SEO description must be a string');
+    return;
+  }
+  expectations.set(route, description);
+}
+
+/**
+ * Derives the complete logical route/description contract from source content.
+ * Site base prefixes are deliberately absent: routes describe the static output tree.
+ */
+export function deriveSeoExpectations(
+  repositoryRoot,
+  localeConfiguration = LOCALE_CONFIGURATION,
+  chapterLocaleConfiguration = readChapterLocaleConfiguration(
+    repositoryRoot,
+    localeConfiguration,
+  ),
+) {
+  const issues = [];
+  const expectations = new Map();
+  const catalogs = new Map();
+
+  for (const locale of localeConfiguration.locales ?? []) {
+    const catalog = readSeoCatalog(repositoryRoot, locale, issues);
+    if (catalog) catalogs.set(locale, catalog);
+  }
+
+  const defaultCatalog = catalogs.get(localeConfiguration.defaultLocale);
+  if (!defaultCatalog) {
+    issues.push(
+      'default locale "' + String(localeConfiguration.defaultLocale) +
+        '" has no readable SEO catalog',
+    );
+  } else {
+    addSeoExpectation(
+      expectations,
+      '/',
+      defaultCatalog.value.siteDescription,
+      defaultCatalog.path + '.siteDescription',
+      issues,
+    );
+  }
+
+  for (const locale of localeConfiguration.locales ?? []) {
+    const catalog = catalogs.get(locale);
+    if (!catalog) continue;
+    addSeoExpectation(
+      expectations,
+      '/' + locale + '/',
+      catalog.value.siteDescription,
+      catalog.path + '.siteDescription',
+      issues,
+    );
+    addSeoExpectation(
+      expectations,
+      '/' + locale + '/course/',
+      catalog.value.courseDescription,
+      catalog.path + '.courseDescription',
+      issues,
+    );
+  }
+
+  const lessonRoot = nodePath.join(
+    repositoryRoot,
+    'site/src/content/chapters',
+  );
+  for (const path of listFiles(lessonRoot).filter((candidate) =>
+    ['.md', '.mdx'].includes(nodePath.extname(candidate).toLowerCase()),
+  )) {
+    const relative = nodePath
+      .relative(lessonRoot, path)
+      .replaceAll('\\', '/');
+    const sourceName = 'site/src/content/chapters/' + relative;
+    const sourceMatch = relative.match(
+      /^([^/]+)\/(\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)\.(?:md|mdx)$/,
+    );
+    if (!sourceMatch) {
+      issues.push(
+        sourceName + ': lesson path must be <locale>/<chapter-id>.md or .mdx',
+      );
+      continue;
+    }
+
+    let data;
+    try {
+      data = parseJsonFrontmatter(readFileSync(path, 'utf8'), sourceName).data;
+    } catch (error) {
+      if (error instanceof ContentValidationError) {
+        issues.push(...error.issues);
+      } else {
+        issues.push(sourceName + ': cannot read lesson frontmatter: ' + error.message);
+      }
+      continue;
+    }
+
+    const [, pathLocale, pathChapterId] = sourceMatch;
+    if (data.locale !== pathLocale || data.chapter_id !== pathChapterId) {
+      issues.push(
+        sourceName + ': frontmatter locale and chapter_id must match its path',
+      );
+      continue;
+    }
+    if (!(localeConfiguration.locales ?? []).includes(data.locale)) {
+      issues.push(sourceName + ': lesson locale is not registered');
+      continue;
+    }
+    const chapter = chapterLocaleConfiguration?.byChapter?.[data.chapter_id];
+    if (!chapter) {
+      issues.push(sourceName + ': lesson chapter is absent from chapter-locales.json');
+      continue;
+    }
+    if (!chapter.activeLocales.includes(data.locale)) {
+      issues.push(sourceName + ': lesson locale is not active for this chapter');
+      continue;
+    }
+
+    addSeoExpectation(
+      expectations,
+      '/' + data.locale + '/course/' + data.chapter_id + '/',
+      data.description,
+      sourceName + '.description',
+      issues,
+    );
+  }
+
+  const normalized = normalizeSeoExpectationMap(expectations, issues);
+  if (issues.length > 0) {
+    throw new ContentValidationError(issues, 'SEO expectation derivation failed');
+  }
+  return normalized;
+}
+
+function validateSeoDescription(relativePath, source, expected, issues) {
+  const route = htmlRoute(relativePath);
+  const headOpenings = [...source.matchAll(/<head\b[^>]*>/gi)];
+  const headClosings = [...source.matchAll(/<\/head\s*>/gi)];
+  const headElements = [
+    ...source.matchAll(/<head\b[^>]*>[\s\S]*?<\/head\s*>/gi),
+  ];
+  if (
+    headOpenings.length !== 1 ||
+    headClosings.length !== 1 ||
+    headElements.length !== 1
+  ) {
+    issues.push(
+      relativePath + ': expected exactly one complete head element; found ' +
+        headOpenings.length + ' opening and ' + headClosings.length + ' closing tag(s)',
+    );
+  }
+
+  const descriptionMetas = [...source.matchAll(/<meta\b[^>]*>/gi)]
+    .map((match) => ({
+      index: match.index,
+      values: attributes(match[0]),
+    }))
+    .filter(
+      ({ values }) =>
+        typeof values.name === 'string' &&
+        values.name.toLocaleLowerCase() === 'description',
+    );
+  if (descriptionMetas.length !== 1) {
+    issues.push(
+      relativePath +
+        ': expected exactly one meta[name="description"]; found ' +
+        descriptionMetas.length,
+    );
+  }
+
+  const head = headElements.length === 1 ? headElements[0] : null;
+  const headStart = head?.index ?? -1;
+  const headEnd = head ? headStart + head[0].length : -1;
+  const outsideHead = descriptionMetas.filter(
+    ({ index }) => !head || index < headStart || index >= headEnd,
+  );
+  if (outsideHead.length > 0) {
+    issues.push(
+      relativePath + ': meta[name="description"] must be inside the head element',
+    );
+  }
+
+  if (descriptionMetas.length !== 1) return;
+  const content = descriptionMetas[0].values.content;
+  const decoded = typeof content === 'string'
+    ? decodeHtmlEntities(content).trim()
+    : '';
+  if (normalizedDescriptionText(decoded) === '') {
+    issues.push(
+      relativePath + ': meta[name="description"] content must not be blank',
+    );
+  } else if (isPlaceholderDescription(decoded)) {
+    issues.push(
+      relativePath + ': meta[name="description"] content is placeholder text',
+    );
+  }
+  if (expected !== undefined && decoded !== expected) {
+    issues.push(
+      relativePath + ': SEO description for ' + route +
+        ' does not match its source; expected "' + expected +
+        '", found "' + decoded + '"',
+    );
+  }
+}
+
+function validateSeoRouteMatrix(htmlDocuments, expectationsValue, issues) {
+  const expectations = normalizeSeoExpectationMap(expectationsValue, issues);
+  const byRoute = new Map();
+  for (const document of htmlDocuments) {
+    const route = htmlRoute(document.relativePath);
+    const existing = byRoute.get(route) ?? [];
+    existing.push(document);
+    byRoute.set(route, existing);
+  }
+
+  for (const [route, documents] of byRoute) {
+    if (documents.length !== 1) {
+      issues.push(
+        route + ': expected exactly one generated HTML file; found ' +
+          documents.length,
+      );
+    }
+    if (!expectations.has(route)) {
+      issues.push(
+        documents[0].relativePath +
+          ': generated HTML route ' + route + ' has no SEO expectation',
+      );
+    }
+    for (const document of documents) {
+      validateSeoDescription(
+        document.relativePath,
+        document.source,
+        expectations.get(route),
+        issues,
+      );
+    }
+  }
+
+  for (const route of expectations.keys()) {
+    if (!byRoute.has(route)) {
+      issues.push(route + ': expected SEO route has no generated HTML file');
+    }
+  }
+  return expectations.size;
 }
 
 function validateHreflang(
@@ -445,12 +829,20 @@ function validateLocalizedCourseEntry(
 /**
  * @param {string} distDirectory
  * @param {*} localeConfiguration
- * @param {{basePath?: string, chapterLocaleConfiguration?: *}} options
+ * @param {{
+ *   basePath?: string,
+ *   chapterLocaleConfiguration?: *,
+ *   seoExpectations?: Map<string, string>
+ * }} options
  */
 export function auditStaticSite(
   distDirectory,
   localeConfiguration = LOCALE_CONFIGURATION,
-  { basePath = '/', chapterLocaleConfiguration = undefined } = {},
+  {
+    basePath = '/',
+    chapterLocaleConfiguration = undefined,
+    seoExpectations = undefined,
+  } = {},
 ) {
   if (!existsSync(distDirectory)) {
     throw new ContentValidationError([
@@ -469,6 +861,7 @@ export function auditStaticSite(
   const issues = [];
   let referenceCount = 0;
   let htmlCount = 0;
+  const htmlDocuments = [];
 
   for (const filePath of files) {
     const relative = nodePath
@@ -482,6 +875,7 @@ export function auditStaticSite(
 
     if (extension === '.html') {
       htmlCount += 1;
+      htmlDocuments.push({ relativePath: relative, source });
       validateHreflang(
         relative,
         source,
@@ -523,15 +917,21 @@ export function auditStaticSite(
   if (htmlCount === 0) {
     issues.push('static output contains no HTML files');
   }
+  const seoRouteCount =
+    seoExpectations === undefined
+      ? 0
+      : validateSeoRouteMatrix(htmlDocuments, seoExpectations, issues);
   if (issues.length > 0) {
     throw new ContentValidationError(issues, 'Static link and asset audit failed');
   }
 
-  return {
+  const result = {
     fileCount: files.length,
     htmlCount,
     referenceCount,
   };
+  if (seoExpectations !== undefined) result.seoRouteCount = seoRouteCount;
+  return result;
 }
 
 export function runStaticLinkCheck(cwd = process.cwd()) {
@@ -540,12 +940,18 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
     repositoryRoot,
     LOCALE_CONFIGURATION,
   );
+  const seoExpectations = deriveSeoExpectations(
+    repositoryRoot,
+    LOCALE_CONFIGURATION,
+    chapterLocaleConfiguration,
+  );
   return auditStaticSite(
     nodePath.join(repositoryRoot, 'site/dist'),
     LOCALE_CONFIGURATION,
     {
       basePath: process.env.SITE_BASE ?? '/',
       chapterLocaleConfiguration,
+      seoExpectations,
     },
   );
 }
@@ -566,6 +972,8 @@ if (isMainModule()) {
         ' HTML file(s), ' +
         result.referenceCount +
         ' local reference(s), ' +
+        result.seoRouteCount +
+        ' SEO route(s), ' +
         result.fileCount +
         ' total artifact(s).',
     );

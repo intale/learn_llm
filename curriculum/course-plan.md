@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 14,
+  "plan_revision": 15,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -106,6 +106,10 @@
       },
       {
         "step_id": "support-selective-chapter-locales",
+        "before_chapter": "08-tensor-storage"
+      },
+      {
+        "step_id": "enforce-basic-seo-descriptions",
         "before_chapter": "08-tensor-storage"
       }
     ],

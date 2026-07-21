@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-21T13:50:15Z"
+updated_at: "2026-07-21T14:45:27Z"
 
 environment:
   os: "Linux x86_64"
@@ -6422,10 +6422,170 @@ builds:
                 status: passed
                 notes: "Host boundaries and whitespace are clean; the 20-file manifest is exact; no Chapter 8 product content exists; registered/active semantics, arbitrary locale and RTL behavior, fail-closed checks, base paths, fallback, hreflang, navigation, accessibility, no-script, narrow, and 404 behavior all passed review."
             notes: "Succeeded. The reviewed 20-file selective-locale infrastructure is canonical and passes complete staged and canonical Linux/site/browser validation. Chapters 1-7 remain bilingual, Chapters 8-39 are English-active until reviewed backfills, and no Chapter 8 lesson or Rust content was authored. Dockerfile, lockfiles, package dependencies, and Linux build pins are unchanged. The Windows clock remains two hours stale, so future uncached apt work may need the same transient runtime correction. The completion checkpoint is ready for its dedicated support-selective-chapter-locales commit; no later step has started."
+      - id: enforce-basic-seo-descriptions
+        objective: "Guarantee that every generated root, localized home, course-index, and active chapter page publishes exactly one localized, page-relevant meta description sourced from its existing site catalog or lesson description."
+        depends_on:
+          - support-selective-chapter-locales
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
+          - "scripts/locale-config.mjs"
+          - "scripts/chapter-locale-config.mjs"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/i18n/catalogs/"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/index.ts"
+          - "site/src/content.config.ts"
+          - "site/src/content/chapters/"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/src/pages/[locale]/index.astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+          - "Dockerfile"
+          - "site/package.json"
+          - "site/package-lock.json"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "scripts/check-static-links.mjs"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/index.astro"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+        acceptance:
+          - "Every generated HTML page contains exactly one nonblank, non-placeholder meta name=description element inside its head."
+          - "The multilingual root and each localized home use the applicable siteDescription, each course index uses its localized courseDescription, and every active chapter route uses that lesson's localized frontmatter description exactly."
+          - "The static audit compares an exact source-derived route/description matrix and rejects missing or extra HTML routes, missing or duplicate tags, blank or placeholder content, stale chapter copy, and locale-swapped general-page copy."
+          - "The same metadata contract passes at the default root base and the GitHub Pages /learn_llm/ project base without embedding deployment URLs in descriptions."
+          - "Future chapters inherit the required description contract without a duplicate SEO-only field; curriculum guidance identifies the existing lesson description as both visible summary and basic SEO metadata."
+          - "Scope remains one basic description meta tag: no keywords, robots, Open Graph, Twitter cards, canonical-URL work, dependency change, or build-definition change."
+          - "All 19 current pages and all 14 active Chapter 1-7 routes pass focused static and browser checks, and no Chapter 8 lesson, contract, or Rust content is authored."
+          - "The completed change is persisted in its own enforce-basic-seo-descriptions commit before Chapter 8 begins."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "npm --prefix site run test -- --run tests/seo.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run check:contract"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@seo'"
+          - "npm --prefix site run test:e2e"
+          - "docker build --build-arg SITE_BASE=/learn_llm/ --target workspace -t learn-llm-seo-pages:run01 ."
+          - "./course audit-host"
+          - "git diff --check"
+          - "./course review 20260721T141510Z-enforce-basic-seo-descriptions-01 --check"
+        cost:
+          class: medium
+          notes: "Deterministic metadata enforcement, root and project-base static builds, and cached browser regression tests; no dependency, network fetch beyond an unexpected cache miss of already-pinned images, chapter authoring, translation service, paid service, or substantial CPU use."
+        runs:
+          - run_id: 20260721T141510Z-enforce-basic-seo-descriptions-01
+            started_at: "2026-07-21T14:15:10Z"
+            finished_at: "2026-07-21T14:45:27Z"
+            status: succeeded
+            input_fingerprint:
+              git: "98028938f38b75aab987099cd47db0bd6a25a891"
+              manifest: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/input-fingerprint.txt"
+              checksum: "sha256:07ff196a13090fff08b563bd02cde6250002d140c9135c1c43eeb524954a12b2"
+              tools:
+                host: "Ubuntu on WSL 2"
+                docker_client: "29.6.2"
+                docker_server: "29.6.2 linux x86_64"
+                docker_compose: "5.3.1"
+                rustc: "1.93.1 (repository pin; cached image available)"
+                cargo: "1.93.1 (repository pin; cached image available)"
+                node: "22.12.0 (repository pin; cached image available)"
+                npm: "10.9.0 (recorded environment)"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/"
+            commands:
+              - "Run the session startup protocol; validate and separately commit the recovered null-free selective-locale completion ledger before new work"
+              - "Inspect every page type, content description source, current 19-page static release, SEO metadata path, test boundary, plan scheduling rules, and unchanged Linux environment"
+              - "Run three independent read-only architecture, content, and test audits; confirm all current pages already have relevant descriptions and choose enforcement rather than duplicate SEO copy"
+              - "Add and claim the reviewed cross-cutting step immediately before Chapter 8; fingerprint all material inputs and create isolated publish/ and validation/ staging directories"
+              - "Stage exactly ten declared documentation, plan, layout, static-audit, unit-test, and browser-test outputs without changing canonical product files"
+              - "Run the staged root-base build; preserve the first failed Astro-check log, correct its two synthetic test-fixture type errors, and rerun successfully"
+              - "Run three independent read-only final audits; correct empty-course selective-locale coverage, Unicode-format-only descriptions, Russian action placeholders, and the executable staged-review validation command"
+              - "Build and audit the final staged tree at / and /learn_llm/; run focused and full unit, contract, content, parity, type, build, link, SEO-browser, and browser-regression validation"
+              - "Freeze the exact ten-file SHA-256 publication manifest and verify it before and after ./course review --check"
+              - "Promote only the ten declared outputs with apply_patch; verify every canonical byte against the frozen manifest and preserve unrelated .idea/ and desktop.ini"
+              - "Run the complete canonical Linux workspace gate, focused and full unit/contract suites, root and /learn_llm/ builds, focused and full browser suites, host-artifact audit, diff check, output manifest check, and no-Chapter-8 scope audit"
+            artifacts:
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/input-fingerprint.txt"
+                checksum: "sha256:07ff196a13090fff08b563bd02cde6250002d140c9135c1c43eeb524954a12b2"
+                notes: "Commit, source hashes, complete existing lesson-tree hash, tool versions, unrelated worktree entries, cached-build boundary, and explicit no-Chapter-8/no-dependency scope."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/publish.sha256"
+                checksum: "sha256:a292ceaef5669becbf63cafa1b6c34d35d6bcbb2e2a50f9de6f69661929e23d1"
+                notes: "Frozen manifest for exactly ten reviewed staged outputs."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/candidate-build-03.log"
+                checksum: "sha256:6351ba0fa3789ae94760e26ece61b1f82b644f6e710de656615137e2d445f529"
+                notes: "Final root-base staged content, parity, Astro, 19-page production build, and 19-route SEO/static-link audit."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/project-base-build-final.log"
+                checksum: "sha256:98f2fd313f8480dddb07efac1e7c70d2234e4b37eb69c934156369921c79dcaa"
+                notes: "Final /learn_llm/ staged production build and 19-route SEO/static-link audit."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/full-vitest-final.log"
+                checksum: "sha256:23af89addb0ca68c3536ab7a6779a8a850833a1e708c871b73f784dd8bc4ca00"
+                notes: "All 160 unit tests passed."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/full-e2e.log"
+                checksum: "sha256:0f03583fde3959aeed02217b1d9bb1e9d66576909b20f9305a6f50772167a54c"
+                notes: "All 29 browser tests passed, including the generic all-page SEO traversal."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/canonical-course-check.log"
+                checksum: "sha256:24307caa3b22a37c2b23e7805fdbc48abfc0dcb0ca6cf14a41edf4e3fb58aabd"
+                notes: "Canonical Linux Rust formatting/tests plus content, parity, zero-diagnostic Astro, root-base build, and 19-route SEO/static-link gate."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/canonical-project-base-build.log"
+                checksum: "sha256:3b8e521dc714b517493b4c4f19965450b36533a8dcca9b2dd7c24fb1e35ad83c"
+                notes: "Canonical /learn_llm/ Linux workspace build with Rust and the complete 19-route static SEO audit."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/canonical-full-vitest.log"
+                checksum: "sha256:cd43317d49f0e461570ac1e7702f040a3dd099a87e2c7833dbb866b4985616f6"
+                notes: "All 160 canonical unit tests passed."
+              - path: ".build/runs/20260721T141510Z-enforce-basic-seo-descriptions-01/validation/canonical-full-e2e.log"
+                checksum: "sha256:19b8c6d5f47b892d02e93ea77b6c8bbbc1d4e8493f35709a32c49ac34011d370"
+                notes: "All 29 canonical browser tests passed."
+            validation:
+              - command: "Startup, dependency, ownership, existing metadata, prior-artifact, cost, environment, and Git audit"
+                status: passed
+                notes: "The recovered ledger and prior 20-file publication manifest verify; the requested SEO step is the first work before Chapter 8, has no output overlap with running work, needs no new dependency or budget approval, and preserves unrelated .idea/ and desktop.ini. All 19 existing pages already expose relevant description metadata; fail-closed enforcement is the missing boundary."
+              - command: "Initial staged root-base review-workspace build"
+                status: failed
+                notes: "Astro check found only two synthetic site/tests/seo.test.ts fixture typing errors: a multiline Node import escaped its existing suppression and the chapter-locale test fixture lacked the complete inferred shape. Product output was not published; both fixture errors were corrected before all successful validation. Log: validation/candidate-build.log."
+              - command: "Final staged root-base and /learn_llm/ review-workspace builds"
+                status: passed
+                notes: "Both bases produced 19 static pages with zero Astro diagnostics; content/parity passed and the fail-closed audit verified exactly 19 source-matched SEO routes and 323 local references."
+              - command: "Focused and full staged unit and contract validation"
+                status: passed
+                notes: "46 focused tests, all 160 unit tests, the 39-chapter/54-step course plan, and all 7 implemented chapter contracts passed."
+              - command: "Focused @seo and full staged Playwright validation"
+                status: passed
+                notes: "The generic SEO traversal passed across all current page types; the complete 29-test browser suite passed and exercised all 14 Chapter 1-7 routes plus general pages and selective-locale behavior."
+              - command: "Independent staged-output, state, scope, and manifest review"
+                status: passed
+                notes: "Three read-only audits report no unresolved findings; the exact ten-file manifest verifies and ./course review 20260721T141510Z-enforce-basic-seo-descriptions-01 --check exited 0 without changing publish/."
+              - command: "Canonical publication and Linux validation"
+                status: passed
+                notes: "All ten canonical files match publish.sha256 byte-for-byte. ./course check passed Rust formatting and all Rust tests plus the 19-page root build; the exact course-plan, 46 focused and 160 full unit, 7-contract, /learn_llm/ workspace, 1 focused and 29 full browser, host-artifact, diff, and no-Chapter-8 audits passed."
+            notes: "Succeeded. Every current general and Chapter 1-7 page is protected by one exact localized description metadata contract, future active lessons inherit it through their existing frontmatter description, and no dependency, lockfile, build definition, Chapter 8 content, or unrelated user file changed."
       - id: implement-ch08-tensor-storage
         objective: "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
         depends_on:
-          - support-selective-chapter-locales
+          - enforce-basic-seo-descriptions
         status: pending
         inputs:
           - "SKILLS.md"

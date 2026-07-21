@@ -15,7 +15,7 @@ import { sitePath } from '../lib/site-path';
 interface Props {
   locale: Locale;
   title?: string;
-  description?: string;
+  description: string;
   routeSuffix?: string;
   equivalentLocales?: readonly Locale[];
   fallbackRouteSuffix?: string;
@@ -23,13 +23,16 @@ interface Props {
 
 const {
   locale,
+  description,
   routeSuffix = '/',
   equivalentLocales = locales,
   fallbackRouteSuffix,
 } = Astro.props;
+if (typeof description !== 'string' || description.trim().length === 0) {
+  throw new Error('Page description must be a non-blank string.');
+}
 const copy = getMessages(locale);
 const title = Astro.props.title ?? copy.siteTitle;
-const description = Astro.props.description ?? copy.siteDescription;
 const fullTitle = title === copy.siteTitle ? title : `${title} · ${copy.siteTitle}`;
 const localeDefinition = getLocaleDefinition(locale);
 if (
