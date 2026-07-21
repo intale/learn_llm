@@ -9,6 +9,10 @@ import {
   repositoryRootFromCwd,
 } from './check-site-content.mjs';
 import { LOCALE_CONFIGURATION } from './locale-config.mjs';
+import {
+  activeLocalesForChapter,
+  readChapterLocaleConfiguration,
+} from './chapter-locale-config.mjs';
 
 function listFiles(directory) {
   const files = [];
@@ -183,6 +187,7 @@ function validateHreflang(
   issues,
   localeConfiguration,
   siteBase,
+  chapterLocaleConfiguration,
 ) {
   const route = htmlRoute(relativePath);
   const htmlTag = source.match(/<html\b[^>]*>/);
@@ -194,6 +199,26 @@ function validateHreflang(
   const localeDefinition = localeConfiguration.definitions.find(
     (candidate) => candidate.code === routeLocale,
   );
+  const chapterRoute = route.match(
+    /^\/([^/]+)\/course\/(\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)\/$/,
+  );
+  let activeChapterLocales = null;
+  if (chapterRoute && chapterLocaleConfiguration) {
+    try {
+      activeChapterLocales = activeLocalesForChapter(
+        chapterLocaleConfiguration,
+        chapterRoute[2],
+      );
+    } catch (error) {
+      issues.push(relativePath + ': ' + error.message);
+      activeChapterLocales = [];
+    }
+  }
+  const equivalentDefinitions = activeChapterLocales
+    ? localeConfiguration.definitions.filter((definition) =>
+        activeChapterLocales.includes(definition.code),
+      )
+    : localeConfiguration.definitions;
   const alternateLinks = [...source.matchAll(/<link\b[^>]*>/g)]
     .map((match) => attributes(match[0]))
     .filter((entry) => entry.rel?.split(/\s+/).includes('alternate'));
@@ -210,11 +235,12 @@ function validateHreflang(
     entries.push(alternate.href);
     alternatesByLanguage.set(alternate.hreflang, entries);
   }
-  const anchorHrefs = [...source.matchAll(/<a\b[^>]*>/g)]
-    .map((match) => attributes(match[0]).href)
-    .filter(Boolean);
+  const anchorEntries = [...source.matchAll(/<a\b[^>]*>/g)].map((match) =>
+    attributes(match[0]),
+  );
+  const anchorHrefs = anchorEntries.map((entry) => entry.href).filter(Boolean);
   const expectedAlternateTags = new Set([
-    ...localeConfiguration.definitions.map((definition) => definition.languageTag),
+    ...equivalentDefinitions.map((definition) => definition.languageTag),
     'x-default',
   ]);
   for (const alternate of alternatesByLanguage.keys()) {
@@ -270,6 +296,15 @@ function validateHreflang(
 
   if (!localeDefinition) return;
   const suffix = routeMatch[2];
+  if (
+    activeChapterLocales &&
+    !activeChapterLocales.includes(localeDefinition.code)
+  ) {
+    issues.push(
+      relativePath + ': generated chapter route is inactive for locale ' +
+        localeDefinition.code,
+    );
+  }
   if (language !== localeDefinition.languageTag) {
     issues.push(
       relativePath +
@@ -288,7 +323,7 @@ function validateHreflang(
         localeDefinition.direction,
     );
   }
-  for (const alternate of localeConfiguration.definitions) {
+  for (const alternate of equivalentDefinitions) {
     const expected = siteReference('/' + alternate.code + suffix, siteBase);
     if (alternateHref(alternate.languageTag) !== expected) {
       issues.push(
@@ -299,13 +334,76 @@ function validateHreflang(
           expected,
       );
     }
-    if (
-      alternate.code !== localeDefinition.code &&
-      !anchorHrefs.includes(expected)
-    ) {
-      issues.push(
-        relativePath + ': locale switch must include an ordinary link to ' + expected,
+  }
+  for (const alternate of localeConfiguration.definitions) {
+    if (alternate.code === localeDefinition.code) continue;
+    const equivalent =
+      !activeChapterLocales || activeChapterLocales.includes(alternate.code);
+    const expected = equivalent
+      ? siteReference('/' + alternate.code + suffix, siteBase)
+      : siteReference('/' + alternate.code + '/course/', siteBase);
+    if (equivalent) {
+      if (!anchorHrefs.includes(expected)) {
+        issues.push(
+          relativePath + ': locale switch must include an ordinary link to ' + expected,
+        );
+      }
+    } else {
+      const fallbackLinks = anchorEntries.filter(
+        (entry) => entry['data-locale'] === alternate.code,
       );
+      if (fallbackLinks.length !== 1) {
+        issues.push(
+          relativePath +
+            ': locale switch must include exactly one fallback link for ' +
+            alternate.code,
+        );
+      }
+      const fallback = fallbackLinks[0];
+      if (fallback?.href !== expected) {
+        issues.push(
+          relativePath +
+            ': fallback link for ' +
+            alternate.code +
+            ' must point to ' +
+            expected,
+        );
+      }
+      if (fallback?.['data-locale-fallback'] !== 'course-index') {
+        issues.push(
+          relativePath +
+            ': fallback link for ' +
+            alternate.code +
+            ' must set data-locale-fallback="course-index"',
+        );
+      }
+      if (
+        fallback?.lang !== alternate.languageTag ||
+        fallback?.hreflang !== alternate.languageTag ||
+        fallback?.dir !== alternate.direction
+      ) {
+        issues.push(
+          relativePath +
+            ': fallback link for ' +
+            alternate.code +
+            ' must declare its target lang, hreflang, and dir',
+        );
+      }
+      const fallbackName = fallback?.['aria-label']?.trim();
+      if (!fallbackName || fallbackName === alternate.nativeName) {
+        issues.push(
+          relativePath +
+            ': fallback link for ' +
+            alternate.code +
+            ' must provide an accessible fallback name',
+        );
+      }
+      const unavailable = siteReference('/' + alternate.code + suffix, siteBase);
+      if (anchorHrefs.includes(unavailable)) {
+        issues.push(
+          relativePath + ': inactive locale switch must not link to ' + unavailable,
+        );
+      }
     }
   }
   if (alternateHref('x-default') !== siteBase) {
@@ -344,10 +442,15 @@ function validateLocalizedCourseEntry(
   }
 }
 
+/**
+ * @param {string} distDirectory
+ * @param {*} localeConfiguration
+ * @param {{basePath?: string, chapterLocaleConfiguration?: *}} options
+ */
 export function auditStaticSite(
   distDirectory,
   localeConfiguration = LOCALE_CONFIGURATION,
-  { basePath = '/' } = {},
+  { basePath = '/', chapterLocaleConfiguration = undefined } = {},
 ) {
   if (!existsSync(distDirectory)) {
     throw new ContentValidationError([
@@ -385,6 +488,7 @@ export function auditStaticSite(
         issues,
         localeConfiguration,
         siteBase,
+        chapterLocaleConfiguration,
       );
       validateLocalizedCourseEntry(
         relative,
@@ -432,10 +536,17 @@ export function auditStaticSite(
 
 export function runStaticLinkCheck(cwd = process.cwd()) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
+  const chapterLocaleConfiguration = readChapterLocaleConfiguration(
+    repositoryRoot,
+    LOCALE_CONFIGURATION,
+  );
   return auditStaticSite(
     nodePath.join(repositoryRoot, 'site/dist'),
     LOCALE_CONFIGURATION,
-    { basePath: process.env.SITE_BASE ?? '/' },
+    {
+      basePath: process.env.SITE_BASE ?? '/',
+      chapterLocaleConfiguration,
+    },
   );
 }
 

@@ -5,36 +5,30 @@
   "content_revision": 1,
   "order": 1,
   "objective": {
-    "en": "State one observable behavior the student will implement and verify.",
-    "ru": "Опишите одно наблюдаемое поведение, которое студент реализует и проверит."
+    "en": "State one observable behavior the student will implement and verify."
   },
   "worked_inputs": {
-    "en": "Give one tiny English or language-neutral input.",
-    "ru": "Приведите один небольшой русский или языково-нейтральный пример."
+    "en": "Give one tiny English or language-neutral input."
   },
   "formula": {
     "latex": "y = f(x)",
     "symbols": [
       {
         "symbol": "x",
-        "en": "the observable input",
-        "ru": "наблюдаемый вход"
+        "en": "the observable input"
       },
       {
         "symbol": "y",
-        "en": "the expected result",
-        "ru": "ожидаемый результат"
+        "en": "the expected result"
       }
     ]
   },
   "history": {
     "approach": {
-      "en": "Name the earlier approach being contrasted.",
-      "ru": "Назовите более ранний подход, с которым проводится сравнение."
+      "en": "Name the earlier approach being contrasted."
     },
     "summary": {
-      "en": "Briefly state what the historical approach did and why the modern component changed it.",
-      "ru": "Кратко опишите исторический подход и причину перехода к современному компоненту."
+      "en": "Briefly state what the historical approach did and why the modern component changed it."
     },
     "rust_contrast": "Describe the runnable Rust behavior that makes the contrast observable."
   },
@@ -50,19 +44,16 @@
     "decision": "useful",
     "id": "chapter-concept",
     "rationale": {
-      "en": "Explain which relationship becomes easier to see.",
-      "ru": "Объясните, какую связь визуализация делает понятнее."
+      "en": "Explain which relationship becomes easier to see."
     }
   },
   "decoder_connection": {
-    "en": "Explain where this result enters the cumulative decoder-only model.",
-    "ru": "Объясните место результата в общей модели декодера."
+    "en": "Explain where this result enters the cumulative decoder-only model."
   },
   "terminology": [
     {
       "concept_id": "chapter-concept",
-      "en": "English technical term",
-      "ru": "Русский технический термин"
+      "en": "English technical term"
     }
   ],
   "translation_notes": [
@@ -77,21 +68,24 @@
 }
 ---
 
-# Chapter NN: working title / рабочее название
+# Chapter NN: working title
 
-The matching lesson frontmatter for every locale in `site/src/i18n/locales.json`
-copies the localized `worked_inputs`, `history`, and `decoder_connection` values
-from this contract. Add the same exact configured locale-key set to every localized
-contract object when enabling another spoken language. Every ordered lesson
-section contains teaching prose, the formula section renders
-the exact `formula.latex`, the Rust section owns its `<RustSource>` evidence, useful
-visualizations invoke the chapter-specific diagram there, and exercises include a
-predict-first ordered list with answers in `<details>`.
+Before filling in this contract, find the chapter's exact `activeLocales` entry in
+`site/src/i18n/chapter-locales.json`. Every localized contract object must contain
+exactly those locale keys, and matching lesson frontmatter for each active locale
+copies the localized `worked_inputs`, `history`, and `decoder_connection` values.
+The English-only example above matches the current Chapter 8–39 active set;
+Chapters 1–7 use English and Russian. A registered but inactive locale gets no
+placeholder contract key, lesson, or chapter route. Every ordered lesson section
+contains teaching prose, the formula section renders the exact `formula.latex`, the
+Rust section owns its `<RustSource>` evidence, useful visualizations invoke the
+chapter-specific diagram there, and exercises include a predict-first ordered list
+with answers in `<details>`.
 
 For every chapter after Chapter 1, replace `chapter_concept.rs` with the exact
-`primary_module` path named in `course-plan.md`; every localized lesson declares
-and renders every contract source (and every declared source region). Contract
-`{symbol, <each configured locale>}` entries become locale-specific lesson
+`primary_module` path named in `course-plan.md`; every active localized lesson
+declares and renders every contract source (and every declared source region).
+Contract `{symbol, <each active locale>}` entries become locale-specific lesson
 `{symbol, meaning}` entries. Contract Rust path strings become lesson
 `{path, region?, purpose}` entries. A useful `NN-foo-bar` chapter uses the
 canonical component `site/src/components/chapters/FooBarDiagram.astro` in every
@@ -106,15 +100,15 @@ leaves to later chapters.
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
-Walk through tiny inputs natural for the configured locales, or use one
+Walk through tiny inputs natural for the chapter's active locales, or use one
 language-neutral input. For chapter 1, include both ASCII and Cyrillic text.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
 
 Explain the formula in plain language and account for every symbol. Mathematical
-notation is shared; definitions and teaching prose are localized for every
-configured locale.
+notation is shared; definitions and teaching prose are localized for every active
+locale.
 
 <!-- contract-section:history -->
 ## Before the modern approach
@@ -151,11 +145,14 @@ decoder-only language model.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Review the complete localized terminology table, code-independent labels,
+Review the complete active-locale terminology table, code-independent labels,
 accessible names, examples, and any phrase that should not be translated literally.
+Activating another registered locale is a separate reviewed backfill: add its keys
+and complete lesson everywhere the checked projection requires before publishing
+any new route.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
 
 List deterministic examples and the commands that prove the Rust, content,
-translation-parity, production-build, link, and browser gates.
+active-locale parity, production-build, link, and browser gates.

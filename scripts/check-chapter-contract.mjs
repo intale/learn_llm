@@ -17,6 +17,10 @@ import {
   SUPPORTED_LOCALES,
   readLocaleConfiguration,
 } from './locale-config.mjs';
+import {
+  activeLocalesForChapter,
+  readChapterLocaleConfiguration,
+} from './chapter-locale-config.mjs';
 
 export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
   'scope',
@@ -63,7 +67,7 @@ function requireLocalizedText(
       sourceName +
         ': ' +
         field +
-        ' must contain one string per configured locale',
+        ' must contain one string per active locale',
     );
     return;
   }
@@ -98,7 +102,7 @@ function validateFormula(issues, formula, sourceName, supportedLocales) {
   if (!Array.isArray(formula.symbols) || formula.symbols.length === 0) {
     issues.push(
       sourceName +
-        ': formula.symbols must contain one localized definition per configured locale',
+        ': formula.symbols must contain one localized definition per active locale',
     );
     return;
   }
@@ -219,7 +223,7 @@ function validateTerminology(issues, terminology, sourceName, supportedLocales) 
   if (!Array.isArray(terminology) || terminology.length === 0) {
     issues.push(
       sourceName +
-        ': terminology must contain at least one term localized for every configured locale',
+        ': terminology must contain at least one term localized for every active locale',
     );
     return;
   }
@@ -538,15 +542,27 @@ export function validateExpectedOutput(
   return true;
 }
 
+/**
+ * @param {*} parsed
+ * @param {{repositoryRoot: string, sourceName?: string, localeConfiguration?: *, chapterLocaleConfiguration?: *}} options
+ */
 export function validateChapterContractIntegration(
   parsed,
   {
     repositoryRoot,
     sourceName = 'chapter contract',
     localeConfiguration = readLocaleConfiguration(repositoryRoot),
+    chapterLocaleConfiguration = undefined,
   },
 ) {
   const contract = parsed.data;
+  const chapterLocales =
+    chapterLocaleConfiguration ??
+    readChapterLocaleConfiguration(repositoryRoot, localeConfiguration);
+  const requiredLocales = activeLocalesForChapter(
+    chapterLocales,
+    contract.chapter_id,
+  );
   const issues = [];
   const expectedPackage = 'ch' + contract.chapter_id;
   if (contract.rust.package !== expectedPackage) {
@@ -597,7 +613,7 @@ export function validateChapterContractIntegration(
 
   const lessons = {};
   const diagrams = {};
-  for (const locale of localeConfiguration.locales) {
+  for (const locale of requiredLocales) {
     const lessonPath = nodePath.join(
       repositoryRoot,
       'site/src/content/chapters',
@@ -635,7 +651,7 @@ export function validateChapterContractIntegration(
 
   validateChapterLocaleSet(
     Object.values(lessons),
-    localeConfiguration.locales,
+    requiredLocales,
     localeConfiguration.defaultLocale,
   );
   const diagramPaths = new Set(Object.values(diagrams));
@@ -667,6 +683,10 @@ export function runChapterContractCheck(
 ) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
   const localeConfiguration = readLocaleConfiguration(repositoryRoot);
+  const chapterLocaleConfiguration = readChapterLocaleConfiguration(
+    repositoryRoot,
+    localeConfiguration,
+  );
   const structureOnly = args.includes('--structure-only');
   const unknownOptions = args.filter(
     (argument) => argument.startsWith('--') && argument !== '--structure-only',
@@ -684,10 +704,19 @@ export function runChapterContractCheck(
     if (!existsSync(filePath)) {
       throw new ContentValidationError(['chapter contract does not exist: ' + filePath]);
     }
-    const parsed = validateChapterContractText(readFileSync(filePath, 'utf8'), {
+    const source = readFileSync(filePath, 'utf8');
+    const chapterId = parseJsonFrontmatter(
+      source,
+      nodePath.relative(repositoryRoot, filePath),
+    ).data.chapter_id;
+    const requiredLocales = activeLocalesForChapter(
+      chapterLocaleConfiguration,
+      chapterId,
+    );
+    const parsed = validateChapterContractText(source, {
       sourceName: nodePath.relative(repositoryRoot, filePath),
       filePath,
-      supportedLocales: localeConfiguration.locales,
+      supportedLocales: requiredLocales,
     });
     const integration = structureOnly
       ? null
@@ -695,6 +724,7 @@ export function runChapterContractCheck(
           repositoryRoot,
           sourceName: nodePath.relative(repositoryRoot, filePath),
           localeConfiguration,
+          chapterLocaleConfiguration,
         });
     return { parsed, integration };
   });

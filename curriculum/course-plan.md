@@ -574,8 +574,8 @@ These are actual chapters with their own learning outcomes, not workflow fragmen
 
 After the Chapter 1 revision and the recorded cross-cutting prerequisites, every
 chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
-Outline, Rust, visualization, every configured translation, and integration are
-phases of the same run.
+Outline, Rust, visualization, every translation in the chapter's checked active
+locale set, and integration are phases of the same run.
 
 Each chapter run must:
 
@@ -584,11 +584,12 @@ Each chapter run must:
    deterministic demo, and `expected.txt`;
 3. implement a locale-neutral accessible visualization when useful, or record the
    reviewed `not-useful` rationale;
-4. author one natural lesson per locale listed in `site/src/i18n/locales.json`,
-   explaining every symbol and one common misconception;
-5. validate the full staged overlay, publish the complete translation set and
-   supporting artifacts together, rerun canonical gates, finalize the checkpoint,
-   and commit the step before the next chapter starts.
+4. read the chapter's exact `activeLocales` entry from
+   `site/src/i18n/chapter-locales.json`, then author one natural lesson for each
+   active locale, explaining every symbol and one common misconception;
+5. validate the full staged overlay, publish the complete chapter-active locale
+   set and supporting artifacts together, rerun canonical gates, finalize the
+   checkpoint, and commit the step before the next chapter starts.
 
 A split is not justified by file type. First narrow multiple objectives into real
 chapters, as this plan does. A later implementation split requires a criterion in
@@ -596,11 +597,14 @@ the machine metadata, a decision before execution, consecutive core/publication
 steps, and no partial public route.
 
 The ordered `scheduling.cross_cutting_steps` registry supports future shared work
-without rewriting completed chapter checkpoints. A locale-activation step is
-inserted immediately before the first pending chapter, or after Chapter 39 when
-the course is already complete. It owns translations for already-completed
-chapters, while pending chapter steps adopt the expanded locale set in their
-declared outputs and validation commands.
+without rewriting completed chapter checkpoints. Registering a site locale and
+activating it for chapters are distinct changes: registration supplies its catalog,
+metadata, direction, and localized index, but does not create chapter lessons or
+routes. A reviewed locale-activation step is inserted immediately before the first
+pending chapter, or after Chapter 39 when the course is already complete. It
+updates the checked projection and backfills every applicable implemented chapter
+before any newly active route is published; pending chapter steps then adopt the
+expanded active set in their declared outputs and validation commands.
 
 The build and validation toolchains run only in the pinned Docker workspace.
 Host commands enter that workspace through the root `course` wrapper; raw Rust,
@@ -618,8 +622,8 @@ Every ordinary chapter step owns:
 - its primary cumulative module and export under
   `rust/crates/llm-from-scratch/src/`;
 - `rust/demos/chNN-slug/` with historical contrast, tests, and exact output;
-- one `site/src/content/chapters/<locale>/NN-slug.mdx` for every locale in
-  `site/src/i18n/locales.json`;
+- one `site/src/content/chapters/<locale>/NN-slug.mdx` for every locale in that
+  chapter's `activeLocales` entry in `site/src/i18n/chapter-locales.json`;
 - `site/tests/e2e/chNN-slug.spec.ts` tagged `@chapter:NN-slug`;
 - when useful, a shared accessible diagram tied to tested Rust fixture data and a
   focused unit test;
@@ -636,11 +640,15 @@ explicit theme as Markdown fences and no client-side script. It is intentionally
 separate from Chapter 2 so every later chapter inherits readable code without
 expanding that chapter's teaching objective.
 
-The `generalize-localization-infrastructure` prerequisite makes the locale manifest
-the shared authority for routes, catalogs, translation-set publication, contract
-fields, directionality, alternate links, and validation. English and Russian are
-the currently configured locales; enabling another locale is an atomic change that
-also supplies its complete catalog, contract fields, and lesson files.
+The `generalize-localization-infrastructure` prerequisite makes
+`site/src/i18n/locales.json` the shared registry for site locales, catalogs,
+directionality, and localized indexes. The checked
+`site/src/i18n/chapter-locales.json` projection separately controls localized
+contract fields, lesson parity, chapter routes, equivalent-page alternate links,
+and chapter validation. English and Russian are registered; Chapters 1–7 activate
+both, while Chapters 8–39 currently activate English only. Russian therefore keeps
+its index and existing Chapter 1–7 lessons, but receives no placeholder lesson or
+route for a deferred chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
 
@@ -667,7 +675,7 @@ npm --prefix site run test:e2e
 Numerical chapters specify invariants and tolerances; randomized work uses fixed
 seeds and rounded output. Training chapters declare a bounded step/runtime budget
 and retain corpus/split/tokenizer/config provenance. Every run archives a manual
-mapping from its contract through Rust evidence, every configured locale,
+mapping from its contract through Rust evidence, every chapter-active locale,
 visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 ## Dependency-ordered chapter map

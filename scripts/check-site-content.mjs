@@ -9,6 +9,10 @@ import {
   SUPPORTED_LOCALES,
   readLocaleConfiguration,
 } from './locale-config.mjs';
+import {
+  activeLocalesForChapter,
+  readChapterLocaleConfiguration,
+} from './chapter-locale-config.mjs';
 
 export { REFERENCE_LOCALE, SUPPORTED_LOCALES } from './locale-config.mjs';
 
@@ -716,7 +720,7 @@ export function validateChapterLocaleSet(
   );
   if (unknown.length > 0) {
     issues.push(
-      'translation set contains unconfigured locale(s): ' +
+      'translation set contains locale(s) not active for this chapter: ' +
         [...new Set(unknown.map((document) => document.data.locale))].join(', '),
     );
   }
@@ -770,7 +774,7 @@ export function validateChapterLocaleSet(
 
 export function findPublishableChapterSets(
   documents,
-  requiredLocales = SUPPORTED_LOCALES,
+  localeRequirements = SUPPORTED_LOCALES,
   referenceLocale = REFERENCE_LOCALE,
 ) {
   const groups = new Map();
@@ -781,7 +785,11 @@ export function findPublishableChapterSets(
   }
 
   const sets = [];
-  for (const group of groups.values()) {
+  for (const [chapterId, group] of groups) {
+    const requiredLocales =
+      typeof localeRequirements === 'function'
+        ? localeRequirements(chapterId)
+        : localeRequirements;
     try {
       sets.push(
         validateChapterLocaleSet(group, requiredLocales, referenceLocale),
@@ -1080,8 +1088,16 @@ export function validateAllChapterSets(
 ) {
   const issues = [];
   for (const [chapterId, group] of groupsForDocuments(documents)) {
+    const chapterRequiredLocales =
+      typeof requiredLocales === 'function'
+        ? requiredLocales(chapterId)
+        : requiredLocales;
     try {
-      validateChapterLocaleSet(group, requiredLocales, referenceLocale);
+      validateChapterLocaleSet(
+        group,
+        chapterRequiredLocales,
+        referenceLocale,
+      );
     } catch (error) {
       issues.push(
         ...(error.issues ?? [error.message]).map(
@@ -1118,20 +1134,32 @@ function readOption(args, name) {
 export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd()) {
   const repositoryRoot = repositoryRootFromCwd(cwd);
   const localeConfiguration = readLocaleConfiguration(repositoryRoot);
-  const requiredLocales = localeConfiguration.locales;
+  const registeredLocales = localeConfiguration.locales;
   const referenceLocale = localeConfiguration.defaultLocale;
+  const chapterLocaleConfiguration = readChapterLocaleConfiguration(
+    repositoryRoot,
+    localeConfiguration,
+  );
+  const requiredLocales = (chapterId) =>
+    activeLocalesForChapter(chapterLocaleConfiguration, chapterId);
   const mode = args[0] && !args[0].startsWith('--') ? args[0] : 'all';
   const chapter = readOption(args, '--chapter');
   const locale = readOption(args, '--locale');
   const catalogCount = validateCatalogParity(repositoryRoot, localeConfiguration);
-  const documents = readChapterDocuments(repositoryRoot, requiredLocales);
+  const documents = readChapterDocuments(repositoryRoot, registeredLocales);
 
   if (mode === 'chapter') {
-    if (!chapter || !requiredLocales.includes(locale)) {
+    if (!chapter || !registeredLocales.includes(locale)) {
       throw new ContentValidationError([
         'chapter mode requires --locale ' +
-          requiredLocales.join('|') +
+          registeredLocales.join('|') +
           ' and --chapter NN-slug',
+      ]);
+    }
+    const activeLocales = requiredLocales(chapter);
+    if (!activeLocales.includes(locale)) {
+      throw new ContentValidationError([
+        'locale ' + locale + ' is registered but not active for chapter ' + chapter,
       ]);
     }
     const selected = documents.filter(

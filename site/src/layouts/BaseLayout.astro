@@ -3,11 +3,11 @@ import 'katex/dist/katex.min.css';
 import '../styles/global.css';
 
 import {
-  alternateLocales,
   getLocaleDefinition,
   getMessages,
   localeDefinitions,
   localePath,
+  locales,
   type Locale,
 } from '../i18n';
 import { sitePath } from '../lib/site-path';
@@ -17,15 +17,46 @@ interface Props {
   title?: string;
   description?: string;
   routeSuffix?: string;
+  equivalentLocales?: readonly Locale[];
+  fallbackRouteSuffix?: string;
 }
 
-const { locale, routeSuffix = '/' } = Astro.props;
+const {
+  locale,
+  routeSuffix = '/',
+  equivalentLocales = locales,
+  fallbackRouteSuffix,
+} = Astro.props;
 const copy = getMessages(locale);
 const title = Astro.props.title ?? copy.siteTitle;
 const description = Astro.props.description ?? copy.siteDescription;
 const fullTitle = title === copy.siteTitle ? title : `${title} · ${copy.siteTitle}`;
 const localeDefinition = getLocaleDefinition(locale);
-const alternateDefinitions = alternateLocales(locale);
+if (
+  equivalentLocales.length === 0 ||
+  new Set(equivalentLocales).size !== equivalentLocales.length ||
+  equivalentLocales.some((candidate) => !locales.includes(candidate)) ||
+  !equivalentLocales.includes(locale)
+) {
+  throw new Error('Equivalent route locales must be registered, unique, and include the current locale.');
+}
+const equivalentLocaleSet = new Set<Locale>(equivalentLocales);
+const equivalentDefinitions = localeDefinitions.filter((candidate) =>
+  equivalentLocaleSet.has(candidate.code),
+);
+const switchTargets = localeDefinitions
+  .filter((candidate) => candidate.code !== locale)
+  .flatMap((candidate) => {
+    const equivalent = equivalentLocaleSet.has(candidate.code);
+    const suffix = equivalent ? routeSuffix : fallbackRouteSuffix;
+    if (!suffix) return [];
+    return [{
+      definition: candidate,
+      equivalent,
+      href: localePath(candidate.code, suffix),
+      fallbackLabel: equivalent ? null : getMessages(candidate.code).allChaptersLabel,
+    }];
+  });
 ---
 
 <!doctype html>
@@ -38,7 +69,7 @@ const alternateDefinitions = alternateLocales(locale);
     <meta name="color-scheme" content="light" />
     <title>{fullTitle}</title>
     {
-      localeDefinitions.map((alternate) => (
+      equivalentDefinitions.map((alternate) => (
         <link
           rel="alternate"
           hreflang={alternate.languageTag}
@@ -58,15 +89,18 @@ const alternateDefinitions = alternateLocales(locale);
       <nav class="locale-switch" aria-label={copy.languageSwitchLabel}>
         <span>{copy.languageSwitchLabel}</span>
         {
-          alternateDefinitions.map((alternate) => (
+          switchTargets.map(({ definition: alternate, equivalent, href, fallbackLabel }) => (
             <a
-              href={localePath(alternate.code, routeSuffix)}
+              href={href}
               lang={alternate.languageTag}
               dir={alternate.direction}
               hreflang={alternate.languageTag}
               data-locale={alternate.code}
+              data-locale-fallback={equivalent ? undefined : 'course-index'}
+              aria-label={fallbackLabel ? `${alternate.nativeName}: ${fallbackLabel}` : undefined}
             >
-              {alternate.nativeName}
+              <span>{alternate.nativeName}</span>
+              {fallbackLabel && <small>{fallbackLabel}</small>}
             </a>
           ))
         }
@@ -80,3 +114,15 @@ const alternateDefinitions = alternateLocales(locale);
     </footer>
   </body>
 </html>
+
+<style>
+  .locale-switch a span,
+  .locale-switch a small {
+    display: block;
+  }
+
+  .locale-switch a small {
+    font-size: 0.7em;
+    font-weight: 500;
+  }
+</style>

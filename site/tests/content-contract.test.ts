@@ -36,6 +36,8 @@ import {
   referenceCandidates,
 } from '../../scripts/check-static-links.mjs';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
+import { validateChapterLocaleConfiguration } from '../../scripts/chapter-locale-config.mjs';
+// @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import { validateLocaleConfiguration } from '../../scripts/locale-config.mjs';
 import {
   findChapterNeighbors,
@@ -455,9 +457,11 @@ describe('curriculum and catalog contracts', () => {
     );
     const result = validateChapterContractText(template, {
       sourceName: 'chapter-template.md',
+      supportedLocales: ['en'],
     });
 
     expect(result.data.visualization.decision).toBe('useful');
+    expect(Object.keys(result.data.objective)).toEqual(['en']);
   });
 
   it('requires every localized contract field for a synthetic third locale', () => {
@@ -1034,6 +1038,196 @@ describe('published order and chapter navigation', () => {
 });
 
 describe('static link and locale audit', () => {
+  it('audits selective chapter equivalents and a deferred-locale fallback', () => {
+    const root = mkdtempSync(join(tmpdir(), 'learn-llm-selective-locales-'));
+    temporaryDirectories.push(root);
+    const configuration = validateLocaleConfiguration({
+      defaultLocale: 'en',
+      locales: {
+        en: { languageTag: 'en', nativeName: 'English', direction: 'ltr' },
+        ru: { languageTag: 'ru', nativeName: 'Русский', direction: 'ltr' },
+      },
+    });
+    const chapterConfiguration = validateChapterLocaleConfiguration(
+      {
+        schemaVersion: 1,
+        planId: 'fixture-plan',
+        planRevision: 1,
+        policyId: 'fixture-policy',
+        referenceLocale: 'en',
+        chapters: [
+          {
+            chapterId: '01-first',
+            order: 1,
+            activeLocales: ['en', 'ru'],
+          },
+          {
+            chapterId: '02-second',
+            order: 2,
+            activeLocales: ['en'],
+          },
+        ],
+      },
+      configuration,
+      'selective fixture',
+    );
+    const globalAlternates = (suffix: string) =>
+      [
+        `<link rel="alternate" hreflang="en" href="/en${suffix}">`,
+        `<link rel="alternate" hreflang="ru" href="/ru${suffix}">`,
+        '<link rel="alternate" hreflang="x-default" href="/">',
+      ].join('');
+    const page = (
+      locale: 'en' | 'ru',
+      head: string,
+      body: string,
+    ) =>
+      `<html lang="${locale}" dir="ltr"><head>${head}</head><body>${body}</body></html>`;
+
+    mkdirSync(join(root, 'en/course/01-first'), { recursive: true });
+    mkdirSync(join(root, 'ru/course/01-first'), { recursive: true });
+    mkdirSync(join(root, 'en/course/02-second'), { recursive: true });
+    const selectiveHtmlPaths = [
+      join(root, 'index.html'),
+      join(root, 'en/index.html'),
+      join(root, 'ru/index.html'),
+      join(root, 'en/course/index.html'),
+      join(root, 'ru/course/index.html'),
+      join(root, 'en/course/01-first/index.html'),
+      join(root, 'ru/course/01-first/index.html'),
+      join(root, 'en/course/02-second/index.html'),
+    ];
+    writeFileSync(
+      join(root, 'index.html'),
+      '<html lang="mul" dir="ltr"><head>' +
+        globalAlternates('/') +
+        '</head><body><a href="/en/">English</a><a href="/ru/">Русский</a></body></html>',
+    );
+    for (const locale of ['en', 'ru'] as const) {
+      const alternate = locale === 'en' ? 'ru' : 'en';
+      writeFileSync(
+        join(root, locale, 'index.html'),
+        page(
+          locale,
+          globalAlternates('/'),
+          `<a href="/${alternate}/">language</a><a href="/${locale}/course/">course</a>`,
+        ),
+      );
+      writeFileSync(
+        join(root, locale, 'course/index.html'),
+        page(
+          locale,
+          globalAlternates('/course/'),
+          `<a href="/${alternate}/course/">language</a>`,
+        ),
+      );
+      writeFileSync(
+        join(root, locale, 'course/01-first/index.html'),
+        page(
+          locale,
+          [
+            '<link rel="alternate" hreflang="en" href="/en/course/01-first/">',
+            '<link rel="alternate" hreflang="ru" href="/ru/course/01-first/">',
+            '<link rel="alternate" hreflang="x-default" href="/">',
+          ].join(''),
+          `<a href="/${alternate}/course/01-first/">language</a>`,
+        ),
+      );
+    }
+    const englishOnlyPath = join(root, 'en/course/02-second/index.html');
+    const fallbackAnchor =
+      '<a data-locale="ru" data-locale-fallback="course-index" lang="ru" ' +
+      'hreflang="ru" dir="ltr" aria-label="Русский: course index" ' +
+      'href="/ru/course/">Русский</a>';
+    const validEnglishOnly = page(
+      'en',
+      [
+        '<link rel="alternate" hreflang="en" href="/en/course/02-second/">',
+        '<link rel="alternate" hreflang="x-default" href="/">',
+      ].join(''),
+      fallbackAnchor,
+    );
+    writeFileSync(englishOnlyPath, validEnglishOnly);
+
+    expect(
+      auditStaticSite(root, configuration, {
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toEqual(expect.objectContaining({ htmlCount: 8 }));
+
+    const projectBase = '/learn_llm/';
+    for (const path of selectiveHtmlPaths) {
+      writeFileSync(
+        path,
+        readFileSync(path, 'utf8').replaceAll('href="/', `href="${projectBase}`),
+      );
+    }
+    expect(
+      auditStaticSite(root, configuration, {
+        basePath: projectBase,
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toEqual(expect.objectContaining({ htmlCount: 8 }));
+    for (const path of selectiveHtmlPaths) {
+      writeFileSync(
+        path,
+        readFileSync(path, 'utf8').replaceAll(`href="${projectBase}`, 'href="/'),
+      );
+    }
+
+    writeFileSync(
+      englishOnlyPath,
+      validEnglishOnly.replace(
+        '<link rel="alternate" hreflang="x-default"',
+        '<link rel="alternate" hreflang="ru" href="/ru/course/02-second/"><link rel="alternate" hreflang="x-default"',
+      ),
+    );
+    expect(() =>
+      auditStaticSite(root, configuration, {
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toThrow(/unexpected hreflang "ru"|inactive locale switch/);
+
+    writeFileSync(
+      englishOnlyPath,
+      validEnglishOnly.replace(
+        'data-locale-fallback="course-index"',
+        'data-locale-fallback="chapter-route"',
+      ),
+    );
+    expect(() =>
+      auditStaticSite(root, configuration, {
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toThrow(/must set data-locale-fallback="course-index"/);
+
+    writeFileSync(
+      englishOnlyPath,
+      validEnglishOnly.replace(fallbackAnchor, ''),
+    );
+    expect(() =>
+      auditStaticSite(root, configuration, {
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toThrow(/exactly one fallback link for ru/);
+
+    mkdirSync(join(root, 'ru/course/02-second'), { recursive: true });
+    writeFileSync(
+      join(root, 'ru/course/02-second/index.html'),
+      page(
+        'ru',
+        '<link rel="alternate" hreflang="en" href="/en/course/02-second/"><link rel="alternate" hreflang="x-default" href="/">',
+        '<a href="/en/course/02-second/">English</a>',
+      ),
+    );
+    writeFileSync(englishOnlyPath, validEnglishOnly);
+    expect(() =>
+      auditStaticSite(root, configuration, {
+        chapterLocaleConfiguration: chapterConfiguration,
+      }),
+    ).toThrow(/generated chapter route is inactive for locale ru/);
+  });
+
   it('audits a complete synthetic three-locale route and alternate matrix', () => {
     const root = mkdtempSync(join(tmpdir(), 'learn-llm-three-locales-'));
     temporaryDirectories.push(root);

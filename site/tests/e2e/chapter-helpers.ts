@@ -24,6 +24,13 @@ interface LocalizedChapterRoute {
   revision: number;
   revisionLabel: string;
   title: string;
+  equivalentLocales?: readonly ChapterLocale[];
+  fallbackRouteSuffix?: string;
+}
+
+interface ReadOrderedCourseChapterOptions {
+  origin?: string;
+  requireContiguousPrefix?: boolean;
 }
 
 export function chapterTag(chapterId: string) {
@@ -37,8 +44,15 @@ export function chapterPath(locale: ChapterLocale, chapterId: string) {
 export async function readOrderedCourseChapters(
   page: Page,
   locale: ChapterLocale,
+  {
+    origin,
+    requireContiguousPrefix,
+  }: ReadOrderedCourseChapterOptions = {},
 ): Promise<CourseChapterLink[]> {
-  await page.goto(`/${locale}/course/`);
+  const coursePath = `/${locale}/course/`;
+  const expectsContiguousPrefix =
+    requireContiguousPrefix ?? locale === localeManifest.defaultLocale;
+  await page.goto(origin ? new URL(coursePath, origin).href : coursePath);
   const items = page.locator('.course-list > li');
   const count = await items.count();
   expect(
@@ -60,9 +74,13 @@ export async function readOrderedCourseChapters(
   );
 
   return chapters.map((chapter, index) => {
-    const expectedOrder = index + 1;
+    const previousOrder = chapters[index - 1]?.order ?? 0;
+    const expectedOrder = expectsContiguousPrefix ? index + 1 : chapter.order;
     const match = chapter.href.match(
       new RegExp(`^/${locale}/course/(\\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)/$`),
+    );
+    expect(Number.isInteger(chapter.order) && chapter.order > previousOrder).toBe(
+      true,
     );
     expect(chapter.order).toBe(expectedOrder);
     expect(
@@ -70,7 +88,7 @@ export async function readOrderedCourseChapters(
       `invalid ${locale} chapter href ${chapter.href}`,
     ).not.toBeNull();
     expect(
-      match?.[1].startsWith(String(expectedOrder).padStart(2, '0') + '-'),
+      match?.[1].startsWith(String(chapter.order).padStart(2, '0') + '-'),
     ).toBe(true);
     expect(chapter.title.length).toBeGreaterThan(0);
     return {
@@ -105,21 +123,47 @@ export async function expectLocalizedChapterRoute(
   await expect(page.locator('.eyebrow')).toContainText(
     `${String(chapter.order).padStart(2, '0')} · ${chapter.revisionLabel} ${chapter.revision}`,
   );
+  const equivalentLocales = chapter.equivalentLocales ?? chapterLocales;
+  expect(new Set(equivalentLocales).size).toBe(equivalentLocales.length);
+  expect(equivalentLocales).toContain(chapter.locale);
   for (const alternate of chapterLocaleDefinitions) {
-    const expectedPath = chapterPath(alternate.code, chapter.chapterId);
-    await expect(
-      page.locator(
-        `link[rel="alternate"][hreflang="${alternate.languageTag}"]`,
-      ),
-    ).toHaveAttribute('href', expectedPath);
+    const hasEquivalentRoute = equivalentLocales.includes(alternate.code);
+    const equivalentPath = chapterPath(alternate.code, chapter.chapterId);
+    const alternateLink = page.locator(
+      `link[rel="alternate"][hreflang="${alternate.languageTag}"]`,
+    );
+    if (hasEquivalentRoute) {
+      await expect(alternateLink).toHaveCount(1);
+      await expect(alternateLink).toHaveAttribute('href', equivalentPath);
+    } else {
+      await expect(alternateLink).toHaveCount(0);
+    }
     const switchLink = page.locator(
       `.locale-switch a[data-locale="${alternate.code}"]`,
     );
     if (alternate.code === chapter.locale) {
       await expect(switchLink).toHaveCount(0);
     } else {
-      await expect(switchLink).toHaveAttribute('href', expectedPath);
+      const expectedPath = hasEquivalentRoute
+        ? equivalentPath
+        : chapter.fallbackRouteSuffix
+          ? `/${alternate.code}${chapter.fallbackRouteSuffix}`
+          : null;
+      expect(
+        expectedPath,
+        `${alternate.code} requires an equivalent route or an explicit fallback`,
+      ).not.toBeNull();
+      await expect(switchLink).toHaveCount(1);
+      await expect(switchLink).toHaveAttribute('href', expectedPath ?? '');
       await expect(switchLink).toContainText(alternate.nativeName);
+      if (hasEquivalentRoute) {
+        expect(await switchLink.getAttribute('data-locale-fallback')).toBeNull();
+      } else {
+        await expect(switchLink).toHaveAttribute(
+          'data-locale-fallback',
+          'course-index',
+        );
+      }
     }
   }
   await expect(

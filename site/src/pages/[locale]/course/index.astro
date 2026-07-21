@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 
 import {
-  defaultLocale,
   getMessages,
   localePath,
   locales,
@@ -21,17 +20,11 @@ const chapterModules = import.meta.glob(
 );
 const allChapters =
   Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
-const publishableIds = new Set(
-  findPublishableChapterSets(allChapters, locales, defaultLocale).map(
-    (set) => set.chapterId,
-  ),
-);
-
-const chapters = allChapters
-  .filter(
-    (entry) =>
-      entry.data.locale === locale && publishableIds.has(entry.data.chapter_id),
-  )
+const chapters = findPublishableChapterSets(allChapters)
+  .flatMap((set) => {
+    const localized = set.byLocale[locale];
+    return localized ? [localized] : [];
+  })
   .sort((left, right) => left.data.order - right.data.order);
 
 const copy = getMessages(locale);

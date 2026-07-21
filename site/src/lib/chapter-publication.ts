@@ -1,3 +1,8 @@
+import {
+  activeLocalesForChapter,
+  chapterLocaleConfiguration,
+} from './chapter-locales';
+
 export interface PublicationChapterData {
   chapter_id: string;
   locale: string;
@@ -20,8 +25,33 @@ export interface PublicationChapterEntry {
 export interface PublishableChapterSet<T extends PublicationChapterEntry> {
   chapterId: string;
   revision: number;
+  activeLocales: readonly string[];
   reference: T;
-  byLocale: Readonly<Record<string, T>>;
+  byLocale: Readonly<Partial<Record<string, T>>>;
+}
+
+export type ChapterLocaleRequirements =
+  | readonly string[]
+  | ((chapterId: string) => readonly string[]);
+
+function validatePublicationLocales(
+  requiredLocales: readonly string[],
+  referenceLocale: string,
+  context = 'Publication locales',
+): void {
+  if (
+    !Array.isArray(requiredLocales) ||
+    requiredLocales.length === 0 ||
+    requiredLocales.some(
+      (locale) => typeof locale !== 'string' || locale.length === 0,
+    ) ||
+    new Set(requiredLocales).size !== requiredLocales.length ||
+    !requiredLocales.includes(referenceLocale)
+  ) {
+    throw new Error(
+      `${context} must be non-empty, unique, and include the reference locale.`,
+    );
+  }
 }
 
 export function sharedChapterSignature(entry: PublicationChapterEntry): string {
@@ -47,15 +77,11 @@ export function sharedChapterSignature(entry: PublicationChapterEntry): string {
 
 export function findPublishableChapterSets<T extends PublicationChapterEntry>(
   entries: readonly T[],
-  requiredLocales: readonly string[],
-  referenceLocale: string,
+  localeRequirements: ChapterLocaleRequirements = activeLocalesForChapter,
+  referenceLocale: string = chapterLocaleConfiguration.referenceLocale,
 ): PublishableChapterSet<T>[] {
-  if (
-    requiredLocales.length === 0 ||
-    new Set(requiredLocales).size !== requiredLocales.length ||
-    !requiredLocales.includes(referenceLocale)
-  ) {
-    throw new Error('Publication locales must be unique and include the reference locale.');
+  if (typeof localeRequirements !== 'function') {
+    validatePublicationLocales(localeRequirements, referenceLocale);
   }
 
   const groups = new Map<string, T[]>();
@@ -67,6 +93,15 @@ export function findPublishableChapterSets<T extends PublicationChapterEntry>(
 
   const sets: PublishableChapterSet<T>[] = [];
   for (const [chapterId, group] of groups) {
+    const requiredLocales =
+      typeof localeRequirements === 'function'
+        ? localeRequirements(chapterId)
+        : localeRequirements;
+    validatePublicationLocales(
+      requiredLocales,
+      referenceLocale,
+      `Publication locales for ${chapterId}`,
+    );
     if (group.length !== requiredLocales.length) continue;
     const byLocale: Record<string, T> = {};
     let complete = true;
@@ -81,13 +116,18 @@ export function findPublishableChapterSets<T extends PublicationChapterEntry>(
     if (!complete) continue;
 
     const reference = byLocale[referenceLocale];
+    if (!reference) continue;
     const signature = sharedChapterSignature(reference);
     if (
       requiredLocales.some(
-        (locale) =>
-          byLocale[locale].data.content_revision !==
-            reference.data.content_revision ||
-          sharedChapterSignature(byLocale[locale]) !== signature,
+        (locale) => {
+          const localized = byLocale[locale];
+          return (
+            !localized ||
+            localized.data.content_revision !== reference.data.content_revision ||
+            sharedChapterSignature(localized) !== signature
+          );
+        },
       )
     ) {
       continue;
@@ -96,6 +136,7 @@ export function findPublishableChapterSets<T extends PublicationChapterEntry>(
     sets.push({
       chapterId,
       revision: reference.data.content_revision,
+      activeLocales: Object.freeze([...requiredLocales]),
       reference,
       byLocale: Object.freeze(byLocale),
     });

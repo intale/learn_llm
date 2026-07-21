@@ -2853,3 +2853,100 @@ remains base-aware.
 
 **Affected steps:** `deploy-site-to-github-pages-repository` (invalidated) and
 `deploy-current-repository-to-github-pages`.
+
+## 2026-07-21 — Preserve the Linux build while rehydrating an empty Docker cache
+
+**Status:** Accepted as execution-environment recovery before selective-locale
+product work.
+
+**Context:** The repository is also used under Linux, so its Dockerfile,
+lockfiles, pinned container versions, and recorded Linux build contract must not
+be changed for the Windows host. WSL 2 now supplies Ubuntu and Docker Desktop's
+Linux engine, but the new engine has no images or cache volumes. The selected
+step's earlier cached, network-free validation estimate is therefore no longer
+true for its first local build.
+
+**Decision:** Run all product commands through Ubuntu and the existing Linux
+containers. Keep the build definition and version pins unchanged. Declare only
+the cold-cache downloads already required by that build—its pinned Docker Hub
+images, Debian packages, Rust toolchain, and package-lock-resolved npm tree—as
+explicit medium-cost inputs of this run. Use Git's per-command
+`core.filemode=false` override for the NTFS checkout so no synthetic permission
+changes enter a commit; do not change the repository's executable-bit contract.
+
+**Consequences:** The first container build may use network and take longer, but
+later validation can reuse its local cache. This decision introduces no product
+dependency, host-only build path, paid service, or divergence from native Linux.
+The unrelated `.idea/` directory and `desktop.ini` remain untouched.
+
+**Affected step and run:** `support-selective-chapter-locales`, run
+`20260721T124715Z-support-selective-chapter-locales-01`.
+
+## 2026-07-21 — Carry selective chapter locales through every publication gate
+
+**Status:** Accepted after independent pre-implementation scope review.
+
+**Context:** The first selective-locale run staged only the planned runtime
+projection and its originally declared consumers. Read-only review then found
+that the existing static-link validator requires every registered `hreflang` and
+same-suffix locale switch on every page, while the chapter-contract validator and
+curriculum authoring docs still require a lesson and localized contract fields
+for every registered locale. Those rules would reject the approved English-only
+Chapter 8 or encourage an unpublished Russian placeholder. The affected files
+were not outputs of the running step, so the run stopped before editing them.
+
+**Decision:** Expand `support-selective-chapter-locales` to own the exact
+cross-cutting boundary: `scripts/check-chapter-contract.mjs`,
+`scripts/check-static-links.mjs`, their existing static-link unit fixtures, and
+the course-plan, curriculum workflow, and chapter-template prose that Chapter 8
+will consume. Contract and content requirements must use the checked active set
+for a chapter while registration continues to govern valid locale codes,
+catalogs, global site routes, and future activation. Chapter `hreflang` metadata
+contains only equivalent active lesson routes; the visible switcher keeps every
+registered language reachable and sends an inactive locale to its localized
+course index with an accessible fallback cue. Global home and course-index routes
+remain symmetric across the registry.
+
+Preserve the first run's staged draft under an immutable checksum manifest, mark
+that run interrupted, and reuse the verified bytes only in a new fingerprinted
+run with the expanded inputs. Do not add a package, dependency, canonical Chapter
+8 lesson, Rust implementation, host-only build path, or change to the pinned
+Linux container definition.
+
+**Consequences:** The validators, authoring instructions, runtime route
+projection, and browser behavior now share one registered-versus-active model.
+An extra inactive lesson fails closed, Russian navigation ends at its latest real
+chapter, English may continue, and `/ru/course/08-tensor-storage/` remains a
+normal static 404. The isolated browser fixture must generate its synthetic
+English-only Chapter 8 only in an OS-temporary test copy and remove it after the
+test; it never becomes course content.
+
+**Affected step and runs:** `support-selective-chapter-locales`, interrupted run
+`20260721T124715Z-support-selective-chapter-locales-01` and replacement run
+`20260721T125802Z-support-selective-chapter-locales-02`.
+
+## 2026-07-21 — Declare the content schema as a selective-locale publication gate
+
+**Status:** Accepted during final candidate ownership review.
+
+**Context:** The validated candidate makes Astro's chapter content schema reject
+a lesson whose locale is registered globally but inactive for that chapter. The
+schema was already a declared input and this fail-closed behavior is required by
+the step's no-placeholder acceptance criterion, but the path was accidentally
+omitted from the step's output list. Final read-only review caught the ownership
+defect before staging was promoted.
+
+**Decision:** Add `site/src/content.config.ts` to the exact outputs owned by
+`support-selective-chapter-locales`. Keep the already-reviewed behavior: the
+global registry establishes valid locale codes, while the checked per-chapter
+projection decides which of those codes may appear in a lesson. Also align stale
+diagnostic and workflow wording with “active locale,” and correct the owned
+README's pre-existing Chapter 1 revision reference from 2 to the canonical 3.
+
+**Consequences:** The completion checkpoint and dedicated commit will account
+for every changed product file. No Chapter 8 lesson, dependency, route, Rust
+content, build definition, or acceptance scope is added; the correction only
+makes ownership and diagnostics match behavior already required and validated.
+
+**Affected step and run:** `support-selective-chapter-locales`, run
+`20260721T125802Z-support-selective-chapter-locales-02`.

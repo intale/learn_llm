@@ -8,11 +8,10 @@ import {
 import ChapterNavigation from '../../../components/ChapterNavigation.astro';
 import RustSource from '../../../components/RustSource.astro';
 import {
-  defaultLocale,
   getLocaleDefinition,
   getMessages,
   localePath,
-  locales,
+  type Locale,
 } from '../../../i18n';
 import {
   findChapterNeighbors,
@@ -27,19 +26,28 @@ export async function getStaticPaths() {
   );
   const chapters =
     Object.keys(chapterModules).length === 0 ? [] : await getCollection('chapters');
-  const publishable = findPublishableChapterSets(
-    chapters,
-    locales,
-    defaultLocale,
-  ).flatMap((set) => locales.map((locale) => set.byLocale[locale]));
+  const publishable = findPublishableChapterSets(chapters).flatMap((set) =>
+    set.activeLocales.flatMap((locale) => {
+      const entry = set.byLocale[locale];
+      if (!entry) {
+        throw new Error(
+          `Publishable chapter ${set.chapterId} is missing active locale ${locale}.`,
+        );
+      }
+      return [{
+        entry,
+        equivalentLocales: set.activeLocales as readonly Locale[],
+      }];
+    }),
+  );
 
-  return publishable.map((entry) => {
+  return publishable.map(({ entry, equivalentLocales }) => {
     const localizedTargets = publishable
-      .filter((candidate) => candidate.data.locale === entry.data.locale)
+      .filter((candidate) => candidate.entry.data.locale === entry.data.locale)
       .map((candidate) => ({
-        chapterId: candidate.data.chapter_id,
-        order: candidate.data.order,
-        title: candidate.data.title,
+        chapterId: candidate.entry.data.chapter_id,
+        order: candidate.entry.data.order,
+        title: candidate.entry.data.title,
       }));
     const { previous, next } = findChapterNeighbors(
       localizedTargets,
@@ -51,15 +59,16 @@ export async function getStaticPaths() {
         locale: entry.data.locale,
         slug: entry.data.chapter_id,
       },
-      props: { entry, previous, next },
+      props: { entry, previous, next, equivalentLocales },
     };
   });
 }
 
-const { entry, previous, next } = Astro.props as {
+const { entry, previous, next, equivalentLocales } = Astro.props as {
   entry: CollectionEntry<'chapters'>;
   previous: ChapterNavigationTarget | null;
   next: ChapterNavigationTarget | null;
+  equivalentLocales: readonly Locale[];
 };
 const { Content } = await render(entry);
 const locale = entry.data.locale;
@@ -71,6 +80,8 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
 <BaseLayout
   locale={locale}
   routeSuffix={routeSuffix}
+  equivalentLocales={equivalentLocales}
+  fallbackRouteSuffix="/course/"
   title={entry.data.title}
   description={entry.data.description}
 >

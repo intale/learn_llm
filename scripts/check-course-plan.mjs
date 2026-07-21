@@ -8,6 +8,10 @@ import {
   LOCALE_CONFIGURATION,
   SUPPORTED_LOCALES,
 } from "./locale-config.mjs";
+import {
+  CHAPTER_LOCALE_CONFIGURATION,
+  validateChapterLocaleProjectionAgainstPlan,
+} from "./chapter-locale-config.mjs";
 
 const REQUIRED_CHAPTER_FIELDS = [
   "Chapter ID",
@@ -76,9 +80,9 @@ function validateChapterLocalePolicy(
     `${path}: chapter_locale_policy must be an object`,
   );
   assert(
-    policy.policy_id ===
-      "english-only-from-chapter-08-until-further-notice",
-    `${path}: unexpected chapter locale policy`,
+    typeof policy.policy_id === "string" &&
+      CONCEPT_ID_PATTERN.test(policy.policy_id),
+    `${path}: chapter locale policy requires a lowercase kebab-case policy_id`,
   );
   assert(
     policy.reference_locale === localeConfiguration.defaultLocale,
@@ -659,6 +663,10 @@ function main() {
   const planPath = resolve(root, argumentValue("--plan", "curriculum/course-plan.md"));
   const statePath = resolve(root, argumentValue("--state", "BUILD_STATE.yaml"));
   const metadata = validateCoursePlanText(readFileSync(planPath, "utf8"), planPath);
+  validateChapterLocaleProjectionAgainstPlan(
+    CHAPTER_LOCALE_CONFIGURATION,
+    metadata,
+  );
   const steps = validateLedgerText(
     readFileSync(statePath, "utf8"),
     metadata,

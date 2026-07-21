@@ -1,17 +1,17 @@
 schema_version: 1
-updated_at: "2026-07-21T11:29:22Z"
+updated_at: "2026-07-21T13:44:22Z"
 
 environment:
   os: "Linux x86_64"
   execution: "Docker-only build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
-  docker: "25.0.2"
-  docker_compose: "2.17.3"
+  docker: "29.6.2"
+  docker_compose: "5.3.1"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
   git: "2.53.0"
-  notes: "Bootstrap snapshot; pin exact versions when the implementation toolchain is selected."
+  notes: "Current orchestration environment refreshed on 2026-07-21; repository-defined Linux toolchain and build pins remain unchanged."
 
 active_build: complete-decoder-course
 
@@ -6133,15 +6133,19 @@ builds:
         objective: "Make static chapter publication, validation, navigation, alternate links, and routes honor each chapter's active locale set while preserving every registered locale for site chrome and future activation."
         depends_on:
           - implement-ch07-language-model-metrics
-        status: pending
+        status: running
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
           - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "scripts/check-chapter-contract.mjs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
           - "scripts/locale-config.mjs"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/index.ts"
@@ -6151,14 +6155,23 @@ builds:
           - "site/src/pages/[locale]/course/index.astro"
           - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
           - "site/tests/i18n.test.ts"
           - "site/tests/e2e/chapter-helpers.ts"
           - "site/tests/e2e/localized-shell.spec.ts"
+          - "Docker Hub node:22.12.0-bookworm and nginx:1.27-alpine base images (network; cold-cache environment recovery)"
+          - "Debian package repositories, sh.rustup.rs/static.rust-lang.org, and npm registry (network; Dockerfile and lockfile pinned)"
         outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
           - "site/src/i18n/chapter-locales.json"
           - "scripts/chapter-locale-config.mjs"
+          - "scripts/check-chapter-contract.mjs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/src/content.config.ts"
           - "site/src/lib/chapter-locales.ts"
           - "site/src/lib/chapter-publication.ts"
           - "site/src/layouts/BaseLayout.astro"
@@ -6166,6 +6179,7 @@ builds:
           - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/tests/chapter-locales.test.ts"
           - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
           - "site/tests/e2e/chapter-helpers.ts"
           - "site/tests/e2e/chapter-locales.spec.ts"
         acceptance:
@@ -6179,7 +6193,8 @@ builds:
           - "No Chapter 8 lesson or Rust content is authored by this infrastructure step, and the completed change is persisted in its own commit."
         validate:
           - "./course run node scripts/check-course-plan.mjs"
-          - "npm --prefix site run test -- --run tests/chapter-locales.test.ts tests/chapter-publication.test.ts"
+          - "npm --prefix site run test -- --run tests/chapter-locales.test.ts tests/chapter-publication.test.ts tests/content-contract.test.ts"
+          - "npm --prefix site run check:contract"
           - "npm --prefix site run check:content"
           - "npm --prefix site run check:parity"
           - "npm --prefix site run check"
@@ -6192,8 +6207,189 @@ builds:
           - "Manual review of locale availability, route fallback, hreflang, navigation, extensibility, and future activation behavior"
         cost:
           class: medium
-          notes: "Deterministic shared localization infrastructure and cached-browser validation only; no chapter authoring, translation, network, dependency change, paid service, generation service, or substantial CPU use."
-        runs: []
+          notes: "Deterministic shared localization infrastructure plus one cold-cache download of the already-pinned container toolchain; no chapter authoring, translation, dependency change, paid service, generation service, or substantial CPU use."
+        runs:
+          - run_id: 20260721T124715Z-support-selective-chapter-locales-01
+            started_at: "2026-07-21T12:47:15Z"
+            finished_at: "2026-07-21T12:58:02Z"
+            status: interrupted
+            input_fingerprint:
+              git: "8b01f251069267dacd6f96551f9b86b86668989a"
+              manifest: ".build/runs/20260721T124715Z-support-selective-chapter-locales-01/input-fingerprint.txt"
+              checksum: "sha256:d30b2babb2d56221a65a54d158c912360b17c114daebd40d71a6a488b2987a4b"
+              tools:
+                host: "Ubuntu on WSL 2"
+                docker_client: "29.6.2"
+                docker_server: "29.6.2 linux x86_64"
+                docker_compose: "5.3.1"
+                rustc: "1.93.1 (01f6ddf75 2026-02-11; verified in candidate image)"
+                cargo: "1.93.1 (083ac5135 2025-12-15; verified in candidate image)"
+                node: "22.12.0 (verified in candidate image)"
+                npm: "10.9.0 (verified in candidate image)"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260721T124715Z-support-selective-chapter-locales-01/"
+            commands:
+              - "git -c core.filemode=false status --short --branch; inspect recent commits and preserve unrelated .idea/ and desktop.ini"
+              - "Read BUILD_STATE.yaml, latest DECISIONS.md entries, SKILLS.md, active chapter-locale policy, selected step, and latest completed run artifact"
+              - "Verify Git, Bash, GNU coreutils, Docker Desktop WSL integration, Linux-container engine, declared input hashes, and empty Docker cache"
+              - "Record cold-cache registry access before product execution without changing Dockerfile, lockfiles, or pinned Linux build versions"
+              - "Stage the initial runtime projection and validator module draft, then run three independent read-only policy, runtime, and browser-test audits"
+              - "Verify and checksum the complete draft staging tree before stopping the run for a discovered input/output scope change"
+            artifacts:
+              - path: ".build/runs/20260721T124715Z-support-selective-chapter-locales-01/input-fingerprint.txt"
+                checksum: "sha256:d30b2babb2d56221a65a54d158c912360b17c114daebd40d71a6a488b2987a4b"
+                notes: "Commit, declared file-input hashes, Linux host/container tool expectations, unrelated worktree entries, empty-cache state, and explicit registry inputs."
+              - path: ".build/runs/20260721T124715Z-support-selective-chapter-locales-01/draft-artifacts.sha256"
+                checksum: "sha256:405604c423c6091154bf09396e2b3db00273dab66067572fd8b52d43e428445d"
+                notes: "Verified checksums for eleven staged baseline/draft files; only chapter-locales.json and chapter-locale-config.mjs differ from canonical content."
+            validation:
+              - command: "Preflight dependency, ownership, input, prior-run, cost, environment, and Git audit"
+                status: passed
+                notes: "The first eligible step has one completed dependency, no prior run or reusable artifact, disjoint declared outputs, all inputs present, no tracked content edits, and medium cost. .idea/ and desktop.ini remain unrelated and untouched."
+              - command: "Verify latest completed deployment-run fingerprint artifact"
+                status: passed
+                notes: "The recorded artifact exists and matches sha256:9aa0d9786d46966685c51dc3bcdac24dcb83089a27964e559b46867cb3d94cae."
+              - command: "WSL and Docker Desktop integration audit"
+                status: passed
+                notes: "Ubuntu supplies Git 2.53.0, Bash 5.3.9, and GNU coreutils 9.7; Docker Desktop serves Linux x86_64 containers. The Linux build definition and pins are unchanged."
+              - command: "Independent policy, runtime, and browser-test scope audit"
+                status: failed
+                notes: "Correct selective hreflang/fallback behavior also requires the static-link gate and its tests; Chapter 8 contract authoring requires the contract gate and curriculum guidance to stop equating registered locales with active locales. These files were not declared inputs/outputs, so execution stopped before editing them."
+              - command: "sha256sum -c draft-artifacts.sha256"
+                status: passed
+                notes: "All eleven preserved staged files match the immutable draft manifest."
+            notes: "Interrupted after read-only reviewers found a material declared-scope gap. No canonical product file was edited and no expensive build began. The verified initial projection/module draft may be reused by the replacement run; the earlier unreferenced ignored directory remains outside both ledger runs because command policy denied its removal."
+          - run_id: 20260721T125802Z-support-selective-chapter-locales-02
+            started_at: "2026-07-21T12:58:02Z"
+            status: running
+            input_fingerprint:
+              git: "8b01f251069267dacd6f96551f9b86b86668989a"
+              manifest: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/input-fingerprint.txt"
+              checksum: "sha256:65394c45e5fad507603e7485e74298a83b3107fb6a63102533a12114d4d3e980"
+              reused_artifact:
+                manifest: ".build/runs/20260721T124715Z-support-selective-chapter-locales-01/draft-artifacts.sha256"
+                checksum: "sha256:405604c423c6091154bf09396e2b3db00273dab66067572fd8b52d43e428445d"
+              tools:
+                host: "Ubuntu on WSL 2"
+                docker_client: "29.6.2"
+                docker_server: "29.6.2 linux x86_64"
+                docker_compose: "5.3.1"
+                rustc: "1.93.1 (01f6ddf75 2026-02-11; verified in final candidate image)"
+                cargo: "1.93.1 (083ac5135 2025-12-15; verified in final candidate image)"
+                node: "22.12.0 (verified in final candidate image)"
+                npm: "10.9.0 (verified in final candidate image)"
+                git: "2.53.0"
+            staging_dir: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/"
+            commands:
+              - "Verify the interrupted run's draft-artifacts.sha256 and copy the preserved draft into the new run without mutating its source"
+              - "Fingerprint the added contract validator, static-link gate, curriculum guidance/template, and static-link unit fixtures before editing"
+              - "Expand declared inputs, outputs, and validation to cover the exact cross-cutting dependency found by independent review"
+              - "Implement the strict 39-chapter projection, per-chapter publication/content/contract/static-route gates, locale-aware navigation and switch fallback, generic fixtures, and updated curriculum guidance in publish/"
+              - "Assemble a complete run-specific validation overlay without copying .git, .build, dependencies, generated site output, or unrelated untracked files"
+              - "Run dependency-free host smoke checks for the authoritative plan projection, seven integrated contracts, and fourteen existing localized lessons"
+              - "docker build --progress=plain --target workspace -t learn-llm-selective-validation:run02 validation (attempt 01; stopped in unchanged Dockerfile apt step because the WSL/Docker clock was two hours stale)"
+              - "Temporarily correct the shared WSL/Docker kernel clock from an authoritative UTC reading; preserve the repository and pinned build unchanged"
+              - "docker build --progress=plain --target workspace -t learn-llm-selective-validation:run02 validation (attempt 02; reached project checks and exposed eight candidate TypeScript inference errors)"
+              - "Correct the staged TypeScript/JSDoc boundaries found by Astro check and retain both failed build logs"
+              - "docker build --progress=plain --target workspace -t learn-llm-selective-validation:run02 validation (attempt 03; succeeded from verified cache)"
+              - "Run the focused 51-test locale/publication/content matrix; correct the template fixture to validate its documented English-only active set after the first run exposed the legacy bilingual default"
+              - "docker build --progress=plain --target workspace -t learn-llm-selective-validation:run02 validation (attempt 04; final candidate succeeded from verified cache)"
+              - "npm --prefix site run test -- --run tests/chapter-locales.test.ts tests/chapter-publication.test.ts tests/content-contract.test.ts (final candidate)"
+              - "npm --prefix site exec -- playwright install --with-deps chromium (candidate browser prerequisite in retained validation container)"
+              - "npm --prefix site run test:e2e -- --grep '@chapter-locales' (candidate)"
+              - "npm --prefix site run test:e2e (candidate)"
+              - "Apply independent final source, documentation, ownership, route, and test audits; correct only audit findings in the run-specific publish tree"
+              - "docker build --progress=plain --target workspace -t learn-llm-selective-validation:run02 validation (attempts 05 and 06; both passed after the final audit corrections)"
+              - "Refresh the retained browser container with all 20 final staged files; rerun focused and complete Vitest, contract, build, links, focused Playwright, and complete Playwright gates"
+              - "Freeze and verify the exact 20-file publish.sha256 manifest"
+              - "./course review 20260721T125802Z-support-selective-chapter-locales-02 --check"
+            artifacts:
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/input-fingerprint.txt"
+                checksum: "sha256:65394c45e5fad507603e7485e74298a83b3107fb6a63102533a12114d4d3e980"
+                notes: "Replacement-run fingerprint includes the expanded inputs and immutable reused-draft provenance."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build.stderr.log"
+                checksum: "sha256:5e4ee54c1f177ffe82dc359f1115fb290958ff6ec9a3d22f883edf5e9b6dd34c"
+                notes: "Preserved first cold-build log: unchanged Debian security metadata rejected the stale two-hour WSL/Docker clock before project execution."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build-02.stderr.log"
+                checksum: "sha256:668e956d77f618e0d5b806184107c3a6644afb1ed0ceb00f4faefc4cb8b0069d"
+                notes: "Preserved second build log: pinned dependencies completed and Astro check found eight candidate-only TypeScript inference errors before build publication."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build-03.stderr.log"
+                checksum: "sha256:ab22622ac2bc0cad871e0ad2fc4f1850cb9e61112ebee7d9dc69008403df241e"
+                notes: "Successful candidate workspace build log for image sha256:412fce19198efd26f9e9862a75f6fc2160d2883a16bdfd6a5e40e05da3560bc5."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build-04.stderr.log"
+                checksum: "sha256:093b1fb05435d3499e75722c1e4f8e60a63948488a09046268410c1a7bb1d856"
+                notes: "Final candidate workspace log for image sha256:122e1922fce9c9bf955afaa8f4d947d8a133cfcea28c04f9360f94529a670ca2 after the focused template-fixture correction."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/playwright-install.stdout.log"
+                checksum: "sha256:af0755d1992cd39f726dd951667649e36428bf2ef86e1b8301ce8a87b219e235"
+                notes: "Playwright 1.61.1 installed Chrome for Testing 149.0.7827.55 / Chromium v1228, headless shell v1228, FFmpeg v1011, and Linux browser dependencies in the retained candidate container. Main binary checksums: chromium 2d18db9d8608b052b6a552ee00ec1e830f93692e928b65ecc67d693bd33fe801; headless shell 670ba079b75107746ba41abad131180a31a7c7219aa1bd4061fb471f4535d541; ffmpeg 460d44f3416005662f528d4b92e7b94ace924e8a0288106d3803b73c56eaadc8."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/playwright-install.stderr.log"
+                checksum: "sha256:f77216c41aadf6c667ac1a602069951966cea350daab793ffe11ae0de1225ddc"
+                notes: "Preserved non-fatal apt debconf notice from the browser prerequisite installation."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build-05.stderr.log"
+                checksum: "sha256:decebbbe874a8e4a4b04391ecda0fea1b4cffc8b5b3560c5e9ee70d3873498c2"
+                notes: "Successful post-audit workspace build before the final generic-locale and fail-closed route refinements."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/docker-workspace-build-06.stderr.log"
+                checksum: "sha256:fb4e00950f0f288e5f4d2090b76c3d00292406466a106482c4a0779334d312ef"
+                notes: "Final candidate workspace log for image sha256:71f37715329e4232b10c91e2afef16ebc5729056781892983a079d38a2f686c9."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/final-full-vitest.log"
+                checksum: "sha256:8ace77e6c3cf0c0b9afa0103a744fb5bb2202d1b2b9f45cd2927bb7a6fccd2e5"
+                notes: "All twelve Vitest files and 154 tests passed against the final staged bytes."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/final-full-playwright.log"
+                checksum: "sha256:9a6032600c674da824b2dfbdd349ea21706ac7ae58c2b54d4b7c8eeb7b84350b"
+                notes: "All 28 Playwright tests passed against a fresh final staged build."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/publish.sha256"
+                checksum: "sha256:ed2e24649a4c0da2164fd7210f2b87704cbbc1f598dd0974d421c4f4069de04c"
+                notes: "Immutable sorted manifest for exactly 20 reviewed publication files."
+              - path: ".build/runs/20260721T125802Z-support-selective-chapter-locales-02/official-staged-review.log"
+                checksum: "sha256:fbf30eaf13f96b7e2ebda94b30cac97e37300ac7d68a14a68f29c4a069d1db82"
+                notes: "Official staged review log for image sha256:dc1e020d14a188ac3fe6ca490ba0e6cc14db739171390a73b732c64fe3c832ad."
+            validation:
+              - command: "Expanded-scope preflight and draft reuse audit"
+                status: passed
+                notes: "The added files are required by already-declared Chapter 8 and static-link gates, introduce no package/dependency change, and remain within the selective-locale objective. The reused draft manifest verified before copying."
+              - command: "Host Node smoke: check-course-plan, check-site-content parity/all, and check-chapter-contract against the complete candidate overlay"
+                status: passed
+                notes: "The projection covers all 39 planned chapters; seven implemented contracts and fourteen localized lesson sources remain valid and publishable."
+              - command: "Candidate Docker workspace build attempt 01"
+                status: failed
+                notes: "The unchanged apt step rejected security metadata dated 1h50m ahead of the stale WSL/Docker clock; no project command ran."
+              - command: "Candidate Docker workspace build attempt 02"
+                status: failed
+                notes: "Astro check found eight staged TypeScript/JSDoc inference errors after the pinned toolchain and all Rust workspace tests passed; no candidate image was published."
+              - command: "Candidate Docker workspace build attempt 03"
+                status: passed
+                notes: "Pinned Linux image verified Rust formatting/tests, Astro type checks, content/parity, a 19-page production build, and 323 static local references; no canonical output changed."
+              - command: "Focused Vitest locale/publication/content matrix (first candidate run)"
+                status: failed
+                notes: "Fifty tests passed; the template test still invoked the registered-locale default instead of its documented future-chapter English-only active set. Product code and canonical files were unchanged."
+              - command: "Candidate Docker workspace build attempt 04"
+                status: passed
+                notes: "The final pinned candidate repeated Rust formatting/tests, Astro type checks, content/parity, production build, and static-link audit after correcting only the focused fixture expectation."
+              - command: "Focused Vitest locale/publication/content matrix (final candidate)"
+                status: passed
+                notes: "Three files and all 51 tests passed, including strict projection drift, arbitrary locale, selective publication, deferred placeholder, hreflang, fallback, and inactive-route cases."
+              - command: "Candidate Playwright browser prerequisite"
+                status: passed
+                notes: "The locked Playwright package installed its declared Chromium/headless-shell/FFmpeg revisions and Linux libraries after the same transient WSL/Docker clock correction; canonical dependencies and build files are unchanged."
+              - command: "npm --prefix site run test:e2e -- --grep '@chapter-locales' (candidate)"
+                status: passed
+                notes: "Both serial selective-locale tests passed in 6.3 seconds, including the isolated English-only Chapter 8 fixture, Russian fallback and 404, desktop/narrow, no-script, focus, landmark, ID, and overflow checks."
+              - command: "npm --prefix site run test:e2e (candidate)"
+                status: passed
+                notes: "All 28 Playwright tests passed in 10.4 seconds across the existing seven bilingual chapters, localized shell, and selective-locale fixture."
+              - command: "Candidate Docker workspace build attempts 05 and 06"
+                status: passed
+                notes: "Both post-audit builds passed the complete pinned Linux workspace matrix; attempt 06 is the frozen final candidate and generated 19 pages with 323 valid local references."
+              - command: "Final staged Vitest and chapter-contract matrix"
+                status: passed
+                notes: "The focused 51 tests, complete 154-test suite, and all seven integrated chapter contracts passed against the frozen staged bytes."
+              - command: "Final staged static build, link audit, focused Playwright, and complete Playwright suite"
+                status: passed
+                notes: "A fresh 19-page build passed 323-reference static validation, both selective-locale browser cases in 6.4 seconds, and all 28 browser regressions in 10.6 seconds."
+              - command: "publish.sha256 verification and ./course review 20260721T125802Z-support-selective-chapter-locales-02 --check"
+                status: passed
+                notes: "The official review reverified all 20 checksums, content/parity, 54-file Astro diagnostics with zero findings, the 19-page build, and 323-reference link audit without changing publish/."
+            notes: "Running with the reviewed scope correction. The exact 20-file candidate is frozen and has passed the pinned workspace, complete unit, contract, static, official staged-review, focused browser, and complete browser gates; patch-based canonical publication and canonical reruns remain. The Windows clock remains two hours stale, so future uncached apt work may need the same transient runtime correction; the repository build is unchanged."
       - id: implement-ch08-tensor-storage
         objective: "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
         depends_on:
@@ -8490,29 +8686,4 @@ builds:
                 notes: "Root-base workspace image sha256:6b4fee3f...b8d2 passed Rust formatting/tests, Astro diagnostics, content/parity, the 19-page root build, and all 323 local reference checks."
               - command: "./course run node scripts/check-deployment-workflow.mjs"
                 status: passed
-                notes: "The parsed workflow has only main push/manual triggers, ordered build/deploy jobs, current official action majors, configure-pages-derived SITE_BASE, regular static artifact export, no persisted Git credentials, no secret/git push, and least-scoped job tokens."
-              - command: "First focused Vitest run"
-                status: failed
-                notes: "The new base-path and workflow tests passed, but two pre-existing plan/ledger tests correctly rejected placing operational deployment steps inside the exact curriculum build. No site behavior failed."
-              - command: "Separate github-pages-deployment build; ./course run node scripts/check-course-plan.mjs; rerun focused Vitest"
-                status: passed
-                notes: "The curriculum validator again sees exactly 39 chapters and 53 scheduled steps through Chapter 7. All 32 focused tests pass, including root/project routes, base escapes, workflow drift, credentials, triggers, and dependency order; refreshed root workspace image sha256:7d79802b...abe3 passed its complete prerequisite gate."
-              - command: "docker build --build-arg SITE_BASE=/learn_llm/ --target site -t learn-llm-site:pages ."
-                status: passed
-                notes: "Pages image sha256:054631e5...5dcb built 19 pages and passed the base-aware 323-reference static audit inside the pinned Docker toolchain."
-              - command: "Inspect learn-llm-site:pages regular-file boundary, routes, hreflang, assets, and absolute references"
-                status: passed
-                notes: "The image contains root, both localized course indexes, both Chapter 7 routes, exactly 19 HTML files, no non-file/directory entries, /learn_llm/ x-default and locale routes, prefixed Astro assets, and no absolute HTML reference outside /learn_llm/."
-              - command: "./course audit-host; git diff --check"
-                status: passed
-                notes: "Only the intentional existing site/dist release is present outside tracked sources, and the complete patch has no whitespace errors."
-              - command: "Final root workspace prerequisite, workflow checker, and focused regression suite after dependency/security hardening"
-                status: passed
-                notes: "The explicit yaml 2.9.0 lock installs with zero reported vulnerabilities. Root workspace image sha256:99a8bcd6...1f35 passes every canonical Docker gate; the main-only native Pages workflow passes its parser/security contract; all 32 focused tests pass."
-              - command: "Final exact /learn_llm/ site build and image inspection"
-                status: passed
-                notes: "Pages image sha256:054631e5...5dcb again passes the full workspace and base-aware 323-reference gates. Its 19 HTML pages, localized indexes/Chapter 7 routes, hreflang, Astro assets, regular-file boundary, and all absolute HTML references are correct beneath /learn_llm/."
-              - command: "Ruby ledger/dependency/output/fingerprint validation; manual native Pages security and failure-boundary review; final host/diff audit"
-                status: passed
-                notes: "Six builds and 67 unique steps parse with one active operational run before completion, declared changed outputs only, and intact fingerprints. Manual review confirms main-only execution, no pull-request trigger/secret/git push, no persisted checkout credential, least-scoped per-job permissions, configure→validate→export→upload ordering, build-gated deployment, github-pages environment/OIDC, exposed page_url, and serialized non-interrupting deployments. Host and whitespace audits pass."
-            notes: "Succeeded. The current repository now owns a fail-closed native GitHub Pages artifact workflow for https://intale.github.io/learn_llm/. Root releases remain unchanged at /; Pages consumes configure-pages base_path and has a fully audited /learn_llm/ artifact. The separate-repository attempt remains immutable and invalidated, deployment never entered the 53-step curriculum schedule, and complete-decoder-course is restored as the sole active build. GitHub repository settings remain the documented one-time human action; no external state or secret was changed."
+                notes: "The parsed workflow has only main push/manual triggers, ordered build/deploy jobs, current official action majors, configure-pag                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
