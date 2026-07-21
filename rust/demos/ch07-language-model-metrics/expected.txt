@@ -1,0 +1,24 @@
+tiny assigned probabilities: [0.500, 0.250]
+tiny total surprise: 2.079441541680
+tiny target count: 2
+tiny mean NLL: 1.039720770840 nats/target
+tiny perplexity: 2.828427124746
+perfect: mean_nll=0.000000000000 perplexity=1.000000000000
+uniform vocabulary=5: mean_nll=1.609437912434 perplexity=5.000000000000
+impossible [0.800, 0.000]: mean_nll=inf perplexity=inf
+empty input: error=assigned probabilities must not be empty
+weighted documents: targets=4 mean_nll=1.039720770840 perplexity=2.828427124746
+equal document means (wrong): mean_nll=0.693147180560 perplexity=2.000000000000
+same argmax=A target=B: q_nll=1.203972804326 r_nll=1.609437912434 lower=q
+2000 halves: raw_product=0.000e0 log_total_finite=true
+corpus checksum: fnv1a64:04786e7303f1dfd6
+split strategy: fixed-paired-document-holdout-v1
+tokenizer: layout=1 requested_merges=8 learned_merges=8 vocabulary=266 statistics=train
+model: alpha=1.000000000000 fitted_documents=8 fitted_transitions=1844 source=train
+scored partitions: train,validation (test unavailable)
+train documents: [en-river-dawn, ru-river-dawn, en-clock-shop, ru-clock-shop, en-rain-library, ru-rain-library, en-bee-garden, ru-bee-garden]
+train: documents=8 targets=1844 total_surprise=7067.943541648752 mean_nll=3.832941183107 perplexity=46.198216022322
+validation documents: [en-night-station, ru-night-station]
+validation: documents=2 targets=469 total_surprise=1867.529710185699 mean_nll=3.981939680567 perplexity=53.620940919077
+target policy: BOS=context-only EOS=target documents=separate
+chapter 8 handoff: flat tensor storage and indexing

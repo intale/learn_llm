@@ -7,6 +7,7 @@
 pub mod bigram;
 pub mod corpus;
 pub mod data;
+pub mod metrics;
 
 /// Tokenizer construction and application taught in Chapters 3 and 4.
 pub mod tokenizer {

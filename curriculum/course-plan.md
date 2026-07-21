@@ -48,7 +48,7 @@
     "numeric_core": "dependency-free f64 tensors and two-stage reverse-mode tensor autodiff",
     "decoder": "pre-norm causal decoder with RMSNorm, RoPE, multi-head attention, SwiGLU, residual connections, and tied token/output weights",
     "bias_policy": "generic Linear supports optional bias; target attention, SwiGLU, and vocabulary projections are bias-free",
-    "training": "deterministic mini-batches and AdamW on a bundled original bilingual corpus; validation selects and untouched test reports",
+    "training": "deterministic mini-batches and AdamW on a bundled original bilingual corpus; validation selects and the previously unscored test partition supplies final reports",
     "inference": "temperature/top-k sampling, versioned checkpoints, per-layer incremental attention, and model-wide key/value caching",
     "runtime": "bounded CPU-only reference implementation"
   },
@@ -544,8 +544,8 @@ that implements the concept being taught.
 The generic affine layer supports optional bias so the historical perceptron example
 is honest. The target decoder is consistently bias-free in Q/K/V, attention output,
 SwiGLU, and vocabulary projections. It uses tied token/output weights. Documents are
-partitioned before BPE learning; validation selects a state; the untouched test set
-is opened only for final evidence. Fixed-length batches require BOS/EOS but no PAD.
+partitioned before BPE learning; validation selects a state; the test set is
+scored only once for final evidence. Fixed-length batches require BOS/EOS but no PAD.
 
 The course excludes dropout, padding-heavy serving, mixed precision, distributed
 training, quantization, mixture of experts, retrieval, instruction/preference tuning,
@@ -562,7 +562,7 @@ modes had been compressed:
 - tensor storage, views, broadcasting, and contraction each establish a shape rule;
 - tensor reverse mode is taught first for tape/shape mechanics, then for the
   model-critical matmul, gather, nonlinear, log-softmax, and indexed-loss VJPs;
-- validation-based training selection and untouched-test evaluation are different
+- validation-based training selection and final test scoring are different
   scientific responsibilities;
 - per-layer incremental attention precedes model-wide prefill and cached generation;
 - Q/K/V roles, scores, causality, RoPE, multiple heads, a block, and a model remain
@@ -700,7 +700,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — sort document cards into three labeled partitions while preserving visible boundaries and showing that no card appears twice.
 - **Practice:** Given six document IDs, construct a deterministic split and identify which tempting token-level split would leak repeated context.
 - **Integration evidence:** Corpus checksums, UTF-8 validity, stable document order, disjoint/nonempty partitions, provenance, and mutation-resistant split tests pass.
-- **Handoff:** Chapter 3 may learn BPE merge statistics from `D_tr` only; validation and test remain untouched.
+- **Handoff:** Chapter 3 may learn BPE merge statistics from `D_tr` only; validation and test are excluded from BPE merge learning.
 
 ## 03. Learning byte-pair merge rules
 
@@ -761,7 +761,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — compare complete token-labeled rows for a known context and a context with no outgoing observations, including counts, totals, pseudocounts, denominators, probabilities, and the forbidden `EOS→BOS` boundary transition.
 - **Practice:** Enumerate the seven source transitions, calculate complete MLE and smoothed rows, explain the zero-versus-undefined distinction, detect document flattening and overlapping-window overcounting, vary alpha, and interpret ties.
 - **Integration evidence:** Exact Rust output and trace data, all table rows, the seven-transition total, train-only selection, document boundaries, normalization, invalid inputs, deterministic ties, contract/locale parity, static rendering, and accessible desktop/narrow layouts pass.
-- **Handoff:** Chapter 7 scores the frozen table on train and validation while keeping test unopened.
+- **Handoff:** Chapter 7 scores the frozen table on train and validation without scoring the test partition.
 
 ## 07. Likelihood, cross-entropy, and perplexity
 
@@ -1166,14 +1166,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — plot discrete train/validation checkpoints and mark the selected step without drawing invented values between observations.
 - **Practice:** Order the training operations, identify which partition may choose hyperparameters, and predict the effect of uncleared gradients.
 - **Integration evidence:** Exact batch/step order, finite gradients, clipping, schedule checkpoints, decreasing train loss, validation-only selection, no graph during validation, determinism, and runtime ceiling pass.
-- **Handoff:** Chapter 34 evaluates the frozen selected state once on the untouched test partition.
+- **Handoff:** Chapter 34 evaluates the frozen selected state once on the previously unscored test partition.
 
-## 34. Untouched test evaluation and baseline comparison
+## 34. Once-only test evaluation and baseline comparison
 
 - **Chapter ID:** `34-final-evaluation`
 - **Implementation step:** `implement-ch34-final-evaluation`
 - **Depends on:** `33-training-selection`.
-- **Outcome:** Evaluate the frozen selected decoder once on the untouched test partition and compare it fairly with the frozen bigram.
+- **Outcome:** Evaluate the frozen selected decoder once on the previously unscored test partition and compare it fairly with the frozen bigram.
 - **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of model selection from final evidence, and like-for-like tokenizer/corpus provenance. Do not tune, stop, or select on test results.
 - **Formula:** `\mathcal{L}_{te}(\theta_{s^\*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^\*}}(y_n\mid x_n)`.
 - **Historical contrast:** Contrast training-set scores and repeatedly inspected holdouts with a three-way experimental protocol and a single final test comparison.
@@ -1255,7 +1255,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Add the documented capstone CLI and acceptance harness; invoke the cumulative APIs to perform one fresh bounded deterministic train/select/evaluate/save/load/generate run without copying their implementations.
 - **Visualization:** Useful — render the complete static text → tokens → batches → decoder → loss/update and prompt → cached generation → text pipeline.
 - **Practice:** Ask students to predict split provenance, tensor shapes, parameter count, test baseline ordering, checkpoint offsets, cache shapes, and seeded output before executing the capstone.
-- **Integration evidence:** On a fixed seed and bounded CPU configuration, the decoder beats the frozen bigram on untouched test loss, reload preserves logits, cached/uncached generation agrees, and two seeded runs match.
+- **Integration evidence:** On a fixed seed and bounded CPU configuration, the decoder beats the frozen bigram on previously unscored test loss, reload preserves logits, cached/uncached generation agrees, and two seeded runs match.
 - **Handoff:** The student now owns every component required to inspect, modify, test, and extend a functional decoder-only LLM.
 
 

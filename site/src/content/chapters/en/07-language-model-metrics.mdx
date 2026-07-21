@@ -1,0 +1,601 @@
+---
+{
+  "chapter_id": "07-language-model-metrics",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 7,
+  "concept_id": "language-model-metrics",
+  "title": "From assigned probability to perplexity",
+  "description": "Turn the probabilities assigned to observed target tokens into mean negative log-likelihood and perplexity while keeping the target count, document boundaries, and evaluated data splits explicit.",
+  "objective": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",
+  "worked_inputs": "For two observed targets assigned probabilities [1/2, 1/4], first predict which target is more surprising, why their raw product is not a length-normalized per-target score for unequal sequence lengths, and which constant probability would be equally difficult at both positions. In the formula, log is used; in the worked arithmetic, ln is used. Both denote the natural logarithm. Then derive total surprise ln 8 = 2.079441541680, mean NLL 1.039720770840 nats per target, and perplexity 2.828427124746.",
+  "formula": {
+    "latex": "\\mathcal{L}=-\\frac{1}{N}\\sum_{t=1}^{N}\\log p_t(z_t), \\quad \\operatorname{PPL}=\\exp(\\mathcal{L})",
+    "symbols": [
+      {
+        "symbol": "t",
+        "meaning": "the one-based index of an observed target position"
+      },
+      {
+        "symbol": "z_t",
+        "meaning": "the observed target token at position t"
+      },
+      {
+        "symbol": "p_t(z_t)",
+        "meaning": "the conditional probability assigned to observed target z_t under the fixed rule for building its context"
+      },
+      {
+        "symbol": "N",
+        "meaning": "the total number of scored target tokens across all scored documents"
+      },
+      {
+        "symbol": "\\log",
+        "meaning": "the natural logarithm"
+      },
+      {
+        "symbol": "\\mathcal{L}",
+        "meaning": "mean negative log-likelihood in natural-log nats per target"
+      },
+      {
+        "symbol": "\\exp",
+        "meaning": "the natural exponential function"
+      },
+      {
+        "symbol": "\\operatorname{PPL}",
+        "meaning": "perplexity, the exponential of mean negative log-likelihood"
+      }
+    ]
+  },
+  "history": {
+    "approach": "Products of conditional probabilities, with a separate example showing why argmax alone is insufficient",
+    "summary": "A sequence probability is a product of conditional target probabilities, but multiplying many small floating-point values can underflow. Summing their logarithms preserves the mathematical ordering and remains numerically informative. An argmax-only check also misses how much probability a model assigned to the observed target. These examples illustrate two separate limitations; they are not stages in one universal historical progression.",
+    "rust_source": "rust/demos/ch07-language-model-metrics/src/main.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/metrics.rs",
+      "region": "assigned-probability-metrics",
+      "purpose": "Validate the complete probability list, then compute total surprise, target count, mean NLL, and perplexity with one shared implementation."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/metrics.rs",
+      "region": "train-validation-scoring",
+      "purpose": "Compute metrics for encoded documents with the same already-fitted bigram model; ScoredPartition permits only training or validation."
+    },
+    {
+      "path": "rust/demos/ch07-language-model-metrics/src/lib.rs",
+      "region": "frozen-metric-fixture",
+      "purpose": "Load the corpus and split definition stored in the repository, learn BPE merges from training documents, encode every document, and fit the bigram model on training documents only."
+    },
+    {
+      "path": "rust/demos/ch07-language-model-metrics/src/main.rs",
+      "region": "learner-output",
+      "purpose": "Compute the worked examples, edge cases, and comparisons, followed by training and validation metrics for one unchanged model."
+    },
+    {
+      "path": "rust/demos/ch07-language-model-metrics/src/diagram_trace.rs",
+      "region": "language-model-metrics-trace",
+      "purpose": "Compute numerical metric values that do not depend on the page language and the document-boundary facts that the Rust program writes to the static diagram trace."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "language-model-metrics",
+    "rationale": "A diagram built from Rust-computed trace values lets learners follow each observed target probability into surprise, sum those surprises, divide by the target count, and obtain mean NLL and perplexity while keeping the weighting denominator visible."
+  },
+  "decoder_connection": "The course can now compute mean NLL and perplexity for its unchanged smoothed bigram on training and validation without refitting the model. The Chapter 7 bigram scorer accepts only those two partitions. Chapters 8–22 build the tensor, differentiation, and optimization machinery needed to lower mean NLL; Chapter 34 performs the first test-set evaluation."
+}
+---
+
+import LanguageModelMetricsDiagram from '../../../components/chapters/LanguageModelMetricsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'From target probabilities to mean NLL and perplexity',
+  caption:
+    'The Rust-generated trace shows each metric stage for two observed targets, then reports training and validation metrics for the same unchanged fitted model.',
+  accessibleName: 'Mean-NLL and perplexity calculation with training and validation metrics for one unchanged model',
+  accessibleDescription:
+    'A five-stage calculation turns two assigned target probabilities into surprise, divides their total surprise by two targets, and obtains mean negative log-likelihood and perplexity. A second panel shows how one model was fitted on training documents, reports its separate training and validation scores, explains the document-boundary rules, and shows that the bigram scorer cannot select test data.',
+  sections: {
+    calculationChain: 'Two observed targets, one calculation chain',
+    frozenModel: 'One fitted model, separate training and validation scores',
+    provenance: 'How the data and model were prepared',
+    boundaries: 'Which targets and data splits are scored',
+  },
+  stages: {
+    probability: 'Assigned probability',
+    surprise: 'Surprise from the Rust metric',
+    aggregate: 'Total surprise and target count',
+    meanNll: 'Mean negative log-likelihood',
+    perplexity: 'Perplexity',
+  },
+  columns: {
+    targetIndex: 'Zero-based target index in Rust',
+    probability: 'Probability assigned to the observed target',
+    surprise: 'Surprise −ln p',
+    partition: 'Data split being scored',
+    documents: 'Document count',
+    targets: 'Target-token count',
+    totalSurprise: 'Total surprise',
+    meanNll: 'Mean NLL',
+    perplexity: 'Perplexity',
+  },
+  facts: {
+    totalSurprise: 'Sum across both targets',
+    targetCount: 'Denominator: target tokens',
+    corpusChecksum: 'Corpus checksum',
+    splitStrategy: 'Document split strategy',
+    tokenizerLayout: 'Tokenizer layout version',
+    requestedMerges: 'Requested BPE merges',
+    learnedMerges: 'Learned BPE merges',
+    vocabulary: 'Vocabulary size',
+    alpha: 'Bigram smoothing α',
+    fittedPartition: 'Data split used to fit the model',
+    fittedDocuments: 'Documents used to fit',
+    fittedTargets: 'Transitions used to fit',
+  },
+  partitions: {
+    train: 'Training score',
+    validation: 'Validation score',
+  },
+  boundaries: {
+    bosContextOnly: 'BOS supplies context and is never a scored target.',
+    eosIsTarget: 'EOS is the final scored target in each document.',
+    documentsSeparate: 'Documents remain separate; no EOS→BOS transition is introduced.',
+    testUnavailable: 'The Chapter 7 bigram scorer cannot score test data.',
+  },
+  notes: {
+    frozenModel:
+      'Fit the model once on training documents, then use the same unchanged model to score training and validation separately.',
+    scrollInstruction:
+      'Use horizontal scrolling to follow every stage; keyboard users can focus this region and scroll it.',
+    nextStep: 'then',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Start with the probabilities of what actually happened
+
+Chapter 6 built a smoothed bigram model. For each current token, it can compute a
+probability distribution over possible continuations. To score an observed
+transition, use the probability of the next token that actually occurred, not
+the maximum probability in that distribution. Suppose two successive targets
+received these probabilities:
+
+```text
+[1/2, 1/4]
+```
+
+Before introducing the metric, make three predictions:
+
+1. Which of the two targets should count as more surprising?
+2. The two probabilities multiply to `1/8`. Why is that product not yet a fair
+   per-target score for comparing sequences with different numbers of targets?
+3. If both positions had received one constant probability, what value would
+   represent the same overall difficulty?
+
+For an event assigned probability `p`, define its **surprise** here as `−ln p`.
+The logarithm is natural. The two positions therefore contribute
+
+```text
+1/2 → ln 2 = 0.693147180560
+1/4 → ln 4 = 1.386294361120
+```
+
+The second target confirms the first prediction: a smaller assigned probability
+means greater surprise. Under these fixed contexts, `1/2 × 1/4 = 1/8` is the
+likelihood that the model assigns to the two observed targets together. Taking
+the negative logarithm turns that product into a sum:
+`−ln((1/2) × (1/4)) = −ln(1/2) − ln(1/4) = ln 2 + ln 4`.
+This is why the sum is called negative log-likelihood. Its value,
+`ln 8 = 2.079441541680`, is total surprise for two targets.
+
+Every additional observed target multiplies the sequence likelihood by another
+probability and adds another surprise term. A longer sequence therefore usually
+has a smaller raw likelihood even when the model performs equally well per
+target. To remove that length effect, divide total surprise by the number of
+observed targets. Here the result is mean negative log-likelihood (mean NLL),
+`1.039720770840` nats per target. Exponentiating it gives perplexity
+`2.828427124746`.
+
+The constant probability requested in the third prediction is `1/PPL`,
+approximately `0.353553390593`. If the model assigned that probability at both
+positions, the geometric mean of the assigned probabilities—and therefore
+perplexity—would remain unchanged. Equivalently, this perplexity is the effective
+number of equally likely continuations that would produce the same average
+surprise. It does not mean that the model literally had `2.828427124746` choices.
+
+Two simple cases make the scale easier to understand. If every observed target gets
+probability one, every term is `−ln 1 = 0`, so mean NLL is `0` and perplexity is
+`1`. If a model is uniform over a vocabulary `V`, every observed target gets
+`1/|V|`; each surprise is `ln |V|`, so mean NLL is `ln |V|` and perplexity is
+`|V|`. For `|V|=5`, these formulas give
+`1.609437912434` nats per target and perplexity `5.000000000000`.
+
+Before writing the general formula, consider a common averaging mistake.
+Document A has one target assigned probability `1`. Document B has three
+targets, each assigned probability `1/4`. Written target by target, the surprises are
+
+```text
+0, ln 4, ln 4, ln 4
+```
+
+The correct mean is `(0 + 3 ln 4) / 4 = 1.039720770840`, with perplexity
+`2.828427124746`. If we instead compute a mean for each document and then average
+those two values, both documents receive equal weight. That gives the incorrect
+mean `(0 + ln 4) / 2 = 0.693147180560` and perplexity `2`. The result is wrong
+because Document B contributes three scored targets while Document A contributes
+only one. The fact that the correct result matches the earlier two-target
+perplexity is a coincidence of these particular numbers, not a general rule.
+
+{/* chapter-section:formula */}
+
+## Sum surprise, divide by targets, then exponentiate
+
+The complete rule is:
+
+$$
+\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})
+$$
+
+At target position `t`, `z_t` is the token that occurred, and `p_t(z_t)` is the
+probability assigned to it under the fixed context-construction rule. The metric
+uses that specific probability—not the largest probability in the distribution
+and not the entropy of the whole distribution.
+
+In this chapter `log` means the natural logarithm, so `log p = ln p`. For a
+valid positive probability no greater than one, `ln p` is nonpositive. The
+leading minus sign turns it into nonnegative surprise: decreasing `p` increases
+`−ln p`. We sum that quantity for every scored target, then divide once by `N`,
+the total number of target tokens across all scored documents. This is the
+length normalization missing from a raw sequence product.
+
+The mean `\mathcal{L}` is measured in nats per target. Perplexity is
+dimensionless; it is obtained by applying `exp` to that mean. When every assigned
+probability is positive, the same relation can be written
+
+$$
+\operatorname{PPL}=\left(\prod_{t=1}^{N}\frac{1}{p_t(z_t)}\right)^{1/N}.
+$$
+
+This equation does not define a second measurement. Perplexity is the geometric
+mean of the inverse assigned probabilities already used in mean NLL.
+Equivalently, `1/PPL` is the geometric mean of the original assigned
+probabilities.
+
+Mean NLL can also be described as empirical cross-entropy, but only under
+explicit conditions. For each fixed context, define an empirical distribution
+that assigns probability `1` to the token that actually occurred and `0` to
+every other token. The cross-entropy between this distribution and the model
+distribution is exactly `−log p_t(z_t)`. Averaging those values over the same
+contexts and the same target tokens gives the mean NLL above. If the empirical
+distribution and the rule for building context have not been stated, the clearer
+name is **mean NLL on these targets**, not simply “cross-entropy.”
+
+A zero probability from the model is different from invalid input. If the model
+assigns probability `0` to a token that occurred, it has declared that event
+impossible. Zero is valid input to the metric, but it makes that token's surprise,
+the resulting mean NLL, and perplexity positive infinity. The implementation
+does not replace zero with an epsilon.
+
+An empty slice, `NaN`, positive or negative infinity supplied as a probability,
+or a value outside `[0,1]` is an input error. Rust validates the whole slice
+before summing, so `[0, NaN]` reports the invalid `NaN` instead of returning
+infinity because of the earlier zero. Add-one smoothing makes the bigram
+probabilities used later positive; it does not change this general rule.
+
+{/* chapter-section:symbol-glossary */}
+
+## Locate every symbol in the worked example
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $t$ | The one-based index of an observed target position. In the tiny example, $t=1,2$. |
+| $z_t$ | The target token that actually occurred at position $t$, whether or not the model ranked it highest. |
+| $p_t(z_t)$ | The conditional probability assigned to that observed token using the same context rule at every scored position; it is not an empirical frequency. |
+| $N$ | The number of scored target tokens across all documents. In the tiny example, $N=2$; it is not a document count. |
+| $\log$ | The natural logarithm in this chapter, equal to $\ln$. |
+| $\mathcal{L}$ | Mean negative log-likelihood, measured in natural-log nats per target. |
+| $\exp$ | The natural exponential function, which reverses the natural logarithm. |
+| $\operatorname{PPL}$ | Perplexity, the exponential re-expression of the same mean NLL. |
+
+The formula follows mathematical one-based indexing, while Rust slices and the
+diagram trace are zero-based. Trace `index=0` is the first observed target,
+`t=1`; trace `index=1` is the second, `t=2`. Nothing is shifted, and index zero
+does not denote a boundary token.
+
+Across corpus documents, `BOS` supplies the first context and is not counted in
+`N`. Each document's `EOS` is its final target and is counted. Because documents
+remain separate, no fabricated `EOS→BOS` transition contributes to either the
+sum or the denominator.
+
+{/* chapter-section:history */}
+
+## Add logarithms instead of multiplying probabilities directly
+
+[Shannon's 1948 paper](https://doi.org/10.1002/j.1538-7305.1948.tb01338.x)
+develops logarithmic measures in connection with information, choice, and
+uncertainty. The [complete Harvard copy of the paper](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)
+provides the facts needed here. Its Introduction (viewer pages 1–2) explains
+that the logarithm base determines the unit. Section 6 (viewer and printed pages
+10–11) shows that certainty has zero discrete entropy and that a uniform
+distribution over `n` outcomes reaches the maximum `log n`. This is
+information-theory background; Shannon does not define language-model mean NLL
+or perplexity.
+
+The [JMLR page for Bengio, Ducharme, Vincent, and Jauvin (2003)](https://www.jmlr.org/papers/v3/bengio03a.html)
+links their account of a neural probabilistic language model. In the
+[paper's PDF](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf),
+§1.1 (printed page 1139) writes a word-sequence probability as a product of
+conditional next-word probabilities. Section 2 (printed page 1141) describes
+perplexity both as the geometric mean of inverse assigned probabilities and as
+the exponential of average negative log-likelihood. Section 4 (printed pages
+1148–1149) states which tokens enter the reported averages before comparing
+named models on the Brown and AP News corpora. Those results apply only to the
+named experiments; they establish neither a universal model ranking nor a rule
+for comparing perplexities across tokenizers.
+
+For this course, we use natural logarithms, give every target token equal weight,
+define the behavior for `p=0` and invalid input, keep documents separate, and
+allow the Chapter 7 bigram scorer to evaluate only training or validation data.
+We compare perplexities only when the tokenizer, the mapping from token IDs to
+token values, the document-boundary rules, the rule for building context, and
+the exact evaluated targets all match. These are course design decisions, not
+claims drawn from either paper.
+
+The Chapter 7 Rust program shows why logarithms are useful. Multiplying `2,000`
+factors of `1/2` in `f64` eventually rounds the product to `0.000e0`, even though
+every factor is valid. The sum of the negative logarithms remains finite. This
+conversion does not change which sequence is more likely: a larger likelihood
+corresponds to a smaller total surprise. Only the floating-point representation
+changes—from a fragile product to a stable sum.
+
+A separate example shows why checking only `argmax` loses information. Let the
+observed target be `B`:
+
+```text
+q = [A: 0.60, B: 0.30, C: 0.10]
+r = [A: 0.60, B: 0.20, C: 0.20]
+```
+
+Both distributions rank `A` highest. However, `q` assigns probability `0.30` to
+the observed token `B`, while `r` assigns it `0.20`. Their NLL values for `B` are
+therefore `1.203972804326` and `1.609437912434`. The NLL under `q` is lower because
+`q` assigned more probability to the token that occurred. This example illustrates
+a limitation of `argmax`; it does not claim that perplexity historically replaced
+accuracy everywhere.
+
+{/* chapter-section:rust-implementation */}
+
+## Implement the metric once and reuse it for the frozen bigram
+
+The generic metric function first checks that a nonempty slice contains only
+finite probabilities in `[0,1]`. Only after validating the entire slice does it
+add each selected target probability to the shared accumulator. `finish` divides
+total surprise by the target count and exponentiates the resulting mean. An
+assigned zero contributes positive infinity; an assigned one contributes exactly
+`+0.0`.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/metrics.rs"
+  region="assigned-probability-metrics"
+  caption="Validate, accumulate, divide by target count, and exponentiate"
+  label="Rust source showing complete probability validation, zero handling, surprise accumulation, target-count division, and perplexity exponentiation"
+/>
+
+The bigram adapter does not implement another formula. It takes a reference to
+the already fitted `BigramModel`, walks `windows(2)` inside each encoded document,
+queries the probability assigned to each observed next token, and feeds it to
+the same private accumulator. `score_bigram_partition` accepts a
+`ScoredPartition`; that enum contains only `Train` and `Validation`, so the
+function cannot select the test partition.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/metrics.rs"
+  region="train-validation-scoring"
+  caption="Permit train or validation, then score adjacent targets in each document"
+  label="Rust source showing the Train and Validation partition enum and the loop that scores adjacent token pairs in each document with the same fitted model"
+/>
+
+To make the results reproducible, the setup code loads the corpus and split
+definition stored in the repository, learns eight BPE merge ranks from the
+training documents, creates tokenizer layout `1` with a vocabulary of `266`
+tokens, and fits one bigram model with `α=1` from eight training documents and
+`1,844` transitions. The excerpt below shows that sequence. Checks later in the
+same file stop with an error if the corpus checksum, document IDs, tokenizer
+settings, or model-training setup differ from the expected values.
+
+<RustSource
+  path="rust/demos/ch07-language-model-metrics/src/lib.rs"
+  region="frozen-metric-fixture"
+  caption="Load and split the corpus, train the tokenizer, encode documents, and fit the bigram on training only"
+  label="Rust source showing corpus loading, document splitting, BPE-tokenizer training, encoding of every partition, and bigram fitting from training documents only"
+/>
+
+The following `main.rs` excerpt first computes metrics for the `[1/2, 1/4]`
+example and for the perfect and uniform scale anchors. It also covers zero
+probability and empty input. Next, it contrasts correct and incorrect document
+weighting, compares two distributions with the same argmax, and demonstrates
+why a direct probability product can underflow. Finally, it scores the same
+unchanged model separately on training and validation. Code outside the
+displayed region prints the returned results. While printing the result for
+`2,000` factors of `1/2`, it also checks whether the already-computed total
+surprise is finite. That check is not a new metric calculation: no probability
+sequence or corpus partition is scored again.
+
+<RustSource
+  path="rust/demos/ch07-language-model-metrics/src/main.rs"
+  region="learner-output"
+  caption="Compute the teaching examples and training and validation metrics for one unchanged model"
+  label="Rust source computing the [1/2, 1/4] example, scale anchors, zero and empty cases, weighting error, shared-argmax comparison, product underflow, and training and validation metrics"
+/>
+
+The separate executable at `examples/diagram_trace.rs` calls
+`render_language_model_metrics_trace` in `src/diagram_trace.rs` and prints the
+returned string. The displayed region below calls the same metric and fixture
+functions and computes the two partition scores. It also checks three properties
+of the training and validation token sequences: BOS never appears as a target,
+EOS occupies the final target position of every document, and no `EOS→BOS` pair
+is introduced. Code after the displayed region serializes those results as ten
+trace records. It adds `test_selectable=no` as a literal during serialization;
+the restriction itself is enforced by `ScoredPartition`, which has no `Test`
+variant. The site parser validates and displays the finished records; it does
+not compute logarithms, exponentials, averages, or bigram probabilities.
+
+<RustSource
+  path="rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
+  region="language-model-metrics-trace"
+  caption="Compute the tiny example and unchanged-model metrics with the same functions, and inspect document boundaries separately"
+  label="Rust source computing the two-target example and training and validation metrics, then checking that BOS is not a target, EOS is each document's final target, and no EOS-to-BOS pair was introduced; later code writes these values to the Chapter 7 trace"
+/>
+
+Run the Chapter 7 program through the repository's Docker toolchain:
+
+```bash
+./course run cargo run --quiet --locked -p ch07-language-model-metrics
+```
+
+For the same unchanged model, the output reports training mean NLL
+`3.832941183107` and perplexity `46.198216022322` across `1,844` targets, plus
+validation mean NLL `3.981939680567` and perplexity `53.620940919077` across
+`469` targets. These values are deterministic for the recorded corpus, split,
+tokenizer, model, and evaluation rules. Because training and validation contain
+different target sets, the gap applies only to these data and does not by itself
+support a general conclusion about model quality elsewhere. Scoring validation
+neither updates nor refits the model.
+
+{/* chapter-section:visualization */}
+
+## Trace each displayed value back to its Rust calculation
+
+As you read the figure, answer five questions about how its values are related:
+
+1. Which trace row corresponds to mathematical target `t=1`, and where is its
+   assigned probability converted to surprise?
+2. Where does `target_count=2` enter the calculation, and why is it displayed
+   separately from total surprise?
+3. Which stage converts mean NLL to perplexity without requesting additional
+   probabilities from the model?
+4. Were the training and validation rows produced by one fitted model or two?
+5. Which boundary record shows that `score_bigram_partition` cannot select the
+   test partition?
+
+<LanguageModelMetricsDiagram labels={diagramLabels} />
+
+The first panel reproduces the opening `[1/2, 1/4]` example from the Rust trace.
+Rows `index=0` and `index=1` contain the two probabilities and surprises, while
+the aggregate shows both total surprise and its two-target denominator. The final
+stage applies `exp` to the computed mean NLL. It requests no new model
+probabilities; perplexity and mean NLL determine each other uniquely.
+
+The second panel applies the same metric to training and validation. A shared
+setup block shows that the model was fitted on the training documents and then
+kept unchanged for both scores. The boundary list shows exactly which tokens are
+counted: `BOS` supplies context only, `EOS` is a target, documents remain separate,
+and the Chapter 7 bigram scorer cannot select test data.
+
+{/* chapter-section:exercises */}
+
+## Predict each result before checking the reasoning
+
+Work on paper first. Show the denominator in averaging problems and the document
+boundaries in sequence problems.
+
+1. For assigned probabilities `[1/2,1/4]`, compute both surprises, total
+   surprise, target count, mean NLL, and perplexity.
+2. Derive the mean NLL and perplexity for perfect assignments and for a uniform
+   distribution over a vocabulary of size `|V|`.
+3. Predict the result for `[0.8,0]`. Why would replacing zero with an epsilon
+   change the metric rather than merely stabilize it?
+4. One document has one target at `p=1`; another has three targets at `p=1/4`.
+   Repair an implementation that averages their two document means equally.
+5. In `[BOS,A,B,EOS]`, identify every scored target and explain the role of
+   `BOS`.
+6. Join `[BOS,A,EOS]` and `[BOS,B,EOS]`. Which artificial transition is created at
+   the join?
+7. For observed target `B`, compare `q=[0.60,0.30,0.10]` and
+   `r=[0.60,0.20,0.20]`. Why can their NLLs differ even though both have argmax
+   `A`?
+8. Can you directly compare perplexities produced with different tokenizers or
+   different evaluated target sets? State every evaluation condition that must
+   match.
+9. Why are the training and validation scores of the bigram model with `α=1`
+   finite even though the general metric maps an assigned zero to positive
+   infinity?
+
+<details>
+  <summary>Check the nine calculations and explanations</summary>
+
+1. The surprises are `−ln(1/2)=ln 2=0.693147180560` and
+   `−ln(1/4)=ln 4=1.386294361120`. Their total is
+   `ln 8=2.079441541680`. There are `N=2` targets, so mean NLL is
+   `2.079441541680/2=1.039720770840` nats per target. Exponentiating gives
+   `PPL=2.828427124746`.
+2. A perfect assignment has `p=1` at every target, hence every term is
+   `−ln 1=0`; the mean is `0` and PPL is `exp(0)=1`. Under a uniform
+   vocabulary, `p=1/|V|`, so every term is `ln |V|`. The mean is therefore
+   `ln |V|`, and PPL is `exp(ln |V|)=|V|`.
+3. The `0.8` term is finite, but the observed target assigned `0` contributes
+   positive infinity. Therefore total surprise, mean NLL, and PPL are positive
+   infinity, not an input error. Replacing zero with epsilon invents a nonzero
+   probability and produces a finite, epsilon-dependent score, so it changes
+   the metric.
+4. Write all four terms: `[−ln 1,−ln(1/4),−ln(1/4),−ln(1/4)]`. Their mean is
+   `(0+3 ln 4)/4=1.039720770840`, giving PPL `2.828427124746`. If we instead
+   compute a mean for each document and average the two results, both documents
+   receive equal weight. This incorrectly gives `(0+ln 4)/2=0.693147180560`,
+   with PPL `2`.
+5. The scored targets are `A`, `B`, and `EOS`: they are the second member of
+   `BOS→A`, `A→B`, and `B→EOS`. `BOS` supplies context for the first target and
+   is never itself a target, so this document contributes three terms to `N`.
+6. Flattening gives `BOS,A,EOS,BOS,B,EOS`. Its middle adjacent pair is the
+   fabricated `EOS→BOS` transition, which wrongly treats the second document's
+   `BOS` as a target of the first document's `EOS`.
+7. Both distributions place their largest probability, `0.60`, on `A`, but NLL
+   uses the probability assigned to observed `B`. Thus `q` contributes
+   `−ln 0.30=1.203972804326`, while `r` contributes
+   `−ln 0.20=1.609437912434`. The NLL under `q` is lower because `q` assigned
+   more probability to what occurred.
+8. No. A direct comparison requires the same tokenizer, the same mapping from
+   token IDs to token values, the same document-boundary rules, the same rule for
+   building context, and exactly the same evaluated targets. If any of these
+   differ, the terms or denominator may represent different events, so the
+   numerical values are not directly comparable.
+9. Add-one smoothing changes this bigram model's distribution and makes every
+   probability it returns positive, so every corpus surprise is finite. The
+   general metric can also receive probabilities from other models. If any model
+   assigns exactly zero to an observed target, the metric returns positive
+   infinity without changing that probability. It neither imposes a lower bound
+   nor replaces zero with an epsilon.
+
+</details>
+
+**Misconception check:** perplexity and mean NLL are not independent measurements.
+Perplexity is exactly `exp(mean NLL)`, so either value determines the other. The
+value `1/PPL` is the constant probability that would produce the same mean NLL if
+assigned to every target. Computing perplexity does not request any additional
+probabilities from the model.
+
+{/* chapter-section:decoder-connection */}
+
+## Keep one measurement while the model becomes more capable
+
+Chapter 7 can now report mean NLL and perplexity for the unchanged Chapter 6
+model on the exact training and validation targets. Both reports use the same
+metric and model: scoring neither updates the transition counts nor refits the
+table, and the Chapter 7 bigram-scoring API offers no test-partition choice.
+
+Chapter 8 begins the numerical engine with tensor values stored in a flat
+`Vec<f64>`, plus shapes, strides, and checked coordinate-to-offset indexing.
+Chapters 8–22 build the tensor, differentiation, and optimization machinery
+that later models need in order to improve mean NLL.
+
+Chapter 33 will train the complete decoder and select one state using validation
+loss only. Chapter 34 will freeze that state, evaluate it once on the previously
+unscored test targets, and compare it with the retained bigram model. A fair
+comparison requires both models to use the same tokenizer, the same mapping from
+token IDs to token values, the same exact target set, the same document-boundary
+and context-construction rules, and the same source data. Chapter 7 supplies the
+measurement; the later chapters determine how to improve a model and conduct a
+fair final comparison.

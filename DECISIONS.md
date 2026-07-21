@@ -2586,3 +2586,222 @@ are English-only until this decision is superseded by an approved activation.
 **Affected steps:** `adopt-english-only-future-chapter-policy`,
 `support-selective-chapter-locales`, `implement-ch07-language-model-metrics`, and
 future Chapters 8 through 39.
+
+## 2026-07-21 — Make causal diagrams follow inherited writing direction
+
+**Status:** Accepted during Chapter 7 site-component review.
+
+**Context:** The Chapter 7 metric chain is rendered in semantic source order.
+CSS Grid naturally places that sequence left-to-right or right-to-left according
+to the page direction, but the first candidate used literal right-pointing arrows
+in both modes. An independent review correctly rejected the candidate because a
+future RTL locale would see arrows pointing back toward the preceding stage.
+Forcing the whole figure to LTR would repair the arrows at the cost of imposing
+the wrong direction on localized prose.
+
+**Decision:** Shared causal diagrams must inherit the page's writing direction.
+Keep semantic DOM order unchanged, isolate only formula/code/numeric evidence as
+LTR technical islands, and make directional non-color cues follow the computed
+direction. For Chapter 7, every causal arrow has one locale-neutral class and is
+mirrored only when the figure matches `:dir(rtl)`. Do not add locale-name
+branches or force the figure, chain, labels, captions, or accessible prose to
+LTR. Bind this behavior to a focused regression test and later rendered RTL
+geometry evidence.
+
+**Consequences:** The configured English and Russian pages render unchanged in
+LTR, while a future RTL locale receives a coherent right-to-left visual
+progression without changing component code or label structure. Numeric and
+trace values remain readable LTR. Any future directional visualization must make
+the same inherited-direction choice explicit and test arrows or equivalent cues
+in both modes.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`.
+
+## 2026-07-21 — Keep learner-facing Rust excerpts causal and bounded
+
+**Status:** Accepted during the independent Chapter 7 learning-quality review.
+
+**Context:** The first English Chapter 7 candidate rendered five executable Rust
+regions totaling 654 lines. The generic calculation and frozen-model fit were
+correct, but public getters, typed-error formatting, invariant plumbing, and
+output serialization hid the few operations a learner needed to follow. A
+fixed-height highlighted panel does not become pedagogically useful merely
+because every displayed line is executable. The complete file still needs to
+remain available for provenance and deeper inspection.
+
+**Decision:** A learner-facing `RustSource` region must expose the smallest
+executed causal path that proves the surrounding teaching claim. Keep support
+types, getters, error formatting, exhaustive frozen-identity checks, and output
+serialization at the displayed source path, but outside the region when they do
+not advance the concept. When the causal operations cannot be selected cleanly,
+extract one actually called helper or reorder behavior-preserving Rust items;
+do not add dead teaching pseudocode or duplicate the concept. Captions,
+frontmatter purposes, labels, and nearby prose must distinguish what the region
+itself computes from what surrounding code validates or formats.
+
+Chapter 7 retains its five stable source paths and region IDs, but the panels now
+show 186 lines in total: complete probability validation and aggregation, the
+train/validation-only document adapter, the executed corpus-to-training-fit
+pipeline, the learner computations, and trace-value collection. Because the
+fixture seam changes the order in which a corrupted fixed fixture would fail,
+the complete offline Rust matrix and byte-exact stdout/trace checks are required,
+not just an MDX build.
+
+**Consequences:** Future chapter reviews must evaluate excerpt focus and reading
+load in addition to checking that an excerpt proves its claim. Full executable
+provenance remains in Rust; the browser avoids making infrastructure plumbing
+the dominant learning task. Any refactor used to improve an excerpt invalidates
+the affected Rust and lesson evidence and requires compilation, tests, exact
+outputs, rendered-content validation, and fresh content review.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`, and future chapter
+implementations.
+
+## 2026-07-21 — State the Chapter 7 test boundary as a scoring boundary
+
+**Status:** Accepted after adversarial implementation-evidence review.
+
+**Context:** `ScoredPartition` deliberately offers only `Train` and
+`Validation`, and Chapter 7 emits no test score. The frozen fixture nevertheless
+encodes all three corpus partitions, retains that owned container, and exposes
+it through `encoded_partitions()`. Earlier prose used “no test-selection path,”
+“train-or-validation-only access,” “untouched test,” and “no test surface.”
+Those phrases promise a stronger isolation boundary than the implementation
+provides.
+
+**Decision:** Describe the enforced Chapter 7 boundary precisely: its metric
+scorer can select only training or validation, and learner output and diagram
+trace report no test metric. Do not claim that Chapter 7 cannot load, encode,
+retain, view, or otherwise access test data. Describe Chapter 34 targets as
+“previously unscored,” not “untouched,” and describe the later action as the
+first test scoring/final evaluation. Apply the same distinction in contract
+metadata, Russian authoring guidance, diagram language, exercises, handoffs,
+and review criteria.
+
+**Consequences:** The frozen corpus pipeline and its complete partition
+container remain unchanged; no artificial implementation restriction is added
+to rescue broad prose. Comparisons and model-selection policy remain fail-closed
+at the scorer/output boundary that tests can prove. Any future claim of a
+stronger data-access boundary requires an explicit implementation change and
+new evidence, not an inference from the missing `ScoredPartition::Test` variant.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`, plus Chapters 33 and
+34 authoring where the final test protocol is explained.
+
+## 2026-07-21 — Correct the Chapter 6 handoff within the Chapter 7 integration
+
+**Status:** Accepted after independent Chapter 7 localization and continuity
+review; supersedes only the broader test-data promises in Chapter 6's handoff.
+
+**Context:** The scorer-boundary decision above is implemented consistently in
+the Chapter 7 contract and lessons, but the canonical Chapter 6 contract and
+both Chapter 6 lessons still promise that Chapter 7 leaves test data unopened or
+does not access it. The Chapter 7 fixture encodes and retains all three
+partitions; only its scoring enum and emitted metric reports exclude test. This
+creates a false guarantee at the exact transition between the two chapters.
+
+**Decision:** Treat the Chapter 6 contract and paired lesson handoffs as
+necessary shared integration outputs of `implement-ch07-language-model-metrics`.
+Change only their forward-looking boundary: Chapter 7 fits no new counts while
+scoring, uses validation only for evaluation, and permits its metric scorer to
+select only training or validation. Do not claim that Chapter 7 cannot load,
+encode, retain, expose, or otherwise access test data. Keep Chapter 6's own
+training-only fitting claim, formula, Rust implementation, visualization,
+examples, and content revision unchanged.
+
+Stage these corrections beside Chapter 7, validate both Chapter 6 locale
+projections and the complete bilingual site, and publish them atomically in the
+same dedicated Chapter 7 commit. Because the already-approved Russian Chapter 6
+surface changes, the final checksum-bound browser handoff must show the exact
+corrected Chapter 6 Russian page as well as Chapter 7 and obtain renewed fluent-
+human approval before either correction is published.
+
+**Consequences:** The course no longer contradicts its implementation at the
+Chapter 6→7 boundary. The correction does not broaden Chapter 7's scoring API or
+change when a test metric is first computed. The earlier Chapter 6 approval and
+revision-2 run remain immutable historical evidence; the new exact handoff bytes
+are accepted only through this running Chapter 7 validation and approval gate.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`.
+
+## 2026-07-21 — Identify displayed Rust excerpts by source and position
+
+**Status:** Applied after fluent-human rejection; exact replacement remains
+subject to renewed browser approval.
+
+**Context:** The first Chapter 7 Russian candidate introduced a paragraph with
+«Исполняемый пример», although the page contains several executable excerpts.
+The phrase did not identify whether it meant the worked example above, the
+following `main.rs` excerpt, or the later trace excerpt. Its English counterpart
+had the same structural ambiguity. The fluent human rejected that exact
+candidate and requested a close content review, not a narrow word substitution.
+
+**Decision:** When lesson prose introduces a displayed executable excerpt, name
+its source path and relative position explicitly, for example “the following
+`main.rs` excerpt.” Do not use an unanchored phrase such as “the executable
+example,” and do not say “from the example above” when the described operations
+belong to code that follows. State separately which excerpt computes values,
+which later code formats or projects them, and whether that later code derives
+any additional diagnostic. Apply this referent audit to
+both the source lesson and every localization, because structurally ambiguous
+English must not be preserved merely for translation parity.
+
+For Chapter 7, reopen the complete English and Russian lessons for close
+learner-facing review. The replacement paragraph identifies the following
+`main.rs`, names its probability cases and comparisons, states that one frozen
+model is scored separately on training and validation, and explains that the
+code outside the displayed region prints returned values and derives one finite-
+value diagnostic from an already-computed total. Keep the rejected
+lesson and its manifest as immutable evidence, and require fresh automated,
+rendered, independent, and fluent-human gates for the replacement bytes.
+
+**Consequences:** Future chapters must make the relation between surrounding
+prose and Rust panels unambiguous without relying on visual proximity alone.
+Translation review remains responsible for natural target-language prose, while
+the source-language review must first remove ambiguous referents and overloaded
+sentences. Chapter 7 remains staged and cannot publish until the fluent human
+approves the new checksum-bound browser surface.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`, and future chapter
+implementations.
+
+## 2026-07-21 — Approve the final Chapter 7 bilingual publication candidate
+
+**Status:** Explicit fluent-human approval received.
+
+**Context:** The human rejected the earlier Russian lesson at
+`sha256:5bac33ff...0b962` because its executable-example paragraph had no clear
+referent and read like literal English. The complete English and Russian lessons
+were reopened and reviewed closely. The replacement names the following
+`main.rs` region, separates displayed calculations from later output and
+serialization, and states the trace and BOS/EOS boundaries precisely. Complete
+automated, independent technical, monolingual Russian, English-pedagogy,
+E2E-literal, and rendered checks then passed.
+
+**Decision:** Accept the user's exact response “I approve” as the fluent-human
+gate for publication manifest
+`sha256:183dc3b3264aa34c1b5963dc0ff3d634dfcf229dcef7c098e2c0ca0b0ce3bb22`.
+That manifest contains Russian Chapter 7 lesson
+`sha256:94adf3ed...680c`, English Chapter 7 lesson
+`sha256:e270feec...ff7c`, the corrected Chapter 6 handoffs, and the complete
+Chapter 7 contract/Rust/site slice. The reviewed image is
+`sha256:37a9670e...e485`; immutable approval evidence is stored in
+`evidence/fluent-human-approval-03.md` within the run.
+
+Promote only the 20 manifest-listed files. Any byte change before promotion
+invalidates this approval. After promotion, run the complete canonical
+validation and release gates, checkpoint success, and persist the step in its
+own commit before selecting another step.
+
+**Consequences:** The previous rejected candidate remains historical evidence
+and gains no approval. The exact final candidate may now move from staging to
+canonical paths. Chapter 7 is not complete until canonical validation, static
+release, the succeeded checkpoint, and its dedicated commit all finish.
+
+**Affected step:** `implement-ch07-language-model-metrics`, run
+`20260721T045544Z-implement-ch07-language-model-metrics-04`.

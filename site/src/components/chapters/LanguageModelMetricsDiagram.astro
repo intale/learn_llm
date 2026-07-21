@@ -1,0 +1,541 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertLanguageModelMetricsDiagramLabels,
+  languageModelMetricsDiagramId,
+  parseLanguageModelMetricsTrace,
+  type LanguageModelMetricsDiagramLabels,
+} from '../../lib/language-model-metrics-diagram';
+
+interface Props {
+  labels: LanguageModelMetricsDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'language-model-metrics-diagram' } = Astro.props as Props;
+assertLanguageModelMetricsDiagramLabels(labels);
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch07-language-model-metrics/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseLanguageModelMetricsTrace(readFileSync(fixtureUrl, 'utf8'));
+
+const accessibleNameId = `${instanceId}-accessible-name`;
+const accessibleDescriptionId = `${instanceId}-accessible-description`;
+const chainTitleId = `${instanceId}-chain-title`;
+const chainInstructionId = `${instanceId}-chain-instruction`;
+const frozenModelTitleId = `${instanceId}-frozen-model-title`;
+const frozenModelNoteId = `${instanceId}-frozen-model-note`;
+const provenanceTitleId = `${instanceId}-provenance-title`;
+const scoreTableTitleId = `${instanceId}-scores-title`;
+const boundariesTitleId = `${instanceId}-boundaries-title`;
+---
+
+<figure
+  class="metrics-diagram"
+  data-visualization-id={languageModelMetricsDiagramId}
+  tabindex="0"
+  aria-labelledby={accessibleNameId}
+  aria-describedby={accessibleDescriptionId}
+>
+  <figcaption>
+    <span id={accessibleNameId} class="visually-hidden">{labels.accessibleName}</span>
+    <h3>{labels.title}</h3>
+    <p>{labels.caption}</p>
+    <p id={accessibleDescriptionId} class="visually-hidden">
+      {labels.accessibleDescription}
+    </p>
+  </figcaption>
+
+  <section class="calculation-panel" aria-labelledby={chainTitleId}>
+    <h4 id={chainTitleId}>{labels.sections.calculationChain}</h4>
+    <p id={chainInstructionId} class="scroll-instruction">
+      {labels.notes.scrollInstruction}
+    </p>
+    <div
+      class="chain-scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={chainTitleId}
+      aria-describedby={chainInstructionId}
+    >
+      <div class="calculation-chain">
+        <section class="stage target-stage" data-stage="probability-surprise">
+          <table>
+            <caption>
+              <span class="stage-number" aria-hidden="true">1</span>
+              <span>{labels.stages.probability}</span>
+              <span class="inline-arrow causal-arrow" aria-hidden="true">→</span>
+              <span class="stage-number" aria-hidden="true">2</span>
+              <span>{labels.stages.surprise}</span>
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{labels.columns.targetIndex}</th>
+                <th scope="col" data-stage-number="1">{labels.columns.probability}</th>
+                <th scope="col" data-stage-number="2">{labels.columns.surprise}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trace.targets.map((target) => (
+                <tr data-target-index={target.index.lexeme}>
+                  <th scope="row">
+                    <code dir="ltr">index={target.index.lexeme}</code>
+                  </th>
+                  <td data-evidence="probability">
+                    <bdi dir="ltr">{target.probability.lexeme}</bdi>
+                  </td>
+                  <td data-evidence="surprise">
+                    <bdi dir="ltr">{target.surprise.lexeme}</bdi>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <p class="stage-connector">
+          <span class="causal-arrow" aria-hidden="true">→</span>
+          <span>{labels.notes.nextStep}</span>
+        </p>
+
+        <section class="stage aggregate-stage" data-stage="aggregate">
+          <h5>
+            <span class="stage-number" aria-hidden="true">3</span>
+            {labels.stages.aggregate}
+          </h5>
+          <dl>
+            <div>
+              <dt>{labels.facts.totalSurprise}</dt>
+              <dd><bdi dir="ltr">{trace.aggregate.totalSurprise.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.facts.targetCount}</dt>
+              <dd><bdi dir="ltr">{trace.aggregate.targetCount.lexeme}</bdi></dd>
+            </div>
+          </dl>
+        </section>
+
+        <p class="stage-connector">
+          <span class="causal-arrow" aria-hidden="true">→</span>
+          <span>{labels.notes.nextStep}</span>
+        </p>
+
+        <section class="stage mean-stage" data-stage="mean-nll">
+          <h5>
+            <span class="stage-number" aria-hidden="true">4</span>
+            {labels.stages.meanNll}
+          </h5>
+          <p>
+            <span>{labels.columns.meanNll}</span>
+            <strong><bdi dir="ltr">{trace.aggregate.meanNll.lexeme}</bdi></strong>
+          </p>
+        </section>
+
+        <p class="stage-connector">
+          <span class="causal-arrow" aria-hidden="true">→</span>
+          <span>{labels.notes.nextStep}</span>
+        </p>
+
+        <section class="stage perplexity-stage" data-stage="perplexity">
+          <h5>
+            <span class="stage-number" aria-hidden="true">5</span>
+            {labels.stages.perplexity}
+          </h5>
+          <p>
+            <span>{labels.columns.perplexity}</span>
+            <strong><bdi dir="ltr">{trace.aggregate.perplexity.lexeme}</bdi></strong>
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="frozen-model-panel" aria-labelledby={frozenModelTitleId}>
+    <h4 id={frozenModelTitleId}>{labels.sections.frozenModel}</h4>
+    <p id={frozenModelNoteId}>{labels.notes.frozenModel}</p>
+
+    <section class="provenance-panel" aria-labelledby={provenanceTitleId}>
+      <h5 id={provenanceTitleId}>{labels.sections.provenance}</h5>
+      <dl class="provenance-facts">
+        <div>
+          <dt>{labels.facts.corpusChecksum}</dt>
+          <dd><code dir="ltr">{trace.provenance.corpusChecksum}</code></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.splitStrategy}</dt>
+          <dd><code dir="ltr">{trace.provenance.splitStrategy}</code></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.tokenizerLayout}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.tokenizerLayout.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.requestedMerges}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.requestedMerges.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.learnedMerges}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.learnedMerges.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.vocabulary}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.vocabulary.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.alpha}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.alpha.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.fittedPartition}</dt>
+          <dd><code dir="ltr">{trace.provenance.fittedPartition}</code></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.fittedDocuments}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.fittedDocuments.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.facts.fittedTargets}</dt>
+          <dd><bdi dir="ltr">{trace.provenance.fittedTargets.lexeme}</bdi></dd>
+        </div>
+      </dl>
+    </section>
+
+    <div
+      class="score-table-scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={scoreTableTitleId}
+      aria-describedby={frozenModelNoteId}
+    >
+      <table aria-labelledby={scoreTableTitleId}>
+        <caption id={scoreTableTitleId}>{labels.sections.frozenModel}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.columns.partition}</th>
+            <th scope="col">{labels.columns.documents}</th>
+            <th scope="col">{labels.columns.targets}</th>
+            <th scope="col">{labels.columns.totalSurprise}</th>
+            <th scope="col">{labels.columns.meanNll}</th>
+            <th scope="col">{labels.columns.perplexity}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.scored.map((score) => (
+            <tr data-scored-partition={score.partition}>
+              <th scope="row">
+                <span>{labels.partitions[score.partition]}</span>
+                <code dir="ltr">partition={score.partition}</code>
+              </th>
+              <td><bdi dir="ltr">{score.documents.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{score.targets.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{score.totalSurprise.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{score.meanNll.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{score.perplexity.lexeme}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <section class="boundary-panel" aria-labelledby={boundariesTitleId}>
+      <h5 id={boundariesTitleId}>{labels.sections.boundaries}</h5>
+      <ul>
+        <li data-boundary="bos-target">
+          <span>{labels.boundaries.bosContextOnly}</span>
+          <code dir="ltr">bos_target={trace.boundary.bosTarget}</code>
+        </li>
+        <li data-boundary="eos-target">
+          <span>{labels.boundaries.eosIsTarget}</span>
+          <code dir="ltr">eos_target={trace.boundary.eosTarget}</code>
+        </li>
+        <li data-boundary="cross-document">
+          <span>{labels.boundaries.documentsSeparate}</span>
+          <code dir="ltr">cross_document={trace.boundary.crossDocument}</code>
+        </li>
+        <li data-boundary="test-selectable">
+          <span>{labels.boundaries.testUnavailable}</span>
+          <code dir="ltr">test_selectable={trace.boundary.testSelectable}</code>
+        </li>
+      </ul>
+    </section>
+  </section>
+</figure>
+
+<style>
+  .metrics-diagram {
+    --diagram-border: color-mix(in srgb, currentColor 24%, transparent);
+    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+    display: grid;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    gap: 1.25rem;
+    margin-block: 1.5rem;
+    padding: clamp(0.85rem, 3vw, 1.5rem);
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.85rem;
+  }
+
+  .metrics-diagram:focus-visible,
+  .chain-scroll:focus-visible,
+  .score-table-scroll:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  figcaption h3,
+  figcaption p,
+  section h4,
+  section h5,
+  section p {
+    margin-block-start: 0;
+  }
+
+  .calculation-panel,
+  .frozen-model-panel,
+  .provenance-panel,
+  .boundary-panel {
+    min-inline-size: 0;
+    padding: 1rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.65rem;
+    background: var(--diagram-surface);
+  }
+
+  .scroll-instruction {
+    margin-block-end: 0.75rem;
+  }
+
+  .chain-scroll,
+  .score-table-scroll {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow-x: auto;
+  }
+
+  .calculation-chain {
+    display: grid;
+    grid-template-columns:
+      minmax(31rem, 2fr) auto minmax(14rem, 1fr) auto minmax(13rem, 1fr) auto
+      minmax(13rem, 1fr);
+    align-items: stretch;
+    gap: 0.75rem;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    padding: 0.25rem 0.25rem 0.75rem;
+  }
+
+  .stage {
+    min-inline-size: 0;
+    padding: 0.85rem;
+    border: 2px solid currentColor;
+    border-radius: 0.55rem;
+  }
+
+  .target-stage {
+    border-style: solid;
+  }
+
+  .aggregate-stage {
+    border-style: double;
+    border-width: 4px;
+  }
+
+  .mean-stage {
+    border-style: dashed;
+  }
+
+  .perplexity-stage {
+    border-block-width: 4px;
+  }
+
+  .stage-number {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 1.65rem;
+    min-block-size: 1.65rem;
+    margin-inline-end: 0.35rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-weight: 750;
+  }
+
+  .inline-arrow {
+    margin-inline: 0.65rem;
+  }
+
+  .causal-arrow {
+    display: inline-block;
+  }
+
+  .metrics-diagram:dir(rtl) .causal-arrow {
+    transform: scaleX(-1);
+  }
+
+  .stage-connector {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.2rem;
+    margin: 0;
+    font-weight: 650;
+    text-align: center;
+  }
+
+  .stage-connector > span:first-child {
+    font-size: 1.4rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .target-stage table {
+    min-inline-size: 29rem;
+  }
+
+  .score-table-scroll table {
+    min-inline-size: 51rem;
+  }
+
+  caption {
+    margin-block-end: 0.75rem;
+    font-weight: 700;
+    text-align: start;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    border-block-end: 1px solid var(--diagram-border);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  td,
+  dd {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage dl,
+  .provenance-facts {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+  }
+
+  .stage dl div,
+  .provenance-facts div {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  dt {
+    font-weight: 650;
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .mean-stage p,
+  .perplexity-stage p {
+    display: grid;
+    gap: 0.65rem;
+    margin-block-end: 0;
+  }
+
+  .mean-stage strong,
+  .perplexity-stage strong {
+    font-size: 1.15rem;
+  }
+
+  .frozen-model-panel {
+    display: grid;
+    gap: 1rem;
+    border-style: double;
+  }
+
+  .provenance-facts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  }
+
+  .provenance-facts code {
+    overflow-wrap: anywhere;
+  }
+
+  .score-table-scroll {
+    font-size: 0.9rem;
+  }
+
+  .score-table-scroll th[scope='row'] {
+    display: grid;
+    gap: 0.25rem;
+    border-inline-start: 0.35rem solid currentColor;
+  }
+
+  .score-table-scroll tr[data-scored-partition='validation'] th[scope='row'] {
+    border-inline-start-style: double;
+  }
+
+  .boundary-panel {
+    border-style: dashed;
+  }
+
+  .boundary-panel ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .boundary-panel li {
+    display: grid;
+    gap: 0.35rem;
+    padding-inline-start: 0.65rem;
+    border-inline-start: 0.25rem solid currentColor;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 42rem) {
+    .metrics-diagram,
+    .calculation-panel,
+    .frozen-model-panel,
+    .provenance-panel,
+    .boundary-panel {
+      padding: 0.75rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .metrics-diagram,
+    .calculation-panel,
+    .frozen-model-panel,
+    .provenance-panel,
+    .boundary-panel,
+    .stage,
+    .stage-number,
+    th,
+    td {
+      border-color: CanvasText;
+    }
+  }
+</style>

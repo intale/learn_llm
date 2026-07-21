@@ -62,8 +62,8 @@
     }
   },
   "decoder_connection": {
-    "en": "The model scans each original wrapped training document once, never the overlapping Chapter 5 pairs, and freezes its table before Chapter 7 computes train and validation loss and perplexity without opening test data or refitting the model.",
-    "ru": "Модель один раз просматривает каждый исходный документ обучающей выборки с BOS и EOS и не использует перекрывающиеся пары из главы 5. После обучения таблица остаётся неизменной: в главе 7 по ней вычисляются потери и перплексия на обучающей и валидационной выборках без повторной подгонки модели и без обращения к тестовой выборке."
+    "en": "The model scans each original wrapped training document once, never the overlapping Chapter 5 pairs, and freezes its table. Chapter 7 computes train and validation loss and perplexity without refitting: its metric scorer can select only the training or validation partition.",
+    "ru": "Модель один раз просматривает каждый исходный документ обучающей выборки с BOS и EOS и не использует перекрывающиеся пары из главы 5. После обучения таблица остаётся неизменной: глава 7 вычисляет потери и перплексию на обучающей и валидационной выборках без повторной подгонки, а интерфейс расчёта метрики позволяет выбрать только обучающую или валидационную выборку."
   },
   "terminology": [
     {"concept_id": "bigram", "en": "bigram", "ru": "биграмма"},
@@ -131,7 +131,7 @@ Exercises must ask learners to enumerate the seven source transitions, calculate
 <!-- contract-section:decoder-connection -->
 ## Handoff to scoring
 
-The bigram table is the first complete next-token model in the course. Freeze it after training-only fitting. Chapter 7 will assign probabilities to train and validation targets, convert those probabilities to loss and perplexity, and leave both the table and unopened test partition unchanged.
+The bigram table is the first complete next-token model in the course. Freeze it after training-only fitting. Chapter 7 will assign probabilities to train and validation targets and convert those probabilities to loss and perplexity. The table remains unchanged while scoring: training examples are not added to its counts again, validation is evaluation-only, and Chapter 7's metric scorer can select only training or validation.
 
 <!-- contract-section:localization -->
 ## Localization

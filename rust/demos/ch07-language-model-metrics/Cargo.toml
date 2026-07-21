@@ -1,0 +1,16 @@
+[package]
+name = "ch07-language-model-metrics"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ch07-language-model-metrics"
+path = "src/main.rs"
