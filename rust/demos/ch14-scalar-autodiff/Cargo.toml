@@ -1,0 +1,20 @@
+[package]
+name = "ch14-scalar-autodiff"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ch14-scalar-autodiff"
+path = "src/main.rs"
+
+[[example]]
+name = "ch14-scalar-autodiff-trace"
+path = "examples/diagram_trace.rs"

@@ -3653,3 +3653,69 @@ definition changes.
 
 **Affected step and run:** `link-localized-home-pages-to-repository`, run
 `20260722T151036Z-link-localized-home-pages-to-repository-01`.
+
+## 2026-07-22 - Freeze Chapter 14 reverse accumulation as a scalar LLM-training model
+
+**Status:** Accepted during Chapter 14 preflight.
+
+**Context:** Chapter 13 provides an independent numerical oracle, while Chapter
+14 must introduce the reverse-mode mechanism that will later differentiate
+tensor operations. The central teaching hazard is graph reuse: a node appears
+once in a topological order but each operand use is a separate derivative path.
+Repeated backward calls must also never propagate stale intermediate adjoints.
+The history must remain on the path to modern language-model training rather
+than becoming a history of Rust, Python, operator overloading, or frameworks.
+
+**Decision:** Add a dependency-free, single-thread teaching `Scalar` backed by
+private reference-counted graph nodes with immutable ordered parent edges and a
+mutable optional accumulated gradient. Constructors and checked `add`, `mul`,
+`neg`, `sub`, `exp`, and `tanh` operations accept only finite values and results.
+Variables track gradients; constants do not. `detach` creates a constant leaf
+with the same primal value and no parent edge, so it cannot reconnect a gradient
+path. Private parent-only links prevent cycles; pointer identity may deduplicate
+nodes internally but never appears in output.
+
+Build a parent-first topology in operand order, listing each reachable node once
+while retaining every operand edge, including two edges for `x*x` and two more
+when one result is reused by `square+square`. Each backward call uses fresh
+pass-local adjoints, seeds the selected tracked scalar output, traverses nodes in
+reverse topological order, and adds every finite edge contribution. Validate all
+contributions and prospective stored gradients before committing any mutation.
+Stored gradients accumulate one complete fresh pass across repeated calls;
+`zero_grad` clears every reachable tracked node. Reject a constant output,
+nonfinite seed, forward value, local contribution, pass adjoint, or prospective
+accumulated gradient with a typed deterministic error. A failed backward call
+leaves all stored gradients bit-identical.
+
+Freeze the predict-first graph as `x=2`, `square=x*x`, and
+`loss=square+square`. It has `loss=8`; the two loss edges give
+`bar(square)=1+1=2`; the two multiplication edges then give
+`bar(x)=2*2+2*2=8`. One repeated call produces accumulated gradients
+`x=16`, `square=4`, and `loss=2`; zeroing returns all three to zero, and one
+new pass restores the original values. Separately prove elementary functions,
+`x*x + detach(x)*3`, and the analytic derivative of `2x^2` against Chapter
+13 central differences. A strict `TRACE scalar-autodiff-v1` owns topology,
+ordered edge derivatives and contributions, repeated accumulation, zeroing,
+detach, gradcheck, and typed rejection evidence. TypeScript may only parse and
+validate those Rust-authored lexemes and cross-references.
+
+Bound the history to Bengio et al.'s learned next-word parameters and backward
+updates, Baydin et al.'s forward dependency recording and reverse adjoint
+accumulation for one scalar output and many inputs, and the progression through
+Transformer training to scaled autoregressive language models documented by
+Vaswani et al. and Radford et al. Graph representation, traversal order,
+`f64` policy, repeated-call storage, zeroing, detach, API shape, trace grammar,
+and error precedence are course-local decisions and are not attributed to the
+cited models. Reverse mode belongs to training; ordinary decoder inference does
+not run this backward graph.
+
+**Consequences:** Chapter 14 gains an exact Rust trace, a strict independent
+site parser, static accessible graph visualization, English lesson, SEO, and
+browser coverage. English remains the only active Chapter 14 locale and Russian
+publishes no placeholder. The slice adds no concept-implementing dependency,
+client runtime, build-definition change, route-policy change, active-locale
+change, or executable-mode requirement. Chapter 15 can replace scalar nodes
+with tensor-operation vector-Jacobian products while preserving accumulation.
+
+**Affected step and run:** `implement-ch14-scalar-autodiff`, run
+`20260722T155854Z-implement-ch14-scalar-autodiff-01`.

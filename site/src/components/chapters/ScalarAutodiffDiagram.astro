@@ -1,0 +1,546 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertScalarAutodiffDiagramLabels,
+  parseScalarAutodiffTrace,
+  scalarAutodiffDiagramId,
+  type ScalarAutodiffDiagramLabels,
+  type ScalarAutodiffTraceError,
+  type ScalarNodeEvidence,
+} from '../../lib/scalar-autodiff-diagram';
+
+interface Props {
+  labels: ScalarAutodiffDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+assertScalarAutodiffDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Scalar-autodiff diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch14-scalar-autodiff/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseScalarAutodiffTrace(readFileSync(fixtureUrl, 'utf8'));
+const restored = trace.backward[2]!;
+const titleId = `${scalarAutodiffDiagramId}-${instanceId}-title`;
+const descriptionId = `${scalarAutodiffDiagramId}-${instanceId}-description`;
+
+const nodeClass = (node: ScalarNodeEvidence): 'leaf' | 'shared' | 'output' => {
+  if (node.label === 'x') return 'leaf';
+  if (node.label === 'square') return 'shared';
+  return 'output';
+};
+
+const errorDetails = (error: ScalarAutodiffTraceError): string => {
+  switch (error.kind) {
+    case 'constant-output':
+      return `operation=${error.operation}`;
+    case 'non-finite-seed':
+      return `seed=${error.seed}`;
+    case 'non-finite-accumulated-gradient':
+      return `node=${error.node.lexeme}`;
+  }
+};
+---
+
+<figure
+  class="scalar-autodiff-diagram"
+  data-visualization-id={scalarAutodiffDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="summary-grid">
+    <div>
+      <dt>{labels.summary.loss}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.output.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.uniqueNodes}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.nodes.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.operandEdges}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.edges.lexeme}</bdi></dd>
+    </div>
+  </dl>
+
+  <section class="diagram-section graph-section" aria-labelledby={`${titleId}-graph`}>
+    <h3 id={`${titleId}-graph`}>{labels.sections.graph}</h3>
+    <p>{labels.notes.graph}</p>
+    <ol class="graph-list">
+      {trace.nodes.map((node) => {
+        const kind = nodeClass(node);
+        const parentEdges = trace.edges.filter((edge) => edge.child === node.label);
+        return (
+          <li
+            class={`node-card node-${kind}`}
+            data-node-id={node.id.lexeme}
+            data-node-label={node.label}
+            data-topology-order={node.topology.lexeme}
+            data-operation={node.operation}
+            data-value={node.value.lexeme}
+            data-pass-adjoint={node.passAdjoint.lexeme}
+            data-accumulated={node.accumulated.lexeme}
+          >
+            <p class="card-state">
+              <span class="state-symbol" aria-hidden="true">{labels.symbols[kind]}</span>
+              <strong><bdi dir="ltr">{node.label}</bdi></strong>
+            </p>
+            <dl>
+              <div>
+                <dt>{labels.fields.forwardOrder}</dt>
+                <dd><bdi dir="ltr">{node.topology.lexeme}</bdi></dd>
+              </div>
+              <div>
+                <dt>{labels.fields.operation}</dt>
+                <dd>{labels.operations[node.operation]}</dd>
+              </div>
+              <div>
+                <dt>{labels.fields.value}</dt>
+                <dd><bdi dir="ltr">{node.value.lexeme}</bdi></dd>
+              </div>
+              <div>
+                <dt>{labels.fields.gradient}</dt>
+                <dd><bdi dir="ltr">{node.passAdjoint.lexeme}</bdi></dd>
+              </div>
+            </dl>
+            {parentEdges.length > 0 && (
+              <ul class="parent-edge-list" aria-label={labels.fields.parent}>
+                {parentEdges.map((edge) => (
+                  <li>
+                    <span>{labels.fields.operand} <bdi dir="ltr">{edge.operand.lexeme}</bdi></span>
+                    <strong><bdi dir="ltr">{edge.parent}</bdi></strong>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  </section>
+
+  <section class="diagram-section reverse-section" aria-labelledby={`${titleId}-reverse`}>
+    <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
+    <p>{labels.notes.reverse}</p>
+    <div class="trace-scroll" role="region" tabindex="0" aria-label={labels.sections.reverse}>
+      <table class="edge-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.reverseOrder}</th>
+            <th scope="col">{labels.fields.child}</th>
+            <th scope="col">{labels.fields.operand}</th>
+            <th scope="col">{labels.fields.parent}</th>
+            <th scope="col">{labels.fields.localDerivative}</th>
+            <th scope="col">{labels.fields.upstream}</th>
+            <th scope="col">{labels.fields.contribution}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.edges.map((edge) => (
+            <tr
+              data-edge-reverse={edge.reverse.lexeme}
+              data-child={edge.child}
+              data-child-id={edge.childId.lexeme}
+              data-operand={edge.operand.lexeme}
+              data-parent={edge.parent}
+              data-parent-id={edge.parentId.lexeme}
+              data-local-derivative={edge.localDerivative.lexeme}
+              data-upstream-adjoint={edge.upstreamAdjoint.lexeme}
+              data-contribution={edge.contribution.lexeme}
+            >
+              <th scope="row"><bdi dir="ltr">{edge.reverse.lexeme}</bdi></th>
+              <td><bdi dir="ltr">{edge.child}</bdi></td>
+              <td><bdi dir="ltr">{edge.operand.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{edge.parent}</bdi></td>
+              <td><bdi dir="ltr">{edge.localDerivative.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{edge.upstreamAdjoint.lexeme}</bdi></td>
+              <td><strong><bdi dir="ltr">{edge.contribution.lexeme}</bdi></strong></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-accumulation`}>
+    <h3 id={`${titleId}-accumulation`}>{labels.sections.accumulation}</h3>
+    <p>{labels.notes.accumulation}</p>
+    <div class="snapshot-grid">
+      {trace.backward.slice(0, 2).map((snapshot, index) => {
+        const state = index === 0 ? 'firstPass' : 'secondPass';
+        return (
+          <article
+            class={`snapshot-card state-${state}`}
+            data-backward-pass={snapshot.pass}
+            data-x-gradient={snapshot.x.lexeme}
+            data-square-gradient={snapshot.square.lexeme}
+            data-loss-gradient={snapshot.loss.lexeme}
+          >
+            <p class="card-state">
+              <span class="state-symbol" aria-hidden="true">{labels.symbols[state]}</span>
+              <strong>{labels.states[state]}</strong>
+            </p>
+            <dl>
+              <div><dt><bdi dir="ltr">x</bdi></dt><dd><bdi dir="ltr">{snapshot.x.lexeme}</bdi></dd></div>
+              <div><dt><bdi dir="ltr">square</bdi></dt><dd><bdi dir="ltr">{snapshot.square.lexeme}</bdi></dd></div>
+              <div><dt><bdi dir="ltr">loss</bdi></dt><dd><bdi dir="ltr">{snapshot.loss.lexeme}</bdi></dd></div>
+            </dl>
+          </article>
+        );
+      })}
+      <article
+        class="snapshot-card state-zeroed"
+        data-gradient-state="zeroed"
+        data-x-gradient={trace.zeroed.x.lexeme}
+        data-square-gradient={trace.zeroed.square.lexeme}
+        data-loss-gradient={trace.zeroed.loss.lexeme}
+      >
+        <p class="card-state">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.zeroed}</span>
+          <strong>{labels.states.zeroed}</strong>
+        </p>
+        <dl>
+          <div><dt><bdi dir="ltr">x</bdi></dt><dd><bdi dir="ltr">{trace.zeroed.x.lexeme}</bdi></dd></div>
+          <div><dt><bdi dir="ltr">square</bdi></dt><dd><bdi dir="ltr">{trace.zeroed.square.lexeme}</bdi></dd></div>
+          <div><dt><bdi dir="ltr">loss</bdi></dt><dd><bdi dir="ltr">{trace.zeroed.loss.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+      <article
+        class="snapshot-card state-restored"
+        data-backward-pass={restored.pass}
+        data-x-gradient={restored.x.lexeme}
+        data-square-gradient={restored.square.lexeme}
+        data-loss-gradient={restored.loss.lexeme}
+      >
+        <p class="card-state">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.restored}</span>
+          <strong>{labels.states.restored}</strong>
+        </p>
+        <dl>
+          <div><dt><bdi dir="ltr">x</bdi></dt><dd><bdi dir="ltr">{restored.x.lexeme}</bdi></dd></div>
+          <div><dt><bdi dir="ltr">square</bdi></dt><dd><bdi dir="ltr">{restored.square.lexeme}</bdi></dd></div>
+          <div><dt><bdi dir="ltr">loss</bdi></dt><dd><bdi dir="ltr">{restored.loss.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-evidence`}>
+    <h3 id={`${titleId}-evidence`}>{labels.sections.evidence}</h3>
+    <p>{labels.notes.evidence}</p>
+    <div class="evidence-grid">
+      <article
+        class="evidence-card state-detached"
+        data-evidence="detach"
+        data-expression={trace.detach.expression}
+        data-value={trace.detach.value.lexeme}
+        data-gradient={trace.detach.xGradient.lexeme}
+      >
+        <p class="card-state">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.detached}</span>
+          <strong>{labels.states.detached}</strong>
+        </p>
+        <dl>
+          <div><dt>{labels.fields.expression}</dt><dd><bdi dir="ltr">{trace.detach.expression}</bdi></dd></div>
+          <div><dt>{labels.fields.value}</dt><dd><bdi dir="ltr">{trace.detach.value.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{trace.detach.xGradient.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+      <article
+        class="evidence-card state-nonlinear"
+        data-evidence="nonlinear"
+        data-expression={trace.nonlinear.expression}
+        data-value={trace.nonlinear.value.lexeme}
+        data-gradient={trace.nonlinear.gradient.lexeme}
+      >
+        <p class="card-state">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.nonlinear}</span>
+          <strong>{labels.states.nonlinear}</strong>
+        </p>
+        <dl>
+          <div><dt>{labels.fields.expression}</dt><dd><bdi dir="ltr">{trace.nonlinear.expression}</bdi></dd></div>
+          <div><dt>{labels.fields.value}</dt><dd><bdi dir="ltr">{trace.nonlinear.value.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{trace.nonlinear.gradient.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+      <article
+        class="evidence-card state-checked"
+        data-evidence="gradcheck"
+        data-expression={trace.gradcheck.expression}
+        data-analytic={trace.gradcheck.analytic.lexeme}
+        data-numerical={trace.gradcheck.numerical.lexeme}
+        data-scaled-error={trace.gradcheck.scaledError.lexeme}
+        data-status={trace.gradcheck.status}
+      >
+        <p class="card-state">
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.checked}</span>
+          <strong>{labels.states.checked}</strong>
+        </p>
+        <dl>
+          <div><dt>{labels.fields.analytic}</dt><dd><bdi dir="ltr">{trace.gradcheck.analytic.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.numerical}</dt><dd><bdi dir="ltr">{trace.gradcheck.numerical.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.scaledError}</dt><dd><bdi dir="ltr">{trace.gradcheck.scaledError.lexeme}</bdi></dd></div>
+          <div><dt>{labels.fields.tolerance}</dt><dd><bdi dir="ltr">{trace.gradcheck.tolerance.lexeme}</bdi></dd></div>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-errors`}>
+    <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
+    <p>{labels.notes.errors}</p>
+    <div class="error-grid">
+      {trace.errors.map((error) => (
+        <article
+          class="error-card state-rejected"
+          data-error-kind={error.kind}
+          data-gradients-unchanged={error.gradientsUnchanged}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
+            <strong>{labels.errors[error.kind]}</strong>
+          </p>
+          <bdi dir="ltr">{errorDetails(error)}</bdi>
+        </article>
+      ))}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .scalar-autodiff-diagram {
+    margin-block: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .scalar-autodiff-diagram:focus-visible,
+  .trace-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
+  }
+
+  figcaption {
+    padding: 1rem 1.2rem 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+
+  .diagram-description,
+  .diagram-section,
+  .summary-grid {
+    margin-inline: 1.2rem;
+  }
+
+  .diagram-description {
+    margin-block: 0.45rem 1rem;
+    color: var(--muted);
+  }
+
+  .summary-grid,
+  .graph-list,
+  .snapshot-grid,
+  .evidence-grid,
+  .error-grid {
+    display: grid;
+    align-items: start;
+    gap: 0.85rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-block: 0 1.2rem;
+  }
+
+  .summary-grid > div,
+  .node-card,
+  .snapshot-card,
+  .evidence-card,
+  .error-card {
+    min-inline-size: 0;
+    padding: 0.8rem;
+    border: 2px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  dd {
+    margin-inline: 0;
+    margin-block: 0.15rem 0;
+    overflow-wrap: anywhere;
+  }
+
+  .diagram-section {
+    min-inline-size: 0;
+    margin-block: 1.4rem;
+  }
+
+  .diagram-section h3 {
+    margin-block: 0 0.45rem;
+  }
+
+  .graph-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-block: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .node-leaf { border-style: solid; }
+  .node-shared { border-style: double; }
+  .node-output { border-style: dashed; }
+
+  .node-card dl,
+  .snapshot-card dl,
+  .evidence-card dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .parent-edge-list {
+    display: grid;
+    gap: 0.35rem;
+    margin-block: 0.75rem 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .parent-edge-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0.45rem;
+    border: 1px dashed currentColor;
+    border-radius: 0.45rem;
+  }
+
+  .trace-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    contain: paint;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+  }
+
+  .edge-table {
+    inline-size: 100%;
+    min-inline-size: 50rem;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+
+  .edge-table th,
+  .edge-table td {
+    padding: 0.55rem;
+    border-block-end: 1px solid var(--line);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .snapshot-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .evidence-grid,
+  .error-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .state-firstPass { border-style: solid; }
+  .state-secondPass { border-style: double; }
+  .state-zeroed { border-style: dotted; }
+  .state-restored,
+  .state-checked { border-style: double; }
+  .state-detached { border-style: dashed; }
+  .state-nonlinear { border-style: solid; }
+  .state-rejected { border-style: dashed; }
+
+  .card-state {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-block: 0 0.55rem;
+  }
+
+  .state-symbol {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 1.7rem;
+    block-size: 1.7rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  bdi,
+  code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  @media (max-width: 60rem) {
+    .snapshot-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 47.5rem) {
+    .summary-grid,
+    .graph-list,
+    .snapshot-grid,
+    .evidence-grid,
+    .error-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .scalar-autodiff-diagram,
+    .summary-grid > div,
+    .node-card,
+    .snapshot-card,
+    .evidence-card,
+    .error-card,
+    .trace-scroll {
+      border-color: CanvasText;
+      background: Canvas;
+      color: CanvasText;
+      forced-color-adjust: none;
+    }
+
+    .state-symbol,
+    .parent-edge-list li {
+      color: CanvasText;
+      border-color: CanvasText;
+    }
+
+    .scalar-autodiff-diagram:focus-visible,
+    .trace-scroll:focus-visible {
+      outline-color: Highlight;
+    }
+  }
+</style>

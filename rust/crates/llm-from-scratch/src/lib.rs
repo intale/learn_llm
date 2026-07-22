@@ -9,9 +9,10 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
-/// Numerical gradient checks introduced before automatic differentiation.
+/// Numerical gradient checks and reverse-mode differentiation.
 pub mod autograd {
     pub mod gradcheck;
+    pub mod scalar;
 }
 
 /// Numerically stable neural-network building blocks.

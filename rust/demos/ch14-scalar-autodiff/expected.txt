@@ -1,0 +1,10 @@
+reused square: x=2.000000000000 square=4.000000000000 loss=8.000000000000
+one backward: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000
+repeated backward: x_grad=16.000000000000 square_grad=4.000000000000 loss_grad=2.000000000000
+zero_grad: x_grad=0.000000000000 square_grad=0.000000000000 loss_grad=0.000000000000
+after zero: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000
+detach: expression=x*x+detach(x)*3 value=10.000000000000 x_grad=4.000000000000 detached_grad=none
+nonlinear: expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655
+gradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000052 scaled_error=6.551204023708e-12 pass=true
+typed errors: constant-output | non-finite-seed | non-finite-accumulated-gradient; gradients unchanged=true
+chapter 15 handoff: replace scalar edges with tensor vector-Jacobian products

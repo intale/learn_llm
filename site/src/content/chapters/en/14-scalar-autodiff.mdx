@@ -1,0 +1,472 @@
+---
+{
+  "chapter_id": "14-scalar-autodiff",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 14,
+  "concept_id": "scalar-autodiff",
+  "title": "Accumulate gradients through a scalar graph",
+  "description": "Build reverse-mode scalar autodiff in Rust, accumulate gradients across reused graph edges, and verify them for LLM training.",
+  "objective": "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.",
+  "worked_inputs": "Set x=2, square=x*x, and loss=square+square. Predict square=4 and loss=8, then count both loss-to-square operand edges and both square-to-x operand edges to obtain bar(square)=2 and bar(x)=8 before running backward.",
+  "formula": {
+    "latex": "\\bar v=\\sum_{c\\in\\operatorname{children}(v)}\\bar c\\,\\frac{\\partial c}{\\partial v}",
+    "symbols": [
+      {
+        "symbol": "v",
+        "meaning": "one scalar value stored in the computation graph"
+      },
+      {
+        "symbol": "\\bar v",
+        "meaning": "the adjoint of v, equal to the derivative of the selected scalar output with respect to v"
+      },
+      {
+        "symbol": "c",
+        "meaning": "one downstream result that consumes v through a particular operand use"
+      },
+      {
+        "symbol": "\\operatorname{children}(v)",
+        "meaning": "the downstream operand uses of v counted with multiplicity, even when two uses point to the same graph node"
+      },
+      {
+        "symbol": "\\bar c",
+        "meaning": "the pass-local adjoint already accumulated at downstream result c"
+      },
+      {
+        "symbol": "\\frac{\\partial c}{\\partial v}",
+        "meaning": "the local derivative carried by the particular edge from v to c"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "Bengio et al.'s neural language model learns next-word probabilities and distributed word features with an explicit forward phase followed by backward/update equations. Baydin et al. show that careless symbolic differentiation can duplicate reused expressions and that forward mode needs one seeded pass per input to obtain a scalar loss's full gradient, so neither scales cleanly to a language model with many parameters.",
+      "later_advance": "Baydin et al. describe reverse mode as recording dependencies during a forward evaluation and propagating adjoints from one scalar output back through the graph, adding contributions from every path. That direction fits a scalar training objective with many parameters. Vaswani et al. then train repeated Transformer attention and feed-forward layers, and Radford et al. scale autoregressive Transformer language models from 12 to 48 layers and from 117 million to 1.542 billion parameters.",
+      "modern_llm_role": "This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph, and its representation, traversal, accumulation, zeroing, detach, finite-value, API, trace, and error policies are course-local.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. learn next-word probabilities and word-feature parameters and publish a forward phase plus a backward/update phase that clears and adds gradients through output units, hidden units, and input word features."
+        },
+        {
+          "role": "later",
+          "year": 2018,
+          "name": "Baydin et al., Automatic Differentiation in Machine Learning: a Survey",
+          "source_url": "https://www.jmlr.org/papers/volume18/17-468/17-468.pdf",
+          "claim": "Baydin et al. show how symbolic differentiation can duplicate shared expressions, explain that forward mode needs one pass per input for a scalar output's full gradient, and describe reverse dependency recording and adjoint accumulation in one reverse pass."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. build the Transformer from repeated attention and position-wise feed-forward sublayers and train base models for 100,000 steps and big models for 300,000 steps with Adam."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Radford et al., Language Models are Unsupervised Multitask Learners",
+          "source_url": "https://cdn.openai.com/better-language-models/language-models.pdf",
+          "claim": "Radford et al. use Transformer-based autoregressive language models and report four sizes spanning 12 to 48 layers and 117 million to 1.542 billion parameters."
+        }
+      ]
+    },
+    "approach": "From hand-written next-word updates to reverse accumulation across scaled autoregressive Transformer graphs",
+    "summary": "Bengio et al. publish explicit backward updates for learned next-word parameters. Baydin et al. contrast duplicated symbolic expressions and one-forward-pass-per-input propagation with reverse mode, which reuses recorded intermediates and accumulates every path from one scalar output in one reverse pass. Transformer and GPT-2 work then increase the depth and parameter count of the computations being trained. The Rust contrast isolates that mechanism without attributing this course's graph or API policy to any cited model.",
+    "rust_source": "rust/demos/ch14-scalar-autodiff/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch14-scalar-autodiff/src/lib.rs",
+      "region": "shared-scalar-fixture",
+      "purpose": "Construct the predict-first repeated-square graph and expose its forward values, unique nodes, repeated edges, and stored gradients."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/scalar.rs",
+      "region": "scalar-autodiff-errors",
+      "purpose": "Keep constructor, operation, seed, contribution, adjoint, stored-gradient, and constant-output failures typed and deterministic."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/scalar.rs",
+      "region": "scalar-dag-operations",
+      "purpose": "Create finite tracked variables and constants, then record checked arithmetic and elementary-operation results with ordered local derivative edges."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/scalar.rs",
+      "region": "scalar-reverse-pass",
+      "purpose": "Build a node-unique topology, add every repeated edge in a fresh transactional pass, commit accumulation, zero reachable gradients, and detach a value."
+    },
+    {
+      "path": "rust/demos/ch14-scalar-autodiff/src/lib.rs",
+      "region": "nonlinear-detach-gradcheck",
+      "purpose": "Compare the analytic derivative of the shared graph with Chapter 13 central differences and prove detach plus elementary-function behavior."
+    },
+    {
+      "path": "rust/demos/ch14-scalar-autodiff/src/main.rs",
+      "region": "learner-scalar-autodiff-output",
+      "purpose": "Prepare deterministic first-pass, repeated-pass, zeroed, restored, detached, and checked learner evidence."
+    },
+    {
+      "path": "rust/demos/ch14-scalar-autodiff/src/diagram_trace.rs",
+      "region": "scalar-autodiff-trace",
+      "purpose": "Record the exact nodes, repeated edges, reverse contributions, stored states, checks, and rejections consumed by the static figure."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "scalar-autodiff",
+    "rationale": "A branched DAG can show each scalar node once while displaying repeated operand edges, local derivatives, ordered reverse contributions, pass-local adjoints, and cross-call stored gradients separately; those relationships are easy to lose in a flat list of final numbers."
+  },
+  "decoder_connection": "The cumulative project can now record scalar dependencies, traverse each reachable node once in reverse topological order, add every operand-edge contribution, safely accumulate complete fresh passes, zero gradients, detach a value, and verify analytic results numerically. Chapter 15 replaces scalar nodes with tensor-operation VJPs for views, broadcasts, and reductions while preserving these reverse-accumulation rules."
+}
+---
+
+import ScalarAutodiffDiagram from '../../../components/chapters/ScalarAutodiffDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow every repeated edge back to one scalar',
+  description:
+    'Inspect three unique forward nodes, four repeated operand edges, their ordered reverse contributions, two accumulated passes, zeroing, detach, numerical agreement, and rejected unsafe requests.',
+  summary: {
+    loss: 'Scalar loss',
+    uniqueNodes: 'Unique graph nodes',
+    operandEdges: 'Operand edges',
+  },
+  sections: {
+    graph: 'Build one shared forward graph',
+    reverse: 'Accumulate one fresh reverse pass',
+    accumulation: 'Commit, repeat, zero, and restore',
+    evidence: 'Check detach and the numerical oracle',
+    errors: 'Reject unsafe gradients before mutation',
+  },
+  fields: {
+    node: 'Node',
+    operation: 'Operation',
+    value: 'Primal value',
+    forwardOrder: 'Forward order',
+    reverseOrder: 'Reverse order',
+    gradient: 'Stored gradient',
+    child: 'Downstream result',
+    parent: 'Parent value',
+    operand: 'Operand use',
+    localDerivative: 'Local derivative',
+    upstream: 'Upstream adjoint',
+    contribution: 'Edge contribution',
+    pass: 'Backward pass',
+    expression: 'Expression',
+    input: 'Input',
+    analytic: 'Analytic gradient',
+    numerical: 'Numerical gradient',
+    scaledError: 'Scaled error',
+    tolerance: 'Tolerance',
+  },
+  operations: {
+    variable: 'tracked variable',
+    mul: 'multiplication',
+    add: 'addition',
+  },
+  states: {
+    firstPass: 'first pass committed',
+    secondPass: 'second pass accumulated',
+    zeroed: 'stored gradients zeroed',
+    restored: 'one fresh pass restored',
+    detached: 'detached branch stopped',
+    nonlinear: 'nonlinear chain differentiated',
+    checked: 'numerical check passed',
+    rejected: 'request rejected',
+  },
+  errors: {
+    'constant-output': 'constant output has no tracked gradient path',
+    'non-finite-seed': 'backward seed is not finite',
+    'non-finite-accumulated-gradient': 'prospective stored gradient is not finite',
+  },
+  notes: {
+    graph:
+      'Node identity removes duplicate visits from the topology; it never removes operand edges. Both x times x and square plus square retain two ordered uses.',
+    reverse:
+      'The output seed reaches square twice. Square waits for both contributions, then sends its accumulated adjoint through both multiplication operands.',
+    accumulation:
+      'Each call computes fresh pass-local adjoints before adding one complete pass to storage. It never propagates the previous call\'s intermediates.',
+    evidence:
+      'Detach preserves a primal value but removes the parent edge. Chapter 13 probes the same forward expression independently with central differences.',
+    errors:
+      'Rust validates every contribution and prospective stored sum before committing, so a failed backward call leaves all stored gradient bits unchanged.',
+  },
+  symbols: {
+    leaf: 'L',
+    shared: 'S',
+    output: 'O',
+    firstPass: '1',
+    secondPass: '2',
+    zeroed: '0',
+    restored: 'R',
+    detached: 'D',
+    nonlinear: 'N',
+    checked: 'OK',
+    rejected: 'X',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict a reused scalar's gradient
+
+Start with one tracked scalar and reuse each intermediate twice:
+
+```text
+x = 2
+square = x * x
+loss = square + square
+```
+
+The forward prediction is `square=4` and `loss=8`. Now seed the scalar output
+with `bar(loss)=1`. Addition has local derivative `1` for each operand. Both
+operands are the same `square` node, but they remain two uses, so the reverse
+contributions are `1` and `1`, giving `bar(square)=2`.
+
+The multiplication also has two operand uses of the same `x` node. Each local
+derivative is the other operand's primal value `2`. Multiplying by the upstream
+adjoint `2` gives contributions `4` and `4`, so `bar(x)=8`.
+
+<RustSource
+  path="rust/demos/ch14-scalar-autodiff/src/lib.rs"
+  region="shared-scalar-fixture"
+  caption="Construct one three-node graph while retaining four repeated operand edges"
+  label="Rust source defining the Chapter 14 repeated-square scalar autodiff fixture"
+/>
+
+{/* chapter-section:formula */}
+
+## Accumulate every reverse path
+
+The chapter's only display formula is the reverse accumulation rule:
+
+$$
+\bar v=\sum_{c\in\operatorname{children}(v)}\bar c\,\frac{\partial c}{\partial v}
+$$
+
+It is the chain rule with branching made explicit. A value can influence the
+loss through several downstream uses. Each use contributes an upstream adjoint
+times its edge-local derivative, and addition combines those paths. Assignment
+would silently discard every contribution except one.
+
+The graph is evaluated forward before this rule runs. A parent-first
+topological list is then traversed backward, so every child's contribution has
+arrived before its parent distributes the completed pass-local adjoint farther
+upstream.
+
+{/* chapter-section:symbol-glossary */}
+
+## Name the graph and adjoints
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $v$ | One scalar value stored in the computation graph. |
+| $\bar v$ | The selected scalar output's derivative with respect to $v$. |
+| $c$ | One downstream result consuming $v$ through a particular operand use. |
+| $\operatorname{children}(v)$ | Downstream operand uses counted with multiplicity, not unique node identities. |
+| $\bar c$ | The fresh pass-local adjoint already accumulated at downstream result $c$. |
+| $\frac{\partial c}{\partial v}$ | The local derivative carried by that particular operand edge. |
+
+“Child” is edge language here. The topology contains `x`, `square`, and `loss`
+once each, yet `square=x*x` stores two edges to `x` and
+`loss=square+square` stores two edges to `square`. Deduplicating node visits is
+correct; deduplicating those four uses is not.
+
+{/* chapter-section:history */}
+
+## From next-word updates to scaled autoregressive Transformers
+
+Bengio et al.'s neural language model learns next-word probabilities and distributed word features with an explicit forward phase followed by backward/update equations. Baydin et al. show that careless symbolic differentiation can duplicate reused expressions and that forward mode needs one seeded pass per input to obtain a scalar loss's full gradient, so neither scales cleanly to a language model with many parameters.
+
+The earlier language-model checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. learn next-word probabilities and word-feature parameters and publish a forward phase plus a backward/update phase that clears and adds gradients through output units, hidden units, and input word features.
+
+Baydin et al. describe reverse mode as recording dependencies during a forward evaluation and propagating adjoints from one scalar output back through the graph, adding contributions from every path. That direction fits a scalar training objective with many parameters. Vaswani et al. then train repeated Transformer attention and feed-forward layers, and Radford et al. scale autoregressive Transformer language models from 12 to 48 layers and from 117 million to 1.542 billion parameters.
+
+The reverse-mode checkpoint is
+[Baydin et al., *Automatic Differentiation in Machine Learning: a Survey*](https://www.jmlr.org/papers/volume18/17-468/17-468.pdf).
+Baydin et al. show how symbolic differentiation can duplicate shared expressions, explain that forward mode needs one pass per input for a scalar output's full gradient, and describe reverse dependency recording and adjoint accumulation in one reverse pass.
+
+The Transformer-training checkpoint is
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
+Vaswani et al. build the Transformer from repeated attention and position-wise feed-forward sublayers and train base models for 100,000 steps and big models for 300,000 steps with Adam.
+
+The scaled autoregressive-LM checkpoint is
+[Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language-models.pdf).
+Radford et al. use Transformer-based autoregressive language models and report four sizes spanning 12 to 48 layers and 117 million to 1.542 billion parameters.
+
+This chapter isolates reverse accumulation in a tiny scalar graph, checks its derivatives with Chapter 13's independent numerical oracle, and prepares the tensor-operation tape used for LLM training in Chapters 15 and 16. Ordinary decoder inference does not run this backward graph, and its representation, traversal, accumulation, zeroing, detach, finite-value, API, trace, and error policies are course-local.
+
+Neither Transformer paper specifies this `Scalar` type or claims to use this
+course's graph representation. Baydin et al. support the reverse-mode mechanism,
+not the local `f64`, error-order, transaction, or trace choices.
+
+{/* chapter-section:rust-implementation */}
+
+## Build one fresh reverse pass
+
+`Scalar` constructors distinguish tracked variables from untracked constants.
+Both require finite values. Private nodes keep immutable parent-only links, so
+operations cannot create a cycle. `add`, `mul`, `neg`, `sub`, `exp`, and `tanh`
+compute one finite primal result and record the ordered parent edges with the
+local derivative values needed later.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/scalar.rs"
+  region="scalar-dag-operations"
+  caption="Create finite scalar nodes and record checked results with ordered local derivative edges"
+  label="Rust source implementing the Chapter 14 scalar DAG and its operations"
+/>
+
+Backward never starts from stale intermediate gradients. It builds the
+node-unique topology, seeds a fresh pass-local map at `loss`, and adds each
+operand-edge contribution while traversing the topology in reverse. Only after
+the whole pass and every prospective stored sum are finite does it commit any
+gradient mutation.
+
+That separation defines repeated-call behavior. The first call commits
+`loss=1`, `square=2`, and `x=8`. The second call recomputes those same
+pass-local values from scratch, then adds them to storage, giving `2`, `4`, and
+`16`. It does not send the first call's stored `square=2` backward again.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/scalar.rs"
+  region="scalar-reverse-pass"
+  caption="Accumulate every repeated edge in one fresh pass before committing stored gradients"
+  label="Rust source implementing the Chapter 14 transactional reverse pass"
+/>
+
+`zero_grad` clears every reachable tracked node. One new backward call then
+restores the original first-pass gradients. `detach` instead creates an
+untracked constant leaf with the same primal value and no parent. For
+`x*x + detach(x)*3` at `x=2`, the forward value is `10`, but only `x*x`
+reaches the original variable, so its gradient is `4`.
+
+Typed errors distinguish a constant output, invalid seed, non-finite forward
+value, local contribution, pass adjoint, and prospective stored sum. Because
+backward validates before commit, every failed call leaves the stored gradient
+bits unchanged.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/scalar.rs"
+  region="scalar-autodiff-errors"
+  caption="Reject unsafe graph values and reverse contributions without partial mutation"
+  label="Rust source defining the Chapter 14 scalar autodiff errors"
+/>
+
+Chapter 13 remains an independent oracle. For this graph the forward expression
+is `2x^2`, so the analytic derivative is `4x`, which equals `8` at `x=2`.
+The central-difference checker perturbs only the ordinary scalar function; it
+does not inspect or reuse the backward graph.
+
+<RustSource
+  path="rust/demos/ch14-scalar-autodiff/src/lib.rs"
+  region="nonlinear-detach-gradcheck"
+  caption="Compare reverse mode with independent central differences and exercise detach"
+  label="Rust source checking the Chapter 14 analytic scalar gradients"
+/>
+
+The learner command reports the shared graph, two successful passes, zeroing,
+one fresh restoration, detach, and numerical agreement in a stable order:
+
+<RustSource
+  path="rust/demos/ch14-scalar-autodiff/src/main.rs"
+  region="learner-scalar-autodiff-output"
+  caption="Prepare the deterministic scalar autodiff evidence before printing"
+  label="Rust source running the Chapter 14 learner fixture"
+/>
+
+```bash
+./course run cargo run --quiet --locked -p ch14-scalar-autodiff
+```
+
+```text
+reused square: x=2.000000000000 square=4.000000000000 loss=8.000000000000
+one backward: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000
+repeated backward: x_grad=16.000000000000 square_grad=4.000000000000 loss_grad=2.000000000000
+zero_grad: x_grad=0.000000000000 square_grad=0.000000000000 loss_grad=0.000000000000
+after zero: x_grad=8.000000000000 square_grad=2.000000000000 loss_grad=1.000000000000
+detach: expression=x*x+detach(x)*3 value=10.000000000000 x_grad=4.000000000000 detached_grad=none
+nonlinear: expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655
+gradcheck: expression=2*x*x analytic=8.000000000000 numerical=8.000000000052 scaled_error=6.551204023708e-12 pass=true
+typed errors: constant-output | non-finite-seed | non-finite-accumulated-gradient; gradients unchanged=true
+chapter 15 handoff: replace scalar edges with tensor vector-Jacobian products
+```
+
+{/* chapter-section:visualization */}
+
+## Follow every operand edge backward
+
+The graph diagram keeps the forward and reverse invariants visible at once.
+There are three node cards, not seven copied values. Four individually labeled
+operand edges still enter the reverse ledger. Each row records reverse order,
+operand identity, upstream adjoint, local derivative, and contribution. The
+accumulated node and pass records show the sums, so the two paths cannot
+collapse into one by color or geometry.
+
+The strict Rust trace also owns the first and second stored states, zeroing,
+fresh restoration, detached branch, central-difference verdict, and rejected
+requests. TypeScript validates those lexemes and relationships but performs no
+chain rule, topology construction, or gradient arithmetic.
+
+<RustSource
+  path="rust/demos/ch14-scalar-autodiff/src/diagram_trace.rs"
+  region="scalar-autodiff-trace"
+  caption="Record the graph, repeated edges, reverse ledger, stored states, and errors"
+  label="Rust source producing the strict locale-neutral Chapter 14 visualization trace"
+/>
+
+<ScalarAutodiffDiagram labels={diagramLabels} instanceId="lesson" />
+
+{/* chapter-section:exercises */}
+
+## Predict before running Rust
+
+1. Predict `square` and `loss` before inspecting the graph output.
+2. Count unique nodes and operand edges separately. Why are the counts different?
+3. Compute both contributions to `bar(square)` and both to `bar(x)`.
+4. Predict the gradients if each parent used assignment instead of addition.
+5. Predict stored gradients after two backward calls, after zeroing, and after one new call.
+6. Predict the value and original `x` gradient of `x*x + detach(x)*3` at `x=2`.
+7. Explain why a failed final stored-gradient check must not commit earlier valid nodes.
+8. Misconception check: does reverse mode approximate derivatives, select one branch, or run in ordinary decoder inference?
+
+<details>
+  <summary>Check the eight scalar-autodiff predictions</summary>
+
+1. `square=2*2=4`; `loss=4+4=8`.
+2. There are three node identities and four parent edges. Each operation result is visited once, but each repeated operand remains a separate derivative path.
+3. Addition contributes `1+1`, so `bar(square)=2`. Multiplication contributes `2*2 + 2*2`, so `bar(x)=8`.
+4. Assignment would retain only one addition contribution, giving `bar(square)=1`; it could then retain only one multiplication contribution, giving `bar(x)=2`. The exact survivor would depend on traversal order, which is the bug.
+5. Stored `(loss,square,x)` is `(1,2,8)`, then `(2,4,16)`, then `(0,0,0)`, then `(1,2,8)`. Every backward call computes a fresh pass before storage accumulation.
+6. The value is `4+6=10`. The detached branch has no edge to the original `x`, so its gradient is only `2x=4`.
+7. Partial mutation would make a failed pass depend on how far traversal got. Validating every pass value and prospective stored sum first preserves all earlier bits on error.
+8. None. Reverse mode applies exact local derivative rules at the stored primal values and adds every graph path. This graph supports training; ordinary generation uses only the forward decoder.
+
+</details>
+
+Run both byte-exact commands after predicting:
+
+```bash
+./course run cargo run --quiet --locked -p ch14-scalar-autodiff
+./course run cargo run --quiet --locked -p ch14-scalar-autodiff --example ch14-scalar-autodiff-trace
+```
+
+{/* chapter-section:decoder-connection */}
+
+## Prepare tensor reverse mode
+
+The cumulative project can now record scalar dependencies, traverse each reachable node once in reverse topological order, add every operand-edge contribution, safely accumulate complete fresh passes, zero gradients, detach a value, and verify analytic results numerically. Chapter 15 replaces scalar nodes with tensor-operation VJPs for views, broadcasts, and reductions while preserving these reverse-accumulation rules.
+
+One graph node per scalar is deliberately a teaching model, not a practical way
+to represent every element of an LLM activation. The next chapter records one
+node per tensor operation and carries shape context backward. Its VJPs must
+still honor exactly what this example exposed: unique topological visits,
+multiple operand contributions, fresh pass-local state, deliberate stored
+accumulation, explicit zeroing, and disconnected detached values.

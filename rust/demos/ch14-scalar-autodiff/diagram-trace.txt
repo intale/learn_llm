@@ -1,0 +1,20 @@
+TRACE scalar-autodiff-v1 BEGIN
+FIXTURE name=reused-square input=2.000000000000 output=8.000000000000 nodes=3 edges=4
+NODE topology=0 id=0 label=x operation=variable value=2.000000000000 tracked=yes pass-adjoint=8.000000000000 accumulated=8.000000000000
+NODE topology=1 id=1 label=square operation=mul value=4.000000000000 tracked=yes pass-adjoint=2.000000000000 accumulated=2.000000000000
+NODE topology=2 id=2 label=loss operation=add value=8.000000000000 tracked=yes pass-adjoint=1.000000000000 accumulated=1.000000000000
+EDGE reverse=0 child=loss child-id=2 operand=0 parent=square parent-id=1 local=1.000000000000 upstream=1.000000000000 contribution=1.000000000000
+EDGE reverse=1 child=loss child-id=2 operand=1 parent=square parent-id=1 local=1.000000000000 upstream=1.000000000000 contribution=1.000000000000
+EDGE reverse=2 child=square child-id=1 operand=0 parent=x parent-id=0 local=2.000000000000 upstream=2.000000000000 contribution=4.000000000000
+EDGE reverse=3 child=square child-id=1 operand=1 parent=x parent-id=0 local=2.000000000000 upstream=2.000000000000 contribution=4.000000000000
+BACKWARD pass=1 x=8.000000000000 square=2.000000000000 loss=1.000000000000
+BACKWARD pass=2 x=16.000000000000 square=4.000000000000 loss=2.000000000000
+ZERO x=0.000000000000 square=0.000000000000 loss=0.000000000000
+BACKWARD pass=after-zero x=8.000000000000 square=2.000000000000 loss=1.000000000000
+DETACH expression=x*x+detach(x)*3 input=2.000000000000 value=10.000000000000 x-gradient=4.000000000000 detached-gradient=none
+NONLINEAR expression=exp(tanh(x)) input=0.500000000000 value=1.587431271430 gradient=1.248431724655
+GRADCHECK expression=2*x*x point=2.000000000000 analytic=8.000000000000 numerical=8.000000000052 scaled-error=6.551204023708e-12 tolerance=1.000000000000e-9 status=pass
+ERROR kind=constant-output operation=constant gradients-unchanged=yes
+ERROR kind=non-finite-seed seed=inf gradients-unchanged=yes
+ERROR kind=non-finite-accumulated-gradient node=0 gradients-unchanged=yes
+TRACE scalar-autodiff-v1 END

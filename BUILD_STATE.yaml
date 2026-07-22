@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T15:41:10Z"
+updated_at: "2026-07-22T16:33:20Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 14
+      spent: 15
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -8387,14 +8387,26 @@ builds:
         objective: "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
         depends_on:
           - implement-ch13-gradient-checking
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/13-gradient-checking.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
+          - "rust/crates/llm-from-scratch/Cargo.toml"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/demos/ch13-gradient-checking/Cargo.toml"
+          - "rust/demos/ch13-gradient-checking/src/lib.rs"
+          - "rust/demos/ch13-gradient-checking/src/main.rs"
+          - "rust/demos/ch13-gradient-checking/src/diagram_trace.rs"
+          - "rust/demos/ch13-gradient-checking/examples/diagram_trace.rs"
+          - "rust/demos/ch13-gradient-checking/expected.txt"
+          - "rust/demos/ch13-gradient-checking/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -8403,12 +8415,34 @@ builds:
           - "scripts/check-static-links.mjs"
           - "Cargo.toml"
           - "Cargo.lock"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/src/content.config.ts"
+          - "site/src/components/RustSource.astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/content/chapters/en/13-gradient-checking.mdx"
+          - "site/src/components/chapters/GradientCheckingDiagram.astro"
+          - "site/src/lib/gradient-checking-diagram.ts"
+          - "site/tests/13-gradient-checking-diagram.test.ts"
+          - "site/tests/e2e/ch13-gradient-checking.spec.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://www.jmlr.org/papers/volume18/17-468/17-468.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://cdn.openai.com/better-language-models/language-models.pdf"
         outputs:
           - "curriculum/chapters/14-scalar-autodiff.md"
           - "rust/crates/llm-from-scratch/src/autograd/scalar.rs"
@@ -8416,12 +8450,14 @@ builds:
           - "rust/demos/ch14-scalar-autodiff/"
           - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
           - "site/src/components/chapters/ScalarAutodiffDiagram.astro"
+          - "site/src/lib/scalar-autodiff-diagram.ts"
           - "site/tests/14-scalar-autodiff-diagram.test.ts"
           - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
+          - "The history follows learned next-word parameters through reverse-mode training of repeated Transformer computations toward modern autoregressive LMs; graph identity, traversal, accumulation, zeroing, detach, finite-value, and error policies remain explicit course-local teaching choices rather than claims about cited models or programming languages."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
@@ -8435,6 +8471,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch14-scalar-autodiff | diff -u rust/demos/ch14-scalar-autodiff/expected.txt -"
+          - "cargo run --quiet --locked -p ch14-scalar-autodiff --example ch14-scalar-autodiff-trace | diff -u rust/demos/ch14-scalar-autodiff/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 14-scalar-autodiff"
           - "npm --prefix site run check:parity -- --chapter 14-scalar-autodiff"
           - "npm --prefix site run check:content"
@@ -8446,8 +8483,85 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work plus bounded read-only verification of four declared primary or official research sources; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260722T155854Z-implement-ch14-scalar-autodiff-01
+            started_at: "2026-07-22T15:58:54Z"
+            finished_at: "2026-07-22T16:33:20Z"
+            status: succeeded
+            input_fingerprint:
+              git: "68bdafb9039b4fbc46ba198fe11024c1588d985a"
+              manifest: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/input-fingerprint.txt"
+              checksum: "sha256:20f7fb49dd11c0d22bece8534a0501b6c49803e02010db708d09c74af086fbdd"
+              prior_artifact: "Chapter 13 canonical commit 0bc9c52 and publish manifest sha256:313e008665ff5eb271f6c6d4cf1c2a5d38c5a2bf7ee53bccb9ba6488a94e1665 reverified; later repository-link commit 68bdafb is disjoint and canonical."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust/Cargo 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false. Host Node 24.18.0 and npm 11.16.0 remain orchestration-only."
+              external_sources: "Bengio et al. 2003; Vaswani et al. 2017; Baydin et al. 2018; Radford et al. 2019."
+            staging_dir: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/"
+            commands:
+              - "Run the post-repository-link startup protocol; verify HEAD 68bdafb, a clean tracked tree, no running work, Chapter 14 eligibility, current environment versions, and recorded Chapter 13 plus repository-link artifacts."
+              - "Perform independent read-only Rust API, content/history, and site/visualization preflights before product edits."
+              - "Preserve the exact reviewed objective; declare all material local inputs, four bounded research URLs, the strict diagram parser output, and the byte-exact trace gate."
+              - "Freeze pass-local reverse accumulation, repeated-edge identity, cross-call accumulation, zeroing, detach, finite-value, trace-boundary, and LLM-only historical semantics in DECISIONS.md."
+              - "Fingerprint all declared local inputs and verified prior manifests before editing any product output."
+              - "Implement the complete dependency-free scalar autodiff slice, exact learner and diagram traces, curriculum contract, English lesson, strict parser, static accessible visualization, SEO, unit tests, and browser tests only in the run publish tree."
+              - "Run the complete staged Rust, content, unit, static build/link/SEO, focused browser, full browser, JavaScript-disabled, forced-colors, responsive, and independent-review matrix; correct one test-only curly-apostrophe expectation before the final clean rerun."
+              - "Freeze the exact 16-file publish.sha256 manifest, verify it before and after the checksum-aware official staged review, and leave the publish tree immutable."
+              - "Exercise MoveFileEx REPLACE_EXISTING|WRITE_THROUGH on run-local Dropbox-backed files, retain verified rollback evidence, and atomically promote only the checksum-frozen candidates."
+              - "Run the complete canonical Rust/site/browser regression matrix, /learn_llm/ base build, deployable preview probes, host audit, identity checks, whitespace checks, and scope audit."
+            artifacts:
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/input-fingerprint.txt"
+                checksum: "sha256:20f7fb49dd11c0d22bece8534a0501b6c49803e02010db708d09c74af086fbdd"
+                notes: "Pre-claim commit, 50 local material-input hashes, four explicit source URLs, repository pins, host orchestration versions, and the verified Chapter 13 manifest."
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/publish.sha256"
+                checksum: "sha256:58a62bc56e5bbf516d709551f0c3e6340d42916946bde1de9211a8c093256941"
+                notes: "Closed manifest for exactly 16 reviewed candidate outputs; every entry reverified before and after official staged review and after canonical publication."
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/canonical-after-publication.sha256"
+                checksum: "sha256:347a54be1f8f49917dd0c6013028f1bef71ec7a694a1ef483597f5817fa88634"
+                notes: "All 16 canonical output hashes after atomic promotion."
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/publication-backup-canonical/originals.sha256"
+                checksum: "sha256:f92d93ef893729ef19831730309c882d0238abc0d2f1db63c6b77924ef60dcf7"
+                notes: "Verified rollback copies for the two pre-existing shared outputs, Cargo.lock and lib.rs."
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/publication-backup-canonical/originally-absent.txt"
+                checksum: "sha256:a956a404b5a68634017c233102c5bdd5a11a8708b9592f1980f8e0f5308db3c5"
+                notes: "Exact list of the 14 canonical targets that did not exist before publication."
+              - path: ".build/runs/20260722T155854Z-implement-ch14-scalar-autodiff-01/evidence/movefileex-diagnostic/current.bin"
+                checksum: "sha256:af5f6f5c5967c377e49193eca1ee0b98300a171cd3165c9a2410e8fb7c028674"
+                notes: "Run-local Dropbox-backed proof of atomic replacement with replacement and write-through flags."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, locale, cost, source, and input-closure preflight"
+                status: passed
+                notes: "Chapter 14 is the sole eligible step; no run was active; prior artifacts verify; new output paths are absent; lib.rs and Cargo.lock are clean shared outputs; English is the exact active locale while Russian remains deferred; bounded source reads and medium local work fit the unlimited budget; no dependency or build change is planned."
+              - command: "Independent Rust, content/history, and site/visualization contract audits"
+                status: passed
+                notes: "Audits agree on a dependency-free finite scalar graph, node-deduplicated topology with ordered repeated edges, pass-local adjoints, safe repeated backward accumulation, explicit zeroing and detach, Chapter 13 gradcheck evidence, a strict Rust-only trace projection, and history centered on neural-language-model training rather than language or framework history."
+              - command: "Bounded official and research-source verification"
+                status: passed
+                notes: "Bengio et al. support learned next-word parameters and backward updates; Baydin et al. support forward graph recording, reverse adjoints, accumulation, and scalar-output efficiency; Vaswani et al. and Radford et al. support the path to repeated Transformer computation and scaled autoregressive language models. Course graph/API policies remain explicitly local."
+              - command: "Complete staged Rust implementation and exact-output matrix"
+                status: passed
+                notes: "Formatting, locked workspace Clippy with warnings denied, 138 core tests plus all demo and doc tests, local-only dependency policy, 14-demo discovery, and byte-exact learner and 20-line trace diffs pass. The reused-edge fixture yields first-pass x=8, repeated accumulation x=16, zeroing and restoration, detach x=4, nonlinear evidence, Chapter 13 gradcheck agreement, and atomic error behavior."
+              - command: "Complete staged content, static-site, accessibility, and browser matrix"
+                status: passed
+                notes: "The 14th contract, English lesson, LLM-history policy, relevant SEO, exact Rust sources, strict no-arithmetic trace projection, natural-height responsive visualization, and deferred Russian route pass. Astro reports zero diagnostics across 84 files; 20 Vitest files with 346 tests, a 26-page build, 543 local references, 26 SEO routes, 4 focused Chromium tests, and all 54 Chromium tests pass, including forced colors and JavaScript disabled."
+              - command: "Three independent implementation, content/history, and site/visualization reviews"
+                status: passed
+                notes: "Independent reviewers found no blocking issue in scalar graph identity and reverse accumulation, finite and transactional error behavior, exact trace derivation, lesson structure, primary-source history boundaries, SEO, static semantics, accessibility, or browser coverage."
+              - command: "Frozen manifest verification and official ./course review 20260722T155854Z-implement-ch14-scalar-autodiff-01 --check"
+                status: passed
+                notes: "The manifest names exactly 16 regular staged files and has sha256:58a62bc56e5bbf516d709551f0c3e6340d42916946bde1de9211a8c093256941. Every entry verifies before and after the official checksum-aware review, which rebuilt 26 pages and repeated content, parity, zero-diagnostic Astro, static build, 543-reference, and 26-SEO-route gates without changing publish/."
+              - command: "Run-local atomic-replacement proof and 16-file canonical promotion"
+                status: passed
+                notes: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH passed on run-local Dropbox-backed evidence, then promoted exactly 16 same-directory verified temporaries. Cargo.lock and lib.rs have verified rollback copies; 14 targets were originally absent; every canonical and staged hash matches the frozen manifest; and no publication temporary remains."
+              - command: "Complete canonical Rust, content, static-site, unit, and browser regression matrix"
+                status: passed
+                notes: "./course check, warnings-denied Clippy, course-plan and Chapter 14 contract/chapter/parity checks, local-only dependencies, 14-demo discovery, both exact Rust diffs, 346 Vitest tests, root and /learn_llm/ 26-page builds and link/SEO audits, and all 54 Chromium tests pass from the canonical worktree."
+              - command: "Canonical deployable preview, host-artifact, identity, whitespace, and scope audit"
+                status: passed
+                notes: "The rebuilt site image returns 200 for the English Chapter 14 lesson and course index, contains the exact relevant description and index link, and returns 404 for Russian Chapter 14. Host and whitespace audits pass; build definitions, dependency manifests, locale registries, and executable modes have no diff; unrelated desktop.ini remains untracked and untouched."
+              - command: "Bounded Windows and preview validation-harness corrections"
+                status: passed
+                notes: "PowerShell execution policy stopped the first run-local diagnostic before execution and passed via a one-process policy bypass. GNU sha256sum could not parse CRLF in the generated canonical evidence manifest, so exact PowerShell hash replay passed instead. An empty static-server base target correctly returned 404 before the deployable site target was selected and passed; none of these harness probes changed staged or canonical product bytes."
+            notes: "Succeeded. The dependency-free Chapter 14 scalar-autodiff vertical slice is canonical and byte-identical to frozen manifest sha256:58a62bc56e5bbf516d709551f0c3e6340d42916946bde1de9211a8c093256941. A private finite scalar DAG records ordered repeated operand edges, performs node-unique reverse traversal with fresh pass-local adjoints, commits stored gradients transactionally, supports repeated accumulation, zeroing, detach, arithmetic, exp, and tanh, and reuses Chapter 13 central differences. Exact Rust output drives an English LLM-training-history lesson, strict static visualization, relevant SEO, and comprehensive regression coverage. Staged, canonical, browser, preview, host, identity, governance, and scope gates pass; Russian remains complete through Chapter 7 with no placeholder, no build definition or external dependency changed, and the completion checkpoint is ready for the dedicated implement-ch14-scalar-autodiff commit."
       - id: implement-ch15-tensor-autodiff-core
         objective: "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."
         depends_on:
