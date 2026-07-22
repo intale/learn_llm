@@ -2,7 +2,7 @@
 {
   "chapter_id": "09-tensor-views",
   "concept_id": "tensor-views",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 9,
   "objective": {
     "en": "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
@@ -44,13 +44,54 @@
     ]
   },
   "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": {
+        "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix."
+      },
+      "later_advance": {
+        "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads."
+      },
+      "modern_llm_role": {
+        "en": "Reshape, axis permutation, and transpose let this course express the logical split-head, K-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code."
+      },
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": {
+            "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution."
+          }
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
+          "claim": {
+            "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated."
+          }
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "OpenAI, GPT-2 model.py",
+          "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
+          "claim": {
+            "en": "OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads."
+          }
+        }
+      ]
+    },
     "approach": {
-      "en": "Eager copying contrasted with codeword-based virtual transforms and modern strided views"
+      "en": "From a fixed-context feature vector to packed Q/K/V and rearranged attention heads"
     },
     "summary": {
-      "en": "An eager transpose can allocate a new array and copy every value into transposed order. Iliffe's 1961 Genie paper already described codeword-based virtual row interchange and transposition without moving stored elements, while naming codeword space and indirect-addressing time as costs. Modern strided views similarly separate storage from interpretation, but this course does not claim direct lineage between those representations."
+      "en": "Fixed-context neural language models concatenate a chosen number of word-feature vectors into one input layout. Transformer attention introduces Q/K/V matrices and parallel heads, while official GPT-2 code makes split, K-transpose, and merge-head transformations explicit. The local Rust contrast explains copying versus borrowing without attributing either storage choice to those sources."
     },
-    "rust_contrast": "Run copying_transpose to allocate [10,20,11,21,12,22], then create a borrowed TensorView whose transposed shape [3,2] and strides [1,3] reach the same source values at offsets [0,3,1,4,2,5] without copying storage."
+    "rust_contrast": "Treat the frozen [2,3] matrix as one tiny attention key K: copying_transpose eagerly allocates an owned contiguous K transpose with values [10,20,11,21,12,22], while a borrowed TensorView uses shape [3,2] and strides [1,3] to read the same logical order from the owner; this copy-versus-view choice is course-local."
   },
   "rust": {
     "package": "ch09-tensor-views",
@@ -108,7 +149,7 @@
   ],
   "translation_notes": [
     "Chapter 9 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep Tensor, TensorView, shape, stride, axis, permutation, base offset, row-major, Range, Rust identifiers, arrays, numeric values, source URLs, and trace keywords as exact technical evidence when another locale is activated later.",
+    "Keep Tensor, TensorView, Q, K, V, QK^T, GPT-2, batch, sequence, head, feature, shape, stride, axis, permutation, base offset, row-major, Range, Rust identifiers, arrays, numeric values, source URLs, and trace keywords as exact technical evidence when another locale is activated later.",
     "Use view only for the borrowed metadata interpretation, not as a vague synonym for a rendered picture. Distinguish shared storage from equal copied values and row-major contiguous from merely occupying addresses in one allocation.",
     "A future locale activation must localize the diagram title, description, section labels, fields, notes, exercises, and accessible names with the complete lesson before publishing any Chapter 9 route."
   ],
@@ -122,8 +163,8 @@
       "expected": "The compatible reshape has strides [2,1], offsets [0,1,2,3,4,5], and no value copy; [4,2] returns ReshapeElementCountMismatch { current: 6, requested: 8 }."
     },
     {
-      "input": "transpose axes 0 and 1, and independently permute with [1,0]",
-      "expected": "Both views have shape [3,2], strides [1,3], logical offsets [0,3,1,4,2,5], and logical values [10,20,11,21,12,22] while the owner remains unchanged."
+      "input": "treat the [2,3] owner as one tiny attention key K, run copying_transpose, and independently transpose the borrowed view with axes 0 and 1",
+      "expected": "The eager path owns contiguous shape [3,2], strides [2,1], and K-transpose values [10,20,11,21,12,22]. The borrowed path has shape [3,2], strides [1,3], offsets [0,3,1,4,2,5], and the same logical values while the owner remains unchanged."
     },
     {
       "input": "slice axis 1 with the half-open range 1..3",
@@ -231,32 +272,53 @@ it derives fresh row-major strides. Unit-step slicing keeps the existing strides
 and changes an extent plus the base offset.
 
 <!-- contract-section:history -->
-## Before the modern approach
+## From fixed context to split and merged attention heads
 
-The simplest rearrangement is eager: allocate a result, visit every source
-coordinate, and copy values in the new order. The Rust `copying_transpose`
-function makes that cost visible by producing fresh contiguous storage
-`[10,20,11,21,12,22]`.
+In Bengio et al.'s feed-forward configuration, learned feature vectors for a
+fixed number of preceding words are concatenated into one vector x and used to
+predict the next-word distribution. Its layout is fixed by the selected context
+width rather than exposing sequence and head axes for a growing causal prefix.
 
-No-copy transforms are not a recent invention. Pages 25–26 of
-[J. K. Iliffe's 1961 Genie paper](https://archive.computerhistory.org/resources/access/text/2015/09/102726217-05-01-acc.pdf)
-describe array codewords and state that row interchange and transposition could
-be virtual operations that did not relocate stored elements. The same source
-names extra codeword space and indirect-addressing time as costs. That is a
-historical representation in its own right, not an early version of this Rust
-API.
+The earlier checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+The later checkpoints are
+[Vaswani et al., *Attention Is All You Need*](https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)
+and
+[OpenAI's official GPT-2 model.py](https://github.com/openai/gpt-2/blob/master/src/model.py).
 
-The official [NumPy copies and views guide](https://numpy.org/doc/stable/user/basics.copies.html)
-explains the modern metadata-and-buffer distinction and notes that a
-non-contiguous reshape can require a copy. Its
-[array internals guide](https://numpy.org/doc/stable/dev/internals.html)
-lists shape, strides, and start offset among the metadata that can reinterpret
-one data buffer. This course adopts the transparent part of that model but never
-copies silently: `reshape` fails on a non-contiguous view, and the learner must
-call `materialize` explicitly. The official
-[Rust slice reference](https://doc.rust-lang.org/stable/reference/types/slice.html)
-uses “view” for a borrowed sequence; it supports the borrowing vocabulary, not
-this course's n-dimensional transform policy.
+Vaswani et al. define attention on query, key, and value matrices, compute scaled
+products with transposed keys, and run learned projections in parallel heads
+whose outputs are concatenated. OpenAI's GPT-2 model.py projects one [batch,
+sequence, features] tensor into packed Q/K/V values, splits and transposes them
+to a head axis, multiplies by K with its last two axes transposed, then
+transposes and merges heads.
+
+Bengio's layout supplies a predetermined slot for each selected context word.
+Transformer attention instead retains a position axis in Q, K, and V. Its
+scaled dot-product uses QK^T, so the key's sequence and feature axes exchange
+roles at the multiplication boundary; projected heads add a parallel head axis
+before their outputs are concatenated.
+
+GPT-2 makes the axis choreography explicit in code. Its attention projection
+produces three packed feature groups and splits them into Q, K, and V. Each
+group reshapes feature width into heads and per-head width, transposes from
+batch-sequence-head-width to batch-head-sequence-width, and later reverses that
+transpose before merging head and feature widths. The batched multiplication
+requests a transposed K operand; it does not establish that a separate K^T
+buffer must be allocated.
+
+Reshape, axis permutation, and transpose let this course express the logical
+split-head, K-transpose, and merge-head layouts used by decoder attention;
+borrowed TensorView and explicit materialization are local implementation
+policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.
+
+The frozen rank-two fixture suppresses batch and head axes and stands for one
+tiny K with two key positions and three features. `copying_transpose` eagerly
+allocates contiguous K-transpose values `[10,20,11,21,12,22]`. A borrowed
+transpose instead uses shape `[3,2]`, strides `[1,3]`, and offsets
+`[0,3,1,4,2,5]` to expose the same logical order from the owner. This is only
+operand-layout preparation: Q, matrix multiplication, scaling, masking,
+softmax, and complete attention remain later chapters.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -273,6 +335,14 @@ detection. `transpose` checks its first axis before its second. `slice` checks
 axis, reversed range, and end bound in that order. This deterministic precedence
 makes each rejected invariant testable.
 
+The rank-generic reshape and permutation primitives can express split-head and
+merge-head layouts for a separately contiguous Q, K, or V tensor. They do not
+make every packed-Q/K/V slice contiguous: under this course's row-major policy,
+slicing one last-axis block from `[batch,sequence,3×features]` when
+`batch × sequence > 1` retains outer gaps and requires explicit materialization
+before reshape. GPT-2's TensorFlow code establishes the logical operations, not
+the copy behavior of this Rust implementation.
+
 Scalars retain shape and strides `[]`, one logical value, and coordinate `[]`.
 Any zero extent makes a view empty; empty views are contiguous by convention and
 may be reshaped to another checked zero-element shape. Singleton axes do not
@@ -280,9 +350,10 @@ break contiguity because they never advance. Materialization enumerates logical
 row-major coordinates and copies values without normalizing NaNs, signed zero,
 or any other `f64` bit pattern.
 
-The `ch09-tensor-views` demo contains an eager historical contrast, the borrowed
-view behavior, exact learner stdout, and a uniquely named trace executable. The
-workspace remains dependency-free with respect to tensor libraries.
+The `ch09-tensor-views` demo contains the eager-versus-borrowed K-transpose
+implementation contrast, the remaining view behavior, exact learner stdout, and
+a uniquely named trace executable. The workspace remains dependency-free with
+respect to tensor libraries.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -375,7 +446,9 @@ unit, production-build, static-link and SEO, focused browser, and full browser
 gates must pass in staging and again after atomic publication.
 
 Manual review must verify the predict-first reveal, notation-only formula and
-complete symbol glossary, exact historical sourcing without a false linear
-progression, consistency among Rust and diagram evidence, plain-language SEO
-description, no Russian placeholder, keyboard reading order, narrow layout,
-forced-colors distinctions, misconception correction, and Chapter 10 handoff.
+complete symbol glossary, the sourced progression from Bengio's fixed context
+through Transformer attention layouts to GPT-2 axis operations, the explicit
+boundary around local borrowing and materialization policy, consistency among
+Rust and diagram evidence, plain-language SEO description, no Russian placeholder,
+keyboard reading order, narrow layout, forced-colors distinctions, misconception
+correction, and Chapter 10 handoff.

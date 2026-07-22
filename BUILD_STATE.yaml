@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T05:08:08Z"
+updated_at: "2026-07-22T05:37:27Z"
 
 environment:
   os: "Linux x86_64"
@@ -118,7 +118,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 10
+      spent: 9
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 9
+      spent: 11
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -7310,7 +7310,7 @@ builds:
         objective: "Replace Chapter 9's array-programming history with the progression from fixed-context neural matrices to Transformer and GPT-2 attention rearrangements."
         depends_on:
           - realign-ch08-llm-history
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -7358,7 +7358,69 @@ builds:
         cost:
           class: medium
           notes: "Bounded primary-paper and official-code review plus local deterministic content/browser correction. No paid service, generation service, dependency change, build-definition change, or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260722T051118Z-realign-ch09-llm-history-01
+            started_at: "2026-07-22T05:11:18Z"
+            finished_at: "2026-07-22T05:37:27Z"
+            status: succeeded
+            input_fingerprint:
+              git: "3857b3b7d9c94c6096206dbb333514a42dd28a0b"
+              manifest: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/input-fingerprint.txt"
+              checksum: "sha256:f874c0651c231cebcb75926245da1fadea33f72512c0ef2332e7e79606161adc"
+              prior_artifact: "Original Chapter 9 manifest sha256:a4db1e3191b9e00e15bc0c6aafe8ee434faa83885d34bfdf88dac33a852a5286 plus box-model correction manifest sha256:88e0ad841cbb0f4a9c47a43533527c09c76a82f731d4ba87664b998b43f89808; all three corrective-owned outputs reverified"
+              tools: "Docker 29.6.2; repository Linux pins unchanged; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+              external_sources: "Bengio et al. 2003 neural probabilistic language model; Vaswani et al. 2017 Transformer; official OpenAI GPT-2 model source"
+            staging_dir: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/"
+            commands:
+              - "Select Chapter 9 after the committed Chapter 8 dependency; verify Git boundary, both retained successful manifests, all three corrective-owned canonical outputs, environment, source scope, and medium local cost"
+              - "Claim the three-output correction before product edits and dispatch independent read-only content, browser-test, and Rust-history audits"
+              - "Stage the Chapter 9 LLM-history rewrite, pass isolated review and the complete network-disabled Linux matrix, then exercise the checksum-matched staged files in pinned Chromium"
+              - "Qualify the packed-Q/K/V slice boundary after independent review, repeat the entire staged Linux/browser matrix, and freeze exactly three outputs"
+              - "Pass the immutable-manifest official review and promote the three staged files byte-for-byte to their canonical paths"
+              - "Run the unchanged canonical ./course check, its network-disabled supplemental matrix, checksum-matched focused/full Chromium, and final repository/ledger audit"
+            artifacts:
+              - path: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/input-fingerprint.txt"
+                checksum: "sha256:f874c0651c231cebcb75926245da1fadea33f72512c0ef2332e7e79606161adc"
+              - path: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/publish/curriculum/chapters/09-tensor-views.md"
+                checksum: "sha256:f8aa6e5379251f1d3bd708b04f87bdaca3cd8cabbfc177a0ae400bf0d2983d0e"
+              - path: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/publish/site/src/content/chapters/en/09-tensor-views.mdx"
+                checksum: "sha256:a36b43b99f987737f47350f4148e84cd08768f5cdc20fe780dca5775ca7d710d"
+              - path: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/publish/site/tests/e2e/ch09-tensor-views.spec.ts"
+                checksum: "sha256:77422db3e0bf92d1020d67fc4e3da7439f5a8f28a08bc6dfa3d8f283cb0493b3"
+              - path: ".build/runs/20260722T051118Z-realign-ch09-llm-history-01/publish.sha256"
+                checksum: "sha256:e1542ac8483451b57e988cd5349344e14aee16926032fb7ede02c6414ef86c24"
+            validation:
+              - command: "Dependency, repository, prior-artifact, ownership, source, environment, and cost preflight"
+                status: passed
+                notes: "Chapter 8 is committed in 3857b3b; only unrelated desktop.ini is untracked; no stale run owns Chapter 9. The contract and lesson match original run 01, E2E matches completed corrective run 02, Docker matches the ledger, source review is bounded, and build/dependency/Rust/diagram files remain outside this three-file correction."
+              - command: "Isolated staged review and complete network-disabled Linux validation"
+                status: passed
+                notes: "Content/contract/parity checks, formatting, locked Clippy and workspace tests, dependency/demo policies, exact Chapter 9 stdout and trace, zero-diagnostic Astro, all 248 Vitest cases, the 21-page build, 371-reference link scan, and all 21 SEO routes pass without changing build or Rust files."
+              - command: "First checksum-matched focused Chromium run"
+                status: failed
+                notes: "Two of three focused cases passed; the desktop/narrow case exposed only an assertion mismatch because rendered smart apostrophes were compared with the contract's ASCII apostrophes. The staged lesson evidence rendered in full, and the E2E assertion is being normalized before a complete rerun."
+              - command: "Checksum-matched focused and full pinned-Chromium rerun"
+                status: passed
+                notes: "After normalizing rendered smart apostrophes in the assertion only, all three focused Chapter 9 cases and all 35 site browser cases pass at desktop, narrow, no-JavaScript, locale, forced-colors, link, and SEO boundaries."
+              - command: "Independent source-fidelity and Rust-boundary review"
+                status: failed
+                notes: "Two reviewers independently found that the packed-Q/K/V slice caveat was categorical: a single outer position can remain contiguous because singleton-axis strides do not advance. Both staged documents are being qualified with batch × sequence > 1 before final validation."
+              - command: "Corrected-candidate complete Linux, browser, and independent re-review"
+                status: passed
+                notes: "The qualified batch × sequence > 1 boundary passes isolated review, exact contract/content/parity, formatting, locked Clippy/tests, dependency/demo policies, exact stdout/trace, all 248 Vitest cases, zero-diagnostic Astro, the 21-page/371-reference/21-SEO-route build, all three focused and all 35 full Chromium cases. Both source and Rust reviewers returned PASS."
+              - command: "Freeze exact three-file publication manifest"
+                status: passed
+                notes: "The manifest lists exactly three regular files; every sha256sum verifies and publish.sha256 has sha256:e1542ac8483451b57e988cd5349344e14aee16926032fb7ede02c6414ef86c24."
+              - command: "Frozen-manifest official staged review and canonical promotion"
+                status: passed
+                notes: "./course review reverified content/parity, zero-diagnostic Astro, the 21-page build, 371 references, and 21 SEO routes without mutating the frozen tree. apply_patch promotion produced canonical hashes identical to all three manifest entries."
+              - command: "Canonical unchanged ./course check and network-disabled supplemental Linux matrix"
+                status: passed
+                notes: "The canonical workspace passes formatting, locked workspace tests, content/parity, zero Astro diagnostics, the 21-page build, 371 references, and 21 SEO routes. Supplemental checks pass plan/contract, locked Clippy, dependency/demo policies, exact Chapter 9 stdout/trace, focused content, and all 248 Vitest cases."
+              - command: "Canonical checksum-verified focused/full Chromium and final repository/ledger audit"
+                status: passed
+                notes: "All three canonical hashes match the frozen manifest inside Chromium 1228; all three focused Chapter 9 and all 35 browser cases pass. Only BUILD_STATE and the three declared outputs differ from HEAD; no mode, Rust, build, dependency, package, or whitespace change exists; desktop.ini remains untracked and untouched. The audit also repairs the preceding Chapter 8 session charge from foundation-and-chapter-01 to complete-decoder-course before recording this run, yielding foundation spent 9 and active spent 11."
+            notes: "Succeeded as a three-file, content-revision-2 corrective publication. Chapter 9 now follows Bengio fixed-context word features through Transformer Q/K/V and multi-head attention to GPT-2 split/transpose/merge layouts, explicitly bounds the tiny Rust K-transpose and local view policy, preserves both earlier successful Chapter 9 runs, and changes no Rust, build, or dependency definition."
       - id: implement-ch10-broadcasting-reductions
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:

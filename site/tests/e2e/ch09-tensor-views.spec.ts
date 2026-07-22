@@ -11,6 +11,7 @@ import {
   expectLocalizedChapterRoute,
   expectNoOverflowOrClientScripts,
   expectOrderedChapterNavigation,
+  expectSeoDescription,
   expectVisualizationDecision,
   readOrderedCourseChapters,
   type CourseChapterLink,
@@ -19,11 +20,29 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '09-tensor-views';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'One buffer, several tensor interpretations';
+const chapterDescription =
+  'Follow fixed-context word features into Q/K/V and split attention heads, then compare copied and borrowed Rust tensor transposes.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}`;
 const repositoryRoot = resolve(process.cwd(), '..');
+const historyHeading = 'From fixed context to split and merged attention heads';
+const historyLimitation =
+  "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix.";
+const bengioClaim =
+  "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution.";
+const vaswaniClaim =
+  'Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated.';
+const gpt2Claim =
+  "OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads.";
+const modernLlmRole =
+  "Reshape, axis permutation, and transpose let this course express the logical split-head, K-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.";
+const historySources = [
+  'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
+  'https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf',
+  'https://github.com/openai/gpt-2/blob/master/src/model.py',
+] as const;
 
 const diagramCopy = {
   title: 'One owner, four metadata interpretations',
@@ -92,14 +111,43 @@ async function expectChapterContent(
     equivalentLocales: ['en'],
     fallbackRouteSuffix: '/course/',
   });
+  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
+  await expectSeoDescription(page, chapterDescription);
 
   const sectionHeadings = page.locator('.lesson-body h2');
-  await expect(sectionHeadings).toHaveCount(8);
-  expect(
-    await sectionHeadings.evaluateAll((headings) =>
-      headings.every((heading) => (heading.textContent?.trim().length ?? 0) > 0),
-    ),
-  ).toBe(true);
+  await expect(sectionHeadings).toHaveText([
+    'Predict two [3, 2] tensors before reading their values',
+    'Separate reshape compatibility from axis permutation',
+    'Account for every extent, axis, and stride',
+    historyHeading,
+    'Borrow the owner, transform metadata, copy only on command',
+    'See shared storage and copied storage as different states',
+    'Predict metadata and ownership before running Rust',
+    'Carry explicit axes into broadcasting and reductions',
+  ]);
+
+  const historyNodes = page
+    .getByRole('heading', { level: 2, name: historyHeading, exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
+    );
+  const historyText = (await historyNodes.allInnerTexts())
+    .join(' ')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+  expect(historyText).toContain(historyLimitation);
+  expect(historyText).toContain(bengioClaim);
+  expect(historyText).toContain(`${vaswaniClaim} ${gpt2Claim}`);
+  expect(historyText).toContain(vaswaniClaim);
+  expect(historyText).toContain(gpt2Claim);
+  expect(historyText).toContain(modernLlmRole);
+  expect(historyText).not.toMatch(/Iliffe|Genie|NumPy|codeword|array internals|Rust slice reference/i);
+  const historyLinks = historyNodes.locator('a');
+  await expect(historyLinks).toHaveCount(historySources.length);
+  expect(await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href')))).toEqual(
+    historySources,
+  );
 
   const formulae = page.locator('.katex-display');
   await expect(formulae).toHaveCount(1);
