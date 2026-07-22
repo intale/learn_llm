@@ -1,15 +1,13 @@
 use std::error::Error;
 
 use ch08_tensor_storage::{
-    INVALID_COORDINATE, SELECTED_COORDINATE, frozen_tensor_fixture, nested_vector_contrast,
+    INVALID_COORDINATE, SELECTED_COORDINATE, frozen_tensor_fixture, llm_shape_history_fixture,
 };
 use llm_from_scratch::tensor::storage::Tensor;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // region:learner-output
-    let nested = nested_vector_contrast();
-    let nested_lengths = nested.iter().map(Vec::len).collect::<Vec<_>>();
-    let nested_is_rectangular = nested.windows(2).all(|rows| rows[0].len() == rows[1].len());
+    let llm_shapes = llm_shape_history_fixture()?;
 
     let mut tensor = frozen_tensor_fixture()?;
     let selected_offset = tensor.offset(&SELECTED_COORDINATE)?;
@@ -26,7 +24,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let overflow_error = Tensor::from_vec(vec![usize::MAX, 2], vec![]).unwrap_err();
     // endregion:learner-output
 
-    println!("nested rows: lengths={nested_lengths:?} rectangular={nested_is_rectangular}");
+    for (label, tensor) in llm_shapes {
+        println!(
+            "{label}: shape={:?} strides={:?} elements={}",
+            tensor.shape(),
+            tensor.strides(),
+            tensor.len()
+        );
+    }
     println!("tensor shape: {:?}", tensor.shape());
     println!("tensor strides: {:?}", tensor.strides());
     println!("flat data: {:?}", frozen_tensor_fixture()?.as_slice());

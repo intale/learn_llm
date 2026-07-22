@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T04:40:42Z"
+updated_at: "2026-07-22T05:08:08Z"
 
 environment:
   os: "Linux x86_64"
@@ -118,7 +118,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 9
+      spent: 10
       notes: "No explicit resource budget has been supplied. The localized site scaffold has declared npm-registry and browser-download inputs; no paid services are planned."
     completion_criteria:
       - "The Rust workspace and localized static site build reproducibly from lockfiles."
@@ -7184,7 +7184,7 @@ builds:
         objective: "Replace Chapter 8's array-programming history with the progression from count tables to neural-language-model matrices and Transformer tensor shapes."
         depends_on:
           - establish-llm-evolution-history-policy
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -7237,7 +7237,75 @@ builds:
         cost:
           class: medium
           notes: "Bounded primary-paper review plus local deterministic Rust/content/browser correction. No paid service, generation service, dependency change, build-definition change, or substantial CPU use."
-        runs: []
+        runs:
+          - run_id: 20260722T044433Z-realign-ch08-llm-history-01
+            started_at: "2026-07-22T04:44:33Z"
+            finished_at: "2026-07-22T05:08:08Z"
+            status: succeeded
+            input_fingerprint:
+              git: "560f00714bfa696bac68993cdc7bfd7d5c8d915a"
+              manifest: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/input-fingerprint.txt"
+              checksum: "sha256:99d5eafbb07ae965a3e920b49abc933712fbb6298806734a25b4b711e65c1ff6"
+              prior_artifact: "Original Chapter 8 publish manifest sha256:2f636d706d75c8ae0a2e13ee8dd58ae14d4c0f49db3c754a6ea512c134616aa4; all six corrective-owned canonical outputs reverified"
+              tools: "Docker 29.6.2; repository Linux pins unchanged; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+              external_sources: "Bengio et al. 2003 neural probabilistic language model and Vaswani et al. 2017 Transformer, both bounded primary-source reviews"
+            staging_dir: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/"
+            commands:
+              - "Session recovery and preflight: Git status/HEAD/config; complete state and latest decision review; original Chapter 8 manifest and corrective-owned output verification; toolchain comparison"
+              - "Review the bounded Bengio and Transformer claims already recorded by the completed policy step; claim the six-output corrective slice before product edits"
+              - "Stage exactly the six declared outputs; replace the programming-history metadata, prose, fixture, stdout, and browser assertions with the bigram-to-Bengio-to-Transformer progression"
+              - "Build the isolated review-workspace candidate and run the complete course-plan, contract, locked Rust, dependency/demo, exact-stdout, content, parity, Astro, Vitest, production-build, link, and SEO matrix without network access"
+              - "Reuse the verified cached Chromium 1228 runtime in a disposable network-disabled container; checksum-copy the six staged outputs, rebuild the site, and run focused and complete Playwright regressions"
+              - "Run three independent read-only content, code/test, and policy reviews; freeze the exact six-file publish.sha256 manifest after all reviewers report no blocker"
+              - "Run ./course review 20260722T044433Z-realign-ch08-llm-history-01 --check against the immutable manifest"
+              - "Promote exactly the six manifest-listed files with apply_patch and verify every canonical SHA-256 against staging"
+              - "Run canonical ./course check, the complete supplemental Linux matrix, checksum-verified focused/full Chromium regressions, and final host/scope/manifest audits"
+            artifacts:
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/input-fingerprint.txt"
+                checksum: "sha256:99d5eafbb07ae965a3e920b49abc933712fbb6298806734a25b4b711e65c1ff6"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/curriculum/chapters/08-tensor-storage.md"
+                checksum: "sha256:9bad387cd555de3d1bca576c9b05151a69b31bd3a485f3c068caba07b666d85a"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/rust/demos/ch08-tensor-storage/expected.txt"
+                checksum: "sha256:c3ee36a13e1c1308b844ea98197fd89a9a300a17709b67f52a19e87828a2940c"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/rust/demos/ch08-tensor-storage/src/lib.rs"
+                checksum: "sha256:983ce0bc313ff509c82c5053aea7c0e8a486c975c65eef8dead0bcb7bbc91c12"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/rust/demos/ch08-tensor-storage/src/main.rs"
+                checksum: "sha256:60309f69a7eebfd87b49cc5490f03f012d5d19b198fbd00d8ec51c082b0b5e6c"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/site/src/content/chapters/en/08-tensor-storage.mdx"
+                checksum: "sha256:fa655fd3e02dd01b47fac5c45b614931ef0721018f2e3a53a184a22c759a5cda"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish/site/tests/e2e/ch08-tensor-storage.spec.ts"
+                checksum: "sha256:e1342d45850492478e3e1eec13bcb1b85a8958da16ed960f24bf6ef426125e75"
+              - path: ".build/runs/20260722T044433Z-realign-ch08-llm-history-01/publish.sha256"
+                checksum: "sha256:2825b61e68e68f2b8cf8be7111d2225b4ef3248a3d34e1e1d3500849da804138"
+            validation:
+              - command: "Repository, dependency, prior-artifact, ownership, source, and environment preflight"
+                status: passed
+                notes: "Only unrelated desktop.ini is untracked; the policy dependency is committed; no stale run owns this step; the six declared outputs still match the original successful Chapter 8 manifest. Three later-owned shared artifacts legitimately differ and remain read-only. Docker matches the ledger and repository Linux build definitions will not change."
+              - command: "Initial isolated review-workspace content, parity, Astro, build, link, and SEO gate"
+                status: passed
+                notes: "The staged revision-2 contract and lesson pass the strict learner-visible LLM-history policy; Astro reports zero diagnostics; 21 pages, 371 local references, and all 21 SEO routes build and validate."
+              - command: "Initial staged supplemental Linux command matrix"
+                status: failed
+                notes: "The course plan and integrated Chapter 8 contract passed, then cargo fmt --check requested only mechanical line compaction in the new Rust fixture. No behavior, content, or canonical file was published; the staged source was formatted before replaying the full matrix."
+              - command: "Corrected staged Linux course-plan, contract, Rust, content, unit, build, link, and SEO matrix"
+                status: passed
+                notes: "Candidate image sha256:bb4d7c51a49dc7becc489b90d19eeb400071fd1c9662a0639ba8ce426088ad68 passes the 39-chapter/57-step plan, revision-2 Chapter 8 contract, formatting, locked Clippy and workspace tests, dependency and demo policies, exact learner stdout, active-locale content/parity, zero Astro diagnostics, all 248 Vitest cases, the 21-page production build, 371 references, and 21 SEO routes."
+              - command: "Staged focused and complete Chromium 1228 regressions"
+                status: passed
+                notes: "The browser container reverified the exact six staged hashes, rebuilt 21 routes, passed all three focused Chapter 8 cases, and passed all 35 browser regressions, including narrow layout, forced colors, selective locale routing, direct history links, and exact SEO description evidence."
+              - command: "Independent staged content, code/test, and policy reviews"
+                status: passed
+                notes: "All three reviewers found no blocker: the source-bounded bigram-to-Bengio-to-Transformer progression is accurate and learner-visible; toy shapes and local row-major policy are distinguished from paper claims; Rust regions/stdout, SEO/history assertions, scope, and the unchanged diagram trace agree."
+              - command: "Frozen-manifest official staged review and canonical promotion"
+                status: passed
+                notes: "The immutable manifest lists exactly six regular staged files and has sha256:2825b61e68e68f2b8cf8be7111d2225b4ef3248a3d34e1e1d3500849da804138. ./course review repeated content/parity, zero-diagnostic Astro, the 21-page build, 371-reference and 21-SEO-route checks without mutating staging; apply_patch promotion produced byte-identical canonical outputs."
+              - command: "Canonical unchanged ./course check and complete supplemental Linux matrix"
+                status: passed
+                notes: "Workspace image sha256:e54ef687b2bffb66d4fbdd2098eab1a07e5a49436a02bad12a86695fc0829326 passes formatting, locked tests, content/parity, zero Astro diagnostics, the 21-page build, 371 references, and 21 SEO routes. Its network-disabled supplemental run passes plan/contract, locked Clippy/workspace tests, dependency/demo policies, exact stdout, focused content, all 248 Vitest cases, build, links, and SEO."
+              - command: "Canonical checksum-verified focused/full Chromium and final repository audit"
+                status: passed
+                notes: "All six canonical hashes match the frozen manifest inside the cached Chromium 1228 runtime; all three focused Chapter 8 and all 35 browser cases pass. Host-artifact, whitespace, build/dependency/locale scope, manifest, and unrelated-file audits pass; desktop.ini remains untracked and untouched."
+            notes: "Succeeded as a six-file, content-revision-2 corrective publication. Chapter 8 now follows bigram counts through Bengio learned matrices to Transformer attention shapes, retains local row-major Tensor storage as an explicit implementation boundary, preserves the original successful run, and changes no build or dependency definition."
       - id: realign-ch09-llm-history
         objective: "Replace Chapter 9's array-programming history with the progression from fixed-context neural matrices to Transformer and GPT-2 attention rearrangements."
         depends_on:

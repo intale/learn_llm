@@ -1,4 +1,10 @@
-nested rows: lengths=[3, 2] rectangular=false
+toy Bengio C: shape=[5, 3] strides=[3, 1] elements=15
+toy Bengio H: shape=[4, 6] strides=[6, 1] elements=24
+toy Bengio U: shape=[5, 4] strides=[4, 1] elements=20
+toy Transformer Q (one head): shape=[2, 3] strides=[3, 1] elements=6
+toy Transformer K (one head): shape=[2, 3] strides=[3, 1] elements=6
+toy Transformer V (one head): shape=[2, 3] strides=[3, 1] elements=6
+toy Transformer Q head stack: shape=[2, 2, 3] strides=[6, 3, 1] elements=12
 tensor shape: [2, 2, 3]
 tensor strides: [6, 3, 1]
 flat data: [10.0, 11.0, 12.0, 20.0, 21.0, 22.0, 30.0, 31.0, 32.0, 40.0, 41.0, 42.0]

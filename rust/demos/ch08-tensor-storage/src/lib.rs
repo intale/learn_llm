@@ -11,12 +11,32 @@ pub const FROZEN_VALUES: [f64; 12] = [
 pub const SELECTED_COORDINATE: [usize; 3] = [1, 0, 2];
 pub const INVALID_COORDINATE: [usize; 3] = [1, 2, 0];
 
-// region:nested-vector-contrast
-/// Builds separately owned rows that are allowed to have different lengths.
-pub fn nested_vector_contrast() -> Vec<Vec<f64>> {
-    vec![vec![10.0, 11.0, 12.0], vec![20.0, 21.0]]
+// region:llm-shape-history
+/// Builds tiny shape-only stand-ins for parameters and activations from the LLM history.
+pub fn llm_shape_history_fixture() -> Result<Vec<(&'static str, Tensor)>, TensorError> {
+    Ok(vec![
+        ("toy Bengio C", Tensor::from_vec(vec![5, 3], vec![0.0; 15])?),
+        ("toy Bengio H", Tensor::from_vec(vec![4, 6], vec![0.0; 24])?),
+        ("toy Bengio U", Tensor::from_vec(vec![5, 4], vec![0.0; 20])?),
+        (
+            "toy Transformer Q (one head)",
+            Tensor::from_vec(vec![2, 3], vec![0.0; 6])?,
+        ),
+        (
+            "toy Transformer K (one head)",
+            Tensor::from_vec(vec![2, 3], vec![0.0; 6])?,
+        ),
+        (
+            "toy Transformer V (one head)",
+            Tensor::from_vec(vec![2, 3], vec![0.0; 6])?,
+        ),
+        (
+            "toy Transformer Q head stack",
+            Tensor::from_vec(vec![2, 2, 3], vec![0.0; 12])?,
+        ),
+    ])
 }
-// endregion:nested-vector-contrast
+// endregion:llm-shape-history
 
 // region:frozen-tensor-fixture
 /// Reconstructs the immutable, contiguous tensor used throughout the chapter.
@@ -30,11 +50,37 @@ mod tests {
     use super::*;
 
     #[test]
-    fn nested_vector_contrast_is_ragged() {
-        let nested = nested_vector_contrast();
+    fn one_tensor_type_carries_the_llm_history_shapes() {
+        let tensors = llm_shape_history_fixture().unwrap();
+        let observed = tensors
+            .iter()
+            .map(|(label, tensor)| {
+                (
+                    *label,
+                    tensor.shape().to_vec(),
+                    tensor.strides().to_vec(),
+                    tensor.len(),
+                )
+            })
+            .collect::<Vec<_>>();
 
-        assert_eq!(nested.iter().map(Vec::len).collect::<Vec<_>>(), [3, 2]);
-        assert!(!nested.windows(2).all(|rows| rows[0].len() == rows[1].len()));
+        assert_eq!(
+            observed,
+            [
+                ("toy Bengio C", vec![5, 3], vec![3, 1], 15),
+                ("toy Bengio H", vec![4, 6], vec![6, 1], 24),
+                ("toy Bengio U", vec![5, 4], vec![4, 1], 20),
+                ("toy Transformer Q (one head)", vec![2, 3], vec![3, 1], 6,),
+                ("toy Transformer K (one head)", vec![2, 3], vec![3, 1], 6,),
+                ("toy Transformer V (one head)", vec![2, 3], vec![3, 1], 6,),
+                (
+                    "toy Transformer Q head stack",
+                    vec![2, 2, 3],
+                    vec![6, 3, 1],
+                    12,
+                ),
+            ]
+        );
     }
 
     #[test]

@@ -11,6 +11,7 @@ import {
   expectLocalizedChapterRoute,
   expectNoOverflowOrClientScripts,
   expectOrderedChapterNavigation,
+  expectSeoDescription,
   expectVisualizationDecision,
   readOrderedCourseChapters,
   type CourseChapterLink,
@@ -19,11 +20,26 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '08-tensor-storage';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'From tensor coordinates to one flat buffer';
+const chapterDescription =
+  'Map language-model matrices and attention tensors onto one flat Rust vector with checked row-major strides and deterministic offsets.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`\operatorname{offset}(i_0,\ldots,i_{d-1})=\sum_{k=0}^{d-1} i_k s_k`;
 const repositoryRoot = resolve(process.cwd(), '..');
+const historyHeading = 'From bigram counts to learned matrices and attention tensors';
+const historyLimitation =
+  'The Chapter 6 bigram gives each current-token and next-token pair its own count and uses only one token of context, so it cannot share evidence through learned word similarity.';
+const bengioClaim =
+  'Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction.';
+const vaswaniClaim =
+  'Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs.';
+const modernLlmRole =
+  'Explicit tensor shapes let this course represent embeddings, learned weights, activations, and attention intermediates in the cumulative decoder; the single contiguous row-major buffer is a local implementation policy, not a requirement of either paper.';
+const historySources = [
+  'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
+  'https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf',
+] as const;
 
 const diagramCopy = {
   title: 'One coordinate, one row-major offset',
@@ -48,7 +64,7 @@ function readRustRegion(path: string, region: string): string {
 const expectedRustRegions = [
   ['rust/crates/llm-from-scratch/src/tensor/storage.rs', 'tensor-storage-invariants'],
   ['rust/crates/llm-from-scratch/src/tensor/storage.rs', 'row-major-indexing'],
-  ['rust/demos/ch08-tensor-storage/src/lib.rs', 'nested-vector-contrast'],
+  ['rust/demos/ch08-tensor-storage/src/lib.rs', 'llm-shape-history'],
   ['rust/demos/ch08-tensor-storage/src/lib.rs', 'frozen-tensor-fixture'],
   ['rust/demos/ch08-tensor-storage/src/main.rs', 'learner-output'],
   ['rust/demos/ch08-tensor-storage/src/diagram_trace.rs', 'tensor-storage-trace'],
@@ -70,14 +86,38 @@ async function expectChapterContent(
     equivalentLocales: ['en'],
     fallbackRouteSuffix: '/course/',
   });
+  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
+  await expectSeoDescription(page, chapterDescription);
 
   const sectionHeadings = page.locator('.lesson-body h2');
-  await expect(sectionHeadings).toHaveCount(8);
-  expect(
-    await sectionHeadings.evaluateAll((headings) =>
-      headings.every((heading) => (heading.textContent?.trim().length ?? 0) > 0),
-    ),
-  ).toBe(true);
+  await expect(sectionHeadings).toHaveText([
+    'Predict one address before flattening the picture',
+    'Turn each axis movement into one stride term',
+    'Locate every symbol in the tensor',
+    historyHeading,
+    'Make shape validity and indexing one checked Rust responsibility',
+    'Follow the coordinate through slices, arithmetic, and storage',
+    'Predict each layout result before checking it',
+    'Reuse one checked numeric container throughout the model',
+  ]);
+
+  const historyNodes = page
+    .getByRole('heading', { level: 2, name: historyHeading, exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
+    );
+  const historyText = (await historyNodes.allInnerTexts()).join(' ').replace(/\s+/g, ' ').trim();
+  expect(historyText).toContain(historyLimitation);
+  expect(historyText).toContain(`${bengioClaim} ${vaswaniClaim}`);
+  expect(historyText).toContain(bengioClaim);
+  expect(historyText).toContain(vaswaniClaim);
+  expect(historyText).toContain(modernLlmRole);
+  expect(historyText).not.toMatch(/FORTRAN|Iliffe|Genie|NumPy/);
+  const historyLinks = historyNodes.locator('a');
+  await expect(historyLinks).toHaveCount(historySources.length);
+  expect(await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href')))).toEqual(
+    historySources,
+  );
 
   const formulae = page.locator('.katex-display');
   await expect(formulae).toHaveCount(1);

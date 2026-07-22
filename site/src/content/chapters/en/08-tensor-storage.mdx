@@ -2,11 +2,11 @@
 {
   "chapter_id": "08-tensor-storage",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 8,
   "concept_id": "row-major-tensor-storage",
   "title": "From tensor coordinates to one flat buffer",
-  "description": "Store tensor values in one flat Rust vector, derive row-major strides, and map checked coordinates to deterministic offsets.",
+  "description": "Map language-model matrices and attention tensors onto one flat Rust vector with checked row-major strides and deterministic offsets.",
   "objective": "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets.",
   "worked_inputs": "For shape [2,2,3], row-major strides [6,3,1], and flat values [10,11,12,20,21,22,30,31,32,40,41,42], first predict the offset and value at coordinate [1,0,2], then identify why [1,2,0] is invalid. The checked coordinate contributes 1×6, 0×3, and 2×1, so its offset is 8 and its value is 32; the invalid coordinate fails at axis 1 because index 2 equals that axis's size 2.",
   "formula": {
@@ -35,8 +35,30 @@
     ]
   },
   "history": {
-    "approach": "Sequential column-major arrays and indirect row-codeword arrays as contrasting storage representations",
-    "summary": "The 1956 IBM FORTRAN manual describes rectangular arrays in sequential storage with the first subscript varying fastest, while Iliffe's 1961 Genie paper describes indirect row codewords whose rows need not occupy adjacent storage or have equal lengths. These were parallel representation choices, not stages in one universal progression. This course chooses one contiguous flat buffer with row-major strides so every checked coordinate has one transparent offset rule.",
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "The Chapter 6 bigram gives each current-token and next-token pair its own count and uses only one token of context, so it cannot share evidence through learned word similarity.",
+      "later_advance": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction. Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs.",
+      "modern_llm_role": "Explicit tensor shapes let this course represent embeddings, learned weights, activations, and attention intermediates in the cumulative decoder; the single contiguous row-major buffer is a local implementation policy, not a requirement of either paper.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
+          "claim": "Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs."
+        }
+      ]
+    },
+    "approach": "From independent bigram counts to neural language-model matrices and Transformer attention shapes",
+    "summary": "Chapter 6's bigram table uses one-token context and independent pair counts. Bengio et al. define a fixed-context neural language model with learned word-feature and neural parameter matrices, while Vaswani et al. define attention through Q, K, and V matrices and parallel projected heads. The same Tensor abstraction can represent these model values, while its contiguous row-major storage remains a separate local policy.",
     "rust_source": "rust/demos/ch08-tensor-storage/src/lib.rs"
   },
   "rust_sources": [
@@ -52,8 +74,8 @@
     },
     {
       "path": "rust/demos/ch08-tensor-storage/src/lib.rs",
-      "region": "nested-vector-contrast",
-      "purpose": "Create separate nested rows of unequal lengths so indirection and raggedness can be contrasted with the chapter's rectangular contiguous tensor."
+      "region": "llm-shape-history",
+      "purpose": "Construct tiny Bengio C, H, and U parameter tensors plus one-head Transformer Q, K, and V tensors and a local Q head stack through the same Tensor abstraction."
     },
     {
       "path": "rust/demos/ch08-tensor-storage/src/lib.rs",
@@ -63,7 +85,7 @@
     {
       "path": "rust/demos/ch08-tensor-storage/src/main.rs",
       "region": "learner-output",
-      "purpose": "Compute valid lookup and mutation, scalar and empty tensors, rank and bounds errors, and overflow values that surrounding code serializes into deterministic stdout."
+      "purpose": "Construct the model-history shape fixture, then compute valid lookup and mutation, scalar and empty tensors, rank and bounds errors, and overflow values serialized into deterministic stdout."
     },
     {
       "path": "rust/demos/ch08-tensor-storage/src/diagram_trace.rs",
@@ -241,36 +263,47 @@ are well defined.
 
 {/* chapter-section:history */}
 
-## Treat layout as a representation choice, not a law of tensors
+## From bigram counts to learned matrices and attention tensors
 
-The array section of the
-[October 1956 IBM 704 FORTRAN Programmer's Reference Manual](https://bitsavers.computerhistory.org/pdf/ibm/704/704_FortranProgRefMan_Oct56.pdf)
-describes rectangular array variables placed in sequential storage. Its first
-subscript varies fastest. In a two-dimensional array, adjacent storage locations
-therefore advance the first subscript—the convention now usually called
-column-major.
+The Chapter 6 bigram gives each current-token and next-token pair its own count
+and uses only one token of context, so it cannot share evidence through learned
+word similarity.
 
-[J. K. Iliffe's 1961 paper about the Genie system](https://archive.computerhistory.org/resources/access/text/2015/09/102726217-05-01-acc.pdf)
-documents a contrasting indirect representation. Row codewords lead to rows, and
-those rows need not occupy adjacent storage or have equal lengths. That design can
-represent structures a single rectangular block cannot, but access includes an
-indirection through the selected row.
+The two primary checkpoints are
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+and
+[Vaswani et al., *Attention Is All You Need*](https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf).
 
-These are parallel representation choices, not two mandatory stages through
-which array programming evolved. A Rust `Vec<Vec<f64>>` is likewise a useful
-modern way to make separate and unequal rows observable, but it is not the Genie
-implementation. The chapter demo constructs rows of lengths `3` and `2` and
-prints `rectangular=false` only as a runnable contrast.
+Bengio et al. describe n-gram models as short-context conditional-probability
+tables that do not use word similarity, then define a neural language model with
+a vocabulary-size-by-feature-width matrix C of learned word features and neural
+parameter matrices for next-word prediction. Vaswani et al. later pack
+simultaneous queries, keys, and values into matrices Q, K, and V and use learned
+projections to run multiple attention heads in parallel before concatenating
+their outputs.
 
-This course chooses one rectangular shape and one contiguous row-major buffer.
-The official [Rust `Vec` documentation](https://doc.rust-lang.org/std/vec/)
-describes `Vec<T>` as a contiguous growable array type. The
-[`usize::checked_mul` documentation](https://doc.rust-lang.org/stable/std/primitive.usize.html#method.checked_mul)
-specifies the overflow signal used while computing shape and stride products.
-The [NumPy ndarray memory-layout documentation](https://numpy.org/doc/stable/reference/arrays.ndarray.html#internal-memory-layout-of-an-ndarray)
-provides a modern shape-and-stride vocabulary and shows that more than one layout
-convention exists. None of those sources chooses this repository's API, error
-order, scalar rule, or row-major policy; those are explicit course decisions.
+Bengio's model still predicts from a fixed window of preceding words. For the
+toy dimensions in this chapter, C=[|V|,m]=[5,3] stores three learned features for
+each of five vocabulary items. A two-word context gives the hidden mapping
+H=[h,2m]=[4,6], and U=[|V|,h]=[5,4] maps four hidden activations toward five
+next-word scores. These are small shape stand-ins, not the paper's experiment
+sizes or a complete list of its parameters.
+
+For the Transformer checkpoint, each one-head Q, K, and V stand-in has
+[tokens,head width]=[2,3]. The local Q stack
+[heads,tokens,head width]=[2,2,3] makes a separate head axis visible. The paper
+supports the matrix computation and parallel-head claims; it does not require
+that particular axis order.
+
+Explicit tensor shapes let this course represent embeddings, learned weights,
+activations, and attention intermediates in the cumulative decoder; the single
+contiguous row-major buffer is a local implementation policy, not a requirement
+of either paper.
+
+The runnable Rust contrast uses the same Tensor abstraction for all seven
+model-shaped stand-ins and prints their shapes, strides, and element counts. The
+zero values are inert placeholders: this chapter exposes a storage consequence
+of the model mathematics without implementing either architecture's operations.
 
 {/* chapter-section:rust-implementation */}
 
@@ -320,16 +353,17 @@ means the product was valid but the supplied buffer had the wrong length.
 methods return these errors through `Result`; ordinary invalid input does not
 panic.
 
-The demo's first library region creates nested rows with lengths `3` and `2`.
-Each inner `Vec` is a separate allocation-capable object, and the outer vector
-does not by itself promise equal lengths. This code makes indirection and
-raggedness concrete without claiming to recreate a historical machine.
+The demo's first library region carries the model-history progression through one
+concrete type. It constructs tiny C, H, and U parameter stand-ins, one-head Q, K,
+and V activation stand-ins, and a local stacked-head Q tensor. Every value is zero
+because only shape, strides, and element count matter here; later chapters own
+the actual model operations.
 
 <RustSource
   path="rust/demos/ch08-tensor-storage/src/lib.rs"
-  region="nested-vector-contrast"
-  caption="Build two separate rows whose lengths show that nesting alone does not enforce a rectangle"
-  label="Rust source constructing a Vec of Vec f64 rows with lengths three and two and reporting that the nested structure is not rectangular"
+  region="llm-shape-history"
+  caption="Represent Bengio parameter matrices and Transformer attention shapes with one Tensor type"
+  label="Rust source constructing tiny Bengio C H and U tensors, one-head Transformer Q K and V tensors, and one local stacked-head Q tensor with explicit shapes"
 />
 
 The second library region owns the chapter's shared fixture. The learner program,
@@ -344,18 +378,19 @@ semantics.
   label="Rust source constructing the frozen tensor with twelve values from 10.0 through 42.0 in row-major order"
 />
 
-The following `main.rs` excerpt computes the checked lookup `[1,0,2]`, mutates
-`[0,1,1]` to `99`, constructs a scalar and an empty tensor, and captures rank,
-bounds, and overflow errors. The code immediately after the displayed region
-prints those values. Its final output line makes the next boundary explicit:
+The following `main.rs` excerpt first constructs the model-history shape fixture.
+It then computes the checked lookup `[1,0,2]`, mutates `[0,1,1]` to `99`,
+constructs a scalar and an empty tensor, and captures rank, bounds, and overflow
+errors. The code immediately after the displayed region prints those values. Its
+final output line makes the next boundary explicit:
 Chapter 9 will add a new shape, stride, and base-offset interpretation while
 retaining the same storage.
 
 <RustSource
   path="rust/demos/ch08-tensor-storage/src/main.rs"
   region="learner-output"
-  caption="Compute valid access, mutation, edge shapes, and deterministic errors before serialization"
-  label="Rust source computing the values later printed for nested rows, the frozen tensor, scalar and empty tensors, rank and bounds errors, and checked overflow"
+  caption="Build the model-history shapes, then compute valid access, edge shapes, and deterministic errors"
+  label="Rust source constructing the LLM shape fixture and computing the frozen tensor lookup and mutation, scalar and empty tensors, rank and bounds errors, and checked overflow"
 />
 
 Run it through the repository's pinned Linux toolchain:
