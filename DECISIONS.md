@@ -3294,3 +3294,110 @@ edits and replaced with a newly fingerprinted run that owns these two files.
 **Affected step and run:** `implement-ch10-broadcasting-reductions`, interrupted
 run `20260722T054611Z-implement-ch10-broadcasting-reductions-01` and replacement
 run `20260722T060239Z-implement-ch10-broadcasting-reductions-02`.
+
+## 2026-07-22 — Supersede Chapter 5 Russian revision 1 with a meaning-first revision
+
+**Status:** Accepted after the user's direct review and independent audit.
+
+**Context:** The published Russian Chapter 5 lesson still matches the exact
+revision-1 snapshot approved on 2026-07-19; no later drift caused the problem.
+The user now reports that it reads like a literal translation. Independent
+Russian and semantic-parity audits confirm recurring English information order
+and calques. They also find material gaps: the history omits the bridge from
+Bengio's one-next-word fixed-context prediction to this chapter's `T` aligned
+targets, the final decoder handoff weakens the exact causal visibility rule, an
+ambiguous opening can misname held-out pairs as fitting examples, the diagram's
+"Граница выборки" label covers both document and partition boundaries, and the
+SEO description does not name the chapter's actual construction clearly.
+Structural locale, parity, and content gates all pass the defective snapshot,
+which confirms that they cannot substitute for natural-language review.
+
+**Decision:** Mark `implement-ch05-autoregressive-examples` invalidated while
+preserving its successful run and frozen approval record unchanged. Add
+`revise-ch05-russian-localization` after Chapter 10 and before Chapter 11. Publish
+Chapter 5 content revision 2 as one same-revision English/Russian set: keep the
+English body unchanged apart from revision metadata, rewrite every Russian
+learner-facing field and label from the locked meaning, repair the missing
+historical and causal statements, and update only the contract, plan/locale
+revision mirrors, and exact content tests required by that prose.
+
+Advance the course plan to revision 17, register the corrective step before
+Chapter 11, and mirror that revision in the chapter-locale manifest. Do not
+invalidate Chapters 6 through 10: the correction preserves Chapter 5's formula,
+facts, Rust API, fixtures, route, locale set, and Chapter 6 data handoff, and the
+full regression matrix must verify that their published behavior remains valid.
+The user's complaint supersedes the checksum-scoped revision-1 language approval
+but is not approval of unseen revision-2 text. Freeze and render the replacement,
+then require explicit fluent-human approval of those exact Russian bytes and
+labels before canonical publication, completion, commit, or Chapter 11 work.
+
+**Consequences:** Canonical Chapter 5 remains at revision 1 while the complete
+revision-2 candidate is staged. Chapter 11 is no longer eligible until the
+corrective step passes semantic, terminology, anti-calque, monolingual,
+accessibility, desktop/narrow, automated, and human gates and is committed
+independently. No Rust source, fixture, dependency, package, route slug, active
+locale, locale-activation policy, or Linux build definition changes.
+
+**Affected steps and run:** `implement-ch05-autoregressive-examples`,
+`revise-ch05-russian-localization` run
+`20260722T072842Z-revise-ch05-russian-localization-01`, and
+`implement-ch11-matrix-multiplication`.
+
+## 2026-07-22 — Approve Chapter 5 Russian revision 2 for publication
+
+**Status:** Accepted by the user.
+
+**Context:** The complete meaning-first Russian replacement passed two final
+fluent-language reviews, semantic and scope audits, desktop and narrow rendered
+review, the full Rust/site/browser matrix, and checksum-aware staged review. The
+eight-file candidate is frozen by manifest
+`f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b`;
+the Russian lesson is
+`a0389345347393e4de9273c07e6a22bc09ae20eabf8c4298077567406ab79b25`.
+The user reviewed the loopback route and replied exactly, "I approve Chapter 5
+revision 2."
+
+**Decision:** Bind the user's approval to those exact frozen bytes and authorize
+canonical publication of the eight declared outputs. Publication must remain
+byte-identical to the manifest, pass the complete canonical validation matrix,
+and be committed as the dedicated `revise-ch05-russian-localization` step before
+Chapter 11 starts.
+
+**Consequences:** The revision-1 approval remains immutable historical evidence
+but no longer controls the active lesson. No Rust, dependency, build definition,
+route, active locale, or locale policy change is authorized. Any candidate-byte
+change would void this approval and require a new frozen review.
+
+**Affected step and run:** `revise-ch05-russian-localization`, run
+`20260722T072842Z-revise-ch05-russian-localization-01`.
+
+## 2026-07-22 — Use Win32 atomic replacement for Dropbox-backed publication
+
+**Status:** Accepted during approved Chapter 5 publication.
+
+**Context:** The workspace and staged run live inside Dropbox. Windows reports
+regular readable files with no link target but with Dropbox reparse attributes.
+After all eight same-directory temporaries and run-local rollback copies were
+prepared and verified, `.NET File.Replace` rejected the first target before any
+canonical file changed. An immediate hash audit confirmed all eight canonical
+files still matched their rollback copies and every temporary matched the
+approval-bound candidate.
+
+**Decision:** For this publication, use the Windows `MoveFileEx` API with
+`REPLACE_EXISTING | WRITE_THROUGH`, after proving that operation on run-local
+Dropbox-backed diagnostic copies. Retain the complete original snapshot under
+the run directory, replace each declared canonical file from a same-directory
+verified temporary, roll back already-replaced files in reverse order on any
+error, and verify both canonical and staged hashes afterward.
+
+**Consequences:** All eight approved files were promoted atomically per file and
+match frozen manifest
+`f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b`;
+no publication temporary remains. The original canonical snapshot remains
+recoverable through verified run-local backup manifest
+`f24face98fdbd890d639c0baa8bf95b695fafc298ace8df7805fd9b53219da4c`.
+This operational fallback does not change repository build definitions or
+authorize broader filesystem mutations.
+
+**Affected step and run:** `revise-ch05-russian-localization`, run
+`20260722T072842Z-revise-ch05-russian-localization-01`.

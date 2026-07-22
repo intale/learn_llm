@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 16,
+  "plan_revision": 17,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -123,6 +123,10 @@
       {
         "step_id": "realign-ch09-llm-history",
         "after_chapter": "09-tensor-views"
+      },
+      {
+        "step_id": "revise-ch05-russian-localization",
+        "before_chapter": "11-matrix-multiplication"
       }
     ],
     "planned_chapter_splits": [],
@@ -781,6 +785,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
+- **Revision status:** Content revision 2 is delivered by `revise-ch05-russian-localization`; publication is gated on renewed fluent-human approval of the rendered Russian page, recorded in `BUILD_STATE.yaml`.
 - **Depends on:** `04-apply-bpe-tokenizer`.
 - **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
 - **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.

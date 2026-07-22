@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T06:44:57Z"
+updated_at: "2026-07-22T08:39:29Z"
 
 environment:
   os: "Linux x86_64"
@@ -3076,7 +3076,7 @@ builds:
         objective: "Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries."
         depends_on:
           - document-chapter-delivery-skill
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -7598,10 +7598,171 @@ builds:
                 status: passed
                 notes: "All 3 focused and all 38 full browser cases pass again. git diff --check, host-artifact policy, regenerated-lockfile identity, output ownership, no-Russian-placeholder, no-build-change, no-dependency-change, and no-mode-change audits pass; unrelated untracked desktop.ini remains untouched."
             notes: "Succeeded as one checksum-frozen 18-file English Chapter 10 vertical slice. It teaches broadcasting and named-axis reductions as supporting tensor machinery on the LLM path from Bengio fixed-context features through Transformer/GPT-2 token-feature computation, adds a dependency-free checked Rust implementation and trace-derived static visualization, and aligns Astro publication parity with the mandatory LLM-history identity. The in-app browser runtime exposed no available browser, so repository-pinned Chromium supplied both staged and canonical visual validation. Existing Cargo example-name collision warnings remain unchanged and non-failing. No Linux build definition, package dependency, active locale, or Russian route changed."
+      - id: revise-ch05-russian-localization
+        objective: "Publish Chapter 5 content revision 2 with natural meaning-first Russian prose and labels while preserving every checked fact, boundary-safe autoregressive example, and locale-neutral artifact."
+        depends_on:
+          - implement-ch10-broadcasting-reductions
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/lib/autoregressive-examples-diagram.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/seo.test.ts"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-static-links.mjs"
+          - ".build/runs/20260719T095039Z-implement-ch05-autoregressive-examples-01/publication-manifest.sha256"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/content-contract.test.ts"
+        acceptance:
+          - "The complete Russian Chapter 5 surface reads as natural Russian technical teaching rather than a sentence-shaped English translation."
+          - "Content revision 2 preserves the exact formula, symbols, Rust paths and regions, visualization identity, fixture values, nine exercise intents, misconception, historical source boundaries, and Chapter 6 handoff."
+          - "The Russian history explicitly connects Bengio's one-next-word fixed-context prediction to this chapter's T consecutive targets, and the decoder handoff states that y_i may use only x_0 through x_i while later inputs remain hidden."
+          - "The diagram and accessible copy distinguish both document and partition boundaries and contain no literal selected-by-stride, main-path, glued-slice, or similar calques identified by the audit."
+          - "The contract and English/Russian lessons form one content-revision-2 set; the English body is unchanged apart from revision metadata, and the Russian SEO description says what the page teaches."
+          - "Meaning, terminology, anti-calque, monolingual-flow, accessible-language, desktop, and narrow rendered reviews pass, followed by explicit fluent-human approval of the exact frozen Russian lesson and labels."
+          - "No Rust source, exact fixture, package dependency, build definition, active locale, route slug, or locale-activation policy changes."
+          - "All staged and canonical regression gates pass, and the corrective step is committed independently before Chapter 11 starts."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/05-autoregressive-examples.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 05-autoregressive-examples"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 05-autoregressive-examples"
+          - "npm --prefix site run check:parity -- --chapter 05-autoregressive-examples"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:05-autoregressive-examples'"
+          - "npm --prefix site run test:e2e"
+          - "./course review <run-id> --check"
+          - "./course check"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "One complete meaning-first Russian rewrite, same-revision English metadata projection, rendered desktop/narrow review, and full local regression matrix. No network, paid service, generation service, dependency download, substantial CPU work, Rust change, or Linux build change. Publication pauses for explicit human approval of the frozen revision."
+        runs:
+          - run_id: 20260722T072842Z-revise-ch05-russian-localization-01
+            started_at: "2026-07-22T07:28:42Z"
+            finished_at: "2026-07-22T08:39:29Z"
+            status: succeeded
+            input_fingerprint:
+              git: "9cc479783ece195830767316dec7351208bb523b"
+              manifest: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:e6d80585a2e143494b2d6e15a41bc2d064cf39c6f22e0d1c86cb69bd2617e0a0"
+              prior_artifact: "Approved Chapter 5 publication manifest sha256:a5266e4bb4bbd88a72e05f859b5f024b4128d080bbde5a1ae49aec73071522b9 reverified; current Russian lesson still matches approved sha256:4750981f1824c325d05eb8f1c56b0efc320bbfc1f914ab67591fa99f285c343f"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins unchanged; Windows Git 2.55.0.windows.3; Bash 5.3.15"
+            staging_dir: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/"
+            commands:
+              - "Run the startup protocol; verify HEAD 9cc4797, a clean tracked tree, no running step, current environment, Chapter 10 completion, and the prior Chapter 5 and Chapter 10 manifests"
+              - "Run current Chapter 5 Russian locale, parity, and full-content checks to establish that structural gates pass the defective revision"
+              - "Perform independent read-only Russian linguistic, semantic-parity, and repository-scope audits"
+              - "Record the user-reported defect, invalidate the stale Chapter 5 step, schedule revision 2 before Chapter 11, fingerprint all inputs, and claim the corrective run before product edits"
+              - "Stage exactly eight declared outputs; rewrite the complete Russian learner surface from the meaning lock; synchronize the revision-2 contract, English metadata, course-plan mirrors, and exact tests"
+              - "Run two reject-and-correct fluent-Russian review cycles plus independent semantic and scope audits; repair residual calques, unclear remainder terminology, and one reversed causality sentence in the contract"
+              - "Build the checksum-candidate with repository-pinned Docker and Chromium; run course-plan, contract, locale, parity, content, Astro, Vitest, static-build, link, focused/full browser, course-review, workspace, host-artifact, encoding, ownership, and whitespace gates"
+              - "Attempt the mandatory in-app browser connection, read its troubleshooting guidance after discovery returned no browser, then use repository-pinned Chromium for desktop and narrow rendered evidence"
+              - "Freeze the eight-file publish tree as manifest sha256:f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b and serve the exact rendered candidate on loopback port 4322 for human approval"
+              - "Record the user's exact response 'I approve Chapter 5 revision 2.' against the unchanged frozen manifest and authorize canonical publication"
+              - "Prepare all eight same-directory publication temporaries and checksum-frozen rollback copies; observe that .NET File.Replace rejects Dropbox reparse-backed files before replacing any canonical target, then verify every canonical hash remained unchanged"
+              - "Prove Win32 MoveFileEx(REPLACE_EXISTING|WRITE_THROUGH) on run-local Dropbox-backed evidence and atomically promote all eight approved files with rollback-on-error; verify canonical and staged hashes are identical and no publication temporary remains"
+              - "Rebuild and test the exact canonical tree: run the official staged review check, complete canonical course check, host audit, deployable image build, focused/full Chromium suite, and two independent publication/governance audits"
+              - "Attempt the guarded static release from Git Bash and the Dropbox-backed WSL mount; preserve the fail-closed capability and RENAME_EXCHANGE results without changing site/dist, then run the unchanged release successfully from a native WSL filesystem"
+              - "Verify the native Linux static release has 22 HTML pages, 387 local references, 22 SEO routes, 88 artifacts, and Chapter 5 bytes identical to the canonical image; recreate and smoke-test the canonical loopback preview"
+            artifacts:
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:e6d80585a2e143494b2d6e15a41bc2d064cf39c6f22e0d1c86cb69bd2617e0a0"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/publish.sha256"
+                checksum: "sha256:f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/validation-summary.md"
+                checksum: "sha256:e58d45405629dc7b3b4debe6bd813b108b55b7f320a2fa713ba1a73e2ef111d0"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/manual-review.md"
+                checksum: "sha256:032b45870c9984e585cc30455f2faabc5b302e6c811dd452222226eed1dcc39c"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/human-approval.md"
+                checksum: "sha256:c16ba8af259fbf3f9ee52643f723ebc7d5df55508467a5c7a51bfe54857904ce"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/publish-approved.ps1"
+                checksum: "sha256:e0b5fcb1fedb4f7c0764e7579f8319d2815c38e8d66db19ca08ad8c3556c95a6"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/test-dropbox-atomic-replace.ps1"
+                checksum: "sha256:ac119e3ff1c9fb3a6751a8293bd7ddfa65bfc26382f9626b6eea59b6943ad8db"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/prepublish-backup.sha256"
+                checksum: "sha256:f24face98fdbd890d639c0baa8bf95b695fafc298ace8df7805fd9b53219da4c"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/ch05-ru-desktop.png"
+                checksum: "sha256:31f07053f0e3d2dda035e4a2ff66674083bc04824a9b2ecb5678537a253001d9"
+              - path: ".build/runs/20260722T072842Z-revise-ch05-russian-localization-01/evidence/ch05-ru-narrow.png"
+                checksum: "sha256:f8f9e6bf04c6ba906eb2485666646c9fc444b692c038dad39c24282860e1c7e8"
+            validation:
+              - command: "Repository, dependency, environment, prior-artifact, ownership, scope, cost, and scheduler preflight"
+                status: passed
+                notes: "HEAD is 9cc4797; no step is running; Chapter 10 is complete; only unrelated desktop.ini is untracked; the prior approved Chapter 5 bytes and manifest verify; all declared inputs exist; eight outputs are narrow and non-overlapping; medium local work fits the unlimited budget."
+              - command: "Current Chapter 5 Russian locale, parity, and full-content checks"
+                status: passed
+                notes: "Structural validators publish the revision-1 English/Russian set, demonstrating why manual language review is required: they do not detect literal prose or the omitted historical, causal, and boundary meaning."
+              - command: "Independent Russian linguistic and semantic-parity audits"
+                status: failed
+                notes: "The approved revision-1 snapshot contains recurring English-shaped phrasing, an incorrect boundary label, an omitted Bengio-to-T-targets bridge, an ambiguous fitting phrase, a weakened causal decoder rule, and a vague SEO description. A complete meaning-first rewrite is required."
+              - command: "Final meaning-first Russian, semantic-parity, and scope reviews"
+                status: passed
+                notes: "Two intermediate Russian candidates were rejected and corrected. The final Russian lesson sha256:a0389345347393e4de9273c07e6a22bc09ae20eabf8c4298077567406ab79b25 reads naturally, preserves every meaning-lock fact, and matches contract sha256:ef04eb078ce89d1be5201b8c894ed6741c1a3d8b2d7d3267d4388aa60f34865f for every shared field. English differs only by content_revision 2; the eight-output scope is exact."
+              - command: "Final staged course-plan, contract, English/Russian chapter, parity, content, Astro, static-build, and link gates"
+                status: passed
+                notes: "39 chapters, 58 scheduled steps, 10 implemented contracts, 17 localized sources, 10 publishable locale sets, 68 diagnostic files with zero findings, 22 static pages, 387 local references, 22 SEO routes, and 88 artifacts pass."
+              - command: "Final staged Vitest and repository-pinned Chromium regression"
+                status: passed
+                notes: "All 16 Vitest files and 266 tests pass; focused Chapter 5 browser coverage passes 3/3 and the full browser suite passes 38/38 at desktop and narrow widths. The earlier stale-plan mutation defect was corrected from valid revision 16 to invalid revision 15 before this final run."
+              - command: "Rendered language, SEO, accessibility, desktop, and narrow review"
+                status: passed
+                notes: "Pinned Chromium reports the exact Russian title, localized SEO description, H1, and eight headings; 1440x1000 and 390x844 renders have no console/page errors or horizontal overflow. The in-app runtime exposed no browser after documented troubleshooting, so pinned Chromium supplied the review evidence."
+              - command: "Final course review, workspace, host-boundary, manifest, ownership, UTF-8, and whitespace gates"
+                status: passed
+                notes: "Checksum-aware course review passes before and after freezing; course check passes Rust formatting/tests plus all site gates; host audit, strict UTF-8, exactly-eight-output ownership, git diff checks, and all manifest entries pass. Existing duplicate diagram_trace output warnings remain unchanged and non-failing."
+              - command: "Explicit fluent-human approval of the frozen rendered Russian candidate"
+                status: passed
+                notes: "At 2026-07-22T08:23:50Z the user replied exactly 'I approve Chapter 5 revision 2.' Approval is bound to unchanged manifest sha256:f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b and Russian lesson sha256:a0389345347393e4de9273c07e6a22bc09ae20eabf8c4298077567406ab79b25."
+              - command: "Approval-bound canonical publication and immediate identity audit"
+                status: passed
+                notes: "The first replacement mechanism failed on Dropbox reparse-backed files before any canonical replacement; all eight original hashes matched the frozen rollback copies. A run-local MoveFileEx test passed, then each canonical target was replaced atomically with REPLACE_EXISTING|WRITE_THROUGH. All eight canonical hashes now equal the frozen publish manifest, staged bytes remain unchanged, rollback hashes verify, and zero publication temporaries remain."
+              - command: "Complete canonical repository and browser regression matrix"
+                status: passed
+                notes: "The canonical tree passes course-plan, contract, English/Russian chapter, parity, content, Astro, 16-file/266-test Vitest, 22-page static build, 387-reference/22-SEO-route link, focused 3/3 browser, full 38/38 browser, course review, course check, and host-artifact gates. Existing duplicate diagram_trace output warnings remain unchanged and non-failing."
+              - command: "Independent post-publication identity, governance, and commit-scope audits"
+                status: passed
+                notes: "Both read-only audits pass: every canonical and staged byte matches the frozen eight-file manifest; all original backups match their HEAD blobs; approval evidence and all recorded artifacts verify; no Rust, dependency, build, route, active-locale, file-mode, or locale-policy change exists; the intended commit scope is exactly eight product outputs plus BUILD_STATE.yaml and DECISIONS.md."
+              - command: "Guarded static release and canonical preview verification"
+                status: passed
+                notes: "Git Bash lacks the required GNU mv flags, and the Dropbox-backed WSL mount rejects RENAME_EXCHANGE before changing site/dist; the generated temporary and lock were retained under this run and the existing release remained unchanged. The unmodified ./course release succeeds atomically from a native WSL filesystem, whose 22 pages, 387 references, 22 SEO routes, 88 artifacts, and Chapter 5 HTML hash match the canonical image. The canonical Docker preview was recreated, smoke-tested, and matched that image. No build definition was changed and no unsafe non-atomic Windows release fallback was used."
+              - command: "Final manifest, host-boundary, scheduler, whitespace, and working-tree audit"
+                status: passed
+                notes: "The frozen manifest and rollback manifest reverify; no publication temporary or release lock remains outside the run directory; host audit, course-plan validation, git diff --check, executable-mode audit, and exact 10-file tracked scope pass. Unrelated untracked desktop.ini remains untouched."
+            notes: "Succeeded after explicit human approval. The complete meaning-first Russian Chapter 5 revision 2 and synchronized seven supporting outputs are canonical and byte-identical to frozen manifest sha256:f478aa2b8699163058b8ac14f7a15c6038be995769707075a13e102e4417508b; rollback evidence remains recoverable. Full staged, canonical, browser, review, Docker-image, native-Linux static-release, host, identity, governance, and scope gates pass. The Dropbox-backed Windows checkout correctly remains outside the atomic directory-release surface, while the canonical Docker preview serves the approved revision. No Rust, dependency, build definition, route, active locale, or locale policy changed. The completion checkpoint is ready for the dedicated revise-ch05-russian-localization commit before Chapter 11 starts."
       - id: implement-ch11-matrix-multiplication
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
         depends_on:
-          - implement-ch10-broadcasting-reductions
+          - revise-ch05-russian-localization
         status: pending
         inputs:
           - "SKILLS.md"

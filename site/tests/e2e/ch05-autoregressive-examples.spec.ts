@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '05-autoregressive-examples';
-const contentRevision = 1;
+const contentRevision = 2;
 const formulaLatex = String.raw`x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -66,6 +66,8 @@ const copy = {
       'Keep encoded documents owned and separated by frozen partition',
       'Run the worked pairs and preserve the frozen 8/2/2 corpus split',
     ],
+    policyRustLabel:
+      'Rust configuration that validates context and stride, counts complete pairs, and reports a suffix that is too short for another pair',
     diagramTitle: 'Build aligned next-token pairs one document at a time',
     partitionTitles: ['Training partition', 'Validation partition', 'Test partition'],
     sourceLane: 'Wrapped source tokens',
@@ -84,38 +86,41 @@ const copy = {
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
-    chapterTitle: 'Авторегрессионные пары «вход — цель»',
+    chapterTitle: 'Как составлять авторегрессионные пары «вход — цель»',
     revisionLabel: 'Версия материала',
     headings: {
-      formula: 'Запишите сдвиг на один токен через срезы',
-      history: 'Получайте цели из порядка токенов, а не из ручной разметки',
-      rust: 'Стройте полные пары отдельно для каждого документа',
-      visualization: 'Рассмотрите сдвиг и границы на раздельных лентах токенов',
-      exercises: 'Определите начальные позиции и сверьте ответы',
-      decoder: 'Свяжите пары с задачей декодера',
+      formula: 'Опишите сдвиг на один токен с помощью срезов',
+      history: 'Откуда языковая модель берёт целевые токены',
+      rust: 'Стройте пары, обходя документы по одному',
+      visualization: 'Сдвиг цели и границы на отдельных лентах',
+      exercises: 'Решите задачи и проверьте себя',
+      decoder: 'Что пары «вход — цель» дают декодеру',
     },
     rustCaptions: [
-      'Две последовательности токенов с отдельно заданными метками тональности',
-      'Проверьте параметры, подсчитайте пары и найдите остаток',
-      'Получите входной срез и цель со сдвигом на один токен',
-      'Храните закодированные документы отдельно в исходных выборках',
-      'Запустите пример и проверьте, что разбиение корпуса 8/2/2 сохранилось',
+      'Метки тональности задаются отдельно от последовательностей',
+      'Проверка параметров, подсчёт пар и поиск остатка',
+      'Входной и целевой срезы без копирования',
+      'Документы остаются в своих частях корпуса',
+      'Пары из примера и неизменное разбиение корпуса 8/2/2',
     ],
-    diagramTitle: 'Стройте пары для следующего токена отдельно в каждом документе',
+    policyRustLabel:
+      'Фрагмент кода Rust: конфигурация проверяет длину контекста и шаг, считает полные пары и находит остаток, которого недостаточно для новой пары',
+    diagramTitle: 'Пары для следующего токена внутри каждого документа',
     partitionTitles: ['Обучающая выборка', 'Валидационная выборка', 'Тестовая выборка'],
-    sourceLane: 'Исходная последовательность с BOS и EOS',
-    inputLane: 'Входной контекст',
-    targetLane: 'Целевая последовательность',
-    completeExample: 'Полная пара',
-    tailLane: 'Не хватает токенов для новой пары',
-    notEmitted: 'Новая пара не строится',
-    tailNote: 'Из этой начальной позиции нельзя построить новую пару',
-    shiftLabel: 'Цель начинается на одну позицию правее входа',
-    boundaryLabel: 'Граница выборки',
-    invariantsLabel: 'Правила, показанные на схеме',
-    overlapInvariant: 'Остаток, из которого нельзя построить новую пару, может пересекаться с предыдущими полными парами.',
-    exerciseSummary: 'Сверьте ответы',
-    exerciseAnswer: 'Полный участок из двух токенов даёт [0] -> [1].',
+    sourceLane: 'Токены документа, включая BOS и EOS',
+    inputLane: 'Входная последовательность',
+    targetLane: 'Следующие токены — цели',
+    completeExample: 'Пара построена',
+    tailLane: 'Остаток: токенов не хватает',
+    notEmitted: 'Новой пары нет',
+    tailNote:
+      'В этой позиции токенов уже не хватает на новую пару, но они могли войти в пары, начавшиеся раньше.',
+    shiftLabel: 'Цель сдвинута относительно входа на один токен',
+    boundaryLabel: 'Граница документа или части корпуса',
+    invariantsLabel: 'Что показывает схема',
+    overlapInvariant: 'Токены из остатка могут уже входить в ранее построенные пары.',
+    exerciseSummary: 'Проверьте решения',
+    exerciseAnswer: 'Из двух токенов получается полная пара [0] -> [1].',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -171,6 +176,7 @@ async function expectChapterContent(
     expect(evidence.label).toBeTruthy();
     expect(evidence.direction).toBe('ltr');
   }
+  expect(highlightingEvidence[1]?.label).toBe(localized.policyRustLabel);
   expect(
     await highlightedRust.locator('code').evaluateAll((blocks) => blocks.map((block) => block.textContent)),
   ).toEqual(expectedRustSources);
