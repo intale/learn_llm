@@ -3465,3 +3465,88 @@ authorize broader filesystem mutations.
 
 **Affected step and run:** `revise-ch05-russian-localization`, run
 `20260722T072842Z-revise-ch05-russian-localization-01`.
+
+## 2026-07-22 — Freeze Chapter 12 as finite-input stable softmax on the LLM path
+
+**Status:** Accepted during Chapter 12 preflight.
+
+**Context:** The scheduled Chapter 12 objective names stable probabilities and
+log-probabilities, while the reviewed course plan also requires log-sum-exp and
+forward indexed mean negative log-likelihood. The initial ledger omits the
+concrete tensor, prior-demo, site, and primary-source inputs that constrain those
+operations, and it omits the independently testable parser used by every recent
+Rust-trace visualization. The chapter must continue the LLM history rather than
+substitute programming-language or array-API history.
+
+**Decision:** Add dependency-free `log_sum_exp`, `softmax`, `log_softmax`, and
+`indexed_mean_nll` operations over checked `TensorView` inputs. Use one explicit
+class axis, preserve the input shape for probability outputs, remove or retain
+the class axis for log-sum-exp, return owned contiguous tensors, traverse logical
+groups and class indices deterministically, and make indexed targets correspond
+to the row-major shape with the class axis removed. Let log-sum-exp over an empty
+selected axis return the log-additive identity negative infinity; softmax,
+log-softmax, and indexed NLL reject an empty selected axis. Reject the first
+non-finite logit under the declared logical order; validate target count,
+nonempty mean, and target bounds before reading target values; keep output
+layout, allocation, and checked-view failures typed and ordered. Finite extreme
+inputs may still produce unavoidable zero probabilities, while log-domain
+outputs preserve representable evidence.
+
+Freeze the teaching fixture as shape `[3,2]`, axis `1`, and rows `[0,1]`,
+`[1000,1001]`, and `[-1001,-1000]`, whose equal relative logits expose ordinary,
+raw-exponential overflow, and raw-exponential underflow paths while sharing the
+same stable probabilities. Use targets `[1,0,1]` for indexed mean NLL. Derive the
+static diagram from one strict Rust trace and add
+`site/src/lib/stable-softmax-diagram.ts` as a declared output; the parser validates
+records and localized labels without reimplementing exponentiation, division, or
+logarithms in TypeScript.
+
+Bound the LLM progression to Bengio et al.'s vocabulary output softmax, the
+Transformer's attention and next-token softmax, and OpenAI GPT-2 source code's
+explicit maximum shift before exponentiation and reduction. Max shifting,
+log-domain loss, explicit axes, finite-input rejection, strided traversal,
+allocation, storage, error precedence, and target indexing are numerical or
+course-local implementation decisions, not architectural claims attributed to
+the papers.
+
+**Consequences:** Chapter 12 now has one observable probability-and-loss scope
+that matches the reviewed plan and prepares the numerical oracle in Chapter 13.
+The extra parser remains static, locale-neutral, and independently tested. The
+step gains explicit material local inputs and three bounded read-only primary
+sources before fingerprinting. No external Rust crate, package dependency, Linux
+build definition, route policy, active locale, or deferred Russian route changes.
+
+**Affected step:** `implement-ch12-stable-softmax` before run 01.
+
+## 2026-07-22 — Preserve Chapter 12's reviewed outcome and representable log evidence
+
+**Status:** Accepted during Chapter 12 implementation and final audit.
+
+**Context:** The reviewed course-plan outcome must remain the exact scheduler
+objective, while indexed mean NLL is already part of the chapter's declared
+scope, Rust contribution, and integration evidence. Extreme finite logits also
+expose two distinct rounding hazards: adding a subnormal exponential tail to
+`1.0` can erase evidence before taking a logarithm, while either summing huge
+per-target losses or scaling subnormal losses too early can overflow or
+underflow a representable final mean.
+
+**Decision:** Keep the Chapter 12 objective and first acceptance item byte-for-
+byte equal to the reviewed outcome; do not broaden them with indexed-target
+wording. Implement indexed mean NLL inside the existing detailed scope. Compute
+log-sum-exp from a selected maximum, one skipped maximum contribution, and
+`ln_1p` of the remaining exponential tail. Compute log-softmax directly from
+shifted logits. For indexed mean NLL, preserve the ordinary ordered sum whenever
+it remains finite and maintain a target-count-scaled nonnegative fallback in
+parallel; use that fallback only when an individual finite loss or the ordinary
+sum overflows. Keep all arithmetic in Rust and project only checked Rust trace
+lexemes into the static diagram.
+
+**Consequences:** Representable subnormal log evidence and means survive, while
+finite extreme losses whose unscaled intermediate exceeds `f64::MAX` can still
+produce a representable mean. Regression fixtures cover both boundaries, the
+reviewed scheduler text remains stable, and indexed NLL remains fully taught and
+tested without a concept-implementing dependency. No Linux build definition,
+route policy, active locale, or deferred Russian route changes.
+
+**Affected step and run:** `implement-ch12-stable-softmax`, run
+`20260722T100343Z-implement-ch12-stable-softmax-01`.

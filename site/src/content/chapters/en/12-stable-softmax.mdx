@@ -1,0 +1,446 @@
+---
+{
+  "chapter_id": "12-stable-softmax",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 12,
+  "concept_id": "stable-softmax",
+  "title": "Turn extreme logits into stable probabilities",
+  "description": "Turn vocabulary and attention logits into stable probabilities, log-probabilities, log-sum-exp values, and indexed mean NLL with dependency-free Rust.",
+  "objective": "Convert logits into normalized probabilities and log-probabilities and score indexed targets without overflow or avoidable underflow.",
+  "worked_inputs": "Normalize shape [3,2] logits with rows [0,1], [1000,1001], and [-1001,-1000] along axis 1. Predict that subtracting each row maximum produces [-1,0] every time, so all three rows have probabilities [0.268941421370,0.731058578630]. Then score targets [1,0,1].",
+  "formula": {
+    "latex": "p_i=\\frac{\\exp(\\ell_i-m)}{\\sum_j\\exp(\\ell_j-m)}, \\quad m=\\max_j\\ell_j",
+    "symbols": [
+      {
+        "symbol": "p_i",
+        "meaning": "the normalized probability assigned to class i"
+      },
+      {
+        "symbol": "\\ell_i",
+        "meaning": "the finite input logit for class i"
+      },
+      {
+        "symbol": "m",
+        "meaning": "the largest logit in the selected normalization group"
+      },
+      {
+        "symbol": "i",
+        "meaning": "the class whose probability is being computed"
+      },
+      {
+        "symbol": "j",
+        "meaning": "the class index traversed across the complete normalization group"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "Bengio et al.'s neural language model turns vocabulary scores into positive next-word probabilities that sum to one with an output softmax. The mathematical normalization is sound, but a literal finite-precision implementation that exponentiates large raw logits first can overflow, while exponentiating very negative raw logits can erase every term through underflow.",
+      "later_advance": "The Transformer applies softmax both to scaled query-key scores inside attention and after a learned output transform for next-token prediction. OpenAI's published GPT-2 source makes the numerical step explicit: its last-axis softmax subtracts the row maximum before exponentiating and summing, then attention applies that helper before multiplying by values.",
+      "modern_llm_role": "Stable softmax converts vocabulary or attention logits into normalized weights without changing the represented distribution under a shared constant shift. Log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when a rounded probability would be too small to represent; this course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. describe an output softmax whose values are positive and sum to one, interpreting its inputs as unnormalized log probabilities for the next word."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "OpenAI GPT-2 model.py",
+          "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
+          "claim": "OpenAI's GPT-2 source implements last-axis softmax by subtracting reduce_max with retained dimensions, exponentiating, and dividing by the retained reduce_sum; its attention path applies that helper to scaled masked scores before combining values."
+        }
+      ]
+    },
+    "approach": "From a vocabulary output softmax to stable normalization reused for Transformer attention and next-token prediction",
+    "summary": "Bengio et al. use softmax to turn next-word scores into a probability distribution. The Transformer needs the same normalization for both attention weights and predicted tokens, and GPT-2's published source shows the maximum shift that makes the computation stable. This chapter implements that numerical bridge plus log-domain scoring without claiming that its local tensor and error policies come from those sources.",
+    "rust_source": "rust/demos/ch12-stable-softmax/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch12-stable-softmax/src/lib.rs",
+      "region": "direct-output-softmax",
+      "purpose": "Expose how a literal raw-exponential normalization behaves for ordinary and extreme finite logits without attributing it to a cited model implementation."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
+      "region": "probability-errors",
+      "purpose": "Name invalid axes, empty class axes, output failures, non-finite logits, and indexed-target failures explicitly."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
+      "region": "stable-probability-operations",
+      "purpose": "Apply max-shifted log-sum-exp, probability, log-probability, and target-scaled indexed mean NLL across checked strided groups."
+    },
+    {
+      "path": "rust/demos/ch12-stable-softmax/src/lib.rs",
+      "region": "tiny-stable-softmax-example",
+      "purpose": "Construct the three frozen constant-shift rows and run every cumulative probability operation over them."
+    },
+    {
+      "path": "rust/demos/ch12-stable-softmax/src/main.rs",
+      "region": "learner-stable-softmax-output",
+      "purpose": "Prepare deterministic normalized values, naive failure statuses, shift evidence, indexed loss, and typed errors for learners."
+    },
+    {
+      "path": "rust/demos/ch12-stable-softmax/src/diagram_trace.rs",
+      "region": "stable-softmax-trace",
+      "purpose": "Record the exact Rust-derived maximum shifts, exponentials, denominators, probabilities, targets, mean loss, invariance, and errors consumed by the static figure."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "stable-softmax",
+    "rationale": "Three equal relative-logit rows make raw overflow, raw underflow, the shared maximum shift, invariant probabilities, and target log-loss visible together in a way a final probability vector alone cannot."
+  },
+  "decoder_connection": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently."
+}
+---
+
+import StableSoftmaxDiagram from '../../../components/chapters/StableSoftmaxDiagram.astro';
+
+export const diagramLabels = {
+  title: 'See one maximum shift rescue ordinary and extreme logits',
+  description:
+    'Compare three Rust-recorded rows with equal relative logits, follow their stable normalization and target losses, and inspect four rejected requests.',
+  summary: {
+    shape: 'Logit shape',
+    axis: 'Class axis',
+    meanNll: 'Mean NLL',
+  },
+  sections: {
+    shift: 'Subtract one row maximum before exponentiating',
+    compare: 'Compare raw exponentials with the stable path',
+    targets: 'Select one log-probability per target',
+    errors: 'Reject invalid axes, logits, and targets',
+  },
+  fields: {
+    row: 'Row',
+    rawLogits: 'Raw logits',
+    maximum: 'Maximum',
+    shifted: 'Shifted logits',
+    exponentials: 'Exponentials',
+    denominator: 'Denominator',
+    probabilities: 'Probabilities',
+    logProbabilities: 'Log-probabilities',
+    logSumExp: 'Log-sum-exp',
+    naivePath: 'Raw-exponential path',
+    stablePath: 'Maximum-shifted path',
+    status: 'Status',
+    targetClass: 'Class',
+    targetLoss: 'Negative log-likelihood',
+    group: 'Group',
+    classes: 'Classes',
+  },
+  statuses: {
+    finite: 'finite',
+    overflowUndefined: 'undefined after overflow',
+    underflowUndefined: 'undefined after underflow',
+    probabilitiesMatch: 'Rust confirms that rows 0, 1, and 2 have exactly matching probabilities.',
+  },
+  notes: {
+    shift:
+      'Each solid row begins at a different scale, yet every maximum shift leaves [-1, 0], shifted exponentials [0.367879441171, 1], and the same normalized pair.',
+    compare:
+      'A solid raw card stays finite, a dashed card marks overflow, and a dotted card marks underflow. Every double-bordered stable card retains probabilities and log-probabilities.',
+    targets:
+      'The target index selects one Rust-recorded log-probability. Negating that value gives the row loss; their mean is 0.646595020852 nats per target.',
+    errors:
+      'Dashed rejection cards preserve the exact axis, group, class, and target evidence returned before an invalid computation continues.',
+  },
+  symbols: {
+    finite: '=',
+    stable: 'S',
+    overflow: '↑',
+    underflow: '↓',
+    rejected: '×',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict three shifted rows
+
+Start with three rows of two class scores:
+
+```text
+shape [3,2]
+[[    0,     1],
+ [ 1000,  1001],
+ [-1001, -1000]]
+```
+
+These values are logits: scores before normalization, not probabilities. The
+second entry is larger by exactly one in every row. Predict the result of
+subtracting each row's maximum before reaching for a calculator:
+
+```text
+[0, 1]          - 1     = [-1, 0]
+[1000, 1001]    - 1001  = [-1, 0]
+[-1001, -1000]  - -1000 = [-1, 0]
+```
+
+Exponentiating now produces `[0.367879441171,1]` for every row. Dividing by
+their sum `1.367879441171` gives the same pair every time:
+
+```text
+[0.268941421370, 0.731058578630]
+```
+
+That equality is not an approximation caused by the display: this frozen Rust
+fixture calculates each shifted row identically. The maximum shift removes a
+shared constant while preserving the one-unit difference that controls their
+relative probability.
+
+For targets `[1,0,1]`, predict which entry each row contributes. Their negative
+log-probabilities are `[0.313261687518,1.313261687518,0.313261687518]`, so the
+mean is `0.646595020852` nats per target.
+
+{/* chapter-section:formula */}
+
+## Normalize with one maximum shift
+
+The chapter's stable softmax formula is:
+
+$$
+p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j
+$$
+
+The largest shifted logit is exactly zero, so at least one exponential is one
+and none is larger than one. This removes the avoidable raw overflow in
+`exp(1000)` and prevents an all-zero denominator for the very negative row.
+
+Adding the same constant to every logit also adds it to the maximum. Every
+difference stays unchanged, so softmax is shift invariant. The maximum is not a
+probability and subtraction alone does not normalize anything; exponentiation
+and division by the complete group sum still matter.
+
+The same shifted terms support three log-domain quantities. Log-sum-exp adds the
+maximum back after taking the natural logarithm of the shifted sum. Log-softmax
+keeps the safer shifted difference and subtracts that logarithm. Indexed NLL
+selects one target log-probability and negates it without first rounding through
+an ordinary probability.
+
+{/* chapter-section:symbol-glossary */}
+
+## Name each probability quantity
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $p_i$ | The normalized probability assigned to class $i$. |
+| $\ell_i$ | The finite input logit for class $i$. |
+| $m$ | The largest logit in the selected normalization group. |
+| $i$ | The class whose probability is being computed. |
+| $j$ | The class index traversed across the complete denominator. |
+
+An axis divides a tensor into independent normalization groups. For shape
+`[3,2]` and axis `1`, there are three groups with two classes each. Removing the
+class axis gives group shape `[3]`, so flat targets `[1,0,1]` correspond to rows
+zero, one, and two in that order.
+
+Log-sum-exp may remove the selected axis or retain it with extent one. Softmax
+and log-softmax preserve the input shape. Every successful tensor result owns a
+contiguous row-major buffer even when the input is a sliced or transposed view.
+
+{/* chapter-section:history */}
+
+## From vocabulary softmax to Transformer probabilities
+
+Bengio et al.'s neural language model turns vocabulary scores into positive next-word probabilities that sum to one with an output softmax. The mathematical normalization is sound, but a literal finite-precision implementation that exponentiates large raw logits first can overflow, while exponentiating very negative raw logits can erase every term through underflow.
+
+The earlier checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. describe an output softmax whose values are positive and sum to one, interpreting its inputs as unnormalized log probabilities for the next word.
+
+That output distribution is the relevant historical step: learned neural scores
+become probabilities over a vocabulary. The cited source does not say that its
+implementation used this chapter's literal Rust baseline, arbitrary-axis API,
+finite-input rejection, or error order.
+
+The later checkpoints are
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
+and
+[OpenAI's published GPT-2 `model.py`](https://github.com/openai/gpt-2/blob/master/src/model.py).
+Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities. OpenAI's GPT-2 source implements last-axis softmax by subtracting reduce_max with retained dimensions, exponentiating, and dividing by the retained reduce_sum; its attention path applies that helper to scaled masked scores before combining values.
+
+The Transformer applies softmax both to scaled query-key scores inside attention and after a learned output transform for next-token prediction. OpenAI's published GPT-2 source makes the numerical step explicit: its last-axis softmax subtracts the row maximum before exponentiating and summing, then attention applies that helper before multiplying by values.
+
+Stable softmax converts vocabulary or attention logits into normalized weights without changing the represented distribution under a shared constant shift. Log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when a rounded probability would be too small to represent; this course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.
+
+The bounded Rust contrast starts with a literal formula translation. It succeeds
+for `[0,1]`; raw positive extremes become infinity divided by infinity, and raw
+negative extremes become zero divided by zero. This demonstrates the numerical
+pressure that stable normalization solves on the path to modern LLMs. It is not
+a history of Rust, Python, array libraries, or any other programming language.
+
+<RustSource
+  path="rust/demos/ch12-stable-softmax/src/lib.rs"
+  region="direct-output-softmax"
+  caption="Expose raw-exponential normalization for one ordinary and two extreme finite rows"
+  label="Rust source implementing the bounded direct softmax baseline used to reveal finite-precision overflow and underflow"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Implement checked log-domain operations
+
+The error surface keeps rejected invariants visible. Axis bounds come first.
+Softmax, log-softmax, and indexed NLL then reject an empty class axis. Output
+layout and fallible reservation precede tensor reads. Indexed NLL additionally
+checks target count, a nonempty mean, and every target bound before reading any
+logit. Only then can the first NaN or signed infinity be reported in group-major,
+class-minor order.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/probability.rs"
+  region="probability-errors"
+  caption="Keep axes, empty classes, outputs, non-finite logits, and indexed targets distinct"
+  label="Rust source defining Chapter 12 stable probability and indexed negative-log-likelihood errors"
+/>
+
+Each nonempty group first finds its maximum through `TensorView::get`. A second
+pass skips one maximum term, sums the remaining shifted exponentials as a tail,
+and uses `ln_1p(tail)`. That detail preserves a representable subnormal log-domain
+correction that ordinary `ln(1 + tail)` could round away before the logarithm.
+
+Softmax divides shifted exponentials by `1 + tail`. Log-softmax computes the
+shifted logit minus `ln_1p(tail)`. Fused indexed mean NLL normally sums row
+losses and divides once, preserving subnormal mean rounding. It also accumulates
+target-count-scaled nonnegative contributions; if an unscaled row loss or sum
+overflows, that fallback preserves a representable final mean. Coordinate
+generation inserts each class index into the row-major group coordinate, so any
+logical axis works and output values return to normal row-major positions.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/probability.rs"
+  region="stable-probability-operations"
+  caption="Normalize finite strided logits and score flat indexed targets without avoidable overflow"
+  label="Rust source implementing arbitrary-axis log-sum-exp, softmax, log-softmax, and fused indexed mean negative log-likelihood"
+/>
+
+The frozen helper constructs all three constant-shift rows once and calls the
+cumulative API. It does not keep a second implementation of the stable formula.
+
+<RustSource
+  path="rust/demos/ch12-stable-softmax/src/lib.rs"
+  region="tiny-stable-softmax-example"
+  caption="Run every checked probability operation over the shared three-row fixture"
+  label="Rust source constructing the complete Chapter 12 stable softmax example"
+/>
+
+An empty selected axis has one useful log-domain identity: log-sum-exp returns
+negative infinity for every remaining group. No normalized distribution exists
+there, so the other operations reject it. A zero extent on a different axis
+produces a valid empty tensor without reads. Exact zero is canonicalized to
+positive zero, making singleton log-softmax and NLL exactly positive zero.
+
+Maximum shifting removes avoidable failures, not the limits of `f64`. An
+extremely unlikely finite class may still round to probability zero, while its
+log-probability and fused target loss remain finite. A mathematical class range
+beyond `f64` may still become signed infinity, while log-sum-exp at the upper
+boundary may round to `f64::MAX`. Chapter 7 correctly
+scores an already-rounded zero assigned probability as infinite NLL; this
+chapter's fused logit path avoids that rounding when the log-domain answer is
+representable.
+
+The learner program freezes ordinary and extreme results plus four errors:
+
+<RustSource
+  path="rust/demos/ch12-stable-softmax/src/main.rs"
+  region="learner-stable-softmax-output"
+  caption="Prepare stable outputs, raw failure statuses, target loss, invariance, and typed errors"
+  label="Rust source running the Chapter 12 learner fixture before printing its exact deterministic output"
+/>
+
+```bash
+./course run cargo run --quiet --locked -p ch12-stable-softmax
+```
+
+```text
+stable softmax: shape=[3, 2] values=[0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630]
+log-sum-exp: shape=[3] values=[1.313261687518, 1001.313261687518, -999.686738312482]
+targets: [1, 0, 1] losses=[0.313261687518, 1.313261687518, 0.313261687518] mean_nll=0.646595020852
+naive overflow [1000, 1001]: undefined=true
+naive underflow [-1001, -1000]: undefined=true
+```
+
+The complete checked fixture also freezes logits, log-softmax, probability sums,
+the ordinary direct result, shift equality, exact errors, and the Chapter 13
+handoff. Library tests use absolute tolerance `1e-12` for decimals and exact
+comparisons for shapes, errors, infinities, and positive-zero bits.
+
+{/* chapter-section:visualization */}
+
+## Compare naive and stable exponentials
+
+The Rust trace serializes every visible number and status. TypeScript validates
+one exact ordered block and projects its lexemes; it does not call an exponential,
+divide values, or take a logarithm. The static component supplies localized
+labels, semantic table headers, content-height cards, a named keyboard-local
+scroll region, and border patterns that survive forced colors.
+
+<RustSource
+  path="rust/demos/ch12-stable-softmax/src/diagram_trace.rs"
+  region="stable-softmax-trace"
+  caption="Record maximum shifts, raw statuses, stable outputs, target losses, invariance, and errors"
+  label="Rust source producing the strict locale-neutral evidence consumed by the Chapter 12 static visualization"
+/>
+
+<StableSoftmaxDiagram labels={diagramLabels} />
+
+{/* chapter-section:exercises */}
+
+## Predict before running Rust
+
+1. Predict the shifted values for `[1000,1001]`.
+2. Predict whether adding `-1001` to `[0,1]` changes either probability.
+3. Explain why direct normalization of `[1000,1001]` is undefined in `f64`.
+4. Predict both probabilities for equal logits `[7,7]`.
+5. Select the loss for target class `0` in row `[1000,1001]`.
+6. Predict log-sum-exp output shapes for input `[2,3,4]`, axis `1`, with and without `keep_dim`.
+7. Decide which empty-class operation has a defined identity.
+8. Misconception check: does maximum shifting itself turn logits into probabilities?
+
+<details>
+  <summary>Check the predictions</summary>
+
+1. The maximum is 1001, so the shifted values are exactly `[-1,0]`.
+2. No. Adding one shared constant changes the maximum by the same amount and leaves both shifted differences unchanged.
+3. Both raw exponentials overflow to infinity, so each division becomes infinity divided by infinity rather than a probability.
+4. Equal shifted logits have equal exponentials, so both probabilities are `0.5`.
+5. Class zero has log-probability `-1.313261687518`, so its NLL is `1.313261687518`.
+6. Removing axis one gives `[2,4]`; retaining it gives `[2,1,4]`.
+7. Log-sum-exp returns the log-additive identity negative infinity. A softmax distribution, log-softmax distribution, and indexed target loss need at least one class.
+8. No. The shift only stabilizes relative logits. Exponentiation and division by the complete shifted sum produce probabilities.
+
+</details>
+
+Run both exact-output commands after predicting:
+
+```bash
+./course run cargo run --quiet --locked -p ch12-stable-softmax
+./course run cargo run --quiet --locked -p ch12-stable-softmax --example ch12-stable-softmax-trace
+```
+
+{/* chapter-section:decoder-connection */}
+
+## Prepare an independent gradient oracle
+
+The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.
+
+Forward values alone cannot prove a future backward implementation. Chapter 13
+therefore builds a slow finite-difference oracle, varies one scalar input at a
+time, and compares candidate derivatives before the course trusts automatic
+differentiation.

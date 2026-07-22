@@ -1,0 +1,15 @@
+logits: shape=[3, 2] class_axis=1 values=[0.000000000000, 1.000000000000, 1000.000000000000, 1001.000000000000, -1001.000000000000, -1000.000000000000]
+stable softmax: shape=[3, 2] values=[0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630]
+log softmax: shape=[3, 2] values=[-1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518]
+log-sum-exp: shape=[3] values=[1.313261687518, 1001.313261687518, -999.686738312482]
+row probability sums: [1.000000000000, 1.000000000000, 1.000000000000]
+targets: [1, 0, 1] losses=[0.313261687518, 1.313261687518, 0.313261687518] mean_nll=0.646595020852
+naive ordinary [0, 1]: [0.268941421370, 0.731058578630]
+naive overflow [1000, 1001]: undefined=true
+naive underflow [-1001, -1000]: undefined=true
+shift invariance: rows 0, 1, and 2 match exactly
+axis error: probability axis 2 is out of bounds for rank 2
+empty-axis error: probability axis 1 has no classes
+non-finite error: logit at group 0, class 1 is positive infinity
+target error: target 2 at group 1 is out of bounds for 2 classes
+chapter 13 handoff: check loss derivatives with an independent numerical oracle

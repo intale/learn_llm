@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T09:45:29Z"
+updated_at: "2026-07-22T10:06:54Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 12
+      spent: 13
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -7999,14 +7999,44 @@ builds:
         objective: "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
         depends_on:
           - implement-ch11-matrix-multiplication
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
           - "curriculum/chapters/11-matrix-multiplication.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/metrics.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/demos/ch10-broadcasting-reductions/Cargo.toml"
+          - "rust/demos/ch10-broadcasting-reductions/src/lib.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/main.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs"
+          - "rust/demos/ch10-broadcasting-reductions/expected.txt"
+          - "rust/demos/ch10-broadcasting-reductions/diagram-trace.txt"
+          - "rust/demos/ch07-language-model-metrics/Cargo.toml"
+          - "rust/demos/ch07-language-model-metrics/src/lib.rs"
+          - "rust/demos/ch07-language-model-metrics/src/main.rs"
+          - "rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
+          - "rust/demos/ch07-language-model-metrics/examples/diagram_trace.rs"
+          - "rust/demos/ch07-language-model-metrics/expected.txt"
+          - "rust/demos/ch07-language-model-metrics/diagram-trace.txt"
+          - "rust/demos/ch11-matrix-multiplication/Cargo.toml"
+          - "rust/demos/ch11-matrix-multiplication/src/lib.rs"
+          - "rust/demos/ch11-matrix-multiplication/src/main.rs"
+          - "rust/demos/ch11-matrix-multiplication/src/diagram_trace.rs"
+          - "rust/demos/ch11-matrix-multiplication/examples/diagram_trace.rs"
+          - "rust/demos/ch11-matrix-multiplication/expected.txt"
+          - "rust/demos/ch11-matrix-multiplication/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -8015,12 +8045,38 @@ builds:
           - "scripts/check-static-links.mjs"
           - "Cargo.toml"
           - "Cargo.lock"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/src/content.config.ts"
+          - "site/src/components/RustSource.astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
+          - "site/src/components/chapters/MatrixMultiplicationDiagram.astro"
+          - "site/src/lib/matrix-multiplication-diagram.ts"
+          - "site/tests/11-matrix-multiplication-diagram.test.ts"
+          - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://github.com/openai/gpt-2/blob/master/src/model.py"
         outputs:
           - "curriculum/chapters/12-stable-softmax.md"
           - "rust/crates/llm-from-scratch/src/nn/probability.rs"
@@ -8028,12 +8084,14 @@ builds:
           - "rust/demos/ch12-stable-softmax/"
           - "site/src/content/chapters/en/12-stable-softmax.mdx"
           - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/lib/stable-softmax-diagram.ts"
           - "site/tests/12-stable-softmax-diagram.test.ts"
           - "site/tests/e2e/ch12-stable-softmax.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
+          - "The history traces Bengio's output softmax through Transformer attention and output softmax to GPT-2's explicit max-shifted implementation, while treating axis, finite-input, storage, error, allocation, and target-index policy as course-local."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
@@ -8047,6 +8105,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch12-stable-softmax | diff -u rust/demos/ch12-stable-softmax/expected.txt -"
+          - "cargo run --quiet --locked -p ch12-stable-softmax --example ch12-stable-softmax-trace | diff -u rust/demos/ch12-stable-softmax/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 12-stable-softmax"
           - "npm --prefix site run check:parity -- --chapter 12-stable-softmax"
           - "npm --prefix site run check:content"
@@ -8058,8 +8117,86 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work plus bounded read-only verification of three declared primary-source URLs; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260722T100343Z-implement-ch12-stable-softmax-01
+            started_at: "2026-07-22T10:03:43Z"
+            finished_at: "2026-07-22T11:10:07Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b182092613688fac0ceffb73db3455329ed59732"
+              manifest: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/input-fingerprint.txt"
+              checksum: "sha256:f4b3db423da179128eefa750d1f41c1679fec252496c74e1b70610f44ea89f8a"
+              prior_artifact: "Chapter 11 canonical commit b182092613688fac0ceffb73db3455329ed59732 and publish manifest sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c reverified. Interrupted Chapter 11 run 01 remains immutable and requires no recovery."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+              external_sources: "Bengio et al. 2003; Vaswani et al. 2017; official OpenAI GPT-2 model.py"
+            staging_dir: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/"
+            commands:
+              - "Run the post-Chapter-11 startup protocol; verify HEAD b182092, a clean tracked tree, no running work, Chapter 12 eligibility, current Docker/Git/Bash versions, and every recorded Chapter 11 artifact"
+              - "Perform independent read-only scheduler, Rust API, LLM-history, site, accessibility, and material-input audits before product edits"
+              - "Preserve the reviewed objective while declaring indexed mean NLL in its existing scope; declare 73 local material inputs, three bounded primary-source URLs, one strict diagram-parser output, and the byte-exact trace gate"
+              - "Freeze finite-input arbitrary-axis probability semantics, empty log-sum-exp identity, error precedence, the [3,2] ordinary/overflow/underflow fixture, Rust-trace boundary, and LLM-only historical arc in DECISIONS.md"
+              - "Fingerprint all declared inputs and the verified Chapter 11 manifest before any network retrieval or product output"
+              - "Verify bounded Bengio, Transformer, and official GPT-2 softmax claims, then implement the complete Rust, curriculum, English lesson, trace parser, static diagram, SEO, unit-test, and browser-test slice only in the run publish tree"
+              - "Correct subnormal log-tail and mean-NLL rounding, overflowing finite-loss means, figure focus and local overflow containment, content-height card spacing, duplicate-instance IDs, stable-card probability evidence, and the exact reviewed scheduler objective"
+              - "Run complete staged Rust, content, Astro, Vitest, static build/link/SEO, focused Chromium, full Chromium, JavaScript-disabled, forced-colors, desktop, and 390px validation with independent final audits"
+              - "Freeze all 16 candidate files in publish.sha256 and run the repository's checksum-aware staged review without mutating the publish tree"
+              - "Exercise MoveFileEx on run-local Dropbox-backed copies, retain rollback evidence, and atomically promote only the checksum-frozen targets with post-publication canonical/staged identity checks"
+              - "Run the canonical ./course check image, supplemental network-disabled Rust/site gates, a fresh canonical-only Chromium container, the deployable site build, recreated loopback preview checks, and the host-artifact audit"
+            artifacts:
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/input-fingerprint.txt"
+                checksum: "sha256:f4b3db423da179128eefa750d1f41c1679fec252496c74e1b70610f44ea89f8a"
+                notes: "Current commit, 73 local material-input hashes, three explicit primary-source URLs, repository tool pins, host orchestration versions, and the verified Chapter 11 manifest."
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/publish.sha256"
+                checksum: "sha256:064d23ddce46681760abacb6a092f22e4090117ec4d5dcf12aa37fa153220aad"
+                notes: "Immutable sorted manifest for exactly 16 final candidate files."
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/canonical-after-publication.sha256"
+                checksum: "sha256:750ec10de8631ead6d877893f127b20db4bea2a81da9ff6732e3fac6d9df135e"
+                notes: "All canonical product outputs after atomic promotion; each entry equals its frozen candidate hash."
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/publication-backup-canonical/originals.sha256"
+                checksum: "sha256:609e595d8f42f37beb94c043c232dc589228760f17cacaa766af9a33fd26ac12"
+                notes: "Verified rollback copies for the two replaced canonical files; the other 14 targets are recorded as originally absent."
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/visual/ch12-desktop-diagram.png"
+                checksum: "sha256:97bab503378c073778d12d55b5588982c7f2f9b8b8b3f18bb0c93db84075ec6a"
+                notes: "Final 1440px rendered diagram used for visual card-height and overflow inspection."
+              - path: ".build/runs/20260722T100343Z-implement-ch12-stable-softmax-01/visual/ch12-narrow-diagram.png"
+                checksum: "sha256:bde9f3eaa13187238aac648685be38256d4f2bc546b64a1dac2131c4e2b5a49b"
+                notes: "Final 390px rendered diagram; the wide table remains inside its local focusable scroller and cards stack at content height."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, scope, locale, cost, and input-closure preflight"
+                status: passed
+                notes: "The sole eligible step is Chapter 12; zero prior runs are active; all 73 local inputs and the Chapter 11 manifest exist and verify; all new output paths are absent; shared lib.rs and Cargo.lock are clean; English is the exact active locale and Russian stays deferred; medium local work plus three bounded reads fits the unlimited budget; no dependency or build change is planned."
+              - command: "Independent Rust, site/history, and complete-ledger design audits"
+                status: passed
+                notes: "Audits agree on arbitrary-axis max-shifted softmax/log-softmax/log-sum-exp, fused indexed mean NLL, finite-input rejection, strided reads, owned outputs, the [3,2] shift-invariant fixture, strict Rust-only trace arithmetic, static accessible rendering, and an LLM progression from Bengio output softmax through Transformer softmax to GPT-2's explicit maximum shift."
+              - command: "Bounded primary-source verification"
+                status: passed
+                notes: "Bengio et al. support vocabulary output softmax as positive normalized next-word values and unnormalized log probabilities; Vaswani et al. support attention and decoder next-token softmax; official GPT-2 model.py supports explicit retained-dimension maximum subtraction, exponentiation, reduction, and attention use. Repository axis, error, storage, allocation, and target policies remain explicitly course-local."
+              - command: "Staged locked Rust format, Clippy -D warnings, complete workspace tests, dependency/demo policy, and byte-exact learner and trace output"
+                status: passed
+                notes: "Pinned Rust 1.93.1 passes all gates with 123 library tests, 12 discovered demos, no external Rust crates, and byte-identical expected.txt and the strict 22-line stable-softmax trace. Tests cover arbitrary axes and strides, equal/MAX/signed-zero/empty/huge/nonfinite inputs, probability underflow with retained log evidence, ln_1p subnormal tails, ordinary subnormal means, and overflow-scaled representable means."
+              - command: "Staged contract, English chapter, active-locale parity, complete content, Astro, Vitest, production build, and static link/SEO matrix"
+                status: passed
+                notes: "The course plan reports 39 chapters, 58 steps, and 12 contracts; all 19 localized sources and 12 publishable sets pass; Astro reports zero diagnostics; all 18 Vitest files and 306 tests pass; the static build emits 24 pages; and 461 local references, 24 SEO routes, and 92 artifacts pass. Russian remains complete through Chapter 7 with no Chapter 12 placeholder."
+              - command: "Staged focused and complete Playwright matrices plus rendered geometry inspection"
+                status: passed
+                notes: "All four Chapter 12 cases and all 46 browser cases pass in pinned Chromium, including direct/index routing, deferred Russian 404, exact history/Rust evidence, forced-colors cues, no client scripts, and JavaScript-disabled rendering. At 1440px and 390px the document width equals the viewport, the 992px trace stays inside a 326px named scroller, and card bottom gaps are ordinary 12.8-15.8px padding with no fixed or minimum heights."
+              - command: "Independent final Rust, LLM-history/content, accessibility/site, and ledger audits"
+                status: passed
+                notes: "All reviewers returned PASS after bounded fixes to preserve subnormal and overflowing finite means, focus both the figure and local scroller, constrain grid min-content width, remove default paragraph bottom excess, derive section IDs from instanceId, render stable probabilities promised by the copy, and restore the exact reviewed outcome text. History remains exclusively the road from neural output softmax through Transformer softmax to GPT-2."
+              - command: "sha256sum -c publish.sha256 and official ./course review 20260722T100343Z-implement-ch12-stable-softmax-01 --check"
+                status: passed
+                notes: "All 16 candidate files verify against immutable manifest sha256:064d23ddce46681760abacb6a092f22e4090117ec4d5dcf12aa37fa153220aad. The official review rebuilt 24 pages and reverified 19 sources, 12 publishable sets, zero Astro diagnostics, 461 references, 24 SEO routes, and 92 artifacts without mutating publish/. A first host invocation excluded all MSYS path conversion and stopped before build; retrying with only /bin/sh excluded is the recorded Windows host adaptation."
+              - command: "Approval-independent atomic canonical publication and identity audit"
+                status: passed
+                notes: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH first passed on run-local Dropbox copies, then promoted exactly 16 same-directory verified temporaries. Cargo.lock and lib.rs have verified rollback copies; 14 targets were originally absent; all canonical and staged hashes match the frozen manifest; and no publication or rollback temporary remains. Windows script policy and a missing legacy .NET path helper each stopped before any canonical move; the partial backup was preserved as attempt-01 before the compatible retry."
+              - command: "Canonical repository, supplemental network-disabled Docker, and fresh canonical-only Chromium validation"
+                status: passed
+                notes: "The canonical ./course check image passes formatting, all workspace and documentation tests, Astro/content/parity/build/link gates, while supplemental gates pass Clippy, dependency/demo policy, exact outputs, contract/chapter checks, and all 306 Vitest cases. A fresh canonical-only browser container passes four focused and 46 complete cases. The review and deployable images contain identical Chapter 12 HTML sha256:2e9245eff62680b8d5d649af0d3e7485e9ea88a51044c1ab0b6a1170ebd06028."
+              - command: "Canonical preview, host-artifact, manifest, whitespace, and scope audit"
+                status: passed
+                notes: "The recreated learn-llm-site preview returns 200 for the English lesson and course index, includes one exact relevant description and the Chapter 12 index link, and returns 404 for Russian Chapter 12. The host audit passes after deleting only the disposable run-local Rust target cache; git diff --check passes; the 16 canonical files still match the frozen manifest; unrelated desktop.ini remains untouched; and no build definition, external dependency, route policy, active locale, or indexed executable mode changed."
+            notes: "Succeeded. The dependency-free Chapter 12 stable-softmax vertical slice is canonical and byte-identical to frozen manifest sha256:064d23ddce46681760abacb6a092f22e4090117ec4d5dcf12aa37fa153220aad. Arbitrary-axis stable softmax, log-softmax, log-sum-exp, and indexed mean NLL preserve representable extreme and subnormal evidence; the exact Rust demo and trace drive an English LLM-history lesson, accessible static visualization, SEO, and regression coverage. Staged, canonical, browser, preview, host, identity, governance, and scope gates pass. Russian remains complete through Chapter 7 with no placeholder, and no build definition, external dependency, route policy, active locale, or executable mode changed. The completion checkpoint is ready for the dedicated implement-ch12-stable-softmax commit before Chapter 13 starts."
       - id: implement-ch13-gradient-checking
         objective: "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
         depends_on:

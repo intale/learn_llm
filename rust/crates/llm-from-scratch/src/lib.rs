@@ -9,6 +9,12 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Numerically stable neural-network building blocks.
+pub mod nn {
+    #[path = "probability.rs"]
+    pub mod probability;
+}
+
 /// Contiguous storage, borrowed views, and checked tensor operations.
 pub mod tensor {
     pub mod matmul;

@@ -1,0 +1,22 @@
+TRACE stable-softmax-v1 BEGIN
+INPUT shape=3,2 axis=1 values=0.000000000000,1.000000000000,1000.000000000000,1001.000000000000,-1001.000000000000,-1000.000000000000
+TARGETS values=1,0,1
+ROW row=0 logits=0.000000000000,1.000000000000 maximum=1.000000000000 shifted=-1.000000000000,0.000000000000 exponentials=0.367879441171,1.000000000000 denominator=1.367879441171 log-sum-exp=1.313261687518 probabilities=0.268941421370,0.731058578630 log-probabilities=-1.313261687518,-0.313261687518
+ROW row=1 logits=1000.000000000000,1001.000000000000 maximum=1001.000000000000 shifted=-1.000000000000,0.000000000000 exponentials=0.367879441171,1.000000000000 denominator=1.367879441171 log-sum-exp=1001.313261687518 probabilities=0.268941421370,0.731058578630 log-probabilities=-1.313261687518,-0.313261687518
+ROW row=2 logits=-1001.000000000000,-1000.000000000000 maximum=-1000.000000000000 shifted=-1.000000000000,0.000000000000 exponentials=0.367879441171,1.000000000000 denominator=1.367879441171 log-sum-exp=-999.686738312482 probabilities=0.268941421370,0.731058578630 log-probabilities=-1.313261687518,-0.313261687518
+NAIVE row=0 status=finite exponentials=1.000000000000,2.718281828459 denominator=3.718281828459 probabilities=0.268941421370,0.731058578630
+NAIVE row=1 status=overflow-undefined
+NAIVE row=2 status=underflow-undefined
+OUTPUT operation=log-sum-exp shape=3 values=1.313261687518,1001.313261687518,-999.686738312482
+OUTPUT operation=softmax shape=3,2 values=0.268941421370,0.731058578630,0.268941421370,0.731058578630,0.268941421370,0.731058578630
+OUTPUT operation=log-softmax shape=3,2 values=-1.313261687518,-0.313261687518,-1.313261687518,-0.313261687518,-1.313261687518,-0.313261687518
+TARGET row=0 class=1 log-probability=-0.313261687518 loss=0.313261687518
+TARGET row=1 class=0 log-probability=-1.313261687518 loss=1.313261687518
+TARGET row=2 class=1 log-probability=-0.313261687518 loss=0.313261687518
+MEAN-NLL targets=1,0,1 losses=0.313261687518,1.313261687518,0.313261687518 value=0.646595020852
+INVARIANCE reference-row=0 compared-rows=1,2 probabilities-match=yes
+ERROR operation=softmax status=axis-out-of-bounds axis=2 rank=2
+ERROR operation=softmax status=empty-normalization-axis axis=1
+ERROR operation=softmax status=positive-infinity-logit group=0 class=1
+ERROR operation=indexed-mean-nll status=target-out-of-bounds group=1 target=2 classes=2
+TRACE stable-softmax-v1 END

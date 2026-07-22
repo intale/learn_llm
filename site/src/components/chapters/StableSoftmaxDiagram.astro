@@ -1,0 +1,433 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertStableSoftmaxDiagramLabels,
+  parseStableSoftmaxTrace,
+  stableSoftmaxDiagramId,
+  type StableSoftmaxDiagramLabels,
+  type TraceNumber,
+} from '../../lib/stable-softmax-diagram';
+
+interface Props {
+  labels: StableSoftmaxDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'stable-softmax-diagram' } = Astro.props as Props;
+assertStableSoftmaxDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch12-stable-softmax/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseStableSoftmaxTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+
+function list(values: readonly TraceNumber[]): string {
+  return `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+}
+
+function naiveStatus(status: (typeof trace.naive)[number]['status']): string {
+  if (status === 'finite') return labels.statuses.finite;
+  if (status === 'overflow-undefined') return labels.statuses.overflowUndefined;
+  return labels.statuses.underflowUndefined;
+}
+
+function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
+  if (status === 'finite') return labels.symbols.finite;
+  if (status === 'overflow-undefined') return labels.symbols.overflow;
+  return labels.symbols.underflow;
+}
+---
+
+<figure
+  class="softmax-diagram"
+  data-visualization-id={stableSoftmaxDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+  </figcaption>
+
+  <dl class="summary-grid">
+    <div>
+      <dt>{labels.summary.shape}</dt>
+      <dd><bdi dir="ltr">{list(trace.input.shape)}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.axis}</dt>
+      <dd><bdi dir="ltr">{trace.input.axis.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.meanNll}</dt>
+      <dd><bdi dir="ltr">{trace.meanNll.value.lexeme}</bdi></dd>
+    </div>
+  </dl>
+
+  <section aria-labelledby={`${instanceId}-shift`}>
+    <h4 id={`${instanceId}-shift`}>{labels.sections.shift}</h4>
+    <p>{labels.notes.shift}</p>
+    <div
+      class="trace-scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.sections.shift}
+    >
+      <table class="shift-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.row}</th>
+            <th scope="col">{labels.fields.rawLogits}</th>
+            <th scope="col">{labels.fields.maximum}</th>
+            <th scope="col">{labels.fields.shifted}</th>
+            <th scope="col">{labels.fields.exponentials}</th>
+            <th scope="col">{labels.fields.denominator}</th>
+            <th scope="col">{labels.fields.probabilities}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.rows.map((row) => (
+            <tr
+              data-softmax-row={row.row.lexeme}
+              data-maximum={row.maximum.lexeme}
+              data-shifted={row.shifted.map(({ lexeme }) => lexeme).join(',')}
+              data-probabilities={row.probabilities.map(({ lexeme }) => lexeme).join(',')}
+              data-log-probabilities={row.logProbabilities
+                .map(({ lexeme }) => lexeme)
+                .join(',')}
+            >
+              <th scope="row"><bdi dir="ltr">{row.row.lexeme}</bdi></th>
+              <td><bdi dir="ltr">{list(row.logits)}</bdi></td>
+              <td><bdi dir="ltr">{row.maximum.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{list(row.shifted)}</bdi></td>
+              <td><bdi dir="ltr">{list(row.exponentials)}</bdi></td>
+              <td><bdi dir="ltr">{row.denominator.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{list(row.probabilities)}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby={`${instanceId}-compare`}>
+    <h4 id={`${instanceId}-compare`}>{labels.sections.compare}</h4>
+    <p>{labels.notes.compare}</p>
+    <div class="row-grid">
+      {trace.rows.map((row, index) => {
+        const naive = trace.naive[index]!;
+        return (
+          <article class="comparison-card" data-comparison-row={row.row.lexeme}>
+            <h5>{labels.fields.row} <bdi dir="ltr">{row.row.lexeme}</bdi></h5>
+            <div
+              class:list={['naive-card', `state-${naive.status}`]}
+              data-naive-status={naive.status}
+            >
+              <span class="state-symbol" aria-hidden="true">{naiveSymbol(naive.status)}</span>
+              <strong>{labels.fields.naivePath}</strong>
+              <span>{labels.fields.status}: {naiveStatus(naive.status)}</span>
+              {naive.status === 'finite' && (
+                <span>
+                  {labels.fields.exponentials}: <bdi dir="ltr">{list(naive.exponentials)}</bdi>
+                </span>
+              )}
+            </div>
+            <div class="stable-card" data-stable-row={row.row.lexeme}>
+              <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
+              <strong>{labels.fields.stablePath}</strong>
+              <span>
+                {labels.fields.logSumExp}: <bdi dir="ltr">{row.logSumExp.lexeme}</bdi>
+              </span>
+              <span>
+                {labels.fields.probabilities}: <bdi dir="ltr">{list(row.probabilities)}</bdi>
+              </span>
+              <span>
+                {labels.fields.logProbabilities}: <bdi dir="ltr">{list(row.logProbabilities)}</bdi>
+              </span>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+    <p class="invariance-note" data-probabilities-match={trace.invariance.probabilitiesMatch}>
+      <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
+      {labels.statuses.probabilitiesMatch}
+    </p>
+  </section>
+
+  <section aria-labelledby={`${instanceId}-targets`}>
+    <h4 id={`${instanceId}-targets`}>{labels.sections.targets}</h4>
+    <p>{labels.notes.targets}</p>
+    <div class="target-grid">
+      {trace.targetLosses.map((target) => (
+        <article
+          class="target-card"
+          data-target-row={target.row.lexeme}
+          data-target-class={target.classIndex.lexeme}
+          data-target-loss={target.loss.lexeme}
+        >
+          <h5>{labels.fields.row} <bdi dir="ltr">{target.row.lexeme}</bdi></h5>
+          <p>
+            {labels.fields.targetClass}: <bdi dir="ltr">{target.classIndex.lexeme}</bdi>
+          </p>
+          <p>
+            {labels.fields.logProbabilities}: <bdi dir="ltr">{target.logProbability.lexeme}</bdi>
+          </p>
+          <p>
+            {labels.fields.targetLoss}: <bdi dir="ltr">{target.loss.lexeme}</bdi>
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section aria-labelledby={`${instanceId}-errors`}>
+    <h4 id={`${instanceId}-errors`}>{labels.sections.errors}</h4>
+    <p>{labels.notes.errors}</p>
+    <div class="error-grid">
+      {trace.errors.map((error) => (
+        <article class="error-card" data-error-kind={error.kind}>
+          <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
+          <h5><code>{error.kind}</code></h5>
+          {error.kind === 'axis-out-of-bounds' && (
+            <p>
+              {labels.summary.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi>; rank{' '}
+              <bdi dir="ltr">{error.rank.lexeme}</bdi>
+            </p>
+          )}
+          {error.kind === 'empty-normalization-axis' && (
+            <p>{labels.summary.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi></p>
+          )}
+          {error.kind === 'positive-infinity-logit' && (
+            <p>
+              {labels.fields.group} <bdi dir="ltr">{error.group.lexeme}</bdi>;{' '}
+              {labels.fields.targetClass} <bdi dir="ltr">{error.classIndex.lexeme}</bdi>
+            </p>
+          )}
+          {error.kind === 'target-out-of-bounds' && (
+            <p>
+              {labels.fields.group} <bdi dir="ltr">{error.group.lexeme}</bdi>;{' '}
+              {labels.fields.targetClass} <bdi dir="ltr">{error.target.lexeme}</bdi>;{' '}
+              {labels.fields.classes} <bdi dir="ltr">{error.classes.lexeme}</bdi>
+            </p>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .softmax-diagram {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 100%;
+    margin: 1.5rem 0;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+
+  .softmax-diagram:focus-visible,
+  .trace-scroll:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .softmax-diagram > section {
+    min-width: 0;
+  }
+
+  figcaption h3,
+  section h4,
+  article h5,
+  figcaption p,
+  section p,
+  article p {
+    margin-block-start: 0;
+  }
+
+  figcaption p,
+  section > p {
+    color: var(--muted);
+  }
+
+  .summary-grid,
+  .row-grid,
+  .target-grid,
+  .error-grid {
+    display: grid;
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .summary-grid > div,
+  .comparison-card,
+  .target-card,
+  .error-card {
+    padding: 0.8rem;
+    border: 2px solid var(--border);
+    border-radius: 0.75rem;
+    background: var(--background);
+  }
+
+  .summary-grid dt {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .summary-grid dd {
+    margin: 0.2rem 0 0;
+    font-weight: 700;
+  }
+
+  .target-card p:last-child,
+  .error-card p:last-child {
+    margin-block-end: 0;
+  }
+
+  .trace-scroll {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    contain: paint;
+    padding-block-end: 0.4rem;
+  }
+
+  .shift-table {
+    width: 100%;
+    min-width: 62rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .shift-table th,
+  .shift-table td {
+    padding: 0.55rem;
+    border: 1px solid var(--border);
+    text-align: start;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .shift-table tbody th {
+    border-inline-start: 4px solid var(--accent);
+  }
+
+  .row-grid,
+  .target-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .error-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .comparison-card {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .naive-card,
+  .stable-card {
+    display: grid;
+    gap: 0.35rem;
+    align-items: start;
+    padding: 0.7rem;
+    border: 3px solid var(--border);
+    border-radius: 0.55rem;
+  }
+
+  .naive-card.state-finite {
+    border-style: solid;
+  }
+
+  .naive-card.state-overflow-undefined {
+    border-style: dashed;
+  }
+
+  .naive-card.state-underflow-undefined {
+    border-style: dotted;
+  }
+
+  .stable-card {
+    border-style: double;
+  }
+
+  .target-card {
+    border-style: solid;
+  }
+
+  .error-card {
+    position: relative;
+    border-style: dashed;
+  }
+
+  .state-symbol {
+    display: inline-grid;
+    width: 1.7rem;
+    height: 1.7rem;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .invariance-note {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    margin-block: 0.9rem 0;
+    font-weight: 700;
+  }
+
+  code,
+  bdi {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 760px) {
+    .summary-grid,
+    .row-grid,
+    .target-grid,
+    .error-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .softmax-diagram,
+    .summary-grid > div,
+    .comparison-card,
+    .target-card,
+    .error-card,
+    .naive-card,
+    .stable-card,
+    .shift-table th,
+    .shift-table td {
+      background: Canvas;
+      color: CanvasText;
+      border-color: CanvasText;
+      forced-color-adjust: auto;
+    }
+
+    .trace-scroll:focus-visible {
+      outline-color: Highlight;
+    }
+  }
+</style>
