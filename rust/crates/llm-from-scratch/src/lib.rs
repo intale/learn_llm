@@ -9,6 +9,11 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Numerical gradient checks introduced before automatic differentiation.
+pub mod autograd {
+    pub mod gradcheck;
+}
+
 /// Numerically stable neural-network building blocks.
 pub mod nn {
     #[path = "probability.rs"]

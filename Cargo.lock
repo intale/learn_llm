@@ -84,6 +84,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch13-gradient-checking"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

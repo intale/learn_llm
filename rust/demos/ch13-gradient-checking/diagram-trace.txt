@@ -1,0 +1,23 @@
+TRACE gradient-checking-v1 BEGIN
+CONFIG point=1.500000000000 analytic=4.750000000000 tolerance=1.000000000000e-6 steps=1.000000000000e0,1.000000000000e-1,1.000000000000e-3,1.000000000000e-5,1.000000000000e-8,1.000000000000e-12
+CENTRAL name=quadratic point=3.000000000000 step=0.100000000000 minus-point=2.900000000000 plus-point=3.100000000000 minus-value=8.410000000000 plus-value=9.610000000000 numerical=6.000000000000
+COMPARE name=quadratic-correct analytic=6.000000000000 numerical=6.000000000000 absolute-error=5.329070518201e-15 scale=6.000000000000 scaled-error=8.881784197001e-16 tolerance=1.000000000000e-6 status=pass
+COMPARE name=quadratic-wrong analytic=5.500000000000 numerical=6.000000000000 absolute-error=5.000000000000e-1 scale=6.000000000000 scaled-error=8.333333333333e-2 tolerance=1.000000000000e-6 status=fail
+H-SCAN index=0 phase=truncation step=1.000000000000e0 minus-point=0.500000000000 plus-point=2.500000000000 minus-value=-0.875000000000 plus-value=10.625000000000 numerical=5.750000000000 absolute-error=1.000000000000e0 scale=5.750000000000 scaled-error=1.739130434783e-1 status=fail
+H-SCAN index=1 phase=truncation step=1.000000000000e-1 minus-point=1.400000000000 plus-point=1.600000000000 minus-value=-0.056000000000 plus-value=0.896000000000 numerical=4.760000000000 absolute-error=1.000000000001e-2 scale=4.760000000000 scaled-error=2.100840336136e-3 status=fail
+H-SCAN index=2 phase=converging step=1.000000000000e-3 minus-point=1.499000000000 plus-point=1.501000000000 minus-value=0.370254499000 plus-value=0.379754501000 numerical=4.750001000000 absolute-error=9.999996706256e-7 scale=4.750001000000 scaled-error=2.105262021379e-7 status=pass
+H-SCAN index=3 phase=trusted step=1.000000000000e-5 minus-point=1.499990000000 plus-point=1.500010000000 minus-value=0.374952500450 plus-value=0.375047500450 numerical=4.750000000131 absolute-error=1.310382913289e-10 scale=4.750000000131 scaled-error=2.758704376049e-11 status=pass
+H-SCAN index=4 phase=rounding step=1.000000000000e-8 minus-point=1.499999990000 plus-point=1.500000010000 minus-value=0.374999952500 plus-value=0.375000047500 numerical=4.749999971132 absolute-error=2.886798711188e-8 scale=4.750000000000 scaled-error=6.077470970922e-9 status=pass
+H-SCAN index=5 phase=rounding step=1.000000000000e-12 minus-point=1.499999999999 plus-point=1.500000000001 minus-value=0.374999999995 plus-value=0.375000000005 numerical=4.750422277766 absolute-error=4.222777661198e-4 scale=4.750422277766 scaled-error=8.889267973000e-5 status=fail
+TENSOR shape=2,3 targets=0,2 values=0.000000000000,1.000000000000,-1.000000000000,2.000000000000,0.000000000000,-2.000000000000 loss=2.775268796472 step=1.000000000000e-5 tolerance=1.000000000000e-6
+SAMPLES requested=4 selected=4 flat=0,1,3,5 coordinates=0:0,0:1,1:0,1:2
+COORD flat=0 coordinate=0:0 analytic=-0.377635764473 numerical=-0.377635764481 absolute-error=8.753164859598e-12 scale=1.000000000000 scaled-error=8.753164859598e-12 status=pass
+COORD flat=1 coordinate=0:1 analytic=0.332620477887 numerical=0.332620477894 absolute-error=6.763478666016e-12 scale=1.000000000000 scaled-error=6.763478666016e-12 status=pass
+COORD flat=3 coordinate=1:0 analytic=0.433406666099 numerical=0.433406666089 absolute-error=9.292122626903e-12 scale=1.000000000000 scaled-error=9.292122626903e-12 status=pass
+COORD flat=5 coordinate=1:2 analytic=-0.492061880012 numerical=-0.492061879998 absolute-error=1.425926043908e-11 scale=1.000000000000 scaled-error=1.425926043908e-11 status=pass
+RESTORE exact-bits=yes checked=4
+ERROR kind=invalid-step step=0.000000000000
+ERROR kind=collapsed-perturbation side=minus point=1.000000000000 step=1.000000000000e-20
+ERROR kind=non-finite-evaluation side=minus value=NaN
+ERROR kind=shape-mismatch parameters=2 analytic=1,2
+TRACE gradient-checking-v1 END

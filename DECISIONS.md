@@ -3550,3 +3550,65 @@ route policy, active locale, or deferred Russian route changes.
 
 **Affected step and run:** `implement-ch12-stable-softmax`, run
 `20260722T100343Z-implement-ch12-stable-softmax-01`.
+
+## 2026-07-22 - Freeze Chapter 13 as a sampled numerical oracle on the LLM path
+
+**Status:** Accepted during Chapter 13 preflight.
+
+**Context:** Chapter 13 must preserve the reviewed outcome exactly while giving
+Chapter 14 an independent way to test future reverse-mode derivatives. The
+cumulative crate already provides checked owned tensors, borrowed views, stable
+softmax, and indexed mean negative log-likelihood. Full finite-difference
+gradients scale poorly, and an ever-smaller perturbation is not always better
+because truncation error eventually gives way to floating-point cancellation.
+The history must explain why this matters for neural-language-model training,
+not substitute Rust, Python, or numerical-library history.
+
+**Decision:** Add dependency-free `autograd::gradcheck` helpers that record a
+central difference from finite `f64` probes, compare an analytic candidate with
+the numerical value using `scale = max(1, |analytic|, |numerical|)` and
+`scaled_error = |analytic / scale - numerical / scale|`, and pass only when that
+error is no greater than one explicit finite nonnegative tolerance. Reject a
+nonfinite point, nonpositive or nonfinite step, nonfinite or collapsed probe,
+nonfinite evaluation, and nonfinite derivative with typed deterministic errors.
+
+For tensors, require a mutable owned parameter tensor and a same-shaped borrowed
+analytic-gradient view, select `min(max_samples, element_count)` unique
+row-major coordinates deterministically, and check only those coordinates. A
+single requested sample selects the middle flat offset; multiple samples use
+`floor(k*(N-1)/(S-1))` with an overflow-safe intermediate, so the ordered set
+spans the first and last offsets. Save each source value, evaluate the minus and
+plus probes through a shared borrow, and restore the exact value before
+validating or returning on every ordinary success or error path. Panics are
+outside that guarantee. Reject an invalid checker configuration, mismatched
+shape, empty tensor, zero sample request, shape overflow, or first nonfinite
+sampled parameter or analytic value under the declared order.
+
+Freeze the predict-first example as `q(theta)=theta^2` at `theta=3` and the
+step-size scan as `g(theta)=theta^3-2theta` at `theta=1.5`. Connect the tensor
+checker directly to Chapter 12 with shape `[2,3]` logits
+`[0,1,-1,2,0,-2]`, targets `[0,2]`, and the hand-derived candidate
+`(softmax-one_hot)/2`; four samples select flat offsets `[0,1,3,5]`. A strict
+`TRACE gradient-checking-v1` is the sole visualization evidence. Add
+`site/src/lib/gradient-checking-diagram.ts` as an owned parser that validates
+trace lexemes, order, fixture identity, and localized label completeness without
+recomputing derivatives, errors, or coordinate selection in TypeScript.
+
+Bound the history to Bengio et al.'s back-propagated next-word likelihood,
+Transformer training with repeated Adam updates, and Baydin et al.'s explanation
+of finite differences, truncation/rounding error, poor full-gradient scaling,
+and reverse-mode efficiency. Finite differences are a slow sampled development
+oracle before gradients drive LLM parameter updates; they are not the training
+algorithm, a decoder runtime component, or an invention attributed to either
+model paper. Step size, tolerance, coordinate selection, finite-input policy,
+restoration, storage, and error precedence are course-local decisions.
+
+**Consequences:** The step gains explicit material Rust, site, governance, and
+source inputs; the independently testable parser output; an exact trace-diff
+gate; and LLM-history acceptance. English remains the only active Chapter 13
+locale and Russian publishes no placeholder. No external Rust dependency,
+package dependency, Linux build definition, route policy, active-locale policy,
+or executable mode changes.
+
+**Affected step and run:** `implement-ch13-gradient-checking`, run
+`20260722T115133Z-implement-ch13-gradient-checking-01`.

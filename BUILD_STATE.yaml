@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T10:06:54Z"
+updated_at: "2026-07-22T14:49:51Z"
 
 environment:
   os: "Linux x86_64"
@@ -10,8 +10,8 @@ environment:
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
-  git: "2.53.0"
-  notes: "Current orchestration environment refreshed on 2026-07-21; repository-defined Linux toolchain and build pins remain unchanged."
+  git: "2.55.0.windows.3"
+  notes: "Current orchestration environment refreshed on 2026-07-22; repository-defined Linux toolchain and build pins remain unchanged. Host Node 24.18.0 and npm 11.16.0 are newer but are limited to orchestration."
 
 active_build: complete-decoder-course
 
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 13
+      spent: 14
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -8201,14 +8201,27 @@ builds:
         objective: "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
         depends_on:
           - implement-ch12-stable-softmax
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/12-stable-softmax.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/demos/ch12-stable-softmax/Cargo.toml"
+          - "rust/demos/ch12-stable-softmax/src/lib.rs"
+          - "rust/demos/ch12-stable-softmax/src/main.rs"
+          - "rust/demos/ch12-stable-softmax/src/diagram_trace.rs"
+          - "rust/demos/ch12-stable-softmax/examples/diagram_trace.rs"
+          - "rust/demos/ch12-stable-softmax/expected.txt"
+          - "rust/demos/ch12-stable-softmax/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -8217,12 +8230,33 @@ builds:
           - "scripts/check-static-links.mjs"
           - "Cargo.toml"
           - "Cargo.lock"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/src/content.config.ts"
+          - "site/src/components/RustSource.astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/lib/stable-softmax-diagram.ts"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://arxiv.org/abs/1502.05767"
         outputs:
           - "curriculum/chapters/13-gradient-checking.md"
           - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
@@ -8230,12 +8264,14 @@ builds:
           - "rust/demos/ch13-gradient-checking/"
           - "site/src/content/chapters/en/13-gradient-checking.mdx"
           - "site/src/components/chapters/GradientCheckingDiagram.astro"
+          - "site/src/lib/gradient-checking-diagram.ts"
           - "site/tests/13-gradient-checking-diagram.test.ts"
           - "site/tests/e2e/ch13-gradient-checking.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
+          - "The history follows back-propagated next-word likelihood through Transformer training and uses numerical-differentiation evidence to frame finite differences as a slow sampled oracle, while step, tolerance, coordinate, finite-input, restoration, and error policies remain course-local rather than decoder runtime behavior."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
@@ -8249,6 +8285,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch13-gradient-checking | diff -u rust/demos/ch13-gradient-checking/expected.txt -"
+          - "cargo run --quiet --locked -p ch13-gradient-checking --example ch13-gradient-checking-trace | diff -u rust/demos/ch13-gradient-checking/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 13-gradient-checking"
           - "npm --prefix site run check:parity -- --chapter 13-gradient-checking"
           - "npm --prefix site run check:content"
@@ -8260,8 +8297,92 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work plus bounded read-only verification of three declared primary or official research sources; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260722T115133Z-implement-ch13-gradient-checking-01
+            started_at: "2026-07-22T11:51:33Z"
+            finished_at: "2026-07-22T14:49:51Z"
+            status: succeeded
+            input_fingerprint:
+              git: "0d9e3c71d690303fc12c2cbdfdffbf22a3663b39"
+              manifest: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/input-fingerprint.txt"
+              checksum: "sha256:b3db7b081c05a3604f010fcb3dc75994a8db7046e2327c83f05479a9cda719c3"
+              prior_artifact: "Chapter 12 canonical commit 0d9e3c71d690303fc12c2cbdfdffbf22a3663b39 and publish manifest sha256:064d23ddce46681760abacb6a092f22e4090117ec4d5dcf12aa37fa153220aad reverified."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust/Cargo 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false. Host Node 24.18.0 and npm 11.16.0 remain orchestration-only."
+              external_sources: "Bengio et al. 2003; Vaswani et al. 2017; Baydin et al. 2018."
+            staging_dir: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/"
+            commands:
+              - "Run the post-Chapter-12 startup protocol; verify HEAD 0d9e3c7, a clean tracked tree, no running work, Chapter 13 eligibility, current environment versions, and every recorded Chapter 12 artifact."
+              - "Perform independent read-only scheduler, Rust API, site, accessibility, and LLM-history audits before product edits."
+              - "Preserve the exact reviewed objective; declare all material local inputs, three bounded research URLs, the strict diagram parser output, and the byte-exact trace gate."
+              - "Freeze central-difference, scale-aware comparison, deterministic coordinate, immutable-input restoration, trace-boundary, and LLM-only historical semantics in DECISIONS.md."
+              - "Fingerprint all declared inputs and the verified Chapter 12 manifest before editing any product output."
+              - "Implement the complete dependency-free Rust checker, deterministic Chapter 12 NLL fixture, exact learner and diagram traces, curriculum contract, English lesson, strict parser, static accessible visualization, SEO, unit tests, and browser tests only in the run publish tree."
+              - "Correct the sampler's zero-extent and overflow precedence, add boundary and ordinary-error restoration tests, and align the browser test's Rust-source expectation with the lesson's teaching order."
+              - "Run complete staged Rust, content, Astro, Vitest, static build/link/SEO, focused Chromium, full Chromium, JavaScript-disabled, forced-colors, desktop, and 390px validation with three independent final audits."
+              - "Freeze all 16 candidate files in publish.sha256 and run the repository's checksum-aware staged review without mutating the publish tree."
+              - "Exercise MoveFileEx on run-local files, retain verified rollback evidence, and atomically promote only the checksum-frozen targets with post-publication canonical/staged identity checks."
+              - "Run the canonical ./course check image, supplemental network-disabled gates, a fresh canonical-only Chromium snapshot, the deployable site build, loopback preview checks, manifest identity, whitespace, and host-artifact audits."
+            artifacts:
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/input-fingerprint.txt"
+                checksum: "sha256:b3db7b081c05a3604f010fcb3dc75994a8db7046e2327c83f05479a9cda719c3"
+                notes: "Pre-claim commit, 51 local material-input hashes, three explicit source URLs, repository pins, host orchestration versions, and the verified Chapter 12 manifest."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/publish.sha256"
+                checksum: "sha256:313e008665ff5eb271f6c6d4cf1c2a5d38c5a2bf7ee53bccb9ba6488a94e1665"
+                notes: "Immutable manifest for exactly 16 candidate product files."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/canonical-after-publication.sha256"
+                checksum: "sha256:4ff4af256c8cde5aefff4d16ca4665849dd1b0541b126fd5bcdc5010317a4388"
+                notes: "Canonical post-publication hashes, each equal to the frozen candidate hash."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/publication-backup-canonical/originals.sha256"
+                checksum: "sha256:2a65b84fe9c8b443da5e0bf7cb5c0c2e772672104912f61d3b670c5b70edb2e6"
+                notes: "Verified rollback copies for the two replaced canonical files; the companion originally-absent list records 14 new targets."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/publication-backup-canonical/originally-absent.txt"
+                checksum: "sha256:013e40558ff875b759373dff2747b9c63f7ed27fab963133e017b2094b41bb5c"
+                notes: "Exact canonical paths that did not exist before publication and would be removed by rollback."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/validation/screenshots/ch13-desktop.png"
+                checksum: "sha256:b34a0d95ce82247235b26898b06b1277936eb438c5d4abf48537123834ef352a"
+                notes: "Full 1440px rendered lesson used with section captures and measured geometry."
+              - path: ".build/runs/20260722T115133Z-implement-ch13-gradient-checking-01/validation/screenshots/ch13-mobile.png"
+                checksum: "sha256:05967866e064d131a25b928b9daa716c043a92d898ad06e9a93a818a0d87f8e2"
+                notes: "Full 390px rendered lesson used with section and true-viewport captures."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, locale, cost, source, and input-closure preflight"
+                status: passed
+                notes: "Chapter 13 is the sole eligible step; no run was active; all prior artifacts verify; new output paths are absent; lib.rs and Cargo.lock are clean shared outputs; English is the exact active locale while Russian remains deferred; bounded source reads and medium local work fit the unlimited budget; no dependency or build change is planned."
+              - command: "Independent Rust, site/history, and scheduler contract audits"
+                status: passed
+                notes: "Audits agree on central differences, one scale-aware normalized error, seedless deterministic sampled coordinates, exact restoration of the perturbed tensor, Chapter 12 NLL evidence, strict Rust-only arithmetic, a static accessible trace projection, and an LLM-training progression from neural-language-model backpropagation through Transformer training."
+              - command: "Bounded primary and research-source verification"
+                status: passed
+                notes: "Bengio et al. support back-propagated next-word likelihood over learned word and network parameters; Vaswani et al. support repeated Adam training of the Transformer; Baydin et al. support central differences, the step-size truncation/rounding trade-off, poor full-gradient scaling, and efficient reverse mode. The checker policies remain explicitly course-local."
+              - command: "Staged Rust formatting, Clippy, workspace tests, dependency/demo policy, and exact stdout/trace diffs"
+                status: passed
+                notes: "Pinned Rust 1.93.1 passes formatting and warning-free all-target Clippy; all workspace and documentation tests pass, including 130 core tests and the Chapter 13 edge, ordering, NLL, and restoration cases; 13 dependency-free demos are discovered; both Chapter 13 outputs match byte-for-byte."
+              - command: "Staged course-plan, contract, chapter, parity, content, Astro, Vitest, static build, and link/SEO gates"
+                status: passed
+                notes: "The plan reports 39 chapters, 58 steps, and 13 contracts; 20 localized sources and 13 publishable locale sets pass; Astro reports zero diagnostics; all 19 Vitest files and 326 tests pass; the static build emits 25 pages; and 501 local references, 25 SEO routes, and 94 artifacts pass."
+              - command: "Staged focused and complete Playwright matrices plus rendered geometry inspection"
+                status: passed
+                notes: "All four Chapter 13 cases and all 50 browser cases pass in pinned Chromium, including direct/index routing, deferred Russian 404, exact history/Rust evidence, forced-colors cues, no client scripts, and JavaScript-disabled rendering. At 1440px and 390px document width equals viewport width, the 992px trace stays inside its 710px or 236px named scroller, cards have no minimum height, and measured bottom gaps remain ordinary 14.8-18.4px padding."
+              - command: "Independent final Rust, LLM-history/content, and accessibility/site audits"
+                status: passed
+                notes: "All reviewers returned PASS: central differences run minus then plus; deterministic sampling, typed failures, and exact ordinary-path restoration hold; TypeScript only parses the strict Rust trace; the static figure is semantic and responsive; and history stays exclusively on the path from next-word neural training through Transformer updates to a sampled development oracle."
+              - command: "sha256sum -c publish.sha256 and official ./course review 20260722T115133Z-implement-ch13-gradient-checking-01 --check"
+                status: passed
+                notes: "All 16 candidate files verify against immutable manifest sha256:313e008665ff5eb271f6c6d4cf1c2a5d38c5a2bf7ee53bccb9ba6488a94e1665. The official review rebuilt 25 pages and reverified content, parity, zero Astro diagnostics, links, and SEO without mutating publish/."
+              - command: "Approval-independent atomic canonical publication and identity audit"
+                status: passed
+                notes: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH first passed on run-local Dropbox-backed files, then promoted exactly 16 same-directory verified temporaries. Cargo.lock and lib.rs have verified rollback copies; 14 targets were originally absent; all canonical and staged hashes match the frozen manifest; and no publication temporary remains."
+              - command: "Canonical repository, supplemental network-disabled Docker, and fresh canonical-only Chromium validation"
+                status: passed
+                notes: "The canonical ./course check image passes formatting, all workspace and documentation tests, Astro/content/parity/build/link gates; supplemental gates pass Clippy, dependency/demo policy, exact outputs, contract/chapter checks, and all 326 Vitest cases; and a fresh git-archive-plus-canonical-files browser snapshot passes all 50 cases."
+              - command: "Canonical deployable preview, host-artifact, manifest, whitespace, and scope audit"
+                status: passed
+                notes: "The rebuilt learn-llm-site preview returns 200 for the English lesson and course index, includes one exact relevant description and the Chapter 13 index link, and returns 404 for Russian Chapter 13. Review and deploy HTML share sha256:fed40f26e9280042507a4022d6cafcee63d60ca034b323ee97d9c2a248b1cb9d; host and whitespace audits pass; unrelated desktop.ini remains untouched; and no build definition, external dependency, route policy, active locale, or executable mode changed."
+              - command: "Bounded Windows and Dropbox validation-harness recovery"
+                status: passed
+                notes: "A stale seed-image dist, live-tree tar metadata race, and PowerShell execution policy each stopped before affecting the candidate or canonical outputs and passed after deterministic rebuild, git-archive snapshot, or one-process policy bypass. Dropbox resisted deleting only the disposable run-local Rust target cache; its partially cleaned remainder was atomically renamed under validation/discarded-rust-cache-not-reusable, is excluded from reuse, and the host-artifact audit passes."
+            notes: "Succeeded. The dependency-free Chapter 13 gradient-checking vertical slice is canonical and byte-identical to frozen manifest sha256:313e008665ff5eb271f6c6d4cf1c2a5d38c5a2bf7ee53bccb9ba6488a94e1665. Central differences, scale-aware comparison, deterministic sampled coordinates, typed failures, and exact ordinary-path restoration check a hand-derived Chapter 12 token-loss gradient. The exact Rust demo and trace drive an English LLM-history lesson, accessible static visualization, SEO, and regression coverage. Staged, canonical, browser, preview, host, identity, governance, and scope gates pass. Russian remains complete through Chapter 7 with no placeholder, and no build definition, external dependency, route policy, active locale, or executable mode changed. The completion checkpoint is ready for the dedicated implement-ch13-gradient-checking commit before Chapter 14 starts."
       - id: implement-ch14-scalar-autodiff
         objective: "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
         depends_on:

@@ -1,0 +1,454 @@
+---
+{
+  "chapter_id": "13-gradient-checking",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 13,
+  "concept_id": "gradient-checking",
+  "title": "Check gradients before trusting backpropagation",
+  "description": "Check derivatives used in LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.",
+  "objective": "Approximate derivatives with central differences and compare analytic candidates using scale-aware error.",
+  "worked_inputs": "For q(theta)=theta^2 at theta=3 and h=0.1, predict q(2.9)=8.41, q(3.1)=9.61, the central-difference result 6, and why candidate 6 passes while candidate 5.5 fails. Then scan six step sizes for g(theta)=theta^3-2theta at theta=1.5 and check four deterministic coordinates of a Chapter 12 mean-NLL tensor.",
+  "formula": {
+    "latex": "f'(\\theta)\\approx\\frac{f(\\theta+h)-f(\\theta-h)}{2h}",
+    "symbols": [
+      {
+        "symbol": "f",
+        "meaning": "the deterministic scalar loss-valued function being probed"
+      },
+      {
+        "symbol": "\\theta",
+        "meaning": "the finite scalar parameter or one tensor coordinate being checked"
+      },
+      {
+        "symbol": "h",
+        "meaning": "the positive finite perturbation applied on each side of theta"
+      },
+      {
+        "symbol": "f'(\\theta)",
+        "meaning": "the derivative at theta approximated by the centered secant slope"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.",
+      "later_advance": "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish finite-difference probes from reverse-mode automatic differentiation: central differences expose local derivative mistakes, while reverse mode efficiently produces a scalar objective's gradient over many parameters.",
+      "modern_llm_role": "This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. maximize next-word log-likelihood and publish a backward/update phase that propagates gradients through output units, hidden weights, and learned word-feature vectors."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. train Transformer base models for 100,000 steps and big models for 300,000 steps, using Adam with an explicit learning-rate schedule."
+        },
+        {
+          "role": "later",
+          "year": 2018,
+          "name": "Baydin et al., Automatic Differentiation in Machine Learning: a Survey",
+          "source_url": "https://arxiv.org/abs/1502.05767",
+          "claim": "Baydin et al. describe centered finite differences, the truncation-versus-round-off step-size trade-off, poor scaling for full numerical gradients, and reverse mode's efficiency for a scalar objective with many parameters."
+        }
+      ]
+    },
+    "approach": "From back-propagated next-word likelihood to independently checked Transformer training derivatives",
+    "summary": "Bengio et al. publish the backward/update calculations for a neural next-word model. Vaswani et al. later train repeated Transformer blocks with Adam over 100,000 or 300,000 steps. Baydin et al. explain why finite differences are simple but sensitive to truncation and round-off and scale poorly for full gradients, while reverse mode suits a scalar loss with many parameters. The Rust contrast therefore checks only selected derivatives and never substitutes numerical differentiation for LLM training.",
+    "rust_source": "rust/demos/ch13-gradient-checking/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch13-gradient-checking/src/lib.rs",
+      "region": "quadratic-gradient-prediction",
+      "purpose": "Freeze the predict-first quadratic and compare one correct and one deliberately wrong analytic candidate."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
+      "region": "gradcheck-errors",
+      "purpose": "Keep configuration, perturbation, evaluation, shape, sampling, allocation, view, and coordinate failures distinct."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
+      "region": "central-difference",
+      "purpose": "Evaluate the checked minus and plus probes and record the centered numerical derivative."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
+      "region": "scale-aware-comparison",
+      "purpose": "Compare finite analytic and numerical gradients with one explicit normalized-error tolerance."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs",
+      "region": "sampled-tensor-gradient-check",
+      "purpose": "Validate deterministic coordinates, perturb one owned value at a time, and restore it before every ordinary return."
+    },
+    {
+      "path": "rust/demos/ch13-gradient-checking/src/lib.rs",
+      "region": "hand-derived-nll-gradient",
+      "purpose": "Form the manual indexed-mean-NLL candidate (softmax minus one-hot target) divided by the two target rows."
+    },
+    {
+      "path": "rust/demos/ch13-gradient-checking/src/lib.rs",
+      "region": "sampled-nll-gradient-check",
+      "purpose": "Apply the checker to four deterministic vocabulary-logit coordinates and verify exact restoration."
+    },
+    {
+      "path": "rust/demos/ch13-gradient-checking/src/main.rs",
+      "region": "learner-gradient-check-output",
+      "purpose": "Prepare the quadratic, step scan, indexed-NLL samples, restoration proof, and collapsed-step error for deterministic output."
+    },
+    {
+      "path": "rust/demos/ch13-gradient-checking/src/diagram_trace.rs",
+      "region": "gradient-checking-trace",
+      "purpose": "Record the exact scalar probes, step-size errors, sampled NLL coordinates, restoration, and typed failures consumed by the static figure."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "gradient-checking",
+    "rationale": "One ordered Rust trace places the centered probes, six step sizes, scaled errors, correct and wrong candidates, and sampled token-loss coordinates together, making the useful middle step region and later rounding deterioration visible rather than merely asserted."
+  },
+  "decoder_connection": "The cumulative project can now test a hand-derived candidate for selected vocabulary-logit derivatives against independent forward evaluations of stable indexed mean NLL. Chapter 14 will build reverse-mode scalar derivatives and prove them against this oracle before tensor autodiff or training is trusted."
+}
+---
+
+import GradientCheckingDiagram from '../../../components/chapters/GradientCheckingDiagram.astro';
+
+export const diagramLabels = {
+  title: 'See a centered slope converge, then deteriorate',
+  description:
+    'Separate the quadratic sanity check from a six-step cubic scan, then inspect two candidate verdicts, four sampled token-loss coordinates, exact restoration, and four rejected requests.',
+  summary: {
+    quadratic: 'Quadratic numerical derivative',
+    scanPoint: 'Cubic scan point',
+    tensorLoss: 'Indexed mean NLL',
+  },
+  sections: {
+    quadratic: 'Check the quadratic at theta equals three',
+    scan: 'Scan six step sizes around theta equals one point five',
+    candidates: 'Distinguish a wrong gradient from an invalid request',
+    tensor: 'Probe four coordinates of the token loss',
+    errors: 'Reject unsafe numerical requests',
+  },
+  fields: {
+    point: 'Point',
+    step: 'Step h',
+    minusProbe: 'Minus probe',
+    center: 'Center',
+    plusProbe: 'Plus probe',
+    functionValue: 'Function value',
+    numerical: 'Numerical gradient',
+    analytic: 'Analytic candidate',
+    scaledError: 'Scaled error',
+    tolerance: 'Tolerance',
+    phase: 'Error regime',
+    verdict: 'Verdict',
+    flatIndex: 'Flat offset',
+    coordinate: 'Coordinate',
+    loss: 'Forward loss',
+    restored: 'Original bits restored',
+  },
+  phases: {
+    truncation: 'truncation dominates',
+    converging: 'converging',
+    trusted: 'trusted middle',
+    rounding: 'rounding grows',
+  },
+  statuses: {
+    pass: 'passes tolerance',
+    fail: 'fails tolerance',
+  },
+  errors: {
+    'invalid-step': 'invalid zero step',
+    'collapsed-perturbation': 'step rounds back to the point',
+    'non-finite-evaluation': 'objective returns a non-finite value',
+    'shape-mismatch': 'candidate gradient has the wrong shape',
+  },
+  notes: {
+    schematic:
+      'The brackets are an ordinal sketch of shrinking h, not a numerical axis; every exact point and function value remains in the Rust-authored table.',
+    scan:
+      'Large h bends across too much of the cubic. The middle rows approach 4.75. At tiny h, subtracting nearly equal rounded values loses useful low bits.',
+    candidates:
+      'A finite mismatch is a completed comparison with a fail verdict. Configuration and evaluation faults are typed errors instead.',
+    tensor:
+      'The four ordered coordinates span both vocabulary rows. Passing samples are evidence for those coordinates only, and every temporary logit is restored first.',
+    errors:
+      'Each dashed card stops before an unsafe derivative can be accepted; the side and shape evidence comes directly from Rust.',
+  },
+  symbols: {
+    truncation: 'T',
+    converging: 'C',
+    trusted: 'S',
+    rounding: 'R',
+    pass: 'OK',
+    fail: '!',
+    rejected: 'X',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict one quadratic derivative
+
+Start with the smallest possible gradient check:
+
+```text
+q(theta) = theta^2
+theta = 3
+h = 0.1
+```
+
+The two forward probes are `q(2.9)=8.41` and `q(3.1)=9.61`. Their difference
+is `1.2`; dividing by `2h=0.2` predicts a numerical derivative of `6`.
+
+That result tests a candidate rather than creating one. The hand derivative of
+`theta^2` supplies candidate `6`, which should pass. Candidate `5.5` is also a
+perfectly finite number, but it should return a completed comparison with
+`pass=false`. A mathematical mismatch is different from an invalid step or a
+non-finite objective value.
+
+<RustSource
+  path="rust/demos/ch13-gradient-checking/src/lib.rs"
+  region="quadratic-gradient-prediction"
+  caption="Freeze one quadratic prediction and both analytic candidates"
+  label="Rust source defining the Chapter 13 predict-first quadratic gradient checks"
+/>
+
+{/* chapter-section:formula */}
+
+## Center two probes around one point
+
+The chapter's only display formula is the central difference:
+
+$$
+f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}
+$$
+
+The two probes sit symmetrically around the same point. For a smooth function,
+their leading first-order truncation terms cancel. The approximation still uses
+finite `h`, however, and the computer still rounds both function values before
+subtracting them. Shrinking `h` therefore helps only until cancellation becomes
+the larger source of error.
+
+The implementation requires finite `theta`, positive finite `h`, a finite
+`2h`, two finite perturbations that differ from `theta`, and finite function
+values. It evaluates the minus side first and the plus side second. A collapsed
+probe is rejected rather than reported as a zero derivative.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+  region="central-difference"
+  caption="Evaluate a checked minus probe and plus probe before forming the centered slope"
+  label="Rust source implementing the Chapter 13 scalar central difference"
+/>
+
+{/* chapter-section:symbol-glossary */}
+
+## Name the derivative-check quantities
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $f$ | The deterministic scalar loss-valued function being probed. |
+| $\theta$ | The finite scalar parameter or selected tensor coordinate. |
+| $h$ | The positive finite perturbation on both sides of the point. |
+| $f'(\theta)$ | The derivative at the point approximated by the centered secant slope. |
+
+For analytic candidate `a` and numerical value `n`, Rust chooses
+`scale=max(1,abs(a),abs(n))` and records
+`scaled_error=abs(a/scale-n/scale)`. The floor at one behaves like absolute
+error for small gradients; larger gradients are compared relative to their
+magnitude. The candidate passes exactly when scaled error is no greater than
+the declared finite nonnegative tolerance.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+  region="scale-aware-comparison"
+  caption="Normalize finite gradient disagreement by the larger magnitude or one"
+  label="Rust source implementing the scale-aware Chapter 13 comparison rule"
+/>
+
+{/* chapter-section:history */}
+
+## From next-word backpropagation to checked Transformer training
+
+Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.
+
+The earlier checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. maximize next-word log-likelihood and publish a backward/update phase that propagates gradients through output units, hidden weights, and learned word-feature vectors.
+
+The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish finite-difference probes from reverse-mode automatic differentiation: central differences expose local derivative mistakes, while reverse mode efficiently produces a scalar objective's gradient over many parameters.
+
+The later model checkpoint is
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
+Vaswani et al. train Transformer base models for 100,000 steps and big models for 300,000 steps, using Adam with an explicit learning-rate schedule.
+
+The numerical-method checkpoint is
+[Baydin et al., *Automatic Differentiation in Machine Learning: a Survey*](https://arxiv.org/abs/1502.05767).
+Baydin et al. describe centered finite differences, the truncation-versus-round-off step-size trade-off, poor scaling for full numerical gradients, and reverse mode's efficiency for a scalar objective with many parameters.
+
+This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.
+
+Neither model paper claims to use this checker. Finite differences are not a
+later LLM invention, a replacement training algorithm, or decoder runtime work.
+Their role here is narrower: give future backward code an independent forward-
+loss comparison before its values can update language-model parameters.
+
+{/* chapter-section:rust-implementation */}
+
+## Implement a sampled numerical oracle
+
+Typed errors separate a bad configuration from a failed finite comparison. The
+checker names the rejected side and wraps tensor failures with the affected
+coordinate. It validates the complete selected coordinate set before the first
+objective call, so one late non-finite candidate cannot leave a half-run trace.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+  region="gradcheck-errors"
+  caption="Name invalid steps, probes, values, shapes, samples, views, and coordinates"
+  label="Rust source defining the Chapter 13 numerical gradient-check errors"
+/>
+
+For shape `[2,3]`, `N=6` and four samples use flat offsets
+`floor(k*(N-1)/(S-1))`: `[0,1,3,5]`. They map to
+`[[0,0],[0,1],[1,0],[1,2]]`. No random generator or hidden state is involved.
+A one-sample request chooses the middle flat offset. The general sampler uses
+an overflow-safe intermediate and the same suffix-product shape semantics as
+the cumulative tensor storage.
+
+The tensor checker temporarily writes `theta-h`, evaluates through `&Tensor`,
+restores the exact source bits, then repeats for `theta+h`. Restoration occurs
+before the result is inspected, including ordinary error paths. A panic inside
+the learner-supplied objective is explicitly outside this small reference
+guarantee.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+  region="sampled-tensor-gradient-check"
+  caption="Check deterministic tensor coordinates and restore every temporary perturbation"
+  label="Rust source implementing the sampled tensor-coordinate gradient checker"
+/>
+
+The LLM-facing fixture uses Chapter 12 indexed mean NLL. Its shape `[2,3]`
+logits are `[0,1,-1,2,0,-2]`, its targets are `[0,2]`, and its forward mean loss
+is `2.775268796472`. The manually derived candidate is
+`(softmax-one_hot)/2`: subtract one at each target logit, then divide every row
+gradient by the two target rows.
+
+<RustSource
+  path="rust/demos/ch13-gradient-checking/src/lib.rs"
+  region="hand-derived-nll-gradient"
+  caption="Construct the hand-derived candidate for the two-row indexed mean NLL"
+  label="Rust source deriving the Chapter 13 analytic token-loss gradient candidate"
+/>
+
+<RustSource
+  path="rust/demos/ch13-gradient-checking/src/lib.rs"
+  region="sampled-nll-gradient-check"
+  caption="Compare four vocabulary-logit candidates with independent forward losses"
+  label="Rust source applying sampled gradient checking to Chapter 12 indexed mean NLL"
+/>
+
+The learner output prepares both scalar candidates, the six-step scan, all four
+NLL coordinates, exact restoration, and one collapsed-step error:
+
+<RustSource
+  path="rust/demos/ch13-gradient-checking/src/main.rs"
+  region="learner-gradient-check-output"
+  caption="Prepare the complete deterministic learner evidence before printing"
+  label="Rust source running the Chapter 13 learner gradient-check fixture"
+/>
+
+```bash
+./course run cargo run --quiet --locked -p ch13-gradient-checking
+```
+
+```text
+quadratic: theta=3.000000000000 h=0.100000000000 f_minus=8.410000000000 f_plus=9.610000000000 numerical=6.000000000000
+wrong candidate: analytic=5.500000000000 scaled_error=8.333333333333e-2 tolerance=1.000000000000e-6 pass=false
+nll logits: shape=[2, 3] values=[0.0, 1.0, -1.0, 2.0, 0.0, -2.0] targets=[0, 2] loss=2.775268796472
+sampled coordinates: [[0, 0], [0, 1], [1, 0], [1, 2]]
+tensor restored exactly: true
+```
+
+{/* chapter-section:visualization */}
+
+## Watch the step size help, then hurt
+
+For `g(theta)=theta^3-2theta` at `theta=1.5`, the analytic derivative is `4.75`.
+The Rust scan starts with `h=1`, improves through `1e-1` and `1e-3`, and reaches
+its lowest displayed scaled error at `h=1e-5`. `h=1e-8` is already worse even
+though it still passes. At `h=1e-12`, rounding has raised the displayed result
+to `4.750422277766`, which fails tolerance again. The lesson does not promote
+`1e-5` as a universal optimum; it is the trustworthy middle for this fixture.
+
+The strict 23-line Rust trace owns every point, function value, error, phase,
+status, sample, and failure. TypeScript checks exact lexemes and ordering but
+does not differentiate, scale an error, or select a coordinate. The visual
+brackets are explicitly ordinal and not to scale; the semantic table retains
+all exact evidence.
+
+<RustSource
+  path="rust/demos/ch13-gradient-checking/src/diagram_trace.rs"
+  region="gradient-checking-trace"
+  caption="Record scalar probes, six step sizes, sampled NLL checks, restoration, and errors"
+  label="Rust source producing the strict locale-neutral Chapter 13 visualization trace"
+/>
+
+<GradientCheckingDiagram labels={diagramLabels} instanceId="lesson" />
+
+{/* chapter-section:exercises */}
+
+## Predict before running Rust
+
+1. Calculate `q(2.9)`, `q(3.1)`, and their central difference at `h=0.1`.
+2. Predict the pass states of candidates `6` and `5.5` at tolerance `1e-6`.
+3. Select the lowest-error row in this staged scan without calling its step universally optimal.
+4. Explain why `h=1e-12` is worse than the larger trusted step.
+5. Compute the wrong candidate's scale and scaled error before reading the answer.
+6. Derive four flat samples and coordinates for `N=6` and `S=4`.
+7. Predict zero-step and collapsed-probe behavior plus tensor restoration on ordinary errors.
+8. Misconception check: do four passing coordinates prove every gradient or train or run the decoder?
+
+<details>
+  <summary>Check the predictions</summary>
+
+1. `q(2.9)=8.41`, `q(3.1)=9.61`, and `(9.61-8.41)/0.2=6`.
+2. Candidate `6` passes. Candidate `5.5` returns a finite comparison with `pass=false`.
+3. `h=1e-5` has the lowest displayed scaled error in this fixed scan. Another function, point, or floating type can have a different best region.
+4. The two rounded function values become nearly equal, so their subtraction loses useful low bits and rounding dominates.
+5. `scale=max(1,5.5,6)=6`; `abs(5.5/6-6/6)=1/12`, far above `1e-6`.
+6. `floor(k*5/3)` gives flats `[0,1,3,5]`, hence coordinates `[[0,0],[0,1],[1,0],[1,2]]`.
+7. Zero `h` is invalid; `h=1e-20` at point `1` rounds the minus probe back to the point. On every ordinary error, a temporary tensor value is restored before return.
+8. No. The samples are evidence only for selected coordinates. Gradcheck neither creates the training gradient nor belongs in decoder inference.
+
+</details>
+
+Run both byte-exact commands after predicting:
+
+```bash
+./course run cargo run --quiet --locked -p ch13-gradient-checking
+./course run cargo run --quiet --locked -p ch13-gradient-checking --example ch13-gradient-checking-trace
+```
+
+{/* chapter-section:decoder-connection */}
+
+## Prepare reverse-mode differentiation
+
+The cumulative project can now test a hand-derived candidate for selected vocabulary-logit derivatives against independent forward evaluations of stable indexed mean NLL. Chapter 14 will build reverse-mode scalar derivatives and prove them against this oracle before tensor autodiff or training is trusted.
+
+The next chapter will store scalar computation nodes, apply local derivative
+rules in reverse topological order, and accumulate contributions when one value
+is reused. Its analytic results will not be trusted merely because the backward
+pass runs: the central-difference checker from this chapter becomes the
+independent acceptance evidence.

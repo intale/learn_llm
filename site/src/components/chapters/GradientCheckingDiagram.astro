@@ -1,0 +1,527 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertGradientCheckingDiagramLabels,
+  gradientCheckingDiagramId,
+  parseGradientCheckingTrace,
+  type GradientCheckingDiagramLabels,
+  type GradientTraceError,
+} from '../../lib/gradient-checking-diagram';
+
+interface Props {
+  labels: GradientCheckingDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+assertGradientCheckingDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Gradient-checking diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch13-gradient-checking/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseGradientCheckingTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${gradientCheckingDiagramId}-${instanceId}-title`;
+const descriptionId = `${gradientCheckingDiagramId}-${instanceId}-description`;
+const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
+
+const errorDetails = (error: GradientTraceError): string => {
+  switch (error.kind) {
+    case 'invalid-step':
+      return `h=${error.step.lexeme}`;
+    case 'collapsed-perturbation':
+      return `side=${error.side}, theta=${error.point.lexeme}, h=${error.step.lexeme}`;
+    case 'non-finite-evaluation':
+      return `side=${error.side}, value=${error.value}`;
+    case 'shape-mismatch':
+      return `parameters=[${error.parameters.map(({ lexeme }) => lexeme).join(',')}], analytic=[${error.analytic.map(({ lexeme }) => lexeme).join(',')}]`;
+  }
+};
+---
+
+<figure
+  class="gradient-checking-diagram"
+  data-visualization-id={gradientCheckingDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="summary-grid">
+    <div>
+      <dt>{labels.summary.quadratic}</dt>
+      <dd><bdi dir="ltr">{trace.central.numerical.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.scanPoint}</dt>
+      <dd><bdi dir="ltr">θ={trace.config.point.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.tensorLoss}</dt>
+      <dd><bdi dir="ltr">{trace.tensor.loss.lexeme}</bdi></dd>
+    </div>
+  </dl>
+
+  <section class="diagram-section quadratic-section" aria-labelledby={`${titleId}-quadratic`}>
+    <h3 id={`${titleId}-quadratic`}>{labels.sections.quadratic}</h3>
+    <div class="quadratic-grid">
+      <dl class="probe-card state-trusted">
+        <div>
+          <dt>{labels.fields.minusProbe}</dt>
+          <dd><bdi dir="ltr">θ-h={trace.central.minusPoint.lexeme}</bdi></dd>
+          <dd><bdi dir="ltr">f={trace.central.minusValue.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.fields.center}</dt>
+          <dd><bdi dir="ltr">θ={trace.central.point.lexeme}</bdi></dd>
+          <dd><bdi dir="ltr">h={trace.central.step.lexeme}</bdi></dd>
+        </div>
+        <div>
+          <dt>{labels.fields.plusProbe}</dt>
+          <dd><bdi dir="ltr">θ+h={trace.central.plusPoint.lexeme}</bdi></dd>
+          <dd><bdi dir="ltr">f={trace.central.plusValue.lexeme}</bdi></dd>
+        </div>
+      </dl>
+      <p class="quadratic-result">
+        <span class="state-symbol" aria-hidden="true">{labels.symbols.trusted}</span>
+        <span>{labels.fields.numerical}</span>
+        <strong><bdi dir="ltr">{trace.central.numerical.lexeme}</bdi></strong>
+      </p>
+    </div>
+  </section>
+
+  <section class="diagram-section scan-section" aria-labelledby={`${titleId}-scan`}>
+    <h3 id={`${titleId}-scan`}>{labels.sections.scan}</h3>
+    <p>{labels.notes.scan}</p>
+    <div
+      id={scanRegionId}
+      class="trace-scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.sections.scan}
+    >
+      <table class="scan-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.step}</th>
+            <th scope="col">{labels.fields.minusProbe}</th>
+            <th scope="col">{labels.fields.plusProbe}</th>
+            <th scope="col">{labels.fields.numerical}</th>
+            <th scope="col">{labels.fields.scaledError}</th>
+            <th scope="col">{labels.fields.phase}</th>
+            <th scope="col">{labels.fields.verdict}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.stepScan.map((record) => (
+            <tr
+              class={`step-row phase-${record.phase} status-${record.status}`}
+              data-step-index={record.index.lexeme}
+              data-phase={record.phase}
+              data-step={record.step.lexeme}
+              data-status={record.status}
+              data-numerical={record.numerical.lexeme}
+              data-scaled-error={record.scaledError.lexeme}
+            >
+              <th scope="row"><bdi dir="ltr">{record.step.lexeme}</bdi></th>
+              <td>
+                <bdi dir="ltr">θ-h={record.minusPoint.lexeme}</bdi><br />
+                <bdi dir="ltr">f={record.minusValue.lexeme}</bdi>
+              </td>
+              <td>
+                <bdi dir="ltr">θ+h={record.plusPoint.lexeme}</bdi><br />
+                <bdi dir="ltr">f={record.plusValue.lexeme}</bdi>
+              </td>
+              <td><bdi dir="ltr">{record.numerical.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{record.scaledError.lexeme}</bdi></td>
+              <td>
+                <span class={`phase-chip phase-${record.phase}`}>
+                  <span aria-hidden="true">{labels.symbols[record.phase]}</span>
+                  {labels.phases[record.phase]}
+                </span>
+              </td>
+              <td>
+                <span class={`status-chip status-${record.status}`}>
+                  <span aria-hidden="true">{labels.symbols[record.status]}</span>
+                  {labels.statuses[record.status]}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="schematic-note">{labels.notes.schematic}</p>
+    <ol class="secant-list" aria-hidden="true">
+      {trace.stepScan.map((record) => (
+        <li data-step-index={record.index.lexeme} class={`phase-${record.phase}`}>
+          <span class="secant-label"><bdi dir="ltr">h={record.step.lexeme}</bdi></span>
+          <span class="secant-bracket">
+            <span>θ-h</span><span>θ</span><span>θ+h</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-candidates`}>
+    <h3 id={`${titleId}-candidates`}>{labels.sections.candidates}</h3>
+    <p>{labels.notes.candidates}</p>
+    <div class="candidate-grid">
+      {trace.comparisons.map((record) => (
+        <article
+          class={`candidate-card state-${record.status}`}
+          data-comparison-name={record.name}
+          data-status={record.status}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols[record.status]}</span>
+            <strong>{labels.statuses[record.status]}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.analytic}</dt><dd><bdi dir="ltr">{record.analytic.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.numerical}</dt><dd><bdi dir="ltr">{record.numerical.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.scaledError}</dt><dd><bdi dir="ltr">{record.scaledError.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.tolerance}</dt><dd><bdi dir="ltr">{record.tolerance.lexeme}</bdi></dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-tensor`}>
+    <h3 id={`${titleId}-tensor`}>{labels.sections.tensor}</h3>
+    <p>{labels.notes.tensor}</p>
+    <p class="tensor-summary">
+      <span>{labels.fields.loss}</span>
+      <strong><bdi dir="ltr">{trace.tensor.loss.lexeme}</bdi></strong>
+      <span>{labels.fields.restored}</span>
+      <strong data-restored-exactly={trace.restoration.exactBits}>
+        <span aria-hidden="true">{labels.symbols.pass}</span> {trace.restoration.exactBits}
+      </strong>
+    </p>
+    <div class="coordinate-grid">
+      {trace.coordinates.map((record) => (
+        <article
+          class="coordinate-card state-pass"
+          data-sample-flat={record.flatIndex.lexeme}
+          data-coordinate={record.coordinate.lexeme}
+          data-status={record.status}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols.pass}</span>
+            <strong>{labels.statuses.pass}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.flatIndex}</dt><dd><bdi dir="ltr">{record.flatIndex.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.coordinate}</dt><dd><bdi dir="ltr">[{record.coordinate.indices.map(({ lexeme }) => lexeme).join(', ')}]</bdi></dd></div>
+            <div><dt>{labels.fields.analytic}</dt><dd><bdi dir="ltr">{record.analytic.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.numerical}</dt><dd><bdi dir="ltr">{record.numerical.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.scaledError}</dt><dd><bdi dir="ltr">{record.scaledError.lexeme}</bdi></dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-errors`}>
+    <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
+    <p>{labels.notes.errors}</p>
+    <div class="error-grid">
+      {trace.errors.map((error) => (
+        <article class="error-card state-rejected" data-error-kind={error.kind}>
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
+            <strong>{labels.errors[error.kind]}</strong>
+          </p>
+          <bdi dir="ltr">{errorDetails(error)}</bdi>
+        </article>
+      ))}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .gradient-checking-diagram {
+    margin-block: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .gradient-checking-diagram:focus-visible,
+  .trace-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
+  }
+
+  figcaption {
+    padding: 1rem 1.2rem 0;
+    font-weight: 800;
+    font-size: 1.15rem;
+  }
+
+  .diagram-description,
+  .diagram-section,
+  .summary-grid {
+    margin-inline: 1.2rem;
+  }
+
+  .diagram-description {
+    margin-block: 0.45rem 1rem;
+    color: var(--muted);
+  }
+
+  .summary-grid,
+  .quadratic-grid,
+  .candidate-grid,
+  .coordinate-grid,
+  .error-grid {
+    display: grid;
+    align-items: start;
+    gap: 0.85rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-block: 0 1.2rem;
+  }
+
+  .summary-grid > div,
+  .probe-card,
+  .candidate-card,
+  .coordinate-card,
+  .error-card,
+  .tensor-summary {
+    padding: 0.8rem;
+    border: 2px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  dd {
+    margin-inline: 0;
+    margin-block: 0.15rem 0;
+  }
+
+  .diagram-section {
+    margin-block: 1.4rem;
+  }
+
+  .diagram-section h3 {
+    margin-block: 0 0.45rem;
+  }
+
+  .quadratic-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(10rem, 1fr);
+  }
+
+  .probe-card {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    border-style: double;
+  }
+
+  .quadratic-result {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.8rem;
+    border: 2px double var(--line);
+    border-radius: 0.75rem;
+  }
+
+  .trace-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    contain: paint;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+  }
+
+  .scan-table {
+    inline-size: 100%;
+    min-inline-size: 62rem;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .scan-table th,
+  .scan-table td {
+    padding: 0.55rem;
+    border-block-end: 1px solid var(--line);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .phase-chip,
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.18rem 0.38rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .phase-truncation { border-style: solid; }
+  .phase-converging { border-style: dashed; }
+  .phase-trusted { border-style: double; }
+  .phase-rounding { border-style: dotted; }
+  .status-pass { outline: 1px solid currentColor; }
+  .status-fail { outline: 2px dashed currentColor; }
+
+  .schematic-note {
+    margin-block-end: 0.35rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .secant-list {
+    display: grid;
+    gap: 0.4rem;
+    margin-block: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .secant-list li {
+    display: grid;
+    grid-template-columns: 11rem minmax(12rem, 1fr);
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .secant-bracket {
+    display: flex;
+    justify-content: space-between;
+    justify-self: center;
+    inline-size: 92%;
+    padding-block-start: 0.2rem;
+    border-block-start: 2px solid currentColor;
+    font-size: 0.72rem;
+  }
+
+  .secant-list [data-step-index='1'] .secant-bracket { inline-size: 78%; }
+  .secant-list [data-step-index='2'] .secant-bracket { inline-size: 64%; }
+  .secant-list [data-step-index='3'] .secant-bracket { inline-size: 50%; }
+  .secant-list [data-step-index='4'] .secant-bracket { inline-size: 36%; }
+  .secant-list [data-step-index='5'] .secant-bracket { inline-size: 22%; }
+
+  .candidate-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .coordinate-grid,
+  .error-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .candidate-card.state-pass,
+  .coordinate-card.state-pass {
+    border-style: double;
+  }
+
+  .candidate-card.state-fail,
+  .error-card.state-rejected {
+    border-style: dashed;
+  }
+
+  .card-state {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-block: 0 0.55rem;
+  }
+
+  .candidate-card dl,
+  .coordinate-card dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .tensor-summary {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.8rem;
+  }
+
+  bdi,
+  code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  @media (max-width: 60rem) {
+    .coordinate-grid,
+    .error-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 47.5rem) {
+    .summary-grid,
+    .quadratic-grid,
+    .candidate-grid,
+    .coordinate-grid,
+    .error-grid,
+    .probe-card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .secant-list li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .gradient-checking-diagram,
+    .summary-grid > div,
+    .probe-card,
+    .candidate-card,
+    .coordinate-card,
+    .error-card,
+    .tensor-summary,
+    .trace-scroll {
+      border-color: CanvasText;
+      background: Canvas;
+      color: CanvasText;
+      forced-color-adjust: none;
+    }
+
+    .phase-chip,
+    .status-chip,
+    .secant-bracket {
+      color: CanvasText;
+      border-color: CanvasText;
+    }
+
+    .gradient-checking-diagram:focus-visible,
+    .trace-scroll:focus-visible {
+      outline-color: Highlight;
+    }
+  }
+</style>

@@ -1,0 +1,19 @@
+quadratic: theta=3.000000000000 h=0.100000000000 f_minus=8.410000000000 f_plus=9.610000000000 numerical=6.000000000000
+correct candidate: analytic=6.000000000000 scaled_error=8.881784197001e-16 tolerance=1.000000000000e-6 pass=true
+wrong candidate: analytic=5.500000000000 scaled_error=8.333333333333e-2 tolerance=1.000000000000e-6 pass=false
+cubic step scan: theta=1.500000000000 analytic=4.750000000000
+  h=1.000000000000e0 phase=truncation numerical=5.750000000000 scaled_error=1.739130434783e-1 pass=false
+  h=1.000000000000e-1 phase=truncation numerical=4.760000000000 scaled_error=2.100840336136e-3 pass=false
+  h=1.000000000000e-3 phase=converging numerical=4.750001000000 scaled_error=2.105262021379e-7 pass=true
+  h=1.000000000000e-5 phase=trusted numerical=4.750000000131 scaled_error=2.758704376049e-11 pass=true
+  h=1.000000000000e-8 phase=rounding numerical=4.749999971132 scaled_error=6.077470970922e-9 pass=true
+  h=1.000000000000e-12 phase=rounding numerical=4.750422277766 scaled_error=8.889267973000e-5 pass=false
+nll logits: shape=[2, 3] values=[0.0, 1.0, -1.0, 2.0, 0.0, -2.0] targets=[0, 2] loss=2.775268796472
+sampled coordinates: [[0, 0], [0, 1], [1, 0], [1, 2]]
+  coordinate=[0, 0] analytic=-0.377635764473 numerical=-0.377635764481 scaled_error=8.753164859598e-12 pass=true
+  coordinate=[0, 1] analytic=0.332620477887 numerical=0.332620477894 scaled_error=6.763478666016e-12 pass=true
+  coordinate=[1, 0] analytic=0.433406666099 numerical=0.433406666089 scaled_error=9.292122626903e-12 pass=true
+  coordinate=[1, 2] analytic=-0.492061880012 numerical=-0.492061879998 scaled_error=1.425926043908e-11 pass=true
+tensor restored exactly: true
+collapsed-step error: minus perturbation from point 1.0 by step 1e-20 rounds back to the point
+chapter 14 handoff: prove reverse-mode derivatives against this oracle
