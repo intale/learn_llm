@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '09-tensor-views';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'One buffer, several tensor interpretations';
 const chapterDescription =
   'Follow fixed-context word features into Q/K/V and split attention heads, then compare copied and borrowed Rust tensor transposes.';

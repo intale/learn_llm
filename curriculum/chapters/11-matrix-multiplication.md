@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "concept_id": "matrix-multiplication",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 11,
   "objective": {
     "en": "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
@@ -335,16 +335,17 @@ the exact diagram trace. No dependency implements the taught concept.
 ## Visualization
 
 The visualization is useful because a flat `[7,4,16,13]` result hides which row
-and column contributed to one cell and which axis disappeared. Rust records A,
-W, the effective plan, the three terms and running totals for `C[1,0]`, the full
-output, transpose equivalence, batch mappings, and two typed errors.
+and column contributed to one cell and which axis disappeared. The Rust trace
+records A, W, the effective plan, the three terms and running totals for
+`C[1,0]`, the full output, transpose equivalence, batch mappings, and two typed
+errors.
 
-A strict TypeScript parser preserves those lexemes and rejects malformed or
-drifting records; it does not multiply or sum. The Astro component reads the
-fixture only at static-build time. Semantic matrix tables mark the selected row
-and column, an ordered list shows the three products and running totals, batch
-cards show both output-batch mappings, and a dashed error panel distinguishes
-inner mismatch from batch mismatch.
+A strict validator preserves those lexemes and rejects malformed or drifting
+records without multiplying or summing. The figure reads the validated fixture
+only during the static build. Semantic matrix tables mark the selected row and
+column, an ordered list shows the three products and running totals, batch cards
+show both output-batch mappings, and a dashed error panel distinguishes inner
+mismatch from batch mismatch.
 
 Source order is the accessible reading order. The figure and each intentional
 local matrix scroller are keyboard-focusable and named. Numeric evidence is LTR;

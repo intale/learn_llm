@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor shapes with operation-level VJPs",
@@ -211,7 +211,7 @@ export const diagramLabels = {
     checks:
       'A focused sum-and-detach graph isolates those rules. Chapter 13 central differences probe every supported VJP without inspecting this tape.',
     errors:
-      'Rust validates every VJP, pass accumulator, prospective parameter sum, and release transition before mutation, so a failed request changes no gradient or graph state.',
+      'The implementation validates every VJP, pass accumulator, prospective parameter sum, and release transition before mutation, so a failed request changes no gradient or graph state.',
   },
   symbols: {
     parameter: 'P',
@@ -325,7 +325,7 @@ operand edge may also reach the same parent.
 | $x$ | One parent tensor consumed by a recorded operation. |
 | $y$ | The child tensor produced by that operation. |
 | $J_y(x)$ | The conceptual Jacobian of every coordinate of $y$ with respect to every coordinate of $x$. |
-| $J_y(x)^\top$ | The transposed derivative map used by the pullback; Rust never materializes it. |
+| $J_y(x)^\top$ | The transposed derivative map used by the pullback; the pullback implementation never materializes it. |
 | $\bar{y}$ | The fresh upstream adjoint with exactly the shape of $y$. |
 | $\bar{x}$ | The fresh parent-adjoint accumulator with exactly the shape of $x$. |
 | $\mathrel{+}=$ | Add this edge's contribution instead of overwriting other paths. |
@@ -417,7 +417,7 @@ rank-one output instead calls `backward_with_seed` with an exactly matching
 finite tensor and an explicit `GraphRetention` choice. Reverse traversal visits
 each node once but processes every ordered edge, including both multiply edges.
 Only after all VJPs, pass accumulators, and prospective parameter sums validate
-does Rust commit any stored gradient.
+does the implementation commit any stored gradient.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -505,8 +505,10 @@ local rule, and resulting parent contribution.
 
 Lifecycle cards separate fresh pass-local adjoints from stored parameter
 gradients. Focused evidence shows sum, detach, numerical checks, and typed
-rejections without crowding those rules into the main graph. TypeScript validates
-the strict trace and localized labels but performs no tensor arithmetic.
+rejections without crowding those rules into the main graph. The visualization
+validates the trace structure and presents its recorded values and localized
+labels; it does not infer shapes, evaluate VJPs, accumulate gradients, or
+calculate numerical gradients.
 
 <RustSource
   path="rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"

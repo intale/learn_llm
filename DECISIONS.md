@@ -3802,3 +3802,58 @@ VJPs without revisiting Chapter 15's tape lifecycle.
 
 **Affected step and run:** `implement-ch15-tensor-autodiff-core`, run
 `20260722T165617Z-implement-ch15-tensor-autodiff-core-01`.
+
+## 2026-07-22 - Attribute behavior at the correct implementation level
+
+**Status:** Accepted after the user's review of Chapters 8, 9, and 11 through 15.
+
+**Context:** Several learner-facing visualization explanations named TypeScript,
+Astro, browser code, client scripts, or a page parser while making the general
+claim that the presentation must project Rust-authored evidence without
+recomputing the lesson's tensor arithmetic. Other sentences assigned local
+validation, copy, error, transaction, or Jacobian policies to Rust even though
+another language could implement the same policy. Those names described the
+current repository rather than a language-specific concept, so they distracted
+from the road to a working LLM. The human clarified that exact language
+comparisons remain welcome when syntax, semantics, tooling, provenance, or the
+observed difference genuinely depends on that language and the context explains
+why.
+
+**Decision:** Describe language-independent concepts and repository behavior in
+language-neutral terms. Name Rust when identifying the executable example,
+source, concrete Rust type, or an actual Rust semantic such as borrowing and
+lifetimes. Name another language only for a contextually justified comparison,
+provenance claim, implementation test, or concrete runtime condition. Attribute
+repository-local behavior to the implementation, trace, visualization, or
+presentation layer rather than to the programming language.
+
+Register `generalize-language-boundaries-ch08-ch15` immediately before Chapter
+16. It revises the Chapter 8 and 9 contract/English pairs to content revision 3
+and Chapters 10 through 15 to revision 2, keeps their SEO descriptions and all
+Rust evidence unchanged, generalizes the affected contract and learner prose,
+updates matching browser revision assertions, records the rule in the curriculum
+workflow and template, and adds a focused regression for the identified
+frontend-implementation leakage. Internal TypeScript parser tests and
+JavaScript-disabled browser checks may retain exact language names because those
+tests inspect those concrete implementations or runtime conditions.
+
+Claim the corrective run from the completed Chapter 15 prefix, then mark the
+effective Chapter 8 through 15 publication steps invalidated while retaining
+their successful runs and artifacts unchanged. Chapter 16 depends on the
+completed correction, restoring one valid linear course prefix.
+
+**Consequences:** The lessons continue to make Rust the sole executable source of
+displayed values without teaching the site's implementation language as part of
+tensor or autodiff logic. The strict trace parsers, static rendering,
+accessibility behavior, calculations, formulas, history, routes, locales,
+dependencies, Linux build, hosting, and deployment definitions do not change.
+A future lesson may still compare languages when the difference is real and
+explained; this is an attribution rule, not a blanket vocabulary ban.
+
+**Affected steps and run:** `realign-ch08-llm-history`,
+`realign-ch09-llm-history`, `implement-ch10-broadcasting-reductions`,
+`implement-ch11-matrix-multiplication`, `implement-ch12-stable-softmax`,
+`implement-ch13-gradient-checking`, `implement-ch14-scalar-autodiff`,
+`implement-ch15-tensor-autodiff-core`, and
+`generalize-language-boundaries-ch08-ch15`, run
+`20260722T180945Z-generalize-language-boundaries-ch08-ch15-01`.

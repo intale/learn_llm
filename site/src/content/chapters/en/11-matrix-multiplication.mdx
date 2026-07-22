@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 11,
   "concept_id": "matrix-multiplication",
   "title": "Multiply rows by columns, then reuse batches",
@@ -406,10 +406,9 @@ Read the figure in four passes:
 
 <MatrixMultiplicationDiagram labels={diagramLabels} />
 
-Every number, coordinate, and running total comes from the Rust trace. The
-TypeScript parser validates record grammar and the frozen relationships without
-multiplying or summing. The Astro component reads that fixture only during the
-static build and emits no client script.
+Every number, coordinate, and running total comes from the Rust trace. The figure
+validates and presents that recorded evidence without recalculating any product
+or sum.
 
 The figure follows source order. Its only intentionally wide matrix group is a
 named keyboard-focusable local scroller. Solid row, dotted column, double

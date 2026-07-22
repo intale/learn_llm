@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '13-gradient-checking';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Check gradients before trusting backpropagation';
 const chapterDescription =
   'Check derivatives used in LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.';

@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."
@@ -361,13 +361,13 @@ show the first retained commit, doubled second commit, positive-zero state,
 restored releasing commit, and rejected post-release request.
 
 Focused evidence covers sum, detach, sampled gradchecks, and typed errors. The
-component may parse and cross-reference Rust lexemes but must not recompute a
-VJP, gradient, reduction axis, or lifecycle transition in TypeScript. Semantic
-lists and tables provide reading order; solid, double, and dashed outlines plus
-text glyphs provide non-color cues. A named focusable local scroller contains
-wide graph evidence, cards keep natural height, narrow layouts stack without
-document overflow, and the figure remains complete with JavaScript disabled and
-forced colors.
+component may parse and cross-reference recorded trace lexemes but must not infer
+shapes, evaluate a VJP, accumulate gradients, choose reduction axes, or enact
+lifecycle transitions. Semantic lists and tables provide reading order; solid,
+double, and dashed outlines plus text glyphs provide non-color cues. A named
+focusable local scroller contains wide graph evidence, cards keep natural height,
+narrow layouts stack without document overflow, and the figure remains complete
+with JavaScript disabled and forced colors.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -402,8 +402,8 @@ Keep formula transpose distinct from the forward transpose operation. Explain
 broadcasting as coordinate reuse whose reverse sum restores the parent shape.
 Keep fresh pass-local adjoints distinct from stored parameter gradients, and
 keep release distinct from zeroing and detach. Never call structural results
-zero-copy views or turn the history into Rust, Python, framework, or array-API
-history.
+zero-copy views or turn the history into programming-language, framework, or
+array-API history.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

@@ -127,6 +127,10 @@
       {
         "step_id": "revise-ch05-russian-localization",
         "before_chapter": "11-matrix-multiplication"
+      },
+      {
+        "step_id": "generalize-language-boundaries-ch08-ch15",
+        "before_chapter": "16-model-autodiff-ops"
       }
     ],
     "planned_chapter_splits": [],
@@ -832,7 +836,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `08-tensor-storage`
 - **Implementation step:** `implement-ch08-tensor-storage`
-- **Revision status:** Content revision 2 is delivered by `realign-ch08-llm-history`.
+- **Revision status:** Content revision 3 is delivered by `generalize-language-boundaries-ch08-ch15`; revision 2 remains recorded by `realign-ch08-llm-history`.
 - **Depends on:** `07-language-model-metrics`.
 - **Outcome:** Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets.
 - **Scope boundary:** Teach rank, shape, row-major strides, indexing, bounds, and scalar access; defer views, broadcasting, arithmetic, and gradients.
@@ -848,7 +852,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `09-tensor-views`
 - **Implementation step:** `implement-ch09-tensor-views`
-- **Revision status:** Content revision 2 is delivered by `realign-ch09-llm-history`.
+- **Revision status:** Content revision 3 is delivered by `generalize-language-boundaries-ch08-ch15`; revision 2 remains recorded by `realign-ch09-llm-history`.
 - **Depends on:** `08-tensor-storage`.
 - **Outcome:** Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity.
 - **Scope boundary:** Teach contiguous versus strided layouts, axis permutation, compatible reshape, and view lifetime/ownership; defer arithmetic.
@@ -864,6 +868,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `10-broadcasting-reductions`
 - **Implementation step:** `implement-ch10-broadcasting-reductions`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `09-tensor-views`.
 - **Outcome:** Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.
 - **Scope boundary:** Teach trailing-axis broadcasting, unary/binary maps, sum/mean/max, keep-dim behavior, and empty-axis errors; defer matrix multiplication.
@@ -879,6 +884,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `11-matrix-multiplication`
 - **Implementation step:** `implement-ch11-matrix-multiplication`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `10-broadcasting-reductions`.
 - **Outcome:** Compute checked 2-D and batched matrix products from scalar loops and tensor strides.
 - **Scope boundary:** Teach inner-dimension contraction, output shapes, batched broadcasting, and transpose flags; defer hardware optimization.
@@ -894,6 +900,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `11-matrix-multiplication`.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.
@@ -909,6 +916,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `13-gradient-checking`
 - **Implementation step:** `implement-ch13-gradient-checking`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `12-stable-softmax`.
 - **Outcome:** Approximate derivatives with central differences and compare analytic candidates using scale-aware error.
 - **Scope boundary:** Teach step size, truncation/rounding trade-offs, central differences, relative error, and sampled tensor coordinates; defer automatic differentiation.
@@ -924,6 +932,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `14-scalar-autodiff`
 - **Implementation step:** `implement-ch14-scalar-autodiff`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `13-gradient-checking`.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.
@@ -939,6 +948,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `15-tensor-autodiff-core`
 - **Implementation step:** `implement-ch15-tensor-autodiff-core`
+- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `14-scalar-autodiff`.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.

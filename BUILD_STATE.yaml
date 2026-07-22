@@ -7184,7 +7184,7 @@ builds:
         objective: "Replace Chapter 8's array-programming history with the progression from count tables to neural-language-model matrices and Transformer tensor shapes."
         depends_on:
           - establish-llm-evolution-history-policy
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -7310,7 +7310,7 @@ builds:
         objective: "Replace Chapter 9's array-programming history with the progression from fixed-context neural matrices to Transformer and GPT-2 attention rearrangements."
         depends_on:
           - realign-ch08-llm-history
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -7425,7 +7425,7 @@ builds:
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:
           - realign-ch09-llm-history
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "DECISIONS.md"
@@ -7763,7 +7763,7 @@ builds:
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
         depends_on:
           - revise-ch05-russian-localization
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -7999,7 +7999,7 @@ builds:
         objective: "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
         depends_on:
           - implement-ch11-matrix-multiplication
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -8201,7 +8201,7 @@ builds:
         objective: "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
         depends_on:
           - implement-ch12-stable-softmax
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -8387,7 +8387,7 @@ builds:
         objective: "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
         depends_on:
           - implement-ch13-gradient-checking
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -8566,7 +8566,7 @@ builds:
         objective: "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."
         depends_on:
           - implement-ch14-scalar-autodiff
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -8764,10 +8764,178 @@ builds:
                 status: passed
                 notes: "The first host audit correctly reported an agent-created run-local Cargo target cache; contained long-path-aware cleanup removed its Dropbox placeholders and the rerun passed. The optional in-app browser had no available binding, while the required canonical Playwright geometry, forced-colors, JavaScript-disabled, route, and accessibility gates all passed; neither condition changed product bytes."
             notes: "Succeeded. Chapter 15 is canonical and byte-identical to frozen manifest sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c. The dependency-free Rust tensor tape reverses add, multiply, reshape, transpose, broadcast, sum, and mean with exact parent shapes, fresh pass adjoints, parameter-only transactional accumulation, detach, zeroing, and retain/release lifecycle. Exact Rust output drives an English LLM-training-history lesson, strict static visualization, relevant SEO, and comprehensive responsive/accessibility regression coverage. Staged, canonical, browser, preview, host, identity, governance, and scope gates pass; Russian remains complete through Chapter 7 with no placeholder, no build definition or external dependency changed, and the completion checkpoint is ready for the dedicated implement-ch15-tensor-autodiff-core commit."
+      - id: generalize-language-boundaries-ch08-ch15
+        objective: "Revise Chapters 8 through 15 so language-independent behavior is described generally and programming languages are named only when the comparison is contextually language-specific."
+        depends_on:
+          - implement-ch15-tensor-autodiff-core
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "curriculum/chapters/11-matrix-multiplication.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "curriculum/chapters/13-gradient-checking.md"
+          - "curriculum/chapters/14-scalar-autodiff.md"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/en/13-gradient-checking.mdx"
+          - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "site/tests/e2e/ch13-gradient-checking.spec.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/package.json"
+          - "site/package-lock.json"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "curriculum/chapters/11-matrix-multiplication.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "curriculum/chapters/13-gradient-checking.md"
+          - "curriculum/chapters/14-scalar-autodiff.md"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/en/13-gradient-checking.mdx"
+          - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "site/tests/e2e/ch13-gradient-checking.spec.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+        acceptance:
+          - "Chapters 8 through 15 describe language-independent numerical, storage, autodiff, and presentation boundaries in general terms; a language is named only for runnable source, actual language semantics, or a contextually explained comparison."
+          - "The lessons retain Rust as the sole executable source of displayed evidence while removing unjustified TypeScript, browser, client, Astro, and language-as-actor explanations; no computation moves into the site layer."
+          - "Chapter 8 and 9 contracts and English lessons advance together to content revision 3; Chapters 10 through 15 advance together to content revision 2, with matching browser expectations and unchanged SEO descriptions."
+          - "The curriculum workflow and template record the durable attribution rule, and a focused regression rejects the identified frontend-implementation leakage across the corrected lessons without banning justified language-specific comparisons elsewhere."
+          - "The full staged slice publishes atomically, all content, parity, type, build, link, SEO, focused browser, and complete browser gates pass, and no Rust, dependency, locale, route, build, hosting, or deployment definition changes."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/08-tensor-storage.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/09-tensor-views.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/10-broadcasting-reductions.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/11-matrix-multiplication.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/12-stable-softmax.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/13-gradient-checking.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/14-scalar-autodiff.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/15-tensor-autodiff-core.md"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:(08-tensor-storage|09-tensor-views|10-broadcasting-reductions|11-matrix-multiplication|12-stable-softmax|13-gradient-checking|14-scalar-autodiff|15-tensor-autodiff-core)'"
+          - "npm --prefix site run test:e2e"
+        cost:
+          class: medium
+          notes: "A bounded eight-chapter editorial and regression correction using deterministic local tools and cached browser/runtime assets. No network, paid service, generation service, dependency change, build-definition change, or substantial CPU use."
+        runs:
+          - run_id: 20260722T180945Z-generalize-language-boundaries-ch08-ch15-01
+            started_at: "2026-07-22T18:09:45Z"
+            finished_at: "2026-07-22T18:43:44Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d8507ec5e81a077d013bd9d6daf224dc474abf15"
+              manifest: ".build/runs/20260722T180945Z-generalize-language-boundaries-ch08-ch15-01/input-fingerprint.txt"
+              checksum: "sha256:18a7f9cfbb042179e7eae95ce8a2b40aa207960d562447c864fe06571da4a308"
+              relevant_inputs: "sha256:6605c36023e0d45be0bddeb2ce6190022308c5c9b8ebdc50ecf1c7f74ee7d60b"
+              prior_artifact: "Chapter 15 frozen publish manifest sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c reverified before correction"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; Bash 5.3.15; repository Rust 1.93.1 and Node 22.12.0 pins unchanged"
+            staging_dir: ".build/runs/20260722T180945Z-generalize-language-boundaries-ch08-ch15-01/"
+            commands:
+              - "Complete startup protocol, environment comparison, stale-run audit, prior Chapter 15 manifest verification, and relevant-input fingerprint"
+              - "Run three independent read-only audits over Chapters 8-10, 11-13, and 14-15; classify language references by contextual justification before editing"
+              - "Claim the cross-cutting correction before product edits; preserve all earlier run records and the unrelated untracked desktop.ini"
+              - "Stage exactly 29 declared outputs, apply the revision and attribution corrections, and run the first Docker review-site build"
+              - "Run the focused and complete staged Chromium suites; after the new Chapter 8-9 revision number exposed Chapter 1's globally scoped revision locator, claim and correct that shared browser assertion"
+              - "Freeze exactly 30 staged outputs under one checksum manifest, obtain final independent reviews, and rerun the official immutable review workflow"
+              - "Publish the manifest-identical outputs, run the canonical Linux-container gates, and build a network-disabled canonical Chromium image for the complete browser suite"
+            artifacts:
+              - path: ".build/runs/20260722T180945Z-generalize-language-boundaries-ch08-ch15-01/input-fingerprint.txt"
+                checksum: "sha256:18a7f9cfbb042179e7eae95ce8a2b40aa207960d562447c864fe06571da4a308"
+              - path: ".build/runs/20260722T180945Z-generalize-language-boundaries-ch08-ch15-01/publish.sha256"
+                checksum: "sha256:8433e9502353bd158aa623c39f03817c1fcbc3251e24dc75827f93ebaabbce98"
+              - path: "docker-image:learn-llm-language-boundaries-browser:canonical"
+                checksum: "sha256:aed69a47a093fd04460ab135a8862087f4fea6ff5d0141a42073031a2b1cf072"
+            validation:
+              - command: "Startup, source-of-truth, environment, prior-artifact, ownership, and cost preflight"
+                status: passed
+                notes: "No stale running work exists; only unrelated desktop.ini is untracked; the prior Chapter 15 manifest still has sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c; tool versions match the ledger; the medium local correction has no budget limit, network, paid service, or build-definition change."
+              - command: "Independent language-attribution audits for Chapters 8 through 15"
+                status: passed
+                notes: "The audits agree that TypeScript/frontend names leaked into seven rendered lessons and that several repository behaviors were incorrectly attributed to Rust. They distinguish justified Rust source and Rust borrow-checker references, concrete site/runtime tests, and explicit historical provenance from language-independent implementation boundaries."
+              - command: "Initial staged content, parity, Astro, production build, links, and SEO review"
+                status: passed
+                notes: "The 22 localized sources and 15 publishable locale sets pass; Astro reports zero diagnostics across 88 files; all 27 static pages build; and 587 local references plus 27 SEO routes validate from the staged overlay."
+              - command: "Initial staged review image runtime verification"
+                status: failed
+                notes: "The review image built successfully, but Git Bash rewrote the explicit /bin/sh entrypoint to C:/Program Files/Git/usr/bin/sh before Docker started the verification container. This is a Windows MSYS path-conversion issue after all content gates, not a candidate defect; the rerun excludes only /bin/sh from MSYS argument conversion."
+              - command: "Corrected staged course-plan, eight contract, content, type, unit, build, link, SEO, and focused Chromium gates"
+                status: passed
+                notes: "The 39-chapter plan now contains 59 ordered steps; all eight revised contracts integrate; 372 Vitest tests pass; the review overlay has zero Astro diagnostics, builds 27 pages, validates 587 references and 27 SEO routes, and all 29 focused Chapter 8-15 Chromium cases pass."
+              - command: "Initial complete staged Chromium regression"
+                status: failed
+                notes: "57 of 58 tests passed. Chapter 1's course-index test searched globally for the text Content revision: 3; the valid Chapter 8 and 9 revision-3 cards made that locator ambiguous. The product rendered correctly and every corrected chapter passed. Scope the existing assertion to Chapter 1's own article before rerunning."
+              - command: "Final independent editorial rechecks and frozen staged publication review"
+                status: passed
+                notes: "Three independent reviewers found no remaining attribution, precision, revision, or contextual-language defect across Chapters 8-15 and the durable README/template guidance. All 30 staged files pass whitespace and focused leakage checks; frozen manifest sha256:8433e9502353bd158aa623c39f03817c1fcbc3251e24dc75827f93ebaabbce98 revalidates before and after the official review, which again reports 22 localized sources, 15 publishable sets, zero Astro diagnostics across 88 files, 27 pages, 587 references, and 27 SEO routes."
+              - command: "Scoped Chapter 1 course-card assertion and complete staged Chromium rerun"
+                status: passed
+                notes: "The revision assertion is scoped to Chapter 1's own article; its focused 3-case suite and the complete 58-case staged Chromium suite pass. The correction changes no course behavior and permits legitimate repeated revision numbers."
+              - command: "Initial canonical Linux-container invocation with global MSYS argument exclusion"
+                status: failed
+                notes: "Excluding all MSYS argument conversion also prevented the repository path from being translated for Docker, so Docker could not find /c/Users/Ivan/Dropbox/learn_llm. This is an invocation-only Windows path issue before execution, not a product failure; the ordinary wrapper invocation was used next."
+              - command: "./course check on the canonical tree"
+                status: passed
+                notes: "The repository's pinned Linux container passes cargo formatting, all Rust workspace and documentation tests, Astro diagnostics, content and locale parity, the 27-page static production build, 587 local references, and 27 SEO routes."
+              - command: "Canonical course plan, eight chapter contracts, and Vitest suite"
+                status: passed
+                notes: "The 39-chapter plan has 59 scheduled steps and 15 implemented contracts; all eight revised contracts pass independently; all 21 Vitest files and 372 tests pass."
+              - command: "Network-disabled canonical browser build and complete Chromium suite"
+                status: passed
+                notes: "Canonical browser image sha256:aed69a47a093fd04460ab135a8862087f4fea6ff5d0141a42073031a2b1cf072 builds from cached assets with no network and passes all 58 Playwright cases, including responsive, forced-colors, JavaScript-disabled, route, SEO, and accessibility coverage."
+              - command: "Canonical identity, whitespace, governance, and scope audit"
+                status: passed
+                notes: "All 30 canonical outputs match the frozen staged files byte for byte; BUILD_STATE.yaml parses, the current course plan validates, and git diff --check passes; no Rust, dependency, locale, route, build, hosting, or deployment definition changed; unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapters 8-15 now describe language-independent behavior in general terms and name Rust or another language only for executable evidence, actual language semantics, tooling provenance, or a contextually meaningful comparison. Rust remains the sole executable source of lesson evidence; the static presentation layer still performs no taught computation. Chapter 8-9 revisions are 3 and Chapter 10-15 revisions are 2 across contracts, lessons, and browser checks. Durable curriculum guidance and a focused regression preserve the rule. The canonical publication is byte-identical to frozen manifest sha256:8433e9502353bd158aa623c39f03817c1fcbc3251e24dc75827f93ebaabbce98; all staged, canonical, unit, build, link, SEO, and 58-case browser gates pass; no build-system or Rust implementation changed."
       - id: implement-ch16-model-autodiff-ops
         objective: "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss."
         depends_on:
-          - implement-ch15-tensor-autodiff-core
+          - generalize-language-boundaries-ch08-ch15
         status: pending
         inputs:
           - "SKILLS.md"

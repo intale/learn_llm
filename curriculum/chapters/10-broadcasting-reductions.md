@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "concept_id": "broadcasting-reductions",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 10,
   "objective": {
     "en": "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
@@ -290,7 +290,7 @@ For the reduction, `k` is the named axis, `n_k` is its extent, `i_k` walks that
 axis, and `x_i` is the input value after all non-`k` coordinates are fixed. The
 mean `mu_k` divides the fixed-order sum by `n_k`. Retaining the reduced dimension
 changes only the output shape, not the computed scalar. The mean formula requires
-`n_k>0`; the Rust API returns a typed error otherwise.
+`n_k>0`; the implementation returns a typed error otherwise.
 
 <!-- contract-section:history -->
 ## From short context to tensor-wide decoder math
@@ -309,12 +309,10 @@ Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V 
 
 Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance.
 
-The Rust contrast does not claim that a loop or an array API caused the
-Transformer. Its fixed-width function applies one feature offset to one
-three-value context representation. The rank-generic path applies the same
-scalar calculation over two token rows and then names the axes that contribute
-to each reduction. This exposes the supporting calculation used by later model
-code without implementing softmax, layer normalization, or either cited model.
+The contrast begins with one fixed-width context calculation and generalizes it
+across two token rows and named reduction axes. It exposes supporting computation
+for later model code without presenting these tensor utilities as a Transformer
+innovation or implementing softmax, layer normalization, or either cited model.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -329,7 +327,8 @@ overflow.
 This compatibility rule follows the
 [NumPy broadcasting guide](https://numpy.org/doc/stable/user/basics.broadcasting.html)
 as supporting API provenance only. The guide does not supply the LLM historical
-advance, prescribe this Rust error model, or establish allocation behavior.
+advance, prescribe this implementation's error model, or establish allocation
+behavior.
 
 `map_unary` and `map_binary` enumerate logical row-major result coordinates.
 They read through `TensorView::get`, so transposed and sliced views work without
@@ -362,9 +361,9 @@ concept-implementing dependency.
 
 The visualization is useful because the flat result alone does not show that
 each bias feature was reused for both token rows or which coordinates belong to
-each reduction group. A locale-neutral Astro component reads only the checked-in
-Rust trace and passes it through a strict TypeScript record parser. It does not
-recompute compatibility, addition, sums, means, maxima, or error results.
+each reduction group. A locale-neutral visualization reads and validates only the
+checked-in Rust trace. It does not recompute compatibility, addition, sums,
+means, maxima, or error results.
 
 The figure first aligns `[2,3]` with conceptual `[1,3]`. A semantic result table
 then pairs every output coordinate with its token and bias coordinates. Separate

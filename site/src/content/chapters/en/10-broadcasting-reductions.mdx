@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 10,
   "concept_id": "broadcasting-reductions",
   "title": "Broadcast once, reduce a named axis",
@@ -330,8 +330,8 @@ The tiny Rust contrast keeps that boundary visible. `fixed_context_feature_step`
 performs one shape-specific three-feature calculation. The general path applies
 the same feature offset over two token rows and derives named reductions. It is
 a calculation-sized bridge from one context representation to explicit
-token-feature axes, not a claim that Rust loops or broadcasting invented the
-Transformer and not a complete implementation of either cited model.
+token-feature axes, not a Transformer innovation or a complete implementation
+of either cited model.
 
 <RustSource
   path="rust/demos/ch10-broadcasting-reductions/src/lib.rs"
@@ -365,7 +365,7 @@ precedence over this layout check.
 The compatibility rule matches the
 [NumPy broadcasting guide](https://numpy.org/doc/stable/user/basics.broadcasting.html)
 as supporting array-rule provenance. That documentation is not an LLM
-historical checkpoint and does not prescribe this repository's Rust errors,
+historical checkpoint and does not prescribe this implementation's errors,
 logical-view traversal, or owned-output policy.
 
 `map_unary` enumerates every logical input coordinate. `map_binary` plans the
@@ -376,7 +376,7 @@ produces a contiguous owned output in its logical row-major order.
 
 All output reservations are fallible. For example, `[usize::MAX,0]` is a valid
 empty input shape, but summing its empty axis would require an owned result with
-`usize::MAX` zeros. Rust returns
+`usize::MAX` zeros. The implementation returns
 `OutputAllocationFailed { elements: usize::MAX }` before iteration instead of
 letting a capacity request panic.
 
@@ -425,9 +425,9 @@ Run it with the pinned Linux toolchain:
 
 The separate producer calls the same operations and records shapes, coordinate
 mappings, flat reduction groups, values, and error variants. Its formatting
-loops describe the fixture; they do not replace tensor arithmetic. The page
-parser validates that record grammar and projects its lexemes without recomputing
-any result.
+loops describe the fixture; they do not replace tensor arithmetic. The
+visualization validates the trace structure and displays its recorded values
+without recomputing any result.
 
 <RustSource
   path="rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs"

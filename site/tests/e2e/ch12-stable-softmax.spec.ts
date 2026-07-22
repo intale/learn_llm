@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '12-stable-softmax';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Turn extreme logits into stable probabilities';
 const chapterDescription =
   'Turn vocabulary and attention logits into stable probabilities, log-probabilities, log-sum-exp values, and indexed mean NLL with dependency-free Rust.';

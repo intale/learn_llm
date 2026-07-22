@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "concept_id": "scalar-autodiff",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 14,
   "objective": {
     "en": "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."
@@ -328,9 +328,10 @@ detached branch, gradcheck agreement, and typed failures.
 The figure uses semantic lists and tables, readable arrow and edge labels, and
 solid, double, and dashed non-color cues. Wide graph evidence stays inside one
 named keyboard-focusable local scroller; narrow layouts retain DOM reading
-order and stack summaries. The component parses checked-in Rust lexemes at
-build time, performs no differentiation in TypeScript, contains no client
-script, and remains complete with JavaScript disabled and forced colors.
+order and stack summaries. The component consumes and cross-checks the checked-in
+trace at build time; it does not differentiate, sort the graph, or recompute
+gradient arithmetic. It contains no client script and remains complete with
+JavaScript disabled and forced colors.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -369,8 +370,9 @@ history claims, exercises, and answers together.
 Keep the displayed notation locale neutral. Explain `children(v)` as operand
 uses counted with multiplicity. Keep pass-local adjoints distinct from stored
 cross-call gradients, and describe detach as cutting one graph edge while
-preserving a value. Do not turn the history into Rust or framework history, and
-do not attribute course-local graph or error choices to the sources.
+preserving a value. Do not turn the history into programming-language or
+framework history, and do not attribute course-local graph or error choices to
+the sources.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

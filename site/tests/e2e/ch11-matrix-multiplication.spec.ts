@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '11-matrix-multiplication';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Multiply rows by columns, then reuse batches';
 const chapterDescription =
   'Multiply checked 2-D and batched tensors with scalar Rust loops, including inner-dimension checks, batch broadcasting, and transpose flags.';

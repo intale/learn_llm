@@ -75,6 +75,13 @@ Shared formulas must contain notation only. Put words such as “when,” “oth
 or their localized equivalents in the explanation or symbol glossary, not inside
 shared LaTeX.
 
+Describe language-independent concepts and repository behavior in
+language-neutral terms. Name a programming language only to identify executable
+source or trace provenance, or when a comparison depends on language-specific
+syntax, semantics, or tooling; explain why the distinction matters. Attribute
+repository-local behavior to the implementation, trace, or visualization rather
+than to the language itself.
+
 ## Contract format
 
 Contract and lesson frontmatter use a JSON object between Markdown frontmatter

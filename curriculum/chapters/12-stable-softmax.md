@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "concept_id": "stable-softmax",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 12,
   "objective": {
     "en": "Convert logits into normalized probabilities and log-probabilities and score indexed targets without overflow or avoidable underflow."
@@ -343,8 +343,8 @@ The useful visualization consumes one strict locale-neutral Rust trace. For each
 row it records raw logits, maximum, shifted values, shifted exponentials,
 denominator, log-sum-exp, probabilities, log-probabilities, the naive status, and
 the selected target loss. It also records exact outputs, shift invariance, mean
-NLL, and four typed errors. TypeScript only validates and projects those lexemes;
-it never reimplements exponentiation, division, or logarithms.
+NLL, and four typed errors. The visualization only validates and presents those
+lexemes; it never reimplements exponentiation, division, or logarithms.
 
 The static figure uses semantic tables and cards in source order. A named,
 focusable local region owns any horizontal overflow. On narrow screens the row,

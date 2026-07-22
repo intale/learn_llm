@@ -80,7 +80,7 @@ const englishLabels: TensorViewsDiagramLabels = {
       'Compare the recorded shapes, strides, and source-offset sequences: matching shapes need not imply matching logical order.',
     slice:
       'Follow the recorded source offsets across the copy boundary into the materialized view\'s fresh offsets.',
-    errors: 'Each failure is a Rust result from the fixture, not a browser-side tensor calculation.',
+    errors: 'Each failure is recorded by the Rust example, not calculated by the visualization.',
   },
   symbols: { shared: '◇ shared', materialized: '◆ copied', rejected: '× rejected' },
 };

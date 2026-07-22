@@ -2,7 +2,7 @@
 {
   "chapter_id": "08-tensor-storage",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 8,
   "concept_id": "row-major-tensor-storage",
   "title": "From tensor coordinates to one flat buffer",
@@ -165,8 +165,8 @@ slice 0: [[10, 11, 12], [20, 21, 22]]
 slice 1: [[30, 31, 32], [40, 41, 42]]
 ```
 
-The Rust tensor does not store nested row objects. It owns these values in one
-flat `Vec<f64>`:
+This tensor implementation does not store nested row objects. It owns these
+values in one flat `Vec<f64>`:
 
 ```text
 [10, 11, 12, 20, 21, 22, 30, 31, 32, 40, 41, 42]
@@ -227,16 +227,16 @@ For shape `[2,2,3]`, the suffix to the right of axis `0` has `2×3=6` elements,
 the suffix to the right of axis `1` has `3`, and nothing follows axis `2`, giving
 `[6,3,1]`. The stride unit is `f64` elements, not bytes.
 
-The formula assumes a valid coordinate. Rust first requires exactly `d` indices,
-then visits axes from first to last, checking `0 ≤ i_k < shape[k]` before adding
-that axis's term. For `[1,0,2]`, the terms are `6`, `0`, and `2`, so the offset
-is `8`.
+The formula assumes a valid coordinate. The implementation first requires exactly
+`d` indices, then visits axes from first to last, checking
+`0 ≤ i_k < shape[k]` before adding that axis's term. For `[1,0,2]`, the terms
+are `6`, `0`, and `2`, so the offset is `8`.
 
 Two edge shapes make the product convention precise. Shape `[]` has rank zero
 and an empty stride list, but it represents one scalar value: the empty coordinate
 maps to offset `0`. Shape `[2,0,3]` has strides `[0,3,1]` and zero values. The zero
-extent makes the tensor empty, yet Rust still derives and checks the complete
-suffix-stride chain.
+extent makes the tensor empty, yet the constructor still derives and checks the
+complete suffix-stride chain.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -307,7 +307,7 @@ of the model mathematics without implementing either architecture's operations.
 
 {/* chapter-section:rust-implementation */}
 
-## Make shape validity and indexing one checked Rust responsibility
+## Make shape validity and indexing one checked responsibility
 
 `Tensor::from_vec` accepts an owned `Vec<usize>` shape and an owned `Vec<f64>`
 data buffer. It derives row-major strides from right to left with checked
@@ -401,8 +401,8 @@ Run it through the repository's pinned Linux toolchain:
 
 The separate diagram producer asks the frozen `Tensor` for its shape, strides,
 length, checked offset, value, and out-of-bounds error. Its serialization code
-then records the two logical slices and each axis contribution. The TypeScript
-parser validates those records but does not perform tensor indexing itself.
+then records the two logical slices and each axis contribution. The visualization
+presents those recorded results directly; it does not perform tensor indexing.
 
 <RustSource
   path="rust/demos/ch08-tensor-storage/src/diagram_trace.rs"
@@ -418,8 +418,8 @@ The trace command is also deterministic:
 ```
 
 Its stdout must equal `diagram-trace.txt` byte for byte, including one terminal
-newline. This check ensures that the page displays Rust-authored evidence rather
-than a second implementation hidden in the browser code.
+newline. This check ensures that every displayed value comes from the recorded
+Rust trace rather than an independently recomputed tensor result.
 
 {/* chapter-section:visualization */}
 

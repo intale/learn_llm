@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '14-scalar-autodiff';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Accumulate gradients through a scalar graph';
 const chapterDescription =
   'Build reverse-mode scalar autodiff in Rust, accumulate gradients across reused graph edges, and verify them for LLM training.';

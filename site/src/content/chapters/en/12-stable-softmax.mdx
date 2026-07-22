@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
@@ -148,7 +148,7 @@ export const diagramLabels = {
     finite: 'finite',
     overflowUndefined: 'undefined after overflow',
     underflowUndefined: 'undefined after underflow',
-    probabilitiesMatch: 'Rust confirms that rows 0, 1, and 2 have exactly matching probabilities.',
+    probabilitiesMatch: 'The recorded example confirms that rows 0, 1, and 2 have exactly matching probabilities.',
   },
   notes: {
     shift:
@@ -282,8 +282,10 @@ Stable softmax converts vocabulary or attention logits into normalized weights w
 The bounded Rust contrast starts with a literal formula translation. It succeeds
 for `[0,1]`; raw positive extremes become infinity divided by infinity, and raw
 negative extremes become zero divided by zero. This demonstrates the numerical
-pressure that stable normalization solves on the path to modern LLMs. It is not
-a history of Rust, Python, array libraries, or any other programming language.
+pressure that stable normalization solves on the path to modern LLMs. This is
+floating-point behavior rather than a programming-language rule: implementations
+face the same overflow and underflow pressure even when their APIs and error
+handling differ.
 
 <RustSource
   path="rust/demos/ch12-stable-softmax/src/lib.rs"
@@ -385,11 +387,11 @@ comparisons for shapes, errors, infinities, and positive-zero bits.
 
 ## Compare naive and stable exponentials
 
-The Rust trace serializes every visible number and status. TypeScript validates
-one exact ordered block and projects its lexemes; it does not call an exponential,
-divide values, or take a logarithm. The static component supplies localized
-labels, semantic table headers, content-height cards, a named keyboard-local
-scroll region, and border patterns that survive forced colors.
+The Rust trace serializes every visible number and status. The figure validates
+and presents that exact ordered evidence without recalculating exponentials,
+divisions, or logarithms. Semantic tables, content-height cards, a named
+keyboard-focusable scroll region, and border patterns keep the evidence readable
+across layouts and forced colors.
 
 <RustSource
   path="rust/demos/ch12-stable-softmax/src/diagram_trace.rs"

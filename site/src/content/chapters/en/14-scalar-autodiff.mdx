@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 14,
   "concept_id": "scalar-autodiff",
   "title": "Accumulate gradients through a scalar graph",
@@ -194,7 +194,7 @@ export const diagramLabels = {
     evidence:
       'Detach preserves a primal value but removes the parent edge. Chapter 13 probes the same forward expression independently with central differences.',
     errors:
-      'Rust validates every contribution and prospective stored sum before committing, so a failed backward call leaves all stored gradient bits unchanged.',
+      'The implementation validates every contribution and prospective stored sum before committing, so a failed backward call leaves all stored gradient bits unchanged.',
   },
   symbols: {
     leaf: 'L',
@@ -410,10 +410,10 @@ operand identity, upstream adjoint, local derivative, and contribution. The
 accumulated node and pass records show the sums, so the two paths cannot
 collapse into one by color or geometry.
 
-The strict Rust trace also owns the first and second stored states, zeroing,
-fresh restoration, detached branch, central-difference verdict, and rejected
-requests. TypeScript validates those lexemes and relationships but performs no
-chain rule, topology construction, or gradient arithmetic.
+The checked trace also records the first and second stored states, zeroing, fresh
+restoration, the detached branch, the central-difference verdict, and rejected
+requests. The visualization only checks and presents that evidence; it does not
+apply the chain rule, topologically sort the graph, or recompute gradients.
 
 <RustSource
   path="rust/demos/ch14-scalar-autodiff/src/diagram_trace.rs"

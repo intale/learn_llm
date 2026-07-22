@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '15-tensor-autodiff-core';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Reverse tensor shapes with operation-level VJPs';
 const chapterDescription =
   'Build a Rust tensor autodiff tape, reverse views, broadcasts, and reductions with shape-aware VJPs, and verify gradients for LLM training.';

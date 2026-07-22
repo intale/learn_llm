@@ -63,6 +63,29 @@ function repositoryRoot() {
   return resolve(process.cwd(), '..');
 }
 
+const LANGUAGE_BOUNDARY_CHAPTERS = [
+  '08-tensor-storage',
+  '09-tensor-views',
+  '10-broadcasting-reductions',
+  '11-matrix-multiplication',
+  '12-stable-softmax',
+  '13-gradient-checking',
+  '14-scalar-autodiff',
+  '15-tensor-autodiff-core',
+] as const;
+
+const UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS = [
+  /\bTypeScript\b/i,
+  /\bAstro component\b/i,
+  /\bbrowser(?:-side| code)\b/i,
+  /\bclient script\b/i,
+  /\bhydration directive\b/i,
+  /\bpage parser\b/i,
+  /\bRust (?:validates|returns|never materializes|commits)\b/i,
+  /\bthis Rust (?:API|implementation|course)\b/i,
+  /\brepository's Rust errors\b/i,
+] as const;
+
 function canonicalContract() {
   const root = repositoryRoot();
   const path = join(root, 'curriculum/chapters/01-text-units.md');
@@ -308,6 +331,23 @@ describe('localized chapter documents', () => {
         region: undefined,
       }),
     ]);
+  });
+
+  it('keeps the corrected trace boundaries independent of frontend tooling and language-as-actor claims', () => {
+    for (const chapterId of LANGUAGE_BOUNDARY_CHAPTERS) {
+      const source = readFileSync(
+        join(
+          repositoryRoot(),
+          'site/src/content/chapters/en',
+          `${chapterId}.mdx`,
+        ),
+        'utf8',
+      );
+
+      for (const pattern of UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS) {
+        expect(source, `${chapterId} contains ${pattern}`).not.toMatch(pattern);
+      }
+    }
   });
 
   it('rejects missing sections and Rust paths outside the allowlist', () => {

@@ -2,7 +2,7 @@
 {
   "chapter_id": "09-tensor-views",
   "concept_id": "tensor-views",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 9,
   "objective": {
     "en": "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
@@ -341,7 +341,7 @@ make every packed-Q/K/V slice contiguous: under this course's row-major policy,
 slicing one last-axis block from `[batch,sequence,3×features]` when
 `batch × sequence > 1` retains outer gaps and requires explicit materialization
 before reshape. GPT-2's TensorFlow code establishes the logical operations, not
-the copy behavior of this Rust implementation.
+this implementation's copy behavior.
 
 Scalars retain shape and strides `[]`, one logical value, and coordinate `[]`.
 Any zero extent makes a view empty; empty views are contiguous by convention and

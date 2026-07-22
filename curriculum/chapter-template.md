@@ -119,6 +119,12 @@ that says what the page teaches. That exact string is the visible summary in the
 course index and lesson header and the sole basic `<meta name="description">` for
 the rendered chapter page; do not create separate visible and SEO descriptions.
 
+Keep language-independent behavior language-neutral. Name a programming
+language only to identify executable source or trace provenance, or when a
+comparison depends on language-specific syntax, semantics, or tooling; explain
+why the distinction matters. Attribute course-local behavior to the
+implementation, trace, or visualization rather than to the language.
+
 For every chapter after Chapter 1, replace `chapter_concept.rs` with the exact
 `primary_module` path named in `course-plan.md`; every active localized lesson
 declares and renders every contract source (and every declared source region).

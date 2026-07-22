@@ -2,7 +2,7 @@
 {
   "chapter_id": "09-tensor-views",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 9,
   "concept_id": "tensor-views",
   "title": "One buffer, several tensor interpretations",
@@ -172,7 +172,7 @@ export const diagramLabels = {
     slice:
       'Follow the recorded source offsets across the copy boundary into the materialized view\'s fresh offsets.',
     errors:
-      'Each failure is a Rust result from the fixture, not a browser-side tensor calculation.',
+      'Each failure is recorded by the Rust example, not calculated by the visualization.',
   },
   symbols: {
     shared: '◇ shared',
@@ -279,7 +279,7 @@ neither: it retains the stride list, changes one extent, and adds
 `start × stride[axis]` to the base offset.
 
 Scalar shape `[]` has an empty product of one, one value, and an empty
-permutation. Any zero extent gives a product of zero. The Rust implementation
+permutation. Any zero extent gives a product of zero. The implementation
 still checks the complete requested suffix-stride chain, so a later enormous
 extent cannot hide overflow behind an earlier zero.
 
@@ -320,8 +320,8 @@ by K with K's final two axes transposed. The per-head result is transposed back
 before the head and feature widths are merged.
 
 Those sources establish model calculations and logical axis transformations.
-They do not prescribe whether this Rust course must copy values, borrow one
-buffer, use row-major strides, or reject an implicit materialization.
+They do not prescribe whether an implementation copies values, shares a buffer,
+uses row-major strides, or rejects implicit materialization.
 
 Reshape, axis permutation, and transpose let this course express the logical
 split-head, K-transpose, and merge-head layouts used by decoder attention;
@@ -380,7 +380,7 @@ GPT-2's packed projection as `[batch, sequence, 3 × features]`, slicing one
 Q/K/V block from the last axis when `batch × sequence > 1` would retain gaps
 between outer rows. That multi-position slice would need explicit
 materialization before `reshape`; the GPT-2 TensorFlow source does not determine
-whether this Rust API should borrow or copy it.
+an implementation's borrow-or-copy policy.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/tensor/view.rs"
@@ -439,12 +439,10 @@ slice/materialization table then maps source offsets `[1,2,4,5]` to new offsets
 
 <TensorViewsDiagram labels={diagramLabels} />
 
-All numbers come from `diagram-trace.txt`. The TypeScript parser rejects malformed
-markers, records, numbers, IDs, arities, or line order; it preserves Rust lexemes
-for rendering. It does not multiply extents, permute axes, derive offsets, decide
-contiguity, or reorder values. The figure and its local table scrollers are
-keyboard reachable, the reading order is meaningful without CSS, and no client
-script or hydration directive is emitted.
+All numbers come from `diagram-trace.txt`. The visualization rejects malformed
+records and preserves the recorded numeric text. It does not multiply extents,
+permute axes, derive offsets, decide contiguity, or reorder values. The figure is
+static, keyboard reachable, and meaningful in document order.
 
 {/* chapter-section:exercises */}
 

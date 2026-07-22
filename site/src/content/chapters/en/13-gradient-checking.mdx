@@ -2,7 +2,7 @@
 {
   "chapter_id": "13-gradient-checking",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 13,
   "concept_id": "gradient-checking",
   "title": "Check gradients before trusting backpropagation",
@@ -262,7 +262,7 @@ probe is rejected rather than reported as a zero derivative.
 | $h$ | The positive finite perturbation on both sides of the point. |
 | $f'(\theta)$ | The derivative at the point approximated by the centered secant slope. |
 
-For analytic candidate `a` and numerical value `n`, Rust chooses
+For analytic candidate `a` and numerical value `n`, the checker chooses
 `scale=max(1,abs(a),abs(n))` and records
 `scaled_error=abs(a/scale-n/scale)`. The floor at one behaves like absolute
 error for small gradients; larger gradients are compared relative to their
@@ -392,11 +392,11 @@ though it still passes. At `h=1e-12`, rounding has raised the displayed result
 to `4.750422277766`, which fails tolerance again. The lesson does not promote
 `1e-5` as a universal optimum; it is the trustworthy middle for this fixture.
 
-The strict 23-line Rust trace owns every point, function value, error, phase,
-status, sample, and failure. TypeScript checks exact lexemes and ordering but
-does not differentiate, scale an error, or select a coordinate. The visual
-brackets are explicitly ordinal and not to scale; the semantic table retains
-all exact evidence.
+The strict 23-line Rust trace supplies every point, function value, error, phase,
+status, sample, and failure. The figure validates and presents that exact ordered
+evidence without differentiating, scaling an error, or selecting a coordinate.
+The visual brackets are explicitly ordinal and not to scale; the semantic table
+retains all exact evidence.
 
 <RustSource
   path="rust/demos/ch13-gradient-checking/src/diagram_trace.rs"

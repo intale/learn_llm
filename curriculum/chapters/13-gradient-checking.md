@@ -2,7 +2,7 @@
 {
   "chapter_id": "13-gradient-checking",
   "concept_id": "gradient-checking",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 13,
   "objective": {
     "en": "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."
@@ -214,7 +214,7 @@ q(3 + 0.1) = q(3.1) = 9.61
 
 The analytic candidate `6` should pass. Candidate `5.5` should fail even though
 both are finite. The Rust output retains the tiny `f64` rounding residue rather
-than repairing it in prose or TypeScript.
+than hiding it in the lesson or visualization.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
@@ -283,11 +283,11 @@ cards distinguish a mathematical mismatch from an invalid request; and four NLL
 coordinate cards retain the exact Rust-authored analytic, numerical, and scaled
 errors.
 
-The Astro component performs no derivative or sampling arithmetic. It parses
-the checked-in Rust lexemes at build time, uses a semantic table plus named
-cards, keeps wide evidence inside one keyboard-focusable local scroller, stacks
-cards at narrow widths, and carries text and border-style cues into forced
-colors. It has no client script and still renders with JavaScript disabled.
+The visualization performs no derivative or sampling arithmetic. It reads the
+checked-in Rust lexemes at build time, uses a semantic table plus named cards,
+keeps wide evidence inside one keyboard-focusable local scroller, stacks cards
+at narrow widths, and carries text and border-style cues into forced colors. It
+has no client script and still renders with JavaScript disabled.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

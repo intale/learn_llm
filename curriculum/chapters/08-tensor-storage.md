@@ -2,7 +2,7 @@
 {
   "chapter_id": "08-tensor-storage",
   "concept_id": "row-major-tensor-storage",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 8,
   "objective": {
     "en": "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
@@ -285,7 +285,7 @@ For the Transformer checkpoint, each one-head Q, K, and V stand-in has
 [tokens,head width]=[2,3]. A local Q head stack adds a head axis and has
 [heads,tokens,head width]=[2,2,3]. Vaswani et al. support the matrix and
 parallel-head claims, but the paper does not prescribe this fixture's axis order,
-Rust type, or storage convention.
+concrete tensor type, or storage convention.
 
 Explicit tensor shapes let this course represent embeddings, learned weights,
 activations, and attention intermediates in the cumulative decoder; the single
@@ -344,7 +344,8 @@ the frozen `[2,2,3]` tensor, the three coordinate contributions for `[1,0,2]`,
 the flat buffer with offset `8` selected, and the rejected coordinate `[1,2,0]`
 with axis, index, and size visible. The locale-neutral parser validates the trace
 grammar and projects recorded lexemes; it does not derive strides, calculate an
-offset, check a bound, or read a tensor value independently of Rust.
+offset, check a bound, or read a tensor value independently of the recorded
+trace.
 
 The exact grammar and record order are:
 
@@ -374,8 +375,8 @@ scroll region is focusable and named so keyboard users can reach and scroll it.
 The generated example trace must be regenerated with
 `cargo run --quiet --locked -p ch08-tensor-storage --example ch08-tensor-storage-trace` and
 must equal `rust/demos/ch08-tensor-storage/diagram-trace.txt` byte for byte. This
-same fixture, rather than a page-side tensor implementation, is the source for
-the rendered values.
+same fixture, rather than an independent tensor implementation, is the source
+for the rendered values.
 
 <!-- contract-section:exercises -->
 ## Prediction checks

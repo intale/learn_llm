@@ -360,10 +360,17 @@ test.describe(
             title: localized.chapterTitle,
           }),
         );
-        await expect(
-          page.getByText(`${localized.indexRevision}: ${contentRevision}`, {
+        const chapterCard = page.getByRole('article').filter({
+          has: page.getByRole('link', {
+            name: localized.chapterTitle,
             exact: true,
           }),
+        });
+        await expect(
+          chapterCard.getByText(
+            `${localized.indexRevision}: ${contentRevision}`,
+            { exact: true },
+          ),
         ).toBeVisible();
         for (const alternate of chapterLocaleDefinitions) {
           await expect(

@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '10-broadcasting-reductions';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Broadcast once, reduce a named axis';
 const chapterDescription =
   'Broadcast feature-wise values across token states and reduce explicit axes with a dependency-free Rust tensor core.';

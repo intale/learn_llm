@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '08-tensor-storage';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'From tensor coordinates to one flat buffer';
 const chapterDescription =
   'Map language-model matrices and attention tensors onto one flat Rust vector with checked row-major strides and deterministic offsets.';
@@ -95,7 +95,7 @@ async function expectChapterContent(
     'Turn each axis movement into one stride term',
     'Locate every symbol in the tensor',
     historyHeading,
-    'Make shape validity and indexing one checked Rust responsibility',
+    'Make shape validity and indexing one checked responsibility',
     'Follow the coordinate through slices, arithmetic, and storage',
     'Predict each layout result before checking it',
     'Reuse one checked numeric container throughout the model',
