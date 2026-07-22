@@ -1,0 +1,338 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertBroadcastingReductionsDiagramLabels,
+  broadcastingReductionsDiagramId,
+  parseBroadcastingReductionsTrace,
+  type BroadcastingReductionsDiagramLabels,
+  type TraceNumber,
+} from '../../lib/broadcasting-reductions-diagram';
+
+interface Props {
+  labels: BroadcastingReductionsDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'broadcasting-reductions-diagram' } = Astro.props as Props;
+assertBroadcastingReductionsDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch10-broadcasting-reductions/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseBroadcastingReductionsTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+const tuple = (values: readonly TraceNumber[]) =>
+  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+const list = (values: readonly TraceNumber[]) =>
+  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
+---
+
+<figure
+  class="broadcasting-reductions-diagram"
+  data-visualization-id={broadcastingReductionsDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="summary-facts">
+      <div>
+        <dt>{labels.summary.tokens}</dt>
+        <dd><code dir="ltr">{tuple(trace.inputs[0].shape)}</code></dd>
+      </div>
+      <div>
+        <dt>{labels.summary.bias}</dt>
+        <dd><code dir="ltr">{tuple(trace.inputs[1].shape)}</code></dd>
+      </div>
+      <div>
+        <dt>{labels.summary.output}</dt>
+        <dd><code dir="ltr">{tuple(trace.output.shape)}</code></dd>
+      </div>
+    </dl>
+  </figcaption>
+
+  <section class="diagram-panel alignment-panel" aria-labelledby={`${instanceId}-alignment-title`}>
+    <h4 id={`${instanceId}-alignment-title`}>{labels.sections.alignment}</h4>
+    <p>{labels.notes.alignment}</p>
+    <table class="alignment-table">
+      <caption class="visually-hidden">{labels.sections.alignment}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{labels.fields.tensor}</th>
+          <th scope="col">{labels.fields.originalShape}</th>
+          <th scope="col">{labels.fields.alignedShape}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-alignment-id="tokens">
+          <th scope="row"><code dir="ltr">tokens</code></th>
+          <td><code dir="ltr">{tuple(trace.plan.leftShape)}</code></td>
+          <td><code dir="ltr">{tuple(trace.plan.alignedLeft)}</code></td>
+        </tr>
+        <tr data-alignment-id="bias" class="reused-row">
+          <th scope="row">
+            <span class="state-symbol" aria-hidden="true">↻</span>
+            <span class="visually-hidden">{labels.symbols.reused}: </span>
+            <code dir="ltr">bias</code>
+          </th>
+          <td><code dir="ltr">{tuple(trace.plan.rightShape)}</code></td>
+          <td><code dir="ltr">{tuple(trace.plan.alignedRight)}</code></td>
+        </tr>
+        <tr data-alignment-id="output">
+          <th scope="row"><code dir="ltr">output</code></th>
+          <td><span aria-hidden="true">—</span></td>
+          <td><code dir="ltr">{tuple(trace.plan.outputShape)}</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="diagram-panel mapping-panel" aria-labelledby={`${instanceId}-mapping-title`}>
+    <h4 id={`${instanceId}-mapping-title`}>{labels.sections.mapping}</h4>
+    <p>{labels.notes.mapping}</p>
+    <div
+      class="mapping-scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={`${instanceId}-mapping-title`}
+    >
+      <table class="mapping-table">
+        <caption class="visually-hidden">{labels.sections.mapping}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.outputCoordinate}</th>
+            <th scope="col">{labels.fields.tokenCoordinate}</th>
+            <th scope="col">{labels.fields.biasCoordinate}</th>
+            <th scope="col">{labels.fields.result}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.maps.map((mapping) => (
+            <tr
+              data-output-coordinate={mapping.output.map(({ lexeme }) => lexeme).join(',')}
+              data-left-coordinate={mapping.left.map(({ lexeme }) => lexeme).join(',')}
+              data-right-coordinate={mapping.right.map(({ lexeme }) => lexeme).join(',')}
+              data-result-value={mapping.value.lexeme}
+            >
+              <th scope="row"><code dir="ltr">{tuple(mapping.output)}</code></th>
+              <td><code dir="ltr">{tuple(mapping.left)}</code></td>
+              <td class="reused-value">
+                <span class="state-symbol" aria-hidden="true">↻</span>
+                <span class="visually-hidden">{labels.symbols.reused}: </span>
+                <code dir="ltr">{tuple(mapping.right)}</code>
+              </td>
+              <td><bdi dir="ltr">{mapping.value.lexeme}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-panel reductions-panel" aria-labelledby={`${instanceId}-reductions-title`}>
+    <h4 id={`${instanceId}-reductions-title`}>{labels.sections.reductions}</h4>
+    <p>{labels.notes.reductions}</p>
+    <ol class="reduction-list">
+      {trace.reductions.map((reduction) => (
+        <li
+          class="reduction-card"
+          data-reduction-operation={reduction.operation}
+          data-reduction-axis={reduction.axis.lexeme}
+          data-keep-dim={reduction.keepDim}
+          data-output-shape={reduction.outputShape.map(({ lexeme }) => lexeme).join(',')}
+        >
+          <h5>
+            <span class="state-symbol" aria-hidden="true">Σ</span>
+            <span class="visually-hidden">{labels.symbols.reduced}: </span>
+            <code dir="ltr">{reduction.operation}</code>
+          </h5>
+          <dl class="reduction-facts">
+            <div><dt>{labels.fields.axis}</dt><dd><bdi dir="ltr">{reduction.axis.lexeme}</bdi></dd></div>
+            <div>
+              <dt>{labels.fields.keepDimension}</dt>
+              <dd>{reduction.keepDim === 'yes' ? labels.symbols.yes : labels.symbols.no}</dd>
+            </div>
+            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{tuple(reduction.outputShape)}</code></dd></div>
+            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{list(reduction.values)}</code></dd></div>
+          </dl>
+          <ol class="group-list">
+            {reduction.groups.map((group, groupIndex) => (
+              <li data-group-indices={group.map(({ lexeme }) => lexeme).join(',')}>
+                <span>{labels.fields.group} <bdi dir="ltr">{groupIndex}</bdi>:</span>
+                <code dir="ltr">{list(group.map(({ value }) => trace.output.values[value]!))}</code>
+                <span aria-hidden="true"> → </span>
+                <bdi dir="ltr">{reduction.values[groupIndex]!.lexeme}</bdi>
+              </li>
+            ))}
+          </ol>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="diagram-panel errors-panel" aria-labelledby={`${instanceId}-errors-title`}>
+    <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
+    <p>{labels.notes.errors}</p>
+    <ol class="error-list">
+      <li class="error-card" data-error-kind={trace.errors[0].kind}>
+        <span class="state-symbol" aria-hidden="true">×</span>
+        <span class="visually-hidden">{labels.symbols.rejected}: </span>
+        <code dir="ltr">{trace.errors[0].operation}</code>
+        <span>
+          <code dir="ltr">{tuple(trace.errors[0].leftShape)}</code>
+          {' / '}
+          <code dir="ltr">{tuple(trace.errors[0].rightShape)}</code>
+        </span>
+        <span>
+          {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>:
+          {' '}<bdi dir="ltr">{trace.errors[0].leftSize.lexeme}</bdi>
+          {' ≠ '}<bdi dir="ltr">{trace.errors[0].rightSize.lexeme}</bdi>
+        </span>
+      </li>
+      {emptyErrors.map((error) => (
+        <li class="error-card" data-error-kind={error.kind}>
+          <span class="state-symbol" aria-hidden="true">×</span>
+          <span class="visually-hidden">{labels.symbols.rejected}: </span>
+          <code dir="ltr">{error.operation}</code>
+          <code dir="ltr">{tuple(error.inputShape)}</code>
+          <span>{labels.fields.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi></span>
+        </li>
+      ))}
+    </ol>
+  </section>
+</figure>
+
+<style>
+  .broadcasting-reductions-diagram {
+    --diagram-border: color-mix(in srgb, currentColor 26%, transparent);
+    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+    display: grid;
+    gap: 1rem;
+    max-width: 100%;
+    margin-block: 1.5rem;
+    padding: clamp(0.85rem, 3vw, 1.5rem);
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.85rem;
+  }
+
+  .broadcasting-reductions-diagram:focus-visible,
+  .mapping-scroll:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  figcaption h3,
+  figcaption p,
+  .diagram-panel h4,
+  .diagram-panel > p,
+  .reduction-card h5 { margin-block-start: 0; }
+
+  .summary-facts,
+  .reduction-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.1rem;
+    margin: 0;
+  }
+
+  .summary-facts div,
+  .reduction-facts div { display: flex; gap: 0.4rem; align-items: baseline; }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+
+  .diagram-panel {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.65rem;
+    background: var(--diagram-surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  caption { padding-block-end: 0.5rem; }
+  th,
+  td { padding: 0.55rem; border: 1px solid var(--diagram-border); text-align: start; }
+  thead th { font-weight: 750; }
+
+  .mapping-scroll {
+    contain: paint;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .mapping-table { min-width: 39rem; }
+  .reused-row,
+  .reused-value { border-style: solid; }
+  .state-symbol { margin-inline-end: 0.35rem; font-weight: 800; }
+
+  .reduction-list,
+  .error-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .reduction-card,
+  .error-card {
+    min-width: 0;
+    padding: 0.85rem;
+    border: 3px double currentColor;
+    border-radius: 0.55rem;
+  }
+
+  .group-list {
+    display: grid;
+    gap: 0.4rem;
+    margin-block-end: 0;
+    padding-inline-start: 1.4rem;
+  }
+
+  .group-list li { overflow-wrap: anywhere; }
+
+  .error-card {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    border-style: dashed;
+  }
+
+  code,
+  bdi { unicode-bidi: isolate; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 48rem) {
+    .reduction-list,
+    .error-list { grid-template-columns: 1fr; }
+    .alignment-table { font-size: 0.92rem; }
+  }
+
+  @media (forced-colors: active) {
+    .reused-row,
+    .reused-value { border-style: solid; }
+    .reduction-card { border-style: double; }
+    .error-card { border-style: dashed; }
+  }
+</style>

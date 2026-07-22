@@ -1,0 +1,15 @@
+token features: shape=[2, 3] values=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+feature bias: shape=[3] values=[10.0, 20.0, 30.0]
+broadcast add: shape=[2, 3] values=[11.0, 22.0, 33.0, 14.0, 25.0, 36.0]
+unary square: shape=[2, 3] values=[1.0, 4.0, 9.0, 16.0, 25.0, 36.0]
+sum axis=0 keep_dim=false: shape=[3] values=[25.0, 47.0, 69.0]
+mean axis=1 keep_dim=true: shape=[2, 1] values=[22.0, 25.0]
+max axis=1 keep_dim=false: shape=[2] values=[33.0, 36.0]
+scalar broadcast: shape=[2, 3] values=[1.5, 2.5, 3.5, 4.5, 5.5, 6.5]
+empty broadcast: shape=[2, 0, 3] values=0 closure_calls=0
+empty sum axis=1 keep_dim=false: shape=[2, 3] values=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+broadcast error: cannot broadcast output axis 1: left size 3, right size 2
+mean error: cannot compute mean over empty axis 1
+max error: cannot compute max over empty axis 1
+scalar reduction error: reduction axis 0 is out of bounds for rank 0
+chapter 11 handoff: contract matching axes with matrix multiplication

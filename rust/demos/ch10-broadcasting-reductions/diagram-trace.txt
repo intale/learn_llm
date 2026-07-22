@@ -1,0 +1,18 @@
+TRACE broadcasting-reductions-v1 BEGIN
+INPUT id=tokens shape=2,3 values=1.0,2.0,3.0,4.0,5.0,6.0
+INPUT id=bias shape=3 values=10.0,20.0,30.0
+PLAN mode=trailing left-shape=2,3 right-shape=3 aligned-left=2,3 aligned-right=1,3 output-shape=2,3
+MAP output=0,0 left=0,0 right=0 value=11.0
+MAP output=0,1 left=0,1 right=1 value=22.0
+MAP output=0,2 left=0,2 right=2 value=33.0
+MAP output=1,0 left=1,0 right=0 value=14.0
+MAP output=1,1 left=1,1 right=1 value=25.0
+MAP output=1,2 left=1,2 right=2 value=36.0
+OUTPUT id=biased shape=2,3 values=11.0,22.0,33.0,14.0,25.0,36.0
+REDUCTION operation=sum axis=0 keep-dim=no output-shape=3 groups=0,3;1,4;2,5 values=25.0,47.0,69.0
+REDUCTION operation=mean axis=1 keep-dim=yes output-shape=2,1 groups=0,1,2;3,4,5 values=22.0,25.0
+REDUCTION operation=max axis=1 keep-dim=no output-shape=2 groups=0,1,2;3,4,5 values=33.0,36.0
+ERROR operation=broadcast left-shape=2,3 right-shape=2 status=incompatible output-axis=1 left-size=3 right-size=2
+ERROR operation=mean input-shape=2,0,3 axis=1 status=empty-axis
+ERROR operation=max input-shape=2,0,3 axis=1 status=empty-axis
+TRACE broadcasting-reductions-v1 END

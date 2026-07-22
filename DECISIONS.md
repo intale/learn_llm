@@ -3264,3 +3264,33 @@ unchanged.
 `implement-ch09-tensor-views`, `establish-llm-evolution-history-policy` run
 `20260722T040101Z-establish-llm-evolution-history-policy-02`,
 `realign-ch08-llm-history`, and `realign-ch09-llm-history`.
+
+## 2026-07-22 — Include LLM-evolution identity in route publication parity
+
+**Status:** Accepted during the Chapter 10 preflight audit.
+
+**Context:** The standalone content gate compares the mandatory locale-neutral
+`history.llm_evolution` predecessor and source identity across every active
+locale. Astro's independent `sharedChapterSignature` still compared only the
+historical Rust source. A future multi-locale chapter could therefore pass into
+the static route selector with different predecessor kinds or ordered source
+names, roles, years, and URLs if that selector were used without the standalone
+gate.
+
+**Decision:** Extend the static publication signature with the optional
+LLM-evolution predecessor kind and ordered source identity, using `null` for
+earlier chapters that do not have the record. Add a focused regression proving
+that source drift keeps an otherwise complete locale set unpublished. Treat the
+selector and test as necessary shared integration outputs of Chapter 10, the
+first chapter where the metadata is universally required.
+
+**Consequences:** Astro route selection and the standalone content gate enforce
+the same locale-neutral history boundary. Localized limitation, advance, role,
+and claim prose remain locale-specific and are not included in the shared
+signature. Routes, active locales, SEO, dependencies, and the Linux build
+definition do not change. The first Chapter 10 run is interrupted before product
+edits and replaced with a newly fingerprinted run that owns these two files.
+
+**Affected step and run:** `implement-ch10-broadcasting-reductions`, interrupted
+run `20260722T054611Z-implement-ch10-broadcasting-reductions-01` and replacement
+run `20260722T060239Z-implement-ch10-broadcasting-reductions-02`.

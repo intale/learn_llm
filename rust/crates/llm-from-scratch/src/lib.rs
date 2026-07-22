@@ -9,8 +9,9 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
-/// Contiguous tensor foundations and borrowed views from Chapters 8 and 9.
+/// Contiguous storage, borrowed views, and checked elementwise tensor operations.
 pub mod tensor {
+    pub mod ops;
     pub mod storage;
     pub mod view;
 }

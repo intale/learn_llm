@@ -40,6 +40,27 @@ function lesson(
   };
 }
 
+function addLlmEvolution(entry: PublicationChapterEntry): PublicationChapterEntry {
+  entry.data.history.llm_evolution = {
+    predecessor_kind: 'language-model',
+    sources: [
+      {
+        role: 'earlier',
+        year: 2003,
+        name: 'Earlier model',
+        source_url: 'https://example.com/earlier',
+      },
+      {
+        role: 'later',
+        year: 2017,
+        name: 'Later model',
+        source_url: 'https://example.com/later',
+      },
+    ],
+  };
+  return entry;
+}
+
 describe('manifest-driven chapter publication', () => {
   it('publishes and indexes every member of a complete three-locale set', () => {
     const entries = configuredLocales.map((locale) => lesson(locale));
@@ -81,6 +102,26 @@ describe('manifest-driven chapter publication', () => {
   ])('keeps a %s translation set unpublished', (_label, entries) => {
     expect(
       findPublishableChapterSets(entries(), configuredLocales, 'en'),
+    ).toEqual([]);
+  });
+
+  it('keeps LLM-evolution predecessor or source drift unpublished', () => {
+    const entries = configuredLocales.map((locale) =>
+      addLlmEvolution(lesson(locale)),
+    );
+    entries[2].data.history.llm_evolution!.sources[1].source_url =
+      'https://example.com/different-later-source';
+
+    expect(
+      findPublishableChapterSets(entries, configuredLocales, 'en'),
+    ).toEqual([]);
+
+    entries[2].data.history.llm_evolution!.sources[1].source_url =
+      'https://example.com/later';
+    entries[2].data.history.llm_evolution!.predecessor_kind =
+      'training-practice';
+    expect(
+      findPublishableChapterSets(entries, configuredLocales, 'en'),
     ).toEqual([]);
   });
 

@@ -1,0 +1,549 @@
+---
+{
+  "chapter_id": "10-broadcasting-reductions",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 10,
+  "concept_id": "broadcasting-reductions",
+  "title": "Broadcast once, reduce a named axis",
+  "description": "Broadcast feature-wise values across token states and reduce explicit axes with a dependency-free Rust tensor core.",
+  "objective": "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.",
+  "worked_inputs": "Treat shape [2,3] with values [1,2,3,4,5,6] as two token-feature rows and shape [3] with values [10,20,30] as one shared feature bias. Predict the broadcast sum [11,22,33,14,25,36], then sum axis 0 to [25,47,69], mean axis 1 with the dimension retained to shape [2,1] and values [22,25], and max axis 1 to [33,36].",
+  "formula": {
+    "latex": "y_{\\mathbf{i}}=f(a_{\\beta_a(\\mathbf{i})},b_{\\beta_b(\\mathbf{i})}), \\quad \\mu_k=\\frac{1}{n_k}\\sum_{i_k}x_{\\mathbf{i}}",
+    "symbols": [
+      {
+        "symbol": "y_{\\mathbf{i}}",
+        "meaning": "the output value at complete result coordinate i"
+      },
+      {
+        "symbol": "\\mathbf{i}",
+        "meaning": "the complete zero-based coordinate of one output value"
+      },
+      {
+        "symbol": "f",
+        "meaning": "the scalar elementwise function applied to one aligned pair of values"
+      },
+      {
+        "symbol": "a",
+        "meaning": "the left input tensor"
+      },
+      {
+        "symbol": "b",
+        "meaning": "the right input tensor"
+      },
+      {
+        "symbol": "\\beta_a(\\mathbf{i})",
+        "meaning": "the mapping from output coordinate i to the aligned coordinate in a, using zero on expanded size-one axes and omitting missing leading axes"
+      },
+      {
+        "symbol": "\\beta_b(\\mathbf{i})",
+        "meaning": "the mapping from output coordinate i to the aligned coordinate in b, using zero on expanded size-one axes and omitting missing leading axes"
+      },
+      {
+        "symbol": "\\mu_k",
+        "meaning": "the mean result after fixing every coordinate except the selected axis k"
+      },
+      {
+        "symbol": "k",
+        "meaning": "the explicit zero-based reduction axis"
+      },
+      {
+        "symbol": "n_k",
+        "meaning": "the extent of reduction axis k"
+      },
+      {
+        "symbol": "i_k",
+        "meaning": "the coordinate traversed from zero through n_k minus one on axis k"
+      },
+      {
+        "symbol": "x_{\\mathbf{i}}",
+        "meaning": "the reduction input value at the complete coordinate whose k component is i_k"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.",
+      "later_advance": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors.",
+      "modern_llm_role": "Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
+          "claim": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "OpenAI, GPT-2 model.py",
+          "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
+          "claim": "OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors."
+        }
+      ]
+    },
+    "approach": "From short-context probability rows and one fixed-context neural prediction to shared Transformer computation across token, head, and feature axes",
+    "summary": "Count-based n-grams separate short contexts into probability-table rows. Bengio et al.'s neural model shares learned word features but its feed-forward path still consumes a fixed context window. Transformer attention and position-wise networks operate over sequence tensors, while GPT-2 code exposes the elementwise and reduction structure across batch, sequence, head, and feature axes. This chapter supplies checked broadcasting and reduction primitives for those computations without presenting its API as an architectural invention.",
+    "rust_source": "rust/demos/ch10-broadcasting-reductions/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch10-broadcasting-reductions/src/lib.rs",
+      "region": "tiny-token-feature-example",
+      "purpose": "Contrast one fixed-width context calculation with the same feature-wise operation over explicit token and feature axes, then compute the frozen reductions."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tensor/ops.rs",
+      "region": "broadcast-planning",
+      "purpose": "Right-align ranks, select equal or non-singleton extents, report the leftmost incompatible output axis, and reject output-layout overflow before allocation."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tensor/ops.rs",
+      "region": "elementwise-maps",
+      "purpose": "Apply unary and binary scalar functions in logical row-major order over arbitrary TensorView inputs and return owned contiguous tensors."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/tensor/ops.rs",
+      "region": "axis-reductions",
+      "purpose": "Implement deterministic sum, mean, and max over one checked axis with explicit keep-dimension and empty-axis semantics."
+    },
+    {
+      "path": "rust/demos/ch10-broadcasting-reductions/src/main.rs",
+      "region": "learner-broadcasting-output",
+      "purpose": "Construct the frozen token-feature calculation plus scalar, empty, incompatible, and scalar-reduction cases printed by the learner demo."
+    },
+    {
+      "path": "rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs",
+      "region": "broadcasting-reductions-trace",
+      "purpose": "Record the exact Rust-derived shape alignment, coordinate mappings, reduction groups, results, and typed errors consumed by the static diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "broadcasting-reductions",
+    "rationale": "Trailing alignment rows, coordinate mappings, and reduction groups make it possible to see exactly where one feature value is reused and which axis disappears or remains size one."
+  },
+  "decoder_connection": "The cumulative tensor core can now apply unary and binary scalar functions over owned or strided logical inputs, reuse singleton and missing leading dimensions through checked trailing-axis broadcasting, and compute deterministic sum, mean, and max reductions over a named axis. These are the supporting primitives for later normalization and softmax chapters; Chapter 11 next adds checked matrix multiplication."
+}
+---
+
+import BroadcastingReductionsDiagram from '../../../components/chapters/BroadcastingReductionsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Reuse one feature vector, then name each collapsed axis',
+  description:
+    'Align one three-feature bias with two token rows, follow all six Rust-recorded coordinate mappings, and compare sum, mean, max, and rejected requests.',
+  summary: {
+    tokens: 'Token-feature shape',
+    bias: 'Feature-bias shape',
+    output: 'Broadcast output shape',
+  },
+  sections: {
+    alignment: 'Align missing leading axes from the right',
+    mapping: 'Map every result coordinate to both inputs',
+    reductions: 'Collapse one named axis at a time',
+    errors: 'Reject shapes and reductions without a value',
+  },
+  fields: {
+    tensor: 'Tensor',
+    originalShape: 'Original shape',
+    alignedShape: 'Aligned shape',
+    outputCoordinate: 'Output coordinate',
+    tokenCoordinate: 'Token coordinate',
+    biasCoordinate: 'Bias coordinate',
+    result: 'Result',
+    operation: 'Operation',
+    axis: 'Axis',
+    keepDimension: 'Keep dimension',
+    outputShape: 'Output shape',
+    group: 'Group',
+    values: 'Values',
+  },
+  notes: {
+    alignment:
+      'The missing leading bias axis acts as size one. Equal feature extents stay aligned; the bias axis is reused across token positions.',
+    mapping:
+      'Each row is copied from the Rust trace. The curved arrow marks a bias coordinate reused at two token positions.',
+    reductions:
+      'Double borders and sigma symbols mark groups that collapse axis 0 or axis 1; keep-dimension changes shape, not the scalar result.',
+    errors:
+      'Dashed cards retain the exact incompatible sizes and the two operations that have no value on an empty selected axis.',
+  },
+  symbols: {
+    reused: 'Reused size-one input coordinate',
+    reduced: 'Values combined by a reduction',
+    rejected: 'Rejected operation',
+    yes: 'Yes',
+    no: 'No',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict one feature offset across two token rows
+
+Modern decoder code frequently carries activations with a final feature axis.
+Begin with two token positions, each holding three feature values:
+
+```text
+tokens shape [2,3]
+[[1, 2, 3],
+ [4, 5, 6]]
+```
+
+The feature bias has no token axis:
+
+```text
+bias shape [3]
+[10, 20, 30]
+```
+
+Before reading the reveal, predict a result shape and six sums. Should the bias
+be rejected because it has rank one, copied into a new `[2,3]` input first, or
+mapped to each token row by a fixed compatibility rule?
+
+Align the shapes from their trailing ends:
+
+```text
+tokens: [2,3]
+bias:   [1,3]   # missing leading dimension acts as 1
+result: [2,3]
+```
+
+Feature extent `3` matches `3`. On the leading aligned axis, size `1` can be
+reused across size `2`. Output coordinate `(r,c)` therefore reads token
+coordinate `(r,c)` and bias coordinate `(c)`. The result is:
+
+```text
+[[1+10, 2+20, 3+30],
+ [4+10, 5+20, 6+30]]
+=
+[[11, 22, 33],
+ [14, 25, 36]]
+```
+
+Now predict before calculating: sum across token axis `0`, mean across feature
+axis `1` while retaining it, and max across feature axis `1` while removing it.
+The results are respectively shape `[3]` with `[25,47,69]`, shape `[2,1]` with
+`[22,25]`, and shape `[2]` with `[33,36]`.
+
+{/* chapter-section:formula */}
+
+## Map broadcast coordinates and reduce one axis
+
+The chapter uses one formula for both operations:
+
+$$
+y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \quad \mu_k=\frac{1}{n_k}\sum_{i_k}x_{\mathbf{i}}
+$$
+
+The first expression keeps tensor shape rules separate from scalar arithmetic.
+`y_i` is one output value at complete coordinate `i`. Function `f` can add,
+multiply, or perform any other scalar calculation. It receives the left value
+from tensor `a` at `beta_a(i)` and the right value from tensor `b` at
+`beta_b(i)`.
+
+Each beta mapping removes output axes that were missing from that input and
+selects coordinate zero on an aligned input axis of size one. Other coordinates
+pass through. In the frozen example:
+
+```text
+beta_tokens(r,c) = (r,c)
+beta_bias(r,c)   = (c)
+```
+
+The second expression fixes every coordinate except axis `k`, visits its
+`n_k` entries, and divides their ordered sum by `n_k`. Choosing
+`keep_dim=true` replaces that output extent with one. It does not add a value to
+the mean or change its divisor.
+
+{/* chapter-section:symbol-glossary */}
+
+## Account for every coordinate, extent, and mapping
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $y_{\mathbf{i}}$ | The output value at complete result coordinate $\mathbf{i}$. |
+| $\mathbf{i}$ | The complete zero-based output coordinate. It has the broadcast result rank. |
+| $f$ | The scalar elementwise function applied to one aligned pair. |
+| $a$ | The left input tensor. |
+| $b$ | The right input tensor. |
+| $\beta_a(\mathbf{i})$ | The mapping from result coordinate to `a`: omit missing leading axes and use zero on expanded size-one axes. |
+| $\beta_b(\mathbf{i})$ | The same mapping rule for `b`. |
+| $\mu_k$ | The mean after all coordinates except axis $k$ are fixed. |
+| $k$ | The explicit zero-based axis selected for reduction. |
+| $n_k$ | The extent of selected axis $k$. |
+| $i_k$ | The coordinate traversed from zero through $n_k-1$ on that axis. |
+| $x_{\mathbf{i}}$ | The reduction input value at the complete coordinate whose selected component is $i_k$. |
+
+Compatibility is checked axis by axis after right alignment. Two extents are
+compatible when they are equal or at least one is one. Missing leading extents
+behave as one. The output takes the equal extent, or otherwise the non-one
+extent. This last wording matters: zero with one produces zero, not one.
+
+A scalar has shape `[]` and broadcasts to any result because it has no axes to
+contradict. A scalar cannot be reduced by this API because it has no valid axis.
+An empty output enumerates no coordinates, so the supplied scalar function is
+never called.
+
+{/* chapter-section:history */}
+
+## From fixed context to tensor-wide decoder math
+
+Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.
+
+The earlier checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities.
+
+That model improves on separate count rows by learning distributed word features
+and shared neural parameters, but its input is still a selected fixed window.
+The elementwise `tanh` and vocabulary softmax are genuine model computations;
+this chapter does not imply that the paper prescribed a general array API.
+
+The later checkpoints are
+[Vaswani et al., *Attention Is All You Need*](https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)
+and
+[OpenAI's official GPT-2 model.py](https://github.com/openai/gpt-2/blob/master/src/model.py).
+Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors.
+
+Those later calculations keep several meanings visible at once: batch item,
+token position, attention head, destination position, source position, and
+feature. Elementwise activation, residual addition, masks, scales, and affine
+feature parameters must apply across those axes. Softmax and normalization must
+reduce the intended axis while retaining enough shape to combine the result
+with the original tensor.
+
+Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance.
+
+The tiny Rust contrast keeps that boundary visible. `fixed_context_feature_step`
+performs one shape-specific three-feature calculation. The general path applies
+the same feature offset over two token rows and derives named reductions. It is
+a calculation-sized bridge from one context representation to explicit
+token-feature axes, not a claim that Rust loops or broadcasting invented the
+Transformer and not a complete implementation of either cited model.
+
+<RustSource
+  path="rust/demos/ch10-broadcasting-reductions/src/lib.rs"
+  region="tiny-token-feature-example"
+  caption="Compare one fixed-width context step with the same feature-wise calculation over explicit token axes"
+  label="Rust source defining a bounded one-context feature-offset baseline and the frozen token-by-feature broadcast, unary map, sum, mean, and max calculation"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Plan shapes before evaluating values
+
+`broadcast_shape` is pure shape planning. It right-aligns ranks, treats missing
+leading dimensions as one, and visits aligned output axes from left to right.
+Equal extents pass through. If one extent is one, the other wins. Otherwise the
+error records the exact output axis and both sizes.
+
+After compatibility succeeds, the planner asks the existing tensor layout code
+to validate all suffix products. Thus `[0,usize::MAX,1]` with `[1,1,2]` reaches
+`ShapeOverflow` before allocation: the outer zero makes the input valid, but the
+planned suffix `usize::MAX × 2` does not fit. Compatibility errors take
+precedence over this layout check.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tensor/ops.rs"
+  region="broadcast-planning"
+  caption="Right-align shapes and reject the first incompatible output axis before checked layout overflow"
+  label="Rust source computing a broadcast output shape from equal or size-one trailing dimensions with explicit zero-extent and overflow behavior"
+/>
+
+The compatibility rule matches the
+[NumPy broadcasting guide](https://numpy.org/doc/stable/user/basics.broadcasting.html)
+as supporting array-rule provenance. That documentation is not an LLM
+historical checkpoint and does not prescribe this repository's Rust errors,
+logical-view traversal, or owned-output policy.
+
+`map_unary` enumerates every logical input coordinate. `map_binary` plans the
+result, maps each result coordinate to both inputs, and evaluates one scalar
+closure. Both read with `TensorView::get`; they do not assume contiguous source
+storage or silently call `materialize`. A transposed or sliced view therefore
+produces a contiguous owned output in its logical row-major order.
+
+All output reservations are fallible. For example, `[usize::MAX,0]` is a valid
+empty input shape, but summing its empty axis would require an owned result with
+`usize::MAX` zeros. Rust returns
+`OutputAllocationFailed { elements: usize::MAX }` before iteration instead of
+letting a capacity request panic.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tensor/ops.rs"
+  region="elementwise-maps"
+  caption="Apply scalar closures through checked logical coordinates and own each result"
+  label="Rust source implementing unary maps and trailing-axis binary maps over possibly non-contiguous TensorView inputs"
+/>
+
+The three reductions share axis validation, output-shape construction, and
+fixed ascending traversal. Sum over an empty selected axis has the additive
+identity `0.0`. Mean and max have no value there and return distinct typed
+errors. A zero extent on another retained axis simply produces an empty output.
+
+Maximum begins with index zero, replaces only for a strictly larger value, and
+retains the first NaN it encounters. Equal values retain the earlier exact bits,
+including `-0.0` versus `+0.0`. This explicit policy avoids inheriting accidental
+NaN or tie behavior from a convenience function.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/tensor/ops.rs"
+  region="axis-reductions"
+  caption="Reduce one checked axis with explicit keep-dimension, empty-axis, order, NaN, and tie semantics"
+  label="Rust source implementing deterministic sum mean and maximum axis reductions over logical TensorView coordinates"
+/>
+
+The learner program exercises the frozen model-shaped case, scalar broadcast,
+an empty broadcast whose closure must run zero times, the empty-sum identity,
+and each typed error. Exact integer-valued calculations are asserted directly;
+the unit test for mean of `[0.1,0.2,0.3]` uses absolute tolerance `1e-12` because
+those decimals are not exact binary floating-point values.
+
+<RustSource
+  path="rust/demos/ch10-broadcasting-reductions/src/main.rs"
+  region="learner-broadcasting-output"
+  caption="Compute the frozen results and capture scalar, empty, incompatible, and missing-axis evidence"
+  label="Rust source running Chapter 10 broadcasting and reductions and preparing deterministic learner output and typed errors"
+/>
+
+Run it with the pinned Linux toolchain:
+
+```bash
+./course run cargo run --quiet --locked -p ch10-broadcasting-reductions
+```
+
+The separate producer calls the same operations and records shapes, coordinate
+mappings, flat reduction groups, values, and error variants. Its formatting
+loops describe the fixture; they do not replace tensor arithmetic. The page
+parser validates that record grammar and projects its lexemes without recomputing
+any result.
+
+<RustSource
+  path="rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs"
+  region="broadcasting-reductions-trace"
+  caption="Serialize the exact shape plan, six coordinate mappings, three reductions, and rejected cases"
+  label="Rust source producing the locale-neutral Chapter 10 visualization trace from the checked tensor operations and frozen fixture"
+/>
+
+```bash
+./course run cargo run --quiet --locked -p ch10-broadcasting-reductions --example ch10-broadcasting-reductions-trace
+```
+
+Both commands must match their checked-in text fixtures byte for byte, including
+one final newline. No tensor, broadcasting, reduction, softmax, or normalization
+library is added.
+
+{/* chapter-section:visualization */}
+
+## See reused features and collapsed axes
+
+Read the figure in four passes:
+
+1. Compare each original shape with its trailing-axis alignment.
+2. Follow all six output coordinates to one token coordinate and one bias
+   coordinate. Notice that each bias coordinate appears in both token rows.
+3. Compare the flat groups consumed by axis-0 sum and axis-1 mean/max. Check the
+   `keep dimension` field before reading each output shape.
+4. Inspect the three rejected records: incompatible sizes `3` and `2`, empty
+   mean, and empty max.
+
+<BroadcastingReductionsDiagram labels={diagramLabels} />
+
+Every numeric value and coordinate above comes from the Rust trace. The curved
+arrow and reuse text identify repeated input coordinates. Double borders and a
+sigma symbol identify reductions. Dashed borders, a multiplication sign, and
+rejection text identify errors. The distinctions survive without color and in
+forced-colors mode.
+
+The figure itself follows the page's keyboard order. The only intentionally
+wide mapping table is a named, focusable local scroller. On a narrow viewport,
+reduction and error cards stack instead of widening the document. Code and
+numeric records remain LTR independently of the surrounding locale direction.
+
+{/* chapter-section:exercises */}
+
+## Predict valid shapes and reduction results
+
+Write the shape and coordinate mapping before calculating values.
+
+1. Align `[2,1,3]` with `[4,3]`. Predict the output shape and both source
+   coordinates for output `[1,2,0]`.
+2. Decide whether `[2,3]` and `[2]` broadcast. If not, name the output axis and
+   the two incompatible extents.
+3. Broadcast `[0,3]` with `[1,3]`. Predict the result shape and closure call
+   count.
+4. For the biased fixture, predict axis-0 sum, axis-1 mean with the dimension
+   retained, and axis-1 max without it.
+5. Reduce selected empty axis `1` of shape `[2,0,3]` with sum, mean, and max.
+6. Mean-reduce rank-one values `[0.1,0.2,0.3]` on axis `0` without retaining
+   it. Predict the output shape and explain the tolerance.
+7. Apply the maximum policy to `[1,NaN_A,NaN_B]` and
+   `[-0.0,+0.0,-1.0]`. Predict the surviving payload and zero sign.
+
+<details>
+  <summary>Check the seven broadcast and reduction predictions</summary>
+
+1. Trailing alignment is `[2,1,3]` with `[1,4,3]`, so the result is `[2,4,3]`.
+   Output `[1,2,0]` maps to left `[1,0,0]` because the left middle extent is
+   one, and right `[2,0]` because its missing leading axis is omitted.
+2. Aligning from the right compares `3` with `2` at output axis `1`. Neither is
+   one and they differ, so the request returns
+   `IncompatibleBroadcast { axis: 1, left_dimension: 3, right_dimension: 2 }`.
+3. Zero and one are compatible and the non-one extent is zero, so the output is
+   `[0,3]`. It contains no logical values, and the scalar closure runs zero
+   times.
+4. Axis-0 sum groups `[11,14]`, `[22,25]`, and `[33,36]`, producing shape `[3]`
+   and `[25,47,69]`. Axis-1 mean groups each row, producing kept shape `[2,1]`
+   and `[22,25]`. Axis-1 max removes the axis and produces shape `[2]` with
+   `[33,36]`.
+5. Sum uses its additive identity for each of six output groups, so it returns
+   shape `[2,3]` filled with `0.0`. Mean returns `EmptyMeanAxis { axis: 1 }` and
+   max returns `EmptyMaxAxis { axis: 1 }` because neither has a value for an
+   empty selected group.
+6. Removing the only axis produces scalar shape `[]` with one value near `0.2`.
+   Decimal fractions `0.1`, `0.2`, and `0.3` are not exact binary floats, so the
+   test checks absolute error no greater than `1e-12` instead of an exact bit
+   pattern.
+7. Ascending traversal reaches `NaN_A` first and preserves its payload after
+   that. In the second row, `-0.0` is the first maximum; `+0.0` compares equal,
+   so the earlier negative-zero bits remain.
+
+</details>
+
+**Misconception check:** broadcasting is not an eager command to copy a smaller
+tensor until shapes look equal. It is a coordinate rule for compatible axes;
+this implementation evaluates directly through those mappings and owns only the
+result. A reduction is also not “sum everything”: it must name the axis whose
+coordinate changes while every other coordinate stays fixed.
+
+{/* chapter-section:decoder-connection */}
+
+## Prepare the primitives behind normalization and softmax
+
+The cumulative tensor core can now combine scalar or feature-sized values with
+token tensors, apply unary activations to logical views, and compute fixed-order
+sum, mean, or max over one explicit axis. The results are checked owned tensors,
+so later model code has one predictable shape and storage boundary.
+
+These are supporting pieces, not finished model layers. Stable attention
+softmax will subtract an axis maximum, exponentiate elementwise, sum the same
+axis with its dimension retained, and divide. Feature normalization will compute
+feature-axis statistics and combine the normalized values with feature-sized
+parameters. Those complete algorithms remain in their scheduled chapters.
+
+Chapter 11 first adds matrix multiplication. Unlike broadcasting, its contracted
+dimensions must match as a multiplication invariant, and its output dimensions
+come from rows and columns rather than the equal-or-one rule. Keeping that
+boundary explicit prevents a convenient elementwise planner from silently
+standing in for learned linear transformations.

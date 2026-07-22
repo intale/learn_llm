@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T05:37:27Z"
+updated_at: "2026-07-22T06:44:57Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 11
+      spent: 12
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -7425,8 +7425,10 @@ builds:
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:
           - realign-ch09-llm-history
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/09-tensor-views.md"
@@ -7464,6 +7466,7 @@ builds:
           - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/src/pages/[locale]/course/index.astro"
           - "site/src/lib/chapter-publication.ts"
+          - "site/tests/chapter-publication.test.ts"
           - "site/src/lib/chapter-navigation.ts"
           - "site/tests/seo.test.ts"
           - "site/tests/e2e/seo.spec.ts"
@@ -7481,6 +7484,8 @@ builds:
           - "site/src/lib/broadcasting-reductions-diagram.ts"
           - "site/tests/10-broadcasting-reductions-diagram.test.ts"
           - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/chapter-publication.test.ts"
           - "Cargo.lock"
         acceptance:
           - "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
@@ -7512,7 +7517,87 @@ builds:
         cost:
           class: medium
           notes: "One complete English chapter-active locale set. Preflight performs bounded read-only review of declared primary neural-LM/Transformer sources, official GPT-2 code, and official NumPy broadcast semantics; subsequent work is local and deterministic. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build-definition change, or concept-implementing dependency."
-        runs: []
+        runs:
+          - run_id: 20260722T054611Z-implement-ch10-broadcasting-reductions-01
+            started_at: "2026-07-22T05:46:11Z"
+            finished_at: "2026-07-22T06:02:39Z"
+            status: interrupted
+            input_fingerprint:
+              git: "d00661daf7f97147ed3adfc29495d00888eb88db"
+              manifest: ".build/runs/20260722T054611Z-implement-ch10-broadcasting-reductions-01/input-fingerprint.txt"
+              checksum: "sha256:dd82ba9152911c5fd6e485e6038ccfc556f43488f163860993c775018ffd6087"
+              prior_artifact: "Chapter 9 correction manifest sha256:e1542ac8483451b57e988cd5349344e14aee16926032fb7ede02c6414ef86c24 reverified"
+              tools: "Docker 29.6.2; repository Linux pins unchanged; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+              external_sources: "Bengio et al. 2003; Vaswani et al. 2017; official OpenAI GPT-2 model.py; official NumPy broadcasting guide"
+            staging_dir: ".build/runs/20260722T054611Z-implement-ch10-broadcasting-reductions-01/"
+            commands:
+              - "Run startup protocol; verify the committed Chapter 9 dependency, clean tracked tree, no stale running work, current tool versions, prior manifest, active English locale, declared outputs, and medium unlimited-budget cost"
+              - "Add AGENTS.md and DECISIONS.md as explicit governing inputs, fingerprint all local inputs, and claim the first eligible Chapter 10 step before product edits"
+              - "Perform read-only Rust, history-source, contract, and publication-integration audits"
+            artifacts:
+              - path: ".build/runs/20260722T054611Z-implement-ch10-broadcasting-reductions-01/input-fingerprint.txt"
+                checksum: "sha256:dd82ba9152911c5fd6e485e6038ccfc556f43488f163860993c775018ffd6087"
+            validation:
+              - command: "Dependency, repository, prior-artifact, ownership, locale, environment, input, and cost preflight"
+                status: passed
+                notes: "realign-ch09-llm-history is committed in d00661d; its frozen manifest verifies; every local input exists; no step is running; no output overlaps another owner; Chapter 10 is English-active and Russian-deferred; Docker/Git/Bash match the ledger; no Sites hosting config exists; the only unrelated file is untracked desktop.ini; medium local work fits the unlimited agent-session budget without approval."
+            notes: "Interrupted before any product-file edit because the read-only publication audit found that Astro's shared chapter signature omitted the now-mandatory locale-neutral LLM-evolution source identity. The step scope and fingerprint must include the selector and its regression test before implementation starts; only empty publish directories were created in this staging directory."
+          - run_id: 20260722T060239Z-implement-ch10-broadcasting-reductions-02
+            started_at: "2026-07-22T06:02:39Z"
+            finished_at: "2026-07-22T06:44:57Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d00661daf7f97147ed3adfc29495d00888eb88db"
+              manifest: ".build/runs/20260722T060239Z-implement-ch10-broadcasting-reductions-02/input-fingerprint.txt"
+              checksum: "sha256:d16abf7bf764c2c099436d95b3db32abaaf850815fafca3921f09100cebfdee2"
+              prior_artifact: "Chapter 9 correction manifest sha256:e1542ac8483451b57e988cd5349344e14aee16926032fb7ede02c6414ef86c24 reverified"
+              tools: "Docker 29.6.2; repository Linux pins unchanged; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+              external_sources: "Bengio et al. 2003; Vaswani et al. 2017; official OpenAI GPT-2 model.py; official NumPy broadcasting guide"
+            staging_dir: ".build/runs/20260722T060239Z-implement-ch10-broadcasting-reductions-02/"
+            commands:
+              - "Resume from completed read-only audits with the publication selector and regression test added to declared scope"
+              - "Re-fingerprint all local inputs after the durable scope decision and claim the replacement Chapter 10 run before product edits"
+              - "Stage the complete 18-file Chapter 10 slice under the run-specific publish tree; keep canonical product files unchanged"
+              - "Build the staged candidate from the pinned Linux/Chromium seed with network disabled and run every declared Rust, contract, content, type, unit, build, link, SEO, focused-browser, and full-browser gate"
+              - "Apply independent read-only content, visualization, and Rust reviews; correct misleading missing-axis copy, strengthen the trace parser's frozen structural checks, and make all output reservations fallible"
+              - "Freeze the corrected 18-file candidate in publish.sha256 and verify every entry"
+              - "MSYS2_ARG_CONV_EXCL=/bin/sh ./course review 20260722T060239Z-implement-ch10-broadcasting-reductions-02 --check"
+              - "Publish the checksum-frozen files to canonical paths with apply_patch and verify 18/18 byte-for-byte equality"
+              - "./course check"
+              - "Repeat all declared supplemental Rust, site, focused Chromium, and full Chromium validations against a canonical-only image"
+              - "Regenerate Cargo.lock offline in a disposable canonical container and compare its checksum; run final whitespace, mode, scope, host-artifact, and working-tree audits"
+            artifacts:
+              - path: ".build/runs/20260722T060239Z-implement-ch10-broadcasting-reductions-02/input-fingerprint.txt"
+                checksum: "sha256:d16abf7bf764c2c099436d95b3db32abaaf850815fafca3921f09100cebfdee2"
+              - path: ".build/runs/20260722T060239Z-implement-ch10-broadcasting-reductions-02/publish.sha256"
+                checksum: "sha256:ba0acfd443ec80a24d0f4eb5b1c97566757653e1565925d4b2eff239c4de7325"
+                notes: "Immutable checksums for all 18 files in the staged publication tree."
+            validation:
+              - command: "Replacement-run scope, fingerprint, dependency, output ownership, locale, environment, source-boundary, and cost preflight"
+                status: passed
+                notes: "The expanded scope owns the publication selector and its test; every local input exists; the dependency and prior manifest remain verified; no output overlaps another running step; active locales remain exactly en; source claims are bounded to LLM history versus supporting API provenance; no build or dependency definition changes; medium local work remains within the unlimited budget."
+              - command: "Staged course-plan, chapter-contract, Rust formatting, locked Clippy, workspace tests, dependency/demo policies, and exact Chapter 10 stdout/trace gates"
+                status: passed
+                notes: "The plan reports 39 chapters, 57 steps, and 10 contracts; locked Linux validation passes 93 cumulative core tests, all demos, dependency policy, and byte-exact lesson and diagram output. Offline Cargo.lock regeneration retains sha256:6b4b2207b3c92635fc942ea9171fb8ca5e0ad60ae6ad817bd867496a51a1b9b1."
+              - command: "Staged Chapter 10 content/parity, full content, Astro diagnostics, Vitest, static build, link, and SEO gates"
+                status: passed
+                notes: "English is the sole active Chapter 10 locale; Russian remains deferred without a placeholder. All 17 localized sources and 10 publishable chapter sets pass, with zero Astro diagnostics, 266 Vitest cases, 22 static pages, 387 local references, and 22 SEO routes."
+              - command: "Independent content, visualization, and Rust reviews followed by focused correction re-reviews"
+                status: passed
+                notes: "All three reviewers returned PASS after the lesson clarified the implicit leading axis, the parser rejected every frozen structural mutation, and a valid [usize::MAX, 0] empty reduction returned OutputAllocationFailed instead of panicking."
+              - command: "Staged focused and full Chromium suites"
+                status: passed
+                notes: "All 3 focused Chapter 10 cases and all 38 browser cases pass, including direct/index routing, the deferred Russian 404, responsive overflow, keyboard access, forced colors, static operation, and SEO."
+              - command: "Frozen-manifest verification and official staged review"
+                status: passed
+                notes: "All 18 hashes verify before and after ./course review --check; the official review reports 10 publishable sets, zero Astro diagnostics, 22 pages, 387 references, and 22 SEO routes. MSYS2_ARG_CONV_EXCL=/bin/sh is a host-only Git Bash path-conversion workaround and does not change the Linux build."
+              - command: "Canonical publication equality and complete repository validation"
+                status: passed
+                notes: "Every canonical output matches the frozen staged hash. ./course check and all declared supplemental Rust/content/type/unit/build/link gates pass from canonical paths; exact Chapter 10 stdout and the 18-line trace remain unchanged."
+              - command: "Canonical focused/full Chromium and final repository audit"
+                status: passed
+                notes: "All 3 focused and all 38 full browser cases pass again. git diff --check, host-artifact policy, regenerated-lockfile identity, output ownership, no-Russian-placeholder, no-build-change, no-dependency-change, and no-mode-change audits pass; unrelated untracked desktop.ini remains untouched."
+            notes: "Succeeded as one checksum-frozen 18-file English Chapter 10 vertical slice. It teaches broadcasting and named-axis reductions as supporting tensor machinery on the LLM path from Bengio fixed-context features through Transformer/GPT-2 token-feature computation, adds a dependency-free checked Rust implementation and trace-derived static visualization, and aligns Astro publication parity with the mandatory LLM-history identity. The in-app browser runtime exposed no available browser, so repository-pinned Chromium supplied both staged and canonical visual validation. Existing Cargo example-name collision warnings remain unchanged and non-failing. No Linux build definition, package dependency, active locale, or Russian route changed."
       - id: implement-ch11-matrix-multiplication
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
         depends_on:

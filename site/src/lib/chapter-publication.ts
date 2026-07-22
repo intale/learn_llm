@@ -13,7 +13,18 @@ export interface PublicationChapterData {
     latex: string;
     symbols: readonly { symbol: string }[];
   };
-  history: { rust_source: string };
+  history: {
+    rust_source: string;
+    llm_evolution?: {
+      predecessor_kind: string;
+      sources: readonly {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+      }[];
+    };
+  };
   rust_sources: readonly { path: string; region?: string }[];
   visualization: { decision: string; id: string | null };
 }
@@ -64,6 +75,17 @@ export function sharedChapterSignature(entry: PublicationChapterEntry): string {
       symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
     },
     history_rust_source: entry.data.history.rust_source,
+    history_llm_evolution: entry.data.history.llm_evolution
+      ? {
+          predecessor_kind: entry.data.history.llm_evolution.predecessor_kind,
+          sources: entry.data.history.llm_evolution.sources.map((source) => ({
+            role: source.role,
+            year: source.year,
+            name: source.name,
+            source_url: source.source_url,
+          })),
+        }
+      : null,
     rust_sources: entry.data.rust_sources.map((source) => ({
       path: source.path,
       region: source.region ?? null,
@@ -119,16 +141,14 @@ export function findPublishableChapterSets<T extends PublicationChapterEntry>(
     if (!reference) continue;
     const signature = sharedChapterSignature(reference);
     if (
-      requiredLocales.some(
-        (locale) => {
-          const localized = byLocale[locale];
-          return (
-            !localized ||
-            localized.data.content_revision !== reference.data.content_revision ||
-            sharedChapterSignature(localized) !== signature
-          );
-        },
-      )
+      requiredLocales.some((locale) => {
+        const localized = byLocale[locale];
+        return (
+          !localized ||
+          localized.data.content_revision !== reference.data.content_revision ||
+          sharedChapterSignature(localized) !== signature
+        );
+      })
     ) {
       continue;
     }
