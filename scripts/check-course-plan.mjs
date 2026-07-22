@@ -40,6 +40,13 @@ const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const LATEX_PROSE_PATTERN =
   /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
+const LLM_HISTORY_PLAN_RANGE = Object.freeze({ from: 8, through: 17 });
+const LLM_HISTORY_ANCHOR_PATTERN =
+  /(?:n-gram|language[- ]model|neural|Transformer|GPT-2|decoder|attention|softmax|backpropagation|training|parameter)/i;
+const LLM_HISTORY_LIMITATION_PATTERN =
+  /(?:cannot|do not|does not|poorly|unwieldy|overflow|underflow|harder|fixed context|shrink|explode|limitation|scale)/i;
+const IMPLEMENTATION_HISTORY_SPINE_PATTERN =
+  /(?:FORTRAN|Genie|NumPy|programming-language history|array-library history)/i;
 
 function fail(message) {
   throw new Error(message);
@@ -237,8 +244,8 @@ export function validateCoursePlanText(
 
   assert(metadata.plan_id === "tiny-decoder-llm-rust", `${path}: unexpected plan_id`);
   assert(
-    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 6,
-    `${path}: plan_revision must include extensible locale activation placement`,
+    Number.isInteger(metadata.plan_revision) && metadata.plan_revision >= 16,
+    `${path}: plan_revision must include the LLM-evolution history policy`,
   );
   assert(Array.isArray(chapters), `${path}: chapters must be an array`);
   assert(metadata.chapter_count === chapters.length, `${path}: chapter_count does not match chapters`);
@@ -302,6 +309,32 @@ export function validateCoursePlanText(
       `${path}: required cross-cutting prerequisites are incomplete`,
     );
   }
+  for (const required of [
+    "establish-llm-evolution-history-policy",
+    "realign-ch08-llm-history",
+    "realign-ch09-llm-history",
+  ]) {
+    assert(
+      crossCuttingSteps.some(
+        (step) =>
+          step.step_id === required &&
+          step.after_chapter === "09-tensor-views",
+      ),
+      `${path}: required LLM-history correction schedule is incomplete`,
+    );
+  }
+  const historyCorrectionIds = crossCuttingSteps
+    .filter((step) => step.after_chapter === "09-tensor-views")
+    .map((step) => step.step_id);
+  assert(
+    JSON.stringify(historyCorrectionIds) ===
+      JSON.stringify([
+        "establish-llm-evolution-history-policy",
+        "realign-ch08-llm-history",
+        "realign-ch09-llm-history",
+      ]),
+    `${path}: LLM-history correction steps must remain in policy, Chapter 8, Chapter 9 order`,
+  );
   assert(
     localeConfiguration.locales.length > 0 &&
       localeConfiguration.locales.includes(localeConfiguration.defaultLocale),
@@ -363,6 +396,18 @@ export function validateCoursePlanText(
     `${path}: Chapter 1 audit must describe the completed revision-2 repair`,
   );
   assert(chapterIds.at(-1) === "39-end-to-end-llm", `${path}: the final chapter must be the end-to-end LLM capstone`);
+  const historyPolicyStart = body.indexOf("## One historical road to the target LLM");
+  const historyPolicyEnd = body.indexOf("\n## Why the plan has 39 chapters", historyPolicyStart);
+  const historyPolicy = body
+    .slice(historyPolicyStart, historyPolicyEnd)
+    .replace(/\s+/g, " ");
+  assert(
+    historyPolicyStart !== -1 &&
+      historyPolicyEnd > historyPolicyStart &&
+      historyPolicy.includes("Corrected content revisions of Chapters 8 and 9") &&
+      historyPolicy.includes("every chapter from Chapter 10 onward"),
+    `${path}: the shared LLM-history policy must cover corrected Chapters 8-9 and Chapter 10 onward`,
+  );
 
   const headings = [...body.matchAll(/^## (\d{2})\. (.+)$/gm)];
   assert(headings.length === chapters.length, `${path}: expected one numbered heading per chapter`);
@@ -386,6 +431,9 @@ export function validateCoursePlanText(
     const writtenDependency = section.match(/^- \*\*Depends on:\*\* ([^\n]+)$/m)?.[1];
     const outcome = section.match(/^- \*\*Outcome:\*\* ([^\n]+)$/m)?.[1];
     const formula = section.match(/^- \*\*Formula:\*\* `([^\n]+)`\./m)?.[1];
+    const historicalContrast = section.match(
+      /^- \*\*Historical contrast:\*\* ([^\n]+)$/m,
+    )?.[1];
     const visualization = section.match(/^- \*\*Visualization:\*\* (Useful|Not useful)\b/m)?.[1];
     assert(writtenId === chapter.chapter_id, `${path}: body chapter ID mismatch for ${chapter.chapter_id}`);
     assert(writtenStep === chapter.implementation_step, `${path}: body implementation step mismatch for ${chapter.chapter_id}`);
@@ -402,6 +450,36 @@ export function validateCoursePlanText(
       );
     }
     assert(formula, `${path}: missing single-line formula for ${chapter.chapter_id}`);
+    assert(
+      historicalContrast,
+      `${path}: missing historical contrast for ${chapter.chapter_id}`,
+    );
+    if (
+      chapter.order >= LLM_HISTORY_PLAN_RANGE.from &&
+      chapter.order <= LLM_HISTORY_PLAN_RANGE.through
+    ) {
+      assert(
+        LLM_HISTORY_ANCHOR_PATTERN.test(historicalContrast) &&
+          LLM_HISTORY_LIMITATION_PATTERN.test(historicalContrast) &&
+          !IMPLEMENTATION_HISTORY_SPINE_PATTERN.test(historicalContrast),
+        `${path}: ${chapter.chapter_id} history must follow the road to modern LLMs and state a relevant limitation`,
+      );
+      if (chapter.order === 8) {
+        assert(
+          /Bengio et al\./.test(historicalContrast) &&
+            /Transformer/.test(historicalContrast),
+          `${path}: Chapter 8 history must connect Bengio matrices to Transformer tensor shapes`,
+        );
+      }
+      if (chapter.order === 9) {
+        assert(
+          /Bengio et al\./.test(historicalContrast) &&
+            /Transformer/.test(historicalContrast) &&
+            /official GPT-2 code/.test(historicalContrast),
+          `${path}: Chapter 9 history must connect fixed context to Transformer and GPT-2 layouts`,
+        );
+      }
+    }
     assert(!LATEX_PROSE_PATTERN.test(formula), `${path}: ${chapter.chapter_id} formula contains locale-specific prose`);
     assert(
       visualization === (chapter.visualization === "useful" ? "Useful" : "Not useful"),

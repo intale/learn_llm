@@ -144,6 +144,76 @@ function chapterMetadata(locale: string = 'en') {
   };
 }
 
+const EARLIER_HISTORY_URL =
+  'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf';
+const LATER_HISTORY_URL =
+  'https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf';
+
+function contractLlmEvolution(locales: readonly string[] = ['en', 'ru']) {
+  const localized = (text: string) =>
+    Object.fromEntries(locales.map((locale) => [locale, `${locale}: ${text}`]));
+  return {
+    predecessor_kind: 'language-model',
+    limitation: localized('the fixed context cannot represent all prior positions'),
+    later_advance: localized('self-attention exposes the full prefix'),
+    modern_llm_role: localized('tensor views implement attention layouts'),
+    sources: [
+      {
+        role: 'earlier',
+        year: 2003,
+        name: 'A Neural Probabilistic Language Model',
+        source_url: EARLIER_HISTORY_URL,
+        claim: localized('the model concatenates a fixed number of earlier word features'),
+      },
+      {
+        role: 'later',
+        year: 2017,
+        name: 'Attention Is All You Need',
+        source_url: LATER_HISTORY_URL,
+        claim: localized('multi-head attention projects and rearranges Q, K, and V'),
+      },
+    ],
+  };
+}
+
+function lessonLlmEvolution(locale: string = 'en') {
+  const localized = (text: string) => `${locale}: ${text}`;
+  return {
+    predecessor_kind: 'language-model',
+    limitation: localized('the fixed context cannot represent all prior positions'),
+    later_advance: localized('self-attention exposes the full prefix'),
+    modern_llm_role: localized('tensor views implement attention layouts'),
+    sources: [
+      {
+        role: 'earlier',
+        year: 2003,
+        name: 'A Neural Probabilistic Language Model',
+        source_url: EARLIER_HISTORY_URL,
+        claim: localized('the model concatenates a fixed number of earlier word features'),
+      },
+      {
+        role: 'later',
+        year: 2017,
+        name: 'Attention Is All You Need',
+        source_url: LATER_HISTORY_URL,
+        claim: localized('multi-head attention projects and rearranges Q, K, and V'),
+      },
+    ],
+  };
+}
+
+function lessonMetadataWithLlmEvolution(locale: string = 'en', order = 10) {
+  const data = chapterMetadata(locale);
+  return {
+    ...data,
+    order,
+    history: {
+      ...data.history,
+      llm_evolution: lessonLlmEvolution(locale),
+    },
+  };
+}
+
 function chapterBody(formula = 'i = V(t)') {
   return [
     '{/* chapter-section:worked-example */}',
@@ -185,6 +255,28 @@ function chapterBody(formula = 'i = V(t)') {
     'The verified integer sequence becomes the explicit boundary consumed by the cumulative decoder.',
     '',
   ].join('\n');
+}
+
+function bodyWithHistoryCitations(
+  body = chapterBody(),
+  evolution = lessonLlmEvolution(),
+) {
+  return body.replace(
+    '{/* chapter-section:rust-implementation */}',
+    [
+      evolution.limitation,
+      evolution.later_advance,
+      evolution.modern_llm_role,
+      ...evolution.sources.map(
+        (source) => `[${source.claim}](${source.source_url})`,
+      ),
+      '{/* chapter-section:rust-implementation */}',
+    ].join('\n'),
+  );
+}
+
+function contractSource(data: unknown, body: string) {
+  return ['---', JSON.stringify(data, null, 2), '---', body].join('\n');
 }
 
 function chapterSource(
@@ -449,6 +541,295 @@ describe('localized chapter documents', () => {
   });
 });
 
+describe('LLM-evolution history contract', () => {
+  it('requires the structured road-to-LLMs record for corrected 8-9 and Chapter 10+', () => {
+    const canonical = canonicalContract();
+    const orderNineContract = structuredClone(canonical.data);
+    orderNineContract.order = 9;
+    orderNineContract.content_revision = 1;
+    expect(() =>
+      validateChapterContractText(
+        contractSource(orderNineContract, canonical.body),
+      ),
+    ).not.toThrow();
+
+    const revisedChapterEightContract = structuredClone(orderNineContract);
+    revisedChapterEightContract.order = 8;
+    revisedChapterEightContract.content_revision = 2;
+    expect(() =>
+      validateChapterContractText(
+        contractSource(revisedChapterEightContract, canonical.body),
+      ),
+    ).toThrow(/history\.llm_evolution is required for revised Chapters 8-9/);
+
+    const orderTenContract = structuredClone(orderNineContract);
+    orderTenContract.order = 10;
+    expect(() =>
+      validateChapterContractText(
+        contractSource(orderTenContract, canonical.body),
+      ),
+    ).toThrow(/history\.llm_evolution is required.*chapter order 10/);
+
+    orderTenContract.history.llm_evolution = contractLlmEvolution();
+    expect(() =>
+      validateChapterContractText(
+        contractSource(orderTenContract, canonical.body),
+      ),
+    ).not.toThrow();
+
+    const orderNineLesson = { ...chapterMetadata(), order: 9 };
+    expect(() =>
+      validateChapterDocument(chapterSource(orderNineLesson), {
+        checkSourceFiles: false,
+      }),
+    ).not.toThrow();
+
+    const orderTenLesson = { ...chapterMetadata(), order: 10 };
+    expect(() =>
+      validateChapterDocument(chapterSource(orderTenLesson), {
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/history\.llm_evolution is required.*chapter order 10/);
+
+    const revisedChapterNine = {
+      ...chapterMetadata(),
+      order: 9,
+      content_revision: 2,
+    };
+    expect(() =>
+      validateChapterDocument(chapterSource(revisedChapterNine), {
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/history\.llm_evolution is required for revised Chapters 8-9/);
+
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(
+          lessonMetadataWithLlmEvolution('en', 10),
+          bodyWithHistoryCitations(),
+        ),
+        { checkSourceFiles: false },
+      ),
+    ).not.toThrow();
+
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(
+          lessonMetadataWithLlmEvolution('en', 9),
+          bodyWithHistoryCitations(),
+        ),
+        { checkSourceFiles: false },
+      ),
+    ).not.toThrow();
+  });
+
+  it('rejects incomplete, programming-centric, or weakly sourced records', () => {
+    const canonical = canonicalContract();
+    const incompleteContract = structuredClone(canonical.data);
+    incompleteContract.order = 10;
+    incompleteContract.history.llm_evolution = contractLlmEvolution();
+    delete incompleteContract.history.llm_evolution.limitation.ru;
+    expect(() =>
+      validateChapterContractText(
+        contractSource(incompleteContract, canonical.body),
+      ),
+    ).toThrow(/limitation locale keys must be exactly en, ru/);
+
+    const invalidKind = lessonMetadataWithLlmEvolution();
+    invalidKind.history.llm_evolution.predecessor_kind = 'programming-language';
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(invalidKind, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/predecessor_kind must be one of/);
+
+    const extraField = lessonMetadataWithLlmEvolution();
+    Object.assign(extraField.history.llm_evolution, { unrelated_history: 'FORTRAN' });
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(extraField, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history\.llm_evolution keys must be exactly/);
+
+    const insecureSource = lessonMetadataWithLlmEvolution();
+    insecureSource.history.llm_evolution.sources[0].source_url =
+      'http://example.com/earlier';
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(insecureSource, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/source_url must be an absolute HTTPS URL/);
+
+    const duplicateSource = lessonMetadataWithLlmEvolution();
+    duplicateSource.history.llm_evolution.sources[1].source_url =
+      EARLIER_HISTORY_URL + '#second-claim';
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(duplicateSource, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/duplicate history source URL/);
+
+    const credentialedSource = lessonMetadataWithLlmEvolution();
+    credentialedSource.history.llm_evolution.sources[0].source_url =
+      'https://reader:secret@example.com/paper';
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(credentialedSource, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/source_url must be an absolute HTTPS URL/);
+
+    const missingLaterRole = lessonMetadataWithLlmEvolution();
+    missingLaterRole.history.llm_evolution.sources[1].role = 'earlier';
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(missingLaterRole, bodyWithHistoryCitations()),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/requires role later/);
+  });
+
+  it('requires rendered source links and locale-neutral source identity', () => {
+    const missingCitationBody = bodyWithHistoryCitations().replace(
+      LATER_HISTORY_URL,
+      'https://example.com/intentionally-not-the-declared-source',
+    );
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(
+          lessonMetadataWithLlmEvolution(),
+          missingCitationBody,
+        ),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history section must cite declared LLM-evolution source/);
+
+    const bareUrlsOnly = chapterBody().replace(
+      '{/* chapter-section:rust-implementation */}',
+      [
+        `Bare source text is not a citation: ${EARLIER_HISTORY_URL} ${LATER_HISTORY_URL}`,
+        '{/* chapter-section:rust-implementation */}',
+      ].join('\n'),
+    );
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(lessonMetadataWithLlmEvolution(), bareUrlsOnly),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history section must cite declared LLM-evolution source/);
+
+    const codeOnlyEarlierLink = bodyWithHistoryCitations().replace(
+      `[${lessonLlmEvolution().sources[0].claim}](${EARLIER_HISTORY_URL})`,
+      `\`[${lessonLlmEvolution().sources[0].claim}](${EARLIER_HISTORY_URL})\``,
+    );
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(
+          lessonMetadataWithLlmEvolution(),
+          codeOnlyEarlierLink,
+        ),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history section must cite declared LLM-evolution source/);
+
+    const english = validateChapterDocument(
+      chapterSource(
+        lessonMetadataWithLlmEvolution('en'),
+        bodyWithHistoryCitations(),
+      ),
+      { checkSourceFiles: false },
+    );
+    const russianData = lessonMetadataWithLlmEvolution('ru');
+    russianData.history.llm_evolution.sources[0].name = 'Drifted source name';
+    const russian = validateChapterDocument(
+      chapterSource(
+        russianData,
+        bodyWithHistoryCitations(
+          chapterBody(),
+          russianData.history.llm_evolution,
+        ),
+      ),
+      { checkSourceFiles: false },
+    );
+    expect(() =>
+      validateChapterLocaleSet([english, russian], ['en', 'ru'], 'en'),
+    ).toThrow(/locale-neutral/);
+  });
+
+  it('rejects links without the visible structured LLM narrative', () => {
+    const linksOnly = chapterBody().replace(
+      '{/* chapter-section:rust-implementation */}',
+      [
+        `[Earlier source](${EARLIER_HISTORY_URL})`,
+        `[Later source](${LATER_HISTORY_URL})`,
+        '{/* chapter-section:rust-implementation */}',
+      ].join('\n'),
+    );
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(lessonMetadataWithLlmEvolution(), linksOnly),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history section must render history\.llm_evolution\.limitation/);
+  });
+
+  it('keeps localized LLM-history claims aligned with the chapter contract', () => {
+    const canonical = canonicalContract();
+    const contractData = structuredClone(canonical.data);
+    contractData.order = 10;
+    contractData.history.llm_evolution = contractLlmEvolution();
+    const contract = validateChapterContractText(
+      contractSource(contractData, canonical.body),
+    );
+
+    const canonicalEnglish = canonicalLesson('en');
+    const lessonData = structuredClone(canonicalEnglish.data);
+    lessonData.order = 10;
+    lessonData.history.llm_evolution = lessonLlmEvolution('en');
+    const lesson = validateChapterDocument(
+      chapterSource(
+        lessonData,
+        bodyWithHistoryCitations(canonicalEnglish.body),
+      ),
+      { checkSourceFiles: false },
+    );
+    expect(() =>
+      validateContractLesson(
+        contract.data,
+        lesson,
+        'en',
+        'site/src/content/chapters/en/01-text-units.mdx',
+      ),
+    ).not.toThrow();
+
+    const driftedData = structuredClone(lesson.data);
+    driftedData.history.llm_evolution.modern_llm_role =
+      'A different connection to modern LLMs.';
+    const drifted = validateChapterDocument(
+      chapterSource(
+        driftedData,
+        bodyWithHistoryCitations(
+          canonicalEnglish.body,
+          driftedData.history.llm_evolution,
+        ),
+      ),
+      { checkSourceFiles: false },
+    );
+    expect(() =>
+      validateContractLesson(
+        contract.data,
+        drifted,
+        'en',
+        'site/src/content/chapters/en/01-text-units.mdx',
+      ),
+    ).toThrow(/history.*differs from the contract/);
+  });
+});
+
 describe('curriculum and catalog contracts', () => {
   it('keeps the checked-in chapter template structurally valid', () => {
     const template = readFileSync(
@@ -593,6 +974,42 @@ describe('curriculum and catalog contracts', () => {
     );
     expect(() => validateCoursePlanText(highlightingPrerequisiteDrift)).toThrow(
       /cross-cutting prerequisites/,
+    );
+
+    const staleHistoryPolicy = replaceOnce(
+      planSource,
+      '"plan_revision": 16',
+      '"plan_revision": 15',
+    );
+    expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
+      /plan_revision must include the LLM-evolution history policy/,
+    );
+
+    const missingHistoryCorrection = replaceOnce(
+      planSource,
+      '"step_id": "realign-ch08-llm-history"',
+      '"step_id": "missing-ch08-history-correction"',
+    );
+    expect(() => validateCoursePlanText(missingHistoryCorrection)).toThrow(
+      /LLM-history correction schedule is incomplete/,
+    );
+
+    const programmingHistoryRegression = replaceOnce(
+      planSource,
+      'official GPT-2 code',
+      'FORTRAN and NumPy array history',
+    );
+    expect(() => validateCoursePlanText(programmingHistoryRegression)).toThrow(
+      /history must follow the road to modern LLMs/,
+    );
+
+    const missingCorrectiveThreshold = replaceOnce(
+      planSource,
+      'Corrected content revisions of Chapters 8 and 9',
+      'Only future chapters',
+    );
+    expect(() => validateCoursePlanText(missingCorrectiveThreshold)).toThrow(
+      /shared LLM-history policy must cover corrected Chapters 8-9/,
     );
 
     const finalPlacement = replaceOnce(

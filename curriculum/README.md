@@ -17,7 +17,7 @@ A chapter step owns the whole localized vertical slice:
 
 1. freeze its contract and tiny worked example in the run staging directory;
 2. implement and test the reusable Rust concept;
-3. add the runnable historical contrast and deterministic expected output;
+3. add the runnable LLM-evolution contrast and deterministic expected output;
 4. implement a useful visualization, or record why one would not help;
 5. author the lessons for every locale in the chapter's checked `activeLocales`
    entry in `site/src/i18n/chapter-locales.json` together;
@@ -86,7 +86,9 @@ Each contract records:
 1. one localized observable objective and tiny worked inputs for every active
    locale;
 2. the formula plus a symbol glossary localized for every active locale;
-3. the historical approach and planned Rust contrast;
+3. the earlier LLM-related approach, its limitation or scale pressure, the later
+   model or practice, this mechanism's role in the decoder or its correctness
+   pipeline, and the planned Rust contrast;
 4. the Cargo package, source files, and deterministic expected output;
 5. a useful visualization plan or a not-useful rationale;
 6. exercises, the cumulative-decoder connection, and acceptance examples; and
@@ -103,6 +105,31 @@ Stable contract-section comments must remain in the order shown by the template.
 Localized MDX uses corresponding JSX comments named `chapter-section`. The marker
 text is machine-readable and is not rendered to students, so headings themselves
 remain naturally localized.
+
+## Keep one LLM-history thread
+
+Every chapter's history explains part of the road to the target decoder-only LLM
+or its training, evaluation, inference, and correctness pipeline. Name an earlier
+language model, neural architecture, model-building or training practice,
+evaluation method, or inference design; state the relevant limitation or scale
+pressure; connect it to later LLM work; and explain how this chapter's mechanism
+supports, implements, measures, or validates that work. The runnable Rust contrast
+must expose one relevant calculation, invariant, cost, or layout consequence.
+
+Programming-language, array-library, hardware, data-structure, and API history is
+useful supporting evidence, but it cannot replace the LLM progression. Primary
+model papers support model-history claims. Official source code and documentation
+may support implementation claims. Always distinguish both from repository-local
+layout, error, determinism, and scope policies. Do not claim that an architecture
+paper required the course's exact storage or API choice when the source defines
+only model mathematics.
+
+The machine-readable `history.llm_evolution` record is mandatory for corrected
+content revisions of Chapters 8 and 9 and for every chapter from Chapter 10
+onward. Earlier chapters may opt in, but any present record must be complete.
+Every localized narrative field and source claim is rendered as visible History
+prose, and every declared source uses a direct inline Markdown link or HTTPS
+autolink there; metadata alone is not teaching evidence.
 
 Markers are boundaries, not evidence by themselves. Every lesson section needs a
 heading and substantive teaching content; the formula section displays the exact

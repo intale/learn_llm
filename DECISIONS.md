@@ -3176,3 +3176,91 @@ lesson copy, SEO, locales, dependencies, and build definitions remain unchanged.
 
 **Affected step and run:** `implement-ch09-tensor-views`, run
 `20260721T153554Z-implement-ch09-tensor-views-02`.
+
+## 2026-07-22 — Center chapter history on the road to modern LLMs
+
+**Status:** Accepted after the user's review of Chapters 8 and 9.
+
+**Context:** Chapters 1 through 7 explain changes in language-model data,
+tokenization, objectives, baselines, and evaluation. Chapters 8 and 9 instead made
+FORTRAN, Genie, NumPy, and Rust representation history their main historical
+story. Those implementation facts were carefully bounded, but they interrupted
+the course's intended progression toward a modern decoder-only LLM. The scheduled
+Chapter 10 contrast between shape-specific loops and NumPy-style algebra would
+have continued the same drift.
+
+**Decision:** Every chapter's historical spine must name an earlier language-model
+family, neural architecture, model-building or training practice, evaluation
+method, or inference design; state its relevant limitation or scale pressure; and
+connect it to later LLM computation or to the target model's training, evaluation,
+and correctness pipeline. For infrastructure chapters, explain how the mechanism
+supports that computation without claiming the architecture required this course's
+exact layout or API. The related Rust contrast must expose one chapter-scoped model
+computation or an implementation consequence that supports it.
+Programming-language, array-library, hardware, data-structure, and API history may
+remain only as supporting technical provenance after the LLM progression is
+established. Primary model papers support model-history claims; official code or
+documentation supports implementation claims; neither is used to attribute this
+course's local storage or error policies to a source that did not define them.
+From Chapter 10 onward, machine-readable `history.llm_evolution` metadata freezes
+the predecessor kind, explicit limitation, later advance, modern role, at least
+one earlier and one later HTTPS source, localized bounded claims, contract/lesson
+parity, and citation of every declared source inside the rendered history section.
+Semantic accuracy remains a reviewed responsibility rather than an unreliable
+keyword test.
+
+Add `establish-llm-evolution-history-policy` before any Chapter 10 work, followed
+by dedicated `realign-ch08-llm-history` and `realign-ch09-llm-history` corrective
+steps. Chapter 8 will trace the path from count tables through Bengio et al.'s
+learned word-feature and neural parameter matrices to Transformer tensor shapes.
+Chapter 9 will trace fixed-context neural vectors through packed Q/K/V matrices,
+key transposition, and multi-head rearrangement in Transformer and GPT-2. The
+completed historical run records and commits remain immutable. Each original
+chapter step is marked invalidated only when its replacement run is claimed, so
+the linear scheduler can select the corrective step from a coherent completed
+predecessor; the replacement then becomes the dependency for all later work.
+
+**Consequences:** The shared curriculum rubric and Chapters 8 through 17 plan
+contrasts are corrected before learner content changes. Chapters 8 and 9 advance
+to content revision 2 in separate staged, validated, committed runs. Chapter 10 is
+paused until both replacements complete and its own history follows the corrected
+LLM-evolution lens. Active locales, Russian route deferral, static hosting, package
+dependencies, and the Linux build definition do not change.
+
+**Affected steps and run:** `establish-llm-evolution-history-policy`, run
+`20260722T034651Z-establish-llm-evolution-history-policy-01`;
+`realign-ch08-llm-history`; `realign-ch09-llm-history`; and
+`implement-ch10-broadcasting-reductions`.
+
+## 2026-07-22 — Invalidate the stale Chapter 8 and 9 steps immediately
+
+**Status:** Supersedes the delayed-invalidation sentence in the preceding
+LLM-history decision.
+
+**Context:** Independent review of the staged enforcement found two governance
+gaps. First, requiring structured `history.llm_evolution` only from Chapter 10
+would let the exact Chapter 8 and 9 repairs pass without the new guard. Second,
+leaving the original Chapter 8 and 9 steps `completed` until their replacements
+were claimed conflicts with the repository rule that a materially stale completed
+step is marked `invalidated` when the defect is established.
+
+**Decision:** Require a complete `history.llm_evolution` record for content
+revision 2 or later of Chapters 8 and 9, as well as every chapter from Chapter 10
+onward. Mark `implement-ch08-tensor-storage` and `implement-ch09-tensor-views`
+invalidated now while retaining every successful run record and artifact exactly
+as written. The already-running policy step may finish because its sole purpose is
+to establish the replacement gate and schedule; it treats the invalidated chapter
+outputs as defect evidence, not as accepted prerequisites. The dedicated Chapter
+8 and Chapter 9 corrective steps remain the only publication path back to a valid
+linear course prefix.
+
+**Consequences:** The ledger immediately reflects the user-visible defect. The
+corrected revisions cannot omit the machine-readable LLM progression or direct
+rendered source links. No old run is overwritten, Chapter 10 remains paused, and
+active locales, package dependencies, routes, and Linux build definitions remain
+unchanged.
+
+**Affected steps and run:** `implement-ch08-tensor-storage`,
+`implement-ch09-tensor-views`, `establish-llm-evolution-history-policy` run
+`20260722T040101Z-establish-llm-evolution-history-policy-02`,
+`realign-ch08-llm-history`, and `realign-ch09-llm-history`.

@@ -122,8 +122,11 @@ The contract must establish:
 - the explicit scope boundary and the next-chapter handoff;
 - a tiny predict-first worked input, including edge or failure behavior;
 - one notation-only formula and a definition for every symbol;
-- the earlier historical approach, its useful intuition and limitation, and a
-  runnable Rust contrast;
+- the earlier language model, neural architecture, model-building or training
+  practice, evaluation method, or inference design; its useful intuition and
+  relevant limitation or scale pressure; its connection to later LLM computation,
+  model building, training, evaluation, inference, or correctness work; and a
+  runnable Rust contrast grounded in that progression;
 - the cumulative Rust package, exact source paths, any stable excerpt regions to
   declare in the lessons, and byte-exact expected stdout;
 - the visualization decision and rationale;
@@ -156,6 +159,25 @@ the early command above deliberately validates the unpublished contract file.
 Use primary sources for the historical approach and modern technical claims.
 Architecture-anchor papers in `curriculum/course-plan.md` establish the overall
 model but do not replace chapter-level source review.
+
+The historical spine is the road to the target decoder-only LLM and its training,
+evaluation, inference, and correctness pipeline. It must connect an earlier
+language model, neural architecture, model-building or training practice,
+evaluation method, or inference design and its relevant limitation or scale
+pressure to later LLM work, then state how the chapter's mechanism supports,
+implements, measures, or validates that work. Programming-language, array-library,
+hardware, data-structure, and API history may support implementation details only
+after that progression is clear. A story that merely moves from an older
+programming representation to a newer one is not a valid chapter history. Do not
+claim a model paper required this repository's exact storage layout or API when it
+only specifies the model computation.
+
+`history.llm_evolution` is mandatory for corrected content revisions of Chapters
+8 and 9 and for every chapter from Chapter 10 onward. An earlier chapter may opt
+in, but a present record must satisfy the complete localized, sourced contract.
+Render every localized narrative field and bounded source claim as visible prose
+in the History section, with each declared URL used in a direct inline Markdown
+link or HTTPS autolink. Frontmatter by itself is not learner-facing evidence.
 
 For each source, record which exact claim it supports and which course-specific
 choice it does not support. Distinguish source history from this repository's

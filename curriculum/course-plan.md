@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 15,
+  "plan_revision": 16,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -111,6 +111,18 @@
       {
         "step_id": "enforce-basic-seo-descriptions",
         "before_chapter": "08-tensor-storage"
+      },
+      {
+        "step_id": "establish-llm-evolution-history-policy",
+        "after_chapter": "09-tensor-views"
+      },
+      {
+        "step_id": "realign-ch08-llm-history",
+        "after_chapter": "09-tensor-views"
+      },
+      {
+        "step_id": "realign-ch09-llm-history",
+        "after_chapter": "09-tensor-views"
       }
     ],
     "planned_chapter_splits": [],
@@ -518,7 +530,7 @@
 
 This is the reviewed implementation map, not a topic wishlist. Every chapter leaves
 one observable Rust capability in the cumulative model and explains the mathematics
-and historical alternative needed to understand it. The final target is deliberately
+and LLM-history transition needed to understand it. The final target is deliberately
 small enough to inspect and run on a CPU, but complete enough to partition data,
 learn a tokenizer, train and evaluate a causal decoder, persist it, and generate with
 a key/value cache.
@@ -555,6 +567,27 @@ The course excludes dropout, padding-heavy serving, mixed precision, distributed
 training, quantization, mixture of experts, retrieval, instruction/preference tuning,
 and production serving. These are later extensions, not hidden prerequisites for the
 agreed functional teaching model.
+
+## One historical road to the target LLM
+
+Each chapter's historical spine follows the road to the target decoder and its
+training, evaluation, inference, and correctness pipeline rather than programming
+technology in isolation. It names an earlier language model, neural architecture,
+model-building or training practice, evaluation method, or inference design;
+identifies the relevant limitation or scale pressure; connects it to later LLM
+work; and explains how the taught mechanism supports, implements, measures, or
+validates that work.
+
+Programming-language, array-library, hardware, data-structure, and API history may
+support implementation claims after this progression is established, but cannot be
+the chapter's main story. The Rust historical contrast must expose a relevant
+calculation, invariant, cost, or layout consequence. Primary papers support model
+claims; official code or documentation supports implementation claims; neither
+source defines the course's local layout, error, determinism, or scope policies
+unless it says so. Corrected content revisions of Chapters 8 and 9, and every
+chapter from Chapter 10 onward, use structured history metadata plus visible
+localized claims and direct rendered citations to make the LLM lens and its
+bounded evidence machine-checkable; semantic accuracy still requires review.
 
 ## Why the plan has 39 chapters
 
@@ -794,11 +827,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `08-tensor-storage`
 - **Implementation step:** `implement-ch08-tensor-storage`
+- **Revision status:** Content revision 2 is delivered by `realign-ch08-llm-history`.
 - **Depends on:** `07-language-model-metrics`.
 - **Outcome:** Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets.
 - **Scope boundary:** Teach rank, shape, row-major strides, indexing, bounds, and scalar access; defer views, broadcasting, arithmetic, and gradients.
 - **Formula:** `\operatorname{offset}(i_0,\ldots,i_{d-1})=\sum_{k=0}^{d-1} i_k s_k`.
-- **Historical contrast:** Contrast nested vectors and special-purpose matrices with a uniform flat tensor representation.
+- **Historical contrast:** Chapter 6's independent token-pair cells cannot share learned features across similar tokens; trace Bengio et al.'s learned word-feature and neural parameter matrices to the many parameter and activation shapes used by Transformer attention, then identify a uniform tensor as supporting infrastructure and contiguous row-major storage as this course's local policy.
 - **Rust contribution:** Establish the cumulative `Tensor` storage invariants, constructors, checked indexing, and shape errors without a tensor library.
 - **Visualization:** Useful — align a 2-D grid and 3-D slices with one flat buffer and explicit stride arithmetic.
 - **Practice:** Compute offsets for selected coordinates and identify an out-of-bounds index before running tests.
@@ -809,11 +843,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `09-tensor-views`
 - **Implementation step:** `implement-ch09-tensor-views`
+- **Revision status:** Content revision 2 is delivered by `realign-ch09-llm-history`.
 - **Depends on:** `08-tensor-storage`.
 - **Outcome:** Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity.
 - **Scope boundary:** Teach contiguous versus strided layouts, axis permutation, compatible reshape, and view lifetime/ownership; defer arithmetic.
 - **Formula:** `\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}`.
-- **Historical contrast:** Contrast copying every rearrangement with array views that reinterpret shared storage.
+- **Historical contrast:** Bengio et al.'s concatenated feature vector has one fixed context layout; the Transformer defines packed query/key/value sets and parallel heads, while official GPT-2 code makes split/merge reshape and transpose operations explicit. Use copying versus borrowed views only as this course's local implementation contrast for those LLM layouts.
 - **Rust contribution:** Add safe owned/view APIs with explicit contiguity checks and deterministic materialization to the cumulative tensor core.
 - **Visualization:** Useful — show the same labeled values under reshape and transpose, with unchanged storage and changed axes/strides.
 - **Practice:** Predict the shape, stride, and reading order after transposing a `2×3` tensor.
@@ -828,7 +863,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.
 - **Scope boundary:** Teach trailing-axis broadcasting, unary/binary maps, sum/mean/max, keep-dim behavior, and empty-axis errors; defer matrix multiplication.
 - **Formula:** `y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \quad \mu_k=\frac{1}{n_k}\sum_{i_k}x_{\mathbf{i}}`.
-- **Historical contrast:** Contrast repeated shape-specific loops with NumPy-style shape algebra while making every implicit expansion observable.
+- **Historical contrast:** Discrete n-gram rows and one-example fixed-context calculations do not express one shared operation across token, batch, and feature axes; connect Transformer/GPT-2 elementwise transforms, normalization, and softmax reductions to this course's explicit broadcasting and reduction machinery without presenting that API as an architectural invention.
 - **Rust contribution:** Add broadcast planning, elementwise primitives, and axis reductions required by softmax, normalization, loss, and gradients.
 - **Visualization:** Useful — align axes for a `2×3 + 3` broadcast, then highlight which cells collapse under each reduction axis.
 - **Practice:** Predict valid and invalid broadcast pairs and the shapes produced by sum with and without retained axes.
@@ -843,7 +878,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Compute checked 2-D and batched matrix products from scalar loops and tensor strides.
 - **Scope boundary:** Teach inner-dimension contraction, output shapes, batched broadcasting, and transpose flags; defer hardware optimization.
 - **Formula:** `C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}`.
-- **Historical contrast:** Start from scalar dot products and one-hot table multiplication, then generalize to reusable matrix products.
+- **Historical contrast:** Shape-specific weighted sums for one fixed context do not scale cleanly across many positions and heads; trace Bengio et al.'s neural-language-model matrices to the batched Q/K/V and output projections repeated throughout a Transformer.
 - **Rust contribution:** Add dependency-free matmul with naive loops, reference fixtures, shape errors, and batched cases.
 - **Visualization:** Useful — trace one output cell through a highlighted row/column dot product and then show the batch axis.
 - **Practice:** Predict output shape and two cells for a small product before comparing exact Rust output.
@@ -858,7 +893,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.
 - **Formula:** `p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j`.
-- **Historical contrast:** Contrast naive exponentiation and direct probability multiplication with shifted log-domain computation.
+- **Historical contrast:** Direct exponentiation in a vocabulary or attention softmax can overflow and direct probability products can underflow; trace Bengio et al.'s output softmax to Transformer attention/output softmax and use shifted log-domain computation as correctness-preserving numerical infrastructure.
 - **Rust contribution:** Add stable probability, log-probability, and forward indexed-NLL tensor operations with tolerance-tested extreme-logit fixtures.
 - **Visualization:** Useful — compare naive and shifted exponentials for ordinary and extreme logits while showing invariant probabilities.
 - **Practice:** Predict softmax invariance after adding the same constant and diagnose overflow for `[1000,1001]`.
@@ -873,7 +908,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Approximate derivatives with central differences and compare analytic candidates using scale-aware error.
 - **Scope boundary:** Teach step size, truncation/rounding trade-offs, central differences, relative error, and sampled tensor coordinates; defer automatic differentiation.
 - **Formula:** `f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}`.
-- **Historical contrast:** Contrast hand-derived symbolic derivatives with finite differences as a slow, implementation-independent correctness oracle.
+- **Historical contrast:** Analytic backpropagation is efficient but derivative bugs become harder to isolate as neural-language-model graphs grow; use finite differences as a slow, independent training-code oracle, not as a decoder runtime component or a later model invention.
 - **Rust contribution:** Add scalar and tensor-coordinate gradcheck helpers with deterministic sampling and explicit tolerances.
 - **Visualization:** Useful — draw secants around a point for several `h` values and show convergence then floating-point deterioration.
 - **Practice:** Predict the numerical derivative of a quadratic and choose which of three step sizes is trustworthy.
@@ -888,7 +923,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.
 - **Formula:** `\bar v=\sum_{c\in\operatorname{children}(v)}\bar c\,\frac{\partial c}{\partial v}`.
-- **Historical contrast:** Contrast symbolic expression expansion and forward-mode dual numbers with reverse mode for many parameters and one loss.
+- **Historical contrast:** Symbolic expansion and forward-mode propagation scale poorly when one loss depends on many parameters; trace hand-derived neural-network gradients to reverse-mode backpropagation, whose direction matches modern language-model training.
 - **Rust contribution:** Add a tiny safe scalar graph supporting arithmetic and elementary functions, with gradients checked numerically.
 - **Visualization:** Useful — render a branched computation DAG with forward values, local derivatives, and reverse adjoint flow.
 - **Practice:** Predict why a reused scalar receives two gradient contributions and compute them before backpropagation.
@@ -903,7 +938,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.
 - **Formula:** `\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}`.
-- **Historical contrast:** Contrast one scalar graph node per tensor element and hand-coded whole-layer backward passes with operation-level tensor reverse mode.
+- **Historical contrast:** One graph node per scalar and one handwritten backward pass per whole layer become unwieldy for deep, repeated tensor blocks; connect scalar reverse mode to operation-level tensor tapes that support Transformer training.
 - **Rust contribution:** Add the owned tensor tape and the structural/elementwise VJP set, reusing the cumulative tensor primitives and numerical checker.
 - **Visualization:** Useful — show a tensor-operation DAG labeled with forward shapes and the axes reduced while gradients reverse a broadcast.
 - **Practice:** Predict gradient shapes through transpose, mean, and a broadcast bias before computing their values.
@@ -918,7 +953,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.
 - **Formula:** `\frac{\partial L}{\partial E_i}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`.
-- **Historical contrast:** Contrast manually derived backward methods for every layer with a small composable VJP vocabulary shared by many models.
+- **Historical contrast:** A structural tensor tape still cannot train a language model without correct embedding, matrix, activation, and token-loss derivatives; connect separately derived layer gradients to a small composable VJP vocabulary reused throughout the decoder.
 - **Rust contribution:** Extend the tensor tape with the model-critical primitives, including duplicate-ID scatter-add and fused stable log-softmax/NLL behavior.
 - **Visualization:** Useful — trace forward tensor shapes and reverse contributions through matmul, row gather, repeated-ID accumulation, and target selection.
 - **Practice:** Predict the embedding gradient when one token ID appears three times and identify the target-logit gradient signs.
@@ -933,7 +968,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths.
 - **Scope boundary:** Teach deterministic PRNG state, seeds, zero-symmetry failure, Xavier-style variance, and parameter identity; defer optimizer state.
 - **Formula:** `\operatorname{Var}(W_{ij})=\frac{2}{\operatorname{fan}_{in}+\operatorname{fan}_{out}}`.
-- **Historical contrast:** Contrast all-zero and arbitrary-scale random weights with variance-aware initialization that avoids symmetry and exploding signals.
+- **Historical contrast:** All-zero weights preserve symmetry, while arbitrary random scales can shrink or explode signals through depth; connect early neural-language-model random initialization to variance-aware parameter scales used to keep a deeper decoder trainable.
 - **Rust contribution:** Add a dependency-free deterministic PRNG, Xavier initialization, and stable named-parameter construction used by every later layer.
 - **Visualization:** Useful — compare fixed-seed histograms and propagated variance for zero, oversized, and Xavier-initialized weights.
 - **Practice:** Predict why equal zero weights stay equal and how doubling fan-in changes the target standard deviation.
@@ -1273,6 +1308,8 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 ## Primary architecture anchors
 
+- Bengio et al., [A Neural Probabilistic Language Model]
+  (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
 - Sennrich, Haddow, and Birch, [Neural Machine Translation of Rare Words with
   Subword Units](https://arxiv.org/abs/1508.07909).
 - Vaswani et al., [Attention Is All You Need](https://arxiv.org/abs/1706.03762).

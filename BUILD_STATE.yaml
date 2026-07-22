@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-21T14:44:09Z"
+updated_at: "2026-07-22T04:40:42Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 8
+      spent: 9
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -6586,7 +6586,7 @@ builds:
         objective: "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
         depends_on:
           - enforce-basic-seo-descriptions
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -6756,7 +6756,7 @@ builds:
         objective: "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
         depends_on:
           - implement-ch08-tensor-storage
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -7003,10 +7003,298 @@ builds:
                 status: passed
                 notes: "The two canonical hashes and the immutable manifest checksum still match; host artifacts and Git diff whitespace pass; BUILD_STATE is valid YAML and the course plan reports nine implemented contracts. Only the component, its focused E2E test, BUILD_STATE, and DECISIONS changed; build, dependency, locale, lesson, trace, and Rust files have no diff; unrelated desktop.ini remains untracked and untouched."
             notes: "Succeeded after reproducing 114.0375 pixels of excess rendered space, scoping equal-height CSS to comparison grids, independent defect review, immutable two-file staged review, manifest-only promotion, and complete canonical Linux and Chromium regression. No build definition or lesson content changed."
+      - id: establish-llm-evolution-history-policy
+        objective: "Make the road to modern LLMs the required historical spine of every remaining chapter, with implementation history used only as supporting context."
+        depends_on:
+          - implement-ch09-tensor-views
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/01-text-units.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/chapter-locale-config.mjs"
+          - "site/src/content.config.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf"
+          - "https://github.com/openai/gpt-2/blob/master/src/model.py"
+        outputs:
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "site/src/content.config.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+        acceptance:
+          - "Every remaining chapter must connect an earlier language model, neural architecture, model-building or training practice, evaluation method, or inference design and its relevant limitation or scale pressure to later LLM computation or its training, evaluation, and correctness pipeline."
+          - "Programming-language, array-library, hardware, and data-structure history is explicitly secondary technical context rather than the chapter's historical spine."
+          - "The Rust historical contrast must expose a chapter-scoped model computation or an implementation consequence that supports it, without claiming an architecture required this course's exact storage or API policy."
+          - "Corrected content revisions of Chapters 8 and 9, and every chapter from Chapter 10 onward, must declare a complete llm_evolution object with an allowed predecessor kind, explicit limitation, later advance, modern role, earlier/later HTTPS sources, localized bounded claims, exact parity, and rendered history citations."
+          - "The Chapter 8 through 17 plan entries are re-anchored to neural-language-model and Transformer development, and Chapters 8 and 9 receive dedicated corrective steps before Chapter 10."
+          - "The plan revision and locale projection remain synchronized without changing active locales, routes, package dependencies, or the Linux build definition."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- --structure-only ../curriculum/chapter-template.md"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "A bounded read-only review of primary neural-language-model, Transformer, and official GPT-2 sources followed by local deterministic curriculum and projection edits. No paid service, generation service, dependency change, build-definition change, or substantial CPU use."
+        runs:
+          - run_id: 20260722T034651Z-establish-llm-evolution-history-policy-01
+            started_at: "2026-07-22T03:46:51Z"
+            finished_at: "2026-07-22T04:01:01Z"
+            status: interrupted
+            input_fingerprint:
+              git: "a42c334306df35ff432632b1598989b26dd2bb5f"
+              manifest: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/input-fingerprint.txt"
+              checksum: "sha256:09f4facf509cde5dfc4dbd4277fddf0b7862272ab1b5374d97955b8933ea8b36"
+              prior_artifact: "Chapter 9 corrective two-file manifest and original 18-file manifest reverified against staged and canonical outputs"
+              tools: "Docker client/server 29.6.2; Compose 5.3.1; rustc/cargo 1.93.1; Node 22.12.0; npm 10.9.0; container Git 2.39.5; Windows Git 2.55.0.windows.3; core.fileMode=false"
+              external_sources: "Bengio et al. 2003 neural probabilistic language model; Vaswani et al. 2017 Transformer; official OpenAI GPT-2 model source"
+            staging_dir: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/"
+            commands:
+              - "Session startup and recovery: Git status/HEAD/config; complete BUILD_STATE parse; latest DECISIONS and Chapter 9 artifact inspection; Docker/toolchain comparison"
+              - "Read-only audits of Chapters 1 through 10, the shared curriculum rubric, Rust history evidence, and primary neural-LM/Transformer/GPT-2 sources"
+              - "Record the user-reported history-scope defect, replacement schedule, exact ownership, input fingerprint, and running checkpoint before product edits"
+              - "Stage the shared LLM-history rubric, plan revision 16, three-step corrective schedule, Chapters 8-17 historical-plan realignment, and unchanged locale projection"
+              - "Build learn-llm-history-policy-candidate from the staged overlay and run the complete deterministic site build plus the course-plan and 243-test matrices without network access"
+            artifacts:
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/input-fingerprint.txt"
+                checksum: "sha256:09f4facf509cde5dfc4dbd4277fddf0b7862272ab1b5374d97955b8933ea8b36"
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/publish/SKILLS.md"
+                checksum: "sha256:87e5292542d74dff97693d807cbf989336427d7e2f60401ce690be811cfae1a1"
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/publish/curriculum/README.md"
+                checksum: "sha256:d3b2dfea233377ae2d97b04dc1e50652c4e3c135f5b1f8b5e25b8f24a88c8b28"
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/publish/curriculum/chapter-template.md"
+                checksum: "sha256:286c1f581c6c1c4322bf7aa6f12e1d43feb99a41db7b5c95a321c92bbf7e2d43"
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/publish/curriculum/course-plan.md"
+                checksum: "sha256:5c8420f744098b5c47ddc86108f25c7e999dfb6fef3f4e69480022fc39914e72"
+              - path: ".build/runs/20260722T034651Z-establish-llm-evolution-history-policy-01/publish/site/src/i18n/chapter-locales.json"
+                checksum: "sha256:8d27c393f61654a06fa9efde294cf6faea611ce59ae33e479d8107632622a6cc"
+            validation:
+              - command: "Complete repository, state, dependency, prior-artifact, and history-scope preflight"
+                status: passed
+                notes: "Only unrelated desktop.ini is untracked; no stale run exists; implement-ch10 was the only eligible pending step before the user's correction; both retained Chapter 9 manifests match; Chapters 1-7 follow language-model evolution while Chapters 8-9 switch to implementation history."
+              - command: "Bounded primary and official source review"
+                status: passed
+                notes: "Bengio et al. define learned word-feature and neural parameter matrices; Vaswani et al. define packed Q/K/V matrices and parallel concatenated heads; official GPT-2 code concretely uses batch/sequence/feature/head reshapes, transposes, broadcasts, and explicit reductions. None prescribes this course's row-major storage or view policy."
+              - command: "Staged plan, content, diagnostics, unit, production-build, link, SEO, and whitespace gates"
+                status: passed
+                notes: "Candidate image sha256:42a1e50fc39cbfe790c38fca6693d32c664901db60212c3230bd34d3a1ee9eb1 validates 39 chapters and 57 scheduled steps; 16 localized sources and nine locale sets pass; Astro reports zero diagnostics; all 243 Vitest cases pass; 21 static pages, 371 local references, and 21 SEO routes pass. The five staged files have no whitespace error or stale FORTRAN/Genie/NumPy historical spine."
+              - command: "Independent staged policy review"
+                status: failed
+                notes: "Three reviewers found that the first rubric draft overstated causal necessity for substrate/correctness chapters, used inconsistent history categories, omitted explicit limitations in Chapters 8-17, left Chapter 10's old acceptance/source inputs able to pass, and had no machine-readable enforcement. Corrections are being staged before manifest freeze."
+            notes: "Interrupted after the first staged policy passed deterministic gates but independent review found false causal wording, inconsistent categories, missing plan limitations, an unenforced Chapter 10 boundary, and newly required validator/schema/test outputs. The five staged documents are preserved with checksums for reviewed reuse; Chapter 10 was never claimed."
+          - run_id: 20260722T040101Z-establish-llm-evolution-history-policy-02
+            started_at: "2026-07-22T04:01:01Z"
+            finished_at: "2026-07-22T04:40:42Z"
+            status: succeeded
+            input_fingerprint:
+              git: "a42c334306df35ff432632b1598989b26dd2bb5f"
+              manifest: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/input-fingerprint.txt"
+              checksum: "sha256:e862c5482ac3807708948e85060d464c4e757403c5fdf0493e83a0a0f26f6430"
+              prior_artifact: "Five checksum-verified policy documents from interrupted run 01"
+              tools: "Docker client/server 29.6.2; Compose 5.3.1; rustc/cargo 1.93.1; Node 22.12.0; npm 10.9.0; container Git 2.39.5; Windows Git 2.55.0.windows.3; core.fileMode=false"
+              external_sources: "Bengio et al. 2003 neural probabilistic language model; Vaswani et al. 2017 Transformer; official OpenAI GPT-2 model source"
+            staging_dir: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/"
+            commands:
+              - "Interrupt run 01 after three independent defect reports expanded the declared scope and invalidated its input fingerprint"
+              - "Create a new run with the validator, schema, test, and Chapter 10 ledger inputs fingerprinted; checksum-copy the five reusable staged documents"
+              - "Stage the non-causal LLM-history rubric, revised-Chapter-8/9 and Chapter-10-plus schema gates, exact rendered-link evidence checks, plan revision 16, and focused regression matrix"
+              - "Build learn-llm-history-policy-candidate-02 from the isolated overlay and run content, parity, Astro diagnostics, production build, static links, course-plan, template-contract, and 247-test gates without network access"
+              - "Freeze the closed ten-file publish.sha256 manifest after corrected candidate validation and two independent no-blocker re-reviews"
+              - "Run ./course review 20260722T040101Z-establish-llm-evolution-history-policy-02 --check against the frozen manifest"
+              - "Promote exactly the ten manifest-listed files with apply_patch and verify every canonical checksum"
+              - "Run canonical ./course check, the 248-test policy matrix, template/plan checks, host-artifact audit, and final manifest/scope/whitespace/YAML checks"
+            artifacts:
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/input-fingerprint.txt"
+                checksum: "sha256:e862c5482ac3807708948e85060d464c4e757403c5fdf0493e83a0a0f26f6430"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/SKILLS.md"
+                checksum: "sha256:d5035815fae97aef1b44097a4d28e8fd98514e061849b6df369e8892234b565a"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/curriculum/README.md"
+                checksum: "sha256:26905b077a42e50804ed1ba8ed88df6df983b9575a870dd1c279c1d2ec51a0a7"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/curriculum/chapter-template.md"
+                checksum: "sha256:9a2b3f908a8002e7a42e26b2cb715c149fe6f2068142b9e1a4267d870a9c9309"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/curriculum/course-plan.md"
+                checksum: "sha256:a437ec9b58b7a013715bbf9e9c56deed8389ec39eceddaeaaf3934677b2ce8f1"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/scripts/check-chapter-contract.mjs"
+                checksum: "sha256:1b9a7826c544a3f58c0cff39796af40425bad3adca2787fd74b47c368b6f3690"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/scripts/check-course-plan.mjs"
+                checksum: "sha256:c3fb3863e57ee513a00028839f56e19336a049b2f9ab27dbb5b5f20bf01b708d"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/scripts/check-site-content.mjs"
+                checksum: "sha256:b5d9ee1a4c93d7d99f51c36d0c829b23526194725e0eff79eb1aac71dddc3c17"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/site/src/content.config.ts"
+                checksum: "sha256:b76f280a238aebe3270dfbd10674a218f9c2a891ddb51abca214091104a4c30a"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/site/src/i18n/chapter-locales.json"
+                checksum: "sha256:8d27c393f61654a06fa9efde294cf6faea611ce59ae33e479d8107632622a6cc"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish/site/tests/content-contract.test.ts"
+                checksum: "sha256:b43f6eabb34c502cbd2124447f3f92f749e4345924fbefd2c91e6d951e29fc38"
+              - path: ".build/runs/20260722T040101Z-establish-llm-evolution-history-policy-02/publish.sha256"
+                checksum: "sha256:0e118341adc3de52d4912af1d23149b656ef468345ad674d750a990b31421d23"
+            validation:
+              - command: "Prior staged-artifact checksum verification"
+                status: passed
+                notes: "All five copied documents match the checksums recorded by interrupted run 01; no failed-policy byte was published to a canonical product path."
+              - command: "Independent policy and enforcement review"
+                status: passed
+                notes: "Review closed the remaining loopholes before publication: revised Chapters 8 and 9 now require the same structured history as Chapter 10 onward; stale original chapter steps are invalidated immediately; Transformer papers are not made to prescribe local view mechanics; only direct rendered links satisfy declared-source evidence; URL identity is normalized for duplicate detection."
+              - command: "Staged candidate site and focused policy regressions"
+                status: passed
+                notes: "Candidate image sha256:8074a68e19f2153bcce1fe8aebd1680437ba2eb24831468e3170b9d62766de9c reports 16 localized sources and nine publishable sets, zero Astro diagnostics, 21 static pages, 371 local references, 21 SEO routes, a valid 39-chapter/57-step plan, a valid canonical template contract, and all 247 Vitest cases passing."
+              - command: "Independent final enforcement review"
+                status: failed
+                notes: "A final logic review found that direct links could pass while the structured limitation, later advance, modern role, and bounded source claims remained absent from learner-visible prose; it also found that the plan validator did not guard the Chapter 8-17 LLM-history roadmap. The staged validators, documentation, and regressions are being tightened before manifest freeze."
+              - command: "Corrected staged enforcement and independent re-review"
+                status: passed
+                notes: "Candidate image sha256:ef61f37c38915a5541a53c96a5cf92a0d6612aa748b8c5f8f12dfa633077bbe5 requires every structured narrative/source claim as visible History prose, accepts only constrained direct Markdown/autolinks, guards the shared threshold and Chapter 8-17 roadmap, reports zero Astro diagnostics, builds 21 pages, checks 371 references and 21 SEO routes, validates the template and plan, and passes all 248 tests. Independent logic and content re-review found no remaining blocker."
+              - command: "Frozen-manifest staged review"
+                status: passed
+                notes: "The manifest names exactly ten regular staged files and matches every checksum. ./course review rebuilt the exact overlay, repeated content/parity, zero-diagnostic Astro, 21-page production build, 371-reference, and 21-SEO-route checks, verified the root artifact, and left publish/ plus publish.sha256 unchanged."
+              - command: "Checksum-verified canonical Linux and policy validation"
+                status: passed
+                notes: "All ten canonical product hashes match the immutable manifest. Unchanged ./course check produced workspace image sha256:b7587a32666e3325cf16521570213842005da95fe2e403afc30094bb8909c170 and passed Rust formatting plus every workspace/doc test, content/parity, zero Astro diagnostics, the 21-page build, 371 local references, and 21 SEO routes. The exact image also passes the 39-chapter/57-step plan, template structure, and all 248 Vitest cases."
+              - command: "Final host, manifest, YAML, scope, and repository-boundary audit"
+                status: passed
+                notes: "The staged tree and manifest remain frozen; all ten canonical hashes still match; BUILD_STATE parses as YAML; Git whitespace and host-artifact audits pass. Only declared policy outputs plus BUILD_STATE and DECISIONS changed; package/build definitions and locale membership are unchanged; unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded after two review-driven hardening passes, a frozen ten-file staged review, manifest-only apply_patch promotion, and complete canonical Linux validation. The policy now requires learner-visible LLM-evolution claims and direct source links for corrected Chapters 8-9 and Chapter 10 onward without attributing local implementation choices to model papers."
+      - id: realign-ch08-llm-history
+        objective: "Replace Chapter 8's array-programming history with the progression from count tables to neural-language-model matrices and Transformer tensor shapes."
+        depends_on:
+          - establish-llm-evolution-history-policy
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/README.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/demos/ch08-tensor-storage/Cargo.toml"
+          - "rust/demos/ch08-tensor-storage/src/lib.rs"
+          - "rust/demos/ch08-tensor-storage/src/main.rs"
+          - "rust/demos/ch08-tensor-storage/expected.txt"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf"
+        outputs:
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "rust/demos/ch08-tensor-storage/src/lib.rs"
+          - "rust/demos/ch08-tensor-storage/src/main.rs"
+          - "rust/demos/ch08-tensor-storage/expected.txt"
+          - "site/src/content/chapters/en/08-tensor-storage.mdx"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+        acceptance:
+          - "Chapter 8 connects the bigram table to Bengio's learned word-feature and neural parameter matrices, then to Transformer matrix/head shapes, while identifying row-major Vec storage as local policy."
+          - "The Rust historical fixture uses one Tensor abstraction for several neural-language-model parameter shapes and no longer teaches ragged arrays as the historical destination."
+          - "Contract, English lesson, exact Rust stdout, sources, SEO metadata, and rendered history evidence agree at content revision 2."
+          - "Content revision 2 contract and lesson metadata contain the complete machine-checked history.llm_evolution record and render direct links for every declared source."
+          - "The original successful run remains immutable; the corrective slice publishes atomically and passes canonical Linux and browser regressions in its own commit."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/08-tensor-storage.md"
+          - "cargo fmt --all -- --check"
+          - "cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+          - "cargo run --quiet --locked -p ch08-tensor-storage | diff -u rust/demos/ch08-tensor-storage/expected.txt -"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"
+          - "npm --prefix site run check:parity -- --chapter 08-tensor-storage"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:08-tensor-storage'"
+          - "npm --prefix site run test:e2e"
+        cost:
+          class: medium
+          notes: "Bounded primary-paper review plus local deterministic Rust/content/browser correction. No paid service, generation service, dependency change, build-definition change, or substantial CPU use."
+        runs: []
+      - id: realign-ch09-llm-history
+        objective: "Replace Chapter 9's array-programming history with the progression from fixed-context neural matrices to Transformer and GPT-2 attention rearrangements."
+        depends_on:
+          - realign-ch08-llm-history
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/README.md"
+          - "curriculum/chapters/08-tensor-storage.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "rust/demos/ch09-tensor-views/src/lib.rs"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf"
+          - "https://github.com/openai/gpt-2/blob/master/src/model.py"
+        outputs:
+          - "curriculum/chapters/09-tensor-views.md"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+        acceptance:
+          - "Chapter 9 connects fixed-context word-feature vectors to packed Q/K/V matrices, K transpose, split/merged heads, and the view transformations visible in GPT-2, without attributing storage semantics to model papers."
+          - "The existing copying transpose remains an exact Rust contrast for eagerly forming a tiny K-transpose; the borrowed TensorView demonstrates the course's explicit no-copy alternative."
+          - "Contract, English lesson, sources, SEO metadata, and rendered history evidence agree at content revision 2."
+          - "Content revision 2 contract and lesson metadata contain the complete machine-checked history.llm_evolution record and render direct links for every declared source."
+          - "The original successful and corrective runs remain immutable; the new corrective slice publishes atomically and passes canonical Linux and browser regressions in its own commit."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/09-tensor-views.md"
+          - "cargo fmt --all -- --check"
+          - "cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+          - "cargo run --quiet --locked -p ch09-tensor-views | diff -u rust/demos/ch09-tensor-views/expected.txt -"
+          - "cargo run --quiet --locked -p ch09-tensor-views --example ch09-tensor-views-trace | diff -u rust/demos/ch09-tensor-views/diagram-trace.txt -"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 09-tensor-views"
+          - "npm --prefix site run check:parity -- --chapter 09-tensor-views"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:09-tensor-views'"
+          - "npm --prefix site run test:e2e"
+        cost:
+          class: medium
+          notes: "Bounded primary-paper and official-code review plus local deterministic content/browser correction. No paid service, generation service, dependency change, build-definition change, or substantial CPU use."
+        runs: []
       - id: implement-ch10-broadcasting-reductions
         objective: "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
         depends_on:
-          - implement-ch09-tensor-views
+          - realign-ch09-llm-history
         status: pending
         inputs:
           - "SKILLS.md"
@@ -7029,6 +7317,30 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/demos/ch09-tensor-views/Cargo.toml"
+          - "rust/demos/ch09-tensor-views/diagram-trace.txt"
+          - "rust/demos/ch09-tensor-views/src/diagram_trace.rs"
+          - "site/src/content.config.ts"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/components/chapters/TensorViewsDiagram.astro"
+          - "site/src/lib/tensor-views-diagram.ts"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/lib/chapter-navigation.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf"
+          - "https://github.com/openai/gpt-2/blob/master/src/model.py"
+          - "https://numpy.org/doc/stable/user/basics.broadcasting.html"
         outputs:
           - "curriculum/chapters/10-broadcasting-reductions.md"
           - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
@@ -7036,12 +7348,14 @@ builds:
           - "rust/demos/ch10-broadcasting-reductions/"
           - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
           - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
           - "site/tests/10-broadcasting-reductions-diagram.test.ts"
           - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
+          - "The history traces count-based context rows through fixed-context neural language models to Transformer/GPT-2 token-feature computation, identifies shared elementwise operations and explicit softmax/normalization axes as model math, and presents this course's broadcasting API only as supporting implementation machinery."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
@@ -7055,6 +7369,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch10-broadcasting-reductions | diff -u rust/demos/ch10-broadcasting-reductions/expected.txt -"
+          - "cargo run --quiet --locked -p ch10-broadcasting-reductions --example ch10-broadcasting-reductions-trace | diff -u rust/demos/ch10-broadcasting-reductions/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 10-broadcasting-reductions"
           - "npm --prefix site run check:parity -- --chapter 10-broadcasting-reductions"
           - "npm --prefix site run check:content"
@@ -7066,7 +7381,7 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
+          notes: "One complete English chapter-active locale set. Preflight performs bounded read-only review of declared primary neural-LM/Transformer sources, official GPT-2 code, and official NumPy broadcast semantics; subsequent work is local and deterministic. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build-definition change, or concept-implementing dependency."
         runs: []
       - id: implement-ch11-matrix-multiplication
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."

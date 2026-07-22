@@ -34,6 +34,17 @@ const LATEX_PROSE_PATTERN =
   /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
 const RUST_SOURCE_PATTERN =
   /^rust\/(?:crates\/llm-from-scratch|demos\/[a-z0-9][a-z0-9-]*)\/src\/(?:[A-Za-z0-9_-]+\/)*[A-Za-z0-9_-]+\.rs$/;
+const LLM_EVOLUTION_REQUIRED_FROM_ORDER = 10;
+const LLM_EVOLUTION_CORRECTIVE_ORDERS = new Set([8, 9]);
+const LLM_PREDECESSOR_KINDS = new Set([
+  'language-model',
+  'neural-architecture',
+  'model-building-practice',
+  'training-practice',
+  'evaluation-method',
+  'inference-design',
+]);
+const LLM_SOURCE_ROLES = new Set(['earlier', 'later']);
 
 export class ContentValidationError extends Error {
   constructor(issues, heading = 'Content validation failed') {
@@ -54,6 +65,129 @@ function hasText(value) {
 function addTextIssue(issues, value, field, sourceName) {
   if (!hasText(value)) {
     issues.push(sourceName + ': ' + field + ' must be a non-empty string');
+  }
+}
+
+function isHttpsUrl(value) {
+  if (!hasText(value)) return false;
+  try {
+    const parsed = new URL(value);
+    return (
+      parsed.protocol === 'https:' &&
+      parsed.username === '' &&
+      parsed.password === ''
+    );
+  } catch {
+    return false;
+  }
+}
+
+function canonicalSourceUrl(value) {
+  if (!isHttpsUrl(value)) return null;
+  const parsed = new URL(value);
+  parsed.hash = '';
+  return parsed.href;
+}
+
+function requiresLlmEvolution(order, contentRevision) {
+  return (
+    Number.isInteger(order) &&
+    (order >= LLM_EVOLUTION_REQUIRED_FROM_ORDER ||
+      (LLM_EVOLUTION_CORRECTIVE_ORDERS.has(order) && contentRevision >= 2))
+  );
+}
+
+function validateExactKeys(issues, value, expected, field, sourceName) {
+  const actual = Object.keys(value).sort();
+  const sortedExpected = [...expected].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(sortedExpected)) {
+    issues.push(
+      sourceName + ': ' + field + ' keys must be exactly ' + sortedExpected.join(', '),
+    );
+  }
+}
+
+function validateLlmEvolution(evolution, issues, sourceName, required) {
+  if (evolution === undefined) {
+    if (required) {
+      issues.push(
+        sourceName +
+          ': history.llm_evolution is required for revised Chapters 8-9 and from chapter order ' +
+          LLM_EVOLUTION_REQUIRED_FROM_ORDER,
+      );
+    }
+    return;
+  }
+  if (!isObject(evolution)) {
+    issues.push(sourceName + ': history.llm_evolution must be an object');
+    return;
+  }
+  validateExactKeys(
+    issues,
+    evolution,
+    ['predecessor_kind', 'limitation', 'later_advance', 'modern_llm_role', 'sources'],
+    'history.llm_evolution',
+    sourceName,
+  );
+  if (!LLM_PREDECESSOR_KINDS.has(evolution.predecessor_kind)) {
+    issues.push(
+      sourceName +
+        ': history.llm_evolution.predecessor_kind must be one of ' +
+        [...LLM_PREDECESSOR_KINDS].join(', '),
+    );
+  }
+  for (const field of ['limitation', 'later_advance', 'modern_llm_role']) {
+    addTextIssue(
+      issues,
+      evolution[field],
+      'history.llm_evolution.' + field,
+      sourceName,
+    );
+  }
+  if (!Array.isArray(evolution.sources) || evolution.sources.length < 2) {
+    issues.push(
+      sourceName + ': history.llm_evolution.sources must contain earlier and later evidence',
+    );
+    return;
+  }
+  const roles = new Set();
+  const urls = new Set();
+  evolution.sources.forEach((source, index) => {
+    const field = 'history.llm_evolution.sources[' + index + ']';
+    if (!isObject(source)) {
+      issues.push(sourceName + ': ' + field + ' must be an object');
+      return;
+    }
+    validateExactKeys(
+      issues,
+      source,
+      ['role', 'year', 'name', 'source_url', 'claim'],
+      field,
+      sourceName,
+    );
+    if (!LLM_SOURCE_ROLES.has(source.role)) {
+      issues.push(sourceName + ': ' + field + '.role must be earlier or later');
+    } else {
+      roles.add(source.role);
+    }
+    if (!Number.isInteger(source.year) || source.year < 1900 || source.year > 9999) {
+      issues.push(sourceName + ': ' + field + '.year must be an integer from 1900 to 9999');
+    }
+    addTextIssue(issues, source.name, field + '.name', sourceName);
+    const canonicalUrl = canonicalSourceUrl(source.source_url);
+    if (!canonicalUrl) {
+      issues.push(sourceName + ': ' + field + '.source_url must be an absolute HTTPS URL');
+    } else if (urls.has(canonicalUrl)) {
+      issues.push(sourceName + ': duplicate history source URL "' + source.source_url + '"');
+    } else {
+      urls.add(canonicalUrl);
+    }
+    addTextIssue(issues, source.claim, field + '.claim', sourceName);
+  });
+  for (const role of LLM_SOURCE_ROLES) {
+    if (!roles.has(role)) {
+      issues.push(sourceName + ': history.llm_evolution.sources requires role ' + role);
+    }
   }
 }
 
@@ -222,6 +356,22 @@ function normalizedFormula(value) {
   return String(value).replace(/\s+/g, ' ').trim();
 }
 
+function directMarkdownLinkDestinations(source) {
+  const destinations = [];
+  const markdownLinks = /(?<!!)\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)\n]+))(?:\s+["'][^"'\n]*["'])?\s*\)/g;
+  for (const match of source.matchAll(markdownLinks)) {
+    destinations.push(match[1] ?? match[2]);
+  }
+  for (const match of source.matchAll(/<(https:\/\/[^>\s]+)>/g)) {
+    destinations.push(match[1]);
+  }
+  return new Set(
+    destinations
+      .map((destination) => canonicalSourceUrl(destination))
+      .filter((destination) => destination !== null),
+  );
+}
+
 function validateChapterSections(data, body, issues, sourceName) {
   const sections = sliceChapterSections(body);
   for (const name of REQUIRED_CHAPTER_SECTIONS) {
@@ -231,6 +381,42 @@ function validateChapterSections(data, body, issues, sourceName) {
     }
     if (visibleSectionEvidence(section).length < 40) {
       issues.push(sourceName + ': ' + name + ' section lacks meaningful teaching evidence');
+    }
+  }
+
+  const historySection = renderableMdxSource(sections.get('history') ?? '');
+  const historyLinks = directMarkdownLinkDestinations(historySection);
+  const historyEvidence = visibleSectionEvidence(historySection);
+  const llmEvolution = data.history?.llm_evolution;
+  const requiredHistoryClaims = llmEvolution
+    ? [
+        ['limitation', llmEvolution.limitation],
+        ['later_advance', llmEvolution.later_advance],
+        ['modern_llm_role', llmEvolution.modern_llm_role],
+        ...llmEvolution.sources.map((source, index) => [
+          'sources[' + index + '].claim',
+          source.claim,
+        ]),
+      ]
+    : [];
+  for (const [field, claim] of requiredHistoryClaims) {
+    const expected = visibleSectionEvidence(claim);
+    if (!expected || !historyEvidence.includes(expected)) {
+      issues.push(
+        sourceName +
+          ': history section must render history.llm_evolution.' +
+          field +
+          ' as visible prose',
+      );
+    }
+  }
+  for (const source of llmEvolution?.sources ?? []) {
+    if (!historyLinks.has(canonicalSourceUrl(source.source_url))) {
+      issues.push(
+        sourceName +
+          ': history section must cite declared LLM-evolution source ' +
+          source.source_url,
+      );
     }
   }
 
@@ -494,6 +680,12 @@ export function validateChapterMetadata(
   if (!isObject(data.history)) {
     issues.push(sourceName + ': history must be an object');
   } else {
+    validateLlmEvolution(
+      data.history.llm_evolution,
+      issues,
+      sourceName,
+      requiresLlmEvolution(data.order, data.content_revision),
+    );
     addTextIssue(issues, data.history.approach, 'history.approach', sourceName);
     addTextIssue(issues, data.history.summary, 'history.summary', sourceName);
     if (!isAllowedRustSourcePath(data.history.rust_source)) {
@@ -680,6 +872,17 @@ export function sharedChapterData(data) {
       symbols: data.formula.symbols.map((symbol) => symbol.symbol),
     },
     history_rust_source: data.history.rust_source,
+    history_llm_evolution: data.history.llm_evolution
+      ? {
+          predecessor_kind: data.history.llm_evolution.predecessor_kind,
+          sources: data.history.llm_evolution.sources.map((source) => ({
+            role: source.role,
+            year: source.year,
+            name: source.name,
+            source_url: source.source_url,
+          })),
+        }
+      : null,
     rust_sources: data.rust_sources.map((source) => ({
       path: source.path,
       region: source.region ?? null,
@@ -752,7 +955,7 @@ export function validateChapterLocaleSet(
       ) {
         issues.push(
           reference.data.chapter_id +
-            ': locale-neutral formula, source, visualization, order, or concept fields differ for ' +
+            ': locale-neutral formula, source, LLM-history, visualization, order, or concept fields differ for ' +
             locale,
         );
       }

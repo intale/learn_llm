@@ -24,13 +24,45 @@
     ]
   },
   "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": {
+        "en": "State the earlier approach's relevant limitation or scale pressure."
+      },
+      "later_advance": {
+        "en": "Name the later LLM computation, model-building, training, evaluation, inference, or correctness practice."
+      },
+      "modern_llm_role": {
+        "en": "Explain how this mechanism supports, implements, measures, or validates the target model or its pipeline."
+      },
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Name the primary source for the earlier model or practice.",
+          "source_url": "https://example.com/primary-earlier-source",
+          "claim": {
+            "en": "State the exact bounded claim this source supports."
+          }
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Name the primary source for the later LLM context.",
+          "source_url": "https://example.com/primary-later-source",
+          "claim": {
+            "en": "State the exact bounded claim this source supports."
+          }
+        }
+      ]
+    },
     "approach": {
-      "en": "Name the earlier approach being contrasted."
+      "en": "Name the earlier language model, neural architecture, model-building or training practice, evaluation method, or inference design."
     },
     "summary": {
-      "en": "Briefly state what the historical approach did and why the modern component changed it."
+      "en": "State its limitation or scale pressure, connect it to later LLM work, and explain how this mechanism supports the decoder or its training, evaluation, inference, or correctness pipeline."
     },
-    "rust_contrast": "Describe the runnable Rust behavior that makes the contrast observable."
+    "rust_contrast": "Expose one relevant model calculation, invariant, cost, or layout consequence in Rust; do not invent architecture-level causality for a local implementation policy."
   },
   "rust": {
     "package": "ch00-chapter-slug",
@@ -118,8 +150,24 @@ locale.
 <!-- contract-section:history -->
 ## Before the modern approach
 
-State the historical method, its useful intuition, its limitation, and the exact
-Rust contrast that the demo will expose.
+Trace an earlier language model, neural architecture, model-building or training
+practice, evaluation method, or inference design through its useful intuition and
+relevant limitation or scale pressure to later LLM work. Explain how this
+mechanism supports, implements, measures, or validates the target decoder or its
+training, evaluation, inference, and correctness pipeline. State the exact Rust
+contrast that exposes one relevant calculation, invariant, cost, or layout
+consequence. Programming-language, array, hardware, and API history may follow
+only as supporting context, and model papers must not be made to imply this
+course's exact storage or API policy.
+
+`history.llm_evolution` is required for corrected content revisions of Chapters 8
+and 9 and from Chapter 10 onward. Other earlier chapters may opt in, but a present
+object must always be complete. Keep its kind, source roles, years, names, and
+HTTPS URLs locale-neutral; localize the limitation, later advance, modern role,
+and bounded source claims. Render each of those localized strings as visible
+prose, and use a direct inline Markdown link (or an HTTPS autolink) for every
+declared source inside this history section. For a URL containing parentheses,
+use Markdown's angle-bracket destination form: `[source](<https://example/...>)`.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior

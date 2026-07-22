@@ -19,6 +19,88 @@ const rustPath = z
     message: 'Rust source paths cannot traverse outside their declared repository directory.',
   });
 
+const llmPredecessorKind = z.enum([
+  'language-model',
+  'neural-architecture',
+  'model-building-practice',
+  'training-practice',
+  'evaluation-method',
+  'inference-design',
+]);
+
+const httpsSourceUrl = z.string().min(1).refine(
+  (value) => {
+    try {
+      const parsed = new URL(value);
+      return (
+        parsed.protocol === 'https:' &&
+        parsed.username === '' &&
+        parsed.password === ''
+      );
+    } catch {
+      return false;
+    }
+  },
+  { message: 'History source URLs must be absolute HTTPS URLs.' },
+);
+
+function canonicalHistorySourceUrl(value: string) {
+  try {
+    const parsed = new URL(value);
+    parsed.hash = '';
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
+
+const llmEvolution = z
+  .object({
+    predecessor_kind: llmPredecessorKind,
+    limitation: z.string().min(1),
+    later_advance: z.string().min(1),
+    modern_llm_role: z.string().min(1),
+    sources: z
+      .array(
+        z
+          .object({
+            role: z.enum(['earlier', 'later']),
+            year: z.number().int().min(1900).max(9999),
+            name: z.string().min(1),
+            source_url: httpsSourceUrl,
+            claim: z.string().min(1),
+          })
+          .strict(),
+      )
+      .min(2),
+  })
+  .strict()
+  .superRefine((evolution, context) => {
+    const roles = new Set(evolution.sources.map((source) => source.role));
+    for (const role of ['earlier', 'later'] as const) {
+      if (!roles.has(role)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['sources'],
+          message: `LLM-evolution sources require role ${role}.`,
+        });
+      }
+    }
+    const urls = new Set<string>();
+    evolution.sources.forEach((source, index) => {
+      const canonicalUrl = canonicalHistorySourceUrl(source.source_url);
+      if (canonicalUrl === null) return;
+      if (urls.has(canonicalUrl)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['sources', index, 'source_url'],
+          message: 'History source URLs must be unique.',
+        });
+      }
+      urls.add(canonicalUrl);
+    });
+  });
+
 const formula = z
   .object({
     latex: z.string().min(1),
@@ -92,6 +174,7 @@ const chapters = defineCollection({
       formula,
       history: z
         .object({
+          llm_evolution: llmEvolution.optional(),
           approach: z.string().min(1),
           summary: z.string().min(1),
           rust_source: rustPath,
@@ -103,6 +186,17 @@ const chapters = defineCollection({
     })
     .strict()
     .superRefine((chapter, context) => {
+      const requiresLlmEvolution =
+        chapter.order >= 10 ||
+        ([8, 9].includes(chapter.order) && chapter.content_revision >= 2);
+      if (requiresLlmEvolution && chapter.history.llm_evolution === undefined) {
+        context.addIssue({
+          code: 'custom',
+          path: ['history', 'llm_evolution'],
+          message:
+            'history.llm_evolution is required for revised Chapters 8-9 and from Chapter 10 onward.',
+        });
+      }
       let activeLocales: readonly Locale[];
       try {
         activeLocales = activeLocalesForChapter(chapter.chapter_id);

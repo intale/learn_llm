@@ -40,6 +40,17 @@ const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const PACKAGE_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const LATEX_PROSE_PATTERN =
   /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
+const LLM_EVOLUTION_REQUIRED_FROM_ORDER = 10;
+const LLM_EVOLUTION_CORRECTIVE_ORDERS = new Set([8, 9]);
+const LLM_PREDECESSOR_KINDS = new Set([
+  'language-model',
+  'neural-architecture',
+  'model-building-practice',
+  'training-practice',
+  'evaluation-method',
+  'inference-design',
+]);
+const LLM_SOURCE_ROLES = new Set(['earlier', 'later']);
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -130,11 +141,161 @@ function validateFormula(issues, formula, sourceName, supportedLocales) {
   });
 }
 
-function validateHistory(issues, history, sourceName, supportedLocales) {
+function isHttpsUrl(value) {
+  if (!hasText(value)) return false;
+  try {
+    const parsed = new URL(value);
+    return (
+      parsed.protocol === 'https:' &&
+      parsed.username === '' &&
+      parsed.password === ''
+    );
+  } catch {
+    return false;
+  }
+}
+
+function canonicalSourceUrl(value) {
+  if (!isHttpsUrl(value)) return null;
+  const parsed = new URL(value);
+  parsed.hash = '';
+  return parsed.href;
+}
+
+function requiresLlmEvolution(order, contentRevision) {
+  return (
+    Number.isInteger(order) &&
+    (order >= LLM_EVOLUTION_REQUIRED_FROM_ORDER ||
+      (LLM_EVOLUTION_CORRECTIVE_ORDERS.has(order) && contentRevision >= 2))
+  );
+}
+
+function validateExactKeys(issues, value, expected, field, sourceName) {
+  const actual = Object.keys(value).sort();
+  const sortedExpected = [...expected].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(sortedExpected)) {
+    issues.push(
+      sourceName + ': ' + field + ' keys must be exactly ' + sortedExpected.join(', '),
+    );
+  }
+}
+
+function validateLlmEvolution(
+  issues,
+  evolution,
+  sourceName,
+  supportedLocales,
+  required,
+) {
+  if (evolution === undefined) {
+    if (required) {
+      issues.push(
+        sourceName +
+          ': history.llm_evolution is required for revised Chapters 8-9 and from chapter order ' +
+          LLM_EVOLUTION_REQUIRED_FROM_ORDER,
+      );
+    }
+    return;
+  }
+  if (!isObject(evolution)) {
+    issues.push(sourceName + ': history.llm_evolution must be an object');
+    return;
+  }
+  validateExactKeys(
+    issues,
+    evolution,
+    ['predecessor_kind', 'limitation', 'later_advance', 'modern_llm_role', 'sources'],
+    'history.llm_evolution',
+    sourceName,
+  );
+  if (!LLM_PREDECESSOR_KINDS.has(evolution.predecessor_kind)) {
+    issues.push(
+      sourceName +
+        ': history.llm_evolution.predecessor_kind must be one of ' +
+        [...LLM_PREDECESSOR_KINDS].join(', '),
+    );
+  }
+  for (const field of ['limitation', 'later_advance', 'modern_llm_role']) {
+    requireLocalizedText(
+      issues,
+      evolution[field],
+      'history.llm_evolution.' + field,
+      sourceName,
+      supportedLocales,
+    );
+  }
+  if (!Array.isArray(evolution.sources) || evolution.sources.length < 2) {
+    issues.push(
+      sourceName + ': history.llm_evolution.sources must contain earlier and later evidence',
+    );
+    return;
+  }
+  const roles = new Set();
+  const urls = new Set();
+  evolution.sources.forEach((source, index) => {
+    const field = 'history.llm_evolution.sources[' + index + ']';
+    if (!isObject(source)) {
+      issues.push(sourceName + ': ' + field + ' must be an object');
+      return;
+    }
+    validateExactKeys(
+      issues,
+      source,
+      ['role', 'year', 'name', 'source_url', 'claim'],
+      field,
+      sourceName,
+    );
+    if (!LLM_SOURCE_ROLES.has(source.role)) {
+      issues.push(sourceName + ': ' + field + '.role must be earlier or later');
+    } else {
+      roles.add(source.role);
+    }
+    if (!Number.isInteger(source.year) || source.year < 1900 || source.year > 9999) {
+      issues.push(sourceName + ': ' + field + '.year must be an integer from 1900 to 9999');
+    }
+    requireText(issues, source.name, field + '.name', sourceName);
+    const canonicalUrl = canonicalSourceUrl(source.source_url);
+    if (!canonicalUrl) {
+      issues.push(sourceName + ': ' + field + '.source_url must be an absolute HTTPS URL');
+    } else if (urls.has(canonicalUrl)) {
+      issues.push(sourceName + ': duplicate history source URL "' + source.source_url + '"');
+    } else {
+      urls.add(canonicalUrl);
+    }
+    requireLocalizedText(
+      issues,
+      source.claim,
+      field + '.claim',
+      sourceName,
+      supportedLocales,
+    );
+  });
+  for (const role of LLM_SOURCE_ROLES) {
+    if (!roles.has(role)) {
+      issues.push(sourceName + ': history.llm_evolution.sources requires role ' + role);
+    }
+  }
+}
+
+function validateHistory(
+  issues,
+  history,
+  sourceName,
+  supportedLocales,
+  chapterOrder,
+  contentRevision,
+) {
   if (!isObject(history)) {
     issues.push(sourceName + ': history must be an object');
     return;
   }
+  validateLlmEvolution(
+    issues,
+    history.llm_evolution,
+    sourceName,
+    supportedLocales,
+    requiresLlmEvolution(chapterOrder, contentRevision),
+  );
   requireLocalizedText(
     issues,
     history.approach,
@@ -338,7 +499,14 @@ export function validateChapterContractText(
     supportedLocales,
   );
   validateFormula(issues, data.formula, sourceName, supportedLocales);
-  validateHistory(issues, data.history, sourceName, supportedLocales);
+  validateHistory(
+    issues,
+    data.history,
+    sourceName,
+    supportedLocales,
+    data.order,
+    data.content_revision,
+  );
   validateRustPlan(issues, data.rust, sourceName);
   validateVisualization(
     issues,
@@ -389,6 +557,40 @@ function sortedUnique(values) {
   return [...new Set(values)].sort();
 }
 
+function localizedContractLlmEvolution(evolution, locale) {
+  if (!evolution) return null;
+  return {
+    predecessor_kind: evolution.predecessor_kind,
+    limitation: evolution.limitation[locale],
+    later_advance: evolution.later_advance[locale],
+    modern_llm_role: evolution.modern_llm_role[locale],
+    sources: evolution.sources.map((source) => ({
+      role: source.role,
+      year: source.year,
+      name: source.name,
+      source_url: source.source_url,
+      claim: source.claim[locale],
+    })),
+  };
+}
+
+function localizedLessonLlmEvolution(evolution) {
+  if (!evolution) return null;
+  return {
+    predecessor_kind: evolution.predecessor_kind,
+    limitation: evolution.limitation,
+    later_advance: evolution.later_advance,
+    modern_llm_role: evolution.modern_llm_role,
+    sources: evolution.sources.map((source) => ({
+      role: source.role,
+      year: source.year,
+      name: source.name,
+      source_url: source.source_url,
+      claim: source.claim,
+    })),
+  };
+}
+
 export function localizedContractProjection(contract, locale) {
   return {
     chapter_id: contract.chapter_id,
@@ -406,6 +608,10 @@ export function localizedContractProjection(contract, locale) {
     },
     rust_source_paths: sortedUnique(contract.rust.sources),
     history: {
+      llm_evolution: localizedContractLlmEvolution(
+        contract.history.llm_evolution,
+        locale,
+      ),
       approach: contract.history.approach[locale],
       summary: contract.history.summary[locale],
     },
@@ -435,6 +641,9 @@ function localizedLessonProjection(lesson) {
     },
     rust_source_paths: sortedUnique(lesson.rust_sources.map((source) => source.path)),
     history: {
+      llm_evolution: localizedLessonLlmEvolution(
+        lesson.history.llm_evolution,
+      ),
       approach: lesson.history.approach,
       summary: lesson.history.summary,
     },
@@ -705,20 +914,25 @@ export function runChapterContractCheck(
       throw new ContentValidationError(['chapter contract does not exist: ' + filePath]);
     }
     const source = readFileSync(filePath, 'utf8');
-    const chapterId = parseJsonFrontmatter(
+    const frontmatter = parseJsonFrontmatter(
       source,
       nodePath.relative(repositoryRoot, filePath),
-    ).data.chapter_id;
-    const requiredLocales = activeLocalesForChapter(
-      chapterLocaleConfiguration,
-      chapterId,
-    );
+    ).data;
+    const isCanonicalTemplate =
+      nodePath.relative(repositoryRoot, filePath).replaceAll('\\', '/') ===
+      'curriculum/chapter-template.md';
+    const requiredLocales = isCanonicalTemplate
+      ? Object.keys(frontmatter.objective ?? {})
+      : activeLocalesForChapter(
+          chapterLocaleConfiguration,
+          frontmatter.chapter_id,
+        );
     const parsed = validateChapterContractText(source, {
       sourceName: nodePath.relative(repositoryRoot, filePath),
       filePath,
       supportedLocales: requiredLocales,
     });
-    const integration = structureOnly
+    const integration = structureOnly || isCanonicalTemplate
       ? null
       : validateChapterContractIntegration(parsed, {
           repositoryRoot,
