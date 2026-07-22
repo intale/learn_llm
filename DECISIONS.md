@@ -3371,6 +3371,70 @@ change would void this approval and require a new frozen review.
 **Affected step and run:** `revise-ch05-russian-localization`, run
 `20260722T072842Z-revise-ch05-russian-localization-01`.
 
+## 2026-07-22 — Freeze Chapter 11 as a checked reference contraction on the LLM path
+
+**Status:** Accepted during Chapter 11 implementation.
+
+**Context:** Chapter 11 must teach the numerical contraction later reused by
+learned projections and attention without importing a matrix library or turning
+the history section into programming-language history. The cumulative tensor
+core already owns checked storage, arbitrary strided views, broadcasting, and
+fallible allocation. Primary-source review bounds the historical chain to
+Bengio et al.'s finite-context neural language model, the Transformer's matrix
+Q/K/V computation, and GPT-2's scaled autoregressive Transformer; none of those
+sources specifies this repository's tensor API or layout policy.
+
+**Decision:** Add rank-two-or-higher `matmul` and
+`matmul_with_transpose` over `TensorView`. Treat only leading axes as
+broadcastable batches, require the effective contracted extents to match
+exactly, interpret transpose flags by logically swapping final axes without a
+copy, read every operand through checked strides, and return an owned contiguous
+result. Freeze validation precedence as left rank, right rank, inner dimensions,
+leftmost batch mismatch, complete output layout, allocation, then checked reads.
+Freeze ascending-`k` scalar accumulation without `mul_add`; distinguish empty
+outputs from `K=0` positive-zero cells. Derive the static visualization from one
+strict Rust trace and publish Chapter 11 only in its declared active English
+locale.
+
+**Consequences:** The reference implementation is intentionally naive and
+deterministic rather than hardware-optimized. Rank-one promotion, learned
+parameters, bias, softmax, gradients, BLAS, SIMD, threads, and accelerators stay
+out of scope. The lesson may connect the contraction to projections,
+`QK^T`, and attention-weighted values, but must identify batching, strides,
+transpose flags, zero-size behavior, storage, and errors as course-local
+correctness decisions. No external Rust crate, package dependency, route policy,
+active locale, or Linux build definition changes.
+
+**Affected step and run:** `implement-ch11-matrix-multiplication`, run
+`20260722T085118Z-implement-ch11-matrix-multiplication-02`.
+
+## 2026-07-22 — Keep the Chapter 11 Rust trace parser independently testable
+
+**Status:** Accepted during Chapter 11 contract preflight.
+
+**Context:** The reviewed Chapter 11 visualization must consume exact
+Rust-authored matrix-multiplication evidence, reject malformed trace records,
+and validate every localized visible and accessible label. The scheduled output
+list included the Astro component and its unit test but omitted the small typed
+parser module used by every recent Rust-trace diagram. Embedding that parser in
+the Astro component would leave its validation behavior reachable only through a
+full static build and would prevent focused malformed-record tests.
+
+**Decision:** Add `site/src/lib/matrix-multiplication-diagram.ts` to the owned
+outputs of `implement-ch11-matrix-multiplication`. Keep it limited to strict
+trace grammar, frozen-record consistency, and label completeness; it must not
+reimplement matrix multiplication. The Astro component reads the checked-in
+Rust trace at build time and uses this module, while the focused Vitest file
+imports the same module directly.
+
+**Consequences:** The useful visualization has an independently testable,
+locale-neutral evidence boundary without client hydration or a second arithmetic
+implementation. No route, active locale, package dependency, build definition,
+or chapter objective changes.
+
+**Affected step and run:** `implement-ch11-matrix-multiplication`, run
+`20260722T084155Z-implement-ch11-matrix-multiplication-01`.
+
 ## 2026-07-22 — Use Win32 atomic replacement for Dropbox-backed publication
 
 **Status:** Accepted during approved Chapter 5 publication.

@@ -1,0 +1,359 @@
+---
+// @ts-ignore Node filesystem access is used only while generating static HTML.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertMatrixMultiplicationDiagramLabels,
+  matrixMultiplicationDiagramId,
+  parseMatrixMultiplicationTrace,
+  type MatrixMultiplicationDiagramLabels,
+  type TraceNumber,
+} from '../../lib/matrix-multiplication-diagram';
+
+interface Props {
+  labels: MatrixMultiplicationDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'matrix-multiplication-diagram' } = Astro.props as Props;
+assertMatrixMultiplicationDiagramLabels(labels);
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch11-matrix-multiplication/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseMatrixMultiplicationTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${instanceId}-title`;
+const descriptionId = `${instanceId}-description`;
+const tuple = (values: readonly TraceNumber[]) =>
+  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+const matrixRows = (values: readonly TraceNumber[], columns: number) => {
+  const rows: TraceNumber[][] = [];
+  for (let start = 0; start < values.length; start += columns) {
+    rows.push(values.slice(start, start + columns));
+  }
+  return rows;
+};
+const leftRows = matrixRows(trace.inputs[0].values, trace.inputs[0].shape[1]!.value);
+const rightRows = matrixRows(trace.inputs[1].values, trace.inputs[1].shape[1]!.value);
+const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value);
+---
+
+<figure
+  class="matrix-multiplication-diagram"
+  data-visualization-id={matrixMultiplicationDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId}>{labels.description}</p>
+    <dl class="summary-facts">
+      <div><dt>{labels.summary.left}</dt><dd><code dir="ltr">{tuple(trace.inputs[0].shape)}</code></dd></div>
+      <div><dt>{labels.summary.right}</dt><dd><code dir="ltr">{tuple(trace.inputs[1].shape)}</code></dd></div>
+      <div><dt>{labels.summary.output}</dt><dd><code dir="ltr">{tuple(trace.output.shape)}</code></dd></div>
+    </dl>
+  </figcaption>
+
+  <section class="diagram-panel matrices-panel" aria-labelledby={`${instanceId}-matrices-title`}>
+    <h4 id={`${instanceId}-matrices-title`}>{labels.sections.matrices}</h4>
+    <p>{labels.notes.matrices}</p>
+    <div
+      class="matrix-scroll"
+      role="region"
+      tabindex="0"
+      aria-labelledby={`${instanceId}-matrices-title`}
+    >
+      <div class="matrix-equation">
+        <table class="matrix-table" data-matrix-id="left">
+          <caption><code dir="ltr">A</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[0].shape)}</code></caption>
+          <thead>
+            <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th></tr>
+          </thead>
+          <tbody>
+            {leftRows.map((row, rowIndex) => (
+              <tr class:list={{ 'selected-row': rowIndex === 1 }} data-row={rowIndex}>
+                <th scope="row">
+                  {rowIndex === 1 && <span class="state-symbol" aria-hidden="true">R</span>}
+                  {rowIndex === 1 && <span class="visually-hidden">{labels.symbols.selectedRow}: </span>}
+                  <bdi dir="ltr">{rowIndex}</bdi>
+                </th>
+                {row.map((value, columnIndex) => (
+                  <td data-coordinate={`${rowIndex},${columnIndex}`}><bdi dir="ltr">{value.lexeme}</bdi></td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <span class="operator" aria-hidden="true">×</span>
+
+        <table class="matrix-table" data-matrix-id="right">
+          <caption><code dir="ltr">W</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[1].shape)}</code></caption>
+          <thead>
+            <tr><th scope="col">{labels.fields.row}</th><th scope="col" class="selected-column"><span class="state-symbol" aria-hidden="true">C</span><span class="visually-hidden">{labels.symbols.selectedColumn}: </span>0</th><th scope="col">1</th></tr>
+          </thead>
+          <tbody>
+            {rightRows.map((row, rowIndex) => (
+              <tr data-row={rowIndex}>
+                <th scope="row"><bdi dir="ltr">{rowIndex}</bdi></th>
+                {row.map((value, columnIndex) => (
+                  <td
+                    class:list={{ 'selected-column': columnIndex === 0 }}
+                    data-coordinate={`${rowIndex},${columnIndex}`}
+                  ><bdi dir="ltr">{value.lexeme}</bdi></td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <span class="operator" aria-hidden="true">=</span>
+
+        <table class="matrix-table" data-matrix-id="output">
+          <caption><code dir="ltr">C</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.output.shape)}</code></caption>
+          <thead>
+            <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th></tr>
+          </thead>
+          <tbody>
+            {outputRows.map((row, rowIndex) => (
+              <tr data-row={rowIndex}>
+                <th scope="row"><bdi dir="ltr">{rowIndex}</bdi></th>
+                {row.map((value, columnIndex) => (
+                  <td
+                    class:list={{ 'focused-output': rowIndex === 1 && columnIndex === 0 }}
+                    data-coordinate={`${rowIndex},${columnIndex}`}
+                  ><bdi dir="ltr">{value.lexeme}</bdi></td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="diagram-panel contraction-panel" aria-labelledby={`${instanceId}-contraction-title`}>
+    <h4 id={`${instanceId}-contraction-title`}>{labels.sections.contraction}</h4>
+    <p>{labels.notes.contraction}</p>
+    <ol class="term-list">
+      {trace.terms.map((term) => (
+        <li
+          class="term-card"
+          data-output-coordinate={term.output.map(({ lexeme }) => lexeme).join(',')}
+          data-contracted-index={term.inner.lexeme}
+          data-left-coordinate={term.leftCoordinate.map(({ lexeme }) => lexeme).join(',')}
+          data-right-coordinate={term.rightCoordinate.map(({ lexeme }) => lexeme).join(',')}
+          data-product={term.product.lexeme}
+          data-running-total={term.partialSum.lexeme}
+        >
+          <h5>
+            <span class="state-symbol" aria-hidden="true">Σ</span>
+            <span class="visually-hidden">{labels.symbols.contracted}: </span>
+            {labels.fields.term} <bdi dir="ltr">k={term.inner.lexeme}</bdi>
+          </h5>
+          <p class="term-expression" dir="ltr">
+            <bdi>{term.leftValue.lexeme}</bdi>
+            {' × '}
+            <bdi>{term.rightValue.lexeme}</bdi>
+            {' = '}
+            <bdi>{term.product.lexeme}</bdi>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.product}</dt><dd><bdi dir="ltr">{term.product.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.runningTotal}</dt><dd><bdi dir="ltr">{term.partialSum.lexeme}</bdi></dd></div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="diagram-panel reuse-panel" aria-labelledby={`${instanceId}-reuse-title`}>
+    <h4 id={`${instanceId}-reuse-title`}>{labels.sections.transposeAndBatch}</h4>
+    <p>{labels.notes.transposeAndBatch}</p>
+    <dl class="transpose-facts" data-transpose-operand={trace.transpose.operand}>
+      <div><dt>{labels.fields.storedShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.storedShape)}</code></dd></div>
+      <div><dt>{labels.fields.logicalShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.logicalShape)}</code></dd></div>
+      <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.outputShape)}</code></dd></div>
+      <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">[{trace.transpose.values.map(({ lexeme }) => lexeme).join(', ')}]</code></dd></div>
+    </dl>
+    <ol class="batch-list">
+      {trace.batches.map((batch) => (
+        <li
+          class="batch-card"
+          data-output-batch={batch.output.lexeme}
+          data-left-batch={batch.left.lexeme}
+          data-right-batch={batch.right.lexeme}
+        >
+          <h5>
+            <span class="state-symbol" aria-hidden="true">↻</span>
+            <span class="visually-hidden">{labels.symbols.reused}: </span>
+            {labels.fields.outputBatch} <bdi dir="ltr">{batch.output.lexeme}</bdi>
+          </h5>
+          <dl>
+            <div><dt>{labels.fields.leftBatch}</dt><dd><bdi dir="ltr">{batch.left.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.rightBatch}</dt><dd><bdi dir="ltr">{batch.right.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">[{batch.values.map(({ lexeme }) => lexeme).join(', ')}]</code></dd></div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="diagram-panel errors-panel" aria-labelledby={`${instanceId}-errors-title`}>
+    <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
+    <p>{labels.notes.errors}</p>
+    <ol class="error-list">
+      <li class="error-card" data-error-kind={trace.errors[0].kind}>
+        <span class="state-symbol" aria-hidden="true">×</span>
+        <span class="visually-hidden">{labels.symbols.rejected}: </span>
+        <code dir="ltr">{trace.errors[0].kind}</code>
+        <span><bdi dir="ltr">{trace.errors[0].leftInner.lexeme}</bdi> ≠ <bdi dir="ltr">{trace.errors[0].rightInner.lexeme}</bdi></span>
+      </li>
+      <li class="error-card" data-error-kind={trace.errors[1].kind}>
+        <span class="state-symbol" aria-hidden="true">×</span>
+        <span class="visually-hidden">{labels.symbols.rejected}: </span>
+        <code dir="ltr">{trace.errors[1].kind}</code>
+        <span>{labels.fields.batchAxis} <bdi dir="ltr">{trace.errors[1].batchAxis.lexeme}</bdi>: <bdi dir="ltr">{trace.errors[1].leftSize.lexeme}</bdi> ≠ <bdi dir="ltr">{trace.errors[1].rightSize.lexeme}</bdi></span>
+      </li>
+    </ol>
+  </section>
+</figure>
+
+<style>
+  .matrix-multiplication-diagram {
+    --diagram-border: color-mix(in srgb, currentColor 28%, transparent);
+    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+    display: grid;
+    gap: 1rem;
+    max-width: 100%;
+    margin-block: 1.5rem;
+    padding: clamp(0.85rem, 3vw, 1.5rem);
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.85rem;
+  }
+
+  .matrix-multiplication-diagram:focus-visible,
+  .matrix-scroll:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  figcaption h3,
+  figcaption p,
+  .diagram-panel h4,
+  .diagram-panel > p,
+  .term-card h5,
+  .batch-card h5 { margin-block-start: 0; }
+
+  .summary-facts,
+  .transpose-facts,
+  .term-card dl,
+  .batch-card dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.1rem;
+    margin: 0;
+  }
+
+  .summary-facts div,
+  .transpose-facts div,
+  .term-card dl div,
+  .batch-card dl div { display: flex; gap: 0.4rem; align-items: baseline; }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+
+  .diagram-panel {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--diagram-border);
+    border-radius: 0.65rem;
+    background: var(--diagram-surface);
+  }
+
+  .matrix-scroll {
+    contain: paint;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .matrix-equation {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) auto minmax(10rem, 0.8fr) auto minmax(9rem, 0.7fr);
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 40rem;
+  }
+
+  .operator { font-size: 1.45rem; font-weight: 800; }
+  table { width: 100%; border-collapse: collapse; }
+  caption { padding-block-end: 0.5rem; font-weight: 700; }
+  th,
+  td { padding: 0.5rem; border: 1px solid var(--diagram-border); text-align: center; }
+  .selected-row { border-inline-start: 4px solid currentColor; }
+  .selected-column { border-block-end: 4px dotted currentColor; }
+  .focused-output { border: 4px double currentColor; font-weight: 800; }
+
+  .term-list,
+  .batch-list,
+  .error-list {
+    display: grid;
+    gap: 0.85rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .term-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .batch-list,
+  .error-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .term-card,
+  .batch-card,
+  .error-card {
+    min-width: 0;
+    padding: 0.85rem;
+    border: 3px solid currentColor;
+    border-radius: 0.55rem;
+  }
+
+  .term-card { border-style: double; }
+  .batch-card { border-style: solid; }
+  .error-card {
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+    border-style: dashed;
+  }
+
+  .term-expression { font-weight: 750; }
+  .state-symbol { margin-inline-end: 0.35rem; font-weight: 800; }
+  code,
+  bdi { unicode-bidi: isolate; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 48rem) {
+    .term-list,
+    .batch-list,
+    .error-list { grid-template-columns: 1fr; }
+  }
+
+  @media (forced-colors: active) {
+    .selected-row { border-inline-start-style: solid; }
+    .selected-column { border-block-end-style: dotted; }
+    .focused-output,
+    .term-card { border-style: double; }
+    .batch-card { border-style: solid; }
+    .error-card { border-style: dashed; }
+  }
+</style>

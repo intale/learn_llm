@@ -70,6 +70,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch11-matrix-multiplication"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

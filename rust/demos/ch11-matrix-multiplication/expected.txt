@@ -1,0 +1,11 @@
+token rows: shape=[2, 3] values=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+projection weights: shape=[3, 2] values=[1.0, 2.0, 0.0, 1.0, 2.0, 0.0]
+matrix product: shape=[2, 2] values=[7.0, 4.0, 16.0, 13.0]
+cell [1, 0]: 4.0*1.0 + 5.0*0.0 + 6.0*2.0 = 16.0
+right-transpose flag: stored_shape=[2, 3] output_shape=[2, 2] values=[7.0, 4.0, 16.0, 13.0]
+batched broadcast: left_shape=[2, 2, 3] right_shape=[1, 3, 2] output_shape=[2, 2, 2] values=[7.0, 4.0, 16.0, 13.0, 4.0, 1.0, 2.0, 5.0]
+zero inner dimension: shape=[2, 2] values=[0.0, 0.0, 0.0, 0.0]
+inner error: matmul inner dimensions do not match: left size 3, right size 4
+batch error: cannot broadcast batch axis 0: left size 2, right size 3
+rank error: left matmul input must have rank at least 2, got 1
+chapter 12 handoff: stabilize matrix outputs into probabilities and log-probabilities

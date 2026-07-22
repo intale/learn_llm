@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T08:39:29Z"
+updated_at: "2026-07-22T09:45:29Z"
 
 environment:
   os: "Linux x86_64"
@@ -7763,7 +7763,7 @@ builds:
         objective: "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
         depends_on:
           - revise-ch05-russian-localization
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -7771,6 +7771,15 @@ builds:
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/demos/ch10-broadcasting-reductions/Cargo.toml"
+          - "rust/demos/ch10-broadcasting-reductions/src/lib.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/main.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs"
+          - "rust/demos/ch10-broadcasting-reductions/expected.txt"
+          - "rust/demos/ch10-broadcasting-reductions/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -7781,10 +7790,22 @@ builds:
           - "Cargo.lock"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/src/content.config.ts"
+          - "site/src/components/RustSource.astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
         outputs:
           - "curriculum/chapters/11-matrix-multiplication.md"
           - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
@@ -7792,6 +7813,7 @@ builds:
           - "rust/demos/ch11-matrix-multiplication/"
           - "site/src/content/chapters/en/11-matrix-multiplication.mdx"
           - "site/src/components/chapters/MatrixMultiplicationDiagram.astro"
+          - "site/src/lib/matrix-multiplication-diagram.ts"
           - "site/tests/11-matrix-multiplication-diagram.test.ts"
           - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
           - "Cargo.lock"
@@ -7822,8 +7844,157 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation plus bounded read-only verification of three declared primary paper URLs; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, dependency download, build change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260722T084155Z-implement-ch11-matrix-multiplication-01
+            started_at: "2026-07-22T08:41:55Z"
+            finished_at: "2026-07-22T08:50:50Z"
+            status: interrupted
+            input_fingerprint:
+              git: "178cb0dac2d93ce58d096d4933cdbeef22faff9c"
+              manifest: ".build/runs/20260722T084155Z-implement-ch11-matrix-multiplication-01/input-fingerprint.txt"
+              checksum: "sha256:826a49dff3e0983c48c70f5acad14e0ae10cf6c1c667c84ce0d48a86345b7c11"
+              prior_artifact: "Chapter 10 canonical commit 9cc479783ece195830767316dec7351208bb523b and publish manifest sha256:ba0acfd443ec80a24d0f4eb5b1c97566757653e1565925d4b2eff239c4de7325 reverified."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+            staging_dir: ".build/runs/20260722T084155Z-implement-ch11-matrix-multiplication-01/"
+            commands:
+              - "Run the post-Chapter-5 startup protocol; verify HEAD 178cb0d, a clean tracked tree, no running step, Chapter 11 eligibility, all declared inputs, output ownership, current Docker/Git/Bash versions, and the Chapter 10 manifest"
+              - "Declare three primary LLM-history paper URLs as bounded read-only network inputs before retrieval; retain the medium local cost class and unchanged dependency/build boundary"
+              - "Review the chapter delivery contract and discover that a useful Rust-trace visualization needs one directly testable parser/label module; declare site/src/lib/matrix-multiplication-diagram.ts as an owned output before creating it"
+              - "Audit the actual cumulative tensor and Chapter 10 publication contracts used by the design; identify material reference inputs omitted from the scheduled fingerprint and stop before creating any Chapter 11 product output"
+            artifacts:
+              - path: ".build/runs/20260722T084155Z-implement-ch11-matrix-multiplication-01/input-fingerprint.txt"
+                checksum: "sha256:826a49dff3e0983c48c70f5acad14e0ae10cf6c1c667c84ce0d48a86345b7c11"
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, scope, and cost preflight"
+                status: passed
+                notes: "HEAD is the dedicated completed Chapter 5 commit 178cb0d; only unrelated desktop.ini is untracked; no step is running; Chapter 11 is first eligible; all 20 local declared inputs and the Chapter 10 manifest exist; new output paths do not exist and shared lib.rs/Cargo.lock are clean; medium work fits the unlimited budget; primary-source reads are explicit and no dependency or build change is planned."
+              - command: "Material input-closure audit before product edits"
+                status: failed
+                notes: "The scheduled list omitted the storage/view/ops APIs, Chapter 10 Rust fixture, Astro schema/RustSource/publication helpers, and Chapter 10 lesson/diagram/test references that materially constrain Chapter 11. No Chapter 11 product output exists; expand the declared inputs and create a replacement fingerprinted run."
+            notes: "Interrupted before product work because the material input set changed after the initial fingerprint. The parser-output decision remains recorded, the run directory and fingerprint remain immutable evidence, and replacement run 02 must reverify the expanded inputs before implementation."
+          - run_id: 20260722T085118Z-implement-ch11-matrix-multiplication-02
+            started_at: "2026-07-22T08:51:18Z"
+            finished_at: "2026-07-22T09:45:29Z"
+            status: succeeded
+            input_fingerprint:
+              git: "178cb0dac2d93ce58d096d4933cdbeef22faff9c"
+              manifest: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/input-fingerprint.txt"
+              checksum: "sha256:78ad33183a3a301ab998022279c9b1cca8293d5e852cb440a439af37ce86a19a"
+              prior_artifact: "Chapter 10 canonical commit 9cc479783ece195830767316dec7351208bb523b and publish manifest sha256:ba0acfd443ec80a24d0f4eb5b1c97566757653e1565925d4b2eff239c4de7325 reverified. Interrupted run 01 created no product output."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false"
+            staging_dir: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/"
+            commands:
+              - "Re-run Chapter 11 preflight from HEAD 178cb0d after preserving run 01; verify the expanded 42-file material input set, three declared primary sources, corrected 10-output ownership, no product residue, current tools, cost, and prior Chapter 10 artifact"
+              - "Perform independent read-only Rust API, LLM-history, and site/contract audits; freeze the conservative source boundaries, rank-2-plus matmul API, error order, tiny fixture, Rust trace, and testable parser boundary"
+              - "Freeze the complete staged Chapter 11 learning contract around A[2,3] by W[3,2], C=[7,4,16,13], focused C[1,0]=16, right-transpose equivalence, and leading-batch reuse; run the structure-only contract gate"
+              - "Implement the staged dependency-free rank-2-plus matmul API, checked output planning, stride-backed scalar contraction, transpose flags, leading-axis batch broadcast, exhaustive edge tests, learner demo, exact stdout, and Rust-derived diagram trace"
+              - "Create validation/workspace-01 from committed HEAD plus the staged Chapter 11 outputs; run offline Cargo lock generation, formatting, Clippy with denied warnings, the complete locked workspace test suite, and byte-for-byte stdout and trace diffs in the pinned Docker toolchain"
+              - "Implement the strict TypeScript trace projection, static semantic Astro figure, complete English lesson, 19 focused unit cases, and four focused browser cases entirely in the run-specific publish tree"
+              - "Validate the complete staged site slice in retained pinned Node and Chromium containers: contract/content/parity, zero-diagnostic Astro analysis, full Vitest, production build, link/SEO audit, focused Chapter 11 E2E, and full E2E regression"
+              - "Run independent final Rust, LLM-history/content, and static-accessibility audits; supply the missing batch operands, make the cancellation test distinguish accumulation order, clarify K and W^T wording, label the batch axis correctly, lock narrow card stacking, and regression-lock the corrected error text"
+              - "Repeat the complete staged Rust/site/browser matrix after every final correction; render and inspect final desktop and 390px diagram captures; freeze and verify the exact 16-file publish.sha256 manifest"
+              - "MSYS2_ARG_CONV_EXCL=/bin/sh ./course review 20260722T085118Z-implement-ch11-matrix-multiplication-02 --check"
+              - "Prepare same-directory publication temporaries and two checksum-frozen rollback copies; atomically promote all 16 manifest files with Win32 MoveFileEx(REPLACE_EXISTING|WRITE_THROUGH); verify canonical identity and remove every publication temporary"
+              - "Rebuild the exact canonical repository with ./course check and a supplemental network-disabled Docker matrix covering locked formatting, Clippy, all Rust tests, dependency/demo policies, exact outputs, content, Astro, Vitest, production build, links, and SEO"
+              - "Build a canonical-only network-disabled Chromium container and repeat the four focused Chapter 11 cases plus all 42 browser regressions"
+              - "Preserve the Git Bash release capability failure; run the unmodified ./course release successfully against an existing site/dist on native WSL storage; recreate and smoke-test the canonical Docker preview"
+              - "Run final manifest, rollback, host-boundary, executable-mode, whitespace, release-lock, publication-temporary, dependency/build/locale-boundary, independent scope, and working-tree audits"
+            artifacts:
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/input-fingerprint.txt"
+                checksum: "sha256:78ad33183a3a301ab998022279c9b1cca8293d5e852cb440a439af37ce86a19a"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/curriculum/chapters/11-matrix-multiplication.md"
+                checksum: "sha256:11321c03cab6c52332f91d5c8e423f5f9beb6fb4f7b41ea49992b5814dbed216"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+                checksum: "sha256:f2669418e6fc0d28d36ce4fe0dfd7132b5f1f919ad82e42bc5fcb7bcaf9d43d6"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/rust/demos/ch11-matrix-multiplication/expected.txt"
+                checksum: "sha256:867aea8c4a9267b2267fba6579dbb612764fde9a05aa21dbc8fe46b0e74c9b8b"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/rust/demos/ch11-matrix-multiplication/diagram-trace.txt"
+                checksum: "sha256:d9da5bf5d1542e81441dbb844b965d0e2c5b18fe1156ece1cd467e2c93833e12"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/Cargo.lock"
+                checksum: "sha256:15dba843002eb9a85dde057ac3946d189f50a267de6b201caec6726dcac783fd"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/site/src/lib/matrix-multiplication-diagram.ts"
+                checksum: "sha256:95bf9e7eb28d6a513c04cc16100d7848d23280f24db1602f83638b573d8a8f02"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/site/src/components/chapters/MatrixMultiplicationDiagram.astro"
+                checksum: "sha256:08894964b171599df8f36224c11046e2c8e300cee948dfe499caaebad17f014a"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/site/src/content/chapters/en/11-matrix-multiplication.mdx"
+                checksum: "sha256:ad2577a21c4ddebb5af6bd8eab425bdfa94dce797a92ed2a94b340d1ae008b1a"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/site/tests/11-matrix-multiplication-diagram.test.ts"
+                checksum: "sha256:0e3aa5f0d866f59d6a7d1b32db25f6c20d8e26d516226297a14879b6ea33942e"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish/site/tests/e2e/ch11-matrix-multiplication.spec.ts"
+                checksum: "sha256:213718a76fc445f7a8de7989fbaaa037523e47235d523bc0be4ff499011b436a"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/evidence/ch11-diagram-desktop-final.png"
+                checksum: "sha256:c0a8fd65d837ec9e35ccf0f9ad46d257cf28fff5a01516bbb16c2bbec620ff9c"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/evidence/ch11-diagram-narrow-final.png"
+                checksum: "sha256:cc55cc78973e65f69abfce01d3897aa278ecd4c80aea932341946c78dabbdc2f"
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish.sha256"
+                checksum: "sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c"
+                notes: "Immutable sorted manifest for all 16 staged publication files after final audits and correction reruns."
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publication-backup-canonical/Cargo.lock"
+                checksum: "sha256:6b4b2207b3c92635fc942ea9171fb8ca5e0ad60ae6ad817bd867496a51a1b9b1"
+                notes: "Pre-publication canonical rollback copy."
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publication-backup-canonical/rust/crates/llm-from-scratch/src/lib.rs"
+                checksum: "sha256:dd7d164fb22527127cc8746f628226a6add874b5593ce4f73426caa853eb9b77"
+                notes: "Pre-publication canonical rollback copy."
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/validation/canonical-source.tar"
+                checksum: "sha256:1804daaded317e67ff43ce20a4164035dfdfa879d7dfb68124e132cd1bc75ab4"
+                notes: "Canonical-only source snapshot used for the network-disabled browser rebuild."
+              - path: ".build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/evidence/canonical-completion.md"
+                checksum: "sha256:e85f8b8c0c4ab14c3b427a683e2a7d9dacce4999d1daffa4a28eb6fd36370408"
+                notes: "Concise canonical publication, release, preview, and final-audit evidence."
+            validation:
+              - command: "Expanded input, scheduler, environment, ownership, scope, cost, and prior-artifact preflight"
+                status: passed
+                notes: "The sole eligible step is Chapter 11; all 42 local material inputs and the Chapter 10 manifest exist and are fingerprinted; all new output paths remain absent; shared lib.rs and Cargo.lock are clean; exactly one testable parser output is declared; medium local work plus bounded paper reads fits the unlimited budget; no dependency, build, locale, or route-policy change is planned."
+              - command: "Independent contract, Rust API, visualization, and primary-source design audits"
+                status: passed
+                notes: "The audits agree on the [2,3] by [3,2] fixture yielding [7,4,16,13], C[1,0]=16, a rank-2-plus strided API with leading-axis batch broadcast and final-axis transpose flags, strict Rust-derived trace parsing without TypeScript arithmetic, and an LLM history from Bengio fixed-context matrix-vector scoring through Transformer Q/K/V matrix products to scaled autoregressive GPT-2. Each paper's non-claims about the local API are explicit."
+              - command: "Staged Chapter 11 contract structure gate"
+                status: passed
+                notes: "The contract has the exact English-only locale shape, reviewed formula and seven-symbol glossary, complete LLM-evolution metadata with three primary sources, four Rust paths, exact stdout, useful visualization identity, exercises including a misconception check, decoder handoff, and all ten ordered contract sections."
+              - command: "docker run --rm --network none ... cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked"
+                status: passed
+                notes: "Pinned Rust 1.93.1 accepted the staged implementation with no formatting or Clippy diagnostics; all workspace unit, integration, and documentation tests passed, including 103 cumulative library tests and the three Chapter 11 demo/trace tests. Existing duplicate example-filename Cargo warnings remain unrelated and are not denied compiler lints."
+              - command: "cargo run --quiet --locked -p ch11-matrix-multiplication and --example ch11-matrix-multiplication-trace, each piped to diff -u against its staged fixture"
+                status: passed
+                notes: "The learner stdout and Rust-derived diagram trace match expected.txt and diagram-trace.txt byte for byte. Cargo.lock was regenerated offline and adds only the local Chapter 11 workspace package."
+              - command: "Staged Chapter 11 contract, English chapter, active-locale parity, complete content, Astro, Vitest, production build, and static link/SEO matrix"
+                status: passed
+                notes: "The course plan reports 39 chapters, 58 steps, and 11 contracts. All 18 localized sources and 11 publishable chapter sets pass; Astro reports zero diagnostics across 72 files; all 17 Vitest files and 285 tests pass; the static build emits 23 pages; and 423 local references, 23 SEO routes, and 90 artifacts pass. Russian remains a seven-chapter course with no Chapter 11 placeholder."
+              - command: "Staged npm --prefix site run test:e2e -- --grep '@chapter:11-matrix-multiplication' and complete npm --prefix site run test:e2e"
+                status: passed
+                notes: "All four focused Chapter 11 cases and all 42 browser regressions pass in pinned Chromium, including index/direct routing, Russian fallback and 404, exact metadata/history/Rust evidence, desktop and 390px layout, named keyboard-local overflow, forced-colors cues, one SEO tag, no scripts, and an explicit JavaScript-disabled render."
+              - command: "Staged dependency/demo policies and exact learner/trace output through bash in the validation container"
+                status: passed
+                notes: "The workspace has no external Rust crates and discovers 11 chapter demos; both Chapter 11 output fixtures remain byte-identical. Direct script execution was unavailable only because the Windows-derived validation tar cannot retain executable mode bits; invoking the unchanged indexed 100755 scripts with bash is a staging-host workaround, not a build change."
+              - command: "Independent final Rust, LLM-history/content, and static-accessibility audits plus focused re-audits"
+                status: passed
+                notes: "All reviewers returned PASS after five bounded corrections: make the batch exercise independently solvable, make the cancellation fixture distinguish ascending from descending k, describe K as scalar multiplications whose products are summed, name stored W^T precisely, and render plus regression-lock Batch axis rather than Output batch. The history remains exclusively the road from Bengio through Transformer matrices to GPT-2, with local API claims explicitly bounded."
+              - command: "Post-correction complete staged validation matrix and rendered visual inspection"
+                status: passed
+                notes: "Locked formatting, Clippy, all Rust tests, contract/content/parity, zero-diagnostic Astro check, all 285 Vitest cases, the 23-page link/SEO build, four focused and 42 full Chromium cases all pass again. Final desktop rendering exposes all three matrices without clipping; the 390px rendering keeps deliberate matrix overflow local and stacks contraction, batch, and error cards without excess empty space."
+              - command: "sha256sum -c .build/runs/20260722T085118Z-implement-ch11-matrix-multiplication-02/publish.sha256"
+                status: passed
+                notes: "All 16 final candidate files verify against immutable manifest sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c."
+              - command: "Official checksum-aware staged review"
+                status: passed
+                notes: "The unmodified repository review workflow rebuilt the checksum-frozen candidate with zero Astro diagnostics, 18 localized sources, 11 publishable chapter sets, 23 pages, 423 references, 23 SEO routes, and 90 artifacts. The review did not mutate the publish tree; Git Bash path-conversion exclusion is host-only."
+              - command: "Approval-independent atomic canonical publication and identity audit"
+                status: passed
+                notes: "All 16 candidate files were promoted with same-directory MoveFileEx replacement and write-through. Every canonical hash equals frozen manifest sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c; staged bytes and the two original rollback copies verify; zero publication temporaries remain."
+              - command: "Canonical repository and supplemental network-disabled Docker validation matrix"
+                status: passed
+                notes: "The exact canonical tree passes ./course check plus locked formatting, Clippy, all workspace tests, dependency/demo policy, byte-exact learner and trace output, course plan and contract, English/parity/full content, zero-diagnostic Astro, all 285 Vitest cases, the 23-page build, and the 423-reference/23-SEO-route/90-artifact audit. The library has 103 cumulative tests and Rust remains dependency-free."
+              - command: "Canonical-only focused and complete Playwright regression"
+                status: passed
+                notes: "A fresh canonical-only static build in the pinned network-disabled Chromium seed passes all four focused Chapter 11 cases and all 42 browser cases, including desktop/narrow geometry, forced colors, JavaScript disabled, direct/index routing, one relevant SEO description, and the deferred Russian 404."
+              - command: "Guarded static release and canonical preview verification"
+                status: passed
+                notes: "Git Bash correctly fails closed because its mv lacks --exchange and --no-copy. On native WSL storage, the unmodified ./course release successfully exchanges an existing site/dist and produces 23 HTML pages and 90 artifacts. Its Chapter 11 HTML sha256:3e10a33a18dae892169128b82cf69099e0069d13add597dccfe68fe06e8dfa5f matches learn-llm-site:local. The recreated loopback preview returns 200 for English Chapter 11 with one relevant description and an index link, while Russian Chapter 11 returns 404."
+              - command: "Final manifest, host-boundary, mode, whitespace, governance, scheduler, and commit-scope audit"
+                status: passed
+                notes: "All 16 canonical files still match the frozen manifest; rollback and evidence hashes verify; no generated host artifact, release lock, or publication temporary remains; indexed executable modes are intact; git diff --check passes; and an independent audit confirms exactly 16 product outputs plus BUILD_STATE.yaml and DECISIONS.md with no build-definition, external-dependency, route-policy, or locale-activation change. Unrelated desktop.ini remains untouched."
+            notes: "Succeeded. The complete dependency-free Chapter 11 matrix-multiplication vertical slice is canonical and byte-identical to frozen manifest sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c. Its checked rank-2-plus Rust contraction, learner demo, exact Rust trace, English LLM-history lesson, static accessible visualization, SEO, and regression coverage pass staged, canonical, browser, native-Linux atomic-release, preview, host, identity, governance, and scope gates. Russian remains complete through Chapter 7 with no placeholder. No build definition, external dependency, route policy, locale activation, or indexed executable mode changed. The completion checkpoint is ready for the dedicated implement-ch11-matrix-multiplication commit before Chapter 12 starts."
       - id: implement-ch12-stable-softmax
         objective: "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
         depends_on:

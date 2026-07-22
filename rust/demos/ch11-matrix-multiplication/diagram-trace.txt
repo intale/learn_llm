@@ -1,0 +1,16 @@
+TRACE matrix-multiplication-v1 BEGIN
+INPUT id=left shape=2,3 values=1.0,2.0,3.0,4.0,5.0,6.0
+INPUT id=right shape=3,2 values=1.0,2.0,0.0,1.0,2.0,0.0
+PLAN transpose-left=no transpose-right=no batch-shape=none rows=2 inner=3 columns=2 output-shape=2,2
+TERM output=1,0 inner=0 left-coordinate=1,0 left-value=4.0 right-coordinate=0,0 right-value=1.0 product=4.0 partial-sum=4.0
+TERM output=1,0 inner=1 left-coordinate=1,1 left-value=5.0 right-coordinate=1,0 right-value=0.0 product=0.0 partial-sum=4.0
+TERM output=1,0 inner=2 left-coordinate=1,2 left-value=6.0 right-coordinate=2,0 right-value=2.0 product=12.0 partial-sum=16.0
+CELL output=1,0 terms=4.0,0.0,12.0 value=16.0
+OUTPUT id=projected shape=2,2 values=7.0,4.0,16.0,13.0
+TRANSPOSE operand=right stored-shape=2,3 logical-shape=3,2 output-shape=2,2 values=7.0,4.0,16.0,13.0
+BATCH-PLAN left-shape=2,2,3 right-shape=1,3,2 output-shape=2,2,2 mapping=0:0,0;1:1,0
+BATCH output=0 left=0 right=0 values=7.0,4.0,16.0,13.0
+BATCH output=1 left=1 right=0 values=4.0,1.0,2.0,5.0
+ERROR operation=matmul status=inner-dimension-mismatch left-inner=3 right-inner=4
+ERROR operation=matmul status=incompatible-batch batch-axis=0 left-size=2 right-size=3
+TRACE matrix-multiplication-v1 END
