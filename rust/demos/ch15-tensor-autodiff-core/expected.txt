@@ -1,0 +1,18 @@
+parameter x: shape=[2, 3] values=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+parameter bias: shape=[3] values=[1.0, -1.0, 0.0]
+reshape: shape=[3, 2] values=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+transpose: shape=[2, 3] values=[1.0, 3.0, 5.0, 2.0, 4.0, 6.0]
+broadcast: shape=[2, 3] values=[1.0, -1.0, 0.0, 1.0, -1.0, 0.0]
+add: shape=[2, 3] values=[2.0, 2.0, 5.0, 3.0, 3.0, 6.0]
+multiply reused: shape=[2, 3] values=[4.0, 4.0, 25.0, 9.0, 9.0, 36.0]
+mean axis=1 keep_dim=false: shape=[2] values=[11.0, 18.0]
+non-scalar seed: shape=[2] values=[3.0, 6.0]
+one backward: x_grad=[4.0, 12.0, 4.0, 12.0, 10.0, 24.0] bias_grad=[16.0, 16.0, 34.0]
+repeated backward: x_grad=[8.0, 24.0, 8.0, 24.0, 20.0, 48.0] bias_grad=[32.0, 32.0, 68.0]
+zero_grad: x_grad=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0] bias_grad=[0.0, 0.0, 0.0]
+after zero and release: x_grad=[4.0, 12.0, 4.0, 12.0, 10.0, 24.0] bias_grad=[16.0, 16.0, 34.0]
+released graph: operation=mean gradients unchanged=true
+detach and sum: value=63.0 p_grad=[4.0, 6.0] detached_grad=none
+gradcheck: add | multiply | reshape | transpose | broadcast | sum | mean; pass=true
+typed errors: seed-shape | non-finite-seed | graph-released | non-finite-accumulated-gradient; gradients unchanged=true
+chapter 16 handoff: add model-critical tensor VJPs

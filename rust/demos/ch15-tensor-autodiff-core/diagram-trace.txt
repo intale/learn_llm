@@ -1,0 +1,34 @@
+TRACE tensor-autodiff-core-v1 BEGIN
+FIXTURE name=reshape-transpose-broadcast-square-mean nodes=8 edges=8 output-shape=2 output=11.000000000000,18.000000000000
+SEED shape=2 values=3.000000000000,6.000000000000
+NODE topology=0 id=0 label=x operation=parameter shape=2x3 values=1.000000000000,2.000000000000,3.000000000000,4.000000000000,5.000000000000,6.000000000000 adjoint=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+NODE topology=1 id=1 label=r operation=reshape shape=3x2 values=1.000000000000,2.000000000000,3.000000000000,4.000000000000,5.000000000000,6.000000000000 adjoint=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+NODE topology=2 id=2 label=t operation=transpose shape=2x3 values=1.000000000000,3.000000000000,5.000000000000,2.000000000000,4.000000000000,6.000000000000 adjoint=4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000
+NODE topology=3 id=3 label=bias operation=parameter shape=3 values=1.000000000000,-1.000000000000,0.000000000000 adjoint=16.000000000000,16.000000000000,34.000000000000
+NODE topology=4 id=4 label=bb operation=broadcast shape=2x3 values=1.000000000000,-1.000000000000,0.000000000000,1.000000000000,-1.000000000000,0.000000000000 adjoint=4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000
+NODE topology=5 id=5 label=z operation=add shape=2x3 values=2.000000000000,2.000000000000,5.000000000000,3.000000000000,3.000000000000,6.000000000000 adjoint=4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000
+NODE topology=6 id=6 label=q operation=mul shape=2x3 values=4.000000000000,4.000000000000,25.000000000000,9.000000000000,9.000000000000,36.000000000000 adjoint=1.000000000000,1.000000000000,1.000000000000,2.000000000000,2.000000000000,2.000000000000
+NODE topology=7 id=7 label=y operation=mean shape=2 values=11.000000000000,18.000000000000 adjoint=3.000000000000,6.000000000000
+EDGE reverse=0 child=y child-id=7 operand=0 parent=q parent-id=6 rule=mean source-shape=2 target-shape=2x3 reduced-axes=1 axis=1 keep-dim=no divisor=3 contribution=1.000000000000,1.000000000000,1.000000000000,2.000000000000,2.000000000000,2.000000000000
+EDGE reverse=1 child=q child-id=6 operand=0 parent=z parent-id=5 rule=multiply source-shape=2x3 target-shape=2x3 reduced-axes=none contribution=2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000
+EDGE reverse=2 child=q child-id=6 operand=1 parent=z parent-id=5 rule=multiply source-shape=2x3 target-shape=2x3 reduced-axes=none contribution=2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000
+EDGE reverse=3 child=z child-id=5 operand=0 parent=t parent-id=2 rule=add source-shape=2x3 target-shape=2x3 reduced-axes=none contribution=4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000
+EDGE reverse=4 child=z child-id=5 operand=1 parent=bb parent-id=4 rule=add source-shape=2x3 target-shape=2x3 reduced-axes=none contribution=4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000
+EDGE reverse=5 child=bb child-id=4 operand=0 parent=bias parent-id=3 rule=broadcast source-shape=2x3 target-shape=3 reduced-axes=0 contribution=16.000000000000,16.000000000000,34.000000000000
+EDGE reverse=6 child=t child-id=2 operand=0 parent=r parent-id=1 rule=transpose source-shape=2x3 target-shape=3x2 reduced-axes=none first-axis=0 second-axis=1 contribution=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+EDGE reverse=7 child=r child-id=1 operand=0 parent=x parent-id=0 rule=reshape source-shape=3x2 target-shape=2x3 reduced-axes=none input-shape=2x3 output-shape=3x2 contribution=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+PARAMETER pass=1 label=x gradient=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+PARAMETER pass=1 label=bias gradient=16.000000000000,16.000000000000,34.000000000000
+PARAMETER pass=2 label=x gradient=8.000000000000,24.000000000000,8.000000000000,24.000000000000,20.000000000000,48.000000000000
+PARAMETER pass=2 label=bias gradient=32.000000000000,32.000000000000,68.000000000000
+ZERO x=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000 bias=0.000000000000,0.000000000000,0.000000000000
+PARAMETER pass=after-zero-release label=x gradient=4.000000000000,12.000000000000,4.000000000000,12.000000000000,10.000000000000,24.000000000000
+PARAMETER pass=after-zero-release label=bias gradient=16.000000000000,16.000000000000,34.000000000000
+RELEASE operation=mean released=yes gradients-unchanged=yes
+DETACH expression=sum(p*p+detach(p)*ten) value=63.000000000000 p-gradient=4.000000000000,6.000000000000 detached-gradient=none
+GRADCHECK operations=add,multiply,reshape,transpose,broadcast,sum,mean x-samples=0,1,3,5 bias-samples=0,1,2 status=pass
+ERROR kind=seed-shape expected=2 actual=1 gradients-unchanged=yes graph-unchanged=yes
+ERROR kind=non-finite-seed flat=1 value=nan gradients-unchanged=yes graph-unchanged=yes
+ERROR kind=graph-released operation=mean gradients-unchanged=yes graph-unchanged=yes
+ERROR kind=non-finite-accumulated-gradient node=0 flat=0 gradients-unchanged=yes graph-unchanged=yes
+TRACE tensor-autodiff-core-v1 END

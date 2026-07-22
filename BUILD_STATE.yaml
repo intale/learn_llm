@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T16:33:20Z"
+updated_at: "2026-07-22T17:54:27Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 15
+      spent: 16
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -8566,28 +8566,92 @@ builds:
         objective: "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."
         depends_on:
           - implement-ch14-scalar-autodiff
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "curriculum/chapters/13-gradient-checking.md"
           - "curriculum/chapters/14-scalar-autodiff.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
+          - "rust/crates/llm-from-scratch/Cargo.toml"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/scalar.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/demos/ch10-broadcasting-reductions/"
+          - "rust/demos/ch13-gradient-checking/"
+          - "rust/demos/ch14-scalar-autodiff/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "scripts/check-site-content.mjs"
           - "scripts/check-static-links.mjs"
+          - "scripts/check-deployment-workflow.mjs"
+          - "scripts/validate-in-container.sh"
+          - "scripts/locale-config.mjs"
           - "Cargo.toml"
           - "Cargo.lock"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
+          - ".github/workflows/deploy-pages.yml"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/astro.config.mjs"
+          - "site/vitest.config.ts"
+          - "site/playwright.config.ts"
+          - "site/src/content.config.ts"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/content/chapters/en/13-gradient-checking.mdx"
+          - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+          - "site/src/components/RustSource.astro"
+          - "site/src/components/ChapterNavigation.astro"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/components/chapters/GradientCheckingDiagram.astro"
+          - "site/src/components/chapters/ScalarAutodiffDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
+          - "site/src/lib/gradient-checking-diagram.ts"
+          - "site/src/lib/scalar-autodiff-diagram.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/lib/chapter-navigation.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/styles/global.css"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
+          - "site/src/i18n/index.ts"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/13-gradient-checking-diagram.test.ts"
+          - "site/tests/14-scalar-autodiff-diagram.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://cdn.openai.com/better-language-models/language-models.pdf"
         outputs:
           - "curriculum/chapters/15-tensor-autodiff-core.md"
           - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -8595,6 +8659,7 @@ builds:
           - "rust/demos/ch15-tensor-autodiff-core/"
           - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
           - "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
+          - "site/src/lib/tensor-autodiff-core-diagram.ts"
           - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
           - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
           - "Cargo.lock"
@@ -8614,6 +8679,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch15-tensor-autodiff-core | diff -u rust/demos/ch15-tensor-autodiff-core/expected.txt -"
+          - "cargo run --quiet --locked -p ch15-tensor-autodiff-core --example ch15-tensor-autodiff-core-trace | diff -u rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 15-tensor-autodiff-core"
           - "npm --prefix site run check:parity -- --chapter 15-tensor-autodiff-core"
           - "npm --prefix site run check:content"
@@ -8625,8 +8691,79 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work plus bounded read-only verification of four declared primary/official history sources; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260722T165617Z-implement-ch15-tensor-autodiff-core-01
+            started_at: "2026-07-22T16:56:17Z"
+            finished_at: "2026-07-22T17:54:27Z"
+            status: succeeded
+            input_fingerprint:
+              git: "ddb8df2c91a8b69ab0d7890ee28d1c444b7e2d4d"
+              manifest: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/input-fingerprint.txt"
+              checksum: "sha256:8ef0c38a9a3dcb4086a1607d2cf4320070c0b7dd889f145358b47c934d0cc827"
+              prior_artifact: "Chapter 14 canonical commit ddb8df2 and frozen publish manifest sha256:58a62bc56e5bbf516d709551f0c3e6340d42916946bde1de9211a8c093256941 reverified."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust/Cargo 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15; core.fileMode=false. Host Node 24.18.0 and npm 11.16.0 remain orchestration-only."
+              external_sources: "Bengio et al. 2003; Abadi et al. 2016; Vaswani et al. 2017; Radford et al. 2019."
+            staging_dir: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/"
+            commands:
+              - "Run the post-Chapter-14 startup protocol; verify HEAD ddb8df2, the unrelated untracked desktop.ini only, no stale running work, Chapter 15 eligibility, current environment versions, and the recorded Chapter 14 artifacts."
+              - "Perform independent read-only Rust API, content/history, and site/visualization preflights before product edits."
+              - "Preserve the reviewed objective; declare 98 local material-input files, four bounded source URLs, the independent strict parser output, and both byte-exact Rust output gates."
+              - "Freeze parameter-only accumulation, fresh tensor adjoints, exact-shape VJPs, retain/release transactions, finite-value errors, the eight-node fixture, the Rust-only trace boundary, and LLM-training history in DECISIONS.md."
+              - "Fingerprint every declared local input and the verified Chapter 14 publish manifest before editing product outputs."
+              - "Implement the complete 16-file Chapter 15 candidate in publish/: dependency-free tensor tape and demo, exact learner/trace fixtures, integrated contract and English lesson, strict parser, static visualization, SEO, unit tests, and browser contract."
+              - "Run the first integrated review; add four missing RustSource region boundaries and one explicit TypeScript callback annotation after the content and Astro gates rejected them, then rerun cleanly."
+              - "Perform independent Rust and content/history reviews; add focused implicit-broadcast and aligned-singleton regression tests after the Rust reviewer identified a low-severity coverage gap."
+              - "Run staged formatting, warnings-denied Clippy, full Rust tests, dependency/demo policies, exact output diffs, contract/content/parity/Astro/unit/build/link/SEO checks, and focused cached-Chromium browser coverage."
+              - "Run all 58 staged cached-Chromium scenarios, freeze the exact 16-file publish manifest, verify it before and after the checksum-aware official staged review, and leave publish/ immutable."
+              - "Verify rollback copies for the two shared canonical files and absence evidence for 14 new targets, then promote all candidates with same-directory MoveFileEx replacement and write-through semantics."
+              - "Run the complete canonical workspace, Clippy, contract, chapter, parity, unit, exact-output, alternate-base, focused/full browser, deployable-preview, host-artifact, identity, whitespace, and scope matrix."
+              - "Remove one disposable agent-created target/ cache from the run validation workspace with contained long-path-aware deletion after the host audit reported it, then rerun the audit cleanly."
+            artifacts:
+              - path: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/input-fingerprint.txt"
+                checksum: "sha256:8ef0c38a9a3dcb4086a1607d2cf4320070c0b7dd889f145358b47c934d0cc827"
+                notes: "Pre-claim commit, deterministic aggregate over 98 declared local input files, four explicit source URLs, repository pins, host orchestration versions, three independent preflights, and the verified Chapter 14 manifest."
+              - path: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/publish.sha256"
+                checksum: "sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c"
+                notes: "Closed manifest for exactly 16 reviewed candidate outputs; every entry reverified before and after official staged review and after canonical publication."
+              - path: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/canonical-after-publication.sha256"
+                checksum: "sha256:3e6f6072a550687e31b86cfeca5b65e93021c72653322c6612af3645dfb729fa"
+                notes: "All 16 canonical output hashes after atomic promotion."
+              - path: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/publication-backup-canonical/originals.sha256"
+                checksum: "sha256:eee38cefe81ee6ea61d69801b9b527adf0743ff194d45db44b8c279561c86673"
+                notes: "Verified rollback copies for the two pre-existing shared outputs, Cargo.lock and lib.rs."
+              - path: ".build/runs/20260722T165617Z-implement-ch15-tensor-autodiff-core-01/publication-backup-canonical/originally-absent.txt"
+                checksum: "sha256:b4cff603ddb9ee445cd47c8035d7ea383ae5b60fb6763ff071ffbdcbbdb90ecb"
+                notes: "Exact list of the 14 canonical targets that did not exist before publication."
+            validation:
+              - command: "Complete startup, dependency, input-closure, environment, prior-artifact, and independent preflight audit"
+                status: passed
+                notes: "The first eligible step is Chapter 15; all declared local inputs exist, the four source reads are bounded, the cost remains medium with no budget limit, no stale run exists, three audits report no blocker, and the strict parser plus exact trace gate are now declared."
+              - command: "Complete staged Rust implementation and exact-output matrix"
+                status: passed
+                notes: "Formatting, locked workspace Clippy with warnings denied, 152 library tests plus all demo/doc tests, 5 Chapter 15 demo tests, local-only dependency policy, 15-demo discovery, and exact 18-line learner plus 34-line trace diffs pass. Focused regression tests now cover implicit smaller-operand add/multiply broadcasting and aligned singleton reduction."
+              - command: "Complete staged contract, content, static-site, unit, and browser matrix"
+                status: passed
+                notes: "The integrated contract, 22 localized sources, 15 publishable locale sets, exact RustSource regions, strict trace projection, zero-diagnostic 88-file Astro check, 371 Vitest tests, 27-page build, 587-reference/27-SEO-route link audit, 4 focused Chromium scenarios, and all 58 Chromium scenarios pass."
+              - command: "Independent Rust correctness and content/history reviews"
+                status: passed
+                notes: "Reviewers verify the seven exact-shape VJPs, transactional lifecycle, frozen eight-node/eight-edge fixture, Rust contrast, exact output/trace evidence, relevant SEO, exercises, Chapter 16 handoff, and LLM-specific Bengio-to-GPT-2 history. The only reported coverage gap was corrected before this checkpoint."
+              - command: "Frozen manifest verification and official ./course review 20260722T165617Z-implement-ch15-tensor-autodiff-core-01 --check"
+                status: passed
+                notes: "The manifest names exactly 16 regular staged files and has sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c. Every entry verifies before and after the checksum-aware review, which rebuilt 27 pages and repeated content, parity, zero-diagnostic Astro, static build, 587-reference, and 27-SEO-route gates without changing publish/."
+              - command: "Verified rollback evidence and 16-file canonical atomic promotion"
+                status: passed
+                notes: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH promoted exactly 16 same-directory verified temporaries. Cargo.lock and lib.rs have verified rollback copies; 14 targets were originally absent; every canonical and staged hash matches the frozen manifest; and no publication temporary remains."
+              - command: "Complete canonical Rust, content, static-site, unit, and browser regression matrix"
+                status: passed
+                notes: "./course check, warnings-denied Clippy, course-plan and Chapter 15 contract/chapter/parity checks, local-only dependencies, 15-demo discovery, both exact Rust diffs, 154 library tests plus all demo/doc tests, 371 Vitest tests, root and /learn_llm/ 27-page builds and link/SEO audits, 4 focused Chromium tests, and all 58 Chromium tests pass from canonical bytes."
+              - command: "Canonical deployable preview, host-artifact, identity, UTF-8, whitespace, and scope audit"
+                status: passed
+                notes: "The rebuilt site image returns 200 for the English Chapter 15 lesson and course index, contains the exact SEO description and index link, and returns 404 for Russian Chapter 15. Host, UTF-8, whitespace, manifest, and scope audits pass; build definitions, dependency manifests, locale registries, and the existing preview container are unchanged; unrelated desktop.ini remains untracked and untouched."
+              - command: "Bounded Windows and optional visual-inspection harness handling"
+                status: passed
+                notes: "The first host audit correctly reported an agent-created run-local Cargo target cache; contained long-path-aware cleanup removed its Dropbox placeholders and the rerun passed. The optional in-app browser had no available binding, while the required canonical Playwright geometry, forced-colors, JavaScript-disabled, route, and accessibility gates all passed; neither condition changed product bytes."
+            notes: "Succeeded. Chapter 15 is canonical and byte-identical to frozen manifest sha256:a498eba6f98233d7a8d6695c8fa119f91d40251fbf4cfd37afe0ab5b4e972b8c. The dependency-free Rust tensor tape reverses add, multiply, reshape, transpose, broadcast, sum, and mean with exact parent shapes, fresh pass adjoints, parameter-only transactional accumulation, detach, zeroing, and retain/release lifecycle. Exact Rust output drives an English LLM-training-history lesson, strict static visualization, relevant SEO, and comprehensive responsive/accessibility regression coverage. Staged, canonical, browser, preview, host, identity, governance, and scope gates pass; Russian remains complete through Chapter 7 with no placeholder, no build definition or external dependency changed, and the completion checkpoint is ready for the dedicated implement-ch15-tensor-autodiff-core commit."
       - id: implement-ch16-model-autodiff-ops
         objective: "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss."
         depends_on:

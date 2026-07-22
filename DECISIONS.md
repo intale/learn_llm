@@ -3719,3 +3719,86 @@ with tensor-operation vector-Jacobian products while preserving accumulation.
 
 **Affected step and run:** `implement-ch14-scalar-autodiff`, run
 `20260722T155854Z-implement-ch14-scalar-autodiff-01`.
+
+## 2026-07-22 - Freeze Chapter 15 as an owned tensor-operation tape with shape-exact VJPs
+
+**Status:** Accepted during Chapter 15 preflight.
+
+**Context:** Chapter 14 proves reverse accumulation on scalar nodes, while the
+decoder needs gradients through whole tensor operations. Chapter 15 must make
+shape restoration visible without leaking Chapter 16's matrix, gather,
+nonlinearity, or loss rules into this step. The cumulative tensor API owns
+contiguous `f64` buffers; its borrowed views do not outlive their storage, so
+the teaching tape cannot honestly claim zero-copy operation values. The history
+must continue the road from neural-language-model training to Transformer-scale
+training, not become a history of Rust, Python, or autodiff frameworks.
+
+**Decision:** Add a dependency-free, single-thread `TensorValue` backed by
+private reference-counted nodes. Parameter and constant leaves own finite
+contiguous tensors. Each differentiable result materializes and owns its finite
+primal tensor plus immutable ordered operand edges and the minimum saved context
+needed by its VJP. Cloning preserves node identity; `detach` copies only the
+primal into a new untracked leaf. Store gradients across calls on parameter
+leaves only. Intermediate adjoints remain fresh and pass-local.
+
+Support checked add, elementwise multiply, reshape, two-axis transpose,
+explicit broadcast, one-axis sum, and one-axis mean. Add and multiply reduce
+their contributions back to each operand's exact shape; repeated operands keep
+both ordered edges. Reshape restores the saved input shape, transpose swaps the
+same axes, broadcast reduces missing leading and expanded singleton axes, sum
+reinserts a removed singleton axis before broadcasting, and mean additionally
+divides by the saved nonzero extent. Full Jacobians are notation only and are
+never materialized. Structural operations materialize contiguous outputs and
+must not be described as zero-copy views.
+
+`backward` is available only for a rank-zero tracked output and uses a scalar
+one seed. `backward_with_seed` requires an exactly matching finite seed and an
+explicit retain-or-release choice. Each call builds a parent-first node-unique
+topology, propagates finite tensor adjoints in reverse order, validates every
+VJP, pass accumulator, and prospective parameter gradient, and commits all
+leaf gradients transactionally. Retention permits another fresh pass whose
+leaf gradients accumulate. Release happens only after a successful commit,
+clears reachable operation edges and saved context, preserves primal values and
+committed parameter gradients, and makes later backward or differentiable reuse
+of a released operation fail. A failed pass changes neither gradients nor graph
+state. `zero_grad` writes positive zero to a parameter's stored gradient; saved
+parameter handles remain usable after release.
+
+Reject an untracked output, released output or operand, mismatched seed shape,
+and the first row-major nonfinite leaf, forward result, seed, VJP contribution,
+pass adjoint, or prospective accumulated gradient with typed deterministic
+errors. Preserve the cumulative tensor storage policy: tensors outside autodiff
+may still contain arbitrary `f64` values. Wrap existing tensor, view, and
+operation errors instead of changing their contracts.
+
+Freeze the predict-first and diagram graph as `x[2,3]=[1,2,3,4,5,6]`, reshape
+to `[3,2]`, transpose to `[2,3]`, explicitly broadcast
+`bias[3]=[1,-1,0]`, add, square by reusing the same result as both multiply
+operands, and mean axis 1. The output is `y[2]=[11,18]`; seed `[3,6]` gives
+`dx=[4,12,4,12,10,24]` and `dbias=[16,16,34]`. The graph contains eight
+unique nodes and eight ordered operand edges. A second retained pass doubles
+both stored parameter gradients; zeroing clears them; one successful releasing
+pass restores the first-pass values; a later pass reports graph release without
+changing them. A separate sum/detach fixture and sampled checks cover every
+supported VJP. Rust owns a strict `TRACE tensor-autodiff-core-v1`; TypeScript
+may only parse, validate, cross-reference, and render its lexemes.
+
+Bound the history to Bengio et al.'s explicit neural next-word forward and
+backward/update phases, Abadi et al.'s tensor-valued operation graph and summed
+backward paths, Vaswani et al.'s repeated attention/feed-forward training, and
+Radford et al.'s scaled autoregressive Transformer language models. Those
+sources support the progression and bounded claims, not this course's owned
+tape, VJP representation, release policy, `f64` checks, trace, or errors.
+
+**Consequences:** Chapter 15 gains one English lesson titled "Reverse tensor
+shapes with operation-level VJPs," the visible and SEO description "Build a
+Rust tensor autodiff tape, reverse views, broadcasts, and reductions with
+shape-aware VJPs, and verify gradients for LLM training.", an exact Rust trace,
+strict independent parser, static accessible visualization, and focused browser
+coverage. Russian remains inactive and publishes no placeholder. No dependency,
+build definition, route policy, hosting configuration, client runtime, active
+locale, or executable-mode change is required. Chapter 16 can add model-critical
+VJPs without revisiting Chapter 15's tape lifecycle.
+
+**Affected step and run:** `implement-ch15-tensor-autodiff-core`, run
+`20260722T165617Z-implement-ch15-tensor-autodiff-core-01`.

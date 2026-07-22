@@ -98,6 +98,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch15-tensor-autodiff-core"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

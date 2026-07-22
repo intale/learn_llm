@@ -13,6 +13,7 @@ pub mod metrics;
 pub mod autograd {
     pub mod gradcheck;
     pub mod scalar;
+    pub mod tensor_core;
 }
 
 /// Numerically stable neural-network building blocks.
