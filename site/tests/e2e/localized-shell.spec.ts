@@ -6,6 +6,12 @@ import {
   readOrderedCourseChapters,
 } from './chapter-helpers';
 
+const repositoryUrl = 'https://github.com/intale/learn_llm';
+const repositoryLinkLabels: Readonly<Record<string, string>> = {
+  en: 'Browse all examples on GitHub',
+  ru: 'Посмотреть все примеры на GitHub',
+};
+
 test.describe('localized shell', () => {
   test('offers ordinary links and complete alternates for every configured locale', async ({
     page,
@@ -15,6 +21,7 @@ test.describe('localized shell', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'mul');
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/.+/);
+    await expect(page.locator(`a[href="${repositoryUrl}"]`)).toHaveCount(0);
     for (const definition of chapterLocaleDefinitions) {
       await expect(
         page.locator(
@@ -115,13 +122,33 @@ test.describe('localized shell', () => {
   });
 
   for (const [index, locale] of chapterLocaleDefinitions.entries()) {
-    test(`${locale.code} home links to its localized course`, async ({ page }) => {
+    test(`${locale.code} home links to its localized course and repository @shell:localized-home`, async ({
+      page,
+    }) => {
       await page.setViewportSize(
         index % 2 === 0
           ? { width: 1280, height: 720 }
           : { width: 390, height: 844 },
       );
       await page.goto(`/${locale.code}/`);
+
+      const courseActions = page.locator('.course-actions');
+      await expect(courseActions).toHaveCSS('flex-wrap', 'wrap');
+
+      const repositoryLink = page.locator('a.repository-cta');
+      await expect(repositoryLink).toHaveCount(1);
+      await expect(repositoryLink).toBeVisible();
+      await expect(repositoryLink).toHaveAccessibleName(
+        repositoryLinkLabels[locale.code],
+      );
+      await expect(repositoryLink).toContainText(
+        repositoryLinkLabels[locale.code],
+      );
+      await expect(repositoryLink).toHaveAttribute('href', repositoryUrl);
+      await expect(repositoryLink).toHaveAttribute('rel', 'external');
+      expect(await repositoryLink.getAttribute('target')).toBeNull();
+      await repositoryLink.focus();
+      await expect(repositoryLink).toBeFocused();
 
       const courseLink = page.locator('a.course-cta');
       await expect(courseLink).toBeVisible();

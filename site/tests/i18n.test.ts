@@ -27,6 +27,15 @@ describe('localized message catalogs', () => {
     expect(Object.keys(messages).sort()).toEqual([...locales].sort());
   });
 
+  it('provides localized labels for browsing every repository example', () => {
+    expect(getMessages('en').repositoryLinkLabel).toBe(
+      'Browse all examples on GitHub',
+    );
+    expect(getMessages('ru').repositoryLinkLabel).toBe(
+      'Посмотреть все примеры на GitHub',
+    );
+  });
+
   it('rejects blank, missing, or extra catalog values at build time', () => {
     const catalog = { ...messages.en };
     expect(() => validateMessageCatalog(catalog)).not.toThrow();

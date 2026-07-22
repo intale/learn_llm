@@ -8,6 +8,7 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props as { locale: Locale };
 const copy = getMessages(locale);
+const repositoryUrl = 'https://github.com/intale/learn_llm';
 const features = [
   [copy.examplesTitle, copy.examplesDescription],
   [copy.formulasTitle, copy.formulasDescription],
@@ -38,9 +39,15 @@ const features = [
     <span aria-hidden="true">⌁</span>
     <div class="course-note-content">
       <p>{copy.courseNote}</p>
-      <a class="course-cta" href={localePath(locale, '/course/')}>
-        {copy.courseLinkLabel}
-      </a>
+      <div class="course-actions">
+        <a class="course-cta" href={localePath(locale, '/course/')}>
+          {copy.courseLinkLabel}
+        </a>
+        <a class="repository-cta" href={repositoryUrl} rel="external">
+          {copy.repositoryLinkLabel}
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
     </div>
   </aside>
 </BaseLayout>

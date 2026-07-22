@@ -17,6 +17,7 @@ export const messageKeys = [
   'historyDescription',
   'courseNote',
   'courseLinkLabel',
+  'repositoryLinkLabel',
   'courseEyebrow',
   'courseTitle',
   'courseDescription',

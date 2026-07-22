@@ -215,21 +215,50 @@ a:focus-visible {
   margin: 0;
 }
 
-.course-cta {
+.course-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.course-cta,
+.repository-cta {
   display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   width: fit-content;
   padding: 0.65rem 0.9rem;
+  border: 1px solid transparent;
   border-radius: 0.7rem;
-  background: var(--accent-dark);
-  color: white;
   font-weight: 750;
   line-height: 1.2;
   text-decoration: none;
-  transition: background-color 150ms ease;
+  overflow-wrap: anywhere;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.course-cta {
+  background: var(--accent-dark);
+  color: white;
 }
 
 .course-cta:hover {
   background: var(--accent);
+}
+
+.repository-cta {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+}
+
+.repository-cta:hover {
+  background: rgba(15, 118, 110, 0.12);
 }
 
 .site-footer {

@@ -3612,3 +3612,44 @@ or executable mode changes.
 
 **Affected step and run:** `implement-ch13-gradient-checking`, run
 `20260722T115133Z-implement-ch13-gradient-checking-01`.
+
+## 2026-07-22 - Link localized course homes to the public example repository
+
+**Status:** Accepted during repository-link preflight from the human-supplied URL.
+
+**Context:** The English and Russian course starting pages already lead into their
+same-locale course indexes, but neither identifies the public repository where a
+learner can browse every Rust example. The link belongs on localized starting
+pages such as `/en/`, not on the unlocalized language chooser, and it must preserve
+the established static Astro, Docker, and GitHub Pages project-base behavior.
+
+**Decision:** Add one exact-shape `repositoryLinkLabel` message to every active
+catalog and render an ordinary same-tab HTTPS anchor to
+`https://github.com/intale/learn_llm` beside the existing course call to action on
+each localized home. Use natural English and Russian labels, an external-link cue
+that is decorative to assistive technology, a secondary visual treatment, normal
+keyboard focus behavior, and wrapping rather than a fixed-width layout. Keep the
+link server-rendered and do not add it to the root chooser, course indexes,
+chapters, metadata, or alternate-link policy.
+
+Track `link-localized-home-pages-to-repository` as a dedicated independently
+validated and committed step in the standalone
+`expose-example-repository-from-localized-homes` build, with no change to the
+reviewed chapter schedule or Chapter 14 dependency. The request temporarily runs
+beside the still-active decoder-course build under the disjoint-build exception:
+the UI step owns only the seven declared localized-home outputs, while pending
+Chapter 14 owns different curriculum, Rust, lesson, and chapter-test outputs.
+`active_build` selects the requested UI build until it completes, then returns to
+`complete-decoder-course`. Preserve the existing site architecture and deployment
+workflow; the repository has no `.openai/hosting.json`, and this request does not
+authorize hosting or deployment changes.
+
+**Consequences:** Both localized homes expose the same authoritative repository
+URL with localized copy while existing course navigation and SEO remain intact.
+Unit, static-link, root-base, project-base, keyboard, narrow-layout, and full
+browser checks guard the behavior. No dependency, route, locale, curriculum-step
+order, Chapter 14 dependency, Linux-build, runtime, hosting, or deployment
+definition changes.
+
+**Affected step and run:** `link-localized-home-pages-to-repository`, run
+`20260722T151036Z-link-localized-home-pages-to-repository-01`.

@@ -17,6 +17,7 @@
   "historyDescription": "Each chapter contrasts the modern component with the historical approach it replaced.",
   "courseNote": "Chapter 1 is ready: follow English and Cyrillic text from UTF-8 bytes through Unicode scalar values to vocabulary IDs.",
   "courseLinkLabel": "Start the course",
+  "repositoryLinkLabel": "Browse all examples on GitHub",
   "courseEyebrow": "The course",
   "courseTitle": "From text to a tiny language model",
   "courseDescription": "Each localized chapter adds one tested idea to the same Rust implementation.",

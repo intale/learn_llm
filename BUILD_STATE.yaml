@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T14:49:51Z"
+updated_at: "2026-07-22T15:41:10Z"
 
 environment:
   os: "Linux x86_64"
@@ -10071,6 +10071,149 @@ builds:
           class: medium
           notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
         runs: []
+  - build_id: expose-example-repository-from-localized-homes
+    objective: "Expose the public Rust-example repository from every localized course starting page."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource budget has been supplied. This small local UI and regression-test change has no network, dependency, paid-service, generation, or substantial-CPU input."
+    completion_criteria:
+      - "English and Russian localized home pages link to the public repository with natural localized labels."
+      - "Root and project-base static artifacts preserve existing navigation, SEO, accessibility, and narrow-layout behavior."
+      - "The change passes complete deterministic site and browser validation and is independently committed before curriculum work resumes."
+    steps:
+      - id: link-localized-home-pages-to-repository
+        objective: "Link every localized course home page to the public repository that contains all Rust examples."
+        depends_on:
+          - implement-ch13-gradient-checking
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/pages/[locale]/index.astro"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/styles/global.css"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/index.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+          - "scripts/check-static-links.mjs"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
+          - "User-supplied repository URL: https://github.com/intale/learn_llm"
+        outputs:
+          - "site/src/pages/[locale]/index.astro"
+          - "site/src/styles/global.css"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "site/tests/i18n.test.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+        acceptance:
+          - "Every localized starting course page exposes one ordinary HTTPS link to https://github.com/intale/learn_llm, while the unlocalized language chooser remains unchanged."
+          - "English and Russian use natural localized link labels that identify the repository as the place to browse all examples."
+          - "The repository link is keyboard reachable, remains readable without client JavaScript, and wraps without horizontal overflow at narrow widths."
+          - "Existing same-locale course navigation, localized SEO and alternates, static rendering, root and /learn_llm/ base deployments, dependencies, and Linux build definitions remain unchanged."
+          - "The complete static-site, link, localization, and browser regression suites pass."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@shell:localized-home'"
+          - "npm --prefix site run test:e2e"
+          - "./course check"
+          - "git diff --exit-code -- Dockerfile compose.yaml site/package.json site/package-lock.json site/astro.config.mjs"
+        cost:
+          class: small
+          notes: "A seven-file localized home-page UI and regression-test change using cached toolchains. The exact external URL is a human-supplied input; no network fetch, dependency, paid service, generation, or substantial CPU use is planned."
+        runs:
+          - run_id: 20260722T151036Z-link-localized-home-pages-to-repository-01
+            started_at: "2026-07-22T15:10:36Z"
+            finished_at: "2026-07-22T15:41:10Z"
+            status: succeeded
+            input_fingerprint:
+              git: "0bc9c522d4f943a8f5665d6a1d5f68b5d926fb86"
+              manifest: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/input-fingerprint.txt"
+              checksum: "sha256:a4fd9a17ea0a7352650eeedd8b5dd41152ed840d8ed30c677cd6c4b5e96d1f6f"
+              prior_artifact: "Chapter 13 commit 0bc9c522d4f943a8f5665d6a1d5f68b5d926fb86; publish manifest sha256:313e008665ff5eb271f6c6d4cf1c2a5d38c5a2bf7ee53bccb9ba6488a94e1665 and canonical manifest sha256:4ff4af256c8cde5aefff4d16ca4665849dd1b0541b126fd5bcdc5010317a4388 reverified."
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; repository Linux pins Rust/Cargo 1.93.1, Node 22.12.0, npm 10.9.0; Windows Git 2.55.0.windows.3; Bash 5.3.15."
+              external_sources: "None. Repository URL supplied directly by the human."
+            staging_dir: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/"
+            commands:
+              - "Run the post-Chapter-13 startup protocol; verify the dedicated commit, clean declared outputs, no active run, current environment, scheduler consistency, and prior artifact hashes."
+              - "Declare the seven owned product outputs, exact human-supplied URL, localized interaction acceptance, deterministic validation, and small local cost before product edits."
+              - "Fingerprint every material input and create an immutable run-specific staging boundary."
+              - "Run independent localization, UI/accessibility, and scope audits; correct three ledger-only input path labels and require a matching project-base link audit before any product edit."
+              - "Copy only the seven clean declared outputs into publish/, then add the shared external repository action, exact English/Russian catalog key, responsive secondary styling, and literal-copy/accessibility/browser regression tests there."
+              - "Validate a git-archive baseline plus the publish overlay in pinned root and /learn_llm/ Docker workspaces, then run all 327 Vitest cases, two focused localized-home browser cases, and all 50 browser cases."
+              - "Audit both static artifacts for one exact repository link per localized home, zero on the root chooser, unchanged localized course navigation, and retained description metadata."
+              - "Freeze exactly seven candidates in publish.sha256 and run the checksum-aware official staged review without mutating publish/."
+              - "Retain verified rollback copies and atomically promote same-directory verified temporaries with MoveFileEx REPLACE_EXISTING|WRITE_THROUGH; confirm canonical and staged hashes match."
+              - "Repeat the scheduler, scope, canonical ./course check, all unit tests, root and project-base builds/links, focused and full fresh-browser matrices, production image build, and loopback preview checks."
+            artifacts:
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/input-fingerprint.txt"
+                checksum: "sha256:a4fd9a17ea0a7352650eeedd8b5dd41152ed840d8ed30c677cd6c4b5e96d1f6f"
+                notes: "Pre-claim commit, exact URL, prior Chapter 13 manifests, tool versions, and hashes for all material local inputs."
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/publish.sha256"
+                checksum: "sha256:703dfda661fb933056b37cfa5099348cd9146e032d7aec26d92536086ce200f3"
+                notes: "Immutable manifest for exactly seven candidate product files."
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/canonical-after-publication.sha256"
+                checksum: "sha256:ebba35faa83582edda75c4e4f8cc9ed371180d6f9e2c07e8ea48c336cc49ed5f"
+                notes: "Canonical post-publication hashes, each equal to the frozen candidate hash."
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/publication-backup-canonical/originals.sha256"
+                checksum: "sha256:4cc4409fe5291f8d75554db0898d37dbab883f597ebabddb3c7c51c80036391f"
+                notes: "Verified rollback copies for all seven replaced canonical files."
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/publication-backup-canonical/originally-absent.txt"
+                checksum: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                notes: "Empty record confirming every canonical target existed before publication."
+              - path: ".build/runs/20260722T151036Z-link-localized-home-pages-to-repository-01/evidence/publish-candidate.ps1"
+                checksum: "sha256:96169a0f41dd0bcab1bb63d69b2e7d9adb842edd22bdb3bd782a194d6a9ccb31"
+                notes: "Checksum-verifying atomic publication and rollback helper adapted from the prior successful run."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, cost, and input-closure preflight"
+                status: passed
+                notes: "Chapter 13 is committed; no run was active; all seven output files are clean; the unrelated desktop.ini remains untouched; current tools match or preserve repository pins; prior artifacts verify; and this bounded local change fits the unlimited budget. A read-only audit corrected three initially mislabeled input paths before product editing; the immutable fingerprint already hashed their correct files."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "Before the claim, the plan reports 39 chapters, 58 implementation steps, and 13 implemented contracts."
+              - command: "Pinned staged root workspace, Astro/content/parity/build/link checks, and complete Vitest suite"
+                status: passed
+                notes: "Rust formatting/tests pass; Astro reports zero diagnostics; 20 localized sources, 13 publishable locale sets, and 30 catalog keys pass; all 19 Vitest files and 327 tests pass; the root build emits 25 pages; and 501 local references, 25 SEO routes, and 94 artifacts pass."
+              - command: "Pinned staged /learn_llm/ workspace and matching static-link audit"
+                status: passed
+                notes: "The project-base build independently passes the same Rust, Astro, content, 25-page, 501-reference, 25-SEO-route, and 94-artifact gates with base-prefixed local navigation."
+              - command: "Staged focused and complete Playwright matrices plus root/project artifact audit"
+                status: passed
+                notes: "Two focused localized-home cases and all 50 browser cases pass. English runs at 1280px, Russian at 390px; each repository link has exact localized accessible text and href, is keyboard reachable, uses no target, wraps, and causes no overflow or client script. Both bases contain exactly one repository link on each localized home, none on the root chooser, unchanged course links, and description metadata."
+              - command: "Official ./course review 20260722T151036Z-link-localized-home-pages-to-repository-01 --check"
+                status: failed
+                notes: "The review build, Astro checks, 25-page output, and static link/SEO audit all passed, but Git Bash rewrote the final Docker /bin/sh probe to a nonexistent Windows path. The frozen candidate and canonical tree were untouched."
+              - command: "MSYS2_ARG_CONV_EXCL=/bin/sh ./course review 20260722T151036Z-link-localized-home-pages-to-repository-01 --check"
+                status: passed
+                notes: "The same frozen manifest passed the checksum-aware official review and rendered without changing publish/."
+              - command: "Approval-independent atomic canonical publication and identity audit"
+                status: passed
+                notes: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH promoted exactly seven same-directory verified temporaries. All seven originals have verified rollback copies; canonical and staged hashes equal the frozen manifest; and no publication temporary remains."
+              - command: "Canonical scheduler, scope, ./course check, all Vitest, root/project builds, and fresh browser validation"
+                status: passed
+                notes: "The scheduler remains 39 chapters, 58 reviewed steps, and 13 contracts; Docker/Rust/Astro/content/parity/root-link gates pass; all 327 unit tests pass; the canonical /learn_llm/ build passes its matching link/SEO audit; and a fresh canonical-only snapshot passes two focused plus all 50 browser cases."
+              - command: "Canonical deployable image, UTF-8 loopback preview, whitespace, manifest, and scope audit"
+                status: passed
+                notes: "Rebuilt image sha256:df438f65d20405b0edccaf9b91b3b700832e2ff98c3a717054c4871817d1a6d8 serves 200 for /, /en/, and /ru/; localized pages expose the exact repository URL and labels while the root chooser does not. Explicit UTF-8 decoding corrected only a Windows preview-harness assertion. Git diff --check passes; build/package files and modes are unchanged; the nine tracked changes are exactly seven outputs plus state and decisions; unrelated desktop.ini remains untouched."
+            notes: "Succeeded. Every localized course home now exposes https://github.com/intale/learn_llm with exact natural English/Russian copy, secondary responsive styling, ordinary same-tab behavior, keyboard access, and no client JavaScript. Root and /learn_llm/ artifacts, course navigation, alternates, SEO, dependencies, and Linux build definitions remain unchanged. The standalone build is complete and active_build returns to complete-decoder-course for Chapter 14 after the dedicated commit."
   - build_id: github-pages-deployment
     objective: "Deploy the current repository as a validated GitHub Pages project site without changing the curriculum schedule."
     status: completed
