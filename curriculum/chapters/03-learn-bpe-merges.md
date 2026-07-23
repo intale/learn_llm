@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "concept_id": "deterministic-bpe-merge-learning",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 3,
   "objective": {
     "en": "Learn an ordered byte-pair merge table from the frozen training documents only, with overlapping candidate counts, an explicit numeric tie rule, and left-to-right non-overlapping replacement.",

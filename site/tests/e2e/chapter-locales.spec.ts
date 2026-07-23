@@ -426,7 +426,7 @@ test.describe(
         chapterId: previousChapterId,
         locale: 'en',
         order: 7,
-        revision: 1,
+        revision: 2,
         revisionLabel: 'Content revision',
         title: englishPrevious?.title ?? '',
       });

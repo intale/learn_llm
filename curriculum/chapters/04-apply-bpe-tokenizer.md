@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",

@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",

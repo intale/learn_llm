@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 20,
+  "plan_revision": 21,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -146,6 +146,18 @@
       },
       {
         "step_id": "repair-ch19-inline-math-rendering",
+        "before_chapter": "20-swiglu-feed-forward"
+      },
+      {
+        "step_id": "repair-formula-rendering-ch01-ch07",
+        "before_chapter": "20-swiglu-feed-forward"
+      },
+      {
+        "step_id": "repair-formula-rendering-ch08-ch13",
+        "before_chapter": "20-swiglu-feed-forward"
+      },
+      {
+        "step_id": "repair-formula-rendering-ch14-ch19",
         "before_chapter": "20-swiglu-feed-forward"
       }
     ],

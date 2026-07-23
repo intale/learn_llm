@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 4,
   "concept_id": "reversible-byte-bpe-tokenizer",
   "title": "Applying and reversing a BPE tokenizer",
@@ -177,7 +177,7 @@ pair, normalize Unicode, lowercase text, or split on words. `decode_content`
 looks up each content token's stored byte expansion and concatenates the results.
 
 The equation intentionally does not claim
-`encode_content(decode_content(z)) = z` for every token sequence `z`. The worked
+$\operatorname{encode}_{content}(\operatorname{decode}_{content}(z))=z$ for every token sequence $z$. The worked
 pair `[34,259]` is a counterexample. This one-way statement is exactly what the
 model needs: one deterministic encoder and a lossless decoder for its outputs.
 
@@ -198,8 +198,8 @@ Layout version 1 has one contiguous namespace:
 | :--- | :--- | :--- |
 | `0` | BOS control | fixed |
 | `1` | EOS control | fixed |
-| `2..=257` | 256 one-byte content tokens | byte `b` maps to `b+2` |
-| `258..` | learned content tokens | rank `r` maps to `258+r` |
+| `2..=257` | 256 one-byte content tokens | byte $b$ maps to $b+2$ |
+| `258..` | learned content tokens | rank $r$ maps to $258+r$ |
 
 There is no PAD ID in this course. The later training path uses fixed-length
 windows; padding-heavy serving is deliberately deferred. That is a scope choice,
@@ -259,11 +259,11 @@ comment. It validates the final `u32` extent and exposes the byte and merge rang
 `BpeTokenizer::from_training` copies the ordered pair table and rebuilds every
 byte expansion, so the tokenizer remains usable after the trainer is dropped. A
 validated pair-table constructor gives exercises—and later checkpoints—the same
-invariant: at rank `r`, both operands must already exist, and a pair cannot be
+invariant: at rank $r$, both operands must already exist, and a pair cannot be
 repeated.
 
 Encoding takes `&[u8]` as the fundamental input. The `&str` helper simply exposes
-its UTF-8 bytes. Each rule is shifted through `+2` and applied once in ascending
+its UTF-8 bytes. Each rule is shifted by $2$ and applied once in ascending
 rank order with Chapter 3's left-to-right replacement. The optional trace records
 only ranks that changed this particular input; it never changes the result:
 
@@ -360,7 +360,7 @@ two examples stack on a narrow screen without a client script.
   1. Wrong order would create trainer `[32,257]`, shifted `[34,259]`. Correct
      rank order creates `[256,176]`, shifted `[258,178]`.
   2. `3f` is decimal 63, so `?` maps to `65`. Trainer ID `257` maps to `259`;
-     rank 7 maps to `258+7=265`.
+     rank 7 maps to $258+7=265$.
   3. Empty content is `[]`; its document is `[0,1]`. Both decode to zero bytes.
   4. `🦀` is `f0 9f a6 80`, so the shifted fallback IDs are
      `[242,161,168,130]`.

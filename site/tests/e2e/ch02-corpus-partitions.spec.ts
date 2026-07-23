@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '02-corpus-partitions';
-const contentRevision = 2;
+const contentRevision = 3;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const manifest = JSON.parse(
@@ -273,7 +273,11 @@ async function expectChapterContent(
   await expect(diagram.locator('.partition-summary p').nth(0)).toContainText(
     localized.assignedLabel,
   );
-  await expect(diagram.locator('[data-assigned-count]')).toHaveText('12 / 12');
+  await expect(
+    diagram.locator(
+      '[data-assigned-count] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText(String.raw`\frac{12}{12}`);
   await expect(diagram.locator('.partition-summary p').nth(1)).toContainText(
     localized.repeatedLabel,
   );

@@ -2,7 +2,7 @@
 {
   "chapter_id": "06-bigram-baseline",
   "concept_id": "smoothed-bigram-distribution",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 6,
   "objective": {
     "en": "Build and inspect a smoothed bigram next-token distribution by counting each transition in the original wrapped training documents exactly once.",

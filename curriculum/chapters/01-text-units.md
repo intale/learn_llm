@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "concept_id": "text-units-vocabulary-ids",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 1,
   "objective": {
     "en": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",

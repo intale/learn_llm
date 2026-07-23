@@ -1,5 +1,5 @@
 ---
-{"chapter_id":"06-bigram-baseline","locale":"en","content_revision":2,"order":6,"concept_id":"smoothed-bigram-distribution","title":"From transition counts to a bigram model","description":"Count adjacent training tokens once, normalize a row, and distinguish a zero probability from a row that cannot be normalized.","objective":"Build and inspect a smoothed bigram next-token distribution by counting each transition in the original wrapped training documents exactly once.","worked_inputs":"With BOS=0, EOS=1, content tokens A=2 and B=3, unseen token C=4, and alpha=1, derive count, maximum-likelihood, and smoothed rows from [0,2,2,3,1] and [0,2,3,1].","formula":{"latex":"C_{ij}=\\sum_{d\\in\\mathcal{D}_{tr}}\\sum_{t=0}^{|d|-2}\\mathbf{1}[z_t^{(d)}=i\\land z_{t+1}^{(d)}=j],\\quad N_i=\\sum_{k\\in V}C_{ik},\\quad \\widehat P_{\\mathrm{MLE}}(j\\mid i)=\\frac{C_{ij}}{N_i}\\;(N_i>0),\\quad \\widehat P_{\\alpha}(j\\mid i)=\\frac{C_{ij}+\\alpha}{N_i+\\alpha|V|}\\;(\\alpha>0)","symbols":[{"symbol":"\\mathcal{D}_{tr}","meaning":"the set of original wrapped training documents"},{"symbol":"d","meaning":"one training document"},{"symbol":"|d|","meaning":"the number of tokens in document d"},{"symbol":"t","meaning":"a zero-based position whose next position is still inside d"},{"symbol":"z_t^{(d)}","meaning":"the token ID at zero-based position t in document d"},{"symbol":"i","meaning":"the current-token ID and count-table row"},{"symbol":"j","meaning":"a candidate next-token ID and count-table column"},{"symbol":"k","meaning":"an index ranging over every token ID in V"},{"symbol":"V","meaning":"the vocabulary of possible token IDs"},{"symbol":"|V|","meaning":"the number of token IDs in V"},{"symbol":"C_{ij}","meaning":"the number of observed i-to-j transitions"},{"symbol":"N_i","meaning":"the total number of observed transitions leaving i"},{"symbol":"\\mathbf{1}[\\cdot]","meaning":"one when its condition is true and zero otherwise"},{"symbol":"\\widehat P_{\\mathrm{MLE}}(j\\mid i)","meaning":"the maximum-likelihood next-token estimate, defined only when N_i is positive"},{"symbol":"\\alpha","meaning":"the positive pseudocount added to every candidate next token"},{"symbol":"\\widehat P_{\\alpha}(j\\mid i)","meaning":"the add-alpha smoothed next-token estimate"}]},"history":{"approach":"Maximum-likelihood n-gram tables with count smoothing","summary":"A bigram model keeps only the current token as context and estimates the next token from observed pair counts. Maximum likelihood gives zero to an unobserved successor after a seen context and cannot normalize a context with no outgoing observations. Add-alpha smoothing makes every row defined, but distributes its extra mass uniformly and is retained here for transparency rather than strength.","rust_source":"rust/demos/ch06-bigram-baseline/src/main.rs"},"rust_sources":[{"path":"rust/demos/ch06-bigram-baseline/src/lib.rs","region":"wrapped-training-fixture","purpose":"Freeze the valid boundary-wrapped documents used throughout the chapter."},{"path":"rust/crates/llm-from-scratch/src/bigram.rs","region":"fit-training-documents","purpose":"Count adjacent pairs within training documents and select only the training partition."},{"path":"rust/crates/llm-from-scratch/src/bigram.rs","region":"probability-rows","purpose":"Keep defined zero probabilities distinct from an undefined maximum-likelihood row."},{"path":"rust/demos/ch06-bigram-baseline/src/main.rs","region":"learner-output","purpose":"Print the exact count, maximum-likelihood, add-alpha, and boundary evidence."}],"visualization":{"decision":"useful","id":"bigram-baseline","rationale":"Two token-labeled rows can show observed counts, row totals, maximum-likelihood values, smoothing pseudocounts, denominators, and final probabilities without hiding the unseen-context case inside an array."},"decoder_connection":"The model scans each original wrapped training document once, never the overlapping Chapter 5 pairs, and freezes its table. Chapter 7 computes train and validation loss and perplexity without refitting: its metric scorer can select only the training or validation partition."}
+{"chapter_id":"06-bigram-baseline","locale":"en","content_revision":3,"order":6,"concept_id":"smoothed-bigram-distribution","title":"From transition counts to a bigram model","description":"Count adjacent training tokens once, normalize a row, and distinguish a zero probability from a row that cannot be normalized.","objective":"Build and inspect a smoothed bigram next-token distribution by counting each transition in the original wrapped training documents exactly once.","worked_inputs":"With BOS=0, EOS=1, content tokens A=2 and B=3, unseen token C=4, and alpha=1, derive count, maximum-likelihood, and smoothed rows from [0,2,2,3,1] and [0,2,3,1].","formula":{"latex":"C_{ij}=\\sum_{d\\in\\mathcal{D}_{tr}}\\sum_{t=0}^{|d|-2}\\mathbf{1}[z_t^{(d)}=i\\land z_{t+1}^{(d)}=j],\\quad N_i=\\sum_{k\\in V}C_{ik},\\quad \\widehat P_{\\mathrm{MLE}}(j\\mid i)=\\frac{C_{ij}}{N_i}\\;(N_i>0),\\quad \\widehat P_{\\alpha}(j\\mid i)=\\frac{C_{ij}+\\alpha}{N_i+\\alpha|V|}\\;(\\alpha>0)","symbols":[{"symbol":"\\mathcal{D}_{tr}","meaning":"the set of original wrapped training documents"},{"symbol":"d","meaning":"one training document"},{"symbol":"|d|","meaning":"the number of tokens in document d"},{"symbol":"t","meaning":"a zero-based position whose next position is still inside d"},{"symbol":"z_t^{(d)}","meaning":"the token ID at zero-based position t in document d"},{"symbol":"i","meaning":"the current-token ID and count-table row"},{"symbol":"j","meaning":"a candidate next-token ID and count-table column"},{"symbol":"k","meaning":"an index ranging over every token ID in V"},{"symbol":"V","meaning":"the vocabulary of possible token IDs"},{"symbol":"|V|","meaning":"the number of token IDs in V"},{"symbol":"C_{ij}","meaning":"the number of observed i-to-j transitions"},{"symbol":"N_i","meaning":"the total number of observed transitions leaving i"},{"symbol":"\\mathbf{1}[\\cdot]","meaning":"one when its condition is true and zero otherwise"},{"symbol":"\\widehat P_{\\mathrm{MLE}}(j\\mid i)","meaning":"the maximum-likelihood next-token estimate, defined only when N_i is positive"},{"symbol":"\\alpha","meaning":"the positive pseudocount added to every candidate next token"},{"symbol":"\\widehat P_{\\alpha}(j\\mid i)","meaning":"the add-alpha smoothed next-token estimate"}]},"history":{"approach":"Maximum-likelihood n-gram tables with count smoothing","summary":"A bigram model keeps only the current token as context and estimates the next token from observed pair counts. Maximum likelihood gives zero to an unobserved successor after a seen context and cannot normalize a context with no outgoing observations. Add-alpha smoothing makes every row defined, but distributes its extra mass uniformly and is retained here for transparency rather than strength.","rust_source":"rust/demos/ch06-bigram-baseline/src/main.rs"},"rust_sources":[{"path":"rust/demos/ch06-bigram-baseline/src/lib.rs","region":"wrapped-training-fixture","purpose":"Freeze the valid boundary-wrapped documents used throughout the chapter."},{"path":"rust/crates/llm-from-scratch/src/bigram.rs","region":"fit-training-documents","purpose":"Count adjacent pairs within training documents and select only the training partition."},{"path":"rust/crates/llm-from-scratch/src/bigram.rs","region":"probability-rows","purpose":"Keep defined zero probabilities distinct from an undefined maximum-likelihood row."},{"path":"rust/demos/ch06-bigram-baseline/src/main.rs","region":"learner-output","purpose":"Print the exact count, maximum-likelihood, add-alpha, and boundary evidence."}],"visualization":{"decision":"useful","id":"bigram-baseline","rationale":"Two token-labeled rows can show observed counts, row totals, maximum-likelihood values, smoothing pseudocounts, denominators, and final probabilities without hiding the unseen-context case inside an array."},"decoder_connection":"The model scans each original wrapped training document once, never the overlapping Chapter 5 pairs, and freezes its table. Chapter 7 computes train and validation loss and perplexity without refitting: its metric scorer can select only the training or validation partition."}
 ---
 
 import BigramBaselineDiagram from '../../../components/chapters/BigramBaselineDiagram.astro';
@@ -10,7 +10,7 @@ export const diagramLabels = {
     'The same Rust fixture supplies the separated training documents and both tables. Compare a known context with one missing successor against a context with no outgoing observations at all.',
   summary: {
     vocabularySize: 'Vocabulary size',
-    alpha: 'Smoothing amount α',
+    alpha: 'Smoothing amount',
     trainingDocuments: 'Training documents',
     countedTransitions: 'Transitions counted',
   },
@@ -30,10 +30,10 @@ export const diagramLabels = {
   columns: {
     nextToken: 'Next token',
     count: 'Observed count',
-    pseudocount: 'Added α',
-    smoothedNumerator: 'Cᵢⱼ + α',
+    pseudocount: 'Added pseudocount',
+    smoothedNumerator: 'Count plus pseudocount',
     mle: 'MLE probability',
-    smoothed: 'Add-α probability',
+    smoothed: 'Smoothed probability',
   },
   values: {
     undefinedMle: 'undefined (row total is zero)',
@@ -48,7 +48,7 @@ export const diagramLabels = {
     countOnce:
       'Every arrow within a document contributes once. No arrow connects the end of one line to the beginning of the next.',
     unseenSuccessor:
-      'The A→C count is zero inside a row whose total is three. Its MLE probability is therefore a defined zero; add-one smoothing changes it to 0.125.',
+      'The transition from A to C has count zero inside a row whose total is three. Its MLE probability is therefore a defined zero; add-one smoothing assigns one eighth.',
     unseenContext:
       'No transition leaves C, so its row total is zero and an MLE row cannot be normalized. Add-one smoothing imposes a uniform fallback; it does not reveal evidence about C.',
     boundary:
@@ -95,7 +95,7 @@ d2: BOS→A, A→B, B→EOS
 ```
 
 After aggregation, the only nonzero counts are
-`BOS→A = 2`, `A→A = 1`, `A→B = 2`, and `B→EOS = 2`.
+$\operatorname{BOS}\to A=2$, $A\to A=1$, $A\to B=2$, and $B\to\operatorname{EOS}=2$.
 For current token `A`, keep the vocabulary column order
 `[BOS, EOS, A, B, C]`:
 
@@ -121,18 +121,20 @@ zero. Dividing every cell by zero does not produce a probability distribution;
 the **entire MLE row is undefined**. This is different from the defined zero in
 the `A` row.
 
-Add-one smoothing (`α=1`) adds one pseudocount to every candidate before
+Add-one smoothing ($\alpha=1$) adds one pseudocount to every candidate before
 normalization. For `A`:
 
-```text
-counts                 [0, 0, 1, 2, 0]
-add 1 to every cell    [1, 1, 2, 3, 1]
-denominator            3 + 1×5 = 8
-smoothed probabilities [1/8, 1/8, 2/8, 3/8, 1/8]
-```
+$$
+\begin{aligned}
+\text{counts} &= [0,0,1,2,0], \\
+\text{after adding one} &= [1,1,2,3,1], \\
+\text{denominator} &= 3+1\times5=8, \\
+\text{probabilities} &= [1/8,1/8,2/8,3/8,1/8].
+\end{aligned}
+$$
 
-For `C`, the five equal pseudocounts give denominator `0 + 1×5 = 5` and the
-uniform row `[1/5,1/5,1/5,1/5,1/5]`. That row is a fallback imposed by the
+For `C`, the five equal pseudocounts give denominator $0+1\times5=5$ and the
+uniform row $[1/5,1/5,1/5,1/5,1/5]$. That row is a fallback imposed by the
 smoothing rule. It is not evidence that every successor is genuinely equally
 likely after `C`, and it has no unique winner.
 
@@ -151,24 +153,24 @@ C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land 
 $$
 
 Read the first sum from the outside in. It visits each original training document
-`d` separately. Positions are zero-based, just like Rust slice indices. In a
-document of length `|d|`, position `t` stops at `|d|-2`, so `t+1` is the final
-valid position at most. The superscript `(d)` matters: both members of a pair
+$d$ separately. Positions are zero-based, just like Rust slice indices. In a
+document of length $|d|$, position $t$ stops at $|d|-2$, so $t+1$ is the final
+valid position at most. The superscript $(d)$ matters: both members of a pair
 come from the same document.
 
-Current-token ID `i` chooses a row, and candidate next-token ID `j` chooses a
+Current-token ID $i$ chooses a row, and candidate next-token ID $j$ chooses a
 column. The indicator contributes one only when the adjacent IDs at positions
-`t` and `t+1` equal `i` and `j`. Summing row `i` over every vocabulary column `k`
-produces its outgoing observation total `N_i`.
+$t$ and $t+1$ equal $i$ and $j$. Summing row $i$ over every vocabulary column $k$
+produces its outgoing observation total $N_i$.
 
-MLE divides observed counts by `N_i`, so it exists only when `N_i>0`. Add-α
-smoothing adds `α` to all `|V|` cells. The denominator must therefore gain
-`α|V|`, not merely `α`; this guarantees that the smoothed row still sums to one.
-Because `α>0`, even a zero-total row has a positive denominator.
+MLE divides observed counts by $N_i$, so it exists only when $N_i>0$. Add-$\alpha$
+smoothing adds $\alpha$ to all $|V|$ cells. The denominator must therefore gain
+$\alpha|V|$, not merely $\alpha$; this guarantees that the smoothed row still sums to one.
+Because $\alpha>0$, even a zero-total row has a positive denominator.
 
-In memory, the Rust implementation stores row `i`, column `j` at a row-major
+In memory, the Rust implementation stores row $i$, column $j$ at a row-major
 offset. The table layout is an implementation choice; the probabilistic meaning
-is still “next token `j`, given current token `i`.”
+is still “next token $j$, given current token $i$.”
 
 {/* chapter-section:symbol-glossary */}
 
@@ -223,11 +225,11 @@ the independent cells of our count table do not have.
 
 This course keeps add-one smoothing for a narrower reason: every numerator and
 denominator can be checked by hand. Its weakness is visible immediately. The
-smoothed `A` row assigns `1/8` not only to unseen `A→C`, but also to `A→BOS`, even
+smoothed `A` row assigns $1/8$ not only to unseen `A→C`, but also to `A→BOS`, even
 though `BOS` is reserved for document beginnings. Uniform pseudocounts know
 nothing about token roles or syntax.
 
-The papers do not prescribe our token IDs, document boundaries, `α=1`, train-only
+The papers do not prescribe our token IDs, document boundaries, $\alpha=1$, train-only
 helper, or tie order. Those are explicit teaching and implementation choices.
 The runnable Rust contrast below prints both MLE and add-one estimates from the
 same count table so their difference is observable rather than historical prose.
@@ -267,9 +269,9 @@ The query API preserves the conceptual distinction in its return type.
 count. `None` means the row total is zero, so no MLE distribution exists.
 Smoothed queries remain defined for every valid context. When several cells share
 the maximum count, `most_likely_tokens` reports all of them in ascending ID order;
-that stable reporting order does not make the first ID more probable. Add-α
+that stable reporting order does not make the first ID more probable. Additive
 smoothing preserves this count ordering and every tie because it adds the same
-`α` to each cell in a row and divides them all by the same denominator.
+$\alpha$ to each cell in a row and divides them all by the same denominator.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/bigram.rs"
@@ -318,7 +320,7 @@ deterministic trace emitted by the same Rust fixture. Text labels, row totals,
 table structure, and the crossed boundary arrow carry the meaning without
 depending on color or client-side scripts.
 
-Now check the predictions against the complete tables: every cell receives `α`;
+Now check the predictions against the complete tables: every cell receives $\alpha$;
 `B` remains the sole maximum after `A`; every candidate ties after `C`; and even
 the structurally forbidden continuation `A→BOS` receives nonzero mass.
 
@@ -332,24 +334,24 @@ prediction.
 
 1. Enumerate all seven observed transitions, preserving their source document.
 2. Derive the complete count, MLE, and add-one rows for context `A`.
-3. Explain why `MLE(A→C)` is zero while the MLE row for context `C` is undefined.
+3. Explain why $\operatorname{MLE}(A\to C)=0$ while the MLE row for context `C` is undefined.
 4. Concatenate the documents mentally. Which exact transition is fabricated, and how many pairs would the flattened sequence contain?
-5. Why would fitting from Chapter 5’s overlapping `T=3`, `S=1` windows miscount document `d1`?
-6. Recalculate the smoothed `A` row with `α=1/2`.
+5. Why would fitting from Chapter 5’s overlapping $T=3$, $S=1$ windows miscount document `d1`?
+6. Recalculate the smoothed `A` row with $\alpha=1/2$.
 7. Verify that both add-one rows shown in this chapter sum to one.
-8. State the argmax result after `A` and after `C`, including every tie.
+8. State the $\arg\max$ result after `A` and after `C`, including every tie.
 9. Suppose validation data contains many `A→C` transitions. Should the frozen count table change before Chapter 7 scores validation?
 
 <details>
   <summary>Check each prediction and calculation</summary>
 
 1. `d1` contributes `BOS→A`, `A→A`, `A→B`, and `B→EOS`; `d2` contributes `BOS→A`, `A→B`, and `B→EOS`.
-2. Counts are `[0,0,1,2,0]`. MLE is `[0,0,1/3,2/3,0]`. Add-one numerators are `[1,1,2,3,1]`, their total is `8`, and the row is `[1/8,1/8,2/8,3/8,1/8]`.
-3. Row `A` has total `N_A=3`, so it can be normalized and its zero `C` cell becomes probability `0/3=0`. Row `C` has `N_C=0`; dividing its cells by the row total would divide by zero, so no MLE row exists.
+2. Counts are $[0,0,1,2,0]$. MLE is $[0,0,1/3,2/3,0]$. Add-one numerators are $[1,1,2,3,1]$, their total is $8$, and the row is $[1/8,1/8,2/8,3/8,1/8]$.
+3. Row `A` has total $N_A=3$, so it can be normalized and its zero `C` cell becomes probability $0/3=0$. Row `C` has $N_C=0$; dividing its cells by the row total would divide by zero, so no MLE row exists.
 4. Flattening inserts `EOS(1)→BOS(0)` between `d1` and `d2`. The flattened sequence has nine tokens and therefore eight adjacent pairs, one more than the source documents contain.
 5. The two complete windows cover overlapping source spans. Both `A→A` and `A→B` occur in each span, so counting transitions through the windows would give those source transitions duplicate weight.
-6. The denominator is `3+(1/2)×5=11/2`. The numerators are `[1/2,1/2,3/2,5/2,1/2]`, giving `[1/11,1/11,3/11,5/11,1/11]`.
-7. The add-one `A` numerators total `1+1+2+3+1=8`, equal to their denominator. The `C` numerators total `5`, also equal to their denominator. Dividing each numerator by its row’s total therefore gives sum one.
+6. The denominator is $3+(1/2)\times5=11/2$. The numerators are $[1/2,1/2,3/2,5/2,1/2]$, giving $[1/11,1/11,3/11,5/11,1/11]$.
+7. The add-one `A` numerators total $1+1+2+3+1=8$, equal to their denominator. The `C` numerators total $5$, also equal to their denominator. Dividing each numerator by its row’s total therefore gives sum one.
 8. After `A`, only `B` has the maximum count and smoothed probability. After `C`, all IDs `[0,1,2,3,4]` tie under add-one smoothing. Ascending ID is only the reporting order; there is no unique prediction.
 9. No. Validation observations are evidence for evaluation, not fitting. Chapter 7 must score the already-frozen table; changing it would leak validation information into the model.
 
@@ -364,8 +366,8 @@ transition has `C` as its current token.
 
 ## Freeze the first complete next-token model for scoring
 
-The course now has a model that accepts a current token ID `i` and returns one
-probability for every candidate next token `j`. It is intentionally weak—it sees
+The course now has a model that accepts a current token ID $i$ and returns one
+probability for every candidate next token $j$. It is intentionally weak—it sees
 only one-token context and smoothing cannot learn similarity—but its output has
 the same essential shape as a decoder’s output distribution.
 

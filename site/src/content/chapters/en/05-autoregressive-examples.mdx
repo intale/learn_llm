@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 5,
   "concept_id": "boundary-safe-causal-windows",
   "title": "Building autoregressive input–target pairs",
@@ -142,7 +142,7 @@ token     0  41  42  43  44   1
          BOS                 EOS
 ```
 
-Choose context length `T=3` and stride `S=1`. One pair needs four
+Choose context length $T=3$ and stride $S=1$. One pair needs four
 source tokens: three for the input and one more to shift the target. Before you
 read on, write the input and target at starts 0, 1, and 2.
 
@@ -156,7 +156,7 @@ start 0   input  [0, 41, 42]
 
 Moving one position at a time gives the complete set:
 
-| Start | Input `x` | Target `y` |
+| Start | Input $x$ | Target $y$ |
 | ---: | :--- | :--- |
 | `0` | `[0,41,42]` | `[41,42,43]` |
 | `1` | `[41,42,43]` | `[42,43,44]` |
@@ -178,35 +178,35 @@ too short to begin another pair.
 
 ## Express the one-token shift with slices
 
-For one encoded document `z`, a valid candidate start `s` produces:
+For one encoded document $z$, a valid candidate start $s$ produces:
 
 $$
 x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}
 $$
 
-Rust ranges are half-open, so both slices contain exactly `T` IDs. The target
-starts one position later: target element `i` is the source token immediately
-after input element `i`. A start is valid exactly when `s+T < |z|`, or,
-equivalently, when `z` contains all `T+1` source tokens from that start.
+Rust ranges are half-open, so both slices contain exactly $T$ IDs. The target
+starts one position later: target element $i$ is the source token immediately
+after input element $i$. A start is valid exactly when $s+T<|z|$, or,
+equivalently, when $z$ contains all $T+1$ source tokens from that start.
 
-The stride selects candidate starts `s=kS` for `k=0,1,2,...`. With `S=2`, the
+The stride selects candidate starts $s=kS$ for $k=0,1,2,\ldots$. With $S=2$, the
 worked sequence considers starts 0, 2, and then 4. Starts 0 and 2 produce pairs;
 start 1 is skipped by the stride, while start 4 leaves only `[44,1]`, too few
 tokens for another pair.
 
-`T` is the input length, the target length, and the maximum context available
-inside one pair. At target position `i`, causal computation may use only
-`x_0` through `x_i`, not later input positions. `S` is the distance between
-candidate starts: `S=1` considers every possible start and repeats some adjacent
+$T$ is the input length, the target length, and the maximum context available
+inside one pair. At target position $i$, causal computation may use only
+$x_0$ through $x_i$, not later input positions. $S$ is the distance between
+candidate starts: $S=1$ considers every possible start and repeats some adjacent
 transitions across overlapping pairs. A larger stride produces fewer pairs,
-skips some otherwise complete starts, and can leave gaps when `S>T`. Restarting
+skips some otherwise complete starts, and can leave gaps when $S>T$. Restarting
 for every document avoids
 teaching an invented transition between unrelated texts. Keeping the partitions
 separate preserves the fixed split so later fitting code can choose training
 documents explicitly.
 
 The shifted pair says which next token is correct at each position, but it does
-not stop a model from reading later entries of `x`. A left-to-right recurrent
+not stop a model from reading later entries of $x$. A left-to-right recurrent
 model enforces that limit through sequential state. A decoder using self-attention
 needs an explicit causal mask.
 
@@ -217,16 +217,16 @@ needs an explicit causal mask.
 | Symbol | Meaning in this chapter |
 | :--- | :--- |
 | $z$ | exactly one encoded `[BOS, content..., EOS]` document |
-| $T$ | positive context length; the input and target each contain `T` IDs |
+| $T$ | positive context length; the input and target each contain $T$ IDs |
 | $S$ | positive distance between candidate starts |
-| $s$ | one candidate start `kS`; it yields a pair only when `T+1` source tokens remain |
-| $x^{(s)}$ | input slice beginning at `s` |
-| $y^{(s)}$ | target slice beginning at `s+1` |
+| $s$ | one candidate start $kS$; it yields a pair only when $T+1$ source tokens remain |
+| $x^{(s)}$ | input slice beginning at $s$ |
+| $y^{(s)}$ | target slice beginning at $s+1$ |
 
 Apply the rule to each document separately; do not concatenate a partition into
-one global `z`. A short document may produce no pair and leave only a suffix that
+one global $z$. A short document may produce no pair and leave only a suffix that
 is too short for one. Even a document with empty content is encoded as
-`[BOS,EOS]`: with `T=1`, it produces the valid pair `[BOS] -> [EOS]`.
+`[BOS,EOS]`: with $T=1$, it produces the valid pair `[BOS] -> [EOS]`.
 
 {/* chapter-section:history */}
 
@@ -251,7 +251,7 @@ uses the same autoregressive factorization and contrasts task-specific labeled
 datasets with learning from naturally occurring sequences.
 
 Bengio's model predicts one next word from a fixed recent context. Here, one
-aligned pair packages `T` consecutive next-token targets while deriving every
+aligned pair packages $T$ consecutive next-token targets while deriving every
 target from the same observed sequence order.
 
 This contrast does not imply that early language models needed people to label
@@ -266,8 +266,8 @@ of examples reproducible.
 ## Build complete pairs without flattening the corpus
 
 `CausalWindowConfig::new` rejects a zero context length or stride. It also rejects
-`T=usize::MAX`, because `T+1` would overflow. For a valid configuration, the
-policy counts candidate starts with a complete `T+1`-token span and reports the
+a context length equal to `usize::MAX`, because $T+1$ would overflow. For a valid configuration, the
+policy counts candidate starts with a complete $T+1$-token span and reports the
 suffix at the next start when it is too short for another pair:
 
 <RustSource
@@ -359,12 +359,12 @@ already appear in earlier complete pairs.
 
 ## Predict the pairs, then check them
 
-1. List every input and target for `[0,41,42,43,44,1]` with `T=3, S=1`.
-2. Repeat with `S=2`. Which starts produce pairs, which otherwise valid start is skipped, and what remains at the next candidate start?
-3. For `[0,61,1]` with `T=3`, predict the pair count and suffix. Why would padding it define a different target policy?
-4. For `[0,1]` with `T=1`, decide whether BOS can predict EOS.
-5. Two documents are `[0,10,1]` and `[0,20,1]`. With `T=2`, could `[10,1] -> [1,0]` ever be emitted?
-6. With `T=3, S=5` and a four-token document, should an empty suffix be reported after the exact-fit pair?
+1. List every input and target for `[0,41,42,43,44,1]` with $T=3, S=1$.
+2. Repeat with $S=2$. Which starts produce pairs, which otherwise valid start is skipped, and what remains at the next candidate start?
+3. For `[0,61,1]` with $T=3$, predict the pair count and suffix. Why would padding it define a different target policy?
+4. For `[0,1]` with $T=1$, decide whether BOS can predict EOS.
+5. Two documents are `[0,10,1]` and `[0,20,1]`. With $T=2$, could `[10,1] -> [1,0]` ever be emitted?
+6. With $T=3, S=5$ and a four-token document, should an empty suffix be reported after the exact-fit pair?
 7. Explain how tokens in a suffix that is too short for a new pair can still occur in earlier complete pairs.
 8. Explain why Chapter 6 should not count transitions by iterating all overlapping pairs.
 9. Does shifting the stored target by one position prevent a model from reading later input positions?
@@ -373,7 +373,7 @@ already appear in earlier complete pairs.
   <summary>Check your predictions</summary>
 
   1. Starts 0, 1, and 2 produce the three pairs in the worked table. At start 3, the suffix is too short for another pair.
-  2. Starts 0 and 2 produce pairs. Start 1 is skipped by the stride, not rejected for being short. The next candidate start is 4, where `[44,1]` remains—too few tokens for a pair at `T=3`.
+  2. Starts 0 and 2 produce pairs. Start 1 is skipped by the stride, not rejected for being short. The next candidate start is 4, where `[44,1]` remains—too few tokens for a pair at $T=3$.
   3. It emits zero pairs. The suffix begins at 0 and contains `[0,61,1]`; it is not padded. Padding would invent extra input positions and would require a mask plus an explicit rule for which padded targets count, so it is a different data policy.
   4. Yes. The complete two-token source span gives `[0] -> [1]`.
   5. No. Such a pair exists only in an incorrectly flattened slice: its final prediction would be EOS -> BOS across documents. The first document's slice ends after EOS, and construction starts a new iterator on `[0,20,1]`.
@@ -402,8 +402,8 @@ already occur in complete pairs that began earlier.
 ## Connect the pairs to the decoder's task
 
 Each complete pair states the decoder's task position by position. At position
-`i`, predict `y_i` from `x_0` through `x_i`; causal computation must hide
-`x_{i+1}` and later inputs. BOS can anchor an initial prediction, and EOS can be
+$i$, predict $y_i$ from $x_0$ through $x_i$; causal computation must hide
+$x_{i+1}$ and later inputs. BOS can anchor an initial prediction, and EOS can be
 the final target. Neither is padding.
 
 The shifted arrays identify what to predict at each position; they do not prevent

@@ -4289,3 +4289,40 @@ build definition, hosting, or deployment change is introduced.
 
 **Affected step and run:** `repair-ch19-inline-math-rendering`, run
 `20260723T130651Z-repair-ch19-inline-math-rendering-01`.
+
+## 2026-07-23 - Audit and repair formula rendering across every published chapter
+
+**Status:** Accepted from the user's course-wide validation request.
+
+**Context:** The Chapter 19 repair established an explicit formula-rendering
+rule, but a read-only audit of all 26 published localized lessons and all 19
+chapter diagrams found learner-facing mathematics still presented as prose,
+code spans, or raw diagram text in every chapter. Literal Rust/API identifiers,
+commands, paths, trace tokens, and concrete program data remain valid code or
+data and must not be mechanically converted. The audit identified server-side
+diagram corrections in Chapters 2, 4-8, 10-11, 13, and 17-19.
+
+**Decision:** Insert three ordered corrective steps before Chapter 20:
+`repair-formula-rendering-ch01-ch07`,
+`repair-formula-rendering-ch08-ch13`, and
+`repair-formula-rendering-ch14-ch19`. Advance the course plan once to revision
+21 when the first slice publishes. Each slice advances the affected contracts
+and active localized lessons together by one content revision. Reuse the pinned
+KaTeX dependency through one static `InlineMath.astro` helper for developer-owned
+diagram equations; prefer natural localized wording where a label does not need
+notation. Add reviewed source expectations plus built-page math annotation,
+spacing, and containment checks at desktop and narrow widths. Keep each slice in
+its own staged run and commit.
+
+**Consequences:** Chapter 20 waits for a complete all-chapter formula audit.
+Mathematical claims, Rust behavior and evidence, LLM-centered history, SEO,
+routes, active-locale policy, packages, dependencies, Linux build definitions,
+hosting, and deployment remain unchanged. The corrections distinguish semantic
+mathematics from literal program data rather than applying a blind code-span
+rewrite. The existing Astro architecture remains static and no client runtime is
+introduced.
+
+**Affected steps:** `repair-formula-rendering-ch01-ch07`,
+`repair-formula-rendering-ch08-ch13`,
+`repair-formula-rendering-ch14-ch19`, and
+`implement-ch20-swiglu-feed-forward`.

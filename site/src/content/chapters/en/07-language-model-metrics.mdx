@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 7,
   "concept_id": "language-model-metrics",
   "title": "From assigned probability to perplexity",
@@ -112,7 +112,7 @@ export const diagramLabels = {
   columns: {
     targetIndex: 'Zero-based target index in Rust',
     probability: 'Probability assigned to the observed target',
-    surprise: 'Surprise −ln p',
+    surprise: 'Negative-log surprise',
     partition: 'Data split being scored',
     documents: 'Document count',
     targets: 'Target-token count',
@@ -129,7 +129,7 @@ export const diagramLabels = {
     requestedMerges: 'Requested BPE merges',
     learnedMerges: 'Learned BPE merges',
     vocabulary: 'Vocabulary size',
-    alpha: 'Bigram smoothing α',
+    alpha: 'Bigram smoothing',
     fittedPartition: 'Data split used to fit the model',
     fittedDocuments: 'Documents used to fit',
     fittedTargets: 'Transitions used to fit',
@@ -163,68 +163,70 @@ transition, use the probability of the next token that actually occurred, not
 the maximum probability in that distribution. Suppose two successive targets
 received these probabilities:
 
-```text
-[1/2, 1/4]
-```
+$$
+[1/2,1/4]
+$$
 
 Before introducing the metric, make three predictions:
 
 1. Which of the two targets should count as more surprising?
-2. The two probabilities multiply to `1/8`. Why is that product not yet a fair
+2. The two probabilities multiply to $1/8$. Why is that product not yet a fair
    per-target score for comparing sequences with different numbers of targets?
 3. If both positions had received one constant probability, what value would
    represent the same overall difficulty?
 
-For an event assigned probability `p`, define its **surprise** here as `−ln p`.
+For an event assigned probability $p$, define its **surprise** here as $-\ln p$.
 The logarithm is natural. The two positions therefore contribute
 
-```text
-1/2 → ln 2 = 0.693147180560
-1/4 → ln 4 = 1.386294361120
-```
+$$
+\begin{aligned}
+1/2 &\longmapsto \ln 2 = 0.693147180560, \\
+1/4 &\longmapsto \ln 4 = 1.386294361120.
+\end{aligned}
+$$
 
 The second target confirms the first prediction: a smaller assigned probability
-means greater surprise. Under these fixed contexts, `1/2 × 1/4 = 1/8` is the
+means greater surprise. Under these fixed contexts, $1/2\times1/4=1/8$ is the
 likelihood that the model assigns to the two observed targets together. Taking
 the negative logarithm turns that product into a sum:
-`−ln((1/2) × (1/4)) = −ln(1/2) − ln(1/4) = ln 2 + ln 4`.
+$-\ln((1/2)\times(1/4))=-\ln(1/2)-\ln(1/4)=\ln 2+\ln 4$.
 This is why the sum is called negative log-likelihood. Its value,
-`ln 8 = 2.079441541680`, is total surprise for two targets.
+$\ln 8=2.079441541680$, is total surprise for two targets.
 
 Every additional observed target multiplies the sequence likelihood by another
 probability and adds another surprise term. A longer sequence therefore usually
 has a smaller raw likelihood even when the model performs equally well per
 target. To remove that length effect, divide total surprise by the number of
 observed targets. Here the result is mean negative log-likelihood (mean NLL),
-`1.039720770840` nats per target. Exponentiating it gives perplexity
-`2.828427124746`.
+$1.039720770840$ nats per target. Exponentiating it gives perplexity
+$2.828427124746$.
 
-The constant probability requested in the third prediction is `1/PPL`,
-approximately `0.353553390593`. If the model assigned that probability at both
+The constant probability requested in the third prediction is $1/\operatorname{PPL}$,
+approximately $0.353553390593$. If the model assigned that probability at both
 positions, the geometric mean of the assigned probabilities—and therefore
 perplexity—would remain unchanged. Equivalently, this perplexity is the effective
 number of equally likely continuations that would produce the same average
-surprise. It does not mean that the model literally had `2.828427124746` choices.
+surprise. It does not mean that the model literally had $2.828427124746$ choices.
 
 Two simple cases make the scale easier to understand. If every observed target gets
-probability one, every term is `−ln 1 = 0`, so mean NLL is `0` and perplexity is
-`1`. If a model is uniform over a vocabulary `V`, every observed target gets
-`1/|V|`; each surprise is `ln |V|`, so mean NLL is `ln |V|` and perplexity is
-`|V|`. For `|V|=5`, these formulas give
-`1.609437912434` nats per target and perplexity `5.000000000000`.
+probability one, every term is $-\ln 1=0$, so mean NLL is $0$ and perplexity is
+$1$. If a model is uniform over a vocabulary $V$, every observed target gets
+$1/|V|$; each surprise is $\ln |V|$, so mean NLL is $\ln |V|$ and perplexity is
+$|V|$. For $|V|=5$, these formulas give
+$1.609437912434$ nats per target and perplexity $5.000000000000$.
 
 Before writing the general formula, consider a common averaging mistake.
-Document A has one target assigned probability `1`. Document B has three
-targets, each assigned probability `1/4`. Written target by target, the surprises are
+Document A has one target assigned probability $1$. Document B has three
+targets, each assigned probability $1/4$. Written target by target, the surprises are
 
-```text
-0, ln 4, ln 4, ln 4
-```
+$$
+[0,\ln 4,\ln 4,\ln 4].
+$$
 
-The correct mean is `(0 + 3 ln 4) / 4 = 1.039720770840`, with perplexity
-`2.828427124746`. If we instead compute a mean for each document and then average
+The correct mean is $(0+3\ln 4)/4=1.039720770840$, with perplexity
+$2.828427124746$. If we instead compute a mean for each document and then average
 those two values, both documents receive equal weight. That gives the incorrect
-mean `(0 + ln 4) / 2 = 0.693147180560` and perplexity `2`. The result is wrong
+mean $(0+\ln 4)/2=0.693147180560$ and perplexity $2$. The result is wrong
 because Document B contributes three scored targets while Document A contributes
 only one. The fact that the correct result matches the earlier two-target
 perplexity is a coincidence of these particular numbers, not a general rule.
@@ -239,20 +241,20 @@ $$
 \mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})
 $$
 
-At target position `t`, `z_t` is the token that occurred, and `p_t(z_t)` is the
+At target position $t$, $z_t$ is the token that occurred, and $p_t(z_t)$ is the
 probability assigned to it under the fixed context-construction rule. The metric
 uses that specific probability—not the largest probability in the distribution
 and not the entropy of the whole distribution.
 
-In this chapter `log` means the natural logarithm, so `log p = ln p`. For a
-valid positive probability no greater than one, `ln p` is nonpositive. The
-leading minus sign turns it into nonnegative surprise: decreasing `p` increases
-`−ln p`. We sum that quantity for every scored target, then divide once by `N`,
+In this chapter $\log$ means the natural logarithm, so $\log p=\ln p$. For a
+valid positive probability no greater than one, $\ln p$ is nonpositive. The
+leading minus sign turns it into nonnegative surprise: decreasing $p$ increases
+$-\ln p$. We sum that quantity for every scored target, then divide once by $N$,
 the total number of target tokens across all scored documents. This is the
 length normalization missing from a raw sequence product.
 
-The mean `\mathcal{L}` is measured in nats per target. Perplexity is
-dimensionless; it is obtained by applying `exp` to that mean. When every assigned
+The mean $\mathcal{L}$ is measured in nats per target. Perplexity is
+dimensionless; it is obtained by applying $\exp$ to that mean. When every assigned
 probability is positive, the same relation can be written
 
 $$
@@ -261,26 +263,26 @@ $$
 
 This equation does not define a second measurement. Perplexity is the geometric
 mean of the inverse assigned probabilities already used in mean NLL.
-Equivalently, `1/PPL` is the geometric mean of the original assigned
+Equivalently, $1/\operatorname{PPL}$ is the geometric mean of the original assigned
 probabilities.
 
 Mean NLL can also be described as empirical cross-entropy, but only under
 explicit conditions. For each fixed context, define an empirical distribution
-that assigns probability `1` to the token that actually occurred and `0` to
+that assigns probability $1$ to the token that actually occurred and $0$ to
 every other token. The cross-entropy between this distribution and the model
-distribution is exactly `−log p_t(z_t)`. Averaging those values over the same
+distribution is exactly $-\log p_t(z_t)$. Averaging those values over the same
 contexts and the same target tokens gives the mean NLL above. If the empirical
 distribution and the rule for building context have not been stated, the clearer
 name is **mean NLL on these targets**, not simply “cross-entropy.”
 
 A zero probability from the model is different from invalid input. If the model
-assigns probability `0` to a token that occurred, it has declared that event
+assigns probability $0$ to a token that occurred, it has declared that event
 impossible. Zero is valid input to the metric, but it makes that token's surprise,
 the resulting mean NLL, and perplexity positive infinity. The implementation
-does not replace zero with an epsilon.
+does not replace zero with an $\epsilon$.
 
 An empty slice, `NaN`, positive or negative infinity supplied as a probability,
-or a value outside `[0,1]` is an input error. Rust validates the whole slice
+or a value outside $[0,1]$ is an input error. Rust validates the whole slice
 before summing, so `[0, NaN]` reports the invalid `NaN` instead of returning
 infinity because of the earlier zero. Add-one smoothing makes the bigram
 probabilities used later positive; it does not change this general rule.
@@ -302,11 +304,11 @@ probabilities used later positive; it does not change this general rule.
 
 The formula follows mathematical one-based indexing, while Rust slices and the
 diagram trace are zero-based. Trace `index=0` is the first observed target,
-`t=1`; trace `index=1` is the second, `t=2`. Nothing is shifted, and index zero
+$t=1$; trace `index=1` is the second, $t=2$. Nothing is shifted, and index zero
 does not denote a boundary token.
 
 Across corpus documents, `BOS` supplies the first context and is not counted in
-`N`. Each document's `EOS` is its final target and is counted. Because documents
+$N$. Each document's `EOS` is its final target and is counted. Because documents
 remain separate, no fabricated `EOS→BOS` transition contributes to either the
 sum or the denominator.
 
@@ -320,7 +322,7 @@ uncertainty. The [complete Harvard copy of the paper](https://people.math.harvar
 provides the facts needed here. Its Introduction (viewer pages 1–2) explains
 that the logarithm base determines the unit. Section 6 (viewer and printed pages
 10–11) shows that certainty has zero discrete entropy and that a uniform
-distribution over `n` outcomes reaches the maximum `log n`. This is
+distribution over $n$ outcomes reaches the maximum $\log n$. This is
 information-theory background; Shannon does not define language-model mean NLL
 or perplexity.
 
@@ -337,21 +339,21 @@ named experiments; they establish neither a universal model ranking nor a rule
 for comparing perplexities across tokenizers.
 
 For this course, we use natural logarithms, give every target token equal weight,
-define the behavior for `p=0` and invalid input, keep documents separate, and
+define the behavior for $p=0$ and invalid input, keep documents separate, and
 allow the Chapter 7 bigram scorer to evaluate only training or validation data.
 We compare perplexities only when the tokenizer, the mapping from token IDs to
 token values, the document-boundary rules, the rule for building context, and
 the exact evaluated targets all match. These are course design decisions, not
 claims drawn from either paper.
 
-The Chapter 7 Rust program shows why logarithms are useful. Multiplying `2,000`
-factors of `1/2` in `f64` eventually rounds the product to `0.000e0`, even though
+The Chapter 7 Rust program shows why logarithms are useful. Multiplying $2{,}000$
+factors of $1/2$ in `f64` eventually rounds the product to `0.000e0`, even though
 every factor is valid. The sum of the negative logarithms remains finite. This
 conversion does not change which sequence is more likely: a larger likelihood
 corresponds to a smaller total surprise. Only the floating-point representation
 changes—from a fragile product to a stable sum.
 
-A separate example shows why checking only `argmax` loses information. Let the
+A separate example shows why checking only $\arg\max$ loses information. Let the
 observed target be `B`:
 
 ```text
@@ -359,11 +361,11 @@ q = [A: 0.60, B: 0.30, C: 0.10]
 r = [A: 0.60, B: 0.20, C: 0.20]
 ```
 
-Both distributions rank `A` highest. However, `q` assigns probability `0.30` to
-the observed token `B`, while `r` assigns it `0.20`. Their NLL values for `B` are
-therefore `1.203972804326` and `1.609437912434`. The NLL under `q` is lower because
-`q` assigned more probability to the token that occurred. This example illustrates
-a limitation of `argmax`; it does not claim that perplexity historically replaced
+Both distributions rank `A` highest. However, $q$ assigns probability $0.30$ to
+the observed token `B`, while $r$ assigns it $0.20$. Their NLL values for `B` are
+therefore $1.203972804326$ and $1.609437912434$. The NLL under $q$ is lower because
+$q$ assigned more probability to the token that occurred. This example illustrates
+a limitation of $\arg\max$; it does not claim that perplexity historically replaced
 accuracy everywhere.
 
 {/* chapter-section:rust-implementation */}
@@ -401,7 +403,7 @@ function cannot select the test partition.
 To make the results reproducible, the setup code loads the corpus and split
 definition stored in the repository, learns eight BPE merge ranks from the
 training documents, creates tokenizer layout `1` with a vocabulary of `266`
-tokens, and fits one bigram model with `α=1` from eight training documents and
+tokens, and fits one bigram model with $\alpha=1$ from eight training documents and
 `1,844` transitions. The excerpt below shows that sequence. Checks later in the
 same file stop with an error if the corpus checksum, document IDs, tokenizer
 settings, or model-training setup differ from the expected values.
@@ -413,14 +415,14 @@ settings, or model-training setup differ from the expected values.
   label="Rust source showing corpus loading, document splitting, BPE-tokenizer training, encoding of every partition, and bigram fitting from training documents only"
 />
 
-The following `main.rs` excerpt first computes metrics for the `[1/2, 1/4]`
+The following `main.rs` excerpt first computes metrics for the $[1/2,1/4]$
 example and for the perfect and uniform scale anchors. It also covers zero
 probability and empty input. Next, it contrasts correct and incorrect document
 weighting, compares two distributions with the same argmax, and demonstrates
 why a direct probability product can underflow. Finally, it scores the same
 unchanged model separately on training and validation. Code outside the
 displayed region prints the returned results. While printing the result for
-`2,000` factors of `1/2`, it also checks whether the already-computed total
+$2{,}000$ factors of $1/2$, it also checks whether the already-computed total
 surprise is finite. That check is not a new metric calculation: no probability
 sequence or corpus partition is scored again.
 
@@ -428,7 +430,7 @@ sequence or corpus partition is scored again.
   path="rust/demos/ch07-language-model-metrics/src/main.rs"
   region="learner-output"
   caption="Compute the teaching examples and training and validation metrics for one unchanged model"
-  label="Rust source computing the [1/2, 1/4] example, scale anchors, zero and empty cases, weighting error, shared-argmax comparison, product underflow, and training and validation metrics"
+  label="Rust source computing the two-probability example, scale anchors, zero and empty cases, weighting error, shared-maximum comparison, product underflow, and training and validation metrics"
 />
 
 The separate executable at `examples/diagram_trace.rs` calls
@@ -471,7 +473,7 @@ neither updates nor refits the model.
 
 As you read the figure, answer five questions about how its values are related:
 
-1. Which trace row corresponds to mathematical target `t=1`, and where is its
+1. Which trace row corresponds to mathematical target $t=1$, and where is its
    assigned probability converted to surprise?
 2. Where does `target_count=2` enter the calculation, and why is it displayed
    separately from total surprise?
@@ -483,10 +485,10 @@ As you read the figure, answer five questions about how its values are related:
 
 <LanguageModelMetricsDiagram labels={diagramLabels} />
 
-The first panel reproduces the opening `[1/2, 1/4]` example from the Rust trace.
+The first panel reproduces the opening $[1/2,1/4]$ example from the Rust trace.
 Rows `index=0` and `index=1` contain the two probabilities and surprises, while
 the aggregate shows both total surprise and its two-target denominator. The final
-stage applies `exp` to the computed mean NLL. It requests no new model
+stage applies $\exp$ to the computed mean NLL. It requests no new model
 probabilities; perplexity and mean NLL determine each other uniquely.
 
 The second panel applies the same metric to training and validation. A shared
@@ -502,60 +504,60 @@ and the Chapter 7 bigram scorer cannot select test data.
 Work on paper first. Show the denominator in averaging problems and the document
 boundaries in sequence problems.
 
-1. For assigned probabilities `[1/2,1/4]`, compute both surprises, total
+1. For assigned probabilities $[1/2,1/4]$, compute both surprises, total
    surprise, target count, mean NLL, and perplexity.
 2. Derive the mean NLL and perplexity for perfect assignments and for a uniform
-   distribution over a vocabulary of size `|V|`.
-3. Predict the result for `[0.8,0]`. Why would replacing zero with an epsilon
+   distribution over a vocabulary of size $|V|$.
+3. Predict the result for $[0.8,0]$. Why would replacing zero with an $\epsilon$
    change the metric rather than merely stabilize it?
-4. One document has one target at `p=1`; another has three targets at `p=1/4`.
+4. One document has one target at $p=1$; another has three targets at $p=1/4$.
    Repair an implementation that averages their two document means equally.
 5. In `[BOS,A,B,EOS]`, identify every scored target and explain the role of
    `BOS`.
 6. Join `[BOS,A,EOS]` and `[BOS,B,EOS]`. Which artificial transition is created at
    the join?
-7. For observed target `B`, compare `q=[0.60,0.30,0.10]` and
-   `r=[0.60,0.20,0.20]`. Why can their NLLs differ even though both have argmax
-   `A`?
+7. For observed target `B`, compare $q=[0.60,0.30,0.10]$ and
+   $r=[0.60,0.20,0.20]$. Why can their NLLs differ even though both have
+   $\arg\max=A$?
 8. Can you directly compare perplexities produced with different tokenizers or
    different evaluated target sets? State every evaluation condition that must
    match.
-9. Why are the training and validation scores of the bigram model with `α=1`
+9. Why are the training and validation scores of the bigram model with $\alpha=1$
    finite even though the general metric maps an assigned zero to positive
    infinity?
 
 <details>
   <summary>Check the nine calculations and explanations</summary>
 
-1. The surprises are `−ln(1/2)=ln 2=0.693147180560` and
-   `−ln(1/4)=ln 4=1.386294361120`. Their total is
-   `ln 8=2.079441541680`. There are `N=2` targets, so mean NLL is
-   `2.079441541680/2=1.039720770840` nats per target. Exponentiating gives
-   `PPL=2.828427124746`.
-2. A perfect assignment has `p=1` at every target, hence every term is
-   `−ln 1=0`; the mean is `0` and PPL is `exp(0)=1`. Under a uniform
-   vocabulary, `p=1/|V|`, so every term is `ln |V|`. The mean is therefore
-   `ln |V|`, and PPL is `exp(ln |V|)=|V|`.
+1. The surprises are $-\ln(1/2)=\ln 2=0.693147180560$ and
+   $-\ln(1/4)=\ln 4=1.386294361120$. Their total is
+   $\ln 8=2.079441541680$. There are $N=2$ targets, so mean NLL is
+   $2.079441541680/2=1.039720770840$ nats per target. Exponentiating gives
+   $\operatorname{PPL}=2.828427124746$.
+2. A perfect assignment has $p=1$ at every target, hence every term is
+   $-\ln 1=0$; the mean is $0$ and PPL is $\exp(0)=1$. Under a uniform
+   vocabulary, $p=1/|V|$, so every term is $\ln |V|$. The mean is therefore
+   $\ln |V|$, and PPL is $\exp(\ln |V|)=|V|$.
 3. The `0.8` term is finite, but the observed target assigned `0` contributes
    positive infinity. Therefore total surprise, mean NLL, and PPL are positive
    infinity, not an input error. Replacing zero with epsilon invents a nonzero
-   probability and produces a finite, epsilon-dependent score, so it changes
+   probability and produces a finite, $\epsilon$-dependent score, so it changes
    the metric.
-4. Write all four terms: `[−ln 1,−ln(1/4),−ln(1/4),−ln(1/4)]`. Their mean is
-   `(0+3 ln 4)/4=1.039720770840`, giving PPL `2.828427124746`. If we instead
+4. Write all four terms: $[-\ln 1,-\ln(1/4),-\ln(1/4),-\ln(1/4)]$. Their mean is
+   $(0+3\ln 4)/4=1.039720770840$, giving PPL $2.828427124746$. If we instead
    compute a mean for each document and average the two results, both documents
-   receive equal weight. This incorrectly gives `(0+ln 4)/2=0.693147180560`,
-   with PPL `2`.
+   receive equal weight. This incorrectly gives $(0+\ln 4)/2=0.693147180560$,
+   with PPL $2$.
 5. The scored targets are `A`, `B`, and `EOS`: they are the second member of
    `BOS→A`, `A→B`, and `B→EOS`. `BOS` supplies context for the first target and
-   is never itself a target, so this document contributes three terms to `N`.
+   is never itself a target, so this document contributes three terms to $N$.
 6. Flattening gives `BOS,A,EOS,BOS,B,EOS`. Its middle adjacent pair is the
    fabricated `EOS→BOS` transition, which wrongly treats the second document's
    `BOS` as a target of the first document's `EOS`.
 7. Both distributions place their largest probability, `0.60`, on `A`, but NLL
-   uses the probability assigned to observed `B`. Thus `q` contributes
-   `−ln 0.30=1.203972804326`, while `r` contributes
-   `−ln 0.20=1.609437912434`. The NLL under `q` is lower because `q` assigned
+   uses the probability assigned to observed `B`. Thus $q$ contributes
+   $-\ln 0.30=1.203972804326$, while $r$ contributes
+   $-\ln 0.20=1.609437912434$. The NLL under $q$ is lower because $q$ assigned
    more probability to what occurred.
 8. No. A direct comparison requires the same tokenizer, the same mapping from
    token IDs to token values, the same document-boundary rules, the same rule for
@@ -572,8 +574,8 @@ boundaries in sequence problems.
 </details>
 
 **Misconception check:** perplexity and mean NLL are not independent measurements.
-Perplexity is exactly `exp(mean NLL)`, so either value determines the other. The
-value `1/PPL` is the constant probability that would produce the same mean NLL if
+Perplexity is exactly $\exp(\text{mean NLL})$, so either value determines the other. The
+value $1/\operatorname{PPL}$ is the constant probability that would produce the same mean NLL if
 assigned to every target. Computing perplexity does not request any additional
 probabilities from the model.
 

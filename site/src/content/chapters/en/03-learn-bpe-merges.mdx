@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 3,
   "concept_id": "deterministic-bpe-merge-learning",
   "title": "Learning deterministic BPE merges",
@@ -185,8 +185,8 @@ $$
 $$
 
 The three-part tuple is compared lexicographically. First maximize the frequency
-`C(a,b)`. If counts tie, maximizing `-a` chooses the smaller left ID; if those also
-tie, maximizing `-b` chooses the smaller right ID. This numeric tie rule is a
+$C(a,b)$. If counts tie, maximizing $-a$ chooses the smaller left ID; if those also
+tie, maximizing $-b$ chooses the smaller right ID. This numeric tie rule is a
 course reproducibility policy, not a claim about every BPE implementation.
 
 The second expression operates on **byte expansions**. If token `256` expands to
@@ -210,9 +210,9 @@ valid.
 | $m^{*}$ | one fresh training-space symbol assigned ID 256 plus its zero-based rank |
 | $\Vert$ | concatenation of the byte expansions represented by the two IDs, not arithmetic on the IDs |
 
-Raw byte symbols occupy IDs `0..=255`. A successful zero-based rank `r` receives
-ID `256+r`, so `k` successful rounds make a training-space vocabulary of
-`256+k` symbols. Chapter 4 will map these content IDs into its final layout after
+Raw byte symbols occupy IDs `0..=255`. A successful zero-based rank $r$ receives
+ID $256+r$, so $k$ successful rounds make a training-space vocabulary of
+$256+k$ symbols. Chapter 4 will map these content IDs into its final layout after
 reserving control tokens.
 
 {/* chapter-section:history */}
@@ -339,13 +339,13 @@ viewport without any client-side script.
 
 Read stage 0 again and point to the shared middle `97` in `aaa`. Then compare the
 rank-0 count `2` with replacements `1`. At rank 1, ignore display position and
-apply the numeric tuple rule: `(97,98)` must beat `(98,97)` and `(256,97)`.
+apply the numeric tuple rule: $(97,98)$ must beat $(98,97)$ and $(256,97)$.
 
 {/* chapter-section:exercises */}
 
 ## Predict, then check
 
-1. For one document `[97,97,97,97]`, compute `C(97,97)` and the number of
+1. For one document `[97,97,97,97]`, compute $C(97,97)$ and the number of
    replacements in one left-to-right pass.
 2. After rank 0 in the worked example, write the score tuple for each of the three
    count-one candidates and select the winner.
@@ -360,14 +360,14 @@ apply the numeric tuple rule: `(97,98)` must beat `(98,97)` and `(256,97)`.
 <details>
   <summary>Check your predictions</summary>
 
-  1. Four identical tokens have three adjacent positions, so `C(97,97)=3`.
+  1. Four identical tokens have three adjacent positions, so $C(97,97)=3$.
      One pass replaces positions 0–1 and 2–3, producing `[256,256]` with two
      replacements.
-  2. The scores are `(1,-97,-98)`, `(1,-98,-97)`, and `(1,-256,-97)`.
-     Lexicographic maximization selects `(97,98)`.
+  2. The scores are $(1,-97,-98)$, $(1,-98,-97)$, and $(1,-256,-97)$.
+     Lexicographic maximization selects $(97,98)$.
   3. Windows are formed independently inside each document. Both sequences have
      length one, so neither has an adjacent position.
-  4. The vocabulary has `256+9=265` symbols. Requested rounds are an upper bound;
+  4. The vocabulary has $256+9=265$ symbols. Requested rounds are an upper bound;
      only successful rounds add symbols.
   5. No. The trainer can obtain statistics only from `training_documents()`;
      validation and test remain held out.

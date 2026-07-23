@@ -10,6 +10,7 @@ import {
   createCorpusPartitionsDiagramData,
   type CorpusPartitionsDiagramLabels,
 } from '../../lib/corpus-partitions-diagram';
+import InlineMath from '../InlineMath.astro';
 
 declare const process: { cwd(): string };
 
@@ -117,7 +118,9 @@ const descriptionId = `${id}-description`;
   <div class="partition-summary" aria-live="off">
     <p>
       <span dir="auto">{labels.summary.assignedDocuments}</span>
-      <strong dir="ltr" data-assigned-count={assignedCount}>{assignedCount} / {assignedCount}</strong>
+      <strong data-assigned-count={assignedCount}>
+        <InlineMath latex={String.raw`\frac{${assignedCount}}{${assignedCount}}`} />
+      </strong>
     </p>
     <p>
       <span dir="auto">{labels.summary.repeatedIds}</span>

@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '07-language-model-metrics';
-const contentRevision = 1;
+const contentRevision = 2;
 const formulaLatex = String.raw`\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -71,7 +71,7 @@ const copy = {
       'Rust source showing complete probability validation, zero handling, surprise accumulation, target-count division, and perplexity exponentiation',
       'Rust source showing the Train and Validation partition enum and the loop that scores adjacent token pairs in each document with the same fitted model',
       'Rust source showing corpus loading, document splitting, BPE-tokenizer training, encoding of every partition, and bigram fitting from training documents only',
-      'Rust source computing the [1/2, 1/4] example, scale anchors, zero and empty cases, weighting error, shared-argmax comparison, product underflow, and training and validation metrics',
+      'Rust source computing the two-probability example, scale anchors, zero and empty cases, weighting error, shared-maximum comparison, product underflow, and training and validation metrics',
       "Rust source computing the two-target example and training and validation metrics, then checking that BOS is not a target, EOS is each document's final target, and no EOS-to-BOS pair was introduced; later code writes these values to the Chapter 7 trace",
     ],
     diagramTitle: 'From target probabilities to mean NLL and perplexity',
@@ -97,7 +97,7 @@ const copy = {
     targetHeaders: [
       'Zero-based target index in Rust',
       'Probability assigned to the observed target',
-      'Surprise −ln p',
+      'Negative-log surprise',
     ],
     aggregateLabels: ['Sum across both targets', 'Denominator: target tokens'],
     provenanceLabels: [
@@ -107,7 +107,7 @@ const copy = {
       'Requested BPE merges',
       'Learned BPE merges',
       'Vocabulary size',
-      'Bigram smoothing α',
+      'Bigram smoothing',
       'Data split used to fit the model',
       'Documents used to fit',
       'Transitions used to fit',
@@ -159,7 +159,7 @@ const copy = {
       'Код на Rust: проверка всех входных вероятностей, обработка нуля, суммирование мер неожиданности, деление на число целевых токенов и вычисление перплексии',
       'Код на Rust: варианты Train и Validation, перебор соседних пар токенов внутри каждого документа и расчёт метрики с помощью уже построенной биграммной модели',
       'Код на Rust: загрузка корпуса и схемы разбиения, обучение BPE-токенизатора, кодирование документов всех выборок и построение биграммной модели только по обучающим документам',
-      'Код на Rust: расчёт метрик для небольшого примера и граничных случаев, демонстрация ошибок усреднения, ограничений проверки по argmax и прямого перемножения вероятностей, а также оценка модели на обучающей и валидационной выборках',
+      'Код на Rust: расчёт метрик для небольшого примера и граничных случаев, демонстрация ошибок усреднения, ограничений проверки только максимального токена и прямого перемножения вероятностей, а также оценка модели на обучающей и валидационной выборках',
       'Код на Rust: расчёт метрик для двух целевых токенов и двух выборок, затем проверка того, что BOS не становится целью, EOS занимает последнюю целевую позицию каждого документа, а пара EOS→BOS не добавлена; последующий код записывает эти значения в трассировку главы 7',
     ],
     diagramTitle: 'Как из вероятностей токенов получить среднее NLL и перплексию',
@@ -177,7 +177,7 @@ const copy = {
     ],
     stageLabels: [
       'Вероятность наблюдаемого токена',
-      'Мера неожиданности −ln p',
+      'Отрицательная логарифмическая мера неожиданности',
       'Сумма мер неожиданности и знаменатель',
       'Среднее значение NLL',
       'Перплексия',
@@ -185,7 +185,7 @@ const copy = {
     targetHeaders: [
       'Индекс целевого токена в Rust (с нуля)',
       'Вероятность наблюдаемого токена',
-      'Мера неожиданности −ln p',
+      'Отрицательная логарифмическая мера неожиданности',
     ],
     aggregateLabels: [
       'Сумма мер неожиданности для двух токенов',
@@ -198,7 +198,7 @@ const copy = {
       'Заданное число правил слияния BPE',
       'Число правил слияния BPE после обучения',
       'Размер словаря',
-      'Коэффициент сглаживания α',
+      'Коэффициент сглаживания',
       'Выборка, по которой построена модель',
       'Число документов для построения модели',
       'Число переходов для построения модели',
@@ -248,11 +248,13 @@ async function expectChapterContent(
   }
 
   const displayedFormulae = page.locator('.katex-display');
-  await expect(displayedFormulae).toHaveCount(2);
+  await expect(displayedFormulae).toHaveCount(5);
   await expect(displayedFormulae.first()).toHaveCSS('direction', 'ltr');
-  await expect(
-    displayedFormulae.first().locator('annotation[encoding="application/x-tex"]'),
-  ).toHaveText(formulaLatex);
+  const formulaAnnotation = page
+    .locator('annotation[encoding="application/x-tex"]')
+    .filter({ hasText: formulaLatex });
+  await expect(formulaAnnotation).toHaveCount(1);
+  await expect(formulaAnnotation).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(5);

@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 1,
   "concept_id": "text-units-vocabulary-ids",
   "title": "Text units and vocabulary IDs",
@@ -148,10 +148,10 @@ $$
 z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0
 $$
 
-In plain language, take the scalar value at position `i`, look it up in the fixed
+In plain language, take the scalar value at position $i$, look it up in the fixed
 vocabulary, and place the resulting integer ID at the same position. A scalar may
 use several UTF-8 bytes, but it contributes exactly one position to this chapter's
-token sequence. The inverse lookup recovers every known scalar; ID `0` deliberately
+token sequence. The inverse lookup recovers every known scalar; ID $0$ deliberately
 recovers only the marker `<UNK>`.
 
 {/* chapter-section:symbol-glossary */}

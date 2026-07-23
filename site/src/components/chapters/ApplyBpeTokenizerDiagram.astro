@@ -8,6 +8,7 @@ import {
   parseApplyBpeTokenizerTrace,
   type ApplyBpeTokenizerDiagramLabels,
 } from '../../lib/apply-bpe-tokenizer-diagram';
+import InlineMath from '../InlineMath.astro';
 
 interface Props {
   labels: ApplyBpeTokenizerDiagramLabels;
@@ -165,7 +166,7 @@ const caseTitles = {
     <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
     <ul>
       <li><span aria-hidden="true">1→</span> {labels.invariants.ranks}</li>
-      <li><span aria-hidden="true">+2</span> {labels.invariants.offset}</li>
+      <li><InlineMath latex="+2" /> {labels.invariants.offset}</li>
       <li><span aria-hidden="true">║</span> {labels.invariants.controls}</li>
       <li><span aria-hidden="true">✓</span> {labels.invariants.bytes}</li>
     </ul>

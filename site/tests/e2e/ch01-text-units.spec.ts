@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '01-text-units';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex = String.raw`z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`;
 const rustDemoDirectory = resolve(
   process.cwd(),

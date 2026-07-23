@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '06-bigram-baseline';
-const contentRevision = 2;
+const contentRevision = 3;
 const formulaLatex = String.raw`C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -71,10 +71,10 @@ const copy = {
     tableHeaders: [
       'Next token',
       'Observed count',
-      'Added α',
-      'Cᵢⱼ + α',
+      'Added pseudocount',
+      'Count plus pseudocount',
       'MLE probability',
-      'Add-α probability',
+      'Smoothed probability',
     ],
     undefinedMle: 'undefined (row total is zero)',
     boundaryName: /EOS 1 must not transition to BOS 0/,
@@ -104,14 +104,14 @@ const copy = {
     diagramTitle: 'Проследите, как две строки счётчиков превращаются в вероятности',
     documentSection: 'Переходы, учтённые внутри каждого документа',
     tokenLegend: 'Токены словаря и их роли',
-    knownSection: 'Контекст A: переход A→C не встретился',
+    knownSection: 'Контекст A: продолжение C не встретилось',
     unseenSection: 'Контекст C: после C нет ни одного наблюдения',
     boundarySection: 'Проверка границы между документами',
     tableHeaders: [
       'Следующий токен',
       'Число наблюдений',
-      'Добавленная псевдочастота α',
-      'Числитель Cᵢⱼ + α',
+      'Добавленная псевдочастота',
+      'Счётчик плюс псевдочастота',
       'Оценка MLE',
       'Сглаженная вероятность',
     ],
@@ -143,7 +143,7 @@ async function expectChapterContent(
     await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible();
   }
   const displayedFormula = page.locator('.katex-display');
-  await expect(displayedFormula).toHaveCount(2);
+  await expect(displayedFormula).toHaveCount(3);
   await expect(displayedFormula.first()).toHaveCSS('direction', 'ltr');
   await expect(displayedFormula.last().locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 

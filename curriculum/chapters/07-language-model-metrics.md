@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "concept_id": "language-model-metrics",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 7,
   "objective": {
     "en": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",

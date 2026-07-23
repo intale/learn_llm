@@ -1,0 +1,38 @@
+---
+import { renderToString } from 'katex';
+
+interface Props {
+  latex: string;
+  class?: string;
+}
+
+const { latex, class: className } = Astro.props;
+if (typeof latex !== 'string' || latex.trim().length === 0) {
+  throw new Error('InlineMath requires a non-blank LaTeX expression.');
+}
+
+const html = renderToString(latex, {
+  displayMode: false,
+  output: 'htmlAndMathml',
+  strict: 'error',
+  throwOnError: true,
+});
+---
+
+<span
+  class:list={['inline-math', className]}
+  dir="ltr"
+  data-inline-math
+  set:html={html}
+/>
+
+<style>
+  .inline-math {
+    display: inline-block;
+    max-inline-size: 100%;
+    padding-block: 0.08em;
+    vertical-align: middle;
+    white-space: nowrap;
+    unicode-bidi: isolate;
+  }
+</style>

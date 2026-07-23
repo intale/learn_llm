@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "concept_id": "boundary-safe-causal-windows",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 5,
   "objective": {
     "en": "Turn each encoded document into fixed-length input–target pairs for next-token prediction without joining documents or data partitions.",

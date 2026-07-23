@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '05-autoregressive-examples';
-const contentRevision = 2;
+const contentRevision = 3;
 const formulaLatex = String.raw`x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 

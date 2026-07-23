@@ -180,7 +180,7 @@ const descriptionId = `${instanceId}-description`;
                                   })}
                                 </p>
                                 <p class="shift-cue">
-                                  <span aria-hidden="true">↳ +1</span> {labels.shiftLabel}
+                                  <span aria-hidden="true">↳</span> {labels.shiftLabel}
                                 </p>
                                 <p id={`${documentId}-window-${window.index}-target`} class="lane-label">
                                   {labels.lanes.target}
@@ -289,7 +289,7 @@ const descriptionId = `${instanceId}-description`;
   <section class="invariants" aria-labelledby={`${instanceId}-invariants`}>
     <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
     <ul>
-      <li><span aria-hidden="true">+1</span> {labels.invariants.shift}</li>
+      <li><span aria-hidden="true">→</span> {labels.invariants.shift}</li>
       <li><span aria-hidden="true">✓</span> {labels.invariants.complete}</li>
       <li><span aria-hidden="true">║</span> {labels.invariants.boundaries}</li>
       <li><span aria-hidden="true">↔</span> {labels.invariants.overlap}</li>

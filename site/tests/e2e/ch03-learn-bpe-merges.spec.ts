@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '03-learn-bpe-merges';
-const contentRevision = 2;
+const contentRevision = 3;
 const formulaLatex = String.raw`(a^{*},b^{*})=\arg\max_{(a,b)}\bigl(C(a,b),-a,-b\bigr),\quad m^{*}=a^{*}\Vert b^{*}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -100,7 +100,7 @@ const copy = {
       'No pair crosses a document boundary.',
     ],
     exerciseSummary: 'Check your predictions',
-    exerciseAnswer: 'The vocabulary has 256+9=265 symbols.',
+    exerciseAnswer: 'Requested rounds are an upper bound',
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
@@ -138,7 +138,7 @@ const copy = {
       'Пара не пересекает границу документа.',
     ],
     exerciseSummary: 'Проверьте ответы',
-    exerciseAnswer: 'В словаре 256+9=265 токенов.',
+    exerciseAnswer: 'Число запрошенных раундов задаёт верхнюю границу',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
