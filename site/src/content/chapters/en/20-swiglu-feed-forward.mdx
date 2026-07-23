@@ -1,0 +1,521 @@
+---
+{
+  "chapter_id": "20-swiglu-feed-forward",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 20,
+  "concept_id": "swiglu-feed-forward",
+  "title": "Let one learned branch gate another",
+  "description": "Build a position-wise SwiGLU feed-forward layer, follow its activated gate and linear up branches, and verify exact outputs and gradients.",
+  "objective": "Compose three bias-free projections with a differentiable SiLU gate, preserve every leading position, and verify the exact forward and reverse values.",
+  "worked_inputs": "Use X=[[1,0],[0,1]], gate and up weights with shape [2,3], and a down weight with shape [3,2]. Predict the gate values -1, 0, and 1, the two width-3 elementwise products, and which output row can change when only input row 0 is replaced by [0,0].",
+  "formula": {
+    "latex": "\\operatorname{FFN}(X)=\\left(\\operatorname{SiLU}(XW_g)\\odot(XW_u)\\right)W_2",
+    "symbols": [
+      {
+        "symbol": "X",
+        "meaning": "the input tensor with shape [...,d_{in}], where each leading coordinate is one independent position"
+      },
+      {
+        "symbol": "W_g",
+        "meaning": "the bias-free gate weight with shape [d_{in},d_{ff}]"
+      },
+      {
+        "symbol": "W_u",
+        "meaning": "the bias-free up-branch weight with shape [d_{in},d_{ff}]"
+      },
+      {
+        "symbol": "W_2",
+        "meaning": "the bias-free down weight with shape [d_{ff},d_{out}]"
+      },
+      {
+        "symbol": "\\operatorname{SiLU}(z)",
+        "meaning": "the elementwise activation z times sigmoid(z); it may be negative and is not itself a probability gate"
+      },
+      {
+        "symbol": "\\odot",
+        "meaning": "elementwise multiplication of the equal-shape gate and up branches"
+      },
+      {
+        "symbol": "d_{in}",
+        "meaning": "the input feature width"
+      },
+      {
+        "symbol": "d_{ff}",
+        "meaning": "the expanded feed-forward branch width"
+      },
+      {
+        "symbol": "d_{out}",
+        "meaning": "the contracted output feature width; the decoder later chooses it equal to its model width"
+      },
+      {
+        "symbol": "...",
+        "meaning": "zero or more leading axes preserved without mixing positions"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "An early feed-forward neural language model used one elementwise tanh hidden transformation over a fixed context. The original Transformer made the feed-forward computation position-wise and wider, but its single activated branch still lacked an input-dependent multiplicative interaction between two learned projections.",
+      "later_advance": "The Transformer applies two learned transformations with ReLU separately and identically at every position. Shazeer then tests GLU-family replacements whose two projected branches meet through elementwise multiplication; the SwiGLU variant activates one branch with Swish at beta one before the product.",
+      "modern_llm_role": "A modern decoder can use a bias-free SwiGLU sublayer to expand each token representation, modulate one learned branch with another, and contract to the width needed by the next residual path, while attention remains responsible for mixing positions.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. place an elementwise hyperbolic-tangent hidden layer between learned context word features and next-word scores in a feed-forward neural language model."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. apply the same two-transformation ReLU feed-forward network separately at every sequence position and expand from model width 512 to inner width 2048 in the published configuration."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Shazeer, GLU Variants Improve Transformer",
+          "source_url": "https://arxiv.org/pdf/2002.05202",
+          "claim": "Shazeer defines bias-free Transformer GLU variants with three weight matrices and writes SwiGLU as a Swish-activated projection multiplied elementwise by a second projection before the output projection."
+        }
+      ]
+    },
+    "approach": "From a tanh hidden layer in a neural language model, through the Transformer's position-wise ReLU feed-forward block, to multiplicative GLU variants and SwiGLU",
+    "summary": "Nonlinear hidden layers made early neural language models more expressive than one affine map; Transformers standardized a widened position-wise ReLU block; SwiGLU adds a second projected branch and an elementwise interaction. This chapter derives that interaction directly while keeping its dimensions, bias policy, names, seed, errors, and trace as explicit course choices.",
+    "rust_source": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs",
+      "region": "historical-activation-contrast",
+      "purpose": "Evaluate tanh and ReLU on the same scalar inputs for the bounded historical contrast."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/swiglu.rs",
+      "region": "swiglu-errors",
+      "purpose": "Declare stage-specific construction, shape, initialization, and delegated-operation failures."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/swiglu.rs",
+      "region": "swiglu-layer",
+      "purpose": "Compose three bias-free projections with cumulative SiLU and elementwise multiplication."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs",
+      "region": "known-swiglu-forward",
+      "purpose": "Run the exact two-position fixture and retain every branch tensor."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs",
+      "region": "swiglu-gradients",
+      "purpose": "Reverse the identity upstream seed and expose exact input, branch, and parameter gradients."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs",
+      "region": "initialized-swiglu",
+      "purpose": "Verify deterministic initialization and shared clone identity."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs",
+      "region": "position-independence",
+      "purpose": "Replace one input row and prove that the other output row stays unchanged."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/main.rs",
+      "region": "learner-swiglu-output",
+      "purpose": "Prepare the complete deterministic learner report before printing it."
+    },
+    {
+      "path": "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs",
+      "region": "swiglu-feed-forward-trace",
+      "purpose": "Emit the exact forward, reverse, and independence evidence consumed by the static diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "swiglu-feed-forward",
+    "rationale": "Two parallel projection rails make the SiLU activation, elementwise gate, expanded width, contraction, position independence, and split reverse gradients easier to follow than prose or one final vector alone."
+  },
+  "decoder_connection": "The cumulative model gains a named differentiable position-wise SwiGLU module with stable bias-free parameters. Later decoder blocks will choose equal input and output widths so this sublayer can sit inside a residual path; Chapter 21 first defines how losses and gradients from multiple token examples combine."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import SwigluFeedForwardDiagram from '../../../components/chapters/SwigluFeedForwardDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow two projected branches through one position-wise SwiGLU layer',
+  description:
+    'Read exact Rust-authored forward values, branch gradients, shared-parameter gradients, and a position-independence probe for the frozen two-position fixture.',
+  summary: {
+    inputWidth: 'Input width',
+    hiddenWidth: 'Branch width',
+    outputWidth: 'Output width',
+    bias: 'Projection policy',
+    parameterCount: 'Parameter scalars',
+    inputShape: 'Input shape',
+    branchShape: 'Branch shape',
+    outputShape: 'Output shape',
+  },
+  stages: {
+    positions: 'Transform each position independently',
+    gate: 'Gate branch: project, then activate',
+    up: 'Up branch: project without activation',
+    merge: 'Multiply equal coordinates',
+    down: 'Contract the gated features',
+    independence: 'Change one position; observe the other',
+    gradients: 'Split local gradients; accumulate shared weights',
+  },
+  fields: {
+    position: 'Position',
+    input: 'Input',
+    preActivation: 'Before SiLU',
+    activatedGate: 'After SiLU',
+    upBranch: 'Projected values',
+    gated: 'Gated features',
+    output: 'Output',
+    upstream: 'Upstream gradient',
+    gatedGradient: 'Gradient at gated features',
+    gateGradient: 'Gradient before SiLU',
+    upGradient: 'Gradient at up branch',
+    inputGradient: 'Returned input gradient',
+    parameter: 'Shared parameter',
+    shape: 'Shape',
+    gradient: 'Accumulated gradient',
+    changedPosition: 'Changed position',
+    replacement: 'Replacement input',
+    observedPosition: 'Observed position',
+    before: 'Output before',
+    after: 'Output after',
+    result: 'Result',
+  },
+  notes: {
+    positionWise:
+      'The same three weights act on both rows. No forward edge crosses between positions.',
+    gate:
+      'SiLU can return a small negative value, exact zero, or a positive value. It is not a probability mask.',
+    gradients:
+      'Each input receives a local gradient. The three shared weights collect contributions from both positions.',
+    independence:
+      'Rust replaces position zero with an all-zero input and recomputes the layer. Position one is byte-for-byte unchanged.',
+  },
+  symbols: {
+    biasFree: 'Bias-free',
+    unchanged: 'Unchanged',
+  },
+  captions: {
+    positionGradients: 'Gradients returned through the two branches at each position',
+    parameterGradients: 'Gradients accumulated into the three shared weights',
+  },
+  scrollers: {
+    gradients: 'Scrollable SwiGLU gradient evidence',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict the two branch products
+
+Chapter 19 supplied reusable bias-free projections. This fixture sends two
+position rows through three shared weights:
+
+```text
+X  = [[1, 0],
+      [0, 1]]
+
+Wg = [[-1, 0,  1],
+      [ 0, 1, -1]]
+
+Wu = [[1, 2, 3],
+      [3, 2, 1]]
+
+W2 = [[1,  0],
+      [0,  1],
+      [1, -1]]
+```
+
+The first row of $XW_g$ is $[-1,0,1]$. Before looking ahead, predict
+$\operatorname{SiLU}([-1,0,1])$, multiply it coordinate by coordinate with
+the first row of $XW_u=[1,2,3]$, and then apply $W_2$.
+
+The rounded stages are:
+
+$$
+\begin{aligned}
+XW_g &=
+\begin{bmatrix}-1&0&1\\0&1&-1\end{bmatrix}, \\
+\operatorname{SiLU}(XW_g) &\approx
+\begin{bmatrix}-0.268941&0&0.731059\\0&0.731059&-0.268941\end{bmatrix}, \\
+XW_u &=
+\begin{bmatrix}1&2&3\\3&2&1\end{bmatrix}, \\
+\operatorname{SiLU}(XW_g)\odot(XW_u) &\approx
+\begin{bmatrix}-0.268941&0&2.193176\\0&1.462117&-0.268941\end{bmatrix}, \\
+Y &\approx
+\begin{bmatrix}1.924234&-2.193176\\-0.268941&1.731059\end{bmatrix}.
+\end{aligned}
+$$
+
+The executable fixture enters the cumulative layer once and retains those exact
+intermediates for the trace:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  region="known-swiglu-forward"
+  caption="Run the frozen two-position SwiGLU fixture"
+  label="Rust source for the Chapter 20 known SwiGLU forward pass"
+/>
+
+{/* chapter-section:formula */}
+
+## Activate one branch, then multiply
+
+The shared forward formula is:
+
+$$
+\operatorname{FFN}(X)=\left(\operatorname{SiLU}(XW_g)\odot(XW_u)\right)W_2
+$$
+
+SiLU uses a sigmoid internally but does not return a probability:
+
+$$
+\sigma(z)=\frac{1}{1+e^{-z}},
+\qquad
+\operatorname{SiLU}(z)=z\sigma(z).
+$$
+
+Thus $\operatorname{SiLU}(-1)<0$, $\operatorname{SiLU}(0)=0$, and
+$\operatorname{SiLU}(z)\approx z$ for a large positive $z$. Calling the
+whole activated branch a value between zero and one would be a misconception.
+
+For the reverse path, name the forward intermediates explicitly:
+
+$$
+A=XW_g,\qquad
+S=\operatorname{SiLU}(A),\qquad
+U=XW_u,\qquad
+H=S\odot U,\qquad
+Y=HW_2.
+$$
+
+Let $G=\partial L/\partial Y$ be the gradient of scalar loss $L$, and use
+$dA$, $dS$, $dU$, $dH$, $dX$, and $dW$ for reverse gradients with respect to
+the corresponding forward quantities. The index $p$ ranges over every
+preserved leading position. Reverse mode first crosses the down projection,
+then splits at the product and crosses the SiLU derivative:
+
+$$
+\begin{aligned}
+dH &= GW_2^\top, \\
+dS &= dH\odot U, \\
+dU &= dH\odot S, \\
+dA &= dS\odot\operatorname{SiLU}'(A), \\
+dX_p &= dA_pW_g^\top+dU_pW_u^\top, \\
+dW_g &= \sum_p X_p^\top dA_p, \\
+dW_u &= \sum_p X_p^\top dU_p, \\
+dW_2 &= \sum_p H_p^\top G_p.
+\end{aligned}
+$$
+
+Here
+$\operatorname{SiLU}'(a)=\sigma(a)+a\sigma(a)(1-\sigma(a))$. The diagram's
+gradient before SiLU is $dA_p$. Forward results and $dX_p$ stay local to
+position $p$. The three weight gradients sum evidence from every position
+because the weights are shared.
+
+{/* chapter-section:symbol-glossary */}
+
+## Expand features without mixing positions
+
+- $X$ has shape $[\ldots,d_{in}]$; each leading coordinate is one independent position.
+- $W_g$ and $W_u$ both have shape $[d_{in},d_{ff}]$.
+- $W_2$ has shape $[d_{ff},d_{out}]$.
+- $\operatorname{SiLU}(z)$ is the elementwise product $z\sigma(z)$.
+- $\odot$ multiplies equal branch coordinates without a matrix product.
+- $d_{in}$, $d_{ff}$, and $d_{out}$ are input, branch, and output feature widths.
+- $\ldots$ denotes any preserved leading axes.
+
+The worked layer expands $2\to3$ and contracts $3\to2$. Inputs shaped $[2]$,
+$[2,2]$, and $[1,2,2]$ produce outputs with those same shapes because this
+fixture chooses $d_{out}=d_{in}=2$. The reusable module also permits a different
+$d_{out}$; the later residual-wrapped decoder chooses equal input and output
+widths deliberately.
+
+{/* chapter-section:history */}
+
+## From nonlinear neural language models to SwiGLU
+
+An early feed-forward neural language model used one elementwise tanh hidden transformation over a fixed context. The original Transformer made the feed-forward computation position-wise and wider, but its single activated branch still lacked an input-dependent multiplicative interaction between two learned projections.
+
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. place an elementwise hyperbolic-tangent hidden layer between learned context word features and next-word scores in a feed-forward neural language model.
+
+Their published score computation includes:
+
+$$
+y=b+Wx+U\tanh(d+Hx).
+$$
+
+The Transformer applies two learned transformations with ReLU separately and identically at every position. Shazeer then tests GLU-family replacements whose two projected branches meet through elementwise multiplication; the SwiGLU variant activates one branch with Swish at beta one before the product.
+
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. apply the same two-transformation ReLU feed-forward network separately at every sequence position and expand from model width 512 to inner width 2048 in the published configuration.
+
+$$
+\operatorname{FFN}(x)=\max(0,xW_1+b_1)W_2+b_2.
+$$
+
+[Shazeer, *GLU Variants Improve Transformer*](https://arxiv.org/pdf/2002.05202): Shazeer defines bias-free Transformer GLU variants with three weight matrices and writes SwiGLU as a Swish-activated projection multiplied elementwise by a second projection before the output projection.
+
+In Shazeer's notation, $\operatorname{Swish}_1(z)=z\sigma(z)$; this course
+uses the equivalent name $\operatorname{SiLU}(z)$ and applies the same
+position-wise map across every preserved leading position.
+
+A modern decoder can use a bias-free SwiGLU sublayer to expand each token representation, modulate one learned branch with another, and contract to the width needed by the next residual path, while attention remains responsible for mixing positions.
+
+This is the road from nonlinear neural-language-model computation to modern LLM
+feed-forward blocks, not a programming-language history. The paper reports
+bounded results for tested configurations and does not prove why SwiGLU works.
+Dimensions, bias policy, names, seed, errors, and trace grammar remain course
+choices.
+
+The historical Rust sample evaluates tanh and ReLU on the same three inputs; the
+comparison is about activations, while Rust is only the executable medium:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  region="historical-activation-contrast"
+  caption="Compare tanh and ReLU on negative, zero, and positive inputs"
+  label="Rust source for the Chapter 20 historical activation contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Compose the cumulative differentiable operations
+
+Construction and forwarding keep projection-stage and branch-dimension failures
+explicit:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+  region="swiglu-errors"
+  caption="Attribute failures to a projection or composed operation"
+  label="Rust source declaring Chapter 20 SwiGLU errors"
+/>
+
+`SwiGlu` owns gate, up, and down `Linear` modules. All three disable bias. The
+forward pass calls the existing projection, SiLU, and multiplication operations;
+it does not add a fused tensor implementation or another gradient engine:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+  region="swiglu-layer"
+  caption="Compose three bias-free projections around a SiLU gate"
+  label="Rust source implementing the Chapter 20 SwiGLU layer"
+/>
+
+The identity upstream seed exposes both reverse branches and all shared weight
+gradients. Small parameter-leaf probes expose local intermediate VJPs without
+changing the layer computation:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  region="swiglu-gradients"
+  caption="Reverse the exact fixture through both branches"
+  label="Rust source proving Chapter 20 SwiGLU gradients"
+/>
+
+Initialization uses one trial stream in gate, up, down order. Equal seeds
+reproduce values, failed aggregate construction leaves the caller's stream
+unchanged, and clones preserve leaf identity:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  region="initialized-swiglu"
+  caption="Initialize all three weights reproducibly and transactionally"
+  label="Rust source connecting deterministic initialization to SwiGLU"
+/>
+
+Replacing position zero with an all-zero row proves the forward boundary:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+  region="position-independence"
+  caption="Change one input position and preserve the other output"
+  label="Rust source proving Chapter 20 position independence"
+/>
+
+The learner report covers exact stages, activations, reverse values, shapes,
+parameters, initialization, identity, independence, empty input, and errors:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/main.rs"
+  region="learner-swiglu-output"
+  caption="Prepare the deterministic Chapter 20 learner report"
+  label="Rust source for the Chapter 20 learner output"
+/>
+
+Run `cargo run --quiet --locked -p ch20-swiglu-feed-forward`. Its stdout is
+frozen in `rust/demos/ch20-swiglu-feed-forward/expected.txt`. Tests also check
+stable SiLU limits, exact parameter order and count, validation precedence,
+sequential random draws, all rank variants, and sampled finite differences with
+step `1e-6` and tolerance `3e-6`.
+
+{/* chapter-section:visualization */}
+
+## Trace the gate, merge, and reverse split
+
+The eleven-line trace records two forward rows, two reverse rows, three shared
+weight gradients, and one position-independence probe:
+
+<RustSource
+  path="rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs"
+  region="swiglu-feed-forward-trace"
+  caption="Emit the exact branch and gradient evidence"
+  label="Rust source producing the Chapter 20 SwiGLU diagram trace"
+/>
+
+<SwigluFeedForwardDiagram labels={diagramLabels} />
+
+The build-time parser checks grammar, ordering, shapes, names, and exact numeric
+lexemes; it performs no tensor arithmetic. Text labels and distinct border
+styles identify the branches without color. The figure keeps natural heights,
+stacks branches at narrow widths, and confines wide gradient evidence to one
+named keyboard-focusable scroller.
+
+{/* chapter-section:exercises */}
+
+## Predict before checking the executable evidence
+
+1. Predict $\operatorname{SiLU}(-1)$, $\operatorname{SiLU}(0)$, and $\operatorname{SiLU}(1)$.
+2. Predict $h_0$ after multiplying the first activated gate by $u_0=[1,2,3]$.
+3. Predict the three parameter shapes and total scalar count.
+4. Decide which output rows change when only position zero becomes `[0,0]`.
+5. Decide whether $dW_g$, $dW_u$, and $dW_2$ use one position or both.
+6. Predict output shapes for inputs $[2]$, $[2,2]$, and $[1,2,2]$.
+7. Explain why two gated projections cannot generally collapse into one fixed matrix.
+8. Match Bengio, Vaswani, and Shazeer to tanh neural LM, position-wise ReLU FFN, and SwiGLU.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The values are approximately $[-0.268941,0,0.731059]$.
+  2. $h_0\approx[-0.268941,0,2.193176]$.
+  3. The shapes are $[2,3]$, $[2,3]$, and $[3,2]$, for 18 scalars and no biases.
+  4. Only output row zero changes; output row one is exactly unchanged.
+  5. All three shared-weight gradients accumulate contributions from both positions.
+  6. With $d_{out}=2$, the output shapes remain $[2]$, $[2,2]$, and $[1,2,2]$.
+  7. The product makes the effective response of one branch depend on the other branch's input-dependent values.
+  8. Bengio supplies the tanh neural-language-model context, Vaswani the position-wise ReLU block, and Shazeer the later SwiGLU formula.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Hand the nonlinear token transform to batching
+
+The cumulative model gains a named differentiable position-wise SwiGLU module with stable bias-free parameters. Later decoder blocks will choose equal input and output widths so this sublayer can sit inside a residual path; Chapter 21 first defines how losses and gradients from multiple token examples combine.
+
+SwiGLU changes features within one token position. It does not move information
+between tokens; later causal attention owns that job. Chapter 21 now groups
+causal examples and specifies how token losses and their gradients are averaged.

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T15:48:13Z"
+updated_at: "2026-07-23T20:17:43Z"
 
 environment:
   os: "Linux x86_64"
@@ -10541,14 +10541,21 @@ builds:
         objective: "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
         depends_on:
           - repair-formula-rendering-ch14-ch19
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/19-linear-layers.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/demos/ch19-linear-layers/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -10563,6 +10570,17 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/lib/linear-layers-diagram.ts"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "Bengio et al., A Neural Probabilistic Language Model (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf; read-only network input)"
+          - "Vaswani et al., Attention Is All You Need (https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf; read-only network input)"
+          - "Shazeer, GLU Variants Improve Transformer (https://arxiv.org/pdf/2002.05202; read-only network input)"
         outputs:
           - "curriculum/chapters/20-swiglu-feed-forward.md"
           - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
@@ -10570,14 +10588,18 @@ builds:
           - "rust/demos/ch20-swiglu-feed-forward/"
           - "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
           - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/lib/swiglu-feed-forward-diagram.ts"
           - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
+          - "Every learner-facing expression in the lesson and diagram uses server-rendered math, and Chapter 20 joins the complete source and desktop/narrow rendered-formula coverage."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
@@ -10589,6 +10611,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch20-swiglu-feed-forward | diff -u rust/demos/ch20-swiglu-feed-forward/expected.txt -"
+          - "cargo run --quiet --locked -p ch20-swiglu-feed-forward --example ch20-swiglu-feed-forward-trace | diff -u rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 20-swiglu-feed-forward"
           - "npm --prefix site run check:parity -- --chapter 20-swiglu-feed-forward"
           - "npm --prefix site run check:content"
@@ -10600,8 +10623,110 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation plus bounded read-only primary-paper research. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, package/build change, hosting change, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260723T190300Z-implement-ch20-swiglu-feed-forward-01
+            started_at: "2026-07-23T19:03:00Z"
+            finished_at: "2026-07-23T20:17:43Z"
+            status: succeeded
+            input_fingerprint:
+              git: "2521b40f49b8d72fb0bd8f27e01269463a89b8cc"
+              manifest: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/input-fingerprint.txt"
+              checksum: "sha256:c16f08bb5e1b9d6f6bb4b5838e9f40bfe11d5c10703dd28a3c02287683401e48"
+              relevant_inputs: "sha256:9e287df8b77b01b2f215cd8952117a036e971f9387548eca0732234c7d60fe92"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/"
+            commands:
+              - "Complete the startup protocol, preserve unrelated desktop.ini, verify the prior formula-audit checkpoint, compare pinned tools, and select the first eligible Chapter 20 step"
+              - "Declare cumulative differentiable composition inputs, exact Rust trace ownership, aggregate formula coverage, and bounded primary-paper research before product implementation"
+              - "Fingerprint every material local input, record the three primary sources, and create isolated publish, research, and validation directories"
+              - "Read the declared Bengio, Vaswani, and Shazeer primary papers and freeze bounded claim notes before authoring the Chapter 20 history"
+              - "Implement the composed bias-free SwiGLU API, exact forward and reverse fixture, deterministic learner, Rust-authored eleven-line diagram trace, finite-difference coverage, and offline lock entry in the isolated validation workspace"
+              - "Apply independent Rust and site-contract audits: use one 2-to-3-to-2 fixture, expose every forward stage, freeze all parameter gradients, prove sequential RNG order and rollback, align the zero-row independence probe, and keep the trace branch-level"
+              - "Freeze the revision-1 Chapter 20 contract with bounded neural-language-model history, exact metadata, formula semantics, source roles, acceptance examples, and learner output; run the structure-only integration gate"
+              - "Implement the strict build-time trace parser, static accessible diagram, complete English lesson and SEO metadata, focused source/browser coverage, and aggregate formula coverage through Chapter 20 without package, build, hosting, or deployment changes"
+              - "Run the complete isolated Rust, contract, content, Astro, unit, static-build, link, SEO, focused browser, and 136-case browser regression gates; render desktop and 390px review images"
+              - "Apply three independent final audits: correct the nonlinear-branch SEO description, define every reverse intermediate and the SiLU chain rule, clarify Swish-one equivalence, derive trace dimensions and parameter shapes, lock compound error precedence, and distinguish the independence result label"
+              - "Revalidate corrected Rust, exact trace bytes, 40 focused source tests, zero-diagnostic Astro analysis, the static build, five Chapter 20 browser cases, and all fourteen Chapter 14-20 desktop/narrow formula cases"
+              - "Freeze the corrected 18-file publication set under publish/, generate publish.sha256, and verify every frozen file against the isolated validation workspace"
+              - "Run every declared validation command against the frozen staged inputs in a fresh network-disabled Linux container and archive the complete log"
+              - "Publish all 18 frozen files to their declared canonical paths and replay publish.sha256 against the canonical repository"
+              - "Run every declared validation command against a fresh canonical snapshot in a network-disabled Linux browser container and archive the complete log"
+              - "Verify the final manifest, ledger, whitespace, exact output ownership, and untouched unrelated desktop.ini before the completion checkpoint"
+            artifacts:
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/input-fingerprint.txt"
+                checksum: "sha256:c16f08bb5e1b9d6f6bb4b5838e9f40bfe11d5c10703dd28a3c02287683401e48"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/research/source-notes.md"
+                checksum: "sha256:6a78ffb129120142dcd4f603ed0101053cdbb650cf794ac15ac54efc0add262e"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/curriculum/chapters/20-swiglu-feed-forward.md"
+                checksum: "sha256:2259197b04e6ec03bd30b41b9cc080e1965efc36a3388a42957b4879f7eb86a8"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+                checksum: "sha256:d735db851a8e2f24c877d01d429c696c68cfb0602f96b4878d794cbc6c613109"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/rust/demos/ch20-swiglu-feed-forward/expected.txt"
+                checksum: "sha256:dc8af41adc479f0377b395b8f7c9d45b329a4053485872dbbcf1b00fcdefd6ac"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt"
+                checksum: "sha256:ae1b71efa591c2f1129d80a1eae8e85023bdfcbc93106266b7683d2d19af5772"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/Cargo.lock"
+                checksum: "sha256:4aa04532b936ab6bde71a227246efe91cf89063474d4b3d7fad7280faf8f77ea"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
+                checksum: "sha256:73adcc2b61704e562c79b41bfc67a6e4591648f5056e4daa89f74d775f2f976a"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+                checksum: "sha256:ccbda4bbbcf668c88fcdeaf704e517b8878e073097830b16e94442250ace1ada"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/site/src/lib/swiglu-feed-forward-diagram.ts"
+                checksum: "sha256:f8e441ec7e1deeda5f1bec911c3d107072a3aedf6e13e3e2ff0ea064c8d05d26"
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/ch20-swiglu-diagram-desktop.png"
+                checksum: "sha256:dfffd035dc4425c53108a578053d6f96da14622f32b220c24c593c1068b753d9"
+                notes: "Rendered Chromium diagram review at desktop width after the audit corrections."
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/validation/ch20-swiglu-diagram-narrow.png"
+                checksum: "sha256:aa7a226709193bbc1b5439a5755eb03b88079fc6723def54e998f89b40136a74"
+                notes: "Rendered Chromium diagram review at 390px after the audit corrections."
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/publish.sha256"
+                checksum: "sha256:c86661d25996928ce3ae9aa4d4bcf1a01807372c8db3b95f4809fcd03fea584c"
+                notes: "Sorted immutable manifest for all 18 corrected publication files."
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/final-staged-validation.log"
+                checksum: "sha256:c6dc5d51a02b55efd4bd9818e2615790a2c1d78937dfae6c7078cef11f62b085"
+                notes: "Verbose fresh-container validation output retained outside the ledger."
+              - path: ".build/runs/20260723T190300Z-implement-ch20-swiglu-feed-forward-01/final-canonical-validation.log"
+                checksum: "sha256:6137e9ae18bc6c1e1aeb0400290e001224e3fa5c79ce618a84b614b5354fbcc2"
+                notes: "Verbose fresh canonical validation output retained outside the ledger."
+            validation:
+              - command: "Preflight dependency, environment, cost, path-ownership, source, and input-fingerprint audit"
+                status: passed
+                notes: "The first eligible step is Chapter 20; every dependency is complete, all material local inputs exist, the declared outputs are disjoint from other work, bounded paper access is the only network input, and unrelated desktop.ini remains untouched."
+              - command: "Primary-source review of Bengio et al. (2003), Vaswani et al. (2017), and Shazeer (2020)"
+                status: passed
+                notes: "The sources support the tanh neural-language-model, position-wise ReLU Transformer FFN, and later bias-free SwiGLU progression. Course-local API, bias policy, dimensions, naming, initialization, errors, trace, and accessibility remain explicitly bounded implementation decisions."
+              - command: "cargo fmt --all -- --check; focused clippy and tests for llm-from-scratch plus ch20-swiglu-feed-forward; exact learner-output and diagram-trace comparisons"
+                status: passed
+                notes: "Nine cumulative SwiGLU tests and three demo tests pass with warning-free focused clippy. Exact forward stages, dX, all three dW tensors, finite differences, shapes, position independence, stable SiLU limits, names/count/identity, RNG stream order/rollback, errors, learner stdout, and the eleven-line trace are frozen."
+              - command: "node scripts/check-course-plan.mjs && node scripts/check-chapter-contract.mjs --structure-only curriculum/chapters/20-swiglu-feed-forward.md"
+                status: passed
+                notes: "The reviewed plan remains valid at 39 chapters and 66 steps, and the revision-1 English-only Chapter 20 contract is the contiguous twentieth integrated contract with complete formula, LLM evolution, Rust, visualization, localization, and acceptance metadata."
+              - command: "Initial complete isolated Chapter 20 and regression validation"
+                status: failed
+                notes: "All automated Rust, site, static-build, link, SEO, five focused browser, and 136 browser gates passed, but the following independent content audit found two learner-facing blockers. This run is retained as diagnostic evidence and is not completion proof."
+              - command: "Independent final Rust, source, and site audits"
+                status: failed
+                notes: "The audits correctly found that SEO called both branches nonlinear and that the reverse derivation omitted the SiLU derivative while using undefined intermediates. No output was published. Rust and static-site structure otherwise had no blocker."
+              - command: "Corrected focused Rust, contract, content, source, Astro, build, and browser gates"
+                status: passed
+                notes: "The lesson now distinguishes the activated gate and linear up branch; defines A, S, U, H, Y and every reverse quantity; includes dA=dS odot SiLU'(A); defines p; and sums dW2 by position. The trace derives widths and parameter shapes from Rust report tensors, compound validation precedence is frozen, exact trace bytes pass, 40 focused source tests pass, Astro reports zero diagnostics, and all 19 focused Chapter 20 plus aggregate formula browser cases pass."
+              - command: "Rendered desktop and 390px Chapter 20 diagram and formula review"
+                status: passed
+                notes: "The corrected page uses natural-height position and branch cards, narrow stacking, a contained local gradient scroller, distinct non-color borders, readable server-rendered math, and separate Result/Unchanged semantics. Screenshots remain run-local review artifacts and are not publication outputs."
+              - command: "Frozen staged publication and complete network-disabled validation"
+                status: passed
+                notes: "All 18 files in publish/ match validation and publish.sha256. The corrected frozen slice passes the 39-chapter/66-step/20-contract plan, integrated contract, locked workspace format/clippy/tests, dependency/demo checks, byte-exact learner and eleven-line trace outputs, full content/parity, all site tests, zero-diagnostic Astro analysis, 32-page static build, link and SEO checks, five focused Chapter 20 browser cases, and all 136 Chromium regressions."
+              - command: "Canonical publication and SHA-256 identity replay"
+                status: passed
+                notes: "All 18 frozen files were published to their declared canonical paths. Every canonical file matches publish.sha256 at sha256:c86661d25996928ce3ae9aa4d4bcf1a01807372c8db3b95f4809fcd03fea584c; no package, build, hosting, deployment, or locale-policy file changed."
+              - command: "Complete fresh network-disabled canonical validation"
+                status: passed
+                notes: "The canonical snapshot passes the 39-chapter/66-step/20-contract plan, integrated contract, locked format and zero-warning workspace clippy, all workspace tests and demo checks, exact Chapter 20 learner and trace bytes, content/parity, 559 site assertions, zero-diagnostic Astro analysis across 111 files, a 32-page static build, 837 link references and 32 SEO routes, five focused Chapter 20 browser cases, and all 136 Chromium regressions."
+              - command: "Canonical ledger, whitespace, ownership, and unrelated-file audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses, git diff --check passes, every canonical product file still matches the 18-file frozen manifest, the changed paths are exactly the declared Chapter 20 outputs plus BUILD_STATE.yaml and DECISIONS.md, and unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 20 now provides a dependency-free Rust SwiGLU layer with exact forward/reverse evidence, transactional initialization and typed errors; a complete English lesson with LLM-centered tanh-to-Transformer-to-SwiGLU history, correct chain-rule math, SEO metadata, and exercises; and an accessible static Rust-authored visualization. Frozen staged and fresh canonical gates pass, and the completion checkpoint is ready for its required dedicated commit."
       - id: implement-ch21-mini-batches
         objective: "Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly."
         depends_on:

@@ -4326,3 +4326,40 @@ introduced.
 `repair-formula-rendering-ch08-ch13`,
 `repair-formula-rendering-ch14-ch19`, and
 `implement-ch20-swiglu-feed-forward`.
+
+## 2026-07-23 - Declare Chapter 20 composition, evidence, and formula coverage
+
+**Status:** Accepted during Chapter 20 preflight.
+
+**Context:** The scheduled Chapter 20 step names the SwiGLU module, lesson,
+diagram, and focused tests, but omits the cumulative differentiable SiLU and
+linear-layer interfaces it composes. It also omits the strict build-time trace
+parser used by recent Rust-backed diagrams and the two aggregate formula tests
+that must grow when a new learner-facing chapter is published. The historical
+contrast must remain a progression of neural language-model feed-forward blocks,
+not a history of programming languages.
+
+**Decision:** Add the cumulative tensor-tape, SiLU, initialization, linear-layer,
+Chapter 19 trace-presentation, static math-helper, and aggregate formula-test
+files as material inputs. Add
+`site/src/lib/swiglu-feed-forward-diagram.ts` and both aggregate formula tests as
+declared outputs, and require the `ch20-swiglu-feed-forward-trace` example to
+match its checked fixture byte for byte. Use Bengio et al. for the earlier
+nonlinear neural-language-model context, Vaswani et al. for the Transformer's
+position-wise ReLU feed-forward block, and Shazeer for GLU variants and SwiGLU.
+Treat bias-free parameter policy, dimensions, names, validation precedence,
+seed, trace grammar, and accessibility projection as course decisions rather
+than paper claims. All learner-facing notation in the lesson and diagram must
+use the existing server-rendered math pipeline, and Chapter 20 must join the
+course-wide source and rendered-formula coverage.
+
+**Consequences:** Chapter 20 remains one dependency-free English vertical slice
+that composes the existing differentiable primitives rather than reimplementing
+them. Bounded read-only primary-paper access is an explicit input. The diagram
+may validate and project exact Rust evidence but may not perform tensor
+arithmetic. Packages, the lockfile format, the static Astro architecture, Linux
+build definitions, hosting, and deployment policy remain unchanged; this step
+does not publish, host, or deploy the site externally.
+
+**Affected step and run:** `implement-ch20-swiglu-feed-forward`, run
+`20260723T190300Z-implement-ch20-swiglu-feed-forward-01`.

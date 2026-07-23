@@ -1,0 +1,481 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import InlineMath from '../InlineMath.astro';
+import {
+  parseSwigluFeedForwardTrace,
+  swigluFeedForwardDiagramId,
+  validateSwigluFeedForwardLabels,
+  type SwigluFeedForwardDiagramLabels,
+} from '../../lib/swiglu-feed-forward-diagram';
+
+interface Props {
+  labels: SwigluFeedForwardDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+validateSwigluFeedForwardLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('SwiGLU diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseSwigluFeedForwardTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${swigluFeedForwardDiagramId}-${instanceId}-title`;
+const descriptionId = `${swigluFeedForwardDiagramId}-${instanceId}-description`;
+const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  `[${values.map((value) => value.lexeme).join(', ')}]`;
+const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
+---
+
+<figure
+  class="swiglu-diagram"
+  data-visualization-id={swigluFeedForwardDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="shape-summary">
+    <div>
+      <dt>{labels.summary.inputWidth}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.modelWidth.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.hiddenWidth}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.hiddenWidth.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.outputWidth}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.outputWidth.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.bias}</dt>
+      <dd>{labels.symbols.biasFree}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.parameterCount}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.parameterCount.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.inputShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.branchShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.branchShape)}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.outputShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi></dd>
+    </div>
+  </dl>
+
+  <section class="diagram-stage positions-stage" aria-labelledby={`${titleId}-positions`}>
+    <h3 id={`${titleId}-positions`}><span aria-hidden="true">1</span> {labels.stages.positions}</h3>
+    <p>{labels.notes.positionWise}</p>
+    <ol class="position-list">
+      {trace.forward.map((row) => {
+        const position = row.position.lexeme;
+        const gateProjection = String.raw`g_{${position}}=X_{${position}}W_g`;
+        const gateActivation = String.raw`s_{${position}}=\operatorname{SiLU}(g_{${position}})`;
+        const upProjection = String.raw`u_{${position}}=X_{${position}}W_u`;
+        const merge = String.raw`h_{${position}}=s_{${position}}\odot u_{${position}}`;
+        const downProjection = String.raw`Y_{${position}}=h_{${position}}W_2`;
+        return (
+          <li>
+            <article class="position-card" data-position={position}>
+              <h4>{labels.fields.position} <bdi dir="ltr">{position}</bdi></h4>
+              <p class="input-row">
+                <strong>{labels.fields.input}</strong>
+                <bdi dir="ltr">{vector(row.input)}</bdi>
+              </p>
+
+              <div class="branch-grid">
+                <article class="branch gate-branch">
+                  <h5>{labels.stages.gate}</h5>
+                  <p><InlineMath latex={gateProjection} /></p>
+                  <dl>
+                    <div>
+                      <dt>{labels.fields.preActivation}</dt>
+                      <dd><bdi dir="ltr">{vector(row.gatePre)}</bdi></dd>
+                    </div>
+                    <div>
+                      <dt>{labels.fields.activatedGate}</dt>
+                      <dd><bdi dir="ltr">{vector(row.gateSilu)}</bdi></dd>
+                    </div>
+                  </dl>
+                  <p><InlineMath latex={gateActivation} /></p>
+                </article>
+
+                <article class="branch up-branch">
+                  <h5>{labels.stages.up}</h5>
+                  <p><InlineMath latex={upProjection} /></p>
+                  <dl>
+                    <div>
+                      <dt>{labels.fields.upBranch}</dt>
+                      <dd><bdi dir="ltr">{vector(row.up)}</bdi></dd>
+                    </div>
+                  </dl>
+                </article>
+              </div>
+
+              <div class="merge-stage">
+                <strong>{labels.stages.merge}</strong>
+                <InlineMath latex={merge} />
+                <bdi dir="ltr">{vector(row.gated)}</bdi>
+              </div>
+              <div class="down-stage">
+                <strong>{labels.stages.down}</strong>
+                <InlineMath latex={downProjection} />
+                <bdi dir="ltr">{vector(row.output)}</bdi>
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ol>
+    <p class="stage-note">{labels.notes.gate}</p>
+  </section>
+
+  <section class="diagram-stage independence-stage" aria-labelledby={`${titleId}-independence`}>
+    <h3 id={`${titleId}-independence`}><span aria-hidden="true">2</span> {labels.stages.independence}</h3>
+    <p>{labels.notes.independence}</p>
+    <dl class="independence-proof">
+      <div>
+        <dt>{labels.fields.changedPosition}</dt>
+        <dd><bdi dir="ltr">{trace.independence.changedPosition.lexeme}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.replacement}</dt>
+        <dd><bdi dir="ltr">{vector(trace.independence.replacementInput)}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.observedPosition}</dt>
+        <dd><bdi dir="ltr">{trace.independence.observedPosition.lexeme}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.before}</dt>
+        <dd><bdi dir="ltr">{vector(trace.independence.before)}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.after}</dt>
+        <dd><bdi dir="ltr">{vector(trace.independence.after)}</bdi></dd>
+      </div>
+      <div class="proof-result">
+        <dt>{labels.fields.result}</dt>
+        <dd>{labels.symbols.unchanged}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
+    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">3</span> {labels.stages.gradients}</h3>
+    <p>{labels.notes.gradients}</p>
+    <div class="gradient-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
+      <table>
+        <caption>{labels.captions.positionGradients}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.position}</th>
+            <th scope="col">{labels.fields.upstream}</th>
+            <th scope="col">{labels.fields.gatedGradient}</th>
+            <th scope="col">{labels.fields.gateGradient}</th>
+            <th scope="col">{labels.fields.upGradient}</th>
+            <th scope="col">{labels.fields.inputGradient}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.backward.map((row) => (
+            <tr>
+              <th scope="row"><bdi dir="ltr">{row.position.lexeme}</bdi></th>
+              <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.gatedGradient)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.gateGradient)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.upGradient)}</bdi></td>
+              <td class="input-gradient">
+                <InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} />
+                <bdi dir="ltr">{vector(row.inputGradient)}</bdi>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <table>
+        <caption>{labels.captions.parameterGradients}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.parameter}</th>
+            <th scope="col">{labels.fields.shape}</th>
+            <th scope="col">{labels.fields.gradient}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.parameterGradients.map((row) => (
+            <tr>
+              <th scope="row"><bdi dir="ltr">{row.name}</bdi></th>
+              <td><bdi dir="ltr">{shape(row.shape)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .swiglu-diagram {
+    container-type: inline-size;
+    display: grid;
+    gap: 1rem;
+    max-inline-size: 100%;
+    margin: 1.5rem 0;
+    padding: clamp(0.8rem, 2.5vw, 1.25rem);
+    overflow: hidden;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+  }
+
+  .swiglu-diagram:focus-visible,
+  .gradient-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.18rem;
+  }
+
+  figcaption {
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    font-weight: 750;
+  }
+
+  .diagram-description,
+  .diagram-stage > p,
+  .stage-note {
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .shape-summary,
+  .independence-proof {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.65rem;
+    margin: 0;
+  }
+
+  .shape-summary > div,
+  .independence-proof > div {
+    min-inline-size: 0;
+    padding: 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 0.45rem;
+  }
+
+  dt {
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  dd {
+    min-inline-size: 0;
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  .diagram-stage {
+    display: grid;
+    align-content: start;
+    gap: 0.8rem;
+    min-inline-size: 0;
+    padding: clamp(0.7rem, 2vw, 1rem);
+    border: 1px solid var(--line);
+    border-radius: 0.6rem;
+  }
+
+  h3,
+  h4,
+  h5,
+  p {
+    margin: 0;
+  }
+
+  h3 > span {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 1.6rem;
+    min-block-size: 1.6rem;
+    margin-inline-end: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .position-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    align-items: start;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .position-card {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    min-inline-size: 0;
+    padding: 0.75rem;
+    border: 2px solid var(--line);
+    border-block-end-style: double;
+    border-radius: 0.5rem;
+  }
+
+  .input-row,
+  .merge-stage,
+  .down-stage {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.7rem;
+    min-inline-size: 0;
+  }
+
+  .branch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.7rem;
+    min-inline-size: 0;
+  }
+
+  .branch {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    min-inline-size: 0;
+    padding: 0.65rem;
+    border: 2px solid var(--line);
+    border-radius: 0.45rem;
+  }
+
+  .gate-branch {
+    border-style: solid;
+  }
+
+  .up-branch {
+    border-style: double;
+  }
+
+  .branch dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .branch dl > div {
+    min-inline-size: 0;
+    padding-block-start: 0.4rem;
+    border-block-start: 1px dashed var(--line);
+  }
+
+  .merge-stage {
+    padding: 0.65rem;
+    border: 2px dashed var(--line);
+    border-radius: 0.45rem;
+  }
+
+  .down-stage {
+    padding: 0.65rem;
+    border: 3px double var(--line);
+    border-radius: 0.45rem;
+  }
+
+  .proof-result {
+    border-style: double !important;
+  }
+
+  .gradient-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    padding: 0.25rem;
+    scrollbar-gutter: stable;
+  }
+
+  table {
+    inline-size: max-content;
+    min-inline-size: 100%;
+    margin-block: 0 1rem;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+
+  table:last-child {
+    margin-block-end: 0;
+  }
+
+  caption {
+    padding-block-end: 0.45rem;
+    font-weight: 750;
+    text-align: start;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    text-align: start;
+    vertical-align: top;
+    border: 1px solid var(--line);
+  }
+
+  thead th {
+    border-block-end-width: 0.16rem;
+  }
+
+  .input-gradient {
+    display: flex;
+    gap: 0.4rem;
+    align-items: start;
+  }
+
+  bdi {
+    unicode-bidi: isolate;
+  }
+
+  @container (max-width: 36rem) {
+    .branch-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .shape-summary,
+    .independence-proof,
+    .position-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .swiglu-diagram,
+    .diagram-stage,
+    .position-card,
+    .branch,
+    .merge-stage,
+    .down-stage,
+    .shape-summary > div,
+    .independence-proof > div,
+    th,
+    td {
+      forced-color-adjust: auto;
+      border-color: CanvasText;
+    }
+  }
+</style>

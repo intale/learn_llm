@@ -24,6 +24,7 @@ pub mod nn {
     pub mod linear;
     #[path = "probability.rs"]
     pub mod probability;
+    pub mod swiglu;
 }
 
 /// Contiguous storage, borrowed views, and checked tensor operations.
