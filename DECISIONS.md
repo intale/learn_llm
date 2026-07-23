@@ -3928,3 +3928,85 @@ byte-identical.
 
 **Affected step and run:** `implement-ch16-model-autodiff-ops`, run
 `20260723T034017Z-implement-ch16-model-autodiff-ops-01`.
+
+## 2026-07-23 - Declare Chapter 17 source review and trace-parser ownership
+
+**Status:** Accepted during Chapter 17 preflight.
+
+**Context:** Chapter 17's useful visualization must remain a static projection
+of exact deterministic Rust evidence. The scheduled output list named the
+component and tests but omitted the small strict parser required by the
+established chapter-diagram architecture. The chapter also needs bounded review
+of primary sources for early neural-language-model initialization,
+variance-aware initialization, and the stacked Transformer context; treating
+that review as purely local would make network access an undeclared input.
+
+**Decision:** Add
+`site/src/lib/parameter-initialization-diagram.ts` to the Chapter 17 outputs.
+Declare the Bengio et al. neural probabilistic language-model paper, Glorot and
+Bengio's variance-aware initialization paper, and Vaswani et al.'s Transformer
+paper as explicit external inputs. The parser may validate, cross-reference,
+and project Rust-authored trace records but may not generate random values,
+calculate initialization scales or distribution statistics, or propagate
+variance independently. Keep source claims bounded: papers do not define this
+course's PRNG, seed mapping, parameter identity, error precedence, trace
+grammar, or deterministic rounding policy.
+
+**Consequences:** Chapter 17 owns the complete English static slice and its
+presentation boundary. The run has one explicit, bounded network-research phase
+and otherwise uses deterministic local work. No dependency, build definition,
+route policy, locale policy, hosting configuration, deployment definition, or
+client runtime changes.
+
+**Affected step and run:** `implement-ch17-parameter-initialization`, run
+`20260723T045744Z-implement-ch17-parameter-initialization-01`.
+
+## 2026-07-23 - Freeze Chapter 17 diagram evidence independently
+
+**Status:** Accepted during Chapter 17 contract review.
+
+**Context:** The Chapter 17 visualization follows the strict static architecture
+established by Chapter 16. Its parser, component, unit test, browser test, and
+Rust trace materially guide the new slice but were not declared as inputs. The
+scheduled validation also checked learner stdout without independently checking
+the diagram trace byte for byte, which would let a site test become the only
+guard for the source artifact.
+
+**Decision:** Add the Chapter 16 diagram trace, parser, component, focused unit
+test, and focused browser test as explicit Chapter 17 inputs. Add an exact
+`ch17-parameter-initialization-trace` example-to-fixture comparison immediately
+after the learner-output comparison. Keep the new parser independent and strict;
+it consumes the checked Rust fixture but does not import the Chapter 16 parser.
+
+**Consequences:** The run fingerprint covers every material presentation
+pattern, and both learner stdout and visualization evidence have direct Rust
+exact-output gates. No product scope, dependency, build definition, locale,
+route, hosting, deployment, or runtime policy changes.
+
+**Affected step and run:** `implement-ch17-parameter-initialization`, run
+`20260723T045744Z-implement-ch17-parameter-initialization-01`.
+
+## 2026-07-23 - Continue directly from Chapter 17 to Chapter 18
+
+**Status:** Explicitly approved by the user during Chapter 17 final audit.
+
+**Context:** The normal lifecycle requires Chapter 17 to be validated,
+checkpointed, published, and committed before the next eligible step is
+selected. The user asked the agent to begin Chapter 18 immediately afterward
+without another approval and authorized any genuinely necessary costly work.
+
+**Decision:** Complete and commit `implement-ch17-parameter-initialization`
+before selecting `implement-ch18-token-embeddings`, then start Chapter 18 in a
+new immutable run without pausing for chapter approval. Treat the user's message
+as approval for resource-intensive Chapter 18 operations if preflight identifies
+them, while continuing to declare external inputs, record costs and provenance,
+use deterministic local work where practical, and preserve all validation and
+commit boundaries.
+
+**Consequences:** Chapter 18 may proceed directly after the dedicated Chapter 17
+commit. Resource authorization does not waive staging, checkpoint, validation,
+publication, source, dependency, or safety requirements and does not combine the
+two steps into one run or commit.
+
+**Affected steps:** `implement-ch17-parameter-initialization` and
+`implement-ch18-token-embeddings`.

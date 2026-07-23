@@ -1,0 +1,518 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  parameterInitializationDiagramId,
+  parseParameterInitializationTrace,
+  validateParameterInitializationLabels,
+  type InitializationKind,
+  type ParameterInitializationDiagramLabels,
+} from '../../lib/parameter-initialization-diagram';
+
+interface Props {
+  labels: ParameterInitializationDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+validateParameterInitializationLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Parameter-initialization diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch17-parameter-initialization/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseParameterInitializationTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${parameterInitializationDiagramId}-${instanceId}-title`;
+const descriptionId = `${parameterInitializationDiagramId}-${instanceId}-description`;
+const propagationId = `${parameterInitializationDiagramId}-${instanceId}-propagation`;
+const kinds: readonly InitializationKind[] = ['zero', 'oversized', 'xavier'];
+const propagationByKind = new Map(
+  trace.propagations.map((propagation) => [propagation.kind, propagation]),
+);
+const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
+---
+
+<figure
+  class="parameter-initialization-diagram"
+  data-visualization-id={parameterInitializationDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl
+    class="summary-grid"
+    data-seed={trace.fixture.seed.lexeme}
+    data-shape={trace.fixture.shape}
+    data-samples={trace.fixture.samples.lexeme}
+    data-generator={trace.fixture.generator}
+    data-statistic={trace.fixture.statistic}
+    data-propagation={trace.fixture.propagation}
+  >
+    <div>
+      <dt>{labels.summary.seed}</dt>
+      <dd dir="ltr">{trace.fixture.seed.lexeme}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.width}</dt>
+      <dd dir="ltr">{trace.fixture.shape}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.samples}</dt>
+      <dd dir="ltr">{trace.fixture.samples.lexeme}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.generator}</dt>
+      <dd dir="ltr">{trace.fixture.generator} / {trace.fixture.mapping}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.statistic}</dt>
+      <dd>{labels.summary.assumption}</dd>
+    </div>
+  </dl>
+
+  <section class="distribution-section" aria-labelledby={`${titleId}-distributions`}>
+    <h3 id={`${titleId}-distributions`}>{labels.sections.distributions}</h3>
+    <p class="bin-note">
+      {labels.binClosure}
+      <span dir="ltr">Δ={trace.binning.width.lexeme}</span>
+    </p>
+    <div class="distribution-grid">
+      {trace.distributions.map((distribution) => (
+        <article
+          class:list={['distribution-card', `distribution-${distribution.kind}`]}
+          data-initialization-kind={distribution.kind}
+          data-seed={distribution.seed?.lexeme ?? 'none'}
+          data-limit={distribution.limit.lexeme}
+          data-minimum={distribution.minimum.lexeme}
+          data-maximum={distribution.maximum.lexeme}
+          data-mean={distribution.mean.lexeme}
+          data-variance={distribution.variance.lexeme}
+          data-counts={distribution.bins.map((bin) => bin.count.lexeme).join(',')}
+          data-bar-percent={distribution.bins.map((bin) => bin.barPercent.lexeme).join(',')}
+        >
+          <header>
+            <span class="strategy-symbol" aria-hidden="true">{strategySymbol(distribution.kind)}</span>
+            <h4>{labels.strategies[distribution.kind]}</h4>
+          </header>
+          <dl class="distribution-statistics">
+            <div>
+              <dt>{labels.fields.seed}</dt>
+              <dd>
+                {distribution.seed === null ? (
+                  labels.states.noSeed
+                ) : (
+                  <bdi dir="ltr">{distribution.seed.lexeme}</bdi>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>{labels.fields.limit}</dt>
+              <dd><bdi dir="ltr">{distribution.limit.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.minimum}</dt>
+              <dd><bdi dir="ltr">{distribution.minimum.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.maximum}</dt>
+              <dd><bdi dir="ltr">{distribution.maximum.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.mean}</dt>
+              <dd><bdi dir="ltr">{distribution.mean.lexeme}</bdi></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.variance}</dt>
+              <dd><bdi dir="ltr">{distribution.variance.lexeme}</bdi></dd>
+            </div>
+          </dl>
+          <ol class="histogram" aria-label={`${labels.strategies[distribution.kind]}: ${labels.sections.distributions}`}>
+            {distribution.bins.map((bin, index) => (
+              <li
+                data-bin-index={index}
+                data-lower={bin.lower.lexeme}
+                data-upper={bin.upper.lexeme}
+                data-count={bin.count.lexeme}
+                data-bar-percent={bin.barPercent.lexeme}
+                style={`--bar-percent: ${bin.barPercent.lexeme}%`}
+              >
+                <span class="bin-range">
+                  <span class="visually-hidden">{labels.fields.range}: </span>
+                  <bdi dir="ltr">
+                    [{bin.lower.lexeme}, {bin.upper.lexeme}{bin.includesUpper ? ']' : ')'}
+                  </bdi>
+                </span>
+                <span class="bin-count">
+                  <span class="visually-hidden">{labels.fields.count}: </span>
+                  <bdi dir="ltr">{bin.count.lexeme}</bdi>
+                </span>
+                <span class="bin-share">
+                  <span class="visually-hidden">{labels.fields.share}: </span>
+                  <bdi dir="ltr">{bin.barPercent.lexeme}%</bdi>
+                </span>
+                <span class="bin-bar" aria-hidden="true"><span></span></span>
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
+    </div>
+    <p
+      class="pairing-note"
+      data-pairing-seed={trace.pairing.seed.lexeme}
+      data-base-draws-equal={trace.pairing.baseDrawsEqual}
+      data-limit-ratio={trace.pairing.oversizedToXavierLimit.lexeme}
+    >
+      <strong>{labels.pairing}</strong>
+      <span>{labels.states.sameStream}</span>
+      <span dir="ltr">
+        seed={trace.pairing.seed.lexeme};
+        ratio={trace.pairing.oversizedToXavierLimit.lexeme}
+      </span>
+    </p>
+  </section>
+
+  <section class="propagation-section" aria-labelledby={propagationId}>
+    <h3 id={propagationId}>{labels.sections.propagation}</h3>
+    <p>{labels.propagationAssumption}</p>
+    <div
+      class="table-scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.sections.propagation}
+    >
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.layer}</th>
+            {kinds.map((kind) => (
+              <th scope="col">
+                <span class="strategy-symbol" aria-hidden="true">{strategySymbol(kind)}</span>
+                {labels.strategies[kind]}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {trace.fixture.layers.map((layer, layerIndex) => (
+            <tr data-layer={layer.lexeme}>
+              <th scope="row" dir="ltr">{layer.lexeme}</th>
+              {kinds.map((kind) => (
+                <td
+                  dir="ltr"
+                  data-kind={kind}
+                  data-variance={propagationByKind.get(kind)?.variances[layerIndex].lexeme}
+                >
+                  {propagationByKind.get(kind)?.variances[layerIndex].lexeme}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="reproducibility-section" aria-labelledby={`${titleId}-reproducibility`}>
+    <h3 id={`${titleId}-reproducibility`}>{labels.sections.reproducibility}</h3>
+    <div class="reproducibility-grid">
+      <p
+        data-reproducibility="same-seed"
+        data-seed={trace.reproducibility.seed.lexeme}
+        data-result={trace.reproducibility.sameSeedEqual}
+      >
+        <span class="repro-symbol" aria-hidden="true">{labels.symbols.same}</span>
+        <strong>{labels.states.sameSeedEqual}</strong>
+        <span dir="ltr">seed={trace.reproducibility.seed.lexeme}</span>
+      </p>
+      <p
+        data-reproducibility="alternate-seed"
+        data-seed={trace.reproducibility.alternateSeed.lexeme}
+        data-result={trace.reproducibility.alternateSeedDifferent}
+      >
+        <span class="repro-symbol" aria-hidden="true">{labels.symbols.different}</span>
+        <strong>{labels.states.alternateSeedDifferent}</strong>
+        <span dir="ltr">seed={trace.reproducibility.alternateSeed.lexeme}</span>
+      </p>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .parameter-initialization-diagram {
+    max-inline-size: 100%;
+    margin-block: 2rem;
+    margin-inline: 0;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 2px solid var(--border-strong, #53657a);
+    border-radius: 1rem;
+    background: var(--surface-raised, #101722);
+  }
+
+  .parameter-initialization-diagram:focus-visible,
+  .table-scroll:focus-visible {
+    outline: 3px solid var(--focus-ring, #f4c15d);
+    outline-offset: 3px;
+  }
+
+  figcaption {
+    font-size: 1.2rem;
+    font-weight: 750;
+  }
+
+  .diagram-description,
+  .bin-note,
+  .propagation-section > p {
+    max-inline-size: 75ch;
+  }
+
+  .summary-grid,
+  .distribution-statistics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    gap: 0.75rem;
+    margin-block: 1rem;
+  }
+
+  .summary-grid > div,
+  .distribution-statistics > div {
+    padding: 0.65rem;
+    border-inline-start: 3px solid var(--border-muted, #75879d);
+    background: var(--surface-subtle, #182333);
+  }
+
+  dt {
+    color: var(--text-muted, #bdc9d8);
+    font-size: 0.82rem;
+  }
+
+  dd {
+    margin-inline-start: 0;
+    overflow-wrap: anywhere;
+  }
+
+  h3,
+  h4 {
+    margin-block-end: 0.65rem;
+  }
+
+  .distribution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .distribution-card {
+    min-inline-size: 0;
+    padding: 0.9rem;
+    border: 3px solid var(--accent, #73b8ff);
+    border-radius: 0.75rem;
+    background: var(--surface-subtle, #182333);
+  }
+
+  .distribution-zero {
+    border-style: dotted;
+  }
+
+  .distribution-oversized {
+    border-style: dashed;
+    --accent: #ffad66;
+  }
+
+  .distribution-xavier {
+    border-style: double;
+    --accent: #79d6a3;
+  }
+
+  .distribution-card header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+
+  .strategy-symbol,
+  .repro-symbol {
+    display: inline-grid;
+    min-inline-size: 1.7rem;
+    min-block-size: 1.7rem;
+    place-items: center;
+    border: 2px solid currentColor;
+    border-radius: 0.3rem;
+    font-weight: 800;
+  }
+
+  .histogram {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .histogram li {
+    display: grid;
+    grid-template-columns: minmax(9rem, 1.7fr) minmax(2.8rem, auto) minmax(5rem, auto);
+    gap: 0.45rem;
+    align-items: center;
+    padding-block: 0.25rem;
+    border-block-end: 1px solid var(--border-muted, #53657a);
+  }
+
+  .bin-range,
+  .bin-count,
+  .bin-share {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bin-count,
+  .bin-share {
+    text-align: end;
+  }
+
+  .bin-bar {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    border: 1px solid var(--border-muted, #75879d);
+    border-radius: 999px;
+    background: var(--surface-raised, #101722);
+  }
+
+  .bin-bar > span {
+    display: block;
+    inline-size: var(--bar-percent);
+    min-block-size: 0.45rem;
+    background: var(--accent, #73b8ff);
+  }
+
+  .pairing-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.8rem;
+    margin-block: 1rem;
+    padding: 0.75rem;
+    border-inline-start: 4px solid var(--accent, #73b8ff);
+    background: var(--surface-subtle, #182333);
+  }
+
+  .table-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  table {
+    inline-size: 100%;
+    min-inline-size: 42rem;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.65rem;
+    border: 1px solid var(--border-muted, #53657a);
+    text-align: start;
+    font-variant-numeric: tabular-nums;
+  }
+
+  thead th {
+    background: var(--surface-subtle, #182333);
+  }
+
+  thead .strategy-symbol {
+    margin-inline-end: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .reproducibility-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .reproducibility-grid p {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.65rem;
+    align-items: center;
+    padding: 0.8rem;
+    border: 2px solid var(--border-muted, #75879d);
+    border-radius: 0.65rem;
+  }
+
+  .reproducibility-grid p > span:last-child {
+    grid-column: 2;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 58rem) {
+    .distribution-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 32rem) {
+    .parameter-initialization-diagram {
+      padding: 0.8rem;
+    }
+
+    .histogram li {
+      min-inline-size: 0;
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .bin-range {
+      grid-column: 1 / -1;
+      overflow-wrap: anywhere;
+    }
+
+    .bin-count {
+      grid-column: 1;
+      text-align: start;
+    }
+
+    .bin-share {
+      grid-column: 2;
+    }
+
+    .reproducibility-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .distribution-card,
+    .summary-grid > div,
+    .distribution-statistics > div,
+    .pairing-note,
+    .reproducibility-grid p,
+    th,
+    td {
+      forced-color-adjust: auto;
+      border-color: CanvasText;
+    }
+
+    .bin-bar > span {
+      background: Highlight;
+    }
+  }
+</style>

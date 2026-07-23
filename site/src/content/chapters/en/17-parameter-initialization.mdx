@@ -1,0 +1,470 @@
+---
+{
+  "chapter_id": "17-parameter-initialization",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 17,
+  "concept_id": "parameter-initialization",
+  "title": "Initialize every trainable tensor reproducibly",
+  "description": "Initialize model parameters reproducibly in Rust, compare zero, oversized, and Xavier scales, and track expected variance through stacked linear layers.",
+  "objective": "Create named trainable tensors with reproducible, non-symmetric values and a width-aware starting scale.",
+  "worked_inputs": "Use seed 17 to initialize a [2,2] projection with fan-in 2 and fan-out 2. Predict a target variance of 1/2, a standard deviation of 1/sqrt(2), a uniform bound of sqrt(3/2), exact same-seed reproduction, different values for seed 18, and unequal initialized columns. Contrast that result with a zero 2-to-2 SiLU layer whose equal hidden units receive equal gradient columns.",
+  "formula": {
+    "latex": "\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}",
+    "symbols": [
+      {
+        "symbol": "W",
+        "meaning": "one weight matrix before training"
+      },
+      {
+        "symbol": "i",
+        "meaning": "the input-coordinate index of one weight"
+      },
+      {
+        "symbol": "j",
+        "meaning": "the output-coordinate index of one weight"
+      },
+      {
+        "symbol": "W_{ij}",
+        "meaning": "the weight connecting input coordinate i to output coordinate j"
+      },
+      {
+        "symbol": "\\operatorname{Var}(W_{ij})",
+        "meaning": "the target variance of the initialization distribution, not the measured variance of one finite matrix"
+      },
+      {
+        "symbol": "\\operatorname{fan}_{in}",
+        "meaning": "the number of input values accumulated by one output"
+      },
+      {
+        "symbol": "\\operatorname{fan}_{out}",
+        "meaning": "the number of outputs that receive each input"
+      },
+      {
+        "symbol": "2",
+        "meaning": "the compromise between the forward fan-in and backward fan-out variance conditions"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "Bengio et al. jointly learn word features and neural matrices for next-word prediction and report random word-feature initialization similar to neural-network weight initialization. Their paper does not define a dimension-aware or reproducible initialization rule; arbitrary scales become more consequential when learned transformations are composed through depth.",
+      "later_advance": "Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later assemble learned embeddings, attention projections, output projections, and feed-forward matrices into repeated Transformer layers, making many width-dependent trainable tensors part of one language model.",
+      "modern_llm_role": "This chapter gives later decoder parameters distinct deterministic values, stable names, and a declared width-aware target variance. Applying Xavier-style uniform initialization to this small SiLU, RMSNorm, and residual decoder is a transparent course policy, not a claim that the original Transformer specified it or that every signal will preserve variance exactly.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. define a learned word-feature matrix and neural parameter matrices for next-word prediction, optimize them jointly, and report random initialization of the word features similarly to neural-network weights."
+        },
+        {
+          "role": "later",
+          "year": 2010,
+          "name": "Glorot and Bengio, Understanding the difficulty of training deep feedforward neural networks",
+          "source_url": "https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf",
+          "claim": "Glorot and Bengio balance fan-in and fan-out variance conditions under stated simplifying assumptions, yielding target variance 2 divided by their sum and a normalized zero-centered uniform initialization."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. build repeated Transformer layers from learned embeddings, query/key/value and output projections, and two learned feed-forward transformations; the paper does not prescribe a parameter initializer."
+        }
+      ]
+    },
+    "approach": "From randomly initialized neural-language-model features to width-aware starting scales for stacked learned transformations",
+    "summary": "Early neural next-word models made learned word vectors and neural matrices practical and initialized word features randomly. Variance-aware initialization later addressed multiplicative scale drift through depth, while Transformers placed many learned projections in repeated layers. The executable Rust contrast exposes zero-unit symmetry, exact seeded Xavier samples, and stable named enumeration without attributing the course's generator, names, errors, or decoder-wide policy to those papers.",
+    "rust_source": "rust/demos/ch17-parameter-initialization/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "zero-symmetry-probe",
+      "purpose": "Expose the equal hidden-unit gradient columns produced by one zero-initialized SiLU path."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "parameter-init-errors",
+      "purpose": "Declare typed name, fan, shape, allocation, tensor, and duplicate failures."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "deterministic-prng",
+      "purpose": "Define the exact dependency-free SplitMix64 stream and binary64 mapping."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "xavier-initialization",
+      "purpose": "Validate both widths, calculate the Xavier scale, and construct one named trainable tensor transactionally."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
+      "region": "named-parameters",
+      "purpose": "Validate stable dot-separated names and preserve declaration order while rejecting duplicates."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "fixed-seed-parameter",
+      "purpose": "Construct the exact seed-17 projection and compare same- and different-seed requests."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "named-parameter-enumeration",
+      "purpose": "Enumerate two stable parameter names and compare clone identity with independent reconstruction."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/lib.rs",
+      "region": "initialization-errors-example",
+      "purpose": "Show validation precedence and prove that rejected requests leave the generator unchanged."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/main.rs",
+      "region": "learner-parameter-initialization-output",
+      "purpose": "Prepare the frozen scale, samples, symmetry, identity, error, and handoff evidence for learner output."
+    },
+    {
+      "path": "rust/demos/ch17-parameter-initialization/src/diagram_trace.rs",
+      "region": "parameter-initialization-trace",
+      "purpose": "Record exact Rust-authored histograms, finite-sample statistics, expected propagation, and reproducibility evidence."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "parameter-initialization",
+    "rationale": "Side-by-side Rust-authored distributions and expected linear-variance records make zero collapse, oversized spread, and width-aware scale drift visible; final parameter values or a prose list alone hide those relationships."
+  },
+  "decoder_connection": "The cumulative implementation can now create named trainable tables and matrices with reproducible, distinct values and a declared width-aware starting scale. Chapter 18 gives one such table embedding semantics: token IDs select rows, repeated IDs share one row, and their gradients scatter-add. Initialization chooses starting values; it does not implement lookup behavior."
+}
+---
+
+import ParameterInitializationDiagram from '../../../components/chapters/ParameterInitializationDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Compare one seed across three starting scales',
+  description:
+    'Inspect exact Rust-authored histograms for zero, oversized, and Xavier-style weights, then follow their assumption-bound expected variance through four linear layers.',
+  summary: {
+    seed: 'Shared seed',
+    width: 'Matrix shape',
+    samples: 'Weight samples',
+    generator: 'Generator and mapping',
+    statistic: 'Statistic',
+    assumption: 'Population variance from a two-pass calculation',
+  },
+  sections: {
+    distributions: 'Compare fixed-seed weight distributions',
+    propagation: 'Follow expected linear variance through depth',
+    reproducibility: 'Check what the seed does and does not fix',
+  },
+  fields: {
+    range: 'Bin range',
+    count: 'Count',
+    share: 'Share of samples',
+    seed: 'Seed',
+    limit: 'Uniform limit',
+    minimum: 'Observed minimum',
+    maximum: 'Observed maximum',
+    mean: 'Observed mean',
+    variance: 'Observed population variance',
+    layer: 'Layer depth',
+  },
+  strategies: {
+    zero: 'All-zero weights',
+    oversized: 'Double-width uniform weights',
+    xavier: 'Xavier-style uniform weights',
+  },
+  states: {
+    noSeed: 'No draws',
+    sameStream: 'The two uniform samples use the same base draws.',
+    sameSeedEqual: 'Same seed and request reproduce exactly',
+    alternateSeedDifferent: 'The selected alternate seed differs',
+  },
+  symbols: {
+    zero: '0',
+    oversized: '2×',
+    xavier: 'X',
+    same: '=',
+    different: '≠',
+  },
+  binClosure:
+    'All strategies share equal-width bins. Each interval includes its left edge; only the final interval includes its right edge.',
+  propagationAssumption:
+    'These are expected variances for independent linear layers with unit input variance. They are not measured guarantees for the nonlinear residual decoder.',
+  pairing: 'Controlled comparison',
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict one seed, scale, and symmetry failure
+
+Initialize a projection of shape `[2,2]` with seed `17`, fan-in `2`, and
+fan-out `2`. Before running the example, predict a target variance of `1/2`, a
+standard deviation of `1/sqrt(2)`, and a zero-centered uniform bound of
+`sqrt(3/2)`. The frozen generator produces these row-major values after
+twelve-decimal rounding:
+
+```text
+ 0.004950883736  -0.265932089217
+-0.420504358848  -0.676313443233
+```
+
+The same seed, shape, fan values, and construction order must reproduce the
+same tensor bit for bit. The selected alternate seed `18` must produce a
+different tensor. Those relationships are predictable even though the learner
+does not calculate the pseudorandom sequence by hand.
+
+Now contrast the distinct columns with a zero-initialized two-unit path. Let
+`x=[1,-1]`, set a `[2,2]` input matrix to zero, apply SiLU, and use equal output
+weights `[1,1]`. The scalar output is zero. SiLU's derivative at zero is `1/2`,
+so both input-weight gradient columns are `[0.5,-0.5]`. An equal update
+therefore preserves the hidden units' equality.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="zero-symmetry-probe"
+  caption="Differentiate the fixed zero-weight SiLU path and expose its equal gradient columns"
+  label="Rust source proving the Chapter 17 zero-initialized hidden-unit symmetry"
+/>
+
+This is a bounded symmetry example, not a rule that every zero value is wrong.
+Zero biases and unit normalization gains can be deliberate because they do not
+create two equally treated trainable feature columns.
+
+{/* chapter-section:formula */}
+
+## Target a distribution, not one exact finite sample
+
+The chapter's display formula is:
+
+$$
+\operatorname{Var}(W_{ij})=\frac{2}{\operatorname{fan}_{in}+\operatorname{fan}_{out}}
+$$
+
+For a zero-centered uniform distribution over `[-a,a)`, the distribution
+variance is `a²/3`. Matching the display formula gives
+`a=sqrt(6/(fan-in+fan-out))`.
+
+The word *target* matters. Four sampled numbers do not have to possess exactly
+the distribution's theoretical variance. The rule also does not guarantee
+that signals cannot shrink or grow: its derivation uses simplifying
+independence and near-linear assumptions, while the eventual decoder includes
+nonlinearities, normalization, residual paths, data, and optimization.
+
+{/* chapter-section:symbol-glossary */}
+
+## Name the weight and both widths
+
+| Symbol | Operational meaning |
+| :--- | :--- |
+| $W$ | One weight matrix before training. |
+| $i$ | The input-coordinate index of one weight. |
+| $j$ | The output-coordinate index of one weight. |
+| $W_{ij}$ | The weight connecting input coordinate $i$ to output coordinate $j$. |
+| $\operatorname{Var}(W_{ij})$ | The target variance of the initialization distribution, not one finite matrix's measured variance. |
+| $\operatorname{fan}_{in}$ | The number of input values accumulated by one output. |
+| $\operatorname{fan}_{out}$ | The number of outputs receiving each input. |
+| $2$ | The compromise between the forward fan-in and backward fan-out variance conditions. |
+
+For fan-in `2` and fan-out `2`, the target standard deviation is
+`0.707106781187` and the uniform bound is `1.224744871392`. Doubling fan-in to
+`4` while keeping fan-out `2` reduces them to `0.577350269190` and
+`1.000000000000`. Width is part of the initialization request, not metadata
+that can be guessed after sampling.
+
+{/* chapter-section:history */}
+
+## From neural word features to width-aware decoder parameters
+
+Bengio et al. jointly learn word features and neural matrices for next-word prediction and report random word-feature initialization similar to neural-network weight initialization. Their paper does not define a dimension-aware or reproducible initialization rule; arbitrary scales become more consequential when learned transformations are composed through depth.
+
+The early neural-language-model checkpoint is
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
+Bengio et al. define a learned word-feature matrix and neural parameter matrices for next-word prediction, optimize them jointly, and report random initialization of the word features similarly to neural-network weights.
+
+That source supports random starting values for learned language-model features
+and matrices. It does not specify this course's dimension-aware scale, exact
+distribution, seed, generator, stable names, validation order, or trace.
+
+Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later assemble learned embeddings, attention projections, output projections, and feed-forward matrices into repeated Transformer layers, making many width-dependent trainable tensors part of one language model.
+
+The width-aware checkpoint is
+[Glorot and Bengio, *Understanding the difficulty of training deep feedforward neural networks*](https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf).
+Glorot and Bengio balance fan-in and fan-out variance conditions under stated simplifying assumptions, yielding target variance 2 divided by their sum and a normalized zero-centered uniform initialization. Those assumptions motivate the scale; they do not exactly describe a SiLU, RMSNorm, and residual decoder.
+
+The repeated learned-parameter checkpoint is
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
+Vaswani et al. build repeated Transformer layers from learned embeddings, query/key/value and output projections, and two learned feed-forward transformations; the paper does not prescribe a parameter initializer. Its attention-score and embedding scaling are forward computations, not evidence for Xavier initialization.
+
+This chapter gives later decoder parameters distinct deterministic values, stable names, and a declared width-aware target variance. Applying Xavier-style uniform initialization to this small SiLU, RMSNorm, and residual decoder is a transparent course policy, not a claim that the original Transformer specified it or that every signal will preserve variance exactly.
+
+The progression is about trainable language models: learned neural word
+features, variance-aware deep transformations, then repeated Transformer
+parameters. It is not a history of programming languages or frontend
+frameworks.
+
+{/* chapter-section:rust-implementation */}
+
+## Generate and name parameters transactionally
+
+The implementation uses SplitMix64 so the exact sequence is small,
+dependency-free, and documented. The seed is the raw state before the first
+increment; zero is valid. Each draw maps the high 53 mixed bits to binary64
+before the affine uniform transform. This is deterministic pseudorandom
+sampling, not cryptographic randomness.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="parameter-init-errors"
+  caption="Declare stable failures for invalid names, widths, shapes, allocation, tensors, and duplicates"
+  label="Rust source defining the Chapter 17 parameter-initialization errors"
+/>
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="deterministic-prng"
+  caption="Advance SplitMix64 and map its high 53 bits into one binary64 unit draw"
+  label="Rust source defining the Chapter 17 deterministic pseudorandom generator"
+/>
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="xavier-initialization"
+  caption="Validate both widths and construct one Xavier-style named trainable tensor"
+  label="Rust source defining the Chapter 17 Xavier-style parameter constructor"
+/>
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/init.rs"
+  region="named-parameters"
+  caption="Validate immutable dot-separated names and preserve declaration order"
+  label="Rust source defining the Chapter 17 named parameter collection"
+/>
+
+Names use nonempty lowercase ASCII segments separated by dots; each segment may
+also contain digits and underscores. Validation checks the name, zero fan-in,
+zero fan-out, fan-sum overflow, shape-product overflow, allocation, and tensor
+construction in declared order. Sampling uses a cloned trial generator and
+commits its state only after the trainable leaf exists, so every returned error
+leaves the caller's generator unchanged.
+
+A name is stable external identity. A cloned `NamedParameter` retains the same
+runtime tape node, while an independently recreated equal tensor is a different
+node. No generated numeric parameter IDs, layer abstractions, optimizer groups,
+or checkpoint format are introduced here.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="fixed-seed-parameter"
+  caption="Construct the frozen projection and compare seed 17 with itself and seed 18"
+  label="Rust source defining the Chapter 17 fixed-seed parameter fixture"
+/>
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="named-parameter-enumeration"
+  caption="Preserve declaration order and distinguish stable names from runtime node identity"
+  label="Rust source demonstrating Chapter 17 named parameter enumeration"
+/>
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/lib.rs"
+  region="initialization-errors-example"
+  caption="Reject invalid requests without advancing the caller's generator"
+  label="Rust source demonstrating Chapter 17 transactional initialization failures"
+/>
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/main.rs"
+  region="learner-parameter-initialization-output"
+  caption="Prepare the exact scale, samples, symmetry, names, identity, errors, and handoff evidence"
+  label="Rust source preparing the Chapter 17 learner-facing output"
+/>
+
+Run the complete example from the repository root:
+
+```sh
+./course run cargo run --quiet --locked -p ch17-parameter-initialization
+```
+
+Its standard output is frozen byte for byte, including the final newline.
+
+{/* chapter-section:visualization */}
+
+## Compare fixed-seed distributions and expected variance
+
+The diagnostic expands the width to `[64,64]`, giving `4096` weights per
+strategy. Zero uses no draws. Oversized uniform and Xavier-style uniform reuse
+the same seed-17 base draws, with the oversized bound exactly twice as large.
+That controlled pairing isolates scale while Rust records the histogram bins,
+counts, display percentages, and two-pass population statistics.
+
+The second rail is assumption-bound. Starting from unit input variance, it
+records expected variance through four independent linear layers: zero
+collapses to zero, the doubled bound multiplies variance by four per layer, and
+the Xavier case stays at one. These are expected values under the declared
+linear independence assumptions, not measurements or guarantees for the
+nonlinear residual decoder.
+
+<RustSource
+  path="rust/demos/ch17-parameter-initialization/src/diagram_trace.rs"
+  region="parameter-initialization-trace"
+  caption="Emit the exact distributions, histograms, expected propagation, and seed comparisons consumed below"
+  label="Rust source defining the Chapter 17 static parameter-initialization trace"
+/>
+
+<ParameterInitializationDiagram labels={diagramLabels} />
+
+The presentation validates and arranges the Rust trace. It does not resample
+weights, calculate bounds or statistics, bin values, normalize percentages,
+derive powers, classify outcomes, or recompute variance.
+
+{/* chapter-section:exercises */}
+
+## Predict before running Rust
+
+1. For fan-in `2` and fan-out `2`, calculate the target variance, standard deviation, and uniform bound.
+2. Recalculate those three quantities when fan-in becomes `4` and fan-out remains `2`.
+3. Derive the two input-weight gradient columns for the zero-weight SiLU fixture.
+4. Which values must match when seed, shape, fan values, and construction order all match?
+5. Why should the selected seed `18` fixture differ without proving that every pair of possible seeds differs?
+6. Why does one finite `[2,2]` tensor not need an empirical variance of exactly `1/2`?
+7. In which order are `decoder.block.0.attention.query.weight` and `token_embedding.weight` enumerated?
+8. Does a rejected invalid name or zero fan advance the generator, and which duplicate does a collection report?
+9. Does Vaswani et al. prescribe Xavier initialization for the Transformer?
+10. Does the formula guarantee exact realized variance or prevent every signal from shrinking or growing?
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The target variance is `0.5`, the standard deviation is `0.707106781187`, and the bound is `1.224744871392`.
+  2. They become `1/3`, `0.577350269190`, and `1.000000000000`.
+  3. Both columns are `[0.5,-0.5]`: the equal output weights and SiLU derivative `1/2` give each hidden unit the same upstream factor.
+  4. The generator stream and resulting tensor bits match for this identical request.
+  5. The frozen seed-18 request is tested to differ. A pseudorandom generator is deterministic, but that selected test is not a mathematical uniqueness promise for every seed and request.
+  6. The formula describes a distribution. A small finite sample has sampling variation.
+  7. Declaration order is preserved: the query projection appears first, followed by the token table.
+  8. Neither rejection advances the generator. A collection reports the first repeated name together with its original and repeated indices.
+  9. No. The paper describes learned Transformer parameters but does not prescribe their initializer.
+  10. No. Xavier targets a sampling variance under simplifying assumptions; finite samples, nonlinearities, normalization, residual paths, depth, data, and optimization still affect propagation.
+</details>
+
+The central misconception is equating a target distribution variance with one
+matrix's exact measured variance—or with a promise that activations can never
+vanish or explode. Xavier-style initialization is a clear bounded baseline,
+not such a guarantee.
+
+{/* chapter-section:decoder-connection */}
+
+## Give initialization meaning as a token table
+
+The cumulative implementation can now create named trainable tables and matrices with reproducible, distinct values and a declared width-aware starting scale. Chapter 18 gives one such table embedding semantics: token IDs select rows, repeated IDs share one row, and their gradients scatter-add. Initialization chooses starting values; it does not implement lookup behavior.
+
+Construction order matters when several parameters share one generator stream:
+inserting an earlier parameter changes all later draws. Keep that order
+deliberate and test it. Chapter 18 adds token lookup semantics, Chapter 21 keeps
+data shuffling on a separately owned stream, Chapter 22 introduces optimizer
+state, and Chapter 35 persists parameter values and training provenance.

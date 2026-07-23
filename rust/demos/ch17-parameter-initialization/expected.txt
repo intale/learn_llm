@@ -1,0 +1,12 @@
+seed: 17
+projection: shape=2x2 fan_in=2 fan_out=2
+target variance: 0.500000000000
+uniform limit: 1.224744871392
+weights: 0.004950883736,-0.265932089217,-0.420504358848,-0.676313443233
+same seed reproduces: true
+different seed differs: true
+zero symmetry: output=0.000000000000 columns-equal=true gradient=0.500000000000,0.500000000000,-0.500000000000,-0.500000000000
+parameters: decoder.block.0.attention.query.weight[2x2] | token_embedding.weight[4x2]
+identity: clone-same-node=true recreated-same-node=false
+validation: invalid-name | duplicate-name | zero-fan-in; rng-unchanged=true
+chapter 18 handoff: initialize a trainable token table

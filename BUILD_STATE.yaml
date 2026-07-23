@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-22T17:54:27Z"
+updated_at: "2026-07-23T06:15:30Z"
 
 environment:
   os: "Linux x86_64"
@@ -9096,11 +9096,16 @@ builds:
         objective: "Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths."
         depends_on:
           - implement-ch16-model-autodiff-ops
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/16-model-autodiff-ops.md"
+          - "rust/demos/ch16-model-autodiff-ops/diagram-trace.txt"
+          - "site/src/lib/model-autodiff-ops-diagram.ts"
+          - "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
+          - "site/tests/16-model-autodiff-ops-diagram.test.ts"
+          - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
@@ -9118,6 +9123,9 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
         outputs:
           - "curriculum/chapters/17-parameter-initialization.md"
           - "rust/crates/llm-from-scratch/src/nn/init.rs"
@@ -9125,6 +9133,7 @@ builds:
           - "rust/demos/ch17-parameter-initialization/"
           - "site/src/content/chapters/en/17-parameter-initialization.mdx"
           - "site/src/components/chapters/ParameterInitializationDiagram.astro"
+          - "site/src/lib/parameter-initialization-diagram.ts"
           - "site/tests/17-parameter-initialization-diagram.test.ts"
           - "site/tests/e2e/ch17-parameter-initialization.spec.ts"
           - "Cargo.lock"
@@ -9144,6 +9153,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch17-parameter-initialization | diff -u rust/demos/ch17-parameter-initialization/expected.txt -"
+          - "cargo run --quiet --locked -p ch17-parameter-initialization --example ch17-parameter-initialization-trace | diff -u rust/demos/ch17-parameter-initialization/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 17-parameter-initialization"
           - "npm --prefix site run check:parity -- --chapter 17-parameter-initialization"
           - "npm --prefix site run check:content"
@@ -9155,8 +9165,83 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One bounded primary-source web review followed by a complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, or concept-implementing dependency."
+        runs:
+          - run_id: 20260723T045744Z-implement-ch17-parameter-initialization-01
+            started_at: "2026-07-23T04:57:44Z"
+            finished_at: "2026-07-23T06:15:30Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b97e35561f268170befc22593c755d84fe2ff761"
+              manifest: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/input-fingerprint.txt"
+              checksum: "sha256:488123cb47d07a50205c57f8066dd132c03bb08096af858b863b966e8f8dca0f"
+              relevant_inputs: "sha256:699070ec1ef70c06436efabb4cdae98e6080c101e3b82838e253f610a8b26970"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged; host Node/npm 24.18.0/11.16.0 orchestration only"
+            staging_dir: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/"
+            commands:
+              - "Complete startup protocol, parse the complete ledger, verify the Chapter 16 frozen publication manifest, compare pinned and host environments, inspect the Chapter 16 handoff and Chapter 17 schedule, and identify the first eligible step"
+              - "Declare the missing strict diagram-parser output and bounded Bengio, Glorot, and Vaswani primary-source review before product work"
+              - "Review the declared Bengio, Glorot, and Vaswani primary sources and freeze a bounded LLM-focused claim map"
+              - "Freeze the Chapter 17 predict-first contract and pass its early structure-only validation"
+              - "Implement the dependency-free SplitMix64 and named Xavier-style parameter API, exact learner and diagram traces, strict static trace projection, English lesson, and focused unit and browser coverage in the isolated worktree"
+              - "Run the initial staged Rust, contract, content, Astro, unit, static-build, link, SEO, and focused Chromium gates; correct one E2E typing defect and one narrow histogram overflow before continuing"
+              - "Rebuild the latest staged source and Chromium overlays without network access and run the complete Rust, content, static-site, link, SEO, focused-browser, and full-browser validation matrix"
+              - "Receive three independent final audits; correct the site audit's RTL label direction and missing histogram range label, remove the hidden propagation mirror, and strengthen visible-output, natural-height, and fail-closed coverage"
+              - "Revalidate the corrected staged slice, freeze 16 product outputs under publish/, verify publish.sha256, publish to canonical paths with byte-identity checks, and replay the complete canonical matrix without network access"
+            artifacts:
+              - path: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/input-fingerprint.txt"
+                checksum: "sha256:488123cb47d07a50205c57f8066dd132c03bb08096af858b863b966e8f8dca0f"
+              - path: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/research/source-review.md"
+                checksum: "sha256:3dd67f868ff86ea9149444b9f9d4a74b7461edade50e9a11309df34e865f0b76"
+              - path: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/workspace/curriculum/chapters/17-parameter-initialization.md"
+                checksum: "sha256:0315b53d46411467d7702c273caf972b52eda9d0605d2721b735b0e7533d8dbc"
+              - path: ".build/runs/20260723T045744Z-implement-ch17-parameter-initialization-01/publish.sha256"
+                checksum: "sha256:32bfbb0e273651fc09a514ff17c05ae93d0d3c5eeec85486ddfd37e0998c1b06"
+              - path: "docker-image:learn-llm-ch17-source:canonical"
+                checksum: "sha256:91665b4ae95dba27b41a347e79ea83a9758b4a0b6d374bb1a449e9e74e587712"
+              - path: "docker-image:learn-llm-ch17-browser:canonical"
+                checksum: "sha256:5f324d9ad8fb9b8c66fbcae6c0f4d52c728d780a437388def1a836def43c578b"
+            validation:
+              - command: "Startup, source-of-truth, environment, dependency, prior-artifact, ownership, and cost preflight"
+                status: passed
+                notes: "No stale running step exists; implement-ch16-model-autodiff-ops is completed and all 19 entries in its frozen publication manifest revalidate at sha256:25ea4b587ed2382fb900f85b69b8aca5969504dec7de57f147f916ded29776ff; pinned Docker, Compose, Rust, Cargo, Node, npm, Git, and Bash versions are available; every required local input exists; only unrelated desktop.ini is untracked; the medium step has no budget limit, paid service, generation, dependency, build-definition, hosting, or deployment change. One bounded primary-source web review is explicit."
+              - command: "Bounded primary-source review"
+                status: passed
+                notes: "Bengio et al. support jointly learned next-word parameters and random word-feature initialization; Glorot and Bengio support the assumption-bounded fan-in/fan-out variance compromise and normalized uniform scale; Vaswani et al. support the stacked learned projection context. None is used to attribute this course's PRNG, seed mapping, parameter identity, errors, trace, or rounding policy."
+              - command: "Early Chapter 17 contract structure check"
+                status: passed
+                notes: "The frozen English-only contract passes the integrated structure validator with one notation-only formula, every symbol defined, three bounded primary sources, exact Rust sources/stdout, exercises, misconception, useful-visualization decision, and Chapter 18 handoff."
+              - command: "Initial staged implementation and focused validation"
+                status: passed
+                notes: "The isolated slice passes the integrated contract, 14 core initialization tests, five demo tests, exact learner and 15-line diagram traces, warning-denying Clippy, all workspace tests, dependency and 17-demo policy, 18 focused parser/component tests, zero-diagnostic Astro analysis, content/parity, a 29-page static build, 681 local references and SEO routes, and four focused Chromium cases after correcting the discovered TypeScript annotation and 390px histogram overflow. Independent final audits and the complete post-audit staged matrix remain pending."
+              - command: "Complete post-edit staged validation against network-disabled source sha256:e314c6663d8015d26ebb758ca6742a8af7c5e0cd5055c23681ffc329574468ed and browser sha256:e7967bf5b7dba9a2a7c1376196fcfc5ec529c4d47613588b3cfd9bbf15fc7894 overlays"
+                status: passed
+                notes: "The pre-audit snapshot passed: course plan and integrated contract; formatted, warning-free Rust; all workspace and doc tests including 180 core and five Chapter 17 demo tests; dependency and 17-demo policies; both byte-exact Chapter 17 outputs; English content and locale parity; zero-diagnostic Astro; 410 site tests; 29 static pages; 681 local references with SEO on all routes; five focused and 67 complete Chromium cases. The later site-audit corrections materially change presentation and coverage, so a fresh final matrix remains required."
+              - command: "Independent final history, Rust, and site audits"
+                status: failed
+                notes: "History and Rust audits found no defect. The site audit found localized no-seed and share labels incorrectly forced left-to-right, an omitted accessible bin-range label, and coverage gaps around visible bars/table cells, distribution-grid natural height, and exact consumption of Rust-authored fields. The staged component and tests were corrected; revalidation is pending."
+              - command: "Corrected final site-audit recheck"
+                status: passed
+                notes: "Localized labels now inherit direction while numeric lexemes use LTR isolation; every histogram field has accessible text; visible ranges, counts, percentages, rendered bar width, and all propagation cells are asserted; the hidden mirror is gone; natural-height guards are selector-specific; and 46 fail-closed/direct-ownership tests cover the Rust-authored trace. The independent reviewer found no remaining defect."
+              - command: "Complete final network-disabled staged Rust and deterministic-output gates"
+                status: passed
+                notes: "Source image sha256:5895b29050ba21c38cc64630b3e7c805f5081ed7e7fdd15ef54deaa5732455b0 passes the 39-chapter/17-contract plan, integrated Chapter 17 contract, formatting, warning-denying Clippy, all workspace and documentation tests including 180 core tests and five Chapter 17 demo tests, dependency and 17-demo policies, and both byte-exact Chapter 17 outputs."
+              - command: "Complete final network-disabled staged content, unit, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "Browser image sha256:9320ad15326566d3a845e8a781ad9ec98c756179976addaa806f052cb1ab0da7 passes English content and active-locale parity, all 24 sources and 17 publishable locale sets, zero-diagnostic Astro analysis, all 438 site tests, the 29-page static build, 681 local references, SEO on all 29 routes, five focused Chapter 17 cases, and all 67 browser regressions."
+              - command: "Frozen publication and canonical identity verification"
+                status: passed
+                notes: "All 16 staged product outputs are frozen under publish/ and revalidate through publish.sha256 at sha256:32bfbb0e273651fc09a514ff17c05ae93d0d3c5eeec85486ddfd37e0998c1b06. Every canonical output matches its frozen file byte for byte."
+              - command: "Complete network-disabled canonical Rust and deterministic-output gates"
+                status: passed
+                notes: "Canonical source image sha256:91665b4ae95dba27b41a347e79ea83a9758b4a0b6d374bb1a449e9e74e587712 passes the plan, contract, format, Clippy, all workspace and documentation tests, dependency and 17-demo policies, and both exact Chapter 17 output comparisons."
+              - command: "Complete network-disabled canonical content, unit, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "Canonical browser image sha256:5f324d9ad8fb9b8c66fbcae6c0f4d52c728d780a437388def1a836def43c578b passes Chapter 17 content/parity, complete content, zero-diagnostic Astro analysis, all 438 site tests, 29 static pages, 681 references, 29 SEO routes, five focused cases, and all 67 browser regressions."
+              - command: "Canonical ledger, whitespace, ownership, definition, and unrelated-change audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses, git diff --check passes, and only the 16 declared Chapter 17 product files plus governance records are in scope; no external dependency, package definition, locale, route, build, hosting, or deployment definition changed. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 17 adds a dependency-free SplitMix64 stream, exact Xavier-style scale, transactional named leaf-parameter construction, ordered duplicate-checked parameter storage, and stable typed error sources. Its LLM-focused English lesson contrasts zero symmetry, oversized variance growth, and width-aware initialization; supplies a bounded Bengio-to-Glorot-to-Transformer history without programming-language attribution; includes Rust evidence, basic SEO, exercises, and an accessible static trace projection with responsive, forced-color, RTL, and no-JavaScript coverage. Russian remains deferred with no placeholder. The canonical publication is byte-identical to frozen manifest sha256:32bfbb0e273651fc09a514ff17c05ae93d0d3c5eeec85486ddfd37e0998c1b06; all staged and canonical Rust, content, unit, build, link, SEO, and 67-case browser gates pass; no build or external dependency definition changed."
       - id: implement-ch18-token-embeddings
         objective: "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
         depends_on:
