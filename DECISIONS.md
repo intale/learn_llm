@@ -4040,3 +4040,60 @@ evidence. No build, dependency, locale, route, hosting, deployment, or client
 runtime definition changes.
 
 **Affected step:** `implement-ch18-token-embeddings`.
+
+## 2026-07-23 - Repair Chapter 17 and 18 presentation before Chapter 19
+
+**Status:** Accepted from the user's rendered-site defect reports.
+
+**Context:** After the dedicated Chapter 17 and Chapter 18 commits, the current
+Docker preview proves that both new diagrams combine the site's dark ink with
+hard-coded dark fallback card surfaces. Chapter 17's fixed three-column
+histogram also responds to viewport width instead of its narrower course-column
+container and lets numeric fields escape the figure. Chapter 18's parameter
+name escapes its summary card, its two-column stages make ordinary tables look
+clipped, and its formula glossary renders the reverse-mode quantities as the
+literal code strings `bar X` and `bar E` instead of mathematical notation.
+
+**Decision:** Insert two sequential cross-cutting corrective steps before
+Chapter 19. `repair-ch17-diagram-rendering` owns the reviewed scheduling update,
+the Chapter 17 component, and its focused unit/browser regressions.
+`repair-ch18-diagram-formula-rendering` follows it and owns the Chapter 18
+contract, English lesson, component, and focused unit/browser regressions. Use established site
+tokens (`--ink`, `--muted`, `--surface`, `--line`, `--focus`, and `--shadow`)
+rather than undeclared dark-theme fallbacks; make card grids respond to their
+available inline size; keep horizontal scrolling local only for genuinely wide
+evidence tables. Advance Chapter 18 to content revision 2, preserve its valid
+lookup/scatter-add equation, render every glossary symbol as mathematics, and
+define the overbar explicitly as a derivative of the scalar loss. Add computed
+color, containment, and formula-rendering browser assertions so source-only
+tests cannot approve the same visual defect again.
+
+The first preflight attempted concurrent claims because the product paths do not
+overlap, but the course-plan validator correctly rejected a non-linear ledger.
+Preserve both run-01 records as interrupted before product implementation,
+register the corrections in course-plan revision 18, and restart Chapter 17 in
+run 02. Start a fresh Chapter 18 run only after the Chapter 17 correction is
+completed and committed.
+
+Project plan revision 18 into `site/src/i18n/chapter-locales.json` as required
+by the existing validator; do not change any active or deferred locale.
+Advance the content-contract test's current-revision mutation fixture from 17
+to 18 as the only required test integration update.
+
+After both corrections validate and are committed separately, mark the
+superseded Chapter 17 and Chapter 18 implementation checkpoints invalidated
+without altering their immutable successful runs. Make Chapter 19 depend on
+both completed repairs, restoring one valid course prefix.
+
+**Consequences:** Exact Rust traces, numeric evidence, embedding and
+initialization behavior, LLM-history claims, SEO descriptions, locale policy,
+routes, dependencies, Linux build definitions, hosting, and deployment remain
+unchanged. The repairs remain separate commits and outputs, but run sequentially
+to preserve the reviewed linear course prefix.
+
+**Affected steps and runs:** `implement-ch17-parameter-initialization`,
+`implement-ch18-token-embeddings`, `repair-ch17-diagram-rendering` run
+`20260723T091128Z-repair-ch17-diagram-rendering-01`, and
+`repair-ch18-diagram-formula-rendering` run
+`20260723T091128Z-repair-ch18-diagram-formula-rendering-01`, and restarted
+Chapter 17 run `20260723T091513Z-repair-ch17-diagram-rendering-02`.

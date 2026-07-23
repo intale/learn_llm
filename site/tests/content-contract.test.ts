@@ -1018,7 +1018,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 17',
+      '"plan_revision": 18',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

@@ -247,19 +247,26 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 
 <style>
   .parameter-initialization-diagram {
+    --initialization-accent: var(--accent);
+
     max-inline-size: 100%;
+    min-inline-size: 0;
+    container-type: inline-size;
     margin-block: 2rem;
     margin-inline: 0;
     padding: clamp(1rem, 3vw, 1.5rem);
-    border: 2px solid var(--border-strong, #53657a);
+    overflow: hidden;
+    border: 1px solid var(--line);
     border-radius: 1rem;
-    background: var(--surface-raised, #101722);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow);
   }
 
   .parameter-initialization-diagram:focus-visible,
   .table-scroll:focus-visible {
-    outline: 3px solid var(--focus-ring, #f4c15d);
-    outline-offset: 3px;
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
   }
 
   figcaption {
@@ -271,6 +278,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   .bin-note,
   .propagation-section > p {
     max-inline-size: 75ch;
+    color: var(--muted);
   }
 
   .summary-grid,
@@ -284,12 +292,12 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   .summary-grid > div,
   .distribution-statistics > div {
     padding: 0.65rem;
-    border-inline-start: 3px solid var(--border-muted, #75879d);
-    background: var(--surface-subtle, #182333);
+    border-inline-start: 3px solid var(--line);
+    background: var(--surface-raised, var(--surface));
   }
 
   dt {
-    color: var(--text-muted, #bdc9d8);
+    color: var(--muted);
     font-size: 0.82rem;
   }
 
@@ -305,7 +313,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 
   .distribution-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     align-items: start;
     gap: 1rem;
   }
@@ -313,23 +321,24 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   .distribution-card {
     min-inline-size: 0;
     padding: 0.9rem;
-    border: 3px solid var(--accent, #73b8ff);
+    border: 3px solid var(--initialization-accent);
     border-radius: 0.75rem;
-    background: var(--surface-subtle, #182333);
+    background: var(--surface-raised, var(--surface));
   }
 
   .distribution-zero {
     border-style: dotted;
+    --initialization-accent: var(--focus);
   }
 
   .distribution-oversized {
     border-style: dashed;
-    --accent: #ffad66;
+    --initialization-accent: var(--warm);
   }
 
   .distribution-xavier {
     border-style: double;
-    --accent: #79d6a3;
+    --initialization-accent: var(--accent);
   }
 
   .distribution-card header {
@@ -359,11 +368,12 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 
   .histogram li {
     display: grid;
-    grid-template-columns: minmax(9rem, 1.7fr) minmax(2.8rem, auto) minmax(5rem, auto);
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.45rem;
     align-items: center;
     padding-block: 0.25rem;
-    border-block-end: 1px solid var(--border-muted, #53657a);
+    border-block-end: 1px solid var(--line);
   }
 
   .bin-range,
@@ -374,22 +384,35 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 
   .bin-count,
   .bin-share {
+    min-inline-size: 0;
+  }
+
+  .bin-range {
+    grid-column: 1 / -1;
+    overflow-wrap: anywhere;
+  }
+
+  .bin-count {
+    text-align: start;
+  }
+
+  .bin-share {
     text-align: end;
   }
 
   .bin-bar {
     grid-column: 1 / -1;
     overflow: hidden;
-    border: 1px solid var(--border-muted, #75879d);
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: var(--surface-raised, #101722);
+    background: var(--paper-deep);
   }
 
   .bin-bar > span {
     display: block;
     inline-size: var(--bar-percent);
     min-block-size: 0.45rem;
-    background: var(--accent, #73b8ff);
+    background: var(--initialization-accent);
   }
 
   .pairing-note {
@@ -398,12 +421,13 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     gap: 0.45rem 0.8rem;
     margin-block: 1rem;
     padding: 0.75rem;
-    border-inline-start: 4px solid var(--accent, #73b8ff);
-    background: var(--surface-subtle, #182333);
+    border-inline-start: 4px solid var(--accent);
+    background: var(--surface-raised, var(--surface));
   }
 
   .table-scroll {
     max-inline-size: 100%;
+    min-inline-size: 0;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
   }
@@ -417,13 +441,13 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   th,
   td {
     padding: 0.65rem;
-    border: 1px solid var(--border-muted, #53657a);
+    border: 1px solid var(--line);
     text-align: start;
     font-variant-numeric: tabular-nums;
   }
 
   thead th {
-    background: var(--surface-subtle, #182333);
+    background: var(--surface-raised, var(--surface));
   }
 
   thead .strategy-symbol {
@@ -444,8 +468,9 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     gap: 0.35rem 0.65rem;
     align-items: center;
     padding: 0.8rem;
-    border: 2px solid var(--border-muted, #75879d);
+    border: 2px solid var(--line);
     border-radius: 0.65rem;
+    background: var(--surface-raised, var(--surface));
   }
 
   .reproducibility-grid p > span:last-child {
@@ -464,34 +489,15 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     border: 0;
   }
 
-  @media (max-width: 58rem) {
-    .distribution-grid {
-      grid-template-columns: minmax(0, 1fr);
+  @container (min-width: 34rem) and (max-width: 55rem) {
+    .distribution-card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
     }
   }
 
   @media (max-width: 32rem) {
     .parameter-initialization-diagram {
       padding: 0.8rem;
-    }
-
-    .histogram li {
-      min-inline-size: 0;
-      grid-template-columns: minmax(0, 1fr) auto;
-    }
-
-    .bin-range {
-      grid-column: 1 / -1;
-      overflow-wrap: anywhere;
-    }
-
-    .bin-count {
-      grid-column: 1;
-      text-align: start;
-    }
-
-    .bin-share {
-      grid-column: 2;
     }
 
     .reproducibility-grid {
@@ -513,6 +519,11 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 
     .bin-bar > span {
       background: Highlight;
+    }
+
+    .parameter-initialization-diagram {
+      color: CanvasText;
+      background: Canvas;
     }
   }
 </style>

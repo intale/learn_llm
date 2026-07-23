@@ -282,4 +282,29 @@ describe('Chapter 17 labels and static component', () => {
     expect(componentSource).not.toContain('propagation-data');
     expect(componentSource).not.toMatch(/\.distribution-card\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
   });
+
+  it('uses the site palette and contains histogram evidence by component width', () => {
+    expect(componentSource).toMatch(
+      /\.parameter-initialization-diagram\s*\{[^}]*overflow:\s*hidden;[^}]*border:\s*1px solid var\(--line\);[^}]*background:\s*var\(--surface\);[^}]*color:\s*var\(--ink\);[^}]*box-shadow:\s*var\(--shadow\);/s,
+    );
+    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
+    expect(componentSource).toContain('color: var(--muted)');
+    expect(componentSource).toContain('background: var(--surface-raised, var(--surface))');
+    expect(componentSource).not.toMatch(/#101722|#182333|--surface-subtle|--text-muted|--focus-ring/);
+
+    expect(componentSource).toMatch(
+      /\.distribution-grid\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit, minmax\(min\(100%, 16rem\), 1fr\)\);/s,
+    );
+    expect(componentSource).toContain('container-type: inline-size');
+    expect(componentSource).toMatch(
+      /@container \(min-width: 34rem\) and \(max-width: 55rem\)\s*\{[\s\S]*\.distribution-card:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;/,
+    );
+    expect(componentSource).toMatch(
+      /\.histogram li\s*\{[^}]*min-inline-size:\s*0;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
+    );
+    expect(componentSource).toMatch(
+      /\.bin-range\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*overflow-wrap:\s*anywhere;/s,
+    );
+    expect(componentSource).not.toContain('@media (max-width: 58rem)');
+  });
 });

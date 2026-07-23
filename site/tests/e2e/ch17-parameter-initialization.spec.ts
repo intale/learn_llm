@@ -181,6 +181,10 @@ async function expectChapterContent(
   await expect(diagram).toHaveAccessibleDescription(
     'Inspect exact Rust-authored histograms for zero, oversized, and Xavier-style weights, then follow their assumption-bound expected variance through four linear layers.',
   );
+  await expect(diagram).toHaveCSS('color', 'rgb(22, 33, 29)');
+  await expect(diagram).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.68)');
+  await expect(diagram).toHaveCSS('overflow-x', 'hidden');
+  await expect(diagram.locator('dt').first()).toHaveCSS('color', 'rgb(82, 100, 92)');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-seed', '17');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-shape', '64x64');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-samples', '4096');
@@ -191,6 +195,10 @@ async function expectChapterContent(
 
   const distributions = diagram.locator('[data-initialization-kind]');
   await expect(distributions).toHaveCount(3);
+  await expect(distributions.first()).toHaveCSS(
+    'background-color',
+    'rgba(255, 255, 255, 0.68)',
+  );
   expect(
     await distributions.evaluateAll((cards) =>
       cards.map((card) => ({
@@ -237,6 +245,16 @@ async function expectChapterContent(
   ]);
   for (const card of await distributions.all()) {
     await expect(card.locator('[data-bin-index]')).toHaveCount(9);
+  }
+  const containment = await diagram.evaluate((node) => ({
+    figure: { client: node.clientWidth, scroll: node.scrollWidth },
+    cards: Array.from(node.querySelectorAll<HTMLElement>('[data-initialization-kind]')).map(
+      (card) => ({ client: card.clientWidth, scroll: card.scrollWidth }),
+    ),
+  }));
+  expect(containment.figure.scroll).toBeLessThanOrEqual(containment.figure.client);
+  for (const card of containment.cards) {
+    expect(card.scroll).toBeLessThanOrEqual(card.client);
   }
   const representativeBin = diagram
     .locator('[data-initialization-kind="xavier"] [data-bin-index="3"]');
@@ -305,23 +323,25 @@ async function expectChapterContent(
   await scroller.focus();
   await expect(scroller).toBeFocused();
   await expect(diagram.locator('.distribution-grid')).toHaveCSS('align-items', 'start');
+  const positions = await distributions.evaluateAll((cards) =>
+    cards.map((card) => {
+      const rectangle = card.getBoundingClientRect();
+      return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
+    }),
+  );
   if (narrow) {
     const widths = await scroller.evaluate((node) => ({
       client: node.clientWidth,
       scroll: node.scrollWidth,
     }));
     expect(widths.scroll).toBeGreaterThan(widths.client);
-    const positions = await distributions.evaluateAll((cards) =>
-      cards.map((card) => {
-        const rectangle = card.getBoundingClientRect();
-        return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
-      }),
-    );
     expect(positions).toHaveLength(3);
     expect(Math.abs(positions[0]!.left - positions[1]!.left)).toBeLessThan(1);
     expect(Math.abs(positions[1]!.left - positions[2]!.left)).toBeLessThan(1);
     expect(positions[1]!.top).toBeGreaterThan(positions[0]!.bottom);
     expect(positions[2]!.top).toBeGreaterThan(positions[1]!.bottom);
+  } else {
+    expect(new Set(positions.map(({ top }) => Math.round(top))).size).toBeGreaterThan(1);
   }
 
   expect(

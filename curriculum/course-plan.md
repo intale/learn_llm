@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 17,
+  "plan_revision": 18,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -131,6 +131,14 @@
       {
         "step_id": "generalize-language-boundaries-ch08-ch15",
         "before_chapter": "16-model-autodiff-ops"
+      },
+      {
+        "step_id": "repair-ch17-diagram-rendering",
+        "before_chapter": "19-linear-layers"
+      },
+      {
+        "step_id": "repair-ch18-diagram-formula-rendering",
+        "before_chapter": "19-linear-layers"
       }
     ],
     "planned_chapter_splits": [],
@@ -979,6 +987,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `17-parameter-initialization`
 - **Implementation step:** `implement-ch17-parameter-initialization`
+- **Revision status:** The rendered diagram repair is delivered by `repair-ch17-diagram-rendering` before Chapter 19.
 - **Depends on:** `16-model-autodiff-ops`.
 - **Outcome:** Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths.
 - **Scope boundary:** Teach deterministic PRNG state, seeds, zero-symmetry failure, Xavier-style variance, and parameter identity; defer optimizer state.
@@ -994,6 +1003,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
+- **Revision status:** Content revision 2 and the rendered diagram repair are delivered by `repair-ch18-diagram-formula-rendering` before Chapter 19.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
 - **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer positional information.
