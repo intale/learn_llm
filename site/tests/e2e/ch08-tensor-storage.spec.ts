@@ -13,6 +13,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -20,7 +21,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '08-tensor-storage';
-const contentRevision = 3;
+const contentRevision = 4;
 const chapterTitle = 'From tensor coordinates to one flat buffer';
 const chapterDescription =
   'Map language-model matrices and attention tensors onto one flat Rust vector with checked row-major strides and deterministic offsets.';
@@ -44,7 +45,7 @@ const historySources = [
 const diagramCopy = {
   title: 'One coordinate, one row-major offset',
   description:
-    'Two 2 × 3 slices and one flat buffer come from the same Rust fixture. Follow [1, 0, 2] through its three stride contributions, then compare the checked out-of-bounds coordinate.',
+    'Two slices with two rows and three columns, plus one flat buffer, come from the same Rust fixture. Follow [1, 0, 2] through its three stride contributions, then compare the checked out-of-bounds coordinate.',
   sections: [
     'Two slices from one rank-3 tensor',
     'Turn [1, 0, 2] into offset 8',
@@ -106,7 +107,7 @@ async function expectChapterContent(
     .locator(
       `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
     );
-  const historyText = (await historyNodes.allInnerTexts()).join(' ').replace(/\s+/g, ' ').trim();
+  const historyText = await readMathAwareText(historyNodes);
   expect(historyText).toContain(historyLimitation);
   expect(historyText).toContain(`${bengioClaim} ${vaswaniClaim}`);
   expect(historyText).toContain(bengioClaim);
@@ -119,12 +120,12 @@ async function expectChapterContent(
     historySources,
   );
 
-  const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  const formula = page
+    .locator('.katex-display')
+    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+  await expect(formula).toHaveCount(1);
+  await expect(formula).toHaveCSS('direction', 'ltr');
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(6);

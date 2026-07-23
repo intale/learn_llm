@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "concept_id": "matrix-multiplication",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 11,
   "objective": {
     "en": "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
@@ -47,10 +47,10 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "Bengio et al.'s feed-forward neural language model looks up n - 1 learned word vectors, concatenates them into one context vector x, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions."
+        "en": "Bengio et al.'s feed-forward neural language model looks up a fixed set of learned word vectors, concatenates them into one context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions."
       },
       "later_advance": {
-        "en": "Vaswani et al. pack positions into Q, K, and V matrices, apply learned projections, compute masked decoder attention as softmax(QK^T / sqrt(d_k))V, project the concatenated heads, and use two more linear transforms in each position-wise feed-forward network. The GPT-2 report then carries an autoregressive Transformer language model to deeper, wider stacks and a 1024-token context."
+        "en": "Vaswani et al. pack positions into query, key, and value matrices, apply learned projections, compute masked decoder attention from scaled query-key products, project the concatenated heads, and use two more linear transforms in each position-wise feed-forward network. The GPT-2 report then carries an autoregressive Transformer language model to deeper, wider stacks and a 1024-token context."
       },
       "modern_llm_role": {
         "en": "Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers."
@@ -62,7 +62,7 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. represent learned word features with a |V| by m matrix C, concatenate the n - 1 context-word vectors into x, and compute next-word scores with y = b + Wx + U tanh(d + Hx)."
+            "en": "Bengio et al. store learned word features in a matrix, concatenate the fixed context-word vectors, and compute next-word scores with successive learned matrix-vector transformations and a nonlinear hidden layer."
           }
         },
         {
@@ -71,7 +71,7 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. pack queries, keys, and values into matrices, define attention as softmax(QK^T / sqrt(d_k))V, and use learned Q, K, V, and output projections plus two linear transforms in each position-wise feed-forward network."
+            "en": "Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network."
           }
         },
         {

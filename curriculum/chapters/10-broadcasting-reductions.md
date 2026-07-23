@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "concept_id": "broadcasting-reductions",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 10,
   "objective": {
     "en": "Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity."
@@ -67,10 +67,10 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers."
+        "en": "Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers."
       },
       "later_advance": {
-        "en": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors."
+        "en": "Vaswani et al. define masked decoder self-attention on simultaneous query, key, and value matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. The official GPT-2 implementation labels tensors by batch, sequence, feature, head, destination, and source axes, computes softmax with last-axis reductions that preserve the reduced dimension, and computes normalization with last-axis means followed by learned feature-sized scale and bias vectors."
       },
       "modern_llm_role": {
         "en": "Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance."
@@ -82,7 +82,7 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities."
+            "en": "Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities."
           }
         },
         {
@@ -91,7 +91,7 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
           "claim": {
-            "en": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position."
+            "en": "Vaswani et al. define masked decoder self-attention on simultaneous query, key, and value matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position."
           }
         },
         {
@@ -100,7 +100,7 @@
           "name": "OpenAI, GPT-2 model.py",
           "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
           "claim": {
-            "en": "OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors."
+            "en": "The official GPT-2 implementation labels tensors by batch, sequence, feature, head, destination, and source axes, computes softmax with last-axis reductions that preserve the reduced dimension, and computes normalization with last-axis means followed by learned feature-sized scale and bias vectors."
           }
         }
       ]

@@ -2,7 +2,7 @@
 {
   "chapter_id": "10-broadcasting-reductions",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 10,
   "concept_id": "broadcasting-reductions",
   "title": "Broadcast once, reduce a named axis",
@@ -65,8 +65,8 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "language-model",
-      "limitation": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.",
-      "later_advance": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors.",
+      "limitation": "Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.",
+      "later_advance": "Vaswani et al. define masked decoder self-attention on simultaneous query, key, and value matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. The official GPT-2 implementation labels tensors by batch, sequence, feature, head, destination, and source axes, computes softmax with last-axis reductions that preserve the reduced dimension, and computes normalization with last-axis means followed by learned feature-sized scale and bias vectors.",
       "modern_llm_role": "Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance.",
       "sources": [
         {
@@ -74,21 +74,21 @@
           "year": 2003,
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
-          "claim": "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities."
+          "claim": "Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities."
         },
         {
           "role": "later",
           "year": 2017,
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
-          "claim": "Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position."
+          "claim": "Vaswani et al. define masked decoder self-attention on simultaneous query, key, and value matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position."
         },
         {
           "role": "later",
           "year": 2019,
           "name": "OpenAI, GPT-2 model.py",
           "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
-          "claim": "OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors."
+          "claim": "The official GPT-2 implementation labels tensors by batch, sequence, feature, head, destination, and source axes, computes softmax with last-axis reductions that preserve the reduced dimension, and computes normalization with last-axis means followed by learned feature-sized scale and bias vectors."
         }
       ]
     },
@@ -175,7 +175,7 @@ export const diagramLabels = {
     mapping:
       'Each row is copied from the Rust trace. The curved arrow marks a bias coordinate reused at two token positions.',
     reductions:
-      'Double borders and sigma symbols mark groups that collapse axis 0 or axis 1; keep-dimension changes shape, not the scalar result.',
+      'Double borders and downward markers identify groups that collapse axis 0 or axis 1; keep-dimension changes shape, not the scalar result.',
     errors:
       'Dashed cards retain the exact incompatible sizes and the two operations that have no value on an empty selected axis.',
   },
@@ -220,17 +220,26 @@ bias:   [1,3]   # missing leading dimension acts as 1
 result: [2,3]
 ```
 
-Feature extent `3` matches `3`. On the leading aligned axis, size `1` can be
-reused across size `2`. Output coordinate `(r,c)` therefore reads token
-coordinate `(r,c)` and bias coordinate `(c)`. The result is:
+Feature extent $3$ matches $3$. On the leading aligned axis, size $1$ can be
+reused across size $2$. Output coordinate $(r,c)$ therefore reads token
+coordinate $(r,c)$ and bias coordinate $(c)$. The result is:
 
-```text
-[[1+10, 2+20, 3+30],
- [4+10, 5+20, 6+30]]
+$$
+\begin{bmatrix}
+1&2&3\\
+4&5&6
+\end{bmatrix}
++
+\begin{bmatrix}
+10&20&30\\
+10&20&30
+\end{bmatrix}
 =
-[[11, 22, 33],
- [14, 25, 36]]
-```
+\begin{bmatrix}
+11&22&33\\
+14&25&36
+\end{bmatrix}
+$$
 
 Now predict before calculating: sum across token axis `0`, mean across feature
 axis `1` while retaining it, and max across feature axis `1` while removing it.
@@ -248,22 +257,22 @@ y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \quad \mu_k=\
 $$
 
 The first expression keeps tensor shape rules separate from scalar arithmetic.
-`y_i` is one output value at complete coordinate `i`. Function `f` can add,
+$y_{\mathbf{i}}$ is one output value at complete coordinate $\mathbf{i}$. Function $f$ can add,
 multiply, or perform any other scalar calculation. It receives the left value
-from tensor `a` at `beta_a(i)` and the right value from tensor `b` at
-`beta_b(i)`.
+from tensor $a$ at $\beta_a(\mathbf{i})$ and the right value from tensor $b$ at
+$\beta_b(\mathbf{i})$.
 
 Each beta mapping removes output axes that were missing from that input and
 selects coordinate zero on an aligned input axis of size one. Other coordinates
 pass through. In the frozen example:
 
-```text
-beta_tokens(r,c) = (r,c)
-beta_bias(r,c)   = (c)
-```
+$$
+\beta_{\mathrm{tokens}}(r,c)=(r,c),\qquad
+\beta_{\mathrm{bias}}(r,c)=(c)
+$$
 
-The second expression fixes every coordinate except axis `k`, visits its
-`n_k` entries, and divides their ordered sum by `n_k`. Choosing
+The second expression fixes every coordinate except axis $k$, visits its
+$n_k$ entries, and divides their ordered sum by $n_k$. Choosing
 `keep_dim=true` replaces that output extent with one. It does not add a value to
 the mean or change its divisor.
 
@@ -278,8 +287,8 @@ the mean or change its divisor.
 | $f$ | The scalar elementwise function applied to one aligned pair. |
 | $a$ | The left input tensor. |
 | $b$ | The right input tensor. |
-| $\beta_a(\mathbf{i})$ | The mapping from result coordinate to `a`: omit missing leading axes and use zero on expanded size-one axes. |
-| $\beta_b(\mathbf{i})$ | The same mapping rule for `b`. |
+| $\beta_a(\mathbf{i})$ | The mapping from result coordinate to $a$: omit missing leading axes and use zero on expanded size-one axes. |
+| $\beta_b(\mathbf{i})$ | The same mapping rule for $b$. |
 | $\mu_k$ | The mean after all coordinates except axis $k$ are fixed. |
 | $k$ | The explicit zero-based axis selected for reduction. |
 | $n_k$ | The extent of selected axis $k$. |
@@ -300,22 +309,41 @@ never called.
 
 ## From fixed context to tensor-wide decoder math
 
-Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.
+Bengio et al. describe n-gram models as conditional-probability tables for a
+fixed number of preceding words; their feed-forward neural model concatenates
+learned context-word features into a context vector, applies a
+hyperbolic-tangent activation element by element, and uses softmax for next-word
+probabilities. The calculation remains organized around a selected fixed window
+rather than every position's available causal prefix and the explicit batch,
+sequence, and head axes used by later decoder Transformers.
+
+For an $n$-gram of order $n$, that fixed context contains $n-1$ preceding words.
 
 The earlier checkpoint is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
-Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities.
+Bengio et al. describe n-gram models as conditional-probability tables for a
+fixed number of preceding words; their feed-forward neural model concatenates
+learned context-word features into a context vector, applies a
+hyperbolic-tangent activation element by element, and uses softmax for next-word
+probabilities.
 
 That model improves on separate count rows by learning distributed word features
 and shared neural parameters, but its input is still a selected fixed window.
-The elementwise `tanh` and vocabulary softmax are genuine model computations;
+The elementwise $\tanh$ and vocabulary softmax are genuine model computations;
 this chapter does not imply that the paper prescribed a general array API.
 
 The later checkpoints are
 [Vaswani et al., *Attention Is All You Need*](https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)
 and
 [OpenAI's official GPT-2 model.py](https://github.com/openai/gpt-2/blob/master/src/model.py).
-Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position. OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors.
+Vaswani et al. define masked decoder self-attention on simultaneous query, key,
+and value matrices, apply softmax to scaled query-key scores, add residual
+tensors before layer normalization, and apply the same feed-forward network
+separately and identically at every position. The official GPT-2 implementation labels
+tensors by batch, sequence, feature, head, destination, and source axes, computes
+softmax with last-axis reductions that preserve the reduced dimension, and
+computes normalization with last-axis means followed by learned feature-sized
+scale and bias vectors.
 
 Those later calculations keep several meanings visible at once: batch item,
 token position, attention head, destination position, source position, and
@@ -352,7 +380,7 @@ error records the exact output axis and both sizes.
 After compatibility succeeds, the planner asks the existing tensor layout code
 to validate all suffix products. Thus `[0,usize::MAX,1]` with `[1,1,2]` reaches
 `ShapeOverflow` before allocation: the outer zero makes the input valid, but the
-planned suffix `usize::MAX × 2` does not fit. Compatibility errors take
+planned suffix multiplies the `usize::MAX` extent by $2$, which does not fit. Compatibility errors take
 precedence over this layout check.
 
 <RustSource
@@ -462,7 +490,7 @@ Read the figure in four passes:
 
 Every numeric value and coordinate above comes from the Rust trace. The curved
 arrow and reuse text identify repeated input coordinates. Double borders and a
-sigma symbol identify reductions. Dashed borders, a multiplication sign, and
+downward marker identify reductions. Dashed borders, a multiplication sign, and
 rejection text identify errors. The distinctions survive without color and in
 forced-colors mode.
 

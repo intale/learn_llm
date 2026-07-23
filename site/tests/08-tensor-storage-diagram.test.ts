@@ -227,8 +227,13 @@ describe('tensor-storage diagram component contract', () => {
     expect(componentSource).toContain('@media (forced-colors: active)');
     expect(componentSource).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(componentSource).toContain('parseTensorStorageTrace');
+    expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(componentSource).toContain('String.raw`i_0=${slice.axis0.lexeme}`');
+    expect(componentSource).toContain('String.raw`i_2=${column}`');
+    expect(componentSource).toContain('\\cdot${term.stride.lexeme}=${term.contribution.lexeme}');
+    expect(componentSource).not.toContain('i<sub>');
     for (const source of [componentSource, parserSource]) {
-      expect(source).not.toContain('Math.');
+      expect(source).not.toMatch(/\bMath\.(?:abs|max|min|pow|exp|log|round|floor|ceil)/);
       expect(source).not.toContain('.reduce(');
       expect(source).not.toContain('fetch(');
       expect(source).not.toContain('Math.random');

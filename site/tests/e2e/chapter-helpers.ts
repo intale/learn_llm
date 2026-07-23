@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import localeManifest from '../../src/i18n/locales.json' with { type: 'json' };
 
@@ -39,6 +39,26 @@ export function chapterTag(chapterId: string) {
 
 export function chapterPath(locale: ChapterLocale, chapterId: string) {
   return `/${locale}/course/${chapterId}/`;
+}
+
+export async function readMathAwareText(locator: Locator) {
+  return locator.evaluateAll((nodes) =>
+    nodes
+      .map((node) => {
+        const clone = node.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('.katex').forEach((math) => {
+          const source =
+            math.querySelector('annotation[encoding="application/x-tex"]')
+              ?.textContent ?? '';
+          math.replaceWith(document.createTextNode(source));
+        });
+        return clone.textContent ?? '';
+      })
+      .join(' ')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
 }
 
 export async function expectSeoDescription(page: Page, expected: string) {

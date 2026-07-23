@@ -2,7 +2,7 @@
 {
   "chapter_id": "09-tensor-views",
   "concept_id": "tensor-views",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 9,
   "objective": {
     "en": "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
@@ -50,10 +50,10 @@
         "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix."
       },
       "later_advance": {
-        "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads."
+        "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads."
       },
       "modern_llm_role": {
-        "en": "Reshape, axis permutation, and transpose let this course express the logical split-head, K-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code."
+        "en": "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code."
       },
       "sources": [
         {
@@ -80,7 +80,7 @@
           "name": "OpenAI, GPT-2 model.py",
           "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
           "claim": {
-            "en": "OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads."
+            "en": "OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads."
           }
         }
       ]

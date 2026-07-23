@@ -9,6 +9,7 @@ import {
   type BroadcastingReductionsDiagramLabels,
   type TraceNumber,
 } from '../../lib/broadcasting-reductions-diagram';
+import InlineMath from '../InlineMath.astro';
 
 interface Props {
   labels: BroadcastingReductionsDiagramLabels;
@@ -148,7 +149,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
           data-output-shape={reduction.outputShape.map(({ lexeme }) => lexeme).join(',')}
         >
           <h5>
-            <span class="state-symbol" aria-hidden="true">Σ</span>
+            <span class="state-symbol" aria-hidden="true">↓</span>
             <span class="visually-hidden">{labels.symbols.reduced}: </span>
             <code dir="ltr">{reduction.operation}</code>
           </h5>
@@ -191,8 +192,9 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
         </span>
         <span>
           {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>:
-          {' '}<bdi dir="ltr">{trace.errors[0].leftSize.lexeme}</bdi>
-          {' ≠ '}<bdi dir="ltr">{trace.errors[0].rightSize.lexeme}</bdi>
+          {' '}<InlineMath
+            latex={String.raw`${trace.errors[0].leftSize.lexeme}\ne${trace.errors[0].rightSize.lexeme}`}
+          />
         </span>
       </li>
       {emptyErrors.map((error) => (

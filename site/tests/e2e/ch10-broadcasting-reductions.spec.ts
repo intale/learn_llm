@@ -13,6 +13,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -20,7 +21,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '10-broadcasting-reductions';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Broadcast once, reduce a named axis';
 const chapterDescription =
   'Broadcast feature-wise values across token states and reduce explicit axes with a dependency-free Rust tensor core.';
@@ -29,13 +30,13 @@ const formulaLatex = String.raw`y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\bet
 const repositoryRoot = resolve(process.cwd(), '..');
 const historyHeading = 'From fixed context to tensor-wide decoder math';
 const historyLimitation =
-  "Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.";
+  "Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities. The calculation remains organized around a selected fixed window rather than every position's available causal prefix and the explicit batch, sequence, and head axes used by later decoder Transformers.";
 const bengioClaim =
-  'Bengio et al. describe n-gram models as conditional-probability tables for combinations of the last n - 1 words; their feed-forward neural model concatenates learned context-word features into x, applies tanh element by element, and uses softmax for next-word probabilities.';
+  'Bengio et al. describe n-gram models as conditional-probability tables for a fixed number of preceding words; their feed-forward neural model concatenates learned context-word features into a context vector, applies a hyperbolic-tangent activation element by element, and uses softmax for next-word probabilities.';
 const vaswaniClaim =
-  'Vaswani et al. define masked decoder self-attention on simultaneous Q, K, and V matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position.';
+  'Vaswani et al. define masked decoder self-attention on simultaneous query, key, and value matrices, apply softmax to scaled query-key scores, add residual tensors before layer normalization, and apply the same feed-forward network separately and identically at every position.';
 const gpt2Claim =
-  "OpenAI's GPT-2 model.py labels [batch, sequence, features] and [batch, heads, destination, source] tensors, computes softmax with last-axis reduce_max and reduce_sum using keepdims=True, and computes normalization with last-axis means followed by feature-sized g and b vectors.";
+  'The official GPT-2 implementation labels tensors by batch, sequence, feature, head, destination, and source axes, computes softmax with last-axis reductions that preserve the reduced dimension, and computes normalization with last-axis means followed by learned feature-sized scale and bias vectors.';
 const modernLlmRole =
   "Broadcasting and explicit axis reductions let this course apply scalar or feature-sized operations across decoder tensors and compute the per-axis statistics needed by attention softmax and feature normalization. Trailing-axis compatibility, checked shape errors, empty-axis behavior, keep-dimension options, and allocation policy are course-local; the model sources specify computations, while the NumPy guide supplies only supporting array-rule provenance.";
 const historySources = [
@@ -115,11 +116,7 @@ async function expectChapterContent(
     .locator(
       `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
     );
-  const historyText = (await historyNodes.allInnerTexts())
-    .join(' ')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
+  const historyText = await readMathAwareText(historyNodes);
   expect(historyText).toContain(historyLimitation);
   expect(historyText).toContain(bengioClaim);
   expect(historyText).toContain(`${vaswaniClaim} ${gpt2Claim}`);
@@ -133,12 +130,12 @@ async function expectChapterContent(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
 
-  const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  const formula = page
+    .locator('.katex-display')
+    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+  await expect(formula).toHaveCount(1);
+  await expect(formula).toHaveCSS('direction', 'ltr');
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -239,9 +236,11 @@ async function expectChapterContent(
       cards.map((card) => card.getAttribute('data-error-kind')),
     ),
   ).toEqual(['incompatible-broadcast', 'empty-mean-axis', 'empty-max-axis']);
-  await expect(diagram.locator('[data-error-kind="incompatible-broadcast"]')).toContainText(
-    '3 ≠ 2',
-  );
+  await expect(
+    diagram.locator(
+      '[data-error-kind="incompatible-broadcast"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText(String.raw`3\ne2`);
   await expect(diagram.locator('[data-error-kind="empty-mean-axis"]')).toContainText('mean');
   await expect(diagram.locator('[data-error-kind="empty-max-axis"]')).toContainText('max');
 
@@ -331,7 +330,7 @@ test.describe('chapter 10 broadcasting-reductions vertical slice', {
     const reduced = diagram.locator('.reduction-card').first();
     const rejected = diagram.locator('.error-card').first();
     await expect(reused.locator('.state-symbol')).toHaveText('↻');
-    await expect(reduced.locator('.state-symbol')).toHaveText('Σ');
+    await expect(reduced.locator('.state-symbol')).toHaveText('↓');
     await expect(rejected.locator('.state-symbol')).toHaveText('×');
     expect(await reused.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe(
       'solid',

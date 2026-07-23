@@ -2,7 +2,7 @@
 {
   "chapter_id": "13-gradient-checking",
   "concept_id": "gradient-checking",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 13,
   "objective": {
     "en": "Approximate derivatives with central differences and compare analytic candidates using scale-aware error."

@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "concept_id": "stable-softmax",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 12,
   "objective": {
     "en": "Convert logits into normalized probabilities and log-probabilities and score indexed targets without overflow or avoidable underflow."

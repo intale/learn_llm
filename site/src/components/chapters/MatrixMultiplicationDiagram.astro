@@ -9,6 +9,7 @@ import {
   type MatrixMultiplicationDiagramLabels,
   type TraceNumber,
 } from '../../lib/matrix-multiplication-diagram';
+import InlineMath from '../InlineMath.astro';
 
 interface Props {
   labels: MatrixMultiplicationDiagramLabels;
@@ -66,7 +67,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     >
       <div class="matrix-equation">
         <table class="matrix-table" data-matrix-id="left">
-          <caption><code dir="ltr">A</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[0].shape)}</code></caption>
+          <caption><InlineMath latex="A" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[0].shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th></tr>
           </thead>
@@ -86,10 +87,10 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
           </tbody>
         </table>
 
-        <span class="operator" aria-hidden="true">×</span>
+        <span class="operator"><InlineMath latex="\times" /></span>
 
         <table class="matrix-table" data-matrix-id="right">
-          <caption><code dir="ltr">W</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[1].shape)}</code></caption>
+          <caption><InlineMath latex="W" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[1].shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col" class="selected-column"><span class="state-symbol" aria-hidden="true">C</span><span class="visually-hidden">{labels.symbols.selectedColumn}: </span>0</th><th scope="col">1</th></tr>
           </thead>
@@ -108,10 +109,10 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
           </tbody>
         </table>
 
-        <span class="operator" aria-hidden="true">=</span>
+        <span class="operator"><InlineMath latex="=" /></span>
 
         <table class="matrix-table" data-matrix-id="output">
-          <caption><code dir="ltr">C</code> — {labels.fields.shape} <code dir="ltr">{tuple(trace.output.shape)}</code></caption>
+          <caption><InlineMath latex="C" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.output.shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th></tr>
           </thead>
@@ -148,16 +149,15 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
           data-running-total={term.partialSum.lexeme}
         >
           <h5>
-            <span class="state-symbol" aria-hidden="true">Σ</span>
+            <span class="state-symbol" aria-hidden="true">↓</span>
             <span class="visually-hidden">{labels.symbols.contracted}: </span>
-            {labels.fields.term} <bdi dir="ltr">k={term.inner.lexeme}</bdi>
+            {labels.fields.term}{' '}
+            <InlineMath latex={String.raw`k=${term.inner.lexeme}`} />
           </h5>
-          <p class="term-expression" dir="ltr">
-            <bdi>{term.leftValue.lexeme}</bdi>
-            {' × '}
-            <bdi>{term.rightValue.lexeme}</bdi>
-            {' = '}
-            <bdi>{term.product.lexeme}</bdi>
+          <p class="term-expression">
+            <InlineMath
+              latex={String.raw`${term.leftValue.lexeme}\cdot${term.rightValue.lexeme}=${term.product.lexeme}`}
+            />
           </p>
           <dl>
             <div><dt>{labels.fields.product}</dt><dd><bdi dir="ltr">{term.product.lexeme}</bdi></dd></div>
@@ -208,13 +208,16 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[0].kind}</code>
-        <span><bdi dir="ltr">{trace.errors[0].leftInner.lexeme}</bdi> ≠ <bdi dir="ltr">{trace.errors[0].rightInner.lexeme}</bdi></span>
+        <span><InlineMath latex={String.raw`${trace.errors[0].leftInner.lexeme}\ne${trace.errors[0].rightInner.lexeme}`} /></span>
       </li>
       <li class="error-card" data-error-kind={trace.errors[1].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[1].kind}</code>
-        <span>{labels.fields.batchAxis} <bdi dir="ltr">{trace.errors[1].batchAxis.lexeme}</bdi>: <bdi dir="ltr">{trace.errors[1].leftSize.lexeme}</bdi> ≠ <bdi dir="ltr">{trace.errors[1].rightSize.lexeme}</bdi></span>
+        <span>
+          {labels.fields.batchAxis} <bdi dir="ltr">{trace.errors[1].batchAxis.lexeme}</bdi>:{' '}
+          <InlineMath latex={String.raw`${trace.errors[1].leftSize.lexeme}\ne${trace.errors[1].rightSize.lexeme}`} />
+        </span>
       </li>
     </ol>
   </section>

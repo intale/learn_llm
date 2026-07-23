@@ -9,6 +9,7 @@ import {
   type TensorStorageDiagramLabels,
   type TensorTraceNumber,
 } from '../../lib/tensor-storage-diagram';
+import InlineMath from '../InlineMath.astro';
 
 interface Props {
   labels: TensorStorageDiagramLabels;
@@ -69,20 +70,21 @@ const selected = trace.coordinate.map(({ value }) => value);
           >
             <table>
               <caption>
-                {labels.fields.slice} <code dir="ltr">i<sub>0</sub> = {slice.axis0.lexeme}</code>
+                {labels.fields.slice}{' '}
+                <InlineMath latex={String.raw`i_0=${slice.axis0.lexeme}`} />
               </caption>
               <thead>
                 <tr>
                   <th scope="col">{labels.fields.row}</th>
                   {[0, 1, 2].map((column) => (
-                    <th scope="col"><code dir="ltr">i<sub>2</sub> = {column}</code></th>
+                    <th scope="col"><InlineMath latex={String.raw`i_2=${column}`} /></th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {slice.rows.map((row, rowIndex) => (
                   <tr data-row={rowIndex}>
-                    <th scope="row"><code dir="ltr">i<sub>1</sub> = {rowIndex}</code></th>
+                    <th scope="row"><InlineMath latex={String.raw`i_1=${rowIndex}`} /></th>
                     {row.map((value, columnIndex) => {
                       const isSelected =
                         slice.axis0.value === selected[0] &&
@@ -127,15 +129,12 @@ const selected = trace.coordinate.map(({ value }) => value);
     <ol class="term-list" aria-label={labels.sections.calculation}>
       {trace.terms.map((term) => (
         <li data-term-axis={term.axis.lexeme}>
-          <code dir="ltr">
-            i<sub>{term.axis.lexeme}</sub> s<sub>{term.axis.lexeme}</sub>
-            {' = '}{term.index.lexeme}{' × '}{term.stride.lexeme}
-          </code>
-          <span aria-hidden="true"> = </span>
           <span class="visually-hidden">{labels.fields.contribution}: </span>
-          <bdi dir="ltr" data-contribution={term.contribution.lexeme}>
-            {term.contribution.lexeme}
-          </bdi>
+          <span data-contribution={term.contribution.lexeme}>
+            <InlineMath
+              latex={String.raw`i_{${term.axis.lexeme}}s_{${term.axis.lexeme}}=${term.index.lexeme}\cdot${term.stride.lexeme}=${term.contribution.lexeme}`}
+            />
+          </span>
         </li>
       ))}
     </ol>

@@ -13,6 +13,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -20,7 +21,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '11-matrix-multiplication';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Multiply rows by columns, then reuse batches';
 const chapterDescription =
   'Multiply checked 2-D and batched tensors with scalar Rust loops, including inner-dimension checks, batch broadcasting, and transpose flags.';
@@ -29,11 +30,11 @@ const formulaLatex = String.raw`C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historyHeading = 'From one fixed context vector to matrices of positions';
 const historyLimitation =
-  "Bengio et al.'s feed-forward neural language model looks up n - 1 learned word vectors, concatenates them into one context vector x, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions.";
+  "Bengio et al.'s feed-forward neural language model looks up a fixed set of learned word vectors, concatenates them into one context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions.";
 const bengioClaim =
-  'Bengio et al. represent learned word features with a |V| by m matrix C, concatenate the n - 1 context-word vectors into x, and compute next-word scores with y = b + Wx + U tanh(d + Hx).';
+  'Bengio et al. store learned word features in a matrix, concatenate the fixed context-word vectors, and compute next-word scores with successive learned matrix-vector transformations and a nonlinear hidden layer.';
 const vaswaniClaim =
-  'Vaswani et al. pack queries, keys, and values into matrices, define attention as softmax(QK^T / sqrt(d_k))V, and use learned Q, K, V, and output projections plus two linear transforms in each position-wise feed-forward network.';
+  'Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network.';
 const gpt2Claim =
   'The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context.';
 const modernLlmRole =
@@ -47,7 +48,7 @@ const historySources = [
 const diagramCopy = {
   title: 'Follow one row-by-column contraction, then reuse one weight batch',
   description:
-    'Compare the three Rust-recorded matrices, accumulate C at row 1 column 0 in k order, and inspect transpose, batch reuse, and rejected shapes.',
+    'Compare the three Rust-recorded matrices, accumulate the output at row one and column zero in contracted-index order, and inspect transpose, batch reuse, and rejected shapes.',
   sections: [
     'Select one left row and one right column',
     'Accumulate three products in contracted-index order',
@@ -115,11 +116,7 @@ async function expectChapterContent(
     .locator(
       `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
     );
-  const historyText = (await historyNodes.allInnerTexts())
-    .join(' ')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
+  const historyText = await readMathAwareText(historyNodes);
   expect(historyText).toContain(historyLimitation);
   expect(historyText).toContain(bengioClaim);
   expect(historyText).toContain(`${vaswaniClaim} ${gpt2Claim}`);
@@ -131,12 +128,12 @@ async function expectChapterContent(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
 
-  const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  const formula = page
+    .locator('.katex-display')
+    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+  await expect(formula).toHaveCount(1);
+  await expect(formula).toHaveCSS('direction', 'ltr');
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -227,9 +224,11 @@ async function expectChapterContent(
       cards.map((card) => card.getAttribute('data-error-kind')),
     ),
   ).toEqual(['inner-dimension-mismatch', 'incompatible-batch']);
-  await expect(diagram.locator('[data-error-kind="incompatible-batch"]')).toContainText(
-    'Batch axis 0: 2 ≠ 3',
-  );
+  const batchError = diagram.locator('[data-error-kind="incompatible-batch"]');
+  await expect(batchError).toContainText('Batch axis 0:');
+  await expect(
+    batchError.locator('annotation[encoding="application/x-tex"]'),
+  ).toHaveText(String.raw`2\ne3`);
 
   expect(
     await diagram.locator('code, bdi').evaluateAll((nodes) =>
@@ -329,7 +328,7 @@ test.describe('chapter 11 matrix-multiplication vertical slice', {
     const rejected = diagram.locator('.error-card').first();
     await expect(selectedRow.locator('.state-symbol')).toHaveText('R');
     await expect(selectedColumn.locator('.state-symbol')).toHaveText('C');
-    await expect(contracted.locator('.state-symbol')).toHaveText('Σ');
+    await expect(contracted.locator('.state-symbol')).toHaveText('↓');
     await expect(reused.locator('.state-symbol')).toHaveText('↻');
     await expect(rejected.locator('.state-symbol')).toHaveText('×');
     expect(await selectedRow.evaluate((node) => window.getComputedStyle(node).borderLeftStyle)).toBe(

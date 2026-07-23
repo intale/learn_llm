@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
@@ -186,11 +186,13 @@ These values are logits: scores before normalization, not probabilities. The
 second entry is larger by exactly one in every row. Predict the result of
 subtracting each row's maximum before reaching for a calculator:
 
-```text
-[0, 1]          - 1     = [-1, 0]
-[1000, 1001]    - 1001  = [-1, 0]
-[-1001, -1000]  - -1000 = [-1, 0]
-```
+$$
+\begin{aligned}
+[0,1]-1 &= [-1,0], \\
+[1000,1001]-1001 &= [-1,0], \\
+[-1001,-1000]-(-1000) &= [-1,0].
+\end{aligned}
+$$
 
 Exponentiating now produces `[0.367879441171,1]` for every row. Dividing by
 their sum `1.367879441171` gives the same pair every time:
@@ -220,7 +222,7 @@ $$
 
 The largest shifted logit is exactly zero, so at least one exponential is one
 and none is larger than one. This removes the avoidable raw overflow in
-`exp(1000)` and prevents an all-zero denominator for the very negative row.
+$\exp(1000)$ and prevents an all-zero denominator for the very negative row.
 
 Adding the same constant to every logit also adds it to the maximum. Every
 difference stays unchanged, so softmax is shift invariant. The maximum is not a
@@ -315,9 +317,9 @@ class-minor order.
 Each nonempty group first finds its maximum through `TensorView::get`. A second
 pass skips one maximum term, sums the remaining shifted exponentials as a tail,
 and uses `ln_1p(tail)`. That detail preserves a representable subnormal log-domain
-correction that ordinary `ln(1 + tail)` could round away before the logarithm.
+correction that ordinary $\ln(1+\mathrm{tail})$ could round away before the logarithm.
 
-Softmax divides shifted exponentials by `1 + tail`. Log-softmax computes the
+Softmax divides shifted exponentials by $1+\mathrm{tail}$. Log-softmax computes the
 shifted logit minus `ln_1p(tail)`. Fused indexed mean NLL normally sums row
 losses and divides once, preserving subnormal mean rounding. It also accumulates
 target-count-scaled nonnegative contributions; if an unscaled row loss or sum

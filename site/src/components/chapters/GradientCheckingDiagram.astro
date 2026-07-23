@@ -9,6 +9,7 @@ import {
   type GradientCheckingDiagramLabels,
   type GradientTraceError,
 } from '../../lib/gradient-checking-diagram';
+import InlineMath from '../InlineMath.astro';
 
 interface Props {
   labels: GradientCheckingDiagramLabels;
@@ -33,13 +34,13 @@ const scanRegionId = `${gradientCheckingDiagramId}-${instanceId}-scan-region`;
 const errorDetails = (error: GradientTraceError): string => {
   switch (error.kind) {
     case 'invalid-step':
-      return `h=${error.step.lexeme}`;
+      return `step ${error.step.lexeme}`;
     case 'collapsed-perturbation':
-      return `side=${error.side}, theta=${error.point.lexeme}, h=${error.step.lexeme}`;
+      return `side ${error.side}; point ${error.point.lexeme}; step ${error.step.lexeme}`;
     case 'non-finite-evaluation':
-      return `side=${error.side}, value=${error.value}`;
+      return `side ${error.side}; value ${error.value}`;
     case 'shape-mismatch':
-      return `parameters=[${error.parameters.map(({ lexeme }) => lexeme).join(',')}], analytic=[${error.analytic.map(({ lexeme }) => lexeme).join(',')}]`;
+      return `parameter shape [${error.parameters.map(({ lexeme }) => lexeme).join(',')}]; candidate shape [${error.analytic.map(({ lexeme }) => lexeme).join(',')}]`;
   }
 };
 ---
@@ -61,7 +62,7 @@ const errorDetails = (error: GradientTraceError): string => {
     </div>
     <div>
       <dt>{labels.summary.scanPoint}</dt>
-      <dd><bdi dir="ltr">θ={trace.config.point.lexeme}</bdi></dd>
+      <dd><InlineMath latex={String.raw`\theta=${trace.config.point.lexeme}`} /></dd>
     </div>
     <div>
       <dt>{labels.summary.tensorLoss}</dt>
@@ -75,18 +76,18 @@ const errorDetails = (error: GradientTraceError): string => {
       <dl class="probe-card state-trusted">
         <div>
           <dt>{labels.fields.minusProbe}</dt>
-          <dd><bdi dir="ltr">θ-h={trace.central.minusPoint.lexeme}</bdi></dd>
-          <dd><bdi dir="ltr">f={trace.central.minusValue.lexeme}</bdi></dd>
+          <dd><InlineMath latex={String.raw`\theta-h=${trace.central.minusPoint.lexeme}`} /></dd>
+          <dd><InlineMath latex={String.raw`f=${trace.central.minusValue.lexeme}`} /></dd>
         </div>
         <div>
           <dt>{labels.fields.center}</dt>
-          <dd><bdi dir="ltr">θ={trace.central.point.lexeme}</bdi></dd>
-          <dd><bdi dir="ltr">h={trace.central.step.lexeme}</bdi></dd>
+          <dd><InlineMath latex={String.raw`\theta=${trace.central.point.lexeme}`} /></dd>
+          <dd><InlineMath latex={String.raw`h=${trace.central.step.lexeme}`} /></dd>
         </div>
         <div>
           <dt>{labels.fields.plusProbe}</dt>
-          <dd><bdi dir="ltr">θ+h={trace.central.plusPoint.lexeme}</bdi></dd>
-          <dd><bdi dir="ltr">f={trace.central.plusValue.lexeme}</bdi></dd>
+          <dd><InlineMath latex={String.raw`\theta+h=${trace.central.plusPoint.lexeme}`} /></dd>
+          <dd><InlineMath latex={String.raw`f=${trace.central.plusValue.lexeme}`} /></dd>
         </div>
       </dl>
       <p class="quadratic-result">
@@ -132,12 +133,12 @@ const errorDetails = (error: GradientTraceError): string => {
             >
               <th scope="row"><bdi dir="ltr">{record.step.lexeme}</bdi></th>
               <td>
-                <bdi dir="ltr">θ-h={record.minusPoint.lexeme}</bdi><br />
-                <bdi dir="ltr">f={record.minusValue.lexeme}</bdi>
+                <InlineMath latex={String.raw`\theta-h=${record.minusPoint.lexeme}`} /><br />
+                <InlineMath latex={String.raw`f=${record.minusValue.lexeme}`} />
               </td>
               <td>
-                <bdi dir="ltr">θ+h={record.plusPoint.lexeme}</bdi><br />
-                <bdi dir="ltr">f={record.plusValue.lexeme}</bdi>
+                <InlineMath latex={String.raw`\theta+h=${record.plusPoint.lexeme}`} /><br />
+                <InlineMath latex={String.raw`f=${record.plusValue.lexeme}`} />
               </td>
               <td><bdi dir="ltr">{record.numerical.lexeme}</bdi></td>
               <td><bdi dir="ltr">{record.scaledError.lexeme}</bdi></td>
@@ -162,9 +163,11 @@ const errorDetails = (error: GradientTraceError): string => {
     <ol class="secant-list" aria-hidden="true">
       {trace.stepScan.map((record) => (
         <li data-step-index={record.index.lexeme} class={`phase-${record.phase}`}>
-          <span class="secant-label"><bdi dir="ltr">h={record.step.lexeme}</bdi></span>
+          <span class="secant-label"><InlineMath latex={String.raw`h=${record.step.lexeme}`} /></span>
           <span class="secant-bracket">
-            <span>θ-h</span><span>θ</span><span>θ+h</span>
+            <span><InlineMath latex="\theta-h" /></span>
+            <span><InlineMath latex="\theta" /></span>
+            <span><InlineMath latex="\theta+h" /></span>
           </span>
         </li>
       ))}

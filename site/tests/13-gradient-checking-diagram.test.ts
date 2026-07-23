@@ -193,6 +193,11 @@ describe('Chapter 13 static diagram component', () => {
       '../../../../rust/demos/ch13-gradient-checking/diagram-trace.txt',
     );
     expect(component).toContain('parseGradientCheckingTrace');
+    expect(component).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(component).toContain('String.raw`\\theta-h=${trace.central.minusPoint.lexeme}`');
+    expect(component).toContain('String.raw`h=${record.step.lexeme}`');
+    expect(component).not.toContain('>θ-h</span>');
+    expect(component).not.toContain('return `h=${error.step.lexeme}`');
     expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
     expect(component).not.toContain('<script');
   });

@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '12-stable-softmax';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Turn extreme logits into stable probabilities';
 const chapterDescription =
   'Turn vocabulary and attention logits into stable probabilities, log-probabilities, log-sum-exp values, and indexed mean NLL with dependency-free Rust.';
@@ -128,12 +128,12 @@ async function expectChapterContent(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
 
-  const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  const formula = page
+    .locator('.katex-display')
+    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+  await expect(formula).toHaveCount(1);
+  await expect(formula).toHaveCSS('direction', 'ltr');
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);

@@ -172,6 +172,8 @@ describe('Chapter 10 static diagram component', () => {
       '../../../../rust/demos/ch10-broadcasting-reductions/diagram-trace.txt',
     );
     expect(component).toContain('parseBroadcastingReductionsTrace');
+    expect(component).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(component).toContain('\\ne${trace.errors[0].rightSize.lexeme}');
     expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
     expect(component).not.toContain('<script');
   });
@@ -198,7 +200,8 @@ describe('Chapter 10 static diagram component', () => {
     expect(component).toContain('overflow-x: auto;');
     expect(component).toContain('contain: paint;');
     expect(component).toContain('↻');
-    expect(component).toContain('Σ');
+    expect(component).toContain('↓');
+    expect(component).not.toContain('Σ');
     expect(component).toContain('×');
     expect(component).toContain('.reduction-card { border-style: double; }');
     expect(component).toContain('.error-card { border-style: dashed; }');

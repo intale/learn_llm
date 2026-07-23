@@ -169,6 +169,10 @@ describe('Chapter 11 static diagram component', () => {
       '../../../../rust/demos/ch11-matrix-multiplication/diagram-trace.txt',
     );
     expect(component).toContain('parseMatrixMultiplicationTrace');
+    expect(component).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(component).toContain('<InlineMath latex="A" />');
+    expect(component).toContain('String.raw`k=${term.inner.lexeme}`');
+    expect(component).toContain('\\cdot${term.rightValue.lexeme}=${term.product.lexeme}');
     expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
     expect(component).not.toContain('<script');
   });
@@ -201,7 +205,8 @@ describe('Chapter 11 static diagram component', () => {
     expect(component).toContain('contain: paint;');
     expect(component).toContain('>R</span>');
     expect(component).toContain('>C</span>');
-    expect(component).toContain('>Σ</span>');
+    expect(component).toContain('>↓</span>');
+    expect(component).not.toContain('>Σ</span>');
     expect(component).toContain('>↻</span>');
     expect(component).toContain('>×</span>');
     expect(component).toContain('.term-card { border-style: double; }');

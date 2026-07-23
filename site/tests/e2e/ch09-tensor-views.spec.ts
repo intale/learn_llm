@@ -13,6 +13,7 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
   type CourseChapterLink,
 } from './chapter-helpers';
@@ -20,10 +21,10 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '09-tensor-views';
-const contentRevision = 3;
+const contentRevision = 4;
 const chapterTitle = 'One buffer, several tensor interpretations';
 const chapterDescription =
-  'Follow fixed-context word features into Q/K/V and split attention heads, then compare copied and borrowed Rust tensor transposes.';
+  'Follow fixed-context word features into query, key, and value tensors with split attention heads, then compare copied and borrowed Rust tensor transposes.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}`;
 const repositoryRoot = resolve(process.cwd(), '..');
@@ -35,9 +36,9 @@ const bengioClaim =
 const vaswaniClaim =
   'Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated.';
 const gpt2Claim =
-  "OpenAI's GPT-2 model.py projects one [batch, sequence, features] tensor into packed Q/K/V values, splits and transposes them to a head axis, multiplies by K with its last two axes transposed, then transposes and merges heads.";
+  "OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads.";
 const modernLlmRole =
-  "Reshape, axis permutation, and transpose let this course express the logical split-head, K-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.";
+  "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.";
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
   'https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf',
@@ -131,11 +132,7 @@ async function expectChapterContent(
     .locator(
       `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
     );
-  const historyText = (await historyNodes.allInnerTexts())
-    .join(' ')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
+  const historyText = await readMathAwareText(historyNodes);
   expect(historyText).toContain(historyLimitation);
   expect(historyText).toContain(bengioClaim);
   expect(historyText).toContain(`${vaswaniClaim} ${gpt2Claim}`);
@@ -149,12 +146,12 @@ async function expectChapterContent(
     historySources,
   );
 
-  const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  const formula = page
+    .locator('.katex-display')
+    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+  await expect(formula).toHaveCount(1);
+  await expect(formula).toHaveCSS('direction', 'ltr');
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(6);

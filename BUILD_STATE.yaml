@@ -1750,7 +1750,6 @@ builds:
           - "site/src/content/chapters/en/01-text-units.mdx"
           - "site/src/content/chapters/ru/01-text-units.mdx"
           - "site/src/pages/[locale]/course/[...slug].astro"
-          - "site/tests/content-contract.test.ts"
           - "site/tests/e2e/chapter-helpers.ts"
           - "site/tests/e2e/ch01-text-units.spec.ts"
           - "site/tests/e2e/localized-shell.spec.ts"
@@ -10263,7 +10262,7 @@ builds:
         objective: "Bring every published Chapter 8-13 lesson and diagram into the learner-facing formula pipeline."
         depends_on:
           - repair-formula-rendering-ch01-ch07
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "DECISIONS.md"
@@ -10279,6 +10278,7 @@ builds:
           - "site/package-lock.json"
           - "Read-only formula audit of all published Chapter 8-13 learner surfaces"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/08-tensor-storage.md"
           - "curriculum/chapters/09-tensor-views.md"
           - "curriculum/chapters/10-broadcasting-reductions.md"
@@ -10301,6 +10301,14 @@ builds:
           - "site/tests/10-broadcasting-reductions-diagram.test.ts"
           - "site/tests/11-matrix-multiplication-diagram.test.ts"
           - "site/tests/13-gradient-checking-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/ch08-tensor-storage.spec.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/tests/e2e/ch11-matrix-multiplication.spec.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "site/tests/e2e/ch13-gradient-checking.spec.ts"
         acceptance:
           - "Every learner-facing mathematical expression in Chapters 8-13 uses inline/display math or equivalent server-rendered math, while literal program and trace data keep code semantics."
           - "Tensor storage, broadcasting/reduction, matrix multiplication, and gradient-checking diagrams render their indexed equations, products, sums, and inequalities as accessible HTML-plus-MathML."
@@ -10309,18 +10317,88 @@ builds:
           - "The staged publication and fresh canonical gates pass, and the correction is committed separately before the final slice starts."
         validate:
           - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/08-tensor-storage.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/09-tensor-views.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/10-broadcasting-reductions.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/11-matrix-multiplication.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/12-stable-softmax.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/13-gradient-checking.md"
           - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
           - "npm --prefix site run check"
           - "npm --prefix site run test -- --run"
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@formula-rendering:ch08-ch13'"
           - "npm --prefix site run test:e2e"
+          - "git diff --exit-code 8fae0843feb66b37783cfae25d57296696b7a092 -- Cargo.lock Cargo.toml rust Dockerfile compose.yaml site/package.json site/package-lock.json site/astro.config.mjs"
           - "git diff --check"
         cost:
           class: medium
-          notes: "Deterministic local content, static component, and regression work across six English lessons. Cached production/browser validation may use moderate CPU; no network, paid service, generation, dependency, Rust, build-definition, hosting, or deployment change."
-        runs: []
+          notes: "Deterministic content, static component, and regression work across six English lessons. Cached production/browser validation may use moderate CPU and resolve pinned Docker base-image metadata; no paid service, generation, dependency, Rust, build-definition, hosting, or deployment change."
+        runs:
+          - run_id: 20260723T170824Z-repair-formula-rendering-ch08-ch13-01
+            started_at: "2026-07-23T17:08:24Z"
+            finished_at: "2026-07-23T17:59:25Z"
+            status: succeeded
+            input_fingerprint:
+              git: "8fae0843feb66b37783cfae25d57296696b7a092"
+              manifest: ".build/runs/20260723T170824Z-repair-formula-rendering-ch08-ch13-01/input-fingerprint.txt"
+              checksum: "sha256:3c4fb339ec3835f1ca273968049f883037fdb7099643d94b348215c259704bca"
+              material_inputs: "49 tracked inputs, composite sha256:c4ee15e0bd6908c1492fa182fb136a2eabe3dff629a58edf8b84070a2acb1fbf"
+              prior_ch01_ch07_publish_manifest: "sha256:432ef3e7ceaeb34cce38d40ec10b84c916ff70f7569a4ad3dd133a81d88f8032"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T170824Z-repair-formula-rendering-ch08-ch13-01/"
+            commands:
+              - "Verify commit 8fae084 contains only the completed Chapter 1-7 slice and confirm the worktree retains only unrelated untracked desktop.ini."
+              - "Select the first eligible dependent slice, verify its read-only audit, exact inputs, declared outputs, validations, and medium deterministic cost, then freeze its fingerprint before product edits."
+              - "Expand the declared output and validation scope before execution for the shared course-plan revision ledger, six existing chapter browser specifications, aggregate content assertions, six integrated contract checks, parity, and unchanged build/dependency/Rust invariants."
+              - "Expand the declared browser-test output scope after the full staged suite exposed that history assertions need one shared TeX-aware text extractor instead of concatenating KaTeX's accessible and visual layers."
+              - "Audit and repair all learner-facing Chapter 8-13 notation in six lessons and four formula-bearing diagrams, synchronize content revisions and history claims, and add source, annotation, geometry, and code-semantics regressions."
+              - "Validate the exact staged overlay, freeze its 30-file checksum manifest, run the official course-review image, and publish each checksum-verified file through a same-directory atomic replacement."
+              - "Build fresh canonical workspace and browser images, replay all deterministic gates without runtime network, and verify package, Rust, build-definition, whitespace, manifest, and unrelated-change invariants."
+            artifacts:
+              - path: ".build/runs/20260723T170824Z-repair-formula-rendering-ch08-ch13-01/input-fingerprint.txt"
+                checksum: "sha256:3c4fb339ec3835f1ca273968049f883037fdb7099643d94b348215c259704bca"
+                notes: "Committed prerequisite, prior frozen publication manifest, pinned tools, and a composite digest for all 49 material tracked inputs."
+              - path: ".build/runs/20260723T170824Z-repair-formula-rendering-ch08-ch13-01/publish.sha256"
+                checksum: "sha256:d3c570ba554d019fd67d6cc9ef3f125c469440b20fa90de76a2c8e641de50ee4"
+                notes: "Frozen path-sorted manifest for the 30 changed publication files; unchanged aggregate content-contract coverage was omitted from publication."
+              - path: "docker-image:learn-llm-review:20260723t170824z-repair-formula-rendering-ch08-ch13-01"
+                checksum: "sha256:0e4d0220df315155d38f479a4a67ee3c523f9aec224ae1b02a55feff78c02d80"
+                notes: "Official staged-review image for all six corrected lesson routes."
+              - path: "docker-image:learn-llm-formula-ch08-13:canonical"
+                checksum: "sha256:9eeef63f1e9298402aa0539ad549180818b6b1dd745ee4e31bbfdd3944ef6373"
+                notes: "Fresh canonical workspace image after manifest-verified publication."
+              - path: "docker-image:learn-llm-formula-ch08-13:browser-canonical"
+                checksum: "sha256:5c197d5a7441e87126485dfd1a1e25e7814c07b9bac62d33ef4c17ac0262ce94"
+                notes: "Fresh canonical source snapshot layered onto the unchanged cached Playwright runtime."
+            validation:
+              - command: "Dependency, worktree, environment, scope, audit, and cost preflight"
+                status: passed
+                notes: "The Chapter 1-7 dependency is completed and committed; no tracked product change remains; unrelated desktop.ini is preserved; all material inputs exist; the prior manifest still matches; pinned tools are unchanged; the read-only audit identifies corrections in every Chapter 8-13 lesson and the Chapter 8, 10, 11, and 13 diagrams; this medium cached local work fits the unlimited budget."
+              - command: "Staged plan, six-contract, content, parity, Astro, unit, production-build, link, SEO, and built-math validation"
+                status: passed
+                notes: "The exact staged overlay validates the 39-chapter/66-step plan, all six integrated contracts, 26 localized sources, 19 publishable locale sets, 107 Astro files with zero diagnostics, all 526 Vitest assertions, 31 static pages, 783 local references, SEO on all 31 routes, and no KaTeX error nodes. Contract failures during development exposed history claims whose notation needed natural-language wording around separately rendered formulas; all were corrected before publication."
+              - command: "Staged formula-specific and complete Playwright validation"
+                status: passed
+                notes: "All 12 Chapter 8-13 desktop/narrow formula cases and all 117 browser regressions pass. Development failures first exposed stale history assertions, KaTeX double-layer text extraction, and intentional formulas inside keyboard-scrollable tables; the final regressions use TeX annotations and distinguish contained scrollers from page overflow."
+              - command: "MSYS2_ARG_CONV_EXCL=/bin/sh ./course review 20260723T170824Z-repair-formula-rendering-ch08-ch13-01 --check"
+                status: passed
+                notes: "The frozen 30-file manifest and all six staged lesson routes pass the official review image. Docker resolved pinned base-image metadata but changed no dependency or build definition."
+              - command: "Atomic publication and frozen-manifest replay"
+                status: passed
+                notes: "Twenty-six files replaced on the first Windows MoveFileEx pass; a transient sharing violation delayed four adjacent browser-test files. The retry reverified each temporary checksum and atomically replaced only the four unmatched targets. All 30 canonical files now replay exactly and no publication temporary remains."
+              - command: "Fresh canonical workspace validation"
+                status: passed
+                notes: "Image learn-llm-formula-ch08-13:canonical passes Cargo formatting and all workspace tests, content and parity checks, zero-diagnostic Astro analysis, the 31-page production build, 783-reference link/SEO validation, the plan, all six contracts, all 526 Vitest assertions, and a built-HTML scan with no KaTeX error nodes."
+              - command: "Fresh canonical formula-specific and complete browser validation"
+                status: passed
+                notes: "Image learn-llm-formula-ch08-13:browser-canonical passes all 12 focused Chapter 8-13 desktop/narrow formula cases and all 117 Playwright regressions."
+              - command: "Build-definition, dependency, Rust, whitespace, manifest, scope, and unrelated-change audit"
+                status: passed
+                notes: "Cargo.lock, Cargo.toml, every Rust path, Dockerfile, compose.yaml, site package manifests, and Astro configuration are unchanged from 8fae0843feb66b37783cfae25d57296696b7a092; git diff --check passes; the 30 product changes match the frozen manifest; and unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Every learner-facing Chapter 8-13 expression now uses inline/display math or equivalent build-time HTML-plus-MathML, while APIs, types, shapes, trace values, paths, and literal program data retain code semantics. Four diagrams render dynamic equations through the shared helper; history remains LLM-centered; no Rust, package, build, route, locale, SEO, hosting, or deployment behavior changed beyond the declared content revision advances."
       - id: repair-formula-rendering-ch14-ch19
         objective: "Bring every published Chapter 14-19 lesson and diagram into the learner-facing formula pipeline and prove the complete published course complies."
         depends_on:

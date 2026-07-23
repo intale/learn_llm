@@ -2,7 +2,7 @@
 {
   "chapter_id": "13-gradient-checking",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 13,
   "concept_id": "gradient-checking",
   "title": "Check gradients before trusting backpropagation",
@@ -140,7 +140,7 @@ export const diagramLabels = {
   },
   fields: {
     point: 'Point',
-    step: 'Step h',
+    step: 'Step size',
     minusProbe: 'Minus probe',
     center: 'Center',
     plusProbe: 'Plus probe',
@@ -174,9 +174,9 @@ export const diagramLabels = {
   },
   notes: {
     schematic:
-      'The brackets are an ordinal sketch of shrinking h, not a numerical axis; every exact point and function value remains in the Rust-authored table.',
+      'The brackets are an ordinal sketch of a shrinking step size, not a numerical axis; every exact point and function value remains in the Rust-authored table.',
     scan:
-      'Large h bends across too much of the cubic. The middle rows approach 4.75. At tiny h, subtracting nearly equal rounded values loses useful low bits.',
+      'A large step bends across too much of the cubic. The middle rows approach 4.75. At a tiny step, subtracting nearly equal rounded values loses useful low bits.',
     candidates:
       'A finite mismatch is a completed comparison with a fail verdict. Configuration and evaluation faults are typed errors instead.',
     tensor:
@@ -201,17 +201,15 @@ export const diagramLabels = {
 
 Start with the smallest possible gradient check:
 
-```text
-q(theta) = theta^2
-theta = 3
-h = 0.1
-```
+$$
+q(\theta)=\theta^2,\qquad \theta=3,\qquad h=0.1
+$$
 
-The two forward probes are `q(2.9)=8.41` and `q(3.1)=9.61`. Their difference
-is `1.2`; dividing by `2h=0.2` predicts a numerical derivative of `6`.
+The two forward probes are $q(2.9)=8.41$ and $q(3.1)=9.61$. Their difference
+is $1.2$; dividing by $2h=0.2$ predicts a numerical derivative of $6$.
 
 That result tests a candidate rather than creating one. The hand derivative of
-`theta^2` supplies candidate `6`, which should pass. Candidate `5.5` is also a
+the function $\theta^2$ supplies candidate $6$, which should pass. Candidate $5.5$ is also a
 perfectly finite number, but it should return a completed comparison with
 `pass=false`. A mathematical mismatch is different from an invalid step or a
 non-finite objective value.
@@ -235,12 +233,12 @@ $$
 
 The two probes sit symmetrically around the same point. For a smooth function,
 their leading first-order truncation terms cancel. The approximation still uses
-finite `h`, however, and the computer still rounds both function values before
-subtracting them. Shrinking `h` therefore helps only until cancellation becomes
+finite $h$, however, and the computer still rounds both function values before
+subtracting them. Shrinking $h$ therefore helps only until cancellation becomes
 the larger source of error.
 
-The implementation requires finite `theta`, positive finite `h`, a finite
-`2h`, two finite perturbations that differ from `theta`, and finite function
+The implementation requires finite $\theta$, positive finite $h$, a finite
+$2h$, two finite perturbations that differ from $\theta$, and finite function
 values. It evaluates the minus side first and the plus side second. A collapsed
 probe is rejected rather than reported as a zero derivative.
 
@@ -262,9 +260,9 @@ probe is rejected rather than reported as a zero derivative.
 | $h$ | The positive finite perturbation on both sides of the point. |
 | $f'(\theta)$ | The derivative at the point approximated by the centered secant slope. |
 
-For analytic candidate `a` and numerical value `n`, the checker chooses
-`scale=max(1,abs(a),abs(n))` and records
-`scaled_error=abs(a/scale-n/scale)`. The floor at one behaves like absolute
+For analytic candidate $a$ and numerical value $n$, the checker chooses
+$s=\max(1,|a|,|n|)$ and records
+$e=|a/s-n/s|$. The floor at one behaves like absolute
 error for small gradients; larger gradients are compared relative to their
 magnitude. The candidate passes exactly when scaled error is no greater than
 the declared finite nonnegative tolerance.
@@ -319,15 +317,15 @@ objective call, so one late non-finite candidate cannot leave a half-run trace.
   label="Rust source defining the Chapter 13 numerical gradient-check errors"
 />
 
-For shape `[2,3]`, `N=6` and four samples use flat offsets
-`floor(k*(N-1)/(S-1))`: `[0,1,3,5]`. They map to
+For shape `[2,3]`, $N=6$ and four samples use flat offsets
+$\left\lfloor k(N-1)/(S-1)\right\rfloor$: `[0,1,3,5]`. They map to
 `[[0,0],[0,1],[1,0],[1,2]]`. No random generator or hidden state is involved.
 A one-sample request chooses the middle flat offset. The general sampler uses
 an overflow-safe intermediate and the same suffix-product shape semantics as
 the cumulative tensor storage.
 
-The tensor checker temporarily writes `theta-h`, evaluates through `&Tensor`,
-restores the exact source bits, then repeats for `theta+h`. Restoration occurs
+The tensor checker temporarily writes $\theta-h$, evaluates through `&Tensor`,
+restores the exact source bits, then repeats for $\theta+h$. Restoration occurs
 before the result is inspected, including ordinary error paths. A panic inside
 the learner-supplied objective is explicitly outside this small reference
 guarantee.
@@ -342,7 +340,7 @@ guarantee.
 The LLM-facing fixture uses Chapter 12 indexed mean NLL. Its shape `[2,3]`
 logits are `[0,1,-1,2,0,-2]`, its targets are `[0,2]`, and its forward mean loss
 is `2.775268796472`. The manually derived candidate is
-`(softmax-one_hot)/2`: subtract one at each target logit, then divide every row
+$\bigl(\operatorname{softmax}-\operatorname{one\_hot}\bigr)/2$: subtract one at each target logit, then divide every row
 gradient by the two target rows.
 
 <RustSource
@@ -385,12 +383,12 @@ tensor restored exactly: true
 
 ## Watch the step size help, then hurt
 
-For `g(theta)=theta^3-2theta` at `theta=1.5`, the analytic derivative is `4.75`.
-The Rust scan starts with `h=1`, improves through `1e-1` and `1e-3`, and reaches
-its lowest displayed scaled error at `h=1e-5`. `h=1e-8` is already worse even
-though it still passes. At `h=1e-12`, rounding has raised the displayed result
-to `4.750422277766`, which fails tolerance again. The lesson does not promote
-`1e-5` as a universal optimum; it is the trustworthy middle for this fixture.
+For $g(\theta)=\theta^3-2\theta$ at $\theta=1.5$, the analytic derivative is $4.75$.
+The Rust scan starts with $h=1$, improves through $10^{-1}$ and $10^{-3}$, and reaches
+its lowest displayed scaled error at $h=10^{-5}$. The step $h=10^{-8}$ is already worse even
+though it still passes. At $h=10^{-12}$, rounding has raised the displayed result
+to $4.750422277766$, which fails tolerance again. The lesson does not promote
+$10^{-5}$ as a universal optimum; it is the trustworthy middle for this fixture.
 
 The strict 23-line Rust trace supplies every point, function value, error, phase,
 status, sample, and failure. The figure validates and presents that exact ordered
@@ -411,25 +409,25 @@ retains all exact evidence.
 
 ## Predict before running Rust
 
-1. Calculate `q(2.9)`, `q(3.1)`, and their central difference at `h=0.1`.
-2. Predict the pass states of candidates `6` and `5.5` at tolerance `1e-6`.
+1. Calculate $q(2.9)$, $q(3.1)$, and their central difference at $h=0.1$.
+2. Predict the pass states of candidates $6$ and $5.5$ at tolerance $10^{-6}$.
 3. Select the lowest-error row in this staged scan without calling its step universally optimal.
-4. Explain why `h=1e-12` is worse than the larger trusted step.
+4. Explain why $h=10^{-12}$ is worse than the larger trusted step.
 5. Compute the wrong candidate's scale and scaled error before reading the answer.
-6. Derive four flat samples and coordinates for `N=6` and `S=4`.
+6. Derive four flat samples and coordinates for $N=6$ and $S=4$.
 7. Predict zero-step and collapsed-probe behavior plus tensor restoration on ordinary errors.
 8. Misconception check: do four passing coordinates prove every gradient or train or run the decoder?
 
 <details>
   <summary>Check the predictions</summary>
 
-1. `q(2.9)=8.41`, `q(3.1)=9.61`, and `(9.61-8.41)/0.2=6`.
-2. Candidate `6` passes. Candidate `5.5` returns a finite comparison with `pass=false`.
-3. `h=1e-5` has the lowest displayed scaled error in this fixed scan. Another function, point, or floating type can have a different best region.
+1. $q(2.9)=8.41$, $q(3.1)=9.61$, and $(9.61-8.41)/0.2=6$.
+2. Candidate $6$ passes. Candidate $5.5$ returns a finite comparison with `pass=false`.
+3. $h=10^{-5}$ has the lowest displayed scaled error in this fixed scan. Another function, point, or floating type can have a different best region.
 4. The two rounded function values become nearly equal, so their subtraction loses useful low bits and rounding dominates.
-5. `scale=max(1,5.5,6)=6`; `abs(5.5/6-6/6)=1/12`, far above `1e-6`.
-6. `floor(k*5/3)` gives flats `[0,1,3,5]`, hence coordinates `[[0,0],[0,1],[1,0],[1,2]]`.
-7. Zero `h` is invalid; `h=1e-20` at point `1` rounds the minus probe back to the point. On every ordinary error, a temporary tensor value is restored before return.
+5. $\max(1,5.5,6)=6$; $|5.5/6-6/6|=1/12$, far above $10^{-6}$.
+6. $\lfloor 5k/3\rfloor$ gives flats `[0,1,3,5]`, hence coordinates `[[0,0],[0,1],[1,0],[1,2]]`.
+7. Zero $h$ is invalid; $h=10^{-20}$ at point $1$ rounds the minus probe back to the point. On every ordinary error, a temporary tensor value is restored before return.
 8. No. The samples are evidence only for selected coordinates. Gradcheck neither creates the training gradient nor belongs in decoder inference.
 
 </details>

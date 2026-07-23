@@ -2,7 +2,7 @@
 {
   "chapter_id": "08-tensor-storage",
   "concept_id": "row-major-tensor-storage",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 8,
   "objective": {
     "en": "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
