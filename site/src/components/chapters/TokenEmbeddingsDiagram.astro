@@ -233,19 +233,24 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
 <style>
   .token-embeddings-diagram {
     display: grid;
+    max-inline-size: 100%;
     gap: 1.25rem;
     margin: 1.5rem 0;
     padding: clamp(1rem, 3vw, 1.5rem);
     min-inline-size: 0;
-    border: 2px solid var(--border, #4b5563);
+    container-type: inline-size;
+    overflow: hidden;
+    border: 1px solid var(--line);
     border-radius: 1rem;
-    background: var(--surface, #111827);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow);
   }
 
   .token-embeddings-diagram:focus-visible,
   .table-scroll:focus-visible {
-    outline: 3px solid var(--accent, #7dd3fc);
-    outline-offset: 3px;
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
   }
 
   figcaption {
@@ -257,6 +262,7 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   .diagram-stage > p {
     margin: 0;
     max-inline-size: 72ch;
+    color: var(--muted);
   }
 
   .shape-summary {
@@ -269,11 +275,13 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   .shape-summary > div {
     min-inline-size: 0;
     padding: 0.7rem;
-    border: 1px solid var(--border, #4b5563);
+    border: 1px solid var(--line);
     border-radius: 0.65rem;
+    background: var(--surface-raised, var(--surface));
   }
 
   dt {
+    color: var(--muted);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -285,9 +293,14 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     overflow-wrap: anywhere;
   }
 
+  .shape-summary > div:first-child bdi {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .stage-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
     gap: 1rem;
     align-items: start;
     min-inline-size: 0;
@@ -299,9 +312,9 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     align-content: start;
     min-inline-size: 0;
     padding: 1rem;
-    border: 1px solid var(--border, #4b5563);
+    border: 1px solid var(--line);
     border-radius: 0.8rem;
-    background: var(--surface-raised, #182235);
+    background: var(--surface-raised, var(--surface));
   }
 
   .diagram-stage h3 {
@@ -326,6 +339,7 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     max-inline-size: 100%;
     min-inline-size: 0;
     overflow-x: auto;
+    overscroll-behavior-inline: contain;
     scrollbar-gutter: stable;
   }
 
@@ -351,7 +365,7 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   th,
   td {
     padding: 0.55rem 0.65rem;
-    border-block-end: 1px solid var(--border, #4b5563);
+    border-block-end: 1px solid var(--line);
     text-align: start;
     vertical-align: top;
   }
@@ -402,7 +416,7 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   .state-selected-repeated,
   .repeated-row,
   .rule-repeated-sum {
-    background: color-mix(in srgb, var(--accent, #38bdf8) 12%, transparent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
   .operation-cell {
@@ -436,6 +450,11 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     .diagram-stage,
     .shape-summary > div {
       border-color: CanvasText;
+    }
+
+    .token-embeddings-diagram {
+      color: CanvasText;
+      background: Canvas;
     }
 
     .state-selected-repeated,

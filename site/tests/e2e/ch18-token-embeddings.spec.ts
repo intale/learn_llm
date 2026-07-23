@@ -20,12 +20,14 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Give token IDs trainable vectors';
 const chapterDescription =
   'Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`;
+const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}`;
+const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historyHeading = 'From sparse identity to the vector entrance of a Transformer';
 const historyLimitation =
@@ -124,6 +126,13 @@ async function expectChapterContent(
   await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
     formulaLatex,
   );
+  const inlineAnnotations = page.locator(
+    '.lesson-body .katex:not(.katex-display .katex) annotation[encoding="application/x-tex"]',
+  );
+  const inlineAnnotationText = await inlineAnnotations.allTextContents();
+  expect(inlineAnnotationText.filter((text) => text === upstreamAdjointLatex)).toHaveLength(2);
+  expect(inlineAnnotationText.filter((text) => text === tableAdjointLatex)).toHaveLength(2);
+  await expect(page.locator('.lesson-body code').filter({ hasText: /^bar [XE]$/ })).toHaveCount(0);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -229,12 +238,41 @@ async function expectChapterContent(
     await expect(scroller).toBeFocused();
   }
   await expect(diagram.locator('.stage-grid')).toHaveCSS('align-items', 'start');
+  await expect(diagram).toHaveCSS('color', 'rgb(22, 33, 29)');
+  await expect(diagram).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.68)');
+  await expect(diagram.locator('.diagram-stage').first()).toHaveCSS('color', 'rgb(22, 33, 29)');
+  await expect(diagram.locator('.diagram-stage').first()).toHaveCSS(
+    'background-color',
+    'rgba(255, 255, 255, 0.68)',
+  );
+  const containment = await diagram.evaluate((node) => ({
+    figure: { client: node.clientWidth, scroll: node.scrollWidth },
+    parameter: (() => {
+      const card = node.querySelector<HTMLElement>('.shape-summary > div:first-child')!;
+      return { client: card.clientWidth, scroll: card.scrollWidth };
+    })(),
+    stages: Array.from(node.querySelectorAll<HTMLElement>('.diagram-stage')).map((stage) => ({
+      client: stage.clientWidth,
+      scroll: stage.scrollWidth,
+    })),
+  }));
+  for (const region of [containment.figure, containment.parameter, ...containment.stages]) {
+    expect(region.scroll).toBeLessThanOrEqual(region.client);
+  }
   const heightEvidence = await diagram.locator('.diagram-stage').evaluateAll((stages) =>
     stages.map((stage) => ({ offset: (stage as HTMLElement).offsetHeight, scroll: (stage as HTMLElement).scrollHeight })),
   );
   for (const { offset, scroll } of heightEvidence) {
-    expect(offset - scroll).toBeLessThanOrEqual(3);
+    expect(Math.abs(offset - scroll)).toBeLessThanOrEqual(3);
   }
+  const stagePositions = await diagram.locator('.stage-grid .diagram-stage').evaluateAll((stages) =>
+    stages.map((stage) => {
+      const rectangle = stage.getBoundingClientRect();
+      return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
+    }),
+  );
+  expect(Math.abs(stagePositions[0]!.left - stagePositions[1]!.left)).toBeLessThan(1);
+  expect(stagePositions[1]!.top).toBeGreaterThan(stagePositions[0]!.bottom);
   if (narrow) {
     for (const selector of ['.lookup-scroll', '.gradient-stage .table-scroll']) {
       const widths = await diagram.locator(selector).evaluate((node) => ({
@@ -243,14 +281,6 @@ async function expectChapterContent(
       }));
       expect(widths.scroll).toBeGreaterThan(widths.client);
     }
-    const stagePositions = await diagram.locator('.stage-grid .diagram-stage').evaluateAll((stages) =>
-      stages.map((stage) => {
-        const rectangle = stage.getBoundingClientRect();
-        return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
-      }),
-    );
-    expect(Math.abs(stagePositions[0]!.left - stagePositions[1]!.left)).toBeLessThan(1);
-    expect(stagePositions[1]!.top).toBeGreaterThan(stagePositions[0]!.bottom);
   }
 
   const exerciseDetails = page.locator('.lesson-body details');

@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 18,
   "concept_id": "token-embeddings",
   "title": "Give token IDs trainable vectors",
@@ -46,11 +46,11 @@
       },
       {
         "symbol": "\\bar{X}_{b,t,:}",
-        "meaning": "the upstream gradient vector arriving at output position (b,t)"
+        "meaning": "the reverse-mode adjoint: the partial derivative of scalar loss L with respect to X at output position (b,t)"
       },
       {
         "symbol": "\\bar{E}_{i,:}",
-        "meaning": "the accumulated gradient for every feature of table row i"
+        "meaning": "the reverse-mode adjoint: the partial derivative of scalar loss L with respect to every feature of table row i, accumulated across matching positions"
       },
       {
         "symbol": "i",
@@ -260,9 +260,14 @@ $$
 X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}
 $$
 
-The forward half copies one selected row into each output position. The reverse
-half follows those selections in the opposite direction. If several positions
-selected the same row, their upstream vectors add feature by feature.
+The forward half copies one selected row into each output position. Let $L$ be
+the scalar loss. An overbar is reverse-mode shorthand:
+$\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}$ is the gradient arriving
+at an output position, while
+$\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}$ is the gradient of table row
+$i$. The reverse half follows the forward selections in the opposite direction.
+If several positions selected the same row, their upstream vectors add feature
+by feature into that one shared parameter row.
 
 For the frozen seed `[[[1,0],[0,2],[3,4]]]`, row `1` receives `[0,2]` and row
 `2` receives `[1,0]+[3,4]=[4,4]`. Unused rows `0` and `3` receive zero. Token IDs
@@ -272,17 +277,19 @@ receive no gradient because they are discrete selectors, not tape operands.
 
 ## Keep vocabulary axes separate from feature axes
 
-- `E` is the trainable token table with shape `[V,d]`.
-- `V` is the vocabulary size and therefore the number of rows in `E`.
-- `d` is the embedding width and therefore the number of features in each row.
-- `z_{b,t}` is the integer token ID at batch index `b` and sequence position `t`.
-- `b` identifies one batch item; `t` identifies one position in its sequence.
-- `:` means every coordinate on the final feature axis.
-- `X_{b,t,:}` is the selected width-`d` vector at position `(b,t)`.
-- `bar X` is the upstream gradient vector arriving at that output position.
-- `bar E` is the accumulated table gradient.
-- `i` is one vocabulary-row index.
-- The sum visits every `(b,t)` whose `z_{b,t}` equals `i`.
+- $E$ is the trainable token table with shape $[V,d]$.
+- $V$ is the vocabulary size and therefore the number of rows in $E$.
+- $d$ is the embedding width and therefore the number of features in each row.
+- $z_{b,t}$ is the integer token ID at batch index $b$ and sequence position $t$.
+- $b$ identifies one batch item; $t$ identifies one position in its sequence.
+- $:$ means every coordinate on the final feature axis.
+- $X_{b,t,:}$ is the selected width-$d$ vector at position $(b,t)$.
+- $\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}$ is the upstream
+  gradient vector arriving at that output position.
+- $\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}$ is the table-row gradient
+  after contributions from every matching position have been accumulated.
+- $i$ is one vocabulary-row index.
+- The sum visits every $(b,t)$ whose $z_{b,t}$ equals $i$.
 
 The numeric distance between IDs is not a semantic distance. IDs `1` and `2`
 are adjacent only in the tokenizer's numbering; training determines whether

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T09:31:20Z"
+updated_at: "2026-07-23T09:33:45Z"
 
 environment:
   os: "Linux x86_64"
@@ -9096,7 +9096,7 @@ builds:
         objective: "Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths."
         depends_on:
           - implement-ch16-model-autodiff-ops
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -9247,7 +9247,7 @@ builds:
         objective: "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
         depends_on:
           - implement-ch17-parameter-initialization
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -9509,10 +9509,13 @@ builds:
         objective: "Restore readable, container-responsive Chapter 18 diagram rendering and repair its barred-gradient formula explanation."
         depends_on:
           - repair-ch17-diagram-rendering
-        status: pending
+        status: completed
         inputs:
           - "curriculum/course-plan.md"
           - "site/src/styles/global.css"
+          - "site/src/components/chapters/ParameterInitializationDiagram.astro"
+          - "site/tests/17-parameter-initialization-diagram.test.ts"
+          - "site/tests/e2e/ch17-parameter-initialization.spec.ts"
           - "curriculum/chapters/18-token-embeddings.md"
           - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
           - "site/src/content/chapters/en/18-token-embeddings.mdx"
@@ -9579,6 +9582,62 @@ builds:
                 status: failed
                 notes: "The first preflight attempted to claim Chapter 18 concurrently, but the reviewed course schedule is intentionally linear. No Chapter 18 product implementation changed; preserve its diagnostics and start a new fingerprinted run only after repair-ch17-diagram-rendering completes."
             notes: "Interrupted before product implementation. The step is pending behind the sequential Chapter 17 correction; its reproduced screenshots and DOM evidence remain reusable."
+          - run_id: 20260723T093345Z-repair-ch18-diagram-formula-rendering-02
+            started_at: "2026-07-23T09:33:45Z"
+            finished_at: "2026-07-23T09:50:25Z"
+            status: succeeded
+            input_fingerprint:
+              git: "1af9ffa7ff137d3b39aef9607cb5e8f582732979"
+              manifest: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/input-fingerprint.txt"
+              checksum: "sha256:c51c4824daaa77f8c3021b6a80c86b6d9e3a31c39e8c224a0c883c3b8a417c58"
+              relevant_inputs: "sha256:db51c13fad291b5fde7cfc2ab33b5d596870a45504637949be613b67134905e9"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/"
+            commands:
+              - "Verify the dedicated Chapter 17 repair commit and frozen publication, complete the next-step preflight, and fingerprint the corrected site-palette pattern plus every Chapter 18 presentation input"
+              - "Develop the Chapter 18 content-revision, formula-explanation, site-palette, responsive-layout, and focused regression changes in the isolated run workspace"
+              - "Run focused and complete content, unit, Astro, static-build, link, SEO, and Chromium gates in the pinned network-disabled browser container"
+              - "Render and inspect the full page, formula section, and complete diagram; record computed colors, dimensions, and exact KaTeX annotations"
+              - "Freeze the five declared outputs, verify their sorted checksum manifest, publish them atomically, and compare every canonical byte with the frozen publication"
+              - "Create a fresh canonical browser image and repeat the complete network-disabled validation suite"
+            artifacts:
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/input-fingerprint.txt"
+                checksum: "sha256:c51c4824daaa77f8c3021b6a80c86b6d9e3a31c39e8c224a0c883c3b8a417c58"
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/diagnostics/fixed.png"
+                checksum: "sha256:411c815ae1292cd79b0dfeb4d7e6b17440968b2be2edc9017a9857c5be4a2f09"
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/diagnostics/formula-fixed.png"
+                checksum: "sha256:957b4133a1e71f32983746cced982c1aeb70bf1c140891fbcfc658b3478719a8"
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/diagnostics/diagram-element-fixed.png"
+                checksum: "sha256:2217c35df9eea9bdef3efdab43eab284aad2a4509f29f8265ede2d7ebd9605bd"
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/diagnostics/rendered-evidence.json"
+                checksum: "sha256:a4219b0802e3f898beba378de49def091eeb6f9612c3b6424a1cd89fea26e8c4"
+              - path: ".build/runs/20260723T093345Z-repair-ch18-diagram-formula-rendering-02/publish.sha256"
+                checksum: "sha256:1316b1622e24f6c032fc113bdf18715845b36df7f31705aec4c461ffd37f91f9"
+              - path: "docker-image:learn-llm-repair-ch18-browser:canonical"
+                checksum: "sha256:d5af390eef38787dea801895487c18824a770363cebf80b9b36d2e58b8bcfd42"
+            validation:
+              - command: "Dependency, prior-artifact, environment, ownership, scope, and cost preflight"
+                status: passed
+                notes: "repair-ch17-diagram-rendering is completed and committed at 1af9ffa; its six-file frozen manifest revalidates at sha256:7c578a476c290c650f860d86f2cfd8081a29731f46fbd90e3b05c200feea6872. Pinned tools remain available; only unrelated desktop.ini is untracked; all Chapter 18 outputs belong solely to this step. The small local repair needs no network, paid service, generation, dependency, build, hosting, or deployment change."
+              - command: "Chapter 18 formula, content, component, and focused regression gates"
+                status: passed
+                notes: "The valid gather/scatter-add display equation is unchanged. Contract and English lesson advance together to revision 2; each overbar is explicitly the partial derivative of scalar loss L with respect to the named tensor and renders as KaTeX rather than literal code. The integrated contract, English content, parity, independent mathematical audit, and all 45 focused unit cases pass."
+              - command: "Complete staged site, content, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "The reviewed plan reports 39 chapters, 61 scheduled steps, and 18 implemented contracts. Astro reports zero errors, warnings, or hints; all 484 site tests pass; content reports 25 localized sources and 18 publishable locale sets; the static build emits 30 pages; 731 local references and SEO on all 30 routes pass; all five focused Chapter 18 cases and all 72 browser regressions pass."
+              - command: "Rendered formula, palette, containment, and natural-height review"
+                status: passed
+                notes: "Checksummed full-page, formula, and element screenshots confirm readable site-native surfaces, rendered barred derivatives, a wrapped named parameter, one-column stages at the course width, and local scrolling only inside wide evidence tables. At 1440px the figure is 830/830 client/scroll pixels, the parameter card is 185/185, all four stages are 780/780, every stage differs from its content height by only its two border pixels, and figure/stage colors resolve to rgb(22,33,29) on rgba(255,255,255,0.68)."
+              - command: "Frozen publication and canonical identity verification"
+                status: passed
+                notes: "All five declared outputs are frozen under publish/ and match canonical destinations byte for byte. The sorted manifest is publish.sha256 at sha256:1316b1622e24f6c032fc113bdf18715845b36df7f31705aec4c461ffd37f91f9."
+              - command: "Complete network-disabled canonical site validation"
+                status: passed
+                notes: "Fresh canonical image sha256:d5af390eef38787dea801895487c18824a770363cebf80b9b36d2e58b8bcfd42 passes the course plan, integrated contract, English content/parity, 45 focused tests, zero-diagnostic Astro analysis, all 484 site tests, complete content, 30-page build, 731 links, 30 SEO routes, five focused Chromium cases, and all 72 browser regressions."
+              - command: "Canonical ledger, whitespace, ownership, invalidation, and unrelated-change audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses; the reviewed course plan remains valid at 39 chapters, 61 scheduled steps, and 18 implemented contracts; git diff --check passes; both superseded implementation checkpoints are invalidated without changing their immutable successful runs; and only the five declared Chapter 18 outputs plus governance records are in scope. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 18 keeps its dimensionally valid gather/scatter-add equation and now defines each barred quantity as the partial derivative of scalar loss L, rendered as KaTeX in both explanation and glossary. The diagram uses the site's readable ink, muted text, surface, line, focus, shadow, and accent tokens; its parameter wraps inside its summary card, stage layout follows component width, and genuinely wide evidence stays in four named local scrollers. Revision 2 changes no Rust trace, numeric behavior, LLM history, SEO description, locale policy, route, dependency, package, Linux build, hosting, or deployment definition. All staged and fresh canonical content, unit, static-build, link, SEO, visual, accessibility, and 72-case browser gates pass; the five-file frozen publication manifest is sha256:1316b1622e24f6c032fc113bdf18715845b36df7f31705aec4c461ffd37f91f9."
       - id: implement-ch19-linear-layers
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
         depends_on:

@@ -4097,3 +4097,39 @@ to preserve the reviewed linear course prefix.
 `repair-ch18-diagram-formula-rendering` run
 `20260723T091128Z-repair-ch18-diagram-formula-rendering-01`, and restarted
 Chapter 17 run `20260723T091513Z-repair-ch17-diagram-rendering-02`.
+
+## 2026-07-23 - Finalize the Chapter 17 and 18 presentation repairs
+
+**Status:** Accepted after canonical validation of both corrective steps.
+
+**Context:** The Chapter 17 correction is committed at `1af9ffa`, and the
+Chapter 18 correction now passes its staged and fresh canonical gates. The
+Chapter 18 display equation was already dimensionally valid; the defect was its
+explanation and rendering. The completed implementation checkpoints still
+describe immutable successful runs, but their canonical presentation outputs
+have since changed materially through the two reviewed repair steps.
+
+**Decision:** Keep every successful implementation run immutable and mark
+`implement-ch17-parameter-initialization` and
+`implement-ch18-token-embeddings` as `invalidated`. Treat
+`repair-ch17-diagram-rendering` and
+`repair-ch18-diagram-formula-rendering` as the superseding canonical
+checkpoints. Preserve Chapter 18's gather/scatter-add formula, Rust trace,
+history, SEO, locale policy, and build definitions; advance only its contract
+and English lesson to content revision 2. Define each overbar as a partial
+derivative of scalar loss `L`, render the notation as mathematics, use the
+established light-site tokens, and retain local scrollers for genuinely wide
+trace tables. Keep Chapter 19 dependent on the completed Chapter 18 repair so
+the next eligible step follows the corrected course prefix.
+
+**Consequences:** The ledger records why the original checkpoints are stale
+without rewriting or relabeling their successful runs. Chapter 17 and Chapter
+18 now have dedicated, checksummed corrective publications and separate
+commits. No Rust behavior, dependency, package, locale, route, Linux build,
+hosting, or deployment definition changes.
+
+**Affected steps and runs:** `implement-ch17-parameter-initialization`,
+`implement-ch18-token-embeddings`, `repair-ch17-diagram-rendering` run
+`20260723T091513Z-repair-ch17-diagram-rendering-02`, and
+`repair-ch18-diagram-formula-rendering` run
+`20260723T093345Z-repair-ch18-diagram-formula-rendering-02`.

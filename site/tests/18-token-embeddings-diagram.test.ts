@@ -27,6 +27,14 @@ const componentSource = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/TokenEmbeddingsDiagram.astro'),
   'utf8',
 );
+const contractSource = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/18-token-embeddings.md'),
+  'utf8',
+);
+const lessonSource = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/18-token-embeddings.mdx'),
+  'utf8',
+);
 const rustTraceSource = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch18-token-embeddings/src/diagram_trace.rs'),
   'utf8',
@@ -261,14 +269,47 @@ describe('Chapter 18 labels and static component', () => {
 
   it('guards natural-height, narrow, focus, direction, and non-color structure', () => {
     expect(componentSource).toMatch(/\.stage-grid\s*\{[^}]*align-items:\s*start;/s);
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr))',
+    );
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(componentSource).toContain('min-inline-size: 0');
     expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toMatch(/\.token-embeddings-diagram\s*\{[^}]*overflow:\s*hidden;/s);
+    expect(componentSource).toMatch(
+      /\.shape-summary > div:first-child bdi\s*\{[^}]*overflow-wrap:\s*anywhere;/s,
+    );
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource.match(/role="region"/g)).toHaveLength(4);
     expect(componentSource).toContain('<bdi dir="ltr">');
     expect(componentSource).toContain('border-block-end-style: dotted');
     expect(componentSource).toContain('border-block-end-style: double');
     expect(componentSource).not.toMatch(/\.diagram-stage\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
+  });
+
+  it('uses the site palette and renders the reverse-mode notation as mathematics', () => {
+    expect(componentSource).toContain('border: 1px solid var(--line)');
+    expect(componentSource).toContain('background: var(--surface)');
+    expect(componentSource).toContain('color: var(--ink)');
+    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
+    expect(componentSource).not.toMatch(
+      /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
+    );
+
+    expect(contractSource).toContain('"content_revision": 2');
+    expect(lessonSource).toContain('"content_revision": 2');
+    expect(contractSource).toContain(
+      '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
+    );
+    expect(contractSource).toContain(
+      '`\\bar{E}_{i,:} = \\partial L / \\partial E_{i,:}`',
+    );
+    expect(lessonSource).toContain(
+      '$\\bar{X}_{b,t,:}=\\frac{\\partial L}{\\partial X_{b,t,:}}$',
+    );
+    expect(lessonSource).toContain(
+      '$\\bar{E}_{i,:}=\\frac{\\partial L}{\\partial E_{i,:}}$',
+    );
+    expect(lessonSource).not.toMatch(/`bar [XE]`/);
   });
 });

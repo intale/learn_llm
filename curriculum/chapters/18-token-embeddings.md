@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
@@ -47,11 +47,11 @@
       },
       {
         "symbol": "\\bar{X}_{b,t,:}",
-        "en": "the upstream gradient vector arriving at output position (b,t)"
+        "en": "the reverse-mode adjoint: the partial derivative of scalar loss L with respect to X at output position (b,t)"
       },
       {
         "symbol": "\\bar{E}_{i,:}",
-        "en": "the accumulated gradient for every feature of table row i"
+        "en": "the reverse-mode adjoint: the partial derivative of scalar loss L with respect to every feature of table row i, accumulated across matching positions"
       },
       {
         "symbol": "i",
@@ -245,9 +245,11 @@ X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:
 `E` is the trainable table with `V` vocabulary rows and embedding width `d`.
 `z_{b,t}` is the integer ID at batch index `b` and sequence position `t`; the
 colon selects all feature coordinates. `X_{b,t,:}` is the resulting width-`d`
-vector. An overbar denotes a reverse-mode gradient: `bar X` arrives from later
-computation, while `bar E` stores parameter gradients. For row `i`, the sum
-ranges over every `(b,t)` whose ID equals `i`.
+vector. Let `L` be the scalar loss. An overbar is reverse-mode shorthand:
+`\bar{X}_{b,t,:} = \partial L / \partial X_{b,t,:}` is the upstream gradient
+arriving from later computation, and
+`\bar{E}_{i,:} = \partial L / \partial E_{i,:}` is the accumulated parameter
+gradient. For row `i`, the sum ranges over every `(b,t)` whose ID equals `i`.
 
 For explanation only, a one-hot row `e_i` with length `V` obeys
 `e_i E = E_{i,:}`. Direct lookup avoids constructing those zeros; this inline
