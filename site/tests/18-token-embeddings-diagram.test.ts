@@ -296,20 +296,19 @@ describe('Chapter 18 labels and static component', () => {
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 2');
-    expect(lessonSource).toContain('"content_revision": 2');
+    expect(contractSource).toContain('"content_revision": 3');
+    expect(lessonSource).toContain('"content_revision": 3');
     expect(contractSource).toContain(
       '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
     );
     expect(contractSource).toContain(
       '`\\bar{E}_{i,:} = \\partial L / \\partial E_{i,:}`',
     );
-    expect(lessonSource).toContain(
-      '$\\bar{X}_{b,t,:}=\\frac{\\partial L}{\\partial X_{b,t,:}}$',
-    );
-    expect(lessonSource).toContain(
-      '$\\bar{E}_{i,:}=\\frac{\\partial L}{\\partial E_{i,:}}$',
-    );
+    const compactUpstream = '$\\bar{X}_{b,t,:}=\\partial L/\\partial X_{b,t,:}$';
+    const compactTable = '$\\bar{E}_{i,:}=\\partial L/\\partial E_{i,:}$';
+    expect(lessonSource.split(compactUpstream)).toHaveLength(3);
+    expect(lessonSource.split(compactTable)).toHaveLength(3);
+    expect(lessonSource).not.toContain('\\frac{\\partial L}{\\partial');
     expect(lessonSource).not.toMatch(/`bar [XE]`/);
   });
 });

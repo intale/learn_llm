@@ -20,14 +20,14 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Give token IDs trainable vectors';
 const chapterDescription =
   'Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`;
-const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}`;
-const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}`;
+const upstreamAdjointLatex = String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`;
+const tableAdjointLatex = String.raw`\bar{E}_{i,:}=\partial L/\partial E_{i,:}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historyHeading = 'From sparse identity to the vector entrance of a Transformer';
 const historyLimitation =
@@ -132,6 +132,18 @@ async function expectChapterContent(
   const inlineAnnotationText = await inlineAnnotations.allTextContents();
   expect(inlineAnnotationText.filter((text) => text === upstreamAdjointLatex)).toHaveLength(2);
   expect(inlineAnnotationText.filter((text) => text === tableAdjointLatex)).toHaveLength(2);
+  const adjointStructure = await page
+    .locator('.lesson-body .katex:not(.katex-display .katex)')
+    .evaluateAll((roots, expected) =>
+      roots
+        .map((root) => ({
+          latex: root.querySelector('annotation')?.textContent ?? '',
+          stackedFractions: root.querySelectorAll('.mfrac').length,
+        }))
+        .filter(({ latex }) => expected.includes(latex)),
+    [upstreamAdjointLatex, tableAdjointLatex]);
+  expect(adjointStructure).toHaveLength(4);
+  expect(adjointStructure.every(({ stackedFractions }) => stackedFractions === 0)).toBe(true);
   await expect(page.locator('.lesson-body code').filter({ hasText: /^bar [XE]$/ })).toHaveCount(0);
 
   const rustSources = page.locator('figure.rust-source');

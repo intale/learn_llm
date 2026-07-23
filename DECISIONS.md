@@ -4133,3 +4133,64 @@ hosting, or deployment definition changes.
 `20260723T091513Z-repair-ch17-diagram-rendering-02`, and
 `repair-ch18-diagram-formula-rendering` run
 `20260723T093345Z-repair-ch18-diagram-formula-rendering-02`.
+
+## 2026-07-23 - Keep Chapter 18 derivatives compact in inline prose
+
+**Status:** Accepted from the user's Firefox 152 rendered-site report.
+
+**Context:** Chapter 18 now explains both barred adjoints correctly, but its
+prose paragraph and symbol glossary each render the definitions with a stacked
+inline `\frac`. Firefox 152.0.6 gives those four tall inline boxes insufficient
+clearance from adjacent text lines. The chapter's shared displayed
+gather/scatter-add equation is unaffected and remains dimensionally correct.
+
+**Decision:** Insert `repair-ch18-firefox-inline-math-leading` after the
+completed Chapter 18 diagram/formula repair and before Chapter 19. Advance the
+reviewed plan to revision 19 and Chapter 18 to content revision 3. Write the
+two repeated inline definitions with compact slash-form partial derivatives,
+`\partial L/\partial X` and `\partial L/\partial E`, while retaining barred
+symbols, KaTeX rendering, and exact scalar-loss meaning. Apply the correction
+to both named sections and add source plus rendered-annotation regressions that
+reject stacked inline fractions. Do not alter global KaTeX CSS for this
+chapter-local content defect.
+
+**Consequences:** Firefox receives ordinary text-line clearance without a
+cross-site typography change or an additional displayed formula. The display
+equation, Rust behavior and trace, history, SEO, locale availability, routes,
+dependencies, packages, Linux build definitions, hosting, and deployment stay
+unchanged. Plan revision 19 changes only scheduling metadata; active and
+deferred locales remain identical.
+
+**Affected steps and run:** `repair-ch18-diagram-formula-rendering`,
+`repair-ch18-firefox-inline-math-leading` run
+`20260723T100105Z-repair-ch18-firefox-inline-math-leading-01`, and
+`implement-ch19-linear-layers`.
+
+## 2026-07-23 - Finalize the Chapter 18 Firefox inline-math repair
+
+**Status:** Accepted after staged and fresh canonical validation.
+
+**Context:** The compact derivatives have now passed exact Firefox 152.0.6
+visual review at desktop and narrow widths, as well as the repository's complete
+content, static-site, Chromium, link, and SEO gates. The successful revision-2
+repair run remains immutable, but its Chapter 18 contract, lesson, and tests are
+materially superseded by content revision 3.
+
+**Decision:** Mark `repair-ch18-diagram-formula-rendering` as `invalidated`
+without altering its successful runs. Treat
+`repair-ch18-firefox-inline-math-leading` as the canonical Chapter 18
+presentation checkpoint, and keep Chapter 19 dependent on that completed step.
+The canonical lesson uses compact slash-form partial derivatives in both named
+sections and in both repeated definitions; it does not introduce a global
+KaTeX typography override.
+
+**Consequences:** The ledger preserves the provenance of both repairs while
+identifying revision 3 as current. Exact Firefox screenshots demonstrate clear
+line spacing for all four annotations. The display equation, Rust behavior,
+history, SEO, locale policy, routes, dependencies, Linux build definitions,
+hosting, and deployment remain unchanged.
+
+**Affected steps and run:** `repair-ch18-diagram-formula-rendering`,
+`repair-ch18-firefox-inline-math-leading` run
+`20260723T100105Z-repair-ch18-firefox-inline-math-leading-01`, and
+`implement-ch19-linear-layers`.

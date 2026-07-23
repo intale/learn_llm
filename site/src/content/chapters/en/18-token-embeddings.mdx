@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 18,
   "concept_id": "token-embeddings",
   "title": "Give token IDs trainable vectors",
@@ -262,9 +262,9 @@ $$
 
 The forward half copies one selected row into each output position. Let $L$ be
 the scalar loss. An overbar is reverse-mode shorthand:
-$\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}$ is the gradient arriving
+$\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}$ is the gradient arriving
 at an output position, while
-$\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}$ is the gradient of table row
+$\bar{E}_{i,:}=\partial L/\partial E_{i,:}$ is the gradient of table row
 $i$. The reverse half follows the forward selections in the opposite direction.
 If several positions selected the same row, their upstream vectors add feature
 by feature into that one shared parameter row.
@@ -284,9 +284,9 @@ receive no gradient because they are discrete selectors, not tape operands.
 - $b$ identifies one batch item; $t$ identifies one position in its sequence.
 - $:$ means every coordinate on the final feature axis.
 - $X_{b,t,:}$ is the selected width-$d$ vector at position $(b,t)$.
-- $\bar{X}_{b,t,:}=\frac{\partial L}{\partial X_{b,t,:}}$ is the upstream
+- $\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}$ is the upstream
   gradient vector arriving at that output position.
-- $\bar{E}_{i,:}=\frac{\partial L}{\partial E_{i,:}}$ is the table-row gradient
+- $\bar{E}_{i,:}=\partial L/\partial E_{i,:}$ is the table-row gradient
   after contributions from every matching position have been accumulated.
 - $i$ is one vocabulary-row index.
 - The sum visits every $(b,t)$ whose $z_{b,t}$ equals $i$.

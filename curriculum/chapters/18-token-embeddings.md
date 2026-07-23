@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."

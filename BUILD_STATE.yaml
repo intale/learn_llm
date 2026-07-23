@@ -9509,7 +9509,7 @@ builds:
         objective: "Restore readable, container-responsive Chapter 18 diagram rendering and repair its barred-gradient formula explanation."
         depends_on:
           - repair-ch17-diagram-rendering
-        status: completed
+        status: invalidated
         inputs:
           - "curriculum/course-plan.md"
           - "site/src/styles/global.css"
@@ -9638,10 +9638,122 @@ builds:
                 status: passed
                 notes: "BUILD_STATE.yaml parses; the reviewed course plan remains valid at 39 chapters, 61 scheduled steps, and 18 implemented contracts; git diff --check passes; both superseded implementation checkpoints are invalidated without changing their immutable successful runs; and only the five declared Chapter 18 outputs plus governance records are in scope. Unrelated desktop.ini remains untracked and untouched."
             notes: "Succeeded. Chapter 18 keeps its dimensionally valid gather/scatter-add equation and now defines each barred quantity as the partial derivative of scalar loss L, rendered as KaTeX in both explanation and glossary. The diagram uses the site's readable ink, muted text, surface, line, focus, shadow, and accent tokens; its parameter wraps inside its summary card, stage layout follows component width, and genuinely wide evidence stays in four named local scrollers. Revision 2 changes no Rust trace, numeric behavior, LLM history, SEO description, locale policy, route, dependency, package, Linux build, hosting, or deployment definition. All staged and fresh canonical content, unit, static-build, link, SEO, visual, accessibility, and 72-case browser gates pass; the five-file frozen publication manifest is sha256:1316b1622e24f6c032fc113bdf18715845b36df7f31705aec4c461ffd37f91f9."
+      - id: repair-ch18-firefox-inline-math-leading
+        objective: "Prevent Chapter 18 inline barred-gradient notation from colliding with adjacent lines in Firefox while preserving its mathematical meaning."
+        depends_on:
+          - repair-ch18-diagram-formula-rendering
+        status: completed
+        inputs:
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "curriculum/chapters/18-token-embeddings.md"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/styles/global.css"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "Mozilla Firefox 152.0.6"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "curriculum/chapters/18-token-embeddings.md"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+        acceptance:
+          - "Both barred-derivative occurrences in 'Select forward, accumulate backward' and 'Keep vocabulary axes separate from feature axes' remain rendered mathematics and do not collide with adjacent text lines in Firefox 152 at desktop or narrow widths."
+          - "Inline derivatives use compact unstacked partial-derivative notation while the chapter's shared display equation, scalar-loss meaning, gather/scatter-add behavior, and exact Rust evidence remain unchanged."
+          - "The Chapter 18 contract and English lesson advance together to content revision 3 without changing LLM-history claims, SEO description, active locales, routes, dependencies, packages, Linux build definitions, hosting, or deployment."
+          - "Source and browser regressions cover all four rendered barred-derivative annotations, reject stacked inline fractions and literal bar text, and preserve the complete Chapter 18 visual/accessibility behavior."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/18-token-embeddings.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 18-token-embeddings"
+          - "npm --prefix site run check:parity -- --chapter 18-token-embeddings"
+          - "npm --prefix site run test -- --run tests/18-token-embeddings-diagram.test.ts tests/content-contract.test.ts"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:18-token-embeddings'"
+          - "npm --prefix site run test:e2e"
+          - "& 'C:\\Program Files\\Mozilla Firefox\\firefox.exe' --headless --window-size 1440,1000 --screenshot <artifact> http://127.0.0.1:4321/en/course/18-token-embeddings/#select-forward-accumulate-backward"
+          - "& 'C:\\Program Files\\Mozilla Firefox\\firefox.exe' --headless --window-size 390,844 --screenshot <artifact> http://127.0.0.1:4321/en/course/18-token-embeddings/#keep-vocabulary-axes-separate-from-feature-axes"
+        cost:
+          class: small
+          notes: "One deterministic Chapter 18 content-notation correction with local Firefox 152 and pinned Chromium validation; no network, paid service, generation, dependency, package, build-definition, Rust, hosting, or deployment change."
+        runs:
+          - run_id: 20260723T100105Z-repair-ch18-firefox-inline-math-leading-01
+            started_at: "2026-07-23T10:01:05Z"
+            finished_at: "2026-07-23T10:17:00Z"
+            status: succeeded
+            input_fingerprint:
+              git: "f20619c105fa2ac296bd74868bb8acee49bef5f2"
+              manifest: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/input-fingerprint.txt"
+              checksum: "sha256:46620bd1babe93bd250845e1b0ef2605fe8fb0777e526f69a877368743ba1a93"
+              relevant_inputs: "sha256:fd59b4b1db2a955a40ce26322ca0390ffca3f583f76ebba22260144e6c9ad3ca"
+              tools: "Mozilla Firefox 152.0.6; Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/"
+            commands:
+              - "Verify the clean Chapter 18 repair commit, preserve unrelated desktop.ini, inspect the completed repair artifacts and current KaTeX boundary, compare pinned tools, and fingerprint every material input"
+              - "Register plan revision 19 and the sequential Firefox corrective step before Chapter 19 without changing locale availability"
+              - "Serve the frozen revision-2 page on loopback, render it with installed Firefox 152.0.6, and preserve a full-height screenshot plus a focused crop of both reported collisions"
+              - "Apply content revision 3 in the isolated workspace: replace all four stacked inline fractions with compact partial-derivative slash notation and strengthen source plus rendered-structure regressions"
+              - "Run the complete staged content, unit, Astro, static-build, link, SEO, focused Chromium, full Chromium, and exact Firefox 152 visual gates"
+              - "Freeze the seven declared outputs, verify their sorted manifest, publish every canonical destination atomically, and compare canonical bytes with the frozen files"
+              - "Create a fresh canonical browser image and repeat the complete network-disabled content, unit, build, link, SEO, focused Chromium, and full Chromium validation"
+            artifacts:
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/input-fingerprint.txt"
+                checksum: "sha256:46620bd1babe93bd250845e1b0ef2605fe8fb0777e526f69a877368743ba1a93"
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/diagnostics/firefox-current-tall.png"
+                checksum: "sha256:9817d2063b340359084084dd900a5de0eef6a75f35a0cd2938c7543a95c215dc"
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/diagnostics/firefox-inline-math-current.png"
+                checksum: "sha256:e441754e8d04c78865d1a0ae366ae6db0de1a8bef1df874ab426115e1e49edfb"
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/diagnostics/firefox-inline-math-fixed-desktop.png"
+                checksum: "sha256:2d5d93ae144f7cb28fd8ebd2a8ba28cb05132fe4ce7ceb9e625c3fd16c2c6c1b"
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/diagnostics/firefox-inline-math-fixed-narrow.png"
+                checksum: "sha256:08204ba373acc310d3d5cec6e269a93bfd2a46007b4d15539cbae07ce5111275"
+              - path: "docker-image:learn-llm-ch18-firefox-fixed:staged"
+                checksum: "sha256:5611e1c586cef46a99669835099e6f63e5eeeda94bbc22ca1072e7ffeb74c31f"
+              - path: ".build/runs/20260723T100105Z-repair-ch18-firefox-inline-math-leading-01/publish.sha256"
+                checksum: "sha256:a1b86904b890592cc004ef5b7b3508e5e8b25ee6ecc3f8f1bc59548d04f93547"
+              - path: "docker-image:learn-llm-ch18-firefox-fixed:canonical"
+                checksum: "sha256:baf2d3e4f374f22e5268a27119bcebf6b3a77b5e224cafa8c419eee6db1d675a"
+            validation:
+              - command: "Dependency, prior-artifact, environment, ownership, scope, and cost preflight"
+                status: passed
+                notes: "HEAD f20619c is the dedicated completed Chapter 18 diagram/formula repair; its five-file frozen publication remains recorded at sha256:1316b1622e24f6c032fc113bdf18715845b36df7f31705aec4c461ffd37f91f9. No stale running step exists, Firefox 152.0.6 is installed locally, pinned browser image sha256:d5af390eef38787dea801895487c18824a770363cebf80b9b36d2e58b8bcfd42 remains available, and only unrelated desktop.ini is untracked. The small correction needs no network, paid service, generation, dependency, package, build, Rust, hosting, or deployment change."
+              - command: "Current Firefox 152 inline-math regression reproduction"
+                status: passed
+                notes: "The exact installed Firefox 152.0.6 renders each stacked inline derivative denominator into the neighboring text-line area in both 'Select forward, accumulate backward' and 'Keep vocabulary axes separate from feature axes'. The checksummed full-height screenshot and focused crop preserve both reported failures before implementation."
+              - command: "Chapter 18 compact-derivative content and focused regression gates"
+                status: passed
+                notes: "An independent read-only audit confirms that slash-form partial derivatives are the smallest robust chapter-local correction and that global KaTeX CSS would unnecessarily affect other chapters. Contract and lesson advance together to revision 3; all four inline annotations remain exact barred mathematics, contain zero rendered .mfrac nodes, and retain the scalar-loss derivative meaning. The reviewed 39-chapter/62-step plan, integrated contract, English content/parity, and 72 focused Chapter 18 plus plan tests pass."
+              - command: "Complete staged site, static artifact, and Chromium validation"
+                status: passed
+                notes: "Astro reports zero errors, warnings, or hints; all 484 site tests and complete content checks pass; the build emits 30 static pages; 731 local references and SEO on all 30 routes pass; all five focused Chapter 18 browser cases and all 72 Chromium regressions pass."
+              - command: "Exact Firefox 152 desktop and narrow visual validation"
+                status: passed
+                notes: "Installed Firefox 152.0.6 renders the staged revision-3 page at 1440x8000 and 390x8000. Checksummed focused crops show ordinary clearance around both compact derivatives in the prose paragraph and both glossary rows, with no overlap at either width; the shared display equation remains unchanged."
+              - command: "Frozen publication and canonical identity verification"
+                status: passed
+                notes: "All seven declared outputs are frozen under publish/ and match canonical destinations byte for byte. The sorted manifest is publish.sha256 at sha256:a1b86904b890592cc004ef5b7b3508e5e8b25ee6ecc3f8f1bc59548d04f93547."
+              - command: "Complete network-disabled canonical site validation"
+                status: passed
+                notes: "Fresh canonical image sha256:baf2d3e4f374f22e5268a27119bcebf6b3a77b5e224cafa8c419eee6db1d675a passes the 39-chapter/62-step course plan, integrated Chapter 18 contract, English content/parity, 72 focused source tests, zero-diagnostic Astro analysis, all 484 site tests, complete content, 30-page build, 731 links, 30 SEO routes, five focused Chromium cases, and all 72 browser regressions. The canonical output bytes equal the frozen files rendered successfully by Firefox 152 at both widths."
+              - command: "Canonical ledger, whitespace, ownership, invalidation, and unrelated-change audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses; the reviewed course plan remains valid at 39 chapters, 62 scheduled steps, and 18 implemented contracts; git diff --check passes; the superseded revision-2 Chapter 18 repair checkpoint is invalidated without changing either immutable successful run; all seven canonical outputs match the frozen publication; and only those declared outputs plus governance records are in scope. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. All four inline barred derivatives in 'Select forward, accumulate backward' and 'Keep vocabulary axes separate from feature axes' use compact slash-form partial derivatives, retain their scalar-loss meaning, and render with ordinary line clearance in exact Firefox 152.0.6 at desktop and narrow widths. Revision 3 preserves the shared display equation, Rust trace, numeric behavior, LLM history, SEO description, locale policy, routes, dependencies, packages, Linux build definitions, hosting, and deployment. All staged and fresh canonical content, unit, static-build, link, SEO, exact-Firefox visual, accessibility, focused browser, and 72-case browser gates pass; the seven-file frozen publication manifest is sha256:a1b86904b890592cc004ef5b7b3508e5e8b25ee6ecc3f8f1bc59548d04f93547."
       - id: implement-ch19-linear-layers
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
         depends_on:
-          - repair-ch18-diagram-formula-rendering
+          - repair-ch18-firefox-inline-math-leading
         status: pending
         inputs:
           - "SKILLS.md"

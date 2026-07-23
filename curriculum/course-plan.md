@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 18,
+  "plan_revision": 19,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -138,6 +138,10 @@
       },
       {
         "step_id": "repair-ch18-diagram-formula-rendering",
+        "before_chapter": "19-linear-layers"
+      },
+      {
+        "step_id": "repair-ch18-firefox-inline-math-leading",
         "before_chapter": "19-linear-layers"
       }
     ],
@@ -1003,7 +1007,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
-- **Revision status:** Content revision 2 and the rendered diagram repair are delivered by `repair-ch18-diagram-formula-rendering` before Chapter 19.
+- **Revision status:** Content revision 3 and the Firefox inline-math repair are delivered by `repair-ch18-firefox-inline-math-leading` after `repair-ch18-diagram-formula-rendering` and before Chapter 19.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
 - **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer positional information.
