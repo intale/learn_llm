@@ -1,5 +1,7 @@
 # LLM, piece by piece
 
+Curriculum website [https://intale.github.io/learn_llm/](https://intale.github.io/learn_llm/)
+
 A static, localized course for learning how modern large language models work by
 implementing each part from first principles in Rust. English and Russian are
 currently enabled, and the published course covers text units, corpus partitions,
