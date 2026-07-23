@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 18,
   "concept_id": "token-embeddings",
   "title": "Give token IDs trainable vectors",
@@ -67,21 +67,21 @@
       "predecessor_kind": "language-model",
       "limitation": "A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.",
       "later_advance": "Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.",
-      "modern_llm_role": "The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
+      "modern_llm_role": "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
       "sources": [
         {
           "role": "earlier",
           "year": 2003,
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
-          "claim": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction."
+          "claim": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction."
         },
         {
           "role": "later",
           "year": 2017,
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
-          "claim": "Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization."
+          "claim": "Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization."
         }
       ]
     },
@@ -136,7 +136,7 @@
     "id": "token-embeddings",
     "rationale": "Aligning each one-hot indicator with its selected table row and output vector makes row reuse visible, while a separate reverse rail shows two position gradients converging on the same trainable row."
   },
-  "decoder_connection": "The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates."
+  "decoder_connection": "The cumulative model can now turn token-ID tensors into differentiable feature tensors that append one embedding-width axis while keeping one shared named vocabulary-by-feature parameter. Chapter 19 treats that final embedding width as its input width and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates."
 }
 ---
 
@@ -191,7 +191,7 @@ export const diagramLabels = {
   },
   notes: {
     oneHot:
-      'The indicator exposes the algebra: one active coordinate times E equals the selected row. The implementation performs direct lookup.',
+      'The indicator exposes the algebra: one active coordinate selects one table row. The implementation performs direct lookup.',
     selectors:
       'IDs name rows and stay outside the differentiation tape. Repeating ID 2 reuses one parameter row.',
     accumulation:
@@ -214,7 +214,7 @@ export const diagramLabels = {
 
 ## Predict three selected rows and one shared gradient
 
-Use this trainable table, whose four vocabulary rows each have width `2`:
+Use this trainable table, whose four vocabulary rows each have width $2$:
 
 ```text
 E = [[10, 11],
@@ -230,7 +230,7 @@ The predicted output is therefore `[[[30,31],[20,21],[30,31]]]`, with shape
 a second trainable row.
 
 One-hot notation makes the selection visible. For example, ID `2` corresponds
-to `[0,0,1,0]`. Multiplying that indicator by `E` leaves `[30,31]`. The runnable
+to `[0,0,1,0]`. Multiplying that indicator by $E$ leaves `[30,31]`. The runnable
 contrast materializes those zeros only for this tiny explanation:
 
 <RustSource
@@ -270,7 +270,7 @@ If several positions selected the same row, their upstream vectors add feature
 by feature into that one shared parameter row.
 
 For the frozen seed `[[[1,0],[0,2],[3,4]]]`, row `1` receives `[0,2]` and row
-`2` receives `[1,0]+[3,4]=[4,4]`. Unused rows `0` and `3` receive zero. Token IDs
+`2` receives $[1,0]+[3,4]=[4,4]$. Unused rows `0` and `3` receive zero. Token IDs
 receive no gradient because they are discrete selectors, not tape operands.
 
 {/* chapter-section:symbol-glossary */}
@@ -301,13 +301,13 @@ their learned vectors become similar.
 
 A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.
 
-[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction.
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.
 
 Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.
 
-[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
 
-The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
+The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
 
 One-hot vectors make token identity explicit but carry a vocabulary-sized field
 of zeros. Learned dense word features let neural language models share
@@ -356,7 +356,7 @@ The exact nonuniform reverse seed makes repeated accumulation observable:
   label="Rust source proving repeated token-gradient accumulation"
 />
 
-Construction composes with Chapter 17's initializer, treating `V` and `d` as
+Construction composes with Chapter 17's initializer, treating $V$ and $d$ as
 fan-in and fan-out for this transparent course policy—not as a requirement from
 the Transformer paper. The same seed and request reproduce values, while
 separate constructions remain distinct leaves. Cloning one layer deliberately
@@ -409,10 +409,10 @@ the surrounding page remains static and script-free.
 ## Predict before checking the executable evidence
 
 1. Predict all six output values for IDs `[[2,1,2]]`.
-2. Write the length-four one-hot row for ID `2` and multiply it by `E`.
+2. Write the length-four one-hot row for ID `2` and multiply it by $E$.
 3. Predict every table-gradient value for the declared upstream seed.
 4. Explain why row `2` receives a sum rather than two independent parameter gradients.
-5. Predict the output shapes for ID shapes `[2,3]`, `[]`, and `[0]` when `d=2`.
+5. Predict the output shapes for ID shapes `[2,3]`, `[]`, and `[0]` when $d=2$.
 6. Find the first invalid ID in `[1,4,9]` for a four-row table.
 7. Predict whether cloning an embedding layer creates a new trainable leaf.
 8. Explain why IDs receive no gradient and why adjacent ID numbers imply no semantic similarity.
@@ -423,7 +423,7 @@ the surrounding page remains static and script-free.
   <summary>Check the predictions</summary>
 
   1. The output is `[[[30,31],[20,21],[30,31]]]`.
-  2. ID `2` is `[0,0,1,0]`, so its product with `E` is `[30,31]`.
+  2. ID `2` is `[0,0,1,0]`, so multiplying it by $E$ yields `[30,31]`.
   3. The table gradient is `[[0,0],[0,2],[4,4],[0,0]]`.
   4. Both occurrences selected the same row-`2` leaf, so `[1,0]` and `[3,4]` add into it.
   5. The output shapes are `[2,3,2]`, `[2]`, and `[0,2]`.
@@ -438,7 +438,7 @@ the surrounding page remains static and script-free.
 
 ## Hand the final feature axis to a learned projection
 
-The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.
+The cumulative model can now turn token-ID tensors into differentiable feature tensors that append one embedding-width axis while keeping one shared named vocabulary-by-feature parameter. Chapter 19 treats that final embedding width as its input width and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.
 
 This is the decoder's numeric entrance, not yet a position-aware representation.
 Chapter 19 preserves all leading batch and sequence axes while applying a learned

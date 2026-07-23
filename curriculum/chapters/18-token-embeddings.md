@@ -2,7 +2,7 @@
 {
   "chapter_id": "18-token-embeddings",
   "concept_id": "token-embeddings",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 18,
   "objective": {
     "en": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
@@ -73,7 +73,7 @@
         "en": "Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations."
       },
       "modern_llm_role": {
-        "en": "The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns."
+        "en": "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns."
       },
       "sources": [
         {
@@ -82,7 +82,7 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction."
+            "en": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction."
           }
         },
         {
@@ -91,7 +91,7 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization."
+            "en": "Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization."
           }
         }
       ]
@@ -122,7 +122,7 @@
     }
   },
   "decoder_connection": {
-    "en": "The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates."
+    "en": "The cumulative model can now turn token-ID tensors into differentiable feature tensors that append one embedding-width axis while keeping one shared named vocabulary-by-feature parameter. Chapter 19 treats that final embedding width as its input width and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates."
   },
   "terminology": [
     {
@@ -260,13 +260,13 @@ identity does not add a second chapter formula or claim a paper's storage policy
 
 A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.
 
-[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction.
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.
 
 Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.
 
-[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
 
-The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
+The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
 
 The executable Rust contrast materializes tiny one-hot rows only as an algebraic
 baseline, then compares them with direct lookup and exposes the repeated-row
@@ -345,7 +345,7 @@ row. Sequence position will be represented separately in a later chapter.
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.
+The cumulative model can now turn token-ID tensors into differentiable feature tensors that append one embedding-width axis while keeping one shared named vocabulary-by-feature parameter. Chapter 19 treats that final embedding width as its input width and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.
 
 This is the numeric entrance to the eventual decoder. Chapter 18 intentionally
 does not make the representation position-aware: later positional information

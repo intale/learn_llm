@@ -24,6 +24,14 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
+const chapter14To19Files = [
+  '14-scalar-autodiff.mdx',
+  '15-tensor-autodiff-core.mdx',
+  '16-model-autodiff-ops.mdx',
+  '17-parameter-initialization.mdx',
+  '18-token-embeddings.mdx',
+  '19-linear-layers.mdx',
+] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
 const componentRoot = resolve(process.cwd(), 'src/components');
@@ -262,6 +270,112 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
+const requiredChapter14To19Math: Record<string, readonly string[]> = {
+  '14': [
+    String.raw`\bar{\mathrm{loss}}=1`,
+    String.raw`\mathrm{square}=x\cdot x`,
+    String.raw`2x^2`,
+  ],
+  '15': [
+    String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
+    String.raw`\bar{\mathrm{bias}}=[16,16,34]`,
+    String.raw`\mathrel{+}=`,
+  ],
+  '16': [
+    String.raw`dE=`,
+    String.raw`-\frac{3}{8}`,
+    String.raw`\bar E_{i,:}\mathrel{+}=\bar X_{b,t,:}`,
+  ],
+  '17': [String.raw`1/\sqrt{2}`, String.raw`[-a,a)`, String.raw`a=\sqrt{6/`],
+  '18': [
+    String.raw`X_{b,t,:}=E_{z_{b,t},:}`,
+    String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`,
+    String.raw`[1,0]+[3,4]=[4,4]`,
+  ],
+  '19': [
+    String.raw`Y=XW+b`,
+    String.raw`G=\partial L/\partial Y`,
+    String.raw`[d_{in},d_{out}]`,
+  ],
+};
+
+const formerChapter14To19MathCodeSpans = [
+  'square=4',
+  'loss=8',
+  'bar(loss)=1',
+  'bar(square)=2',
+  'bar(x)=8',
+  'square=x*x',
+  'loss=square+square',
+  'loss=1',
+  'square=2',
+  'x=8',
+  'x*x + detach(x)*3',
+  '2x^2',
+  '4x',
+  'bar(add) = [4,4,10,12,12,24]',
+  'dbias=[16,16,34]',
+  'dx=[4,12,4,12,10,24]',
+  'bar(y)',
+  '+=',
+  'bar(E)[i,:] += bar(X)[b,t,:]',
+  '1/sqrt(2)',
+  'sqrt(3/2)',
+  '[-a,a)',
+  'a\u00b2/3',
+  'aÂ²/3',
+  'a=sqrt(6/(fan-in+fan-out))',
+  'dW',
+  'exp(0)',
+  'log(1)',
+  'SiLU(0)',
+  '+/-1000',
+  'E',
+  'V',
+  'd',
+  'd_in',
+] as const;
+
+const rawChapter14To19FormulaPatterns = [
+  /\bbar\s*\([A-Za-z]+\)/,
+  /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
+  /\b1\s*\/\s*sqrt\s*\(/i,
+  /\bsqrt\s*\([^)]*\)/i,
+  /\ba\u00b2\s*\/\s*3/,
+  /\ba(?:Â²|Â²|\^2)\s*\/\s*3/,
+  /\|V\|\s+by\s+m/,
+  /\bd_model\b/,
+  /\bbar\s*\([EX]\)\s*\[/,
+] as const;
+
+const documentedChapter14To19Code = [
+  {
+    name: 'literal tensor shapes, coordinates, vectors, and matrices',
+    pattern: /^\[[^\r\n]*\]$/,
+  },
+  {
+    name: 'literal numeric fixture, index, seed, or tolerance values',
+    pattern: /^[+-]?(?:\d+(?:\.\d+)?)(?:e[+-]?\d+)?$/i,
+  },
+  {
+    name: 'concrete Rust APIs, node names, identifiers, and types',
+    pattern:
+      /^&?[A-Za-z][A-Za-z0-9_]*(?:(?:::|\.)[A-Za-z][A-Za-z0-9_]*)*(?:<[^>\r\n]+>)?(?:\([^\r\n]*\))?(?:\[[^\]\r\n]+\])?$/,
+  },
+  {
+    name: 'concrete source and trace paths',
+    pattern: /^(?:rust|src|examples)\/[A-Za-z0-9_./-]+$/,
+  },
+  {
+    name: 'concrete dotted parameter names',
+    pattern: /^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+$/,
+  },
+  {
+    name: 'concrete shell commands',
+    pattern: /^(?:\.\/course run )?(?:cargo|docker|git|npm)\s/,
+  },
+] as const;
+
 describe('Chapter 1-7 formula-source contract', () => {
   it('enumerates both published locales and routes every reviewed expression through math markup', () => {
     const reviewed: string[] = [];
@@ -363,6 +477,93 @@ describe('Chapter 8-13 formula-source contract', () => {
     expect([...seen].sort()).toEqual(
       documentedChapter08To13Code.map(({ name }) => name).sort(),
     );
+  });
+});
+
+describe('Chapter 14-19 formula-source contract', () => {
+  it('completes the source audit for all 26 published localized lessons', () => {
+    const reviewed: string[] = [];
+    for (const file of chapter14To19Files) {
+      const source = readChapter('en', file);
+      const { body, display, inline } = mathMarkup(source);
+      const chapter = file.slice(0, 2);
+      reviewed.push(file);
+
+      expect(display.length, `${file} display math`).toBeGreaterThan(0);
+      expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
+      for (const fragment of requiredChapter14To19Math[chapter] ?? []) {
+        expect(body, `${file} must retain ${fragment}`).toContain(fragment);
+      }
+
+      const code = inlineCode(source);
+      for (const oldExpression of formerChapter14To19MathCodeSpans) {
+        expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
+      }
+
+      const prose = proseOutsideMathAndCode(source);
+      for (const pattern of rawChapter14To19FormulaPatterns) {
+        expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
+      }
+    }
+
+    expect(reviewed).toEqual(chapter14To19Files);
+    expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
+      26,
+    );
+  });
+
+  it('keeps every remaining code span within a documented program-data category', () => {
+    for (const file of chapter14To19Files) {
+      for (const value of inlineCode(readChapter('en', file))) {
+        const allowance = documentedChapter14To19Code.find(({ pattern }) => pattern.test(value));
+        expect(
+          allowance?.name,
+          `${file} has an undocumented code span after the formula audit: \`${value}\``,
+        ).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe('build-time formula rendering in Chapter 14-19 diagrams', () => {
+  it('renders every diagram-owned expression as strict HTML plus MathML', () => {
+    const components = {
+      initialization: readFileSync(
+        resolve(componentRoot, 'chapters/ParameterInitializationDiagram.astro'),
+        'utf8',
+      ),
+      embeddings: readFileSync(
+        resolve(componentRoot, 'chapters/TokenEmbeddingsDiagram.astro'),
+        'utf8',
+      ),
+      linear: readFileSync(
+        resolve(componentRoot, 'chapters/LinearLayersDiagram.astro'),
+        'utf8',
+      ),
+    };
+
+    expect(components.initialization).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.initialization).toContain('String.raw`\\Delta=${trace.binning.width.lexeme}`');
+    expect(components.initialization).not.toContain('[{bin.lower.lexeme}, {bin.upper.lexeme}');
+
+    expect(components.embeddings).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.embeddings).toContain('String.raw`E_{${row.row.lexeme},:}`');
+    expect(components.embeddings).toContain('String.raw`e_{${lookup.id.lexeme}}E`');
+    expect(components.embeddings).toContain('String.raw`\\bar E_{${gradient.row.lexeme},:}`');
+    expect(components.embeddings).not.toContain('e<sub>{lookup.id.lexeme}</sub> E');
+
+    expect(components.linear).toContain("import { renderToString } from 'katex'");
+    expect(components.linear).toContain("output: 'htmlAndMathml'");
+    expect(components.linear).toContain("strict: 'error'");
+    expect(components.linear).toContain('throwOnError: true');
+    expect(components.linear).toContain('set:html={inlineMath(selectedProductsLatex)}');
+    expect(components.linear).toContain('String.raw`dX_{${row.position.lexeme}}`');
+    expect(components.linear).not.toContain('y[{selectedCell.outputFeature.lexeme}]');
+
+    for (const source of Object.values(components)) {
+      expect(source).not.toContain('<script');
+      expect(source).not.toContain('client:');
+    }
   });
 });
 

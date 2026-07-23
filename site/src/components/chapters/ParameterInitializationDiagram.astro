@@ -2,6 +2,8 @@
 // @ts-ignore Node filesystem access is build-time only.
 import { readFileSync } from 'node:fs';
 
+import InlineMath from '../InlineMath.astro';
+
 import {
   parameterInitializationDiagramId,
   parseParameterInitializationTrace,
@@ -81,7 +83,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     <h3 id={`${titleId}-distributions`}>{labels.sections.distributions}</h3>
     <p class="bin-note">
       {labels.binClosure}
-      <span dir="ltr">Δ={trace.binning.width.lexeme}</span>
+      <InlineMath latex={String.raw`\Delta=${trace.binning.width.lexeme}`} />
     </p>
     <div class="distribution-grid">
       {trace.distributions.map((distribution) => (
@@ -145,9 +147,9 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
               >
                 <span class="bin-range">
                   <span class="visually-hidden">{labels.fields.range}: </span>
-                  <bdi dir="ltr">
-                    [{bin.lower.lexeme}, {bin.upper.lexeme}{bin.includesUpper ? ']' : ')'}
-                  </bdi>
+                  <InlineMath
+                    latex={`\\left[${bin.lower.lexeme},${bin.upper.lexeme}${bin.includesUpper ? '\\right]' : '\\right)'}`}
+                  />
                 </span>
                 <span class="bin-count">
                   <span class="visually-hidden">{labels.fields.count}: </span>
@@ -388,8 +390,14 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   }
 
   .bin-range {
+    display: block;
     grid-column: 1 / -1;
-    overflow-wrap: anywhere;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding-block: 0.1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
   }
 
   .bin-count {

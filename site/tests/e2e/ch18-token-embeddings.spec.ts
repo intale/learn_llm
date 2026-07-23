@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterPath,
@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '18-token-embeddings';
-const contentRevision = 3;
+const contentRevision = 4;
 const chapterTitle = 'Give token IDs trainable vectors';
 const chapterDescription =
   'Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.';
@@ -35,10 +35,10 @@ const historyLimitation =
 const historyLater =
   'Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.';
 const historyModern =
-  "The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.";
+  "The decoder's token IDs enter the numeric model by selecting rows from one trainable vocabulary-by-feature table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.";
 const historyClaims = [
-  'Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction.',
-  'Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.',
+  'Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable matrix with one row per vocabulary item and one column per learned feature, share it across context positions, and learn it jointly with next-word prediction.',
+  'Vaswani et al. use learned embeddings whose width matches the model width for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.',
 ] as const;
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
@@ -69,6 +69,22 @@ function readRustRegion(path: string, region: string): string {
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
   readRustRegion(path, region),
 );
+
+async function readMathAwareRows(rows: Locator) {
+  return rows.evaluateAll((rowNodes) =>
+    rowNodes.map((row) =>
+      Array.from(row.children, (cell) => {
+        const clone = cell.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('.katex').forEach((math) => {
+          const source =
+            math.querySelector('annotation[encoding="application/x-tex"]')?.textContent ?? '';
+          math.replaceWith(document.createTextNode(source));
+        });
+        return (clone.textContent ?? '').replace(/\s+/g, ' ').trim();
+      }),
+    ),
+  );
+}
 
 async function expectChapterContent(
   page: Page,
@@ -121,11 +137,15 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  expect(await formulae.count()).toBeGreaterThan(0);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).not.toContain('rtl');
+  expect(
+    await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
+  ).toContain(formulaLatex);
   const inlineAnnotations = page.locator(
     '.lesson-body .katex:not(.katex-display .katex) annotation[encoding="application/x-tex"]',
   );
@@ -206,33 +226,27 @@ async function expectChapterContent(
     ['(0, 2)', '2', 'Shares row 2 with another position'],
   ]);
   expect(
-    await diagram.locator('.table-stage tbody tr').evaluateAll((rows) =>
-      rows.map((row) => Array.from(row.children, (cell) => cell.textContent?.replace(/\s+/g, ' ').trim() ?? '')),
-    ),
+    await readMathAwareRows(diagram.locator('.table-stage tbody tr')),
   ).toEqual([
-    ['E[0, :]', '[10.000000000000, 11.000000000000]', '0', '○ Unused row'],
-    ['E[1, :]', '[20.000000000000, 21.000000000000]', '1', '● Selected once'],
-    ['E[2, :]', '[30.000000000000, 31.000000000000]', '2', '◆ Shared by repeated ID 2'],
-    ['E[3, :]', '[40.000000000000, 41.000000000000]', '0', '○ Unused row'],
+    [String.raw`E_{0,:}`, '[10.000000000000, 11.000000000000]', '0', '\u25cb Unused row'],
+    [String.raw`E_{1,:}`, '[20.000000000000, 21.000000000000]', '1', '\u25cf Selected once'],
+    [String.raw`E_{2,:}`, '[30.000000000000, 31.000000000000]', '2', '\u25c6 Shared by repeated ID 2'],
+    [String.raw`E_{3,:}`, '[40.000000000000, 41.000000000000]', '0', '\u25cb Unused row'],
   ]);
 
-  const lookupRows = await diagram.locator('.lookup-stage tbody tr').evaluateAll((rows) =>
-    rows.map((row) => Array.from(row.children, (cell) => cell.textContent?.replace(/\s+/g, ' ').trim() ?? '')),
-  );
+  const lookupRows = await readMathAwareRows(diagram.locator('.lookup-stage tbody tr'));
   expect(lookupRows).toEqual([
-    ['(0, 0)', '2', '[0, 0, 1, 0]', 'e2 E', 'E[2, :]', '[30.000000000000, 31.000000000000]', '[1.000000000000, 0.000000000000]'],
-    ['(0, 1)', '1', '[0, 1, 0, 0]', 'e1 E', 'E[1, :]', '[20.000000000000, 21.000000000000]', '[0.000000000000, 2.000000000000]'],
-    ['(0, 2)', '2', '[0, 0, 1, 0]', 'e2 E', 'E[2, :]', '[30.000000000000, 31.000000000000]', '[3.000000000000, 4.000000000000]'],
+    ['(0, 0)', '2', '[0, 0, 1, 0]', String.raw`e_{2}E`, String.raw`E_{2,:}`, '[30.000000000000, 31.000000000000]', '[1.000000000000, 0.000000000000]'],
+    ['(0, 1)', '1', '[0, 1, 0, 0]', String.raw`e_{1}E`, String.raw`E_{1,:}`, '[20.000000000000, 21.000000000000]', '[0.000000000000, 2.000000000000]'],
+    ['(0, 2)', '2', '[0, 0, 1, 0]', String.raw`e_{2}E`, String.raw`E_{2,:}`, '[30.000000000000, 31.000000000000]', '[3.000000000000, 4.000000000000]'],
   ]);
   expect(
-    await diagram.locator('.gradient-stage tbody tr').evaluateAll((rows) =>
-      rows.map((row) => Array.from(row.children, (cell) => cell.textContent?.replace(/\s+/g, ' ').trim() ?? '')),
-    ),
+    await readMathAwareRows(diagram.locator('.gradient-stage tbody tr')),
   ).toEqual([
-    ['E[0, :]', 'None', 'None', 'No selection; keep zero', '[0.000000000000, 0.000000000000]'],
-    ['E[1, :]', '1', '[0.000000000000, 2.000000000000]', 'One selection; copy its contribution', '[0.000000000000, 2.000000000000]'],
-    ['E[2, :]', '0, 2', '[1.000000000000, 0.000000000000] + [3.000000000000, 4.000000000000]', 'Repeated selections; add both contributions', '[4.000000000000, 4.000000000000]'],
-    ['E[3, :]', 'None', 'None', 'No selection; keep zero', '[0.000000000000, 0.000000000000]'],
+    [String.raw`\bar E_{0,:}`, 'None', 'None', 'No selection; keep zero', String.raw`\left[0.000000000000,0.000000000000\right]`],
+    [String.raw`\bar E_{1,:}`, '1', String.raw`\left[0.000000000000,2.000000000000\right]`, 'One selection; copy its contribution', String.raw`\left[0.000000000000,2.000000000000\right]`],
+    [String.raw`\bar E_{2,:}`, '0, 2', String.raw`\left[1.000000000000,0.000000000000\right] + \left[3.000000000000,4.000000000000\right]`, 'Repeated selections; add both contributions', String.raw`\left[4.000000000000,4.000000000000\right]`],
+    [String.raw`\bar E_{3,:}`, 'None', 'None', 'No selection; keep zero', String.raw`\left[0.000000000000,0.000000000000\right]`],
   ]);
 
   const scrollers = diagram.locator('.table-scroll');
@@ -387,7 +401,13 @@ test.describe('chapter 18 token-embeddings vertical slice', {
         nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
       ),
     ).toBe(true);
-    await expect(diagram.locator('[dir="ltr"]:not(bdi)')).toHaveCount(0);
+    expect(
+      await diagram.locator('[data-inline-math][dir="ltr"]').evaluateAll((nodes) =>
+        nodes.length > 0
+        && nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
+      ),
+    ).toBe(true);
+    await expect(diagram.locator('[dir="ltr"]:not(bdi):not([data-inline-math])')).toHaveCount(0);
     await expectNoOverflowOrClientScripts(page);
   });
 
@@ -405,7 +425,13 @@ test.describe('chapter 18 token-embeddings vertical slice', {
     await expect(page.locator('.table-stage tbody tr')).toHaveCount(4);
     await expect(page.locator('.lookup-stage tbody tr')).toHaveCount(3);
     await expect(page.locator('.gradient-stage tbody tr')).toHaveCount(4);
-    await expect(page.locator('.rule-repeated-sum').last()).toContainText('[4.000000000000, 4.000000000000]');
+    expect(
+      await page
+        .locator('.rule-repeated-sum')
+        .last()
+        .locator('annotation[encoding="application/x-tex"]')
+        .allTextContents(),
+    ).toContain(String.raw`\left[4.000000000000,4.000000000000\right]`);
     await expectNoOverflowOrClientScripts(page);
     await context.close();
   });

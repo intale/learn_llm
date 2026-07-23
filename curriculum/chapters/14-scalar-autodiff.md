@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "concept_id": "scalar-autodiff",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 14,
   "objective": {
     "en": "Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions."

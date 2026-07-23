@@ -2,7 +2,7 @@
 {
   "chapter_id": "17-parameter-initialization",
   "concept_id": "parameter-initialization",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 17,
   "objective": {
     "en": "Create named trainable tensors with reproducible, non-symmetric values and a width-aware starting scale."

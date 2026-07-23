@@ -227,6 +227,14 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('set:html={inlineMath(biasAccumulationLatex)}');
     expect(componentSource).toContain(String.raw`dW=\sum_p X_p^\top G_p`);
     expect(componentSource).toContain(String.raw`db=\sum_p G_p`);
+    expect(componentSource).toContain('shapeLatex(trace.axes.inputLeading)');
+    expect(componentSource).toContain('coordinateLatex(selectedCell.coordinate)');
+    expect(componentSource).toContain('String.raw`dX_{${row.position.lexeme}}`');
+    expect(componentSource).toContain("set:html={inlineMath('dW')}");
+    expect(componentSource).toContain("set:html={inlineMath('db')}");
+    expect(componentSource).toContain('set:html={inlineMath(selectedProductsLatex)}');
+    expect(componentSource).not.toContain('y[{selectedCell.outputFeature.lexeme}]');
+    expect(componentSource).not.toContain('dX[{row.position.lexeme}]');
     expect(componentSource).not.toContain('dW=sum_p X_p^T G_p');
     expect(componentSource).not.toContain('db=sum_p G_p');
     expect(componentSource).not.toMatch(/Math\.|\b(?:parseFloat|parseInt|reduce)\s*\(/);

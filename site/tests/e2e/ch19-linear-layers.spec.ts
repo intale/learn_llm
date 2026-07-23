@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Playwright test runner.
 import { resolve } from 'node:path';
 
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import {
   chapterPath,
@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '19-linear-layers';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = "Mix each token's features with one learned projection";
 const chapterDescription =
   'Build a trainable linear layer in Rust, preserve leading token axes, compare affine and bias-free projections, and verify exact reverse gradients.';
@@ -95,6 +95,22 @@ function readRustRegion(path: string, region: string): string {
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
   readRustRegion(path, region),
 );
+
+async function readMathAwareRows(rows: Locator) {
+  return rows.evaluateAll((rowNodes) =>
+    rowNodes.map((row) =>
+      Array.from(row.children, (cell) => {
+        const clone = cell.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('.katex').forEach((math) => {
+          const source =
+            math.querySelector('annotation[encoding="application/x-tex"]')?.textContent ?? '';
+          math.replaceWith(document.createTextNode(source));
+        });
+        return (clone.textContent ?? '').replace(/\s+/g, ' ').trim();
+      }),
+    ),
+  );
+}
 
 async function expectChapterContent(
   page: Page,
@@ -278,12 +294,16 @@ async function expectChapterContent(
     ['1', '(0, 1)', '[-1.000000000000, 3.000000000000]', '1', '1.000000000000'],
     ['1', '(0, 1)', '[-1.000000000000, 3.000000000000]', '2', '5.000000000000'],
   ]);
-  await expect(diagram.locator('.contribution-grid dd')).toHaveText([
-    '(0, 0), y[0]',
-    '1.000000000000 × 1.000000000000 + 2.000000000000 × 2.000000000000',
+  expect(
+    await diagram
+      .locator('.contribution-grid annotation[encoding="application/x-tex"]')
+      .allTextContents(),
+  ).toEqual([
+    String.raw`\left(0,0\right),\;y_{0}`,
+    String.raw`1.000000000000\cdot1.000000000000+2.000000000000\cdot2.000000000000`,
     '5.000000000000',
-    '+ 0.500000000000',
-    '= 5.500000000000',
+    '+0.500000000000',
+    '=5.500000000000',
   ]);
   await expect(diagram.locator('.policy-grid article')).toHaveCount(2);
   await expect(diagram.locator('.affine-policy')).toContainText(
@@ -293,15 +313,12 @@ async function expectChapterContent(
     '[5.000000000000, 1.000000000000, 1.000000000000]; [5.000000000000, 1.500000000000, 4.000000000000]',
   );
   expect(
-    await diagram.locator('.position-gradient-table tbody tr').evaluateAll((rows) =>
-      rows.map((row) => Array.from(row.children, (cell) => cell.textContent?.replace(/\s+/g, ' ').trim() ?? '')),
-    ),
+    await readMathAwareRows(diagram.locator('.position-gradient-table tbody tr')),
   ).toEqual([
-    ['dX[0]', '(0, 0)', '[1.000000000000, 0.000000000000, -1.000000000000]', '[2.000000000000, 1.000000000000]'],
-    ['dX[1]', '(0, 1)', '[0.500000000000, 2.000000000000, 1.000000000000]', '[-0.500000000000, 3.000000000000]'],
+    [String.raw`dX_{0}`, '(0, 0)', '[1.000000000000, 0.000000000000, -1.000000000000]', '[2.000000000000, 1.000000000000]'],
+    [String.raw`dX_{1}`, '(0, 1)', '[0.500000000000, 2.000000000000, 1.000000000000]', '[-0.500000000000, 3.000000000000]'],
   ]);
   const parameterGradientRows = diagram.locator('.parameter-gradient-table tbody tr');
-  await expect(parameterGradientRows.locator('th')).toHaveText(['dW', 'db']);
   await expect(parameterGradientRows.locator('td:last-child')).toHaveText([
     '[2, 3] [0.500000000000, -2.000000000000, -2.000000000000, 3.500000000000, 6.000000000000, 1.000000000000]',
     '[3] [1.500000000000, 2.000000000000, 0.000000000000]',
@@ -312,7 +329,9 @@ async function expectChapterContent(
       .allTextContents())
       .map(normalizeMath),
   ).toEqual([
+    normalizeMath('dW'),
     normalizeMath(String.raw`dW=\sum_p X_p^\top G_p`),
+    normalizeMath('db'),
     normalizeMath(String.raw`db=\sum_p G_p`),
   ]);
   await expect(diagram.locator('.position-gradient-table')).toHaveAccessibleName(
@@ -421,8 +440,8 @@ test.describe('chapter 19 linear-layers vertical slice', {
     await page.emulateMedia({ forcedColors: 'active' });
     await page.goto(chapterPath('en', chapterId));
     const diagram = page.locator('figure[data-visualization-id="linear-layers"]');
-    await expect(diagram.locator('.affine-policy')).toContainText('+b');
-    await expect(diagram.locator('.bias-free-policy')).toContainText('W only');
+    await expect(diagram.locator('.affine-policy')).toContainText('Add bias');
+    await expect(diagram.locator('.bias-free-policy')).toContainText('No bias');
     expect(
       await diagram.locator('.affine-policy').evaluate((node) =>
         window.getComputedStyle(node).borderLeftStyle),

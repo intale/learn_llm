@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '16-model-autodiff-ops';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Reverse the operations that turn token IDs into loss';
 const chapterDescription =
   'Build Rust VJPs for matmul, repeated embedding gathers, SiLU, log-softmax, and mean token loss, then verify every gradient numerically.';
@@ -141,11 +141,15 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  expect(await formulae.count()).toBeGreaterThan(0);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).not.toContain('rtl');
+  expect(
+    await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
+  ).toContain(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);

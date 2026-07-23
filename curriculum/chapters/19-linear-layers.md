@@ -2,7 +2,7 @@
 {
   "chapter_id": "19-linear-layers",
   "concept_id": "linear-layers",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 19,
   "objective": {
     "en": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy."

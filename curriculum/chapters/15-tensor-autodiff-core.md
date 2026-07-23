@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly."

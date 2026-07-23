@@ -19,6 +19,14 @@ const chapter08To13Ids = [
   '12-stable-softmax',
   '13-gradient-checking',
 ] as const;
+const chapter14To19Ids = [
+  '14-scalar-autodiff',
+  '15-tensor-autodiff-core',
+  '16-model-autodiff-ops',
+  '17-parameter-initialization',
+  '18-token-embeddings',
+  '19-linear-layers',
+] as const;
 const locales = ['en', 'ru'] as const;
 const viewports = {
   desktop: { width: 1280, height: 900 },
@@ -87,6 +95,67 @@ const formerMathCode = new Set([
   'scaled_error=abs(a/scale-n/scale)',
   'g(theta)=theta^3-2theta',
   'h=1e-5',
+  'square=4',
+  'loss=8',
+  'bar(loss)=1',
+  'bar(square)=2',
+  'bar(x)=8',
+  'square=x*x',
+  'loss=square+square',
+  'x*x + detach(x)*3',
+  '2x^2',
+  '4x',
+  'bar(add) = [4,4,10,12,12,24]',
+  'dbias=[16,16,34]',
+  'dx=[4,12,4,12,10,24]',
+  'bar(y)',
+  '+=',
+  'bar(E)[i,:] += bar(X)[b,t,:]',
+  '1/sqrt(2)',
+  'sqrt(3/2)',
+  '[-a,a)',
+  'a=sqrt(6/(fan-in+fan-out))',
+  'dW',
+  'exp(0)',
+  'log(1)',
+  'SiLU(0)',
+  '+/-1000',
+  'E',
+  'V',
+  'd',
+  'd_in',
+]);
+
+const formerChapter14To19MathCode = new Set([
+  'square=4',
+  'loss=8',
+  'bar(loss)=1',
+  'bar(square)=2',
+  'bar(x)=8',
+  'square=x*x',
+  'loss=square+square',
+  'x*x + detach(x)*3',
+  '2x^2',
+  '4x',
+  'bar(add) = [4,4,10,12,12,24]',
+  'dbias=[16,16,34]',
+  'dx=[4,12,4,12,10,24]',
+  'bar(y)',
+  '+=',
+  'bar(E)[i,:] += bar(X)[b,t,:]',
+  '1/sqrt(2)',
+  'sqrt(3/2)',
+  '[-a,a)',
+  'a=sqrt(6/(fan-in+fan-out))',
+  'dW',
+  'exp(0)',
+  'log(1)',
+  'SiLU(0)',
+  '+/-1000',
+  'E',
+  'V',
+  'd',
+  'd_in',
 ]);
 
 const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly string[]> = {
@@ -96,6 +165,29 @@ const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly str
   '11-matrix-multiplication': [String.raw`C_{1,0}`, String.raw`4.0\cdot1.0=4.0`],
   '12-stable-softmax': [String.raw`[-1001,-1000]-(-1000)`, String.raw`\ln(1+\mathrm{tail})`],
   '13-gradient-checking': [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
+};
+
+const chapter14To19Latex: Record<(typeof chapter14To19Ids)[number], readonly string[]> = {
+  '14-scalar-autodiff': [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
+  '15-tensor-autodiff-core': [
+    String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
+    String.raw`\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}`,
+  ],
+  '16-model-autodiff-ops': [
+    String.raw`\frac{\partial L}{\partial E_{i,:}}=`,
+    String.raw`\bar E_{i,:}\mathrel{+}=\bar X_{b,t,:}`,
+  ],
+  '17-parameter-initialization': [String.raw`1/\sqrt{2}`, String.raw`\Delta=`],
+  '18-token-embeddings': [
+    String.raw`X_{b,t,:}=E_{z_{b,t},:}`,
+    String.raw`E_{2,:}`,
+    String.raw`e_{2}E`,
+  ],
+  '19-linear-layers': [
+    String.raw`Y=XW+b`,
+    String.raw`dX_{0}`,
+    String.raw`1.000000000000\cdot1.000000000000`,
+  ],
 };
 
 test.describe('@formula-rendering:ch01-ch07 rendered formula contract', () => {
@@ -276,6 +368,107 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
 
         const inlineCode = await page.locator('.lesson-body :not(pre) > code').allInnerTexts();
         expect(inlineCode.filter((value) => formerMathCode.has(value.trim()))).toEqual([]);
+      });
+    }
+  }
+});
+
+test.describe('@formula-rendering:ch14-ch19 rendered formula contract', () => {
+  for (const [viewportName, viewport] of Object.entries(viewports)) {
+    for (const chapterId of chapter14To19Ids) {
+      test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
+        page,
+      }) => {
+        await page.setViewportSize(viewport);
+        const response = await page.goto(`/en/course/${chapterId}/`);
+        expect(response?.ok()).toBe(true);
+        await expect(page.locator('article.lesson')).toBeVisible();
+        await expectNoOverflowOrClientScripts(page);
+
+        const math = page.locator('.lesson-body .katex');
+        const mathCount = await math.count();
+        expect(mathCount, `${chapterId} should render formulas`).toBeGreaterThan(0);
+        await expect(
+          page.locator('.lesson-body .katex annotation[encoding="application/x-tex"]'),
+        ).toHaveCount(mathCount);
+        await expect(page.locator('.lesson-body .katex .katex-mathml')).toHaveCount(mathCount);
+        await expect(page.locator('.lesson-body .katex-error')).toHaveCount(0);
+
+        const latex = await page
+          .locator('.lesson-body .katex annotation[encoding="application/x-tex"]')
+          .evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
+        for (const fragment of chapter14To19Latex[chapterId]) {
+          expect(
+            latex.some((expression) => expression.includes(fragment)),
+            `${chapterId} should render ${fragment}`,
+          ).toBe(true);
+        }
+
+        const geometryProblems = await page
+          .locator(
+            '.lesson-body .katex-display, .lesson-body [data-inline-math], .lesson-body .diagram-math .katex',
+          )
+          .evaluateAll((nodes) =>
+            nodes.flatMap((node, index) => {
+              const element = node as HTMLElement;
+              const rect = element.getBoundingClientRect();
+              const problems: string[] = [];
+              const source =
+                element
+                  .querySelector('annotation[encoding="application/x-tex"]')
+                  ?.textContent?.trim() ?? `index ${index}`;
+              let scrollAncestor: HTMLElement | null = element.parentElement;
+              let containedByHorizontalScroller = false;
+              while (scrollAncestor && scrollAncestor !== document.body) {
+                const { overflowX } = getComputedStyle(scrollAncestor);
+                if (
+                  ['auto', 'scroll'].includes(overflowX) &&
+                  scrollAncestor.scrollWidth > scrollAncestor.clientWidth + 1
+                ) {
+                  containedByHorizontalScroller = true;
+                  break;
+                }
+                scrollAncestor = scrollAncestor.parentElement;
+              }
+              if (
+                (rect.left < -1 || rect.right > document.documentElement.clientWidth + 1) &&
+                !containedByHorizontalScroller
+              ) {
+                problems.push(`formula ${source} escapes the viewport horizontally`);
+              }
+              if (rect.height <= 0 || rect.width <= 0) {
+                problems.push(`formula ${source} has no visible box`);
+              }
+              const { direction, overflowY } = getComputedStyle(element);
+              if (direction !== 'ltr') {
+                problems.push(`formula ${source} has ${direction} direction`);
+              }
+              if (
+                ['auto', 'clip', 'hidden', 'scroll'].includes(overflowY) &&
+                element.scrollHeight > element.clientHeight + 2
+              ) {
+                problems.push(`formula ${source} clips vertically`);
+              }
+              if (element.classList.contains('katex-display')) {
+                const container = element.parentElement;
+                const next = container?.nextElementSibling as HTMLElement | null;
+                if (container && next) {
+                  const nextRect = next.getBoundingClientRect();
+                  const containerRect = container.getBoundingClientRect();
+                  if (containerRect.bottom > nextRect.top + 1) {
+                    problems.push(`formula ${source} overlaps the following block`);
+                  }
+                }
+              }
+              return problems;
+            }),
+          );
+        expect(geometryProblems).toEqual([]);
+
+        const inlineCode = await page.locator('.lesson-body :not(pre) > code').allInnerTexts();
+        expect(
+          inlineCode.filter((value) => formerChapter14To19MathCode.has(value.trim())),
+        ).toEqual([]);
       });
     }
   }

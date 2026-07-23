@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor shapes with operation-level VJPs",
@@ -281,13 +281,14 @@ each row's seed by three, producing `[1,1,1,2,2,2]` at multiply. Both multiply
 operands are the same node. Each edge contributes upstream times the other
 operand, so their sum is:
 
-```text
-bar(add) = [4,4,10,12,12,24]
-```
+$$
+\bar{\mathrm{add}}=[4,4,10,12,12,24]
+$$
 
 Add forwards that adjoint to both inputs. Broadcast reversal sums its two rows,
-giving `dbias=[16,16,34]`. Transpose swaps the same axes and reshape restores
-`x`'s original shape, giving `dx=[4,12,4,12,10,24]`.
+giving $\bar{\mathrm{bias}}=[16,16,34]$. Transpose swaps the same axes and
+reshape restores $x$'s original shape, giving
+$\bar{x}=[4,12,4,12,10,24]$.
 
 <RustSource
   path="rust/demos/ch15-tensor-autodiff-core/src/lib.rs"
@@ -306,15 +307,15 @@ $$
 \bar{x}\mathrel{+}=J_y(x)^\top\bar{y}
 $$
 
-One recorded operation maps parent tensor `x` to child tensor `y`. Reverse mode
-already has `bar(y)`, the selected output's sensitivity with respect to each
-coordinate of `y`. Multiplying by the conceptual Jacobian transpose maps that
-information back to `x`.
+One recorded operation maps parent tensor $x$ to child tensor $y$. Reverse mode
+already has $\bar{y}$, the selected output's sensitivity with respect to each
+coordinate of $y$. Multiplying by the conceptual Jacobian transpose maps that
+information back to $x$.
 
 The VJP implements this action directly. It does not create a matrix with one
 row per output coordinate and one column per input coordinate. It must return a
-tensor shaped exactly like `x`, and `+=` must add it because another branch or
-operand edge may also reach the same parent.
+tensor shaped exactly like $x$, and $\mathrel{+}=$ must add it because another
+branch or operand edge may also reach the same parent.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -433,9 +434,10 @@ the reachable operation edges and saved context. Primal values and committed
 parameter gradients remain readable, but another backward call or differentiable
 reuse of a released operation fails without mutation.
 
-The focused fixture sets parameter `p=[2,3]` and adds `p*p` to
-`detach(p)*10` before summing. Both branches produce forward value `63`, but
-the detached branch has no edge to `p`, so its gradient is `[4,6]`. The same
+The focused fixture sets parameter $p=[2,3]$ and adds $p\odot p$ to
+$10\operatorname{detach}(p)$ before summing. Both branches produce forward
+value $63$, but the detached branch has no edge to $p$, so its gradient is
+`[4,6]`. The same
 fixture compares every supported VJP with Chapter 13 sampled central
 differences:
 
@@ -538,8 +540,8 @@ calculate numerical gradients.
 1. Reshape gives shape `[3,2]` with flat values unchanged. Transpose gives `[1,3,5,2,4,6]`; broadcast gives `[1,-1,0,1,-1,0]`; add gives `[2,2,5,3,3,6]`; multiply gives `[4,4,25,9,9,36]`; mean gives `[11,18]`.
 2. The nodes are `x`, reshape, transpose, `bias`, broadcast, add, multiply, and mean. The edges are one into reshape, one into transpose, one into broadcast, two into add, two into multiply, and one into mean. Node deduplication never removes the repeated multiply edge.
 3. Mean produces `[1,1,1,2,2,2]` at multiply. Each multiply edge contributes upstream times add: `[2,2,5,6,6,12]`. Adding the two edges gives `[4,4,10,12,12,24]`.
-4. Summing the two broadcast rows gives `dbias=[16,16,34]`. Swapping axes gives shape `[3,2]` and values `[4,12,4,12,10,24]`; reshape restores shape `[2,3]` with the same flat order.
-5. First-pass gradients are `dx=[4,12,4,12,10,24]` and `dbias=[16,16,34]`. The second retained pass doubles them. Zeroing writes positive zero. One releasing pass restores the first-pass values and then removes operation context.
+4. Summing the two broadcast rows gives $\bar{\mathrm{bias}}=[16,16,34]$. Swapping axes gives shape `[3,2]` and values `[4,12,4,12,10,24]`; reshape restores shape `[2,3]` with the same flat order.
+5. First-pass gradients are $\bar{x}=[4,12,4,12,10,24]$ and $\bar{\mathrm{bias}}=[16,16,34]$. The second retained pass doubles them. Zeroing writes positive zero. One releasing pass restores the first-pass values and then removes operation context.
 6. Sum's VJP reinserts axis `0` as size one and broadcasts the seed over every original row, so every row receives `[10,20,30]`.
 7. `detach` creates a new untracked leaf; `zero_grad` clears one parameter's stored gradient; `Retain` keeps operation context after a successful commit; `Release` discards that context after a successful commit but preserves primals and stored parameter gradients.
 8. No. Broadcast reuses source coordinates. Its VJP sums every reused output coordinate back to the original parameter shape. Keeping `[2,3]` or selecting one row would both be wrong for `bias[3]`.

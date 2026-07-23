@@ -255,7 +255,14 @@ describe('Chapter 17 labels and static component', () => {
       "../../../../rust/demos/ch17-parameter-initialization/diagram-trace.txt",
     );
     expect(componentSource).toContain('parseParameterInitializationTrace');
-    expect(componentSource).not.toMatch(/Math\.|\b(?:Number|parseFloat|parseInt|random|reduce|sqrt|pow)\s*\(|\/\s*4096/);
+    expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(componentSource).toContain(
+      'String.raw`\\Delta=${trace.binning.width.lexeme}`',
+    );
+    expect(componentSource).toContain("bin.includesUpper ? '\\\\right]' : '\\\\right)'");
+    expect(componentSource).not.toContain('>Δ={trace.binning.width.lexeme}</span>');
+    expect(componentSource).not.toContain('[{bin.lower.lexeme}, {bin.upper.lexeme}');
+    expect(componentSource).not.toMatch(/(?:^|[^A-Za-z])Math\.|\b(?:Number|parseFloat|parseInt|random|reduce|sqrt|pow)\s*\(|\/\s*4096/);
     expect(parserSource).not.toMatch(/Math\.|random\(|reduce\(|\/\s*4096|sqrt\(|pow\(/);
     expect(componentSource).not.toMatch(/<script|client:/);
     expect(componentSource).toMatch(/\.distribution-grid\s*\{[^}]*align-items:\s*start;/s);
@@ -303,7 +310,7 @@ describe('Chapter 17 labels and static component', () => {
       /\.histogram li\s*\{[^}]*min-inline-size:\s*0;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
     );
     expect(componentSource).toMatch(
-      /\.bin-range\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*overflow-wrap:\s*anywhere;/s,
+      /\.bin-range\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*max-inline-size:\s*100%;[^}]*min-inline-size:\s*0;[^}]*overflow-x:\s*auto;[^}]*overflow-y:\s*hidden;/s,
     );
     expect(componentSource).not.toContain('@media (max-width: 58rem)');
   });

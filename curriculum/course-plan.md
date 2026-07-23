@@ -960,7 +960,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `14-scalar-autodiff`
 - **Implementation step:** `implement-ch14-scalar-autodiff`
-- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `13-gradient-checking`.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.
@@ -976,7 +976,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `15-tensor-autodiff-core`
 - **Implementation step:** `implement-ch15-tensor-autodiff-core`
-- **Revision status:** Content revision 2 is delivered by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
 - **Depends on:** `14-scalar-autodiff`.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.
@@ -992,6 +992,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `16-model-autodiff-ops`
 - **Implementation step:** `implement-ch16-model-autodiff-ops`
+- **Revision status:** Content revision 2 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `15-tensor-autodiff-core`.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.
@@ -1007,7 +1008,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `17-parameter-initialization`
 - **Implementation step:** `implement-ch17-parameter-initialization`
-- **Revision status:** The rendered diagram repair is delivered by `repair-ch17-diagram-rendering` before Chapter 19.
+- **Revision status:** Content revision 2 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 1's diagram repair remains recorded by `repair-ch17-diagram-rendering`.
 - **Depends on:** `16-model-autodiff-ops`.
 - **Outcome:** Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths.
 - **Scope boundary:** Teach deterministic PRNG state, seeds, zero-symmetry failure, Xavier-style variance, and parameter identity; defer optimizer state.
@@ -1023,7 +1024,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
-- **Revision status:** Content revision 3 and the Firefox inline-math repair are delivered by `repair-ch18-firefox-inline-math-leading` after `repair-ch18-diagram-formula-rendering` and before Chapter 19.
+- **Revision status:** Content revision 4 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 3's Firefox inline-math repair remains recorded by `repair-ch18-firefox-inline-math-leading`.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
 - **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer positional information.
@@ -1039,7 +1040,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `19-linear-layers`
 - **Implementation step:** `implement-ch19-linear-layers`
-- **Revision status:** Content revision 2 and the explanatory-math rendering repair are delivered by `repair-ch19-inline-math-rendering` before Chapter 20.
+- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2's explanatory-math repair remains recorded by `repair-ch19-inline-math-rendering`.
 - **Depends on:** `18-token-embeddings`.
 - **Outcome:** Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches.
 - **Scope boundary:** Teach weight orientation, leading-dimension preservation, optional bias, parameter discovery, forward pass, and gradients. The target decoder uses bias-free attention/SwiGLU/output projections; bias remains available for historical examples.

@@ -255,13 +255,19 @@ describe('Chapter 18 labels and static component', () => {
       "../../../../rust/demos/ch18-token-embeddings/diagram-trace.txt",
     );
     expect(componentSource).toContain('parseTokenEmbeddingsTrace');
+    expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
     expect(componentSource).toContain('{vector(row.values)}');
     expect(componentSource).toContain('{integerVector(lookup.oneHot)}');
     expect(componentSource).toContain('{vector(lookup.output)}');
     expect(componentSource).toContain('{vector(lookup.upstream)}');
-    expect(componentSource).toContain('{vector(contribution)}');
-    expect(componentSource).toContain('{vector(gradient.accumulated)}');
-    expect(componentSource).not.toMatch(/Math\.|\b(?:Number|parseFloat|parseInt|reduce)\s*\(/);
+    expect(componentSource).toContain('<InlineMath latex={latexVector(contribution)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexVector(gradient.accumulated)} />');
+    expect(componentSource).toContain('String.raw`E_{${row.row.lexeme},:}`');
+    expect(componentSource).toContain('String.raw`e_{${lookup.id.lexeme}}E`');
+    expect(componentSource).toContain('String.raw`\\bar E_{${gradient.row.lexeme},:}`');
+    expect(componentSource).not.toContain('E[{row.row.lexeme}, :]');
+    expect(componentSource).not.toContain('e<sub>{lookup.id.lexeme}</sub> E');
+    expect(componentSource).not.toMatch(/(?:^|[^A-Za-z])Math\.|\b(?:Number|parseFloat|parseInt|reduce)\s*\(/);
     expect(componentSource).not.toMatch(/<script|client:/);
     expect(componentSource).not.toContain('display: none');
     expect(parserSource).not.toMatch(/Math\.|random\(|reduce\(|sqrt\(|pow\(/);
@@ -296,8 +302,8 @@ describe('Chapter 18 labels and static component', () => {
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 3');
-    expect(lessonSource).toContain('"content_revision": 3');
+    expect(contractSource).toContain('"content_revision": 4');
+    expect(lessonSource).toContain('"content_revision": 4');
     expect(contractSource).toContain(
       '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
     );

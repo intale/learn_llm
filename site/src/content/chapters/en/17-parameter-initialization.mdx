@@ -2,7 +2,7 @@
 {
   "chapter_id": "17-parameter-initialization",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 17,
   "concept_id": "parameter-initialization",
   "title": "Initialize every trainable tensor reproducibly",
@@ -201,10 +201,10 @@ export const diagramLabels = {
 
 ## Predict one seed, scale, and symmetry failure
 
-Initialize a projection of shape `[2,2]` with seed `17`, fan-in `2`, and
-fan-out `2`. Before running the example, predict a target variance of `1/2`, a
-standard deviation of `1/sqrt(2)`, and a zero-centered uniform bound of
-`sqrt(3/2)`. The frozen generator produces these row-major values after
+Initialize a projection of shape `[2,2]` with seed `17`, fan-in $2$, and
+fan-out $2$. Before running the example, predict a target variance of $1/2$, a
+standard deviation of $1/\sqrt{2}$, and a zero-centered uniform bound of
+$\sqrt{3/2}$. The frozen generator produces these row-major values after
 twelve-decimal rounding:
 
 ```text
@@ -218,9 +218,9 @@ different tensor. Those relationships are predictable even though the learner
 does not calculate the pseudorandom sequence by hand.
 
 Now contrast the distinct columns with a zero-initialized two-unit path. Let
-`x=[1,-1]`, set a `[2,2]` input matrix to zero, apply SiLU, and use equal output
-weights `[1,1]`. The scalar output is zero. SiLU's derivative at zero is `1/2`,
-so both input-weight gradient columns are `[0.5,-0.5]`. An equal update
+$x=[1,-1]$, set a `[2,2]` input matrix to zero, apply SiLU, and use equal output
+weights `[1,1]`. The scalar output is zero. SiLU's derivative at zero is $1/2$,
+so both input-weight gradient columns are $[0.5,-0.5]^\top$. An equal update
 therefore preserves the hidden units' equality.
 
 <RustSource
@@ -244,9 +244,9 @@ $$
 \operatorname{Var}(W_{ij})=\frac{2}{\operatorname{fan}_{in}+\operatorname{fan}_{out}}
 $$
 
-For a zero-centered uniform distribution over `[-a,a)`, the distribution
-variance is `a²/3`. Matching the display formula gives
-`a=sqrt(6/(fan-in+fan-out))`.
+For a zero-centered uniform distribution over $[-a,a)$, the distribution
+variance is $a^2/3$. Matching the display formula gives
+$a=\sqrt{6/(\operatorname{fan}_{in}+\operatorname{fan}_{out})}$.
 
 The word *target* matters. Four sampled numbers do not have to possess exactly
 the distribution's theoretical variance. The rule also does not guarantee
@@ -269,10 +269,10 @@ nonlinearities, normalization, residual paths, data, and optimization.
 | $\operatorname{fan}_{out}$ | The number of outputs receiving each input. |
 | $2$ | The compromise between the forward fan-in and backward fan-out variance conditions. |
 
-For fan-in `2` and fan-out `2`, the target standard deviation is
-`0.707106781187` and the uniform bound is `1.224744871392`. Doubling fan-in to
-`4` while keeping fan-out `2` reduces them to `0.577350269190` and
-`1.000000000000`. Width is part of the initialization request, not metadata
+For fan-in $2$ and fan-out $2$, the target standard deviation is
+$0.707106781187$ and the uniform bound is $1.224744871392$. Doubling fan-in to
+$4$ while keeping fan-out $2$ reduces them to $0.577350269190$ and
+$1.000000000000$. Width is part of the initialization request, not metadata
 that can be guessed after sampling.
 
 {/* chapter-section:history */}
@@ -426,12 +426,12 @@ derive powers, classify outcomes, or recompute variance.
 
 ## Predict before running Rust
 
-1. For fan-in `2` and fan-out `2`, calculate the target variance, standard deviation, and uniform bound.
-2. Recalculate those three quantities when fan-in becomes `4` and fan-out remains `2`.
+1. For fan-in $2$ and fan-out $2$, calculate the target variance, standard deviation, and uniform bound.
+2. Recalculate those three quantities when fan-in becomes $4$ and fan-out remains $2$.
 3. Derive the two input-weight gradient columns for the zero-weight SiLU fixture.
 4. Which values must match when seed, shape, fan values, and construction order all match?
 5. Why should the selected seed `18` fixture differ without proving that every pair of possible seeds differs?
-6. Why does one finite `[2,2]` tensor not need an empirical variance of exactly `1/2`?
+6. Why does one finite `[2,2]` tensor not need an empirical variance of exactly $1/2$?
 7. In which order are `decoder.block.0.attention.query.weight` and `token_embedding.weight` enumerated?
 8. Does a rejected invalid name or zero fan advance the generator, and which duplicate does a collection report?
 9. Does Vaswani et al. prescribe Xavier initialization for the Transformer?
@@ -440,9 +440,9 @@ derive powers, classify outcomes, or recompute variance.
 <details>
   <summary>Check the predictions</summary>
 
-  1. The target variance is `0.5`, the standard deviation is `0.707106781187`, and the bound is `1.224744871392`.
-  2. They become `1/3`, `0.577350269190`, and `1.000000000000`.
-  3. Both columns are `[0.5,-0.5]`: the equal output weights and SiLU derivative `1/2` give each hidden unit the same upstream factor.
+  1. The target variance is $0.5$, the standard deviation is $0.707106781187$, and the bound is $1.224744871392$.
+  2. They become $1/3$, $0.577350269190$, and $1.000000000000$.
+  3. Both columns are $[0.5,-0.5]^\top$: the equal output weights and SiLU derivative $1/2$ give each hidden unit the same upstream factor.
   4. The generator stream and resulting tensor bits match for this identical request.
   5. The frozen seed-18 request is tested to differ. A pseudorandom generator is deterministic, but that selected test is not a mathematical uniqueness promise for every seed and request.
   6. The formula describes a distribution. A small finite sample has sampling variation.

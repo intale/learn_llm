@@ -2,6 +2,8 @@
 // @ts-ignore Node filesystem access is build-time only.
 import { readFileSync } from 'node:fs';
 
+import InlineMath from '../InlineMath.astro';
+
 import {
   parseTokenEmbeddingsTrace,
   tokenEmbeddingsDiagramId,
@@ -55,6 +57,8 @@ const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
   `[${values.map((value) => value.lexeme).join(', ')}]`;
 const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   `[${values.map((value) => value.lexeme).join(', ')}]`;
+const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  String.raw`\left[${values.map((value) => value.lexeme).join(',')}\right]`;
 ---
 
 <figure
@@ -139,7 +143,9 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
           <tbody>
             {trace.table.map((row) => (
               <tr class={`table-row state-${row.state}`}>
-                <th scope="row"><bdi dir="ltr">E[{row.row.lexeme}, :]</bdi></th>
+                <th scope="row">
+                  <InlineMath latex={String.raw`E_{${row.row.lexeme},:}`} />
+                </th>
                 <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
                 <td><bdi dir="ltr">{row.uses.lexeme}</bdi></td>
                 <td class="row-state">
@@ -176,8 +182,12 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
               <th scope="row"><bdi dir="ltr">({lookup.coordinate.map((value) => value.lexeme).join(', ')})</bdi></th>
               <td><bdi dir="ltr">{lookup.id.lexeme}</bdi></td>
               <td><bdi dir="ltr">{integerVector(lookup.oneHot)}</bdi></td>
-              <td class="operation-cell"><bdi dir="ltr">e<sub>{lookup.id.lexeme}</sub> E</bdi></td>
-              <td><bdi dir="ltr">E[{lookup.selectedRow.lexeme}, :]</bdi></td>
+              <td class="operation-cell">
+                <InlineMath latex={String.raw`e_{${lookup.id.lexeme}}E`} />
+              </td>
+              <td>
+                <InlineMath latex={String.raw`E_{${lookup.selectedRow.lexeme},:}`} />
+              </td>
               <td><bdi dir="ltr">{vector(lookup.output)}</bdi></td>
               <td><bdi dir="ltr">{vector(lookup.upstream)}</bdi></td>
             </tr>
@@ -204,7 +214,9 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
         <tbody>
           {trace.gradients.map((gradient) => (
             <tr class={`gradient-row rule-${gradient.rule}`}>
-              <th scope="row"><bdi dir="ltr">E[{gradient.row.lexeme}, :]</bdi></th>
+              <th scope="row">
+                <InlineMath latex={String.raw`\bar E_{${gradient.row.lexeme},:}`} />
+              </th>
               <td>
                 {gradient.flatPositions ? (
                   <bdi dir="ltr">{gradient.flatPositions.map((value) => value.lexeme).join(', ')}</bdi>
@@ -214,14 +226,14 @@ const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
                 {gradient.contributions ? (
                   gradient.contributions.map((contribution, index) => (
                     <>
-                      {index > 0 && <span class="plus" aria-hidden="true"> + </span>}
-                      <bdi dir="ltr">{vector(contribution)}</bdi>
+                      {index > 0 && <InlineMath latex="+" />}
+                      <InlineMath latex={latexVector(contribution)} />
                     </>
                   ))
                 ) : labels.states.none}
               </td>
               <td>{ruleLabel(gradient.rule)}</td>
-              <td><bdi dir="ltr">{vector(gradient.accumulated)}</bdi></td>
+              <td><InlineMath latex={latexVector(gradient.accumulated)} /></td>
             </tr>
           ))}
         </tbody>

@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "concept_id": "model-autodiff-ops",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 16,
   "objective": {
     "en": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss."

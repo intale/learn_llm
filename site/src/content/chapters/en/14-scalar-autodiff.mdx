@@ -2,7 +2,7 @@
 {
   "chapter_id": "14-scalar-autodiff",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 14,
   "concept_id": "scalar-autodiff",
   "title": "Accumulate gradients through a scalar graph",
@@ -223,14 +223,15 @@ square = x * x
 loss = square + square
 ```
 
-The forward prediction is `square=4` and `loss=8`. Now seed the scalar output
-with `bar(loss)=1`. Addition has local derivative `1` for each operand. Both
-operands are the same `square` node, but they remain two uses, so the reverse
-contributions are `1` and `1`, giving `bar(square)=2`.
+The forward prediction is $\mathrm{square}=4$ and $\mathrm{loss}=8$. Now seed
+the scalar output with $\bar{\mathrm{loss}}=1$. Addition has local derivative
+$1$ for each operand. Both operands are the same `square` node, but they remain
+two uses, so the reverse contributions are $1$ and $1$, giving
+$\bar{\mathrm{square}}=2$.
 
-The multiplication also has two operand uses of the same `x` node. Each local
-derivative is the other operand's primal value `2`. Multiplying by the upstream
-adjoint `2` gives contributions `4` and `4`, so `bar(x)=8`.
+The multiplication also has two operand uses of the same $x$ node. Each local
+derivative is the other operand's primal value $2$. Multiplying by the upstream
+adjoint $2$ gives contributions $4$ and $4$, so $\bar{x}=8$.
 
 <RustSource
   path="rust/demos/ch14-scalar-autodiff/src/lib.rs"
@@ -273,9 +274,9 @@ upstream.
 | $\frac{\partial c}{\partial v}$ | The local derivative carried by that particular operand edge. |
 
 “Child” is edge language here. The topology contains `x`, `square`, and `loss`
-once each, yet `square=x*x` stores two edges to `x` and
-`loss=square+square` stores two edges to `square`. Deduplicating node visits is
-correct; deduplicating those four uses is not.
+once each, yet $\mathrm{square}=x\cdot x$ stores two edges to `x` and
+$\mathrm{loss}=\mathrm{square}+\mathrm{square}$ stores two edges to `square`.
+Deduplicating node visits is correct; deduplicating those four uses is not.
 
 {/* chapter-section:history */}
 
@@ -331,9 +332,10 @@ the whole pass and every prospective stored sum are finite does it commit any
 gradient mutation.
 
 That separation defines repeated-call behavior. The first call commits
-`loss=1`, `square=2`, and `x=8`. The second call recomputes those same
-pass-local values from scratch, then adds them to storage, giving `2`, `4`, and
-`16`. It does not send the first call's stored `square=2` backward again.
+$\bar{\mathrm{loss}}=1$, $\bar{\mathrm{square}}=2$, and $\bar{x}=8$. The
+second call recomputes those same pass-local values from scratch, then adds them
+to storage, giving $2$, $4$, and $16$. It does not send the first call's stored
+$\bar{\mathrm{square}}=2$ backward again.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/scalar.rs"
@@ -345,8 +347,8 @@ pass-local values from scratch, then adds them to storage, giving `2`, `4`, and
 `zero_grad` clears every reachable tracked node. One new backward call then
 restores the original first-pass gradients. `detach` instead creates an
 untracked constant leaf with the same primal value and no parent. For
-`x*x + detach(x)*3` at `x=2`, the forward value is `10`, but only `x*x`
-reaches the original variable, so its gradient is `4`.
+$x^2+3\operatorname{detach}(x)$ at $x=2$, the forward value is $10$, but only
+$x^2$ reaches the original variable, so its gradient is $4$.
 
 Typed errors distinguish a constant output, invalid seed, non-finite forward
 value, local contribution, pass adjoint, and prospective stored sum. Because
@@ -361,7 +363,7 @@ bits unchanged.
 />
 
 Chapter 13 remains an independent oracle. For this graph the forward expression
-is `2x^2`, so the analytic derivative is `4x`, which equals `8` at `x=2`.
+is $2x^2$, so the analytic derivative is $4x$, which equals $8$ at $x=2$.
 The central-difference checker perturbs only the ordinary scalar function; it
 does not inspect or reuse the backward graph.
 
@@ -430,22 +432,22 @@ apply the chain rule, topologically sort the graph, or recompute gradients.
 
 1. Predict `square` and `loss` before inspecting the graph output.
 2. Count unique nodes and operand edges separately. Why are the counts different?
-3. Compute both contributions to `bar(square)` and both to `bar(x)`.
+3. Compute both contributions to $\bar{\mathrm{square}}$ and both to $\bar{x}$.
 4. Predict the gradients if each parent used assignment instead of addition.
 5. Predict stored gradients after two backward calls, after zeroing, and after one new call.
-6. Predict the value and original `x` gradient of `x*x + detach(x)*3` at `x=2`.
+6. Predict the value and original $x$ gradient of $x^2+3\operatorname{detach}(x)$ at $x=2$.
 7. Explain why a failed final stored-gradient check must not commit earlier valid nodes.
 8. Misconception check: does reverse mode approximate derivatives, select one branch, or run in ordinary decoder inference?
 
 <details>
   <summary>Check the eight scalar-autodiff predictions</summary>
 
-1. `square=2*2=4`; `loss=4+4=8`.
+1. $\mathrm{square}=2\cdot2=4$; $\mathrm{loss}=4+4=8$.
 2. There are three node identities and four parent edges. Each operation result is visited once, but each repeated operand remains a separate derivative path.
-3. Addition contributes `1+1`, so `bar(square)=2`. Multiplication contributes `2*2 + 2*2`, so `bar(x)=8`.
-4. Assignment would retain only one addition contribution, giving `bar(square)=1`; it could then retain only one multiplication contribution, giving `bar(x)=2`. The exact survivor would depend on traversal order, which is the bug.
-5. Stored `(loss,square,x)` is `(1,2,8)`, then `(2,4,16)`, then `(0,0,0)`, then `(1,2,8)`. Every backward call computes a fresh pass before storage accumulation.
-6. The value is `4+6=10`. The detached branch has no edge to the original `x`, so its gradient is only `2x=4`.
+3. Addition contributes $1+1$, so $\bar{\mathrm{square}}=2$. Multiplication contributes $2\cdot2+2\cdot2$, so $\bar{x}=8$.
+4. Assignment would retain only one addition contribution, giving $\bar{\mathrm{square}}=1$; it could then retain only one multiplication contribution, giving $\bar{x}=2$. The exact survivor would depend on traversal order, which is the bug.
+5. Stored $(\bar{\mathrm{loss}},\bar{\mathrm{square}},\bar{x})$ is $(1,2,8)$, then $(2,4,16)$, then $(0,0,0)$, then $(1,2,8)$. Every backward call computes a fresh pass before storage accumulation.
+6. The value is $4+6=10$. The detached branch has no edge to the original $x$, so its gradient is only $2x=4$.
 7. Partial mutation would make a failed pass depend on how far traversal got. Validating every pass value and prospective stored sum first preserves all earlier bits on error.
 8. None. Reverse mode applies exact local derivative rules at the stored primal values and adds every graph path. This graph supports training; ordinary generation uses only the forward decoder.
 

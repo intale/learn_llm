@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '15-tensor-autodiff-core';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Reverse tensor shapes with operation-level VJPs';
 const chapterDescription =
   'Build a Rust tensor autodiff tape, reverse views, broadcasts, and reductions with shape-aware VJPs, and verify gradients for LLM training.';
@@ -139,11 +139,15 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  expect(await formulae.count()).toBeGreaterThan(0);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).not.toContain('rtl');
+  expect(
+    await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
+  ).toContain(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);

@@ -33,6 +33,9 @@ const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
 const coordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
   `(${values.map((value) => value.lexeme).join(', ')})`;
 const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
+const shapeLatex = (value: string) => String.raw`\left[${value.replaceAll('x', ',')}\right]`;
+const coordinateLatex = (values: ReadonlyArray<{ lexeme: string }>) =>
+  String.raw`\left(${values.map((value) => value.lexeme).join(',')}\right)`;
 const inlineMath = (latex: string) => renderToString(latex, {
   displayMode: false,
   output: 'htmlAndMathml',
@@ -50,6 +53,9 @@ const affineRows = [
   trace.cells.slice(3, 6).map((cell) => cell.result),
 ];
 const selectedCell = trace.cells[0];
+const selectedProductsLatex = selectedCell.products
+  .map((product) => String.raw`${product.input.lexeme}\cdot${product.weight.lexeme}`)
+  .join('+');
 ---
 
 <figure
@@ -116,7 +122,11 @@ const selectedCell = trace.cells[0];
     </div>
     <p class="axis-proof">
       <span>{labels.symbols.mixed}</span>
-      <bdi dir="ltr">{shape(trace.axes.inputLeading)} = {shape(trace.axes.outputLeading)}</bdi>
+      <bdi
+        class="diagram-math"
+        dir="ltr"
+        set:html={inlineMath(String.raw`${shapeLatex(trace.axes.inputLeading)}=${shapeLatex(trace.axes.outputLeading)}`)}
+      />
     </p>
   </section>
 
@@ -182,30 +192,41 @@ const selectedCell = trace.cells[0];
     <dl class="contribution-grid">
       <div>
         <dt>{labels.fields.coordinate}</dt>
-        <dd><bdi dir="ltr">{coordinate(selectedCell.coordinate)}, y[{selectedCell.outputFeature.lexeme}]</bdi></dd>
+        <dd>
+          <bdi
+            class="diagram-math"
+            dir="ltr"
+            set:html={inlineMath(String.raw`${coordinateLatex(selectedCell.coordinate)},\;y_{${selectedCell.outputFeature.lexeme}}`)}
+          />
+        </dd>
       </div>
       <div class="products-card">
         <dt>{labels.fields.products}</dt>
         <dd class="product-list">
-          {selectedCell.products.map((product, index) => (
-            <>
-              {index > 0 && <span aria-hidden="true"> + </span>}
-              <bdi dir="ltr">{product.input.lexeme} × {product.weight.lexeme}</bdi>
-            </>
-          ))}
+          <bdi
+            class="diagram-math"
+            dir="ltr"
+            set:html={inlineMath(selectedProductsLatex)}
+          />
         </dd>
       </div>
       <div>
         <dt>{labels.fields.weightedSum}</dt>
-        <dd><bdi dir="ltr">{selectedCell.weightedSum.lexeme}</bdi></dd>
+        <dd>
+          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(selectedCell.weightedSum.lexeme)} />
+        </dd>
       </div>
       <div>
         <dt>{labels.fields.bias}</dt>
-        <dd><bdi dir="ltr">+ {selectedCell.bias.lexeme}</bdi></dd>
+        <dd>
+          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`+${selectedCell.bias.lexeme}`)} />
+        </dd>
       </div>
       <div class="result-card">
         <dt>{labels.fields.result}</dt>
-        <dd><bdi dir="ltr">= {selectedCell.result.lexeme}</bdi></dd>
+        <dd>
+          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`=${selectedCell.result.lexeme}`)} />
+        </dd>
       </div>
     </dl>
   </section>
@@ -244,7 +265,13 @@ const selectedCell = trace.cells[0];
         <tbody>
           {trace.positionGradients.map((row) => (
             <tr>
-              <th scope="row"><bdi dir="ltr">dX[{row.position.lexeme}]</bdi></th>
+              <th scope="row">
+                <bdi
+                  class="diagram-math"
+                  dir="ltr"
+                  set:html={inlineMath(String.raw`dX_{${row.position.lexeme}}`)}
+                />
+              </th>
               <td><bdi dir="ltr">{coordinate(row.coordinate)}</bdi></td>
               <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
               <td><bdi dir="ltr">{vector(row.inputGradient)}</bdi></td>
@@ -263,7 +290,9 @@ const selectedCell = trace.cells[0];
         </thead>
         <tbody>
           <tr class="shared-gradient">
-            <th scope="row"><bdi dir="ltr">dW</bdi></th>
+            <th scope="row">
+              <bdi class="diagram-math" dir="ltr" set:html={inlineMath('dW')} />
+            </th>
             <td>
               <bdi
                 class="diagram-math"
@@ -274,7 +303,9 @@ const selectedCell = trace.cells[0];
             <td><bdi dir="ltr">{shape(trace.weightGradient.shape)} {vector(trace.weightGradient.values)}</bdi></td>
           </tr>
           <tr class="shared-gradient">
-            <th scope="row"><bdi dir="ltr">db</bdi></th>
+            <th scope="row">
+              <bdi class="diagram-math" dir="ltr" set:html={inlineMath('db')} />
+            </th>
             <td>
               <bdi
                 class="diagram-math"

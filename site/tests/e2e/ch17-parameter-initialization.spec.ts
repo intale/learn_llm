@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '17-parameter-initialization';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = 'Initialize every trainable tensor reproducibly';
 const chapterDescription =
   'Initialize model parameters reproducibly in Rust, compare zero, oversized, and Xavier scales, and track expected variance through stacked linear layers.';
@@ -132,11 +132,15 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  expect(await formulae.count()).toBeGreaterThan(0);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).not.toContain('rtl');
+  expect(
+    await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
+  ).toContain(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -261,9 +265,9 @@ async function expectChapterContent(
   await expect(representativeBin.locator('.bin-range .visually-hidden')).toHaveText(
     'Bin range:',
   );
-  await expect(representativeBin.locator('.bin-range bdi')).toHaveText(
-    '[-0.150000000000, -0.050000000000)',
-  );
+  await expect(
+    representativeBin.locator('.bin-range annotation[encoding="application/x-tex"]'),
+  ).toHaveText(String.raw`\left[-0.150000000000,-0.050000000000\right)`);
   await expect(representativeBin.locator('.bin-count .visually-hidden')).toHaveText(
     'Count:',
   );

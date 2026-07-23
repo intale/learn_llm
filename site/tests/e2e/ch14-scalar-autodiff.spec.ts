@@ -20,7 +20,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '14-scalar-autodiff';
-const contentRevision = 2;
+const contentRevision = 3;
 const chapterTitle = 'Accumulate gradients through a scalar graph';
 const chapterDescription =
   'Build reverse-mode scalar autodiff in Rust, accumulate gradients across reused graph edges, and verify them for LLM training.';
@@ -134,11 +134,15 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
-  );
+  expect(await formulae.count()).toBeGreaterThan(0);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).not.toContain('rtl');
+  expect(
+    await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents(),
+  ).toContain(formulaLatex);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);

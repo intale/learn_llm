@@ -10403,7 +10403,7 @@ builds:
         objective: "Bring every published Chapter 14-19 lesson and diagram into the learner-facing formula pipeline and prove the complete published course complies."
         depends_on:
           - repair-formula-rendering-ch08-ch13
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "DECISIONS.md"
@@ -10419,6 +10419,7 @@ builds:
           - "site/package-lock.json"
           - "Read-only formula audit of all published Chapter 14-19 learner surfaces"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/14-scalar-autodiff.md"
           - "curriculum/chapters/15-tensor-autodiff-core.md"
           - "curriculum/chapters/16-model-autodiff-ops.md"
@@ -10439,6 +10440,12 @@ builds:
           - "site/tests/17-parameter-initialization-diagram.test.ts"
           - "site/tests/18-token-embeddings-diagram.test.ts"
           - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
+          - "site/tests/e2e/ch17-parameter-initialization.spec.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
         acceptance:
           - "Every learner-facing mathematical expression in Chapters 14-19 uses inline/display math or equivalent server-rendered math, while literal program and trace data keep code semantics."
           - "Initialization, embedding, and linear-layer diagrams render intervals, deltas, indexed lookups, sums, affine contributions, and gradient labels as accessible HTML-plus-MathML."
@@ -10447,18 +10454,89 @@ builds:
           - "The complete staged and fresh canonical gates pass without a package, dependency, Rust, build, hosting, or deployment change, and the final correction is committed before Chapter 20 starts."
         validate:
           - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/14-scalar-autodiff.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/15-tensor-autodiff-core.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/16-model-autodiff-ops.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/17-parameter-initialization.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/18-token-embeddings.md"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/19-linear-layers.md"
           - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
           - "npm --prefix site run check"
           - "npm --prefix site run test -- --run"
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@formula-rendering'"
           - "npm --prefix site run test:e2e"
+          - "git diff --exit-code 31a2970f489bd2c0bbaaaf203379415049fd1641 -- Cargo.lock Cargo.toml rust Dockerfile compose.yaml site/package.json site/package-lock.json site/astro.config.mjs"
           - "git diff --check"
         cost:
           class: medium
-          notes: "Deterministic local content, static component, and complete regression work across six English lessons. Cached production/browser validation may use moderate CPU; no network, paid service, generation, dependency, Rust, build-definition, hosting, or deployment change."
-        runs: []
+          notes: "Deterministic content, static component, and complete regression work across six English lessons. Cached production/browser validation may use moderate CPU and resolve pinned Docker base-image metadata; no paid service, generation, dependency, Rust, build-definition, hosting, or deployment change."
+        runs:
+          - run_id: 20260723T180139Z-repair-formula-rendering-ch14-ch19-01
+            started_at: "2026-07-23T18:01:39Z"
+            finished_at: "2026-07-23T18:44:09Z"
+            status: succeeded
+            input_fingerprint:
+              git: "31a2970f489bd2c0bbaaaf203379415049fd1641"
+              manifest: ".build/runs/20260723T180139Z-repair-formula-rendering-ch14-ch19-01/input-fingerprint.txt"
+              checksum: "sha256:fb67b6e0497451f9aacf3ae84a7a6b20b049f10840ace2b550ecafb36a047960"
+              material_inputs: "40 tracked inputs, composite sha256:0daa709abbcdc38e4ec10bc22588afdd6cf426de0844f89601d1baeee67dc0b2"
+              prior_ch08_ch13_publish_manifest: "sha256:d3c570ba554d019fd67d6cc9ef3f125c469440b20fa90de76a2c8e641de50ee4"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T180139Z-repair-formula-rendering-ch14-ch19-01/"
+            commands:
+              - "Verify commit 31a2970 contains only the completed Chapter 8-13 slice and confirm the worktree retains only unrelated untracked desktop.ini."
+              - "Select the first eligible dependent slice, verify its read-only audit, exact inputs, expanded outputs, validations, and medium deterministic cost, then freeze its fingerprint before product edits."
+              - "Stage exactly 27 declared outputs; revise Chapters 14-19 and their contracts, render audited diagram notation through server HTML-plus-MathML, advance content revisions, and extend complete-course source and browser formula regressions."
+              - "Build cached staged workspace and browser images; run contract, content, parity, Astro, unit, production-build, link, KaTeX-error, focused formula, complete browser, Rust formatting, and Rust workspace-test gates."
+              - "Freeze the 27-file publish manifest and run ./course review 20260723T180139Z-repair-formula-rendering-ch14-ch19-01 --check without mutating staged output."
+            artifacts:
+              - path: ".build/runs/20260723T180139Z-repair-formula-rendering-ch14-ch19-01/input-fingerprint.txt"
+                checksum: "sha256:fb67b6e0497451f9aacf3ae84a7a6b20b049f10840ace2b550ecafb36a047960"
+                notes: "Committed prerequisite, prior frozen publication manifest, pinned tools, and a composite digest for all 40 material tracked inputs."
+              - path: ".build/runs/20260723T180139Z-repair-formula-rendering-ch14-ch19-01/publish.sha256"
+                checksum: "sha256:3ea5dcca3088a7dbc608705677b9a09e0459adb440b5cc60360007799201bf83"
+                notes: "Frozen path-sorted SHA-256 manifest for all 27 regular staged publication files."
+              - path: "docker-image:learn-llm-formula-ch14-19:staged"
+                checksum: "sha256:e6d0b85165ebd6ca9b0ff4c8287d42a289a35baf2e6cbdfab4986156fe31219a"
+                notes: "Cached source-validation image with the exact staged overlay."
+              - path: "docker-image:learn-llm-formula-ch14-19:browser-staged"
+                checksum: "sha256:5a607936a49afb60494ec0c866b8d59d4da096b0c02808d3064354ba288b0997"
+                notes: "Cached browser-validation image with the exact staged overlay and built static site."
+              - path: "docker-image:learn-llm-review:20260723t180139z-repair-formula-rendering-ch14-ch19-01"
+                checksum: "sha256:52de0215ce3bf80443fde272ec9c1d1cf03ddff66eeb7928fbd172b5eda2f126"
+                notes: "Repository review image built from the frozen publication manifest."
+              - path: "docker-image:learn-llm-formula-ch14-19:canonical"
+                checksum: "sha256:e07a48e15b6aae5b7b94b45bf821b8e7f93c42f64628ec1781fcccf5301a2ef8"
+                notes: "Fresh canonical workspace image built after exact manifest publication; its Dockerfile gates all pass."
+              - path: "docker-image:learn-llm-formula-ch14-19:browser-canonical"
+                checksum: "sha256:d327ec85b5ce350c7adb60f51877459458f57453b03ed83f568dda6201121a00"
+                notes: "Fresh canonical browser image used for the final complete Playwright replay."
+            validation:
+              - command: "Dependency, worktree, environment, scope, audit, and cost preflight"
+                status: passed
+                notes: "The Chapter 8-13 dependency is completed and committed; no tracked product change remains; unrelated desktop.ini is preserved; all material inputs exist; the prior manifest still matches; pinned tools are unchanged; the read-only audit identifies lesson corrections in every Chapter 14-19 page and diagram corrections in Chapters 17-19; this medium cached work fits the unlimited budget."
+              - command: "Course plan, six chapter contracts, content, parity, Astro, production build, links, and built-HTML KaTeX-error audit"
+                status: passed
+                notes: "39 chapters, 66 steps, and 19 contracts are coherent; all six revised contracts integrate; 26 localized sources and 19 publishable locale sets pass; Astro reports 107 files with zero diagnostics; 31 pages build; 783 local references and 31 SEO routes pass; no built HTML contains a KaTeX error."
+              - command: "npm --prefix site run test -- --run"
+                status: passed
+                notes: "26 Vitest files and all 529 assertions pass, including the complete published formula source contract and all three revised diagram components."
+              - command: "npm --prefix site run test:e2e -- --grep '@formula-rendering' && npm --prefix site run test:e2e"
+                status: passed
+                notes: "All 52 formula-focused desktop/narrow cases and all 129 complete Playwright cases pass, including MathML annotations, spacing, page containment, RTL, forced colors, and JavaScript-disabled rendering."
+              - command: "cargo fmt --all -- --check && cargo test --workspace --locked"
+                status: passed
+                notes: "Formatting and the complete unchanged Rust workspace pass; the known duplicate example-output filename warnings remain non-failing and unrelated."
+              - command: "27-file scope/whitespace audit, frozen publish manifest verification, and ./course review RUN_ID --check"
+                status: passed
+                notes: "Every staged file differs from canonical, every path is declared, no protected build/package/Rust path is staged, all staged diffs are whitespace-clean, the manifest verifies, and the official review rebuilds all 31 static pages without changing publish/."
+              - command: "Same-directory canonical publication, manifest replay, protected-path diff, git diff --check, fresh canonical workspace build, Vitest replay, and complete Playwright replay"
+                status: passed
+                notes: "All 27 canonical files match the frozen manifest byte-for-byte; no temporary publication file remains; protected Rust/package/build paths are unchanged; the fresh canonical Docker build passes Rust and static gates; all 529 unit assertions and all 129 browser cases pass again."
+            notes: "Succeeded. Every one of the 26 published localized lessons and all 19 chapter diagrams now have an explicit audited formula contract; Chapters 14-19 and their contracts advanced together, the three affected diagrams use accessible server-rendered math, publication is exact, and Chapter 20 remains pending."
       - id: implement-ch20-swiglu-feed-forward
         objective: "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
         depends_on:

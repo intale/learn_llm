@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 16,
   "concept_id": "model-autodiff-ops",
   "title": "Reverse the operations that turn token IDs into loss",
@@ -212,10 +212,10 @@ export const diagramLabels = {
     indexed_mean_nll: 'Indexed mean NLL',
   },
   sources: {
-    embeddings: 'embedding table E',
-    token_ids: 'token IDs z',
-    gather_rows: 'gathered rows X',
-    weights: 'projection weights W',
+    embeddings: 'embedding table',
+    token_ids: 'token IDs',
+    gather_rows: 'gathered feature rows',
+    weights: 'projection weights',
     matmul: 'matrix-product logits',
     silu: 'SiLU logits',
     targets: 'target classes',
@@ -271,30 +271,39 @@ W = [[1,-1],
 ```
 
 Row gather selects `[1,-1]` three times and `[-1,1]` once. Every selected row
-times `W` is `[0,0]`. SiLU keeps zero, and two equal logits produce
-`[-ln(2),-ln(2)]` after log-softmax. Every target therefore has loss `ln(2)`,
-so their mean is also `ln(2)`.
+multiplied by $W$ yields `[0,0]`. SiLU keeps zero, and two equal logits produce
+$[-\ln 2,-\ln 2]$ after log-softmax. Every target therefore has loss $\ln 2$,
+so their mean is also $\ln 2$.
 
 Predict the reverse signs before calculating values. The correct-target logit
 must move up to reduce loss, so its loss gradient is negative; the competing
 logit gradient is positive. With two equal classes and four mean groups, their
-magnitudes are `1/8`:
+magnitudes are $1/8$:
 
 ```text
 positions 0,1,2 target 0: [-1/8, 1/8]
 position 3       target 1: [ 1/8,-1/8]
 ```
 
-SiLU's derivative at zero is `1/2`. The projection pullback then gives three
-occurrence gradients `[-1/8,-1/8]` for ID `1` and one `[1/8,1/8]` for ID `2`.
-Do not average the three ID `1` contributions again: the `1/4` loss mean is
+SiLU's derivative at zero is $1/2$. The projection pullback then gives three
+occurrence gradients $[-1/8,-1/8]$ for ID `1` and one $[1/8,1/8]$ for ID `2`.
+Do not average the three ID `1` contributions again: the $1/4$ loss mean is
 already inside each one.
 
-```text
-dE = [[   0,   0],       dW = [[-1/4, 1/4],
-      [-3/8,-3/8],             [ 1/4,-1/4]]
-      [ 1/8, 1/8]]
-```
+$$
+dE=
+\begin{bmatrix}
+0 & 0 \\
+-\frac{3}{8} & -\frac{3}{8} \\
+\frac{1}{8} & \frac{1}{8}
+\end{bmatrix},
+\qquad
+dW=
+\begin{bmatrix}
+-\frac{1}{4} & \frac{1}{4} \\
+\frac{1}{4} & -\frac{1}{4}
+\end{bmatrix}
+$$
 
 The fixed Rust calculation makes this one graph explicit before the same work
 is expressed through reusable local operations:
@@ -317,8 +326,8 @@ $$
 $$
 
 Gather is copy-like in the forward direction but add-like in reverse. Each
-position has a distinct consumed row `X`; positions that selected the same
-table row `E[i,:]` all reach the same parameter storage. That is why its VJP is
+position has a distinct consumed row $X$; positions that selected the same
+table row $E_{i,:}$ all reach the same parameter storage. That is why its VJP is
 scatter-add, not overwrite and not another mean.
 
 {/* chapter-section:symbol-glossary */}
@@ -339,9 +348,9 @@ scatter-add, not overwrite and not another mean.
 | $\sum_{(b,t):z_{b,t}=i}$ | Visit every occurrence whose ID equals row $i$. |
 | $\partial L/\partial E_{i,:}$ | The accumulated adjoint for all features of table row $i$. |
 
-Chapter 15 wrote a parent adjoint as `bar(x)`. Here the same rule is
-`bar(E)[i,:] += bar(X)[b,t,:]` for every matching selector. Token IDs do not
-receive gradients; they choose destinations.
+Chapter 15 wrote a parent adjoint as $\bar{x}$. Here the same rule is
+$\bar E_{i,:}\mathrel{+}=\bar X_{b,t,:}$ for every matching selector. Token
+IDs do not receive gradients; they choose destinations.
 
 {/* chapter-section:history */}
 
@@ -531,25 +540,25 @@ local rules visible without obscuring the shared-row relationship.
 1. Write all four gathered rows, logit rows, log-probability rows, and the scalar mean loss.
 2. Predict why the correct-target gradient is negative, the competing gradient is positive, and each two-class row sums to zero.
 3. Apply the SiLU derivative at zero. What is the gradient entering matmul at each position?
-4. Predict the shapes of both matmul parent gradients and calculate `dW`.
+4. Predict the shapes of both matmul parent gradients and calculate $dW$.
 5. List the three contributions to embedding row `1` before adding them. What reaches rows `0` and `2`?
-6. Predict both value and local derivative for `exp(0)`, `log(1)`, and `SiLU(0)`.
-7. Explain why logits near `+/-1000` require max-shifted probability evidence.
+6. Predict both value and local derivative for $\exp(0)$, $\ln(1)$, and $\operatorname{SiLU}(0)$.
+7. Explain why logits near $\pm1000$ require max-shifted probability evidence.
 8. Which boundary rejects an invalid token ID, invalid target class, and empty target set?
 9. Misconception check: should row `1` be divided by three after its three occurrence gradients are added?
 
 <details>
   <summary>Check the nine model-operation predictions</summary>
 
-1. Gather gives `[1,-1]` three times and `[-1,1]` once. Every logit and SiLU row is `[0,0]`; every log-probability row is `[-ln(2),-ln(2)]`; the mean loss is `ln(2)`.
+1. Gather gives `[1,-1]` three times and `[-1,1]` once. Every logit and SiLU row is `[0,0]`; every log-probability row is $[-\ln 2,-\ln 2]$; the mean loss is $\ln 2$.
 2. Increasing the selected target logit reduces NLL, so its derivative is negative. Increasing a competitor raises its probability at the target's expense, so its derivative is positive. Softmax probabilities sum to one and the one-hot target also sums to one, leaving class-row gradient sum zero.
-3. SiLU has derivative `1/2` at zero. The first three rows become `[-1/16,1/16]`; the last becomes `[1/16,-1/16]`.
-4. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The recorded value is `dW=[[-1/4,1/4],[1/4,-1/4]]`.
-5. Positions `0`, `1`, and `2` each contribute `[-1/8,-1/8]` to row `1`, so it gets `[-3/8,-3/8]`. Row `2` gets `[1/8,1/8]`; unused row `0` gets `[0,0]`.
-6. `exp(0)=1` with derivative `1`; `log(1)=0` with derivative `1`; `SiLU(0)=0` with derivative `1/2`.
+3. SiLU has derivative $1/2$ at zero. The first three rows become $[-1/16,1/16]$; the last becomes $[1/16,-1/16]$.
+4. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The recorded value is $dW=[[-1/4,1/4],[1/4,-1/4]]$.
+5. Positions `0`, `1`, and `2` each contribute $[-1/8,-1/8]$ to row `1`, so it gets $[-3/8,-3/8]$. Row `2` gets $[1/8,1/8]$; unused row `0` gets `[0,0]`.
+6. $\exp(0)=1$ with derivative $1$; $\ln(1)=0$ with derivative $1$; $\operatorname{SiLU}(0)=0$ with derivative $1/2$.
 7. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one while preserving normalized probabilities; saved finite probabilities then support both normalization pullbacks.
 8. Gather rejects an out-of-range token ID against table rows. Indexed loss rejects a target against its class axis and rejects an empty group set because a mean would be undefined.
-9. No. Every contribution already includes the loss's `1/4` factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
+9. No. Every contribution already includes the loss's $1/4$ factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
 
 </details>
 
