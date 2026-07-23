@@ -1,0 +1,15 @@
+TRACE token-embeddings-v1 BEGIN
+FIXTURE name=known-table-repeated-id parameter=token_embedding.weight vocabulary=4 width=2 table-shape=4x2 id-shape=1x3 output-shape=1x3x2 upstream-shape=1x3x2 gradient-shape=4x2 accumulation=scatter-add
+IDS values=2,1,2 repeated-id=2 repeated-flat-positions=0,2
+TABLE row=0 uses=0 state=unused values=10.000000000000,11.000000000000
+TABLE row=1 uses=1 state=selected-once values=20.000000000000,21.000000000000
+TABLE row=2 uses=2 state=selected-repeated values=30.000000000000,31.000000000000
+TABLE row=3 uses=0 state=unused values=40.000000000000,41.000000000000
+LOOKUP flat=0 coordinate=0,0 id=2 sharing=repeated-row one-hot=0,0,1,0 selected-row=2 output=30.000000000000,31.000000000000 upstream=1.000000000000,0.000000000000
+LOOKUP flat=1 coordinate=0,1 id=1 sharing=single-row one-hot=0,1,0,0 selected-row=1 output=20.000000000000,21.000000000000 upstream=0.000000000000,2.000000000000
+LOOKUP flat=2 coordinate=0,2 id=2 sharing=repeated-row one-hot=0,0,1,0 selected-row=2 output=30.000000000000,31.000000000000 upstream=3.000000000000,4.000000000000
+ROW-GRADIENT row=0 flat-positions=none contributions=none rule=unused-zero accumulated=0.000000000000,0.000000000000
+ROW-GRADIENT row=1 flat-positions=1 contributions=0.000000000000,2.000000000000 rule=single-copy accumulated=0.000000000000,2.000000000000
+ROW-GRADIENT row=2 flat-positions=0,2 contributions=1.000000000000,0.000000000000|3.000000000000,4.000000000000 rule=repeated-sum accumulated=4.000000000000,4.000000000000
+ROW-GRADIENT row=3 flat-positions=none contributions=none rule=unused-zero accumulated=0.000000000000,0.000000000000
+TRACE token-embeddings-v1 END

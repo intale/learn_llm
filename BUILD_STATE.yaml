@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T06:15:30Z"
+updated_at: "2026-07-23T07:04:51Z"
 
 environment:
   os: "Linux x86_64"
@@ -9246,11 +9246,18 @@ builds:
         objective: "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs."
         depends_on:
           - implement-ch17-parameter-initialization
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/17-parameter-initialization.md"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/demos/ch17-parameter-initialization/diagram-trace.txt"
+          - "site/src/lib/parameter-initialization-diagram.ts"
+          - "site/src/components/chapters/ParameterInitializationDiagram.astro"
+          - "site/tests/17-parameter-initialization-diagram.test.ts"
+          - "site/tests/e2e/ch17-parameter-initialization.spec.ts"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
@@ -9268,6 +9275,8 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
         outputs:
           - "curriculum/chapters/18-token-embeddings.md"
           - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
@@ -9275,6 +9284,7 @@ builds:
           - "rust/demos/ch18-token-embeddings/"
           - "site/src/content/chapters/en/18-token-embeddings.mdx"
           - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
+          - "site/src/lib/token-embeddings-diagram.ts"
           - "site/tests/18-token-embeddings-diagram.test.ts"
           - "site/tests/e2e/ch18-token-embeddings.spec.ts"
           - "Cargo.lock"
@@ -9294,6 +9304,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch18-token-embeddings | diff -u rust/demos/ch18-token-embeddings/expected.txt -"
+          - "cargo run --quiet --locked -p ch18-token-embeddings --example ch18-token-embeddings-trace | diff -u rust/demos/ch18-token-embeddings/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 18-token-embeddings"
           - "npm --prefix site run check:parity -- --chapter 18-token-embeddings"
           - "npm --prefix site run check:content"
@@ -9305,8 +9316,77 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One bounded Bengio/Vaswani primary-source review followed by one complete English chapter-active locale set using deterministic local work; registered deferred locales require no lesson or route. The user explicitly authorized genuinely necessary resource-intensive work; no paid service, generation service, build-definition change, or concept-implementing dependency is planned."
+        runs:
+          - run_id: 20260723T061847Z-implement-ch18-token-embeddings-01
+            started_at: "2026-07-23T06:18:47Z"
+            finished_at: "2026-07-23T07:04:51Z"
+            status: succeeded
+            input_fingerprint:
+              git: "56fd78673f5ea6c8b22627c1ac099ceedce26f0f"
+              manifest: ".build/runs/20260723T061847Z-implement-ch18-token-embeddings-01/input-fingerprint.txt"
+              checksum: "sha256:8b885252c464dca8b09532500d0ab5d3bee517d5e1e11773f123bfafca5c1754"
+              relevant_inputs: "sha256:a1905b9a01a7605e3241168b49f2c9991fc770369a4eb9060a9723eba0d3e770"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged; host Node/npm 24.18.0/11.16.0 orchestration only"
+            staging_dir: ".build/runs/20260723T061847Z-implement-ch18-token-embeddings-01/"
+            commands:
+              - "Verify the dedicated Chapter 17 commit and frozen publication, complete the startup protocol, compare the pinned environment, inspect the Chapter 17 handoff and Chapter 18 schedule, and select the first eligible step"
+              - "Declare the missing gather/initialization and Chapter 17 presentation inputs, strict diagram-parser output, exact diagram-trace validation, and bounded Bengio/Vaswani primary-source review"
+              - "Create an isolated detached worktree at 56fd786 and fingerprint all material local and external inputs"
+              - "Review Bengio et al. (2003) and Vaswani et al. (2017) as primary sources and record supported LLM-history claims plus course-local boundaries"
+              - "Author the Chapter 18 contract around one [4,2] table, IDs [[2,1,2]], and a nonuniform reverse seed"
+              - "Implement the dependency-free Embedding layer, u32 selector validation, exact learner demo, Rust-authored diagram trace, and offline lockfile update"
+              - "Author the complete English lesson and SEO description, strict trace parser, static accessible diagram, 44 focused unit cases, and five focused browser cases"
+              - "Run complete staged Rust, content, unit, build, link, SEO, focused-browser, and full-browser gates in a network-disabled cached container"
+              - "Apply independent history, Rust, and site audit findings; correct one-hot row notation, expose four named scroller regions, and require every diagram label key"
+              - "Revalidate the corrected complete staged slice and freeze all 16 declared product files under publish/ with byte-identity checks"
+              - "Publish frozen files to canonical paths with byte-identity checks and replay complete canonical validation in a fresh network-disabled container"
+            artifacts:
+              - path: ".build/runs/20260723T061847Z-implement-ch18-token-embeddings-01/input-fingerprint.txt"
+                checksum: "sha256:8b885252c464dca8b09532500d0ab5d3bee517d5e1e11773f123bfafca5c1754"
+              - path: ".build/runs/20260723T061847Z-implement-ch18-token-embeddings-01/research/source-review.md"
+                checksum: "sha256:6b639b7b6cf80a1709b55a4a81ea71e05eb84d4e0539537763d759ebd86ca57e"
+              - path: ".build/runs/20260723T061847Z-implement-ch18-token-embeddings-01/publish.sha256"
+                checksum: "sha256:13ed6921fd8f9ddfb6a79911fc07e92f6663d7f3d7a67126d5ec027768d6f0e3"
+              - path: "docker-image:learn-llm-ch18-source:canonical"
+                checksum: "sha256:8e8c6668b136058432c17d1d1b11ebccc34b21a17a9deba43cce882943dae6f0"
+              - path: "docker-image:learn-llm-ch18-browser:canonical"
+                checksum: "sha256:8e8c6668b136058432c17d1d1b11ebccc34b21a17a9deba43cce882943dae6f0"
+            validation:
+              - command: "Startup, source-of-truth, prior-artifact, environment, dependency, ownership, locale, and cost preflight"
+                status: passed
+                notes: "No stale running work exists; Chapter 17 is completed and committed at 56fd786, and all 16 entries in its frozen publication manifest revalidate at sha256:32bfbb0e273651fc09a514ff17c05ae93d0d3c5eeec85486ddfd37e0998c1b06. Pinned Docker, Compose, Rust, Cargo, Node, npm, Git, and Bash versions remain available; every required local input exists; English is the exact active locale; only unrelated desktop.ini is untracked; outputs belong solely to this step. The medium step has explicit user resource authorization, one declared bounded primary-source review, and no planned paid service, generation, external dependency, build, hosting, or deployment change."
+              - command: "Primary-source claim and boundary review"
+                status: passed
+                notes: "The checksummed research note supports a Bengio learned word-feature table to Transformer token-embedding progression. It explicitly reserves one-hot equivalence, repeated-ID scatter-add, layout, errors, names, initialization, and trace grammar as course-local claims; Transformer embedding forward scaling is distinguished from Chapter 17 initialization, while position, attention, scaling, and tied output weights remain deferred."
+              - command: "Focused Chapter 18 contract and Rust implementation gates"
+                status: passed
+                notes: "The course plan and integrated contract pass. Rust formatting passes; all six focused cumulative embedding tests and all three demo tests pass; learner stdout and TRACE token-embeddings-v1 both match their frozen files byte for byte. Cargo.lock adds only the local ch18-token-embeddings package."
+              - command: "Focused Chapter 18 static-site and rendered gates"
+                status: passed
+                notes: "Astro reports zero diagnostics, all 44 strict parser/component tests pass, the static build emits 30 pages including the English Chapter 18 route, and all five focused Chromium cases pass at desktop/narrow widths plus forced colors, synthetic RTL, and JavaScript-disabled rendering. Visible cells prove the exact Rust values and local scrollers retain natural card height; Russian remains deferred with no route."
+              - command: "Independent source, history, pedagogy, and rendered-site audit"
+                status: passed
+                notes: "The Rust audit passed without findings. The history audit identified and then verified correction of a row-vector notation mismatch from e_i^T E to dimensionally valid e_i E. The site audit identified and then verified explicit region roles/names for all four focusable scrollers plus exhaustive required-key label validation. Bengio/Vaswani boundaries, LLM-focused progression, language-neutral concept prose, exact evidence ownership, natural height, responsive layout, forced colors, RTL, no-JavaScript behavior, SEO, navigation, and the Chapter 19 handoff all pass."
+              - command: "Complete network-disabled staged Rust gate"
+                status: passed
+                notes: "The course plan reports 39 chapters, 59 scheduled steps, and 18 contracts. The integrated Chapter 18 contract, Rust formatting, Clippy with warnings denied, every workspace and documentation test, all 186 cumulative core tests, dependency policy, 18-demo policy, and both exact Chapter 18 output comparisons pass. Cargo.lock adds only the local ch18-token-embeddings package."
+              - command: "Complete network-disabled staged content, unit, build, link, SEO, and Chromium gate after audit corrections"
+                status: passed
+                notes: "English is the exact Chapter 18 active locale; complete content reports 25 localized sources and 18 publishable locale sets. Astro has zero diagnostics; all 482 site tests pass; the static build emits 30 pages; 731 local references and all 30 SEO routes pass; all five focused and all 72 browser regressions pass. Russian remains deferred with no placeholder or Chapter 18 route."
+              - command: "Frozen publication and canonical identity verification"
+                status: passed
+                notes: "All 16 declared Chapter 18 product files are frozen under publish/ and match both their isolated workspace sources and canonical destinations byte for byte. The complete sorted checksum manifest is publish.sha256 at sha256:13ed6921fd8f9ddfb6a79911fc07e92f6663d7f3d7a67126d5ec027768d6f0e3."
+              - command: "Complete network-disabled canonical Rust and deterministic-output gates"
+                status: passed
+                notes: "Canonical image sha256:8e8c6668b136058432c17d1d1b11ebccc34b21a17a9deba43cce882943dae6f0 passes the 39-chapter/59-step/18-contract plan, integrated Chapter 18 contract, formatting, warning-denying Clippy, every workspace and documentation test including 186 cumulative core tests and three Chapter 18 demo tests, dependency and 18-demo policies, and both byte-exact Chapter 18 output comparisons."
+              - command: "Complete network-disabled canonical content, unit, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "Canonical image sha256:8e8c6668b136058432c17d1d1b11ebccc34b21a17a9deba43cce882943dae6f0 passes English Chapter 18 content/parity, all 25 localized sources and 18 publishable locale sets, zero-diagnostic Astro analysis, all 482 site tests, 30 static pages, 731 local references, SEO on all 30 routes, all five focused cases, and all 72 browser regressions."
+              - command: "Canonical ledger, whitespace, ownership, definition, and unrelated-change audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses, the course-plan validator and git diff --check pass, and only the 16 declared Chapter 18 product files plus governance records are in scope; the new demo manifest is local-only, and no shared package, external dependency, locale, route, build, hosting, or deployment definition changed. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 18 adds a dependency-free trainable embedding layer that accepts repository-native u32 token IDs, preserves scalar and batched token shapes, reuses the Chapter 16 gather/scatter-add VJP, initializes named tables transactionally through Chapter 17 policy, and reports deterministic validation errors. Its LLM-focused English lesson follows learned word-feature tables into Transformer token embeddings, explains one-hot lookup equivalence and repeated-token gradients, includes Rust evidence, basic SEO, exercises, and an accessible static trace projection with responsive, forced-color, RTL, and no-JavaScript coverage. Russian remains deferred with no placeholder. The canonical publication is byte-identical to frozen manifest sha256:13ed6921fd8f9ddfb6a79911fc07e92f6663d7f3d7a67126d5ec027768d6f0e3; all staged and canonical Rust, content, unit, build, link, SEO, and 72-case browser gates pass; no build or external dependency definition changed."
       - id: implement-ch19-linear-layers
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
         depends_on:

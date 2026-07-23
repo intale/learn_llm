@@ -1,0 +1,438 @@
+---
+{
+  "chapter_id": "18-token-embeddings",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 18,
+  "concept_id": "token-embeddings",
+  "title": "Give token IDs trainable vectors",
+  "description": "Build trainable token embeddings in Rust, gather table rows for token IDs, preserve batch and sequence shape, and scatter-add repeated-token gradients.",
+  "objective": "Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.",
+  "worked_inputs": "Use the [4,2] table [[10,11],[20,21],[30,31],[40,41]] and token IDs [[2,1,2]]. Predict the [1,3,2] output, then seed its reverse pass with [[[1,0],[0,2],[3,4]]] and predict which table rows receive gradients.",
+  "formula": {
+    "latex": "X_{b,t,:}=E_{z_{b,t},:},\\quad \\bar{E}_{i,:}=\\sum_{(b,t):z_{b,t}=i}\\bar{X}_{b,t,:}",
+    "symbols": [
+      {
+        "symbol": "E",
+        "meaning": "the trainable token table with shape [V,d]"
+      },
+      {
+        "symbol": "V",
+        "meaning": "the vocabulary size and number of rows in E"
+      },
+      {
+        "symbol": "d",
+        "meaning": "the embedding width and number of features in each row"
+      },
+      {
+        "symbol": "z_{b,t}",
+        "meaning": "the integer token ID at batch index b and sequence position t"
+      },
+      {
+        "symbol": "b",
+        "meaning": "one leading batch index"
+      },
+      {
+        "symbol": "t",
+        "meaning": "one sequence-position index"
+      },
+      {
+        "symbol": ":",
+        "meaning": "every feature coordinate along the final axis"
+      },
+      {
+        "symbol": "X_{b,t,:}",
+        "meaning": "the selected width-d embedding vector at position (b,t)"
+      },
+      {
+        "symbol": "\\bar{X}_{b,t,:}",
+        "meaning": "the upstream gradient vector arriving at output position (b,t)"
+      },
+      {
+        "symbol": "\\bar{E}_{i,:}",
+        "meaning": "the accumulated gradient for every feature of table row i"
+      },
+      {
+        "symbol": "i",
+        "meaning": "one vocabulary-row index"
+      },
+      {
+        "symbol": "\\sum_{(b,t):z_{b,t}=i}",
+        "meaning": "the sum over every batch and sequence position whose token ID selects row i"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.",
+      "later_advance": "Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.",
+      "modern_llm_role": "The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization."
+        }
+      ]
+    },
+    "approach": "From sparse vocabulary-wide indicators to learned distributed token vectors and direct table lookup",
+    "summary": "One-hot vectors make token identity explicit but carry a vocabulary-sized field of zeros. Learned dense word features let neural language models share statistical strength, and Transformers keep learned token embeddings as the numeric entrance to deeper sequence computation. This chapter proves the algebraic one-hot equivalence, direct row lookup, and repeated-row gradient sum without attributing its layout, errors, or trace policy to those papers.",
+    "rust_source": "rust/demos/ch18-token-embeddings/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/lib.rs",
+      "region": "one-hot-baseline",
+      "purpose": "Materialize the tiny one-hot baseline and multiply it by the table for an algebraic comparison."
+    },
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/lib.rs",
+      "region": "known-token-lookup",
+      "purpose": "Run the exact repeated-ID lookup and compare it with the one-hot baseline."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/embedding.rs",
+      "region": "embedding-errors",
+      "purpose": "Declare deterministic construction, token-shape, count, bounds, conversion, and delegated failures."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/embedding.rs",
+      "region": "embedding-layer",
+      "purpose": "Own one named trainable table, validate u32 selectors, and delegate differentiable row gathering."
+    },
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/lib.rs",
+      "region": "repeated-token-gradient",
+      "purpose": "Reverse the exact nonuniform output seed and retrieve the shared table gradient."
+    },
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/lib.rs",
+      "region": "initialized-token-embedding",
+      "purpose": "Compose the embedding layer with Chapter 17 initialization and verify reproducibility and clone identity."
+    },
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/main.rs",
+      "region": "learner-token-embeddings-output",
+      "purpose": "Prepare the exact lookup, gradient, identity, edge-case, and handoff evidence printed by the learner demo."
+    },
+    {
+      "path": "rust/demos/ch18-token-embeddings/src/diagram_trace.rs",
+      "region": "token-embeddings-trace",
+      "purpose": "Record every table row, one-hot indicator, selected output, upstream contribution, and accumulated row gradient."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "token-embeddings",
+    "rationale": "Aligning each one-hot indicator with its selected table row and output vector makes row reuse visible, while a separate reverse rail shows two position gradients converging on the same trainable row."
+  },
+  "decoder_connection": "The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates."
+}
+---
+
+import TokenEmbeddingsDiagram from '../../../components/chapters/TokenEmbeddingsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow repeated token IDs through one shared table',
+  description:
+    'Read the exact Rust-authored token IDs, table rows, one-hot lookup equivalence, output vectors, and reverse contributions that accumulate into the shared embedding table.',
+  summary: {
+    parameter: 'Named parameter',
+    vocabulary: 'Vocabulary rows',
+    width: 'Embedding width',
+    tableShape: 'Table shape',
+    idShape: 'Token-ID shape',
+    outputShape: 'Output shape',
+    gradientShape: 'Table-gradient shape',
+  },
+  stages: {
+    ids: 'Start with integer token IDs',
+    table: 'Keep one shared trainable table',
+    lookup: 'Select rows without storing the zeros',
+    gradients: 'Return contributions to their shared rows',
+  },
+  fields: {
+    position: 'Position',
+    tokenId: 'Token ID',
+    row: 'Table row',
+    uses: 'Selections',
+    state: 'Row status',
+    tableValues: 'Trainable vector',
+    oneHot: 'One-hot indicator',
+    operation: 'Equivalent product',
+    selectedRow: 'Selected row',
+    output: 'Output vector',
+    upstream: 'Upstream gradient',
+    positions: 'Contributing flat positions',
+    contributions: 'Feature-wise contributions',
+    rule: 'Reverse rule',
+    accumulated: 'Stored row gradient',
+  },
+  states: {
+    unused: 'Unused row',
+    selectedOnce: 'Selected once',
+    selectedRepeated: 'Shared by repeated ID 2',
+    singleRow: 'Selects one singly used row',
+    repeatedRow: 'Shares row 2 with another position',
+    unusedZero: 'No selection; keep zero',
+    singleCopy: 'One selection; copy its contribution',
+    repeatedSum: 'Repeated selections; add both contributions',
+    none: 'None',
+  },
+  notes: {
+    oneHot:
+      'The indicator exposes the algebra: one active coordinate times E equals the selected row. The implementation performs direct lookup.',
+    selectors:
+      'IDs name rows and stay outside the differentiation tape. Repeating ID 2 reuses one parameter row.',
+    accumulation:
+      'Reverse mode returns each upstream feature vector to its selected row. Only row 2 receives two vectors and sums them.',
+  },
+  symbols: {
+    unused: '○',
+    selectedOnce: '●',
+    selectedRepeated: '◆',
+  },
+  scrollers: {
+    ids: 'Scrollable token-ID positions',
+    table: 'Scrollable embedding table',
+    lookup: 'Scrollable one-hot and lookup evidence',
+    gradients: 'Scrollable table-gradient accumulation evidence',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict three selected rows and one shared gradient
+
+Use this trainable table, whose four vocabulary rows each have width `2`:
+
+```text
+E = [[10, 11],
+     [20, 21],
+     [30, 31],
+     [40, 41]]
+```
+
+Before running anything, read the IDs `[[2,1,2]]` from left to right. The first
+and third positions both select row `2`; the middle position selects row `1`.
+The predicted output is therefore `[[[30,31],[20,21],[30,31]]]`, with shape
+`[1,3,2]`. Repetition copies a value into two positions, but it does not create
+a second trainable row.
+
+One-hot notation makes the selection visible. For example, ID `2` corresponds
+to `[0,0,1,0]`. Multiplying that indicator by `E` leaves `[30,31]`. The runnable
+contrast materializes those zeros only for this tiny explanation:
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/lib.rs"
+  region="one-hot-baseline"
+  caption="Multiply explicit one-hot rows by the tiny table as an algebraic baseline"
+  label="Rust source for the Chapter 18 one-hot multiplication contrast"
+/>
+
+The actual layer selects the row directly and verifies that both routes produce
+the same frozen values:
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/lib.rs"
+  region="known-token-lookup"
+  caption="Gather the repeated IDs and compare exact output values with the baseline"
+  label="Rust source running the Chapter 18 known token-embedding lookup"
+/>
+
+{/* chapter-section:formula */}
+
+## Select forward, accumulate backward
+
+The complete lookup and reverse rule is:
+
+$$
+X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}
+$$
+
+The forward half copies one selected row into each output position. The reverse
+half follows those selections in the opposite direction. If several positions
+selected the same row, their upstream vectors add feature by feature.
+
+For the frozen seed `[[[1,0],[0,2],[3,4]]]`, row `1` receives `[0,2]` and row
+`2` receives `[1,0]+[3,4]=[4,4]`. Unused rows `0` and `3` receive zero. Token IDs
+receive no gradient because they are discrete selectors, not tape operands.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep vocabulary axes separate from feature axes
+
+- `E` is the trainable token table with shape `[V,d]`.
+- `V` is the vocabulary size and therefore the number of rows in `E`.
+- `d` is the embedding width and therefore the number of features in each row.
+- `z_{b,t}` is the integer token ID at batch index `b` and sequence position `t`.
+- `b` identifies one batch item; `t` identifies one position in its sequence.
+- `:` means every coordinate on the final feature axis.
+- `X_{b,t,:}` is the selected width-`d` vector at position `(b,t)`.
+- `bar X` is the upstream gradient vector arriving at that output position.
+- `bar E` is the accumulated table gradient.
+- `i` is one vocabulary-row index.
+- The sum visits every `(b,t)` whose `z_{b,t}` equals `i`.
+
+The numeric distance between IDs is not a semantic distance. IDs `1` and `2`
+are adjacent only in the tokenizer's numbering; training determines whether
+their learned vectors become similar.
+
+{/* chapter-section:history */}
+
+## From sparse identity to the vector entrance of a Transformer
+
+A sparse one-hot word representation assigns one coordinate to each vocabulary item but expresses no graded similarity between words; explicitly carrying that vocabulary-wide vector also wastes work when only one row is needed.
+
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. represent the mapping from a vocabulary word index to distributed features as a trainable |V| by m matrix, share it across context positions, and learn it jointly with next-word prediction.
+
+Bengio et al. learn a shared dense word-feature table jointly with a neural next-word model. The Transformer retains learned token embeddings for subword tokens, then adds positional information before its stacked attention and feed-forward computations.
+
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. use learned d_model-dimensional embeddings for BPE or word-piece tokens and add positional encodings before the Transformer stack; their embedding forward scaling is separate from parameter initialization.
+
+The decoder's token IDs enter the numeric model by selecting rows from one trainable [V,d] table. Repeated IDs share the same parameter row, so their reverse contributions add; positional information, embedding forward scaling, attention, and output-weight tying remain later concerns.
+
+One-hot vectors make token identity explicit but carry a vocabulary-sized field
+of zeros. Learned dense word features let neural language models share
+statistical strength, and Transformers keep learned token embeddings as the
+numeric entrance to deeper sequence computation. This chapter proves the
+algebraic one-hot equivalence, direct row lookup, and repeated-row gradient sum
+without attributing its layout, errors, or trace policy to those papers.
+
+The sources do not require this course's row-major layout, `u32` IDs, names,
+initializer, error order, trace grammar, or rounded fixture. The one-hot product
+is an explanatory identity, not a claim that either paper materializes it. This
+is a history of language-model representation, not of programming languages.
+
+{/* chapter-section:rust-implementation */}
+
+## Wrap one named table around the existing gather rule
+
+The layer reports table, token-shape, count, bounds, conversion-allocation, and
+delegated autodiff failures without partial output:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/embedding.rs"
+  region="embedding-errors"
+  caption="Keep embedding construction and selector failures typed and deterministic"
+  label="Rust source declaring Chapter 18 embedding errors"
+/>
+
+`Embedding` accepts the repository's `u32` token IDs. It checks the leading
+shape, exact count, and first invalid ID before reserving converted indices, then
+calls the Chapter 16 gather operation. No lookup or scatter-add algorithm is
+duplicated in the layer:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/embedding.rs"
+  region="embedding-layer"
+  caption="Own one named table and delegate differentiable row selection"
+  label="Rust source implementing the Chapter 18 token-embedding layer"
+/>
+
+The exact nonuniform reverse seed makes repeated accumulation observable:
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/lib.rs"
+  region="repeated-token-gradient"
+  caption="Reverse through the repeated lookup and read the stored table gradient"
+  label="Rust source proving repeated token-gradient accumulation"
+/>
+
+Construction composes with Chapter 17's initializer, treating `V` and `d` as
+fan-in and fan-out for this transparent course policy—not as a requirement from
+the Transformer paper. The same seed and request reproduce values, while
+separate constructions remain distinct leaves. Cloning one layer deliberately
+preserves its parameter identity:
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/lib.rs"
+  region="initialized-token-embedding"
+  caption="Initialize the table reproducibly and check clone identity"
+  label="Rust source connecting Chapter 17 initialization to Chapter 18 embeddings"
+/>
+
+The learner command also checks an empty ID shape and the first out-of-bounds ID:
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/main.rs"
+  region="learner-token-embeddings-output"
+  caption="Prepare the deterministic learner report before printing it"
+  label="Rust source for the Chapter 18 learner output"
+/>
+
+Run `cargo run --quiet --locked -p ch18-token-embeddings`. Its output is frozen
+in `rust/demos/ch18-token-embeddings/expected.txt`. Core tests additionally cover
+scalar and empty leading shapes, validation precedence, stable identity, and an
+all-coordinate finite-difference check with step `1e-6` and tolerance `2e-6`.
+
+{/* chapter-section:visualization */}
+
+## Follow selection and accumulation without a second implementation
+
+The trace emitter records all values and state labels consumed below. It gets
+the output and gradient from the cumulative layer; the page does not infer
+shapes, construct indicators, gather rows, or add contributions.
+
+<RustSource
+  path="rust/demos/ch18-token-embeddings/src/diagram_trace.rs"
+  region="token-embeddings-trace"
+  caption="Emit the exact table, lookup, one-hot, upstream, and row-gradient records"
+  label="Rust source producing the Chapter 18 token-embedding diagram trace"
+/>
+
+<TokenEmbeddingsDiagram labels={diagramLabels} />
+
+The repeated state is marked by words, a diamond, and a double rule rather than
+color alone. Each wide evidence table has its own keyboard-focusable scroller;
+the surrounding page remains static and script-free.
+
+{/* chapter-section:exercises */}
+
+## Predict before checking the executable evidence
+
+1. Predict all six output values for IDs `[[2,1,2]]`.
+2. Write the length-four one-hot row for ID `2` and multiply it by `E`.
+3. Predict every table-gradient value for the declared upstream seed.
+4. Explain why row `2` receives a sum rather than two independent parameter gradients.
+5. Predict the output shapes for ID shapes `[2,3]`, `[]`, and `[0]` when `d=2`.
+6. Find the first invalid ID in `[1,4,9]` for a four-row table.
+7. Predict whether cloning an embedding layer creates a new trainable leaf.
+8. Explain why IDs receive no gradient and why adjacent ID numbers imply no semantic similarity.
+9. Decide whether Bengio et al. require an explicitly materialized one-hot implementation.
+10. Decide whether a repeated occurrence owns a new embedding parameter.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The output is `[[[30,31],[20,21],[30,31]]]`.
+  2. ID `2` is `[0,0,1,0]`, so its product with `E` is `[30,31]`.
+  3. The table gradient is `[[0,0],[0,2],[4,4],[0,0]]`.
+  4. Both occurrences selected the same row-`2` leaf, so `[1,0]` and `[3,4]` add into it.
+  5. The output shapes are `[2,3,2]`, `[2]`, and `[0,2]`.
+  6. ID `4` at flat position `1` is the first invalid selector; valid rows are `0` through `3`.
+  7. No. A clone is another handle to the same named table leaf.
+  8. IDs are discrete selectors outside the tape, and their numeric assignment carries no geometry.
+  9. No. The course uses one-hot multiplication only as an algebraic explanation.
+  10. No. Repetition reuses one table row; later positional information can distinguish occurrences.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Hand the final feature axis to a learned projection
+
+The cumulative model can now turn token-ID tensors with shape [...] into differentiable feature tensors with shape [...,d] while keeping one shared named [V,d] parameter. Chapter 19 treats that final width d as d_in and mixes features with a learned projection; lookup selects rows, while a linear layer combines coordinates.
+
+This is the decoder's numeric entrance, not yet a position-aware representation.
+Chapter 19 preserves all leading batch and sequence axes while applying a learned
+matrix to the final feature axis; later work adds position before attention.

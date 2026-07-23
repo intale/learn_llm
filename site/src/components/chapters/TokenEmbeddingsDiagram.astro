@@ -1,0 +1,447 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  parseTokenEmbeddingsTrace,
+  tokenEmbeddingsDiagramId,
+  validateTokenEmbeddingsLabels,
+  type GradientRule,
+  type LookupSharing,
+  type TableRowState,
+  type TokenEmbeddingsDiagramLabels,
+} from '../../lib/token-embeddings-diagram';
+
+interface Props {
+  labels: TokenEmbeddingsDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+validateTokenEmbeddingsLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Token-embeddings diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch18-token-embeddings/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseTokenEmbeddingsTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${tokenEmbeddingsDiagramId}-${instanceId}-title`;
+const descriptionId = `${tokenEmbeddingsDiagramId}-${instanceId}-description`;
+
+const tableStateLabel = (state: TableRowState) =>
+  ({
+    unused: labels.states.unused,
+    'selected-once': labels.states.selectedOnce,
+    'selected-repeated': labels.states.selectedRepeated,
+  })[state];
+const tableStateSymbol = (state: TableRowState) =>
+  ({
+    unused: labels.symbols.unused,
+    'selected-once': labels.symbols.selectedOnce,
+    'selected-repeated': labels.symbols.selectedRepeated,
+  })[state];
+const sharingLabel = (sharing: LookupSharing) =>
+  sharing === 'repeated-row' ? labels.states.repeatedRow : labels.states.singleRow;
+const ruleLabel = (rule: GradientRule) =>
+  ({
+    'unused-zero': labels.states.unusedZero,
+    'single-copy': labels.states.singleCopy,
+    'repeated-sum': labels.states.repeatedSum,
+  })[rule];
+const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  `[${values.map((value) => value.lexeme).join(', ')}]`;
+const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  `[${values.map((value) => value.lexeme).join(', ')}]`;
+---
+
+<figure
+  class="token-embeddings-diagram"
+  data-visualization-id={tokenEmbeddingsDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="shape-summary">
+    <div>
+      <dt>{labels.summary.parameter}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.parameter}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.vocabulary}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.vocabulary.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.width}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.width.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.tableShape}</dt>
+      <dd><bdi dir="ltr">[{trace.fixture.tableShape.replaceAll('x', ', ')}]</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.idShape}</dt>
+      <dd><bdi dir="ltr">[{trace.fixture.idShape.replaceAll('x', ', ')}]</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.outputShape}</dt>
+      <dd><bdi dir="ltr">[{trace.fixture.outputShape.replaceAll('x', ', ')}]</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.gradientShape}</dt>
+      <dd><bdi dir="ltr">[{trace.fixture.gradientShape.replaceAll('x', ', ')}]</bdi></dd>
+    </div>
+  </dl>
+
+  <div class="stage-grid">
+    <section class="diagram-stage ids-stage" aria-labelledby={`${titleId}-ids`}>
+      <h3 id={`${titleId}-ids`}><span aria-hidden="true">1</span> {labels.stages.ids}</h3>
+      <p>{labels.notes.selectors}</p>
+      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.ids}>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{labels.fields.position}</th>
+              <th scope="col">{labels.fields.tokenId}</th>
+              <th scope="col">{labels.fields.state}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trace.lookups.map((lookup) => (
+              <tr class:list={{ 'repeated-row': lookup.sharing === 'repeated-row' }}>
+                <th scope="row"><bdi dir="ltr">({lookup.coordinate.map((value) => value.lexeme).join(', ')})</bdi></th>
+                <td><bdi dir="ltr">{lookup.id.lexeme}</bdi></td>
+                <td>{sharingLabel(lookup.sharing)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="diagram-stage table-stage" aria-labelledby={`${titleId}-table`}>
+      <h3 id={`${titleId}-table`}><span aria-hidden="true">2</span> {labels.stages.table}</h3>
+      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.table}>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{labels.fields.row}</th>
+              <th scope="col">{labels.fields.tableValues}</th>
+              <th scope="col">{labels.fields.uses}</th>
+              <th scope="col">{labels.fields.state}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trace.table.map((row) => (
+              <tr class={`table-row state-${row.state}`}>
+                <th scope="row"><bdi dir="ltr">E[{row.row.lexeme}, :]</bdi></th>
+                <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
+                <td><bdi dir="ltr">{row.uses.lexeme}</bdi></td>
+                <td class="row-state">
+                  <span class="state-symbol" aria-hidden="true">{tableStateSymbol(row.state)}</span>
+                  {tableStateLabel(row.state)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="diagram-stage lookup-stage" aria-labelledby={`${titleId}-lookup`}>
+    <h3 id={`${titleId}-lookup`}><span aria-hidden="true">3</span> {labels.stages.lookup}</h3>
+    <p>{labels.notes.oneHot}</p>
+    <div class="table-scroll lookup-scroll" role="region" tabindex="0" aria-label={labels.scrollers.lookup}>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.position}</th>
+            <th scope="col">{labels.fields.tokenId}</th>
+            <th scope="col">{labels.fields.oneHot}</th>
+            <th scope="col">{labels.fields.operation}</th>
+            <th scope="col">{labels.fields.selectedRow}</th>
+            <th scope="col">{labels.fields.output}</th>
+            <th scope="col">{labels.fields.upstream}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.lookups.map((lookup) => (
+            <tr class:list={{ 'repeated-row': lookup.sharing === 'repeated-row' }}>
+              <th scope="row"><bdi dir="ltr">({lookup.coordinate.map((value) => value.lexeme).join(', ')})</bdi></th>
+              <td><bdi dir="ltr">{lookup.id.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{integerVector(lookup.oneHot)}</bdi></td>
+              <td class="operation-cell"><bdi dir="ltr">e<sub>{lookup.id.lexeme}</sub> E</bdi></td>
+              <td><bdi dir="ltr">E[{lookup.selectedRow.lexeme}, :]</bdi></td>
+              <td><bdi dir="ltr">{vector(lookup.output)}</bdi></td>
+              <td><bdi dir="ltr">{vector(lookup.upstream)}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-stage gradient-stage" aria-labelledby={`${titleId}-gradients`}>
+    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">4</span> {labels.stages.gradients}</h3>
+    <p>{labels.notes.accumulation}</p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.row}</th>
+            <th scope="col">{labels.fields.positions}</th>
+            <th scope="col">{labels.fields.contributions}</th>
+            <th scope="col">{labels.fields.rule}</th>
+            <th scope="col">{labels.fields.accumulated}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.gradients.map((gradient) => (
+            <tr class={`gradient-row rule-${gradient.rule}`}>
+              <th scope="row"><bdi dir="ltr">E[{gradient.row.lexeme}, :]</bdi></th>
+              <td>
+                {gradient.flatPositions ? (
+                  <bdi dir="ltr">{gradient.flatPositions.map((value) => value.lexeme).join(', ')}</bdi>
+                ) : labels.states.none}
+              </td>
+              <td class="contribution-cell">
+                {gradient.contributions ? (
+                  gradient.contributions.map((contribution, index) => (
+                    <>
+                      {index > 0 && <span class="plus" aria-hidden="true"> + </span>}
+                      <bdi dir="ltr">{vector(contribution)}</bdi>
+                    </>
+                  ))
+                ) : labels.states.none}
+              </td>
+              <td>{ruleLabel(gradient.rule)}</td>
+              <td><bdi dir="ltr">{vector(gradient.accumulated)}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .token-embeddings-diagram {
+    display: grid;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    min-inline-size: 0;
+    border: 2px solid var(--border, #4b5563);
+    border-radius: 1rem;
+    background: var(--surface, #111827);
+  }
+
+  .token-embeddings-diagram:focus-visible,
+  .table-scroll:focus-visible {
+    outline: 3px solid var(--accent, #7dd3fc);
+    outline-offset: 3px;
+  }
+
+  figcaption {
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    font-weight: 750;
+  }
+
+  .diagram-description,
+  .diagram-stage > p {
+    margin: 0;
+    max-inline-size: 72ch;
+  }
+
+  .shape-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  .shape-summary > div {
+    min-inline-size: 0;
+    padding: 0.7rem;
+    border: 1px solid var(--border, #4b5563);
+    border-radius: 0.65rem;
+  }
+
+  dt {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .diagram-stage {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    min-inline-size: 0;
+    padding: 1rem;
+    border: 1px solid var(--border, #4b5563);
+    border-radius: 0.8rem;
+    background: var(--surface-raised, #182235);
+  }
+
+  .diagram-stage h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .diagram-stage h3 > span {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.7rem;
+    block-size: 1.7rem;
+    flex: 0 0 auto;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .table-scroll {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+  }
+
+  table {
+    inline-size: 100%;
+    min-inline-size: 28rem;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  .ids-stage table {
+    min-inline-size: 22rem;
+  }
+
+  .lookup-stage table {
+    min-inline-size: 68rem;
+  }
+
+  .gradient-stage table {
+    min-inline-size: 54rem;
+  }
+
+  th,
+  td {
+    padding: 0.55rem 0.65rem;
+    border-block-end: 1px solid var(--border, #4b5563);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  thead th {
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+  }
+
+  tbody tr:last-child > * {
+    border-block-end: 0;
+  }
+
+  bdi {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .row-state {
+    display: flex;
+    gap: 0.45rem;
+    align-items: baseline;
+  }
+
+  .state-symbol {
+    flex: 0 0 auto;
+    font-weight: 800;
+  }
+
+  .state-unused > *,
+  .rule-unused-zero > * {
+    border-block-end-style: dotted;
+  }
+
+  .state-selected-once > *,
+  .rule-single-copy > * {
+    border-block-end-style: solid;
+  }
+
+  .state-selected-repeated > *,
+  .repeated-row > *,
+  .rule-repeated-sum > * {
+    border-block-end-style: double;
+    border-block-end-width: 3px;
+  }
+
+  .state-selected-repeated,
+  .repeated-row,
+  .rule-repeated-sum {
+    background: color-mix(in srgb, var(--accent, #38bdf8) 12%, transparent);
+  }
+
+  .operation-cell {
+    font-weight: 700;
+  }
+
+  .contribution-cell {
+    white-space: nowrap;
+  }
+
+  .plus {
+    font-weight: 800;
+  }
+
+  @media (max-width: 44rem) {
+    .token-embeddings-diagram {
+      padding: 0.85rem;
+    }
+
+    .stage-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .diagram-stage {
+      padding: 0.8rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .token-embeddings-diagram,
+    .diagram-stage,
+    .shape-summary > div {
+      border-color: CanvasText;
+    }
+
+    .state-selected-repeated,
+    .repeated-row,
+    .rule-repeated-sum {
+      background: Canvas;
+    }
+  }
+</style>

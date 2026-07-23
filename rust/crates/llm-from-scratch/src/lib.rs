@@ -19,6 +19,7 @@ pub mod autograd {
 
 /// Numerically stable neural-network building blocks.
 pub mod nn {
+    pub mod embedding;
     pub mod init;
     #[path = "probability.rs"]
     pub mod probability;

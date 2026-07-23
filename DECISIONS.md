@@ -4010,3 +4010,33 @@ two steps into one run or commit.
 
 **Affected steps:** `implement-ch17-parameter-initialization` and
 `implement-ch18-token-embeddings`.
+
+## 2026-07-23 - Declare Chapter 18 gather, initialization, source, and trace ownership
+
+**Status:** Accepted during Chapter 18 preflight.
+
+**Context:** The reviewed plan requires the Chapter 18 layer to reuse the
+Chapter 16 differentiable row gather and Chapter 17 named initialization, but
+the scheduled inputs named neither implementation. The useful static diagram
+also needs the ordinary strict build-time parser and an independently checked
+Rust trace, while the scheduled output and validation lists named neither. The
+mandatory LLM-history record needs bounded primary-source verification rather
+than an undeclared network side effect.
+
+**Decision:** Add `autograd/model_ops.rs`, `nn/init.rs`, and the Chapter 17 trace,
+parser, component, and focused tests to the material inputs. Add
+`site/src/lib/token-embeddings-diagram.ts` to the outputs and a byte-exact
+`ch18-token-embeddings-trace` example comparison to validation. Declare the
+Bengio neural probabilistic language-model paper and the Vaswani Transformer
+paper as explicit external inputs for the progression from learned word-feature
+tables to Transformer token embeddings. Those papers support model history and
+embedding roles, not this repository's ID layout, names, errors, initialization,
+trace grammar, gradient storage, or validation precedence.
+
+**Consequences:** Chapter 18 remains one dependency-free vertical slice. Its
+layer is a narrow semantic wrapper around already-tested gather/scatter-add and
+named initialization behavior; the site only validates and projects exact Rust
+evidence. No build, dependency, locale, route, hosting, deployment, or client
+runtime definition changes.
+
+**Affected step:** `implement-ch18-token-embeddings`.
