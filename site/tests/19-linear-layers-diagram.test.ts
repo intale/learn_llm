@@ -21,6 +21,9 @@ const parserSource = read('site/src/lib/linear-layers-diagram.ts');
 const componentSource = read('site/src/components/chapters/LinearLayersDiagram.astro');
 const contractSource = read('curriculum/chapters/19-linear-layers.md');
 const lessonSource = read('site/src/content/chapters/en/19-linear-layers.mdx');
+const lessonBodySource = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const agentsSource = read('AGENTS.md');
+const playbookSource = read('SKILLS.md');
 const rustTraceSource = read('rust/demos/ch19-linear-layers/src/diagram_trace.rs');
 
 function frontmatter(source: string) {
@@ -219,6 +222,13 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('{cell.result.lexeme}');
     expect(componentSource).toContain('{vector(row.inputGradient)}');
     expect(componentSource).toContain('{vector(trace.weightGradient.values)}');
+    expect(componentSource).toContain("import { renderToString } from 'katex'");
+    expect(componentSource).toContain('set:html={inlineMath(weightAccumulationLatex)}');
+    expect(componentSource).toContain('set:html={inlineMath(biasAccumulationLatex)}');
+    expect(componentSource).toContain(String.raw`dW=\sum_p X_p^\top G_p`);
+    expect(componentSource).toContain(String.raw`db=\sum_p G_p`);
+    expect(componentSource).not.toContain('dW=sum_p X_p^T G_p');
+    expect(componentSource).not.toContain('db=sum_p G_p');
     expect(componentSource).not.toMatch(/Math\.|\b(?:parseFloat|parseInt|reduce)\s*\(/);
     expect(parserSource).not.toMatch(/Math\.|random\(|reduce\(|sqrt\(|pow\(|parseFloat\(/);
     expect(componentSource).not.toMatch(/<script|client:/);
@@ -242,8 +252,8 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('border-inline-start-style: double');
     expect(componentSource).toContain('class="flow-arrow" aria-hidden="true">→</span>');
     expect(componentSource).not.toContain('{labels.symbols.preserved} →');
-    expect(componentSource).toContain('dW=sum_p X_p^T G_p');
-    expect(componentSource).toContain('db=sum_p G_p');
+    expect(componentSource).toContain('class="diagram-math"');
+    expect(componentSource).toMatch(/\.diagram-math\s*\{[^}]*unicode-bidi:\s*isolate;/s);
     expect(componentSource).toContain('<caption>{labels.captions.positionGradients}</caption>');
     expect(componentSource).toContain('<caption>{labels.captions.parameterGradients}</caption>');
     expect(componentSource).not.toMatch(/\.diagram-stage\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
@@ -302,7 +312,7 @@ describe('Chapter 19 contract and lesson projection', () => {
     expect(lesson.history.summary).toBe(contract.history.summary.en);
   });
 
-  it('renders ordered pedagogy, exact evidence, LLM history, and one primary formula', () => {
+  it('renders ordered pedagogy, exact evidence, LLM history, and every explanatory equation as math', () => {
     const sections = [
       'worked-example',
       'formula',
@@ -318,17 +328,85 @@ describe('Chapter 19 contract and lesson projection', () => {
     );
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect([...positions].sort((left, right) => left - right)).toEqual(positions);
-    expect(lessonSource.match(/\$\$\s*Y=XW\+b\s*\$\$/g)).toHaveLength(1);
-    expect(lessonSource).toContain('dW=sum_p X_p^T G_p');
-    expect(lessonSource).toContain('db=sum_p G_p');
-    expect(lessonSource).toContain('road from earlier neural computation to modern language');
-    expect(lessonSource).not.toMatch(/TypeScript|Python history|Rust history/i);
-    for (const source of contract.history.llm_evolution.sources) {
-      expect(lessonSource).toContain(`](${source.source_url})`);
-      expect(lessonSource).toContain(source.claim.en);
+    const formulaSection = lessonBodySource.match(
+      /\{\/\* chapter-section:formula \*\/\}([\s\S]*?)\{\/\* chapter-section:symbol-glossary \*\/\}/,
+    )?.[1] ?? '';
+    const normalizeMath = (value: string) => value.replace(/\s+/g, '');
+    const displayFormulae = [...formulaSection.matchAll(/\$\$\s*([\s\S]*?)\s*\$\$/g)]
+      .map((match) => normalizeMath(match[1]));
+    expect(displayFormulae).toEqual([
+      normalizeMath('Y=XW+b'),
+      normalizeMath(String.raw`\begin{aligned}
+        dX_p &= G_pW^\top, \\
+        dW &= \sum_p X_p^\top G_p, \\
+        db &= \sum_p G_p.
+      \end{aligned}`),
+      normalizeMath(String.raw`\begin{aligned}
+        G &=
+        \left[
+        \begin{bmatrix}
+        1 & 0 & -1 \\
+        0.5 & 2 & 1
+        \end{bmatrix}
+        \right], \\
+        dX &=
+        \left[
+        \begin{bmatrix}
+        2 & 1 \\
+        -0.5 & 3
+        \end{bmatrix}
+        \right], \\
+        dW &=
+        \begin{bmatrix}
+        0.5 & -2 & -2 \\
+        3.5 & 6 & 1
+        \end{bmatrix}, \\
+        db &= \begin{bmatrix}1.5 & 2 & 0\end{bmatrix}.
+      \end{aligned}`),
+    ]);
+    expect(formulaSection).toContain('$G=\\partial L/\\partial Y$');
+    expect(formulaSection).toContain('$dW$ and $db$');
+    for (const codeShapedMath of [
+      'W',
+      'b',
+      'G',
+      'L',
+      'Y',
+      'p',
+      'dX_p=G_p W^T',
+      'dW=sum_p X_p^T G_p',
+      'db=sum_p G_p',
+      'dW',
+      'db',
+    ]) {
+      expect(formulaSection).not.toContain(`\`${codeShapedMath}\``);
     }
-    expect(lessonSource).toContain('<details>');
-    expect(lessonSource).toContain('(XW_1)W_2=X(W_1W_2)');
+    expect(lessonBodySource).toContain('$y=b+Wx+U \\tanh(d+Hx)$');
+    expect(lessonBodySource).toContain('$(XW_1)W_2=X(W_1W_2)$');
+    expect(lessonBodySource).not.toContain('The one shared W and b collect');
+    expect(lessonBodySource).toContain('road from earlier neural computation to modern language');
+    expect(lessonBodySource).not.toMatch(/TypeScript|Python history|Rust history/i);
+    for (const source of contract.history.llm_evolution.sources) {
+      expect(lessonBodySource).toContain(`](${source.source_url})`);
+      if (source.name.startsWith('Bengio')) {
+        expect(lessonBodySource).toContain('Bengio et al. compute unnormalized next-word scores with $y=b+Wx+U \\tanh(d+Hx)$');
+        expect(lessonBodySource).toContain('making trainable matrix products and additive biases explicit inside a neural language model.');
+      } else {
+        expect(lessonBodySource).toContain(source.claim.en);
+      }
+    }
+    expect(lessonBodySource).toContain('<details>');
+  });
+
+  it('codifies math delimiters and keeps code formatting for program artifacts', () => {
+    expect(agentsSource).toContain(
+      'Every learner-facing mathematical expression or equation must use the site',
+    );
+    expect(agentsSource).toContain('use `$...$` for inline notation and `$$...$$`');
+    expect(agentsSource).toContain('Do not present mathematics as ordinary text or a code span.');
+    expect(playbookSource).toContain('Route every learner-facing mathematical');
+    expect(playbookSource).toContain('inline notation in `$...$` and display notation in `$$...$$`');
+    expect(playbookSource).toContain('Source tests must reject math-shaped code spans');
   });
 
   it('publishes every declared Rust region and byte-exact learner output', () => {

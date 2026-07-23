@@ -21,6 +21,20 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### Formula rendering
+
+Every learner-facing mathematical expression or equation must use the site's
+math pipeline. In Markdown or MDX, use `$...$` for inline notation and `$$...$$`
+for display notation; components must emit equivalent server-rendered math.
+Do not present mathematics as ordinary text or a code span. Reserve backticks
+for actual code and API identifiers, commands, paths, trace tokens, and literal
+program data. The same spelling may therefore use math markup in an explanation
+and code markup when it names a concrete program construct.
+
+Verify formula changes in built HTML or a browser, not from source text alone.
+Tests must confirm the expected math annotations and check readable spacing and
+page containment at both desktop and narrow widths.
+
 ## Sources of truth
 
 Read these before performing any work:

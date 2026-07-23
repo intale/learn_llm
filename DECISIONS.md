@@ -4225,3 +4225,67 @@ publish, host, or deploy the site externally.
 
 **Affected step and run:** `implement-ch19-linear-layers`, run
 `20260723T115514Z-implement-ch19-linear-layers-01`.
+
+## 2026-07-23 - Render learner-facing mathematics as mathematics
+
+**Status:** Accepted from the user's Chapter 19 rendered-page report.
+
+**Context:** Chapter 19 renders its primary `Y=XW+b` equation with KaTeX, but
+the surrounding reverse-mode equations, gradient fixture, Bengio equation, and
+Chapter 20 handoff equation are written as ordinary prose or code spans. The
+existing browser test expects only one rendered display and therefore approves
+the defect. The repository's authoring guidance requires notation-only formula
+metadata but does not explicitly require every learner-facing mathematical
+expression to enter the Markdown math pipeline.
+
+**Decision:** Insert `repair-ch19-inline-math-rendering` after the completed
+Chapter 19 implementation and before Chapter 20. Advance the reviewed plan to
+revision 20 and Chapter 19 to content revision 2. Render mathematical symbols
+and equations with `$...$` for inline notation or `$$...$$` for display notation,
+using narrow aligned displays for the reverse rules and exact gradient fixture.
+Also render the Bengio neural-language-model equation and the composition
+identity in the Chapter 20 handoff. Reserve code spans for actual code/API names,
+commands, paths, trace tokens, and literal program data. Add this as an explicit
+rule in both `AGENTS.md` and `SKILLS.md`, and add source plus rendered browser
+regressions that inspect the KaTeX annotations and desktop/narrow containment.
+Do not change global math CSS for a markup defect.
+
+**Consequences:** The mathematical meaning, exact values, Rust implementation,
+Rust-authored trace, diagram, LLM history, SEO description, routes, locale
+policy, packages, dependencies, Linux build definitions, hosting, and deployment
+remain unchanged. After the corrective publication passes, the immutable
+successful Chapter 19 implementation run will be marked `invalidated` and this
+repair will become its superseding presentation checkpoint.
+
+**Affected steps and run:** `implement-ch19-linear-layers`,
+`repair-ch19-inline-math-rendering` run
+`20260723T130651Z-repair-ch19-inline-math-rendering-01`, and
+`implement-ch20-swiglu-feed-forward`.
+
+## 2026-07-23 - Extend the Chapter 19 math repair to every rendered surface
+
+**Status:** Accepted during corrective validation.
+
+**Context:** The first repair scope covered the lesson prose but a read-only
+audit found two hard-coded accumulation equations in the Chapter 19 diagram.
+The first isolated content check also showed that the visible-history validator
+turned a closing math delimiter immediately before a comma into a false space,
+rejecting source-equivalent rendered prose.
+
+**Decision:** Include `LinearLayersDiagram.astro` in the repair and render its
+two developer-owned accumulation equations with build-time KaTeX while keeping
+Rust trace data literal. Include `scripts/check-site-content.mjs` and normalize
+only whitespace introduced immediately before closing punctuation; retain the
+complete equation and prose so a changed mathematical claim still fails. Cover
+both boundaries with source, unit, and rendered regressions. Use semantic `bdi`
+wrappers for the diagram equations so its established RTL isolation contract
+continues to hold.
+
+**Consequences:** The diagram's trace, values, labels, structure, and local
+scrollers remain unchanged, but its two explanatory equations now render as
+accessible HTML-plus-MathML. History evidence may use math markup without
+weakening claim comparison. No global CSS, package, dependency, Rust, Linux
+build definition, hosting, or deployment change is introduced.
+
+**Affected step and run:** `repair-ch19-inline-math-rendering`, run
+`20260723T130651Z-repair-ch19-inline-math-rendering-01`.

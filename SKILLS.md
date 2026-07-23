@@ -385,13 +385,23 @@ exercises
 decoder-connection
 ```
 
-Display the exact shared formula once. Render every declared Rust source or region
-with `RustSource`. Put predict-first numbered questions before checked numbered
-answers in `<details>`. Invoke a useful chapter diagram inside its visualization
-section. Keep route generation, locale switching, alternate links, previous/next
-navigation, and all output static. Every localized page emits manifest-derived
-`lang` and `dir`; shared layout styles use logical properties, while technical LTR
-islands are isolated without changing the direction of surrounding prose.
+Display the exact shared formula once. Route every learner-facing mathematical
+expression or equation through the site math pipeline. In Markdown and MDX, wrap
+inline notation in `$...$` and display notation in `$$...$$`; components emit the
+equivalent server-rendered math. Never use ordinary text or a code span to present
+mathematics. Reserve backticks for actual code and API identifiers, commands,
+paths, trace tokens, and literal program data; the same spelling may use different
+markup when its role changes. Source tests must reject math-shaped code spans, and
+rendered tests must inspect the expected math annotations plus desktop/narrow
+spacing and containment.
+
+Render every declared Rust source or region with `RustSource`. Put predict-first
+numbered questions before checked numbered answers in `<details>`. Invoke a useful
+chapter diagram inside its visualization section. Keep route generation, locale
+switching, alternate links, previous/next navigation, and all output static. Every
+localized page emits manifest-derived `lang` and `dir`; shared layout styles use
+logical properties, while technical LTR islands are isolated without changing the
+direction of surrounding prose.
 
 The publication gate is intentionally fail-closed: a missing, extra, duplicate,
 stale-revision, or shared-field-drifting chapter-active locale file does not

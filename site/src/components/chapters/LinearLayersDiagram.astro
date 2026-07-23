@@ -1,6 +1,7 @@
 ---
 // @ts-ignore Node filesystem access is build-time only.
 import { readFileSync } from 'node:fs';
+import { renderToString } from 'katex';
 
 import {
   linearLayersDiagramId,
@@ -32,6 +33,14 @@ const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
 const coordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
   `(${values.map((value) => value.lexeme).join(', ')})`;
 const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
+const inlineMath = (latex: string) => renderToString(latex, {
+  displayMode: false,
+  output: 'htmlAndMathml',
+  strict: 'error',
+  throwOnError: true,
+});
+const weightAccumulationLatex = String.raw`dW=\sum_p X_p^\top G_p`;
+const biasAccumulationLatex = String.raw`db=\sum_p G_p`;
 const biasFreeRows = [
   trace.policy.biasFreeOutput.slice(0, 3),
   trace.policy.biasFreeOutput.slice(3, 6),
@@ -255,12 +264,24 @@ const selectedCell = trace.cells[0];
         <tbody>
           <tr class="shared-gradient">
             <th scope="row"><bdi dir="ltr">dW</bdi></th>
-            <td><bdi dir="ltr">dW=sum_p X_p^T G_p</bdi></td>
+            <td>
+              <bdi
+                class="diagram-math"
+                dir="ltr"
+                set:html={inlineMath(weightAccumulationLatex)}
+              />
+            </td>
             <td><bdi dir="ltr">{shape(trace.weightGradient.shape)} {vector(trace.weightGradient.values)}</bdi></td>
           </tr>
           <tr class="shared-gradient">
             <th scope="row"><bdi dir="ltr">db</bdi></th>
-            <td><bdi dir="ltr">db=sum_p G_p</bdi></td>
+            <td>
+              <bdi
+                class="diagram-math"
+                dir="ltr"
+                set:html={inlineMath(biasAccumulationLatex)}
+              />
+            </td>
             <td><bdi dir="ltr">{shape(trace.biasGradient.shape)} {vector(trace.biasGradient.values)}</bdi></td>
           </tr>
         </tbody>
@@ -284,6 +305,13 @@ const selectedCell = trace.cells[0];
     background: var(--surface);
     color: var(--ink);
     box-shadow: var(--shadow);
+  }
+
+  .diagram-math {
+    display: inline-block;
+    max-inline-size: 100%;
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 
   .linear-layers-diagram:focus-visible,

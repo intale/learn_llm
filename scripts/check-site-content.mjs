@@ -348,6 +348,7 @@ function visibleSectionEvidence(section) {
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/[\`*_#|[\]{}$\\]/g, ' ')
+    .replace(/\s+([),.;:!?])/g, '$1')
     .replace(/\s+/g, ' ')
     .trim();
 }

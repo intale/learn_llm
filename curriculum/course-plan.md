@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 19,
+  "plan_revision": 20,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -143,6 +143,10 @@
       {
         "step_id": "repair-ch18-firefox-inline-math-leading",
         "before_chapter": "19-linear-layers"
+      },
+      {
+        "step_id": "repair-ch19-inline-math-rendering",
+        "before_chapter": "20-swiglu-feed-forward"
       }
     ],
     "planned_chapter_splits": [],
@@ -1023,6 +1027,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `19-linear-layers`
 - **Implementation step:** `implement-ch19-linear-layers`
+- **Revision status:** Content revision 2 and the explanatory-math rendering repair are delivered by `repair-ch19-inline-math-rendering` before Chapter 20.
 - **Depends on:** `18-token-embeddings`.
 - **Outcome:** Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches.
 - **Scope boundary:** Teach weight orientation, leading-dimension preservation, optional bias, parameter discovery, forward pass, and gradients. The target decoder uses bias-free attention/SwiGLU/output projections; bias remains available for historical examples.

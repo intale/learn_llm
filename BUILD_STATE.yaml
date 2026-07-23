@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T12:58:12Z"
+updated_at: "2026-07-23T15:48:13Z"
 
 environment:
   os: "Linux x86_64"
@@ -9754,7 +9754,7 @@ builds:
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
         depends_on:
           - repair-ch18-firefox-inline-math-leading
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
@@ -9917,10 +9917,182 @@ builds:
                 status: passed
                 notes: "The final BUILD_STATE.yaml parses and passes the course-plan gate inside the canonical container; git diff --check passes; all 16 canonical product files still match the frozen manifest; and the only changed paths are the declared Chapter 19 outputs plus BUILD_STATE.yaml and DECISIONS.md. Unrelated desktop.ini remains untracked and untouched."
             notes: "Succeeded. Chapter 19 now publishes a dependency-free Rust linear layer with optional bias, exact vector/sequence/batch behavior and gradients, a deterministic learner plus Rust-authored trace, an accessible static visualization, a complete English lesson with LLM-centered history and SEO metadata, and an explicit Chapter 20 handoff. All staged and fresh canonical gates pass against the frozen 16-file manifest; no build, package, hosting, deployment, or locale-policy change was made. The completion checkpoint is ready for its required dedicated commit, and no later step has started."
+      - id: repair-ch19-inline-math-rendering
+        objective: "Render Chapter 19 explanatory equations as mathematics and codify the learner-facing formula-rendering rule."
+        depends_on:
+          - implement-ch19-linear-layers
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/19-linear-layers.md"
+          - "site/astro.config.mjs"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/styles/global.css"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/publish.sha256"
+        outputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/19-linear-layers.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "scripts/check-site-content.mjs"
+        acceptance:
+          - "The Chapter 19 formula explanation and diagram render their mathematical symbols, reverse-mode equations, exact gradient fixture, historical neural-language-model equation, and Chapter 20 handoff equation through the math pipeline rather than as plain text or code spans."
+          - "The exact Y=XW+b formula, mathematical meaning, numeric evidence, Rust implementation, diagram trace, history scope, SEO description, routes, and locale policy remain unchanged, with contract and English lesson advanced together to content revision 2."
+          - "AGENTS.md and SKILLS.md explicitly require learner-facing mathematical notation to use inline or display math delimiters and reserve code formatting for actual code, identifiers, commands, paths, and literal program data."
+          - "Focused source and rendered tests prove the repaired expressions produce KaTeX annotations, remain separated from adjacent prose, and stay contained at desktop and narrow widths."
+          - "The content validator treats math delimiters as presentation markup when comparing visible history prose, including an inline equation immediately before punctuation, while still rejecting materially changed claims."
+          - "The staged publication and canonical regression gates pass without a package, dependency, Rust, build, hosting, or deployment change, and the repair is committed separately before Chapter 20 starts."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/19-linear-layers.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 19-linear-layers"
+          - "npm --prefix site run check:parity -- --chapter 19-linear-layers"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:19-linear-layers'"
+          - "npm --prefix site run test:e2e"
+          - "git diff --exit-code 6e71ac8b8f6240db9d2a2523c548947bb8468cd6 -- Cargo.lock rust"
+          - "git diff --check"
+        cost:
+          class: small
+          notes: "Deterministic local documentation, MDX, metadata, and regression-test edits only. No network access, paid service, generation, package/dependency change, Rust change, substantial CPU use, hosting, or deployment."
+        runs:
+          - run_id: 20260723T130651Z-repair-ch19-inline-math-rendering-01
+            started_at: "2026-07-23T13:06:51Z"
+            finished_at: "2026-07-23T15:48:13Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6e71ac8b8f6240db9d2a2523c548947bb8468cd6"
+              manifest: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/input-fingerprint.txt"
+              checksum: "sha256:94e0087f80f0fff91b90909cf4c76b326f21cb003a0e9b715c221aa96fc1efff"
+              prior_ch19_publish_manifest: "sha256:10ecb8bfdc02415f01ad1ff008df9245df537fc2b46bc02d521176c9ed74d02d"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.9; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/"
+            commands:
+              - "Complete the startup protocol, read the site-building and browser-control skills, preserve unrelated desktop.ini, parse the complete ledger, inspect the latest Chapter 19 run, and verify its frozen 16-file manifest"
+              - "Audit the Chapter 19 formula section, related history and handoff prose, existing KaTeX pipeline, authoring documentation, source tests, and desktop/narrow browser assertions"
+              - "Fingerprint every material input and claim the repair before changing product files"
+              - "Preserve the initial fingerprint and add an immutable supplement for the two declared revision-integration inputs omitted from its first manifest"
+              - "Apply read-only content, site, and governance audits; supplement the baseline with the unchanged KaTeX layout/style inputs and the diagram component after the audit exposed two additional plain-text equations"
+              - "Snapshot the validated Chapter 19 container as reusable local image learn-llm-ch19-math-base:130651 before constructing the isolated revision-2 overlay"
+              - "Stage plan/content revision 2, the authoritative and operational formula-rendering rules, MDX math markup, build-time diagram KaTeX, and source/browser regressions without changing canonical product files"
+              - "Extend the declared repair after isolated validation exposed that the visible-history normalizer inserted a false space between a closing math delimiter and following punctuation"
+              - "Normalize only delimiter-introduced whitespace before closing punctuation, prove changed mathematics still fails history parity, and keep the diagram's fixed equations isolated with semantic bdi wrappers"
+              - "Build the complete staged static site and exercise focused plus full Chromium regressions before performing current-Firefox desktop and narrow visual inspection"
+              - "Repeat every staged content, unit, static-build, link, focused-browser, and full-browser gate after the final diagram-note cleanup, then freeze the eleven declared product outputs"
+              - "Publish the eleven frozen outputs to their exact canonical paths, verify every byte against the manifest, and prove Rust plus Cargo.lock remain unchanged"
+              - "Assemble a fresh network-disabled canonical container, repeat the complete validation matrix, and snapshot the verified result for safe Chapter 20 reuse"
+            artifacts:
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/input-fingerprint.txt"
+                checksum: "sha256:94e0087f80f0fff91b90909cf4c76b326f21cb003a0e9b715c221aa96fc1efff"
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/input-fingerprint-supplement.txt"
+                checksum: "sha256:2cca66abce2b78bad6c3e2edc55c57b1eef8aad83129bd8e2ddd78d3e5d14e93"
+                notes: "Completes the immutable baseline with site/src/i18n/chapter-locales.json and site/tests/content-contract.test.ts; both canonical hashes still match HEAD 6e71ac8."
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/input-fingerprint-supplement-02.txt"
+                checksum: "sha256:ae91a69a6979248f2ab7df0e34f140d76ac0084b2c3ea4c22044cd5af7a0c63a"
+                notes: "Records unchanged BaseLayout.astro and global.css as read-only inputs governing KaTeX CSS, inherited line height, and containment."
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/input-fingerprint-supplement-03.txt"
+                checksum: "sha256:596d5c3bf056a1146bab7f692041ffab4f88d09e301001a6119ddfe777c19d5a"
+                notes: "Records the unchanged LinearLayersDiagram.astro baseline before bringing its two learner-facing accumulation equations into the repair."
+              - path: "docker-image:learn-llm-ch19-math-base:130651"
+                checksum: "sha256:98280bda0c5775077bf074237664d47c0b1dd96022aa1adc51e48f32e61a054c"
+                notes: "Reusable local network-independent Chapter 19 workspace snapshot with installed Rust, Node, site packages, Chromium, and Firefox; no paid or network operation."
+              - path: "docker-image:learn-llm-ch19-math-staged:130651"
+                checksum: "sha256:96a7dbdd7230a84f66b6217118dfc21250653bce123b3723a517c650c5033400"
+                notes: "Local staged-site snapshot used only to serve the already built static artifact on loopback; no package, network, hosting, or deployment operation."
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/validation/firefox-153-ch19-formulas-desktop.png"
+                checksum: "sha256:8de1004609a75f8fdb02b8eb6e6534b25150221eeedc5633a3348f09a4366815"
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/validation/firefox-153-ch19-formulas-narrow-tall.png"
+                checksum: "sha256:69f804ce7abbdaa8ee0ff0b4c2664f7b54eadc9c43c0f6a1252719c68d45144f"
+              - path: ".build/runs/20260723T130651Z-repair-ch19-inline-math-rendering-01/publish.sha256"
+                checksum: "sha256:53219d831b390bc9136e8f7d5b9893aac9a2d70ec2faa6b49f82bc92d5e06efd"
+                notes: "Sorted frozen manifest for all eleven declared product outputs after final staged validation."
+              - path: "docker-image:learn-llm-ch19-math-canonical:1545"
+                checksum: "sha256:2e37526e3667f67f0c04b0afb8470c09ebbf6d0ef3d63e116d4e85a7a21bba04"
+                notes: "Reusable fresh canonical snapshot after the complete network-disabled validation passed."
+            validation:
+              - command: "Startup, prior-artifact, environment, eligibility, scope, and cost preflight"
+                status: passed
+                notes: "HEAD 6e71ac8 is the dedicated Chapter 19 implementation commit; its 16-file frozen manifest remains available at sha256:10ecb8bfdc02415f01ad1ff008df9245df537fc2b46bc02d521176c9ed74d02d. The parsed 1.17 MB ledger has no running step and names implement-ch20-swiglu-feed-forward as the prior first pending step. The user's rendered-page report makes the completed Chapter 19 presentation stale, so this repair is inserted immediately before Chapter 20 and will supersede the implementation checkpoint after validation. Docker, Compose, Git, and repository pins match; the host Bash patch differs harmlessly from the prior run record. Only unrelated desktop.ini is untracked. The repair is small, local, deterministic, and requires no network, dependency, Rust, build-definition, hosting, or deployment change."
+              - command: "Input fingerprint completeness audit"
+                status: passed
+                notes: "A read-only governance audit found that the first fingerprint omitted chapter-locales.json and content-contract.test.ts even though the step declared them. The original artifact remains immutable; supplemental manifest sha256:2cca66abce2b78bad6c3e2edc55c57b1eef8aad83129bd8e2ddd78d3e5d14e93 records both baseline hashes from unchanged canonical HEAD 6e71ac8. The declared validation now also proves Cargo.lock and all Rust paths remain unchanged."
+              - command: "Independent content, site, and governance scope audits"
+                status: passed
+                notes: "The audits confirm the existing remark-math/rehype-KaTeX pipeline and global containment CSS are correct, recommend no CSS/package/build change, and identify the exact Chapter 19 MDX equations, authoring-rule language, regression shape, revision integration, and Firefox 152 coverage. They also found two plain accumulation equations in LinearLayersDiagram.astro; that component was declared and fingerprinted before editing so the rule covers the complete learner-facing Chapter 19 surface."
+              - command: "Initial isolated validation-container startup"
+                status: failed
+                notes: "The reusable image snapshot succeeded, but docker create inherited the source container's tail entrypoint and combined it with the requested shell command, so the new container exited with 'tail: invalid option -- l' before any product command ran. No staged or canonical file changed; retry with an explicit sh entrypoint."
+              - command: "Initial staged course-plan, Chapter 19 contract, chapter, and parity checks"
+                status: failed
+                notes: "The plan and integrated contract pass at 39 chapters, 63 steps, 19 implemented contracts, and content revision 2. The chapter/parity gate correctly rejected the visible Bengio claim because the TeX source removed the metadata claim's intentional space between U and tanh. Preserve that source-space inside the math delimiters; KaTeX ignores it visually while the evidence gate retains exact prose parity. No product was published."
+              - command: "Focused staged unit analysis and direct Chapter 19/parity exit-code audit"
+                status: failed
+                notes: "After restoring the intentional source-space, all 61 focused content/Chapter 19 unit assertions and zero-diagnostic Astro analysis pass. Direct exit-code checks still show chapter and parity failure because visibleSectionEvidence replaces the closing dollar delimiter with a space before the following comma. The already fingerprinted validator is now a declared output; add a narrow regression that accepts rendered inline math before punctuation and continues to reject a changed claim. No product was published."
+              - command: "First focused staged browser run"
+                status: failed
+                notes: "Four of five Chapter 19 Chromium cases pass. The existing RTL contract rejects two new dir=ltr span wrappers because all explicit technical direction markers in this diagram must be semantic bdi elements. Keep the local direction/isolation rule and change only those fixed KaTeX wrappers from span to bdi before rerunning; no product was published and the full browser suite did not start."
+              - command: "Source-level RTL retry before rebuilding the preview artifact"
+                status: failed
+                notes: "Chapter/parity, all 62 focused unit assertions, and zero-diagnostic Astro analysis pass after the bdi correction. The focused browser run still observes the earlier span wrappers because Playwright previews the last production build; rebuild the static artifact after every component change before interpreting rendered results. No product was published and the full browser suite did not start."
+              - command: "Rebuilt focused and complete staged Chromium validation"
+                status: passed
+                notes: "A fresh 31-page static build passes all five focused Chapter 19 cases, including desktop/narrow display-math spacing and containment, diagram MathML annotations, RTL isolation, forced colors, and no-JavaScript rendering. All 77 Chromium browser regressions then pass."
+              - command: "Complete staged content, unit, analysis, build, and link validation"
+                status: passed
+                notes: "The 39-chapter/63-step plan, integrated Chapter 19 contract, English chapter/parity, all content, 519 site tests, zero-diagnostic Astro analysis, 31-page static build, 783 local references, and SEO on all 31 routes pass. The validator regression accepts source-equivalent inline math before punctuation and rejects a changed H-to-K equation."
+              - command: "Optional in-app browser inspection"
+                status: failed
+                notes: "The browser-control runtime initialized, but its documented availability check returned no browser backends. This optional inspection cannot run in the current session; the repository's focused/full Chromium suites and local Firefox render remain the acceptance evidence."
+              - command: "Current Firefox desktop and narrow visual inspection"
+                status: passed
+                notes: "The locally installed browser has advanced from the earlier recorded Firefox 152.0.6 to Firefox 153.0. Checksummed 1440px and 390px captures of the staged Chapter 19 page show all three display equations rendered as mathematics with ordinary prose clearance and horizontal containment; the compact diagram equations are covered by rendered Chromium and source assertions."
+              - command: "Final post-cleanup staged validation and frozen-manifest audit"
+                status: passed
+                notes: "After replacing the diagram note's plain W-and-b notation with localized words, the plan, integrated contract, Chapter 19 chapter/parity, complete content, zero-diagnostic Astro analysis, all 519 unit tests, 31-page build, 783-link/31-route SEO audit, all five focused Chapter 19 browser cases, and all 77 Chromium regressions pass again. Every frozen staged file matches the eleven-entry publish manifest at sha256:53219d831b390bc9136e8f7d5b9893aac9a2d70ec2faa6b49f82bc92d5e06efd."
+              - command: "Frozen canonical publication and ownership verification"
+                status: passed
+                notes: "All eleven staged outputs were published to their declared canonical paths and match publish.sha256 byte for byte. git diff --check passes, Cargo.lock and every Rust path are unchanged from HEAD 6e71ac8, and the only changed paths are the declared product outputs plus BUILD_STATE.yaml and DECISIONS.md. Unrelated desktop.ini remains untracked and untouched."
+              - command: "Complete fresh network-disabled canonical validation"
+                status: passed
+                notes: "Container learn-llm-ch19-math-canonical-1545, assembled from the canonical files with networking disabled, passes the 39-chapter/63-step plan, integrated Chapter 19 contract, English chapter/parity, complete content, all 519 unit tests, zero-diagnostic Astro analysis, 31-page static build, 783 local references, SEO on all 31 routes, all five focused Chapter 19 browser cases, and all 77 Chromium regressions. The verified container is preserved as image sha256:2e37526e3667f67f0c04b0afb8470c09ebbf6d0ef3d63e116d4e85a7a21bba04."
+              - command: "Completion, invalidation, manifest, whitespace, and unrelated-change audit"
+                status: passed
+                notes: "The repair supersedes the completed Chapter 19 presentation checkpoint, which is now invalidated without changing its immutable successful run. BUILD_STATE.yaml remains valid YAML, Chapter 20 depends on this completed repair, all eleven canonical product files still match the frozen manifest, and unrelated desktop.ini remains untouched."
+            notes: "Succeeded. Chapter 19 now renders the reverse rules, exact gradient fixture, mathematical symbols, Bengio equation, Chapter 20 composition identity, and diagram accumulation equations through the existing static math pipeline. AGENTS.md and SKILLS.md explicitly require learner-facing formulas to use inline/display math while reserving code styling for program artifacts. Revision 2 preserves Rust behavior, numeric evidence, LLM history, SEO, routes, locale policy, dependencies, packages, Linux build definitions, hosting, and deployment. All staged, current-Firefox visual, and fresh canonical gates pass against the frozen eleven-file manifest."
       - id: implement-ch20-swiglu-feed-forward
         objective: "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
         depends_on:
-          - implement-ch19-linear-layers
+          - repair-ch19-inline-math-rendering
         status: pending
         inputs:
           - "SKILLS.md"

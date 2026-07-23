@@ -2,7 +2,7 @@
 {
   "chapter_id": "19-linear-layers",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 19,
   "concept_id": "linear-layers",
   "title": "Mix each token's features with one learned projection",
@@ -179,7 +179,7 @@ export const diagramLabels = {
     policy:
       'The affine path adds one shared width-3 bias. The target decoder chooses the bias-free path for attention, SwiGLU, and vocabulary projections.',
     gradients:
-      'Each input position receives its own gradient. The one shared W and b collect contributions from both positions.',
+      'Each input position receives its own gradient. The shared weight and bias collect contributions from both positions.',
   },
   symbols: {
     preserved: 'Leading axes preserved',
@@ -208,7 +208,7 @@ export const diagramLabels = {
 ## Predict two outputs from one shared matrix
 
 Chapter 18 left one feature vector at each token position. Use the two vectors
-`[1,2]` and `[-1,3]` as `X` with shape `[1,2,2]`, then share these parameters
+`[1,2]` and `[-1,3]` as $X$ with shape `[1,2,2]`, then share these parameters
 across both positions:
 
 ```text
@@ -218,8 +218,8 @@ b = [0.5, -0.5, 1]
 ```
 
 Before running the example, predict six outputs. For `[1,2]`, the three
-weighted sums are `[5,1,1]`; adding `b` gives `[5.5,0.5,2]`. For `[-1,3]`, the
-weighted sums are `[5,1.5,4]`; adding that same `b` gives `[5.5,1,5]`. The
+weighted sums are `[5,1,1]`; adding $b$ gives `[5.5,0.5,2]`. For `[-1,3]`, the
+weighted sums are `[5,1.5,4]`; adding that same $b$ gives `[5.5,1,5]`. The
 complete output therefore has shape `[1,2,3]` and values
 `[[[5.5,0.5,2],[5.5,1,5]]]`.
 
@@ -254,36 +254,67 @@ $$
 Y=XW+b
 $$
 
-`W` combines every input feature into every output feature. The optional `b`
+$W$ combines every input feature into every output feature. The optional $b$
 is added to each leading position; when bias is disabled, that term is absent.
 The conventional module name is “linear layer,” but a nonzero bias makes the
 map affine rather than strictly linear.
 
-For reverse mode, let `G` mean the gradient of scalar loss `L` with respect to
-`Y`, and let `p` range over every leading position. Then `dX_p=G_p W^T`,
-`dW=sum_p X_p^T G_p`, and `db=sum_p G_p`. Forward outputs remain local to each
-position. Because every position shares the same parameters, `dW` and `db`
-accumulate contributions across positions.
+For reverse mode, let $G=\partial L/\partial Y$ be the gradient of scalar loss
+$L$ with respect to $Y$, and let $p$ range over every leading position. Then:
 
-With upstream seed `[[[1,0,-1],[0.5,2,1]]]`, the exact gradients are
-`dX=[[[2,1],[-0.5,3]]]`,
-`dW=[[0.5,-2,-2],[3.5,6,1]]`, and `db=[1.5,2,0]`.
+$$
+\begin{aligned}
+dX_p &= G_pW^\top, \\
+dW &= \sum_p X_p^\top G_p, \\
+db &= \sum_p G_p.
+\end{aligned}
+$$
+
+Forward outputs remain local to each position. Because every position shares
+the same parameters, $dW$ and $db$ accumulate contributions across positions.
+
+With the worked upstream seed, the exact values are:
+
+$$
+\begin{aligned}
+G &=
+\left[
+\begin{bmatrix}
+1 & 0 & -1 \\
+0.5 & 2 & 1
+\end{bmatrix}
+\right], \\
+dX &=
+\left[
+\begin{bmatrix}
+2 & 1 \\
+-0.5 & 3
+\end{bmatrix}
+\right], \\
+dW &=
+\begin{bmatrix}
+0.5 & -2 & -2 \\
+3.5 & 6 & 1
+\end{bmatrix}, \\
+db &= \begin{bmatrix}1.5 & 2 & 0\end{bmatrix}.
+\end{aligned}
+$$
 
 {/* chapter-section:symbol-glossary */}
 
 ## Keep leading axes separate from feature axes
 
-- $X$ is the input tensor with shape $[...,d_{in}]$.
+- $X$ is the input tensor with shape $[\ldots,d_{in}]$.
 - $W$ is the trainable matrix with shape $[d_{in},d_{out}]$.
 - $b$ is the optional width-$d_{out}$ bias, broadcast to every leading position.
-- $Y$ is the output tensor with shape $[...,d_{out}]$.
+- $Y$ is the output tensor with shape $[\ldots,d_{out}]$.
 - $d_{in}$ is the input feature width and final axis of $X$.
 - $d_{out}$ is the output feature width and final axis of $Y$.
-- The ellipsis means any preserved batch, sequence, or other leading axes.
+- $\ldots$ means any preserved batch, sequence, or other leading axes.
 
-A `[d_in,d_out]` matrix changes the last width. It does not mix tokens merely
-because the operation is called matrix multiplication. Inputs shaped `[2]`,
-`[2,2]`, and `[1,2,2]` therefore produce `[3]`, `[2,3]`, and `[1,2,3]` with this
+A $[d_{in},d_{out}]$ matrix changes the last width. It does not mix tokens merely
+because the operation is called matrix multiplication. Inputs shaped $[2]$,
+$[2,2]$, and $[1,2,2]$ therefore produce $[3]$, $[2,3]$, and $[1,2,3]$ with this
 same weight.
 
 {/* chapter-section:history */}
@@ -296,7 +327,7 @@ One scalar weighted response is local arithmetic inside an adaptive system, but 
 
 Bengio et al. express hidden and output computation in a neural language model with trainable matrices and additive biases. The Transformer then reuses learned projections for queries, keys, values, attention outputs, position-wise feed-forward transformations, and next-token scoring.
 
-[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model.
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. compute unnormalized next-word scores with $y=b+Wx+U \tanh(d+Hx)$, making trainable matrix products and additive biases explicit inside a neural language model.
 
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection.
 
@@ -321,7 +352,7 @@ allocation, and delegated autodiff failures:
   label="Rust source declaring Chapter 19 linear-layer errors"
 />
 
-`Linear` owns one named `[d_in,d_out]` weight and an optional named bias. It
+`Linear` owns one named $[d_{in},d_{out}]$ weight and an optional named bias. It
 delegates the actual matrix product and broadcast addition to the Chapter 16
 autodiff operations, promotes rank-one input only around the existing matmul,
 and restores its vector shape afterward:
@@ -394,24 +425,24 @@ scrollers, while every stage keeps its natural content height.
 
 ## Predict before checking the executable evidence
 
-1. Predict the output shape for `[4,7,2]` through a `[2,3]` weight.
-2. For the worked layer, predict the affine output for `[0,0]` and the bias-free output.
+1. Predict the output shape for $[4,7,2]$ through a $[2,3]$ weight.
+2. For the worked layer, predict the affine output for $[0,0]$ and the bias-free output.
 3. Decide whether changing one token vector can change another position's output in this layer.
-4. For a separate projection with `d_out=2`, predict `db` when three positions receive `[1,0]`, `[0,2]`, and `[3,4]`.
-5. Predict the parameter counts for `[2,3]` projections with and without bias.
-6. Decide whether `[2,0]` is a valid weight and whether `[0,2]` is a valid input to a `[2,3]` layer.
+4. For a separate projection with $d_{out}=2$, predict $db$ when three positions receive $[1,0]$, $[0,2]$, and $[3,4]$.
+5. Predict the parameter counts for $[2,3]$ projections with and without bias.
+6. Decide whether $[2,0]$ is a valid weight and whether $[0,2]$ is a valid input to a $[2,3]$ layer.
 7. Explain why calling the biased map strictly linear is imprecise.
 8. Identify which source supports affine computation inside a language model and which implementation policies none of the papers define.
 
 <details>
   <summary>Check the predictions</summary>
 
-  1. The output shape is `[4,7,3]`.
-  2. The affine output is `[0.5,-0.5,1]`; disabling bias produces `[0,0,0]`.
+  1. The output shape is $[4,7,3]$.
+  2. The affine output is $[0.5,-0.5,1]$; disabling bias produces $[0,0,0]$.
   3. No. The shared matrix acts independently at every leading coordinate.
-  4. The bias gradient is the position sum `[4,6]`.
+  4. The bias gradient is the position sum $[4,6]$.
   5. The affine layer owns nine scalars; the bias-free layer owns six.
-  6. Zero output width is invalid; `[0,2]` has an empty leading axis and valid final width, so it becomes `[0,3]`.
+  6. Zero output width is invalid; $[0,2]$ has an empty leading axis and valid final width, so it becomes $[0,3]$.
   7. A nonzero additive bias means the map does not preserve the origin, so it is affine.
   8. Bengio et al. support affine computation inside a neural language model. Orientation, errors, names, seed, API, trace, and target bias policy are course choices.
 </details>
@@ -421,10 +452,10 @@ scrollers, while every stage keeps its natural content height.
 ## Hand reusable projections to the first gated block
 
 The cumulative model now owns a named differentiable projection from
-`[...,d_in]` to `[...,d_out]`. The same abstraction will create attention
+$[\ldots,d_{in}]$ to $[\ldots,d_{out}]$. The same abstraction will create attention
 queries, keys, values, attention outputs, feed-forward branches, and vocabulary
 scores. The target decoder chooses the bias-free policy for those paths.
 
 Stacking bias-free projections alone still collapses to one projection:
-`(XW_1)W_2=X(W_1W_2)`. Chapter 20 inserts a nonlinear SiLU gate, so that collapse
+$(XW_1)W_2=X(W_1W_2)$. Chapter 20 inserts a nonlinear SiLU gate, so that collapse
 no longer applies.

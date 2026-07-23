@@ -20,12 +20,39 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '19-linear-layers';
-const contentRevision = 1;
+const contentRevision = 2;
 const chapterTitle = "Mix each token's features with one learned projection";
 const chapterDescription =
   'Build a trainable linear layer in Rust, preserve leading token axes, compare affine and bias-free projections, and verify exact reverse gradients.';
 const revisionLabel = 'Content revision';
 const formulaLatex = String.raw`Y=XW+b`;
+const reverseFormulaLatex = String.raw`\begin{aligned}
+dX_p &= G_pW^\top, \\
+dW &= \sum_p X_p^\top G_p, \\
+db &= \sum_p G_p.
+\end{aligned}`;
+const gradientFixtureLatex = String.raw`\begin{aligned}
+G &=
+\left[
+\begin{bmatrix}
+1 & 0 & -1 \\
+0.5 & 2 & 1
+\end{bmatrix}
+\right], \\
+dX &=
+\left[
+\begin{bmatrix}
+2 & 1 \\
+-0.5 & 3
+\end{bmatrix}
+\right], \\
+dW &=
+\begin{bmatrix}
+0.5 & -2 & -2 \\
+3.5 & 6 & 1
+\end{bmatrix}, \\
+db &= \begin{bmatrix}1.5 & 2 & 0\end{bmatrix}.
+\end{aligned}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historyHeading = 'From adaptive responses to projections throughout a Transformer';
 const historyLimitation =
@@ -36,7 +63,6 @@ const historyModern =
   'A decoder applies the same learned feature projection independently at every batch and sequence position. This course keeps bias available for the historical affine form, while its target attention, SwiGLU, and vocabulary projections deliberately use the bias-free form.';
 const historyClaims = [
   "Rosenblatt describes an adaptive response architecture in which summed excitatory and inhibitory signals and reinforcement influence the selected response. This supports the early adaptive-response context, not this course's affine formula or API.",
-  'Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model.',
   'Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection.',
 ] as const;
 const historySources = [
@@ -112,6 +138,10 @@ async function expectChapterContent(
   for (const expected of [historyLimitation, historyLater, historyModern, ...historyClaims]) {
     expect(historyText).toContain(expected);
   }
+  expect(historyText).toContain('Bengio et al. compute unnormalized next-word scores with');
+  expect(historyText).toContain(
+    'making trainable matrix products and additive biases explicit inside a neural language model.',
+  );
   expect(historyText).toContain('road from earlier neural computation to modern language models');
   expect(historyText).not.toMatch(/Rust history|Python history|TypeScript history/i);
   const historyLinks = historyNodes.locator('a');
@@ -121,26 +151,64 @@ async function expectChapterContent(
   ).toEqual(historySources);
 
   const formulae = page.locator('.katex-display');
-  await expect(formulae).toHaveCount(1);
-  await expect(formulae).toHaveCSS('direction', 'ltr');
-  await expect(formulae.locator('annotation[encoding="application/x-tex"]')).toHaveText(
-    formulaLatex,
+  await expect(formulae).toHaveCount(3);
+  expect(
+    await formulae.evaluateAll((nodes) =>
+      nodes.map((node) => window.getComputedStyle(node).direction),
+    ),
+  ).toEqual(['ltr', 'ltr', 'ltr']);
+  const normalizeMath = (value: string) => value.replace(/\s+/g, '');
+  expect(
+    (await formulae.locator('annotation[encoding="application/x-tex"]').allTextContents())
+      .map(normalizeMath),
+  ).toEqual(
+    [formulaLatex, reverseFormulaLatex, gradientFixtureLatex].map(normalizeMath),
   );
-  const formulaSpacing = await formulae.evaluate((formula) => {
-    const formulaBox = formula.getBoundingClientRect();
-    const previous = formula.previousElementSibling;
-    const next = formula.nextElementSibling;
-    const previousBox = previous?.getBoundingClientRect();
-    const nextBox = next?.getBoundingClientRect();
-    return {
-      formulaTop: formulaBox.top,
-      formulaBottom: formulaBox.bottom,
-      previousBottom: previousBox?.bottom ?? Number.NEGATIVE_INFINITY,
-      nextTop: nextBox?.top ?? Number.POSITIVE_INFINITY,
-    };
+  const mathAnnotations = (
+    await page.locator('annotation[encoding="application/x-tex"]').allTextContents()
+  ).map(normalizeMath);
+  for (const expected of [
+    String.raw`G=\partial L/\partial Y`,
+    String.raw`y=b+Wx+U\tanh(d+Hx)`,
+    String.raw`(XW_1)W_2=X(W_1W_2)`,
+  ]) {
+    expect(mathAnnotations).toContain(normalizeMath(expected));
+  }
+  const renderedCode = await page.locator('.lesson-body code').allTextContents();
+  for (const codeShapedMath of [
+    'dX_p=G_p W^T',
+    'dW=sum_p X_p^T G_p',
+    'db=sum_p G_p',
+    '(XW_1)W_2=X(W_1W_2)',
+  ]) {
+    expect(renderedCode).not.toContain(codeShapedMath);
+  }
+  const formulaSpacing = await formulae.evaluateAll((nodes) => {
+    const lessonBox = document.querySelector('.lesson-body')?.getBoundingClientRect();
+    return nodes.map((formula) => {
+      const formulaBox = formula.getBoundingClientRect();
+      const previous = formula.previousElementSibling;
+      const next = formula.nextElementSibling;
+      const previousBox = previous?.getBoundingClientRect();
+      const nextBox = next?.getBoundingClientRect();
+      return {
+        formulaTop: formulaBox.top,
+        formulaBottom: formulaBox.bottom,
+        formulaLeft: formulaBox.left,
+        formulaRight: formulaBox.right,
+        lessonLeft: lessonBox?.left ?? Number.NEGATIVE_INFINITY,
+        lessonRight: lessonBox?.right ?? Number.POSITIVE_INFINITY,
+        previousBottom: previousBox?.bottom ?? Number.NEGATIVE_INFINITY,
+        nextTop: nextBox?.top ?? Number.POSITIVE_INFINITY,
+      };
+    });
   });
-  expect(formulaSpacing.previousBottom).toBeLessThan(formulaSpacing.formulaTop);
-  expect(formulaSpacing.formulaBottom).toBeLessThan(formulaSpacing.nextTop);
+  for (const spacing of formulaSpacing) {
+    expect(spacing.previousBottom).toBeLessThan(spacing.formulaTop);
+    expect(spacing.formulaBottom).toBeLessThan(spacing.nextTop);
+    expect(spacing.formulaLeft).toBeGreaterThanOrEqual(spacing.lessonLeft);
+    expect(spacing.formulaRight).toBeLessThanOrEqual(spacing.lessonRight);
+  }
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
@@ -225,14 +293,27 @@ async function expectChapterContent(
     '[5.000000000000, 1.000000000000, 1.000000000000]; [5.000000000000, 1.500000000000, 4.000000000000]',
   );
   expect(
-    await diagram.locator('.gradients-stage tbody tr').evaluateAll((rows) =>
+    await diagram.locator('.position-gradient-table tbody tr').evaluateAll((rows) =>
       rows.map((row) => Array.from(row.children, (cell) => cell.textContent?.replace(/\s+/g, ' ').trim() ?? '')),
     ),
   ).toEqual([
     ['dX[0]', '(0, 0)', '[1.000000000000, 0.000000000000, -1.000000000000]', '[2.000000000000, 1.000000000000]'],
     ['dX[1]', '(0, 1)', '[0.500000000000, 2.000000000000, 1.000000000000]', '[-0.500000000000, 3.000000000000]'],
-    ['dW', 'dW=sum_p X_p^T G_p', '[2, 3] [0.500000000000, -2.000000000000, -2.000000000000, 3.500000000000, 6.000000000000, 1.000000000000]'],
-    ['db', 'db=sum_p G_p', '[3] [1.500000000000, 2.000000000000, 0.000000000000]'],
+  ]);
+  const parameterGradientRows = diagram.locator('.parameter-gradient-table tbody tr');
+  await expect(parameterGradientRows.locator('th')).toHaveText(['dW', 'db']);
+  await expect(parameterGradientRows.locator('td:last-child')).toHaveText([
+    '[2, 3] [0.500000000000, -2.000000000000, -2.000000000000, 3.500000000000, 6.000000000000, 1.000000000000]',
+    '[3] [1.500000000000, 2.000000000000, 0.000000000000]',
+  ]);
+  expect(
+    (await parameterGradientRows
+      .locator('annotation[encoding="application/x-tex"]')
+      .allTextContents())
+      .map(normalizeMath),
+  ).toEqual([
+    normalizeMath(String.raw`dW=\sum_p X_p^\top G_p`),
+    normalizeMath(String.raw`db=\sum_p G_p`),
   ]);
   await expect(diagram.locator('.position-gradient-table')).toHaveAccessibleName(
     'Gradients returned to individual positions',

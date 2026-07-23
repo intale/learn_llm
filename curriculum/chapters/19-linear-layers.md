@@ -2,7 +2,7 @@
 {
   "chapter_id": "19-linear-layers",
   "concept_id": "linear-layers",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 19,
   "objective": {
     "en": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy."
@@ -154,7 +154,8 @@
     "Leading axes identify independent positions. The layer mixes only the final feature axis; it does not mix tokens, sequence positions, or batch items.",
     "The target decoder's bias-free attention, SwiGLU, and vocabulary projections are a course architecture policy, not a requirement stated by the historical papers.",
     "Rosenblatt supports only the early weighted-response context. Bengio and Vaswani support the language-model progression; none of the sources defines this implementation's row orientation, errors, names, seed, trace, or accessibility projection.",
-    "Name Rust only for executable source, concrete types, and trace provenance. The projection, broadcasting, gradients, and axis behavior are language-independent."
+    "Name Rust only for executable source, concrete types, and trace provenance. The projection, broadcasting, gradients, and axis behavior are language-independent.",
+    "Render learner-facing mathematical symbols and equations through inline or display math delimiters. Reserve code spans for actual code, API names, commands, paths, trace tokens, and literal program data."
   ],
   "acceptance_examples": [
     {

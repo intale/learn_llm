@@ -817,6 +817,35 @@ describe('LLM-evolution history contract', () => {
     ).toThrow(/history section must render history\.llm_evolution\.limitation/);
   });
 
+  it('compares rendered inline math before punctuation as visible history prose', () => {
+    const data = lessonMetadataWithLlmEvolution();
+    data.history.llm_evolution.sources[0].claim =
+      'en: scores use y=b+Wx+U tanh(d+Hx), making projection explicit';
+    const renderedEvolution = structuredClone(data.history.llm_evolution);
+    renderedEvolution.sources[0].claim =
+      'en: scores use $y=b+Wx+U \\tanh(d+Hx)$, making projection explicit';
+    const renderedBody = bodyWithHistoryCitations(
+      chapterBody(),
+      renderedEvolution,
+    );
+
+    expect(() =>
+      validateChapterDocument(chapterSource(data, renderedBody), {
+        checkSourceFiles: false,
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      validateChapterDocument(
+        chapterSource(
+          data,
+          renderedBody.replace('d+Hx', 'd+Kx'),
+        ),
+        { checkSourceFiles: false },
+      ),
+    ).toThrow(/history section must render history\.llm_evolution\.sources\[0\]\.claim/);
+  });
+
   it('keeps localized LLM-history claims aligned with the chapter contract', () => {
     const canonical = canonicalContract();
     const contractData = structuredClone(canonical.data);
@@ -883,6 +912,25 @@ describe('curriculum and catalog contracts', () => {
 
     expect(result.data.visualization.decision).toBe('useful');
     expect(Object.keys(result.data.objective)).toEqual(['en']);
+  });
+
+  it('requires learner-facing equations to use rendered math instead of code styling', () => {
+    const agents = readFileSync(resolve(repositoryRoot(), 'AGENTS.md'), 'utf8');
+    const playbook = readFileSync(resolve(repositoryRoot(), 'SKILLS.md'), 'utf8');
+
+    expect(agents).toContain(
+      'Every learner-facing mathematical expression or equation must use the site',
+    );
+    expect(agents).toContain('use `$...$` for inline notation and `$$...$$`');
+    expect(agents).toContain('components must emit equivalent server-rendered math');
+    expect(agents).toContain(
+      'Do not present mathematics as ordinary text or a code span.',
+    );
+    expect(playbook).toContain('Route every learner-facing mathematical');
+    expect(playbook).toContain(
+      'inline notation in `$...$` and display notation in `$$...$$`',
+    );
+    expect(playbook).toContain('Source tests must reject math-shaped code spans');
   });
 
   it('requires every localized contract field for a synthetic third locale', () => {
@@ -1018,7 +1066,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 19',
+      '"plan_revision": 20',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
