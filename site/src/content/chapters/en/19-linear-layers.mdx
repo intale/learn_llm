@@ -1,0 +1,430 @@
+---
+{
+  "chapter_id": "19-linear-layers",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 19,
+  "concept_id": "linear-layers",
+  "title": "Mix each token's features with one learned projection",
+  "description": "Build a trainable linear layer in Rust, preserve leading token axes, compare affine and bias-free projections, and verify exact reverse gradients.",
+  "objective": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy.",
+  "worked_inputs": "Use X with shape [1,2,2] and vectors [1,2] and [-1,3], W=[[1,0,-1],[2,0.5,1]], and b=[0.5,-0.5,1]. Predict the two width-3 outputs, then predict which axes survive and how a nonuniform reverse seed reaches X, W, and b.",
+  "formula": {
+    "latex": "Y=XW+b",
+    "symbols": [
+      {
+        "symbol": "X",
+        "meaning": "the input tensor with shape [...,d_{in}] whose leading axes identify independent positions"
+      },
+      {
+        "symbol": "W",
+        "meaning": "the trainable weight matrix with shape [d_{in},d_{out}]"
+      },
+      {
+        "symbol": "b",
+        "meaning": "the optional trainable bias vector with shape [d_{out}], broadcast over every leading position; when bias is disabled this term is absent"
+      },
+      {
+        "symbol": "Y",
+        "meaning": "the projected output tensor with shape [...,d_{out}]"
+      },
+      {
+        "symbol": "d_{in}",
+        "meaning": "the number of input features and the final extent required from X"
+      },
+      {
+        "symbol": "d_{out}",
+        "meaning": "the number of output features and the final extent produced in Y"
+      },
+      {
+        "symbol": "...",
+        "meaning": "zero or more leading axes, such as sequence and batch axes, preserved without mixing positions"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "One scalar weighted response is local arithmetic inside an adaptive system, but a language model needs vectors of hidden activations and vocabulary-wide scores at every context position; treating every output as a separate scalar unit hides the shared matrix computation.",
+      "later_advance": "Bengio et al. express hidden and output computation in a neural language model with trainable matrices and additive biases. The Transformer then reuses learned projections for queries, keys, values, attention outputs, position-wise feed-forward transformations, and next-token scoring.",
+      "modern_llm_role": "A decoder applies the same learned feature projection independently at every batch and sequence position. This course keeps bias available for the historical affine form, while its target attention, SwiGLU, and vocabulary projections deliberately use the bias-free form.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 1958,
+          "name": "Rosenblatt, The Perceptron",
+          "source_url": "https://doi.org/10.1037/h0042519",
+          "claim": "Rosenblatt describes an adaptive response architecture in which summed excitatory and inhibitory signals and reinforcement influence the selected response. This supports the early adaptive-response context, not this course's affine formula or API."
+        },
+        {
+          "role": "later",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection."
+        }
+      ]
+    },
+    "approach": "From one trainable weighted response to shared affine computation in neural language models and repeated Transformer projections",
+    "summary": "The scalar weighted unit supplies the local arithmetic; neural language models package many such outputs as trainable matrix operations; Transformers apply learned projections throughout every layer and across all token positions. This chapter exposes that continuity while keeping its orientation, names, errors, fixed seed, optional-bias API, and target bias policy as explicit course choices.",
+    "rust_source": "rust/demos/ch19-linear-layers/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch19-linear-layers/src/lib.rs",
+      "region": "scalar-weighted-unit",
+      "purpose": "Compute one scalar weighted response as the bounded historical arithmetic contrast."
+    },
+    {
+      "path": "rust/demos/ch19-linear-layers/src/lib.rs",
+      "region": "known-linear-layer",
+      "purpose": "Apply the exact affine and bias-free fixture through the cumulative layer."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/linear.rs",
+      "region": "linear-errors",
+      "purpose": "Declare deterministic construction, parameter-shape, input-shape, allocation, and delegated failures."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/linear.rs",
+      "region": "linear-layer",
+      "purpose": "Own a named weight and optional bias while delegating differentiable matrix multiplication and broadcast addition."
+    },
+    {
+      "path": "rust/demos/ch19-linear-layers/src/lib.rs",
+      "region": "linear-gradients",
+      "purpose": "Reverse the nonuniform seed and retrieve exact input, weight, and bias gradients."
+    },
+    {
+      "path": "rust/demos/ch19-linear-layers/src/lib.rs",
+      "region": "initialized-linear-layer",
+      "purpose": "Compose the layer with deterministic Xavier initialization and verify zero bias and shared clone identity."
+    },
+    {
+      "path": "rust/demos/ch19-linear-layers/src/main.rs",
+      "region": "learner-linear-layers-output",
+      "purpose": "Prepare the complete deterministic learner report before printing it."
+    },
+    {
+      "path": "rust/demos/ch19-linear-layers/src/diagram_trace.rs",
+      "region": "linear-layers-trace",
+      "purpose": "Record exact shapes, weights, per-coordinate products, bias policy, and reverse gradients for the diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "linear-layers",
+    "rationale": "A position-by-position contribution map makes it clear that the final feature axis is mixed by W while batch and sequence coordinates remain separate, and paired affine/bias-free rails expose exactly what the optional bias changes."
+  },
+  "decoder_connection": "The cumulative model gains one named differentiable projection from [...,d_in] to [...,d_out]. Later chapters reuse the bias-free policy for SwiGLU, attention, and vocabulary projection while preserving this chapter's parameter discovery, gradients, and leading-axis behavior."
+}
+---
+
+import LinearLayersDiagram from '../../../components/chapters/LinearLayersDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow one shared projection across two token positions',
+  description:
+    'Read exact Rust-authored shapes, shared weights, per-output contributions, affine and bias-free results, and gradients accumulated across both positions.',
+  summary: {
+    parameter: 'Named parameter',
+    inputWidth: 'Input width',
+    outputWidth: 'Output width',
+    bias: 'Bias',
+    parameterCount: 'Parameter scalars',
+    inputShape: 'Input shape',
+    outputShape: 'Output shape',
+    upstreamShape: 'Upstream shape',
+  },
+  stages: {
+    axes: 'Preserve positions; change feature width',
+    weights: 'Share one weight matrix and bias',
+    positions: 'Project each position independently',
+    contribution: 'Expand one output coordinate',
+    policy: 'Compare affine and bias-free policies',
+    gradients: 'Accumulate gradients for shared parameters',
+  },
+  fields: {
+    inputFeature: 'Input feature',
+    weights: 'Weights to output features',
+    position: 'Position',
+    coordinate: 'Leading coordinate',
+    input: 'Input vector',
+    outputFeature: 'Output feature',
+    products: 'Products',
+    accumulation: 'Accumulation over leading positions',
+    weightedSum: 'Weighted sum',
+    bias: 'Bias',
+    result: 'Result',
+    upstream: 'Upstream gradient',
+    inputGradient: 'Input gradient',
+    parameter: 'Gradient target',
+    gradient: 'Stored gradient',
+    policy: 'Policy',
+    parameters: 'Parameter scalars',
+    output: 'Output',
+  },
+  notes: {
+    axes:
+      'The batch and sequence coordinates remain 1 by 2. Only the final feature axis changes from width 2 to width 3.',
+    contribution:
+      'This first output coordinate uses both input features, then adds the matching bias coordinate. Every displayed value comes from the executable trace.',
+    policy:
+      'The affine path adds one shared width-3 bias. The target decoder chooses the bias-free path for attention, SwiGLU, and vocabulary projections.',
+    gradients:
+      'Each input position receives its own gradient. The one shared W and b collect contributions from both positions.',
+  },
+  symbols: {
+    preserved: 'Leading axes preserved',
+    mixed: 'Only the feature axis is mixed',
+    affine: '+b',
+    biasFree: 'W only',
+  },
+  policies: {
+    affine: 'Affine projection',
+    biasFree: 'Bias-free projection',
+    enabled: 'Enabled',
+  },
+  captions: {
+    positionGradients: 'Gradients returned to individual positions',
+    parameterGradients: 'Gradients accumulated into shared parameters',
+  },
+  scrollers: {
+    weights: 'Scrollable linear-layer weight and bias evidence',
+    positions: 'Scrollable position-by-position projection evidence',
+    gradients: 'Scrollable linear-layer gradient evidence',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict two outputs from one shared matrix
+
+Chapter 18 left one feature vector at each token position. Use the two vectors
+`[1,2]` and `[-1,3]` as `X` with shape `[1,2,2]`, then share these parameters
+across both positions:
+
+```text
+W = [[ 1,   0,  -1],
+     [ 2, 0.5,   1]]
+b = [0.5, -0.5, 1]
+```
+
+Before running the example, predict six outputs. For `[1,2]`, the three
+weighted sums are `[5,1,1]`; adding `b` gives `[5.5,0.5,2]`. For `[-1,3]`, the
+weighted sums are `[5,1.5,4]`; adding that same `b` gives `[5.5,1,5]`. The
+complete output therefore has shape `[1,2,3]` and values
+`[[[5.5,0.5,2],[5.5,1,5]]]`.
+
+One scalar weighted response is useful as a small algebraic contrast. It equals
+the first output coordinate, but it is not a separate implementation of the
+matrix operation:
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/lib.rs"
+  region="scalar-weighted-unit"
+  caption="Compute one scalar weighted response for the bounded historical contrast"
+  label="Rust source for the Chapter 19 scalar weighted-response contrast"
+/>
+
+The exact fixture runs both the affine path and the course decoder's bias-free
+policy through one shared layer:
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/lib.rs"
+  region="known-linear-layer"
+  caption="Apply the frozen affine and bias-free projections"
+  label="Rust source running the Chapter 19 known linear-layer fixture"
+/>
+
+{/* chapter-section:formula */}
+
+## Project the final feature axis
+
+The shared forward formula is:
+
+$$
+Y=XW+b
+$$
+
+`W` combines every input feature into every output feature. The optional `b`
+is added to each leading position; when bias is disabled, that term is absent.
+The conventional module name is “linear layer,” but a nonzero bias makes the
+map affine rather than strictly linear.
+
+For reverse mode, let `G` mean the gradient of scalar loss `L` with respect to
+`Y`, and let `p` range over every leading position. Then `dX_p=G_p W^T`,
+`dW=sum_p X_p^T G_p`, and `db=sum_p G_p`. Forward outputs remain local to each
+position. Because every position shares the same parameters, `dW` and `db`
+accumulate contributions across positions.
+
+With upstream seed `[[[1,0,-1],[0.5,2,1]]]`, the exact gradients are
+`dX=[[[2,1],[-0.5,3]]]`,
+`dW=[[0.5,-2,-2],[3.5,6,1]]`, and `db=[1.5,2,0]`.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep leading axes separate from feature axes
+
+- $X$ is the input tensor with shape $[...,d_{in}]$.
+- $W$ is the trainable matrix with shape $[d_{in},d_{out}]$.
+- $b$ is the optional width-$d_{out}$ bias, broadcast to every leading position.
+- $Y$ is the output tensor with shape $[...,d_{out}]$.
+- $d_{in}$ is the input feature width and final axis of $X$.
+- $d_{out}$ is the output feature width and final axis of $Y$.
+- The ellipsis means any preserved batch, sequence, or other leading axes.
+
+A `[d_in,d_out]` matrix changes the last width. It does not mix tokens merely
+because the operation is called matrix multiplication. Inputs shaped `[2]`,
+`[2,2]`, and `[1,2,2]` therefore produce `[3]`, `[2,3]`, and `[1,2,3]` with this
+same weight.
+
+{/* chapter-section:history */}
+
+## From adaptive responses to projections throughout a Transformer
+
+One scalar weighted response is local arithmetic inside an adaptive system, but a language model needs vectors of hidden activations and vocabulary-wide scores at every context position; treating every output as a separate scalar unit hides the shared matrix computation.
+
+[Rosenblatt, *The Perceptron*](https://doi.org/10.1037/h0042519): Rosenblatt describes an adaptive response architecture in which summed excitatory and inhibitory signals and reinforcement influence the selected response. This supports the early adaptive-response context, not this course's affine formula or API.
+
+Bengio et al. express hidden and output computation in a neural language model with trainable matrices and additive biases. The Transformer then reuses learned projections for queries, keys, values, attention outputs, position-wise feed-forward transformations, and next-token scoring.
+
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model.
+
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection.
+
+A decoder applies the same learned feature projection independently at every batch and sequence position. This course keeps bias available for the historical affine form, while its target attention, SwiGLU, and vocabulary projections deliberately use the bias-free form.
+
+The progression is the road from earlier neural computation to modern language
+models, not a history of programming languages. The papers do not define this
+course's row orientation, errors, names, fixed seed, optional-bias API, trace
+grammar, or target bias policy.
+
+{/* chapter-section:rust-implementation */}
+
+## Wrap existing differentiable operations in one named layer
+
+Construction and forwarding report explicit parameter-rank, width, input-rank,
+allocation, and delegated autodiff failures:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/linear.rs"
+  region="linear-errors"
+  caption="Keep linear-layer construction and forwarding failures typed"
+  label="Rust source declaring Chapter 19 linear-layer errors"
+/>
+
+`Linear` owns one named `[d_in,d_out]` weight and an optional named bias. It
+delegates the actual matrix product and broadcast addition to the Chapter 16
+autodiff operations, promotes rank-one input only around the existing matmul,
+and restores its vector shape afterward:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/linear.rs"
+  region="linear-layer"
+  caption="Own named projection parameters and preserve every leading axis"
+  label="Rust source implementing the Chapter 19 linear layer"
+/>
+
+The nonuniform reverse seed exposes all three gradient paths:
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/lib.rs"
+  region="linear-gradients"
+  caption="Reverse through the frozen affine projection"
+  label="Rust source proving Chapter 19 input, weight, and bias gradients"
+/>
+
+Initialization composes with Chapter 17's deterministic Xavier policy. A
+requested bias begins at exact zero, equal seeds reproduce weight values, and a
+clone deliberately keeps the same parameter leaves:
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/lib.rs"
+  region="initialized-linear-layer"
+  caption="Initialize reproducibly and verify clone identity"
+  label="Rust source connecting Chapter 17 initialization to Chapter 19 linear layers"
+/>
+
+The learner report also checks vector, sequence, batch, empty-leading-axis, and
+error behavior:
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/main.rs"
+  region="learner-linear-layers-output"
+  caption="Prepare the deterministic Chapter 19 learner report"
+  label="Rust source for the Chapter 19 learner output"
+/>
+
+Run `cargo run --quiet --locked -p ch19-linear-layers`. Its output is frozen in
+`rust/demos/ch19-linear-layers/expected.txt`. Tests cover exact forward and
+reverse values, rank-one backward restoration, stable parameter order and
+identity, validation precedence, transaction-safe initialization, and sampled
+finite differences with step `1e-6` and tolerance `2e-6`.
+
+{/* chapter-section:visualization */}
+
+## Trace positions, products, policy, and gradients
+
+The trace emitter records all values consumed by the diagram. The build-time
+parser validates an exact grammar and localized labels; it does not perform
+tensor arithmetic or make a modeling decision.
+
+<RustSource
+  path="rust/demos/ch19-linear-layers/src/diagram_trace.rs"
+  region="linear-layers-trace"
+  caption="Emit exact projection contributions, policy, axes, and gradients"
+  label="Rust source producing the Chapter 19 linear-layer diagram trace"
+/>
+
+<LinearLayersDiagram labels={diagramLabels} />
+
+Words, symbols, border styles, and explicit coordinates carry each distinction
+without relying on color. Wide tables remain inside named keyboard-focusable
+scrollers, while every stage keeps its natural content height.
+
+{/* chapter-section:exercises */}
+
+## Predict before checking the executable evidence
+
+1. Predict the output shape for `[4,7,2]` through a `[2,3]` weight.
+2. For the worked layer, predict the affine output for `[0,0]` and the bias-free output.
+3. Decide whether changing one token vector can change another position's output in this layer.
+4. For a separate projection with `d_out=2`, predict `db` when three positions receive `[1,0]`, `[0,2]`, and `[3,4]`.
+5. Predict the parameter counts for `[2,3]` projections with and without bias.
+6. Decide whether `[2,0]` is a valid weight and whether `[0,2]` is a valid input to a `[2,3]` layer.
+7. Explain why calling the biased map strictly linear is imprecise.
+8. Identify which source supports affine computation inside a language model and which implementation policies none of the papers define.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The output shape is `[4,7,3]`.
+  2. The affine output is `[0.5,-0.5,1]`; disabling bias produces `[0,0,0]`.
+  3. No. The shared matrix acts independently at every leading coordinate.
+  4. The bias gradient is the position sum `[4,6]`.
+  5. The affine layer owns nine scalars; the bias-free layer owns six.
+  6. Zero output width is invalid; `[0,2]` has an empty leading axis and valid final width, so it becomes `[0,3]`.
+  7. A nonzero additive bias means the map does not preserve the origin, so it is affine.
+  8. Bengio et al. support affine computation inside a neural language model. Orientation, errors, names, seed, API, trace, and target bias policy are course choices.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Hand reusable projections to the first gated block
+
+The cumulative model now owns a named differentiable projection from
+`[...,d_in]` to `[...,d_out]`. The same abstraction will create attention
+queries, keys, values, attention outputs, feed-forward branches, and vocabulary
+scores. The target decoder chooses the bias-free policy for those paths.
+
+Stacking bias-free projections alone still collapses to one projection:
+`(XW_1)W_2=X(W_1W_2)`. Chapter 20 inserts a nonlinear SiLU gate, so that collapse
+no longer applies.

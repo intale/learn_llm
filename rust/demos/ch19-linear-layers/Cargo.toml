@@ -1,0 +1,12 @@
+[package]
+name = "ch19-linear-layers"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[[example]]
+name = "ch19-linear-layers-trace"
+path = "examples/diagram_trace.rs"

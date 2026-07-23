@@ -1,0 +1,574 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  linearLayersDiagramId,
+  parseLinearLayersTrace,
+  validateLinearLayersLabels,
+  type LinearLayersDiagramLabels,
+} from '../../lib/linear-layers-diagram';
+
+interface Props {
+  labels: LinearLayersDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+validateLinearLayersLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Linear-layers diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch19-linear-layers/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseLinearLayersTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${linearLayersDiagramId}-${instanceId}-title`;
+const descriptionId = `${linearLayersDiagramId}-${instanceId}-description`;
+const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  `[${values.map((value) => value.lexeme).join(', ')}]`;
+const coordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
+  `(${values.map((value) => value.lexeme).join(', ')})`;
+const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
+const biasFreeRows = [
+  trace.policy.biasFreeOutput.slice(0, 3),
+  trace.policy.biasFreeOutput.slice(3, 6),
+];
+const affineRows = [
+  trace.cells.slice(0, 3).map((cell) => cell.result),
+  trace.cells.slice(3, 6).map((cell) => cell.result),
+];
+const selectedCell = trace.cells[0];
+---
+
+<figure
+  class="linear-layers-diagram"
+  data-visualization-id={linearLayersDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="shape-summary">
+    <div>
+      <dt>{labels.summary.parameter}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.parameterPrefix}.weight</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.inputWidth}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.inputWidth.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.outputWidth}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.outputWidth.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.bias}</dt>
+      <dd>{labels.policies.enabled}</dd>
+    </div>
+    <div>
+      <dt>{labels.summary.parameterCount}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.parameterCount.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.inputShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.outputShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.upstreamShape}</dt>
+      <dd><bdi dir="ltr">{shape(trace.fixture.upstreamShape)}</bdi></dd>
+    </div>
+  </dl>
+
+  <section class="diagram-stage axes-stage" aria-labelledby={`${titleId}-axes`}>
+    <h3 id={`${titleId}-axes`}><span aria-hidden="true">1</span> {labels.stages.axes}</h3>
+    <p>{labels.notes.axes}</p>
+    <div class="axis-flow">
+      <div>
+        <strong>{labels.fields.input}</strong>
+        <bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi>
+      </div>
+      <p class="flow-rule">
+        <span class="flow-arrow" aria-hidden="true">→</span>
+        <span>{labels.symbols.preserved}</span>
+      </p>
+      <div>
+        <strong>{labels.fields.output}</strong>
+        <bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi>
+      </div>
+    </div>
+    <p class="axis-proof">
+      <span>{labels.symbols.mixed}</span>
+      <bdi dir="ltr">{shape(trace.axes.inputLeading)} = {shape(trace.axes.outputLeading)}</bdi>
+    </p>
+  </section>
+
+  <div class="stage-grid">
+    <section class="diagram-stage weights-stage" aria-labelledby={`${titleId}-weights`}>
+      <h3 id={`${titleId}-weights`}><span aria-hidden="true">2</span> {labels.stages.weights}</h3>
+      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.weights}>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{labels.fields.inputFeature}</th>
+              <th scope="col">{labels.fields.weights}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trace.weightRows.map((row) => (
+              <tr>
+                <th scope="row"><bdi dir="ltr">{row.inputFeature.lexeme}</bdi></th>
+                <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
+              </tr>
+            ))}
+            <tr class="bias-row">
+              <th scope="row">{labels.fields.bias}</th>
+              <td><bdi dir="ltr">{vector(trace.bias)}</bdi></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="diagram-stage positions-stage" aria-labelledby={`${titleId}-positions`}>
+      <h3 id={`${titleId}-positions`}><span aria-hidden="true">3</span> {labels.stages.positions}</h3>
+      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.positions}>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{labels.fields.position}</th>
+              <th scope="col">{labels.fields.coordinate}</th>
+              <th scope="col">{labels.fields.input}</th>
+              <th scope="col">{labels.fields.outputFeature}</th>
+              <th scope="col">{labels.fields.result}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {trace.cells.map((cell) => (
+              <tr>
+                <th scope="row"><bdi dir="ltr">{cell.position.lexeme}</bdi></th>
+                <td><bdi dir="ltr">{coordinate(cell.coordinate)}</bdi></td>
+                <td><bdi dir="ltr">{vector(cell.input)}</bdi></td>
+                <td><bdi dir="ltr">{cell.outputFeature.lexeme}</bdi></td>
+                <td><bdi dir="ltr">{cell.result.lexeme}</bdi></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="diagram-stage contribution-stage" aria-labelledby={`${titleId}-contribution`}>
+    <h3 id={`${titleId}-contribution`}><span aria-hidden="true">4</span> {labels.stages.contribution}</h3>
+    <p>{labels.notes.contribution}</p>
+    <dl class="contribution-grid">
+      <div>
+        <dt>{labels.fields.coordinate}</dt>
+        <dd><bdi dir="ltr">{coordinate(selectedCell.coordinate)}, y[{selectedCell.outputFeature.lexeme}]</bdi></dd>
+      </div>
+      <div class="products-card">
+        <dt>{labels.fields.products}</dt>
+        <dd class="product-list">
+          {selectedCell.products.map((product, index) => (
+            <>
+              {index > 0 && <span aria-hidden="true"> + </span>}
+              <bdi dir="ltr">{product.input.lexeme} × {product.weight.lexeme}</bdi>
+            </>
+          ))}
+        </dd>
+      </div>
+      <div>
+        <dt>{labels.fields.weightedSum}</dt>
+        <dd><bdi dir="ltr">{selectedCell.weightedSum.lexeme}</bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.bias}</dt>
+        <dd><bdi dir="ltr">+ {selectedCell.bias.lexeme}</bdi></dd>
+      </div>
+      <div class="result-card">
+        <dt>{labels.fields.result}</dt>
+        <dd><bdi dir="ltr">= {selectedCell.result.lexeme}</bdi></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="diagram-stage policy-stage" aria-labelledby={`${titleId}-policy`}>
+    <h3 id={`${titleId}-policy`}><span aria-hidden="true">5</span> {labels.stages.policy}</h3>
+    <p>{labels.notes.policy}</p>
+    <div class="policy-grid">
+      <article class="affine-policy">
+        <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.affine}</bdi> {labels.policies.affine}</h4>
+        <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.affineParameters.lexeme}</bdi></p>
+        <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{affineRows.map((row) => vector(row)).join('; ')}</bdi></p>
+      </article>
+      <article class="bias-free-policy">
+        <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.biasFree}</bdi> {labels.policies.biasFree}</h4>
+        <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.biasFreeParameters.lexeme}</bdi></p>
+        <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{biasFreeRows.map((row) => vector(row)).join('; ')}</bdi></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
+    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">6</span> {labels.stages.gradients}</h3>
+    <p>{labels.notes.gradients}</p>
+    <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
+      <table class="position-gradient-table">
+        <caption>{labels.captions.positionGradients}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.position}</th>
+            <th scope="col">{labels.fields.coordinate}</th>
+            <th scope="col">{labels.fields.upstream}</th>
+            <th scope="col">{labels.fields.inputGradient}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.positionGradients.map((row) => (
+            <tr>
+              <th scope="row"><bdi dir="ltr">dX[{row.position.lexeme}]</bdi></th>
+              <td><bdi dir="ltr">{coordinate(row.coordinate)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
+              <td><bdi dir="ltr">{vector(row.inputGradient)}</bdi></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <table class="parameter-gradient-table">
+        <caption>{labels.captions.parameterGradients}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.parameter}</th>
+            <th scope="col">{labels.fields.accumulation}</th>
+            <th scope="col">{labels.fields.gradient}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="shared-gradient">
+            <th scope="row"><bdi dir="ltr">dW</bdi></th>
+            <td><bdi dir="ltr">dW=sum_p X_p^T G_p</bdi></td>
+            <td><bdi dir="ltr">{shape(trace.weightGradient.shape)} {vector(trace.weightGradient.values)}</bdi></td>
+          </tr>
+          <tr class="shared-gradient">
+            <th scope="row"><bdi dir="ltr">db</bdi></th>
+            <td><bdi dir="ltr">db=sum_p G_p</bdi></td>
+            <td><bdi dir="ltr">{shape(trace.biasGradient.shape)} {vector(trace.biasGradient.values)}</bdi></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .linear-layers-diagram {
+    display: grid;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    overflow: hidden;
+    container-type: inline-size;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+  }
+
+  .linear-layers-diagram:focus-visible,
+  .table-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
+  }
+
+  figcaption {
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    font-weight: 750;
+  }
+
+  .diagram-description,
+  .diagram-stage > p {
+    max-inline-size: 76ch;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .shape-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  .shape-summary > div,
+  .contribution-grid > div,
+  .axis-flow > div,
+  .policy-grid > article {
+    min-inline-size: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.65rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  .stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: 1rem;
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .diagram-stage {
+    display: grid;
+    min-inline-size: 0;
+    gap: 0.8rem;
+    align-content: start;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  .diagram-stage h3,
+  .policy-grid h4 {
+    margin: 0;
+  }
+
+  .diagram-stage h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 1rem;
+  }
+
+  .diagram-stage h3 > span {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.7rem;
+    block-size: 1.7rem;
+    flex: 0 0 auto;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .axis-flow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .axis-flow > div {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .flow-rule,
+  .axis-proof {
+    margin: 0;
+    text-align: center;
+  }
+
+  .flow-rule span {
+    display: block;
+  }
+
+  .flow-arrow {
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .linear-layers-diagram:dir(rtl) .flow-arrow {
+    transform: scaleX(-1);
+  }
+
+  .axis-proof {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-block-start: 0.25rem;
+  }
+
+  .table-scroll {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-gutter: stable;
+  }
+
+  table {
+    inline-size: 100%;
+    min-inline-size: 28rem;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  .positions-stage table,
+  .gradients-stage table {
+    min-inline-size: 48rem;
+  }
+
+  .parameter-gradient-table {
+    margin-block-start: 1rem;
+  }
+
+  th,
+  td {
+    padding: 0.55rem 0.65rem;
+    border-block-end: 1px solid var(--line);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  thead th {
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+  }
+
+  caption {
+    padding-block-end: 0.5rem;
+    color: var(--muted);
+    font-weight: 700;
+    text-align: start;
+  }
+
+  tbody tr:last-child > * {
+    border-block-end: 0;
+  }
+
+  .bias-row > * {
+    border-block-start: 2px dashed var(--line);
+  }
+
+  .shared-gradient > * {
+    border-block-end-style: double;
+    border-block-end-width: 3px;
+  }
+
+  .contribution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+
+  .product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .products-card {
+    grid-column: 1 / -1;
+  }
+
+  .result-card {
+    border-width: 2px !important;
+  }
+
+  .policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .policy-grid article {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .policy-grid p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .policy-grid p > span {
+    font-weight: 700;
+  }
+
+  .affine-policy {
+    border-inline-start-width: 4px !important;
+  }
+
+  .bias-free-policy {
+    border-inline-start-style: double !important;
+    border-inline-start-width: 5px !important;
+  }
+
+  bdi {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  table bdi,
+  .shape-summary bdi,
+  .axis-flow bdi {
+    white-space: nowrap;
+  }
+
+  @container (max-width: 36rem) {
+    .axis-flow {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .flow-arrow,
+    .linear-layers-diagram:dir(rtl) .flow-arrow {
+      transform: rotate(90deg);
+    }
+  }
+
+  @media (max-width: 44rem) {
+    .linear-layers-diagram {
+      padding: 0.85rem;
+    }
+
+    .stage-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .diagram-stage {
+      padding: 0.8rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .linear-layers-diagram,
+    .diagram-stage,
+    .shape-summary > div,
+    .contribution-grid > div,
+    .axis-flow > div,
+    .policy-grid > article {
+      border-color: CanvasText;
+      background: Canvas;
+      color: CanvasText;
+    }
+  }
+</style>

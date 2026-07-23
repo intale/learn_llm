@@ -1,0 +1,19 @@
+layer: token_projection in=2 out=3 bias=true parameters=9
+input: shape=1x2x2 values=1.000000000000,2.000000000000,-1.000000000000,3.000000000000
+weight: shape=2x3 values=1.000000000000,0.000000000000,-1.000000000000,2.000000000000,0.500000000000,1.000000000000
+bias: shape=3 values=0.500000000000,-0.500000000000,1.000000000000
+output: shape=1x2x3 values=5.500000000000,0.500000000000,2.000000000000,5.500000000000,1.000000000000,5.000000000000
+rank variants: [2]->[3] [2,2]->[2,3] [1,2,2]->[1,2,3]
+historical unit: 1*1 + 2*2 + 0.5 = 5.500000000000 equals output[0]=true
+bias-free output: shape=1x2x3 values=5.000000000000,1.000000000000,1.000000000000,5.000000000000,1.500000000000,4.000000000000
+upstream: shape=1x2x3 values=1.000000000000,0.000000000000,-1.000000000000,0.500000000000,2.000000000000,1.000000000000
+input gradient: shape=1x2x2 values=2.000000000000,1.000000000000,-0.500000000000,3.000000000000
+weight gradient: shape=2x3 values=0.500000000000,-2.000000000000,-2.000000000000,3.500000000000,6.000000000000,1.000000000000
+bias gradient: shape=3 values=1.500000000000,2.000000000000,0.000000000000
+parameter order: token_projection.weight,token_projection.bias
+bias policy: affine=9 bias-free=6
+initialized: seed=19 weights-reproducible=true bias-all-zero=true
+identity: clone-shares-weight=true clone-shares-bias=true
+empty leading axis: shape=0x2 -> 0x3 values=0
+errors: scalar=true width=true bias=true
+chapter 20 handoff: compose bias-free projections around a SwiGLU gate

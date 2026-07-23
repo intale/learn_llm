@@ -21,6 +21,7 @@ pub mod autograd {
 pub mod nn {
     pub mod embedding;
     pub mod init;
+    pub mod linear;
     #[path = "probability.rs"]
     pub mod probability;
 }

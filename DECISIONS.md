@@ -4194,3 +4194,34 @@ hosting, and deployment remain unchanged.
 `repair-ch18-firefox-inline-math-leading` run
 `20260723T100105Z-repair-ch18-firefox-inline-math-leading-01`, and
 `implement-ch19-linear-layers`.
+
+## 2026-07-23 - Declare Chapter 19 projection evidence and history inputs
+
+**Status:** Accepted during Chapter 19 preflight.
+
+**Context:** The scheduled Chapter 19 step names the new layer but omits the
+cumulative matrix-multiplication, tensor-autodiff, initialization, and embedding
+interfaces that determine its behavior. A useful static diagram also needs the
+established Rust-authored trace and strict build-time parser boundary. The
+historical contrast must stay on the road to modern language models rather than
+becoming a programming-language history.
+
+**Decision:** Add the cumulative matmul, tensor-tape, initialization, embedding,
+and Chapter 18 presentation patterns as material inputs. Add
+`site/src/lib/linear-layers-diagram.ts` as a declared output and require the
+`ch19-linear-layers-trace` example to match its checked fixture byte for byte.
+Use Rosenblatt's perceptron paper only for the earlier weighted-unit context,
+Bengio et al. for trainable affine computation inside a neural language model,
+and Vaswani et al. for learned projections throughout Transformer attention and
+position-wise feed-forward networks. Treat parameter names, optional-bias API,
+shape validation, fixed seed, trace grammar, and target decoder bias policy as
+course decisions rather than claims made by those papers.
+
+**Consequences:** Chapter 19 remains one dependency-free English vertical slice.
+Its diagram may parse and project exact Rust evidence but may not reimplement the
+linear operation. The existing Astro static architecture and Linux build remain
+unchanged; `.openai/hosting.json` is absent, and this implementation step does not
+publish, host, or deploy the site externally.
+
+**Affected step and run:** `implement-ch19-linear-layers`, run
+`20260723T115514Z-implement-ch19-linear-layers-01`.

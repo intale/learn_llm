@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T09:33:45Z"
+updated_at: "2026-07-23T12:58:12Z"
 
 environment:
   os: "Linux x86_64"
@@ -9754,14 +9754,22 @@ builds:
         objective: "Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches."
         depends_on:
           - repair-ch18-firefox-inline-math-leading
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/18-token-embeddings.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -9776,6 +9784,14 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
+          - "site/src/lib/token-embeddings-diagram.ts"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "Rosenblatt, The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain (https://doi.org/10.1037/h0042519; read-only network input)"
+          - "Bengio et al., A Neural Probabilistic Language Model (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf; read-only network input)"
+          - "Vaswani et al., Attention Is All You Need (https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf; read-only network input)"
         outputs:
           - "curriculum/chapters/19-linear-layers.md"
           - "rust/crates/llm-from-scratch/src/nn/linear.rs"
@@ -9783,6 +9799,7 @@ builds:
           - "rust/demos/ch19-linear-layers/"
           - "site/src/content/chapters/en/19-linear-layers.mdx"
           - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/lib/linear-layers-diagram.ts"
           - "site/tests/19-linear-layers-diagram.test.ts"
           - "site/tests/e2e/ch19-linear-layers.spec.ts"
           - "Cargo.lock"
@@ -9802,6 +9819,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch19-linear-layers | diff -u rust/demos/ch19-linear-layers/expected.txt -"
+          - "cargo run --quiet --locked -p ch19-linear-layers --example ch19-linear-layers-trace | diff -u rust/demos/ch19-linear-layers/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 19-linear-layers"
           - "npm --prefix site run check:parity -- --chapter 19-linear-layers"
           - "npm --prefix site run check:content"
@@ -9813,8 +9831,92 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation plus bounded read-only primary-paper research. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, package/build change, hosting change, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260723T115514Z-implement-ch19-linear-layers-01
+            started_at: "2026-07-23T11:55:14Z"
+            finished_at: "2026-07-23T12:58:12Z"
+            status: succeeded
+            input_fingerprint:
+              git: "17409b6a4ba2ab5599bdc6a4941c068870da3bb7"
+              manifest: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/input-fingerprint.txt"
+              checksum: "sha256:2f7ed1592538372b238705b363fd90eb73532a052fd1ecc88aff3ecd604740ba"
+              relevant_inputs: "sha256:d7a0f917834e3c9af31eb7530338fe64dbdf97e508988a81efb625cd14f9edec"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/"
+            commands:
+              - "Complete the startup protocol, preserve unrelated desktop.ini, verify the Chapter 18 frozen publication, compare pinned tools, inspect the reviewed Chapter 19 boundary and cumulative APIs, and fingerprint every material input"
+              - "Declare cumulative matmul/autodiff/initialization dependencies, Rust-authored diagram-trace ownership, exact trace validation, and bounded primary-paper research before product implementation"
+              - "Read the declared Rosenblatt, Bengio, and Vaswani primary papers, bound every supported claim, and preserve source-role notes before freezing the contract"
+              - "Freeze the revision-1 Chapter 19 contract and tiny affine/bias-free worked example under the run publication directory, then run the early structure-only contract gate"
+              - "Implement the cumulative Linear API, exhaustive unit/gradcheck coverage, learner demo, and Rust-authored diagram trace in the isolated validation workspace; generate the local-package lock entry offline"
+              - "Apply independent Rust and content audits: remove full-tensor clones from parameter counting, cover the rank-one reverse path and validation/name precedence, derive trace metadata from the layer, explain shared-parameter gradient accumulation, and tighten the bounded Rosenblatt-to-Transformer history"
+              - "Implement the strict build-time trace parser, semantic static diagram, complete English lesson with SEO metadata, source unit coverage, and five-case desktop/narrow/forced-colors/RTL/no-JavaScript browser coverage without changing packages or build definitions"
+              - "Apply the independent site audit by separating the decorative flow arrow from localized text, splitting position and shared-parameter gradient tables, isolating technical policy symbols LTR, and adding localized table captions"
+              - "Run the complete isolated Rust, content, Astro, unit, build, link, SEO, focused Chromium, and 77-case browser regression gates; attempt the in-app browser visual pass and record that no browser backend is available in this session"
+              - "Freeze the final 16-file staged publication under publish/ and generate the sorted checksum manifest publish.sha256"
+              - "Publish the frozen 16-file set to its declared canonical paths and verify every staged and canonical SHA-256 against publish.sha256"
+              - "Validate the complete canonical repository in a fresh network-disabled Linux container, including exact Rust outputs and the focused plus full browser suites"
+              - "Recheck the final ledger, whitespace, and exact changed-path ownership before the completion checkpoint and dedicated commit"
+            artifacts:
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/input-fingerprint.txt"
+                checksum: "sha256:2f7ed1592538372b238705b363fd90eb73532a052fd1ecc88aff3ecd604740ba"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/research/source-notes.md"
+                checksum: "sha256:a775d6fde93144ff271f74541fb243e6f16e818c573c33b135ada9793f842dc6"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/publish/curriculum/chapters/19-linear-layers.md"
+                checksum: "sha256:33476e15c7b1c9fb8a69a424409edc201aea28077dfd86833467fed85c679cd0"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/validation/rust/crates/llm-from-scratch/src/nn/linear.rs"
+                checksum: "sha256:a8428599e9f401abb6b8b5dc83c1e72d4c1af9805e574852fc071525f85491bd"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/validation/rust/demos/ch19-linear-layers/expected.txt"
+                checksum: "sha256:501fd7e972b0c21db472b5627014c873b105670d81e90c8f361f834de7636c65"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/validation/rust/demos/ch19-linear-layers/diagram-trace.txt"
+                checksum: "sha256:697863a251a01ab327008df87b17e526dab854569270378286b8d2e5f916e670"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/validation/Cargo.lock"
+                checksum: "sha256:054f781bb438df82771483105c896b51cb6de1818ddaff35b5b904817d0d6d9f"
+              - path: ".build/runs/20260723T115514Z-implement-ch19-linear-layers-01/publish.sha256"
+                checksum: "sha256:10ecb8bfdc02415f01ad1ff008df9245df537fc2b46bc02d521176c9ed74d02d"
+                notes: "Sorted immutable manifest for all 16 final staged publication files."
+            validation:
+              - command: "Startup, dependency, prior-artifact, environment, ownership, scope, and cost preflight"
+                status: passed
+                notes: "implement-ch19-linear-layers is the first eligible pending step and depends on completed repair-ch18-firefox-inline-math-leading. HEAD 17409b6 contains that dedicated repair; its seven-file frozen manifest revalidates at sha256:a1b86904b890592cc004ef5b7b3508e5e8b25ee6ecc3f8f1bc59548d04f93547. Pinned Docker, Compose, Git, Bash, Rust, Cargo, Node, and npm versions match the ledger; only unrelated desktop.ini is untracked. Chapter 19 owns a new contract, linear module/export, demo directory, English lesson, diagram/parser/tests, and Cargo lockfile. The medium slice uses bounded primary-source reading and deterministic local work without paid generation, concept dependency, build-definition, hosting, deployment, or substantial-CPU changes."
+              - command: "Bounded Chapter 19 primary-source review"
+                status: passed
+                notes: "Rosenblatt is limited to the earlier trainable weighted-response architecture; Bengio et al. directly support affine hidden/output computation inside a neural language model through y=b+Wx+U tanh(d+Hx); Vaswani et al. directly support learned Q/K/V/output projections, identical position-wise application, and the pre-softmax projection. Course-specific orientation, names, errors, fixed seed, optional-bias API, target bias-free policy, and trace grammar remain explicitly unattributed. The visible history spine is LLM evolution, not programming-language history."
+              - command: "npm --prefix site run check:contract -- ../.build/runs/20260723T115514Z-implement-ch19-linear-layers-01/publish/curriculum/chapters/19-linear-layers.md --structure-only"
+                status: passed
+                notes: "The unpublished revision-1 contract passes the integrated structural gate with the exact English active-locale projection. It freezes one optional-bias feature projection, notation-only Y=XW+b, every symbol, LLM-evolution evidence, deterministic stdout, Rust source ownership, visualization rationale, exercises, misconception, and Chapter 20 handoff before implementation."
+              - command: "Initial focused cargo clippy --locked -p llm-from-scratch -p ch19-linear-layers --all-targets -- -D warnings"
+                status: failed
+                notes: "Clippy correctly rejected one range loop in the trace writer because its output index also indexed the fixed bias array. No product was published; the loop now enumerates the bias fixture directly."
+              - command: "Corrected focused Rust format, clippy, tests, learner-output, trace-output, lockfile, and contract-fixture gates"
+                status: passed
+                notes: "Formatting and zero-warning clippy pass; all 192 cumulative library tests plus three Chapter 19 demo tests and doc tests pass; learner stdout and the 19-line contract expected_output are byte-identical; TRACE linear-layers-v1 is byte-identical to its fixture; and the offline lockfile diff adds only the dependency-free local ch19-linear-layers package."
+              - command: "Independent Rust, content, and site audits with focused revalidation"
+                status: passed
+                notes: "Three read-only audits found no correctness blocker. Their medium findings are resolved: parameter_count is dimension-derived without cloning a large matrix; reverse accumulation is explained; Rosenblatt is bounded to adaptive-response context; and gradient tables now have correct semantics. Low findings added rank-one backward and precedence coverage, runtime-derived trace metadata, precise exercises and Chapter 20 motivation, one nonrotating localized flow label, LTR technical policy symbols, and named gradient-table captions. Focused Rust, 32 source tests, zero-diagnostic Astro analysis, build, and five browser cases pass after the corrections."
+              - command: "Complete isolated Chapter 19 and regression validation"
+                status: passed
+                notes: "The plan reports 39 chapters, 62 steps, and 19 implemented contracts. The integrated contract, English chapter/parity/full content, dependency-free 19-demo Rust graph, locked format/clippy/workspace tests, exact learner/trace bytes, 516 site tests, zero-diagnostic Astro analysis, 31-page static build, 783 links, 31 SEO routes, five focused Chapter 19 browser cases, and all 77 Chromium browser regressions pass."
+              - command: "Browser-control availability and visual-layout evidence"
+                status: passed
+                notes: "The in-app browser runtime exposed no available browser backend, so no separate manual screenshot pass is claimed. Automated rendered checks cover 1440px and 390px widths, natural stage heights, local scrollers, page containment, formula clearance, forced colors, synthetic RTL, and disabled JavaScript. The installed Playwright cache contains Chromium only; the recent Firefox-specific Chapter 18 checkpoint remains the verified baseline for the unchanged shared math CSS."
+              - command: "Frozen staged publication verification"
+                status: passed
+                notes: "All 16 declared product files are frozen under publish/ with sorted manifest publish.sha256 at sha256:10ecb8bfdc02415f01ad1ff008df9245df537fc2b46bc02d521176c9ed74d02d. The manifest includes the contract, lockfile, linear module/export, seven demo files, English lesson, static diagram/parser, and unit/browser tests."
+              - command: "Initial fresh canonical cargo fmt --all -- --check"
+                status: failed
+                notes: "The fresh container caught one multiline import that rustfmt condenses after the audit-driven trace rewrite. No behavioral byte changed; the formatting-only correction was applied to validation, frozen publication, and canonical paths, then the manifest was regenerated before canonical validation continued."
+              - command: "Atomic canonical publication and SHA-256 identity verification"
+                status: passed
+                notes: "All 16 frozen product files were published to their declared canonical paths. Every staged and canonical file matches publish.sha256 at sha256:10ecb8bfdc02415f01ad1ff008df9245df537fc2b46bc02d521176c9ed74d02d; no build, package, hosting, deployment, locale-policy, or undeclared product file changed."
+              - command: "Complete fresh network-disabled canonical validation"
+                status: passed
+                notes: "Container learn-llm-ch19-canonical-1251, based on image sha256:baf2d3e4f374f22e5268a27119bcebf6b3a77b5e224cafa8c419eee6db1d675a with network disabled, reports 39 chapters, 62 steps, and 19 implemented contracts. The integrated contract, English chapter/parity/full content, cargo fmt, zero-warning workspace clippy, locked workspace tests, dependency and 19-demo checks, byte-exact learner and trace outputs, 516 site tests, zero-diagnostic Astro analysis, 31-page static build, 783 links, 31 SEO routes, five focused Chapter 19 browser cases, and all 77 Chromium browser regressions pass."
+              - command: "Canonical ledger, whitespace, and ownership audit"
+                status: passed
+                notes: "The final BUILD_STATE.yaml parses and passes the course-plan gate inside the canonical container; git diff --check passes; all 16 canonical product files still match the frozen manifest; and the only changed paths are the declared Chapter 19 outputs plus BUILD_STATE.yaml and DECISIONS.md. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 19 now publishes a dependency-free Rust linear layer with optional bias, exact vector/sequence/batch behavior and gradients, a deterministic learner plus Rust-authored trace, an accessible static visualization, a complete English lesson with LLM-centered history and SEO metadata, and an explicit Chapter 20 handoff. All staged and fresh canonical gates pass against the frozen 16-file manifest; no build, package, hosting, deployment, or locale-policy change was made. The completion checkpoint is ready for its required dedicated commit, and no later step has started."
       - id: implement-ch20-swiglu-feed-forward
         objective: "Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity."
         depends_on:
