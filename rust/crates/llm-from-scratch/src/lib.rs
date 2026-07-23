@@ -12,6 +12,7 @@ pub mod metrics;
 /// Numerical gradient checks and reverse-mode differentiation.
 pub mod autograd {
     pub mod gradcheck;
+    pub mod model_ops;
     pub mod scalar;
     pub mod tensor_core;
 }

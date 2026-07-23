@@ -1,0 +1,525 @@
+---
+// @ts-ignore Node filesystem access is build-time only.
+import { readFileSync } from 'node:fs';
+
+import {
+  assertModelAutodiffOpsDiagramLabels,
+  modelAutodiffOpsDiagramId,
+  parseModelAutodiffOpsTrace,
+  type ModelAutodiffOpsDiagramLabels,
+  type ModelOperation,
+  type ModelTraceError,
+  type TraceNumber,
+  type TraceShape,
+} from '../../lib/model-autodiff-ops-diagram';
+
+interface Props {
+  labels: ModelAutodiffOpsDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+assertModelAutodiffOpsDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Model-autodiff diagram instanceId must be a kebab-case identifier.');
+}
+
+const fixtureUrl = new URL(
+  '../../../../rust/demos/ch16-model-autodiff-ops/diagram-trace.txt',
+  import.meta.url,
+);
+const trace = parseModelAutodiffOpsTrace(readFileSync(fixtureUrl, 'utf8'));
+const titleId = `${modelAutodiffOpsDiagramId}-${instanceId}-title`;
+const descriptionId = `${modelAutodiffOpsDiagramId}-${instanceId}-description`;
+
+const numberList = (values: readonly TraceNumber[]) =>
+  values.map(({ lexeme }) => lexeme).join(', ');
+const dataNumbers = (values: readonly TraceNumber[]) =>
+  values.map(({ lexeme }) => lexeme).join(',');
+const valuesText = (values: readonly TraceNumber[]) => `[${numberList(values)}]`;
+const shapeText = (shape: TraceShape) =>
+  shape.lexeme === 'scalar' ? 'scalar' : `[${shape.lexeme.replaceAll('x', ', ')}]`;
+const operationLabel = (operation: ModelOperation) => labels.operations[operation];
+const positionsText = (positions: 'none' | readonly TraceNumber[]) =>
+  positions === 'none' ? labels.states.unusedRow : numberList(positions);
+const errorDetails = (error: ModelTraceError): string => {
+  switch (error.kind) {
+    case 'invalid-id':
+      return `position=${error.position.lexeme}; id=${error.index.lexeme}; rows=${error.rows.lexeme}`;
+    case 'invalid-target':
+      return `group=${error.group.lexeme}; target=${error.target.lexeme}; classes=${error.classes.lexeme}`;
+    case 'empty-targets':
+      return 'targets=empty';
+    case 'exp-overflow':
+      return `operation=${error.operation}; flat=${error.flat.lexeme}; value=${error.value}`;
+  }
+};
+---
+
+<figure
+  class="model-autodiff-ops-diagram"
+  data-visualization-id={modelAutodiffOpsDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption id={titleId}>{labels.title}</figcaption>
+  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+
+  <dl class="summary-grid">
+    <div>
+      <dt>{labels.summary.ids}</dt>
+      <dd><code dir="ltr">[{numberList(trace.fixture.ids)}]</code></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.targets}</dt>
+      <dd><code dir="ltr">[{numberList(trace.fixture.targets)}]</code></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.loss}</dt>
+      <dd><bdi dir="ltr">{trace.fixture.loss.lexeme}</bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.repeatedToken}</dt>
+      <dd><code dir="ltr">id={trace.fixture.repeatedId.lexeme}; n={trace.fixture.occurrences.lexeme}</code></dd>
+    </div>
+  </dl>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-forward`}>
+    <h3 id={`${titleId}-forward`}>{labels.sections.forward}</h3>
+    <p class="forward-fork-note">{labels.rules.forwardFork}</p>
+    <ol class="forward-rail">
+      {trace.forward.map((step) => (
+        <li
+          class={`forward-card operation-${step.operation}`}
+          data-forward-step={step.step.lexeme}
+          data-operation={step.operation}
+          data-sources={step.sources.join(',')}
+          data-input-shapes={step.inputShapes.map(({ lexeme }) => lexeme).join(',')}
+          data-output-shape={step.outputShape.lexeme}
+          data-values={dataNumbers(step.values)}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols.forward}</span>
+            <strong>{operationLabel(step.operation)}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.step}</dt><dd><bdi dir="ltr">{step.step.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.sources}</dt><dd>{step.sources.map((source) => labels.sources[source]).join(' + ')}</dd></div>
+            <div><dt>{labels.fields.inputShape}</dt><dd><code dir="ltr">{step.inputShapes.map(shapeText).join(' × ')}</code></dd></div>
+            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{shapeText(step.outputShape)}</code></dd></div>
+            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{valuesText(step.values)}</code></dd></div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
+    <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
+    <p>{labels.rules.target}</p>
+    <div class="table-scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`}>
+      <table class="target-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.position}</th>
+            <th scope="col">{labels.fields.tokenId}</th>
+            <th scope="col">{labels.fields.target}</th>
+            <th scope="col">{labels.fields.gradient}</th>
+            <th scope="col">{labels.fields.targetSign}</th>
+            <th scope="col">{labels.fields.competitorSign}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.targets.map((target) => (
+            <tr
+              data-target-position={target.position.lexeme}
+              data-token-id={target.tokenId.lexeme}
+              data-target-class={target.target.lexeme}
+              data-target-gradient={dataNumbers(target.gradient)}
+              data-correct-sign={target.correctSign}
+              data-competitor-sign={target.competitorSign}
+              data-row-sum={target.rowSum.lexeme}
+            >
+              <th scope="row"><bdi dir="ltr">{target.position.lexeme}</bdi></th>
+              <td><bdi dir="ltr">{target.tokenId.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{target.target.lexeme}</bdi></td>
+              <td><code dir="ltr">{valuesText(target.gradient)}</code></td>
+              <td><span class="sign-cue" aria-hidden="true">−</span> {labels.states[target.correctSign]} — {labels.states.selectedTarget}</td>
+              <td><span class="sign-cue" aria-hidden="true">+</span> {labels.states[target.competitorSign]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p>{labels.rules.matmul}</p>
+    <div class="pullback-grid">
+      {trace.pullbacks.map((pullback) => (
+        <article
+          class="pullback-card"
+          data-pullback-operation={pullback.operation}
+          data-parent={pullback.parent}
+          data-operand={pullback.operand ?? 'unary'}
+          data-shape={pullback.shape.lexeme}
+          data-gradient={dataNumbers(pullback.gradient)}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">{labels.symbols.reverse}</span>
+            <strong>{operationLabel(pullback.operation)}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.operand}</dt><dd>{pullback.operand ?? 'unary'}</dd></div>
+            <div><dt>{labels.fields.parent}</dt><dd><code dir="ltr">{pullback.parent}</code></dd></div>
+            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{shapeText(pullback.shape)}</code></dd></div>
+            <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(pullback.gradient)}</code></dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-accumulation`}>
+    <h3 id={`${titleId}-accumulation`}>{labels.sections.accumulation}</h3>
+    <p>{labels.rules.scatter}</p>
+    <ol class="occurrence-grid">
+      {trace.occurrences.map((occurrence) => (
+        <li
+          class={`occurrence-card occurrence-${occurrence.repeated}`}
+          data-occurrence-position={occurrence.position.lexeme}
+          data-token-id={occurrence.tokenId.lexeme}
+          data-destination-row={occurrence.destinationRow.lexeme}
+          data-contribution={dataNumbers(occurrence.contribution)}
+          data-repeated={occurrence.repeated}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">
+              {occurrence.repeated === 'yes' ? labels.symbols.repeated : labels.symbols.single}
+            </span>
+            <strong>{occurrence.repeated === 'yes' ? labels.states.repeatedOccurrence : labels.states.singleOccurrence}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.position}</dt><dd><bdi dir="ltr">{occurrence.position.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.tokenId}</dt><dd><bdi dir="ltr">{occurrence.tokenId.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.destinationRow}</dt><dd><bdi dir="ltr">{occurrence.destinationRow.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.contribution}</dt><dd><code dir="ltr">{valuesText(occurrence.contribution)}</code></dd></div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+    <div class="embedding-grid">
+      {trace.embeddings.map((embedding) => (
+        <article
+          class={`embedding-card ${embedding.positions === 'none' ? 'embedding-unused' : 'embedding-accumulated'}`}
+          data-embedding-row={embedding.row.lexeme}
+          data-positions={embedding.positions === 'none' ? 'none' : dataNumbers(embedding.positions)}
+          data-occurrences={embedding.occurrences.lexeme}
+          data-gradient={dataNumbers(embedding.gradient)}
+        >
+          <p class="card-state">
+            <span class="state-symbol" aria-hidden="true">
+              {embedding.positions === 'none' ? labels.symbols.unused : labels.symbols.repeated}
+            </span>
+            <strong>{embedding.positions === 'none' ? labels.states.unusedRow : labels.states.accumulatedRow}</strong>
+          </p>
+          <dl>
+            <div><dt>{labels.fields.destinationRow}</dt><dd><bdi dir="ltr">{embedding.row.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.position}</dt><dd><code dir="ltr">{positionsText(embedding.positions)}</code></dd></div>
+            <div><dt>{labels.fields.occurrences}</dt><dd><bdi dir="ltr">{embedding.occurrences.lexeme}</bdi></dd></div>
+            <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(embedding.gradient)}</code></dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-checks`}>
+    <h3 id={`${titleId}-checks`}>{labels.sections.checks}</h3>
+    <div class="check-grid">
+      {trace.checks.map((check) => (
+        <article
+          class="check-card state-checked"
+          data-check-operation={check.operation}
+          data-input={check.input.lexeme}
+          data-output={check.output.lexeme}
+          data-gradient={check.gradient.lexeme}
+          data-status={check.status}
+        >
+          <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.checked}</span><strong>{labels.states.checked}</strong></p>
+          <dl>
+            <div><dt>{labels.fields.operation}</dt><dd>{operationLabel(check.operation)}</dd></div>
+            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{check.input.lexeme} → {check.output.lexeme}</code></dd></div>
+            <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{check.gradient.lexeme}</bdi></dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+    <div class="table-scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-checks`}>
+      <table class="gradcheck-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.operation}</th>
+            <th scope="col">{labels.fields.sampledCoordinates}</th>
+            <th scope="col">{labels.fields.maximumError}</th>
+            <th scope="col">{labels.fields.tolerance}</th>
+            <th scope="col">{labels.fields.status}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.gradchecks.map((check) => (
+            <tr
+              data-gradcheck-operation={check.operation}
+              data-samples={dataNumbers(check.samples)}
+              data-maximum-error={check.maximumScaledError.lexeme}
+              data-tolerance={check.tolerance.lexeme}
+              data-status={check.status}
+            >
+              <th scope="row"><code dir="ltr">{check.operation}</code></th>
+              <td><code dir="ltr">{numberList(check.samples)}</code></td>
+              <td><bdi dir="ltr">{check.maximumScaledError.lexeme}</bdi></td>
+              <td><bdi dir="ltr">{check.tolerance.lexeme}</bdi></td>
+              <td>{labels.states.checked}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-section" aria-labelledby={`${titleId}-errors`}>
+    <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
+    <div class="error-grid">
+      {trace.errors.map((error) => (
+        <article
+          class="error-card state-rejected"
+          data-error-kind={error.kind}
+          data-gradients-unchanged={error.gradientsUnchanged}
+        >
+          <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span><strong>{labels.errors[error.kind]}</strong></p>
+          <code dir="ltr">{errorDetails(error)}</code>
+        </article>
+      ))}
+    </div>
+  </section>
+</figure>
+
+<style>
+  .model-autodiff-ops-diagram {
+    margin-block: 2rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .model-autodiff-ops-diagram:focus-visible,
+  .table-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: -0.3rem;
+  }
+
+  figcaption {
+    padding: 1rem 1.2rem 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+
+  .diagram-description,
+  .diagram-section,
+  .summary-grid {
+    margin-inline: 1.2rem;
+  }
+
+  .diagram-description {
+    margin-block: 0.45rem 1rem;
+    color: var(--muted);
+  }
+
+  .forward-fork-note {
+    margin-block: 0 0.75rem;
+    font-weight: 700;
+  }
+
+  .summary-grid,
+  .forward-rail,
+  .pullback-grid,
+  .occurrence-grid,
+  .embedding-grid,
+  .check-grid,
+  .error-grid {
+    display: grid;
+    align-items: start;
+    gap: 0.85rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-block: 0 1.2rem;
+  }
+
+  .summary-grid > div,
+  .forward-card,
+  .pullback-card,
+  .occurrence-card,
+  .embedding-card,
+  .check-card,
+  .error-card {
+    min-inline-size: 0;
+    padding: 0.8rem;
+    border: 2px solid var(--line);
+    border-radius: 0.75rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  .diagram-section {
+    min-inline-size: 0;
+    margin-block: 1.4rem;
+  }
+
+  .diagram-section h3 {
+    margin-block: 0 0.45rem;
+  }
+
+  .forward-rail,
+  .occurrence-grid {
+    margin-block: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .forward-rail {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .pullback-grid,
+  .embedding-grid,
+  .check-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .occurrence-grid,
+  .error-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .occurrence-yes,
+  .embedding-accumulated {
+    border-style: double;
+  }
+
+  .occurrence-no,
+  .pullback-card {
+    border-style: dashed;
+  }
+
+  .embedding-unused {
+    border-style: dotted;
+  }
+
+  .state-rejected {
+    border-style: ridge;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .card-state {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-block: 0 0.65rem;
+  }
+
+  .state-symbol,
+  .sign-cue {
+    font-weight: 900;
+  }
+
+  .table-scroll {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    contain: paint;
+    margin-block: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+  }
+
+  table {
+    inline-size: 100%;
+    min-inline-size: 48rem;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  th,
+  td {
+    padding: 0.55rem;
+    border-block-end: 1px solid var(--line);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  @media (max-width: 72rem) {
+    .forward-rail {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summary-grid,
+    .occurrence-grid,
+    .error-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 44rem) {
+    .diagram-description,
+    .diagram-section,
+    .summary-grid {
+      margin-inline: 0.8rem;
+    }
+
+    .summary-grid,
+    .forward-rail,
+    .pullback-grid,
+    .occurrence-grid,
+    .embedding-grid,
+    .check-grid,
+    .error-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .model-autodiff-ops-diagram,
+    .summary-grid > div,
+    .forward-card,
+    .pullback-card,
+    .occurrence-card,
+    .embedding-card,
+    .check-card,
+    .error-card,
+    .table-scroll {
+      border-color: CanvasText;
+      forced-color-adjust: auto;
+    }
+  }
+</style>

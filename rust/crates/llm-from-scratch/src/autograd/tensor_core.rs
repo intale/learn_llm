@@ -6,6 +6,9 @@ use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
 
+use super::model_ops::{ModelOpError, ModelSavedContext, apply_model_vjp};
+use crate::nn::probability::ProbabilityError;
+use crate::tensor::matmul::MatmulError;
 use crate::tensor::ops::{
     TensorOpError, broadcast_shape, map_binary, mean_axis as tensor_mean_axis,
     sum_axis as tensor_sum_axis,
@@ -28,6 +31,13 @@ pub enum TensorOperation {
     Broadcast,
     Sum,
     Mean,
+    MatMul,
+    GatherRows,
+    Exp,
+    Log,
+    Silu,
+    LogSoftmax,
+    IndexedMeanNll,
 }
 
 impl TensorOperation {
@@ -44,6 +54,13 @@ impl TensorOperation {
             Self::Broadcast => "broadcast",
             Self::Sum => "sum",
             Self::Mean => "mean",
+            Self::MatMul => "matmul",
+            Self::GatherRows => "gather_rows",
+            Self::Exp => "exp",
+            Self::Log => "log",
+            Self::Silu => "silu",
+            Self::LogSoftmax => "log_softmax",
+            Self::IndexedMeanNll => "indexed_mean_nll",
         }
     }
 
@@ -101,6 +118,8 @@ pub enum TensorSavedContext {
         input_shape: Vec<usize>,
         output_shape: Vec<usize>,
     },
+    /// Forward evidence for one model-critical local pullback.
+    Model(ModelSavedContext),
 }
 
 // region:tensor-autodiff-errors
@@ -110,6 +129,9 @@ pub enum TensorAutodiffError {
     Tensor(TensorError),
     View(TensorViewError),
     Operation(TensorOpError),
+    Matmul(MatmulError),
+    Probability(ProbabilityError),
+    Model(ModelOpError),
     BroadcastTargetMismatch {
         input: Vec<usize>,
         requested: Vec<usize>,
@@ -173,6 +195,9 @@ impl fmt::Display for TensorAutodiffError {
             Self::Tensor(error) => error.fmt(formatter),
             Self::View(error) => error.fmt(formatter),
             Self::Operation(error) => error.fmt(formatter),
+            Self::Matmul(error) => error.fmt(formatter),
+            Self::Probability(error) => error.fmt(formatter),
+            Self::Model(error) => error.fmt(formatter),
             Self::BroadcastTargetMismatch {
                 input,
                 requested,
@@ -263,6 +288,9 @@ impl Error for TensorAutodiffError {
             Self::Tensor(error) => Some(error),
             Self::View(error) => Some(error),
             Self::Operation(error) => Some(error),
+            Self::Matmul(error) => Some(error),
+            Self::Probability(error) => Some(error),
+            Self::Model(error) => Some(error),
             _ => None,
         }
     }
@@ -283,6 +311,24 @@ impl From<TensorViewError> for TensorAutodiffError {
 impl From<TensorOpError> for TensorAutodiffError {
     fn from(error: TensorOpError) -> Self {
         Self::Operation(error)
+    }
+}
+
+impl From<MatmulError> for TensorAutodiffError {
+    fn from(error: MatmulError) -> Self {
+        Self::Matmul(error)
+    }
+}
+
+impl From<ProbabilityError> for TensorAutodiffError {
+    fn from(error: ProbabilityError) -> Self {
+        Self::Probability(error)
+    }
+}
+
+impl From<ModelOpError> for TensorAutodiffError {
+    fn from(error: ModelOpError) -> Self {
+        Self::Model(error)
     }
 }
 // endregion:tensor-autodiff-errors
@@ -411,6 +457,28 @@ impl TensorValue {
         check_finite_forward(&value, operation)?;
         let tracked = parents.iter().any(|edge| edge.parent.tracks_gradient());
         Ok(Self::new_node(value, operation, parents, tracked, None))
+    }
+
+    /// Builds one checked model-operation node without exposing tape internals.
+    pub(crate) fn model_operation<const N: usize>(
+        operation: TensorOperation,
+        operands: [&Self; N],
+        forward: impl FnOnce(
+            &[Tensor; N],
+        ) -> Result<(Tensor, [ModelSavedContext; N]), TensorAutodiffError>,
+    ) -> Result<Self, TensorAutodiffError> {
+        ensure_operands_available(operation, &operands)?;
+        let primals: [Tensor; N] = std::array::from_fn(|index| operands[index].value());
+        let (value, contexts) = forward(&primals)?;
+        let parents = operands
+            .into_iter()
+            .zip(contexts)
+            .map(|(parent, context)| ParentEdge {
+                parent: parent.clone(),
+                saved: TensorSavedContext::Model(context),
+            })
+            .collect();
+        Self::operation_node(value, operation, parents)
     }
 
     /// Copies the owned primal tensor.
@@ -993,6 +1061,7 @@ fn apply_vjp(upstream: &Tensor, saved: &TensorSavedContext) -> Result<Tensor, Te
             debug_assert_eq!(upstream.shape(), output_shape);
             expand_reduction(upstream, input_shape, *axis, *keep_dim, *divisor)
         }
+        TensorSavedContext::Model(saved) => apply_model_vjp(upstream, saved),
     }
 }
 

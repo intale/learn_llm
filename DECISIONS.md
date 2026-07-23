@@ -3857,3 +3857,74 @@ explained; this is an attribution rule, not a blanket vocabulary ban.
 `implement-ch15-tensor-autodiff-core`, and
 `generalize-language-boundaries-ch08-ch15`, run
 `20260722T180945Z-generalize-language-boundaries-ch08-ch15-01`.
+
+## 2026-07-23 - Extend the tensor tape through one narrow model-operation seam
+
+**Status:** Accepted during Chapter 16 preflight.
+
+**Context:** Chapter 16's reviewed primary module is
+`autograd/model_ops.rs`, but Chapter 15 deliberately keeps tape-node
+construction, parent edges, saved-context dispatch, and operation availability
+checks private inside `autograd/tensor_core.rs`. A sibling module therefore
+cannot add a correct local VJP without either duplicating the tape or opening a
+small crate-internal integration seam. The scheduled output list also omitted
+the deterministic site parser required by the established static-diagram
+architecture.
+
+**Decision:** Keep matrix multiplication, gather/scatter-add, elementary
+nonlinearities, stable log-softmax, indexed mean-NLL forward rules, saved model
+context, and local VJP calculations in `autograd/model_ops.rs`. Change
+`tensor_core.rs` only enough to register stable operation names, wrap the
+existing matmul/probability errors, carry one model saved-context variant,
+dispatch that context back to the model-operations module, and expose a
+crate-private checked operation-node constructor. Do not expose raw nodes or
+parent edges publicly and do not change Chapter 15 behavior.
+
+Add `rust/crates/llm-from-scratch/src/autograd/tensor_core.rs` and
+`site/src/lib/model-autodiff-ops-diagram.ts` to the Chapter 16 outputs before
+product work. Reuse the dependency-free Chapter 11 matmul and Chapter 12 stable
+probability primitives rather than introducing another implementation or
+external crate. Verify the LLM-training progression against the declared
+Bengio, Abadi, Vaswani, and Shazeer primary sources; those sources support model
+computations and training history, not this repository's API, error precedence,
+trace grammar, storage, or graph lifecycle.
+
+**Consequences:** Chapter 16 remains one coherent vertical slice with
+`model_ops.rs` as its primary teaching implementation. The existing tensor
+tape gains a bounded extension point without making its representation public;
+the visualization remains a static projection of exact Rust evidence. English
+is the only active Chapter 16 locale, Russian receives no placeholder, and no
+dependency, build, route, locale, hosting, deployment, or client-runtime
+definition changes.
+
+**Affected step and run:** `implement-ch16-model-autodiff-ops`, run
+`20260723T034017Z-implement-ch16-model-autodiff-ops-01`.
+
+## 2026-07-23 - Keep Chapter 16 loss evidence target-based and preserve the Chapter 15 trace
+
+**Status:** Accepted during Chapter 16 preflight.
+
+**Context:** The Chapter 16 plan accidentally required an empty-mask case even
+though this chapter has no mask API and deliberately defers attention masking.
+Its embedding-gradient formula also omitted the feature slice on the table row.
+Separately, adding the model saved-context variant makes two exhaustive matches
+in the Chapter 15 trace helper incomplete even though the frozen Chapter 15
+graph never contains a model operation.
+
+**Decision:** Correct the Chapter 16 integration evidence from `empty masks` to
+`empty target sets` and write the formula as
+`\partial L/\partial E_{i,:}=\sum_{(b,t):z_{b,t}=i}\partial L/\partial X_{b,t,:}`.
+Do not add masking to the model-operation API. Claim `curriculum/course-plan.md`
+as a narrow planning correction and claim the Chapter 15 diagram helper solely
+for explicit model-context arms that are unreachable for its frozen graph.
+Require byte-exact Chapter 15 and Chapter 16 trace comparisons in validation.
+
+**Consequences:** Chapter 16 tests the actual fused-loss boundary—target count,
+an empty target set, and target bounds—without pulling attention semantics
+forward. The formula now states that every feature coordinate of a repeated
+embedding row accumulates contributions. Chapter 15 remains source-compatible,
+and its checked-in stdout, trace, lesson, and visualization evidence must remain
+byte-identical.
+
+**Affected step and run:** `implement-ch16-model-autodiff-ops`, run
+`20260723T034017Z-implement-ch16-model-autodiff-ops-01`.

@@ -8936,14 +8936,30 @@ builds:
         objective: "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss."
         depends_on:
           - generalize-language-boundaries-ch08-ch15
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/15-tensor-autodiff-core.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
+          - "site/src/lib/tensor-autodiff-core-diagram.ts"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -8958,13 +8974,21 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf"
+          - "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf"
+          - "https://arxiv.org/pdf/2002.05202"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/16-model-autodiff-ops.md"
           - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"
           - "rust/demos/ch16-model-autodiff-ops/"
           - "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
           - "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
+          - "site/src/lib/model-autodiff-ops-diagram.ts"
           - "site/tests/16-model-autodiff-ops-diagram.test.ts"
           - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
           - "Cargo.lock"
@@ -8983,7 +9007,9 @@ builds:
           - "cargo test --workspace --locked"
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
+          - "cargo run --quiet --locked -p ch15-tensor-autodiff-core --example ch15-tensor-autodiff-core-trace | diff -u rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt -"
           - "cargo run --quiet --locked -p ch16-model-autodiff-ops | diff -u rust/demos/ch16-model-autodiff-ops/expected.txt -"
+          - "cargo run --quiet --locked -p ch16-model-autodiff-ops --example ch16-model-autodiff-ops-trace | diff -u rust/demos/ch16-model-autodiff-ops/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 16-model-autodiff-ops"
           - "npm --prefix site run check:parity -- --chapter 16-model-autodiff-ops"
           - "npm --prefix site run check:content"
@@ -8995,8 +9021,77 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation and cached validation, plus bounded read-only verification of four declared primary sources. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, build-definition change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260723T034017Z-implement-ch16-model-autodiff-ops-01
+            started_at: "2026-07-23T03:40:17Z"
+            finished_at: "2026-07-23T04:48:14Z"
+            status: succeeded
+            input_fingerprint:
+              git: "400c8e4dece68ff130df14409d913cfbd5f0218e"
+              manifest: ".build/runs/20260723T034017Z-implement-ch16-model-autodiff-ops-01/input-fingerprint.txt"
+              checksum: "sha256:164f15f3746d491563ddd6d243831a0af866d0d98d2b0e020aa5d35eef44c0cc"
+              relevant_inputs: "sha256:7b0c539b1311e5618ac17e63d52af1ff2164d06c4feccca809b84ec9fb335167"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; Bash 5.3.15; repository Rust 1.93.1 and Node 22.12.0 pins unchanged"
+            staging_dir: ".build/runs/20260723T034017Z-implement-ch16-model-autodiff-ops-01/"
+            commands:
+              - "Complete startup protocol, parse the complete ledger, verify the prior Chapter 8-15 correction manifest, compare environment versions, inspect the Chapter 15 tape and Chapter 16 schedule, and identify the first eligible step"
+              - "Record the closed-tape extension seam and missing diagram-parser output before product work; declare bounded primary-source verification as an explicit network input"
+              - "Audit the Rust, lesson, visualization, and historical seams; narrow the stale empty-mask evidence to empty target sets and claim the Chapter 15 trace compatibility edit before implementation"
+              - "Verify the declared Bengio, Abadi, Vaswani, and Shazeer primary-source claims and keep the history on the road from neural next-word training to reusable decoder VJPs"
+              - "Implement the dependency-free model-operation tape extension, exact repeated-token learner output, strict Rust visualization trace, English contract and SEO lesson, build-time parser, static diagram, and regressions in an isolated staged worktree"
+              - "Run independent final Rust and site audits; add exact unequal-rank matmul gradient assertions, transactional non-finite VJP coverage, localized sign text, and explicit SiLU branch-source evidence"
+              - "Freeze 19 validated outputs under the run publish directory, verify publish.sha256, publish to canonical paths, and verify byte identity"
+            artifacts:
+              - path: ".build/runs/20260723T034017Z-implement-ch16-model-autodiff-ops-01/input-fingerprint.txt"
+                checksum: "sha256:164f15f3746d491563ddd6d243831a0af866d0d98d2b0e020aa5d35eef44c0cc"
+              - path: ".build/runs/20260723T034017Z-implement-ch16-model-autodiff-ops-01/publish.sha256"
+                checksum: "sha256:25ea4b587ed2382fb900f85b69b8aca5969504dec7de57f147f916ded29776ff"
+              - path: "docker-image:learn-llm-ch16-source:canonical"
+                checksum: "sha256:0ce6d2e55922b7d37084ea1875bb9d02fab4d351634b8417fa3242b1dac7965d"
+              - path: "docker-image:learn-llm-ch16-browser:canonical"
+                checksum: "sha256:b3652dee3c3c8ce7b836a643c9d970e79110340021da979500b32609ea9245da"
+            validation:
+              - command: "Startup, source-of-truth, environment, dependency, prior-artifact, ownership, and cost preflight"
+                status: passed
+                notes: "No stale running work exists; generalize-language-boundaries-ch08-ch15 is completed and its publish manifest revalidates at sha256:8433e9502353bd158aa623c39f03817c1fcbc3251e24dc75827f93ebaabbce98; pinned tool versions match the ledger; all required inputs exist; only unrelated desktop.ini is untracked; the medium step has no budget limit, paid service, generation, dependency, build-definition, hosting, or deployment change."
+              - command: "Bounded primary-source and independent design audits"
+                status: passed
+                notes: "The four declared primary sources support the neural-language-model progression, operation-graph accumulation, Transformer projection/softmax/FFN reuse, and later Swish/SwiGLU connection without attributing course-local VJPs, fusion, storage, or errors to those papers. Independent Rust, history, and site audits confirmed the narrow one-tape design and English-only static slice."
+              - command: "Initial network-disabled source-target rebuild from the repository Dockerfile"
+                status: failed
+                notes: "The old apt base layer was not present in the local cache, so a network-disabled rebuild stopped before product execution. Validation continued from the already pinned learn-llm-workspace:local and Chromium seed images using run-local COPY overlays; no build definition changed."
+              - command: "Initial staged Rust, contract, content, unit, static build, link, SEO, and focused Chromium gates"
+                status: passed
+                notes: "The implementation, exact learner output, exact Chapter 15 and Chapter 16 traces, contract, 16-chapter course prefix, 23 localized sources, 28 static pages, 633 local references, 28 SEO routes, and four focused Chapter 16 browser cases passed before final audit."
+              - command: "First independent final implementation and presentation audit"
+                status: failed
+                notes: "No arithmetic defect was found, but acceptance proof was incomplete for exact batched-matmul reductions and transactional non-finite model VJPs. The forward rail also needed explicit source evidence for the SiLU fork, and target-sign cells needed localized accessible sign text."
+              - command: "Initial post-audit focused parser regression"
+                status: failed
+                notes: "19 of 20 focused unit tests passed. The new deliberate branch-drift fixture used an unsupported source token and therefore failed syntax validation earlier than the test expected; the mutation was changed to a valid but wrong source so the intended cross-record rejection is exercised."
+              - command: "Corrected focused Rust, parser, Astro, static build, and Chapter 16 Chromium gates"
+                status: passed
+                notes: "Twelve model-operation tests now include exact unequal-rank broadcast reductions and transactional non-finite VJP behavior; all 20 focused parser/component tests, zero-diagnostic Astro checks, the 28-page build, and four responsive, forced-color, accessible-sign, fork-source, and JavaScript-disabled browser cases pass."
+              - command: "Complete staged Rust and deterministic-output gates"
+                status: passed
+                notes: "Formatting, Clippy with warnings denied, all workspace and documentation tests including 166 library tests, dependency policy, all 16 Rust demos, the frozen Chapter 15 trace, and both Chapter 16 exact-output comparisons pass with no external Rust crate."
+              - command: "Complete staged contract, content, unit, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "The 39-chapter plan has 59 ordered steps and 16 integrated contracts; 22 Vitest files and 392 tests pass; Astro reports zero diagnostics across 92 files; 28 static pages, 633 local references, 28 SEO routes, and all 62 Playwright cases pass."
+              - command: "Frozen publication and canonical identity verification"
+                status: passed
+                notes: "All 19 staged outputs are frozen under publish/ and revalidate through publish.sha256 at sha256:25ea4b587ed2382fb900f85b69b8aca5969504dec7de57f147f916ded29776ff. Every canonical output matches its frozen file byte for byte."
+              - command: "Network-disabled canonical Rust gates"
+                status: passed
+                notes: "Canonical source image sha256:0ce6d2e55922b7d37084ea1875bb9d02fab4d351634b8417fa3242b1dac7965d passes formatting, Clippy, all workspace and documentation tests, dependency and 16-demo policy, and all three exact Chapter 15/16 output comparisons."
+              - command: "Network-disabled canonical contract, content, unit, build, link, SEO, and Chromium gates"
+                status: passed
+                notes: "Canonical browser image sha256:b3652dee3c3c8ce7b836a643c9d970e79110340021da979500b32609ea9245da passes the plan and contract checks, 23-source/16-set content checks, zero-diagnostic Astro analysis, all 392 unit tests, 28-page static build, 633 references, 28 SEO routes, and all 62 Playwright cases."
+              - command: "Canonical ledger, whitespace, ownership, definition, and unrelated-change audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses, git diff --check passes, and only declared Chapter 16 outputs plus governance files are in scope; no package, dependency, locale, route, build, hosting, or deployment definition changed. Unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 16 adds one dependency-free model-operation extension to the Chapter 15 tensor tape: batched matmul, repeated row gather/scatter-add, exp, log, stable SiLU, log-softmax, and fused indexed mean NLL with typed errors and exact-parent-shape VJPs. The LLM-focused English lesson uses one predict-first repeated-token graph, formula and glossary, verified neural-language-model history, Rust evidence, basic SEO, exercises, and a static accessible visualization whose trace explicitly records the fork from SiLU to displayed log-softmax and fused loss. Russian remains deferred with no placeholder. The canonical publication is byte-identical to frozen manifest sha256:25ea4b587ed2382fb900f85b69b8aca5969504dec7de57f147f916ded29776ff; all staged and canonical Rust, content, unit, build, link, SEO, and 62-case browser gates pass; no build or dependency definition changed."
       - id: implement-ch17-parameter-initialization
         objective: "Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths."
         depends_on:

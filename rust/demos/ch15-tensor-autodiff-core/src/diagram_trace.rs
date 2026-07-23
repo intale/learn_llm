@@ -85,6 +85,9 @@ fn reduced_axes(saved: &TensorSavedContext) -> String {
         TensorSavedContext::Reshape { .. } | TensorSavedContext::Transpose { .. } => {
             "none".to_string()
         }
+        TensorSavedContext::Model(_) => {
+            unreachable!("the frozen Chapter 15 graph has no model-operation context")
+        }
     }
 }
 
@@ -113,6 +116,9 @@ fn saved_context(saved: &TensorSavedContext) -> String {
             yes_no(*keep_dim)
         ),
         TensorSavedContext::Broadcast { .. } | TensorSavedContext::Multiply { .. } => String::new(),
+        TensorSavedContext::Model(_) => {
+            unreachable!("the frozen Chapter 15 graph has no model-operation context")
+        }
     }
 }
 

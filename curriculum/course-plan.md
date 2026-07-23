@@ -967,12 +967,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `15-tensor-autodiff-core`.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.
-- **Formula:** `\frac{\partial L}{\partial E_i}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`.
+- **Formula:** `\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`.
 - **Historical contrast:** A structural tensor tape still cannot train a language model without correct embedding, matrix, activation, and token-loss derivatives; connect separately derived layer gradients to a small composable VJP vocabulary reused throughout the decoder.
 - **Rust contribution:** Extend the tensor tape with the model-critical primitives, including duplicate-ID scatter-add and fused stable log-softmax/NLL behavior.
 - **Visualization:** Useful — trace forward tensor shapes and reverse contributions through matmul, row gather, repeated-ID accumulation, and target selection.
 - **Practice:** Predict the embedding gradient when one token ID appears three times and identify the target-logit gradient signs.
-- **Integration evidence:** Every new VJP passes finite differences; repeated IDs, batched matmul, extreme logits, target bounds, empty masks, branches, and numerical stability pass.
+- **Integration evidence:** Every new VJP passes finite differences; repeated IDs, batched matmul, extreme logits, target bounds, empty target sets, branches, and numerical stability pass.
 - **Handoff:** Chapter 17 creates reproducible trainable values before the first learned layer is assembled.
 
 ## 17. Parameters and deterministic initialization

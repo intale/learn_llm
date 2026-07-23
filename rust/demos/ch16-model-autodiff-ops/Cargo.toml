@@ -1,0 +1,20 @@
+[package]
+name = "ch16-model-autodiff-ops"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ch16-model-autodiff-ops"
+path = "src/main.rs"
+
+[[example]]
+name = "ch16-model-autodiff-ops-trace"
+path = "examples/diagram_trace.rs"

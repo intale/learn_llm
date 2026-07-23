@@ -1,0 +1,37 @@
+TRACE model-autodiff-ops-v1 BEGIN
+FIXTURE name=repeated-token-projection ids=1,1,1,2 targets=0,0,0,1 repeated-id=1 occurrences=3 loss=0.693147180560
+FORWARD step=0 operation=gather_rows sources=embeddings,token_ids input-shapes=3x2 output-shape=4x2 values=1.000000000000,-1.000000000000,1.000000000000,-1.000000000000,1.000000000000,-1.000000000000,-1.000000000000,1.000000000000
+FORWARD step=1 operation=matmul sources=gather_rows,weights input-shapes=4x2,2x2 output-shape=4x2 values=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000
+FORWARD step=2 operation=silu sources=matmul input-shapes=4x2 output-shape=4x2 values=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000
+FORWARD step=3 operation=log_softmax sources=silu input-shapes=4x2 output-shape=4x2 values=-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560
+FORWARD step=4 operation=indexed_mean_nll sources=silu,targets input-shapes=4x2 output-shape=scalar values=0.693147180560
+TARGET position=0 token-id=1 target=0 gradient=-0.125000000000,0.125000000000 correct-sign=negative competitor-sign=positive row-sum=0.000000000000
+TARGET position=1 token-id=1 target=0 gradient=-0.125000000000,0.125000000000 correct-sign=negative competitor-sign=positive row-sum=0.000000000000
+TARGET position=2 token-id=1 target=0 gradient=-0.125000000000,0.125000000000 correct-sign=negative competitor-sign=positive row-sum=0.000000000000
+TARGET position=3 token-id=2 target=1 gradient=0.125000000000,-0.125000000000 correct-sign=negative competitor-sign=positive row-sum=0.000000000000
+PULLBACK operation=silu parent=matmul shape=4x2 gradient=-0.062500000000,0.062500000000,-0.062500000000,0.062500000000,-0.062500000000,0.062500000000,0.062500000000,-0.062500000000
+PULLBACK operation=matmul operand=left parent=gathered shape=4x2 gradient=-0.125000000000,-0.125000000000,-0.125000000000,-0.125000000000,-0.125000000000,-0.125000000000,0.125000000000,0.125000000000
+PULLBACK operation=matmul operand=right parent=weights shape=2x2 gradient=-0.250000000000,0.250000000000,0.250000000000,-0.250000000000
+OCCURRENCE position=0 token-id=1 destination-row=1 contribution=-0.125000000000,-0.125000000000 repeated=yes
+OCCURRENCE position=1 token-id=1 destination-row=1 contribution=-0.125000000000,-0.125000000000 repeated=yes
+OCCURRENCE position=2 token-id=1 destination-row=1 contribution=-0.125000000000,-0.125000000000 repeated=yes
+OCCURRENCE position=3 token-id=2 destination-row=2 contribution=0.125000000000,0.125000000000 repeated=no
+EMBEDDING row=0 positions=none occurrences=0 gradient=0.000000000000,0.000000000000
+EMBEDDING row=1 positions=0,1,2 occurrences=3 gradient=-0.375000000000,-0.375000000000
+EMBEDDING row=2 positions=3 occurrences=1 gradient=0.125000000000,0.125000000000
+CHECK operation=exp input=0.000000000000 output=1.000000000000 gradient=1.000000000000 status=pass
+CHECK operation=log input=1.000000000000 output=0.000000000000 gradient=1.000000000000 status=pass
+CHECK operation=silu input=0.000000000000 output=0.000000000000 gradient=0.500000000000 status=pass
+GRADCHECK operation=matmul-left samples=0,1,2,3 max-scaled-error=0.000000000117 tolerance=0.000002000000 status=pass
+GRADCHECK operation=matmul-right samples=0,1,2,3 max-scaled-error=0.000000000123 tolerance=0.000002000000 status=pass
+GRADCHECK operation=gather_rows samples=0,1,3,5 max-scaled-error=0.000000000304 tolerance=0.000002000000 status=pass
+GRADCHECK operation=exp samples=0,1,2 max-scaled-error=0.000000000303 tolerance=0.000002000000 status=pass
+GRADCHECK operation=log samples=0,1,2 max-scaled-error=0.000000000109 tolerance=0.000002000000 status=pass
+GRADCHECK operation=silu samples=0,1,2 max-scaled-error=0.000000000038 tolerance=0.000002000000 status=pass
+GRADCHECK operation=log_softmax samples=0,1,3,5 max-scaled-error=0.000000000105 tolerance=0.000002000000 status=pass
+GRADCHECK operation=indexed_mean_nll samples=0,1,3,5 max-scaled-error=0.000000000063 tolerance=0.000002000000 status=pass
+ERROR kind=invalid-id position=0 index=2 rows=2 gradients-unchanged=yes
+ERROR kind=invalid-target group=1 target=2 classes=2 gradients-unchanged=yes
+ERROR kind=empty-targets gradients-unchanged=yes
+ERROR kind=exp-overflow operation=exp flat=0 value=inf gradients-unchanged=yes
+TRACE model-autodiff-ops-v1 END
