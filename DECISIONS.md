@@ -4787,3 +4787,97 @@ site externally.
 
 **Affected step and run:** `implement-ch24-residual-connections`, run
 `20260724T085951Z-implement-ch24-residual-connections-01`.
+
+## 2026-07-24 - Repair Chapter 23 displayed-loss and model-summary containment
+
+**Status:** Accepted from the user's rendered-page review before corrective work.
+
+**Context:** The Chapter 23 indexed mean-loss equation is mathematically and
+semantically correct, but its upper summation limit is partially clipped by the
+display-math overflow box. In the diagram summary, the intrinsic width of the
+Frozen model formula exceeds the first card's allocated track and visually
+crosses the border toward the neighboring card. Existing checks prove viewport
+containment and nonzero wrapper geometry but do not compare the actual KaTeX
+content against the clipping box or each summary card's descendants against its
+border.
+
+**Decision:** Insert `repair-ch23-indexed-loss-and-model-summary` after Chapter
+24 and make it the dependency of Chapter 25. Mark the original Chapter 23 step
+invalidated only at the presentation checkpoint; retain its successful run and
+all mathematical, content, Rust, trace, and training evidence unchanged. Repair
+the two geometry boundaries with the smallest local CSS changes in the existing
+static Astro page and Chapter 23 component. Add focused rendered assertions that
+measure the indexed-loss KaTeX content against its display container and every
+Frozen model descendant against its card in Chromium and Firefox at desktop and
+narrow widths. Re-run the aggregate formula suite because the display-math
+container is shared.
+
+**Consequences:** Chapter 25 waits for the corrective commit. Chapter 23's
+wording, formula, Rust fixture, trace values, SEO, routes, locale scope, package
+graph, Linux build definitions, hosting, and deployment stay unchanged. The
+embedded preview browser is unavailable in this session, so acceptance uses the
+already cached version-matched Playwright image with networking disabled; this
+does not change the repository build or runtime.
+
+**Affected steps and run:** `implement-ch23-neural-ngram`,
+`repair-ch23-indexed-loss-and-model-summary` run
+`20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01`, and
+`implement-ch25-rmsnorm`.
+
+## 2026-07-24 - Mirror the Chapter 23 presentation repair in the reviewed plan
+
+**Status:** Accepted after the first fresh canonical unit pass; supersedes only
+the three-file output count in the preceding repair decision.
+
+**Context:** Run 01 fully validated and published the three presentation/test
+files, but the fresh canonical contract suite correctly rejected the ledger:
+every step inside `complete-decoder-course` must appear in the machine-readable
+`scheduling.cross_cutting_steps` registry. The isolated staged snapshot predated
+the new running ledger entry, so it could not reveal this integration dependency.
+
+**Decision:** Finish run 01 as failed and retain its immutable geometry evidence
+and three-file publication manifest. Start run 02 with
+`curriculum/course-plan.md` as an explicit input and output. Advance the plan to
+revision 22, schedule `repair-ch23-indexed-loss-and-model-summary` immediately
+before Chapter 25, and record the delivered Chapter 23 presentation repair in
+the chapter body. Do not change any chapter objective, formula, lesson content,
+Rust evidence, locale policy, package, build definition, hosting, or deployment
+configuration.
+
+**Consequences:** The plan and ledger again describe the same ordered work, and
+Chapter 25 remains blocked on the repair checkpoint. The validated CSS and test
+files from run 01 may be reused only after their manifest checksums are verified;
+all four final files still require staged and fresh canonical validation in run
+02.
+
+**Affected step and runs:** `repair-ch23-indexed-loss-and-model-summary` runs
+`20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01` and
+`20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02`.
+
+## 2026-07-24 - Advance the checked plan projection with the Chapter 23 repair
+
+**Status:** Accepted after run 02's staged plan validation; supersedes the
+four-file boundary in the preceding scheduling decision.
+
+**Context:** Adding the repair to the reviewed cross-cutting registry advances
+the course plan from revision 21 to 22. The repository deliberately requires
+`site/src/i18n/chapter-locales.json` to carry that exact revision even when the
+active-locale ranges themselves do not change. One unit regression also names
+the current revision when constructing a deliberately stale plan fixture.
+
+**Decision:** Finish run 02 as failed before publication and start run 03 with a
+complete six-file boundary. Update only `planRevision` in the chapter-locale
+projection and the matching current-revision literal in the content-contract
+test. Keep every chapter locale, route, fallback, policy ID, lesson, catalog,
+formula, Rust fixture, package, Linux build definition, hosting configuration,
+and deployment setting unchanged. Reuse run 01's three presentation files only
+after checksum verification.
+
+**Consequences:** Plan revision 22 records the corrective scheduling entry while
+the actual localization policy is byte-equivalent apart from its revision
+pointer. All plan, content, browser, and static-site gates must pass in run 03
+before the six files are frozen and committed.
+
+**Affected step and runs:** `repair-ch23-indexed-loss-and-model-summary` runs
+`20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02` and
+`20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03`.

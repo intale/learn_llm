@@ -71,6 +71,23 @@ async function expectFormulaGeometry(page: Page) {
           issues.push(`${source} clips vertically`);
         }
         if (element.classList.contains('katex-display')) {
+          const renderedBoxes = Array.from(
+            element.querySelectorAll<HTMLElement>('.katex-html *'),
+          )
+            .map((rendered) => rendered.getBoundingClientRect())
+            .filter((rendered) => rendered.width > 0 && rendered.height > 0);
+          if (renderedBoxes.length === 0) {
+            issues.push(`${source} has no rendered HTML boxes`);
+          } else {
+            const renderedTop = Math.min(...renderedBoxes.map((rendered) => rendered.top));
+            const renderedBottom = Math.max(...renderedBoxes.map((rendered) => rendered.bottom));
+            if (renderedTop < rect.top - 1) {
+              issues.push(`${source} clips its upper rendered limit`);
+            }
+            if (renderedBottom > rect.bottom + 1) {
+              issues.push(`${source} clips its lower rendered limit`);
+            }
+          }
           const container = element.parentElement;
           const next = container?.nextElementSibling as HTMLElement | null;
           if (
@@ -311,6 +328,25 @@ async function expectChapterContent(
   for (const part of containment.natural) {
     expect(part.scrollHeight).toBeLessThanOrEqual(part.clientHeight + 2);
   }
+  const modelSummaryOverflow = await diagram
+    .locator('.fixture-summary > div')
+    .first()
+    .evaluate((card) => {
+      const cardRect = card.getBoundingClientRect();
+      return Array.from(card.querySelectorAll<HTMLElement>('.katex'))
+        .map((formula) => formula.getBoundingClientRect())
+        .flatMap((formula, index) => {
+          const issues: string[] = [];
+          if (formula.left < cardRect.left - 1 || formula.right > cardRect.right + 1) {
+            issues.push(`Frozen model formula ${index} crosses its card horizontally`);
+          }
+          if (formula.top < cardRect.top - 1 || formula.bottom > cardRect.bottom + 1) {
+            issues.push(`Frozen model formula ${index} crosses its card vertically`);
+          }
+          return issues;
+        });
+    });
+  expect(modelSummaryOverflow).toEqual([]);
   await expectLocalFormulaSeparation(page);
 
   if (narrow) {

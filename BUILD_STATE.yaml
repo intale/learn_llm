@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T10:04:40Z"
+updated_at: "2026-07-24T10:42:34Z"
 
 environment:
   os: "Linux x86_64"
@@ -11125,7 +11125,7 @@ builds:
         objective: "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
         depends_on:
           - implement-ch22-adamw
-        status: completed
+        status: invalidated
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
@@ -11475,10 +11475,173 @@ builds:
                 status: passed
                 notes: "All eighteen declared canonical product files match canonical-artifacts.sha256; the input fingerprint and bounded primary-source notes match their recorded hashes; git diff --check and the learner-content control-character guard pass; the 21 visible paths are exactly eighteen outputs, two ledgers, and untouched desktop.ini. The five learn-llm-ch24-* Cargo, npm, dist, Chromium-result, and Firefox-result volumes were removed and are regenerable; pinned official validation images remain cached."
             notes: "Succeeded. Chapter 24 adds an exact-shape, parameter-transparent residual merge with tested identity and learned gradient paths, zero-branch learning evidence, and deterministic repeated plain-versus-residual transformations. The English lesson keeps history on the neural-architecture road to LLMs, renders all learner-facing notation through server-side math, includes SEO and exercises, and projects only a strict Rust-authored trace into a static accessible responsive diagram. Staged and fresh canonical gates pass in Chromium and Firefox; no package, Linux build, hosting, deployment, locale-policy, or Russian publication scope changed."
+      - id: repair-ch23-indexed-loss-and-model-summary
+        objective: "Keep the Chapter 23 indexed-loss summation limits fully visible and contain the Frozen model summary formula inside its card."
+        depends_on:
+          - implement-ch24-residual-connections
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/chapter-locale-config.mjs"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/content/chapters/en/23-neural-ngram.mdx"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Official node:22.12.0-bookworm-slim validation image at immutable digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+        acceptance:
+          - "The upper and lower limits of the indexed-loss summation are fully contained and visible at desktop and narrow widths in Chromium and Firefox."
+          - "The Frozen model summary formula remains inside its own bordered card without overlapping the adjacent card at desktop and narrow widths."
+          - "Focused tests measure the rendered KaTeX content and card descendants rather than only capped wrappers, while all existing formula, accessibility, RTL, forced-color, no-JavaScript, static-build, link, and SEO gates remain green."
+          - "The repair preserves Chapter 23 wording, formulas, Rust fixtures, trace values, localization scope, packages, Linux build definitions, hosting, and deployment."
+          - "The reviewed course-plan schedule mirrors the repair checkpoint and keeps Chapter 25 behind its completion."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 23-neural-ngram"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:23-neural-ngram'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@chapter:23-neural-ngram'"
+          - "npm --prefix site run test:e2e -- --grep '@formula-rendering'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@formula-rendering'"
+          - "npm --prefix site run test:e2e"
+        cost:
+          class: small
+          notes: "Three presentation/test files plus the reviewed-plan schedule entry and its two revision-projection files, deterministic local validation, and already cached immutable Node and Playwright images. No network, paid service, generation, dependency, build-definition, hosting, deployment, or locale-policy change is planned."
+        runs:
+          - run_id: 20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01
+            started_at: "2026-07-24T10:16:55Z"
+            finished_at: "2026-07-24T10:29:35Z"
+            status: failed
+            input_fingerprint:
+              git: "103e5d0d7fbd824e429af882e23341a2cb973215"
+              manifest: ".build/runs/20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01/input-fingerprint.txt"
+              checksum: "sha256:c98325c0a5e55b93d7a27fc8400bfed3fa8a4e2212ec08932e2a3b9940e68e36"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node and Playwright image digests match the preceding declared inputs"
+            staging_dir: ".build/runs/20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01/"
+            commands:
+              - "Run the startup protocol, parse the complete build ledger, inspect the latest successful runs and relevant formula/Chapter 23 decisions, preserve unrelated desktop.ini, and verify the recorded tool environment"
+              - "Inspect the Chapter 23 loss markup, diagram summary layout, and focused geometry coverage; declare a presentation-only repair with no formula, content, Rust, package, Linux build, hosting, or deployment change"
+              - "Attempt the preferred embedded preview-browser connection; after its runtime reports no available browser, retain the repository's pinned Playwright Chromium and Firefox suites as the rendered acceptance surface"
+              - "Create an isolated committed-base validation snapshot and seed its dependency volume from the cached workspace image only after proving that image's package-lock checksum exactly matches the canonical lockfile"
+              - "Measure the baseline inner KaTeX and card geometry in Chromium and Firefox, add focused regressions that fail on both defects, then add display-math block padding and an intrinsic Chapter 23 summary-card minimum"
+              - "Rebuild and confirm the repaired numeric geometry, pass focused Chapter 23 and aggregate formula suites in Chromium and Firefox, pass all site/type/build/link and 164 Chromium browser gates, then freeze the three-file publication manifest"
+            artifacts:
+              - path: ".build/runs/20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01/input-fingerprint.txt"
+                checksum: "sha256:c98325c0a5e55b93d7a27fc8400bfed3fa8a4e2212ec08932e2a3b9940e68e36"
+              - path: ".build/runs/20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01/visual-review/geometry-evidence.txt"
+                checksum: "sha256:7a51df56a6960059381672487e85694a1a1441282cc75ebc246a300133eefaf3"
+              - path: ".build/runs/20260724T101655Z-repair-ch23-indexed-loss-and-model-summary-01/publish.sha256"
+                checksum: "sha256:795fb114622c6a7b00598c6021856ba070d007dcbff4b8f9436fd707f1b323f8"
+            validation:
+              - command: "Preflight dependency, environment, cost, ownership, prior-run, scheduling, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 24 is committed and complete; no run is stale or active; the exact Chapter 23 sources and locked validation inputs exist; all recorded versions and immutable image digests match; the repair is small and local; the new step precedes Chapter 25; and unrelated desktop.ini remains untouched."
+              - command: "Baseline Chromium and Firefox inner-box geometry probe"
+                status: passed
+                notes: "The diagnostic reproduced the report at 1440 px and 390 px: the upper B crossed the indexed-loss clipping edge by about 6.8 px in both engines; Chromium's Frozen model KaTeX crossed its card by 3.8 px, while Firefox crossed by 26.6 px and overlapped the adjacent card by 15.4 px."
+              - command: "Focused Chapter 23 suite with the new inner-content assertions against the unmodified build"
+                status: failed
+                notes: "The new test correctly rejected the baseline indexed loss for upper-limit clipping and also exposed a lower rendered limit touching the clipping boundary in the pipeline equation. The independent probe already proved the Frozen model overflow before the formula assertion stopped the focused test; nothing canonical was changed."
+              - command: "Repaired Chromium and Firefox geometry probe plus focused Chapter 23 suites"
+                status: passed
+                notes: "The upper B now begins about 1.2 px inside the display box in both engines and every rendered display descendant is contained. The desktop summary uses two approximately 385 px tracks; the widest Firefox Frozen model formula ends more than 105 px inside its card. At 390 px it remains more than 44 px inside. All 5 focused tests pass in each engine."
+              - command: "Staged chapter, Astro, unit, production-build, and static-link gates"
+                status: passed
+                notes: "The Chapter 23 content check passes unchanged; Astro checks 127 files with zero diagnostics; all 31 Vitest files and 652 tests pass; the static build emits 36 pages; and 1073 local references, 36 SEO routes, and 116 artifacts pass."
+              - command: "Staged aggregate formula suites in Chromium and Firefox and full Chromium browser regression"
+                status: passed
+                notes: "All 62 published formula-page cases pass in each engine at desktop and narrow widths, and all 164 Chromium browser tests pass. The shared display-math padding introduces no overlap, containment, RTL, no-JavaScript, accessibility, link, or SEO regression."
+              - command: "Three-file staged publication manifest verification"
+                status: passed
+                notes: "The page math-container CSS, Chapter 23 diagram CSS, and focused Chapter 23 browser test are the only product differences from commit 103e5d0 and all match publish.sha256. Chapter wording, formulas, Rust, trace, packages, locks, workflows, hosting, deployment, and locale policy are byte-unchanged."
+              - command: "Fresh canonical Chapter 23, Astro, and unit validation after three-file publication"
+                status: failed
+                notes: "The Chapter 23 content check and 127-file Astro check pass, and 650 of 652 unit assertions pass. Two course-plan contract assertions correctly reject the newly inserted ledger step because curriculum/course-plan.md did not yet schedule it. The three repaired product files still match the frozen manifest; no content, formula, Rust, package, build, hosting, deployment, or locale file changed."
+            notes: "Failed after canonical publication. All presentation evidence and staged gates passed, but the canonical unit suite discovered that the repair step itself must be mirrored in the reviewed course-plan schedule. Preserve the three-file manifest and geometry evidence for verified reuse; restart with curriculum/course-plan.md as an explicit input and output."
+          - run_id: 20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02
+            started_at: "2026-07-24T10:29:35Z"
+            finished_at: "2026-07-24T10:32:53Z"
+            status: failed
+            input_fingerprint:
+              git: "103e5d0d7fbd824e429af882e23341a2cb973215"
+              manifest: ".build/runs/20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02/input-fingerprint.txt"
+              checksum: "sha256:80ec53e070b0c0772db863ba34bdfec90847e2ec82d9a68f3f0f04d162ed3a64"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node and Playwright image digests unchanged from run 01"
+            staging_dir: ".build/runs/20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02/"
+            commands:
+              - "Preserve run 01's verified three-file publication manifest and cross-engine geometry evidence; confirm the canonical repair files still match it byte for byte"
+              - "Record the newly discovered reviewed-plan scheduling dependency, retain Chapter 23's presentation-only invalidation, and restart before changing curriculum/course-plan.md"
+            artifacts:
+              - path: ".build/runs/20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02/input-fingerprint.txt"
+                checksum: "sha256:80ec53e070b0c0772db863ba34bdfec90847e2ec82d9a68f3f0f04d162ed3a64"
+            validation:
+              - command: "Run 02 recovery, provenance, scope, and input-fingerprint audit"
+                status: passed
+                notes: "Run 01 is finished as failed without altering its evidence; its three canonical product files match publish.sha256, its geometry evidence and manifest match recorded hashes, the failing canonical assertions identify only the absent course-plan scheduling entry, no tool or package input changed, and unrelated desktop.ini remains untouched."
+              - command: "Run 02 staged course-plan revision and ledger validation"
+                status: failed
+                notes: "The validator correctly rejected plan revision 22 against site/src/i18n/chapter-locales.json revision 21 before any unit, build, browser, or publication operation. No run 02 output reached canonical paths; the locale policy and all lesson routes remain unchanged."
+            notes: "Failed before publication. The plan registry addition necessarily advances its checked chapter-locale projection, and the content-contract regression contains the previous revision literal. Restart with those two exact integration files declared; retain run 01's verified presentation artifacts."
+          - run_id: 20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03
+            started_at: "2026-07-24T10:32:53Z"
+            finished_at: "2026-07-24T10:42:34Z"
+            status: succeeded
+            input_fingerprint:
+              git: "103e5d0d7fbd824e429af882e23341a2cb973215"
+              manifest: ".build/runs/20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03/input-fingerprint.txt"
+              checksum: "sha256:9b5c2f355a7e16c1c4e5cca1490c789061f4dd8e0cbbb72a1848d1e76499bd4a"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node and Playwright image digests unchanged from runs 01-02"
+            staging_dir: ".build/runs/20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03/"
+            commands:
+              - "Preserve and checksum-verify run 01's three presentation files and geometry evidence; preserve run 02's failed plan-projection diagnostic without publishing its staged plan"
+              - "Declare the full six-file boundary: plan revision and cross-cutting repair schedule, checked chapter-locale revision projection, revision-literal regression, and the three already validated presentation/test files"
+              - "Stage the complete six-file overlay, validate the reviewed plan and locale projection, and run all Chapter 23, Astro, unit, static-build, link, focused browser, aggregate formula, and full Chromium gates"
+              - "Freeze the six-file publication manifest, publish only those declared outputs to canonical paths, verify every checksum, and repeat the complete canonical validation suite"
+              - "Audit the exact changed-path, protected-file, control-character, whitespace, provenance, and artifact boundaries, then remove the four exact run-specific Docker volumes"
+            artifacts:
+              - path: ".build/runs/20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03/input-fingerprint.txt"
+                checksum: "sha256:9b5c2f355a7e16c1c4e5cca1490c789061f4dd8e0cbbb72a1848d1e76499bd4a"
+              - path: ".build/runs/20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03/publish.sha256"
+                checksum: "sha256:ad805240cc1df038d1b6ee80eb2218a96482a27c1135e27b75c16e0e732e6823"
+            validation:
+              - command: "Run 03 recovery, complete-scope, provenance, and input-fingerprint audit"
+                status: passed
+                notes: "Runs 01-02 are immutable and finished; run 01's canonical presentation files still match its manifest and geometry evidence; course-plan, chapter-locale manifest, the exact revision regression, and both validators exist and are fingerprinted; no package or tool input changed; and unrelated desktop.ini remains untouched."
+              - command: "Complete six-file staged plan, content, type, unit, production-build, static-link, and browser gates"
+                status: passed
+                notes: "The plan reports 39 chapters, 67 scheduled steps, and 24 contracts; Chapter 23 content remains unchanged; Astro checks 127 files with zero diagnostics; 31 Vitest files and 652 tests pass; the static build emits 36 pages; and 1073 local references, 36 SEO routes, and 116 artifacts pass. Focused Chapter 23 passes 5 of 5 in Chromium and Firefox, aggregate formula coverage passes 62 of 62 in each engine, and the full Chromium suite passes all 164 tests."
+              - command: "Six-file publication manifest and canonical checksum verification"
+                status: passed
+                notes: "The reviewed-plan schedule, locale-plan revision projection, revision regression, shared display-math container CSS, Chapter 23 summary-grid CSS, and focused rendered-geometry test are the only product/integration outputs and all match publish.sha256 after publication."
+              - command: "Full fresh canonical plan, Chapter 23, Astro, unit, production-build, static-link, and browser gates"
+                status: passed
+                notes: "The canonical rerun repeats the staged results: 39 chapters, 67 steps, and 24 contracts; unchanged Chapter 23 content; 127 Astro files with zero diagnostics; 31 Vitest files and 652 tests; 36 static pages; 1073 links, 36 SEO routes, and 116 artifacts; 5 focused tests per engine; 62 formula cases per engine; and 164 full Chromium tests."
+              - command: "Final artifact, provenance, changed-path, protected-file, control-character, whitespace, and disposable-resource audit"
+                status: passed
+                notes: "All six canonical outputs match the run 03 manifest; run 01's cross-engine geometry evidence and publication manifest retain their recorded hashes; git diff --check and the product control-character guard pass; the eight tracked paths are exactly six outputs plus BUILD_STATE.yaml and DECISIONS.md, with unrelated desktop.ini untouched. Packages, locks, Rust, Chapter 23 lesson content, workflows, build definitions, hosting, and deployment are unchanged. The four exact learn-llm-ch23-repair-* npm, dist, Chromium-result, and Firefox-result volumes were removed and none remain."
+            notes: "Succeeded. Shared display-math block padding keeps indexed summation limits visible, and an intrinsic two-column Chapter 23 summary layout gives the Frozen model formula sufficient width before collapsing to one column. Focused assertions now measure rendered KaTeX descendants against their clipping and card boundaries. Runs 01-02 remain failed immutable records of discovered ledger-integration dependencies; no invalid output from them was committed."
       - id: implement-ch25-rmsnorm
         objective: "Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero."
         depends_on:
-          - implement-ch24-residual-connections
+          - repair-ch23-indexed-loss-and-model-summary
         status: pending
         inputs:
           - "SKILLS.md"

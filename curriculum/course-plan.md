@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 21,
+  "plan_revision": 22,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -159,6 +159,10 @@
       {
         "step_id": "repair-formula-rendering-ch14-ch19",
         "before_chapter": "20-swiglu-feed-forward"
+      },
+      {
+        "step_id": "repair-ch23-indexed-loss-and-model-summary",
+        "before_chapter": "25-rmsnorm"
       }
     ],
     "planned_chapter_splits": [],
@@ -1101,6 +1105,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `23-neural-ngram`
 - **Implementation step:** `implement-ch23-neural-ngram`
+- **Revision status:** The displayed-loss and Frozen model containment repair is delivered by `repair-ch23-indexed-loss-and-model-summary`; the mathematical and Rust evidence remain unchanged.
 - **Depends on:** `22-adamw`.
 - **Outcome:** Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.
 - **Scope boundary:** Integrate tokenizer, windows, tensors, model-critical VJPs, layers, indexed NLL, batches, and AdamW in a deterministic checkpoint model; defer attention.
