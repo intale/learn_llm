@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T05:19:23Z"
+updated_at: "2026-07-24T06:59:53Z"
 
 environment:
   os: "Linux x86_64"
@@ -10919,14 +10919,21 @@ builds:
         objective: "Update named parameters with bias-corrected Adam moments and decoupled weight decay."
         depends_on:
           - implement-ch21-mini-batches
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/21-mini-batches.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/demos/ch21-mini-batches/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -10941,6 +10948,18 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/21-mini-batches.mdx"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/lib/mini-batches-diagram.ts"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "Bengio et al., A Neural Probabilistic Language Model (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf; read-only network input)"
+          - "Kingma and Ba, Adam: A Method for Stochastic Optimization (https://arxiv.org/pdf/1412.6980; read-only network input)"
+          - "Loshchilov and Hutter, Decoupled Weight Decay Regularization (https://arxiv.org/pdf/1711.05101; read-only network input)"
+          - "Touvron et al., LLaMA: Open and Efficient Foundation Language Models (https://arxiv.org/pdf/2302.13971; read-only network input)"
         outputs:
           - "curriculum/chapters/22-adamw.md"
           - "rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -10948,14 +10967,18 @@ builds:
           - "rust/demos/ch22-adamw/"
           - "site/src/content/chapters/en/22-adamw.mdx"
           - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/lib/adamw-diagram.ts"
           - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Update named parameters with bias-corrected Adam moments and decoupled weight decay."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
+          - "Every learner-facing expression in the lesson and diagram uses server-rendered math, and Chapter 22 joins the complete source and desktop/narrow rendered-formula coverage."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
@@ -10967,6 +10990,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch22-adamw | diff -u rust/demos/ch22-adamw/expected.txt -"
+          - "cargo run --quiet --locked -p ch22-adamw --example ch22-adamw-trace | diff -u rust/demos/ch22-adamw/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 22-adamw"
           - "npm --prefix site run check:parity -- --chapter 22-adamw"
           - "npm --prefix site run check:content"
@@ -10978,8 +11002,125 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation plus bounded read-only primary-paper research. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, package/build change, hosting change, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T052850Z-implement-ch22-adamw-01
+            started_at: "2026-07-24T05:28:50Z"
+            finished_at: "2026-07-24T06:59:53Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b03ba19a6eb43d35acebe012b87f57d1fc31e57c"
+              manifest: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/input-fingerprint.txt"
+              checksum: "sha256:5bde5e3b7469b5dcd2d111ae066b14bb758aba277a00f8a5006972fcd09c7f08"
+              relevant_inputs: "sha256:d80c2b2acbcd78dd9c1981b05bfd00442c59c4874194e2d157a0045efbe7a323"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/"
+            commands:
+              - "Complete the startup protocol, preserve unrelated desktop.ini, inspect the successful Chapter 21 checkpoint, compare pinned tools, and select the first eligible Chapter 22 step"
+              - "Declare named-leaf replacement, name-keyed state, transactional update, strict Rust-trace, aggregate formula, and bounded primary-paper inputs before product implementation"
+              - "Fingerprint every material local input, record the four primary sources, and create isolated publish, research, validation, rollback, and visual-review directories"
+              - "Read the declared Bengio, Adam, AdamW, and LLaMA primary papers and freeze bounded LLM-training claims before authoring the Chapter 22 history"
+              - "Preserve the first failed course-plan gate, then restore the reviewed parameter-group, decay-exclusion, exact-formula, zero-gradient, and anisotropic-trajectory scope in staging"
+              - "Implement the exact reviewed formula, explicit decay/no-decay partition, momentum intuition, strict fourteen-line trace parser, and Rust-authored SGD-versus-AdamW trajectory projection in staging"
+              - "Run the complete locked Rust and static-site gates, correct only harness-level invocation/assertion issues, and preserve deterministic learner and trace output byte for byte"
+              - "Capture and inspect desktop and 390-pixel diagram renders, widen crowded internal lanes, add pairwise formula-overlap coverage, and rerun focused plus full browser regressions"
+              - "Resolve three independent final-audit findings, qualify retained-moment behavior, add convergence and history evidence, correct group-validation ownership, and repeat every affected gate before freezing"
+              - "Freeze the exact eighteen-file publication manifest, publish through verified same-directory temporary files, and rehash every canonical output"
+              - "Build a fresh Git-archive canonical snapshot with only the frozen outputs and ledger overlaid, then run complete network-disabled Rust and site regressions"
+            artifacts:
+              - path: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/input-fingerprint.txt"
+                checksum: "sha256:5bde5e3b7469b5dcd2d111ae066b14bb758aba277a00f8a5006972fcd09c7f08"
+              - path: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/research/source-notes.md"
+                checksum: "sha256:bf3ab82ab015a9949cd738ba629f359308611869640fc5501c13a96ab1cbef7b"
+              - path: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/visual-review/ch22-desktop-diagram.png"
+                checksum: "sha256:4b08f48da21a863fc4c749522942514d8c3e0a026a043746f70dd59fbc93aa50"
+              - path: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/visual-review/ch22-narrow-diagram.png"
+                checksum: "sha256:a9e0d2c2a79338edb4afde3e89aeee590bf64f756c964dd3dfda54fe07278625"
+              - path: ".build/runs/20260724T052850Z-implement-ch22-adamw-01/publish.sha256"
+                checksum: "sha256:c6617130d7e91bd050c34aa161033c709056ce3db03ac2dd43de20550af956a3"
+            validation:
+              - command: "Preflight dependency, environment, cost, path-ownership, source, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 22 is first eligible; Chapter 21 is committed; all declared local inputs exist; the pinned Linux toolchain matches; bounded primary-paper access is the only network input; and unrelated desktop.ini remains untouched."
+              - command: "Primary-source review of Bengio et al. (2003), Kingma and Ba (2014/2015), Loshchilov and Hutter (2017/2019), and Touvron et al. (2023)"
+                status: passed
+                notes: "The papers support the progression from per-word/context neural-language-model stochastic updates, through Adam moments and early-step bias correction, to decoupled decay and a documented AdamW-based modern LLM recipe. Course-local constants, transaction semantics, errors, and trace remain explicit implementation decisions."
+              - command: "Initial staged course-plan validation"
+                status: failed
+                notes: "The gate rejected the staged contract formula because it omitted the reviewed plan's two bias-correction equations and used different hat/epsilon spelling. Reinspection also found the plan's explicit parameter-group, decay-exclusion, zero-gradient, and anisotropic-trajectory scope. Nothing was frozen or published; the correction is recorded in DECISIONS.md and remains isolated in staging."
+              - command: "Corrected staged course-plan, contract, chapter, parity, content, and Astro type validation"
+                status: passed
+                notes: "The reviewed Chapter 22 formula now matches exactly; the contract and complete English locale set pass; all 29 localized sources and 22 publishable locale sets remain valid; Astro reports zero errors, warnings, or hints."
+              - command: "Focused Chapter 22 trace, diagram, contract, and aggregate formula unit tests"
+                status: passed
+                notes: "32 tests passed. The parser accepts only the exact group-aware fourteen-line trace and frozen trajectory; the static component projects server-rendered math without arithmetic or client JavaScript; Chapter 14-22 formula-source rules remain green."
+              - command: "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked"
+                status: passed
+                notes: "Formatting and zero-warning lint passed; every workspace package, demo, library target, and documentation test passed, including 223 cumulative llm-from-scratch tests and all Chapter 22 optimizer tests."
+              - command: "Initial shell wrapper for scripts/check-rust-dependencies.sh and scripts/check-rust-demos.sh"
+                status: failed
+                notes: "The already-passing Rust gate sequence stopped when a Bash pipefail script was invoked through /bin/sh. No product assertion failed and no artifact changed; the declared Bash environment was used for the corrected invocation."
+              - command: "bash scripts/check-rust-dependencies.sh; bash scripts/check-rust-demos.sh; exact Chapter 22 learner and trace diffs"
+                status: passed
+                notes: "The workspace remains dependency-free, all 22 demos pass, and both Chapter 22 stdout streams match their checked fixtures byte for byte."
+              - command: "Full staged content, Astro, unit, static build, and link validation"
+                status: passed
+                notes: "Course-plan, contract, chapter, parity, and content gates passed; Astro reported zero diagnostics; 597 unit tests passed; 34 static pages built; 951 local references and all 34 SEO routes passed the link audit."
+              - command: "Initial focused Chapter 22 browser validation"
+                status: failed
+                notes: "Four of five tests passed; one stale text assertion expected unduplicated 7B/65B accessible text even though KaTeX exposes visual and assistive copies. The assertion was narrowed to the supported LLaMA sentence; no lesson content or formula changed."
+              - command: "Final focused Chapter 22 and full browser regression suites"
+                status: passed
+                notes: "All 5 Chapter 22 tests and all 150 browser tests passed at desktop and narrow widths, including no-JavaScript, forced-colors, RTL, formula geometry, local-scroller containment, and pairwise formula non-overlap checks."
+              - command: "Desktop and 390-pixel rendered diagram inspection"
+                status: passed
+                notes: "The first capture revealed crowded adjacent moment and trajectory formulas inside their local scrollers. Internal lanes were widened, explicit overlap coverage was added, and final captures confirm readable natural-height cards, group cues, trajectory paths, and contained server-rendered math."
+              - command: "Independent Rust, site, trace, and test-scope audits"
+                status: passed
+                notes: "The staged slice now qualifies fresh versus retained zero-gradient moments, exercises nonzero no-decay updates, proves deterministic 200-step convergence and replay, compares momentum plus coupled L2 historically, defines every formula symbol, embeds all nine relevant Rust regions, and renders a true old-parameter decay bypass."
+              - command: "Focused Chapter 22 browser validation after the separate decay-path correction"
+                status: passed
+                notes: "All 5 tests passed. A preceding strict-mode collection assertion was corrected to inspect both already-rendered bypass elements individually; responsive topology, containment, no-JavaScript, forced-colors, RTL, and formula checks then passed unchanged."
+              - command: "Revised desktop and 390-pixel rendered diagram inspection"
+                status: passed
+                notes: "Fresh captures show the decay branch originating from the old parameter on its own row, a crossed-out exclusion branch, natural-height cards, readable formulas, and intentional horizontal scrolling confined to the named optimizer and trajectory lanes."
+              - command: "Initial parallel final-gate shell wrapper"
+                status: failed
+                notes: "PowerShell passed escaped newlines to Bash as literal characters, producing an invalid pipefail option before any validator started. The invocation was replaced with one quoted command list; no product or fixture changed."
+              - command: "Final staged cargo fmt, workspace clippy, workspace tests, dependency policy, demo policy, and exact learner output"
+                status: passed
+                notes: "Formatting and zero-warning lint passed; all workspace tests passed, including 226 cumulative llm-from-scratch tests, 15 AdamW core tests, and 6 Chapter 22 demo tests; all 22 demos and the workspace-only dependency policy passed; learner stdout matched exactly."
+              - command: "Initial final diagram-trace diff invocation"
+                status: failed
+                notes: "The harness requested a generic diagram_trace example although the declared Cargo target is ch22-adamw-trace. Cargo found no such target and produced no stdout; the named-target invocation then matched the fourteen-line fixture byte for byte."
+              - command: "Final staged course-plan, contract, content, Astro, unit, static build, and link gates"
+                status: passed
+                notes: "The exact contract formula and all content gates passed; Astro reported zero diagnostics; 597 unit tests passed; 34 static pages built; 951 local references and all 34 SEO routes passed."
+              - command: "Final staged full browser regression"
+                status: passed
+                notes: "All 150 tests passed against the corrected Chapter 22 build, including desktop and narrow formula geometry, separate decay topology, containment, no-JavaScript rendering, forced colors, RTL, navigation, links, and SEO."
+              - command: "Three independent final read-only audits"
+                status: passed
+                notes: "Rust and test audits found no blocker. The site audit found one contract-only ownership mismatch: parameter-group construction cannot compare against the supplied parameter set. The contract now assigns duplicate/overlap checks to construction and missing/extra union checks to AdamW::step; the auditor rechecked it and reported no blocker."
+              - command: "Post-audit contract, content, Astro, unit, static build, and link revalidation"
+                status: passed
+                notes: "Plan, contract, content, Astro, and all 597 unit tests passed after the wording correction. A first rebuild hit a Windows/Dropbox EACCES lock while removing stale generated dist content; remounting only site/dist as isolated container tmpfs produced 34 pages and the 951-reference/34-SEO-route link pass without changing source or build definitions."
+              - command: "Frozen eighteen-file staging and canonical publication hash verification"
+                status: passed
+                notes: "The sha256 manifest contains exactly eighteen unique declared product files. Every staged file matched before publication, every same-directory temporary matched before replacement, and all eighteen canonical outputs matched afterward; unrelated desktop.ini was not read into or written by publication."
+              - command: "Initial read-only-bind and tar-based canonical snapshot attempts"
+                status: failed
+                notes: "Docker could not create a tmpfs mountpoint beneath a read-only bind, then GNU tar refused to certify a direct Dropbox snapshot because Windows metadata changed during reads. No validator or canonical source changed. Both named scratch volumes were discarded after exact-name inspection."
+              - command: "Fresh Git-archive canonical snapshot and frozen-manifest verification"
+                status: passed
+                notes: "A new run-specific volume was populated from commit b03ba19, overlaid only with the frozen eighteen files plus BUILD_STATE.yaml and DECISIONS.md, and every product path matched publish.sha256 before execution. Caches, generated output, .build, .git, and unrelated desktop.ini were excluded."
+              - command: "Complete fresh network-disabled canonical validation"
+                status: passed
+                notes: "Formatting, clippy, all workspace tests, dependency/demo policies, and both exact Rust outputs passed; plan, contract, content, zero-diagnostic Astro, 597 unit tests, a 34-page static build, 951 links, 34 SEO routes, 5 focused browser tests, and all 150 browser regressions passed with networking disabled."
+              - command: "Canonical ledger, whitespace, ownership, manifest, protected-definition, and unrelated-file audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses with the step completed and run succeeded; all five recorded reusable artifacts match their checksums; staged and canonical product files match the frozen eighteen-file manifest; changed paths are exactly those outputs plus BUILD_STATE.yaml and DECISIONS.md; package, Docker, Linux workflow, and locale-policy definitions are unchanged; no publish temporary remains; and unrelated desktop.ini is still the sole excluded untracked file."
+            notes: "Succeeded. Chapter 22 now provides a dependency-free, name-keyed, transactional AdamW implementation with explicit decay/no-decay groups, correct bias correction, retained-moment zero-gradient behavior, deterministic convergence/replay evidence, exact learner and diagram traces, and rollback-safe fresh leaf replacement. The English lesson keeps history on the optimization road from neural language models to modern LLM pretraining, renders every formula through the math pipeline, includes SEO metadata and exercises, and uses a static accessible Rust-authored visualization with a true separate decay bypass. Frozen staged and fresh canonical gates pass; no package, Linux build, hosting, deployment, or locale-policy definition changed."
       - id: implement-ch23-neural-ngram
         objective: "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
         depends_on:

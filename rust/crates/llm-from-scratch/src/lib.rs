@@ -11,6 +11,7 @@ pub mod metrics;
 
 /// Deterministic data ordering and training updates.
 pub mod training {
+    pub mod adamw;
     pub mod batch;
 }
 

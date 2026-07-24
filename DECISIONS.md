@@ -4404,3 +4404,117 @@ not deploy the site externally.
 
 **Affected step and run:** `implement-ch21-mini-batches`, run
 `20260724T042617Z-implement-ch21-mini-batches-01`.
+
+## 2026-07-24 - Declare Chapter 22 AdamW state and commit boundary
+
+**Status:** Accepted during Chapter 22 preflight.
+
+**Context:** The scheduled Chapter 22 step names the optimizer module, lesson,
+diagram, and focused tests, but does not yet constrain how optimizer state is
+identified, how a failed multi-parameter update behaves, or how exact Rust
+evidence reaches the static visualization. The existing `NamedParameter` owns
+an immutable external name and a trainable tensor leaf; mutating tape internals
+would broaden the autograd API unnecessarily. The historical contrast must
+follow language-model optimization toward modern LLM training rather than
+becoming a Rust, Python, or generic optimizer chronology.
+
+**Decision:** Key first- and second-moment state by each stable parameter name.
+For every successful step, compute bias-corrected Adam moments and apply
+decoupled weight decay as a separate parameter-proportional term. Prepare fresh
+trainable leaves and prospective optimizer state for the entire supplied named
+set, reject an empty set, duplicate or changed names, changed shapes, invalid
+hyperparameters, step overflow, or non-finite arithmetic, and replace the
+original leaves and optimizer state only after every candidate succeeds. A
+fresh leaf deliberately clears the consumed gradient while preserving the
+external name. Keep parameter order presentation-only: state identity comes
+from names. Add `site/src/lib/adamw-diagram.ts`, both aggregate formula tests,
+and an exact `ch22-adamw-trace` fixture as declared outputs. Use Bengio et al.
+to bound early neural-language-model stochastic updates, Kingma and Ba for
+Adam's moment estimates and bias correction, Loshchilov and Hutter for
+decoupled weight decay, and Touvron et al. for one modern LLM training example;
+freeze precise claims in source notes before authoring. Treat the tiny numeric
+fixture, trace grammar, transactional policy, errors, and accessibility
+projection as course decisions rather than paper claims. Route all
+learner-facing notation through the server-rendered math pipeline.
+
+**Consequences:** Chapter 22 remains one dependency-free English vertical slice
+that consumes the autograd gradients and stable parameter names already built
+by the course. Its diagram may validate and project exact Rust evidence but may
+not implement optimizer arithmetic. Bounded read-only primary-paper access is
+an explicit input. Packages, lockfile format, static Astro architecture, Linux
+build definitions, hosting, and deployment policy remain unchanged; this step
+does not deploy the site externally.
+
+**Affected step and run:** `implement-ch22-adamw`, run
+`20260724T052850Z-implement-ch22-adamw-01`.
+
+## 2026-07-24 - Restore the reviewed Chapter 22 group and trajectory scope
+
+**Status:** Accepted after the first course-plan gate rejected the staged
+contract, before any Chapter 22 publication.
+
+**Context:** The initial Chapter 22 preflight correctly fixed name-keyed state,
+whole-set transaction semantics, source evidence, and formula rendering, but it
+treated one decay coefficient as applying to every supplied parameter and made
+the diagram focus only on the update lanes. The reviewed course plan also
+requires parameter groups, zero-gradient handling, decay exclusions, and an
+SGD-versus-AdamW trajectory on an anisotropic quadratic. Its exact shared
+formula includes both bias corrections and uses the reviewed hat and epsilon
+notation. The deterministic plan gate exposed this mismatch while all product
+work was still isolated in validation staging.
+
+**Decision:** Add an explicit two-group name policy: one exact set receives the
+configured decoupled decay and one exact set is excluded with effective decay
+zero. Require the union to equal the supplied stable-name set and reject empty,
+duplicate, overlapping, missing, or extra assignments transactionally. Use the
+decayed output matrix and excluded normalization scale in the learner fixture;
+a successful fresh leaf remains the zero-gradient boundary. Preserve the exact
+course-plan formula as contract `formula.latex` and render it once in the lesson
+formula section. Extend the Rust-authored historical fixture and strict trace
+with bounded SGD and AdamW points on one anisotropic quadratic, and project
+those points as ordered trajectories alongside the separate decay bypass. The
+page parser and component still perform no optimizer or trajectory arithmetic.
+
+**Consequences:** The earlier Chapter 22 decision remains in force for stable
+identity, bias correction, decoupling, transactional replacement, sources,
+language-neutral history, formulas, and static architecture; this entry
+supersedes only its under-specified all-parameter decay and visualization
+boundary. No course-plan, package, Linux build, hosting, deployment, or locale
+policy file changes.
+
+**Affected step and run:** `implement-ch22-adamw`, run
+`20260724T052850Z-implement-ch22-adamw-01`.
+
+## 2026-07-24 - Qualify Chapter 22 zero-gradient behavior and strengthen evidence
+
+**Status:** Accepted during the staged Chapter 22 final audit, before
+publication.
+
+**Context:** A read-only cross-check found that the first-step fixture could be
+misread as claiming every zero-current-gradient AdamW update has zero adaptive
+motion. That is true only when the stored moments are also zero; later steps may
+move through momentum. The same audit found that the historical helper did not
+yet demonstrate the reviewed momentum and coupled-$L_2$ contrasts, that the
+no-decay group had only a zero-gradient example, that short plotted paths did
+not prove convergence, and that the diagram's decay delta needed a genuinely
+separate visual edge from the old parameter.
+
+**Decision:** State explicitly that zero current gradient eliminates the
+adaptive delta only for fresh zero moments, and test a later zero-gradient step
+with retained adaptive motion. Add a nonzero-gradient no-decay test, a bounded
+deterministic 200-step convergence-and-replay fixture, and a two-step Rust
+history comparison spanning direct stochastic descent, momentum, Adam with
+coupled $L_2$, and AdamW. Render decay as its own branch from the old parameter
+to the merge, with a crossed-out counterpart for the excluded group. Keep the
+short anisotropic trajectory as explanatory trace evidence rather than calling
+it a convergence proof.
+
+**Consequences:** The optimizer transaction, formula, parameter groups, exact
+learner fixture, static architecture, package graph, Linux build definitions,
+locale policy, and deployment boundary stay unchanged. Chapter 22 now
+distinguishes current gradients from stored optimizer state and provides
+independent tests for decay exclusion, historical behavior, deterministic
+replay, and convergence.
+
+**Affected step and run:** `implement-ch22-adamw`, run
+`20260724T052850Z-implement-ch22-adamw-01`.
