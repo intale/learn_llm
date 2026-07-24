@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T12:26:23Z"
+updated_at: "2026-07-24T12:32:29Z"
 
 environment:
   os: "Linux x86_64"
@@ -13160,3 +13160,83 @@ builds:
                 status: passed
                 notes: "Six builds and 67 unique steps parse with one active operational run before completion, declared changed outputs only, and intact fingerprints. Manual review confirms main-only execution, no pull-request trigger/secret/git push, no persisted checkout credential, least-scoped per-job permissions, configure→validate→export→upload ordering, build-gated deployment, github-pages environment/OIDC, exposed page_url, and serialized non-interrupting deployments. Host and whitespace audits pass."
             notes: "Succeeded. The current repository now owns a fail-closed native GitHub Pages artifact workflow for https://intale.github.io/learn_llm/. Root releases remain unchanged at /; Pages consumes configure-pages base_path and has a fully audited /learn_llm/ artifact. The separate-repository attempt remains immutable and invalidated, deployment never entered the 53-step curriculum schedule, and complete-decoder-course is restored as the sole active build. GitHub repository settings remain the documented one-time human action; no external state or secret was changed."
+  - build_id: agent-cost-approval-policy
+    objective: "Remove cost alone as a human-approval gate while retaining deterministic resource accounting."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "Small local process-document edit requested explicitly by the human; no paid service, network access, generation, or substantial CPU work."
+    completion_criteria:
+      - "AGENTS.md no longer requires asking the human for approval solely because work is large, paid, or estimated above a recorded budget."
+      - "Cost estimation, classification, budget comparison, explicit expensive inputs, and durable resource-use records remain required."
+      - "Scope, acceptance, external-authority, safety, and destructive-action boundaries are unchanged."
+      - "The process-only change passes ledger, exact-text, ownership, and whitespace validation and is persisted in its own commit."
+    steps:
+      - id: remove-cost-approval-gate
+        objective: "Make cost a recorded planning input rather than a reason to pause for human approval."
+        depends_on:
+          - implement-ch25-rmsnorm
+        status: completed
+        inputs:
+          - "Human instruction on 2026-07-24: after Chapter 25, remove the rule that asks about cost"
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        outputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The preflight rule requires estimating cost and comparing it with the remaining budget, then recording large, paid, or above-budget work before proceeding."
+          - "The process rules explicitly state that cost alone does not require a human approval pause."
+          - "The edit does not weaken separate approval rules for scope/acceptance changes or authorize new external state, credentials, destructive actions, or task expansion."
+          - "No curriculum, Rust, site, package, build, workflow, hosting, or deployment file changes."
+          - "The completed run is committed separately before Chapter 26 begins."
+        validate:
+          - "Exact-text audit of AGENTS.md cost, approval, scope, and safety rules"
+          - "node scripts/check-course-plan.mjs"
+          - "Parse BUILD_STATE.yaml as YAML"
+          - "git diff --check"
+          - "Exact changed-path and control-character audit"
+        cost:
+          class: small
+          notes: "Local process-document, ledger, and decision edits only; no network, paid service, generation, or substantial CPU use."
+        runs:
+          - run_id: 20260724T122807Z-remove-cost-approval-gate-01
+            started_at: "2026-07-24T12:28:07Z"
+            finished_at: "2026-07-24T12:32:29Z"
+            status: succeeded
+            input_fingerprint:
+              git: "ec2b10839c9c934e8ed51edced154c5c18cd1c50"
+              manifest: ".build/runs/20260724T122807Z-remove-cost-approval-gate-01/input-fingerprint.txt"
+              checksum: "sha256:94754a4b49b0788f670c2507cdc7f54805cbaffac80d4aad3f734572a838ed29"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Node 22.12.0/npm 10.9.0"
+            staging_dir: ".build/runs/20260724T122807Z-remove-cost-approval-gate-01/"
+            commands:
+              - "Confirm Chapter 25 commit ec2b108, preserve unrelated .build evidence and desktop.ini, reread the active ledger/latest decisions, locate every cost/approval rule, and define the narrow process-only boundary"
+              - "Fingerprint AGENTS.md, BUILD_STATE.yaml, DECISIONS.md, the user instruction, tool versions, and exact non-product scope before editing AGENTS.md"
+              - "Temporarily select this standalone process build while the decoder-course build remains inactive in execution; pending Chapter 26 owns disjoint product paths"
+              - "Replace only the large/paid/above-budget approval clause with resource-decision logging and the explicit rule that cost alone does not require a human approval pause"
+              - "Verify the retained cost accounting, scope-change approval, safety boundaries, ledger, course plan, exact three-file ownership, modes, control characters, whitespace, and immutable Chapter 25 commit boundary"
+            artifacts:
+              - path: ".build/runs/20260724T122807Z-remove-cost-approval-gate-01/input-fingerprint.txt"
+                checksum: "sha256:94754a4b49b0788f670c2507cdc7f54805cbaffac80d4aad3f734572a838ed29"
+            validation:
+              - command: "Process-step dependency, ownership, environment, cost, prior-run, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 25 is completed and committed; no stale run exists; the three declared outputs are disjoint from pending Chapter 26 product work apart from required shared state/decision integration; the small local edit needs no external input; and unrelated .build evidence plus desktop.ini remain untouched."
+              - command: "Exact AGENTS.md cost-policy and retained scope/acceptance-approval audit"
+                status: passed
+                notes: "Large, paid, and above-budget work now requires a recorded resource decision rather than cost approval, and AGENTS.md explicitly says cost alone does not require a human approval pause. Cost classification/budget comparison remain, and the separate approval rule for skipped scope or acceptance changes is unchanged."
+              - command: "Course-plan, YAML/invariant, fingerprint, exact-scope, deletion, mode, control-character, whitespace, and Chapter 25 boundary audit"
+                status: passed
+                notes: "The plan remains 39 chapters, 67 scheduled steps, and 25 contracts; the running ledger parses with the intended standalone build; its fingerprint is unchanged; only AGENTS.md, BUILD_STATE.yaml, and DECISIONS.md changed; no deletion or mode change exists; control-character and git diff --check pass; Chapter 25 remains commit ec2b108; and desktop.ini is preserved."
+              - command: "First post-completion Node invariant wrapper"
+                status: failed
+                notes: "PowerShell mangled an inline JavaScript regular expression, producing a SyntaxError before the wrapper inspected BUILD_STATE.yaml. The course-plan validator had already passed, no product assertion ran or failed, and no file changed; the same read-only invariant check is being repeated without an inline regular expression."
+              - command: "Corrected read-only YAML/invariant wrapper without an inline regular expression"
+                status: passed
+                notes: "BUILD_STATE.yaml parses and has exactly the intended active standalone build plus its running step/run before completion. The earlier failure was confined to wrapper syntax."
+            notes: "Succeeded. Cost remains estimated, classified, compared with the recorded budget, and documented for large, paid, or above-budget work, but it no longer causes a human approval pause by itself. Scope, acceptance, external-authority, safety, destructive-action, build, product, and deployment boundaries are unchanged. The standalone build is complete and active_build returns to complete-decoder-course before Chapter 26."

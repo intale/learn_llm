@@ -153,8 +153,9 @@ Before changing product files:
 2. Recheck dependencies, input paths, output ownership, and acceptance criteria.
 3. Compute or record the input fingerprint.
 4. Estimate cost and compare it with the build's remaining budget. For `large`
-   work, paid services, or an estimate above the recorded budget, obtain human
-   approval and log it in `DECISIONS.md`.
+   work, paid services, or an estimate above the recorded budget, record the
+   resource decision in `DECISIONS.md` before proceeding. Cost alone does not
+   require a human approval pause.
 5. Inspect prior runs for reusable, verified artifacts.
 6. Create the run record and staging directory, then checkpoint `running`.
 

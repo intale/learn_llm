@@ -4959,3 +4959,36 @@ the floating-point representability boundary. No public API, dependency, build
 tool, or learner-facing fixture changes.
 
 **Affected step:** `implement-ch25-rmsnorm`.
+
+## 2026-07-24 - Treat resource cost as recorded metadata, not an approval gate
+
+**Status:** Accepted from the human's explicit post-Chapter 25 instruction.
+
+**Context:** The preflight rules currently require human approval whenever work
+is classified as large, may use a paid service, or is estimated above a recorded
+budget. The human explicitly asked to remove the rule that asks about cost after
+Chapter 25. Cost estimates and provenance still matter for deterministic
+resumption, but cost alone should no longer interrupt otherwise authorized work.
+
+**Decision:** Keep the required cost class, budget comparison, explicit expensive
+inputs, and immediate checkpoints after costly or non-repeatable work. Replace
+the approval clause with a requirement to record large, paid, or above-budget
+work in `DECISIONS.md` before proceeding, and state that cost alone does not
+require a human approval pause. This standing instruction does not expand task
+scope, grant credentials, authorize external state changes or destructive
+actions, or remove the separate human-approval rule for skipping work because
+scope or acceptance criteria changed.
+
+Track the edit as the standalone `agent-cost-approval-policy` build after the
+committed Chapter 25 step. `active_build` temporarily selects this process build,
+then returns to `complete-decoder-course`; pending Chapter 26 product outputs do
+not overlap `AGENTS.md`, and no chapter work runs concurrently with this edit.
+
+**Consequences:** Future steps continue to estimate and disclose resource use,
+but may proceed without asking the human solely because the cost class is large,
+a paid service is involved, or an advisory budget estimate is exceeded. Any
+different authorization boundary remains governed by the unchanged safety,
+scope, and external-action rules.
+
+**Affected step and run:** `remove-cost-approval-gate`, run
+`20260724T122807Z-remove-cost-approval-gate-01`.
