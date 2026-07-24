@@ -5175,3 +5175,67 @@ position information without changing the causal visibility boundary.
 
 **Affected step and run:** `implement-ch28-causal-masking`, run
 `20260724T155422Z-ch28-causal-masking-01`.
+
+## 2026-07-24 - Define the Chapter 29 rotary-position boundary
+
+**Status:** Accepted during Chapter 29 preflight.
+
+**Context:** Chapter 29 must add position information to Chapter 28's decoder
+attention path without conflating score geometry with causal visibility or
+teaching multi-head assembly and cache integration early. The course-plan
+formula names the positioned vector on the left but accidentally drops its
+position subscript on the right. The scheduled outputs also omit the cumulative
+autodiff files, Chapter 28's exhaustive saved-context audit, the strict Rust
+trace parser, and aggregate two-engine formula regressions required by the
+established workflow.
+
+**Decision:** Correct the course-plan formula to
+$\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}=R(m\theta_k)(x_m)_{2k:2k+2}$
+and freeze that notation in the contract and lesson. Add a dependency-free
+`RotaryEmbedding` that precomputes sine and cosine tables, rotates adjacent
+coordinate pairs on the final even-width feature axis, treats the penultimate
+axis as tokens, accepts arbitrary leading axes, and supports a checked absolute
+position offset. Use the course-local schedule $\theta_k=b^{-2k/d}$ and the same
+counterclockwise convention for queries and keys. Record one linear-time taped
+pair operation whose reverse rule applies the transposed rotation; do not
+materialize dense rotation matrices.
+
+Freeze a four-feature, two-frequency fixture with repeated query/key content at
+positions zero through two, norm preservation, a Toeplitz relative-offset dot
+grid, and the same grid after a common absolute-position shift. Add position-zero
+identity, rank-two/three/four and empty-axis evidence, typed width/rank/range/base
+errors, deterministic replay, reverse gradients, and full-coordinate numerical
+gradient checks. Keep value rotation, causal masking changes, partial rotary
+dimensions, alternative pair layouts, multi-head split/merge, output projection,
+cache storage, and long-context frequency scaling out of scope.
+
+Use Vaswani et al. only for the transition from recurrence-free attention to
+explicit sinusoidal or learned position vectors added to embeddings. Use Su et
+al. for rotary query/key pairs and the relative-offset inner-product identity.
+Use Touvron et al. only for the bounded modern example that LLaMA replaces
+absolute positional embeddings with RoPE at each layer. Do not claim that RoPE
+receives relative indices, supplies causality, makes a whole decoder
+shift-invariant, guarantees length extrapolation, or is universal among modern
+LLMs. The corrected notation, base, adjacent-pair layout, error precedence,
+fixture values, tolerance, and trace grammar remain course-local policies.
+
+Rust emits a deterministic learner report and strict locale-neutral trace. Add
+`site/src/lib/rope-diagram.ts` to validate and project exact string values
+without trigonometry, numeric conversion, dot-product, norm, or gradient
+arithmetic. Render the useful visualization as static semantic HTML/CSS with
+server-rendered math, accessible tables, named narrow-width scrollers,
+natural-height cards, non-color cues, forced-color support, and no client script,
+SVG, or canvas. Extend both aggregate formula suites through Chapter 29 and run
+focused plus formula geometry in Chromium and Firefox. Use three bounded
+read-only primary-paper inputs and cached plus clean Docker validation; this is
+medium work and requires no paid or generation service.
+
+**Consequences:** Chapter 29 remains one dependency-free English vertical slice
+with basic description-only SEO and no Russian placeholder route. The course
+plan's corrected formula becomes an owned output of this step. No package
+dependency, build definition, Linux workflow, locale policy, social preview,
+hosting configuration, or deployment action changes. Chapter 30 may apply the
+same rotary operation independently within each attention head.
+
+**Affected step and run:** `implement-ch29-rope`, run
+`20260724T172741Z-ch29-rope-01`.

@@ -24,7 +24,7 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
-const chapter14To28Files = [
+const chapter14To29Files = [
   '14-scalar-autodiff.mdx',
   '15-tensor-autodiff-core.mdx',
   '16-model-autodiff-ops.mdx',
@@ -40,6 +40,7 @@ const chapter14To28Files = [
   '26-qkv-projections.mdx',
   '27-self-attention.mdx',
   '28-causal-masking.mdx',
+  '29-rope.mdx',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
@@ -279,7 +280,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To28Math: Record<string, readonly string[]> = {
+const requiredChapter14To29Math: Record<string, readonly string[]> = {
   '14': [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -365,9 +366,16 @@ const requiredChapter14To28Math: Record<string, readonly string[]> = {
     String.raw`\bar S_{bij}=0\quad\text{when }j>i`,
     String.raw`\frac{\partial L_{\le1}}{\partial q_2}`,
   ],
+  '29': [
+    String.raw`\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}`,
+    String.raw`R(\phi)=`,
+    String.raw`\theta_k=b^{-2k/d}`,
+    String.raw`R(a)^\top R(b)=R(b-a)`,
+    String.raw`\begin{bmatrix}\bar{x}_{2k}`,
+  ],
 };
 
-const formerChapter14To28MathCodeSpans = [
+const formerChapter14To29MathCodeSpans = [
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -450,9 +458,12 @@ const formerChapter14To28MathCodeSpans = [
   'O=AV',
   '[B,T,T]',
   '[B,T,d_v]',
+  'RoPE(x_m)',
+  'theta_k',
+  'n-m',
 ] as const;
 
-const rawChapter14To28FormulaPatterns = [
+const rawChapter14To29FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -486,9 +497,13 @@ const rawChapter14To28FormulaPatterns = [
   /\bA\s*=\s*softmax\s*\(/i,
   /\bO\s*=\s*AV\b/,
   /\[B\s*,\s*T\s*,\s*(?:T|d_[kv])\s*\]/,
+  /\bRoPE\s*\([^)]*\)/,
+  /\btheta_k\b/,
+  /\bn\s*-\s*m\b/,
+  /\bR\s*\(\s*(?:phi|[ab])\s*\)/,
 ] as const;
 
-const documentedChapter14To28Code = [
+const documentedChapter14To29Code = [
   {
     name: 'literal tensor shapes, coordinates, vectors, and matrices',
     pattern: /^\[[^\r\n]*\]$/,
@@ -624,10 +639,10 @@ describe('Chapter 8-13 formula-source contract', () => {
   });
 });
 
-describe('Chapter 14-28 formula-source contract', () => {
-  it('completes the source audit for all 35 published localized lessons', () => {
+describe('Chapter 14-29 formula-source contract', () => {
+  it('completes the source audit for all 36 published localized lessons', () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To28Files) {
+    for (const file of chapter14To29Files) {
       const source = readChapter('en', file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -635,31 +650,31 @@ describe('Chapter 14-28 formula-source contract', () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To28Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To29Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To28MathCodeSpans) {
+      for (const oldExpression of formerChapter14To29MathCodeSpans) {
         expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To28FormulaPatterns) {
+      for (const pattern of rawChapter14To29FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter14To28Files);
+    expect(reviewed).toEqual(chapter14To29Files);
     expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
-      35,
+      36,
     );
   });
 
   it('keeps every remaining code span within a documented program-data category', () => {
-    for (const file of chapter14To28Files) {
+    for (const file of chapter14To29Files) {
       for (const value of inlineCode(readChapter('en', file))) {
-        const allowance = documentedChapter14To28Code.find(({ pattern }) => pattern.test(value));
+        const allowance = documentedChapter14To29Code.find(({ pattern }) => pattern.test(value));
         expect(
           allowance?.name,
           `${file} has an undocumented code span after the formula audit: \`${value}\``,
@@ -669,7 +684,7 @@ describe('Chapter 14-28 formula-source contract', () => {
   });
 });
 
-describe('build-time formula rendering in Chapter 14-28 diagrams', () => {
+describe('build-time formula rendering in Chapter 14-29 diagrams', () => {
   it('renders every diagram-owned expression as strict HTML plus MathML', () => {
     const components = {
       initialization: readFileSync(
@@ -718,6 +733,10 @@ describe('build-time formula rendering in Chapter 14-28 diagrams', () => {
       ),
       causalMasking: readFileSync(
         resolve(componentRoot, 'chapters/CausalMaskingDiagram.astro'),
+        'utf8',
+      ),
+      rope: readFileSync(
+        resolve(componentRoot, 'chapters/RopeDiagram.astro'),
         'utf8',
       ),
     };
@@ -826,6 +845,16 @@ describe('build-time formula rendering in Chapter 14-28 diagrams', () => {
       'latex="A=\\operatorname{softmax}(S+M)"',
     );
     expect(components.causalMasking).toContain('latex={mathValue(value)}');
+
+    expect(components.rope).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.rope).toContain(
+      'latex="\\left(\\operatorname{RoPE}(x_m)\\right)_{2k:2k+2}=R(m\\theta_k)(x_m)_{2k:2k+2}"',
+    );
+    expect(components.rope).toContain(
+      'latex="\\left(R(m\\theta_k)q\\right)^\\top\\left(R(n\\theta_k)k\\right)=q^\\top R((n-m)\\theta_k)k"',
+    );
+    expect(components.rope).toContain('String.raw`\\theta_${row.pair.pair}=${row.pair.theta}`');
+    expect(components.rope).toContain('String.raw`\\varepsilon_g=${trace.proof.gradient_tolerance}`');
 
     for (const source of Object.values(components)) {
       expect(source).not.toContain('<script');

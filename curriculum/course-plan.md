@@ -1199,7 +1199,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `28-causal-masking`.
 - **Outcome:** Rotate query/key feature pairs by position and observe relative offsets in their dot products.
 - **Scope boundary:** Teach why attention is permutation-equivariant, sinusoidal history, pairwise rotations, frequencies, even dimensions, and sequence offsets; defer multiple heads/cache integration.
-- **Formula:** `\operatorname{RoPE}(x_m)_{2k:2k+2}=R(m\theta_k)x_{2k:2k+2}`.
+- **Formula:** `\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}=R(m\theta_k)(x_m)_{2k:2k+2}`.
 - **Historical contrast:** Move from recurrence and absolute sinusoidal/learned position vectors to rotary position information in attention.
 - **Rust contribution:** Add precomputed sine/cosine tables and differentiable Q/K rotation with offset support for later cached decoding.
 - **Visualization:** Useful — rotate 2-D feature pairs at several positions and compare absolute angles with relative dot-product differences.

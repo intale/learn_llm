@@ -19,7 +19,7 @@ const chapter08To13Ids = [
   '12-stable-softmax',
   '13-gradient-checking',
 ] as const;
-const chapter14To28Ids = [
+const chapter14To29Ids = [
   '14-scalar-autodiff',
   '15-tensor-autodiff-core',
   '16-model-autodiff-ops',
@@ -35,6 +35,7 @@ const chapter14To28Ids = [
   '26-qkv-projections',
   '27-self-attention',
   '28-causal-masking',
+  '29-rope',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const viewports = {
@@ -135,7 +136,7 @@ const formerMathCode = new Set([
   'd_in',
 ]);
 
-const formerChapter14To28MathCode = new Set([
+const formerChapter14To29MathCode = new Set([
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -213,6 +214,9 @@ const formerChapter14To28MathCode = new Set([
   'O=AV',
   '[B,T,T]',
   '[B,T,d_v]',
+  'RoPE(x_m)',
+  'theta_k',
+  'n-m',
 ]);
 
 const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly string[]> = {
@@ -224,7 +228,7 @@ const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly str
   '13-gradient-checking': [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To28Latex: Record<(typeof chapter14To28Ids)[number], readonly string[]> = {
+const chapter14To29Latex: Record<(typeof chapter14To29Ids)[number], readonly string[]> = {
   '14-scalar-autodiff': [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
   '15-tensor-autodiff-core': [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
@@ -315,6 +319,13 @@ const chapter14To28Latex: Record<(typeof chapter14To28Ids)[number], readonly str
     String.raw`A_{bij}=0\quad\text{when }j>i`,
     String.raw`\bar S_{bij}=0\quad\text{when }j>i`,
     String.raw`\frac{\partial L_{\le1}}{\partial q_2}`,
+  ],
+  '29-rope': [
+    String.raw`\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}`,
+    String.raw`R(\phi)=`,
+    String.raw`\theta_k=b^{-2k/d}`,
+    String.raw`R(a)^\top R(b)=R(b-a)`,
+    String.raw`\begin{bmatrix}\bar{x}_{2k}`,
   ],
 };
 
@@ -501,9 +512,9 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
   }
 });
 
-test.describe('@formula-rendering:ch14-ch28 rendered formula contract', () => {
+test.describe('@formula-rendering:ch14-ch29 rendered formula contract', () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To28Ids) {
+    for (const chapterId of chapter14To29Ids) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -525,7 +536,7 @@ test.describe('@formula-rendering:ch14-ch28 rendered formula contract', () => {
         const latex = await page
           .locator('.lesson-body .katex annotation[encoding="application/x-tex"]')
           .evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
-        for (const fragment of chapter14To28Latex[chapterId]) {
+        for (const fragment of chapter14To29Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
@@ -595,7 +606,7 @@ test.describe('@formula-rendering:ch14-ch28 rendered formula contract', () => {
 
         const inlineCode = await page.locator('.lesson-body :not(pre) > code').allInnerTexts();
         expect(
-          inlineCode.filter((value) => formerChapter14To28MathCode.has(value.trim())),
+          inlineCode.filter((value) => formerChapter14To29MathCode.has(value.trim())),
         ).toEqual([]);
       });
     }

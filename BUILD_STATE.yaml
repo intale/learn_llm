@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T17:14:21Z"
+updated_at: "2026-07-24T17:47:13Z"
 
 environment:
   os: "Linux x86_64"
@@ -12502,14 +12502,24 @@ builds:
         objective: "Rotate query/key feature pairs by position and observe relative offsets in their dot products."
         depends_on:
           - implement-ch28-causal-masking
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "DECISIONS.md"
+          - "BUILD_STATE.yaml"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/28-causal-masking.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
+          - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
+          - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
+          - "rust/crates/llm-from-scratch/src/attention/causal_mask.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch28-causal-masking/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -12523,16 +12533,35 @@ builds:
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "site/src/content/chapters/en/28-causal-masking.mdx"
+          - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/src/lib/causal-masking-diagram.ts"
+          - "site/tests/28-causal-masking-diagram.test.ts"
+          - "site/tests/e2e/ch28-causal-masking.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://arxiv.org/abs/1706.03762"
+          - "https://arxiv.org/abs/2104.09864"
+          - "https://arxiv.org/abs/2302.13971"
         outputs:
+          - "curriculum/course-plan.md"
           - "curriculum/chapters/29-rope.md"
           - "rust/crates/llm-from-scratch/src/attention/rope.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch28-causal-masking/src/lib.rs"
           - "rust/demos/ch29-rope/"
           - "site/src/content/chapters/en/29-rope.mdx"
           - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/lib/rope-diagram.ts"
           - "site/tests/29-rope-diagram.test.ts"
           - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Rotate query/key feature pairs by position and observe relative offsets in their dot products."
@@ -12540,6 +12569,7 @@ builds:
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
+          - "Every learner-facing expression uses the math pipeline, and built Chromium and Firefox pages prove readable formula spacing and page containment at desktop and narrow widths."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -12550,6 +12580,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch29-rope | diff -u rust/demos/ch29-rope/expected.txt -"
+          - "cargo run --quiet --locked -p ch29-rope --example diagram_trace | diff -u rust/demos/ch29-rope/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 29-rope"
           - "npm --prefix site run check:parity -- --chapter 29-rope"
           - "npm --prefix site run check:content"
@@ -12558,11 +12589,116 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:29-rope'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:29-rope'"
+          - "npm --prefix site run test:e2e -- --grep '@formula'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation, three bounded read-only primary-paper inputs, and cached plus clean Docker Rust/browser validation; registered deferred locales require no lesson or route. No paid service, generation service, package dependency, build-definition change, hosting, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T172741Z-ch29-rope-01
+            started_at: "2026-07-24T17:27:41Z"
+            finished_at: "2026-07-24T18:27:08Z"
+            status: succeeded
+            input_fingerprint:
+              git: "bdc14a11285ef863ea7269403b7e90cd8936696c"
+              manifest: ".build/runs/20260724T172741Z-ch29-rope-01/input-fingerprint.txt"
+              checksum: "sha256:0f4d54f89e0c506a72eed31ac3cebd5ccecf6852cc66d328e309b082a230a736"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached validation and Playwright image digests match the recorded inputs"
+            staging_dir: ".build/runs/20260724T172741Z-ch29-rope-01/"
+            commands:
+              - "Run the complete startup protocol, preserve unrelated .build evidence and desktop.ini, verify Chapter 28 artifacts, compare recorded tools, and select Chapter 29 as the sole eligible step"
+              - "Read the repository chapter and static-site playbooks, confirm the English-only locale projection and description-only SEO boundary, and verify that no hosting configuration or deployment authority is present"
+              - "Expand the declared boundary to correct the course-plan notation and include cumulative autodiff/context operands, strict Rust-trace projection, aggregate formula coverage, two-engine layout gates, and three bounded primary sources"
+              - "Fingerprint thirty-nine material local inputs, source URLs, immutable tool images, locale policy, and the no-hosting boundary; create isolated publish, validation, research, and log directories"
+              - "Review the three primary papers and freeze their bounded Transformer-position, rotary-inner-product, LLaMA-adoption, and exclusion claims in research/source-notes.md"
+              - "Create a reproducible Git archive of the exact Chapter 28 HEAD, hydrate a disposable Linux validation container, overlay the first staged rotary core, and attempt an early focused compile"
+              - "Implement the precomputed adjacent-pair rotary tables, linear-time taped forward/VJP, checked offset API, exhaustive core boundaries, and Chapter 28 saved-context compatibility in the isolated publish tree"
+              - "Complete the Chapter 29 demo package, refresh the path-only workspace lock offline, run all focused core/demo tests, and freeze the exact learner report plus 29-line Rust-authored trace"
+              - "Author the integrated Chapter 29 contract and English lesson, strict no-arithmetic trace parser, semantic static diagram, aggregate formula audits, and focused two-engine browser specification in the isolated publish tree"
+              - "Repair contract projection mismatches, JavaScript escape-sensitive dynamic formulas, narrow norm containment, and Firefox-specific false-positive clipping detection without changing the frozen Rust evidence"
+              - "Run staged course-plan, contract, locale/content, Astro, focused unit, static build, Chapter 29 Chromium/Firefox, and 72-route aggregate formula gates"
+              - "Run warning-denying full-workspace Rust validation, dependency and demo policy, exact fixture replay, all site units, the final static artifact audit, and the complete 199-case Chromium regression suite"
+              - "Freeze and verify one SHA-256 publication manifest for all twenty-two declared staged product files before touching canonical product paths"
+              - "Publish all twenty-two product files through checked temporary siblings, preserve eight replaced Chapter 28 files as run-scoped backups, and verify canonical bytes against the frozen manifest"
+              - "Hydrate fresh pinned validation and browser containers from the exact Chapter 28 Git archive, overlay only the twenty-two canonical product files, verify every manifest hash, and replay the complete acceptance matrix"
+              - "Remove all four Chapter 29 disposable containers after canonical validation while retaining immutable cached images and run evidence"
+            artifacts:
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/input-fingerprint.txt"
+                sha256: "0f4d54f89e0c506a72eed31ac3cebd5ccecf6852cc66d328e309b082a230a736"
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/research/source-notes.md"
+                sha256: "5811945f169289a95e507993512916055608a46c5114fd0f57123e2a1ea928b1"
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/canonical-head.tar"
+                sha256: "a95b86f9edb9e21f0f4a803f0a5a711848112055f758f2c0c21bdf7cbbf446ca"
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/publish/rust/demos/ch29-rope/expected.txt"
+                sha256: "d902d029d24d7bede9de830488f5a09bff134203c458aaf58388fe34c44ddd0d"
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/publish/rust/demos/ch29-rope/diagram-trace.txt"
+                sha256: "9aba6b1b67f530150be49c6131add0f96e1cb3cb958869cb91910b493905f6dd"
+              - path: ".build/runs/20260724T172741Z-ch29-rope-01/publish.sha256"
+                sha256: "4fdf7ad1716f8a721aef52111516ec372d72c7b69da3d9000be6dc156788e256"
+            validation:
+              - command: "Bounded Vaswani, Su, and Touvron primary-source review"
+                status: passed
+                notes: "The frozen claims stay within explicit positional vectors after removing recurrence, absolute-position pair rotations with a relative query-key inner-product identity, and LLaMA's documented per-layer RoPE adoption. Universal use, guaranteed extrapolation, causal masking, value rotation, whole-model shift invariance, and all course-local implementation choices are excluded."
+              - command: "Initial staged rotary-core formatting and focused compile"
+                status: failed
+                notes: "Cargo stopped during workspace discovery because the staging overlay already contained the new rust/demos/ch29-rope directory but its manifest had not yet been authored. No compiler ran and no canonical file changed; complete the isolated demo package before retrying."
+              - command: "First locked retry after completing the demo manifest"
+                status: failed
+                notes: "The workspace correctly required Cargo.lock to include the new path-only ch29-rope package. The lock was refreshed offline with no registry or dependency change; the core then compiled and all six focused rotary tests passed, while the first demo compile exposed and localized one Rust name-shadowing error."
+              - command: "Corrected focused Linux-container rotary core and demo tests"
+                status: passed
+                notes: "All six core tests and all four Chapter 29 demo tests pass. Coverage includes known signs and angles, norm and common-shift dot invariants, rank-two/three/four and empty axes, typed configuration/rank/width/range/overflow/released errors, finite saved contexts, deterministic replay, and all 12 query plus 12 key finite-difference coordinates."
+              - command: "Exact Chapter 29 Rust learner report and diagram-trace diffs"
+                status: passed
+                notes: "The learner stdout matches expected.txt byte for byte and the Rust-authored 29-line locale-neutral diagram trace matches diagram-trace.txt byte for byte, each with canonical fixed decimals, no negative-zero lexemes, and exactly one final newline."
+              - command: "Initial integrated Chapter 29 contract projection"
+                status: failed
+                notes: "The validator rejected a split primary formula, prose-only checked answers, and one declared but unrendered tensor-core source. The lesson was corrected to project the exact formula once, render nine ordered checked answers, and show every declared Rust source; no validator was weakened."
+              - command: "Corrected staged contract, locale/content, Astro, and focused unit gates"
+                status: passed
+                notes: "The 39-chapter course plan, integrated Chapter 29 contract, English-only locale/parity policy, all 36 localized sources, Astro diagnostics, six strict Chapter 29 trace/content tests, and ten aggregate formula-source tests pass. The static build emits 41 pages including /en/course/29-rope/ and no Russian placeholder."
+              - command: "Initial focused Chromium and Firefox Chapter 29 browser gates"
+                status: failed
+                notes: "Chromium localized a narrow norm-vector overflow plus a forced-colors assertion that relied on browser-normalized border style; accessible local norm scrollers and textual non-color assertions fixed both. Firefox then exposed that unconditional scrollHeight comparison is not a valid inline-KaTeX clipping signal; the gate now checks scrollHeight only when overflow-y can clip and retains rendered-box containment for display math."
+              - command: "Corrected focused Chapter 29 Chromium and Firefox browser gates"
+                status: passed
+                notes: "All five focused cases pass independently in Chromium and Firefox: route/SEO/locale policy, desktop and 390px natural-height containment, semantic tables and named scrollers, forced-colors cues, RTL technical isolation, exact Rust projection, navigation, and JavaScript-disabled rendering."
+              - command: "Aggregate formula rendering through Chapter 29 in Chromium and Firefox"
+                status: passed
+                notes: "All 72 formula cases pass independently in Chromium and Firefox at desktop and 390px widths, including exact TeX annotations, MathML, code-span audits, directionality, formula spacing, local overflow ownership, and following-block containment."
+              - command: "Full staged Linux Rust and policy regression"
+                status: passed
+                notes: "Cargo formatting, warning-denying Clippy for every target, all workspace unit/doc/demo tests, the external-dependency prohibition, all 29 discovered demo checks, and both exact Chapter 29 stdout/trace diffs pass in the pinned validation image. The existing Cargo example-name collision warnings remain informational and are unchanged by this step."
+              - command: "Full staged site and static-artifact regression"
+                status: passed
+                notes: "Astro reports zero errors, warnings, or hints; all 733 Vitest cases pass; the production build emits 41 static pages; and 41 HTML files, 1,413 local references, 41 SEO routes, and 126 total artifacts pass the link/SEO audit."
+              - command: "Complete staged Chromium browser regression"
+                status: passed
+                notes: "All 199 Chromium cases pass, covering every published chapter, locale/navigation policy, JavaScript-disabled boundaries, forced colors, RTL behavior, narrow layouts, SEO, and the complete formula matrix through Chapter 29."
+              - command: "Frozen staged publication manifest"
+                status: passed
+                notes: "All 22 declared staged product files match publish.sha256, whose own SHA-256 is 4fdf7ad1716f8a721aef52111516ec372d72c7b69da3d9000be6dc156788e256. The manifest contains no BUILD_STATE.yaml, DECISIONS.md, .build evidence, or unrelated working-tree file."
+              - command: "Initial checked temporary-sibling publication attempt"
+                status: failed
+                notes: "All 22 temporary siblings were copied and hash-verified, but the host's older System.IO.File API lacks the requested three-argument Move overload. The non-terminating method errors left every canonical product target unchanged and all same-token temporary siblings intact; use the supported atomic Replace overload for existing files and two-argument Move for new files."
+              - command: "Second checked temporary-sibling publication attempt"
+                status: failed
+                notes: "The older host runtime's three-argument Replace overload rejects a null backup path. It failed on the first existing target before changing any canonical byte, and all 22 verified siblings remain intact. Retry with explicit run-scoped backup paths so every existing-file replacement is atomic and recoverable."
+              - command: "Run-backed atomic canonical publication and byte verification"
+                status: passed
+                notes: "All 22 product files were installed through pre-hashed same-directory siblings. Existing targets used atomic Replace with eight recoverable originals under publication-backups; new targets used same-volume Move. Every canonical file now matches publish.sha256 and no prepared sibling remains."
+              - command: "Exact canonical-source Linux, Rust, site, and static-artifact replay"
+                status: passed
+                notes: "A fresh pinned validation container hydrated from the exact bdc14a1 Chapter 28 archive plus the 22 canonical files matched publish.sha256, then passed the course plan, integrated contract, formatting, warning-denying Clippy, every workspace test, dependency/demo policies, both exact fixtures, locale/content/Astro checks, all 733 unit tests, the 41-page build, 1,413 local references, 41 SEO routes, and 126 artifacts."
+              - command: "Exact canonical-source Chromium and Firefox replay"
+                status: passed
+                notes: "A fresh pinned browser container matched all 22 canonical manifest hashes, rebuilt 41 static pages, passed five Chapter 29 cases independently in Chromium and Firefox, passed all 72 formula cases independently in both engines, and passed the complete 199-case Chromium suite."
+              - command: "Exact Chapter 29 Docker resource cleanup"
+                status: passed
+                notes: "The startup, staged-browser, canonical-validation, and canonical-browser containers were removed by exact name after validation; immutable cached images and run-scoped source, manifest, research, and recoverable publication-backup evidence remain."
+            notes: "Succeeded. Chapter 29 publishes one dependency-free English RoPE vertical slice with a precomputed adjacent-pair Rust implementation, linear-time differentiable VJP, exact learner report and trace, LLM-centered source-backed history, strict server-rendered formula coverage, basic SEO, and an accessible responsive static visualization. Staged and fresh canonical Rust, site, formula, Chromium, and Firefox gates pass; no package dependency, build definition, Linux workflow, locale policy, Russian placeholder, hosting, deployment, or Chapter 30 output changed."
       - id: implement-ch30-multi-head-attention
         objective: "Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result."
         depends_on:

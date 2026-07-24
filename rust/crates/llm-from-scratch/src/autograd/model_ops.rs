@@ -121,6 +121,11 @@ pub enum ModelSavedContext {
         input_shape: Vec<usize>,
         tokens: usize,
     },
+    RotaryPairs {
+        cosines: Tensor,
+        sines: Tensor,
+        input_shape: Vec<usize>,
+    },
     IndexedMeanNll {
         probabilities: Tensor,
         targets: Vec<usize>,
@@ -256,6 +261,32 @@ impl TensorValue {
                     probabilities,
                     input_shape: input.shape().to_vec(),
                     tokens,
+                }],
+            ))
+        })
+    }
+
+    /// Rotates adjacent feature pairs with one precomputed angle row per token.
+    ///
+    /// Shape and position-range validation belongs to the rotary-embedding
+    /// owner. Keeping this primitive crate-private prevents callers from
+    /// constructing inconsistent sine and cosine tables.
+    pub(crate) fn rotary_pairs(
+        &self,
+        cosines: &Tensor,
+        sines: &Tensor,
+    ) -> Result<Self, TensorAutodiffError> {
+        let cosines = cosines.clone();
+        let sines = sines.clone();
+        Self::model_operation(TensorOperation::RotaryPairs, [self], move |primals| {
+            let input = &primals[0];
+            let value = rotary_pairs_forward(input, &cosines, &sines, false)?;
+            Ok((
+                value,
+                [ModelSavedContext::RotaryPairs {
+                    cosines,
+                    sines,
+                    input_shape: input.shape().to_vec(),
                 }],
             ))
         })
@@ -401,6 +432,54 @@ fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError>
 }
 // endregion:causal-softmax-forward
 
+// region:rotary-pairs-forward
+fn rotary_pairs_forward(
+    input: &Tensor,
+    cosines: &Tensor,
+    sines: &Tensor,
+    inverse: bool,
+) -> Result<Tensor, TensorAutodiffError> {
+    debug_assert!(input.rank() >= 2);
+    debug_assert_eq!(cosines.shape(), sines.shape());
+    debug_assert_eq!(cosines.rank(), 2);
+
+    let width = input.shape()[input.rank() - 1];
+    let tokens = input.shape()[input.rank() - 2];
+    let pairs = width / 2;
+    debug_assert_eq!(cosines.shape(), [tokens, pairs]);
+
+    let mut output = zeros(input.shape())?;
+    if input.is_empty() {
+        return Ok(output);
+    }
+
+    let rows = input.len() / width;
+    for row in 0..rows {
+        let token = row % tokens;
+        for pair in 0..pairs {
+            let feature = row * width + pair * 2;
+            let table = token * pairs + pair;
+            let left = input.as_slice()[feature];
+            let right = input.as_slice()[feature + 1];
+            let cosine = cosines.as_slice()[table];
+            let sine = sines.as_slice()[table];
+            let (rotated_left, rotated_right) = if inverse {
+                (left * cosine + right * sine, -left * sine + right * cosine)
+            } else {
+                (left * cosine - right * sine, left * sine + right * cosine)
+            };
+            output.as_mut_slice()[feature] = canonical_zero(rotated_left);
+            output.as_mut_slice()[feature + 1] = canonical_zero(rotated_right);
+        }
+    }
+    Ok(output)
+}
+
+fn canonical_zero(value: f64) -> f64 {
+    if value == 0.0 { 0.0 } else { value }
+}
+// endregion:rotary-pairs-forward
+
 // region:model-vjps
 pub(crate) fn apply_model_vjp(
     upstream: &Tensor,
@@ -509,6 +588,14 @@ pub(crate) fn apply_model_vjp(
                 }
             }
             Ok(result)
+        }
+        ModelSavedContext::RotaryPairs {
+            cosines,
+            sines,
+            input_shape,
+        } => {
+            debug_assert_eq!(upstream.shape(), input_shape);
+            rotary_pairs_forward(upstream, cosines, sines, true)
         }
         ModelSavedContext::IndexedMeanNll {
             probabilities,

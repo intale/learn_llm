@@ -204,6 +204,9 @@ fn saved_context_is_finite(saved: &TensorSavedContext) -> bool {
             ModelSavedContext::LogSoftmax { probabilities, .. }
             | ModelSavedContext::CausalSoftmax { probabilities, .. }
             | ModelSavedContext::IndexedMeanNll { probabilities, .. } => finite(probabilities),
+            ModelSavedContext::RotaryPairs { cosines, sines, .. } => {
+                finite(cosines) && finite(sines)
+            }
         },
     }
 }

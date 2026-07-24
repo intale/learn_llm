@@ -38,6 +38,7 @@ pub enum TensorOperation {
     Silu,
     LogSoftmax,
     CausalSoftmax,
+    RotaryPairs,
     IndexedMeanNll,
 }
 
@@ -62,6 +63,7 @@ impl TensorOperation {
             Self::Silu => "silu",
             Self::LogSoftmax => "log_softmax",
             Self::CausalSoftmax => "causal_softmax",
+            Self::RotaryPairs => "rotary_pairs",
             Self::IndexedMeanNll => "indexed_mean_nll",
         }
     }
