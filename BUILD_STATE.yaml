@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T08:49:57Z"
+updated_at: "2026-07-24T10:04:40Z"
 
 environment:
   os: "Linux x86_64"
@@ -11151,6 +11151,16 @@ builds:
           - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
           - "rust/crates/llm-from-scratch/src/nn/linear.rs"
           - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+          - "curriculum/chapters/20-swiglu-feed-forward.md"
+          - "rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/main.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/lib/swiglu-feed-forward-diagram.ts"
+          - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
           - "rust/crates/llm-from-scratch/src/training/batch.rs"
           - "rust/crates/llm-from-scratch/src/training/adamw.rs"
           - "scripts/check-course-plan.mjs"
@@ -11317,14 +11327,26 @@ builds:
         objective: "Add a shape-preserving residual branch and verify identity/gradient paths through stacked transformations."
         depends_on:
           - implement-ch23-neural-ngram
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/23-neural-ngram.md"
+          - "site/src/content/chapters/en/23-neural-ngram.mdx"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/lib/neural-ngram-diagram.ts"
+          - "site/tests/23-neural-ngram-diagram.test.ts"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -11339,6 +11361,10 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "He et al., Deep Residual Learning for Image Recognition (https://arxiv.org/abs/1512.03385; bounded read-only network input)"
+          - "Vaswani et al., Attention Is All You Need (https://arxiv.org/abs/1706.03762; bounded read-only network input)"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image (locally cached immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48)"
+          - "Official node:22.12.0-bookworm-slim validation image (immutable digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213; pulled once from Docker Hub during this run, then used network-isolated)"
         outputs:
           - "curriculum/chapters/24-residual-connections.md"
           - "rust/crates/llm-from-scratch/src/nn/residual.rs"
@@ -11346,8 +11372,11 @@ builds:
           - "rust/demos/ch24-residual-connections/"
           - "site/src/content/chapters/en/24-residual-connections.mdx"
           - "site/src/components/chapters/ResidualConnectionsDiagram.astro"
+          - "site/src/lib/residual-connections-diagram.ts"
           - "site/tests/24-residual-connections-diagram.test.ts"
           - "site/tests/e2e/ch24-residual-connections.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Add a shape-preserving residual branch and verify identity/gradient paths through stacked transformations."
@@ -11365,6 +11394,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch24-residual-connections | diff -u rust/demos/ch24-residual-connections/expected.txt -"
+          - "cargo run --quiet --locked -p ch24-residual-connections --example ch24-residual-connections-trace | diff -u rust/demos/ch24-residual-connections/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 24-residual-connections"
           - "npm --prefix site run check:parity -- --chapter 24-residual-connections"
           - "npm --prefix site run check:content"
@@ -11376,8 +11406,75 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only access to two declared primary papers, an already cached immutable Playwright validation image, and one approved pull of the exact Node validation image before network-isolated reuse; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU expansion, package/build change, hosting, deployment, or concept-implementing dependency is planned."
+        runs:
+          - run_id: 20260724T085951Z-implement-ch24-residual-connections-01
+            started_at: "2026-07-24T08:59:51Z"
+            finished_at: "2026-07-24T10:04:40Z"
+            status: succeeded
+            input_fingerprint:
+              git: "92872f0d8c407daa139dc8fbf02ec188032e1fe9"
+              manifest: ".build/runs/20260724T085951Z-implement-ch24-residual-connections-01/input-fingerprint.txt"
+              checksum: "sha256:e3db4e4d9f560078f4684d14929332bd8d40415d74140be923c4177f3ca336b3"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Playwright image digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48; Node validation image digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213"
+            staging_dir: ".build/runs/20260724T085951Z-implement-ch24-residual-connections-01/"
+            commands:
+              - "Run the startup protocol, preserve unrelated desktop.ini, verify the committed Chapter 23 checkpoint, compare every recorded tool version, and select the sole eligible Chapter 24 step"
+              - "Declare the exact-shape residual boundary, strict Rust trace/parser evidence path, aggregate formula coverage, two primary-paper inputs, and cached browser runtime before product work"
+              - "Fingerprint forty-two material local inputs plus the two bounded primary sources and create isolated research, validation, visual-review, and publication directories"
+              - "Pull node:22.12.0-bookworm-slim at immutable digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213 after the exact image was absent locally; reuse it with --network none and the existing learn-llm-ch24-site-node-modules volume"
+              - "Repair the strict STACK parser escape and make the LLM-architecture history boundary explicit; rerun the focused Chapter 24 and aggregate formula unit suites"
+              - "Implement the staged exact-shape residual primitive, deterministic learner and diagram fixtures, contract, English lesson, strict parser, semantic visualization, SEO metadata, and focused plus aggregate tests"
+              - "Run the declared staged Rust, content, type, unit, production-build, static-link, focused browser, and full browser gates; repair a Clippy type-complexity finding and three narrow-width formula overflows without changing dependencies or build definitions"
+              - "Audit rendered inner KaTeX boxes rather than capped wrappers; adopt an intrinsic two-row flow grid and named local formula scroll regions, then validate all 62 published formula pages in Chromium and Firefox at desktop and narrow widths"
+              - "Publish only the declared Chapter 24 overlay to canonical paths with apply-patch moves for new artifacts and exact patches for shared integration files; preserve unrelated desktop.ini"
+              - "Run every declared canonical Rust and site gate network-disabled, including the exact learner and trace fixtures, the 36-page static build, focused Chapter 24 checks in Chromium and Firefox, aggregate formula checks in both engines, and the full Chromium browser suite"
+              - "Freeze and verify the eighteen-file canonical artifact manifest, audit the exact changed-path and control-character boundaries, then remove the five exact run-specific Docker volumes"
+            artifacts:
+              - path: ".build/runs/20260724T085951Z-implement-ch24-residual-connections-01/input-fingerprint.txt"
+                checksum: "sha256:e3db4e4d9f560078f4684d14929332bd8d40415d74140be923c4177f3ca336b3"
+              - path: ".build/runs/20260724T085951Z-implement-ch24-residual-connections-01/research/source-notes.md"
+                checksum: "sha256:be0073fa98c92e606cdb1c1af4790ef21dda917aa898cbe6ffa23fd5fb5f6690"
+              - path: ".build/runs/20260724T085951Z-implement-ch24-residual-connections-01/canonical-artifacts.sha256"
+                checksum: "sha256:331fe9e7974c509100e6ab252296471b6ec5964be16d118e613ef417fb08a30f"
+            validation:
+              - command: "Preflight dependency, environment, cost, ownership, prior-run, scheduling, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 24 is the sole eligible step; Chapter 23 is committed and its final checkpoint reports all canonical gates and cleanup passed; no stale run or overlapping owner exists; pinned Docker, Compose, Git, Rust, Cargo, Node, and npm versions match; the official Playwright image is already cached at the recorded immutable digest; unrelated desktop.ini remains untouched; and the user approved any costly work although the planned run remains medium and bounded."
+              - command: "docker run --rm --network none node:22.12.0-bookworm-slim npm --prefix site run test -- --run tests/24-residual-connections-diagram.test.ts tests/formula-rendering.test.ts (without the dependency volume)"
+                status: failed
+                notes: "Docker first pulled the previously absent exact image, then the command correctly stopped because the empty bind-backed node_modules directory did not contain Vitest. No product output was published; the image digest and pull are now explicit run inputs."
+              - command: "docker run --rm --network none with the staged bind mount and learn-llm-ch24-site-node-modules volume: npm --prefix site run test -- --run tests/24-residual-connections-diagram.test.ts tests/formula-rendering.test.ts"
+                status: passed
+                notes: "2 files and 27 tests passed after correcting the STACK regular-expression escape, adding the explicit neural-architecture history sentence, and keeping display punctuation outside notation."
+              - command: "Declared staged Rust gates: cargo fmt, workspace Clippy with -D warnings, workspace tests, dependency/demo policy, and byte-exact learner plus diagram trace diffs"
+                status: passed
+                notes: "The final staged Rust pass completed with 24 demos, 237 core tests plus all demo and doc tests, no external crates, exact fixture bytes, exact-shape residual rejection, true f64 bit-pattern replay comparison, and only the repository's pre-existing Cargo example-name collision warnings."
+              - command: "Declared staged content and site gates through production build and static-link scan"
+                status: passed
+                notes: "Course plan reports 39 chapters and 24 implemented contracts; contract/chapter/parity/content checks pass for 31 localized sources and 24 publishable locale sets; Astro reports 127 files with zero diagnostics; 31 Vitest files and 652 tests pass; the isolated build emits 36 pages including the English Chapter 24 route; 1073 local references, 36 SEO routes, and 116 artifacts pass."
+              - command: "Initial focused Chapter 24 Chromium browser gate against the staged production build"
+                status: failed
+                notes: "The geometry gate found three long evidence formulas escaping the 390 px viewport. No output was published; named keyboard-focusable local formula scroll regions corrected the defect."
+              - command: "Rendered inner-KaTeX audit after the first browser repair"
+                status: failed
+                notes: "A read-only Chromium/Firefox box audit showed the prior test measured capped wrappers and missed six formulas crossing flow-node borders. No output was published; the test now measures inner KaTeX and the two-row grid sizes columns intrinsically."
+              - command: "Final focused Chapter 24 Playwright suite in Chromium and Firefox"
+                status: passed
+                notes: "5 of 5 tests pass in each engine at 1440 px and 390 px, including inner-KaTeX node/card containment, scroll ownership, vertical spacing, natural heights, topology, forced colors, RTL, no JavaScript, SEO, navigation, and deferred-locale 404 behavior."
+              - command: "Corrected aggregate formula-rendering Playwright suite in Chromium and Firefox"
+                status: passed
+                notes: "62 of 62 published formula-page cases pass in each engine at desktop and narrow widths after measuring the actual KaTeX boxes rather than their capped wrappers."
+              - command: "Full fresh canonical Rust and site regression gates"
+                status: passed
+                notes: "Canonical cargo fmt, workspace Clippy with warnings denied, workspace tests, dependency policy, all 24 demo fixtures, and byte-exact Chapter 24 learner and diagram outputs pass. Course plan reports 39 chapters, 66 scheduled steps, and 24 contracts; contract/chapter/parity/content checks pass for 31 localized sources and 24 publishable locale sets; Astro reports 127 files with zero diagnostics; and 31 Vitest files with 652 tests pass. Only the repository's pre-existing Cargo example-name collision warnings remain."
+              - command: "Canonical production build, static-link scan, and browser regression gates"
+                status: passed
+                notes: "The unchanged static build emits 36 pages including /en/course/24-residual-connections/; 1073 local references, 36 SEO routes, and 116 artifacts pass. The focused Chapter 24 suite passes 5 of 5 in Chromium and Firefox, corrected aggregate formula coverage passes 62 of 62 in each engine at desktop and narrow widths, and the full Chromium suite passes all 164 tests."
+              - command: "Final canonical artifact, changed-path, control-character, whitespace, and disposable-resource audit"
+                status: passed
+                notes: "All eighteen declared canonical product files match canonical-artifacts.sha256; the input fingerprint and bounded primary-source notes match their recorded hashes; git diff --check and the learner-content control-character guard pass; the 21 visible paths are exactly eighteen outputs, two ledgers, and untouched desktop.ini. The five learn-llm-ch24-* Cargo, npm, dist, Chromium-result, and Firefox-result volumes were removed and are regenerable; pinned official validation images remain cached."
+            notes: "Succeeded. Chapter 24 adds an exact-shape, parameter-transparent residual merge with tested identity and learned gradient paths, zero-branch learning evidence, and deterministic repeated plain-versus-residual transformations. The English lesson keeps history on the neural-architecture road to LLMs, renders all learner-facing notation through server-side math, includes SEO and exercises, and projects only a strict Rust-authored trace into a static accessible responsive diagram. Staged and fresh canonical gates pass in Chromium and Firefox; no package, Linux build, hosting, deployment, locale-policy, or Russian publication scope changed."
       - id: implement-ch25-rmsnorm
         objective: "Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero."
         depends_on:

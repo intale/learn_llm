@@ -1,0 +1,16 @@
+TRACE residual-connections-v1 BEGIN
+CONFIG name=known-residual-linear shape=2 branch-parameter=residual.branch.weight
+FORWARD input=[2.000000,-1.000000] branch=[-1.000000,-2.250000] output=[1.000000,-3.250000]
+BACKWARD upstream=[1.000000,1.000000] identity=[1.000000,1.000000] branch=[-0.500000,2.250000] input=[0.500000,3.250000]
+PARAMETER name=residual.branch.weight shape=2x2 gradient=[2.000000,2.000000,-1.000000,-1.000000]
+ZERO-BRANCH output=[2.000000,-1.000000] input-gradient=[1.000000,1.000000] weight-gradient=[2.000000,2.000000,-1.000000,-1.000000] weight-gradient-nonzero=true
+SHAPE-ERROR identity=[2,2] branch=[2] broadcastable=true rejected=true
+STACK depth=0 plain=[2.000000,-1.000000] residual=[2.000000,-1.000000]
+STACK depth=1 plain=[-0.500000,0.250000] residual=[1.500000,-0.750000]
+STACK depth=2 plain=[0.125000,-0.062500] residual=[1.125000,-0.562500]
+STACK depth=3 plain=[-0.031250,0.015625] residual=[0.843750,-0.421875]
+STACK depth=4 plain=[0.007812,-0.003906] residual=[0.632812,-0.316406]
+STACK-GRADIENT plain=[0.003906,0.003906] residual=[0.316406,0.316406] parameters=residual.stack.0.branch.weight,residual.stack.1.branch.weight,residual.stack.2.branch.weight,residual.stack.3.branch.weight
+GRADCHECK input-checks=2 weight-checks=4 tolerance=0.000002 passed=true
+PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden site-arithmetic=none
+TRACE residual-connections-v1 END

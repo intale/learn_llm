@@ -19,7 +19,7 @@ const chapter08To13Ids = [
   '12-stable-softmax',
   '13-gradient-checking',
 ] as const;
-const chapter14To23Ids = [
+const chapter14To24Ids = [
   '14-scalar-autodiff',
   '15-tensor-autodiff-core',
   '16-model-autodiff-ops',
@@ -30,6 +30,7 @@ const chapter14To23Ids = [
   '21-mini-batches',
   '22-adamw',
   '23-neural-ngram',
+  '24-residual-connections',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const viewports = {
@@ -130,7 +131,7 @@ const formerMathCode = new Set([
   'd_in',
 ]);
 
-const formerChapter14To23MathCode = new Set([
+const formerChapter14To24MathCode = new Set([
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -188,6 +189,9 @@ const formerChapter14To23MathCode = new Set([
   '[B,H]',
   '[B,V]',
   'target_row(b)[C-1]',
+  'y=x+F(x)',
+  'F(x)=0',
+  'bar(x)=bar(y)+J_F(x)^T bar(y)',
 ]);
 
 const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly string[]> = {
@@ -199,7 +203,7 @@ const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly str
   '13-gradient-checking': [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To23Latex: Record<(typeof chapter14To23Ids)[number], readonly string[]> = {
+const chapter14To24Latex: Record<(typeof chapter14To24Ids)[number], readonly string[]> = {
   '14-scalar-autodiff': [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
   '15-tensor-autodiff-core': [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
@@ -251,6 +255,13 @@ const chapter14To23Latex: Record<(typeof chapter14To23Ids)[number], readonly str
     String.raw`L_{\mathrm{val}}=5.557362`,
     String.raw`\Delta L_{\mathrm{val}}=0.026120`,
   ],
+  '24-residual-connections': [
+    String.raw`y=x+F(x)`,
+    String.raw`\operatorname{shape}(F(x))=\operatorname{shape}(x)=\operatorname{shape}(y)`,
+    String.raw`\bar{x}=\bar{y}+J_F(x)^\top\bar{y}`,
+    String.raw`J_F(x)^\top\bar y=[-0.500000,2.250000]`,
+    String.raw`\bar W=[2.000000,2.000000,-1.000000,-1.000000]\ne0`,
+  ],
 };
 
 test.describe('@formula-rendering:ch01-ch07 rendered formula contract', () => {
@@ -279,7 +290,7 @@ test.describe('@formula-rendering:ch01-ch07 rendered formula contract', () => {
           );
 
           const geometryProblems = await page
-            .locator('.lesson-body .katex-display, .lesson-body [data-inline-math]')
+            .locator('.lesson-body .katex-display, .lesson-body [data-inline-math] > .katex')
             .evaluateAll((nodes) =>
               nodes.flatMap((node, index) => {
                 const element = node as HTMLElement;
@@ -374,7 +385,7 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
         }
 
         const geometryProblems = await page
-          .locator('.lesson-body .katex-display, .lesson-body [data-inline-math]')
+          .locator('.lesson-body .katex-display, .lesson-body [data-inline-math] > .katex')
           .evaluateAll((nodes) =>
             nodes.flatMap((node, index) => {
               const element = node as HTMLElement;
@@ -436,9 +447,9 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
   }
 });
 
-test.describe('@formula-rendering:ch14-ch23 rendered formula contract', () => {
+test.describe('@formula-rendering:ch14-ch24 rendered formula contract', () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To23Ids) {
+    for (const chapterId of chapter14To24Ids) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -460,7 +471,7 @@ test.describe('@formula-rendering:ch14-ch23 rendered formula contract', () => {
         const latex = await page
           .locator('.lesson-body .katex annotation[encoding="application/x-tex"]')
           .evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
-        for (const fragment of chapter14To23Latex[chapterId]) {
+        for (const fragment of chapter14To24Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
@@ -469,7 +480,7 @@ test.describe('@formula-rendering:ch14-ch23 rendered formula contract', () => {
 
         const geometryProblems = await page
           .locator(
-            '.lesson-body .katex-display, .lesson-body [data-inline-math], .lesson-body .diagram-math .katex',
+            '.lesson-body .katex-display, .lesson-body [data-inline-math] > .katex, .lesson-body .diagram-math .katex',
           )
           .evaluateAll((nodes) =>
             nodes.flatMap((node, index) => {
@@ -530,7 +541,7 @@ test.describe('@formula-rendering:ch14-ch23 rendered formula contract', () => {
 
         const inlineCode = await page.locator('.lesson-body :not(pre) > code').allInnerTexts();
         expect(
-          inlineCode.filter((value) => formerChapter14To23MathCode.has(value.trim())),
+          inlineCode.filter((value) => formerChapter14To24MathCode.has(value.trim())),
         ).toEqual([]);
       });
     }

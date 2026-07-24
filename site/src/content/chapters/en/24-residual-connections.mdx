@@ -1,0 +1,405 @@
+---
+{
+  "chapter_id": "24-residual-connections",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 24,
+  "concept_id": "residual-connections",
+  "title": "Keep an identity path around each learned update",
+  "description": "Trace exact-shape residual addition, its identity and learned gradient paths, zero-branch learning, and repeated plain versus residual transformations.",
+  "objective": "Add a shape-preserving residual branch and verify identity and gradient paths through stacked transformations.",
+  "worked_inputs": "Start with $x=[2,-1]$ and a bias-free square linear branch whose output is $F(x)=[-1,-2.25]$. Predict $y=x+F(x)$, then predict what survives in the forward and reverse passes when the branch weights are all zero.",
+  "formula": {
+    "latex": "y=x+F(x)",
+    "symbols": [
+      {
+        "symbol": "x",
+        "meaning": "the input tensor carried by the identity path"
+      },
+      {
+        "symbol": "F",
+        "meaning": "the learned residual-branch mapping"
+      },
+      {
+        "symbol": "F(x)",
+        "meaning": "the branch update, with exactly the same shape as x"
+      },
+      {
+        "symbol": "y",
+        "meaning": "the elementwise sum, with the same shape as x"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "He et al. observed a degradation problem in which deeper plain networks could have higher training error even after the added layers should in principle be able to represent identity mappings.",
+      "later_advance": "Residual learning made the identity route explicit, and the Transformer later placed residual additions around every attention and feed-forward sublayer at one common model width.",
+      "modern_llm_role": "A decoder-only Transformer maintains a residual stream across its stack while learned attention and feed-forward branches contribute same-shaped updates; later chapters add normalization and assemble those branches.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2015,
+          "name": "He et al., Deep Residual Learning for Image Recognition",
+          "source_url": "https://arxiv.org/pdf/1512.03385",
+          "claim": "He et al. report the deep-plain-network degradation problem and reformulate a same-dimensional block as a learned residual function plus a parameter-free identity shortcut."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "claim": "Vaswani et al. place a residual connection around every encoder and decoder sublayer and keep sublayer outputs at a common model width required by the addition."
+        }
+      ]
+    },
+    "approach": "From difficult-to-optimize deep plain transformations, through explicit identity shortcuts, to the residual stream around Transformer sublayers",
+    "summary": "Residual addition gives every same-width Transformer sublayer an explicit identity route alongside its learned update. The route preserves a direct forward contribution and adds a direct reverse-mode gradient contribution, without guaranteeing that every deep model will train successfully.",
+    "rust_source": "rust/demos/ch24-residual-connections/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch24-residual-connections/src/lib.rs",
+      "region": "residual-stack",
+      "purpose": "Run the same frozen transformations as plain and residual stacks for the LLM-centered architecture contrast."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/residual.rs",
+      "region": "residual-add",
+      "purpose": "Enforce exact shape equality before preserving both operand edges through differentiable addition."
+    },
+    {
+      "path": "rust/demos/ch24-residual-connections/src/lib.rs",
+      "region": "residual-fixture",
+      "purpose": "Expose the known forward, backward, branch-parameter, and zero-branch evidence."
+    },
+    {
+      "path": "rust/demos/ch24-residual-connections/src/lib.rs",
+      "region": "residual-gradcheck",
+      "purpose": "Check input and branch-weight gradients against sampled central differences."
+    },
+    {
+      "path": "rust/demos/ch24-residual-connections/src/lib.rs",
+      "region": "learner-residual-report",
+      "purpose": "Render the complete deterministic learner report from the Rust-owned fixture."
+    },
+    {
+      "path": "rust/demos/ch24-residual-connections/src/main.rs",
+      "purpose": "Print the frozen learner report without recomputing its values in the presentation layer."
+    },
+    {
+      "path": "rust/demos/ch24-residual-connections/src/diagram_trace.rs",
+      "region": "residual-connections-trace",
+      "purpose": "Emit the strict locale-neutral forward, reverse, stack, and proof records for the static diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "residual-connections",
+    "rationale": "Two explicit forward paths and two reverse contributions are easier to distinguish in a split-and-rejoin flow, while a depth table makes repeated plain and residual transformations directly comparable."
+  },
+  "decoder_connection": "The cumulative decoder now has an exact-shape merge that will carry one residual stream around learned sublayers. Chapter 25 normalizes the values entering each branch while the identity path bypasses that normalization operation."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import ResidualConnectionsDiagram from '../../../components/chapters/ResidualConnectionsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow the identity path and learned update',
+  description:
+    'Trace exact Rust-authored values through the forward merge and both reverse contributions, then compare zero-branch, shape-error, and four-layer stack evidence.',
+  sections: {
+    forward: 'Split and rejoin in the forward pass',
+    backward: 'Add both reverse-mode contributions',
+    evidence: 'Check parameters, identity, and shape',
+    stack: 'Compare repeated plain and residual transformations',
+  },
+  paths: {
+    input: 'Input',
+    identity: 'Identity path',
+    branch: 'Learned branch',
+    merge: 'Add',
+    output: 'Residual output',
+    upstream: 'Upstream gradient',
+    identityGradient: 'Identity contribution',
+    branchGradient: 'Branch contribution',
+    inputGradient: 'Input gradient',
+  },
+  fields: {
+    parameter: 'Branch-owned parameters',
+    parameterGradient: 'Weight gradient',
+    zeroBranch: 'Zero-weight branch',
+    zeroBranchNote: 'The trace shows identity forward behavior and a total input gradient equal to the upstream gradient, while the branch weight gradient remains nonzero.',
+    shapeInvariant: 'Residual paths require exact equality',
+    shapeError: 'Broadcastable is still invalid',
+    genericAdd: 'Generic addition',
+    residualMerge: 'Residual merge',
+    depth: 'Depth',
+    plain: 'Plain stack',
+    residual: 'Residual stack',
+    inputGradient: 'Input gradient',
+    numericCheck: 'Sampled gradient check',
+    proof: 'Rust-authored proof tokens',
+  },
+  cues: {
+    identity: 'Solid identity path',
+    branch: 'Dashed learned path',
+    merge: 'Double-border merge',
+    accepted: 'Accepted',
+    rejected: 'Rejected',
+  },
+  captions: {
+    forward: 'Exact same-shaped forward values',
+    backward: 'The identity term and branch vector-Jacobian product add',
+    stack: 'Rust-authored values at every depth',
+  },
+  scrollers: {
+    forward: 'Scrollable residual forward-path diagram',
+    backward: 'Scrollable residual backward-path diagram',
+    stack: 'Scrollable plain and residual depth table',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict what the identity path preserves
+
+Start with $x=[2,-1]$ and a bias-free square linear branch whose output is
+$F(x)=[-1,-2.25]$. Predict $y=x+F(x)$ before running the example.
+Elementwise addition gives $[1,-3.25]$ and preserves shape $[2]$.
+
+Now set the branch weights to zero. The branch is then identically zero, not
+merely zero at this one input. Predict three things for upstream
+$\bar y=[1,1]$: the output, the input gradient, and the branch weight gradient.
+The first two follow the identity path exactly. The weight gradient can still be
+nonzero because changing a zero weight would change the branch output.
+
+{/* chapter-section:formula */}
+
+## Add a learned update to the unchanged stream
+
+The entire residual connection is:
+
+$$
+y=x+F(x)
+$$
+
+Both terms must have the same complete shape:
+
+$$
+\operatorname{shape}(F(x))=\operatorname{shape}(x)=\operatorname{shape}(y)
+$$
+
+That is stricter than ordinary broadcasting. A branch shaped $[2]$ may be a
+valid generic addend for an input shaped $[2,2]$, but it is not the same residual
+stream and this chapter rejects the merge.
+
+Reverse mode follows the two parent edges and accumulates their contributions:
+
+$$
+\bar{x}=\bar{y}+J_F(x)^\top\bar{y}
+$$
+
+The identity path contributes $\bar y$ directly. The branch contributes its
+vector-Jacobian product $J_F(x)^\top\bar y$. Either contribution can reinforce,
+cancel, or amplify the other, so an identity term is not a guarantee that every
+gradient remains large or well behaved.
+
+A scaled form can be useful for intuition:
+
+$$
+y=x+\alpha F(x)
+$$
+
+At $\alpha=0$ only the identity forward term remains; at $\alpha=1$ this is the
+ordinary residual connection implemented here. The cumulative decoder does not
+adopt a separate residual-scaling policy in this chapter.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep the stream and update roles separate
+
+- $x$ is the input tensor carried unchanged by the identity path.
+- $F$ is the learned branch mapping; it may later be attention or a feed-forward network.
+- $F(x)$ is the branch update and has exactly the same shape as $x$.
+- $y$ is their elementwise sum and retains that shape.
+- $\bar y$ is the upstream output adjoint and $\bar x$ is the accumulated input adjoint.
+- $J_F(x)^\top\bar y$ is the branch's reverse-mode contribution.
+- $\alpha$ is an optional explanatory scale, not a trainable value in this implementation.
+
+Addition is not concatenation: no feature axis grows. It is also not
+normalization: no mean, variance, or root-mean-square is computed.
+
+{/* chapter-section:history */}
+
+## From deep plain transformations to the Transformer residual stream
+
+The history is about neural architectures on the road to LLMs, not programming
+languages.
+
+He et al. observed a degradation problem in which deeper plain networks could
+have higher training error even after the added layers should in principle be
+able to represent identity mappings.
+
+The earlier primary source is [He et al., *Deep Residual Learning for Image Recognition*](https://arxiv.org/pdf/1512.03385). He et al. report the
+deep-plain-network degradation problem and reformulate a same-dimensional block
+as a learned residual function plus a parameter-free identity shortcut.
+Residual learning made the identity route explicit, and the Transformer later
+placed residual additions around every attention and feed-forward sublayer at
+one common model width.
+
+The later primary source is [Vaswani et al., *Attention Is All You Need*](https://arxiv.org/pdf/1706.03762). Vaswani et al. place a residual
+connection around every encoder and decoder sublayer and keep sublayer outputs
+at a common model width required by the addition. The original Transformer
+follows each sum with LayerNorm. This course later assembles a pre-RMSNorm
+decoder, so the paper is not evidence for that later ordering.
+
+A decoder-only Transformer maintains a residual stream across its stack while
+learned attention and feed-forward branches contribute same-shaped updates;
+later chapters add normalization and assemble those branches.
+
+Residual addition gives every same-width Transformer sublayer an explicit
+identity route alongside its learned update. The route preserves a direct
+forward contribution and adds a direct reverse-mode gradient contribution,
+without guaranteeing that every deep model will train successfully.
+
+The executable comparison applies the same four diagonal transformations as a
+plain stack and as a residual stack. It exposes the local path consequence; it
+does not turn the toy into a language model or make the implementation language
+the subject of the history:
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/lib.rs"
+  region="residual-stack"
+  caption="Compare repeated plain and residual transformations"
+  label="Rust source for the Chapter 24 neural-architecture history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Reject broadcasting before adding the paths
+
+The reusable utility owns no parameters. It first compares complete shapes,
+then delegates a valid merge to the cumulative differentiable addition. This
+keeps both operand edges and therefore both reverse contributions:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/residual.rs"
+  region="residual-add"
+  caption="Enforce exact shape equality and preserve both tape edges"
+  label="Rust source implementing the Chapter 24 residual merge"
+/>
+
+The frozen square `Linear` branch owns `residual.branch.weight`. Its known
+forward pass produces $F(x)=[-1,-2.25]$. For $\bar y=[1,1]$, the identity
+contribution is $[1,1]$, the branch contribution is $[-0.5,2.25]$, and their
+sum is $\bar x=[0.5,3.25]$. The branch's matrix gradient is
+$[2,2,-1,-1]$ in row-major order:
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/lib.rs"
+  region="residual-fixture"
+  caption="Expose known residual and zero-branch gradients"
+  label="Rust source for the Chapter 24 forward and reverse fixture"
+/>
+
+The zero-weight branch produces $F(x)=0$ for every input and therefore
+contributes zero to this input gradient. Its weight gradient remains
+$[2,2,-1,-1]$. Do not generalize from a branch output that happens to be zero at
+one point: $F(x)=0$ alone does not imply that $J_F(x)=0$.
+
+The numeric check evaluates an independent raw-tensor implementation of the
+scalar objective $\sum_i(x+xW)_i^2$ at each perturbed coordinate, then checks
+all two input coordinates plus all four weight coordinates:
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/lib.rs"
+  region="residual-gradcheck"
+  caption="Check input and branch-weight gradients numerically"
+  label="Rust source for the Chapter 24 sampled gradient checks"
+/>
+
+The report renderer consumes the checked fixture and prints deterministic text:
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/lib.rs"
+  region="learner-residual-report"
+  caption="Render the complete Chapter 24 learner report"
+  label="Rust source rendering the Chapter 24 expected output"
+/>
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/main.rs"
+  caption="Print the frozen learner report"
+  label="Rust entry point for the Chapter 24 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch24-residual-connections`. Its stdout is
+frozen in `rust/demos/ch24-residual-connections/expected.txt`.
+
+{/* chapter-section:visualization */}
+
+## Follow both paths without hiding the merge
+
+The trace records every visible vector, shape decision, stack row, gradient
+check, and proof token. The page validates and projects those records without
+performing tensor or gradient arithmetic:
+
+<RustSource
+  path="rust/demos/ch24-residual-connections/src/diagram_trace.rs"
+  region="residual-connections-trace"
+  caption="Emit exact forward, reverse, stack, and proof records"
+  label="Rust source producing the Chapter 24 diagram trace"
+/>
+
+<ResidualConnectionsDiagram labels={diagramLabels} />
+
+Solid and dashed borders distinguish the identity and learned paths, while the
+double border marks their merge. Each flow stays a real two-row grid inside its
+own keyboard-focusable scroller, so a narrow viewport preserves the topology
+without stretching cards or adding unexplained empty space beneath them.
+
+The four diagonal branch matrices each multiply their input by $-0.25$. The
+plain depth-four input gradient retains a factor of $0.00390625$; the residual
+stack retains $0.31640625$. These exact toy values show what the explicit
+identity terms change in this fixture. They are not a universal optimization
+bound.
+
+{/* chapter-section:exercises */}
+
+## Predict before following the trace
+
+1. Compute $y$ from the frozen $x$ and $F(x)$.
+2. Split $\bar x$ into its identity and branch contributions.
+3. Predict the zero-weight branch's output, input gradient, and weight gradient.
+4. Decide whether shapes $[2,2]$ and $[2]$ form a valid residual connection.
+5. Predict the gradient if both operands of the merge are the same tracked tensor.
+6. Compute the depth-four plain and residual multipliers for branch factor $-0.25$.
+7. Explain why residual addition neither concatenates nor normalizes features.
+8. Decide whether the identity path guarantees successful deep-model training.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. $y=[1,-3.25]$.
+  2. $\bar x=[1,1]+[-0.5,2.25]=[0.5,3.25]$.
+  3. The output is $[2,-1]$, the input gradient is $[1,1]$, and the weight gradient is $[2,2,-1,-1]$, which is nonzero.
+  4. No. Generic addition broadcasts them, but a residual merge requires exact shape equality.
+  5. Two distinct operand edges reach the same leaf, so it receives twice the upstream gradient.
+  6. The plain multiplier is $(-0.25)^4=0.00390625$; the residual multiplier is $(1-0.25)^4=0.31640625$.
+  7. Addition preserves the feature width and computes no normalization statistic.
+  8. No. The identity term supplies a direct path, but the branch Jacobian can still cancel, amplify, or destabilize the total gradient.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Normalize the branch input next
+
+The cumulative decoder now has an exact-shape merge that will carry one residual
+stream around learned sublayers. Chapter 25 normalizes the values entering each
+branch while the identity path bypasses that normalization operation.
+
+The current branch is a tiny square linear map chosen for transparent arithmetic.
+Later attention and SwiGLU branches will use the same merge invariant: return a
+tensor at model width, then add it to the unchanged residual stream.

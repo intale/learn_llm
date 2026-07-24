@@ -4725,3 +4725,65 @@ configuration.
 
 **Affected step and run:** `implement-ch23-neural-ngram`, run
 `20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Define the Chapter 24 residual merge and evidence boundary
+
+**Status:** Accepted during Chapter 24 preflight.
+
+**Context:** The cumulative differentiable addition deliberately supports
+trailing-axis broadcasting, while a residual connection requires its identity
+and transformed paths to have exactly the same shape. The existing neural
+layers do not share one module trait, and each layer already owns and enumerates
+its named parameters. Chapter 24 must therefore add the reusable invariant
+without widening earlier APIs or implying that the merge itself owns branch
+parameters. Its scheduled outputs also omit the strict trace parser and the two
+aggregate formula tests required by the established chapter workflow. The
+history needs to connect deep-network degradation and identity shortcuts to
+Transformer residual paths on the road to modern LLMs, not become a
+programming-language history.
+
+**Decision:** Add a parameter-transparent `residual_add(identity,
+branch_output)` utility. It accepts tensors of any rank, including scalars and
+zero-length axes, only when their complete shapes are equal; a broadcastable
+mismatch is rejected before the cumulative addition is called. Successful
+addition reuses the existing tape operation so reverse mode sends the upstream
+adjoint down the identity edge and through the branch graph, while branch
+modules retain sole ownership of their parameters.
+
+Use a tiny square bias-free linear branch to prove the exact merge, branch-owned
+parameter gradient, identity-plus-Jacobian input gradient, a zero branch that
+preserves the forward value but can still learn, a deliberately broadcastable
+shape error, and sampled numeric gradients. Compare four plain versus residual
+toy transformations in independent graphs to make repeated identity and
+gradient paths observable without claiming that this toy is a language model.
+Rust emits all learner values and one strict diagram trace; the site parser may
+validate and project that trace but performs no tensor or gradient arithmetic.
+
+The shared chapter formula remains $y=x+F(x)$. Supporting notation such as
+$\bar{x}=\bar{y}+J_F(x)^\top\bar{y}$ and exact shape equality must also use the
+site math pipeline. Normalization, attention, dropout, full decoder-block
+composition, and architecture-specific residual scaling remain later scope.
+
+Use He et al. (2015) only for the deep-plain-network degradation observation
+and residual-function/identity-shortcut framing, and Vaswani et al. (2017) for
+the later Transformer use of residual connections around sublayers with equal
+model width. Bound those paper claims separately from this course's numeric
+fixture, Rust API, parameter names, exact-shape error, trace grammar, and
+accessibility projection.
+
+Add `site/src/lib/residual-connections-diagram.ts` and Chapter 24 coverage in
+both aggregate formula suites as declared outputs. Use the already cached,
+version-matched Playwright image at its recorded immutable digest for responsive
+browser acceptance, and isolate generated `site/dist` from the Windows/Dropbox
+bind mount. The user's open approval covers any costly work discovered during
+this run, but the planned fixture and validations remain medium, deterministic,
+and local apart from bounded read-only access to the two named papers.
+
+**Consequences:** Chapter 24 is one dependency-free English vertical slice with
+a reusable exact-shape residual merge. No common layer trait, package, lockfile
+dependency, static-site architecture, Linux build definition, locale policy,
+hosting configuration, or deployment changes. The step does not deploy the
+site externally.
+
+**Affected step and run:** `implement-ch24-residual-connections`, run
+`20260724T085951Z-implement-ch24-residual-connections-01`.
