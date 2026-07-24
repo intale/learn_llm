@@ -1,0 +1,12 @@
+[package]
+name = "ch23-neural-ngram"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[[example]]
+name = "ch23-neural-ngram-trace"
+path = "examples/diagram_trace.rs"

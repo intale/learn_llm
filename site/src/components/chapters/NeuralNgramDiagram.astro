@@ -1,0 +1,539 @@
+---
+import traceSource from '../../../../rust/demos/ch23-neural-ngram/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  assertNeuralNgramDiagramLabels,
+  neuralNgramDiagramId,
+  parseNeuralNgramTrace,
+  type NeuralNgramDiagramLabels,
+} from '../../lib/neural-ngram-diagram';
+
+interface Props {
+  labels: NeuralNgramDiagramLabels;
+}
+
+const { labels } = Astro.props;
+assertNeuralNgramDiagramLabels(labels);
+const trace = parseNeuralNgramTrace(traceSource);
+const titleId = 'neural-ngram-title';
+const descriptionId = 'neural-ngram-description';
+---
+
+<figure
+  class="neural-ngram-diagram"
+  data-visualization-id={neuralNgramDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  </figcaption>
+
+  <dl class="fixture-summary">
+    <div>
+      <dt>{labels.summary.model}</dt>
+      <dd>
+        <InlineMath
+          latex={String.raw`V=${trace.config.vocabulary},\ C=${trace.config.context},\ D=${trace.config.embedding},\ H=${trace.config.hidden}`}
+        />
+      </dd>
+    </div>
+    <div>
+      <dt>{labels.summary.data}</dt>
+      <dd>
+        <InlineMath
+          latex={String.raw`N_{\mathrm{train}}=${trace.split.trainContexts},\ N_{\mathrm{val}}=${trace.split.validationContexts}`}
+        />
+      </dd>
+    </div>
+    <div>
+      <dt>{labels.summary.optimizer}</dt>
+      <dd>
+        <InlineMath
+          latex={String.raw`\eta=${trace.config.learningRate},\ t_{\max}=${trace.config.maxSteps}`}
+        />
+      </dd>
+    </div>
+  </dl>
+
+  <section class="pipeline-stage" aria-labelledby="neural-ngram-pipeline-heading">
+    <div class="stage-heading">
+      <p class="stage-number">1 · {labels.stages.pipeline}</p>
+      <h4 id="neural-ngram-pipeline-heading">{labels.stages.pipeline}</h4>
+      <p>{labels.notes.pipeline}</p>
+    </div>
+    <div
+      class="pipeline-scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.scrollers.pipeline}
+    >
+      <ol class="pipeline-list" aria-label={labels.captions.pipeline}>
+        {trace.stages.map((stage) => (
+          <li
+            class:list={[
+              'pipeline-card',
+              stage.name === 'context_ids' && 'input-card',
+              ['embeddings', 'concatenated', 'hidden'].includes(stage.name) && 'learned-card',
+              stage.name === 'logits' && 'output-card',
+            ]}
+            data-stage={stage.name}
+          >
+            <header>
+              <span class="stage-index">{stage.index}</span>
+              <div>
+                <p class="cue">
+                  {stage.name === 'context_ids'
+                    ? labels.cues.input
+                    : stage.name === 'logits'
+                      ? labels.cues.output
+                      : labels.cues.learned}
+                </p>
+                <h5>{labels.stageNames[stage.name]}</h5>
+              </div>
+            </header>
+            <dl class="stage-facts">
+              <div>
+                <dt>{labels.fields.shape}</dt>
+                <dd><InlineMath latex={stage.shape.lexeme} /></dd>
+              </div>
+              <div>
+                <dt>{labels.fields.values}</dt>
+                <dd>
+                  <ol class="value-list">
+                    {stage.values.items.map((value) => (
+                      <li><InlineMath latex={value} /></li>
+                    ))}
+                  </ol>
+                </dd>
+              </div>
+              {stage.argmax && stage.argmaxLogit && (
+                <>
+                  <div>
+                    <dt>{labels.fields.argmax}</dt>
+                    <dd><InlineMath latex={stage.argmax} /></dd>
+                  </div>
+                  <div>
+                    <dt>{labels.fields.argmaxLogit}</dt>
+                    <dd><InlineMath latex={stage.argmaxLogit} /></dd>
+                  </div>
+                </>
+              )}
+            </dl>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="checkpoint-stage" aria-labelledby="neural-ngram-checkpoint-heading">
+    <div class="stage-heading">
+      <p class="stage-number">2 · {labels.stages.checkpoints}</p>
+      <h4 id="neural-ngram-checkpoint-heading">{labels.stages.checkpoints}</h4>
+      <p>{labels.notes.checkpoints}</p>
+    </div>
+    <ol class="checkpoint-list" aria-label={labels.captions.checkpoints}>
+      {trace.losses.map((checkpoint, index) => (
+        <li
+          class:list={['checkpoint-card', index === trace.losses.length - 1 && 'final-checkpoint']}
+          data-step={checkpoint.step}
+        >
+          <p class="cue">
+            {index === trace.losses.length - 1 ? labels.cues.final : labels.cues.checkpoint}
+          </p>
+          <h5>
+            {labels.fields.step} <InlineMath latex={checkpoint.step} />
+          </h5>
+          <dl>
+            <div>
+              <dt>{labels.fields.trainLoss}</dt>
+              <dd>
+                <InlineMath latex={String.raw`L_{\mathrm{train}}=${checkpoint.train}`} />
+              </dd>
+            </div>
+            <div>
+              <dt>{labels.fields.validationLoss}</dt>
+              <dd>
+                <InlineMath latex={String.raw`L_{\mathrm{val}}=${checkpoint.validation}`} />
+              </dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="result-stage" aria-labelledby="neural-ngram-result-heading">
+    <div class="stage-heading">
+      <p class="stage-number">3 · {labels.stages.result}</p>
+      <h4 id="neural-ngram-result-heading">{labels.stages.result}</h4>
+    </div>
+    <dl class="result-grid">
+      <div>
+        <dt>{labels.fields.initialValidation}</dt>
+        <dd><InlineMath latex={trace.result.initialValidation} /></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.finalValidation}</dt>
+        <dd><InlineMath latex={trace.result.finalValidation} /></dd>
+      </div>
+      <div class="improvement-result">
+        <dt>{labels.fields.improvement}</dt>
+        <dd><InlineMath latex={String.raw`\Delta L_{\mathrm{val}}=${trace.result.improvement}`} /></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="generation-stage" aria-labelledby="neural-ngram-generation-heading">
+    <div class="stage-heading">
+      <p class="stage-number">4 · {labels.stages.generation}</p>
+      <h4 id="neural-ngram-generation-heading">{labels.stages.generation}</h4>
+      <p>{labels.notes.generation}</p>
+    </div>
+    <dl class="generation-summary">
+      <div>
+        <dt>{labels.fields.prompt}</dt>
+        <dd><bdi dir="ltr"><code>{trace.generation.prompt}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.promptIds}</dt>
+        <dd><InlineMath latex={trace.generation.promptIds.lexeme} /></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.stop}</dt>
+        <dd><bdi dir="ltr"><code>{trace.generation.stop}</code></bdi></dd>
+      </div>
+    </dl>
+    <div
+      class="generation-scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.scrollers.generation}
+    >
+      <ol class="token-list" aria-label={labels.fields.generatedIds}>
+        {trace.generation.ids.items.map((token) => (
+          <li><InlineMath latex={token} /></li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="proof-stage" aria-labelledby="neural-ngram-proof-heading">
+    <div class="stage-heading">
+      <p class="stage-number">5 · {labels.stages.proof}</p>
+      <h4 id="neural-ngram-proof-heading">{labels.stages.proof}</h4>
+    </div>
+    <dl class="proof-grid" aria-label={labels.captions.proof}>
+      <div>
+        <dt>{labels.fields.replay}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.replay}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.test}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.test}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.target}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.target}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.gradients}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.gradients}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.leaves}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.leaves}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.generationPolicy}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.generation}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.siteArithmetic}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.siteArithmetic}</code></bdi></dd>
+      </div>
+    </dl>
+  </section>
+</figure>
+
+<style>
+  .neural-ngram-diagram {
+    container-type: inline-size;
+    display: grid;
+    gap: 1.25rem;
+    min-inline-size: 0;
+    margin: 1.5rem 0;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  figcaption,
+  .stage-heading,
+  .pipeline-stage,
+  .checkpoint-stage,
+  .result-stage,
+  .generation-stage,
+  .proof-stage {
+    display: grid;
+    gap: 0.75rem;
+    min-inline-size: 0;
+  }
+
+  h3,
+  h4,
+  h5,
+  p,
+  dl,
+  ol {
+    margin: 0;
+  }
+
+  .diagram-description,
+  .stage-heading p,
+  .cue,
+  dt {
+    color: var(--muted);
+  }
+
+  .stage-number,
+  .cue {
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+  }
+
+  .fixture-summary,
+  .result-grid,
+  .generation-summary,
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 0.7rem;
+  }
+
+  .fixture-summary > div,
+  .result-grid > div,
+  .generation-summary > div,
+  .proof-grid > div {
+    min-inline-size: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.65rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  dt {
+    font-size: 0.78rem;
+  }
+
+  dd {
+    min-inline-size: 0;
+    margin: 0.2rem 0 0;
+    font-weight: 700;
+  }
+
+  code,
+  bdi {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .pipeline-scroll,
+  .generation-scroll {
+    min-inline-size: 0;
+    overflow-x: auto;
+    padding: 0.15rem 0.15rem 0.45rem;
+  }
+
+  .pipeline-scroll:focus-visible,
+  .generation-scroll:focus-visible,
+  .neural-ngram-diagram:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.15rem;
+  }
+
+  .pipeline-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(11.5rem, 1fr));
+    align-items: start;
+    gap: 1.35rem;
+    min-inline-size: 64rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pipeline-card {
+    position: relative;
+    align-self: start;
+    display: grid;
+    gap: 0.75rem;
+    min-inline-size: 0;
+    padding: 0.85rem;
+    border: 2px solid var(--line);
+    border-radius: 0.8rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  .pipeline-card.learned-card {
+    border-block-start-style: dashed;
+    border-block-start-width: 0.3rem;
+  }
+
+  .pipeline-card.output-card {
+    border-style: double;
+    border-width: 0.3rem;
+  }
+
+  .pipeline-card:not(:last-child)::after {
+    position: absolute;
+    inset-block-start: 2rem;
+    inset-inline-end: -1.05rem;
+    content: '→';
+    color: var(--muted);
+    font-weight: 800;
+  }
+
+  [dir='rtl'] .pipeline-card:not(:last-child)::after {
+    transform: scaleX(-1);
+  }
+
+  .pipeline-card header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .stage-index {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-weight: 800;
+  }
+
+  .stage-facts,
+  .checkpoint-card dl {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .value-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.78rem;
+  }
+
+  .value-list li {
+    min-inline-size: 0;
+    padding: 0.25rem;
+    border: 1px dotted var(--line);
+    border-radius: 0.35rem;
+    text-align: center;
+  }
+
+  .checkpoint-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.8rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .checkpoint-card {
+    align-self: start;
+    display: grid;
+    gap: 0.65rem;
+    min-inline-size: 0;
+    padding: 0.85rem;
+    border: 2px solid var(--line);
+    border-block-start-style: dashed;
+    border-radius: 0.75rem;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  .checkpoint-card.final-checkpoint {
+    border-style: double;
+    border-width: 0.3rem;
+  }
+
+  .improvement-result {
+    border-style: double !important;
+    border-width: 0.3rem !important;
+  }
+
+  .generation-stage {
+    border-block-start: 2px dashed var(--line);
+    padding-block-start: 1rem;
+  }
+
+  .token-list {
+    display: flex;
+    gap: 0.45rem;
+    min-inline-size: max-content;
+    padding: 0;
+    list-style: none;
+  }
+
+  .token-list li {
+    min-inline-size: 2.8rem;
+    padding: 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 0.45rem;
+    text-align: center;
+    background: var(--surface-raised, var(--surface));
+  }
+
+  .proof-stage {
+    border-block-start: 0.3rem double var(--line);
+    padding-block-start: 1rem;
+  }
+
+  @container (max-width: 42rem) {
+    .checkpoint-list {
+      grid-template-columns: 1fr;
+    }
+
+    .pipeline-list {
+      min-inline-size: 61rem;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .pipeline-card,
+    .checkpoint-card,
+    .fixture-summary > div,
+    .result-grid > div,
+    .generation-summary > div,
+    .proof-grid > div,
+    .token-list li {
+      background: Canvas;
+      color: CanvasText;
+      border-color: CanvasText;
+    }
+
+    .pipeline-card.learned-card,
+    .checkpoint-card {
+      border-block-start-style: dashed;
+    }
+
+    .pipeline-card.output-card,
+    .checkpoint-card.final-checkpoint,
+    .improvement-result,
+    .proof-stage {
+      border-style: double;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T06:59:53Z"
+updated_at: "2026-07-24T08:49:57Z"
 
 environment:
   os: "Linux x86_64"
@@ -11125,14 +11125,34 @@ builds:
         objective: "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
         depends_on:
           - implement-ch22-adamw
-        status: pending
+        status: completed
         inputs:
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/22-adamw.md"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/lib/adamw-diagram.ts"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -11147,6 +11167,12 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "Bengio et al., A Neural Probabilistic Language Model (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf; bounded read-only network input)"
+          - "Vaswani et al., Attention Is All You Need (https://arxiv.org/pdf/1706.03762; bounded read-only network input)"
+          - "Playwright 1.61.1 Chromium headless-shell revision 1228 browser cache (one bounded network download because the verified local cache was absent)"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image (one bounded network pull; immutable local digest recorded after download)"
         outputs:
           - "curriculum/chapters/23-neural-ngram.md"
           - "rust/crates/llm-from-scratch/src/models/neural_ngram.rs"
@@ -11154,8 +11180,11 @@ builds:
           - "rust/demos/ch23-neural-ngram/"
           - "site/src/content/chapters/en/23-neural-ngram.mdx"
           - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/lib/neural-ngram-diagram.ts"
           - "site/tests/23-neural-ngram-diagram.test.ts"
           - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
@@ -11184,8 +11213,106 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set with a small bounded deterministic CPU fixture, bounded read-only access to two declared primary papers, and one version-matched official Playwright validation image pull discovered during browser validation; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No paid service, generation service, package/build change, hosting change, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T072519Z-implement-ch23-neural-ngram-01
+            started_at: "2026-07-24T07:25:19Z"
+            finished_at: "2026-07-24T08:49:57Z"
+            status: succeeded
+            input_fingerprint:
+              git: "19718f530877d7c9e5b89e4f048f3b161e949866"
+              manifest: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/input-fingerprint.txt"
+              checksum: "sha256:de0102d518fcd5384129b52eb6aa1c976b4a1da4b17890074eb389cfa79ef5c7"
+              relevant_inputs: "sha256:2449db800309e8f966243a2097ff3806dd8bd4ce47f8a17df643663ec020eb7b"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/"
+            commands:
+              - "Complete the startup protocol, preserve unrelated desktop.ini, verify Chapter 22 artifacts and commit, compare pinned tools, and select the sole eligible Chapter 23 step"
+              - "Declare the owned parameter vector, complete-context target, bounded training proof, strict Rust trace, parser, aggregate formula coverage, and two primary-paper inputs before product work"
+              - "Fingerprint forty-five material local inputs plus the two declared primary sources and create isolated publish, validation, research, benchmark, and visual-review directories"
+              - "Review only the Chapter 23-relevant claims in Bengio et al. (2003) and Vaswani et al. (2017), then freeze bounded source notes before authoring product content"
+              - "Create a committed-base staging overlay, implement the sole five-parameter model owner and complete-context loss, then compile six focused core tests before constructing the training fixture"
+              - "Benchmark provisional 87-step, 29-step, and final 15-step fixtures; freeze the first bounded schedule that clears the held-out threshold and exact replay requirements"
+              - "Add strict Chapter 23 parser, formula, contract, layout, accessibility, localization, and browser coverage; pass 48 focused unit tests plus Astro, content, contract, and course-plan checks"
+              - "Retry the staged static build after two Windows/Dropbox bind-mounted font-rename failures, then complete the unchanged 35-page build with generated site/dist isolated in a Docker volume"
+              - "Provision the locked Playwright browser revision; after the generic workspace image reports a missing browser system library, select the official version-matched Playwright validation image instead of mutating repository build definitions"
+              - "Pull mcr.microsoft.com/playwright:v1.61.1-noble, verify immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48, Playwright 1.61.1, Chromium 149.0.7827.55 revision 1228, and record the network-disabled acceptance runtime"
+              - "Run the focused Chapter 23 Playwright suite in the pinned network-disabled runtime; correct one test-only KaTeX visual-plus-MathML text duplication assertion, then pass all five responsive, forced-color, RTL, localization, and no-JavaScript checks"
+              - "Revalidate the final Rust model and fixture after audit fixes: formatting, seven model tests, five demo tests, and byte-exact learner and diagram outputs all pass network-disabled"
+              - "Run every declared staged gate network-disabled in the frozen overlay: workspace clippy/tests, dependency and 23-demo policies, course/contract/content/parity checks, Astro diagnostics, 635 unit tests, 35-page build, 1011-reference link audit, and all 157 browser tests"
+              - "Freeze and verify the exact eighteen-file Chapter 23 publication manifest before changing canonical product paths"
+              - "Publish exactly the eighteen manifest-owned Chapter 23 files to canonical paths and verify every canonical checksum before fresh canonical validation"
+              - "Run every declared validation again from canonical paths, verify the final manifest, five reusable artifacts, and exact changed-path boundary, then remove the five run-specific disposable Docker volumes"
+            artifacts:
+              - path: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/input-fingerprint.txt"
+                checksum: "sha256:de0102d518fcd5384129b52eb6aa1c976b4a1da4b17890074eb389cfa79ef5c7"
+              - path: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/research/source-notes.md"
+                checksum: "sha256:9ff8830245a3554ad6584f53582b4d6838e08b80ab8d08fbf38faad6dec0bab4"
+              - path: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/benchmark/ch23-training-benchmark.txt"
+                checksum: "sha256:652191fbd87c4864bacf8f7d0d5037a95949f8d62f5ca0df5c524df339dc2728"
+              - path: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/benchmark/playwright-validation-runtime.txt"
+                checksum: "sha256:4b8c6ff4844e12151a8dfc371c98ab26c298d7ccc89802f214cd9c151660680f"
+              - path: ".build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/publish.sha256"
+                checksum: "sha256:c4baa4680fc007cf07a9623a6f9104c2400a392775f9a875b6367e794137cedf"
+            validation:
+              - command: "Preflight dependency, environment, cost, path-ownership, prior-artifact, scheduling, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 23 is the sole eligible step; no run is stale; Chapter 22 is committed and all five reusable artifacts match; every declared local input exists; pinned Linux and host orchestration tools match; unrelated desktop.ini remains untouched; and the only network input is bounded read-only review of two named primary papers. The planned fixture is deliberately small and must be benchmarked before any CPU expansion."
+              - command: "Bounded primary-source claim and local-policy separation audit"
+                status: passed
+                notes: "The frozen notes attribute fixed-context distributed representations, concatenated features, hidden prediction, softmax, and stochastic training to Bengio et al.; attribute attention-only sequence relations and masked autoregressive decoder attention to Vaswani et al.; and explicitly separate every course-specific fixture, training, trace, language, and accessibility choice."
+              - command: "Focused neural n-gram model construction, forward, loss, gradient, validation, and greedy-selection tests"
+                status: passed
+                notes: "Six tests pass. The model validates V/C/D/H and the exact ordered five-matrix set, reconstructs current leaf-sharing layer views for every forward, exposes [B,C,D] to [B,CD] to [B,H] to [B,V], selects only each row's final shifted target, reaches every parameter in reverse mode, and uses deterministic masked argmax selection."
+              - command: "Initial provisional 87-step fixture test with a 15-second whole-replay assertion"
+                status: failed
+                notes: "Every data, training, validation-improvement, replay, generation, and trace assertion passed, but the test measured two independent debug-profile training runs under one 15-second ceiling and therefore failed after 58.10 seconds while another replay-heavy test ran concurrently. Nothing was published; the fixture was reduced before numeric output was frozen."
+              - command: "Network-disabled final 15-step training and bitwise-replay benchmark"
+                status: passed
+                notes: "The fixed 3,384-parameter model lowers full train loss from 5.583505 to 5.555850 and held-out validation loss from 5.583482 to 5.557362, improving by 0.026120 nat at displayed precision. Two independent runs match initial tensors, gradients, checkpoints, final parameters, and generation bit for bit; test text remains untouched. The full replay report took 27.161 seconds against a conservative 60-second ceiling."
+              - command: "Focused Chapter 23 site unit, formula, Astro, content, contract, course-plan, and production-build gates"
+                status: passed
+                notes: "The strict parser and aggregate formula suites pass 48 tests; Astro reports zero diagnostics; the English chapter, 23-file contract integration, and 39-chapter course plan pass; and the unchanged static command builds 35 pages when generated site/dist is isolated from the Windows/Dropbox bind mount. Four plain learner-facing quantities found by the formula audit were routed through math or rephrased before these gates."
+              - command: "Astro production output on the Windows/Dropbox validation bind mount"
+                status: failed
+                notes: "Two source-identical attempts reached asset rearrangement and failed with EACCES while renaming different generated KaTeX font files. The first partial output was preserved under the run directory; nothing canonical was changed. Mounting only generated site/dist from an isolated Docker volume immediately passed."
+              - command: "Focused Chapter 23 Playwright gate before browser-cache provisioning"
+                status: failed
+                notes: "All five workers stopped before page launch because the pinned Chromium headless-shell revision 1228 was absent at /root/.cache/ms-playwright. No Chapter 23 assertion ran and no product failure was reported; the required pinned cache is now an explicit run input."
+              - command: "Package-matched Chromium cache launch in the generic workspace image"
+                status: failed
+                notes: "The revision 1228 download completed, but a direct headless-shell version check failed on missing libnspr4.so before any page launch. Browser execution is moved to the version-matched official Playwright image rather than installing mutable system packages or changing repository build definitions."
+              - command: "Version-matched official Playwright validation runtime provisioning"
+                status: passed
+                notes: "The official Playwright 1.61.1 noble image is pinned locally at sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48 and supplies Chromium 149.0.7827.55 revision 1228 plus its system libraries. Its Node v24.17.0 satisfies the site's declared >=22.12.0 engine; package and source locks remain unchanged. All acceptance executions use this verified image with networking disabled."
+              - command: "Network-disabled focused Chapter 23 Playwright suite"
+                status: passed
+                notes: "A first browser execution passed four of five tests and exposed only that one new assertion read each KaTeX token from both the visual and MathML layers. Reading canonical TeX annotations fixed the test without changing product output. The rerun passes all five tests at desktop and 390px widths, forced colors, RTL, and JavaScript-disabled rendering, including formula geometry, natural heights, local scrollers, SEO, navigation, and the deferred Russian route. The direct in-app browser surface was unavailable, so no separate interactive screenshot was substituted."
+              - command: "Post-audit Chapter 23 Rust formatting, model, fixture, and exact-output revalidation"
+                status: passed
+                notes: "cargo fmt --check passes; seven focused model tests and five demo tests pass, including central differences, the true bigram collision, partition provenance, row-weighted unequal evaluation batches, bitwise replay, and the 60-second runtime ceiling. Learner stdout and the strict 13-line diagram trace each match their frozen files byte for byte."
+              - command: "Independent final read-only Chapter 23 site audit"
+                status: passed
+                notes: "The audit found no remaining blocker in formula rendering, exact fixture alignment, accessibility, responsive and forced-color coverage, localization and SEO, LLM-centered history, or test robustness; no file was changed."
+              - command: "Full network-disabled staged Rust regression gates"
+                status: passed
+                notes: "cargo fmt --check, workspace clippy with warnings denied, cargo test --workspace --locked, the external-dependency policy, all 23 discovered demo fixtures, and Chapter 23's byte-exact learner command pass from the frozen overlay. The existing Cargo example-name collision warnings remain non-failing and unchanged."
+              - command: "Full network-disabled staged site and browser regression gates"
+                status: passed
+                notes: "Course plan, exact Chapter 23 contract, chapter, parity, and all-content checks pass; Astro reports zero diagnostics; 30 Vitest files and 635 tests pass; the static build emits 35 pages; the link audit checks 1011 local references, 35 SEO routes, and 114 artifacts; and all 157 Playwright tests pass in 32.7 seconds, including Chapter 23 and aggregate formula coverage at desktop and narrow widths."
+              - command: "Eighteen-file staged publication manifest verification"
+                status: passed
+                notes: "Every declared Chapter 23 product output exists in validation staging and matches .build/runs/20260724T072519Z-implement-ch23-neural-ngram-01/publish.sha256. The manifest covers Cargo.lock, the contract, cumulative model integration, all seven demo files, the English lesson, parser, component, focused unit/browser tests, and both aggregate formula tests; no ledger or generated build output is included."
+              - command: "Canonical publication checksum and changed-path boundary"
+                status: passed
+                notes: "Exactly eighteen frozen product files were copied from validation staging to their declared canonical paths and all match publish.sha256. Git reports only those Chapter 23 outputs plus BUILD_STATE.yaml and DECISIONS.md; unrelated desktop.ini remains untracked and untouched. No generated dist, test-result, cache, package, workflow, hosting, deployment, or locale-policy file was published."
+              - command: "Full fresh canonical Rust, site, link, and browser regression gates"
+                status: passed
+                notes: "Canonical formatting, workspace clippy, workspace tests, dependency policy, all 23 demo fixtures, and byte-exact Chapter 23 stdout pass. Canonical course, contract, chapter, parity, content, Astro, 635-unit-test, 35-page build, 1011-reference link, focused five-test browser, and full 157-test browser gates also pass network-disabled in the pinned runtime."
+              - command: "Final artifact, manifest, changed-path, whitespace, and disposable-resource audit"
+                status: passed
+                notes: "All eighteen canonical product files still match publish.sha256; all five reusable run artifacts match their recorded hashes; git diff --check passes; the 21 visible paths are exactly eighteen outputs, two ledgers, and untouched desktop.ini; and no run-specific container remains. The five learn-llm-ch23-* Cargo, npm, dist, browser-cache, and test-result volumes were removed and are regenerable; the pinned official validation image remains cached."
+            notes: "Succeeded. Chapter 23 now integrates the cumulative tokenizer, complete-context batches, embeddings, SwiGLU, indexed final-target NLL, and transactional AdamW into one deterministic fixed-context neural language model. Its held-out objective improves from 5.583482 to 5.557362, every named leaf participates and is replaced, two runs replay bit for bit, and test text is neither encoded nor scored. The English lesson keeps history on the LLM path from sparse count contexts through Bengio-style learned fixed contexts to masked attention, renders all notation through the math pipeline, includes SEO and exercises, and projects a strict Rust-authored trace in a static accessible responsive diagram. Frozen staged and fresh canonical gates pass; no package, Linux build, hosting, deployment, locale-policy, or Russian publication scope changed."
       - id: implement-ch24-residual-connections
         objective: "Add a shape-preserving residual branch and verify identity/gradient paths through stacked transformations."
         depends_on:

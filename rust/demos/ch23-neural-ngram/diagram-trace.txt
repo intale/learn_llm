@@ -1,0 +1,13 @@
+CONFIG|vocabulary=266|merges=8|context=2|embedding=4|concatenated=8|swiglu_inner=8|hidden=8|parameters=3384|batch=64|evaluation_batch=512|init_seed=23|shuffle_seed=23|max_steps=15|lr=0.010000|beta1=0.900000|beta2=0.999000|epsilon=0.000000010|weight_decay=0.010000
+SPLIT|train_documents=8|validation_documents=2|test_used=no|train_contexts=1836|validation_contexts=467|train_batches=29|train_evaluation_batches=4|validation_evaluation_batches=1
+STAGE|index=0|name=context_ids|shape=[1, 2]|ids=[67, 118]
+STAGE|index=1|name=embeddings|shape=[1, 2, 4]|values=[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]
+STAGE|index=2|name=concatenated|shape=[1, 8]|values=[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]
+STAGE|index=3|name=hidden|shape=[1, 8]|values=[-0.002448, -0.000051, 0.003220, 0.003477, 0.002033, 0.004016, 0.003727, 0.003874]
+STAGE|index=4|name=logits|shape=[1, 266]|preview=[0.000075, -0.000037, 0.000496, -0.001047, -0.000055, -0.001032]|argmax=44|argmax_logit=0.002350
+LOSS|step=0|train=5.583505|validation=5.583482
+LOSS|step=8|train=5.580106|validation=5.580365
+LOSS|step=15|train=5.555850|validation=5.557362
+RESULT|step=15|initial_validation=5.583482|final_validation=5.557362|improvement=0.026120
+GENERATE|prompt=At|prompt_ids=[67, 118]|ids=[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211]|stop=limit
+PROOF|replay=bitwise|test=untouched|target=final_shifted|gradients=all_nonzero|leaves=replaced|generation=deterministic|site_arithmetic=none

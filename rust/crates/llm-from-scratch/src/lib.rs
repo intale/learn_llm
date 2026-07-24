@@ -9,6 +9,11 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Complete decoder models assembled from the chapter-by-chapter primitives.
+pub mod models {
+    pub mod neural_ngram;
+}
+
 /// Deterministic data ordering and training updates.
 pub mod training {
     pub mod adamw;

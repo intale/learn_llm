@@ -24,7 +24,7 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
-const chapter14To22Files = [
+const chapter14To23Files = [
   '14-scalar-autodiff.mdx',
   '15-tensor-autodiff-core.mdx',
   '16-model-autodiff-ops.mdx',
@@ -34,6 +34,7 @@ const chapter14To22Files = [
   '20-swiglu-feed-forward.mdx',
   '21-mini-batches.mdx',
   '22-adamw.mdx',
+  '23-neural-ngram.mdx',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
@@ -273,7 +274,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To22Math: Record<string, readonly string[]> = {
+const requiredChapter14To23Math: Record<string, readonly string[]> = {
   '14': [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -321,9 +322,15 @@ const requiredChapter14To22Math: Record<string, readonly string[]> = {
     String.raw`\eta\lambda\theta_0=[0.01,-0.02]`,
     String.raw`q(x,y)=\frac12(x^2+4y^2)`,
   ],
+  '23': [
+    String.raw`[1,2]\to[1,2,4]\to[1,8]\to[1,8]\to[1,266]`,
+    String.raw`h=\operatorname{SwiGLU}([E_{z_{t-C}},\ldots,E_{z_{t-1}}]),\quad \ell=hW_o`,
+    String.raw`L=-\frac{1}{B}\sum_{b=1}^{B}\log`,
+    String.raw`y_b=\operatorname{target\_row}(b)_{C-1}`,
+  ],
 };
 
-const formerChapter14To22MathCodeSpans = [
+const formerChapter14To23MathCodeSpans = [
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -378,9 +385,17 @@ const formerChapter14To22MathCodeSpans = [
   'beta_1',
   'eta*lambda',
   '[0.923333,-1.9]',
+  'hW_o',
+  'C*D',
+  '[B,C]',
+  '[B,C,D]',
+  '[B,CD]',
+  '[B,H]',
+  '[B,V]',
+  'target_row(b)[C-1]',
 ] as const;
 
-const rawChapter14To22FormulaPatterns = [
+const rawChapter14To23FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -398,9 +413,13 @@ const rawChapter14To22FormulaPatterns = [
   /\b1\.75\s*\/\s*(?:4|6)\b/,
   /\b(?:theta|[gmv])_(?:0|1|t)\b/,
   /\b(?:beta_[12]|eta|lambda|epsilon|varepsilon)\s*=/,
+  /\bhW_o\b/,
+  /\bC\s*\*\s*D\b/,
+  /\[B\s*,\s*(?:C|CD|H|V)(?:\s*,\s*D)?\]/,
+  /\btarget_row\s*\([^)]*\)\s*\[\s*C\s*-\s*1\s*\]/,
 ] as const;
 
-const documentedChapter14To22Code = [
+const documentedChapter14To23Code = [
   {
     name: 'literal tensor shapes, coordinates, vectors, and matrices',
     pattern: /^\[[^\r\n]*\]$/,
@@ -536,10 +555,10 @@ describe('Chapter 8-13 formula-source contract', () => {
   });
 });
 
-describe('Chapter 14-22 formula-source contract', () => {
-  it('completes the source audit for all 29 published localized lessons', () => {
+describe('Chapter 14-23 formula-source contract', () => {
+  it('completes the source audit for all 30 published localized lessons', () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To22Files) {
+    for (const file of chapter14To23Files) {
       const source = readChapter('en', file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -547,31 +566,31 @@ describe('Chapter 14-22 formula-source contract', () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To22Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To23Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To22MathCodeSpans) {
+      for (const oldExpression of formerChapter14To23MathCodeSpans) {
         expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To22FormulaPatterns) {
+      for (const pattern of rawChapter14To23FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter14To22Files);
+    expect(reviewed).toEqual(chapter14To23Files);
     expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
-      29,
+      30,
     );
   });
 
   it('keeps every remaining code span within a documented program-data category', () => {
-    for (const file of chapter14To22Files) {
+    for (const file of chapter14To23Files) {
       for (const value of inlineCode(readChapter('en', file))) {
-        const allowance = documentedChapter14To22Code.find(({ pattern }) => pattern.test(value));
+        const allowance = documentedChapter14To23Code.find(({ pattern }) => pattern.test(value));
         expect(
           allowance?.name,
           `${file} has an undocumented code span after the formula audit: \`${value}\``,
@@ -581,7 +600,7 @@ describe('Chapter 14-22 formula-source contract', () => {
   });
 });
 
-describe('build-time formula rendering in Chapter 14-22 diagrams', () => {
+describe('build-time formula rendering in Chapter 14-23 diagrams', () => {
   it('renders every diagram-owned expression as strict HTML plus MathML', () => {
     const components = {
       initialization: readFileSync(
@@ -606,6 +625,10 @@ describe('build-time formula rendering in Chapter 14-22 diagrams', () => {
       ),
       adamw: readFileSync(
         resolve(componentRoot, 'chapters/AdamwDiagram.astro'),
+        'utf8',
+      ),
+      neuralNgram: readFileSync(
+        resolve(componentRoot, 'chapters/NeuralNgramDiagram.astro'),
         'utf8',
       ),
     };
@@ -651,6 +674,18 @@ describe('build-time formula rendering in Chapter 14-22 diagrams', () => {
     expect(components.adamw).toContain('vectorLatex(parameter.correctedFirst)');
     expect(components.adamw).toContain(
       'String.raw`\\eta\\lambda\\theta=${trace.proof.zeroGradientDecay}`',
+    );
+
+    expect(components.neuralNgram).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.neuralNgram).toContain('latex={stage.shape.lexeme}');
+    expect(components.neuralNgram).toContain(
+      'String.raw`L_{\\mathrm{train}}=${checkpoint.train}`',
+    );
+    expect(components.neuralNgram).toContain(
+      'String.raw`L_{\\mathrm{val}}=${checkpoint.validation}`',
+    );
+    expect(components.neuralNgram).toContain(
+      'String.raw`\\Delta L_{\\mathrm{val}}=${trace.result.improvement}`',
     );
 
     for (const source of Object.values(components)) {

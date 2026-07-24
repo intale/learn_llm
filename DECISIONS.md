@@ -4518,3 +4518,210 @@ replay, and convergence.
 
 **Affected step and run:** `implement-ch22-adamw`, run
 `20260724T052850Z-implement-ch22-adamw-01`.
+
+## 2026-07-24 - Declare Chapter 23 model ownership and training evidence boundary
+
+**Status:** Accepted during Chapter 23 preflight.
+
+**Context:** The scheduled Chapter 23 outcome deliberately integrates the
+cumulative tokenizer, complete-context batches, tensor tape, embedding, SwiGLU,
+output projection, indexed NLL, and AdamW. The existing layer types expose stable
+named parameters for forward use, while AdamW replaces successful leaves. The
+chapter therefore needs one explicit owner for the replaceable parameter set,
+one unambiguous target per fixed context, a bounded deterministic training proof,
+and a strict Rust-to-static-site evidence boundary. The scheduled output list
+also omits the parser and aggregate formula tests required by the established
+chapter workflow. History must stay on the path from count contexts through
+feed-forward neural language models to attention-based language models rather
+than becoming a programming-language chronology.
+
+**Decision:** Store the model's complete parameter set in one stable-name vector.
+Each forward pass constructs checked embedding, bias-free SwiGLU, and bias-free
+output-projection views from clones of those current leaves, so AdamW replacement
+changes the single owned set used by the next pass. Map a batch of complete
+contexts with shape $[B,C]$ through embeddings $[B,C,D]$, a concatenated feature
+axis $[B,CD]$, SwiGLU hidden states $[B,H]$, and vocabulary logits $[B,V]$. Each
+row predicts exactly the token after its entire context: from the existing
+shifted mini-batch row, use the final target only. Compute one indexed mean NLL
+over those $B$ targets, backpropagate through the existing model-critical VJPs,
+then commit one AdamW step across every named leaf. Reject invalid dimensions,
+context shapes, IDs, targets, parameter sets, and non-finite training evidence
+with typed errors.
+
+Use a fixed corpus split, tokenizer configuration, initialization seed, batch
+order, optimizer configuration, and small maximum step count. The acceptance
+fixture must replay bit-for-bit, lower training loss, improve held-out validation
+loss from initialization, generate deterministically, and remain within a locally
+measured bounded runtime; any substantial-CPU expansion requires a new recorded
+decision. Rust emits both learner stdout and a strict pipeline/loss trace. The
+site parser may validate and project that trace but performs no model, loss,
+optimizer, or generation arithmetic. Add the parser plus Chapter 23 coverage to
+both aggregate formula tests as declared outputs. Preserve the course-plan
+formula exactly and route all learner-facing notation through server-rendered
+math.
+
+Use Bengio et al. (2003) for the fixed-context distributed-representation neural
+language model and Vaswani et al. (2017) for the later attention-based sequence
+model. Bound paper claims separately from this course's dimensions, seeds,
+parameter names, batching target choice, stopping rule, errors, trace grammar,
+and accessibility projection.
+
+**Consequences:** Chapter 23 is one dependency-free English vertical slice and
+the go/no-go integration checkpoint for the numerical training stack. Attention,
+residual connections, normalization, schedules, checkpoint serialization,
+sampling policies, and distributed training remain later chapters. Packages,
+static Astro architecture, Linux build definitions, locale policy, hosting, and
+deployment remain unchanged; this step does not deploy the site externally.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Finalize the Chapter 23 browser-validation runtime
+
+**Status:** Accepted before the official validation-image pull; supersedes the
+direct-cache launch mechanism wherever the two related entries conflict.
+
+**Context:** The two browser-validation entries were checkpointed during one
+recovery sequence, and their placement in this append-only file does not reflect
+the discovery order. The decisive fact is that revision 1228 is package-matched
+but cannot launch in the generic workspace image because browser system
+libraries are absent.
+
+**Decision:** The final Chapter 23 browser gates use the version-matched official
+Playwright image, pinned by its locally inspected immutable digest. The isolated
+`site/dist` volume remains in use. The separately downloaded browser cache is
+not used for acceptance and will be removed after final validation.
+
+**Consequences:** This entry is the latest authority for the validation runtime;
+all product sources, package pins, repository build definitions, hosting, and
+deployment scope remain unchanged.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Use the version-matched Playwright browser runtime for Chapter 23 gates
+
+**Status:** Accepted during staged validation, before publication; this entry
+supersedes only the browser-runtime mechanism in the preceding cache decision.
+
+**Context:** The package-matched Chromium and headless-shell revision 1228
+download completed, but launching its binary in the generic Rust/Node workspace
+image failed because that image intentionally omits browser system libraries,
+beginning with `libnspr4.so`. Installing operating-system packages into an
+ephemeral general-purpose container would be less reproducible and would have
+to be repeated for later gates.
+
+**Decision:** Pull and use the official version-matched
+`mcr.microsoft.com/playwright:v1.61.1-noble` image only for Playwright execution,
+and record its immutable local image digest after download. Continue mounting
+the locked repository `site/node_modules` and isolated generated `site/dist`,
+and run the actual browser suites with networking disabled. Do not change any
+Dockerfile, workflow, package manifest, lockfile, application source, hosting,
+or deployment configuration.
+
+**Consequences:** The browser and its system dependencies come from one
+upstream runtime matched to the locked Playwright package rather than from
+mutable ad hoc package installation. The image pull is a bounded validation
+input authorized by the user's resource approval; it does not become part of
+the static site or runtime. The separately downloaded browser-cache volume is
+retained only until final cleanup and is no longer required by the gates.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Freeze the measured Chapter 23 training fixture
+
+**Status:** Accepted after the isolated Chapter 23 benchmark.
+
+**Context:** The Chapter 23 ownership and evidence boundary required a fixed,
+small training proof before numeric output or lesson claims could be frozen. The
+checked-in bilingual corpus and split yield a 266-token train-only BPE
+vocabulary, 1,836 complete training contexts, and 467 held-out validation
+contexts at context width two. A provisional three-epoch run improved validation
+substantially but repeated more work than the chapter outcome needs. The first
+15 batches already produced a deterministic held-out improvement above the
+declared 0.01-nat threshold. The visualization needs a short objective trace,
+not validation-based model selection, and the test partition must remain
+unencoded and unscored.
+
+**Decision:** Freeze vocabulary size 266, context width 2, embedding width 4,
+hidden width 8, and five bias-free matrices totaling 3,384 parameters. Initialize
+and shuffle with seed 23. Train the first 15 batches of the one materialized
+64-row shuffled order using AdamW with learning rate 0.01, moment rates 0.9 and
+0.999, epsilon $10^{-8}$, and decay 0.01 on all five matrices. Evaluate the
+complete train and validation objectives in deterministic 512-row batches at
+steps 0, 8, and 15, weighting batch means by their actual row counts. Do not
+select a checkpoint: step 15 is the fixed final model.
+
+The frozen trace lowers train loss from 5.583505 to 5.555850 and validation loss
+from 5.583482 to 5.557362, an improvement of 0.026120 nat at displayed precision.
+Two independently initialized runs must match checkpoint values, initial
+pipeline tensors, first-step gradient evidence, final parameters, and generation
+bit for bit. Greedy generation starts from content IDs `[67, 118]` for `At`,
+masks only BOS, permits EOS, breaks exact ties toward the lower ID, and stops at
+EOS or 12 new tokens; preserve generated bytes even when they are not valid
+UTF-8. The pinned debug-profile command that performs both full replays and the
+report took 27.161 seconds locally; enforce a conservative 60-second ceiling so
+normal contention does not create a false failure. The canonical fixture remains
+small and uses no network, paid service, or generated model artifact.
+
+**Consequences:** The numeric learner output, strict 13-line visualization trace,
+parser constants, and lesson claims may now be authored against one measured
+fixture. The test document texts are never requested. Larger models, more steps,
+validation-based checkpoint selection, stochastic sampling, and tokenizer ID
+remapping are outside this step and require a new decision if later introduced.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Isolate Chapter 23 browser-validation outputs and cache
+
+**Status:** Accepted during staged validation, before publication.
+
+**Context:** The staged Astro source, content, contract, unit, and type gates
+passed, but publishing generated KaTeX font assets inside the Windows/Dropbox
+bind mount failed twice with `EACCES` on two different rename operations. The
+same static build completed when only generated `site/dist` was mounted from an
+isolated Docker volume. The pinned Playwright package then reported that its
+matching Chromium headless-shell revision 1228 was absent from the otherwise
+reusable container environment, so the required browser gates could not start.
+
+**Decision:** Keep every source file, package pin, static-site command, and
+Linux build definition unchanged. Mount only generated `site/dist` from the
+run-specific `learn-llm-ch23-site-dist` volume. Download the Chromium revision
+required by the locked Playwright 1.61.1 package once into the run-specific
+`learn-llm-ch23-playwright` cache volume, record its version and cache evidence,
+then execute the staged and canonical browser gates with networking disabled.
+The one browser-cache download is an explicit validation input, not a product
+runtime dependency or deployment action.
+
+**Consequences:** Windows Defender or Dropbox locks cannot corrupt or block the
+canonical source tree, the static output is still produced by the unchanged
+repository command, and browser validation remains pinned and reproducible from
+the recorded cache. Both named volumes are disposable after the final gates;
+neither generated output nor the browser cache is published or committed.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
+
+## 2026-07-24 - Confirm the final Chapter 23 browser-validation authority
+
+**Status:** Accepted before the official validation-image pull; this is the
+final authority over the related browser-cache and runtime entries above.
+
+**Context:** The package-matched browser cache exists, but the generic workspace
+image lacks browser system libraries. The earlier recovery entries were written
+during the same checkpoint and appear out of discovery order in this append-only
+ledger.
+
+**Decision:** Run acceptance browser tests in the official version-matched
+Playwright image and pin its immutable local digest after download. Continue to
+use the isolated generated `site/dist` volume. Do not use the separately
+downloaded browser-cache volume for acceptance; remove it after final gates.
+
+**Consequences:** The final test runtime is unambiguous without modifying any
+product source, package pin, repository build definition, hosting, or deployment
+configuration.
+
+**Affected step and run:** `implement-ch23-neural-ngram`, run
+`20260724T072519Z-implement-ch23-neural-ngram-01`.
