@@ -1,0 +1,564 @@
+---
+import traceSource from '../../../../rust/demos/ch21-mini-batches/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  assertMiniBatchesDiagramLabels,
+  miniBatchesDiagramId,
+  parseMiniBatchesTrace,
+  type MiniBatchesDiagramLabels,
+} from '../../lib/mini-batches-diagram';
+
+interface Props {
+  labels: MiniBatchesDiagramLabels;
+}
+
+const { labels } = Astro.props;
+assertMiniBatchesDiagramLabels(labels);
+const trace = parseMiniBatchesTrace(traceSource);
+const titleId = 'mini-batches-title';
+const descriptionId = 'mini-batches-description';
+const tokenPosition = ['1', '2'] as const;
+---
+
+<figure
+  class="mini-batches-diagram"
+  data-visualization-id={miniBatchesDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  </figcaption>
+
+  <dl class="shape-summary" aria-label={labels.stages.shuffle}>
+    <div>
+      <dt>{labels.summary.contextLength}</dt>
+      <dd><InlineMath latex={String.raw`T=${trace.meta.context}`} /></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.requestedCapacity}</dt>
+      <dd><InlineMath latex={String.raw`|B|_{\max}=${trace.meta.capacity}`} /></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.shuffleSeed}</dt>
+      <dd><bdi dir="ltr"><code>{trace.meta.seed}</code></bdi></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.completeWindows}</dt>
+      <dd><InlineMath latex={trace.meta.windows} /></dd>
+    </div>
+    <div>
+      <dt>{labels.summary.batchCount}</dt>
+      <dd><InlineMath latex={trace.meta.batches} /></dd>
+    </div>
+  </dl>
+
+  <section class="shuffle-stage" aria-labelledby="mini-batches-shuffle-heading">
+    <div class="stage-heading">
+      <p class="stage-number">1 · {labels.stages.shuffle}</p>
+      <h4 id="mini-batches-shuffle-heading">{labels.stages.shuffle}</h4>
+      <p>{labels.notes.shuffle}</p>
+    </div>
+    <ol class="shuffle-list">
+      {trace.windows.map((window) => (
+        <li data-slot={window.slot} data-batch={window.batch}>
+          <span class="ordinal">{labels.fields.slot} {window.slot}</span>
+          <strong><bdi dir="ltr">{window.document}@{window.start}</bdi></strong>
+          <span>{labels.symbols.batch} <bdi dir="ltr">B{window.batch}</bdi></span>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="batches-stage" aria-labelledby="mini-batches-groups-heading">
+    <div class="stage-heading">
+      <p class="stage-number">2 · {labels.stages.batches}</p>
+      <h4 id="mini-batches-groups-heading">{labels.stages.batches}</h4>
+      <p>{labels.notes.tokenMean}</p>
+    </div>
+
+    <div class="batch-grid">
+      {trace.batches.map((batch) => (
+        <article class:list={['batch-card', batch.index === '1' && 'final-card']} data-batch={batch.index}>
+          <header>
+            <div>
+              <p class="batch-label">{labels.symbols.batch} <bdi dir="ltr">B{batch.index}</bdi></p>
+              <h5>
+                <InlineMath latex={String.raw`|B_${batch.index}|=${batch.width}`} />
+              </h5>
+            </div>
+            <dl class="batch-facts">
+              <div>
+                <dt>{labels.fields.shape}</dt>
+                <dd><bdi dir="ltr"><code>{batch.shape.lexeme}</code></bdi></dd>
+              </div>
+              <div>
+                <dt>{labels.fields.targetTokens}</dt>
+                <dd><InlineMath latex={String.raw`N_{B_${batch.index}}=${batch.tokens}`} /></dd>
+              </div>
+            </dl>
+          </header>
+
+          <div
+            class="batch-scroll"
+            role="region"
+            tabindex="0"
+            aria-label={`${labels.scrollers.batchRows} ${batch.index}`}
+          >
+            <ol class="window-list" aria-label={labels.captions.batchRows}>
+              {batch.windows.map((window) => (
+                <li class="window-row" data-slot={window.slot}>
+                  <div class="window-origin">
+                    <span>{labels.fields.origin}: {labels.symbols.window} {window.slot}</span>
+                    <strong><bdi dir="ltr">{window.document}@{window.start}</bdi></strong>
+                  </div>
+                  <dl class="window-values">
+                    <div>
+                      <dt>{labels.fields.input}</dt>
+                      <dd><bdi dir="ltr"><code>{window.input.lexeme}</code></bdi></dd>
+                    </div>
+                    <div>
+                      <dt>{labels.fields.target}</dt>
+                      <dd><bdi dir="ltr"><code>{window.target.lexeme}</code></bdi></dd>
+                    </div>
+                  </dl>
+                  <ol class="loss-list" aria-label={labels.fields.tokenLosses}>
+                    {window.losses.items.map((loss, index) => (
+                      <li>
+                        <InlineMath
+                          latex={String.raw`\mathcal{L}_{${window.slot},${tokenPosition[index]}}=${loss}`}
+                        />
+                      </li>
+                    ))}
+                  </ol>
+                </li>
+              ))}
+              {batch.index === '1' && (
+                <li class="unused-slot" aria-label={labels.symbols.unused}>
+                  <span>{labels.fields.capacitySlot}</span>
+                  <strong>{labels.symbols.unused}</strong>
+                </li>
+              )}
+            </ol>
+          </div>
+
+          <dl class="mean-summary">
+            <div>
+              <dt>{labels.fields.lossSum}</dt>
+              <dd><InlineMath latex={String.raw`\sum\mathcal{L}_{b,t}=${batch.lossSum}`} /></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.denominator}</dt>
+              <dd><InlineMath latex={String.raw`|B_${batch.index}|T=${batch.tokens}`} /></dd>
+            </div>
+            <div>
+              <dt>{labels.fields.meanLoss}</dt>
+              <dd>
+                <InlineMath
+                  latex={String.raw`\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`}
+                />
+              </dd>
+            </div>
+            <div>
+              <dt>{labels.fields.meanGradient}</dt>
+              <dd>
+                <InlineMath
+                  latex={String.raw`\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`}
+                />
+              </dd>
+            </div>
+          </dl>
+          <p class="accumulation-result">
+            <span aria-hidden="true">=</span>
+            {labels.fields.meanGradient}: {labels.symbols.equal}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="final-stage" aria-labelledby="mini-batches-final-heading">
+    <div class="stage-heading">
+      <p class="stage-number">3 · {labels.stages.finalBatch}</p>
+      <h4 id="mini-batches-final-heading">{labels.stages.finalBatch}</h4>
+      <p>{labels.notes.finalBatch}</p>
+    </div>
+    <div class="denominator-contrast">
+      <article class="capacity-denominator">
+        <p>{labels.summary.requestedCapacity}</p>
+        <InlineMath
+          latex={String.raw`${trace.meta.capacity}\times${trace.meta.context}=${trace.final.capacityTokens}`}
+        />
+        <strong>{labels.symbols.unused}</strong>
+      </article>
+      <span class="contrast-arrow" aria-hidden="true">→</span>
+      <article class="actual-denominator">
+        <p>{labels.fields.actualWidth}</p>
+        <InlineMath
+          latex={String.raw`${trace.final.width}\times${trace.meta.context}=${trace.final.actualDenominator}`}
+        />
+        <strong>{labels.fields.denominator}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="proof-stage" aria-labelledby="mini-batches-proof-heading">
+    <div class="stage-heading">
+      <p class="stage-number">4 · {labels.stages.proof}</p>
+      <h4 id="mini-batches-proof-heading">{labels.stages.proof}</h4>
+      <p>{labels.notes.proof}</p>
+    </div>
+    <dl class="proof-grid" aria-label={labels.captions.proof}>
+      <div>
+        <dt>{labels.summary.completeWindows}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.coverage}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.duplicates}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.duplicates}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.padding}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.padding}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.crossPartition}</dt>
+        <dd><bdi dir="ltr"><code>{trace.proof.crossPartition}</code></bdi></dd>
+      </div>
+      <div>
+        <dt>{labels.fields.sameSeed}</dt>
+        <dd>{labels.symbols.same}</dd>
+      </div>
+      <div>
+        <dt>{labels.fields.differentSeed}</dt>
+        <dd>{labels.symbols.changed}</dd>
+      </div>
+      <div>
+        <dt>{labels.fields.rawAccumulation}</dt>
+        <dd>{labels.symbols.equal}</dd>
+      </div>
+    </dl>
+  </section>
+</figure>
+
+<style>
+  .mini-batches-diagram {
+    container-type: inline-size;
+    display: grid;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    color: var(--ink);
+    min-inline-size: 0;
+  }
+
+  figcaption,
+  .stage-heading {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  h3,
+  h4,
+  h5,
+  p,
+  dl,
+  ol {
+    margin: 0;
+  }
+
+  .diagram-description,
+  .stage-heading p,
+  .batch-label,
+  .ordinal {
+    color: var(--muted);
+  }
+
+  .stage-number,
+  .batch-label,
+  .ordinal {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .shape-summary,
+  .batch-facts,
+  .mean-summary,
+  .proof-grid,
+  .window-values {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .shape-summary {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  }
+
+  .shape-summary > div,
+  .batch-facts > div,
+  .mean-summary > div,
+  .proof-grid > div,
+  .window-values > div {
+    min-inline-size: 0;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    font-weight: 700;
+    min-inline-size: 0;
+  }
+
+  code,
+  bdi {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .shuffle-stage,
+  .batches-stage,
+  .final-stage,
+  .proof-stage {
+    display: grid;
+    gap: 0.9rem;
+    min-inline-size: 0;
+  }
+
+  .shuffle-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: 0.6rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .shuffle-list li {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.7rem;
+    border: 1px solid var(--line);
+    border-block-start-width: 0.3rem;
+    border-radius: 0.65rem;
+    background: var(--surface-raised, var(--surface));
+    min-inline-size: 0;
+  }
+
+  .shuffle-list li[data-batch='1'] {
+    border-block-start-style: double;
+    border-block-start-width: 0.35rem;
+  }
+
+  .batch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: 1rem;
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .batch-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: 0.9rem;
+    border: 2px solid var(--line);
+    border-radius: 0.8rem;
+    background: var(--surface-raised, var(--surface));
+    min-inline-size: 0;
+  }
+
+  .batch-card.final-card {
+    border-style: double;
+    border-width: 0.3rem;
+  }
+
+  .batch-card > header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .batch-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .batch-scroll {
+    overflow-x: auto;
+    min-inline-size: 0;
+    padding-block-end: 0.25rem;
+  }
+
+  .batch-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.15rem;
+  }
+
+  .window-list {
+    display: grid;
+    gap: 0.55rem;
+    min-inline-size: 34rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .window-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.8fr) minmax(14rem, 1.2fr) minmax(10rem, 1fr);
+    gap: 0.65rem;
+    align-items: start;
+    padding: 0.7rem;
+    border: 1px solid var(--line);
+    border-inline-start-width: 0.3rem;
+    border-radius: 0.6rem;
+    background: var(--surface);
+  }
+
+  .window-origin {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .window-origin span {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .window-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .loss-list {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .loss-list li {
+    padding: 0.25rem 0.4rem;
+    border-block-end: 1px solid var(--line);
+  }
+
+  .unused-slot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem;
+    border: 2px dashed var(--line);
+    border-radius: 0.6rem;
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  .mean-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-block-start: 0.8rem;
+    border-block-start: 3px double var(--line);
+  }
+
+  .mean-summary dd {
+    overflow-x: auto;
+    padding-block: 0.15rem;
+  }
+
+  .accumulation-result {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-weight: 700;
+  }
+
+  .accumulation-result span {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border: 2px double var(--line);
+    border-radius: 50%;
+  }
+
+  .denominator-contrast {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .denominator-contrast article {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+    padding: 0.9rem;
+    border-radius: 0.7rem;
+    background: var(--surface-raised, var(--surface));
+    min-inline-size: 0;
+  }
+
+  .capacity-denominator {
+    border: 2px dashed var(--line);
+  }
+
+  .actual-denominator {
+    border: 3px double var(--line);
+  }
+
+  .contrast-arrow {
+    align-self: center;
+    font-size: 1.5rem;
+  }
+
+  .proof-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  }
+
+  .proof-grid > div {
+    padding: 0.65rem;
+    border-block-end: 2px solid var(--line);
+    background: var(--surface-raised, var(--surface));
+  }
+
+  @container (max-width: 36rem) {
+    .batch-card > header,
+    .unused-slot {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .mean-summary,
+    .batch-facts,
+    .denominator-contrast {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .contrast-arrow {
+      justify-self: center;
+      transform: rotate(90deg);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .shuffle-list li[data-batch='1'],
+    .batch-card.final-card,
+    .actual-denominator,
+    .mean-summary {
+      border-color: CanvasText;
+    }
+
+    .unused-slot,
+    .capacity-denominator {
+      border-color: GrayText;
+    }
+  }
+</style>

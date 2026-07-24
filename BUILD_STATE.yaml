@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-23T20:17:43Z"
+updated_at: "2026-07-24T05:19:23Z"
 
 environment:
   os: "Linux x86_64"
@@ -10731,14 +10731,22 @@ builds:
         objective: "Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly."
         depends_on:
           - implement-ch20-swiglu-feed-forward
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/20-swiglu-feed-forward.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -10753,6 +10761,17 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/lib/swiglu-feed-forward-diagram.ts"
+          - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "Bengio et al., A Neural Probabilistic Language Model (https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf; read-only network input)"
+          - "Vaswani et al., Attention Is All You Need (https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf; read-only network input)"
+          - "Brown et al., Language Models are Few-Shot Learners (https://arxiv.org/pdf/2005.14165; read-only network input)"
         outputs:
           - "curriculum/chapters/21-mini-batches.md"
           - "rust/crates/llm-from-scratch/src/training/batch.rs"
@@ -10760,14 +10779,18 @@ builds:
           - "rust/demos/ch21-mini-batches/"
           - "site/src/content/chapters/en/21-mini-batches.mdx"
           - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/lib/mini-batches-diagram.ts"
           - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
+          - "Every learner-facing expression in the lesson and diagram uses server-rendered math, and Chapter 21 joins the complete source and desktop/narrow rendered-formula coverage."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
@@ -10779,6 +10802,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch21-mini-batches | diff -u rust/demos/ch21-mini-batches/expected.txt -"
+          - "cargo run --quiet --locked -p ch21-mini-batches --example ch21-mini-batches-trace | diff -u rust/demos/ch21-mini-batches/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 21-mini-batches"
           - "npm --prefix site run check:parity -- --chapter 21-mini-batches"
           - "npm --prefix site run check:content"
@@ -10790,8 +10814,107 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation plus bounded read-only primary-paper research. Registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU use, package/build change, hosting change, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T042617Z-implement-ch21-mini-batches-01
+            started_at: "2026-07-24T04:26:17Z"
+            finished_at: "2026-07-24T05:19:23Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d29fe94a081f33f57e9f0141a52c3ca9b5115e0b"
+              manifest: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/input-fingerprint.txt"
+              checksum: "sha256:e79ea1213c1ffb0614a1c92aaad2dec676096df2f46299e7a2b80ff26b46c726"
+              relevant_inputs: "sha256:0034b05364072c978d57bd90380d2e5a32a409f0977df38c9803fb79519b871d"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; host Bash 5.3.15; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0 pins unchanged"
+            staging_dir: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/"
+            commands:
+              - "Complete the startup protocol, preserve unrelated desktop.ini, inspect the successful Chapter 20 checkpoint, compare pinned tools, and select the first eligible Chapter 21 step"
+              - "Declare cumulative causal-window, partition, deterministic-RNG, gradient, strict Rust-trace, aggregate formula, and bounded primary-paper inputs before product implementation"
+              - "Fingerprint every material local input, record the three primary sources, and create isolated publish, research, and validation directories"
+              - "Read the declared Bengio, Vaswani, and Brown primary papers and freeze bounded LLM-training claims before authoring the Chapter 21 history"
+              - "Implement the dependency-free deterministic batching API, typed errors, exact token-mean accumulator, historical grouping contrast, learner report, ten-line Rust diagram trace, and offline lock entry in the isolated validation workspace"
+              - "Author the revision-1 contract and complete English lesson with SEO metadata, formula markup, bounded LLM history, exercises, strict trace ownership, and an AdamW handoff"
+              - "Implement the strict locale-neutral trace parser, static responsive diagram, focused source/browser coverage, and aggregate formula coverage through Chapter 21 without package, build, hosting, or deployment changes"
+              - "Run isolated Rust, contract, content, Astro, unit, build, link, focused browser, full browser, forced-color, RTL, no-JavaScript, and desktop/narrow visual checks; correct the max operator spelling, page-label class collision, and figure focus target"
+              - "Freeze the first 18-file publication set, preserve its failed exact-projection replay, align every metadata occurrence of K with the math pipeline, and freeze a corrected second manifest"
+              - "Run every declared validation command against the corrected frozen inputs in a fresh network-disabled Linux browser container and archive the complete log"
+              - "Publish all 18 corrected frozen files through same-directory replacements, verify every declared canonical checksum, and preserve rollback copies"
+              - "Run every declared validation command against a fresh canonical snapshot in a network-disabled Linux browser container and archive the complete log"
+              - "Verify the final manifest, ledger, whitespace, exact output ownership, untouched build and package definitions, and unrelated desktop.ini before the completion checkpoint"
+            artifacts:
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/input-fingerprint.txt"
+                checksum: "sha256:e79ea1213c1ffb0614a1c92aaad2dec676096df2f46299e7a2b80ff26b46c726"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/research/source-notes.md"
+                checksum: "sha256:d1e9ef1e89a6f6d4285ee5c1191138e09fc1e97de0e039868ee797c202c23434"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/curriculum/chapters/21-mini-batches.md"
+                checksum: "sha256:fa2d97af7a6137e0d27d6080af3c0db49a3627ae200e43b885037987a8d7b2a4"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/rust/crates/llm-from-scratch/src/training/batch.rs"
+                checksum: "sha256:9ffde4ae978e2fc907712a6416b9eff89a49b3fc630b5a6d6e129176e6e3e02e"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/rust/demos/ch21-mini-batches/expected.txt"
+                checksum: "sha256:2b3db6d0c1e954624a413fba917e647ed2d7c366f497c7040e84c42da5122908"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/rust/demos/ch21-mini-batches/diagram-trace.txt"
+                checksum: "sha256:3758e08445906157571642bd9b45895b299c0bcc06c381c0325890dd24bd490f"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/Cargo.lock"
+                checksum: "sha256:7f99063f4ae99ecfb86f1cd7acb22112d4c8ebe782799680f7c62a2e3c9207dd"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/site/src/content/chapters/en/21-mini-batches.mdx"
+                checksum: "sha256:26b6ee1aa1b52ca04b5769c53325643266bb8d58ecbf6fc7ee1f90ce15e8b025"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/site/src/components/chapters/MiniBatchesDiagram.astro"
+                checksum: "sha256:9d4083ace3fdb1e185779c39670ecc8b9a3767981b04447b0da2ee37cdd0a621"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/validation/site/src/lib/mini-batches-diagram.ts"
+                checksum: "sha256:d0efff6bcb1f4b1add1dd5bd9e7504e003a4cafe72ee04ecb55df25689da3f4d"
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/visual-review/ch21-desktop-figure.png"
+                checksum: "sha256:9018131366d76943a4ca1109cbb167a96ecff0e75f3249d8866c4462b4ec659a"
+                notes: "Rendered Chromium diagram review at desktop width before publication; later metadata-only math alignment does not alter this figure."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/visual-review/ch21-narrow-figure.png"
+                checksum: "sha256:2bfabb4ab160fde4b6a6323437550f4a820a652e0e5e99c568505eb4541262a6"
+                notes: "Rendered Chromium diagram review at 390px before publication; local row scrollers contain the intentional wide evidence."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/publish-attempt-01.sha256"
+                checksum: "sha256:da8dac3eab3425bae4371f220605e4aa0a508f769930baeb635e8f35c7d875d9"
+                notes: "Preserved first freeze before the contract metadata adopted math markup for K."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/final-staged-validation-attempt-01.log"
+                checksum: "sha256:71325e45bd4e020b7f59fdf33f2c512ff2207abcc68fcb8ef1469b57c23ccb8c"
+                notes: "Preserved failed exact-projection validation; no file from this freeze was published."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/publish.sha256"
+                checksum: "sha256:10668af2e878ebe58eb0dcd261b673354d75f706a8abbb6c44b09eb832786d12"
+                notes: "Immutable corrected manifest for all 18 publication files."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/final-staged-validation.log"
+                checksum: "sha256:f978e10e0881ae222d85c623e1902e927570b9b2b90c157754ea759540021e9f"
+                notes: "Verbose corrected frozen-container validation output retained outside the ledger."
+              - path: ".build/runs/20260724T042617Z-implement-ch21-mini-batches-01/final-canonical-validation.log"
+                checksum: "sha256:a8b40d56cf5a0d0e728ab436cda3377d59ab6ec556f5fce7ec2b2f50423a8013"
+                notes: "Verbose fresh canonical validation output retained outside the ledger."
+            validation:
+              - command: "Preflight dependency, environment, cost, path-ownership, source, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 21 was first eligible; Chapter 20 was committed; all declared inputs existed; the pinned Linux toolchain matched; bounded primary-paper access was the only network input; and unrelated desktop.ini remained untouched."
+              - command: "Primary-source review of Bengio et al. (2003), Vaswani et al. (2017), and Brown et al. (2020)"
+                status: passed
+                notes: "The papers support the progression from one-example stochastic neural-language-model updates, through K-example communication and Transformer token-volume batches, to GPT-3 batch sizes stated in tokens. Course-local windows, seed, no-padding rule, gradients, errors, and trace remain explicit implementation decisions."
+              - command: "cargo fmt --all -- --check; cargo clippy --workspace --all-targets --locked -- -D warnings; cargo test --workspace --locked; exact learner and trace comparisons"
+                status: passed
+                notes: "All cumulative Rust tests and demos pass. Chapter 21 adds nine core batching tests and three demo tests covering deterministic order, complete coverage, smaller final width, actual token denominators, raw-sum merging, partition and identity failures, finite checks, rollback, rows, history grouping, and exact newline-terminated output."
+              - command: "Initial complete isolated site, formula, static-build, and browser validation"
+                status: failed
+                notes: "The gates exposed a TeX max-operator spelling mismatch, a diagram stage class colliding with the page revision label, and a missing repository-standard figure focus target. Each was corrected in validation staging before any freeze or publication."
+              - command: "Corrected source, Astro, unit, static-build, link, focused browser, full browser, and rendered visual review"
+                status: passed
+                notes: "The corrected page has zero Astro diagnostics, all 575 unit assertions pass, the 33-page root build and 893-reference/33-SEO-route audit pass, five Chapter 21 browser cases and all 143 regressions pass, and desktop/390px renders show readable server math with page-contained local row scrollers."
+              - command: "First frozen publication and exact contract-projection replay"
+                status: failed
+                notes: "After a final formula audit changed the rendered source claim from plain K to $K$, the first freeze correctly failed because the contract metadata still stored plain K. The manifest and log were preserved, nothing was published, and both contract and lesson metadata were aligned with the formula rule."
+              - command: "Corrected frozen publication and complete network-disabled validation"
+                status: passed
+                notes: "All 18 corrected files match publish.sha256. The fresh frozen slice passes the 39-chapter/66-step/21-contract plan, integrated contract, locked format/clippy/tests, dependency/demo checks, exact outputs, content/parity, 575 site assertions, zero-diagnostic Astro analysis across 115 files, the 33-page build, link/SEO checks, five focused Chapter 21 browser cases, and all 143 Chromium regressions."
+              - command: "Same-directory canonical publication and SHA-256 identity replay"
+                status: passed
+                notes: "All 18 frozen files were published to their declared paths and match publish.sha256. Initial generic .NET replacement overloads left canonical files untouched; explicit backup paths completed replacement. A broad ignored-tree traversal then encountered a stale prior-run directory, while the targeted declared-path audit verified every canonical checksum and no publication temporary."
+              - command: "Complete fresh network-disabled canonical validation"
+                status: passed
+                notes: "The fresh canonical snapshot independently passes the same plan, contract, Rust, exact-output, content, 575-unit-assertion, zero-diagnostic Astro, 33-page, 893-reference, 33-SEO-route, five focused browser, and 143-case regression gates."
+              - command: "Canonical ledger, whitespace, ownership, manifest, build-definition, and unrelated-file audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses, the patch has no whitespace errors, all 18 canonical files match the frozen manifest, changed product paths are exactly the declared outputs, Docker/package/locale-policy files are unchanged, and unrelated desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Chapter 21 now provides dependency-free deterministic batching of complete causal windows, explicit provenance and partition checks, a smaller final batch with no invented padding, and transactional token-mean loss/gradient accumulation. The complete English lesson uses LLM-centered online-to-token-batch history, formula-pipeline math, SEO metadata, exercises, and a static Rust-authored accessible visualization. Corrected frozen and fresh canonical gates pass; no build, package, hosting, deployment, or locale-policy definition changed."
       - id: implement-ch22-adamw
         objective: "Update named parameters with bias-corrected Adam moments and decoupled weight decay."
         depends_on:

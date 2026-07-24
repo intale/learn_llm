@@ -1,0 +1,12 @@
+[package]
+name = "ch21-mini-batches"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[[example]]
+name = "ch21-mini-batches-trace"
+path = "examples/diagram_trace.rs"

@@ -1,0 +1,24 @@
+chapter=21-mini-batches
+context_length=2
+requested_batch_size=3
+shuffle_seed=7
+complete_windows=5
+batch_widths=[3, 2]
+historical_widths=online:[1, 1, 1, 1, 1] mini_batch:[3, 2] full_batch:[5]
+batch[0] shape=[3, 2] targets=[21, 1, 11, 12, 20, 21] denominator=6 mean_loss=1.020833 mean_gradient=[2.041667, 0.979167]
+  row[0] origin=train-b@1 input=[20, 21] target=[21, 1] losses=[1.375000, 1.500000]
+  row[1] origin=train-a@1 input=[10, 11] target=[11, 12] losses=[0.375000, 0.500000]
+  row[2] origin=train-b@0 input=[0, 20] target=[20, 21] losses=[1.125000, 1.250000]
+batch[1] shape=[2, 2] targets=[10, 11, 12, 1] denominator=4 mean_loss=0.437500 mean_gradient=[0.875000, 1.562500]
+  row[0] origin=train-a@0 input=[0, 10] target=[10, 11] losses=[0.125000, 0.250000]
+  row[1] origin=train-a@2 input=[11, 12] target=[12, 1] losses=[0.625000, 0.750000]
+final_batch_width=2
+final_actual_denominator=4
+final_capacity_denominator=6
+all_batches_accumulation_equal=true
+same_seed_replays=true
+different_seed_changes_order=true
+complete_coverage=true
+padding_ids_added=0
+cross_partition_windows=0
+next=use these token-mean gradients in AdamW

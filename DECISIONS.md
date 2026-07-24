@@ -4363,3 +4363,44 @@ does not publish, host, or deploy the site externally.
 
 **Affected step and run:** `implement-ch20-swiglu-feed-forward`, run
 `20260723T190300Z-implement-ch20-swiglu-feed-forward-01`.
+
+## 2026-07-24 - Declare Chapter 21 batching evidence and normalization boundary
+
+**Status:** Accepted during Chapter 21 preflight.
+
+**Context:** The scheduled Chapter 21 step names the new batching module,
+lesson, diagram, and focused tests, but omits the cumulative causal-window,
+partition-provenance, deterministic-RNG, and gradient interfaces that constrain
+the implementation. It also omits the strict build-time Rust trace projection
+and aggregate formula tests required by the established chapter workflow. The
+historical contrast must stay on the road from early neural language-model
+training to modern LLM training rather than becoming a programming-language or
+generic hardware history.
+
+**Decision:** Preserve documents and partitions as separate inputs, materialize
+only complete fixed-length causal windows, shuffle window identities with the
+existing `SplitMix64` stream, and stack row-major batches without padding or
+dropping a smaller final batch. Normalize loss and every gradient coordinate
+exactly once by the actual admitted target-token count, so the last denominator
+is its real batch width times the fixed context length rather than the requested
+batch capacity. Add `site/src/lib/mini-batches-diagram.ts` and both aggregate
+formula tests as declared outputs, and require the
+`ch21-mini-batches-trace` example to match its checked fixture byte for byte.
+Use Bengio et al. to bound early neural-language-model optimization claims,
+Vaswani et al. for Transformer token-batch evidence, and Brown et al. for
+large-language-model token/sequence batch scale; freeze precise claims in the
+run's source notes before authoring. Treat seed, shuffle algorithm, window and
+batch sizes, final-batch policy, trace grammar, gradient fixture, and
+accessibility projection as course decisions rather than paper claims. Route
+all learner-facing notation through the existing server-rendered math pipeline.
+
+**Consequences:** Chapter 21 remains one dependency-free English vertical slice
+that reuses the course's complete-window and deterministic-RNG primitives. Its
+diagram may validate and project exact Rust evidence but may not perform
+batching or arithmetic. Bounded read-only primary-paper access is an explicit
+input. Packages, lockfile format, static Astro architecture, Linux build
+definitions, hosting, and deployment policy remain unchanged; this step does
+not deploy the site externally.
+
+**Affected step and run:** `implement-ch21-mini-batches`, run
+`20260724T042617Z-implement-ch21-mini-batches-01`.

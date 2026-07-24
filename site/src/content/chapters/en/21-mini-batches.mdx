@@ -1,0 +1,461 @@
+---
+{
+  "chapter_id": "21-mini-batches",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 21,
+  "concept_id": "mini-batches",
+  "title": "Count only the tokens that are really in the batch",
+  "description": "Shuffle complete causal windows into fixed-shape mini-batches, keep the smaller final batch, and average loss and gradients over its actual target tokens.",
+  "objective": "Shuffle complete causal windows reproducibly, stack fixed-size token rows without crossing boundaries, and average loss plus gradients over the target tokens actually present.",
+  "worked_inputs": "Use context length T=2, requested batch size 3, seed 7, and five complete windows from two separate training documents. Predict the two batch shapes after shuffling and decide whether the smaller final batch divides by 6 capacity slots or its 4 real target tokens.",
+  "formula": {
+    "latex": "\\mathcal{L}_B=\\frac{1}{|B|T}\\sum_{b\\in B}\\sum_{t=1}^{T}\\mathcal{L}_{b,t}",
+    "symbols": [
+      {
+        "symbol": "B",
+        "meaning": "the set of complete causal windows actually present in the current mini-batch"
+      },
+      {
+        "symbol": "|B|",
+        "meaning": "the current batch width, which may be smaller than the requested capacity in the final batch"
+      },
+      {
+        "symbol": "T",
+        "meaning": "the fixed number of input IDs and shifted target IDs in every admitted window"
+      },
+      {
+        "symbol": "b",
+        "meaning": "one window identity inside the current mini-batch"
+      },
+      {
+        "symbol": "t",
+        "meaning": "one target-token position from 1 through T within a window"
+      },
+      {
+        "symbol": "\\mathcal{L}_{b,t}",
+        "meaning": "the scalar negative log-likelihood contribution of target position t in window b"
+      },
+      {
+        "symbol": "\\mathcal{L}_B",
+        "meaning": "the mini-batch mean loss after every admitted target-token contribution is counted once"
+      },
+      {
+        "symbol": "|B|T",
+        "meaning": "the actual target-token denominator; no padding token or unused capacity slot is counted"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "Bengio et al.'s early neural language model describes a stochastic parameter update after each training-corpus word-context example. That online endpoint exposes every example directly but offers no shared update across several examples; full-batch training moves to the opposite endpoint by waiting for the entire training set.",
+      "later_advance": "The same paper discusses communicating every $K$ language-model examples as a mini-batch. Transformer training later grouped sentence pairs by approximate length and reported about 25,000 source plus 25,000 target tokens per batch, making token volume an explicit batching quantity.",
+      "modern_llm_role": "GPT-3 reports batch size directly in tokens, from 0.5 million to 3.2 million across its model scales, with a 2,048-token context. Modern decoder training still depends on the small invariant taught here: each admitted target token contributes once, and loss plus gradients use the actual token count.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "Bengio et al., A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio et al. define a stochastic update after presenting one training-corpus word and later discuss grouping $K$ examples before communication as a mini-batch."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+          "claim": "Vaswani et al. batch sentence pairs by approximate length and report about 25,000 source tokens and 25,000 target tokens in each Transformer training batch."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Brown et al., Language Models are Few-Shot Learners",
+          "source_url": "https://arxiv.org/pdf/2005.14165",
+          "claim": "Brown et al. label GPT-3 batch size in tokens, report 0.5 million through 3.2 million tokens across model scales, and use a 2,048-token context."
+        }
+      ]
+    },
+    "approach": "From one-example stochastic neural-language-model updates, through grouped language-model and Transformer token batches, to large autoregressive language-model batches measured directly in tokens",
+    "summary": "Mini-batching is part of the road to modern LLM training because it combines multiple next-token examples into one update while keeping token accounting explicit. The papers establish that progression; this chapter's fixed windows, no-padding policy, shuffle, seed, exact widths, gradient fixture, and errors remain course choices.",
+    "rust_source": "rust/demos/ch21-mini-batches/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch21-mini-batches/src/lib.rs",
+      "region": "historical-update-grouping",
+      "purpose": "Contrast one-example, three-example, and full-set update widths without turning the history into a language comparison."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/batch.rs",
+      "region": "batch-configuration",
+      "purpose": "Declare separate document provenance, requested width, and sequential or seeded order."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/batch.rs",
+      "region": "mini-batch-epoch",
+      "purpose": "Collect only complete windows, shuffle their identities, and stack actual row-major batches."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/batch.rs",
+      "region": "token-gradient-averaging",
+      "purpose": "Validate finite token contributions and merge raw loss and gradient sums before one division."
+    },
+    {
+      "path": "rust/demos/ch21-mini-batches/src/lib.rs",
+      "region": "chapter-fixture",
+      "purpose": "Build the frozen five-window epoch twice with the same seed and once with another seed."
+    },
+    {
+      "path": "rust/demos/ch21-mini-batches/src/lib.rs",
+      "region": "token-contributions",
+      "purpose": "Attach one exact loss and two-coordinate gradient to every admitted target token."
+    },
+    {
+      "path": "rust/demos/ch21-mini-batches/src/main.rs",
+      "region": "learner-mini-batch-output",
+      "purpose": "Print the complete deterministic learner report."
+    },
+    {
+      "path": "rust/demos/ch21-mini-batches/src/diagram_trace.rs",
+      "region": "mini-batches-trace",
+      "purpose": "Emit exact shuffled provenance, batch means, and invariant proofs for the static diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "mini-batches",
+    "rationale": "Two batch cards make shuffled provenance, row-major token axes, per-token loss contributions, and the smaller final denominator visible together; a capacity outline shows why unused slots must not enter the mean."
+  },
+  "decoder_connection": "The cumulative training path can now turn separate causal windows into reproducible fixed-shape mini-batches and produce token-mean loss plus gradient vectors. Chapter 22 consumes those equally normalized named-parameter gradients in AdamW updates."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import MiniBatchesDiagram from '../../../components/chapters/MiniBatchesDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow five complete windows into two token-normalized batches',
+  description:
+    'Read exact Rust-authored shuffle order, row-major input and target IDs, per-token losses, actual denominators, mean gradients, and coverage proofs for the frozen epoch.',
+  summary: {
+    contextLength: 'Context length',
+    requestedCapacity: 'Requested capacity',
+    shuffleSeed: 'Shuffle seed',
+    completeWindows: 'Complete windows',
+    batchCount: 'Batches emitted',
+  },
+  stages: {
+    shuffle: 'Shuffle complete window identities',
+    batches: 'Stack actual rows and count target tokens',
+    finalBatch: 'Exclude unused capacity from the final mean',
+    proof: 'Check coverage, boundaries, replay, and accumulation',
+  },
+  fields: {
+    slot: 'Shuffled slot',
+    origin: 'Window origin',
+    input: 'Input IDs',
+    target: 'Target IDs',
+    tokenLosses: 'One loss per target position',
+    shape: 'Stacked shape',
+    actualWidth: 'Actual final width',
+    targetTokens: 'Target tokens',
+    lossSum: 'Loss sum',
+    denominator: 'Actual denominator',
+    meanLoss: 'Mean loss',
+    meanGradient: 'Mean gradient',
+    capacitySlot: 'Third capacity slot',
+    duplicates: 'Duplicate windows',
+    padding: 'Padding IDs',
+    crossPartition: 'Cross-partition windows',
+    sameSeed: 'Same-seed replay',
+    differentSeed: 'Different-seed order',
+    rawAccumulation: 'Raw accumulation',
+  },
+  notes: {
+    shuffle:
+      'The seed permutes already-complete window records. It never shuffles a flattened stream of document tokens.',
+    tokenMean:
+      'Each row contributes exactly two target losses and two gradients. Rust supplies every value shown below.',
+    finalBatch:
+      'Capacity reserves three rows, but the final batch contains two. Its denominator is four target tokens, not six slots.',
+    proof:
+      'Changing the seed may change order, never membership. Merging raw sums before division reproduces one-pass averaging.',
+  },
+  symbols: {
+    batch: 'Batch',
+    window: 'Window',
+    unused: 'Unused — contributes nothing',
+    equal: 'Equal',
+    same: 'Same',
+    changed: 'Changed',
+  },
+  captions: {
+    batchRows: 'Shuffled windows and their exact token contributions',
+    proof: 'Rust-authored epoch invariants',
+  },
+  scrollers: {
+    batchRows: 'Scrollable mini-batch token evidence for batch',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict the smaller final batch
+
+Chapter 5 already turns each document into shifted windows without crossing a
+boundary. Use context length $T=2$ on two separate training documents:
+
+```text
+train-a = [0, 10, 11, 12, 1]  ->  train-a@0, train-a@1, train-a@2
+train-b = [0, 20, 21, 1]      ->  train-b@0, train-b@1
+```
+
+Seed `7` orders those five owned window records as:
+
+```text
+train-b@1, train-a@1, train-b@0, train-a@0, train-a@2
+```
+
+With requested capacity $3$, predict the two stacked shapes. The first three
+records form `[3,2]`; the remaining two form `[2,2]`. The final batch stays
+smaller. It is neither padded to width $3$ nor dropped.
+
+Now count targets. The first batch has $3\cdot2=6$ target occurrences. The
+final batch has $2\cdot2=4$. The reserved third row contains no example, so it
+cannot contribute a token, loss, or gradient.
+
+The fixture constructs that epoch from separate documents and preserves the
+same provenance shown above:
+
+<RustSource
+  path="rust/demos/ch21-mini-batches/src/lib.rs"
+  region="chapter-fixture"
+  caption="Build the same five-window shuffled epoch reproducibly"
+  label="Rust source for the Chapter 21 deterministic epoch fixture"
+/>
+
+{/* chapter-section:formula */}
+
+## Divide by actual target tokens
+
+For current batch $B$, average one scalar loss from every target position:
+
+$$
+\mathcal{L}_B=\frac{1}{|B|T}\sum_{b\in B}\sum_{t=1}^{T}\mathcal{L}_{b,t}
+$$
+
+The parameter gradient has the same denominator:
+
+$$
+\nabla_{\theta}\mathcal{L}_B=
+\frac{1}{|B|T}
+\sum_{b\in B}\sum_{t=1}^{T}
+\nabla_{\theta}\mathcal{L}_{b,t}
+$$
+
+The final fixture losses are $[0.125,0.25,0.625,0.75]$. Their sum is $1.75$,
+so
+
+$$
+\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375.
+$$
+
+Dividing by capacity would use $3\cdot2=6$ and produce about $0.291667$.
+That is not a harmless reporting change: it multiplies every final-batch
+gradient by $4/6$ as well.
+
+If contributions arrive in pieces, keep raw sums $S_j$ and counts $N_j$:
+
+$$
+\bar g=
+\frac{\sum_j S_j}{\sum_j N_j},
+\qquad
+S_j=\sum_{i=1}^{N_j}g_i.
+$$
+
+Do not average piece means without weighting by their token counts. A short
+piece must not receive the same weight as a full piece.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep batch and sequence axes distinct
+
+- $B$ is the set of complete windows actually present now.
+- $|B|$ is current width, not maximum capacity.
+- $T$ is the fixed input and target length of every admitted window.
+- $b$ identifies one window in $B$.
+- $t$ identifies one target position from $1$ through $T$.
+- $\mathcal{L}_{b,t}$ is one target occurrence's negative log-likelihood.
+- $\mathcal{L}_B$ is the mean after every admitted occurrence is counted once.
+- $|B|T$ is the actual token denominator; unused slots and padding contribute zero because they do not exist.
+
+An overlapping corpus token may appear as a target in more than one causal
+window. Those are separate training-example occurrences, and each occurrence
+contributes once. “Count each target once” does not mean deduplicating equal
+token IDs.
+
+{/* chapter-section:history */}
+
+## From one word update to token-sized LLM batches
+
+Bengio et al.'s early neural language model describes a stochastic parameter update after each training-corpus word-context example. That online endpoint exposes every example directly but offers no shared update across several examples; full-batch training moves to the opposite endpoint by waiting for the entire training set.
+
+[Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf): Bengio et al. define a stochastic update after presenting one training-corpus word and later discuss grouping $K$ examples before communication as a mini-batch.
+
+Their one-example update is:
+
+$$
+\theta\leftarrow\theta+
+\varepsilon\frac{\partial\log\widehat P(w_t\mid
+w_{t-1},\ldots,w_{t-n+1})}{\partial\theta}.
+$$
+
+The same paper discusses communicating every $K$ language-model examples as a mini-batch. Transformer training later grouped sentence pairs by approximate length and reported about 25,000 source plus 25,000 target tokens per batch, making token volume an explicit batching quantity.
+
+[Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf): Vaswani et al. batch sentence pairs by approximate length and report about 25,000 source tokens and 25,000 target tokens in each Transformer training batch.
+
+Those translation batches are not evidence for this course's fixed-window,
+no-padding policy. They are evidence that Transformer training made token
+volume an explicit unit of work.
+
+GPT-3 reports batch size directly in tokens, from 0.5 million to 3.2 million across its model scales, with a 2,048-token context. Modern decoder training still depends on the small invariant taught here: each admitted target token contributes once, and loss plus gradients use the actual token count.
+
+[Brown et al., *Language Models are Few-Shot Learners*](https://arxiv.org/pdf/2005.14165): Brown et al. label GPT-3 batch size in tokens, report 0.5 million through 3.2 million tokens across model scales, and use a 2,048-token context.
+
+This is the road from stochastic neural-language-model examples to modern LLM
+token batches, not a programming-language history. The exact seed, shuffle,
+widths, no-padding rule, losses, gradients, and trace remain course choices.
+
+The historical executable contrast groups the same five example identities as
+online widths $[1,1,1,1,1]$, mini-batch widths $[3,2]$, or one full width
+$[5]$. Rust is only the medium for running that language-independent contrast:
+
+<RustSource
+  path="rust/demos/ch21-mini-batches/src/lib.rs"
+  region="historical-update-grouping"
+  caption="Contrast online, mini-batch, and full-set update widths"
+  label="Rust source for the Chapter 21 historical batching contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Shuffle windows, then merge raw sums
+
+The public configuration distinguishes document provenance, requested capacity,
+and sequential or seeded order:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/batch.rs"
+  region="batch-configuration"
+  caption="Keep each document and epoch-order policy explicit"
+  label="Rust source declaring Chapter 21 batching inputs"
+/>
+
+The epoch builder validates one partition, collects complete windows per
+document, applies deterministic Fisher-Yates to those records, and stacks only
+the rows that exist:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/batch.rs"
+  region="mini-batch-epoch"
+  caption="Shuffle owned window records and keep the smaller final chunk"
+  label="Rust source implementing the Chapter 21 mini-batch epoch"
+/>
+
+Loss and gradient accumulation share one transactional boundary. A failed
+width or finite-value check leaves the stored raw sums unchanged:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/batch.rs"
+  region="token-gradient-averaging"
+  caption="Merge raw token sums before one final division"
+  label="Rust source implementing Chapter 21 token-mean gradients"
+/>
+
+The exact fixture attaches one loss and two gradient coordinates to each
+flattened target position, then proves that merging two raw accumulators equals
+one-pass averaging:
+
+<RustSource
+  path="rust/demos/ch21-mini-batches/src/lib.rs"
+  region="token-contributions"
+  caption="Average one finite contribution per actual target token"
+  label="Rust source proving the Chapter 21 mean loss and gradients"
+/>
+
+The learner executable prints exact batch rows, means, history widths, replay,
+coverage, padding, and partition evidence:
+
+<RustSource
+  path="rust/demos/ch21-mini-batches/src/main.rs"
+  region="learner-mini-batch-output"
+  caption="Print the deterministic Chapter 21 learner report"
+  label="Rust source for the Chapter 21 learner output"
+/>
+
+Run `cargo run --quiet --locked -p ch21-mini-batches`. Its stdout is frozen in
+`rust/demos/ch21-mini-batches/expected.txt`. Tests cover sequential and shuffled
+orders, exact shapes, final width, empty epochs, partition and identity errors,
+non-finite values, rollback, checked rows, accumulation, and changed seeds.
+
+{/* chapter-section:visualization */}
+
+## Trace every shuffled window and denominator
+
+The ten-line trace records five shuffled windows, two batch summaries, the
+final capacity contrast, and one invariant proof:
+
+<RustSource
+  path="rust/demos/ch21-mini-batches/src/diagram_trace.rs"
+  region="mini-batches-trace"
+  caption="Emit exact batch provenance and token-normalization evidence"
+  label="Rust source producing the Chapter 21 mini-batch diagram trace"
+/>
+
+<MiniBatchesDiagram labels={diagramLabels} />
+
+The build-time parser checks the exact grammar, line order, vector widths,
+fixture shapes, and invariant tokens. It performs no shuffling, batching, loss
+calculation, or gradient arithmetic. Solid, double, and dashed borders plus
+explicit text distinguish a full batch, smaller final batch, and unused
+capacity without relying on color. Each wide row list owns one named keyboard-
+focusable scroller, while the full figure remains inside the page at narrow
+widths.
+
+{/* chapter-section:exercises */}
+
+## Predict before checking the exact epoch
+
+1. List every complete window origin before shuffling.
+2. With requested capacity $3$, predict both batch widths and shapes.
+3. Count the first batch's actual target-token denominator.
+4. Count the final batch's actual denominator and compare it with capacity.
+5. Predict the scale error caused by dividing the final sum by $6$ instead of $4$.
+6. Explain why raw accumulator merging is valid but an unweighted mean of means is not.
+7. State what same and different seeds may change, and what they must preserve.
+8. Match Bengio, Vaswani, and Brown to one-example updates, Transformer token batches, and large language-model batch sizes in tokens.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The origins are `train-a@0`, `train-a@1`, `train-a@2`, `train-b@0`, and `train-b@1`.
+  2. Widths are $3$ and $2$; shapes are `[3,2]` and `[2,2]`.
+  3. The first denominator is $3\cdot2=6$ target occurrences.
+  4. The final denominator is $2\cdot2=4$, not capacity $3\cdot2=6$.
+  5. The wrong denominator multiplies the correct final loss and gradient by $4/6$.
+  6. Raw sums retain their token counts; unweighted piece means erase those weights.
+  7. The same seed replays order. Another seed may change order, but coverage, shapes by chunk width, boundaries, and one contribution per target remain.
+  8. Bengio supplies the online and $K$-example language-model context, Vaswani the Transformer token batches, and Brown the later LLM batch sizes in tokens.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Hand token-mean gradients to AdamW
+
+The cumulative training path can now turn separate causal windows into reproducible fixed-shape mini-batches and produce token-mean loss plus gradient vectors. Chapter 22 consumes those equally normalized named-parameter gradients in AdamW updates.
+
+Batching changes which examples share an update; it does not yet change a
+parameter. Chapter 22 gives each stable named parameter first- and second-moment
+state, applies bias correction, and keeps weight decay separate from the
+token-mean gradient learned here.

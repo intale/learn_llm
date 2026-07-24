@@ -24,7 +24,7 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
-const chapter14To20Files = [
+const chapter14To21Files = [
   '14-scalar-autodiff.mdx',
   '15-tensor-autodiff-core.mdx',
   '16-model-autodiff-ops.mdx',
@@ -32,6 +32,7 @@ const chapter14To20Files = [
   '18-token-embeddings.mdx',
   '19-linear-layers.mdx',
   '20-swiglu-feed-forward.mdx',
+  '21-mini-batches.mdx',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
@@ -271,7 +272,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To20Math: Record<string, readonly string[]> = {
+const requiredChapter14To21Math: Record<string, readonly string[]> = {
   '14': [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -306,9 +307,15 @@ const requiredChapter14To20Math: Record<string, readonly string[]> = {
     String.raw`dX_p &= dA_pW_g^\top+dU_pW_u^\top`,
     String.raw`dW_2 &= \sum_p H_p^\top G_p`,
   ],
+  '21': [
+    String.raw`\mathcal{L}_B=\frac{1}{|B|T}`,
+    String.raw`\nabla_{\theta}\mathcal{L}_B`,
+    String.raw`\bar g=`,
+    String.raw`\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375`,
+  ],
 };
 
-const formerChapter14To20MathCodeSpans = [
+const formerChapter14To21MathCodeSpans = [
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -351,9 +358,14 @@ const formerChapter14To20MathCodeSpans = [
   'dW_2',
   'FFN(X)',
   'SiLU(z)',
+  '|B|T',
+  '3*2',
+  '2*2',
+  '1.75/4',
+  '4/6',
 ] as const;
 
-const rawChapter14To20FormulaPatterns = [
+const rawChapter14To21FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -366,9 +378,12 @@ const rawChapter14To20FormulaPatterns = [
   /\bXW_[gu]\b/,
   /\bd[WX]_(?:g|u|2|p)\b/,
   /\b(?:FFN|SiLU)\s*\([^)]*\)\s*=/,
+  /\|B\|\s*T/,
+  /\b(?:3|2)\s*\*\s*2\b/,
+  /\b1\.75\s*\/\s*(?:4|6)\b/,
 ] as const;
 
-const documentedChapter14To20Code = [
+const documentedChapter14To21Code = [
   {
     name: 'literal tensor shapes, coordinates, vectors, and matrices',
     pattern: /^\[[^\r\n]*\]$/,
@@ -393,6 +408,10 @@ const documentedChapter14To20Code = [
   {
     name: 'concrete shell commands',
     pattern: /^(?:\.\/course run )?(?:cargo|docker|git|npm)\s/,
+  },
+  {
+    name: 'literal shuffled window trace tokens',
+    pattern: /^[a-z][a-z0-9-]*@\d+$/,
   },
 ] as const;
 
@@ -500,10 +519,10 @@ describe('Chapter 8-13 formula-source contract', () => {
   });
 });
 
-describe('Chapter 14-20 formula-source contract', () => {
-  it('completes the source audit for all 27 published localized lessons', () => {
+describe('Chapter 14-21 formula-source contract', () => {
+  it('completes the source audit for all 28 published localized lessons', () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To20Files) {
+    for (const file of chapter14To21Files) {
       const source = readChapter('en', file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -511,31 +530,31 @@ describe('Chapter 14-20 formula-source contract', () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To20Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To21Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To20MathCodeSpans) {
+      for (const oldExpression of formerChapter14To21MathCodeSpans) {
         expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To20FormulaPatterns) {
+      for (const pattern of rawChapter14To21FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter14To20Files);
+    expect(reviewed).toEqual(chapter14To21Files);
     expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
-      27,
+      28,
     );
   });
 
   it('keeps every remaining code span within a documented program-data category', () => {
-    for (const file of chapter14To20Files) {
+    for (const file of chapter14To21Files) {
       for (const value of inlineCode(readChapter('en', file))) {
-        const allowance = documentedChapter14To20Code.find(({ pattern }) => pattern.test(value));
+        const allowance = documentedChapter14To21Code.find(({ pattern }) => pattern.test(value));
         expect(
           allowance?.name,
           `${file} has an undocumented code span after the formula audit: \`${value}\``,
@@ -545,7 +564,7 @@ describe('Chapter 14-20 formula-source contract', () => {
   });
 });
 
-describe('build-time formula rendering in Chapter 14-20 diagrams', () => {
+describe('build-time formula rendering in Chapter 14-21 diagrams', () => {
   it('renders every diagram-owned expression as strict HTML plus MathML', () => {
     const components = {
       initialization: readFileSync(
@@ -562,6 +581,10 @@ describe('build-time formula rendering in Chapter 14-20 diagrams', () => {
       ),
       swiglu: readFileSync(
         resolve(componentRoot, 'chapters/SwigluFeedForwardDiagram.astro'),
+        'utf8',
+      ),
+      batches: readFileSync(
+        resolve(componentRoot, 'chapters/MiniBatchesDiagram.astro'),
         'utf8',
       ),
     };
@@ -593,6 +616,15 @@ describe('build-time formula rendering in Chapter 14-20 diagrams', () => {
       'String.raw`h_{${position}}=s_{${position}}\\odot u_{${position}}`',
     );
     expect(components.swiglu).toContain('String.raw`dX_{${row.position.lexeme}}`');
+
+    expect(components.batches).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.batches).toContain('String.raw`|B|_{\\max}=${trace.meta.capacity}`');
+    expect(components.batches).toContain(
+      'String.raw`\\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`',
+    );
+    expect(components.batches).toContain(
+      'String.raw`\\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`',
+    );
 
     for (const source of Object.values(components)) {
       expect(source).not.toContain('<script');

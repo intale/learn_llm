@@ -9,6 +9,11 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Deterministic data ordering and training updates.
+pub mod training {
+    pub mod batch;
+}
+
 /// Numerical gradient checks and reverse-mode differentiation.
 pub mod autograd {
     pub mod gradcheck;
