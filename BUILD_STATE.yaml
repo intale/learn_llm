@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T12:43:30Z"
+updated_at: "2026-07-24T15:40:43Z"
 
 environment:
   os: "Linux x86_64"
@@ -1422,7 +1422,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 16
+      spent: 17
       notes: "No explicit resource budget has been supplied. Curriculum definition uses local analysis plus read-only primary-paper research; future chapter steps must declare any new network, dependency, generation, or substantial-CPU input before execution."
     completion_criteria:
       - "A reviewed course map covers every prerequisite from chapter 1's token IDs through a trainable and cache-aware decoder-only LLM."
@@ -12076,14 +12076,24 @@ builds:
         objective: "Compute one unmasked attention head and explain every score, probability, and weighted value."
         depends_on:
           - implement-ch26-qkv-projections
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/26-qkv-projections.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -12097,7 +12107,17 @@ builds:
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/chapters/QkvProjectionsDiagram.astro"
+          - "site/src/content/chapters/en/26-qkv-projections.mdx"
+          - "site/src/lib/qkv-projections-diagram.ts"
+          - "site/tests/26-qkv-projections-diagram.test.ts"
+          - "site/tests/e2e/ch26-qkv-projections.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://arxiv.org/abs/1409.0473"
+          - "https://arxiv.org/abs/1706.03762"
         outputs:
           - "curriculum/chapters/27-self-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
@@ -12105,14 +12125,18 @@ builds:
           - "rust/demos/ch27-self-attention/"
           - "site/src/content/chapters/en/27-self-attention.mdx"
           - "site/src/components/chapters/SelfAttentionDiagram.astro"
+          - "site/src/lib/self-attention-diagram.ts"
           - "site/tests/27-self-attention-diagram.test.ts"
           - "site/tests/e2e/ch27-self-attention.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Compute one unmasked attention head and explain every score, probability, and weighted value."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
-          - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
+          - "A strict site parser validates and projects the locale-neutral Rust trace without recomputing scores, probabilities, value mixtures, or gradients."
+          - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, server-rendered formulas, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
@@ -12124,6 +12148,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch27-self-attention | diff -u rust/demos/ch27-self-attention/expected.txt -"
+          - "cargo run --quiet --locked -p ch27-self-attention --example ch27-self-attention-trace | diff -u rust/demos/ch27-self-attention/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 27-self-attention"
           - "npm --prefix site run check:parity -- --chapter 27-self-attention"
           - "npm --prefix site run check:content"
@@ -12132,11 +12157,181 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:27-self-attention'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@chapter:27-self-attention'"
+          - "npm --prefix site run test:e2e -- --grep '@formula-rendering'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@formula-rendering'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only access to the two declared primary papers, and cached immutable Node/Playwright images; registered deferred locales require no lesson or route. No paid service, generation service, package/build change, hosting, deployment, substantial CPU expansion, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T141229Z-implement-ch27-self-attention-01
+            started_at: "2026-07-24T14:12:29Z"
+            finished_at: "2026-07-24T15:40:43Z"
+            status: succeeded
+            input_fingerprint:
+              git: "c1a1b03088bfc8ef71716cd432ca3f5646fe4594"
+              manifest: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/input-fingerprint.txt"
+              checksum: "sha256:0219d4c7480f0770693caac38c9dd8873f70c82ca02e12b9fe5ddb0314bb8a76"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node, workspace, and Playwright image digests match the recorded inputs"
+            staging_dir: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/"
+            commands:
+              - "Run the complete startup protocol, preserve unrelated .build evidence and desktop.ini, verify Chapter 26 artifacts, compare recorded tools, and select Chapter 27 as the sole eligible step"
+              - "Read the repository chapter and static-site playbooks, confirm the English-only locale projection and description-only SEO boundary, and verify that no hosting configuration or deployment authority is present"
+              - "Expand the declared boundary to include cumulative attention operands, strict Rust-trace projection, aggregate formula coverage, two-engine layout gates, and two bounded primary sources"
+              - "Fingerprint all material local inputs, source URLs, immutable tool images, locale policy, and the no-hosting boundary; create isolated publish, validation, research, visual-review, and log directories"
+              - "Audit the two primary papers, freeze their bounded claims and exclusions in research/source-notes.md, and record the exact unmasked self-attention boundary"
+              - "Implement the dependency-free rank-three scaled-attention composition and its initial focused Rust test matrix in the isolated publish tree"
+              - "Freeze the Chapter 27 Rust report and twenty-one-line trace, then project the contract, English lesson, strict non-arithmetic parser, static accessible diagram, and cumulative formula coverage in the isolated publish tree"
+              - "Diagnose the weighted-mixture overflow in both browser engines, split the Rust-authored terms into independently wrapping math spans, widen only the named local mixture scroller, and retain natural card heights"
+              - "Correct two TeX-source separators, repeat the complete formula and browser regressions, and capture fresh desktop and narrow diagram evidence in Chromium and Firefox"
+              - "Rebuild the exact final staged source and workspace images, repeat every declared non-browser gate, and freeze the eighteen-file publication manifest"
+              - "Publish all eighteen checksum-frozen product files through verified temporary siblings and recheck the canonical bytes and Git scope"
+              - "Rebuild and validate the canonical source, workspace, and pinned two-engine browser image; rerun all declared gates and parse the live state ledger"
+              - "Remove the run-specific preview container and network, close port 4327, and freeze the canonical validation summary"
+              - "Parse the live completion ledger, rehash every canonical artifact, audit the exact twenty-file commit scope, and preserve unrelated untracked evidence"
+            artifacts:
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/input-fingerprint.txt"
+                checksum: "sha256:0219d4c7480f0770693caac38c9dd8873f70c82ca02e12b9fe5ddb0314bb8a76"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/research/source-notes.md"
+                checksum: "sha256:49ed8379273b550358a6b28049d8ad978ae11dfcc6ceb51b997d3eca4bcf913b"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/publish/rust/demos/ch27-self-attention/expected.txt"
+                checksum: "sha256:db0e919ca7c20852ed979bd11cf73603c4b0524ed75462a12ca3e69839dd4601"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/publish/rust/demos/ch27-self-attention/diagram-trace.txt"
+                checksum: "sha256:88d22ccff15d6e948cdc2087da558c3814aced5ea0b935cb3607962a38f8658b"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/publish/curriculum/chapters/27-self-attention.md"
+                checksum: "sha256:fb638ecb4d435fb4410406dad781eb7df34a9f05b8530710d0c6322a0b0399ed"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/visual-review/final-captures/chromium-desktop-figure.png"
+                checksum: "sha256:a8a60973242cbbb1fdc35b694b026aa36d4f3691ae3a382071b7df475e895385"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/visual-review/final-captures/chromium-narrow-figure.png"
+                checksum: "sha256:e29b6d1fd5403be0ee24f8c32303618856c6dee4c4e98b03ffe526aeced1be16"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/visual-review/final-captures/firefox-desktop-figure.png"
+                checksum: "sha256:a07cb325591ef3358f206fbea513b74c7d90ad27ce72ac6505bfc62be62fd81b"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/visual-review/final-captures/firefox-narrow-figure.png"
+                checksum: "sha256:3633363d95c62dee1c858ee042bae0219ac26158f90c1d8d8ffd01d772b00a17"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/publication-manifest.sha256"
+                checksum: "sha256:e9d1a8c54dafb1ada541b389fd37b6a49bef109b027635835dfc37abdab28403"
+              - path: ".build/runs/20260724T141229Z-implement-ch27-self-attention-01/canonical-validation.md"
+                checksum: "sha256:e62308b972300a53ed1e5bdbc56215f99a1711cc042316f9afca68f6020ecfa0"
+            validation:
+              - command: "Preflight dependency, environment, cost, ownership, latest-run artifact, locale, scheduling, browser-image, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 27 is the sole eligible step and Chapter 26 is committed; no stale run or overlapping writer exists; every declared local input exists and all new Chapter 27 paths are absent; English is the only active chapter locale while Russian remains registered and deferred; prior Chapter 26 fingerprint, publication, and canonical-log artifacts retain their recorded hashes; Docker, Compose, Git, Rust, Cargo, Node, npm, and immutable image digests match; .openai/hosting.json is absent; medium bounded work requires no cost pause; and unrelated .build evidence plus desktop.ini remain uncommitted."
+              - command: "Initial focused staged Rust format, warning-strict lint, and Chapter 27 library tests"
+                status: failed
+                notes: "Compilation found only three assertions using the nonexistent TensorGradientCheck.checked field; the cumulative API exposes the check vector as checks. The isolated source was corrected to use checks.len(); no canonical product file was published."
+              - command: "Second focused staged Rust format, warning-strict lint, and seven Chapter 27 library tests"
+                status: failed
+                notes: "Six tests passed. The released-operand stage test used backward(), whose documented default retains the graph, so the expected rejection did not occur. The isolated test now requests GraphRetention::Release explicitly; no canonical product file was published."
+              - command: "Third focused staged Rust format, warning-strict lint, and seven Chapter 27 library tests"
+                status: passed
+                notes: "The initial API composition, exact score/probability/output checks, reverse gradients, batch and independent value-width behavior, validation precedence, released-stage wrapping, and complete Q/K/V gradchecks pass. The later read-only audit then added more invariant and Chapter 26 composition tests, so an expanded rerun remains pending."
+              - command: "Bounded Bahdanau and Vaswani primary-source audit plus source-note checksum"
+                status: passed
+                notes: "The cited sections support the basic fixed-vector recurrent encoder-decoder limitation, retained recurrent soft alignment, later additive-attention classification, scaled dot-product formula, packed simultaneous queries, and same-sequence self-attention. The notes preserve the scaling hypothesis and unmasked/causal boundary and exclude all course-local API, fixture, parser, and presentation policies; the recorded SHA-256 matches."
+              - command: "Initial expanded staged Rust lint and test pass with the Chapter 27 demo and trace"
+                status: failed
+                notes: "Warning-strict lint found one needless range loop in the demo's two-row mixture consistency assertion. The isolated code now iterates and enumerates the Rust-authored term rows directly; no canonical product file was published."
+              - command: "Expanded staged Rust format, warning-strict lint, workspace tests, Chapter 27 demo tests, and documentation tests"
+                status: passed
+                notes: "All 265 cumulative library tests, all three Chapter 27 demo tests, warning-strict lint targets, formatting, and documentation tests pass in the isolated validation tree. Coverage includes exact outputs and gradients, every-coordinate Q/K/V gradchecks, batch isolation, empty batches, independent value width, single-token and uniform-key behavior, extreme finite scores, token-permutation equivariance, Chapter 26 projection composition, deterministic replay, and exact validation precedence."
+              - command: "First exact report and trace comparison wrapper"
+                status: failed
+                notes: "The wrapper resolved staging paths relative to the validation directory and invoked a Git Bash login environment that did not expose Cargo, so it stopped before either Rust output was compared. No product assertion ran or failed and no staged product file changed; the same comparison is being repeated with absolute copy paths and the resolved Cargo executable."
+              - command: "Second exact report and trace comparison wrapper"
+                status: failed
+                notes: "The absolute overlay copies succeeded, but this host session intentionally has no Cargo executable on PATH, so its process wrapper stopped before either Rust output was compared. No product assertion ran or failed; the exact checks are being moved back into the pinned Linux workspace image used by the successful Rust validation."
+              - command: "First combined pinned-Linux image build and exact-output wrapper"
+                status: failed
+                notes: "The host wrapper reached its 124-second timeout while the cached Docker build was completing. The build finished safely in the background and produced image b1991805b57d; neither comparison reported a product mismatch, and the comparisons were rerun separately after confirming that no build process or container remained."
+              - command: "Pinned-Linux exact Chapter 27 report and Rust-authored diagram-trace comparisons"
+                status: passed
+                notes: "The report and all twenty-one trace lines match their frozen artifacts byte for byte in workspace image b1991805b57d. The expected report checksum is db0e919c...4601 and the diagram trace checksum is 88d22ccf...658b."
+              - command: "Chapter 27 contract structure-only gate in the pinned workspace"
+                status: passed
+                notes: "The English-only contract parses, has every required ordered section, uses the Chapter 27 identity and formula, and satisfies the integrated structure gate before lesson projection. Its staged checksum is fb638ecb...99ed."
+              - command: "First integrated staged workspace build with the Chapter 27 site slice"
+                status: failed
+                notes: "All 265 Rust tests and documentation tests passed and Astro reported zero diagnostics across 139 files. The content gate then found that the lesson included a sentence period inside the exact display formula, so its notation differed from formula.latex by one character. The staged lesson moved that punctuation outside the math block; no canonical product file was published."
+              - command: "Focused Chapter 27 contract, chapter, parity, content, Astro, diagram, and aggregate formula validation"
+                status: passed
+                notes: "The corrected formula passes the 34-source content gate and full contract projection. English-only chapter/parity checks pass with Russian still deferred; Astro reports zero errors, warnings, or hints across 139 files; and all 29 focused parser/diagram/formula tests pass, including strict no-arithmetic trace projection and the 34-lesson formula audit."
+              - command: "Complete staged workspace build through cumulative Rust, content, production HTML, link, and SEO gates"
+                status: passed
+                notes: "Workspace image a602baaf...862d passes formatting, all 265 library tests and documentation tests, zero-diagnostic Astro analysis, 34-source content/parity checks, a 39-page static build including /en/course/27-self-attention/, and all 1,271 local references plus 39 SEO routes."
+              - command: "Aggregate warning-strict Rust lint, dependency/demo policy, course-plan, and complete site unit suite"
+                status: passed
+                notes: "Warning-strict lint passes every workspace target; the repository remains dependency-free across 27 discovered demos; the plan has 39 chapters, 67 scheduled steps, and 27 consecutive contracts; and all 707 tests in 34 site test files pass, including SEO, locale publication, contract, trace, and formula coverage."
+              - command: "First pinned Chromium and Firefox Chapter 27 launch"
+                status: failed
+                notes: "Both isolated browser containers stopped before test discovery because the temporary Playwright image copied the validated source stage rather than the completed workspace stage, so /workspace/site/dist was absent. No browser assertion ran or failed; the ephemeral test image now copies the already validated workspace image containing the 39-page static build."
+              - command: "Corrected focused Chapter 27 Chromium and Firefox suites"
+                status: failed
+                notes: "Four of five tests pass in each engine, including locale/SEO publication, forced-color cues, RTL direction, and no-JavaScript rendering. The desktop/narrow test found one card with horizontal content overflow in both engines (Chromium 525 versus 370 pixels; Firefox 521 versus 376), so the component is being diagnosed and corrected without weakening containment acceptance."
+              - command: "First read-only card-width diagnostic"
+                status: failed
+                notes: "The diagnostic browser could not reach the host-published preview through host.docker.internal and timed out before locating the diagram. No page assertion ran and no product file changed; the same script now uses a run-specific Docker network and the already healthy preview container directly."
+              - command: "Second read-only card-width diagnostic"
+                status: failed
+                notes: "The run-specific network resolved the preview container name, but Astro correctly rejected that unlisted Host header with HTTP 403, so the diagram was never inspected. A direct read-only probe confirms the preview's network IP returns the complete Chapter 27 page with HTTP 200; the diagnostic now uses that verified endpoint."
+              - command: "Exact card-width diagnosis and first post-fix browser wrapper"
+                status: failed
+                notes: "The diagnostic identified both weighted-mixture cards as the sole overflow source: a single unbreakable two-vector expression widened each 370-pixel card to 525 pixels. The component now presents the two already-weighted Rust terms as separate math spans around a math-rendered plus sign, allowing a semantic wrap without recomputation; focused type/unit and the complete static build pass. The first post-fix browser launch then stopped before discovery because Playwright could not remove its prior Windows bind-mounted output directory, so the rerun uses fresh output paths."
+              - command: "Fresh-path post-fix Chromium and Firefox Chapter 27 suites"
+                status: failed
+                notes: "Firefox passes all five focused tests. Chromium passes locale/SEO, forced colors, RTL, and no-JavaScript checks, then reports only the second mixture card six pixels wider than its 370-pixel box; its negative weighted term is slightly wider in Chromium. The local mixture track is widened by one rem while the page remains contained, and both engines will repeat the unchanged acceptance suite."
+              - command: "Final focused Chapter 27 Chromium and Firefox suites after mixture containment correction"
+                status: passed
+                notes: "All five tests pass in each engine. Desktop and 390-pixel layouts keep every card and formula contained with natural card height and six named local scrollers; SEO/locale routing, forced-color non-color cues, RTL technical direction, Rust-authored values, and no-JavaScript static rendering also pass."
+              - command: "First aggregate formula suites in Chromium and Firefox plus complete Chromium regression"
+                status: failed
+                notes: "Both engines pass 66 of 68 formula cases and the full Chromium run passes 183 of 185 tests. The only failures are Chapter 27's desktop/narrow exact TeX-fragment assertions: the source annotation placed a newline between QK^top= and its matrix while the audited fragment is contiguous. The lesson now keeps that TeX fragment contiguous without changing rendered mathematics or content."
+              - command: "Corrected Chapter 27 TeX command audit, content gate, and focused aggregate-formula unit suite"
+                status: passed
+                notes: "The final lesson has no bare quad or qquad tokens, the 34-source content gate passes, and all ten aggregate formula unit cases pass after preserving the exact contiguous score-matrix fragment and both TeX separators."
+              - command: "Repeated aggregate formula suites in Chromium and Firefox plus complete Chromium regression"
+                status: passed
+                notes: "All 68 formula cases pass in Chromium, all 68 pass in Firefox, and all 185 full Chromium tests pass from the staged static build with the exact final lesson and diagram component mounted read-only."
+              - command: "Fresh Chromium and Firefox desktop/narrow layout probes and visual capture review"
+                status: passed
+                notes: "At 1440 and 390 CSS pixels in both engines, the page scroll width equals its client width, no diagram card overflows, and no KaTeX error exists. The four checksum-recorded captures show intact roots, superscripts, matrices, weighted mixtures, borders, natural card bottoms, and intentionally local horizontal scrollers without page-level clipping."
+              - command: "Fresh exact staged workspace build through cumulative Rust, content, production HTML, link, and SEO gates"
+                status: passed
+                notes: "The final staged tree passes formatting, all 265 cumulative library tests and documentation tests, zero-diagnostic Astro analysis across 139 files, 34-source content/parity checks, a 39-page static build including the English Chapter 27 route, and all 1,271 local references plus 39 SEO routes."
+              - command: "Final staged course-plan, contract, chapter/parity, warning-strict lint, dependency/demo policy, exact Rust output, and complete site unit gates"
+                status: passed
+                notes: "The plan reports 39 chapters, 67 scheduled steps, and 27 consecutive contracts; the Chapter 27 contract and English projection pass; warning-strict lint passes all targets; 27 demos use only workspace crates; both Rust outputs match byte-for-byte; and all 707 unit tests in 34 files pass."
+              - command: "Staged-to-publication ownership and checksum audit"
+                status: passed
+                notes: "All eighteen product files in publish and validation match byte-for-byte, map exactly to the step's twelve declared output entries, and are frozen in publication-manifest.sha256. No package, build, Linux workflow, hosting, deployment, locale registry, deferred Russian lesson, or unrelated working-tree path is in the publication set."
+              - command: "Atomic Chapter 27 publication and immediate canonical checksum/Git-scope audit"
+                status: passed
+                notes: "All eighteen staged files were copied to individually verified temporary siblings, renamed into their exact canonical targets, and rehashed successfully. No temporary sibling remains; all canonical files match the frozen manifest; Git reports only the declared product files plus BUILD_STATE.yaml and DECISIONS.md, while unrelated .build evidence and desktop.ini remain untracked."
+              - command: "Fresh canonical workspace build through cumulative Rust, content, production HTML, link, and SEO gates"
+                status: passed
+                notes: "Canonical source image a194e488...f2a47d and workspace image 208d26fe...9475d7 rebuild the published bytes. Formatting, all 265 library tests and documentation tests, zero-diagnostic Astro analysis, 34-source content/parity checks, the 39-page static build, all 1,271 links, and all 39 SEO routes pass."
+              - command: "First combined canonical metadata and state-parser wrapper"
+                status: failed
+                notes: "Host PowerShell parsed the inline JavaScript condition before Docker launched, so no plan, contract, chapter, or state assertion ran. Those independent canonical commands were immediately rerun without the mixed quoting boundary."
+              - command: "Standalone inline canonical state-parser wrappers"
+                status: failed
+                notes: "One inline expression lost its JavaScript quotes at the host boundary, and the first mounted script resolved from the workspace root rather than site/node_modules. Neither parsed or changed product state. The checked script was mounted beside the pinned site dependencies and then parsed the live ledger successfully."
+              - command: "Fresh canonical plan, contract, chapter/parity, state parse, warning-strict lint, dependency/demo policy, exact Rust output, and complete site unit gates"
+                status: passed
+                notes: "The plan reports 39 chapters, 67 scheduled steps, and 27 consecutive contracts; Chapter 27 and its English-only publication projection pass; BUILD_STATE.yaml parses to schema 1 with eight builds; warning-strict lint passes all targets; 27 demos use only workspace crates; exact Rust outputs match; and all 707 unit tests pass."
+              - command: "Fresh canonical focused and aggregate browser regressions in Chromium and Firefox plus complete Chromium suite"
+                status: passed
+                notes: "Canonical Playwright image b32f676e...0e682 passes all five focused Chapter 27 tests in each engine, all 68 aggregate formula cases in each engine, and all 185 full Chromium tests."
+              - command: "Exact Chapter 27 Docker resource and preview-port cleanup"
+                status: passed
+                notes: "The sole run-specific preview container had no mounts and was removed, its run-specific bridge network was removed, port 4327 is closed, and no Chapter 27 container, network, volume, or temporary .ch27-publish sibling remains. Cached immutable validation images are retained for reproducibility."
+              - command: "First final recursive temporary-publication-sibling audit"
+                status: failed
+                notes: "The audit's last read-only Get-ChildItem recursion encountered a disappearing path inside unrelated preserved .build evidence and stopped after the manifest, ownership, and deletion checks had passed. No product or evidence file changed; the same sibling check was repeated with the repository's non-recursive-index file search."
+              - command: "Live completion-ledger parse and final canonical artifact, ownership, whitespace, and Git-scope audit"
+                status: passed
+                notes: "The live BUILD_STATE.yaml parses as schema 1 with eight builds; every canonical product file matches the eighteen-entry manifest; the exact twenty in-scope paths are those products plus state and decisions; no deletion, unexpected change, whitespace error, control path, or .ch27-publish sibling exists; and unrelated .build evidence plus desktop.ini remain outside the commit."
+            notes: "Succeeded. Chapter 27 delivers dependency-free rank-three unmasked scaled dot-product self-attention, deterministic Rust report/trace evidence, source-backed neural-attention history, a strict static non-arithmetic parser, an accessible responsive diagram, an English lesson with SEO, and cumulative formula coverage. All staged and fresh canonical Rust, static-site, formula, two-engine browser, visual, artifact, and ownership regressions pass; no package dependency, build definition, Linux workflow, hosting, deployment, or deferred Russian placeholder changed."
       - id: implement-ch28-causal-masking
         objective: "Apply a lower-triangular mask so position `t` attends only to positions `≤t`."
         depends_on:

@@ -5045,3 +5045,69 @@ site's basic description-only SEO contract remains in force.
 
 **Affected step and run:** `implement-ch26-qkv-projections`, run
 `20260724T124154Z-implement-ch26-qkv-projections-01`.
+
+## 2026-07-24 - Define the Chapter 27 unmasked self-attention boundary
+
+**Status:** Accepted during Chapter 27 preflight.
+
+**Context:** Chapter 27 must turn the three projected views from Chapter 26 into
+inspectable query-key scores, row probabilities, and weighted value mixtures
+without teaching causal masking, positions, or multiple heads early. The
+scheduled outputs omit the strict Rust-trace parser and aggregate formula tests
+required by the established chapter workflow. The history must remain on the
+neural-attention path toward modern LLMs, and the learner-facing page must not
+describe this unmasked teaching head as safe autoregressive decoder attention.
+
+**Decision:** Add a free `scaled_dot_product_self_attention` operation that
+composes the existing differentiable transpose, matrix multiplication,
+multiplication, stable log-softmax, exponential, and matrix multiplication
+operations. Return the raw dot products, scaled scores, row probabilities, and
+output as inspectable tape values. Accept exactly rank-three $Q$, $K$, and $V$
+with equal batch and token axes, a shared nonzero query/key width $d_k$, and an
+independent nonzero value width $d_v$; preserve empty batches but reject an empty
+token axis. Scale by $1/\sqrt{d_k}$, normalize over keys for each query, and
+return $[B,T,d_v]$. Reject ranks in query-key-value order, then batch, token,
+empty-token, zero-feature, and query/key-width boundaries before wrapping
+delegated failures by their exact forward stage.
+
+Continue the Chapter 26 two-token Q/K/V values as the primary fixture so the
+student can account for every one of the four dot products, four scaled scores,
+four probabilities, four weighted-value terms, and two output rows. Add a small
+aligned-versus-orthogonal probe to isolate the effect of the scaling factor; a
+single-token case whose sole probability is one; batch isolation, empty-batch,
+uniform-key, extreme-finite, token-permutation, deterministic replay, reverse
+gradient, full-coordinate numerical-gradient, and typed-error evidence; and an
+integration check proving gradients cross the Chapter 26 projections. The fixed
+numbers, precision, error precedence, tolerance, trace grammar, and accessible
+presentation are course-local teaching policies.
+
+Use Bahdanau, Cho, and Bengio for the bounded basic encoder-decoder fixed-vector
+bottleneck and target-step soft alignment claims. Their proposed model retains
+recurrent encoder and decoder state; do not attribute query/key/value language,
+self-attention, or the later phrase “additive attention” to that paper. Use
+Vaswani et al. for the later additive-attention classification, the scaled
+dot-product formula, packed simultaneous queries, the variance-based scaling
+motivation stated as the authors' hypothesis, and self-attention over one
+previous-layer sequence. Do not claim that an unmasked head provides causality,
+position, parallel autoregressive generation, unlimited context, or universally
+lower cost. Chapter 28 adds the causal restriction required by the target
+decoder.
+
+Rust emits the deterministic learner report and one strict 21-line trace. Add
+`site/src/lib/self-attention-diagram.ts` to validate exact string lexemes and
+project them without numeric conversion or score, scale, softmax, mixture, or
+gradient arithmetic. Render the useful visualization as semantic static
+HTML/CSS with server-rendered math, scoped matrix tables, solid/dashed/double
+stage cues, natural-height cards, named narrow-width scrollers, forced-color
+support, and no client script, SVG, or canvas. Extend both aggregate formula
+suites through Chapter 27 and run focused plus formula geometry in Chromium and
+Firefox.
+
+**Consequences:** Chapter 27 remains one dependency-free English vertical slice
+with basic description-only SEO and no Russian placeholder route. No package
+dependency, build definition, Linux workflow, locale policy, social preview,
+hosting configuration, or deployment action changes. Chapter 28 may reuse the
+scaled-score boundary and insert a causal mask before row normalization.
+
+**Affected step and run:** `implement-ch27-self-attention`, run
+`20260724T141229Z-implement-ch27-self-attention-01`.

@@ -1,0 +1,26 @@
+chapter=27-self-attention
+prediction=each query scores every key, then one probability row mixes the value rows
+config=batch:1 tokens:2 d_k:2 d_v:2 scale:0.707107 masked:false softmax_axis:key
+query=shape:[1,2,2] values:[0.000000,3.000000,2.000000,-1.000000]
+key=shape:[1,2,2] values:[3.000000,0.000000,-1.000000,2.000000]
+value=shape:[1,2,2] values:[3.000000,-3.000000,1.000000,3.000000]
+dot_products=shape:[1,2,2] values:[0.000000,6.000000,6.000000,-4.000000]
+scaled_scores=shape:[1,2,2] values:[0.000000,4.242641,4.242641,-2.828427]
+probabilities=shape:[1,2,2] values:[0.014166,0.985834,0.999151,0.000849]
+row_sums=[1.000000,1.000000]
+mixture_query_0=terms:[[0.042498,-0.042498],[0.985834,2.957502]] output:[1.028332,2.915004]
+mixture_query_1=terms:[[2.997454,-2.997454],[0.000849,0.002546]] output:[2.998303,-2.994908]
+output=shape:[1,2,2] values:[1.028332,2.915004,2.998303,-2.994908]
+scale_probe=unscaled_focus:0.731059 scaled_focus:0.669762 orthogonal_probability:0.330238 softened:true
+single_token=probabilities:[1.000000] output:[5.000000,-2.000000] query_gradient_zero:true key_gradient_zero:true
+batch_probe=query:[2,2,2] key:[2,2,2] value:[2,2,2] probabilities:[2,2,2] output:[2,2,2] isolated:true
+empty_batch=probabilities:[0,2,2] output:[0,2,3] value_width_probe:[1,2,1]
+upstream=[1.000000,0.000000,0.000000,1.000000] loss=-1.966576
+query_gradient=[0.079000,-0.039500,-0.014389,0.007195]
+key_gradient=[-0.007195,0.062847,0.007195,-0.062847]
+value_gradient=[0.014166,0.999151,0.985834,0.000849]
+gradcheck=query_checks:4 key_checks:4 value_checks:4 tolerance:0.000002 passed:true
+errors=query_rank:true batch:true tokens:true empty:true width:true
+history=earlier:recurrent-fixed-context bridge:additive-encoder-decoder-alignment transformer:scaled-dot-product-self-attention recurrent_steps:2 attention_score_cells:4
+same_fixture_replays_bitwise=true
+next=mask future key positions before row normalization

@@ -19,7 +19,7 @@ const chapter08To13Ids = [
   '12-stable-softmax',
   '13-gradient-checking',
 ] as const;
-const chapter14To26Ids = [
+const chapter14To27Ids = [
   '14-scalar-autodiff',
   '15-tensor-autodiff-core',
   '16-model-autodiff-ops',
@@ -33,6 +33,7 @@ const chapter14To26Ids = [
   '24-residual-connections',
   '25-rmsnorm',
   '26-qkv-projections',
+  '27-self-attention',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const viewports = {
@@ -133,7 +134,7 @@ const formerMathCode = new Set([
   'd_in',
 ]);
 
-const formerChapter14To26MathCode = new Set([
+const formerChapter14To27MathCode = new Set([
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -205,6 +206,12 @@ const formerChapter14To26MathCode = new Set([
   'W_V',
   '[B,T,d_model]',
   '[B,T,d_head]',
+  'QK^T',
+  '1/sqrt(d_k)',
+  'A=softmax(QK^T/sqrt(d_k))',
+  'O=AV',
+  '[B,T,T]',
+  '[B,T,d_v]',
 ]);
 
 const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly string[]> = {
@@ -216,7 +223,7 @@ const chapter08To13Latex: Record<(typeof chapter08To13Ids)[number], readonly str
   '13-gradient-checking': [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To26Latex: Record<(typeof chapter14To26Ids)[number], readonly string[]> = {
+const chapter14To27Latex: Record<(typeof chapter14To27Ids)[number], readonly string[]> = {
   '14-scalar-autodiff': [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
   '15-tensor-autodiff-core': [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
@@ -290,6 +297,15 @@ const chapter14To26Latex: Record<(typeof chapter14To26Ids)[number], readonly str
     String.raw`L=\langle Q,U_Q\rangle+\langle K,U_K\rangle+\langle V,U_V\rangle`,
     String.raw`\bar X=\begin{bmatrix}3&1.5&1.5\\-1.5&3.5&-5\end{bmatrix}`,
     String.raw`\operatorname{shape}(Q)=[1,2,2]`,
+  ],
+  '27-self-attention': [
+    String.raw`A=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right),\quad O=AV`,
+    String.raw`QK^\top=\begin{bmatrix}0&6\\6&-4\end{bmatrix}`,
+    String.raw`\sum_j A_{ij}=1`,
+    String.raw`A_{bij}=\frac{\exp(S_{bij})}{\sum_{r=0}^{T-1}\exp(S_{bir})}`,
+    String.raw`\bar Q\approx[0.079000,-0.039500,-0.014389,0.007195]`,
+    String.raw`A_{0,:}=[0.014166,0.985834]`,
+    String.raw`d_k=2,\quad d_v=2`,
   ],
 };
 
@@ -476,9 +492,9 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
   }
 });
 
-test.describe('@formula-rendering:ch14-ch26 rendered formula contract', () => {
+test.describe('@formula-rendering:ch14-ch27 rendered formula contract', () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To26Ids) {
+    for (const chapterId of chapter14To27Ids) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -500,7 +516,7 @@ test.describe('@formula-rendering:ch14-ch26 rendered formula contract', () => {
         const latex = await page
           .locator('.lesson-body .katex annotation[encoding="application/x-tex"]')
           .evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
-        for (const fragment of chapter14To26Latex[chapterId]) {
+        for (const fragment of chapter14To27Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
@@ -570,7 +586,7 @@ test.describe('@formula-rendering:ch14-ch26 rendered formula contract', () => {
 
         const inlineCode = await page.locator('.lesson-body :not(pre) > code').allInnerTexts();
         expect(
-          inlineCode.filter((value) => formerChapter14To26MathCode.has(value.trim())),
+          inlineCode.filter((value) => formerChapter14To27MathCode.has(value.trim())),
         ).toEqual([]);
       });
     }
