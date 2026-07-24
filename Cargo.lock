@@ -175,6 +175,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch26-qkv-projections"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

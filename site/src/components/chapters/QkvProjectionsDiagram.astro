@@ -1,0 +1,678 @@
+---
+import traceSource from '../../../../rust/demos/ch26-qkv-projections/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseQkvProjectionsTrace,
+  validateQkvProjectionsLabels,
+  type QkvProjectionsDiagramLabels,
+  type QkvRole,
+} from '../../lib/qkv-projections-diagram';
+
+interface Props {
+  labels: QkvProjectionsDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateQkvProjectionsLabels(labels);
+const trace = parseQkvProjectionsTrace(traceSource);
+const titleId = 'qkv-projections-diagram-title';
+const descriptionId = 'qkv-projections-diagram-description';
+const roleLabels: Record<QkvRole, string> = labels.roles;
+const roleSymbols: Record<QkvRole, { weight: string; output: string }> = {
+  query: { weight: 'W_Q', output: 'Q' },
+  key: { weight: 'W_K', output: 'K' },
+  value: { weight: 'W_V', output: 'V' },
+};
+const cueLabels: Record<QkvRole, string> = {
+  query: labels.cues.query,
+  key: labels.cues.key,
+  value: labels.cues.value,
+};
+const status = (value: string) => value === 'true' ? labels.cues.accepted : labels.cues.rejected;
+---
+
+<figure
+  class="qkv-diagram"
+  data-visualization-id="qkv-projections"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.captions.projections}>
+      <li class="shared-cue">{labels.cues.shared}</li>
+      <li class="query-cue">{labels.cues.query}</li>
+      <li class="key-cue">{labels.cues.key}</li>
+      <li class="value-cue">{labels.cues.value}</li>
+    </ul>
+  </figcaption>
+
+  <section class="diagram-section projection-section" aria-labelledby="qkv-projection-title">
+    <h4 id="qkv-projection-title">{labels.sections.projections}</h4>
+    <article class="source-card" data-stage="input">
+      <h5>{labels.stages.input}</h5>
+      <div
+        class="source-values math-row input-values-scroller"
+        tabindex="0"
+        role="region"
+        aria-label={labels.stages.input}
+      >
+        <InlineMath latex={String.raw`X=${trace.input.latex}`} />
+      </div>
+      <dl>
+        <div>
+          <dt>{labels.fields.shape}</dt>
+          <dd><InlineMath latex={String.raw`\operatorname{shape}(X)=${trace.meta.inputShape}`} /></dd>
+        </div>
+        <div>
+          <dt>{labels.fields.biasPolicy}</dt>
+          <dd><code><bdi dir="ltr">bias={trace.meta.bias}</bdi></code></dd>
+        </div>
+      </dl>
+    </article>
+
+    <div class="split-marker" aria-hidden="true">↓</div>
+
+    <div
+      class="branches-scroller"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.branches}
+    >
+      <ol class="branch-grid">
+        {trace.projections.map((projection) => (
+          <li>
+            <article
+              class:list={['branch-card', `${projection.role}-branch`]}
+              data-qkv-role={projection.role}
+            >
+              <header>
+                <span class:list={['branch-cue', `${projection.role}-cue`]}>
+                  {cueLabels[projection.role]}
+                </span>
+                <h5>{roleLabels[projection.role]}</h5>
+                <p class="branch-formula">
+                  <InlineMath
+                    latex={String.raw`${roleSymbols[projection.role].output}=X${roleSymbols[projection.role].weight}`}
+                  />
+                </p>
+              </header>
+
+              <dl class="branch-facts">
+                <div>
+                  <dt>{labels.fields.parameter}</dt>
+                  <dd><code><bdi dir="ltr">{projection.parameter}</bdi></code></dd>
+                </div>
+                <div>
+                  <dt>{labels.fields.weight}</dt>
+                  <dd>
+                    <InlineMath
+                      latex={String.raw`\operatorname{shape}(${roleSymbols[projection.role].weight})=${projection.weightShape}`}
+                    />
+                  </dd>
+                </div>
+                <div>
+                  <dt>{labels.fields.output}</dt>
+                  <dd>
+                    <InlineMath
+                      latex={String.raw`\operatorname{shape}(${roleSymbols[projection.role].output})=${projection.outputShape}`}
+                    />
+                  </dd>
+                </div>
+              </dl>
+
+              <table class="coordinate-table weight-table">
+                <caption><InlineMath latex={roleSymbols[projection.role].weight} /></caption>
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col"><InlineMath latex="0" /></th>
+                    <th scope="col"><InlineMath latex="1" /></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><InlineMath latex="0" /></th>
+                    <td><InlineMath latex={projection.weights.values[0]} /></td>
+                    <td><InlineMath latex={projection.weights.values[1]} /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><InlineMath latex="1" /></th>
+                    <td><InlineMath latex={projection.weights.values[2]} /></td>
+                    <td><InlineMath latex={projection.weights.values[3]} /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><InlineMath latex="2" /></th>
+                    <td><InlineMath latex={projection.weights.values[4]} /></td>
+                    <td><InlineMath latex={projection.weights.values[5]} /></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <table class="coordinate-table output-table">
+                <caption>{labels.fields.output}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col"><InlineMath latex="0" /></th>
+                    <th scope="col"><InlineMath latex="1" /></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><InlineMath latex="t_0" /></th>
+                    <td><InlineMath latex={projection.output.values[0]} /></td>
+                    <td><InlineMath latex={projection.output.values[1]} /></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><InlineMath latex="t_1" /></th>
+                    <td><InlineMath latex={projection.output.values[2]} /></td>
+                    <td><InlineMath latex={projection.output.values[3]} /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <p class="section-caption">{labels.captions.projections}</p>
+  </section>
+
+  <section class="diagram-section history-section" aria-labelledby="qkv-history-title">
+    <h4 id="qkv-history-title">{labels.sections.history}</h4>
+    <div
+      class="history-scroller"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.history}
+    >
+      <table class="history-table">
+        <caption>{labels.captions.history}</caption>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">{labels.fields.decoderState}</th>
+            <th scope="col">{labels.fields.encoderAnnotations}</th>
+            <th scope="col">{labels.fields.oneSequence}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-history-kind="earlier-attention">
+            <th scope="row">{labels.fields.earlierAttention}</th>
+            <td><code><bdi dir="ltr">{trace.history.earlierLeft}</bdi></code></td>
+            <td><code><bdi dir="ltr">{trace.history.earlierRight}</bdi></code></td>
+            <td aria-label={labels.cues.rejected}>—</td>
+          </tr>
+          <tr data-history-kind="self-attention">
+            <th scope="row">{labels.fields.selfAttention}</th>
+            <td aria-label={labels.cues.rejected}>—</td>
+            <td aria-label={labels.cues.rejected}>—</td>
+            <td><code><bdi dir="ltr">{trace.history.transformerSource}</bdi></code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="retrospective-note">
+      <span class="status accepted">{labels.cues.accepted}</span>
+      <code><bdi dir="ltr">mapping={trace.history.mapping}</bdi></code>
+    </p>
+  </section>
+
+  <section class="diagram-section evidence-section" aria-labelledby="qkv-evidence-title">
+    <h4 id="qkv-evidence-title">{labels.sections.evidence}</h4>
+    <div class="evidence-grid">
+      <article class="evidence-card input-gradient-card">
+        <h5>{labels.fields.inputGradient}</h5>
+        <p
+          class="math-row input-gradient-scroller"
+          tabindex="0"
+          role="region"
+          aria-label={labels.fields.inputGradient}
+        >
+          <InlineMath
+            latex={String.raw`\bar X=${trace.backward.inputGradient.latex}`}
+          />
+        </p>
+        <p><InlineMath latex={String.raw`\operatorname{shape}(\bar X)=${trace.backward.inputGradientShape}`} /></p>
+      </article>
+
+      <article class="evidence-card gradient-card">
+        <h5>{labels.fields.weightGradient}</h5>
+        <div
+          class="gradients-scroller"
+          tabindex="0"
+          role="region"
+          aria-label={labels.scrollers.gradients}
+        >
+          <table class="gradient-table">
+            <tbody>
+              {trace.weightGradients.map((gradient) => (
+                <tr data-gradient-role={gradient.role}>
+                  <th scope="row">{roleLabels[gradient.role]}</th>
+                  <td>
+                    <InlineMath
+                      latex={String.raw`\bar ${roleSymbols[gradient.role].weight}=${gradient.values.latex}`}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="evidence-card independence-card">
+        <h5>{labels.fields.independence}</h5>
+        <dl>
+          <div>
+            <dt>{labels.roles.query}</dt>
+            <dd><span class="status accepted">{status(trace.independence.queryChanged)}</span></dd>
+          </div>
+          <div>
+            <dt>{labels.roles.key}</dt>
+            <dd><code><bdi dir="ltr">{trace.independence.keyOutput}</bdi></code></dd>
+          </div>
+          <div>
+            <dt>{labels.roles.value}</dt>
+            <dd><code><bdi dir="ltr">{trace.independence.valueOutput}</bdi></code></dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="evidence-card empty-card">
+        <h5>{labels.fields.emptyBatch}</h5>
+        <p><InlineMath latex={String.raw`${trace.emptyShapes.batchInput}\to ${trace.emptyShapes.batchQuery},${trace.emptyShapes.batchKey},${trace.emptyShapes.batchValue}`} /></p>
+        <h5>{labels.fields.emptyTokens}</h5>
+        <p><InlineMath latex={String.raw`${trace.emptyShapes.tokenInput}\to ${trace.emptyShapes.tokenQuery},${trace.emptyShapes.tokenKey},${trace.emptyShapes.tokenValue}`} /></p>
+      </article>
+
+      <article class="evidence-card errors-card">
+        <h5>{labels.fields.errors}</h5>
+        <ul>
+          {trace.errors.map((error) => (
+            <li data-error-case={error.case}>
+              <span class="status rejected">{labels.cues.rejected}</span>
+              <code><bdi dir="ltr">{error.case}</bdi></code>
+              <code><bdi dir="ltr">{error.message}</bdi></code>
+            </li>
+          ))}
+        </ul>
+      </article>
+
+      <article class="evidence-card proof-card">
+        <h5>{labels.fields.proof}</h5>
+        <p><InlineMath latex={String.raw`n_X=${trace.proof.inputChecks}, n_Q=${trace.proof.queryWeightChecks}, n_K=${trace.proof.keyWeightChecks}, n_V=${trace.proof.valueWeightChecks}`} /></p>
+        <p><InlineMath latex={String.raw`\tau=${trace.proof.tolerance}`} /></p>
+        <p>
+          <code><bdi dir="ltr">gradcheck={trace.proof.gradcheck}</bdi></code>
+          <code><bdi dir="ltr">replay={trace.proof.replay}</bdi></code>
+          <code><bdi dir="ltr">names={trace.proof.names}</bdi></code>
+          <code><bdi dir="ltr">initialization={trace.proof.initialization}</bdi></code>
+          <code><bdi dir="ltr">trace={trace.proof.trace}</bdi></code>
+          <code><bdi dir="ltr">site_arithmetic={trace.meta.siteArithmetic}</bdi></code>
+        </p>
+      </article>
+    </div>
+    <p class="section-caption">{labels.captions.evidence}</p>
+  </section>
+</figure>
+
+<style>
+  .qkv-diagram {
+    --qkv-ink: #1c2430;
+    --qkv-paper: #f8fbff;
+    --qkv-accent: #2857a4;
+    --qkv-ok: #17633a;
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    margin: 1.5rem 0;
+    padding: 1.1rem;
+    border: 2px solid var(--qkv-ink);
+    border-radius: 1rem;
+    background: var(--qkv-paper);
+    color: var(--qkv-ink);
+  }
+
+  .qkv-diagram:focus,
+  .input-values-scroller:focus,
+  .branches-scroller:focus,
+  .history-scroller:focus,
+  .gradients-scroller:focus,
+  .input-gradient-scroller:focus {
+    outline: 3px solid var(--qkv-accent);
+    outline-offset: 3px;
+  }
+
+  h3,
+  h4,
+  h5,
+  p {
+    overflow-wrap: anywhere;
+  }
+
+  h3,
+  h4,
+  h5 {
+    margin: 0;
+  }
+
+  .diagram-description,
+  .section-caption,
+  .retrospective-note {
+    margin: 0.65rem 0 0;
+  }
+
+  .cue-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0.8rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cue-list li,
+  .branch-cue,
+  .status {
+    display: inline-block;
+    padding: 0.18rem 0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  .key-cue {
+    border-style: dashed;
+  }
+
+  .value-cue {
+    border-style: double;
+    border-width: 4px;
+  }
+
+  .diagram-section {
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin-block-start: 1.15rem;
+    padding-block-start: 1rem;
+    border-block-start: 1px solid #8794a6;
+  }
+
+  .source-card,
+  .branch-card,
+  .evidence-card {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding: 0.85rem;
+    border: 2px solid var(--qkv-ink);
+    border-radius: 0.8rem;
+    background: #ffffff;
+  }
+
+  .source-card {
+    margin-block-start: 0.75rem;
+    border-block-start-width: 4px;
+  }
+
+  .source-card dl,
+  .branch-facts,
+  .independence-card dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 0.65rem;
+    margin: 0.75rem 0 0;
+  }
+
+  dl div,
+  dd {
+    min-inline-size: 0;
+  }
+
+  dt {
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0.25rem 0 0;
+  }
+
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  .split-marker {
+    margin-block: 0.45rem;
+    color: var(--qkv-accent);
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .input-values-scroller,
+  .branches-scroller,
+  .history-scroller,
+  .gradients-scroller,
+  .input-gradient-scroller {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    padding-block: 0.25rem 0.55rem;
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .input-gradient-scroller {
+    padding-inline: 0.1rem;
+  }
+
+  .input-values-scroller {
+    direction: ltr;
+  }
+
+  .branch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(18.5rem, 1fr));
+    align-items: start;
+    gap: 0.8rem;
+    min-inline-size: 57rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .branch-grid > li {
+    min-inline-size: 0;
+  }
+
+  .branch-card {
+    border-block-start-width: 4px;
+  }
+
+  .query-branch {
+    border-style: solid;
+  }
+
+  .key-branch {
+    border-style: dashed;
+  }
+
+  .value-branch {
+    border-style: double;
+    border-width: 4px;
+  }
+
+  .branch-card header {
+    display: grid;
+    align-items: start;
+    gap: 0.45rem;
+  }
+
+  .branch-cue {
+    justify-self: start;
+    font-size: 0.82rem;
+  }
+
+  .branch-formula,
+  .math-row {
+    min-inline-size: 0;
+    margin: 0;
+    padding-block: 0.14rem;
+  }
+
+  .coordinate-table,
+  .history-table,
+  .gradient-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+  }
+
+  .coordinate-table {
+    margin-block-start: 0.8rem;
+  }
+
+  .coordinate-table caption,
+  .history-table caption {
+    padding-block-end: 0.45rem;
+    text-align: start;
+    font-weight: 700;
+  }
+
+  th,
+  td {
+    padding: 0.45rem;
+    border: 1px solid var(--qkv-ink);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .history-table {
+    min-inline-size: 48rem;
+    margin-block-start: 0.65rem;
+  }
+
+  .history-table tbody tr:last-child {
+    border-block: 4px double var(--qkv-ink);
+  }
+
+  .retrospective-note {
+    display: flex;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .accepted {
+    color: var(--qkv-ok);
+  }
+
+  .rejected {
+    border-style: double;
+  }
+
+  .evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    align-items: start;
+    gap: 0.8rem;
+    margin-block-start: 0.75rem;
+  }
+
+  .gradient-card,
+  .errors-card,
+  .proof-card {
+    grid-column: 1 / -1;
+  }
+
+  .gradient-table {
+    min-inline-size: 44rem;
+  }
+
+  .independence-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .empty-card h5:not(:first-child) {
+    margin-block-start: 0.8rem;
+  }
+
+  .empty-card p,
+  .proof-card p {
+    margin: 0.5rem 0 0;
+    padding-block: 0.12rem;
+  }
+
+  .errors-card ul {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .errors-card li {
+    display: grid;
+    grid-template-columns: auto minmax(7rem, 0.35fr) minmax(14rem, 1fr);
+    align-items: start;
+    gap: 0.6rem;
+    min-inline-size: 0;
+  }
+
+  .proof-card p:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  bdi,
+  code,
+  :global([data-inline-math]) {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  :global([data-inline-math]) {
+    padding-block: 0.12em;
+  }
+
+  @media (max-width: 42rem) {
+    .qkv-diagram {
+      padding: 0.85rem;
+    }
+
+    .errors-card li {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .qkv-diagram,
+    .source-card,
+    .branch-card,
+    .evidence-card,
+    .coordinate-table,
+    .history-table,
+    .gradient-table,
+    th,
+    td,
+    .cue-list li,
+    .branch-cue,
+    .status {
+      background: Canvas;
+      color: CanvasText;
+      forced-color-adjust: auto;
+    }
+
+    .split-marker,
+    .accepted {
+      color: CanvasText;
+    }
+  }
+</style>

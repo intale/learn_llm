@@ -9,6 +9,11 @@ pub mod corpus;
 pub mod data;
 pub mod metrics;
 
+/// Learned feature views used by self-attention.
+pub mod attention {
+    pub mod qkv;
+}
+
 /// Complete decoder models assembled from the chapter-by-chapter primitives.
 pub mod models {
     pub mod neural_ngram;

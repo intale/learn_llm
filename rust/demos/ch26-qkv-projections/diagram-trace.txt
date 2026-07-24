@@ -1,0 +1,17 @@
+META|input_shape=[1,2,3]|model_width=3|head_width=2|bias=false|parameter_count=18|branch_order=query,key,value|site_arithmetic=none
+INPUT|values=[1.000000,2.000000,-1.000000,0.000000,1.000000,2.000000]
+PROJECTION|role=query|tensor=Q|parameter=decoder.block.0.attention.query.weight|weight_shape=[3,2]|weights=[1.000000,0.000000,0.000000,1.000000,1.000000,-1.000000]|output_shape=[1,2,2]|output=[0.000000,3.000000,2.000000,-1.000000]
+PROJECTION|role=key|tensor=K|parameter=decoder.block.0.attention.key.weight|weight_shape=[3,2]|weights=[0.000000,1.000000,1.000000,0.000000,-1.000000,1.000000]|output_shape=[1,2,2]|output=[3.000000,0.000000,-1.000000,2.000000]
+PROJECTION|role=value|tensor=V|parameter=decoder.block.0.attention.value.weight|weight_shape=[3,2]|weights=[1.000000,1.000000,1.000000,-1.000000,0.000000,2.000000]|output_shape=[1,2,2]|output=[3.000000,-3.000000,1.000000,3.000000]
+BACKWARD|query_upstream=[1.000000,0.000000,-1.000000,2.000000]|key_upstream=[0.500000,-1.000000,1.000000,0.000000]|value_upstream=[2.000000,1.000000,0.000000,-0.500000]|input_gradient_shape=[1,2,3]|input_gradient=[3.000000,1.500000,1.500000,-1.500000,3.500000,-5.000000]
+WEIGHT_GRADIENT|role=query|shape=[3,2]|values=[1.000000,0.000000,1.000000,2.000000,-3.000000,4.000000]
+WEIGHT_GRADIENT|role=key|shape=[3,2]|values=[0.500000,-1.000000,2.000000,-2.000000,1.500000,1.000000]
+WEIGHT_GRADIENT|role=value|shape=[3,2]|values=[2.000000,1.000000,4.000000,1.500000,-2.000000,-2.000000]
+INDEPENDENCE|changed=query|query_changed=true|key_output=bitwise-unchanged|value_output=bitwise-unchanged
+EMPTY_SHAPES|batch_input=[0,2,3]|batch_query=[0,2,2]|batch_key=[0,2,2]|batch_value=[0,2,2]|token_input=[2,0,3]|token_query=[2,0,2]|token_key=[2,0,2]|token_value=[2,0,2]
+ERROR|case=rank-two|rejected=true|message=Q/K/V input must have rank three [batch, tokens, model_width], got rank 2
+ERROR|case=input-width|rejected=true|message=Q/K/V input final width must equal model width 3, got 4
+ERROR|case=branch-mismatch|rejected=true|message=Q/K/V model widths must match, got query 3, key 4, value 3
+HISTORY|earlier_left=decoder-state|earlier_right=encoder-annotations|transformer_source=one-sequence|mapping=retrospective
+PROOF|input_checks=6|query_weight_checks=6|key_weight_checks=6|value_weight_checks=6|tolerance=0.000002|gradcheck=true|replay=bitwise|trace=rust-authored|names=unique|initialization=transactional
+NEXT|chapter=27-self-attention

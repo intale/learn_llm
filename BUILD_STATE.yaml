@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T12:32:29Z"
+updated_at: "2026-07-24T12:43:30Z"
 
 environment:
   os: "Linux x86_64"
@@ -11869,14 +11869,25 @@ builds:
         objective: "Project one hidden-state sequence into query, key, and value tensors with explicit attention dimensions."
         depends_on:
           - implement-ch25-rmsnorm
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/25-rmsnorm.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/demos/ch25-rmsnorm/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -11891,6 +11902,21 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/25-rmsnorm.mdx"
+          - "site/src/components/chapters/RmsnormDiagram.astro"
+          - "site/src/lib/rmsnorm-diagram.ts"
+          - "site/tests/25-rmsnorm-diagram.test.ts"
+          - "site/tests/e2e/ch25-rmsnorm.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "site/src/content.config.ts"
+          - "site/src/styles/global.css"
+          - "Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate (https://arxiv.org/abs/1409.0473; bounded read-only primary-paper input)"
+          - "Vaswani et al., Attention Is All You Need (https://arxiv.org/abs/1706.03762; bounded read-only primary-paper input)"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Official node:22.12.0-bookworm-slim validation image at immutable digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213"
         outputs:
           - "curriculum/chapters/26-qkv-projections.md"
           - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
@@ -11898,8 +11924,11 @@ builds:
           - "rust/demos/ch26-qkv-projections/"
           - "site/src/content/chapters/en/26-qkv-projections.mdx"
           - "site/src/components/chapters/QkvProjectionsDiagram.astro"
+          - "site/src/lib/qkv-projections-diagram.ts"
           - "site/tests/26-qkv-projections-diagram.test.ts"
           - "site/tests/e2e/ch26-qkv-projections.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Project one hidden-state sequence into query, key, and value tensors with explicit attention dimensions."
@@ -11917,6 +11946,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch26-qkv-projections | diff -u rust/demos/ch26-qkv-projections/expected.txt -"
+          - "cargo run --quiet --locked -p ch26-qkv-projections --example ch26-qkv-projections-trace | diff -u rust/demos/ch26-qkv-projections/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 26-qkv-projections"
           - "npm --prefix site run check:parity -- --chapter 26-qkv-projections"
           - "npm --prefix site run check:content"
@@ -11925,11 +11955,123 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:26-qkv-projections'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@chapter:26-qkv-projections'"
+          - "npm --prefix site run test:e2e -- --grep '@formula-rendering'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@formula-rendering'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only access to two declared primary papers, and cached immutable Node/Playwright images; registered deferred locales require no lesson or route. No paid service, generation service, package/build change, hosting, deployment, substantial CPU expansion, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T124154Z-implement-ch26-qkv-projections-01
+            started_at: "2026-07-24T12:41:54Z"
+            finished_at: "2026-07-24T14:05:09Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b4d0b801d33499bc2f14b2c6bdec99b87234c765"
+              manifest: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/input-fingerprint.txt"
+              checksum: "sha256:7092b0b5ec19b4aa9a0c06ac56d778918d48f6ea3d67e5c5cafd61899c2aba93"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node, workspace, and Playwright image digests match the recorded inputs"
+            staging_dir: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/"
+            commands:
+              - "Run the complete startup protocol, preserve unrelated .build evidence and desktop.ini, verify the latest succeeded/failed/interrupted artifacts, compare all recorded tools, and select Chapter 26 as the sole eligible step"
+              - "Read the repository chapter playbook and site/browser guidance, verify the English-only locale projection, and confirm that no hosting configuration or deployment authority is present"
+              - "Declare the exact rank-three bias-free Q/K/V boundary, two-primary-source history, strict Rust trace/parser path, aggregate formula coverage, and cached browser runtimes before product work"
+              - "Fingerprint all material local inputs, bounded sources, tool images, locale policy, and the no-hosting boundary; create isolated publish, validation, research, visual-review, and log directories"
+              - "Audit the two bounded primary papers, freeze their exact attribution limits in research/source-notes.md, and draft the complete Chapter 26 contract in the isolated publish tree"
+              - "Implement the rank-three bias-free Q/K/V composition, deterministic learner report, strict seventeen-line trace, and exhaustive Rust fixture/error/gradient tests in the isolated publish tree"
+              - "Build the English lesson, static semantic diagram, strict non-arithmetic trace parser, SEO metadata, and Chapter 14-26 aggregate formula coverage in the validation overlay"
+              - "Use isolated cached Chromium and Firefox runtimes to repair narrow formula and evidence containment, then validate Chapter 26 at desktop and 390 pixels with RTL, forced colors, and JavaScript disabled"
+              - "Run the aggregate sixty-six-case rendered formula contract in Chromium and Firefox, including Chapter 26 desktop and narrow geometry"
+              - "Run the complete staged Rust, content, type, unit, static-build, link, and one-hundred-seventy-eight-case Chromium regression suite, retaining the read-only-cache failure before the unchanged writable-cache rerun"
+              - "Freeze an eighteen-file publication manifest and four final two-engine diagram captures before canonical publication"
+              - "Publish only the eighteen checksum-locked files through verified temporary siblings, then prove canonical bytes equal the isolated publish tree"
+              - "Repeat the complete Rust/site regression plus focused Chapter 26, aggregate formula, and full Chromium browser suites against the canonical tree"
+              - "Archive and checksum seven canonical validation logs, then audit artifacts, ownership, changed-path scope, protected files, modes, deletions, control characters, and whitespace"
+              - "Remove every exact Chapter 26 validation resource, verify preview port 4326 is closed, and prepare the isolated completed-step commit"
+            artifacts:
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/input-fingerprint.txt"
+                checksum: "sha256:7092b0b5ec19b4aa9a0c06ac56d778918d48f6ea3d67e5c5cafd61899c2aba93"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/research/source-notes.md"
+                checksum: "sha256:65bd9abb70b909ac6fb5a299383dc6ae52856ee0d67e8d97c64c6f876d6b0b1e"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/publish/rust/demos/ch26-qkv-projections/expected.txt"
+                checksum: "sha256:fc624426e5a71fb60e59a4e80796972b10ba1c4945dbb82b27d90f2ea3dc6b9e"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/publish/rust/demos/ch26-qkv-projections/diagram-trace.txt"
+                checksum: "sha256:d9e88a4fc66b8ee684005742aebb4186d1dcb05b845b7f55f3de1bd16e785572"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/publish/Cargo.lock"
+                checksum: "sha256:490a57ffa71dd8bc8b999ac75728c0105e987f593f0971ff4e3cbc79517f8d0a"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/chromium-focused-success/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/firefox-focused-success/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/chromium-formula-success/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/firefox-formula-success/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/publication-manifest.sha256"
+                checksum: "sha256:619099331b11be438c747119548cb39be2fddacaf4ef371ffbee1c652c9d232d"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/chromium-full-success/.last-run.json"
+                checksum: "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/final-chromium-desktop-diagram.png"
+                checksum: "sha256:6992c148c24562e26175b5ab55007a22b4e106e00da9c2bdad49ac6c0ecd6d2e"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/final-chromium-narrow-diagram.png"
+                checksum: "sha256:89aabe66ec87e027d22047007ed323c64bdffcfb6f78fdb69e8da3e3157c702a"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/final-firefox-desktop-diagram.png"
+                checksum: "sha256:1a3b35d1dadfe7ee3083efd7212b6b187a327665dad5ae9dbbfc53e9ca1c12d5"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/visual-review/final-firefox-narrow-diagram.png"
+                checksum: "sha256:5359fff4469ace57258225fb51660b97f1d17eee4b49c04a7739b59a3a94d50b"
+              - path: ".build/runs/20260724T124154Z-implement-ch26-qkv-projections-01/logs/canonical-validation.sha256"
+                checksum: "sha256:80e873b8139614b3d1e7b7b931b9a3e99261cbfe4993109f39685cd062d6bec0"
+            validation:
+              - command: "Preflight dependency, environment, cost, ownership, latest-run artifact, locale, scheduling, source, browser-image, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 26 is the sole eligible step and Chapter 25 is committed; no stale run or overlapping writer exists; every local input and the English-only locale projection exists; the latest succeeded, failed, and interrupted artifacts retain their recorded hashes; Docker, Compose, Git, Rust, Cargo, Node, npm, and immutable image digests match; two primary sources are bounded and explicit; the medium work is recorded without a cost approval pause; and unrelated .build evidence plus desktop.ini remain untouched."
+              - command: "Bounded Bahdanau and Vaswani primary-source audit plus source-note checksum"
+                status: passed
+                notes: "The cited sections support the two-stream additive-attention predecessor, query/key/value roles, same-sequence self-attention, and distinct learned projections. The notes explicitly prohibit attributing Q/K/V terminology to Bahdanau or treating the course's bias policy, equal head widths, names, fixture, and errors as paper requirements; the recorded SHA-256 matches the staged artifact."
+              - command: "Initial Chapter 26 contract integration check before staged Rust demo creation"
+                status: failed
+                notes: "The contract parser reached integration checks and reported only the intentionally not-yet-created ch26 Cargo.toml and expected.txt. Re-run against the complete validation overlay after the Rust slice is staged; no contract or canonical product output was published."
+              - command: "Focused staged Rust tests, exact report/trace replay, complete contract/content checks, Astro diagnostics, twenty-nine focused site tests, and thirty-eight-page static build"
+                status: passed
+                notes: "Eight Q/K/V library tests, three demo targets, exact twenty-eight-line report and seventeen-line trace diffs, the integrated contract, Chapter 26 content checks, nineteen diagram/parser tests, ten aggregate formula unit tests, and the production build all pass in the isolated validation overlay."
+              - command: "Initial isolated two-engine browser launch and focused Chapter 26 layout audit"
+                status: failed
+                notes: "The first launch attempts exposed a read-only nested result-mount mistake; after isolating output at /results, both engines then correctly found a too-wide source formula, one too-wide gradient formula, narrow shape equations, and an over-strict inline KaTeX glyph assertion. Failed evidence is retained under visual-review; no canonical product output was published."
+              - command: "Revised focused Chapter 26 Chromium and Firefox suites"
+                status: passed
+                notes: "All five tests pass in each engine. The final layout uses named keyboard-focusable local scrollers for long Rust-authored input and gradient evidence, separate narrow shape equations, natural-height cards, non-color projection cues, left-to-right technical values under RTL prose, exact SEO/navigation, and JavaScript-disabled static rendering."
+              - command: "Aggregate formula-rendering suites in Chromium and Firefox"
+                status: passed
+                notes: "All sixty-six desktop/narrow formula cases pass in each engine, including Chapter 26 annotations, readable spacing, local horizontal containment, no vertical clipping, and no following-block overlap."
+              - command: "Full staged Rust, content, type, unit, static-build, and link regression"
+                status: passed
+                notes: "Formatting, clippy, all workspace and documentation tests, dependency policy, twenty-six demo discovery, exact Chapter 26 report/trace, course plan, contract, locale content/parity, Astro diagnostics, all 688 site unit tests, the thirty-eight-page production build, and all 1,203 local references pass."
+              - command: "Initial full staged Chromium suite with the run-specific node_modules cache mounted read-only"
+                status: failed
+                notes: "One isolated chapter-locale fixture could not refresh its copied Vite cache under the read-only mount; 176 tests passed, one did not run, and no product assertion failed. The failed output is retained under visual-review and the staged product files were unchanged."
+              - command: "Full staged Chromium suite with the same run-specific dependency cache writable"
+                status: passed
+                notes: "All 178 browser tests pass, including every chapter, locale projection, SEO page type, static no-JavaScript route, forced-color/RTL case, and all sixty-six formula cases."
+              - command: "Eighteen-file staged manifest audit and final Chromium/Firefox desktop/narrow diagram review"
+                status: passed
+                notes: "Every manifest checksum matches the isolated publish tree. Four final captures show natural-height containment, local horizontal scrolling rather than page overflow, readable formula spacing, non-color Q/K/V cues, Rust-authored evidence, and no browser-side attention arithmetic."
+              - command: "Verified temporary-sibling publication and canonical manifest identity"
+                status: passed
+                notes: "Exactly eighteen declared product files were copied through hash-checked temporary siblings; every canonical SHA-256 equals publication-manifest.sha256 and no unrelated path was published."
+              - command: "Fresh canonical Rust, content, type, unit, static-build, and link regression"
+                status: passed
+                notes: "The canonical tree repeats formatting, clippy, all workspace/documentation tests, dependency policy, twenty-six demo discovery, exact report/trace, course plan, contract, content/parity, Astro diagnostics, all 688 unit tests, the thirty-eight-page build, and all 1,203 local references successfully."
+              - command: "Fresh canonical focused and aggregate browser regressions in Chromium and Firefox plus full Chromium suite"
+                status: passed
+                notes: "Five focused Chapter 26 tests pass in each engine, sixty-six formula cases pass in each engine, and all 178 full Chromium tests pass from the canonical build with a writable run-specific dependency cache for the isolated locale fixture."
+              - command: "Canonical validation-log checksum and final artifact/ownership/Git-scope audit"
+                status: passed
+                notes: "Seven archived logs match canonical-validation.sha256; all sixteen recorded artifacts and eighteen publication files match their hashes; the twenty in-scope paths are exactly eighteen declared product files plus state and decisions; no protected build/process file, deletion, staged pre-existing change, control character, or whitespace error exists; .build evidence and desktop.ini remain outside the commit."
+              - command: "Exact Chapter 26 Docker resource and preview-port cleanup"
+                status: passed
+                notes: "All named Chapter 26 containers, volumes, and the run-specific network were removed; preview port 4326 is closed; and no temporary .ch26-publish sibling remains."
+            notes: "Succeeded. Chapter 26 delivers dependency-free rank-three bias-free Q/K/V projections, a deterministic Rust report and trace, source-backed neural-attention history, a strict static non-arithmetic parser, an accessible responsive diagram, an English lesson with SEO, and aggregate formula coverage. All staged and fresh canonical Rust, site, and browser regressions pass; no package dependency, build definition, Linux workflow, hosting, deployment, or deferred Russian placeholder changed."
       - id: implement-ch27-self-attention
         objective: "Compute one unmasked attention head and explain every score, probability, and weighted value."
         depends_on:

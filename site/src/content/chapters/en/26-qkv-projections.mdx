@@ -1,0 +1,429 @@
+---
+{
+  "chapter_id": "26-qkv-projections",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 26,
+  "concept_id": "qkv-projections",
+  "title": "Create query, key, and value views",
+  "description": "Learn how Transformer self-attention creates query, key, and value tensors from one hidden-state sequence with bias-free Rust projections and explicit shapes.",
+  "objective": "Project one hidden-state sequence into separate query, key, and value tensors while preserving its batch and token axes.",
+  "worked_inputs": "Start with one batch containing two hidden states, $X=[[[1,2,-1],[0,1,2]]]$, and three distinct $[3,2]$ weight matrices. Predict the three $[1,2,2]$ outputs before running the fixture.",
+  "formula": {
+    "latex": "Q=XW_Q,\\quad K=XW_K,\\quad V=XW_V",
+    "symbols": [
+      { "symbol": "X", "meaning": "the hidden-state tensor with one feature vector at every batch and token position" },
+      { "symbol": "W_Q", "meaning": "the learned query weight that maps model features into one query subspace" },
+      { "symbol": "W_K", "meaning": "the learned key weight that maps model features into one key subspace" },
+      { "symbol": "W_V", "meaning": "the learned value weight that maps model features into one value subspace" },
+      { "symbol": "Q", "meaning": "the query tensor used later to ask what each token position should retrieve" },
+      { "symbol": "K", "meaning": "the key tensor used later to describe how each token position can be matched" },
+      { "symbol": "V", "meaning": "the value tensor carrying the content that later attention weights will mix" }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "Additive encoder-decoder attention learns compatibility between a decoder state and encoder annotations, relieving a fixed-context bottleneck but retaining two distinct source streams rather than forming three views of one sequence.",
+      "later_advance": "The Transformer formalizes attention with queries, keys, and values; self-attention obtains all three from the same sequence and applies separate learned projections before compatibility scores and value mixing.",
+      "modern_llm_role": "A decoder-only Transformer projects every normalized token state into separate query, key, and value feature spaces before computing causal self-attention.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2014,
+          "name": "Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate",
+          "source_url": "https://arxiv.org/abs/1409.0473",
+          "claim": "Bahdanau, Cho, and Bengio compute each translation context as a weighted sum of encoder annotations, with alignment scores produced from the previous decoder state and each annotation."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Vaswani et al., Attention Is All You Need",
+          "source_url": "https://arxiv.org/abs/1706.03762",
+          "claim": "Vaswani et al. define attention over queries and key-value pairs, linearly project queries, keys, and values, and describe self-attention as relating positions within one sequence."
+        }
+      ]
+    },
+    "approach": "From decoder-to-encoder content alignment to three learned views of one sequence for Transformer self-attention",
+    "summary": "Additive attention showed that learned compatibility can retrieve source context for a decoder state. Self-attention makes the source shared and separates lookup, matching, and carried content into query, key, and value projections. This chapter implements only those projections; scores and mixtures remain Chapter 27.",
+    "rust_source": "rust/demos/ch26-qkv-projections/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch26-qkv-projections/src/lib.rs",
+      "region": "historical-attention-source-contrast",
+      "purpose": "Record the two-stream additive-attention source layout and one-stream self-attention source layout without computing attention scores."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/attention/qkv.rs",
+      "region": "qkv-layer",
+      "purpose": "Compose three independent bias-free last-axis projections behind one exact rank-three API."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/attention/qkv.rs",
+      "region": "qkv-errors",
+      "purpose": "Expose typed branch, shape, dimension, and initialization failures."
+    },
+    {
+      "path": "rust/demos/ch26-qkv-projections/src/lib.rs",
+      "region": "qkv-fixture",
+      "purpose": "Build exact forward, reverse, shape, initialization, independence, error, gradient-check, and replay evidence."
+    },
+    {
+      "path": "rust/demos/ch26-qkv-projections/src/lib.rs",
+      "region": "learner-qkv-report",
+      "purpose": "Render the deterministic learner report from Rust-owned evidence."
+    },
+    {
+      "path": "rust/demos/ch26-qkv-projections/src/main.rs",
+      "purpose": "Print the frozen Chapter 26 learner report."
+    },
+    {
+      "path": "rust/demos/ch26-qkv-projections/src/diagram_trace.rs",
+      "region": "qkv-trace",
+      "purpose": "Emit the strict locale-neutral seventeen-line trace consumed by the static visualization."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "qkv-projections",
+    "rationale": "A three-way split makes it easier to see that one hidden-state sequence keeps the same batch and token coordinates while three independent weights create different query, key, and value features."
+  },
+  "decoder_connection": "The cumulative decoder now converts each normalized hidden-state sequence into one query tensor, one key tensor, and one value tensor. Chapter 27 will compare queries with keys and use the resulting weights to mix values."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import QkvProjectionsDiagram from '../../../components/chapters/QkvProjectionsDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Split one hidden sequence into three learned views',
+  description:
+    'Follow exact Rust-authored input, weight, output, gradient, history, empty-shape, and rejected-boundary evidence without performing attention arithmetic in the page.',
+  sections: {
+    projections: 'Preserve positions while changing feature space',
+    history: 'Change from two attention sources to one',
+    evidence: 'Check independence, gradients, and boundaries',
+  },
+  stages: {
+    input: 'Shared hidden-state input',
+    query: 'Query projection',
+    key: 'Key projection',
+    value: 'Value projection',
+  },
+  fields: {
+    shape: 'Shape',
+    weight: 'Projection weight',
+    parameter: 'Stable parameter',
+    output: 'Projected output',
+    biasPolicy: 'Bias policy',
+    inputGradient: 'Combined input gradient',
+    weightGradient: 'Branch-local weight gradients',
+    independence: 'Change only the query weight',
+    emptyBatch: 'Empty batch axis',
+    emptyTokens: 'Empty token axis',
+    errors: 'Rejected boundaries',
+    proof: 'Rust-authored proof',
+    earlierAttention: 'Additive encoder-decoder attention',
+    selfAttention: 'Transformer self-attention',
+    decoderState: 'Previous decoder state',
+    encoderAnnotations: 'Encoder annotations',
+    oneSequence: 'One previous-layer sequence',
+  },
+  roles: {
+    query: 'Query: what should this position retrieve?',
+    key: 'Key: how can this position be matched?',
+    value: 'Value: what content can this position contribute?',
+  },
+  cues: {
+    shared: 'Shared input border',
+    query: 'Solid query border',
+    key: 'Dashed key border',
+    value: 'Double value border',
+    accepted: 'Verified',
+    rejected: 'Rejected',
+  },
+  captions: {
+    projections: 'The three branches share coordinates, not weights or feature values.',
+    history: 'Query, key, and value are a retrospective description of the earlier two-stream mechanism.',
+    evidence: 'Exact values come from the checked Rust fixture; the page only validates and presents them.',
+  },
+  scrollers: {
+    branches: 'Scrollable query, key, and value branches',
+    history: 'Scrollable attention source comparison',
+    gradients: 'Scrollable query, key, and value gradient table',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict three outputs from one sequence
+
+Start with one batch containing two token states:
+
+$$
+X=\begin{bmatrix}1&2&-1\\0&1&2\end{bmatrix},\qquad
+X\in\mathbb{R}^{1\times2\times3}.
+$$
+
+Use three distinct weights:
+
+$$
+W_Q=\begin{bmatrix}1&0\\0&1\\1&-1\end{bmatrix}.
+$$
+
+$$
+W_K=\begin{bmatrix}0&1\\1&0\\-1&1\end{bmatrix}.
+$$
+
+$$
+W_V=\begin{bmatrix}1&1\\1&-1\\0&2\end{bmatrix}.
+$$
+
+Before running the example, multiply the first token by each weight. The
+expected vectors are $q_0=[0,3]$, $k_0=[3,0]$, and $v_0=[3,-3]$. The second
+token should produce $q_1=[2,-1]$, $k_1=[-1,2]$, and $v_1=[1,3]$.
+
+The three answers differ because the weights differ. Their batch and token
+coordinates remain aligned.
+
+{/* chapter-section:formula */}
+
+## Project the final feature axis three ways
+
+The complete forward rule is
+
+$$
+Q=XW_Q,\quad K=XW_K,\quad V=XW_V
+$$
+
+Its shape contract is
+
+$$
+X\in\mathbb{R}^{B\times T\times d_{model}}.
+$$
+
+$$
+W_Q,W_K,W_V\in\mathbb{R}^{d_{model}\times d_{head}}.
+$$
+
+$$
+Q,K,V\in\mathbb{R}^{B\times T\times d_{head}}.
+$$
+
+Every branch applies the same last-axis matrix operation independently at each
+batch item and token position. It does not compare tokens. In particular, these
+three projections alone produce no similarity scores, probabilities, causal
+mask, or weighted value mixture.
+
+For the frozen fixture, the complete result is
+
+$$
+Q=\begin{bmatrix}0&3\\2&-1\end{bmatrix},\quad
+K=\begin{bmatrix}3&0\\-1&2\end{bmatrix},\quad
+V=\begin{bmatrix}3&-3\\1&3\end{bmatrix}.
+$$
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep roles, axes, and dimensions separate
+
+- $X$ is the hidden-state tensor entering self-attention.
+- $B$ is the batch size and $T$ is the number of token positions.
+- $d_{model}$ is the input feature width.
+- $d_{head}$ is the output width for this one-head chapter.
+- $W_Q$, $W_K$, and $W_V$ are independent learned weights.
+- $Q$ is the query view: it will ask what each position should retrieve.
+- $K$ is the key view: it will describe how each position can be matched.
+- $V$ is the value view: it carries the content that a later mixture can retrieve.
+
+The names do not perform attention by themselves. Also, this chapter does not
+require $d_{model}$ to be divisible by $d_{head}$. That constraint appears only
+when Chapter 30 splits and merges multiple heads.
+
+{/* chapter-section:history */}
+
+## From learned alignment to self-attention projections
+
+This history follows neural attention on the road to modern LLMs, not the
+history of any programming language.
+
+Earlier recurrent encoder-decoder models compressed the source into one fixed
+vector. [Bahdanau, Cho, and Bengio, *Neural Machine Translation by Jointly Learning to Align and Translate*](https://arxiv.org/abs/1409.0473)
+replace that bottleneck with differentiable alignment. At target step $i$, the
+previous decoder state $s_{i-1}$ and each encoder annotation $h_j$ enter a
+learned compatibility function, and the resulting weights mix annotations into
+a context vector.
+
+Additive encoder-decoder attention learns compatibility between a decoder state
+and encoder annotations, relieving a fixed-context bottleneck but retaining two
+distinct source streams rather than forming three views of one sequence.
+
+Bahdanau, Cho, and Bengio compute each translation context as a weighted sum of
+encoder annotations, with alignment scores produced from the previous decoder
+state and each annotation.
+
+It is useful to call the decoder state query-like and an annotation
+key/value-like, but this is a retrospective bridge. Bahdanau and colleagues do
+not use this chapter's query, key, and value terminology, three projection
+matrices, equal head widths, or bias policy.
+
+[Vaswani et al., *Attention Is All You Need*](https://arxiv.org/abs/1706.03762)
+describe attention as mapping a query and key-value pairs to an output. They
+apply distinct learned linear projections to queries, keys, and values. In
+self-attention, all three inputs come from the same previous-layer sequence.
+
+The Transformer formalizes attention with queries, keys, and values;
+self-attention obtains all three from the same sequence and applies separate
+learned projections before compatibility scores and value mixing.
+
+Vaswani et al. define attention over queries and key-value pairs, linearly
+project queries, keys, and values, and describe self-attention as relating
+positions within one sequence.
+
+Modern decoder-only LLMs use that same-sequence projection pattern before
+causal attention. The bias-free rule, exact $[d_{model},d_{head}]$ orientation,
+stable names, equal widths, fixture, and errors here are course choices rather
+than requirements claimed by either paper.
+
+A decoder-only Transformer projects every normalized token state into separate
+query, key, and value feature spaces before computing causal self-attention.
+
+The executable contrast records only the source-layout transition:
+
+<RustSource
+  path="rust/demos/ch26-qkv-projections/src/lib.rs"
+  region="historical-attention-source-contrast"
+  caption="Contrast two attention source streams with one sequence projected three ways"
+  label="Rust source for the Chapter 26 LLM-centered attention history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Compose three existing differentiable linear layers
+
+`QkvProjections` owns three bias-free `Linear` layers. Construction initializes
+query, key, and value weights in that stable order using one trial generator,
+then commits the generator only after the complete layer is valid. Manual
+construction checks each branch, shared dimensions, and unique names before
+publishing the result:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/attention/qkv.rs"
+  region="qkv-layer"
+  caption="Project one rank-three hidden sequence into independent query, key, and value tensors"
+  label="Rust source implementing the cumulative Chapter 26 Q K V projection layer"
+/>
+
+The wrapper requires exactly rank-three input so the batch and token axes remain
+explicit. Typed failures preserve rank-before-width and query-before-key-before-value
+precedence:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/attention/qkv.rs"
+  region="qkv-errors"
+  caption="Keep branch and shape failures explicit"
+  label="Rust source defining Chapter 26 Q K V projection errors"
+/>
+
+The reverse fixture forms one scalar objective,
+
+$$
+L=\langle Q,U_Q\rangle+\langle K,U_K\rangle+\langle V,U_V\rangle.
+$$
+
+All three paths accumulate into
+
+$$
+\bar X=\begin{bmatrix}3&1.5&1.5\\-1.5&3.5&-5\end{bmatrix},
+$$
+
+while each branch keeps its own weight gradient. Central differences check all
+six coordinates of $X$, $W_Q$, $W_K$, and $W_V$ with step $10^{-6}$ and
+tolerance $2\times10^{-6}$. Empty batch and token axes remain connected to the
+gradient tape, and two runs replay by exact floating-point bit pattern:
+
+<RustSource
+  path="rust/demos/ch26-qkv-projections/src/lib.rs"
+  region="qkv-fixture"
+  caption="Build exact forward, reverse, shape, error, initialization, and gradient evidence"
+  label="Rust source for the complete Chapter 26 learner fixture"
+/>
+
+The learner report is rendered from that evidence:
+
+<RustSource
+  path="rust/demos/ch26-qkv-projections/src/lib.rs"
+  region="learner-qkv-report"
+  caption="Render the deterministic Q K V projection report"
+  label="Rust source rendering the Chapter 26 expected output"
+/>
+
+<RustSource
+  path="rust/demos/ch26-qkv-projections/src/main.rs"
+  caption="Print the frozen learner report"
+  label="Rust entry point for the Chapter 26 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch26-qkv-projections`. Its stdout is frozen
+in `rust/demos/ch26-qkv-projections/expected.txt`, including the final newline.
+
+{/* chapter-section:visualization */}
+
+## Inspect the split without browser-side tensor arithmetic
+
+The Rust trace contains the shared input, ordered branches, exact outputs,
+combined reverse path, weight gradients, independence proof, empty shapes,
+rejected boundaries, historical source layout, and replay evidence:
+
+<RustSource
+  path="rust/demos/ch26-qkv-projections/src/diagram_trace.rs"
+  region="qkv-trace"
+  caption="Emit the strict seventeen-line Q K V projection trace"
+  label="Rust source producing the Chapter 26 static diagram trace"
+/>
+
+<QkvProjectionsDiagram labels={diagramLabels} />
+
+The page validates the exact trace and projects its strings into semantic static
+HTML. It does not multiply matrices, differentiate tensors, compare queries
+with keys, or make an attention decision. Solid, dashed, and double borders
+distinguish query, key, and value without relying on color. Dense branch,
+history, and gradient rows own keyboard-focusable local scrollers.
+
+{/* chapter-section:exercises */}
+
+## Predict before reading the evidence
+
+1. Predict all three output shapes for input $[4,7,3]$ when $d_{head}=2$.
+2. Compute $q_0$, $k_0$, and $v_0$ for the first frozen token.
+3. Decide whether changing only $W_Q$ can change $K$ or $V$.
+4. Count the trainable scalars in three bias-free $[3,2]$ weights.
+5. Predict the three outputs' shapes for inputs $[0,2,3]$ and $[2,0,3]$.
+6. Explain why rank-two $[T,d_{model}]$ input is rejected by this wrapper.
+7. Decide whether $d_{model}$ must be divisible by $d_{head}$ here.
+8. Identify which historical mechanism uses two source streams and which uses one.
+9. State which computation is still missing before these tensors form an attention output.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. Each output has shape $[4,7,2]$.
+  2. The vectors are $[0,3]$, $[3,0]$, and $[3,-3]$.
+  3. No. Independent weights make the unchanged key and value outputs replay bitwise.
+  4. The count is $3\times3\times2=18$.
+  5. The outputs have shapes $[0,2,2]$ and $[2,0,2]$ for every branch.
+  6. The API keeps both batch and token axes explicit, so it requires rank three.
+  7. No. Divisibility belongs to later multi-head splitting.
+  8. Additive encoder-decoder attention uses decoder and encoder streams; self-attention projects one sequence three ways.
+  9. Chapter 27 must compute query-key scores, probabilities, and a weighted value mixture.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Compare queries with keys and mix values next
+
+The cumulative decoder now accepts a normalized hidden sequence with shape
+$[B,T,d_{model}]$ and emits separate $Q$, $K$, and $V$ tensors with shape
+$[B,T,d_{head}]$. Chapter 27 will turn those prepared feature views into one
+unmasked attention head by computing scores, probabilities, and a value mixture.

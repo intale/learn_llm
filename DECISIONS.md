@@ -4992,3 +4992,56 @@ scope, and external-action rules.
 
 **Affected step and run:** `remove-cost-approval-gate`, run
 `20260724T122807Z-remove-cost-approval-gate-01`.
+
+## 2026-07-24 - Define the Chapter 26 Q/K/V projection boundary
+
+**Status:** Accepted during Chapter 26 preflight.
+
+**Context:** Chapter 26 must turn one normalized hidden-state sequence into the
+three learned views consumed by self-attention, without teaching similarity,
+softmax, masking, positions, or multiple heads early. The scheduled step omits
+the cumulative `Linear` and autodiff inputs that determine projection behavior,
+as well as the established strict Rust-trace parser and aggregate formula
+regressions. Its history must explain attention's model evolution rather than a
+programming-language or matrix-library progression.
+
+**Decision:** Compose three independent bias-free `Linear` layers behind one
+`QkvProjections` API. Accept exactly rank-three hidden states with shape
+$[B,T,d_{model}]$, preserve $B$ and $T$, and map the final axis to one explicit
+$d_{head}$ for each of $Q$, $K$, and $V$. Require nonzero model/head widths,
+consistent branch dimensions, unique stable parameter names in query-key-value
+order, transactional seeded initialization, and typed rank/width/branch errors.
+Do not require $d_{model}$ to be divisible by $d_{head}$ here; Chapter 30 owns
+multi-head split/merge constraints. Freeze a two-token, three-feature, two-output
+fixture whose three weight matrices produce visibly different outputs, plus
+combined input/weight gradients, independent-branch checks, empty-token/batch
+shape checks, deterministic replay, and numerical gradient checks.
+
+Use Bahdanau, Cho, and Bengio only for the earlier encoder-decoder alignment
+claim: the decoder state and encoder annotations are distinct inputs to the
+learned compatibility calculation. Describe query/key/value as a retrospective
+conceptual mapping, not terminology attributed to that paper. Use Vaswani et al.
+for attention as query-to-key/value mapping, self-attention over one sequence,
+and learned query/key/value projections. Bias omission, exact parameter names,
+weight orientation, error precedence, fixture values, and trace grammar remain
+course-local policies rather than paper claims.
+
+Rust emits both the deterministic learner report and a strict locale-neutral
+diagram trace. Add `site/src/lib/qkv-projections-diagram.ts` to validate and
+project that trace without performing matrix multiplication, gradient, score,
+or attention arithmetic. Render the useful diagram as semantic static HTML/CSS
+with server-rendered math, localized labels, non-color branch cues, logical
+layout, narrow-width scrollers, forced-color support, and no client script.
+Extend both aggregate formula suites through Chapter 26 and validate focused
+geometry in Chromium and Firefox. Use the cached immutable Node and Playwright
+images and two bounded read-only primary-paper inputs.
+
+**Consequences:** Chapter 26 remains one dependency-free English vertical slice
+and publishes no Russian placeholder. Chapter 27 can consume the three projected
+tensors to compute query-key similarities and weighted value mixtures. No
+package dependency, build definition, Linux workflow, locale policy, social
+preview, hosting configuration, or deployment action changes; the existing
+site's basic description-only SEO contract remains in force.
+
+**Affected step and run:** `implement-ch26-qkv-projections`, run
+`20260724T124154Z-implement-ch26-qkv-projections-01`.
