@@ -1,0 +1,27 @@
+chapter=28-causal-masking
+prediction=each query keeps its diagonal and earlier keys, while future keys receive zero probability
+config=batch:1 tokens:3 d_k:2 d_v:2 scale:0.707107 mask:lower-triangular-inclusive
+query=shape:[1,3,2] values:[0.000000,3.000000,2.000000,-1.000000,1.000000,1.000000]
+key=shape:[1,3,2] values:[3.000000,0.000000,-1.000000,2.000000,2.000000,1.000000]
+value=shape:[1,3,2] values:[3.000000,-3.000000,1.000000,3.000000,-2.000000,4.000000]
+mask=shape:[3,3] values:[0.000000,-inf,-inf,0.000000,0.000000,-inf,0.000000,0.000000,0.000000]
+raw_scores=shape:[1,3,3] values:[0.000000,6.000000,3.000000,6.000000,-4.000000,3.000000,3.000000,1.000000,3.000000]
+scaled_scores=shape:[1,3,3] values:[0.000000,4.242641,2.121320,4.242641,-2.828427,2.121320,2.121320,0.707107,2.121320]
+probabilities=shape:[1,3,3] values:[1.000000,0.000000,0.000000,0.999151,0.000849,0.000000,0.445808,0.108383,0.445808]
+row_sums=[1.000000,1.000000,1.000000]
+output=shape:[1,3,2] values:[3.000000,-3.000000,2.998303,-2.994908,0.554192,0.770959]
+suffix_perturbation=key:[2.000000,1.000000]->[-2.000000,4.000000] value:[-2.000000,4.000000]->[5.000000,-1.000000]
+perturbed_output=[3.000000,-3.000000,2.998303,-2.994908,3.287932,-1.591834]
+prefix_invariance=position_0:true position_1:true position_2_changed:true
+upstream=[1.000000,-0.500000,0.250000,2.000000,-1.000000,0.750000] loss=-0.716214
+query_gradient=[0.000000,0.000000,-0.027579,0.013790,-1.944424,1.756510]
+key_gradient=[-1.676343,-1.655658,0.107746,0.087062,1.568596,1.568596]
+value_gradient=[0.803980,1.832659,-0.108171,0.082985,-0.445808,0.334356]
+prefix_seed=[1.000000,-1.000000,0.500000,2.000000,0.000000,0.000000] suffix_gradient_zero=true
+single_token=probabilities:[1.000000] output:[5.000000,-2.000000] query_gradient_zero:true key_gradient_zero:true
+empty_batch=probabilities:[0,3,3] output:[0,3,2] valid:true
+errors=empty_tokens:true softmax_rank:true softmax_shape:true query_rank:true token_mismatch:true released_score:true
+gradcheck=query_checks:6 key_checks:6 value_checks:6 tolerance:0.000004 passed:true
+history=earlier:recurrent-autoregressive-state visibility:available-prefix transformer:parallel-known-targets decoder_rule:no-subsequent-positions generation:sequential
+proof=tape_finite:true future_probabilities:exact-zero prefix_outputs:bitwise replay:bitwise
+next=add relative position information without changing the causal boundary

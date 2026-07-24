@@ -140,6 +140,16 @@ fn autodiff_error(
 // endregion:self-attention-errors
 
 // region:self-attention-forward
+/// Shared, validated score preparation for unmasked and causally masked heads.
+#[derive(Clone, Debug)]
+pub(crate) struct ScaledSelfAttentionScores {
+    pub(crate) raw_scores: TensorValue,
+    pub(crate) scaled_scores: TensorValue,
+    pub(crate) scale: f64,
+    pub(crate) key_width: usize,
+    pub(crate) value_width: usize,
+}
+
 /// Inspectable evidence from one unmasked attention head.
 #[derive(Clone, Debug)]
 pub struct SelfAttentionForward {
@@ -219,6 +229,34 @@ pub fn scaled_dot_product_self_attention(
     key: &TensorValue,
     value: &TensorValue,
 ) -> Result<SelfAttentionForward, SelfAttentionError> {
+    let prepared = scaled_self_attention_scores(query, key, value)?;
+    let log_weights = prepared
+        .scaled_scores
+        .log_softmax(2)
+        .map_err(autodiff_error(SelfAttentionStage::LogSoftmax))?;
+    let weights = log_weights
+        .exp()
+        .map_err(autodiff_error(SelfAttentionStage::Probabilities))?;
+    let output = weights
+        .matmul(value)
+        .map_err(autodiff_error(SelfAttentionStage::ValueMixture))?;
+
+    Ok(SelfAttentionForward {
+        raw_scores: prepared.raw_scores,
+        scaled_scores: prepared.scaled_scores,
+        weights,
+        output,
+        scale: prepared.scale,
+        key_width: prepared.key_width,
+        value_width: prepared.value_width,
+    })
+}
+
+pub(crate) fn scaled_self_attention_scores(
+    query: &TensorValue,
+    key: &TensorValue,
+    value: &TensorValue,
+) -> Result<ScaledSelfAttentionScores, SelfAttentionError> {
     let query_shape = query.shape();
     let key_shape = key.shape();
     let value_shape = value.shape();
@@ -293,21 +331,9 @@ pub fn scaled_dot_product_self_attention(
     let scaled_scores = raw_scores
         .mul(&scale_value)
         .map_err(autodiff_error(SelfAttentionStage::ScaledScores))?;
-    let log_weights = scaled_scores
-        .log_softmax(2)
-        .map_err(autodiff_error(SelfAttentionStage::LogSoftmax))?;
-    let weights = log_weights
-        .exp()
-        .map_err(autodiff_error(SelfAttentionStage::Probabilities))?;
-    let output = weights
-        .matmul(value)
-        .map_err(autodiff_error(SelfAttentionStage::ValueMixture))?;
-
-    Ok(SelfAttentionForward {
+    Ok(ScaledSelfAttentionScores {
         raw_scores,
         scaled_scores,
-        weights,
-        output,
         scale,
         key_width: query_shape[2],
         value_width: value_shape[2],

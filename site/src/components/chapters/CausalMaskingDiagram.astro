@@ -1,0 +1,727 @@
+---
+import traceSource from '../../../../rust/demos/ch28-causal-masking/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseCausalMaskingTrace,
+  validateCausalMaskingLabels,
+  type CausalInputRole,
+  type CausalMaskingDiagramLabels,
+  type CausalTraceVector,
+} from '../../lib/causal-masking-diagram';
+
+interface Props {
+  labels: CausalMaskingDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateCausalMaskingLabels(labels);
+const trace = parseCausalMaskingTrace(traceSource);
+const titleId = 'causal-masking-diagram-title';
+const descriptionId = 'causal-masking-diagram-description';
+const roleLabels: Record<CausalInputRole, string> = labels.roles;
+const inputRows = (vector: CausalTraceVector) => [
+  vector.values.slice(0, 2),
+  vector.values.slice(2, 4),
+  vector.values.slice(4, 6),
+];
+const matrixRows = (vector: CausalTraceVector) => [
+  vector.values.slice(0, 3),
+  vector.values.slice(3, 6),
+  vector.values.slice(6, 9),
+];
+const perturbedRows = [
+  trace.perturbedOutput.values.values.slice(0, 2),
+  trace.perturbedOutput.values.values.slice(2, 4),
+  trace.perturbedOutput.values.values.slice(4, 6),
+];
+const mathValue = (value: string) => value === '-inf' ? '-\\infty' : value;
+const verified = (value: string) => value === 'true' ? labels.cues.verified : labels.cues.rejected;
+const errorEvidence = (kind: string, evidence: string) =>
+  evidence === '' ? kind : `${kind} · ${evidence}`;
+const prefixStatus = [
+  trace.prefix.position_0,
+  trace.prefix.position_1,
+  trace.prefix.position_2,
+];
+const errorLabels: Record<string, string> = {
+  'attention-empty-tokens': labels.errorCases.attentionEmpty,
+  'softmax-rank': labels.errorCases.softmaxRank,
+  'softmax-shape': labels.errorCases.softmaxShape,
+  'query-rank': labels.errorCases.queryRank,
+  'token-mismatch': labels.errorCases.tokenMismatch,
+  'released-score': labels.errorCases.releasedScore,
+};
+---
+
+<figure
+  class="causal-masking-diagram"
+  data-visualization-id="causal-masking"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption>
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.captions.calculation}>
+      <li class="allowed-cue">{labels.cues.allowed}</li>
+      <li class="blocked-cue">{labels.cues.blocked}</li>
+      <li class="diagonal-cue">{labels.cues.diagonal}</li>
+      <li class="unchanged-cue">{labels.cues.unchanged}</li>
+      <li class="changed-cue">{labels.cues.changed}</li>
+    </ul>
+  </figcaption>
+
+  <section class="diagram-section calculation-section" aria-labelledby="causal-calculation-title">
+    <h4 id="causal-calculation-title">{labels.sections.calculation}</h4>
+    <p class="section-caption">{labels.captions.calculation}</p>
+
+    <h5>{labels.stages.inputs}</h5>
+    <div
+      class="inputs-scroller"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.inputs}
+    >
+      <ol class="input-grid">
+        {trace.inputs.map((input) => (
+          <li>
+            <article class:list={['input-card', input.role + '-card']} data-input-role={input.role}>
+              <h6>{roleLabels[input.role]}</h6>
+              <p class="formula-line"><InlineMath latex={input.symbol} /></p>
+              <table class="matrix-table input-table">
+                <tbody>
+                  {inputRows(input.values).map((row, rowIndex) => (
+                    <tr>
+                      <th scope="row"><InlineMath latex={input.symbol.toLowerCase() + '_' + rowIndex} /></th>
+                      {row.map((value) => <td><InlineMath latex={value} /></td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p><span>{labels.fields.shape}:</span> <InlineMath latex={input.shape} /></p>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <p class="formula-block">
+      <InlineMath latex="M_{ij}=\begin{cases}0&j\le i\\-\infty&j>i\end{cases}" />
+    </p>
+
+    <div
+      class="triangles-scroller"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.triangles}
+    >
+      <div class="triangle-grid">
+        <article class="triangle-card mask-card" data-causal-stage="mask">
+          <h5>{labels.stages.mask}</h5>
+          <p class="formula-line"><InlineMath latex="M" /></p>
+          <table class="matrix-table causal-table">
+            <caption>{labels.fields.queryByKey} · {labels.fields.maskValue}</caption>
+            <thead>
+              <tr>
+                <th scope="col"><InlineMath latex="q_i\backslash k_j" /></th>
+                {[0, 1, 2].map((key) => <th scope="col"><InlineMath latex={'k_' + key} /></th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {matrixRows(trace.mask.values).map((row, rowIndex) => (
+                <tr>
+                  <th scope="row"><InlineMath latex={'q_' + rowIndex} /></th>
+                  {row.map((value, columnIndex) => {
+                    const visibility = trace.rows[rowIndex].visibility[columnIndex];
+                    const diagonal = rowIndex === columnIndex;
+                    return (
+                      <td
+                        class:list={[visibility, { diagonal }]}
+                        data-query={String(rowIndex)}
+                        data-key={String(columnIndex)}
+                        data-visibility={visibility}
+                        data-diagonal={String(diagonal)}
+                      >
+                        <InlineMath latex={mathValue(value)} />
+                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+
+        <article class="triangle-card masked-card" data-causal-stage="masked-scores">
+          <h5>{labels.stages.maskedScores}</h5>
+          <p class="formula-line"><InlineMath latex="S+M" /></p>
+          <table class="matrix-table causal-table">
+            <caption>{labels.fields.visibility}</caption>
+            <thead>
+              <tr>
+                <th scope="col"><InlineMath latex="q_i\backslash k_j" /></th>
+                {[0, 1, 2].map((key) => <th scope="col"><InlineMath latex={'k_' + key} /></th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {trace.rows.map((row, rowIndex) => (
+                <tr>
+                  <th scope="row"><InlineMath latex={'q_' + rowIndex} /></th>
+                  {row.maskedScores.values.map((value, columnIndex) => {
+                    const visibility = row.visibility[columnIndex];
+                    const diagonal = rowIndex === columnIndex;
+                    return (
+                      <td
+                        class:list={[visibility, { diagonal }]}
+                        data-query={String(rowIndex)}
+                        data-key={String(columnIndex)}
+                        data-visibility={visibility}
+                        data-diagonal={String(diagonal)}
+                      >
+                        <InlineMath latex={mathValue(value)} />
+                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </article>
+
+        <article class="triangle-card probability-card" data-causal-stage="probabilities">
+          <h5>{labels.stages.probabilities}</h5>
+          <p class="formula-line"><InlineMath latex="A=\operatorname{softmax}(S+M)" /></p>
+          <table class="matrix-table causal-table">
+            <caption>{labels.fields.rowSum}</caption>
+            <thead>
+              <tr>
+                <th scope="col"><InlineMath latex="q_i\backslash k_j" /></th>
+                {[0, 1, 2].map((key) => <th scope="col"><InlineMath latex={'k_' + key} /></th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {trace.rows.map((row, rowIndex) => (
+                <tr>
+                  <th scope="row"><InlineMath latex={'q_' + rowIndex} /></th>
+                  {row.probabilities.values.map((value, columnIndex) => {
+                    const visibility = row.visibility[columnIndex];
+                    const diagonal = rowIndex === columnIndex;
+                    return (
+                      <td
+                        class:list={[visibility, { diagonal }]}
+                        data-query={String(rowIndex)}
+                        data-key={String(columnIndex)}
+                        data-visibility={visibility}
+                        data-diagonal={String(diagonal)}
+                      >
+                        <InlineMath latex={value} />
+                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <ul class="row-sums">
+            {trace.rows.map((row) => (
+              <li><InlineMath latex={'q_' + row.query} />: <InlineMath latex={row.sum} /></li>
+            ))}
+          </ul>
+        </article>
+      </div>
+    </div>
+
+    <h5>{labels.stages.outputs}</h5>
+    <div class="output-scroller" tabindex="0" role="region" aria-label={labels.scrollers.outputs}>
+      <table class="evidence-table output-table">
+        <thead>
+          <tr>
+            <th scope="col"><InlineMath latex="q_i" /></th>
+            <th scope="col">{labels.fields.weightedTerms}</th>
+            <th scope="col">{labels.fields.output}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.rows.map((row) => (
+            <tr>
+              <th scope="row"><InlineMath latex={'q_' + row.query} /></th>
+              <td class="terms-cell">{row.terms.map((term) => <InlineMath latex={term.latex} />)}</td>
+              <td><InlineMath latex={row.output.latex} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-section prefix-section" aria-labelledby="causal-prefix-title">
+    <h4 id="causal-prefix-title">{labels.sections.prefix}</h4>
+    <p class="section-caption">{labels.captions.prefix}</p>
+    <h5>{labels.stages.perturbation}</h5>
+    <div class="perturbation-grid">
+      <article class="compact-card">
+        <h6><InlineMath latex="k_2" /></h6>
+        <p><InlineMath latex={trace.perturbation.key_before} /> → <InlineMath latex={trace.perturbation.key_after} /></p>
+      </article>
+      <article class="compact-card">
+        <h6><InlineMath latex="v_2" /></h6>
+        <p><InlineMath latex={trace.perturbation.value_before} /> → <InlineMath latex={trace.perturbation.value_after} /></p>
+      </article>
+    </div>
+    <div class="prefix-scroller" tabindex="0" role="region" aria-label={labels.scrollers.prefix}>
+      <table class="evidence-table prefix-table">
+        <thead>
+          <tr>
+            <th scope="col"><InlineMath latex="i" /></th>
+            <th scope="col">{labels.fields.originalOutput}</th>
+            <th scope="col">{labels.fields.perturbedOutput}</th>
+            <th scope="col">{labels.fields.status}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.rows.map((row, index) => (
+            <tr data-prefix-position={String(index)} data-prefix-status={prefixStatus[index]}>
+              <th scope="row"><InlineMath latex={String(index)} /></th>
+              <td><InlineMath latex={row.output.latex} /></td>
+              <td><InlineMath latex={'[' + perturbedRows[index].join(',') + ']'} /></td>
+              <td>
+                <code><bdi dir="ltr">{prefixStatus[index]}</bdi></code>
+                <span class:list={['status-cue', prefixStatus[index] === 'changed' ? 'changed' : 'unchanged']}>
+                  {prefixStatus[index] === 'changed' ? labels.cues.changed : labels.cues.unchanged}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="diagram-section evidence-section" aria-labelledby="causal-evidence-title">
+    <h4 id="causal-evidence-title">{labels.sections.evidence}</h4>
+    <p class="section-caption">{labels.captions.evidence}</p>
+    <div class="gradients-scroller" tabindex="0" role="region" aria-label={labels.scrollers.gradients}>
+      <table class="evidence-table gradient-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.backward}</th>
+            <th scope="col"><InlineMath latex="\bar Q" /></th>
+            <th scope="col"><InlineMath latex="\bar K" /></th>
+            <th scope="col"><InlineMath latex="\bar V" /></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><InlineMath latex={trace.backward.seed.latex} /></th>
+            <td><InlineMath latex={trace.backward.queryGradient.latex} /></td>
+            <td><InlineMath latex={trace.backward.keyGradient.latex} /></td>
+            <td><InlineMath latex={trace.backward.valueGradient.latex} /></td>
+          </tr>
+          <tr data-evidence-kind="prefix-gradient">
+            <th scope="row">{labels.fields.prefixGradient}: <InlineMath latex={trace.prefixGradient.seed.latex} /></th>
+            <td><InlineMath latex={trace.prefixGradient.queryGradient.latex} /></td>
+            <td><InlineMath latex={trace.prefixGradient.keyGradient.latex} /></td>
+            <td><InlineMath latex={trace.prefixGradient.valueGradient.latex} /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="evidence-grid">
+      <article class="evidence-card" data-evidence-kind="prefix-zero">
+        <h5>{labels.fields.prefixGradient}</h5>
+        <p><code><bdi dir="ltr">suffix_zero={trace.prefixGradient.suffixZero}</bdi></code></p>
+        <strong>{verified(trace.prefixGradient.suffixZero)}</strong>
+      </article>
+      <article class="evidence-card" data-evidence-kind="single-token">
+        <h5>{labels.fields.singleToken}</h5>
+        <p><InlineMath latex={'A=' + trace.singleToken.probabilities} /></p>
+        <p><InlineMath latex={'O=' + trace.singleToken.output} /></p>
+      </article>
+      <article class="evidence-card" data-evidence-kind="empty-batch">
+        <h5>{labels.fields.emptyBatch}</h5>
+        <p><InlineMath latex={trace.emptyBatch.probability_shape} /> → <InlineMath latex={trace.emptyBatch.output_shape} /></p>
+        <strong>{verified(trace.emptyBatch.valid)}</strong>
+      </article>
+      <article class="evidence-card proof-card" data-evidence-kind="proof">
+        <h5>{labels.fields.proof}</h5>
+        <p><code><bdi dir="ltr">tape_finite={trace.proof.tape_finite}</bdi></code></p>
+        <p><code><bdi dir="ltr">future_probabilities={trace.proof.future_probabilities}</bdi></code></p>
+        <p><code><bdi dir="ltr">prefix_outputs={trace.proof.prefix_outputs}</bdi></code></p>
+      </article>
+    </div>
+
+    <h5>{labels.fields.errors}</h5>
+    <ul class="error-list">
+      {trace.errors.map((error) => (
+        <li>
+          <span>{errorLabels[error.case]}</span>
+          <code><bdi dir="ltr">{errorEvidence(error.kind, error.evidence)}</bdi></code>
+          <strong>{error.rejected === 'true' ? labels.cues.rejected : labels.cues.verified}</strong>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="diagram-section history-section" aria-labelledby="causal-history-title">
+    <h4 id="causal-history-title">{labels.sections.history}</h4>
+    <p class="section-caption">{labels.captions.history}</p>
+    <div class="history-scroller" tabindex="0" role="region" aria-label={labels.scrollers.history}>
+      <ol class="history-grid">
+        <li>
+          <article class="history-card earlier-card">
+            <h5>{labels.fields.earlier}</h5>
+            <code><bdi dir="ltr">{trace.history.earlier}</bdi></code>
+            <code><bdi dir="ltr">{trace.history.earlier_visibility}</bdi></code>
+          </article>
+        </li>
+        <li>
+          <article class="history-card transformer-card">
+            <h5>{labels.fields.transformer}</h5>
+            <code><bdi dir="ltr">{trace.history.transformer}</bdi></code>
+            <code><bdi dir="ltr">{trace.history.decoder_rule}</bdi></code>
+            <code><bdi dir="ltr">generation={trace.history.generation}</bdi></code>
+          </article>
+        </li>
+      </ol>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .causal-masking-diagram,
+  .causal-masking-diagram *,
+  .causal-masking-diagram *::before,
+  .causal-masking-diagram *::after {
+    box-sizing: border-box;
+  }
+
+  .causal-masking-diagram {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    margin: 1.75rem 0;
+    padding: clamp(0.8rem, 2vw, 1.25rem);
+    border: 2px solid var(--color-border, #62708c);
+    border-radius: 0.9rem;
+    background: var(--color-surface, #101726);
+    color: var(--color-text, #eef2ff);
+  }
+
+  .causal-masking-diagram:focus-visible,
+  [role='region']:focus-visible {
+    outline: 3px solid var(--color-accent, #7dd3fc);
+    outline-offset: 3px;
+  }
+
+  .diagram-description,
+  .section-caption {
+    max-inline-size: 76ch;
+  }
+
+  .diagram-section,
+  .input-card,
+  .triangle-card,
+  .compact-card,
+  .evidence-card,
+  .history-card {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  .diagram-section {
+    margin-block-start: 1.4rem;
+    padding-block-start: 1rem;
+    border-block-start: 1px solid var(--color-border, #62708c);
+  }
+
+  .cue-list,
+  .row-sums,
+  .error-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0.75rem 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cue-list li,
+  .status-cue {
+    padding: 0.2rem 0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 0.35rem;
+  }
+
+  .allowed-cue,
+  .allowed {
+    border-style: solid;
+  }
+
+  .blocked-cue,
+  .blocked {
+    border-style: dashed;
+  }
+
+  .diagonal-cue,
+  .diagonal {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .unchanged-cue,
+  .unchanged {
+    text-decoration: underline;
+  }
+
+  .changed-cue,
+  .changed {
+    font-weight: 800;
+  }
+
+  .inputs-scroller,
+  .triangles-scroller,
+  .output-scroller,
+  .prefix-scroller,
+  .gradients-scroller,
+  .history-scroller {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: auto;
+    padding-block: 0.8rem 1.3rem;
+    scrollbar-gutter: stable;
+  }
+
+  .input-grid,
+  .triangle-grid,
+  .history-grid {
+    display: grid;
+    align-items: start;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .input-grid,
+  .triangle-grid,
+  .matrix-table,
+  .evidence-table {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .causal-masking-diagram:dir(rtl) .input-card,
+  .causal-masking-diagram:dir(rtl) .triangle-card,
+  .causal-masking-diagram:dir(rtl) :is(caption, th, small, .status-cue) {
+    direction: rtl;
+    unicode-bidi: plaintext;
+  }
+
+  .input-grid {
+    grid-template-columns: repeat(3, minmax(17.5rem, 1fr));
+    min-inline-size: 56rem;
+  }
+
+  .triangle-grid {
+    grid-template-columns: repeat(3, minmax(22rem, 1fr));
+    min-inline-size: 69rem;
+  }
+
+  .history-grid {
+    grid-template-columns: repeat(2, minmax(18rem, 1fr));
+    min-inline-size: 38rem;
+  }
+
+  .input-card,
+  .triangle-card,
+  .compact-card,
+  .evidence-card,
+  .history-card {
+    align-self: start;
+    padding: 0.75rem;
+    border: 2px solid var(--color-border, #62708c);
+    border-radius: 0.65rem;
+    background: var(--color-surface-raised, #172033);
+  }
+
+  .query-card {
+    border-style: solid;
+  }
+
+  .key-card {
+    border-style: dashed;
+  }
+
+  .value-card {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .formula-line,
+  .formula-block {
+    max-inline-size: 100%;
+    padding-block: 0.45rem;
+    overflow: visible;
+  }
+
+  .formula-block {
+    margin-block: 1rem;
+    padding: 0.8rem;
+    border-inline-start: 4px double var(--color-accent, #7dd3fc);
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0.2rem;
+  }
+
+  .matrix-table,
+  .evidence-table {
+    min-inline-size: max-content;
+    max-inline-size: none;
+  }
+
+  th,
+  td {
+    padding: 0.45rem;
+    border: 1px solid var(--color-border, #62708c);
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .causal-table td {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .causal-table {
+    inline-size: 100%;
+    min-inline-size: 100%;
+    max-inline-size: 100%;
+    table-layout: fixed;
+  }
+
+  .causal-table td small {
+    display: block;
+    margin-block-start: 0.2rem;
+    font-size: 0.72rem;
+  }
+
+  caption {
+    padding-block-end: 0.45rem;
+    text-align: start;
+  }
+
+  .row-sums {
+    gap: 0.45rem 1rem;
+  }
+
+  .row-sums li {
+    white-space: nowrap;
+  }
+
+  .output-table,
+  .prefix-table,
+  .gradient-table {
+    inline-size: max-content;
+    min-inline-size: 47rem;
+  }
+
+  .terms-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: flex-start;
+  }
+
+  .perturbation-grid,
+  .evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    align-items: start;
+    gap: 0.8rem;
+  }
+
+  .compact-card p,
+  .evidence-card p,
+  .history-card code {
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .status-cue {
+    display: inline-block;
+    margin-inline-start: 0.4rem;
+  }
+
+  .error-list {
+    display: grid;
+    align-items: start;
+  }
+
+  .error-list li {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) minmax(14rem, 2fr) auto;
+    align-items: start;
+    gap: 0.65rem;
+    padding: 0.65rem;
+    border: 1px dashed var(--color-border, #62708c);
+  }
+
+  .history-card {
+    display: grid;
+    align-items: start;
+    gap: 0.45rem;
+  }
+
+  .earlier-card {
+    border-style: dashed;
+  }
+
+  .transformer-card {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  code,
+  bdi {
+    unicode-bidi: isolate;
+  }
+
+  @media (max-width: 40rem) {
+    .causal-masking-diagram {
+      padding: 0.65rem;
+    }
+
+    .error-list li {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .causal-masking-diagram,
+    .input-card,
+    .triangle-card,
+    .compact-card,
+    .evidence-card,
+    .history-card {
+      background: Canvas;
+      color: CanvasText;
+      border-color: CanvasText;
+    }
+
+    .allowed,
+    .blocked,
+    .diagonal,
+    th,
+    td {
+      border-color: CanvasText;
+    }
+  }
+</style>

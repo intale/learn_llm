@@ -24,7 +24,7 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
-const chapter14To27Files = [
+const chapter14To28Files = [
   '14-scalar-autodiff.mdx',
   '15-tensor-autodiff-core.mdx',
   '16-model-autodiff-ops.mdx',
@@ -39,6 +39,7 @@ const chapter14To27Files = [
   '25-rmsnorm.mdx',
   '26-qkv-projections.mdx',
   '27-self-attention.mdx',
+  '28-causal-masking.mdx',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
@@ -278,7 +279,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To27Math: Record<string, readonly string[]> = {
+const requiredChapter14To28Math: Record<string, readonly string[]> = {
   '14': [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -356,9 +357,17 @@ const requiredChapter14To27Math: Record<string, readonly string[]> = {
     String.raw`A_{bij}=\frac{\exp(S_{bij})}{\sum_{r=0}^{T-1}\exp(S_{bir})}`,
     String.raw`\bar Q\approx[0.079000,-0.039500,-0.014389,0.007195]`,
   ],
+  '28': [
+    String.raw`M_{ij}=`,
+    String.raw`A=\operatorname{softmax}(S+M),\qquad O=AV`,
+    String.raw`\sum_{j=0}^{i}A_{bij}=1`,
+    String.raw`A_{bij}=0\quad\text{when }j>i`,
+    String.raw`\bar S_{bij}=0\quad\text{when }j>i`,
+    String.raw`\frac{\partial L_{\le1}}{\partial q_2}`,
+  ],
 };
 
-const formerChapter14To27MathCodeSpans = [
+const formerChapter14To28MathCodeSpans = [
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -443,7 +452,7 @@ const formerChapter14To27MathCodeSpans = [
   '[B,T,d_v]',
 ] as const;
 
-const rawChapter14To27FormulaPatterns = [
+const rawChapter14To28FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -479,7 +488,7 @@ const rawChapter14To27FormulaPatterns = [
   /\[B\s*,\s*T\s*,\s*(?:T|d_[kv])\s*\]/,
 ] as const;
 
-const documentedChapter14To27Code = [
+const documentedChapter14To28Code = [
   {
     name: 'literal tensor shapes, coordinates, vectors, and matrices',
     pattern: /^\[[^\r\n]*\]$/,
@@ -615,10 +624,10 @@ describe('Chapter 8-13 formula-source contract', () => {
   });
 });
 
-describe('Chapter 14-27 formula-source contract', () => {
-  it('completes the source audit for all 34 published localized lessons', () => {
+describe('Chapter 14-28 formula-source contract', () => {
+  it('completes the source audit for all 35 published localized lessons', () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To27Files) {
+    for (const file of chapter14To28Files) {
       const source = readChapter('en', file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -626,31 +635,31 @@ describe('Chapter 14-27 formula-source contract', () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To27Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To28Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To27MathCodeSpans) {
+      for (const oldExpression of formerChapter14To28MathCodeSpans) {
         expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To27FormulaPatterns) {
+      for (const pattern of rawChapter14To28FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter14To27Files);
+    expect(reviewed).toEqual(chapter14To28Files);
     expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
-      34,
+      35,
     );
   });
 
   it('keeps every remaining code span within a documented program-data category', () => {
-    for (const file of chapter14To27Files) {
+    for (const file of chapter14To28Files) {
       for (const value of inlineCode(readChapter('en', file))) {
-        const allowance = documentedChapter14To27Code.find(({ pattern }) => pattern.test(value));
+        const allowance = documentedChapter14To28Code.find(({ pattern }) => pattern.test(value));
         expect(
           allowance?.name,
           `${file} has an undocumented code span after the formula audit: \`${value}\``,
@@ -660,7 +669,7 @@ describe('Chapter 14-27 formula-source contract', () => {
   });
 });
 
-describe('build-time formula rendering in Chapter 14-27 diagrams', () => {
+describe('build-time formula rendering in Chapter 14-28 diagrams', () => {
   it('renders every diagram-owned expression as strict HTML plus MathML', () => {
     const components = {
       initialization: readFileSync(
@@ -705,6 +714,10 @@ describe('build-time formula rendering in Chapter 14-27 diagrams', () => {
       ),
       selfAttention: readFileSync(
         resolve(componentRoot, 'chapters/SelfAttentionDiagram.astro'),
+        'utf8',
+      ),
+      causalMasking: readFileSync(
+        resolve(componentRoot, 'chapters/CausalMaskingDiagram.astro'),
         'utf8',
       ),
     };
@@ -804,6 +817,15 @@ describe('build-time formula rendering in Chapter 14-27 diagrams', () => {
     expect(components.selfAttention).toContain(
       'String.raw`d_k=${trace.meta.keyWidth},\\quad d_v=${trace.meta.valueWidth}`',
     );
+
+    expect(components.causalMasking).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(components.causalMasking).toContain(
+      'latex="M_{ij}=\\begin{cases}0&j\\le i\\\\-\\infty&j>i\\end{cases}"',
+    );
+    expect(components.causalMasking).toContain(
+      'latex="A=\\operatorname{softmax}(S+M)"',
+    );
+    expect(components.causalMasking).toContain('latex={mathValue(value)}');
 
     for (const source of Object.values(components)) {
       expect(source).not.toContain('<script');

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T15:40:43Z"
+updated_at: "2026-07-24T17:14:21Z"
 
 environment:
   os: "Linux x86_64"
@@ -12336,14 +12336,23 @@ builds:
         objective: "Apply a lower-triangular mask so position `t` attends only to positions `≤t`."
         depends_on:
           - implement-ch27-self-attention
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "DECISIONS.md"
+          - "BUILD_STATE.yaml"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/27-self-attention.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
+          - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/matmul.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch27-self-attention/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -12357,16 +12366,32 @@ builds:
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/chapters/SelfAttentionDiagram.astro"
+          - "site/src/lib/self-attention-diagram.ts"
+          - "site/src/content/chapters/en/27-self-attention.mdx"
+          - "site/tests/27-self-attention-diagram.test.ts"
+          - "site/tests/e2e/ch27-self-attention.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://arxiv.org/abs/1308.0850"
+          - "https://arxiv.org/abs/1706.03762"
         outputs:
           - "curriculum/chapters/28-causal-masking.md"
           - "rust/crates/llm-from-scratch/src/attention/causal_mask.rs"
+          - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch28-causal-masking/"
           - "site/src/content/chapters/en/28-causal-masking.mdx"
           - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/src/lib/causal-masking-diagram.ts"
           - "site/tests/28-causal-masking-diagram.test.ts"
           - "site/tests/e2e/ch28-causal-masking.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Apply a lower-triangular mask so position `t` attends only to positions `≤t`."
@@ -12374,6 +12399,7 @@ builds:
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
+          - "Every learner-facing expression uses the math pipeline, and built Chromium and Firefox pages prove readable formula spacing and page containment at desktop and narrow widths."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -12384,6 +12410,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch28-causal-masking | diff -u rust/demos/ch28-causal-masking/expected.txt -"
+          - "cargo run --quiet --locked -p ch28-causal-masking --example diagram_trace | diff -u rust/demos/ch28-causal-masking/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 28-causal-masking"
           - "npm --prefix site run check:parity -- --chapter 28-causal-masking"
           - "npm --prefix site run check:content"
@@ -12392,11 +12419,85 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:28-causal-masking'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:28-causal-masking'"
+          - "npm --prefix site run test:e2e -- --grep '@formula'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation, cached plus one clean Rust/browser replay, two bounded read-only primary-paper inputs, and one incidental official nginx:1.27-alpine preview-image pull after that image was found uncached; registered deferred locales require no lesson or route. No paid service, generation service, package dependency, build-definition change, hosting, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260724T155422Z-ch28-causal-masking-01
+            started_at: "2026-07-24T15:54:22Z"
+            finished_at: "2026-07-24T17:14:21Z"
+            status: succeeded
+            input_fingerprint:
+              git: "a47197ca3f860dbe1e26536f2c208a911c8ee71e"
+              manifest: ".build/runs/20260724T155422Z-ch28-causal-masking-01/input-fingerprint.txt"
+              checksum: "sha256:a607989322880ec1fd548a7677411062de1fb865eaab9ca64178d3b532d426c6"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node, workspace, and Playwright image digests match the recorded inputs"
+            staging_dir: ".build/runs/20260724T155422Z-ch28-causal-masking-01/"
+            commands:
+              - "Run the complete startup protocol, preserve unrelated .build evidence and desktop.ini, verify Chapter 27 artifacts, compare recorded tools, and select Chapter 28 as the sole eligible step"
+              - "Read the repository chapter and static-site playbooks, confirm the English-only locale projection and description-only SEO boundary, and verify that no hosting configuration or deployment authority is present"
+              - "Expand the declared boundary to include the cumulative attention/autodiff operands, strict Rust-trace projection, aggregate formula coverage, two-engine layout gates, and two bounded primary sources"
+              - "Fingerprint all material local inputs, source URLs, immutable tool images, locale policy, and the no-hosting boundary; create isolated publish, validation, research, visual-review, and log directories"
+              - "Audit the two primary papers and freeze their bounded recurrent-prefix, Transformer-mask, parallel-training, and exclusion claims in research/source-notes.md"
+              - "Implement the dependency-free inclusive causal mask, finite taped causal softmax, checked attention wrapper, exact learner report, strict 26-line trace, and all-coordinate gradient evidence in the isolated publish tree"
+              - "Author the integrated contract, complete English lesson, strict string-only trace parser, semantic static diagram, focused unit/browser coverage, and cumulative Chapter 14-28 formula audits"
+              - "Run early Linux-container Rust, content, Astro, unit, static-build, link, SEO, Chromium, and Firefox gates; correct exact contract projection and browser-specific card containment defects"
+              - "Run independent Rust, content, and site audits; correct the extended-real mask domain, distinct output-region label, empty-evidence delimiter, RTL technical-grid isolation, and Firefox command spelling; obtain clean read-only rechecks"
+              - "Attempt the optional in-app Browser visual pass; no browser backend was available, and a disposable nginx preview caused the previously uncached official nginx:1.27-alpine image to be pulled before the preview container was removed"
+              - "Freeze and verify a 21-file SHA-256 publication manifest, publish through checked temporary sibling files, and prove every canonical product byte matches staging"
+              - "Replay the complete declared matrix from an exact Git archive of the canonical baseline plus the 23 current canonical changes after rejecting a cache-image-only hydration that exposed stale embedded Chapter 27 source"
+            artifacts:
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/input-fingerprint.txt"
+                sha256: "a607989322880ec1fd548a7677411062de1fb865eaab9ca64178d3b532d426c6"
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/research/source-notes.md"
+                sha256: "9e4b42a16c095b842277e054dad5c782c567f0ba1b6ccbfb5a7af47484552503"
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/publish.sha256"
+                sha256: "e6c64313edaf8f78920347294315f144da22e45e36f529e729d1a094ae0e4860"
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/canonical-head.tar"
+                sha256: "37df5fb67f3dac662c96ee181189d17db35f821ee81a7ba63203dbece070c6ff"
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/logs/canonical-preflight-03.log"
+                sha256: "ba2dade295cb50e0e66725ab64a1e2f398e6dd5f1c6f62ff466d57c00d424702"
+              - path: ".build/runs/20260724T155422Z-ch28-causal-masking-01/logs/canonical-browser-03-attached.log"
+                sha256: "55eb39b9997b5060b0696668860441ebc2d7f4102c95c3736751dce3805a8b05"
+            validation:
+              - command: "Bounded Graves and Vaswani primary-source review"
+                status: passed
+                notes: "The recorded claims stay within recurrent next-element prediction and generated-prefix availability for Graves, and packed known-target decoder attention, shifted inputs, illegal pre-softmax connections, and sequential generation for Vaswani. Position information, padding, caching, course APIs, exact zeros, and finite-tape policy are not attributed to either paper."
+              - command: "Focused Linux-container Rust and deterministic-output gates"
+                status: passed
+                notes: "Formatting passes; nine causal core tests and three Chapter 28 demo tests pass, including all 18 query/key/value finite-difference coordinates; learner stdout and the 26-line diagram trace each match their frozen fixture byte for byte."
+              - command: "Integrated contract, Chapter 28 content/parity, complete content, and Astro analysis"
+                status: passed
+                notes: "After restoring exact visible contract wording and the single primary formula projection, the integrated contract passes; English is the sole Chapter 28 locale, Russian publishes no placeholder, all 35 localized sources and 28 publishable locale sets pass, and Astro reports zero diagnostics across 143 files."
+              - command: "Complete staged unit, static-build, link, and SEO gates"
+                status: passed
+                notes: "All 727 site tests pass; the static build emits 40 pages; 1,341 local references and SEO on all 40 routes pass."
+              - command: "Initial focused Chromium and Firefox Chapter 28 layout gates"
+                status: failed
+                notes: "Semantic, no-JavaScript, locale, forced-color, RTL, formula, and most layout assertions passed. Chromium exposed an input-card then triangle-table horizontal containment defect; after table correction Firefox exposed a five-pixel value-card overflow. The staged CSS was corrected without hiding overflow."
+              - command: "Corrected focused Chromium and Firefox Chapter 28 browser gates"
+                status: passed
+                notes: "Five focused cases pass independently in both engines at desktop and 390-pixel widths, including exact triangular cells, formulas, natural heights, local scrollers, forced colors, RTL, and JavaScript-disabled rendering."
+              - command: "Independent final Rust, content, and site audits plus corrected rechecks"
+                status: passed
+                notes: "Rust masking, VJP, edge cases, and Chapter 27 compatibility were clean. The content and site findings were corrected: the mask domain includes negative infinity, output and triangle scrollers have distinct accessible names, empty evidence has no dangling delimiter, technical grids retain logical LTR order under RTL prose, and the recorded Firefox commands exist. Both auditors rechecked the corrections without another defect."
+              - command: "Final staged unit, static, and browser regression matrix"
+                status: passed
+                notes: "All 727 unit tests pass; 40 static pages, 1,341 local references, 40 SEO routes, and 124 artifacts pass. Five Chapter 28 cases and all 70 formula cases pass independently in Chromium and Firefox; the complete 192-case Chromium suite passes."
+              - command: "Frozen publication manifest and canonical byte verification"
+                status: passed
+                notes: "All 21 declared product files matched publish.sha256 before publication, were installed through checked temporary siblings, and matched the same hashes at canonical paths. Unrelated .build evidence and desktop.ini remained unmodified and unselected."
+              - command: "Initial cache-image-only canonical replay"
+                status: failed
+                notes: "The replay copied only the 23 changed canonical files onto a cached browser image whose embedded Chapter 27 lesson predated the current canonical formula evidence; two Chapter 27 formula assertions failed. This diagnosed incomplete source hydration rather than a Chapter 28 product defect, so the result was rejected."
+              - command: "Exact canonical-archive Linux, Rust, site, Chromium, and Firefox replay"
+                status: passed
+                notes: "A fresh Git archive of the full a47197c baseline plus the 23 current canonical changes reproduced the exact source tree. Course plan and integrated contract, formatting, warning-denying Clippy, all workspace tests, dependency/demo policy, both exact Rust fixtures, locale/content/Astro checks, all 727 unit tests, the 40-page build, links and SEO, five Chapter 28 cases in both engines, 70 formula cases in both engines, and all 192 Chromium cases pass."
+            notes: "Succeeded. Chapter 28 is published as one dependency-free English causal-masking vertical slice with exact Rust evidence, server-rendered math, accessible static visualization, and complete canonical regression coverage. Chapter 29 was not started."
       - id: implement-ch29-rope
         objective: "Rotate query/key feature pairs by position and observe relative offsets in their dot products."
         depends_on:

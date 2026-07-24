@@ -37,6 +37,7 @@ pub enum TensorOperation {
     Log,
     Silu,
     LogSoftmax,
+    CausalSoftmax,
     IndexedMeanNll,
 }
 
@@ -60,6 +61,7 @@ impl TensorOperation {
             Self::Log => "log",
             Self::Silu => "silu",
             Self::LogSoftmax => "log_softmax",
+            Self::CausalSoftmax => "causal_softmax",
             Self::IndexedMeanNll => "indexed_mean_nll",
         }
     }

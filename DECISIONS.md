@@ -5111,3 +5111,67 @@ scaled-score boundary and insert a causal mask before row normalization.
 
 **Affected step and run:** `implement-ch27-self-attention`, run
 `20260724T141229Z-implement-ch27-self-attention-01`.
+
+## 2026-07-24 - Define the Chapter 28 causal-masking boundary
+
+**Status:** Accepted during Chapter 28 preflight.
+
+**Context:** Chapter 28 must turn Chapter 27's fully visible self-attention grid
+into decoder-safe attention: query position $i$ may use keys $j \le i$ and may
+not use future keys $j>i$. The existing differentiable softmax intentionally
+rejects non-finite logits, so literally recording an additive $-\infty$ mask on
+the autodiff tape would violate its finite-value invariant. The scheduled
+outputs also omit the cumulative autodiff files, strict Rust-trace parser, and
+aggregate two-engine formula regressions required by the established workflow.
+
+**Decision:** Expose the lower-triangular additive mask as an inspectable plain
+tensor with zero on and below the diagonal and negative infinity above it. Add
+a differentiable `causal_softmax` operation that applies the same boundary
+directly during a stable row maximum and normalization: blocked probabilities
+are exactly zero, allowed probabilities are finite and sum to one, and its VJP
+is the ordinary softmax Jacobian restricted to each inclusive prefix. This
+keeps the mathematical operation $\operatorname{softmax}(S+M)$ exact without
+putting non-finite values into a recorded tensor value. Reuse a package-private
+Chapter 27 scaled-score helper so masked and unmasked attention share rank,
+batch, token, feature-width, score, and scale behavior. Keep padding masks,
+variable sequence lengths, incremental key/value caches, position encodings,
+and multiple heads deferred.
+
+Freeze a three-token extension of the Chapter 27 fixture. It must show the
+complete additive triangle, exact zero future probabilities, an inclusive
+diagonal, finite unit-sum rows, and output mixtures. Perturb only the last
+token's key and value and require the first two outputs to remain bitwise
+unchanged while the last output changes. Add extreme-finite stability,
+single-token, empty-batch, typed validation/stage errors, deterministic replay,
+seeded reverse gradients, exact zero future gradients for prefix-only output
+seeds, and full-coordinate numerical-gradient evidence. The mask spelling,
+fixture values, validation precedence, trace grammar, and tolerance remain
+course-local teaching policies.
+
+Use Graves (2013) only for the earlier recurrent autoregressive sequence model:
+the recurrent state advances one generated element at a time, so unavailable
+future elements are not present in that step's inputs. Use Vaswani et al. (2017)
+for the later Transformer decoder mask, which prevents positions from attending
+to subsequent positions while retaining parallel training across known target
+positions. Do not present the history as a Rust, Python, TypeScript, or runtime
+comparison, and do not claim that causal masking supplies position information,
+makes generation parallel, handles padding, or removes the need for caching.
+
+Rust emits a deterministic learner report and one strict locale-neutral trace.
+Add `site/src/lib/causal-masking-diagram.ts` to validate exact string lexemes and
+project them without numeric conversion or attention arithmetic. Render the
+useful visualization as semantic static HTML/CSS: paired allowed/blocked score
+and probability triangles, a prefix-invariance comparison, server-rendered
+math, scoped table headers, named narrow-width scrollers, natural-height cards,
+forced-color support, and no client script, SVG, or canvas. Extend both
+aggregate formula suites through Chapter 28 and run focused plus formula
+geometry in Chromium and Firefox.
+
+**Consequences:** Chapter 28 remains one dependency-free English vertical slice
+with basic description-only SEO and no Russian placeholder route. No package
+dependency, build definition, Linux workflow, locale policy, social preview,
+hosting configuration, or deployment action changes. Chapter 29 can add rotary
+position information without changing the causal visibility boundary.
+
+**Affected step and run:** `implement-ch28-causal-masking`, run
+`20260724T155422Z-ch28-causal-masking-01`.

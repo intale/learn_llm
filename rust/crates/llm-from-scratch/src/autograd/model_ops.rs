@@ -25,6 +25,14 @@ pub enum ModelOpError {
         index: usize,
         rows: usize,
     },
+    CausalSoftmaxRank {
+        rank: usize,
+    },
+    CausalSoftmaxNonSquare {
+        queries: usize,
+        keys: usize,
+    },
+    CausalSoftmaxEmptyTokens,
     OutputAllocationFailed {
         elements: usize,
     },
@@ -50,6 +58,17 @@ impl fmt::Display for ModelOpError {
             } => write!(
                 formatter,
                 "gather ID {index} at flat position {position} is out of bounds for {rows} rows"
+            ),
+            Self::CausalSoftmaxRank { rank } => write!(
+                formatter,
+                "causal softmax needs at least rank-two [..., queries, keys] scores, got rank {rank}"
+            ),
+            Self::CausalSoftmaxNonSquare { queries, keys } => write!(
+                formatter,
+                "causal softmax needs a square query-key grid, got {queries} queries and {keys} keys"
+            ),
+            Self::CausalSoftmaxEmptyTokens => formatter.write_str(
+                "causal softmax needs at least one token so every row has an allowed key",
             ),
             Self::OutputAllocationFailed { elements } => write!(
                 formatter,
@@ -96,6 +115,11 @@ pub enum ModelSavedContext {
         probabilities: Tensor,
         axis: usize,
         input_shape: Vec<usize>,
+    },
+    CausalSoftmax {
+        probabilities: Tensor,
+        input_shape: Vec<usize>,
+        tokens: usize,
     },
     IndexedMeanNll {
         probabilities: Tensor,
@@ -216,6 +240,27 @@ impl TensorValue {
         })
     }
 
+    /// Normalizes each square score row over its inclusive prefix of keys.
+    ///
+    /// Future-key probabilities are exactly zero. The implementation applies
+    /// the additive negative-infinity mask as a branch, so non-finite values
+    /// never enter the operation tape.
+    pub fn causal_softmax(&self) -> Result<Self, TensorAutodiffError> {
+        Self::model_operation(TensorOperation::CausalSoftmax, [self], |primals| {
+            let input = &primals[0];
+            let probabilities = causal_softmax_forward(input)?;
+            let tokens = input.shape()[input.rank() - 1];
+            Ok((
+                probabilities.clone(),
+                [ModelSavedContext::CausalSoftmax {
+                    probabilities,
+                    input_shape: input.shape().to_vec(),
+                    tokens,
+                }],
+            ))
+        })
+    }
+
     /// Computes one stable rank-zero mean NLL from flat group-major targets.
     pub fn indexed_mean_nll(
         &self,
@@ -312,6 +357,50 @@ fn gather_rows_forward(
     Tensor::from_vec(output_shape, values).map_err(Into::into)
 }
 
+// region:causal-softmax-forward
+fn causal_softmax_forward(input: &Tensor) -> Result<Tensor, TensorAutodiffError> {
+    if input.rank() < 2 {
+        return Err(ModelOpError::CausalSoftmaxRank { rank: input.rank() }.into());
+    }
+    let queries = input.shape()[input.rank() - 2];
+    let keys = input.shape()[input.rank() - 1];
+    if queries != keys {
+        return Err(ModelOpError::CausalSoftmaxNonSquare { queries, keys }.into());
+    }
+    if queries == 0 {
+        return Err(ModelOpError::CausalSoftmaxEmptyTokens.into());
+    }
+
+    let mut probabilities = zeros(input.shape())?;
+    let grids = input.len() / (queries * keys);
+    for grid in 0..grids {
+        for query in 0..queries {
+            let row_start = (grid * queries + query) * keys;
+            let allowed = &input.as_slice()[row_start..=row_start + query];
+            let maximum = allowed.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+            let mut exponential_tail = 0.0;
+            let mut skipped_one_maximum = false;
+            for &score in allowed {
+                let shifted = score - maximum;
+                if shifted == 0.0 && !skipped_one_maximum {
+                    skipped_one_maximum = true;
+                } else {
+                    exponential_tail += shifted.exp();
+                }
+            }
+            debug_assert!(skipped_one_maximum);
+            let denominator = 1.0 + exponential_tail;
+            for (key, &score) in allowed.iter().enumerate() {
+                let probability = (score - maximum).exp() / denominator;
+                probabilities.as_mut_slice()[row_start + key] =
+                    if probability == 0.0 { 0.0 } else { probability };
+            }
+        }
+    }
+    Ok(probabilities)
+}
+// endregion:causal-softmax-forward
+
 // region:model-vjps
 pub(crate) fn apply_model_vjp(
     upstream: &Tensor,
@@ -392,6 +481,34 @@ pub(crate) fn apply_model_vjp(
                 gradient - term
             })
             .map_err(Into::into)
+        }
+        ModelSavedContext::CausalSoftmax {
+            probabilities,
+            input_shape,
+            tokens,
+        } => {
+            debug_assert_eq!(upstream.shape(), input_shape);
+            let tokens = *tokens;
+            let mut result = zeros(input_shape)?;
+            let grids = upstream.len() / (tokens * tokens);
+            for grid in 0..grids {
+                for query in 0..tokens {
+                    let row_start = (grid * tokens + query) * tokens;
+                    let mut weighted_upstream = 0.0;
+                    for key in 0..=query {
+                        weighted_upstream += upstream.as_slice()[row_start + key]
+                            * probabilities.as_slice()[row_start + key];
+                    }
+                    for key in 0..=query {
+                        let offset = row_start + key;
+                        let gradient = probabilities.as_slice()[offset]
+                            * (upstream.as_slice()[offset] - weighted_upstream);
+                        result.as_mut_slice()[offset] =
+                            if gradient == 0.0 { 0.0 } else { gradient };
+                    }
+                }
+            }
+            Ok(result)
         }
         ModelSavedContext::IndexedMeanNll {
             probabilities,
