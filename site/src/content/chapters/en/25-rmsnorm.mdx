@@ -1,0 +1,425 @@
+---
+{
+  "chapter_id": "25-rmsnorm",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 25,
+  "concept_id": "rmsnorm",
+  "title": "Normalize scale without subtracting the mean",
+  "description": "Implement last-axis RMSNorm, trace its input and gain gradients, and separate ideal scale invariance from epsilon-dominated behavior near zero.",
+  "objective": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero.",
+  "worked_inputs": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, normalized vector, and scaled output; then predict what happens when both an ordinary vector and a near-zero vector are multiplied by ten.",
+  "formula": {
+    "latex": "\\operatorname{RMSNorm}(x)=g\\odot\\frac{x}{\\sqrt{\\frac{1}{d}\\sum_i x_i^2+\\varepsilon}}",
+    "symbols": [
+      { "symbol": "x", "meaning": "one input feature vector on the final tensor axis" },
+      { "symbol": "g", "meaning": "the learned gain vector with one value per feature" },
+      { "symbol": "\\odot", "meaning": "elementwise multiplication" },
+      { "symbol": "d", "meaning": "the nonzero width of the final feature axis" },
+      { "symbol": "i", "meaning": "a feature coordinate included in the root-mean-square statistic" },
+      { "symbol": "x_i", "meaning": "feature i of the input vector" },
+      { "symbol": "\\varepsilon", "meaning": "a nonnegative stabilizer added before the reciprocal square root" },
+      { "symbol": "\\operatorname{RMSNorm}(x)", "meaning": "the gain-scaled output with the same shape as x" }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "training-practice",
+      "limitation": "BatchNorm couples a training example to mini-batch statistics, while LayerNorm removes that cross-example dependency but still computes and subtracts a per-example feature mean before rescaling.",
+      "later_advance": "RMSNorm removes mean subtraction and keeps feature-wise RMS rescaling; LLaMA later used RMSNorm before each Transformer sublayer.",
+      "modern_llm_role": "A pre-normalized decoder feeds a controlled-scale residual-stream vector into each attention or feed-forward branch while leaving the identity path outside that normalization operation.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2015,
+          "name": "Ioffe and Szegedy, Batch Normalization",
+          "source_url": "https://arxiv.org/abs/1502.03167",
+          "claim": "Ioffe and Szegedy make normalization part of the architecture and compute its training statistics for each mini-batch."
+        },
+        {
+          "role": "earlier",
+          "year": 2016,
+          "name": "Ba, Kiros, and Hinton, Layer Normalization",
+          "source_url": "https://arxiv.org/abs/1607.06450",
+          "claim": "Ba, Kiros, and Hinton compute mean and variance across the summed inputs of one layer for one training case, avoiding dependencies between training cases."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Zhang and Sennrich, Root Mean Square Layer Normalization",
+          "source_url": "https://arxiv.org/abs/1910.07467",
+          "claim": "Zhang and Sennrich remove the mean statistic, normalize by RMS, and retain the epsilon-free formulation's positive rescaling invariance while giving up recentering invariance."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "Touvron et al., LLaMA",
+          "source_url": "https://arxiv.org/pdf/2302.13971",
+          "claim": "Touvron et al. normalize the input of each Transformer sublayer and identify RMSNorm as the normalization function."
+        }
+      ]
+    },
+    "approach": "From mini-batch statistics, through per-example centered LayerNorm, to uncentered RMS rescaling before modern Transformer sublayers",
+    "summary": "RMSNorm controls the feature-vector scale without subtracting its mean. The ideal epsilon-zero formula cancels positive rescaling, while a production epsilon deliberately dominates zero and tiny vectors, making that invariance approximate away from zero rather than exact everywhere.",
+    "rust_source": "rust/demos/ch25-rmsnorm/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/lib.rs",
+      "region": "historical-normalization-contrast",
+      "purpose": "Compare batch-dependent, centered per-example, and RMS-only normalization for the LLM-centered history contrast."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs",
+      "region": "rmsnorm-layer",
+      "purpose": "Compose differentiable final-axis RMSNorm from the cumulative tape operations."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs",
+      "region": "rmsnorm-errors",
+      "purpose": "Expose typed configuration, shape, zero-energy, and delegated tape errors."
+    },
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/lib.rs",
+      "region": "rmsnorm-fixture",
+      "purpose": "Build exact forward, backward, epsilon, batch, optimizer-policy, and replay evidence."
+    },
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/lib.rs",
+      "region": "rmsnorm-gradcheck",
+      "purpose": "Check every input and gain coordinate against central differences."
+    },
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/lib.rs",
+      "region": "learner-rmsnorm-report",
+      "purpose": "Render the complete deterministic learner report from Rust-owned evidence."
+    },
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/main.rs",
+      "purpose": "Print the frozen learner report without presentation-layer arithmetic."
+    },
+    {
+      "path": "rust/demos/ch25-rmsnorm/src/diagram_trace.rs",
+      "region": "rmsnorm-trace",
+      "purpose": "Emit the strict locale-neutral trace consumed by the static visualization."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "rmsnorm",
+    "rationale": "Aligned feature bars and evidence rows make it easier to see that RMSNorm rescales without shifting the mean, and that epsilon barely changes an ordinary vector but strongly changes a near-zero one."
+  },
+  "decoder_connection": "The cumulative decoder now has a differentiable last-axis normalizer for the input of each learned residual branch. Chapter 26 will turn those normalized features into separate query, key, and value projections."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import RmsnormDiagram from '../../../components/chapters/RmsnormDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow one feature vector through RMSNorm',
+  description:
+    'Read exact Rust-authored values from input through RMS rescaling and learned gain, then compare scale, history, gradient, and rejected-boundary evidence.',
+  sections: {
+    primary: 'Rescale one final-axis feature vector',
+    scaling: 'Separate the ideal from finite epsilon',
+    history: 'Compare where each statistic comes from',
+    safeguards: 'Inspect gradients, shapes, and boundaries',
+  },
+  stages: {
+    input: 'Input',
+    meanSquare: 'Mean square',
+    inverseRms: 'Reciprocal RMS',
+    normalized: 'RMS-rescaled vector',
+    gain: 'Learned gain',
+    output: 'Gain-scaled output',
+  },
+  fields: {
+    ideal: 'Epsilon-zero ideal',
+    production: 'Ordinary production input',
+    nearZero: 'Epsilon-dominated input',
+    base: 'Original vector',
+    scaled: 'Input multiplied by ten',
+    maximumDifference: 'Maximum absolute difference',
+    zeroInput: 'All-zero input',
+    batchAxis: 'Independent final-axis rows',
+    batchNorm: 'BatchNorm',
+    layerNorm: 'LayerNorm',
+    rmsNorm: 'RMSNorm',
+    companionA: 'First batch companion',
+    companionB: 'Second batch companion',
+    outputMean: 'RMSNorm output mean',
+    backward: 'Reverse-mode evidence',
+    inputGradient: 'Input gradient',
+    gainGradient: 'Gain gradient',
+    parameter: 'Stable gain parameter',
+    optimizerPolicy: 'Optimizer grouping',
+    errors: 'Rejected boundaries',
+    proof: 'Rust-authored checks',
+  },
+  cues: {
+    input: 'Solid input border',
+    normalized: 'Dashed RMS-rescaled border',
+    scaled: 'Double gain-scaled border',
+    accepted: 'Accepted',
+    rejected: 'Rejected',
+  },
+  captions: {
+    primary: 'Bar lengths share one visual scale; exact values remain the authority.',
+    scaling: 'The ordinary difference is tiny; the near-zero difference is visible.',
+    history: 'The fixed anchor is paired with two different batch companions.',
+  },
+  scrollers: {
+    primary: 'Scrollable RMSNorm value flow',
+    scales: 'Scrollable epsilon scale comparisons',
+    history: 'Scrollable normalization history comparison',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict RMS, then test the epsilon boundary
+
+Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and
+$\varepsilon=10^{-5}$. Before running the example, compute the mean square:
+
+$$
+\frac{3^2+4^2}{2}=12.5.
+$$
+
+The reciprocal RMS is about $0.282843$. Predict the unscaled normalized vector,
+then multiply coordinatewise by $g$. The fixture should produce approximately
+$[0.848528,1.131370]$ before the gain and $[1.272792,0.565685]$ after it.
+
+Now multiply the input by positive factor $10$. Predict the result first with
+$\varepsilon=0$, then with $\varepsilon=10^{-5}$. Repeat that comparison for
+$x=[0.0003,0.0004]$, whose mean square is smaller than the stabilizer.
+
+{/* chapter-section:formula */}
+
+## Normalize the final feature axis
+
+For one final-axis vector, RMSNorm is
+
+$$
+\operatorname{RMSNorm}(x)=g\odot\frac{x}{\sqrt{\frac{1}{d}\sum_i x_i^2+\varepsilon}}
+$$
+
+The statistic is shared by all $d$ coordinates in that vector. The learned gain
+then rescales individual features. No feature mean is subtracted, and no example
+contributes statistics to another example.
+
+For a positive scalar $a$ and a nonzero vector, the epsilon-zero ideal obeys
+
+$$
+\operatorname{RMSNorm}_{0}(ax)=\operatorname{RMSNorm}_{0}(x).
+$$
+
+With finite epsilon, the denominator becomes
+$\sqrt{a^2\operatorname{RMS}(x)^2+\varepsilon}$, so epsilon does not grow with
+the signal. The normalized mean square is
+
+$$
+\operatorname{mean}(\hat{x}^2)=
+\frac{\operatorname{RMS}(x)^2}
+{\operatorname{RMS}(x)^2+\varepsilon}.
+$$
+
+It approaches $1$ when the signal dominates epsilon and approaches $0$ when
+epsilon dominates the signal. This is why practical RMSNorm is approximately
+scale-invariant away from zero, not exactly invariant everywhere.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep scale, gain, and axes distinct
+
+- $x$ is one feature vector taken from the input's final axis.
+- $d$ is that axis's nonzero width and $i$ selects one coordinate.
+- $x_i$ is coordinate $i$ and $\sum_i x_i^2/d$ is its vector's mean square.
+- $\varepsilon\ge0$ stabilizes the reciprocal square root.
+- $\hat{x}$ is the RMS-rescaled vector before learned featurewise scaling.
+- $g\in\mathbb{R}^{d}$ is the learned gain and $\odot$ is elementwise multiplication.
+- The output has the same complete shape as the input.
+
+RMSNorm does not force every coordinate to magnitude $1$. It controls the
+vector's aggregate root-mean-square scale. It also does not center the vector,
+clip values, or mix examples across a mini-batch.
+
+{/* chapter-section:history */}
+
+## From batch statistics to pre-RMSNorm language models
+
+The history is about normalization choices on the road to modern LLMs, not the
+history of any programming language.
+
+BatchNorm couples a training example to mini-batch statistics, while LayerNorm
+removes that cross-example dependency but still computes and subtracts a
+per-example feature mean before rescaling.
+
+The earlier primary source is [Ioffe and Szegedy, *Batch Normalization*](https://arxiv.org/abs/1502.03167).
+Ioffe and Szegedy make normalization part of the architecture and compute its
+training statistics for each mini-batch.
+
+The second earlier source is [Ba, Kiros, and Hinton, *Layer Normalization*](https://arxiv.org/abs/1607.06450).
+Ba, Kiros, and Hinton compute mean and variance across the summed inputs of one
+layer for one training case, avoiding dependencies between training cases.
+
+RMSNorm removes mean subtraction and keeps feature-wise RMS rescaling; LLaMA
+later used RMSNorm before each Transformer sublayer.
+
+The first later source is [Zhang and Sennrich, *Root Mean Square Layer Normalization*](https://arxiv.org/abs/1910.07467).
+Zhang and Sennrich remove the mean statistic, normalize by RMS, and retain the
+epsilon-free formulation's positive rescaling invariance while giving up
+recentering invariance. The production epsilon and near-zero boundary here are
+explicit course policies, not claims attributed to the paper.
+
+The second later source is [Touvron et al., *LLaMA*](https://arxiv.org/pdf/2302.13971).
+Touvron et al. normalize the input of each Transformer sublayer and identify
+RMSNorm as the normalization function.
+
+A pre-normalized decoder feeds a controlled-scale residual-stream vector into
+each attention or feed-forward branch while leaving the identity path outside
+that normalization operation.
+
+The executable contrast holds anchor $[1,3]$ fixed and changes only its batch
+companion. BatchNorm changes the anchor output; LayerNorm and RMSNorm remain
+per-example. LayerNorm centers the anchor, while RMSNorm keeps a nonzero output
+mean:
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/lib.rs"
+  region="historical-normalization-contrast"
+  caption="Compare normalization axes and centering behavior"
+  label="Rust source for the Chapter 25 LLM-centered normalization history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Compose RMSNorm from cumulative tape operations
+
+`RmsNorm` owns one rank-one `NamedParameter` and no bias. It validates epsilon,
+the gain name and width, input rank, and final-axis width. The forward pass then
+composes the existing multiply, retained last-axis mean, scalar addition,
+logarithm, exponential, broadcast, and multiply operations. Both the input and
+gain therefore remain connected to the cumulative reverse-mode tape:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
+  region="rmsnorm-layer"
+  caption="Normalize the final axis with existing differentiable operations"
+  label="Rust source implementing the reusable Chapter 25 RMSNorm layer"
+/>
+
+Positive epsilon maps an all-zero row to finite zeros. With zero epsilon, a row
+whose computed mean square is zero is rejected before the logarithm, including
+a nonzero floating-point row whose squares underflow. Typed errors keep that
+boundary visible:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
+  region="rmsnorm-errors"
+  caption="Keep configuration and numeric boundaries explicit"
+  label="Rust source defining Chapter 25 RMSNorm errors"
+/>
+
+The frozen fixture runs the primary reverse pass with $\bar y=[1,-2]$. It finds
+$\bar x\approx[0.407293,-0.305470]$ and
+$\bar g\approx[0.848528,-2.262741]$, verifies independent rows for input shape
+$[2,2]$, and checks a zero-sized outer batch. The stable parameter name
+`decoder.block.0.attention_norm.gain` belongs only to
+`AdamWParameterGroups`' no-decay set. That grouping is an optimizer policy, not
+part of the RMSNorm formula:
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/lib.rs"
+  region="rmsnorm-fixture"
+  caption="Build forward, backward, epsilon, shape, and optimizer evidence"
+  label="Rust source for the complete Chapter 25 learner fixture"
+/>
+
+Central differences check all two input and two gain coordinates with step
+$10^{-6}$ and tolerance $2\times10^{-6}$:
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/lib.rs"
+  region="rmsnorm-gradcheck"
+  caption="Check both differentiable inputs numerically"
+  label="Rust source for the Chapter 25 input and gain gradient checks"
+/>
+
+The report is rendered from that checked evidence:
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/lib.rs"
+  region="learner-rmsnorm-report"
+  caption="Render the deterministic RMSNorm learner report"
+  label="Rust source rendering Chapter 25 expected output"
+/>
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/main.rs"
+  caption="Print the frozen learner report"
+  label="Rust entry point for the Chapter 25 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch25-rmsnorm`. Its stdout is frozen in
+`rust/demos/ch25-rmsnorm/expected.txt`, including the final newline.
+
+{/* chapter-section:visualization */}
+
+## Follow rescaling without inventing browser arithmetic
+
+The trace emits exact primary values, gradients, scale comparisons, zero and
+batch behavior, historical outputs, rejected requests, and proof tokens:
+
+<RustSource
+  path="rust/demos/ch25-rmsnorm/src/diagram_trace.rs"
+  region="rmsnorm-trace"
+  caption="Emit the strict fourteen-line RMSNorm trace"
+  label="Rust source producing the Chapter 25 static diagram trace"
+/>
+
+<RmsnormDiagram labels={diagramLabels} />
+
+The page validates and projects those records without recomputing normalization,
+gradients, or scale differences. Solid, dashed, and double borders distinguish
+the input, RMS-rescaled vector, and gain-scaled output without relying on color.
+Dense rows own keyboard-focusable scrollers at narrow widths, and all exact
+technical values stay left-to-right inside right-to-left prose.
+
+{/* chapter-section:exercises */}
+
+## Predict before reading the evidence
+
+1. Compute the mean square and reciprocal RMS for $x=[3,4]$.
+2. Apply $g=[1.5,0.5]$ to the normalized vector.
+3. Predict the epsilon-zero result after multiplying a nonzero vector by $10$.
+4. Explain why production epsilon changes a near-zero vector much more.
+5. Predict the output for an all-zero row with positive epsilon and zero epsilon.
+6. Decide whether RMSNorm subtracts the feature mean or mixes batch examples.
+7. Predict the output shape and gain-gradient shape for input $[B,T,d]$.
+8. Explain why no-decay assignment is optimizer policy, not part of the formula.
+9. Place RMSNorm relative to the identity and learned paths in a pre-normalized residual block.
+
+<details>
+  <summary>Check the predictions</summary>
+
+  1. The mean square is $12.5$ and reciprocal RMS is about $0.282843$.
+  2. The output is approximately $[1.272792,0.565685]$.
+  3. Positive scaling cancels algebraically when $\varepsilon=0$.
+  4. Finite epsilon does not scale with the signal, so it dominates the tiny vector's denominator.
+  5. Positive epsilon returns $[0,0]$; zero epsilon rejects the zero-energy row before the logarithm.
+  6. Neither: it uses only one example's final feature axis and does not subtract its mean.
+  7. The output shape is $[B,T,d]$ and the gain-gradient shape is $[d]$.
+  8. The optimizer decides which named parameters receive decay; RMSNorm's equation does not.
+  9. The learned branch receives RMSNorm's output, while the identity path carries the unchanged residual stream.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Project normalized features into query, key, and value tensors next
+
+The cumulative decoder now has differentiable last-axis RMSNorm for each learned
+residual branch and a stable gain that training can exclude from weight decay.
+Chapter 26 turns those normalized features into separate bias-free query, key,
+and value projections, with their attention dimensions made explicit.

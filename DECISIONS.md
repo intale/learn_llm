@@ -4881,3 +4881,81 @@ before the six files are frozen and committed.
 **Affected step and runs:** `repair-ch23-indexed-loss-and-model-summary` runs
 `20260724T102935Z-repair-ch23-indexed-loss-and-model-summary-02` and
 `20260724T103253Z-repair-ch23-indexed-loss-and-model-summary-03`.
+
+## 2026-07-24 - Define the Chapter 25 RMSNorm and evidence boundary
+
+**Status:** Accepted during Chapter 25 preflight.
+
+**Context:** Chapter 25 follows the residual-path chapter and must normalize the
+feature vector entering each learned branch without yet assembling attention or
+a complete decoder block. The reviewed plan requires both the mathematical
+positive-scale property at zero epsilon and the practical failure of exact scale
+invariance when epsilon dominates a near-zero vector. The scheduled outputs omit
+the strict Rust trace parser and aggregate formula regressions required by the
+established chapter workflow. Its history must remain on the neural-architecture
+road to modern LLMs rather than becoming an implementation-language history.
+
+**Decision:** Add a last-axis `RmsNorm` layer with one learned rank-one gain and
+no bias. Accept finite epsilon values greater than or equal to zero, reject
+rank-zero inputs, empty feature axes, feature-width mismatches, and zero-energy
+rows when epsilon is zero. Compose the existing differentiable multiply, mean,
+add, logarithm, and exponential operations so reverse mode reaches both the
+input and gain without introducing a concept-level primitive or dependency. A
+production fixture uses epsilon $10^{-5}$; a separate nonzero epsilon-zero
+fixture demonstrates ideal positive rescaling, while tiny and zero inputs expose
+the epsilon-dominated boundary. Put the stable gain name in AdamW's explicit
+no-decay group as course policy, without claiming that the RMSNorm papers mandate
+that optimizer choice.
+
+Use the BatchNorm, LayerNorm, RMSNorm, and LLaMA primary papers for four bounded
+claims: BatchNorm computes normalization in training mini-batches; LayerNorm
+moves mean and variance statistics within each training case; RMSNorm removes
+mean subtraction and retains RMS rescaling; and LLaMA normalizes each Transformer
+sublayer input with RMSNorm. The executable contrast exposes axes, centering,
+and companion-example dependence. The course's epsilon, exact fixture, gain
+name, errors, no-decay assignment, trace grammar, and accessible presentation
+remain local teaching policies.
+
+Rust emits the deterministic learner output and a strict diagram trace. Add a
+small site parser that validates and projects the trace but performs no
+normalization, gradient, or scale arithmetic. The static visualization compares
+the original vector, a positively scaled epsilon-zero case, a production-epsilon
+case near zero, and LayerNorm centering with semantic cards, tables, and CSS
+shapes rather than SVG or client script. Add `site/src/lib/rmsnorm-diagram.ts` and
+Chapter 25 coverage in both aggregate formula suites as declared outputs. Use
+the cached immutable Node and Playwright images for staged and canonical checks
+in Chromium and Firefox, isolating generated output from the Windows/Dropbox
+bind mount when needed.
+
+**Consequences:** Chapter 25 remains one dependency-free English vertical slice
+with a reusable differentiable normalization layer and no Russian placeholder
+route. Chapter 26 may consume normalized last-axis features before creating Q/K/V
+projections. No package, lockfile dependency, static-site architecture, Linux
+build definition, locale policy, hosting configuration, or deployment action is
+introduced.
+
+**Affected step:** `implement-ch25-rmsnorm`.
+
+## 2026-07-24 - Preserve parameter-name validation precedence in RMSNorm
+
+**Context:** The first isolated Rust audit found that `RmsNorm::new` could try
+to reserve the gain buffer before the shared parameter-name validation ran. An
+invalid name paired with an enormous feature width would therefore report an
+allocation failure, and a merely large request could consume memory, instead of
+following the cumulative parameter API's name-first validation convention.
+
+**Decision:** Expose the existing initializer name validator within the crate
+and call it after RMSNorm's epsilon and nonzero-width checks but before gain
+allocation. Add the initializer module as a narrow shared integration output and
+test the precedence with an invalid name and `usize::MAX` width. Also classify a
+row by its computed mean square, rather than its original coordinate spelling,
+when rejecting epsilon-zero zero-energy rows; this catches nonzero coordinates
+whose squares underflow before the logarithm.
+
+**Consequences:** RMSNorm retains its declared configuration-error ordering,
+reuses one canonical name grammar, avoids unnecessary allocation for an invalid
+name, and gives the promised typed zero-energy error before logarithm even at
+the floating-point representability boundary. No public API, dependency, build
+tool, or learner-facing fixture changes.
+
+**Affected step:** `implement-ch25-rmsnorm`.

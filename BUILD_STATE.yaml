@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-24T10:42:34Z"
+updated_at: "2026-07-24T12:26:23Z"
 
 environment:
   os: "Linux x86_64"
@@ -11642,14 +11642,29 @@ builds:
         objective: "Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero."
         depends_on:
           - repair-ch23-indexed-loss-and-model-summary
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/24-residual-connections.md"
+          - "site/src/content/chapters/en/24-residual-connections.mdx"
+          - "site/src/components/chapters/ResidualConnectionsDiagram.astro"
+          - "site/src/lib/residual-connections-diagram.ts"
+          - "site/tests/24-residual-connections-diagram.test.ts"
+          - "site/tests/e2e/ch24-residual-connections.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/demos/ch24-residual-connections/"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -11664,15 +11679,25 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "Ioffe and Szegedy, Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift (https://arxiv.org/abs/1502.03167; bounded read-only network input)"
+          - "Ba, Kiros, and Hinton, Layer Normalization (https://arxiv.org/abs/1607.06450; bounded read-only network input)"
+          - "Zhang and Sennrich, Root Mean Square Layer Normalization (https://arxiv.org/abs/1910.07467; bounded read-only network input)"
+          - "Touvron et al., LLaMA: Open and Efficient Foundation Language Models (https://arxiv.org/pdf/2302.13971; bounded read-only network input)"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Official node:22.12.0-bookworm-slim validation image at immutable digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213"
         outputs:
           - "curriculum/chapters/25-rmsnorm.md"
           - "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch25-rmsnorm/"
           - "site/src/content/chapters/en/25-rmsnorm.mdx"
           - "site/src/components/chapters/RmsnormDiagram.astro"
+          - "site/src/lib/rmsnorm-diagram.ts"
           - "site/tests/25-rmsnorm-diagram.test.ts"
           - "site/tests/e2e/ch25-rmsnorm.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero."
@@ -11690,6 +11715,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch25-rmsnorm | diff -u rust/demos/ch25-rmsnorm/expected.txt -"
+          - "cargo run --quiet --locked -p ch25-rmsnorm --example ch25-rmsnorm-trace | diff -u rust/demos/ch25-rmsnorm/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 25-rmsnorm"
           - "npm --prefix site run check:parity -- --chapter 25-rmsnorm"
           - "npm --prefix site run check:content"
@@ -11698,11 +11724,147 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:25-rmsnorm'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@chapter:25-rmsnorm'"
+          - "npm --prefix site run test:e2e -- --grep '@formula-rendering'"
+          - "npm --prefix site run test:e2e -- --browser=firefox --grep '@formula-rendering'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only access to four declared primary papers, and already cached immutable Node and Playwright images; registered deferred locales require no lesson or route. No paid service, generation service, substantial CPU expansion, package/build change, hosting, deployment, or concept-implementing dependency is planned."
+        runs:
+          - run_id: 20260724T110220Z-implement-ch25-rmsnorm-01
+            started_at: "2026-07-24T11:02:20Z"
+            finished_at: "2026-07-24T12:26:23Z"
+            status: succeeded
+            input_fingerprint:
+              git: "1bb0ed53db8bf72fbcc77cfbc5d01551fb4988bb"
+              manifest: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/input-fingerprint.txt"
+              checksum: "sha256:b527e02aedcb38a3008fd22f2ec36c3c720ade649f307fedb8126796e22ed77e"
+              tools: "Docker 29.6.2; Docker Compose 5.3.1; Git 2.55.0.windows.3; repository Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached Node and Playwright image digests match the declared immutable inputs"
+            staging_dir: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/"
+            commands:
+              - "Run the complete startup protocol, preserve unrelated desktop.ini, verify the committed Chapter 23 repair and its checksummed artifacts, compare all recorded tool versions, and select the sole eligible Chapter 25 step"
+              - "Declare the last-axis differentiable RMSNorm boundary, production and epsilon-zero fixtures, explicit no-decay teaching policy, strict Rust trace/parser path, aggregate formula coverage, four primary-paper inputs, and cached browser runtimes before product work"
+              - "Fingerprint all declared local inputs and bounded sources, create isolated publish, validation, research, visual-review, and log directories, and record the exact source-claim boundary"
+              - "Create the run-specific npm dependency volume and seed it offline from learn-llm-workspace:local only after its package-lock checksum exactly matches the canonical lockfile"
+              - "Freeze the staged Chapter 25 contract, deterministic stdout, 14-line trace commitment, source claims, formula boundary, epsilon cases, gain policy, and Chapter 26 handoff; correct the predecessor-kind vocabulary exposed by the early validator"
+              - "Implement the dependency-free last-axis RMSNorm layer, typed validation errors, trainable gain, reverse-mode composition, exact Rust report and trace fixtures, history contrast, no-decay policy, and sampled gradient checks in the isolated publish tree"
+              - "Generate the workspace lockfile offline, format in an isolated Linux overlay, and correct compiler- and test-exposed fixture assertions without changing the frozen learner-facing evidence"
+              - "Audit the Rust layer independently; detect and fix squared-energy underflow at epsilon zero plus parameter-name validation precedence, then repeat focused tests, clippy, byte-exact fixtures, and an independent rank-three gradient check"
+              - "Build the complete static English lesson, strict 14-line Rust-trace parser, server-rendered RMSNorm diagram, SEO metadata, source-backed LLM history, and aggregate Chapter 14-25 formula coverage in the isolated publish tree"
+              - "Run desktop and narrow visual review; replace formula layouts that clipped inside local scrollers with coordinate-level cells and bounded multi-row fixtures while preserving the frozen Rust evidence"
+              - "Freeze the exact 19-file publication manifest after all staged Rust, site, browser, content, link, and formula gates pass"
+              - "Prepare 19 same-directory checksum-verified publication temporaries and retain rollback copies for pre-existing files; after the three-argument managed Move overload proved unavailable, promote those unchanged temporaries with native MoveFileEx replace and write-through flags"
+              - "Run the complete course-plan, Chapter 25 contract/locale/content, Astro, focused/full Vitest, static-build, and link/SEO suite against the published canonical tree with generated output isolated in a fresh volume"
+              - "Build and serve a second fresh canonical artifact for browser validation; move the pinned Playwright test containers into the preview container's loopback namespace after Vite correctly rejected an unlisted Docker-alias Host header"
+              - "Run formatting, warning-strict clippy, focused RMSNorm/demo tests, exact Rust fixtures, dependency/demo policy, and the complete serialized Rust workspace against the read-only canonical tree with a fresh isolated target volume"
+              - "Repeat only the full canonical Chromium suite with the copied run-specific dependency cache writable so its nested locale fixture can refresh Vite metadata, while keeping canonical source read-only"
+              - "Copy the canonical Rust and browser logs into the run staging directory, checksum them, then remove the 11 exact Chapter 25 Docker volumes after confirming that no run-specific container or network remains"
+              - "Parse the final ledger, repeat the course-plan validator, verify staged/canonical/artifact checksums, compare exact changed-path ownership, and audit protected files, modes, deletions, control characters, whitespace, and disposable resources"
+            artifacts:
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/input-fingerprint.txt"
+                checksum: "sha256:b527e02aedcb38a3008fd22f2ec36c3c720ade649f307fedb8126796e22ed77e"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/research/source-notes.md"
+                checksum: "sha256:94f03fad663fb05f1dda7e35780323ccb26f5089deac7e57391210c627b87328"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publish/curriculum/chapters/25-rmsnorm.md"
+                checksum: "sha256:cb0488060fe432c1e968bc0382621b20330b8731c3fd3ccde1de17f292b8fee8"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publish/rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
+                checksum: "sha256:118a487cf6b29a79e489bf1e8a0a9de8fa7fd1277e17d32e65f7556e37ea3faa"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publish/rust/demos/ch25-rmsnorm/expected.txt"
+                checksum: "sha256:bff6585553435c14c81c9238bbc3707c51aeeb0f4e65203d4044a4ef64dadb67"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publish/rust/demos/ch25-rmsnorm/diagram-trace.txt"
+                checksum: "sha256:a8801a292fe5d2d0ec002bdfac1f0ac6c6003f0c34a0d9c8b6807c7f86aa3c33"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publish/Cargo.lock"
+                checksum: "sha256:e6174b1bf8a9da01c806cbb8aad0799a60e8dc54198d20cad8e043dbd5cc4ef0"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/publication-manifest.sha256"
+                checksum: "sha256:5b18530448e183a1219fadab575c2438cfefd46d094ce14d789858ce89c02efd"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/visual-review/ch25-diagram-desktop.png"
+                checksum: "sha256:34986ce766a930bdbf6802aa275101097f997e28a87dbdba066afa33ea3c48b6"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/visual-review/ch25-diagram-narrow.png"
+                checksum: "sha256:164366d1998e30b4ccf31e73d2b6d7c97814f6c0de5e6b241d00c5db654fab5c"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/visual-review/ch25-page-desktop.png"
+                checksum: "sha256:9911ee153aa41df3a0082321dfa8e1d166a68064ca5c6fddab42f87e2dfa1545"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/visual-review/ch25-page-narrow.png"
+                checksum: "sha256:fe750f7b18697f9d446f0571a6aa6f50e3caa73f0a807f94fecf2f93399b8d78"
+              - path: ".build/runs/20260724T110220Z-implement-ch25-rmsnorm-01/logs/canonical-validation.sha256"
+                checksum: "sha256:62bc0464e531161fdfd01d85d859c62a294ebf5f627284a7458bfc1f3ac26038"
+            validation:
+              - command: "Preflight dependency, environment, cost, ownership, prior-run, locale, source, scheduling, and input-fingerprint audit"
+                status: passed
+                notes: "Chapter 25 is the sole eligible step; its Chapter 23 repair dependency is committed and complete; no stale or overlapping run exists; every local input and the English-only Chapter 25 locale projection exists; Docker, Compose, Git, Rust, Cargo, Node, npm, and immutable image digests match; four primary sources are bounded and recorded; the medium run needs no new budget approval; and unrelated desktop.ini remains untouched."
+              - command: "npm --prefix site run check:contract -- ../.build/ch25-contract.md --structure-only (first frozen draft)"
+                status: failed
+                notes: "The validator rejected the invented predecessor_kind value neural-training-practice. No product output was published; the contract now uses the accepted training-practice category without changing its history or scope."
+              - command: "npm --prefix site run check:contract -- ../.build/ch25-contract.md --structure-only (corrected frozen draft)"
+                status: passed
+                notes: "The unpublished English-only Chapter 25 contract passes every structural field, section, source-role, formula, Rust-evidence, visualization, exercise, localization, and acceptance requirement."
+              - command: "cargo check --locked --offline --workspace --all-targets and focused RMSNorm tests in the isolated Linux overlay (early attempts)"
+                status: failed
+                notes: "The compiler exposed one shadowed fixture helper, then the focused tests exposed three assertion-only defects: NaN equality, bitwise comparison of algebraically invariant floating-point results, and one over-precise expected batch value. Product output remained staged; all four issues were corrected while the frozen six-decimal report and trace stayed unchanged."
+              - command: "cargo fmt --all -- --check; cargo check --locked --offline --workspace --all-targets; cargo test --locked --offline -p llm-from-scratch rmsnorm; cargo test --locked --offline -p ch25-rmsnorm --all-targets"
+                status: passed
+                notes: "The complete workspace compiles; all eight focused library RMSNorm tests and four demo tests pass in the pinned Linux toolchain."
+              - command: "cargo clippy --locked --offline --workspace --all-targets -- -D warnings; exact Linux diff of Rust stdout and Rust-authored trace against their frozen files"
+                status: passed
+                notes: "The workspace is warning-free, and both deterministic learner artifacts match byte for byte."
+              - command: "Independent RMSNorm Rust audit, focused crate/demo tests, exact fixtures, and rank-three forward/backward check"
+                status: passed
+                notes: "The audit found and corrected two staged defects before publication: epsilon-zero squared energy that underflows to zero now reports ZeroEnergyRow, and canonical parameter names are validated before allocation. Rustfmt, focused clippy, 246 library tests, four demo tests, both exact diffs, and an independent rank-three gradient check pass."
+              - command: "node scripts/check-course-plan.mjs; Chapter 25 contract/chapter/parity/content checks; astro check; focused and full Vitest"
+                status: passed
+                notes: "The plan reports 39 chapters, 67 scheduled steps, and 25 contracts; the English-only Chapter 25 projection is complete with no deferred Russian route; Astro reports zero diagnostics; 27 focused tests and all 669 tests across 32 files pass."
+              - command: "Staged static production build and scripts/check-static-links.mjs"
+                status: failed
+                notes: "The first bind-mounted site/dist build hit a Windows/Dropbox EACCES rename. No source or staged publication file changed; the same build was moved to an isolated run-specific dist volume."
+              - command: "Staged static production build in isolated dist volume and link/SEO audit"
+                status: passed
+                notes: "The pinned Node toolchain emits 37 pages; all 1137 local references, 37 SEO routes, and 118 static artifacts pass. No build tool, package, Linux workflow, hosting, or deployment file changed."
+              - command: "In-app browser bootstrap and browser discovery"
+                status: failed
+                notes: "The browser skill initialized successfully, but no embedded browser session was available after the prescribed single retry. Validation continued with the already cached immutable Playwright image."
+              - command: "Focused Chapter 25 Chromium/Firefox, aggregate formula Chromium/Firefox, and full Chromium Playwright suites"
+                status: passed
+                notes: "Chapter 25 passes 5 of 5 tests in each engine; aggregate formula coverage through Chapter 25 passes 64 of 64 in each engine; and the full Chromium suite passes all 171 tests. Earlier focused containment failures exposed formula clipping and were corrected before these final results."
+              - command: "Desktop and 390-pixel visual capture plus manual inspection"
+                status: passed
+                notes: "The final server-rendered diagram and full page keep formulas, card content, borders, and following sections contained at both widths. Local horizontal scrollers remain available where the teaching flow is intrinsically wider than the viewport."
+              - command: "cargo test --workspace --locked --offline (two default parallel attempts)"
+                status: failed
+                notes: "Both attempts reached only the unchanged Chapter 23 complete_pipeline test's 60-second wall-clock guard under concurrent container load; one measured 66.93 seconds. No Chapter 25 assertion or value failed."
+              - command: "Isolated Chapter 23 complete_pipeline test; RUST_TEST_THREADS=1 cargo test --workspace --locked --offline"
+                status: passed
+                notes: "The unchanged timing-sensitive Chapter 23 test passes alone in 51.53 seconds, and the complete workspace passes serially in 111.1 seconds. This is a validation-environment setting only; no build or source behavior was changed."
+              - command: "scripts/check-rust-dependencies.sh; scripts/check-rust-demos.sh; frozen publication-manifest checksum audit"
+                status: passed
+                notes: "The workspace uses only permitted local dependencies, all 25 Rust demos pass, exact Chapter 25 stdout/trace remain stable, and all 19 staged publication files match the immutable manifest."
+              - command: "Managed three-argument File.Move publication attempt"
+                status: failed
+                notes: "The host's PowerShell runtime does not expose the requested overwrite overload. The call failed before the first move; all 19 verified same-directory temporaries and every canonical file remained intact."
+              - command: "MoveFileEx REPLACE_EXISTING|WRITE_THROUGH publication and canonical manifest identity audit"
+                status: passed
+                notes: "Exactly 19 declared files were promoted from their verified same-directory temporaries. Every canonical SHA-256 equals publication-manifest.sha256, rollback copies exist for replaced files, and no publication temporary remains."
+              - command: "Fresh canonical course-plan, Chapter 25 contract/chapter/parity/content, Astro, focused/full Vitest, production-build, and static link/SEO audit"
+                status: passed
+                notes: "The canonical tree reports 39 chapters, 67 steps, 25 contracts, 32 localized sources, 25 publishable locale sets, and 30 catalog keys. Astro checks 131 files with zero diagnostics; focused tests pass 27 of 27; all 669 unit tests pass; the build emits 37 pages; and all 1137 references, 37 SEO routes, and 118 artifacts pass. Git status is unchanged and git diff --check passes."
+              - command: "Fresh canonical cargo fmt, full clippy -D warnings, focused RMSNorm/demo tests, exact stdout/trace, dependency/demo policies, and RUST_TEST_THREADS=1 cargo test --workspace --locked --offline"
+                status: passed
+                notes: "Formatting passes; clippy covers 27 packages with no lint warnings; focused results are 9 of 9 library and 4 of 4 demo tests; both learner artifacts match exactly; dependency policy passes; all 25 demos pass; and 78 workspace suites pass 336 tests with zero failures in 108.46 seconds. Cargo repeats four pre-existing generic example-filename collision warnings for Chapters 5-7, unrelated to Chapter 25. Read-only canonical Git status is unchanged."
+              - command: "Fresh canonical Chapter 25 and aggregate formula Playwright suites in Chromium and Firefox"
+                status: passed
+                notes: "The focused Chapter 25 suite passes 5 of 5 in each engine, and aggregate formula coverage through Chapter 25 passes 64 of 64 in each engine against the fresh static preview."
+              - command: "First fresh canonical full Chromium suite with dependency cache mounted read-only"
+                status: failed
+                notes: "The suite reached 169 passed, one failed, and one not run. The only failure is the unrelated chapter-locales nested fixture: Astro could not remove /tmp/.../site/node_modules/.vite/deps because the validation dependency volume was read-only (EROFS). Canonical content and all Chapter 25 tests passed; a rerun with the isolated copied cache writable is pending."
+              - command: "Fresh canonical full Chromium rerun with only the copied run-specific dependency cache writable"
+                status: passed
+                notes: "All 171 tests pass. Together with the focused two-engine suites, this verifies static no-JavaScript rendering, natural-height containment at 1440 and 390 pixels, readable formulas without clipping or following-block overlap, forced-color/RTL behavior, locale routing, SEO, and the complete browser regression surface. The preview container/network were removed and port 4325 is closed."
+              - command: "Canonical validation-log checksum audit and exact run-specific Docker resource cleanup"
+                status: passed
+                notes: "Eight Rust/browser logs were copied into the run staging directory and match canonical-validation.sha256. Eleven exact Chapter 25 npm, target, dist, browser-result, and cache volumes were removed; no learn-llm-ch25 container, volume, or network remains."
+              - command: "Final YAML/course-plan, staged/canonical identity, artifact, ownership, protected-file, mode, deletion, control-character, whitespace, and Docker-resource audits"
+                status: passed
+                notes: "BUILD_STATE.yaml parses; the plan reports 39 chapters, 67 scheduled steps, and 25 contracts through Chapter 25; all 19 staged/canonical product files and every recorded artifact match their checksums; the 21 tracked/in-scope paths are exactly 19 product outputs plus state and decisions; no protected build/process file, mode, or deletion changed; git diff --check and the control-character audit pass; unrelated desktop.ini is preserved; and no run-specific Docker resource remains."
+            notes: "Succeeded. Chapter 25 delivers a dependency-free differentiable last-axis RMSNorm layer, deterministic Rust report/trace, source-backed LLM-centered history, strict static parser, responsive no-JavaScript diagram, English lesson with SEO, aggregate formula coverage, and complete Rust/site/browser regressions. Ideal epsilon-zero scale invariance is explicitly separated from finite-epsilon near-zero behavior; zero-energy underflow and name-validation precedence are tested. No package dependency, build definition, Linux workflow, hosting, deployment, or deferred Russian placeholder changed."
       - id: implement-ch26-qkv-projections
         objective: "Project one hidden-state sequence into query, key, and value tensors with explicit attention dimensions."
         depends_on:

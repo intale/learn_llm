@@ -36,6 +36,7 @@ pub mod nn {
     #[path = "probability.rs"]
     pub mod probability;
     pub mod residual;
+    pub mod rmsnorm;
     pub mod swiglu;
 }
 

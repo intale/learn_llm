@@ -210,7 +210,7 @@ fn checked_element_count(fan_in: usize, fan_out: usize) -> Result<usize, Initial
         .ok_or(InitializationError::ShapeProductOverflow { fan_in, fan_out })
 }
 
-fn validate_name(name: &str) -> Result<(), InitializationError> {
+pub(crate) fn validate_name(name: &str) -> Result<(), InitializationError> {
     if name.is_empty() {
         return Err(InitializationError::EmptyName);
     }

@@ -168,6 +168,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch25-rmsnorm"
+version = "0.1.0"
+dependencies = [
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 
