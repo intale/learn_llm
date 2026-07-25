@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-25T09:07:30Z"
+updated_at: "2026-07-25T11:13:17Z"
 
 environment:
   os: "Linux x86_64"
@@ -12703,7 +12703,7 @@ builds:
         objective: "Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result."
         depends_on:
           - implement-ch29-rope
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -12895,10 +12895,191 @@ builds:
                 status: passed
                 notes: "Stale regenerable target, node_modules, .astro, and test-results directories from earlier Docker runs were removed without touching run manifests, logs, staged evidence, publication backups, or site/dist. The repository audit now passes with only site/dist as the intentional release exception, and no Chapter 30 validation container remains."
             notes: "Succeeded. Chapter 30 publishes one dependency-free English multi-head causal-attention vertical slice with full-width Q/K/V projections, per-head RoPE and causal attention, exact split/merge evidence, learned output mixing, complete differentiable Rust tests, source-bounded history, strict server-rendered formulas, and an accessible static visualization driven only by the exact Rust trace. Staged and fresh canonical Rust, site, link, formula, Chromium, and Firefox gates pass; Russian remains registered but deferred and receives no placeholder."
+      - id: repair-ch30-firefox-formula-spacing
+        objective: "Eliminate learner-facing formula overlap and clipping, including Chapter 30's fractional causal-probability matrix in Firefox 152."
+        depends_on:
+          - implement-ch29-rope
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/content/chapters/en/30-multi-head-attention.mdx"
+          - "site/src/styles/global.css"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/playwright.config.ts"
+          - "User report: Firefox 152 overlaps entries in Chapter 30's fractional causal-probability matrix and slightly overlaps other formulas"
+          - "Cached Playwright 1.61.1 Chromium revision 1228 and Firefox revision 1532 browser bundles"
+        outputs:
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+        acceptance:
+          - "Chapter 30's three-row fractional causal-probability matrix has non-overlapping rows and glyph extents in Firefox and Chromium at desktop and narrow widths."
+          - "Every learner-facing display formula has readable separation from adjacent content, preserves its complete vertical ink, and remains contained by the page or one named local horizontal scroller."
+          - "The regression detects internal matrix-row or glyph overlap rather than checking only the display formula's outer box."
+          - "The KaTeX renderer, direct InlineMath renderer, and loaded stylesheet use one exact compatible version; the lockfile contains no second KaTeX installation."
+          - "The correction is shared by course lessons and does not alter mathematical content, Rust evidence, locale publication, runtime dependencies, or static deployment."
+          - "Staged and canonical Docker-only checks pass and the correction is persisted in its own commit before the diagram-system step starts."
+        validate:
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run formula-rendering"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@formula|@chapter:30-multi-head-attention'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula|@chapter:30-multi-head-attention'"
+        cost:
+          class: medium
+          notes: "One exact development-time KaTeX version alignment and internal formula-geometry regression, followed by the complete aggregate formula and Chapter 30 browser matrices in cached Chromium and Firefox containers. Both required versions already exist in the frozen lock and cached validation image; no paid service, generation service, runtime dependency, content generation, or host toolchain artifact is planned."
+        runs:
+          - run_id: 20260725T103844Z-repair-ch30-firefox-formula-spacing-01
+            started_at: "2026-07-25T10:38:44Z"
+            finished_at: "2026-07-25T11:13:17Z"
+            status: succeeded
+            input_fingerprint:
+              git: "00c4e596e71a9a81c6abae1681036e192dee8910"
+              manifest: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/input-fingerprint.txt"
+              checksum: "sha256:b1259c884bf2ece2288b7a88334dfe0e16a0ef86c78abc902962805a53e224fc"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3; cached containers provide Node 22.12.0/npm 10.9.0, Playwright 1.61.1 Chromium revision 1228, and Firefox revision 1532 (Firefox 151.0)."
+            staging_dir: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/"
+            commands:
+              - "Run the startup protocol, preserve untracked .build evidence, and verify commit 00c4e59 contains the completed Chapter 30 step."
+              - "Inventory shared math styles, the exact Chapter 30 fractional matrix, and current aggregate and chapter-specific geometry assertions."
+              - "Split the user-requested correction into this formula step and one dependent course-wide diagram full-view step so each independently validated result receives its own commit."
+              - "Reproduce the fractional-matrix collision in pinned Firefox and trace it to rehype-katex 7.0.1 emitting KaTeX 0.16.47 markup while BaseLayout loads the incompatible root KaTeX 0.18.0 stylesheet."
+              - "Attempt an offline npm package-lock-only refresh inside the pinned workspace image; stop after npm reports ENOTCACHED without modifying the staged lockfile."
+              - "Use the two already-frozen nested KaTeX 0.16.47 lock entries as the deterministic source for one root entry, then remove both redundant nested paths."
+              - "Reject the first staged unit run because the cached browser image's embedded source predates Chapters 8-30; retain its successful new lockfile invariant and rebuild the validation overlay from the current read-only repository plus only the image's cached dependencies and browsers."
+              - "Pass the staged lock, source, type, 42-page build, and 1,487-link checks plus 78 of 79 Chromium formula/Chapter 30 cases; diagnose the remaining Chapter 23 narrow overflow to an absolutely positioned accessible MathML projection whose inline overflow escaped its one-pixel clip box."
+              - "Add one shared accessible-MathML containment rule using an absolute one-pixel block, overflow clip, legacy clip, and clip-path; assert those computed styles across all formula pages."
+              - "Verify that parent clipping alone does not remove a hidden MathML child's intrinsic scroll width in Chromium; collapse only the visually hidden projection's typographic box while preserving its semantic MathML tree."
+              - "Contain unbreakable inline formulas in a local horizontal viewport when they exceed the prose column, restoring 390-pixel page containment without shrinking or truncating visible mathematics."
+              - "Calibrate the internal matrix-row assertion against font-ready Chromium and Firefox screenshots: retain exact strut and fraction-sizing checks while allowing Firefox's non-painted subpixel line-box intersection."
+              - "Freeze six staged product outputs in publish.sha256, publish only checksum-identical files, and verify every canonical path against the immutable staged set."
+              - "Replay the complete formula and Chapter 30 gate from canonical read-only source in cached Docker browsers, then pass the host-artifact and diff checks."
+            artifacts:
+              - path: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/input-fingerprint.txt"
+                sha256: "b1259c884bf2ece2288b7a88334dfe0e16a0ef86c78abc902962805a53e224fc"
+              - path: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/publish.sha256"
+                sha256: "85656ab511286d82e6b123269dbdd6bf3cb539a224ace6b88b664b96189a8fc0"
+              - path: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/validation/ch30-matrix-chromium.png"
+                sha256: "b02296e665d89798c872c9b4f8d83e6bb396b18f643960cf2d5cf2bfd4689ed3"
+              - path: ".build/runs/20260725T103844Z-repair-ch30-firefox-formula-spacing-01/validation/ch30-matrix-firefox.png"
+                sha256: "a0ca582adc218f5891a911fcd43a2b6f6994a6cc80a7b4820fad5490186e4b07"
+            validation:
+              - command: "Preflight working-tree and Chapter 30 checkpoint audit"
+                status: passed
+                notes: "The branch is one commit ahead of origin at 00c4e59; tracked files are clean and only preserved .build evidence is untracked. Chapter 30's run remains immutable and succeeded, but its rendered formula acceptance is invalidated by the Firefox 152 learner report."
+              - command: "Course-wide diagram registration inventory"
+                status: passed
+                notes: "All 30 existing chapter diagram components expose one data-visualization-id; 28 currently declare local horizontal overflow. Their separate shared enhancement is scheduled immediately after this formula correction."
+              - command: "Pinned Firefox formula root-cause reproduction"
+                status: passed
+                notes: "The exact Chapter 30 A^(0) fractional matrix visibly overlaps under Firefox when rehype-katex 7.0.1's nested KaTeX 0.16.47 markup is paired with the root 0.18.0 stylesheet. KaTeX 0.16 emits .strut and .sizing layout classes while the 0.18 stylesheet expects renamed classes; substituting the matching 0.16.47 stylesheet restores row and fraction geometry without content-specific padding."
+              - command: "Offline npm lockfile refresh"
+                status: failed
+                notes: "npm --package-lock-only --offline stopped with ENOTCACHED because the final workspace image retains installed packages but not registry response metadata. It wrote no staged lockfile change and touched neither canonical files nor the host toolchain. The already-frozen identical 0.16.47 package records remain sufficient for a deterministic JSON lock rewrite and subsequent npm-ci validation."
+              - command: "Initial cached-browser-image staged unit run"
+                status: failed
+                notes: "The new single-KaTeX lockfile invariant passed, but the remaining source-audit tests correctly rejected the browser image's stale embedded Chapters 1-7-only source. No product defect or staged-output mutation resulted. Subsequent validation overlays the current repository source read-only and reuses only the image's installed dependencies and browsers."
+              - command: "Current-source staged Chromium formula and Chapter 30 replay"
+                status: failed
+                notes: "The exact KaTeX lock invariant, all 11 formula-source tests, Astro diagnostics, 42-page build, 1,487-link check, reported Chapter 30 matrix regression, and 78 of 79 browser cases passed. The sole failure was pre-existing narrow page overflow in Chapter 23 that font readiness made observable; diagnostics traced it to the long inline generated-token MathML projection escaping KaTeX 0.16's inline one-pixel hidden box. The shared staged containment rule addresses that actual boundary before replay."
+              - command: "Targeted 390-pixel Chromium formula containment diagnostic"
+                status: passed
+                notes: "After font readiness, Chapter 23's long generated-token formula remains fully available in its own horizontal viewport while document and body scroll widths both equal the 390-pixel viewport. The accessible MathML projection remains present but no longer contributes intrinsic page overflow."
+              - command: "Font-ready inline-formula vertical-geometry diagnostic"
+                status: passed
+                notes: "Representative Chapters 2, 18, 21, and 30 report no vertically clipped inline formula at 1,280 or 390 pixels after limiting local inline scrolling to narrow viewports and padding the visible KaTeX layer inside that scrollport."
+              - command: "Rendered Chapter 30 matrix inspection in Chromium and Firefox"
+                status: passed
+                notes: "Both retained screenshots show three clearly separated matrix rows and five readable fractions. Firefox's fraction line boxes intersect by 0.68 CSS pixels although their painted ink is separate, so the regression permits one CSS pixel while still requiring compatible struts, reduced fraction sizing, full vertical ink, and distinct logical rows."
+              - command: "Final staged formula and Chapter 30 Docker gate"
+                status: passed
+                notes: "The exact single-KaTeX lock invariant, all 11 formula-source tests, Astro diagnostics, 42-page static build, 1,487-link check, 79 Chromium cases, and 79 Firefox cases pass from the checksum-frozen staged tree."
+              - command: "Checksum publication and canonical identity check"
+                status: passed
+                notes: "All six declared canonical outputs match publish.sha256 byte-for-byte; the publication changes no chapter content, Rust evidence, locale availability, runtime dependency, or deployable release directory."
+              - command: "Fresh canonical formula and Chapter 30 Docker replay"
+                status: passed
+                notes: "From canonical read-only source, all 11 formula tests, Astro diagnostics, the 42-page build, 1,487-link check, 79 Chromium cases, and 79 Firefox cases pass with the matching KaTeX 0.16.47 renderer and stylesheet."
+              - command: "Docker-only host artifact and repository hygiene audit"
+                status: passed
+                notes: "git diff --check passes and ./course audit-host reports only site/dist as the intentional static-release exception; no Rust, Node.js, Python, browser, or generated dependency artifact was created on the host."
+            notes: "Succeeded. The site now uses one exact KaTeX 0.16.47 renderer and stylesheet, restores Chapter 30 matrix and course-wide formula geometry in Firefox and Chromium, contains accessible MathML, and gives only oversized narrow inline formulas a complete local viewport. Staged and canonical two-engine gates pass without changing learner content."
+      - id: standardize-course-diagram-full-view
+        objective: "Give every course diagram one reusable, accessible desktop full-view while preserving readable inline and mobile fallbacks."
+        depends_on:
+          - repair-ch30-firefox-formula-spacing
+        status: pending
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "site/src/components/chapters/*Diagram.astro"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/styles/global.css"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "scripts/check-site-content.mjs"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/playwright.config.ts"
+          - "The completed repair-ch30-firefox-formula-spacing outputs"
+          - "User requirement: expanded diagram viewing is a rule for all present and future content, not a Chapter 30 exception"
+        outputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "site/src/lib/diagram-full-view.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/styles/global.css"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "scripts/check-site-content.mjs"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+        acceptance:
+          - "Every current and future diagram registered with data-visualization-id automatically receives the same shared full-view behavior; chapters do not implement private expand controls."
+          - "On sufficiently wide desktop viewports, a localized keyboard-operable control expands the existing semantic diagram into the available viewport and returns focus on exit."
+          - "Expanded layouts materially reduce horizontal scrolling while preserving readable text, complete evidence, direction isolation, and escape/close behavior in Chromium and Firefox."
+          - "On mobile-sized viewports the control is absent, the inline layout remains page-contained, and named local scrollers remain available when needed."
+          - "With JavaScript disabled, every diagram remains complete static HTML and no nonfunctional control is exposed."
+          - "The permanent authoring rule and automated content validation require future useful diagrams to use the shared registration and responsive/full-view contract."
+          - "No server runtime, framework hydration, new package dependency, or chapter-specific localization is introduced."
+          - "Staged and canonical Docker-only site, link, unit, and two-engine browser gates pass; the step is persisted in its own commit before Chapter 31 starts."
+        validate:
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@diagram-full-view'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@diagram-full-view'"
+          - "npm --prefix site run test:e2e -- --grep '@formula|@chapter:30-multi-head-attention'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula|@chapter:30-multi-head-attention'"
+        cost:
+          class: medium
+          notes: "One dependency-free progressive enhancement, course-wide authoring rule, validator, and representative plus all-diagram browser coverage using cached Docker Node, Chromium, and Firefox inputs. No network, paid service, generation service, host toolchain installation, hosting, or deployment is planned."
+        runs: []
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
-          - implement-ch30-multi-head-attention
+          - standardize-course-diagram-full-view
         status: pending
         inputs:
           - "SKILLS.md"

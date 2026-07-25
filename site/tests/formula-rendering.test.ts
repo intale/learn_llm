@@ -46,6 +46,8 @@ const chapter14To30Files = [
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
 const componentRoot = resolve(process.cwd(), 'src/components');
+const packageManifestPath = resolve(process.cwd(), 'package.json');
+const packageLockPath = resolve(process.cwd(), 'package-lock.json');
 
 function readChapter(locale: (typeof locales)[number], file: string): string {
   return readFileSync(resolve(chapterRoot, locale, file), 'utf8');
@@ -552,6 +554,27 @@ const documentedChapter14To30Code = [
     pattern: /^[a-z][a-z0-9-]*@\d+$/,
   },
 ] as const;
+
+describe('KaTeX renderer and stylesheet compatibility', () => {
+  it('pins one KaTeX version for Markdown, components, and the loaded stylesheet', () => {
+    const manifest = JSON.parse(readFileSync(packageManifestPath, 'utf8')) as {
+      devDependencies: Record<string, string>;
+    };
+    const lock = JSON.parse(readFileSync(packageLockPath, 'utf8')) as {
+      packages: Record<string, { version?: string; devDependencies?: Record<string, string> }>;
+    };
+
+    expect(manifest.devDependencies.katex).toBe('0.16.47');
+    expect(lock.packages['']?.devDependencies?.katex).toBe('0.16.47');
+
+    const installedKatex = Object.entries(lock.packages)
+      .filter(([path]) => /(^|\/)node_modules\/katex$/.test(path))
+      .map(([path, entry]) => ({ path, version: entry.version }));
+    expect(installedKatex).toEqual([
+      { path: 'node_modules/katex', version: '0.16.47' },
+    ]);
+  });
+});
 
 describe('Chapter 1-7 formula-source contract', () => {
   it('enumerates both published locales and routes every reviewed expression through math markup', () => {

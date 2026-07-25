@@ -33,6 +33,7 @@ const chapterHeadings = [
 const normalizeMath = (value: string) => value.replace(/\s+/g, '');
 
 async function expectFormulaGeometry(page: Page) {
+  await page.evaluate(() => document.fonts.ready);
   const problems = await page
     .locator('.lesson-body .katex-display, .lesson-body [data-inline-math] > .katex')
     .evaluateAll((nodes) =>
@@ -61,6 +62,22 @@ async function expectFormulaGeometry(page: Page) {
           !localScroller
         ) issues.push(`${source} escapes the viewport`);
         if (rect.width <= 0 || rect.height <= 0) issues.push(`${source} has no visible box`);
+        const struts = element.querySelectorAll<HTMLElement>(
+          '.katex-html .strut, .katex-html .katex-strut',
+        );
+        if (struts.length === 0) issues.push(`${source} has no KaTeX layout strut`);
+        for (const [strutIndex, strut] of Array.from(struts).entries()) {
+          if (getComputedStyle(strut).display !== 'inline-block') {
+            issues.push(`${source} strut ${strutIndex} is not laid out as inline-block`);
+          }
+        }
+        const mathml = element.querySelector<HTMLElement>('.katex-mathml');
+        if (mathml) {
+          const mathmlStyle = getComputedStyle(mathml);
+          if (mathmlStyle.display !== 'block' || mathmlStyle.overflowX !== 'clip') {
+            issues.push(`${source} does not contain its accessible MathML projection`);
+          }
+        }
         const { direction, overflowY } = getComputedStyle(element);
         if (direction !== 'ltr') issues.push(`${source} is not left-to-right`);
         if (
@@ -78,6 +95,32 @@ async function expectFormulaGeometry(page: Page) {
       }),
     );
   expect(problems).toEqual([]);
+
+  const matrix = await page.locator('.lesson-body .katex-display').evaluateAll((displays) => {
+    const display = displays.find((candidate) =>
+      candidate
+        .querySelector('annotation[encoding="application/x-tex"]')
+        ?.textContent?.includes('A^{(0)}='),
+    ) as HTMLElement | undefined;
+    if (!display) return { problems: ['missing the A^(0) causal-probability matrix'] };
+    const base = display.querySelector<HTMLElement>('.katex');
+    const sizing = Array.from(
+      display.querySelectorAll<HTMLElement>(
+        '.sizing.reset-size6.size3, .katex-sizing.reset-size6.size3',
+      ),
+    );
+    const baseSize = base ? Number.parseFloat(getComputedStyle(base).fontSize) : 0;
+    const sizes = sizing.map((node) => Number.parseFloat(getComputedStyle(node).fontSize));
+    const problems: string[] = [];
+    if (sizing.length === 0) problems.push('matrix has no text-style fraction sizing');
+    for (const [index, size] of sizes.entries()) {
+      if (!(size > 0 && baseSize > 0 && size / baseSize < 0.85)) {
+        problems.push(`fraction sizing ${index} is ${size}px against ${baseSize}px base`);
+      }
+    }
+    return { problems, baseSize, sizes };
+  });
+  expect(matrix.problems).toEqual([]);
 }
 
 async function expectDiagramContainment(page: Page) {

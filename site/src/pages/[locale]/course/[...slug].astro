@@ -199,12 +199,41 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
     unicode-bidi: isolate;
   }
 
+  .lesson-body .katex .katex-mathml {
+    position: absolute;
+    display: block;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: clip;
+    contain: strict;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    font-size: 0;
+    line-height: 0;
+    white-space: nowrap;
+  }
+
   .lesson-body .katex-display {
     box-sizing: border-box;
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
     padding-block: 0.5rem;
+  }
+
+  @media (max-width: 44rem) {
+    .lesson-body :not(.katex-display) > .katex {
+      display: inline-block;
+      max-inline-size: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      vertical-align: middle;
+    }
+
+    .lesson-body :not(.katex-display) > .katex > .katex-html {
+      display: inline-block;
+      padding-block: 0.4em;
+    }
   }
 
   .lesson-body table {

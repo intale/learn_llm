@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 import { expectNoOverflowOrClientScripts } from './chapter-helpers';
 
@@ -43,6 +43,100 @@ const viewports = {
   desktop: { width: 1280, height: 900 },
   narrow: { width: 390, height: 844 },
 } as const;
+
+async function expectCompatibleKatexLayout(page: Page) {
+  await page.evaluate(() => document.fonts.ready);
+  const problems = await page
+    .locator('.lesson-body .katex-html')
+    .evaluateAll((formulas) =>
+      formulas.flatMap((formula, formulaIndex) => {
+        const source =
+          formula.parentElement
+            ?.querySelector('annotation[encoding="application/x-tex"]')
+            ?.textContent?.trim() ?? `formula ${formulaIndex}`;
+        const struts = formula.querySelectorAll<HTMLElement>('.strut, .katex-strut');
+        const problems =
+          struts.length === 0
+            ? [`${source} has no KaTeX layout strut`]
+            : Array.from(struts).flatMap((strut, strutIndex) =>
+                getComputedStyle(strut).display === 'inline-block'
+                  ? []
+                  : [`${source} strut ${strutIndex} is not laid out as inline-block`],
+              );
+        const mathml = formula.parentElement?.querySelector<HTMLElement>('.katex-mathml');
+        if (!mathml) problems.push(`${source} has no accessible MathML projection`);
+        else {
+          const style = getComputedStyle(mathml);
+          if (style.display !== 'block' || style.overflowX !== 'clip') {
+            problems.push(`${source} MathML is ${style.display} with ${style.overflowX} overflow`);
+          }
+          if (style.clipPath === 'none') problems.push(`${source} MathML has no clip path`);
+        }
+        return problems;
+      }),
+    );
+  expect(problems).toEqual([]);
+}
+
+async function expectChapter30FractionMatrixLayout(page: Page) {
+  const result = await page.locator('.lesson-body .katex-display').evaluateAll((displays) => {
+    const display = displays.find((candidate) =>
+      candidate
+        .querySelector('annotation[encoding="application/x-tex"]')
+        ?.textContent?.includes('A^{(0)}='),
+    ) as HTMLElement | undefined;
+    if (!display) return { problems: ['missing the A^(0) causal-probability matrix'] };
+
+    const base = display.querySelector<HTMLElement>('.katex');
+    const fractionSizing = Array.from(
+      display.querySelectorAll<HTMLElement>(
+        '.sizing.reset-size6.size3, .katex-sizing.reset-size6.size3',
+      ),
+    );
+    const fractions = Array.from(display.querySelectorAll<HTMLElement>('.mfrac'));
+    const problems: string[] = [];
+    if (!base) problems.push('matrix has no visible KaTeX root');
+    if (fractionSizing.length === 0) problems.push('matrix has no text-style fraction sizing');
+    if (fractions.length < 5) problems.push(`matrix exposes only ${fractions.length} fractions`);
+
+    const baseSize = base ? Number.parseFloat(getComputedStyle(base).fontSize) : 0;
+    for (const [index, sizing] of fractionSizing.entries()) {
+      const size = Number.parseFloat(getComputedStyle(sizing).fontSize);
+      if (!(size > 0 && baseSize > 0 && size / baseSize < 0.85)) {
+        problems.push(`fraction sizing ${index} is ${size}px against ${baseSize}px base`);
+      }
+    }
+
+    const fractionRects = fractions
+      .map((fraction) => fraction.getBoundingClientRect())
+      .filter((rect) => rect.width > 0 && rect.height > 0)
+      .sort((left, right) => left.top - right.top);
+    const rowBands: Array<{ top: number; bottom: number }> = [];
+    for (const rect of fractionRects) {
+      const existing = rowBands.find((band) => Math.abs(band.top - rect.top) < 1);
+      if (existing) existing.bottom = Math.max(existing.bottom, rect.bottom);
+      else rowBands.push({ top: rect.top, bottom: rect.bottom });
+    }
+    rowBands.sort((left, right) => left.top - right.top);
+    for (let index = 1; index < rowBands.length; index += 1) {
+      // Firefox's fraction line boxes can share less than one CSS pixel even
+      // when their painted numerators and denominators are visibly separate.
+      if (rowBands[index - 1]!.bottom > rowBands[index]!.top + 1) {
+        problems.push(`fraction rows ${index - 1} and ${index} overlap`);
+      }
+    }
+
+    return {
+      problems,
+      baseSize,
+      fractionSizes: fractionSizing.map((node) =>
+        Number.parseFloat(getComputedStyle(node).fontSize),
+      ),
+      rowBands,
+    };
+  });
+  expect(result.problems).toEqual([]);
+}
 const formerMathCode = new Set([
   'i',
   'r',
@@ -354,6 +448,7 @@ test.describe('@formula-rendering:ch01-ch07 rendered formula contract', () => {
           const response = await page.goto(`/${locale}/course/${chapterId}/`);
           expect(response?.ok()).toBe(true);
           await expect(page.locator('article.lesson')).toBeVisible();
+          await expectCompatibleKatexLayout(page);
           await expectNoOverflowOrClientScripts(page);
 
           const math = page.locator('.lesson-body .katex');
@@ -442,6 +537,7 @@ test.describe('@formula-rendering:ch08-ch13 rendered formula contract', () => {
         const response = await page.goto(`/en/course/${chapterId}/`);
         expect(response?.ok()).toBe(true);
         await expect(page.locator('article.lesson')).toBeVisible();
+        await expectCompatibleKatexLayout(page);
         await expectNoOverflowOrClientScripts(page);
 
         const math = page.locator('.lesson-body .katex');
@@ -536,6 +632,10 @@ test.describe('@formula-rendering:ch14-ch30 rendered formula contract', () => {
         const response = await page.goto(`/en/course/${chapterId}/`);
         expect(response?.ok()).toBe(true);
         await expect(page.locator('article.lesson')).toBeVisible();
+        await expectCompatibleKatexLayout(page);
+        if (chapterId === '30-multi-head-attention') {
+          await expectChapter30FractionMatrixLayout(page);
+        }
         await expectNoOverflowOrClientScripts(page);
 
         const math = page.locator('.lesson-body .katex');

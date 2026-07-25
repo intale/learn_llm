@@ -5441,3 +5441,100 @@ reported as complete from Chromium evidence alone.
 
 **Affected step and run:** `implement-ch30-multi-head-attention`, run
 `20260725T072057Z-implement-ch30-multi-head-attention-01`.
+
+## 2026-07-25 - Invalidate Chapter 30 rendering acceptance and split the readability correction
+
+**Status:** Accepted from direct learner review before corrective product work.
+
+**Context:** A learner using Firefox 152 reports that entries overlap inside the
+fractional causal-probability matrix immediately after “Predict its causal
+probabilities before running anything,” with smaller collisions in other
+formulae. The completed Chapter 30 run passed its recorded outer-box and
+containment checks in Playwright Firefox 151, but those checks do not inspect
+internal KaTeX matrix rows or wait for font readiness. Reproduction in the
+pinned Firefox environment exposes the same collision.
+
+The failure is a renderer/stylesheet mismatch rather than a Chapter 30 content
+or matrix-spacing choice. `rehype-katex` 7.0.1 resolves KaTeX 0.16.47 and emits
+that version's `.strut` and `.sizing` layout classes, while `BaseLayout.astro`
+loads the root KaTeX 0.18.0 stylesheet, which styles renamed classes instead.
+The fraction and matrix layout struts therefore receive no matching CSS.
+Loading the 0.16.47 stylesheet against the emitted markup restores the intended
+geometry without formula-specific padding.
+
+The same learner review asks for diagrams with substantial horizontal content
+to offer an expanded view, and clarifies that this must become a rule for all
+content rather than a Chapter 30 exception. All 30 existing chapter diagram
+components already expose `data-visualization-id`; 28 declare local horizontal
+overflow. The current static-diagram rule and browser helper prohibit all
+client scripts, so a shared progressive viewer requires a separately reviewed
+policy and regression boundary.
+
+**Decision:** Preserve the succeeded Chapter 30 run as immutable evidence but
+mark its step `invalidated`, because its learner-facing rendered-formula
+acceptance was not actually met in Firefox. Insert two independently verifiable
+replacement steps before Chapter 31:
+
+1. `repair-ch30-firefox-formula-spacing` aligns the direct and Markdown KaTeX
+   renderer plus stylesheet on exact version 0.16.47, removes the duplicate
+   installation from the lockfile, and adds font-ready internal matrix-row and
+   glyph geometry regressions. Do not hide the mismatch with arbitrary
+   Chapter 30 padding or change any mathematics.
+2. `standardize-course-diagram-full-view` defines and implements one localized,
+   accessible, desktop-only full-view enhancement for every registered current
+   and future diagram, retains complete static inline HTML without JavaScript,
+   keeps the control unavailable on mobile, and adds a validator plus
+   Chromium/Firefox coverage. Freeze the exact progressive-enhancement mechanism
+   only after its accessibility and cross-component audit; do not add thirty
+   chapter-specific controls.
+
+Make each step its own commit. Chapter 31 depends on the completed shared
+diagram step rather than directly on the invalidated Chapter 30 step. Russian
+chapter generation remains deferred; shared interface localization remains
+available for existing localized pages.
+
+**Consequences:** Formula correctness is repaired once at the package boundary
+and gains a regression capable of detecting the reported failure. Diagram
+readability becomes shared infrastructure and an authoring rule, not duplicated
+chapter markup. The split introduces no learner-content rewrite, Rust change,
+server runtime, hosting action, deployment action, or concept-implementing
+library.
+
+**Affected steps and run:** `implement-ch30-multi-head-attention`;
+`repair-ch30-firefox-formula-spacing`, run
+`20260725T103844Z-repair-ch30-firefox-formula-spacing-01`;
+`standardize-course-diagram-full-view`; and `implement-ch31-decoder-block`.
+
+## 2026-07-25 - Keep visible and accessible formula layers inside their layout boundaries
+
+**Status:** Accepted during the formula repair after aggregate browser replay.
+
+**Context:** Aligning the KaTeX renderer and stylesheet restores the missing
+matrix struts and fraction sizing, but font-ready Chromium checks also exposed a
+long Chapter 23 inline expression that widened the narrow page. KaTeX's
+one-pixel, absolutely positioned MathML layer retained the intrinsic width of
+its descendants despite clipping, and the visible expression itself cannot
+line-wrap safely at arbitrary rendered spans. Applying horizontal overflow to
+every inline formula at every width introduced vertical clipping around
+superscripts and fractions.
+
+**Decision:** Keep KaTeX's semantic MathML in the accessibility tree while
+strictly containing its one-pixel visual box and collapsing only its typographic
+dimensions. At viewports no wider than `44rem`, let an unbreakable inline
+formula become its own horizontal viewport only when its content exceeds the
+available width; add internal vertical breathing room so fraction, subscript,
+and superscript ink is not clipped. Leave fitting desktop inline formulas and
+all existing display-formula scrolling behavior unchanged. Browser regressions
+must wait for fonts, verify compatible layout struts and fraction sizing, check
+page and vertical containment, and inspect the Chapter 30 matrix in both
+Chromium and Firefox. A one-CSS-pixel tolerance is permitted for Firefox's
+fraction line-box metrics only; captured pixels must still show separated ink.
+
+**Consequences:** Long notation remains complete and readable without widening
+mobile pages or shrinking mathematical text. Accessible MathML remains present,
+visible matrices regain their intended spacing, and future KaTeX dependency
+drift fails a package-lock and rendered-geometry gate rather than reaching a
+learner.
+
+**Affected step and run:** `repair-ch30-firefox-formula-spacing`, run
+`20260725T103844Z-repair-ch30-firefox-formula-spacing-01`.
