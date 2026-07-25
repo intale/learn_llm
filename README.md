@@ -150,6 +150,12 @@ image, for example:
 ./course run scripts/validate-in-container.sh
 ```
 
+Playwright starts its disposable Astro preview on
+`http://127.0.0.1:64173` inside the ephemeral workspace container. This explicit
+test-only port is deliberately different from the human preview on `4321`, and
+`./course run` does not publish it to the host. A running course preview therefore
+cannot be mistaken for Playwright's test server.
+
 Show every supported wrapper command with:
 
 ```bash

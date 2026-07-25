@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-25T17:23:45Z"
+updated_at: "2026-07-25T17:43:57Z"
 
 environment:
   os: "Linux x86_64"
@@ -13816,10 +13816,155 @@ builds:
                 status: passed
                 notes: "The changed path set is exactly the 20 frozen publication files plus BUILD_STATE.yaml and DECISIONS.md; git diff --check passes; learner content, Rust, packages, lockfiles, Docker configuration, and site/dist are unchanged. After removing the exact ignored root Cargo target directory, ./course audit-host passes with only site/dist as the intentional static-release exception."
             notes: "Succeeded. Chapter 22's lower Value before formula now stays inside its own box in Chromium and Firefox at desktop, narrow, and fullscreen widths. The shared audit enforces nearest-box text and formula containment for every current and future registered diagram even inside a sanctioned ancestor scroller and while all 37 active localized routes are fullscreen. Every supported desktop diagram receives exactly one localized full-view control regardless of measured overflow, while mobile, no-JavaScript, unsupported-API, failure, focus, RTL, and forced-colors fallbacks remain intact. The superseded design-system checkpoint is explicitly replaced without rewriting its immutable run."
+      - id: isolate-playwright-preview-port
+        objective: "Give Playwright an explicit uncommon loopback preview port that cannot collide with the human course preview default."
+        depends_on:
+          - harden-diagram-containment-full-view
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-course-plan.mjs"
+          - "compose.yaml"
+          - "course"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/playwright.config.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "User report: Playwright's implicit port 4321 may collide with a human course preview during chapter development"
+          - "Three independent read-only port, preview-architecture, and regression-test audits"
+        outputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "site/playwright.config.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/playwright-config.test.ts"
+        acceptance:
+          - "Playwright's disposable Astro server uses explicit loopback port 64173 rather than inheriting Astro's port 4321 default."
+          - "One exported configuration value derives the Playwright base URL, readiness URL, and explicit preview --port argument, with reuseExistingServer remaining false."
+          - "The human-facing canonical preview, staged review default, smoke command, Compose mapping, and documented URLs remain on 4321; automated tests and human preview therefore use distinct ports."
+          - "A focused unit contract rejects port 4321, a missing or mismatched explicit --port, divergent browser/readiness origins, and accidental existing-server reuse."
+          - "The repository policy and README explain that the automated port is container-internal in the supported Docker workflow and deliberately separate from the human preview."
+          - "The course plan schedules this infrastructure checkpoint before Chapter 31 without changing chapter or locale scope."
+          - "Docker-only plan, content, diagnostics, unit, static-build, link, and complete Chromium browser gates pass with no host toolchain artifacts."
+          - "No learner content, Rust source or fixture, package dependency, human preview behavior, server runtime, release artifact, hosting action, or deployment changes."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e"
+          - "scripts/check-course-cli.sh"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "A small deterministic configuration and regression-test change with a complete cached Chromium replay. No network, paid service, generation, host toolchain, dependency, release, hosting, or deployment input."
+        runs:
+          - run_id: 20260725T173305Z-isolate-playwright-preview-port-01
+            started_at: "2026-07-25T17:33:05Z"
+            finished_at: "2026-07-25T17:50:18Z"
+            status: succeeded
+            input_fingerprint:
+              git: "627983b38e02224b9c5fce424d3f666501c7e50c"
+              manifest: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/input-fingerprint.txt"
+              checksum: "sha256:50b97e76843102dca8582ccb85eab242c9a7d299bd1e56cee38912acc80fe2d6"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3; cached containers provide Node 22.12.0/npm 10.9.0, Playwright 1.61.1 Chromium revision 1228, and Firefox revision 1532."
+            staging_dir: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/"
+            commands:
+              - "Complete startup at commit 627983b, preserve prior .build evidence, confirm no stale running step, and insert this user-requested infrastructure correction before Chapter 31."
+              - "Inventory every active and historical 4321 occurrence and run three independent read-only audits of port ownership, Docker namespace behavior, and durable regression coverage."
+              - "Confirm that supported Playwright execution binds only inside the disposable Docker container, while direct host execution could collide because the preview command implicitly inherits Astro's 4321 default."
+              - "Select private port 64173: it has no local services-database entry and lies outside the recorded Linux ephemeral range 32768-60999."
+              - "Fingerprint policy, ledger, plan, documentation, Playwright configuration, locale projection, current unit fixture, package locks, human preview configuration, and CLI behavior before product work."
+              - "Run the first focused Docker replay and retain its pre-validation failure caused by the cached browser image predating the committed explicit-replacement plan validator."
+              - "Pass the corrected focused 39-chapter/72-step plan, 30-case port/content unit, and zero-diagnostic 157-file Astro gates with the current committed validator mounted."
+              - "Reconstruct the current working tree on the cached canonical browser image with networking disabled."
+              - "Pass the complete staged plan, content, diagnostics, 752-case unit, 42-page build, and 1,487-link core gates; retain validation/staged-core-01.log, including the subsequent container-only CLI environment failure."
+              - "Pass all 223 Chromium browser cases on the explicit port; retain validation/staged-e2e-01.log."
+              - "Pass the course CLI contract on the supported host, Docker Compose configuration, diff whitespace, and host-artifact audit."
+              - "Run the first adversarial 4321-occupied proof, record its readiness-race failure before Playwright startup, then pass the corrected deterministic-listener replay with four localized-shell browser cases; retain validation/collision-proof-02.log."
+              - "Run an independent final diff audit, retain its finding that the focused contract should reject duplicate server, --port, and --host entries, then strengthen the unit assertions accordingly."
+              - "Pass the complete 752-case unit replay after the focused contract requires exactly one Playwright web server, one --port 64173 argument, and one --host 127.0.0.1 argument."
+              - "Preserve the pre-audit publication snapshot separately, freeze the final seven-file product publication and checksum manifest, and verify every published file against the canonical working tree."
+              - "Build the checksum-frozen canonical browser image without networking and pass the final core replay plus an occupied-4321 four-case Chromium proof."
+              - "Pass final publication identity, forbidden-scope, diff-whitespace, and host-artifact audits."
+            artifacts:
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/input-fingerprint.txt"
+                sha256: "50b97e76843102dca8582ccb85eab242c9a7d299bd1e56cee38912acc80fe2d6"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/validation/Browser.Dockerfile"
+                sha256: "a0f5867b8f005bebd44ae6cf734b7918a6cec0f9ec163ff4e45a096cd6f1a75b"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/validation/staged-core-01.log"
+                sha256: "b7c997717f1853dea01eead3449b48ce17cc4f4becce04d97a8bdfafeb0fd450"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/validation/staged-e2e-01.log"
+                sha256: "1ff5f37f5309114757e69b577a0308c9f3e972e8bfec5146d1a8ddb5d4685670"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/validation/collision-proof-02.log"
+                sha256: "634fdbe17242d9b24a8b405d91d789f357f7a00cae5bb014eb9aa83aa4c58b5e"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/publish.sha256"
+                sha256: "60890182afff0281ee6754bfc368f3e7ec58e39a54ce2ea1f40c42d220a24450"
+              - path: ".build/runs/20260725T173305Z-isolate-playwright-preview-port-01/validation/canonical-01.log"
+                sha256: "81414764f477c25ba550b83724d567cc9edc5b8b2aee1e4de768b25f0853843f"
+            validation:
+              - command: "Startup dependency, working-tree, environment, prior-run, ownership, and cost audit"
+                status: passed
+                notes: "The prior diagram-hardening step is completed and committed as 627983b; only preserved .build evidence is untracked; Chapter 31 was first pending before this correction; recorded host and container tool versions match; outputs are disjoint from Chapter 31; and the medium cached-browser cost uses no network or paid service."
+              - command: "Active 4321 ownership and collision audit"
+                status: passed
+                notes: "Only site/playwright.config.ts gives automated tests a fixed 4321 dependency, and its server command relies implicitly on Astro's default. compose.yaml, course, and README own the intentional human preview/review contract; chapter-locales.spec.ts already reserves an OS-assigned port; historical ledger references remain immutable."
+              - command: "First focused Docker plan, port-contract, and diagnostics replay"
+                status: failed
+                notes: "The cached canonical browser image contains the pre-627983b course-plan validator and rejected the already-committed explicit replacement edge before reading any port configuration or running a unit assertion. No product file changed; repeat with the current committed scripts/check-course-plan.mjs mounted read-only."
+              - command: "Corrected focused Docker plan, port-contract, and diagnostics replay"
+                status: passed
+                notes: "The plan reports 39 chapters and 72 scheduled steps; all 30 focused content/Playwright configuration cases pass; and Astro reports zero errors, warnings, or hints across 157 files. The contract proves port 64173, one derived origin, an explicit matching --port argument, and reuseExistingServer=false."
+              - command: "Network-disabled staged browser-image reconstruction"
+                status: passed
+                notes: "The current tree overlays the cached canonical browser image without network access or dependency resolution; image learn-llm-playwright-port:staged contains the exact working sources and pinned Playwright browser bundle."
+              - command: "First combined complete staged core, CLI, and browser replay"
+                status: failed
+                notes: "The 39-chapter/72-step plan, content contracts, zero diagnostics across 157 files, all 752 unit cases, 42-page static build, and 1,487-link audit passed. The command then stopped before Playwright because the cached Debian image's older mv lacks the supported host's --no-copy flag used by the release CLI contract. No port or product assertion failed; run that shell-only contract on the supported host and replay Playwright separately."
+              - command: "Complete staged Chromium browser replay"
+                status: passed
+                notes: "All 223 Chromium cases pass after Playwright starts the disposable Astro server on explicit loopback port 64173. This covers every chapter, locale routing, formulas, diagrams, fullscreen, accessibility fallbacks, SEO, and localized shell behavior."
+              - command: "Supported-host CLI, Compose, diff, and artifact audit"
+                status: passed
+                notes: "The course CLI contract passes with GNU coreutils 9.7; Docker Compose configuration remains valid with the unchanged human 4321 mapping; git diff --check passes; and the host artifact audit reports only site/dist as the intentional static-release exception."
+              - command: "First adversarial occupied-4321 browser proof"
+                status: failed
+                notes: "The harness probed the synthetic listener immediately after spawning it and exited before the listener reached its ready callback. Playwright never started and no product assertion ran. Repeat with an explicit listener-ready signal; no source change is required."
+              - command: "Corrected adversarial occupied-4321 browser proof"
+                status: passed
+                notes: "A synthetic HTTP server holds 127.0.0.1:4321 inside the same container while Playwright starts on 64173 and all four localized-shell browser cases pass. This directly proves a running process on the human preview port cannot satisfy or block the automated server."
+              - command: "Independent final acceptance audit"
+                status: failed
+                notes: "The product configuration is coherent and scope is correct, but the first focused unit contract could accept an extra webServer entry or duplicate --port/--host arguments because it inspected only the first matching value. Strengthen those cardinality assertions before publication; no product configuration change is required."
+              - command: "Strengthened Playwright configuration contract and complete unit replay"
+                status: passed
+                notes: "The focused contract now requires exactly one web server, exactly one --port 64173 argument, and exactly one --host 127.0.0.1 argument. The plan still reports 39 chapters and 72 scheduled steps, and all 752 unit cases across 40 files pass."
+              - command: "Final publication identity and canonical replay"
+                status: passed
+                notes: "All seven declared product files verify against publish.sha256 and match the canonical tree byte-for-byte. The network-disabled canonical image passes the 39-chapter/72-step plan, all content checks, zero Astro diagnostics across 157 files, all 752 unit cases, the 42-page static build, all 1,487 local-reference checks, and four Chromium localized-shell cases while 127.0.0.1:4321 is occupied."
+              - command: "Final scope, diff, and host-artifact audit"
+                status: passed
+                notes: "git diff --check and ./course audit-host pass. The changed set is exactly the seven frozen product files plus BUILD_STATE.yaml and DECISIONS.md; learner content, Rust and Cargo files, Docker and Compose configuration, the course CLI, package manifests and locks, Astro configuration, site/dist, hosting, and deployment remain unchanged."
+              - command: "Completed-checkpoint course-plan replay"
+                status: passed
+                notes: "The Docker-only ledger validator accepts the finalized checkpoint and reports 39 chapters, 72 scheduled steps, and 30 implemented chapter contracts through Chapter 30. Chapter 31 is now eligible only after this completed infrastructure dependency."
+            notes: "Succeeded. Playwright's disposable Astro preview now binds explicitly to loopback port 64173, with one exported origin driving browser navigation, readiness, and the command port. Existing-server reuse is disabled, while every human preview path remains on 4321. The full browser suite passes on the isolated port, and a final adversarial replay proves that an occupied 4321 cannot block or satisfy Playwright."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
-          - harden-diagram-containment-full-view
+          - isolate-playwright-preview-port
         status: pending
         inputs:
           - "SKILLS.md"

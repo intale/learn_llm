@@ -246,6 +246,12 @@ validation normally includes:
   and the restriction on concept-implementing libraries;
 - a browser or rendered-page check for user-visible changes when feasible.
 
+An automated browser preview must bind an explicit loopback port distinct from
+the documented human-preview port. Derive its browser base URL, readiness URL,
+and server command from one configuration value, and never accept an unrelated
+existing server as the test fixture. In the supported Docker workflow, do not
+publish the automated preview port to the host.
+
 Publish only after validation succeeds. Verify canonical outputs after publication,
 then finalize the checkpoint. A failed validation never results in `completed`.
 

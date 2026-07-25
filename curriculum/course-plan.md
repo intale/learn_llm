@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 24,
+  "plan_revision": 25,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -178,6 +178,10 @@
       },
       {
         "step_id": "harden-diagram-containment-full-view",
+        "after_chapter": "30-multi-head-attention"
+      },
+      {
+        "step_id": "isolate-playwright-preview-port",
         "after_chapter": "30-multi-head-attention"
       }
     ],

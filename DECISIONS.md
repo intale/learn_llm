@@ -5820,3 +5820,42 @@ validator rejects undeclared, noncontiguous, or non-invalidated replacements.
 
 **Affected step and run:** `harden-diagram-containment-full-view`, run
 `20260725T155329Z-harden-diagram-containment-full-view-01`.
+
+## 2026-07-25 - Isolate Playwright from the human preview port
+
+**Status:** Accepted before implementation.
+
+**Context:** Playwright's `baseURL` and readiness URL hard-code port 4321 while
+its Astro preview command omits `--port`, so the test server works only by
+inheriting Astro's default. Port 4321 is also the deliberate human-facing
+canonical preview and staged-review default. In the supported Docker workflow,
+Playwright's socket stays inside an ephemeral container with no host port
+publication, so a host preview normally cannot collide. A direct host run can
+still collide, and the implicit framework default makes future drift hard to
+diagnose.
+
+**Decision:** Reserve loopback port 64173 for Playwright's disposable Astro
+preview. Export one numeric constant and one derived origin from
+`site/playwright.config.ts`; use them for `use.baseURL`, `webServer.url`, and an
+explicit `--port` argument in `webServer.command`. Keep
+`reuseExistingServer: false` so a foreign process can never satisfy the test
+server readiness check accidentally. Port 64173 has no entry in the current
+host services database and lies outside its recorded Linux ephemeral range of
+32768-60999.
+
+Keep 4321 for the human canonical preview, staged review default, smoke command,
+Compose mapping, and README URLs. Moving both workflows to the same replacement
+would preserve the collision. The isolated locale fixture already asks the OS
+for a free port and remains unchanged. Add a focused configuration contract
+that rejects 4321, mismatched command and URL ports, divergent browser and
+readiness origins, and existing-server reuse. Document the namespace boundary
+in policy and README, and schedule this checkpoint before Chapter 31.
+
+**Consequences:** A developer may leave the course preview running on 4321 while
+the supported Docker browser suite uses 64173 internally. The test harness no
+longer depends on Astro's default, and configuration drift fails in a fast unit
+test before browser startup. No learner content, package, runtime, release,
+hosting, or deployment behavior changes.
+
+**Affected step and run:** `isolate-playwright-preview-port`, run
+`20260725T173305Z-isolate-playwright-preview-port-01`.
