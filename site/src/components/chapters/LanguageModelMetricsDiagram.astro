@@ -97,7 +97,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           </table>
         </section>
 
-        <p class="stage-connector">
+        <p class="stage-connector" data-connector-to="aggregate">
           <span class="causal-arrow" aria-hidden="true">→</span>
           <span>{labels.notes.nextStep}</span>
         </p>
@@ -119,7 +119,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           </dl>
         </section>
 
-        <p class="stage-connector">
+        <p class="stage-connector" data-connector-to="mean">
           <span class="causal-arrow" aria-hidden="true">→</span>
           <span>{labels.notes.nextStep}</span>
         </p>
@@ -135,7 +135,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           </p>
         </section>
 
-        <p class="stage-connector">
+        <p class="stage-connector" data-connector-to="perplexity">
           <span class="causal-arrow" aria-hidden="true">→</span>
           <span>{labels.notes.nextStep}</span>
         </p>
@@ -269,6 +269,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
   .metrics-diagram {
     --diagram-border: color-mix(in srgb, currentColor 24%, transparent);
     --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+    container-type: inline-size;
     display: grid;
     min-inline-size: 0;
     max-inline-size: 100%;
@@ -323,8 +324,8 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
       minmax(13rem, 1fr);
     align-items: stretch;
     gap: 0.75rem;
-    inline-size: max-content;
-    min-inline-size: 100%;
+    inline-size: 100%;
+    min-inline-size: 84rem;
     padding: 0.25rem 0.25rem 0.75rem;
   }
 
@@ -513,6 +514,53 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     clip: rect(0 0 0 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  @container (min-width: 70rem) {
+    .calculation-chain {
+      min-inline-size: 0;
+      grid-template-columns:
+        minmax(14rem, 1fr) max-content minmax(13rem, 1fr) max-content
+        minmax(13rem, 1fr);
+      grid-template-areas:
+        'target target target target target'
+        'to-aggregate to-aggregate to-aggregate to-aggregate to-aggregate'
+        'aggregate to-mean mean to-perplexity perplexity';
+    }
+
+    .target-stage {
+      grid-area: target;
+    }
+
+    [data-connector-to='aggregate'] {
+      grid-area: to-aggregate;
+      justify-self: stretch;
+    }
+
+    .aggregate-stage {
+      grid-area: aggregate;
+    }
+
+    [data-connector-to='mean'] {
+      grid-area: to-mean;
+    }
+
+    .mean-stage {
+      grid-area: mean;
+    }
+
+    [data-connector-to='perplexity'] {
+      grid-area: to-perplexity;
+    }
+
+    .perplexity-stage {
+      grid-area: perplexity;
+    }
+
+    [data-connector-to='aggregate'] .causal-arrow,
+    .metrics-diagram:dir(rtl) [data-connector-to='aggregate'] .causal-arrow {
+      transform: rotate(90deg);
+    }
   }
 
   @media (max-width: 42rem) {

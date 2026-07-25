@@ -738,8 +738,12 @@ describe('language-model-metrics diagram component contract', () => {
     expect(componentSource).toContain('aria-describedby={accessibleDescriptionId}');
     expect(componentSource).toContain('dir="ltr"');
     expect(componentSource).toContain('overflow-x: auto');
-    expect(componentSource).toContain('inline-size: max-content');
-    expect(componentSource).toContain('min-inline-size: 100%');
+    expect(componentSource).toContain('inline-size: 100%');
+    expect(componentSource).toContain('min-inline-size: 84rem');
+    expect(componentSource).toContain('@container (min-width: 70rem)');
+    for (const destination of ['aggregate', 'mean', 'perplexity']) {
+      expect(componentSource).toContain(`data-connector-to="${destination}"`);
+    }
     expect(componentSource).toContain(':focus-visible');
     expect(componentSource).toContain('border-style: double');
     expect(componentSource).toContain('border-style: dashed');

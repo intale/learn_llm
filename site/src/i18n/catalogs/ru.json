@@ -28,5 +28,7 @@
   "chapterNavigationLabel": "Навигация по главам",
   "previousChapterLabel": "Предыдущая глава",
   "nextChapterLabel": "Следующая глава",
+  "diagramFullViewOpenLabel": "Развернуть схему на весь экран",
+  "diagramFullViewCloseLabel": "Выйти из полноэкранного режима",
   "footerNote": "Статический курс о внутреннем устройстве языковых моделей, доступный на нескольких языках."
 }

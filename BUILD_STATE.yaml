@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-25T11:13:17Z"
+updated_at: "2026-07-25T11:19:07Z"
 
 environment:
   os: "Linux x86_64"
@@ -2449,6 +2449,7 @@ builds:
           - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
           - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
           - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/src/lib/learn-bpe-merges-diagram.ts"
           - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
@@ -3843,6 +3844,7 @@ builds:
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
+          - "curriculum/course-plan.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
           - "curriculum/course-plan.md"
@@ -10592,6 +10594,7 @@ builds:
           - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
           - "site/tests/formula-rendering.test.ts"
           - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
@@ -12387,6 +12390,8 @@ builds:
           - "rust/demos/ch28-causal-masking/"
           - "site/src/content/chapters/en/28-causal-masking.mdx"
           - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
           - "site/src/lib/causal-masking-diagram.ts"
           - "site/tests/28-causal-masking-diagram.test.ts"
           - "site/tests/e2e/ch28-causal-masking.spec.ts"
@@ -12557,6 +12562,7 @@ builds:
           - "rust/demos/ch29-rope/"
           - "site/src/content/chapters/en/29-rope.mdx"
           - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
           - "site/src/lib/rope-diagram.ts"
           - "site/tests/29-rope-diagram.test.ts"
           - "site/tests/e2e/ch29-rope.spec.ts"
@@ -12740,6 +12746,7 @@ builds:
           - "site/src/components/RustSource.astro"
           - "site/src/content/chapters/en/29-rope.mdx"
           - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
           - "site/src/lib/rope-diagram.ts"
           - "site/tests/29-rope-diagram.test.ts"
           - "site/tests/e2e/ch29-rope.spec.ts"
@@ -12898,7 +12905,7 @@ builds:
       - id: repair-ch30-firefox-formula-spacing
         objective: "Eliminate learner-facing formula overlap and clipping, including Chapter 30's fractional causal-probability matrix in Firefox 152."
         depends_on:
-          - implement-ch29-rope
+          - implement-ch30-multi-head-attention
         status: completed
         inputs:
           - "AGENTS.md"
@@ -13023,10 +13030,11 @@ builds:
         objective: "Give every course diagram one reusable, accessible desktop full-view while preserving readable inline and mobile fallbacks."
         depends_on:
           - repair-ch30-firefox-formula-spacing
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md"
           - "SKILLS.md"
+          - "curriculum/course-plan.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
           - "site/src/components/chapters/*Diagram.astro"
@@ -13036,6 +13044,22 @@ builds:
           - "site/src/i18n/messages.ts"
           - "site/src/i18n/catalogs/en.json"
           - "site/src/i18n/catalogs/ru.json"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/src/components/chapters/ParameterInitializationDiagram.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/components/chapters/QkvProjectionsDiagram.astro"
+          - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "scripts/check-site-content.mjs"
           - "site/tests/e2e/chapter-helpers.ts"
           - "site/playwright.config.ts"
@@ -13044,14 +13068,33 @@ builds:
         outputs:
           - "AGENTS.md"
           - "SKILLS.md"
+          - "curriculum/course-plan.md"
           - "site/src/lib/diagram-full-view.ts"
           - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/src/styles/global.css"
           - "site/src/i18n/messages.ts"
           - "site/src/i18n/catalogs/en.json"
           - "site/src/i18n/catalogs/ru.json"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/components/chapters/ParameterInitializationDiagram.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/components/chapters/QkvProjectionsDiagram.astro"
+          - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
           - "scripts/check-site-content.mjs"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
           - "site/tests/e2e/diagram-full-view.spec.ts"
         acceptance:
           - "Every current and future diagram registered with data-visualization-id automatically receives the same shared full-view behavior; chapters do not implement private expand controls."
@@ -13075,7 +13118,131 @@ builds:
         cost:
           class: medium
           notes: "One dependency-free progressive enhancement, course-wide authoring rule, validator, and representative plus all-diagram browser coverage using cached Docker Node, Chromium, and Firefox inputs. No network, paid service, generation service, host toolchain installation, hosting, or deployment is planned."
-        runs: []
+        runs:
+          - run_id: 20260725T111907Z-standardize-course-diagram-full-view-01
+            started_at: "2026-07-25T11:19:07Z"
+            finished_at: "2026-07-25T12:37:48Z"
+            status: succeeded
+            input_fingerprint:
+              git: "181d8a16b7dfe78295b3e4f6b3381c39aa7c3b6a"
+              manifest: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/input-fingerprint.txt"
+              checksum: "sha256:eb7f21c1e57b4c11475901f1e3aec87975c230ff9a2a9052d6633bbf92f14967"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3; cached containers provide Node 22.12.0/npm 10.9.0, Playwright 1.61.1 Chromium revision 1228, and Firefox revision 1532."
+            staging_dir: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/"
+            commands:
+              - "Select the first eligible step after commit 181d8a1, confirm only preserved .build evidence is untracked, and re-read the repository's complete authoring and orchestration rules."
+              - "Inventory all 30 registered diagram components, their horizontal-scroll boundaries, the shared static-script browser assertion, and the locale-neutral site shell."
+              - "Claim one dependency-free shared infrastructure step before product work; retain chapter diagrams as static semantic HTML and reserve client behavior for one layout-level progressive enhancement."
+              - "Complete independent read-only architecture, accessibility, and policy audits; add the four legacy diagram components with unnamed local overflow regions to this step's declared outputs before changing them."
+              - "Stage the separate repository-wide authoring rule, one localized Fullscreen API controller, responsive and forced-colors styles, exact shared-script boundary, dynamic all-diagram unit/browser coverage, and named keyboard fallbacks for the four legacy overflow components."
+              - "Run two offline staged core checks in the cached Node/browser image; retain the first TypeScript-diagnostic failure and the second single unit-assertion wording failure before applying their narrow corrections."
+              - "Pass the third staged core gate, then run the first seven-case Chromium matrix and retain its strict-boundary failures before correcting the shared-script assertion, nested named-formula scrolling, and page-scroll test setup."
+              - "Use the second Chromium matrix as a complete runtime inventory; add Chapters 5 and 29 to the declared output boundary before repairing their remaining legacy scroll-region semantics."
+              - "Run the first complete staged unit gate; retain its four integration failures and add the reviewed course-plan registry to this step's declared outputs before aligning the two post-Chapter-30 infrastructure IDs."
+              - "Run the third complete staged gate through all 747 unit cases; declare the Chapter 3 component contract test before replacing its obsolete exact opening-tag assertion with the new named-region contract."
+              - "Inspect retained Firefox screenshots and quantify Chapter 30 scroll debt; add its diagram component to the declared boundary before reorienting the 3,164-pixel partition table and stacking wide evidence groups so full view does not retain a multi-viewport horizontal journey."
+              - "Add an all-current-diagram fullscreen residual-scroll audit; retain its Chromium failures and declare Chapters 7, 12, 20, 26, and 28 before reorganizing their oversized calculation evidence, with Chapter 29 already in the output boundary."
+              - "Reorganize the remaining wide evidence by causal stage, example, position, and Rust-declared tensor shape; run the complete staged gate; visually inspect the final Firefox captures; and freeze the 31-file publication manifest before canonical publication."
+              - "Publish the checksum-frozen byte set through one apply_patch transaction, verify all canonical files against the same manifest, replay the complete gate from canonical read-only source, and pass the Docker-only host-artifact audit."
+            artifacts:
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/input-fingerprint.txt"
+                sha256: "eb7f21c1e57b4c11475901f1e3aec87975c230ff9a2a9052d6633bbf92f14967"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/publish.sha256"
+                sha256: "a7971dfee733ca336b7ac3abf610248ee61397b69f3d37b17a26cede1d34fdd3"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/staged-complete-06.log"
+                sha256: "0619b09b9ed7913cbfa9054c551560a848e4c74eac332e475e775ec58aedde3e"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-course-wide-visual-review-03.log"
+                sha256: "2e51d7c4ef3a49839a4655210d6db8827e92661fd5c28da9f82dc0a545b389c0"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-07-language-model-metrics.png"
+                sha256: "e34dfc74a0ef9257abdcae1b4e3a620e079d08fac5122bb104b2d56a9d3fb546"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-12-stable-softmax.png"
+                sha256: "bf10bd277f0976cbf5089d5528b8148b36fdcc646139a6763355025c9971c6bd"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-20-swiglu-feed-forward.png"
+                sha256: "1228ba66e6c7a6d6e9f7e4fb682d98d0664d8cc5f524606e5649057bfe190019"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-26-qkv-projections.png"
+                sha256: "b70a579c94113de7724e6dc2f3b2674f7c5594fa91faf20cc1a5dcab2ff1875e"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-28-causal-masking.png"
+                sha256: "a328ebcc2c42ef313aad7111547d39fd443acf4616fac5f5171fd3140b82a0f0"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-29-rope.png"
+                sha256: "9763b6d71d28aa3987b09eb285e6a627ba44b38f0e0298a7408a90e19d41bc55"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/firefox-full-view-03-30-multi-head-attention.png"
+                sha256: "a76d3d46a95055d73eca06b4fdc70ab983b124e4436a96eaa31b164e38fc0eb1"
+              - path: ".build/runs/20260725T111907Z-standardize-course-diagram-full-view-01/validation/canonical-complete-01.log"
+                sha256: "29d9f75cafcd2ca2f0025ebff7abef993599320a14ee14df58076e77197ebd6c"
+            validation:
+              - command: "Preflight dependency, ownership, cost, and working-tree audit"
+                status: passed
+                notes: "repair-ch30-firefox-formula-spacing is completed in dedicated commit 181d8a1; this is the first eligible step. Its declared outputs do not overlap another running step, cost remains medium with cached Docker inputs and no network or paid service, and only preserved .build evidence is untracked."
+              - command: "Course-wide diagram and client-boundary inventory"
+                status: passed
+                notes: "All 30 diagram components expose one data-visualization-id and complete static HTML; 28 contain horizontal overflow styling. Existing chapter tests intentionally prohibit scripts inside each component, while one shared browser helper currently rejects every page-level client script and must be narrowed to an exact shared enhancement allowlist."
+              - command: "Independent course-wide diagram architecture, accessibility, and policy audits"
+                status: passed
+                notes: "Three read-only audits agree on one layout-level Fullscreen API enhancement over the existing semantic figure, dynamic all-diagram coverage, desktop-only material-overflow gating, localized controls, focus/Escape recovery, and static mobile/no-JavaScript fallbacks. They also identify four legacy components whose local scrollports need names and keyboard reachability, plus Firefox-specific fullscreen serialization and Escape fallback requirements."
+              - command: "Initial offline staged content, Astro, unit, build, and link gate"
+                status: failed
+                notes: "The content gate passed all 30 shared-full-view diagram components, then Astro diagnostics stopped on one explicit ResizeObserver window type and missing intentionally omitted Node test-runtime declarations. No runtime, content, build, or browser assertion failed; the complete log is retained as validation/staged-core.log."
+              - command: "Corrected offline staged core gate"
+                status: failed
+                notes: "Content validation and Astro diagnostics passed with 0 errors, warnings, or hints; six of seven focused unit cases passed. The last case compared a wrapped SKILLS.md phrase with a literal single-line substring. The policy text was present and unchanged; the assertion is corrected to accept Markdown whitespace. The complete log is retained as validation/staged-core-02.log."
+              - command: "Third offline staged core gate"
+                status: passed
+                notes: "All 30 diagram components pass the content contract; Astro reports 0 errors, warnings, or hints; all seven focused unit cases pass; the static build emits 42 pages; and all 1,487 local references pass. The complete log is retained as validation/staged-core-03.log."
+              - command: "Initial staged Chromium course-wide full-view matrix"
+                status: failed
+                notes: "One of seven cases passed. The matrix correctly exposed three test/contract integration issues before publication: Astro inlined the sole processed module instead of emitting an external src, narrow KaTeX overflow remained nested inside already-named diagram regions, and the scroll-restoration baseline was captured before Playwright scrolled the off-screen Chapter 30 toggle into view. The all-diagram no-JavaScript audit additionally began identifying pre-existing focusable named scrollers without role=region. The complete log is retained as validation/staged-chromium-01.log."
+              - command: "Second staged Chromium course-wide full-view matrix"
+                status: failed
+                notes: "Five of seven cases passed, including responsive control removal, unsupported-API fallback, Chapter 30 width/DOM/focus/Escape behavior, Russian labels, forced colors, and RTL. The completed 30-chapter desktop/mobile/no-JavaScript inventory found only Chapter 5's existing scrollable token lanes using role=group rather than region and Chapter 29's two long mobile formulas taking nested scroll ownership outside their formula rows. Both component paths were declared before correction. The complete log is retained as validation/staged-chromium-02.log."
+              - command: "First complete staged site, unit, link, and two-engine regression gate"
+                status: failed
+                notes: "The run stopped at the all-unit phase with 743 of 747 cases passing. One Chapter 3 source assertion required its original exact caption markup, one content assertion required the prior diagnostic phrase, and two course-plan projections correctly found that the two post-Chapter-30 infrastructure step IDs were absent from scheduling.cross_cutting_steps. No browser regression ran. The caption is restored with an equivalent aria-label on its region, the stricter diagnostic retains the prior phrase, and curriculum/course-plan.md was declared before registering both infrastructure steps. The complete log is retained as validation/staged-complete-01.log."
+              - command: "Second complete staged gate preflight"
+                status: failed
+                notes: "The explicit course-plan command stopped before product checks because the historical formula-repair step depended on Chapter 29 while the reviewed placement after Chapter 30 requires strict sequential dependency on implement-ch30-multi-head-attention. The dependency now records the actual Chapter 30 provenance; validation uses the current running ledger rather than the immutable base commit's pending-step snapshot. The complete log is retained as validation/staged-complete-02.log."
+              - command: "Third complete staged gate"
+                status: failed
+                notes: "The course plan, content gate, and Astro diagnostics passed, followed by 746 of 747 unit cases. The sole failure was Chapter 3's legacy source test requiring an exact one-line token-tape opening tag, which conflicts with the newly required role, focus, and accessible-name attributes. The test path was declared before changing that assertion to verify the semantic named-region contract. No build or browser command ran after the unit stop. The complete log is retained as validation/staged-complete-03.log."
+              - command: "Fourth offline staged core gate"
+                status: passed
+                notes: "All 30 diagram contracts, Astro diagnostics, focused policy/unit cases, the 42-page static build, and all 1,487 links pass after the legacy named-region repairs. The complete log is retained as validation/staged-core-04.log."
+              - command: "Third staged Chromium and Firefox course-wide full-view matrices"
+                status: passed
+                notes: "All seven full-view cases pass independently in both engines, including every current diagram on desktop, mobile, and without JavaScript; real Chapter 30 fullscreen identity, width gain, exit, Escape, and focus restoration; localization; unsupported API; forced colors; and RTL. Complete logs are retained as validation/staged-chromium-03.log and validation/staged-firefox-03.log."
+              - command: "Fourth complete staged site, unit, link, and two-engine regression gate"
+                status: passed
+                notes: "The reviewed course plan contains 39 chapters, 69 ordered steps, and 30 contracts; all 30 shared diagram contracts, Astro diagnostics, 747 unit cases, 42 built pages, 1,487 local links, 86 Chromium cases, and 86 Firefox cases pass. The complete log is retained as validation/staged-complete-04.log."
+              - command: "Fifth offline staged core gate after Chapter 30 evidence reflow"
+                status: passed
+                notes: "The focused policy, component, content, diagnostics, build, and link checks remain green after reorienting Chapter 30's wide partition and evidence tables. The complete log is retained as validation/staged-core-05.log."
+              - command: "Course-wide fullscreen residual-scroll audits in Chromium"
+                status: failed
+                notes: "The new eighth dynamic case entered every eligible current diagram and exposed six existing layouts that still retained substantial horizontal journeys in full view: Chapters 7, 12, 20, 26, 28, and 29. The first diagnostic was refined to identify the exact overflow owner; both immutable attempts are retained as validation/staged-chromium-04.log and validation/staged-chromium-05.log. Their component paths were declared before reflow work."
+              - command: "Sixth offline staged core gate and two-engine eight-case full-view matrices"
+                status: passed
+                notes: "All 30 static diagram contracts, Astro diagnostics, focused shared-policy cases, 42 built pages, and 1,487 links pass. Chromium and Firefox each pass all eight shared cases, including the dynamic fullscreen audit over every eligible current diagram after bounded, shape-aware reflows. Logs are retained as validation/staged-core-06.log, validation/staged-chromium-06.log, and validation/staged-firefox-06.log."
+              - command: "Firefox course-wide rendered visual review"
+                status: passed
+                notes: "Retained full-view captures cover the reorganized Chapters 7, 12, 20, 26, 28, 29, and 30 at the normal 16px text size. The second capture set confirms that the stable-softmax header and SwiGLU input-gradient table borders no longer overlap; every measured target fits its fullscreen owner, with Chapter 12's final four-pixel intrinsic overhang subsequently removed by reallocating its stage column. Evidence and logs use the firefox-full-view-02-* and firefox-course-wide-visual-review-02 names."
+              - command: "Fifth complete staged site, unit, link, and two-engine regression gate"
+                status: failed
+                notes: "Course-plan, content, diagnostics, and 746 of 747 unit cases passed. The sole failure was formula-rendering.test.ts intentionally requiring Chapter 26's former flattened six-coordinate gradient string; the test path was declared before updating it to require the new shape-aware 2-by-3 matrix projection, plus the analogous Chapter 28 and 29 matrix projections. No build, link, or browser command ran after the unit stop. The complete log is retained as validation/staged-complete-05.log."
+              - command: "Sixth complete staged site, unit, link, and two-engine regression gate"
+                status: passed
+                notes: "The strict 39-chapter/69-step plan, 30 diagram contracts, Astro diagnostics, all 747 unit cases, 42-page static build, 1,487-link audit, 87 Chromium cases, and 87 Firefox cases pass from the frozen staged overlay. The browser sets include all dynamic full-view, formula, and Chapter 30 cases. The complete log is retained as validation/staged-complete-06.log."
+              - command: "Final Firefox rendered review and publication checksum verification"
+                status: passed
+                notes: "Seven final full-view captures show the reorganized Chapters 7, 12, 20, 26, 28, 29, and 30 at 16px without overlap or clipping; every captured target reports scrollWidth exactly equal to clientWidth. All 31 staged publication files pass publish.sha256 before canonical publication."
+              - command: "Checksum-frozen canonical publication and identity check"
+                status: passed
+                notes: "All 31 declared staged files match their canonical paths byte-for-byte after one apply_patch publication transaction. The shared behavior remains one layout-level enhancement; no chapter-private script, hydration, server runtime, package, Russian chapter, or release directory was introduced."
+              - command: "Complete canonical Docker replay"
+                status: passed
+                notes: "From canonical read-only source, the course plan, 30 diagram contracts, Astro diagnostics, all 747 unit cases, 42-page build, 1,487-link audit, 87 Chromium cases, and 87 Firefox cases pass. The immutable log is retained as validation/canonical-complete-01.log."
+              - command: "Repository diff and Docker-only host-artifact audit"
+                status: passed
+                notes: "git diff --check passes; all in-scope changes are declared; and ./course audit-host reports only site/dist as the intentional static-release exception. No Rust, Node.js, Python, browser, or dependency artifact was created on the host."
+            notes: "Succeeded. Diagram full view is now a separate course-wide rule and dependency-free progressive enhancement for all registered current and future diagrams. Every eligible current diagram passes the common residual-scroll bound in Chromium and Firefox, mobile and no-JavaScript fallbacks remain complete, and the widest preserved Rust evidence is reorganized by causal stage or declared tensor shape without shrinking text."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:

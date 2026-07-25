@@ -5538,3 +5538,65 @@ learner.
 
 **Affected step and run:** `repair-ch30-firefox-formula-spacing`, run
 `20260725T103844Z-repair-ch30-firefox-formula-spacing-01`.
+
+## 2026-07-25 - Standardize full-view behavior for every course diagram
+
+**Status:** Accepted after course-wide accessibility, architecture, rendered,
+and two-engine review.
+
+**Context:** The course has 30 current semantic diagram components, most with
+one or more deliberately local horizontal scroll regions. A Chapter 30-only
+viewer would duplicate presentation policy and leave the same readability
+failure available to earlier and future chapters. A generic modal clone would
+also duplicate IDs, accessible relationships, and learner-visible evidence.
+Rendered inspection further showed that merely giving several diagrams a wider
+viewport was insufficient: flattened tensors and long side-by-side stage tables
+could still require more than a viewport of horizontal travel.
+
+**Decision:** Treat diagram presentation as a separate course-wide authoring
+contract for every existing and future useful visualization. Every component
+continues to emit exactly one complete, semantic, static
+`figure[data-visualization-id]`; chapter components may not add private client
+scripts, hydration, expand controls, dialogs, clones, or alternate mobile
+trees. One dependency-free layout controller progressively enhances registered
+figures and inserts its controls immediately after the `figcaption`, preserving
+the caption as the figure's first child.
+
+On viewports at least `64rem` wide and `36rem` high, expose the localized
+control only when a named local region hides at least the greater of 64 pixels
+or 12.5 percent of its own width and fullscreen offers at least 64 additional
+pixels. Request native fullscreen on the existing figure itself. Keep the
+control available inside fullscreen, support button exit and Escape, restore
+focus to the originating control, preserve configured direction and forced
+colors, and remove the control after a rejected request. On smaller viewports,
+without JavaScript, or without the Fullscreen API, leave the complete static
+diagram and expose no nonfunctional control.
+
+Named, focusable local regions remain the narrow and no-JavaScript fallback.
+Tables inside those regions do not acquire a second generic scroll boundary.
+Full view must provide space rather than scale down text. A dynamic browser gate
+discovers all useful English diagrams, enters every eligible figure, and rejects
+any single remaining horizontal journey greater than one quarter of the current
+viewport (with a 96-pixel floor) or any increase in total scroll debt. If a
+diagram fails that gate, reorganize its semantic grouping using the shape or
+sequence already present in the Rust trace.
+
+Apply that rule now by bounding Chapter 7's causal chain; comparing Chapter 12
+softmax stages by example; presenting Chapter 20 gradients per position;
+restoring the `[1,2,3]` Chapter 26 input gradient, the `[1,3,2]` Chapter 28
+gradients, and the `[3,4]` Chapter 29 gradients as shape-aware matrices; and
+orienting Chapter 30's head partition plus evidence tables for the available
+width. These are presentation projections of preserved Rust lexemes, not
+frontend implementations of the taught operations.
+
+**Consequences:** One automatically extensible mechanism and validator now
+cover Chapters 1 through 30 and future registered diagrams. English and Russian
+site chrome contains the two shared control labels while the approved
+English-only chapter policy after Chapter 7 remains unchanged. Desktop full
+view, mobile, no-JavaScript, unsupported-API, focus, Escape, forced-colors, RTL,
+formula geometry, and residual-scroll behavior are independently exercised in
+Chromium and Firefox. No package, server runtime, framework hydration, Rust
+behavior, chapter translation, or deployable release artifact is added.
+
+**Affected step and run:** `standardize-course-diagram-full-view`, run
+`20260725T111907Z-standardize-course-diagram-full-view-01`.

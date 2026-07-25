@@ -63,7 +63,12 @@ const switchTargets = localeDefinitions
 ---
 
 <!doctype html>
-<html lang={localeDefinition.languageTag} dir={localeDefinition.direction}>
+<html
+  lang={localeDefinition.languageTag}
+  dir={localeDefinition.direction}
+  data-diagram-full-view-open={copy.diagramFullViewOpenLabel}
+  data-diagram-full-view-close={copy.diagramFullViewCloseLabel}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -115,6 +120,11 @@ const switchTargets = localeDefinitions
     <footer class="site-footer">
       <p>{copy.footerNote}</p>
     </footer>
+    <script>
+      import { initializeDiagramFullView } from '../lib/diagram-full-view';
+
+      initializeDiagramFullView();
+    </script>
   </body>
 </html>
 

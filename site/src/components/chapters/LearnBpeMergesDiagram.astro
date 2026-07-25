@@ -67,8 +67,16 @@ const descriptionId = `${instance}-description`;
                         <dd><code dir="ltr">{document.id}</code></dd>
                       </div>
                       <div>
-                        <dt>{labels.fields.tokens}</dt>
-                        <dd class="token-tape" dir="ltr">
+                        <dt id={`${instance}-stage-${stage.index}-document-${documentIndex}-tokens`}>
+                          {labels.fields.tokens}
+                        </dt>
+                        <dd
+                          class="token-tape"
+                          role="region"
+                          tabindex="0"
+                          aria-labelledby={`${instance}-stage-${stage.index}-document-${documentIndex}-tokens`}
+                          dir="ltr"
+                        >
                           {document.tokens.map((token) => (
                             <code data-token-id={token}>{token}</code>
                           ))}
@@ -91,7 +99,12 @@ const descriptionId = `${instance}-description`;
                   <bdi class="numeric" dir="ltr">{round.rank}</bdi>
                 </h5>
                 <p class="visually-hidden">{labels.roundsLabel}</p>
-                <div class="candidate-scroll" tabindex="0">
+                <div
+                  class="candidate-scroll"
+                  role="region"
+                  tabindex="0"
+                  aria-label={labels.fields.candidates}
+                >
                   <table>
                     <caption>{labels.fields.candidates}</caption>
                     <thead>
@@ -168,6 +181,7 @@ const descriptionId = `${instance}-description`;
   }
 
   .bpe-merge-diagram:focus-visible,
+  .token-tape:focus-visible,
   .candidate-scroll:focus-visible {
     outline: 0.2rem solid var(--accent-dark);
     outline-offset: 0.2rem;

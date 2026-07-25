@@ -279,7 +279,7 @@ export async function expectVisualizationDecision(
   await expect(figure).toBeFocused();
 }
 
-export async function expectNoOverflowOrClientScripts(page: Page) {
+export async function expectNoPageOverflow(page: Page) {
   const widths = await page.evaluate(() => ({
     viewport: window.innerWidth,
     document: document.documentElement.scrollWidth,
@@ -287,5 +287,42 @@ export async function expectNoOverflowOrClientScripts(page: Page) {
   }));
   expect(widths.document).toBeLessThanOrEqual(widths.viewport);
   expect(widths.body).toBeLessThanOrEqual(widths.viewport);
-  await expect(page.locator('script')).toHaveCount(0);
 }
+
+export async function expectOnlySharedDiagramClientScript(page: Page) {
+  const scripts = await page
+    .locator('script:not([type="application/ld+json"])')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        src: (node as HTMLScriptElement).src,
+        text: node.textContent?.trim() ?? '',
+        type: (node as HTMLScriptElement).type,
+      })),
+    );
+  expect(scripts).toHaveLength(1);
+  expect(scripts[0]?.type).toBe('module');
+  if (scripts[0]?.src) {
+    expect(scripts[0].text).toBe('');
+    expect(new URL(scripts[0].src).pathname).toMatch(/^\/_astro\/.+\.js$/);
+  } else {
+    expect(scripts[0]?.text).toContain('diagramFullViewReady');
+    expect(scripts[0]?.text).toContain('figure[data-visualization-id]');
+  }
+
+  const labels = await page.locator('html').evaluate((root) => ({
+    open: root.getAttribute('data-diagram-full-view-open'),
+    close: root.getAttribute('data-diagram-full-view-close'),
+  }));
+  expect(labels.open?.trim().length ?? 0).toBeGreaterThan(0);
+  expect(labels.close?.trim().length ?? 0).toBeGreaterThan(0);
+}
+
+export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {
+  await expectNoPageOverflow(page);
+  await expectOnlySharedDiagramClientScript(page);
+}
+
+// Compatibility name retained for existing chapter suites. The assertion now
+// permits exactly the shared progressive diagram enhancement and nothing else.
+export const expectNoOverflowOrClientScripts =
+  expectNoOverflowOrUnexpectedClientScripts;

@@ -79,37 +79,54 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
       aria-label={labels.sections.shift}
     >
       <table class="shift-table">
+        <colgroup>
+          <col class="shift-stage-column" />
+          {trace.rows.map(() => <col />)}
+        </colgroup>
         <thead>
           <tr>
-            <th scope="col">{labels.fields.row}</th>
-            <th scope="col">{labels.fields.rawLogits}</th>
-            <th scope="col">{labels.fields.maximum}</th>
-            <th scope="col">{labels.fields.shifted}</th>
-            <th scope="col">{labels.fields.exponentials}</th>
-            <th scope="col">{labels.fields.denominator}</th>
-            <th scope="col">{labels.fields.probabilities}</th>
+            <th scope="col">{labels.sections.shift}</th>
+            {trace.rows.map((row) => (
+              <th
+                scope="col"
+                data-softmax-row={row.row.lexeme}
+                data-maximum={row.maximum.lexeme}
+                data-shifted={row.shifted.map(({ lexeme }) => lexeme).join(',')}
+                data-probabilities={row.probabilities.map(({ lexeme }) => lexeme).join(',')}
+                data-log-probabilities={row.logProbabilities
+                  .map(({ lexeme }) => lexeme)
+                  .join(',')}
+              >
+                {labels.fields.row} <bdi dir="ltr">{row.row.lexeme}</bdi>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {trace.rows.map((row) => (
-            <tr
-              data-softmax-row={row.row.lexeme}
-              data-maximum={row.maximum.lexeme}
-              data-shifted={row.shifted.map(({ lexeme }) => lexeme).join(',')}
-              data-probabilities={row.probabilities.map(({ lexeme }) => lexeme).join(',')}
-              data-log-probabilities={row.logProbabilities
-                .map(({ lexeme }) => lexeme)
-                .join(',')}
-            >
-              <th scope="row"><bdi dir="ltr">{row.row.lexeme}</bdi></th>
-              <td><bdi dir="ltr">{list(row.logits)}</bdi></td>
-              <td><bdi dir="ltr">{row.maximum.lexeme}</bdi></td>
-              <td><bdi dir="ltr">{list(row.shifted)}</bdi></td>
-              <td><bdi dir="ltr">{list(row.exponentials)}</bdi></td>
-              <td><bdi dir="ltr">{row.denominator.lexeme}</bdi></td>
-              <td><bdi dir="ltr">{list(row.probabilities)}</bdi></td>
-            </tr>
-          ))}
+          <tr>
+            <th scope="row">{labels.fields.rawLogits}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.logits)}</bdi></td>)}
+          </tr>
+          <tr>
+            <th scope="row">{labels.fields.maximum}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{row.maximum.lexeme}</bdi></td>)}
+          </tr>
+          <tr>
+            <th scope="row">{labels.fields.shifted}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.shifted)}</bdi></td>)}
+          </tr>
+          <tr>
+            <th scope="row">{labels.fields.exponentials}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.exponentials)}</bdi></td>)}
+          </tr>
+          <tr>
+            <th scope="row">{labels.fields.denominator}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{row.denominator.lexeme}</bdi></td>)}
+          </tr>
+          <tr>
+            <th scope="row">{labels.fields.probabilities}</th>
+            {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.probabilities)}</bdi></td>)}
+          </tr>
         </tbody>
       </table>
     </div>
@@ -308,9 +325,14 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
 
   .shift-table {
     width: 100%;
-    min-width: 62rem;
+    min-width: 64rem;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
+    table-layout: fixed;
+  }
+
+  .shift-stage-column {
+    width: 11rem;
   }
 
   .shift-table th,
@@ -320,6 +342,10 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     text-align: start;
     vertical-align: top;
     white-space: nowrap;
+  }
+
+  .shift-table th {
+    white-space: normal;
   }
 
   .shift-table tbody th {

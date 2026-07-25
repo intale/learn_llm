@@ -80,15 +80,27 @@ const caseTitles = {
 
               <ol class="pipeline">
                 <li data-lane="bytes">
-                  <h5>{labels.lanes.bytes}</h5>
-                  <p class="token-tape" tabindex="0" dir="ltr">
+                  <h5 id={`${caseId}-bytes-label`}>{labels.lanes.bytes}</h5>
+                  <p
+                    class="token-tape"
+                    role="region"
+                    tabindex="0"
+                    aria-labelledby={`${caseId}-bytes-label`}
+                    dir="ltr"
+                  >
                     {sample.inputBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
                   </p>
                 </li>
                 <li class="flow-arrow" aria-hidden="true">↓</li>
                 <li data-lane="initial">
-                  <h5>{labels.lanes.initial}</h5>
-                  <p class="token-tape" tabindex="0" dir="ltr">
+                  <h5 id={`${caseId}-initial-label`}>{labels.lanes.initial}</h5>
+                  <p
+                    class="token-tape"
+                    role="region"
+                    tabindex="0"
+                    aria-labelledby={`${caseId}-initial-label`}
+                    dir="ltr"
+                  >
                     {sample.initialTokens.map((token) => <code data-token-id={token}>{token}</code>)}
                   </p>
                 </li>
@@ -124,8 +136,14 @@ const caseTitles = {
                 </li>
                 <li class="flow-arrow" aria-hidden="true">↓</li>
                 <li data-lane="document">
-                  <h5>{labels.lanes.document}</h5>
-                  <p class="token-tape document-tape" tabindex="0" dir="ltr">
+                  <h5 id={`${caseId}-document-label`}>{labels.lanes.document}</h5>
+                  <p
+                    class="token-tape document-tape"
+                    role="region"
+                    tabindex="0"
+                    aria-labelledby={`${caseId}-document-label`}
+                    dir="ltr"
+                  >
                     {sample.documentTokens.map((token, index) => {
                       const isBos = index === 0;
                       const isEos = index === sample.documentTokens.length - 1;
@@ -146,8 +164,14 @@ const caseTitles = {
                 </li>
                 <li class="flow-arrow reverse" aria-hidden="true">↓</li>
                 <li data-lane="decoded">
-                  <h5>{labels.lanes.decoded}</h5>
-                  <p class="token-tape" tabindex="0" dir="ltr">
+                  <h5 id={`${caseId}-decoded-label`}>{labels.lanes.decoded}</h5>
+                  <p
+                    class="token-tape"
+                    role="region"
+                    tabindex="0"
+                    aria-labelledby={`${caseId}-decoded-label`}
+                    dir="ltr"
+                  >
                     {sample.decodedBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
                   </p>
                   <p class="exact-cue" data-round-trip="exact">

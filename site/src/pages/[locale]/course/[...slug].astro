@@ -234,9 +234,17 @@ const routeSuffix = '/course/' + entry.data.chapter_id + '/';
       display: inline-block;
       padding-block: 0.4em;
     }
+
+    .lesson-body figure[data-visualization-id] [role='region']
+      :not(.katex-display)
+      > .katex {
+      max-inline-size: none;
+      overflow-x: visible;
+      overflow-y: visible;
+    }
   }
 
-  .lesson-body table {
+  .lesson-body > table {
     display: block;
     width: 100%;
     overflow-x: auto;

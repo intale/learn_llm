@@ -29,6 +29,13 @@ const cueLabels: Record<QkvRole, string> = {
   value: labels.cues.value,
 };
 const status = (value: string) => value === 'true' ? labels.cues.accepted : labels.cues.rejected;
+const inputGradientRows = [
+  trace.backward.inputGradient.values.slice(0, 3),
+  trace.backward.inputGradient.values.slice(3, 6),
+];
+const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
+  .map((row) => row.join('&'))
+  .join(String.raw`\\`)}\end{bmatrix}`;
 ---
 
 <figure
@@ -232,9 +239,9 @@ const status = (value: string) => value === 'true' ? labels.cues.accepted : labe
           role="region"
           aria-label={labels.fields.inputGradient}
         >
-          <InlineMath
-            latex={String.raw`\bar X=${trace.backward.inputGradient.latex}`}
-          />
+          <span class="input-gradient-matrix">
+            <InlineMath latex={String.raw`\bar X=${inputGradientMatrix}`} />
+          </span>
         </p>
         <p><InlineMath latex={String.raw`\operatorname{shape}(\bar X)=${trace.backward.inputGradientShape}`} /></p>
       </article>
@@ -589,6 +596,15 @@ const status = (value: string) => value === 'true' ? labels.cues.accepted : labe
   .errors-card,
   .proof-card {
     grid-column: 1 / -1;
+  }
+
+  .input-gradient-card {
+    grid-column: 1 / -1;
+  }
+
+  .input-gradient-matrix {
+    display: inline-block;
+    min-inline-size: 32rem;
   }
 
   .gradient-table {

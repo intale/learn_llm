@@ -171,7 +171,9 @@ async function expectChapterContent(
     '[-0.268941421370, 1.731058578630]',
     'Unchanged',
   ]);
-  await expect(diagram.locator('.gradients-stage tbody tr')).toHaveCount(5);
+  await expect(diagram.locator('.position-gradient-table')).toHaveCount(2);
+  await expect(diagram.locator('[data-gradient-kind]')).toHaveCount(10);
+  await expect(diagram.locator('[data-parameter-gradient]')).toHaveCount(3);
   await expect(diagram.locator('.gradients-stage tbody tr').last()).toContainText(
     'ffn.down.weight',
   );
@@ -294,7 +296,9 @@ test.describe('chapter 20 SwiGLU feed-forward vertical slice', {
     await page.goto(chapterPath('en', chapterId));
     await expect(page.getByRole('heading', { level: 1, name: chapterTitle })).toBeVisible();
     await expect(page.locator('.position-card')).toHaveCount(2);
-    await expect(page.locator('.gradients-stage tbody tr')).toHaveCount(5);
+    await expect(page.locator('.position-gradient-table')).toHaveCount(2);
+    await expect(page.locator('[data-gradient-kind]')).toHaveCount(10);
+    await expect(page.locator('[data-parameter-gradient]')).toHaveCount(3);
     await expect(page.locator('.independence-proof')).toContainText('Unchanged');
     await expectNoOverflowOrClientScripts(page);
     await context.close();

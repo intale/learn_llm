@@ -180,36 +180,43 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
     <h3 id={`${titleId}-gradients`}><span aria-hidden="true">3</span> {labels.stages.gradients}</h3>
     <p>{labels.notes.gradients}</p>
     <div class="gradient-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
-      <table>
-        <caption>{labels.captions.positionGradients}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{labels.fields.position}</th>
-            <th scope="col">{labels.fields.upstream}</th>
-            <th scope="col">{labels.fields.gatedGradient}</th>
-            <th scope="col">{labels.fields.gateGradient}</th>
-            <th scope="col">{labels.fields.upGradient}</th>
-            <th scope="col">{labels.fields.inputGradient}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trace.backward.map((row) => (
-            <tr>
-              <th scope="row"><bdi dir="ltr">{row.position.lexeme}</bdi></th>
-              <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.gatedGradient)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.gateGradient)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.upGradient)}</bdi></td>
-              <td class="input-gradient">
-                <InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} />
-                <bdi dir="ltr">{vector(row.inputGradient)}</bdi>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div class="position-gradient-grid">
+        {trace.backward.map((row) => (
+          <table class="position-gradient-table" data-gradient-position={row.position.lexeme}>
+            <caption>
+              {labels.captions.positionGradients}: {labels.fields.position}{' '}
+              <bdi dir="ltr">{row.position.lexeme}</bdi>
+            </caption>
+            <tbody>
+              <tr data-gradient-kind="upstream">
+                <th scope="row">{labels.fields.upstream}</th>
+                <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
+              </tr>
+              <tr data-gradient-kind="gated">
+                <th scope="row">{labels.fields.gatedGradient}</th>
+                <td><bdi dir="ltr">{vector(row.gatedGradient)}</bdi></td>
+              </tr>
+              <tr data-gradient-kind="gate">
+                <th scope="row">{labels.fields.gateGradient}</th>
+                <td><bdi dir="ltr">{vector(row.gateGradient)}</bdi></td>
+              </tr>
+              <tr data-gradient-kind="up">
+                <th scope="row">{labels.fields.upGradient}</th>
+                <td><bdi dir="ltr">{vector(row.upGradient)}</bdi></td>
+              </tr>
+              <tr data-gradient-kind="input">
+                <th scope="row">{labels.fields.inputGradient}</th>
+                <td class="input-gradient">
+                  <InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} />
+                  <bdi dir="ltr">{vector(row.inputGradient)}</bdi>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        ))}
+      </div>
 
-      <table>
+      <table class="parameter-gradient-table">
         <caption>{labels.captions.parameterGradients}</caption>
         <thead>
           <tr>
@@ -220,7 +227,7 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
         </thead>
         <tbody>
           {trace.parameterGradients.map((row) => (
-            <tr>
+            <tr data-parameter-gradient={row.name}>
               <th scope="row"><bdi dir="ltr">{row.name}</bdi></th>
               <td><bdi dir="ltr">{shape(row.shape)}</bdi></td>
               <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
@@ -411,12 +418,46 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
     scrollbar-gutter: stable;
   }
 
+  .position-gradient-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(36rem, 1fr));
+    align-items: start;
+    gap: 0.75rem;
+    min-inline-size: calc(72rem + 0.75rem);
+    margin-block-end: 1rem;
+  }
+
   table {
-    inline-size: max-content;
-    min-inline-size: 100%;
+    inline-size: 100%;
     margin-block: 0 1rem;
     border-collapse: collapse;
     font-size: 0.84rem;
+  }
+
+  .position-gradient-table {
+    min-inline-size: 0;
+    table-layout: fixed;
+  }
+
+  .position-gradient-table th {
+    inline-size: 11rem;
+  }
+
+  .parameter-gradient-table {
+    min-inline-size: 52rem;
+    table-layout: fixed;
+  }
+
+  .parameter-gradient-table th:first-child {
+    inline-size: 14rem;
+  }
+
+  .parameter-gradient-table th:nth-child(2) {
+    inline-size: 7rem;
+  }
+
+  .parameter-gradient-table bdi {
+    white-space: normal;
   }
 
   table:last-child {
@@ -442,9 +483,11 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
   }
 
   .input-gradient {
-    display: flex;
-    gap: 0.4rem;
-    align-items: start;
+    white-space: nowrap;
+  }
+
+  .input-gradient :global([data-inline-math]) {
+    margin-inline-end: 0.4rem;
   }
 
   bdi {
@@ -460,6 +503,11 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
     .independence-proof,
     .position-list {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .position-gradient-grid {
+      grid-template-columns: minmax(36rem, 1fr);
+      min-inline-size: 36rem;
     }
   }
 

@@ -28,6 +28,8 @@ export const messageKeys = [
   'chapterNavigationLabel',
   'previousChapterLabel',
   'nextChapterLabel',
+  'diagramFullViewOpenLabel',
+  'diagramFullViewCloseLabel',
   'footerNote',
 ] as const;
 

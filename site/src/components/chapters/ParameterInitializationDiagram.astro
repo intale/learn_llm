@@ -145,7 +145,12 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
                 data-bar-percent={bin.barPercent.lexeme}
                 style={`--bar-percent: ${bin.barPercent.lexeme}%`}
               >
-                <span class="bin-range">
+                <span
+                  class="bin-range"
+                  role="region"
+                  tabindex="0"
+                  aria-label={`${labels.strategies[distribution.kind]} — ${labels.fields.range} ${index + 1}`}
+                >
                   <span class="visually-hidden">{labels.fields.range}: </span>
                   <InlineMath
                     latex={`\\left[${bin.lower.lexeme},${bin.upper.lexeme}${bin.includesUpper ? '\\right]' : '\\right)'}`}
@@ -266,6 +271,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   }
 
   .parameter-initialization-diagram:focus-visible,
+  .bin-range:focus-visible,
   .table-scroll:focus-visible {
     outline: 0.2rem solid var(--focus);
     outline-offset: -0.3rem;

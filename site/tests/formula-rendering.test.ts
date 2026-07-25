@@ -867,7 +867,13 @@ describe('build-time formula rendering in Chapter 14-30 diagrams', () => {
       'String.raw`${roleSymbols[projection.role].output}=X${roleSymbols[projection.role].weight}`',
     );
     expect(components.qkv).toContain(
-      'String.raw`\\bar X=${trace.backward.inputGradient.latex}`',
+      'trace.backward.inputGradient.values.slice(0, 3)',
+    );
+    expect(components.qkv).toContain(
+      'trace.backward.inputGradient.values.slice(3, 6)',
+    );
+    expect(components.qkv).toContain(
+      'String.raw`\\bar X=${inputGradientMatrix}`',
     );
     expect(components.qkv).toContain(
       'String.raw`\\bar ${roleSymbols[gradient.role].weight}=${gradient.values.latex}`',
@@ -890,6 +896,9 @@ describe('build-time formula rendering in Chapter 14-30 diagrams', () => {
       'latex="A=\\operatorname{softmax}(S+M)"',
     );
     expect(components.causalMasking).toContain('latex={mathValue(value)}');
+    expect(components.causalMasking).toContain(
+      'latex={tokenMatrix(trace.backward.queryGradient)}',
+    );
 
     expect(components.rope).toContain("import InlineMath from '../InlineMath.astro'");
     expect(components.rope).toContain(
@@ -897,6 +906,9 @@ describe('build-time formula rendering in Chapter 14-30 diagrams', () => {
     );
     expect(components.rope).toContain(
       'latex="\\left(R(m\\theta_k)q\\right)^\\top\\left(R(n\\theta_k)k\\right)=q^\\top R((n-m)\\theta_k)k"',
+    );
+    expect(components.rope).toContain(
+      'latex={tokenMatrix(trace.backward.queryGradient)}',
     );
     expect(components.rope).toContain('String.raw`\\theta_${row.pair.pair}=${row.pair.theta}`');
     expect(components.rope).toContain('String.raw`\\varepsilon_g=${trace.proof.gradient_tolerance}`');

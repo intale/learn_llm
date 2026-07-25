@@ -35,6 +35,31 @@ Verify formula changes in built HTML or a browser, not from source text alone.
 Tests must confirm the expected math annotations and check readable spacing and
 page containment at both desktop and narrow widths.
 
+### Diagram presentation
+
+Every useful chapter visualization must render as one semantic `figure` with a
+unique `data-visualization-id`. The figure and all of its evidence must remain
+complete static HTML: chapter components must not add a private script,
+hydration directive, dialog, duplicated presentation tree, or expand control.
+When inline content can overflow horizontally, put it in the smallest meaningful
+named region, make that region keyboard reachable, and retain it as the mobile
+and no-JavaScript fallback.
+
+The site layout owns one localized progressive full-view enhancement for every
+registered figure. It may expose its control only on a sufficiently large
+viewport where measured horizontal overflow makes expansion useful. Expansion
+must reuse the existing semantic figure, preserve readable text without scaling
+it down, materially increase the available reading width, support keyboard entry,
+native Escape exit, focus restoration, forced colors, and configured text
+direction, and leave no usable or focusable control on mobile or without
+JavaScript. Do not implement chapter-specific full-view behavior.
+
+Content and browser validation must enforce this contract for all existing and
+future diagrams. Verify the inline fallback and expanded presentation in built
+HTML in Chromium and Firefox; include desktop, narrow, no-JavaScript, and
+direction-sensitive cases. A diagram that still requires substantial scrolling
+in full view must be reorganized rather than made smaller.
+
 ## Sources of truth
 
 Read these before performing any work:

@@ -47,6 +47,77 @@ a:focus-visible {
   outline-offset: 0.25rem;
 }
 
+[data-diagram-full-view-controls] {
+  display: flex;
+  grid-column: 1 / -1;
+  inline-size: 100%;
+  justify-content: flex-end;
+  margin-block-end: 0.75rem;
+}
+
+[data-diagram-full-view-toggle] {
+  display: inline-flex;
+  min-block-size: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--accent-dark);
+  border-radius: 0.65rem;
+  background: var(--paper);
+  color: var(--accent-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+[data-diagram-full-view-toggle]:hover {
+  background: var(--paper-deep);
+}
+
+[data-diagram-full-view-toggle]:focus-visible {
+  outline: 0.2rem solid var(--focus);
+  outline-offset: 0.2rem;
+}
+
+.diagram-full-view-icon {
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+figure[data-visualization-id]:fullscreen {
+  inline-size: 100%;
+  max-inline-size: none;
+  block-size: 100%;
+  max-block-size: none;
+  margin: 0;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  overflow: auto;
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  scrollbar-gutter: stable both-edges;
+}
+
+figure[data-visualization-id]:fullscreen::backdrop {
+  background: var(--paper);
+}
+
+figure[data-visualization-id]:fullscreen [data-diagram-full-view-controls] {
+  position: sticky;
+  z-index: 20;
+  inset-block-start: 0;
+  padding-block: 0.25rem;
+  margin-block-end: 0;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+}
+
+figure[data-visualization-id]:fullscreen [data-diagram-full-view-scroll-owner] {
+  max-inline-size: 100%;
+}
+
 .skip-link {
   position: fixed;
   z-index: 10;
@@ -377,6 +448,12 @@ html[dir="rtl"] .locale-switch {
   text-transform: none;
 }
 
+@media (max-width: 63.999rem), (max-height: 35.999rem) {
+  [data-diagram-full-view-controls] {
+    display: none;
+  }
+}
+
 @media (max-width: 48rem) {
   .site-header {
     align-items: flex-start;
@@ -407,5 +484,19 @@ html[dir="rtl"] .locale-switch {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-diagram-full-view-toggle] {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  figure[data-visualization-id]:fullscreen,
+  figure[data-visualization-id]:fullscreen [data-diagram-full-view-controls] {
+    background: Canvas;
+    color: CanvasText;
   }
 }

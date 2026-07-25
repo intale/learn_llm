@@ -374,7 +374,10 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('data-round={round.rank}');
     expect(source).toContain("data-winner={candidate.winner ? 'true' : 'false'}");
     expect(source).toContain('<code dir="ltr">{document.id}</code>');
-    expect(source).toContain('<dd class="token-tape" dir="ltr">');
+    expect(source).toContain('class="token-tape"');
+    expect(source).toContain('role="region"');
+    expect(source).toContain('aria-labelledby={`${instance}-stage-');
+    expect(source).toContain('aria-label={labels.fields.candidates}');
     expect(source).toContain('<code dir="ltr">{round.merge.bytesHex.join');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.9fr)');
     expect(source).toContain('@media (max-width: 48rem)');

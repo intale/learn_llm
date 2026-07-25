@@ -447,13 +447,21 @@ function validateChapterSections(data, body, issues, sourceName) {
   const visualizationSection = renderableMdxSource(
     sections.get('visualization') ?? '',
   );
-  const diagramInvocation = /<[A-Z][A-Za-z0-9]*Diagram(?:\s|\/|>)/;
-  if (data.visualization?.decision === 'useful' && !diagramInvocation.test(visualizationSection)) {
-    issues.push(sourceName + ': useful visualization must be invoked inside its section');
+  const diagramInvocation = /<[A-Z][A-Za-z0-9]*Diagram(?:\s|\/|>)/g;
+  const visualizationInvocations = visualizationSection.match(diagramInvocation) ?? [];
+  const bodyInvocations = renderableMdxSource(body).match(diagramInvocation) ?? [];
+  if (
+    data.visualization?.decision === 'useful' &&
+    (visualizationInvocations.length !== 1 || bodyInvocations.length !== 1)
+  ) {
+    issues.push(
+      sourceName +
+        ': useful visualization must be invoked inside its section; exactly one *Diagram component is required in the complete body',
+    );
   }
   if (
     data.visualization?.decision === 'not-useful' &&
-    diagramInvocation.test(renderableMdxSource(body))
+    bodyInvocations.length !== 0
   ) {
     issues.push(sourceName + ': not-useful visualization must not invoke a diagram');
   }
@@ -1330,6 +1338,89 @@ export function repositoryRootFromCwd(cwd = process.cwd()) {
   return nodePath.basename(resolved) === 'site' ? nodePath.dirname(resolved) : resolved;
 }
 
+export function validateDiagramComponentSource(source, sourceName = 'diagram component') {
+  const issues = [];
+  const figures = source.match(/<figure\b[\s\S]*?>/g) ?? [];
+  const registered = figures.filter((tag) => /\bdata-visualization-id\s*=/.test(tag));
+  const registrations = source.match(/\bdata-visualization-id\s*=/g) ?? [];
+  const captions = source.match(/<figcaption\b/g) ?? [];
+
+  if (figures.length !== 1) {
+    issues.push(sourceName + ': useful diagram components must contain exactly one figure');
+  }
+  if (registered.length !== 1 || registrations.length !== 1) {
+    issues.push(
+      sourceName + ': the semantic figure must register exactly one data-visualization-id',
+    );
+  }
+
+  const figure = registered[0] ?? '';
+  for (const attribute of ['tabindex', 'aria-labelledby', 'aria-describedby']) {
+    if (!new RegExp('\\b' + attribute + '\\s*=').test(figure)) {
+      issues.push(sourceName + ': the registered figure requires ' + attribute);
+    }
+  }
+  if (captions.length !== 1) {
+    issues.push(sourceName + ': the registered figure requires exactly one figcaption');
+  }
+
+  const privateEnhancementPatterns = [
+    ['<script', 'a chapter-local script'],
+    ['client:', 'a hydration directive'],
+    ['requestFullscreen', 'a private Fullscreen API handler'],
+    ['exitFullscreen', 'a private Fullscreen API handler'],
+    ['fullscreenchange', 'a private fullscreen event handler'],
+    ['cloneNode', 'a duplicated presentation tree'],
+    ['data-diagram-full-view-', 'private shared-controller markup'],
+    ['<button', 'a private expand control'],
+    ['<dialog', 'a private dialog'],
+  ];
+  for (const [pattern, description] of privateEnhancementPatterns) {
+    if (source.includes(pattern)) {
+      issues.push(
+        sourceName +
+          ': diagram components must remain static and use the shared controller, not ' +
+          description,
+      );
+    }
+  }
+
+  if (issues.length > 0) throw new ContentValidationError(issues);
+  return { figureCount: figures.length, registeredCount: registered.length };
+}
+
+export function validateDiagramComponents(repositoryRoot) {
+  const componentDirectory = nodePath.join(
+    repositoryRoot,
+    'site',
+    'src',
+    'components',
+    'chapters',
+  );
+  const files = readdirSync(componentDirectory)
+    .filter((name) => name.endsWith('Diagram.astro'))
+    .sort();
+  const issues = [];
+
+  for (const file of files) {
+    const relative = nodePath.posix.join('site/src/components/chapters', file);
+    try {
+      validateDiagramComponentSource(
+        readFileSync(nodePath.join(componentDirectory, file), 'utf8'),
+        relative,
+      );
+    } catch (error) {
+      issues.push(...(error.issues ?? [error.message]));
+    }
+  }
+
+  if (files.length === 0) issues.push('no chapter diagram components were found');
+  if (issues.length > 0) {
+    throw new ContentValidationError(issues, 'Diagram presentation gate failed');
+  }
+  return files.length;
+}
+
 function readOption(args, name) {
   const index = args.indexOf(name);
   return index === -1 ? undefined : args[index + 1];
@@ -1350,6 +1441,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
   const chapter = readOption(args, '--chapter');
   const locale = readOption(args, '--locale');
   const catalogCount = validateCatalogParity(repositoryRoot, localeConfiguration);
+  const diagramCount = validateDiagramComponents(repositoryRoot);
   const documents = readChapterDocuments(repositoryRoot, registeredLocales);
 
   if (mode === 'chapter') {
@@ -1385,6 +1477,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
       documents: selected,
       sets: [],
       catalogCount,
+      diagramCount,
     };
   }
 
@@ -1406,7 +1499,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
         readChapterContractSummaries(repositoryRoot),
       );
     }
-    return { mode, documents: selected, sets, catalogCount };
+    return { mode, documents: selected, sets, catalogCount, diagramCount };
   }
 
   if (mode !== 'all') {
@@ -1421,7 +1514,7 @@ export function runContentCheck(args = process.argv.slice(2), cwd = process.cwd(
     sets,
     readChapterContractSummaries(repositoryRoot),
   );
-  return { mode, documents, sets, catalogCount };
+  return { mode, documents, sets, catalogCount, diagramCount };
 }
 
 function isMainModule() {
@@ -1441,7 +1534,9 @@ if (isMainModule()) {
         result.sets.length +
         ' publishable locale set(s), ' +
         result.catalogCount +
-        ' catalog key(s).',
+        ' catalog key(s), ' +
+        result.diagramCount +
+        ' shared-full-view diagram component(s).',
     );
   } catch (error) {
     console.error(error.message);

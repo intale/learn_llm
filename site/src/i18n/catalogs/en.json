@@ -28,5 +28,7 @@
   "chapterNavigationLabel": "Chapter navigation",
   "previousChapterLabel": "Previous chapter",
   "nextChapterLabel": "Next chapter",
+  "diagramFullViewOpenLabel": "View diagram full screen",
+  "diagramFullViewCloseLabel": "Exit full screen",
   "footerNote": "A static, localized course for understanding language models from the inside."
 }

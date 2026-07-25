@@ -163,6 +163,14 @@
       {
         "step_id": "repair-ch23-indexed-loss-and-model-summary",
         "before_chapter": "25-rmsnorm"
+      },
+      {
+        "step_id": "repair-ch30-firefox-formula-spacing",
+        "after_chapter": "30-multi-head-attention"
+      },
+      {
+        "step_id": "standardize-course-diagram-full-view",
+        "after_chapter": "30-multi-head-attention"
       }
     ],
     "planned_chapter_splits": [],

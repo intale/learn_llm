@@ -146,24 +146,48 @@ const tokenPosition = ['1', '2'] as const;
 
           <dl class="mean-summary">
             <div>
-              <dt>{labels.fields.lossSum}</dt>
-              <dd><InlineMath latex={String.raw`\sum\mathcal{L}_{b,t}=${batch.lossSum}`} /></dd>
+              <dt id={`${titleId}-batch-${batch.index}-loss-sum`}>{labels.fields.lossSum}</dt>
+              <dd
+                role="region"
+                tabindex="0"
+                aria-labelledby={`${titleId}-batch-${batch.index}-loss-sum`}
+              >
+                <InlineMath latex={String.raw`\sum\mathcal{L}_{b,t}=${batch.lossSum}`} />
+              </dd>
             </div>
             <div>
-              <dt>{labels.fields.denominator}</dt>
-              <dd><InlineMath latex={String.raw`|B_${batch.index}|T=${batch.tokens}`} /></dd>
+              <dt id={`${titleId}-batch-${batch.index}-denominator`}>
+                {labels.fields.denominator}
+              </dt>
+              <dd
+                role="region"
+                tabindex="0"
+                aria-labelledby={`${titleId}-batch-${batch.index}-denominator`}
+              >
+                <InlineMath latex={String.raw`|B_${batch.index}|T=${batch.tokens}`} />
+              </dd>
             </div>
             <div>
-              <dt>{labels.fields.meanLoss}</dt>
-              <dd>
+              <dt id={`${titleId}-batch-${batch.index}-mean-loss`}>{labels.fields.meanLoss}</dt>
+              <dd
+                role="region"
+                tabindex="0"
+                aria-labelledby={`${titleId}-batch-${batch.index}-mean-loss`}
+              >
                 <InlineMath
                   latex={String.raw`\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`}
                 />
               </dd>
             </div>
             <div>
-              <dt>{labels.fields.meanGradient}</dt>
-              <dd>
+              <dt id={`${titleId}-batch-${batch.index}-mean-gradient`}>
+                {labels.fields.meanGradient}
+              </dt>
+              <dd
+                role="region"
+                tabindex="0"
+                aria-labelledby={`${titleId}-batch-${batch.index}-mean-gradient`}
+              >
                 <InlineMath
                   latex={String.raw`\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`}
                 />
@@ -400,6 +424,11 @@ const tokenPosition = ['1', '2'] as const;
   }
 
   .batch-scroll:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.15rem;
+  }
+
+  .mean-summary dd:focus-visible {
     outline: 0.2rem solid var(--focus);
     outline-offset: 0.15rem;
   }

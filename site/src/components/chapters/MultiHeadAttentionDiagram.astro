@@ -88,27 +88,59 @@ const proofStatus = (value: string) =>
         <thead>
           <tr>
             <th scope="col">{labels.fields.features}</th>
-            <th scope="col">{labels.stages.projected} <InlineMath latex="Q" /></th>
-            <th scope="col">{labels.stages.projected} <InlineMath latex="K" /></th>
-            <th scope="col">{labels.stages.projected} <InlineMath latex="V" /></th>
-            <th scope="col">{labels.stages.rotary} <InlineMath latex="Q" /></th>
-            <th scope="col">{labels.stages.rotary} <InlineMath latex="K" /></th>
-          </tr>
-        </thead>
-        <tbody>
-          {heads.map((head) => (
-            <tr class={head.className} data-head-partition={head.partition.head}>
-              <th scope="row">
+            {heads.map((head) => (
+              <th
+                scope="col"
+                class={head.className}
+                data-head-partition={head.partition.head}
+              >
                 <span>{head.cue}</span>
                 <InlineMath latex={head.partition.features.join(',')} />
               </th>
-              <td><InlineMath latex={head.partition.projectedQuery.latex} /></td>
-              <td><InlineMath latex={head.partition.projectedKey.latex} /></td>
-              <td><InlineMath latex={head.partition.projectedValue.latex} /></td>
-              <td><InlineMath latex={head.partition.rotatedQuery.latex} /></td>
-              <td><InlineMath latex={head.partition.rotatedKey.latex} /></td>
-            </tr>
-          ))}
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">{labels.stages.projected} <InlineMath latex="Q" /></th>
+            {heads.map((head) => (
+              <td class={head.className}>
+                <InlineMath latex={head.partition.projectedQuery.latex} />
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <th scope="row">{labels.stages.projected} <InlineMath latex="K" /></th>
+            {heads.map((head) => (
+              <td class={head.className}>
+                <InlineMath latex={head.partition.projectedKey.latex} />
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <th scope="row">{labels.stages.projected} <InlineMath latex="V" /></th>
+            {heads.map((head) => (
+              <td class={head.className}>
+                <InlineMath latex={head.partition.projectedValue.latex} />
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <th scope="row">{labels.stages.rotary} <InlineMath latex="Q" /></th>
+            {heads.map((head) => (
+              <td class={head.className}>
+                <InlineMath latex={head.partition.rotatedQuery.latex} />
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <th scope="row">{labels.stages.rotary} <InlineMath latex="K" /></th>
+            {heads.map((head) => (
+              <td class={head.className}>
+                <InlineMath latex={head.partition.rotatedKey.latex} />
+              </td>
+            ))}
+          </tr>
         </tbody>
       </table>
     </div>
@@ -442,9 +474,13 @@ const proofStatus = (value: string) =>
   .projection-grid,
   .proof-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 1rem;
+  }
+
+  .head-grid,
+  .projection-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .head-card {
@@ -457,6 +493,24 @@ const proofStatus = (value: string) =>
   .proof-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: 0;
+  }
+
+  .partition-table,
+  .attention-table {
+    inline-size: 100%;
+    table-layout: fixed;
+  }
+
+  .partition-table {
+    min-inline-size: 76rem;
+  }
+
+  .partition-table th:first-child {
+    inline-size: 12rem;
+  }
+
+  .attention-table {
+    min-inline-size: 64rem;
   }
 
   .proof-grid > div {

@@ -43,6 +43,14 @@ const matrixRows = (vector: RopeTraceVector) => [
   vector.values.slice(3, 6),
   vector.values.slice(6, 9),
 ];
+const tokenRows = (vector: RopeTraceVector) => [
+  vector.values.slice(0, 4),
+  vector.values.slice(4, 8),
+  vector.values.slice(8, 12),
+];
+const tokenMatrix = (vector: RopeTraceVector) => String.raw`\begin{bmatrix}${tokenRows(vector)
+  .map((row) => row.join('&'))
+  .join(String.raw`\\`)}\end{bmatrix}`;
 const beforeGrid = matrixRows(trace.commonShift.beforeGrid);
 const afterGrid = matrixRows(trace.commonShift.afterGrid);
 const keyPositions = ['0', '1', '2'];
@@ -85,7 +93,12 @@ const historyRows = [
   <section class="diagram-section rotation-section" aria-labelledby="rope-rotation-title">
     <h4 id="rope-rotation-title">{labels.sections.rotations}</h4>
     <p class="section-caption">{labels.captions.rotations}</p>
-    <p class="formula-line">
+    <p
+      class="formula-line"
+      role="region"
+      tabindex="0"
+      aria-labelledby="rope-rotation-title"
+    >
       <InlineMath latex="\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}=R(m\theta_k)(x_m)_{2k:2k+2}" />
     </p>
     <div
@@ -130,7 +143,12 @@ const historyRows = [
   <section class="diagram-section dot-section" aria-labelledby="rope-dot-title">
     <h4 id="rope-dot-title">{labels.sections.dots}</h4>
     <p class="section-caption">{labels.captions.dots}</p>
-    <p class="formula-line">
+    <p
+      class="formula-line"
+      role="region"
+      tabindex="0"
+      aria-labelledby="rope-dot-title"
+    >
       <InlineMath latex="\left(R(m\theta_k)q\right)^\top\left(R(n\theta_k)k\right)=q^\top R((n-m)\theta_k)k" />
     </p>
     <div
@@ -304,13 +322,13 @@ const historyRows = [
         <tbody>
           <tr>
             <th scope="row"><InlineMath latex="Q" /></th>
-            <td><InlineMath latex={trace.backward.querySeed.latex} /></td>
-            <td><InlineMath latex={trace.backward.queryGradient.latex} /></td>
+            <td><InlineMath latex={tokenMatrix(trace.backward.querySeed)} /></td>
+            <td><InlineMath latex={tokenMatrix(trace.backward.queryGradient)} /></td>
           </tr>
           <tr>
             <th scope="row"><InlineMath latex="K" /></th>
-            <td><InlineMath latex={trace.backward.keySeed.latex} /></td>
-            <td><InlineMath latex={trace.backward.keyGradient.latex} /></td>
+            <td><InlineMath latex={tokenMatrix(trace.backward.keySeed)} /></td>
+            <td><InlineMath latex={tokenMatrix(trace.backward.keyGradient)} /></td>
           </tr>
         </tbody>
       </table>

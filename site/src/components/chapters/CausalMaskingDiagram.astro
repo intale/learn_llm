@@ -29,6 +29,9 @@ const matrixRows = (vector: CausalTraceVector) => [
   vector.values.slice(3, 6),
   vector.values.slice(6, 9),
 ];
+const tokenMatrix = (vector: CausalTraceVector) => String.raw`\begin{bmatrix}${inputRows(vector)
+  .map((row) => row.join('&'))
+  .join(String.raw`\\`)}\end{bmatrix}`;
 const perturbedRows = [
   trace.perturbedOutput.values.values.slice(0, 2),
   trace.perturbedOutput.values.values.slice(2, 4),
@@ -305,30 +308,51 @@ const errorLabels: Record<string, string> = {
     <h4 id="causal-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
     <div class="gradients-scroller" tabindex="0" role="region" aria-label={labels.scrollers.gradients}>
-      <table class="evidence-table gradient-table">
-        <thead>
-          <tr>
-            <th scope="col">{labels.fields.backward}</th>
-            <th scope="col"><InlineMath latex="\bar Q" /></th>
-            <th scope="col"><InlineMath latex="\bar K" /></th>
-            <th scope="col"><InlineMath latex="\bar V" /></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row"><InlineMath latex={trace.backward.seed.latex} /></th>
-            <td><InlineMath latex={trace.backward.queryGradient.latex} /></td>
-            <td><InlineMath latex={trace.backward.keyGradient.latex} /></td>
-            <td><InlineMath latex={trace.backward.valueGradient.latex} /></td>
-          </tr>
-          <tr data-evidence-kind="prefix-gradient">
-            <th scope="row">{labels.fields.prefixGradient}: <InlineMath latex={trace.prefixGradient.seed.latex} /></th>
-            <td><InlineMath latex={trace.prefixGradient.queryGradient.latex} /></td>
-            <td><InlineMath latex={trace.prefixGradient.keyGradient.latex} /></td>
-            <td><InlineMath latex={trace.prefixGradient.valueGradient.latex} /></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="gradient-pass-list">
+        <table class="evidence-table gradient-table" data-gradient-pass="full">
+          <caption>
+            {labels.fields.backward}: <InlineMath latex={tokenMatrix(trace.backward.seed)} />
+          </caption>
+          <tbody>
+            <tr data-gradient-target="query">
+              <th scope="row"><InlineMath latex="\bar Q" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.backward.queryGradient)} /></td>
+            </tr>
+            <tr data-gradient-target="key">
+              <th scope="row"><InlineMath latex="\bar K" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.backward.keyGradient)} /></td>
+            </tr>
+            <tr data-gradient-target="value">
+              <th scope="row"><InlineMath latex="\bar V" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.backward.valueGradient)} /></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table
+          class="evidence-table gradient-table"
+          data-gradient-pass="prefix"
+          data-evidence-kind="prefix-gradient"
+        >
+          <caption>
+            {labels.fields.prefixGradient}: <InlineMath latex={tokenMatrix(trace.prefixGradient.seed)} />
+          </caption>
+          <tbody>
+            <tr data-gradient-target="query">
+              <th scope="row"><InlineMath latex="\bar Q" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.prefixGradient.queryGradient)} /></td>
+            </tr>
+            <tr data-gradient-target="key">
+              <th scope="row"><InlineMath latex="\bar K" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.prefixGradient.keyGradient)} /></td>
+            </tr>
+            <tr data-gradient-target="value">
+              <th scope="row"><InlineMath latex="\bar V" /></th>
+              <td><InlineMath latex={tokenMatrix(trace.prefixGradient.valueGradient)} /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="evidence-grid">
@@ -627,10 +651,25 @@ const errorLabels: Record<string, string> = {
   }
 
   .output-table,
-  .prefix-table,
-  .gradient-table {
+  .prefix-table {
     inline-size: max-content;
     min-inline-size: 47rem;
+  }
+
+  .gradient-pass-list {
+    display: grid;
+    gap: 0.9rem;
+    min-inline-size: 44rem;
+  }
+
+  .gradient-table {
+    inline-size: 100%;
+    min-inline-size: 0;
+    table-layout: fixed;
+  }
+
+  .gradient-table th {
+    inline-size: 6rem;
   }
 
   .terms-cell {

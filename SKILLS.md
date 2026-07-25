@@ -258,11 +258,29 @@ For a useful visualization:
 - isolate code, formulas, IDs, numeric traces, and technical pipelines as LTR
   where necessary without forcing LTR on surrounding localized prose;
 - use logical CSS properties so layout follows the locale direction; and
-- emit static HTML with no client script or hydration directive.
+- emit static HTML with no chapter-local client script or hydration directive.
 
-Test the parser, data-to-view mapping, label completeness, failure cases, and the
-component's no-script/accessibility contract. Browser tests must confirm both
-desktop and narrow rendering rather than relying on source inspection alone.
+Every useful diagram component has exactly one semantic `figure` with a unique
+`data-visualization-id`. If a relationship needs horizontal overflow, give the
+smallest meaningful scroll region an accessible name, `role="region"`, and
+keyboard focus. That inline region is the permanent narrow-screen and
+no-JavaScript fallback; never make the whole lesson page scroll horizontally.
+
+Do not add a component-specific expand button, dialog, cloned diagram, Fullscreen
+API handler, or alternate mobile tree. The layout-level diagram full-view
+controller progressively enhances every registered figure. On a sufficiently
+large viewport it exposes a localized control only when measured overflow makes
+the wider presentation useful, reuses the same semantic DOM in full view,
+supports native Escape and focus restoration, and keeps text at a readable size.
+On mobile or without JavaScript, no nonfunctional control is exposed. If full
+view still leaves a large horizontal journey, reorganize the diagram's grouping
+or sequence instead of shrinking its text.
+
+Test the parser, data-to-view mapping, label completeness, failure cases, the
+component's no-private-script/accessibility contract, and registration with the
+shared controller. Browser tests must confirm desktop inline and full-view
+rendering plus narrow and no-JavaScript fallbacks in both Chromium and Firefox;
+include forced-colors and direction-sensitive coverage where applicable.
 
 ## 6. Author every chapter-active locale by meaning
 
@@ -455,7 +473,8 @@ language. Add a manual mapping that answers all of these:
   implementation or a color-only cue?
 - Does every chapter-active locale preserve meaning and read naturally on its own?
 - Do exercises, answers, accessibility labels, and the handoff agree?
-- Do desktop and narrow pages remain readable, keyboard-usable, and script-free?
+- Do desktop full view and narrow/no-JavaScript fallbacks remain readable and
+  keyboard-usable, with only the approved shared diagram script?
 
 Record failures as failures; do not replace the earlier validation entry after a
 fix. Append the later passing command and explain the correction.
@@ -533,8 +552,9 @@ A chapter is complete only when all answers are yes:
 - Does every chapter-active locale form a same-revision set and pass meaning,
   terminology, anti-calque, monolingual, accessible-label, rendered, and fluent
   human review?
-- Is the visualization useful, accessible, locale-neutral, static, and driven by
-  Rust evidence, or is its omission justified?
+- Is the visualization useful, accessible, locale-neutral, static, registered
+  with the shared full-view controller, and driven by Rust evidence, or is its
+  omission justified?
 - Did the full staged overlay pass before publication?
 - Do the publication checksums and complete canonical gate pass afterward?
 - Are the run and completion checkpoint final and valid?
