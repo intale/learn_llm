@@ -1,6 +1,6 @@
 # Per-run staging, logs, and reusable local artifacts. Promote intentional outputs
 # to a canonical tracked path only after their validation succeeds.
-.build/runs/
+.build/
 
 # Rust build output. Cargo.lock remains tracked.
 /target/
