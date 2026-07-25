@@ -1355,6 +1355,12 @@ export function validateDiagramComponentSource(source, sourceName = 'diagram com
   }
 
   const figure = registered[0] ?? '';
+  if (!/\bclass="[^"]*\bcourse-diagram\b[^"]*"/.test(figure)) {
+    issues.push(sourceName + ': the registered figure requires the shared course-diagram class');
+  }
+  if (!/\bdata-diagram-style="course-v1"/.test(figure)) {
+    issues.push(sourceName + ': the registered figure requires data-diagram-style="course-v1"');
+  }
   for (const attribute of ['tabindex', 'aria-labelledby', 'aria-describedby']) {
     if (!new RegExp('\\b' + attribute + '\\s*=').test(figure)) {
       issues.push(sourceName + ': the registered figure requires ' + attribute);
@@ -1362,6 +1368,57 @@ export function validateDiagramComponentSource(source, sourceName = 'diagram com
   }
   if (captions.length !== 1) {
     issues.push(sourceName + ': the registered figure requires exactly one figcaption');
+  }
+
+  const figureOffset = source.indexOf(figure);
+  const firstFigureChild = source.slice(figureOffset + figure.length);
+  if (!/^\s*<figcaption\b/.test(firstFigureChild)) {
+    issues.push(sourceName + ': figcaption must remain the registered figure first child');
+  }
+  const caption = source.match(/<figcaption\b[\s\S]*?<\/figcaption>/)?.[0] ?? '';
+  if (!/\bclass="[^"]*\bcourse-diagram__caption\b[^"]*"/.test(caption)) {
+    issues.push(sourceName + ': figcaption requires the shared course-diagram__caption role');
+  }
+  if (!/<h3\b/.test(caption)) {
+    issues.push(sourceName + ': the shared caption requires one h3 title');
+  }
+  if (!/\bclass="[^"]*\bcourse-diagram__description\b[^"]*"/.test(caption)) {
+    issues.push(sourceName + ': title and shared learner description must stay inside figcaption');
+  }
+
+  const regionTags =
+    source.match(/<[a-z][a-z0-9-]*\b[^>]*\brole=(?:"region"|'region')[^>]*>/g) ?? [];
+  for (const tag of regionTags) {
+    for (const attribute of ['data-diagram-scroll', 'tabindex']) {
+      if (!new RegExp('\\b' + attribute + '(?:\\s*=|\\b)').test(tag)) {
+        issues.push(sourceName + ': every named diagram region requires ' + attribute);
+      }
+    }
+    if (!/\bclass="[^"]*\bcourse-diagram__scroll\b[^"]*"/.test(tag)) {
+      issues.push(sourceName + ': every named diagram region requires course-diagram__scroll');
+    }
+    if (!/\baria-(?:label|labelledby)\s*=/.test(tag)) {
+      issues.push(sourceName + ': every diagram scroll region requires an accessible name');
+    }
+  }
+  const scrollRegistrations = source.match(/\bdata-diagram-scroll\b/g) ?? [];
+  if (scrollRegistrations.length !== regionTags.length) {
+    issues.push(
+      sourceName + ': data-diagram-scroll is reserved for the shared named region boundary',
+    );
+  }
+
+  const tableTags = source.match(/<table\b[\s\S]*?>/g) ?? [];
+  for (const tag of tableTags) {
+    if (!/\bdata-diagram-table\b/.test(tag)) {
+      issues.push(sourceName + ': every diagram table requires data-diagram-table');
+    }
+  }
+  const articleTags = source.match(/<article\b[\s\S]*?>/g) ?? [];
+  for (const tag of articleTags) {
+    if (!/\bdata-diagram-card\b/.test(tag) || !/\bdata-diagram-box\b/.test(tag)) {
+      issues.push(sourceName + ': every semantic diagram article requires shared card and box roles');
+    }
   }
 
   const privateEnhancementPatterns = [
@@ -1385,6 +1442,31 @@ export function validateDiagramComponentSource(source, sourceName = 'diagram com
     }
   }
 
+  const privateStylePatterns = [
+    [/@media\s*\(\s*max-width\s*:/, 'a viewport-width diagram breakpoint'],
+    [/contain\s*:\s*paint\b/, 'paint containment that can hide overflow'],
+    [/overflow-x\s*:\s*(?:auto|scroll)\b/, 'a private horizontal-scroll implementation'],
+  ];
+  for (const [pattern, description] of privateStylePatterns) {
+    if (pattern.test(source)) {
+      issues.push(sourceName + ': component-local CSS must not define ' + description);
+    }
+  }
+
+  const rootClasses = figure.match(/\bclass="([^"]*)"/)?.[1]?.split(/\s+/) ?? [];
+  const conceptRoot = rootClasses.find((name) => name !== 'course-diagram');
+  if (conceptRoot) {
+    const escapedRoot = conceptRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rootRules = source.matchAll(
+      new RegExp('\\.' + escapedRoot + '\\s*\\{([^}]*)\\}', 'g'),
+    );
+    for (const rule of rootRules) {
+      if (/overflow\s*:\s*(?:hidden|clip)\b/.test(rule[1])) {
+        issues.push(sourceName + ': the semantic diagram frame must not hide or clip overflow');
+      }
+    }
+  }
+
   if (issues.length > 0) throw new ContentValidationError(issues);
   return { figureCount: figures.length, registeredCount: registered.length };
 }
@@ -1401,16 +1483,82 @@ export function validateDiagramComponents(repositoryRoot) {
     .filter((name) => name.endsWith('Diagram.astro'))
     .sort();
   const issues = [];
+  const sharedStylePath = nodePath.join(
+    repositoryRoot,
+    'site',
+    'src',
+    'styles',
+    'diagram.module.css',
+  );
+  const globalStylePath = nodePath.join(
+    repositoryRoot,
+    'site',
+    'src',
+    'styles',
+    'global.css',
+  );
+  const layoutPath = nodePath.join(
+    repositoryRoot,
+    'site',
+    'src',
+    'layouts',
+    'BaseLayout.astro',
+  );
+  if (!existsSync(sharedStylePath)) {
+    issues.push('site/src/styles/diagram.module.css: shared diagram module is missing');
+  }
+  const sharedStyle = existsSync(sharedStylePath) ? readFileSync(sharedStylePath, 'utf8') : '';
+  const globalStyle = existsSync(globalStylePath) ? readFileSync(globalStylePath, 'utf8') : '';
+  const layout = existsSync(layoutPath) ? readFileSync(layoutPath, 'utf8') : '';
+  if (
+    !layout.includes("import diagramStyles from '../styles/diagram.module.css';") ||
+    !layout.includes('<body class={diagramStyles.host}>')
+  ) {
+    issues.push('site/src/layouts/BaseLayout.astro: load the shared diagram module exactly once');
+  }
+  for (const contract of [
+    '.host',
+    "course-diagram[data-diagram-style='course-v1']",
+    'course-diagram__caption',
+    'course-diagram__description',
+    'course-diagram__scroll',
+    'data-diagram-card',
+    'data-diagram-table',
+    'state-symbol',
+    '--diagram-summary-min',
+    '--diagram-cell-padding-inline',
+    '--diagram-scroll-inline-size',
+    'position: relative',
+  ]) {
+    if (!sharedStyle.includes(contract)) {
+      issues.push('site/src/styles/diagram.module.css: missing shared role ' + contract);
+    }
+  }
+  if (/data-diagram-full-view|figure\[data-visualization-id\]|diagram-full-view-icon/.test(globalStyle)) {
+    issues.push('site/src/styles/global.css: diagram presentation belongs in diagram.module.css');
+  }
+
+  const sharedDefinitions = new Set(
+    [...globalStyle.matchAll(/(--[a-z0-9-]+)\s*:/gi), ...sharedStyle.matchAll(/(--[a-z0-9-]+)\s*:/gi)]
+      .map((match) => match[1]),
+  );
 
   for (const file of files) {
     const relative = nodePath.posix.join('site/src/components/chapters', file);
+    const source = readFileSync(nodePath.join(componentDirectory, file), 'utf8');
     try {
-      validateDiagramComponentSource(
-        readFileSync(nodePath.join(componentDirectory, file), 'utf8'),
-        relative,
-      );
+      validateDiagramComponentSource(source, relative);
     } catch (error) {
       issues.push(...(error.issues ?? [error.message]));
+    }
+    const definitions = new Set([
+      ...sharedDefinitions,
+      ...[...source.matchAll(/(--[a-z0-9-]+)\s*:/gi)].map((match) => match[1]),
+    ]);
+    for (const reference of source.matchAll(/var\(\s*(--[a-z0-9-]+)\s*\)/gi)) {
+      if (!definitions.has(reference[1])) {
+        issues.push(relative + ': undefined custom property ' + reference[1] + ' needs a fallback');
+      }
     }
   }
 

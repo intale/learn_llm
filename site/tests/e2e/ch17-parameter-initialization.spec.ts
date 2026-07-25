@@ -185,10 +185,8 @@ async function expectChapterContent(
   await expect(diagram).toHaveAccessibleDescription(
     'Inspect exact Rust-authored histograms for zero, oversized, and Xavier-style weights, then follow their assumption-bound expected variance through four linear layers.',
   );
-  await expect(diagram).toHaveCSS('color', 'rgb(22, 33, 29)');
-  await expect(diagram).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.68)');
-  await expect(diagram).toHaveCSS('overflow-x', 'hidden');
-  await expect(diagram.locator('dt').first()).toHaveCSS('color', 'rgb(82, 100, 92)');
+  await expect(diagram).toHaveAttribute('data-diagram-style', 'course-v1');
+  await expect(diagram).toHaveCSS('overflow-x', 'visible');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-seed', '17');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-shape', '64x64');
   await expect(diagram.locator('.summary-grid')).toHaveAttribute('data-samples', '4096');
@@ -199,10 +197,6 @@ async function expectChapterContent(
 
   const distributions = diagram.locator('[data-initialization-kind]');
   await expect(distributions).toHaveCount(3);
-  await expect(distributions.first()).toHaveCSS(
-    'background-color',
-    'rgba(255, 255, 255, 0.68)',
-  );
   expect(
     await distributions.evaluateAll((cards) =>
       cards.map((card) => ({

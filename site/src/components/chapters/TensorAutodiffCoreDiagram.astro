@@ -98,14 +98,17 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
 ---
 
 <figure
-  class="tensor-autodiff-core-diagram"
+  class="course-diagram tensor-autodiff-core-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={tensorAutodiffCoreDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="summary-grid">
     <div>
@@ -174,8 +177,8 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
   <section class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
     <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
     <p>{labels.notes.reverse}</p>
-    <div class="trace-scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`}>
-      <table class="vjp-table">
+    <div class="trace-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`} data-diagram-scroll>
+      <table data-diagram-table class="vjp-table">
         <thead>
           <tr>
             <th scope="col">{labels.fields.reverseOrder}</th>
@@ -232,7 +235,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
       {[firstX, firstBias].map((entry) => {
         const node = trace.nodes.find(({ label }) => label === entry.label)!;
         return (
-          <article
+          <article data-diagram-card data-diagram-box
             class="gradient-card state-firstPass"
             data-parameter-gradient={entry.label}
             data-backward-pass={entry.pass}
@@ -258,7 +261,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     <h3 id={`${titleId}-lifecycle`}>{labels.sections.lifecycle}</h3>
     <p>{labels.notes.lifecycle}</p>
     <div class="lifecycle-grid">
-      <article
+      <article data-diagram-card data-diagram-box
         class="lifecycle-card state-secondPass"
         data-lifecycle-state="second-pass"
         data-x-gradient={secondX.gradient.map(({ lexeme }) => lexeme).join(',')}
@@ -270,7 +273,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(secondBias.gradient)}</code></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="lifecycle-card state-zeroed"
         data-lifecycle-state="zeroed"
         data-x-gradient={trace.zeroed.x.map(({ lexeme }) => lexeme).join(',')}
@@ -282,7 +285,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(trace.zeroed.bias)}</code></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="lifecycle-card state-restored"
         data-lifecycle-state="after-zero-release"
         data-x-gradient={restoredX.gradient.map(({ lexeme }) => lexeme).join(',')}
@@ -294,7 +297,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(restoredBias.gradient)}</code></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="lifecycle-card state-released"
         data-lifecycle-state="released"
         data-operation={trace.release.operation}
@@ -311,7 +314,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     <h3 id={`${titleId}-checks`}>{labels.sections.checks}</h3>
     <p>{labels.notes.checks}</p>
     <div class="check-grid">
-      <article
+      <article data-diagram-card data-diagram-box
         class="check-card state-detached"
         data-evidence="detach"
         data-expression={trace.detach.expression}
@@ -326,7 +329,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
           <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(trace.detach.parameterGradient)}</code></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="check-card state-checked"
         data-evidence="gradcheck"
         data-operations={trace.gradcheck.operations.join(',')}
@@ -350,7 +353,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     <p>{labels.notes.errors}</p>
     <div class="error-grid">
       {trace.errors.map((error) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="error-card state-rejected"
           data-error-kind={error.kind}
           data-gradients-unchanged={error.gradientsUnchanged}
@@ -367,7 +370,6 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
 <style>
   .tensor-autodiff-core-diagram {
     margin-block: 2rem;
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -488,8 +490,6 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
 
   .trace-scroll {
     max-inline-size: 100%;
-    overflow-x: auto;
-    contain: paint;
     border: 1px solid var(--line);
     border-radius: 0.75rem;
   }
@@ -555,7 +555,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     overflow-wrap: anywhere;
   }
 
-  @media (max-width: 64rem) {
+  @container course-diagram (max-width: 64rem) {
     .summary-grid,
     .node-grid,
     .lifecycle-grid,
@@ -564,7 +564,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     }
   }
 
-  @media (max-width: 47.5rem) {
+  @container course-diagram (max-width: 47.5rem) {
     .summary-grid,
     .node-grid,
     .gradient-grid,

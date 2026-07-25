@@ -244,11 +244,12 @@ describe('Chapter 27 static diagram boundary', () => {
       'mixtures-scroller',
       'gradients-scroller',
       'history-scroller',
-    ]) expect(componentSource).toContain(`class="${scroller}"`);
+    ]) expect(componentSource).toContain(`class="${scroller} course-diagram__scroll"`);
     expect(componentSource).toContain('data-input-role={input.role}');
     expect(componentSource).toContain('data-probability-row={row.query}');
     expect(componentSource).toContain('data-mixture-row={row.query}');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('scrollbar-gutter: stable');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');

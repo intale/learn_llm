@@ -196,7 +196,8 @@ describe('Chapter 21 static diagram boundary', () => {
     );
     expect(componentSource).toContain('@container (max-width: 36rem)');
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('<bdi dir="ltr">');

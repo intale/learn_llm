@@ -252,8 +252,9 @@ describe('Chapter 22 static diagram boundary', () => {
     expect(componentSource).toContain('container-type: inline-size');
     expect(componentSource).toContain('@container (max-width: 52rem)');
     expect(componentSource).toContain('@container (max-width: 32rem)');
-    expect(componentSource).toContain('overflow-x: auto');
-    expect(componentSource).toContain('class="trajectory-scroll"');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
+    expect(componentSource).toContain('class="trajectory-scroll course-diagram__scroll"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('<bdi dir="ltr">');

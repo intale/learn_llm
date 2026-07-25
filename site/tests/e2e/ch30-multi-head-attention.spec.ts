@@ -293,26 +293,7 @@ async function expectChapterContent(
   expect(await diagram.locator('th[scope="col"]').count()).toBeGreaterThan(0);
   expect(await diagram.locator('th[scope="row"]').count()).toBeGreaterThan(0);
   await expectDiagramContainment(page);
-  const palette = await diagram.evaluate((node) => {
-    const style = getComputedStyle(node);
-    const probe = document.createElement('span');
-    probe.style.backgroundColor = 'var(--surface)';
-    probe.style.borderColor = 'var(--line)';
-    probe.style.borderStyle = 'solid';
-    document.body.append(probe);
-    const probeStyle = getComputedStyle(probe);
-    const normalize = (value: string) => value.replace(/\s+/g, '');
-    const palette = {
-      background: normalize(style.backgroundColor),
-      surface: normalize(probeStyle.backgroundColor),
-      border: normalize(style.borderTopColor),
-      line: normalize(probeStyle.borderTopColor),
-    };
-    probe.remove();
-    return palette;
-  });
-  expect(palette.background).toBe(palette.surface);
-  expect(palette.border).toBe(palette.line);
+  await expect(diagram).toHaveAttribute('data-diagram-style', 'course-v1');
 
   const details = page.locator('.lesson-body details');
   await expect(details).toHaveCount(1);

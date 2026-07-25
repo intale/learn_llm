@@ -43,15 +43,16 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
 ---
 
 <figure
-  class="softmax-diagram"
+  class="course-diagram softmax-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={stableSoftmaxDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <dl class="summary-grid">
@@ -73,12 +74,12 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     <h4 id={`${instanceId}-shift`}>{labels.sections.shift}</h4>
     <p>{labels.notes.shift}</p>
     <div
-      class="trace-scroll"
+      class="trace-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.sections.shift}
-    >
-      <table class="shift-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="shift-table">
         <colgroup>
           <col class="shift-stage-column" />
           {trace.rows.map(() => <col />)}
@@ -139,7 +140,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
       {trace.rows.map((row, index) => {
         const naive = trace.naive[index]!;
         return (
-          <article class="comparison-card" data-comparison-row={row.row.lexeme}>
+          <article data-diagram-card data-diagram-box class="comparison-card" data-comparison-row={row.row.lexeme}>
             <h5>{labels.fields.row} <bdi dir="ltr">{row.row.lexeme}</bdi></h5>
             <div
               class:list={['naive-card', `state-${naive.status}`]}
@@ -154,7 +155,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
                 </span>
               )}
             </div>
-            <div class="stable-card" data-stable-row={row.row.lexeme}>
+            <div data-diagram-card data-diagram-box class="stable-card" data-stable-row={row.row.lexeme}>
               <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
               <strong>{labels.fields.stablePath}</strong>
               <span>
@@ -182,7 +183,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     <p>{labels.notes.targets}</p>
     <div class="target-grid">
       {trace.targetLosses.map((target) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="target-card"
           data-target-row={target.row.lexeme}
           data-target-class={target.classIndex.lexeme}
@@ -208,7 +209,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     <p>{labels.notes.errors}</p>
     <div class="error-grid">
       {trace.errors.map((error) => (
-        <article class="error-card" data-error-kind={error.kind}>
+        <article data-diagram-card data-diagram-box class="error-card" data-error-kind={error.kind}>
           <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
           <h5><code>{error.kind}</code></h5>
           {error.kind === 'axis-out-of-bounds' && (
@@ -318,8 +319,6 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
-    contain: paint;
     padding-block-end: 0.4rem;
   }
 
@@ -328,7 +327,6 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     min-width: 64rem;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
-    table-layout: fixed;
   }
 
   .shift-stage-column {
@@ -341,7 +339,6 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     border: 1px solid var(--border);
     text-align: start;
     vertical-align: top;
-    white-space: nowrap;
   }
 
   .shift-table th {
@@ -427,7 +424,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     font-variant-numeric: tabular-nums;
   }
 
-  @media (max-width: 760px) {
+  @container course-diagram (max-width: 760px) {
     .summary-grid,
     .row-grid,
     .target-grid,

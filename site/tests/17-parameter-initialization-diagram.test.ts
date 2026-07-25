@@ -290,9 +290,13 @@ describe('Chapter 17 labels and static component', () => {
     expect(componentSource).not.toMatch(/\.distribution-card\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
   });
 
-  it('uses the site palette and contains histogram evidence by component width', () => {
-    expect(componentSource).toMatch(
-      /\.parameter-initialization-diagram\s*\{[^}]*overflow:\s*hidden;[^}]*border:\s*1px solid var\(--line\);[^}]*background:\s*var\(--surface\);[^}]*color:\s*var\(--ink\);[^}]*box-shadow:\s*var\(--shadow\);/s,
+  it('uses the shared frame contract and contains histogram evidence by component width', () => {
+    expect(componentSource).toContain(
+      'class="course-diagram parameter-initialization-diagram"',
+    );
+    expect(componentSource).toContain('data-diagram-style="course-v1"');
+    expect(componentSource).not.toMatch(
+      /\.parameter-initialization-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
     );
     expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
     expect(componentSource).toContain('color: var(--muted)');
@@ -309,9 +313,9 @@ describe('Chapter 17 labels and static component', () => {
     expect(componentSource).toMatch(
       /\.histogram li\s*\{[^}]*min-inline-size:\s*0;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
     );
-    expect(componentSource).toMatch(
-      /\.bin-range\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*max-inline-size:\s*100%;[^}]*min-inline-size:\s*0;[^}]*overflow-x:\s*auto;[^}]*overflow-y:\s*hidden;/s,
-    );
-    expect(componentSource).not.toContain('@media (max-width: 58rem)');
+    expect(componentSource).toContain('class="bin-range course-diagram__scroll"');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
+    expect(componentSource).toContain('@container course-diagram (max-width: 32rem)');
   });
 });

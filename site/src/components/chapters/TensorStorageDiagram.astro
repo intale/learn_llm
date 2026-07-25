@@ -31,15 +31,16 @@ const selected = trace.coordinate.map(({ value }) => value);
 ---
 
 <figure
-  class="tensor-storage-diagram"
+  class="course-diagram tensor-storage-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={tensorStorageDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="summary-facts">
       <div>
         <dt>{labels.summary.shape}</dt>
@@ -63,12 +64,12 @@ const selected = trace.coordinate.map(({ value }) => value);
       {trace.slices.map((slice) => (
         <li data-slice-axis0={slice.axis0.lexeme}>
           <div
-            class="table-scroll"
+            class="table-scroll course-diagram__scroll"
             role="region"
             tabindex="0"
             aria-label={`${labels.fields.slice} ${slice.axis0.lexeme}`}
-          >
-            <table>
+           data-diagram-scroll>
+            <table data-diagram-table>
               <caption>
                 {labels.fields.slice}{' '}
                 <InlineMath latex={String.raw`i_0=${slice.axis0.lexeme}`} />
@@ -148,11 +149,11 @@ const selected = trace.coordinate.map(({ value }) => value);
     <h4 id={`${instanceId}-buffer-title`}>{labels.sections.buffer}</h4>
     <p>{labels.notes.buffer}</p>
     <div
-      class="buffer-scroll"
+      class="buffer-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby={`${instanceId}-buffer-title`}
-    >
+     data-diagram-scroll>
       <ol class="flat-buffer" start="0">
         {trace.buffer.map((value, offset) => {
           const isSelected = offset === trace.lookup.offset.value;
@@ -247,9 +248,7 @@ const selected = trace.coordinate.map(({ value }) => value);
 
   .table-scroll,
   .buffer-scroll {
-    contain: paint;
     max-width: 100%;
-    overflow-x: auto;
   }
 
   table {
@@ -322,7 +321,7 @@ const selected = trace.coordinate.map(({ value }) => value);
   code,
   bdi { direction: ltr; unicode-bidi: isolate; }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .slice-list { grid-template-columns: minmax(0, 1fr); }
     .summary-facts,
     .lookup-result,

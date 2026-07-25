@@ -28,15 +28,16 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
 ---
 
 <figure
-  class="rmsnorm-diagram"
+  class="course-diagram rmsnorm-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="rmsnorm"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.primary}>
       <li class="input-cue">{labels.cues.input}</li>
       <li class="normalized-cue">{labels.cues.normalized}</li>
@@ -47,13 +48,13 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   <section class="diagram-section primary-section" aria-labelledby="rmsnorm-primary-title">
     <h4 id="rmsnorm-primary-title">{labels.sections.primary}</h4>
     <div
-      class="primary-scroller"
+      class="primary-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.primary}
-    >
+     data-diagram-scroll>
       <div class="primary-flow">
-        <article class="stage-card input-stage" data-stage="input">
+        <article data-diagram-card data-diagram-box class="stage-card input-stage" data-stage="input">
           <h5>{labels.stages.input}</h5>
           <ol class="feature-bars" aria-label={labels.stages.input}>
             {trace.primary.input.values.map((value, index) => (
@@ -62,7 +63,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article class="stage-card statistic-stage" data-stage="statistic">
+        <article data-diagram-card data-diagram-box class="stage-card statistic-stage" data-stage="statistic">
           <h5>{labels.stages.meanSquare}</h5>
           <p><InlineMath latex={String.raw`m_2=${trace.primary.meanSquare.latex}`} /></p>
           <p><strong>{labels.stages.inverseRms}</strong></p>
@@ -70,7 +71,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           <p><InlineMath latex={String.raw`\varepsilon=${trace.meta.epsilon}`} /></p>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article class="stage-card normalized-stage" data-stage="normalized">
+        <article data-diagram-card data-diagram-box class="stage-card normalized-stage" data-stage="normalized">
           <h5>{labels.stages.normalized}</h5>
           <ol class="feature-bars" aria-label={labels.stages.normalized}>
             {trace.primary.normalized.values.map((value, index) => (
@@ -79,7 +80,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article class="stage-card gain-stage" data-stage="gain">
+        <article data-diagram-card data-diagram-box class="stage-card gain-stage" data-stage="gain">
           <h5>{labels.stages.gain}</h5>
           <ol class="feature-bars" aria-label={labels.stages.gain}>
             {trace.primary.gain.values.map((value, index) => (
@@ -88,7 +89,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article class="stage-card output-stage" data-stage="output">
+        <article data-diagram-card data-diagram-box class="stage-card output-stage" data-stage="output">
           <h5>{labels.stages.output}</h5>
           <ol class="feature-bars" aria-label={labels.stages.output}>
             {trace.primary.output.values.map((value, index) => (
@@ -104,14 +105,14 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   <section class="diagram-section" aria-labelledby="rmsnorm-scale-title">
     <h4 id="rmsnorm-scale-title">{labels.sections.scaling}</h4>
     <div
-      class="scale-scroller"
+      class="scale-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.scales}
-    >
+     data-diagram-scroll>
       <div class="scale-grid">
         {trace.scales.map((scale) => (
-          <article class:list={['scale-card', `${scale.mode}-scale`]} data-scale-mode={scale.mode}>
+          <article data-diagram-card data-diagram-box class:list={['scale-card', `${scale.mode}-scale`]} data-scale-mode={scale.mode}>
             <h5>{scaleLabels[scale.mode]}</h5>
             <div>
               <p><InlineMath latex={String.raw`\varepsilon=${scale.epsilon},\quad a=${scale.factor}`} /></p>
@@ -140,12 +141,12 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   <section class="diagram-section" aria-labelledby="rmsnorm-history-title">
     <h4 id="rmsnorm-history-title">{labels.sections.history}</h4>
     <div
-      class="history-scroller"
+      class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-    >
-      <table>
+     data-diagram-scroll>
+      <table data-diagram-table>
         <caption>{labels.captions.history}</caption>
         <thead>
           <tr>
@@ -179,7 +180,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   <section class="diagram-section" aria-labelledby="rmsnorm-safeguards-title">
     <h4 id="rmsnorm-safeguards-title">{labels.sections.safeguards}</h4>
     <div class="evidence-grid">
-      <article class="evidence-card backward-card" data-evidence="backward">
+      <article data-diagram-card data-diagram-box class="evidence-card backward-card" data-evidence="backward">
         <h5>{labels.fields.backward}</h5>
         <p><InlineMath latex={String.raw`\bar y=${trace.backward.upstream.latex}`} /></p>
         <dl>
@@ -188,14 +189,14 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         </dl>
       </article>
 
-      <article class="evidence-card parameter-card" data-evidence="parameter">
+      <article data-diagram-card data-diagram-box class="evidence-card parameter-card" data-evidence="parameter">
         <h5>{labels.fields.parameter}</h5>
         <p><code><bdi dir="ltr">{trace.meta.gainName}</bdi></code></p>
         <p><InlineMath latex={String.raw`g\in\mathbb{R}^{${trace.meta.featureWidth}}`} /></p>
         <p><strong>{labels.fields.optimizerPolicy}:</strong> <bdi dir="ltr">no_decay={trace.meta.noDecay}</bdi></p>
       </article>
 
-      <article class="evidence-card zero-card" data-evidence="zero-input">
+      <article data-diagram-card data-diagram-box class="evidence-card zero-card" data-evidence="zero-input">
         <h5>{labels.fields.zeroInput}</h5>
         <p><InlineMath latex={String.raw`x=${trace.zero.input.latex}`} /></p>
         <p class="vertical-arrow" aria-hidden="true">&darr;</p>
@@ -205,7 +206,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         </p>
       </article>
 
-      <article class="evidence-card batch-card" data-evidence="batch-axis">
+      <article data-diagram-card data-diagram-box class="evidence-card batch-card" data-evidence="batch-axis">
         <h5>{labels.fields.batchAxis}</h5>
         <p><InlineMath latex={String.raw`\operatorname{shape}(y)=${trace.batch.shape}`} /></p>
         <p><InlineMath latex={String.raw`y_{0,:}=${batchRowZero}`} /></p>
@@ -213,7 +214,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         <p><bdi dir="ltr">axis={trace.batch.axis}</bdi></p>
       </article>
 
-      <article class="evidence-card errors-card" data-evidence="errors">
+      <article data-diagram-card data-diagram-box class="evidence-card errors-card" data-evidence="errors">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
@@ -230,17 +231,17 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     </div>
 
     <div class="proof-row" data-evidence="proof">
-      <article>
+      <article data-diagram-card data-diagram-box>
         <h5>{labels.fields.proof}</h5>
         <p><InlineMath latex={String.raw`\operatorname{mean}(\hat x^2)=${trace.proof.normalizedMeanSquare}`} /></p>
       </article>
-      <article>
+      <article data-diagram-card data-diagram-box>
         <h5>{labels.fields.backward}</h5>
         <p><bdi dir="ltr">input_checks={trace.proof.inputChecks}</bdi></p>
         <p><bdi dir="ltr">gain_checks={trace.proof.gainChecks}</bdi></p>
         <p><InlineMath latex={String.raw`\tau=${trace.proof.tolerance}`} /></p>
       </article>
-      <article>
+      <article data-diagram-card data-diagram-box>
         <h5>{labels.cues.accepted}</h5>
         <p><bdi dir="ltr">gradcheck={trace.proof.gradcheck}</bdi></p>
         <p><bdi dir="ltr">replay={trace.proof.replay}</bdi></p>
@@ -329,7 +330,6 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   .history-scroller,
   .formula-scroller {
     max-inline-size: 100%;
-    overflow-x: auto;
     overflow-y: visible;
     scrollbar-gutter: stable;
   }
@@ -579,7 +579,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     transform: scaleX(-1);
   }
 
-  @media (max-width: 42rem) {
+  @container course-diagram (max-width: 42rem) {
     .rmsnorm-diagram {
       padding: 0.9rem;
     }

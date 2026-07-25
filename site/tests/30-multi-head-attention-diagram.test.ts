@@ -257,7 +257,7 @@ describe('Chapter 30 static diagram and content boundary', () => {
     expect(componentSource).toContain('data-merged-row');
     expect(componentSource).toContain('data-output-map-row');
     expect(componentSource).toContain('data-final-output-row');
-    expect(componentSource).toContain('class="formula-scroller"');
+    expect(componentSource).toContain('class="formula-scroller course-diagram__scroll"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('<table');
@@ -265,7 +265,8 @@ describe('Chapter 30 static diagram and content boundary', () => {
     expect(componentSource).toContain('scope="row"');
     expect(componentSource).toContain('scope="col"');
     expect(componentSource).toContain('align-items: start');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('border-inline-start-style: dashed');
     expect(componentSource).toContain('border: 3px double');
     expect(componentSource).toContain('@media (forced-colors: active)');

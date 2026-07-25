@@ -59,21 +59,22 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
 ---
 
 <figure
-  class="tensor-views-diagram"
+  class="course-diagram tensor-views-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={tensorViewsDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <section class="diagram-panel storage-panel" aria-labelledby={`${instanceId}-storage-title`}>
     <h4 id={`${instanceId}-storage-title`}>{labels.sections.storage}</h4>
     <p>{labels.notes.storage}</p>
-    <article class="view-card shared" data-view-id="base" data-storage-id="base">
+    <article data-diagram-card data-diagram-box class="view-card shared" data-view-id="base" data-storage-id="base">
       <h5>{labels.operations.identity}</h5>
       <p class="state-line">
         <span class="state-symbol" aria-hidden="true">◇</span>
@@ -87,11 +88,11 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
         <div><dt>{labels.fields.base}</dt><dd><bdi dir="ltr">{trace.views.base.baseOffset.lexeme}</bdi></dd></div>
       </dl>
       <div
-        class="buffer-scroll"
+        class="buffer-scroll course-diagram__scroll"
         role="region"
         tabindex="0"
         aria-label={`${labels.fields.storage}: base`}
-      >
+       data-diagram-scroll>
         <ol class="storage-buffer" start="0">
           {baseStorageCells.map(({ value, offset }) => (
             <li data-storage-offset={offset.lexeme} data-storage-value={value.lexeme}>
@@ -110,7 +111,7 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     <ol class="view-grid transform-grid">
       {transforms.map((view) => (
         <li>
-          <article
+          <article data-diagram-card data-diagram-box
             class="view-card shared"
             data-view-id={view.id}
             data-storage-id={view.storage}
@@ -145,7 +146,7 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     <ol class="view-grid copy-grid">
       {copyBoundary.map((view) => (
         <li>
-          <article
+          <article data-diagram-card data-diagram-box
             class:list={['view-card', view.storage === 'base' ? 'shared' : 'materialized']}
             data-view-id={view.id}
             data-storage-id={view.storage}
@@ -181,11 +182,11 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     </ol>
 
     <div
-      class="provenance-scroll"
+      class="provenance-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.fields.sourceOffsets}
-    >
+     data-diagram-scroll>
       <ol class="provenance-list">
         {materializedProvenance?.map(({ sourceOffset, copiedOffset }) => (
           <li data-source-offset={sourceOffset.lexeme} data-copied-offset={copiedOffset.lexeme}>
@@ -202,7 +203,7 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
     <ol class="error-list">
-      <li class="error-card" data-error-kind={trace.errors[0].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
         <p class="state-line">
           <span class="state-symbol" aria-hidden="true">×</span>
           <span>{labels.states.rejected}</span>
@@ -216,7 +217,7 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
           <div><dt>{labels.fields.reason}</dt><dd>{labels.reasons.count}</dd></div>
         </dl>
       </li>
-      <li class="error-card" data-error-kind={trace.errors[1].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[1].kind}>
         <p class="state-line">
           <span class="state-symbol" aria-hidden="true">×</span>
           <span>{labels.states.rejected}</span>
@@ -228,7 +229,7 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
           <div><dt>{labels.fields.reason}</dt><dd>{labels.reasons.contiguity}</dd></div>
         </dl>
       </li>
-      <li class="error-card" data-error-kind={trace.errors[2].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[2].kind}>
         <p class="state-line">
           <span class="state-symbol" aria-hidden="true">×</span>
           <span>{labels.states.rejected}</span>
@@ -336,10 +337,8 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
 
   .buffer-scroll,
   .provenance-scroll {
-    contain: paint;
     max-width: 100%;
     margin-block-start: 0.85rem;
-    overflow-x: auto;
   }
 
   .storage-buffer {
@@ -396,11 +395,11 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
   code,
   bdi { direction: ltr; unicode-bidi: isolate; }
 
-  @media (max-width: 56rem) {
+  @container course-diagram (max-width: 56rem) {
     .error-list { grid-template-columns: minmax(0, 1fr); }
   }
 
-  @media (max-width: 42rem) {
+  @container course-diagram (max-width: 42rem) {
     .view-grid { grid-template-columns: minmax(0, 1fr); }
     .view-facts,
     .error-card dl { grid-template-columns: minmax(0, 1fr); }

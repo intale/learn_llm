@@ -204,7 +204,7 @@ describe('Chapter 13 static diagram component', () => {
 
   it('separates scalar fixtures and renders semantic Rust-derived evidence', () => {
     expect(component).toContain('class="summary-grid"');
-    expect(component.match(/<table class="scan-table"/g)).toHaveLength(1);
+    expect(component.match(/<table data-diagram-table class="scan-table"/g)).toHaveLength(1);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-step-index=');
@@ -221,11 +221,12 @@ describe('Chapter 13 static diagram component', () => {
 
   it('keeps phase separate from verdict and wide evidence locally scrollable', () => {
     expect(component).toContain('data-visualization-id={gradientCheckingDiagramId}');
-    expect(component).toContain('class="trace-scroll"');
+    expect(component).toContain('class="trace-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('align-items: start;');
     expect(component).toContain('.phase-trusted { border-style: double; }');
     expect(component).toContain('.phase-rounding { border-style: dotted; }');

@@ -39,15 +39,16 @@ const proofStatus = (value: string) =>
 ---
 
 <figure
-  class="multi-head-diagram"
+  class="course-diagram multi-head-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="multi-head-attention-flow"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.heads}>
       <li class="head-zero-cue">{labels.cues.headZero}</li>
       <li class="head-one-cue">{labels.cues.headOne}</li>
@@ -60,11 +61,11 @@ const proofStatus = (value: string) =>
     <h4 id="multi-head-split-title">{labels.sections.split}</h4>
     <p>{labels.captions.split}</p>
     <div
-      class="formula-scroller"
+      class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.formula}
-    >
+     data-diagram-scroll>
       <p class="formula-line technical">
         <InlineMath latex={String.raw`[B,T,d_{\mathrm{model}}]\to[B,h,T,d_h]`} />
       </p>
@@ -78,12 +79,12 @@ const proofStatus = (value: string) =>
       ))}
     </dl>
     <div
-      class="table-scroller"
+      class="table-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.partitions}
-    >
-      <table class="evidence-table partition-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="evidence-table partition-table">
         <caption>{labels.captions.split}</caption>
         <thead>
           <tr>
@@ -150,11 +151,11 @@ const proofStatus = (value: string) =>
     <h4 id="multi-head-weights-title">{labels.sections.heads}</h4>
     <p>{labels.captions.heads}</p>
     <div
-      class="formula-scroller"
+      class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.formula}
-    >
+     data-diagram-scroll>
       <p class="formula-line technical">
         <InlineMath latex={String.raw`A_i=\operatorname{softmax}_{\mathrm{keys}}\!\left(\widetilde Q_i\widetilde K_i^\top/\sqrt{d_h}+M\right)`} />
         <InlineMath latex={String.raw`H_i=A_iV_i`} />
@@ -162,16 +163,22 @@ const proofStatus = (value: string) =>
     </div>
     <div class="head-grid">
       {heads.map((head) => (
-        <article class:list={['head-card', head.className]} data-attention-head={head.partition.head}>
+        <article data-diagram-card data-diagram-box class:list={['head-card', head.className]} data-attention-head={head.partition.head}>
           <h5>{head.cue}</h5>
           <div
-            class="table-scroller"
+            class="table-scroller course-diagram__scroll"
             tabindex="0"
             role="region"
             aria-label={`${labels.scrollers.heads}: ${head.cue}`}
-          >
-            <table class="evidence-table attention-table">
+           data-diagram-scroll>
+            <table data-diagram-table class="evidence-table attention-table">
               <caption>{labels.stages.causalWeights}: {head.cue}</caption>
+              <colgroup>
+                <col class="query-column" />
+                <col class="probability-column" span={keyPositions.length} />
+                <col class="sum-column" />
+                <col class="output-column" />
+              </colgroup>
               <thead>
                 <tr>
                   <th scope="col">{labels.fields.queryPosition}</th>
@@ -231,22 +238,22 @@ const proofStatus = (value: string) =>
     <h4 id="multi-head-merge-title">{labels.sections.merge}</h4>
     <p>{labels.captions.merge}</p>
     <div
-      class="formula-scroller"
+      class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.formula}
-    >
+     data-diagram-scroll>
       <p class="formula-line technical">
         <InlineMath latex={String.raw`\operatorname{MHA}(X)=\operatorname{Concat}(H_1,\ldots,H_h)W_O`} />
       </p>
     </div>
     <div
-      class="table-scroller"
+      class="table-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.concatenation}
-    >
-      <table class="evidence-table merge-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="evidence-table merge-table">
         <caption>{labels.stages.concatenation}</caption>
         <thead>
           <tr>
@@ -271,12 +278,12 @@ const proofStatus = (value: string) =>
 
     <div class="projection-grid">
       <div
-        class="table-scroller"
+        class="table-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
         aria-label={labels.scrollers.projection}
-      >
-        <table class="evidence-table output-map-table">
+       data-diagram-scroll>
+        <table data-diagram-table class="evidence-table output-map-table">
           <caption>{labels.fields.outputWeight}</caption>
           <thead>
             <tr>
@@ -295,12 +302,12 @@ const proofStatus = (value: string) =>
         </table>
       </div>
       <div
-        class="table-scroller"
+        class="table-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
         aria-label={`${labels.scrollers.projection}: ${labels.fields.finalOutput}`}
-      >
-        <table class="evidence-table final-output-table">
+       data-diagram-scroll>
+        <table data-diagram-table class="evidence-table final-output-table">
           <caption>{labels.stages.outputProjection}</caption>
           <thead>
             <tr>
@@ -431,7 +438,6 @@ const proofStatus = (value: string) =>
   .table-scroller,
   .formula-scroller {
     max-inline-size: 100%;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
     padding-block-end: 0.25rem;
   }
@@ -513,6 +519,10 @@ const proofStatus = (value: string) =>
     min-inline-size: 64rem;
   }
 
+  .attention-table .query-column { inline-size: 9rem; }
+  .attention-table .sum-column { inline-size: 7rem; }
+  .attention-table .output-column { inline-size: 12.5rem; }
+
   .proof-grid > div {
     padding-block: 0.45rem;
   }
@@ -568,7 +578,7 @@ const proofStatus = (value: string) =>
     border: 0;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .head-grid,
     .projection-grid,
     .proof-grid,

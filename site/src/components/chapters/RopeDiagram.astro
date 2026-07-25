@@ -72,15 +72,16 @@ const historyRows = [
 ---
 
 <figure
-  class="rope-diagram"
+  class="course-diagram rope-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="rotary-position-pairs"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.rotations}>
       <li class="fast-cue">{labels.cues.fastPair}</li>
       <li class="slow-cue">{labels.cues.slowPair}</li>
@@ -94,20 +95,20 @@ const historyRows = [
     <h4 id="rope-rotation-title">{labels.sections.rotations}</h4>
     <p class="section-caption">{labels.captions.rotations}</p>
     <p
-      class="formula-line"
+      class="formula-line course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby="rope-rotation-title"
-    >
+     data-diagram-scroll>
       <InlineMath latex="\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}=R(m\theta_k)(x_m)_{2k:2k+2}" />
     </p>
     <div
-      class="rotation-scroller technical"
+      class="rotation-scroller technical course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.rotations}
-    >
-      <table class="evidence-table rotation-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="evidence-table rotation-table">
         <caption>{labels.captions.rotations}</caption>
         <thead>
           <tr>
@@ -144,20 +145,20 @@ const historyRows = [
     <h4 id="rope-dot-title">{labels.sections.dots}</h4>
     <p class="section-caption">{labels.captions.dots}</p>
     <p
-      class="formula-line"
+      class="formula-line course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby="rope-dot-title"
-    >
+     data-diagram-scroll>
       <InlineMath latex="\left(R(m\theta_k)q\right)^\top\left(R(n\theta_k)k\right)=q^\top R((n-m)\theta_k)k" />
     </p>
     <div
-      class="dot-scroller technical"
+      class="dot-scroller technical course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.dots}
-    >
-      <table class="evidence-table dot-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="evidence-table dot-table">
         <caption>{labels.captions.dots}</caption>
         <thead>
           <tr>
@@ -197,11 +198,11 @@ const historyRows = [
     </div>
 
     <div class="shift-grid">
-      <article class="shift-card original-shift" data-shift-grid="original">
+      <article data-diagram-card data-diagram-box class="shift-card original-shift" data-shift-grid="original">
         <h5>{labels.fields.originalGrid}</h5>
         <p>{labels.fields.originalPositions}: <InlineMath latex="[0,1,2]" /></p>
-        <div class="shift-scroller technical" tabindex="0" role="region" aria-label={labels.scrollers.shift}>
-          <table class="compact-matrix">
+        <div class="shift-scroller technical course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.shift} data-diagram-scroll>
+          <table data-diagram-table class="compact-matrix">
             <caption>{labels.fields.originalGrid}</caption>
             <tbody>
               {beforeGrid.map((row, index) => (
@@ -214,11 +215,11 @@ const historyRows = [
           </table>
         </div>
       </article>
-      <article class="shift-card shifted-shift" data-shift-grid="shifted">
+      <article data-diagram-card data-diagram-box class="shift-card shifted-shift" data-shift-grid="shifted">
         <h5>{labels.fields.shiftedGrid}</h5>
         <p>{labels.fields.shiftedPositions}: <InlineMath latex="[3,4,5]" /></p>
-        <div class="shift-scroller technical" tabindex="0" role="region" aria-label={labels.scrollers.shift}>
-          <table class="compact-matrix">
+        <div class="shift-scroller technical course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.shift} data-diagram-scroll>
+          <table data-diagram-table class="compact-matrix">
             <caption>{labels.fields.shiftedGrid}</caption>
             <tbody>
               {afterGrid.map((row, index) => (
@@ -231,7 +232,7 @@ const historyRows = [
           </table>
         </div>
       </article>
-      <article class="shift-card shift-proof" data-common-shift={trace.commonShift.preserved}>
+      <article data-diagram-card data-diagram-box class="shift-card shift-proof" data-common-shift={trace.commonShift.preserved}>
         <h5>{labels.fields.proof}</h5>
         <p class="status-line">{verified(trace.commonShift.preserved)}</p>
         <p><InlineMath latex={String.raw`\varepsilon=${trace.commonShift.tolerance}`} /></p>
@@ -243,41 +244,41 @@ const historyRows = [
     <h4 id="rope-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
     <div class="evidence-grid">
-      <article class="evidence-card norm-card" data-norm-preserved={trace.norm.preserved}>
+      <article data-diagram-card data-diagram-box class="evidence-card norm-card" data-norm-preserved={trace.norm.preserved}>
         <h5>{labels.fields.norm}</h5>
         <dl class="technical">
           <div>
             <dt>{labels.fields.before}</dt>
             <dd
-              class="norm-value-scroller"
+              class="norm-value-scroller course-diagram__scroll"
               tabindex="0"
               role="region"
               aria-label={`${labels.fields.norm}: ${labels.fields.before}`}
-            ><InlineMath latex={trace.norm.input.latex} /></dd>
+             data-diagram-scroll><InlineMath latex={trace.norm.input.latex} /></dd>
           </div>
           <div>
             <dt>{labels.fields.after}</dt>
             <dd
-              class="norm-value-scroller"
+              class="norm-value-scroller course-diagram__scroll"
               tabindex="0"
               role="region"
               aria-label={`${labels.fields.norm}: ${labels.fields.after}`}
-            ><InlineMath latex={trace.norm.rotated.latex} /></dd>
+             data-diagram-scroll><InlineMath latex={trace.norm.rotated.latex} /></dd>
           </div>
           <div>
             <dt>{labels.fields.shiftedPositions}</dt>
             <dd
-              class="norm-value-scroller"
+              class="norm-value-scroller course-diagram__scroll"
               tabindex="0"
               role="region"
               aria-label={`${labels.fields.norm}: ${labels.fields.shiftedPositions}`}
-            ><InlineMath latex={trace.norm.shifted.latex} /></dd>
+             data-diagram-scroll><InlineMath latex={trace.norm.shifted.latex} /></dd>
           </div>
         </dl>
         <p class="status-line">{verified(trace.norm.preserved)}</p>
       </article>
 
-      <article class="evidence-card shape-card">
+      <article data-diagram-card data-diagram-box class="evidence-card shape-card">
         <h5>{labels.fields.shape}</h5>
         <ul class="technical">
           {trace.shapes.map((record) => (
@@ -290,7 +291,7 @@ const historyRows = [
         </ul>
       </article>
 
-      <article class="evidence-card error-card">
+      <article data-diagram-card data-diagram-box class="evidence-card error-card">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
@@ -305,12 +306,12 @@ const historyRows = [
     </div>
 
     <div
-      class="gradient-scroller technical"
+      class="gradient-scroller technical course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.gradients}
-    >
-      <table class="evidence-table gradient-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="evidence-table gradient-table">
         <caption>{labels.fields.backward}</caption>
         <thead>
           <tr>
@@ -344,15 +345,15 @@ const historyRows = [
     <h4 id="rope-history-title">{labels.sections.history}</h4>
     <p class="section-caption">{labels.captions.history}</p>
     <div
-      class="history-scroller"
+      class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-    >
+     data-diagram-scroll>
       <ol class="history-grid">
         {historyRows.map((row) => (
           <li>
-            <article class:list={['history-card', row.className]}>
+            <article data-diagram-card data-diagram-box class:list={['history-card', row.className]}>
               <h5>{row.title}</h5>
               <code>{row.value}</code>
             </article>
@@ -419,7 +420,6 @@ const historyRows = [
     padding: 0.75rem;
     border-inline-start: 4px solid var(--accent, #6d5dfc);
     background: var(--surface, #fff);
-    overflow-x: auto;
     direction: ltr;
     unicode-bidi: isolate;
   }
@@ -431,7 +431,6 @@ const historyRows = [
   .history-scroller {
     box-sizing: border-box;
     max-width: 100%;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
   }
 
@@ -507,7 +506,6 @@ const historyRows = [
     box-sizing: border-box;
     max-width: 100%;
     padding-block-end: 0.2rem;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
   }
 
@@ -561,7 +559,7 @@ const historyRows = [
   }
   code { overflow-wrap: anywhere; }
 
-  @media (max-width: 760px) {
+  @container course-diagram (max-width: 760px) {
     .rope-diagram { padding: 0.85rem; }
     .shift-grid, .evidence-grid { grid-template-columns: minmax(0, 1fr); }
     .rotation-table { min-width: 52rem; }

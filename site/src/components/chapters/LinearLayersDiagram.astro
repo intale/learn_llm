@@ -59,14 +59,17 @@ const selectedProductsLatex = selectedCell.products
 ---
 
 <figure
-  class="linear-layers-diagram"
+  class="course-diagram linear-layers-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={linearLayersDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="shape-summary">
     <div>
@@ -133,8 +136,8 @@ const selectedProductsLatex = selectedCell.products
   <div class="stage-grid">
     <section class="diagram-stage weights-stage" aria-labelledby={`${titleId}-weights`}>
       <h3 id={`${titleId}-weights`}><span aria-hidden="true">2</span> {labels.stages.weights}</h3>
-      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.weights}>
-        <table>
+      <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.weights} data-diagram-scroll>
+        <table data-diagram-table>
           <thead>
             <tr>
               <th scope="col">{labels.fields.inputFeature}</th>
@@ -159,8 +162,8 @@ const selectedProductsLatex = selectedCell.products
 
     <section class="diagram-stage positions-stage" aria-labelledby={`${titleId}-positions`}>
       <h3 id={`${titleId}-positions`}><span aria-hidden="true">3</span> {labels.stages.positions}</h3>
-      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.positions}>
-        <table>
+      <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.positions} data-diagram-scroll>
+        <table data-diagram-table>
           <thead>
             <tr>
               <th scope="col">{labels.fields.position}</th>
@@ -200,7 +203,7 @@ const selectedProductsLatex = selectedCell.products
           />
         </dd>
       </div>
-      <div class="products-card">
+      <div data-diagram-card data-diagram-box class="products-card">
         <dt>{labels.fields.products}</dt>
         <dd class="product-list">
           <bdi
@@ -222,7 +225,7 @@ const selectedProductsLatex = selectedCell.products
           <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`+${selectedCell.bias.lexeme}`)} />
         </dd>
       </div>
-      <div class="result-card">
+      <div data-diagram-card data-diagram-box class="result-card">
         <dt>{labels.fields.result}</dt>
         <dd>
           <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`=${selectedCell.result.lexeme}`)} />
@@ -235,12 +238,12 @@ const selectedProductsLatex = selectedCell.products
     <h3 id={`${titleId}-policy`}><span aria-hidden="true">5</span> {labels.stages.policy}</h3>
     <p>{labels.notes.policy}</p>
     <div class="policy-grid">
-      <article class="affine-policy">
+      <article data-diagram-card data-diagram-box class="affine-policy">
         <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.affine}</bdi> {labels.policies.affine}</h4>
         <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.affineParameters.lexeme}</bdi></p>
         <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{affineRows.map((row) => vector(row)).join('; ')}</bdi></p>
       </article>
-      <article class="bias-free-policy">
+      <article data-diagram-card data-diagram-box class="bias-free-policy">
         <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.biasFree}</bdi> {labels.policies.biasFree}</h4>
         <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.biasFreeParameters.lexeme}</bdi></p>
         <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{biasFreeRows.map((row) => vector(row)).join('; ')}</bdi></p>
@@ -251,8 +254,8 @@ const selectedProductsLatex = selectedCell.products
   <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
     <h3 id={`${titleId}-gradients`}><span aria-hidden="true">6</span> {labels.stages.gradients}</h3>
     <p>{labels.notes.gradients}</p>
-    <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
-      <table class="position-gradient-table">
+    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
+      <table data-diagram-table class="position-gradient-table">
         <caption>{labels.captions.positionGradients}</caption>
         <thead>
           <tr>
@@ -279,7 +282,7 @@ const selectedProductsLatex = selectedCell.products
           ))}
         </tbody>
       </table>
-      <table class="parameter-gradient-table">
+      <table data-diagram-table class="parameter-gradient-table">
         <caption>{labels.captions.parameterGradients}</caption>
         <thead>
           <tr>
@@ -329,7 +332,6 @@ const selectedProductsLatex = selectedCell.products
     gap: 1.25rem;
     margin: 1.5rem 0;
     padding: clamp(1rem, 3vw, 1.5rem);
-    overflow: hidden;
     container-type: inline-size;
     border: 1px solid var(--line);
     border-radius: 1rem;
@@ -477,7 +479,6 @@ const selectedProductsLatex = selectedCell.products
   .table-scroll {
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-gutter: stable;
   }
@@ -588,7 +589,6 @@ const selectedProductsLatex = selectedCell.products
   }
 
   table bdi,
-  .shape-summary bdi,
   .axis-flow bdi {
     white-space: nowrap;
   }
@@ -604,7 +604,7 @@ const selectedProductsLatex = selectedCell.products
     }
   }
 
-  @media (max-width: 44rem) {
+  @container course-diagram (max-width: 44rem) {
     .linear-layers-diagram {
       padding: 0.85rem;
     }

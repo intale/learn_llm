@@ -290,6 +290,14 @@ export async function expectNoPageOverflow(page: Page) {
 }
 
 export async function expectOnlySharedDiagramClientScript(page: Page) {
+  const labels = await page.locator('html').evaluate((root) => ({
+    open: root.getAttribute('data-diagram-full-view-open'),
+    close: root.getAttribute('data-diagram-full-view-close'),
+  }));
+  const hasSharedShell = labels.open !== null || labels.close !== null;
+  expect(Boolean(labels.open?.trim())).toBe(hasSharedShell);
+  expect(Boolean(labels.close?.trim())).toBe(hasSharedShell);
+
   const scripts = await page
     .locator('script:not([type="application/ld+json"])')
     .evaluateAll((nodes) =>
@@ -299,7 +307,9 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
         type: (node as HTMLScriptElement).type,
       })),
     );
-  expect(scripts).toHaveLength(1);
+  expect(scripts).toHaveLength(hasSharedShell ? 1 : 0);
+  if (!hasSharedShell) return;
+
   expect(scripts[0]?.type).toBe('module');
   if (scripts[0]?.src) {
     expect(scripts[0].text).toBe('');
@@ -309,12 +319,6 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
     expect(scripts[0]?.text).toContain('figure[data-visualization-id]');
   }
 
-  const labels = await page.locator('html').evaluate((root) => ({
-    open: root.getAttribute('data-diagram-full-view-open'),
-    close: root.getAttribute('data-diagram-full-view-close'),
-  }));
-  expect(labels.open?.trim().length ?? 0).toBeGreaterThan(0);
-  expect(labels.close?.trim().length ?? 0).toBeGreaterThan(0);
 }
 
 export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {

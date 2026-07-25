@@ -33,15 +33,16 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
 ---
 
 <figure
-  class="broadcasting-reductions-diagram"
+  class="course-diagram broadcasting-reductions-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={broadcastingReductionsDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="summary-facts">
       <div>
         <dt>{labels.summary.tokens}</dt>
@@ -61,7 +62,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
   <section class="diagram-panel alignment-panel" aria-labelledby={`${instanceId}-alignment-title`}>
     <h4 id={`${instanceId}-alignment-title`}>{labels.sections.alignment}</h4>
     <p>{labels.notes.alignment}</p>
-    <table class="alignment-table">
+    <table data-diagram-table class="alignment-table">
       <caption class="visually-hidden">{labels.sections.alignment}</caption>
       <thead>
         <tr>
@@ -98,12 +99,12 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     <h4 id={`${instanceId}-mapping-title`}>{labels.sections.mapping}</h4>
     <p>{labels.notes.mapping}</p>
     <div
-      class="mapping-scroll"
+      class="mapping-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby={`${instanceId}-mapping-title`}
-    >
-      <table class="mapping-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="mapping-table">
         <caption class="visually-hidden">{labels.sections.mapping}</caption>
         <thead>
           <tr>
@@ -141,7 +142,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     <p>{labels.notes.reductions}</p>
     <ol class="reduction-list">
       {trace.reductions.map((reduction) => (
-        <li
+        <li data-diagram-card data-diagram-box
           class="reduction-card"
           data-reduction-operation={reduction.operation}
           data-reduction-axis={reduction.axis.lexeme}
@@ -181,7 +182,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
     <ol class="error-list">
-      <li class="error-card" data-error-kind={trace.errors[0].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[0].operation}</code>
@@ -198,7 +199,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
         </span>
       </li>
       {emptyErrors.map((error) => (
-        <li class="error-card" data-error-kind={error.kind}>
+        <li data-diagram-card data-diagram-box class="error-card" data-error-kind={error.kind}>
           <span class="state-symbol" aria-hidden="true">×</span>
           <span class="visually-hidden">{labels.symbols.rejected}: </span>
           <code dir="ltr">{error.operation}</code>
@@ -267,9 +268,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
   thead th { font-weight: 750; }
 
   .mapping-scroll {
-    contain: paint;
     max-width: 100%;
-    overflow-x: auto;
   }
 
   .mapping-table { min-width: 39rem; }
@@ -325,7 +324,7 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     border: 0;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .reduction-list,
     .error-list { grid-template-columns: 1fr; }
     .alignment-table { font-size: 0.92rem; }

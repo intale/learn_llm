@@ -32,15 +32,16 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
 ---
 
 <figure
-  class="self-attention-diagram"
+  class="course-diagram self-attention-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="self-attention"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.calculation}>
       <li class="query-cue">{labels.cues.query}</li>
       <li class="key-cue">{labels.cues.key}</li>
@@ -56,21 +57,21 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
 
     <h5>{labels.stages.inputs}</h5>
     <div
-      class="inputs-scroller"
+      class="inputs-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.inputs}
-    >
+     data-diagram-scroll>
       <ol class="input-grid">
         {trace.inputs.map((input) => (
           <li>
-            <article class:list={['input-card', `${input.role}-card`]} data-input-role={input.role}>
+            <article data-diagram-card data-diagram-box class:list={['input-card', `${input.role}-card`]} data-input-role={input.role}>
               <header>
                 <span class:list={['role-cue', `${input.role}-cue`]}>{roleCues[input.role]}</span>
                 <h6>{roleLabels[input.role]}</h6>
               </header>
               <p class="matrix-label"><InlineMath latex={input.symbol} /></p>
-              <table class="matrix-table">
+              <table data-diagram-table class="matrix-table">
                 <tbody>
                   {rows2(input.values).map((row, rowIndex) => (
                     <tr>
@@ -90,17 +91,17 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     <div class="stage-marker" aria-hidden="true">↓</div>
 
     <div
-      class="scores-scroller"
+      class="scores-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.scores}
-    >
+     data-diagram-scroll>
       <div class="score-grid">
-        <article class="score-card raw-score-card" data-score-kind="dot-products">
+        <article data-diagram-card data-diagram-box class="score-card raw-score-card" data-score-kind="dot-products">
           <span class="stage-cue">{labels.cues.score}</span>
           <h5>{labels.stages.dotProducts}</h5>
           <p class="formula-line"><InlineMath latex="QK^\top" /></p>
-          <table class="matrix-table score-table">
+          <table data-diagram-table class="matrix-table score-table">
             <thead>
               <tr>
                 <th scope="col"><InlineMath latex="q_i\backslash k_j" /></th>
@@ -119,11 +120,11 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
           </table>
         </article>
 
-        <article class="score-card scaled-score-card" data-score-kind="scaled-scores">
+        <article data-diagram-card data-diagram-box class="score-card scaled-score-card" data-score-kind="scaled-scores">
           <span class="stage-cue">{labels.cues.score}</span>
           <h5>{labels.stages.scaledScores}</h5>
           <p class="formula-line"><InlineMath latex="S=QK^\top/\sqrt{d_k}" /></p>
-          <table class="matrix-table score-table">
+          <table data-diagram-table class="matrix-table score-table">
             <thead>
               <tr>
                 <th scope="col"><InlineMath latex="q_i\backslash k_j" /></th>
@@ -158,15 +159,15 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
 
     <h5>{labels.stages.probabilities}</h5>
     <div
-      class="probabilities-scroller"
+      class="probabilities-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.probabilities}
-    >
+     data-diagram-scroll>
       <ol class="probability-grid">
         {trace.probabilityRows.map((row) => (
           <li>
-            <article class="probability-card" data-probability-row={row.query}>
+            <article data-diagram-card data-diagram-box class="probability-card" data-probability-row={row.query}>
               <span class="stage-cue probability-cue">{labels.cues.probability}</span>
               <h6><InlineMath latex={String.raw`q_${row.query}`} /></h6>
               <p><InlineMath latex={String.raw`A_{${row.query},:}=${row.values.latex}`} /></p>
@@ -190,15 +191,15 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
 
     <h5>{labels.stages.mixtures}</h5>
     <div
-      class="mixtures-scroller"
+      class="mixtures-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.mixtures}
-    >
+     data-diagram-scroll>
       <ol class="mixture-grid">
         {trace.mixtureRows.map((row) => (
           <li>
-            <article class="mixture-card" data-mixture-row={row.query}>
+            <article data-diagram-card data-diagram-box class="mixture-card" data-mixture-row={row.query}>
               <h6><InlineMath latex={String.raw`o_${row.query}`} /></h6>
               <dl>
                 <div>
@@ -231,15 +232,15 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     <h4 id="attention-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
 
-    <div
-      class="gradients-scroller"
-      tabindex="0"
-      role="region"
-      aria-label={labels.scrollers.gradients}
-    >
-      <article class="evidence-card backward-card" data-evidence-kind="backward">
-        <h5>{labels.fields.backward}</h5>
-        <table class="evidence-table">
+    <article data-diagram-card data-diagram-box class="evidence-card backward-card" data-evidence-kind="backward">
+      <h5>{labels.fields.backward}</h5>
+      <div
+        class="gradients-scroller course-diagram__scroll"
+        tabindex="0"
+        role="region"
+        aria-label={labels.scrollers.gradients}
+        data-diagram-scroll>
+        <table data-diagram-table class="evidence-table">
           <tbody>
             <tr>
               <th scope="row"><InlineMath latex="\bar O" /></th>
@@ -259,11 +260,11 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
             </tr>
           </tbody>
         </table>
-      </article>
-    </div>
+      </div>
+    </article>
 
     <div class="evidence-grid">
-      <article class="evidence-card shape-card" data-evidence-kind="shapes">
+      <article data-diagram-card data-diagram-box class="evidence-card shape-card" data-evidence-kind="shapes">
         <h5>{labels.fields.batchShape}</h5>
         <dl>
           <div>
@@ -285,7 +286,7 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
         </dl>
       </article>
 
-      <article class="evidence-card single-card" data-evidence-kind="single-token">
+      <article data-diagram-card data-diagram-box class="evidence-card single-card" data-evidence-kind="single-token">
         <h5>{labels.fields.singleToken}</h5>
         <p><InlineMath latex={String.raw`A=${trace.singleToken.probabilities.latex}`} /></p>
         <p><InlineMath latex={String.raw`O=${trace.singleToken.output.latex}`} /></p>
@@ -295,14 +296,14 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
         </p>
       </article>
 
-      <article class="evidence-card boundary-card" data-evidence-kind="boundary">
+      <article data-diagram-card data-diagram-box class="evidence-card boundary-card" data-evidence-kind="boundary">
         <h5>{labels.fields.mask}</h5>
         <p><code><bdi dir="ltr">masked={trace.meta.masked}</bdi></code></p>
         <p><code><bdi dir="ltr">unmasked={trace.proof.unmasked}</bdi></code></p>
         <p><InlineMath latex={String.raw`d_k=${trace.meta.keyWidth},\quad d_v=${trace.meta.valueWidth}`} /></p>
       </article>
 
-      <article class="evidence-card errors-card" data-evidence-kind="errors">
+      <article data-diagram-card data-diagram-box class="evidence-card errors-card" data-evidence-kind="errors">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
@@ -315,7 +316,7 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
         </ul>
       </article>
 
-      <article class="evidence-card proof-card" data-evidence-kind="proof">
+      <article data-diagram-card data-diagram-box class="evidence-card proof-card" data-evidence-kind="proof">
         <h5>{labels.fields.proof}</h5>
         <dl>
           <div>
@@ -347,26 +348,26 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     <h4 id="attention-history-title">{labels.sections.history}</h4>
     <p class="section-caption">{labels.captions.history}</p>
     <div
-      class="history-scroller"
+      class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-    >
+     data-diagram-scroll>
       <ol class="history-grid">
         <li>
-          <article class="history-card" data-history-kind="earlier">
+          <article data-diagram-card data-diagram-box class="history-card" data-history-kind="earlier">
             <h5>{labels.fields.earlier}</h5>
             <code><bdi dir="ltr">{trace.history.earlier}</bdi></code>
           </article>
         </li>
         <li>
-          <article class="history-card bridge-card" data-history-kind="bridge">
+          <article data-diagram-card data-diagram-box class="history-card bridge-card" data-history-kind="bridge">
             <h5>{labels.fields.bridge}</h5>
             <code><bdi dir="ltr">{trace.history.bridge}</bdi></code>
           </article>
         </li>
         <li>
-          <article class="history-card transformer-card" data-history-kind="transformer">
+          <article data-diagram-card data-diagram-box class="history-card transformer-card" data-history-kind="transformer">
             <h5>{labels.fields.transformer}</h5>
             <code><bdi dir="ltr">{trace.history.transformer}</bdi></code>
             <p><code><bdi dir="ltr">{trace.history.comparison}</bdi></code></p>
@@ -471,7 +472,6 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     inline-size: 100%;
     max-inline-size: 100%;
     padding: 0.35rem 0.15rem 0.8rem;
-    overflow-x: auto;
     overflow-y: visible;
     scrollbar-gutter: stable;
   }
@@ -623,10 +623,6 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     min-inline-size: 0;
   }
 
-  .gradients-scroller .backward-card {
-    min-inline-size: 45rem;
-  }
-
   .evidence-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
@@ -673,7 +669,7 @@ const verified = (value: string) => value === 'true' ? labels.cues.verified : la
     overflow-wrap: anywhere;
   }
 
-  @media (max-width: 42rem) {
+  @container course-diagram (max-width: 42rem) {
     .self-attention-diagram {
       padding: 0.75rem;
     }

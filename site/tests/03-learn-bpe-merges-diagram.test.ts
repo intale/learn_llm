@@ -364,7 +364,7 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption');
     expect(source).toContain('<ol class="bpe-timeline">');
-    expect(source).toContain('<table>');
+    expect(source).toContain('<table data-diagram-table>');
     expect(source).toContain('<caption>{labels.fields.candidates}</caption>');
     expect(source).toContain('tabindex="0"');
     expect(source).toContain('aria-labelledby={titleId}');
@@ -374,15 +374,16 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('data-round={round.rank}');
     expect(source).toContain("data-winner={candidate.winner ? 'true' : 'false'}");
     expect(source).toContain('<code dir="ltr">{document.id}</code>');
-    expect(source).toContain('class="token-tape"');
+    expect(source).toContain('class="token-tape course-diagram__scroll"');
     expect(source).toContain('role="region"');
     expect(source).toContain('aria-labelledby={`${instance}-stage-');
     expect(source).toContain('aria-label={labels.fields.candidates}');
     expect(source).toContain('<code dir="ltr">{round.merge.bytesHex.join');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.9fr)');
-    expect(source).toContain('@media (max-width: 48rem)');
+    expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr)');
-    expect(source).toContain('overflow-x: auto');
+    expect(source).toContain('data-diagram-scroll');
+    expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('unicode-bidi: isolate');
     expect(source).toContain(':focus-visible');
     expect(source).toContain('@media (forced-colors: active)');

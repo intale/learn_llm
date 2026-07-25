@@ -26,15 +26,16 @@ const descriptionId = `${instanceId}-description`;
 ---
 
 <figure
-  class="autoregressive-diagram"
+  class="course-diagram autoregressive-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={autoregressiveExamplesDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="config-facts">
       <div>
         <dt>{labels.fields.contextLength}</dt>
@@ -76,7 +77,7 @@ const descriptionId = `${instanceId}-description`;
                   const incompleteTail = document.incompleteTail;
                   return (
                     <li>
-                      <article
+                      <article data-diagram-card data-diagram-box
                         class="document"
                         data-document={document.id}
                         data-partition={partition.name}
@@ -102,13 +103,13 @@ const descriptionId = `${instanceId}-description`;
                             ).join(', ')}
                           </span>
                           <p
-                            class="token-tape"
+                            class="token-tape course-diagram__scroll"
                             role="region"
                             tabindex="0"
                             dir="ltr"
                             style={`--token-count: ${document.tokens.length}`}
                             aria-labelledby={`${documentId}-source ${documentId}-source-sequence`}
-                          >
+                           data-diagram-scroll>
                             {document.tokens.map((token, position) => {
                               const isBos = position === 0;
                               const isEos = position === document.tokens.length - 1;
@@ -128,7 +129,7 @@ const descriptionId = `${instanceId}-description`;
 
                         <ol class="window-list">
                           {document.windows.map((window) => (
-                            <li
+                            <li data-diagram-box
                               class="window"
                               data-window-index={window.index}
                               data-window-start={window.start}
@@ -157,12 +158,12 @@ const descriptionId = `${instanceId}-description`;
                                   {window.input.join(', ')}
                                 </span>
                                 <p
-                                  class="aligned-tape"
+                                  class="aligned-tape course-diagram__scroll"
                                   role="region"
                                   tabindex="0"
                                   dir="ltr"
                                   aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-input ${documentId}-window-${window.index}-input-sequence`}
-                                >
+                                 data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start;
                                     const token = window.input[offset];
@@ -192,12 +193,12 @@ const descriptionId = `${instanceId}-description`;
                                   {window.target.join(', ')}
                                 </span>
                                 <p
-                                  class="aligned-tape target"
+                                  class="aligned-tape target course-diagram__scroll"
                                   role="region"
                                   tabindex="0"
                                   dir="ltr"
                                   aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-target ${documentId}-window-${window.index}-target-sequence`}
-                                >
+                                 data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start - 1;
                                     const token = window.target[offset];
@@ -242,13 +243,13 @@ const descriptionId = `${instanceId}-description`;
                               {incompleteTail.tokens.join(', ')}
                             </span>
                             <p
-                              class="tail-tape"
+                              class="tail-tape course-diagram__scroll"
                               role="region"
                               tabindex="0"
                               dir="ltr"
                               style={`--token-count: ${document.tokens.length}`}
                               aria-labelledby={`${documentId}-tail ${documentId}-tail-facts ${documentId}-tail-sequence`}
-                            >
+                             data-diagram-scroll>
                               {document.tokens.map((_, position) => {
                                 const offset = position - incompleteTail.start;
                                 const token = incompleteTail.tokens[offset];
@@ -449,18 +450,17 @@ const descriptionId = `${instanceId}-description`;
     display: grid;
     grid-template-columns: repeat(var(--token-count), minmax(2.25rem, 1fr));
     gap: 0.3rem;
-    overflow-x: auto;
     white-space: nowrap;
     scrollbar-gutter: stable;
   }
 
   .aligned-tape {
-    inline-size: calc(100% + 1.5rem + 2px);
+    --diagram-scroll-inline-size: calc(100% + 1.5rem + 2px);
     margin-inline: calc(-0.75rem - 1px);
   }
 
   .tail-tape {
-    inline-size: calc(100% + 1.5rem + 4px);
+    --diagram-scroll-inline-size: calc(100% + 1.5rem + 4px);
     margin-inline: calc(-0.75rem - 2px);
   }
 
@@ -569,7 +569,7 @@ const descriptionId = `${instanceId}-description`;
     border-radius: 0.55rem;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .document-list,
     .invariants ul {
       grid-template-columns: minmax(0, 1fr);

@@ -287,7 +287,7 @@ describe('Chapter 15 static diagram component', () => {
     expect(component).toContain('data-node-id=');
     expect(component).toContain('data-node-label=');
     expect(component).toContain('data-topology-order=');
-    expect(component.match(/<table class="vjp-table"/g)).toHaveLength(1);
+    expect(component.match(/<table data-diagram-table class="vjp-table"/g)).toHaveLength(1);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-edge-reverse=');
@@ -303,11 +303,12 @@ describe('Chapter 15 static diagram component', () => {
 
   it('keeps wide evidence local and gives every card natural intrinsic height', () => {
     expect(component).toContain('data-visualization-id={tensorAutodiffCoreDiagramId}');
-    expect(component).toContain('class="trace-scroll"');
+    expect(component).toContain('class="trace-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('align-items: start;');
     expect(component).toContain('.node-structural { border-style: dotted; }');
     expect(component).toContain('.node-broadcast { border-style: dashed; }');

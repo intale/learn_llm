@@ -1,0 +1,520 @@
+.host {
+  --course-diagram-style-version: course-v1;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1']) {
+  --diagram-ink: var(--ink);
+  --diagram-muted: var(--muted);
+  --diagram-paper: color-mix(in srgb, var(--paper) 42%, white 58%);
+  --diagram-surface: color-mix(in srgb, var(--surface) 88%, white 12%);
+  --diagram-surface-raised: color-mix(in srgb, var(--paper) 24%, white 76%);
+  --diagram-line: color-mix(in srgb, var(--ink) 22%, transparent);
+  --diagram-line-strong: color-mix(in srgb, var(--ink) 42%, transparent);
+  --diagram-accent: var(--accent);
+  --diagram-accent-dark: var(--accent-dark);
+  --diagram-accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
+  --diagram-warm: var(--warm);
+  --diagram-focus: var(--focus);
+  --diagram-gap: clamp(0.85rem, 1.8cqi, 1.2rem);
+  --diagram-frame-padding: clamp(0.875rem, 2.4cqi, 1.4rem);
+  --diagram-panel-padding: clamp(0.75rem, 1.8cqi, 1rem);
+  --diagram-card-padding: 0.75rem;
+  --diagram-cell-padding-block: 0.55rem;
+  --diagram-cell-padding-inline: 0.65rem;
+  --diagram-summary-min: 10rem;
+  --diagram-frame-radius: 1rem;
+  --diagram-panel-radius: 0.75rem;
+  --diagram-card-radius: 0.625rem;
+  --diagram-border: var(--diagram-line);
+  --border: var(--diagram-line);
+  --background: var(--diagram-surface-raised);
+  --accent-soft: var(--diagram-accent-soft);
+  --text: var(--diagram-ink);
+  --surface-raised: var(--diagram-surface-raised);
+  --color-border: var(--diagram-line-strong);
+  --color-surface: var(--diagram-surface);
+  --color-text: var(--diagram-ink);
+  --color-accent: var(--diagram-accent);
+  --qkv-ink: var(--diagram-ink);
+  --qkv-paper: var(--diagram-paper);
+  --qkv-accent: var(--diagram-accent);
+  --qkv-ok: var(--diagram-accent-dark);
+  --attention-ink: var(--diagram-ink);
+  --attention-paper: var(--diagram-paper);
+  --attention-accent: var(--diagram-accent);
+  --attention-ok: var(--diagram-accent-dark);
+  --norm-ink: var(--diagram-ink);
+  --norm-soft: var(--diagram-accent-soft);
+  --norm-accent: var(--diagram-accent);
+  --norm-green: var(--diagram-accent-dark);
+  --norm-amber: var(--diagram-warm);
+  --norm-red: var(--diagram-warm);
+  container: course-diagram / inline-size;
+  display: grid;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  gap: var(--diagram-gap);
+  margin: 1.75rem 0;
+  padding: var(--diagram-frame-padding);
+  overflow: visible;
+  border: 1px solid var(--diagram-line-strong);
+  border-radius: var(--diagram-frame-radius);
+  background: var(--diagram-surface);
+  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--diagram-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: start;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1']),
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] *) {
+  box-sizing: border-box;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] > *) {
+  min-inline-size: 0;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1']):focus-visible,
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] [data-diagram-scroll]):focus-visible {
+  outline: 0.2rem solid var(--diagram-focus);
+  outline-offset: 0.2rem;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] > .course-diagram__caption) {
+  display: grid;
+  min-inline-size: 0;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  color: var(--diagram-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] > .course-diagram__caption > h3) {
+  max-inline-size: 34ch;
+  margin: 0;
+  color: var(--diagram-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.3rem, 3cqi, 1.65rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      .course-diagram__description
+  ) {
+  max-inline-size: 72ch;
+  margin: 0;
+  color: var(--diagram-muted);
+  font: inherit;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] > section) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: var(--diagram-panel-padding);
+  overflow: visible;
+  border-width: 1px;
+  border-color: var(--diagram-line);
+  border-radius: var(--diagram-panel-radius);
+  background: var(--diagram-paper);
+  color: var(--diagram-ink);
+}
+
+.host
+  :global(:where(figure.course-diagram[data-diagram-style='course-v1'] > section)) {
+  border-style: solid;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] > section > :is(h3, h4)) {
+  margin-block: 0 0.4rem;
+  color: var(--diagram-ink);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] > section > p:first-of-type) {
+  max-inline-size: 72ch;
+  margin-block-start: 0;
+  color: var(--diagram-muted);
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] > dl) {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(min(100%, var(--diagram-summary-min)), 1fr));
+  min-inline-size: 0;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] > dl > div) {
+  min-inline-size: 0;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--diagram-line);
+  border-radius: var(--diagram-card-radius);
+  background: var(--diagram-surface-raised);
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] dt) {
+  color: var(--diagram-muted);
+  font-size: 0.8rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1'] dd) {
+  min-inline-size: 0;
+  margin: 0.2rem 0 0;
+}
+
+.host
+  :global(
+    figure.course-diagram.course-diagram[data-diagram-style='course-v1']
+      [data-diagram-card][data-diagram-box]
+  ) {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  padding: var(--diagram-card-padding);
+  overflow: visible;
+  border-width: 1px;
+  border-color: var(--diagram-line);
+  border-radius: var(--diagram-card-radius);
+  background: var(--diagram-surface-raised);
+  color: var(--diagram-ink);
+  overflow-wrap: anywhere;
+}
+
+.host
+  :global(
+    :where(
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-diagram-box]
+    )
+  ) {
+  border-style: solid;
+}
+
+.host
+  :global(
+    :where(
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-state='rejected'],
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-status='fail'],
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card].state-rejected,
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card].state-fail
+    )
+  ) {
+  border-style: dashed;
+}
+
+.host
+  :global(
+    :where(
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-state='trusted'],
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-status='pass'],
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card].state-trusted,
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card].state-pass
+    )
+  ) {
+  border-style: double;
+  border-width: 3px;
+}
+
+.host
+  :global(
+    figure.course-diagram.course-diagram[data-diagram-style='course-v1']
+      .course-diagram__scroll[data-diagram-scroll]
+  ) {
+  position: relative;
+  inline-size: var(--diagram-scroll-inline-size, 100%);
+  max-inline-size: var(--diagram-scroll-inline-size, 100%);
+  min-inline-size: 0;
+  padding-block-end: 0.35rem;
+  overflow-x: auto;
+  contain: none;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+  border-radius: calc(var(--diagram-card-radius) + 0.1rem);
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      .course-diagram__scroll[data-diagram-scroll]
+      > :first-child
+  ) {
+  margin-block-start: 0;
+}
+
+.host
+  :global(
+    figure.course-diagram.course-diagram[data-diagram-style='course-v1']
+      table[data-diagram-table]
+  ) {
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: var(--diagram-surface-raised);
+  color: var(--diagram-ink);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+.host
+  :global(
+    figure.course-diagram.course-diagram[data-diagram-style='course-v1']
+      table[data-diagram-table]
+      :is(th, td)
+  ) {
+  min-inline-size: 0;
+  padding:
+    var(--diagram-cell-padding-block)
+    var(--diagram-cell-padding-inline);
+  border-width: 1px;
+  border-color: var(--diagram-line);
+  background: transparent;
+  color: inherit;
+  text-align: start;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.host
+  :global(
+    :where(
+      figure.course-diagram[data-diagram-style='course-v1']
+        table[data-diagram-table]
+        :is(th, td)
+    )
+  ) {
+  border-style: solid;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      table[data-diagram-table]
+      th
+  ) {
+  background: var(--diagram-accent-soft);
+  font-weight: 750;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
+      :is(code, bdi, [dir='ltr'])
+  ) {
+  direction: ltr;
+  max-inline-size: 100%;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] :is(p, li, dd)) {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] .cue-list) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block: 0.65rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] .cue-list > li) {
+  padding: 0.28rem 0.55rem;
+  border-width: 2px;
+  border-color: var(--diagram-line-strong);
+  border-radius: 999px;
+  background: var(--diagram-surface-raised);
+  color: var(--diagram-ink);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.host
+  :global(
+    :where(
+      figure.course-diagram[data-diagram-style='course-v1'] .cue-list > li
+    )
+  ) {
+  border-style: solid;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1'] .state-symbol) {
+  box-sizing: border-box;
+  display: inline-grid;
+  inline-size: auto;
+  min-inline-size: 1.7rem;
+  block-size: 1.7rem;
+  flex: 0 0 auto;
+  place-items: center;
+  padding-inline: 0.3rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.host :global([data-diagram-full-view-controls]) {
+  display: flex;
+  grid-column: 1 / -1;
+  inline-size: 100%;
+  justify-content: flex-end;
+  margin-block-end: 0.75rem;
+}
+
+.host :global([data-diagram-full-view-toggle]) {
+  display: inline-flex;
+  min-block-size: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--diagram-accent-dark);
+  border-radius: 0.65rem;
+  background: var(--paper);
+  color: var(--diagram-accent-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.host :global([data-diagram-full-view-toggle]):hover {
+  background: var(--paper-deep);
+}
+
+.host :global([data-diagram-full-view-toggle]):focus-visible {
+  outline: 0.2rem solid var(--diagram-focus);
+  outline-offset: 0.2rem;
+}
+
+.host :global(.diagram-full-view-icon) {
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+.host :global(figure.course-diagram[data-diagram-style='course-v1']):fullscreen {
+  inline-size: 100%;
+  max-inline-size: none;
+  block-size: 100%;
+  max-block-size: none;
+  margin: 0;
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  overflow: auto;
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  scrollbar-gutter: stable both-edges;
+}
+
+.host
+  :global(figure.course-diagram[data-diagram-style='course-v1']):fullscreen::backdrop {
+  background: var(--paper);
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+      [data-diagram-full-view-controls]
+  ) {
+  position: sticky;
+  z-index: 20;
+  inset-block-start: 0;
+  padding-block: 0.25rem;
+  margin-block-end: 0;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+      [data-diagram-full-view-scroll-owner]
+  ) {
+  max-inline-size: 100%;
+}
+
+@media (max-width: 63.999rem), (max-height: 35.999rem) {
+  .host :global([data-diagram-full-view-controls]) {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .host :global(figure.course-diagram[data-diagram-style='course-v1']),
+  .host :global(figure.course-diagram[data-diagram-style='course-v1'] > section),
+  .host
+    :global(
+      figure.course-diagram[data-diagram-style='course-v1']
+        [data-diagram-card][data-diagram-box]
+    ),
+  .host
+    :global(
+      figure.course-diagram[data-diagram-style='course-v1'] table[data-diagram-table]
+    ),
+  .host
+    :global(
+      figure.course-diagram[data-diagram-style='course-v1']
+        table[data-diagram-table]
+        :is(th, td)
+    ) {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    forced-color-adjust: auto;
+  }
+
+  .host :global([data-diagram-full-view-toggle]) {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .host :global(figure.course-diagram[data-diagram-style='course-v1']):fullscreen,
+  .host
+    :global(
+      figure.course-diagram[data-diagram-style='course-v1']:fullscreen
+        [data-diagram-full-view-controls]
+    ) {
+    background: Canvas;
+    color: CanvasText;
+  }
+}

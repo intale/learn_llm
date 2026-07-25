@@ -157,7 +157,7 @@ describe('text-unit diagram component contract', () => {
     expect(source).toContain('content: "↓"');
     expect(source).toContain('inset-inline-start: calc(100% + 0.25rem)');
     expect(source).toContain('unicode-bidi: isolate');
-    expect(source).toContain('@media (max-width: 44rem)');
+    expect(source).toContain('@container course-diagram (max-width: 44rem)');
     expect(source).toContain('@media (forced-colors: active)');
     expect(source).not.toContain('<script');
     expect(source).not.toContain('client:');

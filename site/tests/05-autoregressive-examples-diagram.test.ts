@@ -253,11 +253,13 @@ describe('autoregressive-examples diagram component contract', () => {
       'utf8',
     );
     expect(source).toContain('<figure');
-    expect(source).toContain('<figcaption>');
+    expect(source).toContain('<figcaption class="course-diagram__caption">');
     expect(source).toContain('<ol class="partition-list">');
     expect(source).toContain('<section\n              class="partition"');
     expect(source).toContain('<ol class="document-list">');
-    expect(source).toContain('<article\n                        class="document"');
+    expect(source).toContain(
+      '<article data-diagram-card data-diagram-box\n                        class="document"',
+    );
     expect(source).toContain('<ol class="window-list">');
     expect(source).toContain('data-partition={partition.name}');
     expect(source).toContain('data-document={document.id}');
@@ -272,10 +274,11 @@ describe('autoregressive-examples diagram component contract', () => {
     expect(source).toContain('-tail-sequence`');
     expect(source).toContain('class="visually-hidden"');
     expect(source).toContain('dir="ltr"');
-    expect(source).toContain('overflow-x: auto');
+    expect(source).toContain('data-diagram-scroll');
+    expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('border-inline-start');
     expect(source).toContain(':focus-visible');
-    expect(source).toContain('@media (max-width: 48rem)');
+    expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('@media (forced-colors: active)');
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseAutoregressiveExamplesTrace');

@@ -261,7 +261,7 @@ describe('corpus-partitions diagram component contract', () => {
     expect(source).toContain('<code class="role-badge" dir="ltr">');
     expect(source).toContain('<dd><code dir="ltr">{document.id}</code></dd>');
     expect(source).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
-    expect(source).toContain('@media (max-width: 44rem)');
+    expect(source).toContain('@container course-diagram (max-width: 44rem)');
     expect(source).toContain('grid-template-columns: 1fr');
     expect(source).toContain('unicode-bidi: isolate');
     expect(source).not.toContain('letter-spacing');

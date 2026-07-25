@@ -5600,3 +5600,61 @@ behavior, chapter translation, or deployable release artifact is added.
 
 **Affected step and run:** `standardize-course-diagram-full-view`, run
 `20260725T111907Z-standardize-course-diagram-full-view-01`.
+
+## 2026-07-25 - Replace chapter-specific diagram skins with one course design system
+
+**Status:** Accepted before corrective product work.
+
+**Context:** Direct learner review after the shared full-view release found that
+some content still escapes its visual box in Chapters 12 and 13 and that diagram
+appearance changes noticeably from chapter to chapter. The prior step standardized
+when and how a diagram expands, but it intentionally retained thirty independent
+component style sheets. Those sheets disagree on frame width, clipping, padding,
+border weight and radius, background, type scale, focus offset, card treatment,
+table cells, and palette. Several also use `overflow: hidden` on the semantic
+figure, which can conceal rather than solve an internal layout error. A fullscreen
+residual-scroll bound alone therefore does not prove that inline cards, formulae,
+or labels remain inside their own boxes.
+
+**Decision:** Add `site/src/styles/diagram.module.css` as the single authoritative
+diagram presentation module. `BaseLayout.astro` imports it exactly once and
+applies its module host class; every current and future useful diagram applies
+literal shared role classes plus a version marker to the registered semantic
+figure and inherits the same frame, caption, top-level section, semantic card,
+table, named-scroll-region, focus, typography, spacing, surface, border, state,
+forced-colors, and shared-fullscreen-control tokens. Component-local CSS may retain
+only concept-specific geometry, data-dependent sizing, and non-color semantic
+cues; it may not establish another root skin or hide overflow at the figure level.
+Move the existing shared fullscreen presentation rules out of the general site
+sheet and into this module so diagram presentation has one source of truth.
+
+Permit horizontal overflow only in the smallest meaningful element explicitly
+marked as a diagram scroll region and already carrying `role="region"`, keyboard
+focus, and an accessible name. At desktop and narrow widths, a dynamic browser
+gate discovers all current diagrams and rejects page overflow, any unregistered
+scroll owner, any non-scroll box whose content dimensions exceed its own box, and
+any element painted outside the diagram frame. Repeat the contract in Chromium
+and Firefox, including Chapters 12 and 13, fullscreen, no-JavaScript, and forced
+colors. Use a small rendering tolerance for fractional browser geometry, never
+clipping or font shrinking. The source validator requires the module import,
+version marker, shared frame class, and absence of a private root presentation
+system so future chapters cannot drift.
+
+This is a large but deterministic local migration over all thirty diagram
+components. Use only cached Docker Node, Chromium, and Firefox inputs; do not add
+packages, access the network, generate learner content, install a host toolchain,
+or change a deployable release. Preserve every Rust-authored lexeme and semantic
+relationship. If a component fails containment after adopting the shared tokens,
+reflow its concept-specific geometry inside its declared scroll boundary rather
+than hiding, truncating, or reducing the text.
+
+**Consequences:** Current diagrams gain one coherent visual language and future
+diagrams receive the same contract automatically. Local component styles become
+layout supplements instead of separate themes. English-only future chapter scope,
+existing Russian routes, localization extensibility, Rust behavior, mathematics,
+content meaning, full-view behavior, dependencies, hosting, and deployment remain
+unchanged. Chapter 31 depends on this completed design-system step.
+
+**Affected step and run:** `standardize-course-diagram-design-system`, run
+`20260725T130503Z-standardize-course-diagram-design-system-01`; and
+`implement-ch31-decoder-block`.

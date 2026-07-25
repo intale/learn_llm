@@ -275,8 +275,8 @@ describe('Chapter 23 static diagram boundary', () => {
     expect(componentSource).toMatch(/\.checkpoint-list\s*\{[^}]*align-items:\s*start;/s);
     expect(componentSource).toContain('container-type: inline-size');
     expect(componentSource).toContain('@container (max-width: 42rem)');
-    expect(componentSource).toContain('class="pipeline-scroll"');
-    expect(componentSource).toContain('class="generation-scroll"');
+    expect(componentSource).toContain('class="pipeline-scroll course-diagram__scroll"');
+    expect(componentSource).toContain('class="generation-scroll course-diagram__scroll"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('<bdi dir="ltr">');

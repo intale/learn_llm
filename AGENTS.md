@@ -45,6 +45,26 @@ When inline content can overflow horizontally, put it in the smallest meaningful
 named region, make that region keyboard reachable, and retain it as the mobile
 and no-JavaScript fallback.
 
+All diagrams use the one shared presentation module at
+`site/src/styles/diagram.module.css`. The registered figure must carry the
+shared `course-diagram` class and current `data-diagram-style` version; its
+caption, description, cards, tables, technical values, and sanctioned scroll
+regions must use the module's documented roles. The module owns diagram
+typography, spacing, surfaces, borders, radii, focus, tables, scroll treatment,
+forced colors, and fullscreen chrome. Component-local CSS may express only the
+concept's geometry, data-dependent dimensions, and redundant non-color state
+cues. It must not introduce a private frame skin, palette, focus treatment,
+generic card/table chrome, or horizontal-scroll implementation.
+
+A diagram frame, section, card, table cell, or other bounded box must contain
+all of its ordinary content. Never use `overflow: hidden`, `overflow: clip`, or
+paint containment to conceal a layout defect. Horizontal overflow is valid only
+inside the smallest meaningful element marked `data-diagram-scroll`; that
+element must also be a named `role="region"` with `tabindex="0"`. Use the shared
+container, not the browser viewport, for diagram layout breakpoints. Reflow or
+wrap content that does not fit; do not truncate it, overlap adjacent boxes, or
+reduce its text size.
+
 The site layout owns one localized progressive full-view enhancement for every
 registered figure. It may expose its control only on a sufficiently large
 viewport where measured horizontal overflow makes expansion useful. Expansion
@@ -57,8 +77,10 @@ JavaScript. Do not implement chapter-specific full-view behavior.
 Content and browser validation must enforce this contract for all existing and
 future diagrams. Verify the inline fallback and expanded presentation in built
 HTML in Chromium and Firefox; include desktop, narrow, no-JavaScript, and
-direction-sensitive cases. A diagram that still requires substantial scrolling
-in full view must be reorganized rather than made smaller.
+direction-sensitive cases. Geometry checks must inspect individual bounded boxes
+and painted text, not only page width or declared scroll owners, and must fail if
+clipping hides overflow. A diagram that still requires substantial scrolling in
+full view must be reorganized rather than made smaller.
 
 ## Sources of truth
 

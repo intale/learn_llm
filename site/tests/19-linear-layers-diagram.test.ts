@@ -251,8 +251,12 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('@container (max-width: 36rem)');
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(componentSource).toContain('min-inline-size: 0');
-    expect(componentSource).toContain('overflow-x: auto');
-    expect(componentSource).toMatch(/\.linear-layers-diagram\s*\{[^}]*overflow:\s*hidden;/s);
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-style="course-v1"');
+    expect(componentSource).not.toMatch(
+      /\.linear-layers-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
+    );
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource.match(/role="region"/g)).toHaveLength(3);
     expect(componentSource).toContain('<bdi dir="ltr">');

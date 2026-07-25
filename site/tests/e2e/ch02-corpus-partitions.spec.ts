@@ -222,7 +222,7 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="corpus-partitions"]',
   );
-  await expect(diagram.locator('figcaption')).toHaveText(localized.diagramTitle);
+  await expect(diagram.locator(':scope > figcaption > h3')).toHaveText(localized.diagramTitle);
   const partitionCards = diagram.locator('.partition-card');
   await expect(partitionCards).toHaveCount(3);
 

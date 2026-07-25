@@ -39,14 +39,17 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
 ---
 
 <figure
-  class="parameter-initialization-diagram"
+  class="course-diagram parameter-initialization-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={parameterInitializationDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl
     class="summary-grid"
@@ -87,7 +90,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     </p>
     <div class="distribution-grid">
       {trace.distributions.map((distribution) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class:list={['distribution-card', `distribution-${distribution.kind}`]}
           data-initialization-kind={distribution.kind}
           data-seed={distribution.seed?.lexeme ?? 'none'}
@@ -146,11 +149,11 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
                 style={`--bar-percent: ${bin.barPercent.lexeme}%`}
               >
                 <span
-                  class="bin-range"
+                  class="bin-range course-diagram__scroll"
                   role="region"
                   tabindex="0"
                   aria-label={`${labels.strategies[distribution.kind]} — ${labels.fields.range} ${index + 1}`}
-                >
+                 data-diagram-scroll>
                   <span class="visually-hidden">{labels.fields.range}: </span>
                   <InlineMath
                     latex={`\\left[${bin.lower.lexeme},${bin.upper.lexeme}${bin.includesUpper ? '\\right]' : '\\right)'}`}
@@ -190,12 +193,12 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     <h3 id={propagationId}>{labels.sections.propagation}</h3>
     <p>{labels.propagationAssumption}</p>
     <div
-      class="table-scroll"
+      class="table-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.sections.propagation}
-    >
-      <table>
+     data-diagram-scroll>
+      <table data-diagram-table>
         <thead>
           <tr>
             <th scope="col">{labels.fields.layer}</th>
@@ -262,7 +265,6 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     margin-block: 2rem;
     margin-inline: 0;
     padding: clamp(1rem, 3vw, 1.5rem);
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -401,7 +403,6 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     max-inline-size: 100%;
     min-inline-size: 0;
     padding-block: 0.1rem;
-    overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-inline: contain;
   }
@@ -442,7 +443,6 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
   .table-scroll {
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
   }
 
@@ -509,7 +509,7 @@ const strategySymbol = (kind: InitializationKind) => labels.symbols[kind];
     }
   }
 
-  @media (max-width: 32rem) {
+  @container course-diagram (max-width: 32rem) {
     .parameter-initialization-diagram {
       padding: 0.8rem;
     }

@@ -45,24 +45,27 @@ const descriptionId = `${id}-description`;
 ---
 
 <figure
-  class="corpus-partitions-diagram"
+  class="course-diagram corpus-partitions-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={corpusPartitionsDiagramId}
   id={id}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId} dir="auto">{labels.title}</figcaption>
-  <p class="diagram-description" id={descriptionId} dir="auto">
+  <figcaption class="course-diagram__caption" dir="auto">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p class="diagram-description course-diagram__description" id={descriptionId} dir="auto">
     {labels.description}
   </p>
+  </figcaption>
 
   <ul class="partition-grid" aria-label={labels.partitionListLabel}>
     {
       partitions.map((partition) => {
         const headingId = `${id}-${partition.role}-title`;
         return (
-          <li class="partition-card" data-partition={partition.role}>
+          <li data-diagram-card data-diagram-box class="partition-card" data-partition={partition.role}>
             <section aria-labelledby={headingId}>
               <header>
                 <code class="role-badge" dir="ltr">[{partition.badge}]</code>
@@ -82,7 +85,7 @@ const descriptionId = `${id}-description`;
                 aria-label={labels.roles[partition.role].documentListLabel}
               >
                 {partition.documents.map((document) => (
-                  <li
+                  <li data-diagram-card data-diagram-box
                     class="document-card"
                     data-document-id={document.id}
                     data-language={document.language}
@@ -139,7 +142,6 @@ const descriptionId = `${id}-description`;
   .corpus-partitions-diagram {
     margin-block: 2rem;
     padding: clamp(1rem, 3vw, 1.6rem);
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1.25rem;
     background: var(--surface);
@@ -326,7 +328,7 @@ const descriptionId = `${id}-description`;
     font-weight: 800;
   }
 
-  @media (max-width: 44rem) {
+  @container course-diagram (max-width: 44rem) {
     .partition-grid {
       grid-template-columns: 1fr;
     }

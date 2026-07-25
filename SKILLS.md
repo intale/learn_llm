@@ -266,6 +266,38 @@ smallest meaningful scroll region an accessible name, `role="region"`, and
 keyboard focus. That inline region is the permanent narrow-screen and
 no-JavaScript fallback; never make the whole lesson page scroll horizontally.
 
+Use the one course diagram design system from
+`site/src/styles/diagram.module.css`; `BaseLayout.astro` loads it once. The
+registered figure uses `class="course-diagram"` alongside its concept-specific
+layout class and `data-diagram-style="course-v1"`. Its `figcaption` uses
+`course-diagram__caption`, its learner description uses
+`course-diagram__description`, semantic `article` cards carry
+`data-diagram-card` and `data-diagram-box`, tables carry `data-diagram-table`,
+and every permitted horizontal region uses both `course-diagram__scroll` and
+`data-diagram-scroll`. Keep title and description together inside the caption so
+shared controls never split them.
+
+The shared module owns frame, caption, direct-section, summary, card, table,
+technical-value, auto-sized state-symbol, scroll-region, focus, palette, forced-colors, and fullscreen
+presentation. A component style block may retain concept-specific topology,
+grid placement, bar lengths, tensor/table minima inside a shared scroll region,
+and structural state cues. When evidence geometry needs more room, set the
+module's narrow customization properties such as `--diagram-summary-min` on a
+summary, `--diagram-cell-padding-inline` on a specific table, or
+`--diagram-scroll-inline-size` when aligned evidence must deliberately extend
+beyond its immediate track; do not replace
+the shared summary or cell presentation rule. Do not redefine the figure skin, use private palette
+tokens, duplicate shared card/table/scroll chrome, or use viewport media queries
+for layout inside the lesson column. The shared figure is a named inline-size
+container; use its container queries.
+
+Ordinary content must fit every shared box. Do not use hidden or clipped overflow
+or paint containment to make a failing layout appear contained. Use
+`min-inline-size: 0`, deliberate wrapping, or a shape-aware reflow; reserve
+horizontal overflow for the marked shared scroll region. Browser review must
+check the dimensions and painted text of cards and cells themselves in Chromium
+and Firefox at desktop and narrow widths, not just the document width.
+
 Do not add a component-specific expand button, dialog, cloned diagram, Fullscreen
 API handler, or alternate mobile tree. The layout-level diagram full-view
 controller progressively enhances every registered figure. On a sufficiently
@@ -280,7 +312,10 @@ Test the parser, data-to-view mapping, label completeness, failure cases, the
 component's no-private-script/accessibility contract, and registration with the
 shared controller. Browser tests must confirm desktop inline and full-view
 rendering plus narrow and no-JavaScript fallbacks in both Chromium and Firefox;
-include forced-colors and direction-sensitive coverage where applicable.
+include forced-colors and direction-sensitive coverage where applicable. The
+course-wide style gate must also prove that only marked shared scroll regions
+overflow and that no frame, section, card, table cell, or visible text fragment
+escapes its nearest shared box.
 
 ## 6. Author every chapter-active locale by meaning
 

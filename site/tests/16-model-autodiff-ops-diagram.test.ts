@@ -259,7 +259,7 @@ describe('Chapter 16 static diagram component', () => {
   it('renders semantic order and exact Rust-authored target, matmul, and scatter evidence', () => {
     expect(component).toContain('<ol class="forward-rail">');
     expect(component).toContain('<ol class="occurrence-grid">');
-    expect(component.match(/<table class=/g)).toHaveLength(2);
+    expect(component.match(/<table data-diagram-table class=/g)).toHaveLength(2);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-target-gradient=');
@@ -278,11 +278,12 @@ describe('Chapter 16 static diagram component', () => {
 
   it('keeps wide evidence local and gives every card natural intrinsic height', () => {
     expect(component).toContain('data-visualization-id={modelAutodiffOpsDiagramId}');
-    expect(component.match(/class="table-scroll"/g)).toHaveLength(2);
+    expect(component.match(/class="table-scroll course-diagram__scroll"/g)).toHaveLength(2);
     expect(component.match(/tabindex="0"/g)).toHaveLength(3);
     expect(component.match(/role="region"/g)).toHaveLength(2);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('align-items: start;');
     expect(component).toContain('.occurrence-yes,');
     expect(component).toContain('border-style: double;');

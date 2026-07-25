@@ -62,10 +62,13 @@ describe('course-wide diagram full-view contract', () => {
 
   it('rejects unregistered diagrams and chapter-private presentation code', () => {
     const semanticFigure = `
-      <figure data-visualization-id="example" tabindex="0"
+      <figure class="course-diagram example-diagram" data-diagram-style="course-v1"
+        data-visualization-id="example" tabindex="0"
         aria-labelledby="title" aria-describedby="description">
-        <figcaption id="title">Example</figcaption>
-        <p id="description">Description</p>
+        <figcaption class="course-diagram__caption">
+          <h3 id="title">Example</h3>
+          <p id="description" class="course-diagram__description">Description</p>
+        </figcaption>
       </figure>`;
 
     expect(() => validateDiagramComponentSource(semanticFigure)).not.toThrow();
@@ -185,11 +188,18 @@ describe('course-wide diagram full-view contract', () => {
     const agents = read('AGENTS.md');
     const playbook = read('SKILLS.md');
     const lessonRoute = read('site/src/pages/[locale]/course/[...slug].astro');
+    const layout = read('site/src/layouts/BaseLayout.astro');
+    const diagramStyles = read('site/src/styles/diagram.module.css');
+    const globalStyles = read('site/src/styles/global.css');
 
     expect(agents).toContain('### Diagram presentation');
     expect(agents).toContain('Do not implement chapter-specific full-view behavior.');
     expect(playbook).toMatch(/layout-level diagram full-view\s+controller/);
     expect(playbook).toContain('no chapter-local client script');
+    expect(layout).toContain("import diagramStyles from '../styles/diagram.module.css';");
+    expect(layout).toContain('<body class={diagramStyles.host}>');
+    expect(diagramStyles).toContain("course-diagram[data-diagram-style='course-v1']");
+    expect(globalStyles).not.toContain('data-diagram-full-view');
     expect(lessonRoute).toContain('.lesson-body > table');
     expect(lessonRoute).not.toContain('.lesson-body table {');
   });

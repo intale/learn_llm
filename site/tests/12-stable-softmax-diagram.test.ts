@@ -202,7 +202,7 @@ describe('Chapter 12 static diagram component', () => {
   });
 
   it('renders a semantic table and exact Rust-derived attributes', () => {
-    expect(component.match(/<table class="shift-table"/g)).toHaveLength(1);
+    expect(component.match(/<table data-diagram-table class="shift-table"/g)).toHaveLength(1);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-softmax-row=');
@@ -219,11 +219,12 @@ describe('Chapter 12 static diagram component', () => {
 
   it('keeps wide evidence local and distinguishes states without fixed heights', () => {
     expect(component).toContain('data-visualization-id={stableSoftmaxDiagramId}');
-    expect(component).toContain('class="trace-scroll"');
+    expect(component).toContain('class="trace-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('align-items: start;');
     expect(component).not.toMatch(
       /\.(?:comparison-card|target-card|error-card)[^{]*\{[^}]*(?:min-)?height\s*:/s,

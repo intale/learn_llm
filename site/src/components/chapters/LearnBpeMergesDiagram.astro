@@ -26,15 +26,16 @@ const descriptionId = `${instance}-description`;
 ---
 
 <figure
-  class="bpe-merge-diagram"
+  class="course-diagram bpe-merge-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={learnBpeMergesDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <p class="bpe-training-source">
       <span aria-hidden="true">◆</span>
       {labels.trainingSource}
@@ -71,12 +72,12 @@ const descriptionId = `${instance}-description`;
                           {labels.fields.tokens}
                         </dt>
                         <dd
-                          class="token-tape"
+                          class="token-tape course-diagram__scroll"
                           role="region"
                           tabindex="0"
                           aria-labelledby={`${instance}-stage-${stage.index}-document-${documentIndex}-tokens`}
                           dir="ltr"
-                        >
+                         data-diagram-scroll>
                           {document.tokens.map((token) => (
                             <code data-token-id={token}>{token}</code>
                           ))}
@@ -100,12 +101,12 @@ const descriptionId = `${instance}-description`;
                 </h5>
                 <p class="visually-hidden">{labels.roundsLabel}</p>
                 <div
-                  class="candidate-scroll"
+                  class="candidate-scroll course-diagram__scroll"
                   role="region"
                   tabindex="0"
                   aria-label={labels.fields.candidates}
-                >
-                  <table>
+                 data-diagram-scroll>
+                  <table data-diagram-table>
                     <caption>{labels.fields.candidates}</caption>
                     <thead>
                       <tr>
@@ -293,7 +294,6 @@ const descriptionId = `${instance}-description`;
     display: flex;
     gap: 0.35rem;
     min-width: 0;
-    overflow-x: auto;
     unicode-bidi: isolate;
   }
 
@@ -310,7 +310,6 @@ const descriptionId = `${instance}-description`;
   .candidate-scroll {
     max-width: 100%;
     margin-top: 0.75rem;
-    overflow-x: auto;
   }
 
   table {
@@ -388,7 +387,7 @@ const descriptionId = `${instance}-description`;
     border: 0;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .bpe-timeline-step {
       grid-template-columns: minmax(0, 1fr);
     }

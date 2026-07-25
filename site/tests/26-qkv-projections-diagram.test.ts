@@ -222,13 +222,14 @@ describe('Chapter 26 static diagram boundary', () => {
   });
 
   it('uses semantic local scrollers, natural cards, and non-color cues', () => {
-    expect(componentSource).toContain('class="branches-scroller"');
-    expect(componentSource).toContain('class="history-scroller"');
-    expect(componentSource).toContain('class="gradients-scroller"');
+    expect(componentSource).toContain('class="branches-scroller course-diagram__scroll"');
+    expect(componentSource).toContain('class="history-scroller course-diagram__scroll"');
+    expect(componentSource).toContain('class="gradients-scroller course-diagram__scroll"');
     expect(componentSource).toContain('data-qkv-role={projection.role}');
     expect(componentSource).toContain('<ol class="branch-grid">');
-    expect(componentSource).toContain('<table class="coordinate-table weight-table">');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('<table data-diagram-table class="coordinate-table weight-table">');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('scrollbar-gutter: stable');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');

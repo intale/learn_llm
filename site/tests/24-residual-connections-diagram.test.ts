@@ -196,7 +196,8 @@ describe('Chapter 24 static diagram boundary', () => {
     expect(componentSource).toContain('data-path="identity"');
     expect(componentSource).toContain('data-path="branch"');
     expect(componentSource).toContain('data-node="forward-merge"');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('scrollbar-gutter: stable');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');

@@ -1,6 +1,7 @@
 ---
 import 'katex/dist/katex.min.css';
 import '../styles/global.css';
+import diagramStyles from '../styles/diagram.module.css';
 
 import {
   getLocaleDefinition,
@@ -87,7 +88,7 @@ const switchTargets = localeDefinitions
     }
     <link rel="alternate" hreflang="x-default" href={sitePath('/')} />
   </head>
-  <body>
+  <body class={diagramStyles.host}>
     <a class="skip-link" href="#main-content">{copy.skipToContent}</a>
     <header class="site-header">
       <a class="wordmark" href={localePath(locale)} aria-label={copy.homeLabel}>

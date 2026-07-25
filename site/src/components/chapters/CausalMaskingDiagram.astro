@@ -57,15 +57,16 @@ const errorLabels: Record<string, string> = {
 ---
 
 <figure
-  class="causal-masking-diagram"
+  class="course-diagram causal-masking-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="causal-masking"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.calculation}>
       <li class="allowed-cue">{labels.cues.allowed}</li>
       <li class="blocked-cue">{labels.cues.blocked}</li>
@@ -81,18 +82,18 @@ const errorLabels: Record<string, string> = {
 
     <h5>{labels.stages.inputs}</h5>
     <div
-      class="inputs-scroller"
+      class="inputs-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.inputs}
-    >
+     data-diagram-scroll>
       <ol class="input-grid">
         {trace.inputs.map((input) => (
           <li>
-            <article class:list={['input-card', input.role + '-card']} data-input-role={input.role}>
+            <article data-diagram-card data-diagram-box class:list={['input-card', input.role + '-card']} data-input-role={input.role}>
               <h6>{roleLabels[input.role]}</h6>
               <p class="formula-line"><InlineMath latex={input.symbol} /></p>
-              <table class="matrix-table input-table">
+              <table data-diagram-table class="matrix-table input-table">
                 <tbody>
                   {inputRows(input.values).map((row, rowIndex) => (
                     <tr>
@@ -114,16 +115,16 @@ const errorLabels: Record<string, string> = {
     </p>
 
     <div
-      class="triangles-scroller"
+      class="triangles-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.triangles}
-    >
+     data-diagram-scroll>
       <div class="triangle-grid">
-        <article class="triangle-card mask-card" data-causal-stage="mask">
+        <article data-diagram-card data-diagram-box class="triangle-card mask-card" data-causal-stage="mask">
           <h5>{labels.stages.mask}</h5>
           <p class="formula-line"><InlineMath latex="M" /></p>
-          <table class="matrix-table causal-table">
+          <table data-diagram-table class="matrix-table causal-table">
             <caption>{labels.fields.queryByKey} · {labels.fields.maskValue}</caption>
             <thead>
               <tr>
@@ -157,10 +158,10 @@ const errorLabels: Record<string, string> = {
           </table>
         </article>
 
-        <article class="triangle-card masked-card" data-causal-stage="masked-scores">
+        <article data-diagram-card data-diagram-box class="triangle-card masked-card" data-causal-stage="masked-scores">
           <h5>{labels.stages.maskedScores}</h5>
           <p class="formula-line"><InlineMath latex="S+M" /></p>
-          <table class="matrix-table causal-table">
+          <table data-diagram-table class="matrix-table causal-table">
             <caption>{labels.fields.visibility}</caption>
             <thead>
               <tr>
@@ -194,10 +195,10 @@ const errorLabels: Record<string, string> = {
           </table>
         </article>
 
-        <article class="triangle-card probability-card" data-causal-stage="probabilities">
+        <article data-diagram-card data-diagram-box class="triangle-card probability-card" data-causal-stage="probabilities">
           <h5>{labels.stages.probabilities}</h5>
           <p class="formula-line"><InlineMath latex="A=\operatorname{softmax}(S+M)" /></p>
-          <table class="matrix-table causal-table">
+          <table data-diagram-table class="matrix-table causal-table">
             <caption>{labels.fields.rowSum}</caption>
             <thead>
               <tr>
@@ -239,8 +240,8 @@ const errorLabels: Record<string, string> = {
     </div>
 
     <h5>{labels.stages.outputs}</h5>
-    <div class="output-scroller" tabindex="0" role="region" aria-label={labels.scrollers.outputs}>
-      <table class="evidence-table output-table">
+    <div class="output-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.outputs} data-diagram-scroll>
+      <table data-diagram-table class="evidence-table output-table">
         <thead>
           <tr>
             <th scope="col"><InlineMath latex="q_i" /></th>
@@ -266,17 +267,25 @@ const errorLabels: Record<string, string> = {
     <p class="section-caption">{labels.captions.prefix}</p>
     <h5>{labels.stages.perturbation}</h5>
     <div class="perturbation-grid">
-      <article class="compact-card">
+      <article data-diagram-card data-diagram-box class="compact-card">
         <h6><InlineMath latex="k_2" /></h6>
-        <p><InlineMath latex={trace.perturbation.key_before} /> → <InlineMath latex={trace.perturbation.key_after} /></p>
+        <p data-diagram-box class="perturbation-values">
+          <span><InlineMath latex={trace.perturbation.key_before} /></span>
+          <span aria-hidden="true">→</span>
+          <span><InlineMath latex={trace.perturbation.key_after} /></span>
+        </p>
       </article>
-      <article class="compact-card">
+      <article data-diagram-card data-diagram-box class="compact-card">
         <h6><InlineMath latex="v_2" /></h6>
-        <p><InlineMath latex={trace.perturbation.value_before} /> → <InlineMath latex={trace.perturbation.value_after} /></p>
+        <p data-diagram-box class="perturbation-values">
+          <span><InlineMath latex={trace.perturbation.value_before} /></span>
+          <span aria-hidden="true">→</span>
+          <span><InlineMath latex={trace.perturbation.value_after} /></span>
+        </p>
       </article>
     </div>
-    <div class="prefix-scroller" tabindex="0" role="region" aria-label={labels.scrollers.prefix}>
-      <table class="evidence-table prefix-table">
+    <div class="prefix-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.prefix} data-diagram-scroll>
+      <table data-diagram-table class="evidence-table prefix-table">
         <thead>
           <tr>
             <th scope="col"><InlineMath latex="i" /></th>
@@ -307,9 +316,9 @@ const errorLabels: Record<string, string> = {
   <section class="diagram-section evidence-section" aria-labelledby="causal-evidence-title">
     <h4 id="causal-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
-    <div class="gradients-scroller" tabindex="0" role="region" aria-label={labels.scrollers.gradients}>
+    <div class="gradients-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.gradients} data-diagram-scroll>
       <div class="gradient-pass-list">
-        <table class="evidence-table gradient-table" data-gradient-pass="full">
+        <table data-diagram-table class="evidence-table gradient-table" data-gradient-pass="full">
           <caption>
             {labels.fields.backward}: <InlineMath latex={tokenMatrix(trace.backward.seed)} />
           </caption>
@@ -329,7 +338,7 @@ const errorLabels: Record<string, string> = {
           </tbody>
         </table>
 
-        <table
+        <table data-diagram-table
           class="evidence-table gradient-table"
           data-gradient-pass="prefix"
           data-evidence-kind="prefix-gradient"
@@ -356,22 +365,22 @@ const errorLabels: Record<string, string> = {
     </div>
 
     <div class="evidence-grid">
-      <article class="evidence-card" data-evidence-kind="prefix-zero">
+      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="prefix-zero">
         <h5>{labels.fields.prefixGradient}</h5>
         <p><code><bdi dir="ltr">suffix_zero={trace.prefixGradient.suffixZero}</bdi></code></p>
         <strong>{verified(trace.prefixGradient.suffixZero)}</strong>
       </article>
-      <article class="evidence-card" data-evidence-kind="single-token">
+      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="single-token">
         <h5>{labels.fields.singleToken}</h5>
         <p><InlineMath latex={'A=' + trace.singleToken.probabilities} /></p>
         <p><InlineMath latex={'O=' + trace.singleToken.output} /></p>
       </article>
-      <article class="evidence-card" data-evidence-kind="empty-batch">
+      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="empty-batch">
         <h5>{labels.fields.emptyBatch}</h5>
         <p><InlineMath latex={trace.emptyBatch.probability_shape} /> → <InlineMath latex={trace.emptyBatch.output_shape} /></p>
         <strong>{verified(trace.emptyBatch.valid)}</strong>
       </article>
-      <article class="evidence-card proof-card" data-evidence-kind="proof">
+      <article data-diagram-card data-diagram-box class="evidence-card proof-card" data-evidence-kind="proof">
         <h5>{labels.fields.proof}</h5>
         <p><code><bdi dir="ltr">tape_finite={trace.proof.tape_finite}</bdi></code></p>
         <p><code><bdi dir="ltr">future_probabilities={trace.proof.future_probabilities}</bdi></code></p>
@@ -394,17 +403,17 @@ const errorLabels: Record<string, string> = {
   <section class="diagram-section history-section" aria-labelledby="causal-history-title">
     <h4 id="causal-history-title">{labels.sections.history}</h4>
     <p class="section-caption">{labels.captions.history}</p>
-    <div class="history-scroller" tabindex="0" role="region" aria-label={labels.scrollers.history}>
+    <div class="history-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.history} data-diagram-scroll>
       <ol class="history-grid">
         <li>
-          <article class="history-card earlier-card">
+          <article data-diagram-card data-diagram-box class="history-card earlier-card">
             <h5>{labels.fields.earlier}</h5>
             <code><bdi dir="ltr">{trace.history.earlier}</bdi></code>
             <code><bdi dir="ltr">{trace.history.earlier_visibility}</bdi></code>
           </article>
         </li>
         <li>
-          <article class="history-card transformer-card">
+          <article data-diagram-card data-diagram-box class="history-card transformer-card">
             <h5>{labels.fields.transformer}</h5>
             <code><bdi dir="ltr">{trace.history.transformer}</bdi></code>
             <code><bdi dir="ltr">{trace.history.decoder_rule}</bdi></code>
@@ -516,7 +525,6 @@ const errorLabels: Record<string, string> = {
     inline-size: 100%;
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     padding-block: 0.8rem 1.3rem;
     scrollbar-gutter: stable;
   }
@@ -553,8 +561,8 @@ const errorLabels: Record<string, string> = {
   }
 
   .triangle-grid {
-    grid-template-columns: repeat(3, minmax(22rem, 1fr));
-    min-inline-size: 69rem;
+    grid-template-columns: repeat(3, minmax(23rem, 1fr));
+    min-inline-size: 71rem;
   }
 
   .history-grid {
@@ -625,6 +633,8 @@ const errorLabels: Record<string, string> = {
   }
 
   .causal-table {
+    --diagram-cell-padding-inline: 0.3rem;
+
     inline-size: 100%;
     min-inline-size: 100%;
     max-inline-size: 100%;
@@ -687,6 +697,13 @@ const errorLabels: Record<string, string> = {
     gap: 0.8rem;
   }
 
+  .perturbation-values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.4rem;
+  }
+
   .compact-card p,
   .evidence-card p,
   .history-card code {
@@ -733,7 +750,7 @@ const errorLabels: Record<string, string> = {
     unicode-bidi: isolate;
   }
 
-  @media (max-width: 40rem) {
+  @container course-diagram (max-width: 40rem) {
     .causal-masking-diagram {
       padding: 0.65rem;
     }

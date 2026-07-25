@@ -21,15 +21,16 @@ const tokenPosition = ['1', '2'] as const;
 ---
 
 <figure
-  class="mini-batches-diagram"
+  class="course-diagram mini-batches-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={miniBatchesDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <dl class="shape-summary" aria-label={labels.stages.shuffle}>
@@ -81,7 +82,7 @@ const tokenPosition = ['1', '2'] as const;
 
     <div class="batch-grid">
       {trace.batches.map((batch) => (
-        <article class:list={['batch-card', batch.index === '1' && 'final-card']} data-batch={batch.index}>
+        <article data-diagram-card data-diagram-box class:list={['batch-card', batch.index === '1' && 'final-card']} data-batch={batch.index}>
           <header>
             <div>
               <p class="batch-label">{labels.symbols.batch} <bdi dir="ltr">B{batch.index}</bdi></p>
@@ -102,11 +103,11 @@ const tokenPosition = ['1', '2'] as const;
           </header>
 
           <div
-            class="batch-scroll"
+            class="batch-scroll course-diagram__scroll"
             role="region"
             tabindex="0"
             aria-label={`${labels.scrollers.batchRows} ${batch.index}`}
-          >
+           data-diagram-scroll>
             <ol class="window-list" aria-label={labels.captions.batchRows}>
               {batch.windows.map((window) => (
                 <li class="window-row" data-slot={window.slot}>
@@ -147,11 +148,11 @@ const tokenPosition = ['1', '2'] as const;
           <dl class="mean-summary">
             <div>
               <dt id={`${titleId}-batch-${batch.index}-loss-sum`}>{labels.fields.lossSum}</dt>
-              <dd
+              <dd class="course-diagram__scroll"
                 role="region"
                 tabindex="0"
                 aria-labelledby={`${titleId}-batch-${batch.index}-loss-sum`}
-              >
+               data-diagram-scroll>
                 <InlineMath latex={String.raw`\sum\mathcal{L}_{b,t}=${batch.lossSum}`} />
               </dd>
             </div>
@@ -159,21 +160,21 @@ const tokenPosition = ['1', '2'] as const;
               <dt id={`${titleId}-batch-${batch.index}-denominator`}>
                 {labels.fields.denominator}
               </dt>
-              <dd
+              <dd class="course-diagram__scroll"
                 role="region"
                 tabindex="0"
                 aria-labelledby={`${titleId}-batch-${batch.index}-denominator`}
-              >
+               data-diagram-scroll>
                 <InlineMath latex={String.raw`|B_${batch.index}|T=${batch.tokens}`} />
               </dd>
             </div>
             <div>
               <dt id={`${titleId}-batch-${batch.index}-mean-loss`}>{labels.fields.meanLoss}</dt>
-              <dd
+              <dd class="course-diagram__scroll"
                 role="region"
                 tabindex="0"
                 aria-labelledby={`${titleId}-batch-${batch.index}-mean-loss`}
-              >
+               data-diagram-scroll>
                 <InlineMath
                   latex={String.raw`\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`}
                 />
@@ -183,11 +184,11 @@ const tokenPosition = ['1', '2'] as const;
               <dt id={`${titleId}-batch-${batch.index}-mean-gradient`}>
                 {labels.fields.meanGradient}
               </dt>
-              <dd
+              <dd class="course-diagram__scroll"
                 role="region"
                 tabindex="0"
                 aria-labelledby={`${titleId}-batch-${batch.index}-mean-gradient`}
-              >
+               data-diagram-scroll>
                 <InlineMath
                   latex={String.raw`\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`}
                 />
@@ -210,7 +211,7 @@ const tokenPosition = ['1', '2'] as const;
       <p>{labels.notes.finalBatch}</p>
     </div>
     <div class="denominator-contrast">
-      <article class="capacity-denominator">
+      <article data-diagram-card data-diagram-box class="capacity-denominator">
         <p>{labels.summary.requestedCapacity}</p>
         <InlineMath
           latex={String.raw`${trace.meta.capacity}\times${trace.meta.context}=${trace.final.capacityTokens}`}
@@ -218,7 +219,7 @@ const tokenPosition = ['1', '2'] as const;
         <strong>{labels.symbols.unused}</strong>
       </article>
       <span class="contrast-arrow" aria-hidden="true">→</span>
-      <article class="actual-denominator">
+      <article data-diagram-card data-diagram-box class="actual-denominator">
         <p>{labels.fields.actualWidth}</p>
         <InlineMath
           latex={String.raw`${trace.final.width}\times${trace.meta.context}=${trace.final.actualDenominator}`}
@@ -418,7 +419,6 @@ const tokenPosition = ['1', '2'] as const;
   }
 
   .batch-scroll {
-    overflow-x: auto;
     min-inline-size: 0;
     padding-block-end: 0.25rem;
   }
@@ -498,7 +498,6 @@ const tokenPosition = ['1', '2'] as const;
   }
 
   .mean-summary dd {
-    overflow-x: auto;
     padding-block: 0.15rem;
   }
 

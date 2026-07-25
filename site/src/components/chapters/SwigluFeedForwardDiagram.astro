@@ -34,14 +34,17 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
 ---
 
 <figure
-  class="swiglu-diagram"
+  class="course-diagram swiglu-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={swigluFeedForwardDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="shape-summary">
     <div>
@@ -91,7 +94,7 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
         const downProjection = String.raw`Y_{${position}}=h_{${position}}W_2`;
         return (
           <li>
-            <article class="position-card" data-position={position}>
+            <article data-diagram-card data-diagram-box class="position-card" data-position={position}>
               <h4>{labels.fields.position} <bdi dir="ltr">{position}</bdi></h4>
               <p class="input-row">
                 <strong>{labels.fields.input}</strong>
@@ -99,7 +102,7 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
               </p>
 
               <div class="branch-grid">
-                <article class="branch gate-branch">
+                <article data-diagram-card data-diagram-box class="branch gate-branch">
                   <h5>{labels.stages.gate}</h5>
                   <p><InlineMath latex={gateProjection} /></p>
                   <dl>
@@ -115,7 +118,7 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
                   <p><InlineMath latex={gateActivation} /></p>
                 </article>
 
-                <article class="branch up-branch">
+                <article data-diagram-card data-diagram-box class="branch up-branch">
                   <h5>{labels.stages.up}</h5>
                   <p><InlineMath latex={upProjection} /></p>
                   <dl>
@@ -179,10 +182,10 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
   <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
     <h3 id={`${titleId}-gradients`}><span aria-hidden="true">3</span> {labels.stages.gradients}</h3>
     <p>{labels.notes.gradients}</p>
-    <div class="gradient-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
+    <div class="gradient-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
       <div class="position-gradient-grid">
         {trace.backward.map((row) => (
-          <table class="position-gradient-table" data-gradient-position={row.position.lexeme}>
+          <table data-diagram-table class="position-gradient-table" data-gradient-position={row.position.lexeme}>
             <caption>
               {labels.captions.positionGradients}: {labels.fields.position}{' '}
               <bdi dir="ltr">{row.position.lexeme}</bdi>
@@ -216,7 +219,7 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
         ))}
       </div>
 
-      <table class="parameter-gradient-table">
+      <table data-diagram-table class="parameter-gradient-table">
         <caption>{labels.captions.parameterGradients}</caption>
         <thead>
           <tr>
@@ -247,7 +250,6 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
     max-inline-size: 100%;
     margin: 1.5rem 0;
     padding: clamp(0.8rem, 2.5vw, 1.25rem);
-    overflow: hidden;
     color: var(--ink);
     background: var(--surface);
     border: 1px solid var(--line);
@@ -413,7 +415,6 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
 
   .gradient-scroll {
     max-inline-size: 100%;
-    overflow-x: auto;
     padding: 0.25rem;
     scrollbar-gutter: stable;
   }

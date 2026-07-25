@@ -35,16 +35,17 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
 ---
 
 <figure
-  class="metrics-diagram"
+  class="course-diagram metrics-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={languageModelMetricsDiagramId}
   tabindex="0"
   aria-labelledby={accessibleNameId}
   aria-describedby={accessibleDescriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <span id={accessibleNameId} class="visually-hidden">{labels.accessibleName}</span>
     <h3>{labels.title}</h3>
-    <p>{labels.caption}</p>
+    <p class="course-diagram__description">{labels.caption}</p>
     <p id={accessibleDescriptionId} class="visually-hidden">
       {labels.accessibleDescription}
     </p>
@@ -56,15 +57,15 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
       {labels.notes.scrollInstruction}
     </p>
     <div
-      class="chain-scroll"
+      class="chain-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby={chainTitleId}
       aria-describedby={chainInstructionId}
-    >
+     data-diagram-scroll>
       <div class="calculation-chain">
         <section class="stage target-stage" data-stage="probability-surprise">
-          <table>
+          <table data-diagram-table>
             <caption>
               <span class="stage-number" aria-hidden="true">1</span>
               <span>{labels.stages.probability}</span>
@@ -205,13 +206,13 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     </section>
 
     <div
-      class="score-table-scroll"
+      class="score-table-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby={scoreTableTitleId}
       aria-describedby={frozenModelNoteId}
-    >
-      <table aria-labelledby={scoreTableTitleId}>
+     data-diagram-scroll>
+      <table data-diagram-table aria-labelledby={scoreTableTitleId}>
         <caption id={scoreTableTitleId}>{labels.sections.frozenModel}</caption>
         <thead>
           <tr>
@@ -314,7 +315,6 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
   .score-table-scroll {
     min-inline-size: 0;
     max-inline-size: 100%;
-    overflow-x: auto;
   }
 
   .calculation-chain {
@@ -563,7 +563,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     }
   }
 
-  @media (max-width: 42rem) {
+  @container course-diagram (max-width: 42rem) {
     .metrics-diagram,
     .calculation-panel,
     .frozen-model-panel,

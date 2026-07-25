@@ -46,14 +46,17 @@ const errorDetails = (error: GradientTraceError): string => {
 ---
 
 <figure
-  class="gradient-checking-diagram"
+  class="course-diagram gradient-checking-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={gradientCheckingDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="summary-grid">
     <div>
@@ -73,7 +76,7 @@ const errorDetails = (error: GradientTraceError): string => {
   <section class="diagram-section quadratic-section" aria-labelledby={`${titleId}-quadratic`}>
     <h3 id={`${titleId}-quadratic`}>{labels.sections.quadratic}</h3>
     <div class="quadratic-grid">
-      <dl class="probe-card state-trusted">
+      <dl data-diagram-card data-diagram-box class="probe-card state-trusted">
         <div>
           <dt>{labels.fields.minusProbe}</dt>
           <dd><InlineMath latex={String.raw`\theta-h=${trace.central.minusPoint.lexeme}`} /></dd>
@@ -103,12 +106,12 @@ const errorDetails = (error: GradientTraceError): string => {
     <p>{labels.notes.scan}</p>
     <div
       id={scanRegionId}
-      class="trace-scroll"
+      class="trace-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.sections.scan}
-    >
-      <table class="scan-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="scan-table">
         <thead>
           <tr>
             <th scope="col">{labels.fields.step}</th>
@@ -163,8 +166,8 @@ const errorDetails = (error: GradientTraceError): string => {
     <ol class="secant-list" aria-hidden="true">
       {trace.stepScan.map((record) => (
         <li data-step-index={record.index.lexeme} class={`phase-${record.phase}`}>
-          <span class="secant-label"><InlineMath latex={String.raw`h=${record.step.lexeme}`} /></span>
-          <span class="secant-bracket">
+          <span data-diagram-box class="secant-label"><InlineMath latex={String.raw`h=${record.step.lexeme}`} /></span>
+          <span data-diagram-box class="secant-bracket">
             <span><InlineMath latex="\theta-h" /></span>
             <span><InlineMath latex="\theta" /></span>
             <span><InlineMath latex="\theta+h" /></span>
@@ -179,7 +182,7 @@ const errorDetails = (error: GradientTraceError): string => {
     <p>{labels.notes.candidates}</p>
     <div class="candidate-grid">
       {trace.comparisons.map((record) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class={`candidate-card state-${record.status}`}
           data-comparison-name={record.name}
           data-status={record.status}
@@ -212,7 +215,7 @@ const errorDetails = (error: GradientTraceError): string => {
     </p>
     <div class="coordinate-grid">
       {trace.coordinates.map((record) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="coordinate-card state-pass"
           data-sample-flat={record.flatIndex.lexeme}
           data-coordinate={record.coordinate.lexeme}
@@ -239,7 +242,7 @@ const errorDetails = (error: GradientTraceError): string => {
     <p>{labels.notes.errors}</p>
     <div class="error-grid">
       {trace.errors.map((error) => (
-        <article class="error-card state-rejected" data-error-kind={error.kind}>
+        <article data-diagram-card data-diagram-box class="error-card state-rejected" data-error-kind={error.kind}>
           <p class="card-state">
             <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
             <strong>{labels.errors[error.kind]}</strong>
@@ -254,7 +257,6 @@ const errorDetails = (error: GradientTraceError): string => {
 <style>
   .gradient-checking-diagram {
     margin-block: 2rem;
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -354,8 +356,6 @@ const errorDetails = (error: GradientTraceError): string => {
 
   .trace-scroll {
     max-inline-size: 100%;
-    overflow-x: auto;
-    contain: paint;
     border: 1px solid var(--line);
     border-radius: 0.75rem;
   }
@@ -409,7 +409,7 @@ const errorDetails = (error: GradientTraceError): string => {
 
   .secant-list li {
     display: grid;
-    grid-template-columns: 11rem minmax(12rem, 1fr);
+    grid-template-columns: minmax(14rem, max-content) minmax(12rem, 1fr);
     align-items: center;
     gap: 0.8rem;
   }
@@ -419,6 +419,8 @@ const errorDetails = (error: GradientTraceError): string => {
     justify-content: space-between;
     justify-self: center;
     inline-size: 92%;
+    min-inline-size: min(6rem, 100%);
+    max-inline-size: 100%;
     padding-block-start: 0.2rem;
     border-block-start: 2px solid currentColor;
     font-size: 0.72rem;
@@ -477,14 +479,18 @@ const errorDetails = (error: GradientTraceError): string => {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
 
-  @media (max-width: 60rem) {
+  @container course-diagram (max-width: 60rem) {
+    .quadratic-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .coordinate-grid,
     .error-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 47.5rem) {
+  @container course-diagram (max-width: 47.5rem) {
     .summary-grid,
     .quadratic-grid,
     .candidate-grid,

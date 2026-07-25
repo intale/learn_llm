@@ -223,8 +223,9 @@ describe('Chapter 25 static diagram boundary', () => {
     expect(componentSource).toContain('data-stage="input"');
     expect(componentSource).toContain('data-stage="normalized"');
     expect(componentSource).toContain('data-stage="output"');
-    expect(componentSource).toContain('<table>');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('<table data-diagram-table>');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('scrollbar-gutter: stable');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');

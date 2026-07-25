@@ -178,7 +178,7 @@ describe('Chapter 11 static diagram component', () => {
   });
 
   it('renders semantic matrices and exact Rust-derived record attributes', () => {
-    expect(component.match(/<table class="matrix-table"/g)).toHaveLength(3);
+    expect(component.match(/<table data-diagram-table class="matrix-table"/g)).toHaveLength(3);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-matrix-id="left"');
@@ -198,11 +198,12 @@ describe('Chapter 11 static diagram component', () => {
 
   it('keeps wide evidence local and distinguishes states without color', () => {
     expect(component).toContain('data-visualization-id={matrixMultiplicationDiagramId}');
-    expect(component).toContain('class="matrix-scroll"');
+    expect(component).toContain('class="matrix-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('>R</span>');
     expect(component).toContain('>C</span>');
     expect(component).toContain('>↓</span>');

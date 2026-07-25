@@ -26,15 +26,18 @@ const stageLabels = [
 ---
 
 <figure
-  class="text-units-diagram"
+  class="course-diagram text-units-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={textUnitsDiagramId}
   id={id}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p class="diagram-description" id={descriptionId}>{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p class="diagram-description course-diagram__description" id={descriptionId}>{labels.description}</p>
+  </figcaption>
 
   <div class="diagram-examples">
     {
@@ -119,7 +122,6 @@ const stageLabels = [
   .text-units-diagram {
     margin-block: 2rem;
     padding: clamp(1rem, 3vw, 1.6rem);
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1.25rem;
     background: var(--surface);
@@ -251,7 +253,7 @@ const stageLabels = [
     text-align: end;
   }
 
-  @media (max-width: 44rem) {
+  @container course-diagram (max-width: 44rem) {
     .text-units-pipeline {
       grid-template-columns: 1fr;
       gap: 1.5rem;
@@ -278,7 +280,7 @@ const stageLabels = [
     }
   }
 
-  @media (max-width: 28rem) {
+  @container course-diagram (max-width: 28rem) {
     .unit-list {
       grid-template-columns: 1fr;
     }

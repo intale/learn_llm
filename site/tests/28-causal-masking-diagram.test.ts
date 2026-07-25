@@ -250,7 +250,7 @@ describe('Chapter 28 static diagram boundary', () => {
       'prefix-scroller',
       'gradients-scroller',
       'history-scroller',
-    ]) expect(componentSource).toContain(`class="${scroller}"`);
+    ]) expect(componentSource).toContain(`class="${scroller} course-diagram__scroll"`);
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('<table');
@@ -261,7 +261,8 @@ describe('Chapter 28 static diagram boundary', () => {
     expect(componentSource).toContain('border-collapse: separate');
     expect(componentSource).toContain('align-items: start');
     expect(componentSource).toContain('align-self: start');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
     expect(componentSource).toContain('@media (forced-colors: active)');

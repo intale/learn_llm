@@ -247,7 +247,8 @@ describe('Chapter 29 static diagram and content boundary', () => {
     expect(componentSource).toContain('data-relative-offset={offset}');
     expect(componentSource).toContain('data-dot={value}');
     expect(componentSource).toContain('align-items: start');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
     expect(componentSource).toContain('@media (forced-colors: active)');

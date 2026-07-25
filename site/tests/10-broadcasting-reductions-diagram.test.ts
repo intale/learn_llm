@@ -179,8 +179,8 @@ describe('Chapter 10 static diagram component', () => {
   });
 
   it('renders semantic tables and exact Rust-derived record attributes', () => {
-    expect(component).toContain('<table class="alignment-table">');
-    expect(component).toContain('<table class="mapping-table">');
+    expect(component).toContain('<table data-diagram-table class="alignment-table">');
+    expect(component).toContain('<table data-diagram-table class="mapping-table">');
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-output-coordinate=');
@@ -194,11 +194,12 @@ describe('Chapter 10 static diagram component', () => {
 
   it('uses keyboard-reachable local overflow and non-color state cues', () => {
     expect(component).toContain('data-visualization-id={broadcastingReductionsDiagramId}');
-    expect(component).toContain('class="mapping-scroll"');
+    expect(component).toContain('class="mapping-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
     expect(component).toContain('↻');
     expect(component).toContain('↓');
     expect(component).not.toContain('Σ');

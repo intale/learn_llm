@@ -62,14 +62,17 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
 ---
 
 <figure
-  class="token-embeddings-diagram"
+  class="course-diagram token-embeddings-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={tokenEmbeddingsDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="shape-summary">
     <div>
@@ -106,8 +109,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     <section class="diagram-stage ids-stage" aria-labelledby={`${titleId}-ids`}>
       <h3 id={`${titleId}-ids`}><span aria-hidden="true">1</span> {labels.stages.ids}</h3>
       <p>{labels.notes.selectors}</p>
-      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.ids}>
-        <table>
+      <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.ids} data-diagram-scroll>
+        <table data-diagram-table>
           <thead>
             <tr>
               <th scope="col">{labels.fields.position}</th>
@@ -130,8 +133,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
 
     <section class="diagram-stage table-stage" aria-labelledby={`${titleId}-table`}>
       <h3 id={`${titleId}-table`}><span aria-hidden="true">2</span> {labels.stages.table}</h3>
-      <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.table}>
-        <table>
+      <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.table} data-diagram-scroll>
+        <table data-diagram-table>
           <thead>
             <tr>
               <th scope="col">{labels.fields.row}</th>
@@ -163,8 +166,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   <section class="diagram-stage lookup-stage" aria-labelledby={`${titleId}-lookup`}>
     <h3 id={`${titleId}-lookup`}><span aria-hidden="true">3</span> {labels.stages.lookup}</h3>
     <p>{labels.notes.oneHot}</p>
-    <div class="table-scroll lookup-scroll" role="region" tabindex="0" aria-label={labels.scrollers.lookup}>
-      <table>
+    <div class="table-scroll lookup-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.lookup} data-diagram-scroll>
+      <table data-diagram-table>
         <thead>
           <tr>
             <th scope="col">{labels.fields.position}</th>
@@ -200,8 +203,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   <section class="diagram-stage gradient-stage" aria-labelledby={`${titleId}-gradients`}>
     <h3 id={`${titleId}-gradients`}><span aria-hidden="true">4</span> {labels.stages.gradients}</h3>
     <p>{labels.notes.accumulation}</p>
-    <div class="table-scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients}>
-      <table>
+    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
+      <table data-diagram-table>
         <thead>
           <tr>
             <th scope="col">{labels.fields.row}</th>
@@ -251,7 +254,6 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     padding: clamp(1rem, 3vw, 1.5rem);
     min-inline-size: 0;
     container-type: inline-size;
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -350,7 +352,6 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   .table-scroll {
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-gutter: stable;
   }
@@ -443,7 +444,7 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     font-weight: 800;
   }
 
-  @media (max-width: 44rem) {
+  @container course-diagram (max-width: 44rem) {
     .token-embeddings-diagram {
       padding: 0.85rem;
     }

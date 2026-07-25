@@ -42,15 +42,16 @@ const rowSections: ReadonlyArray<{
 ---
 
 <figure
-  class="bigram-diagram"
+  class="course-diagram bigram-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={bigramBaselineDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="summary-facts">
       <div><dt>{labels.summary.vocabularySize}</dt><dd><bdi dir="ltr">{trace.config.vocabularySize}</bdi></dd></div>
       <div><dt>{labels.summary.alpha}</dt><dd><bdi dir="ltr">{trace.config.alphaDisplay}</bdi></dd></div>
@@ -118,8 +119,8 @@ const rowSections: ReadonlyArray<{
               <div><dt>{labels.fields.denominator}</dt><dd><bdi dir="ltr">{row.denominator}</bdi></dd></div>
             </dl>
           </header>
-          <div class="table-scroll" role="region" tabindex="0" aria-labelledby={headingId}>
-            <table aria-labelledby={headingId}>
+          <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={headingId} data-diagram-scroll>
+            <table data-diagram-table aria-labelledby={headingId}>
               <thead>
                 <tr>
                   <th scope="col">{labels.columns.nextToken}</th>
@@ -235,7 +236,6 @@ const rowSections: ReadonlyArray<{
     width: max-content;
     max-width: 100%;
     padding: 0.55rem;
-    overflow-x: auto;
     border-radius: 0.45rem;
     background: color-mix(in srgb, currentColor 7%, transparent);
   }
@@ -267,7 +267,6 @@ const rowSections: ReadonlyArray<{
     min-width: 0;
     max-width: 100%;
     margin-block: 1rem;
-    overflow-x: auto;
     font-size: 0.9rem;
   }
 

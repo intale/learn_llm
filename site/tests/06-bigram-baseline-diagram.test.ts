@@ -269,9 +269,9 @@ describe('bigram-baseline diagram component contract', () => {
       'utf8',
     );
     expect(source).toContain('<figure');
-    expect(source).toContain('<figcaption>');
+    expect(source).toContain('<figcaption class="course-diagram__caption">');
     expect(source).toContain('<ol class="document-list">');
-    expect(source).toContain('<table aria-labelledby={headingId}>');
+    expect(source).toContain('<table data-diagram-table aria-labelledby={headingId}>');
     expect(source).toContain('<th scope="col">');
     expect(source).toContain('<th scope="row">');
     expect(source).toContain('data-context-id={row.context}');
@@ -284,7 +284,8 @@ describe('bigram-baseline diagram component contract', () => {
     expect(source).toContain('aria-describedby={descriptionId}');
     expect(source).toContain('role="img"');
     expect(source).toContain('dir="ltr"');
-    expect(source).toContain('overflow-x: auto');
+    expect(source).toContain('data-diagram-scroll');
+    expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(source).toContain('min-width: 35rem');
     expect(source).toContain('table-layout: fixed');

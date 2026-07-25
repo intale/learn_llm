@@ -39,15 +39,16 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
 ---
 
 <figure
-  class="qkv-diagram"
+  class="course-diagram qkv-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="qkv-projections"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.projections}>
       <li class="shared-cue">{labels.cues.shared}</li>
       <li class="query-cue">{labels.cues.query}</li>
@@ -58,14 +59,14 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
 
   <section class="diagram-section projection-section" aria-labelledby="qkv-projection-title">
     <h4 id="qkv-projection-title">{labels.sections.projections}</h4>
-    <article class="source-card" data-stage="input">
+    <article data-diagram-card data-diagram-box class="source-card" data-stage="input">
       <h5>{labels.stages.input}</h5>
       <div
-        class="source-values math-row input-values-scroller"
+        class="source-values math-row input-values-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
         aria-label={labels.stages.input}
-      >
+       data-diagram-scroll>
         <InlineMath latex={String.raw`X=${trace.input.latex}`} />
       </div>
       <dl>
@@ -83,15 +84,15 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     <div class="split-marker" aria-hidden="true">↓</div>
 
     <div
-      class="branches-scroller"
+      class="branches-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.branches}
-    >
+     data-diagram-scroll>
       <ol class="branch-grid">
         {trace.projections.map((projection) => (
           <li>
-            <article
+            <article data-diagram-card data-diagram-box
               class:list={['branch-card', `${projection.role}-branch`]}
               data-qkv-role={projection.role}
             >
@@ -130,7 +131,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
                 </div>
               </dl>
 
-              <table class="coordinate-table weight-table">
+              <table data-diagram-table class="coordinate-table weight-table">
                 <caption><InlineMath latex={roleSymbols[projection.role].weight} /></caption>
                 <thead>
                   <tr>
@@ -158,7 +159,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
                 </tbody>
               </table>
 
-              <table class="coordinate-table output-table">
+              <table data-diagram-table class="coordinate-table output-table">
                 <caption>{labels.fields.output}</caption>
                 <thead>
                   <tr>
@@ -191,12 +192,12 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
   <section class="diagram-section history-section" aria-labelledby="qkv-history-title">
     <h4 id="qkv-history-title">{labels.sections.history}</h4>
     <div
-      class="history-scroller"
+      class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-    >
-      <table class="history-table">
+     data-diagram-scroll>
+      <table data-diagram-table class="history-table">
         <caption>{labels.captions.history}</caption>
         <thead>
           <tr>
@@ -231,14 +232,14 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
   <section class="diagram-section evidence-section" aria-labelledby="qkv-evidence-title">
     <h4 id="qkv-evidence-title">{labels.sections.evidence}</h4>
     <div class="evidence-grid">
-      <article class="evidence-card input-gradient-card">
+      <article data-diagram-card data-diagram-box class="evidence-card input-gradient-card">
         <h5>{labels.fields.inputGradient}</h5>
         <p
-          class="math-row input-gradient-scroller"
+          class="math-row input-gradient-scroller course-diagram__scroll"
           tabindex="0"
           role="region"
           aria-label={labels.fields.inputGradient}
-        >
+         data-diagram-scroll>
           <span class="input-gradient-matrix">
             <InlineMath latex={String.raw`\bar X=${inputGradientMatrix}`} />
           </span>
@@ -246,15 +247,15 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         <p><InlineMath latex={String.raw`\operatorname{shape}(\bar X)=${trace.backward.inputGradientShape}`} /></p>
       </article>
 
-      <article class="evidence-card gradient-card">
+      <article data-diagram-card data-diagram-box class="evidence-card gradient-card">
         <h5>{labels.fields.weightGradient}</h5>
         <div
-          class="gradients-scroller"
+          class="gradients-scroller course-diagram__scroll"
           tabindex="0"
           role="region"
           aria-label={labels.scrollers.gradients}
-        >
-          <table class="gradient-table">
+         data-diagram-scroll>
+          <table data-diagram-table class="gradient-table">
             <tbody>
               {trace.weightGradients.map((gradient) => (
                 <tr data-gradient-role={gradient.role}>
@@ -271,7 +272,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         </div>
       </article>
 
-      <article class="evidence-card independence-card">
+      <article data-diagram-card data-diagram-box class="evidence-card independence-card">
         <h5>{labels.fields.independence}</h5>
         <dl>
           <div>
@@ -289,14 +290,14 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         </dl>
       </article>
 
-      <article class="evidence-card empty-card">
+      <article data-diagram-card data-diagram-box class="evidence-card empty-card">
         <h5>{labels.fields.emptyBatch}</h5>
         <p><InlineMath latex={String.raw`${trace.emptyShapes.batchInput}\to ${trace.emptyShapes.batchQuery},${trace.emptyShapes.batchKey},${trace.emptyShapes.batchValue}`} /></p>
         <h5>{labels.fields.emptyTokens}</h5>
         <p><InlineMath latex={String.raw`${trace.emptyShapes.tokenInput}\to ${trace.emptyShapes.tokenQuery},${trace.emptyShapes.tokenKey},${trace.emptyShapes.tokenValue}`} /></p>
       </article>
 
-      <article class="evidence-card errors-card">
+      <article data-diagram-card data-diagram-box class="evidence-card errors-card">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
@@ -309,7 +310,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         </ul>
       </article>
 
-      <article class="evidence-card proof-card">
+      <article data-diagram-card data-diagram-box class="evidence-card proof-card">
         <h5>{labels.fields.proof}</h5>
         <p><InlineMath latex={String.raw`n_X=${trace.proof.inputChecks}, n_Q=${trace.proof.queryWeightChecks}, n_K=${trace.proof.keyWeightChecks}, n_V=${trace.proof.valueWeightChecks}`} /></p>
         <p><InlineMath latex={String.raw`\tau=${trace.proof.tolerance}`} /></p>
@@ -471,7 +472,6 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     max-inline-size: 100%;
     min-inline-size: 0;
     padding-block: 0.25rem 0.55rem;
-    overflow-x: auto;
     scrollbar-gutter: stable;
   }
 
@@ -658,7 +658,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     padding-block: 0.12em;
   }
 
-  @media (max-width: 42rem) {
+  @container course-diagram (max-width: 42rem) {
     .qkv-diagram {
       padding: 0.85rem;
     }

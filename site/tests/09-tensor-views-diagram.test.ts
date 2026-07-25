@@ -279,12 +279,13 @@ describe('Chapter 9 diagram labels and static component contract', () => {
 
   it('makes the figure and intentional horizontal scrollers keyboard reachable', () => {
     expect(component).toContain('data-visualization-id={tensorViewsDiagramId}');
-    expect(component).toContain('class="tensor-views-diagram"');
-    expect(component).toContain('class="buffer-scroll"');
-    expect(component).toContain('class="provenance-scroll"');
+    expect(component).toContain('class="course-diagram tensor-views-diagram"');
+    expect(component).toContain('class="buffer-scroll course-diagram__scroll"');
+    expect(component).toContain('class="provenance-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(3);
     expect(component.match(/role="region"/g)).toHaveLength(2);
-    expect(component).toContain('overflow-x: auto;');
-    expect(component).toContain('contain: paint;');
+    expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('overflow-x: auto');
+    expect(component).not.toContain('contain: paint');
   });
 });

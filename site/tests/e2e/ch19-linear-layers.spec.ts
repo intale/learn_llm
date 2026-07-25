@@ -355,8 +355,7 @@ async function expectChapterContent(
     await expect(scroller).toBeFocused();
   }
   await expect(diagram.locator('.stage-grid')).toHaveCSS('align-items', 'start');
-  await expect(diagram).toHaveCSS('color', 'rgb(22, 33, 29)');
-  await expect(diagram).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.68)');
+  await expect(diagram).toHaveAttribute('data-diagram-style', 'course-v1');
   const containment = await diagram.evaluate((node) => ({
     figure: { client: node.clientWidth, scroll: node.scrollWidth },
     stages: Array.from(node.querySelectorAll<HTMLElement>('.diagram-stage')).map((stage) => ({

@@ -280,8 +280,12 @@ describe('Chapter 18 labels and static component', () => {
     );
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(componentSource).toContain('min-inline-size: 0');
-    expect(componentSource).toContain('overflow-x: auto');
-    expect(componentSource).toMatch(/\.token-embeddings-diagram\s*\{[^}]*overflow:\s*hidden;/s);
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-style="course-v1"');
+    expect(componentSource).not.toMatch(
+      /\.token-embeddings-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
+    );
     expect(componentSource).toMatch(
       /\.shape-summary > div:first-child bdi\s*\{[^}]*overflow-wrap:\s*anywhere;/s,
     );

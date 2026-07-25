@@ -207,8 +207,8 @@ describe('tensor-storage diagram component contract', () => {
     );
 
     expect(componentSource).toContain('<figure');
-    expect(componentSource).toContain('<figcaption>');
-    expect(componentSource).toContain('<table>');
+    expect(componentSource).toContain('<figcaption class="course-diagram__caption">');
+    expect(componentSource).toContain('<table data-diagram-table>');
     expect(componentSource).toContain('<ol class="term-list"');
     expect(componentSource).toContain('<ol class="flat-buffer"');
     expect(componentSource).toContain('data-slice-axis0={slice.axis0.lexeme}');
@@ -219,11 +219,12 @@ describe('tensor-storage diagram component contract', () => {
     expect(componentSource).toContain('aria-labelledby={titleId}');
     expect(componentSource).toContain('aria-describedby={descriptionId}');
     expect(componentSource).toContain('dir="ltr"');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain("border: 0.2rem double currentColor");
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('<span class="selection-marker" aria-hidden="true">◆</span>');
-    expect(componentSource).toContain('@media (max-width: 48rem)');
+    expect(componentSource).toContain('@container course-diagram (max-width: 48rem)');
     expect(componentSource).toContain('@media (forced-colors: active)');
     expect(componentSource).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(componentSource).toContain('parseTensorStorageTrace');

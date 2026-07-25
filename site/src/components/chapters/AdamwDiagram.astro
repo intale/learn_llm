@@ -23,15 +23,16 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 ---
 
 <figure
-  class="adamw-diagram"
+  class="course-diagram adamw-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={adamwDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <dl class="config-summary" aria-label={labels.stages.inputs}>
@@ -78,7 +79,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
   <div class="parameter-list">
     {trace.parameters.map((parameter) => (
-      <article class="parameter-card" data-parameter-index={parameter.index}>
+      <article data-diagram-card data-diagram-box class="parameter-card" data-parameter-index={parameter.index}>
         <header>
           <div>
             <span class="parameter-label">{labels.fields.parameter}</span>
@@ -105,11 +106,11 @@ const vectorLatex = (vector: AdamwTraceVector) =>
         </header>
 
         <div
-          class="parameter-scroll"
+          class="parameter-scroll course-diagram__scroll"
           role="region"
           tabindex="0"
           aria-label={`${labels.scrollers.parameterFlow} ${parameter.name}`}
-        >
+         data-diagram-scroll>
           <div class="flow" aria-label={labels.captions.parameterFlow}>
             <section class="input-node" aria-label={labels.stages.inputs}>
               <dl>
@@ -219,17 +220,17 @@ const vectorLatex = (vector: AdamwTraceVector) =>
       <InlineMath latex={String.raw`0\leq t\leq ${trace.trajectory.steps}`} />
     </p>
     <div
-      class="trajectory-scroll"
+      class="trajectory-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.scrollers.trajectory}
-    >
+     data-diagram-scroll>
       <div class="trajectory-grid" aria-label={labels.captions.trajectory}>
         {([
           ['sgd', labels.symbols.sgd],
           ['adamw', labels.symbols.adamw],
         ] as const).map(([optimizer, label]) => (
-          <article class={`trajectory-lane ${optimizer}`} data-optimizer={optimizer}>
+          <article data-diagram-card data-diagram-box class={`trajectory-lane ${optimizer}`} data-optimizer={optimizer}>
             <h5>{label}</h5>
             <ol>
               {trace.trajectory.points.map((point, index) => (
@@ -444,7 +445,6 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
   .parameter-scroll {
     max-width: 100%;
-    overflow-x: auto;
     padding: 0.9rem;
     scrollbar-gutter: stable;
   }
@@ -651,7 +651,6 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
   .trajectory-scroll {
     max-width: 100%;
-    overflow-x: auto;
     margin-block-start: 0.75rem;
     padding-block-end: 0.35rem;
     scrollbar-gutter: stable;

@@ -247,7 +247,7 @@ async function expectChapterContent(
     id: 'text-units-pipeline',
   });
   await expect(diagram).toBeVisible();
-  await expect(diagram.locator('figcaption')).toHaveText(
+  await expect(diagram.locator(':scope > figcaption > h3')).toHaveText(
     localized.diagramTitle,
   );
   await expect(diagram.locator('.diagram-example')).toHaveCount(2);

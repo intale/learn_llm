@@ -723,10 +723,12 @@ describe('language-model-metrics diagram component contract', () => {
 
   it('uses semantic, accessible, responsive, and forced-colors-safe markup', () => {
     expect(componentSource).toContain('<figure');
-    expect(componentSource).toContain('<figcaption>');
+    expect(componentSource).toContain('<figcaption class="course-diagram__caption">');
     expect(componentSource).toContain('<section');
-    expect(componentSource).toContain('<table>');
-    expect(componentSource).toContain('<table aria-labelledby={scoreTableTitleId}>');
+    expect(componentSource).toContain('<table data-diagram-table>');
+    expect(componentSource).toContain(
+      '<table data-diagram-table aria-labelledby={scoreTableTitleId}>',
+    );
     expect(componentSource).toContain('<caption>');
     expect(componentSource).toContain('<th scope="col"');
     expect(componentSource).toContain('<th scope="row"');
@@ -737,7 +739,8 @@ describe('language-model-metrics diagram component contract', () => {
     expect(componentSource).toContain('aria-labelledby={accessibleNameId}');
     expect(componentSource).toContain('aria-describedby={accessibleDescriptionId}');
     expect(componentSource).toContain('dir="ltr"');
-    expect(componentSource).toContain('overflow-x: auto');
+    expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('inline-size: 100%');
     expect(componentSource).toContain('min-inline-size: 84rem');
     expect(componentSource).toContain('@container (min-width: 70rem)');
@@ -748,7 +751,7 @@ describe('language-model-metrics diagram component contract', () => {
     expect(componentSource).toContain('border-style: double');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-inline-start');
-    expect(componentSource).toContain('@media (max-width: 42rem)');
+    expect(componentSource).toContain('@container course-diagram (max-width: 42rem)');
     expect(componentSource).toContain('@media (forced-colors: active)');
   });
 

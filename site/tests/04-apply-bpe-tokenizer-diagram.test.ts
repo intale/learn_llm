@@ -325,7 +325,7 @@ describe('apply-BPE-tokenizer diagram component contract', () => {
       'utf8',
     );
     expect(source).toContain('<figure');
-    expect(source).toContain('<figcaption>');
+    expect(source).toContain('<figcaption class="course-diagram__caption">');
     expect(source).toContain('<ol class="example-list">');
     expect(source).toContain('<section class="example"');
     expect(source).toContain('<ol class="pipeline">');
@@ -341,9 +341,10 @@ describe('apply-BPE-tokenizer diagram component contract', () => {
     expect(source).toContain('labels.fields.layoutVersion');
     expect(source).toContain('labels.fields.contentOffset');
     expect(source).toContain('<bdi dir="ltr">{piece.mergeRank}</bdi>');
-    expect(source).toContain('overflow-x: auto');
+    expect(source).toContain('data-diagram-scroll');
+    expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain(':focus-visible');
-    expect(source).toContain('@media (max-width: 48rem)');
+    expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('@media (forced-colors: active)');
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseApplyBpeTokenizerTrace');

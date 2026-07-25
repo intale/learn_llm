@@ -40,15 +40,16 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
 ---
 
 <figure
-  class="matrix-multiplication-diagram"
+  class="course-diagram matrix-multiplication-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={matrixMultiplicationDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="summary-facts">
       <div><dt>{labels.summary.left}</dt><dd><code dir="ltr">{tuple(trace.inputs[0].shape)}</code></dd></div>
       <div><dt>{labels.summary.right}</dt><dd><code dir="ltr">{tuple(trace.inputs[1].shape)}</code></dd></div>
@@ -60,13 +61,13 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     <h4 id={`${instanceId}-matrices-title`}>{labels.sections.matrices}</h4>
     <p>{labels.notes.matrices}</p>
     <div
-      class="matrix-scroll"
+      class="matrix-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-labelledby={`${instanceId}-matrices-title`}
-    >
+     data-diagram-scroll>
       <div class="matrix-equation">
-        <table class="matrix-table" data-matrix-id="left">
+        <table data-diagram-table class="matrix-table" data-matrix-id="left">
           <caption><InlineMath latex="A" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[0].shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th></tr>
@@ -89,7 +90,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
 
         <span class="operator"><InlineMath latex="\times" /></span>
 
-        <table class="matrix-table" data-matrix-id="right">
+        <table data-diagram-table class="matrix-table" data-matrix-id="right">
           <caption><InlineMath latex="W" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[1].shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col" class="selected-column"><span class="state-symbol" aria-hidden="true">C</span><span class="visually-hidden">{labels.symbols.selectedColumn}: </span>0</th><th scope="col">1</th></tr>
@@ -111,7 +112,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
 
         <span class="operator"><InlineMath latex="=" /></span>
 
-        <table class="matrix-table" data-matrix-id="output">
+        <table data-diagram-table class="matrix-table" data-matrix-id="output">
           <caption><InlineMath latex="C" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.output.shape)}</code></caption>
           <thead>
             <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th></tr>
@@ -139,7 +140,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     <p>{labels.notes.contraction}</p>
     <ol class="term-list">
       {trace.terms.map((term) => (
-        <li
+        <li data-diagram-card data-diagram-box
           class="term-card"
           data-output-coordinate={term.output.map(({ lexeme }) => lexeme).join(',')}
           data-contracted-index={term.inner.lexeme}
@@ -179,7 +180,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     </dl>
     <ol class="batch-list">
       {trace.batches.map((batch) => (
-        <li
+        <li data-diagram-card data-diagram-box
           class="batch-card"
           data-output-batch={batch.output.lexeme}
           data-left-batch={batch.left.lexeme}
@@ -204,13 +205,13 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
     <ol class="error-list">
-      <li class="error-card" data-error-kind={trace.errors[0].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[0].kind}</code>
         <span><InlineMath latex={String.raw`${trace.errors[0].leftInner.lexeme}\ne${trace.errors[0].rightInner.lexeme}`} /></span>
       </li>
-      <li class="error-card" data-error-kind={trace.errors[1].kind}>
+      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[1].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[1].kind}</code>
@@ -275,9 +276,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
   }
 
   .matrix-scroll {
-    contain: paint;
     max-width: 100%;
-    overflow-x: auto;
   }
 
   .matrix-equation {
@@ -345,7 +344,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     border: 0;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .term-list,
     .batch-list,
     .error-list { grid-template-columns: 1fr; }

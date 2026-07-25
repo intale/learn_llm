@@ -57,14 +57,17 @@ const errorDetails = (error: ModelTraceError): string => {
 ---
 
 <figure
-  class="model-autodiff-ops-diagram"
+  class="course-diagram model-autodiff-ops-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={modelAutodiffOpsDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="summary-grid">
     <div>
@@ -118,8 +121,8 @@ const errorDetails = (error: ModelTraceError): string => {
   <section class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
     <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
     <p>{labels.rules.target}</p>
-    <div class="table-scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`}>
-      <table class="target-table">
+    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`} data-diagram-scroll>
+      <table data-diagram-table class="target-table">
         <thead>
           <tr>
             <th scope="col">{labels.fields.position}</th>
@@ -155,7 +158,7 @@ const errorDetails = (error: ModelTraceError): string => {
     <p>{labels.rules.matmul}</p>
     <div class="pullback-grid">
       {trace.pullbacks.map((pullback) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="pullback-card"
           data-pullback-operation={pullback.operation}
           data-parent={pullback.parent}
@@ -208,7 +211,7 @@ const errorDetails = (error: ModelTraceError): string => {
     </ol>
     <div class="embedding-grid">
       {trace.embeddings.map((embedding) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class={`embedding-card ${embedding.positions === 'none' ? 'embedding-unused' : 'embedding-accumulated'}`}
           data-embedding-row={embedding.row.lexeme}
           data-positions={embedding.positions === 'none' ? 'none' : dataNumbers(embedding.positions)}
@@ -236,7 +239,7 @@ const errorDetails = (error: ModelTraceError): string => {
     <h3 id={`${titleId}-checks`}>{labels.sections.checks}</h3>
     <div class="check-grid">
       {trace.checks.map((check) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="check-card state-checked"
           data-check-operation={check.operation}
           data-input={check.input.lexeme}
@@ -253,8 +256,8 @@ const errorDetails = (error: ModelTraceError): string => {
         </article>
       ))}
     </div>
-    <div class="table-scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-checks`}>
-      <table class="gradcheck-table">
+    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-checks`} data-diagram-scroll>
+      <table data-diagram-table class="gradcheck-table">
         <thead>
           <tr>
             <th scope="col">{labels.fields.operation}</th>
@@ -289,7 +292,7 @@ const errorDetails = (error: ModelTraceError): string => {
     <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
     <div class="error-grid">
       {trace.errors.map((error) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="error-card state-rejected"
           data-error-kind={error.kind}
           data-gradients-unchanged={error.gradientsUnchanged}
@@ -305,7 +308,6 @@ const errorDetails = (error: ModelTraceError): string => {
 <style>
   .model-autodiff-ops-diagram {
     margin-block: 2rem;
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -456,8 +458,6 @@ const errorDetails = (error: ModelTraceError): string => {
 
   .table-scroll {
     max-inline-size: 100%;
-    overflow-x: auto;
-    contain: paint;
     margin-block: 0.75rem;
     border: 1px solid var(--line);
     border-radius: 0.75rem;
@@ -478,7 +478,7 @@ const errorDetails = (error: ModelTraceError): string => {
     vertical-align: top;
   }
 
-  @media (max-width: 72rem) {
+  @container course-diagram (max-width: 72rem) {
     .forward-rail {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -490,7 +490,7 @@ const errorDetails = (error: ModelTraceError): string => {
     }
   }
 
-  @media (max-width: 44rem) {
+  @container course-diagram (max-width: 44rem) {
     .diagram-description,
     .diagram-section,
     .summary-grid {

@@ -50,14 +50,17 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
 ---
 
 <figure
-  class="scalar-autodiff-diagram"
+  class="course-diagram scalar-autodiff-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={scalarAutodiffDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption id={titleId}>{labels.title}</figcaption>
-  <p id={descriptionId} class="diagram-description">{labels.description}</p>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+  </figcaption>
 
   <dl class="summary-grid">
     <div>
@@ -133,8 +136,8 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
   <section class="diagram-section reverse-section" aria-labelledby={`${titleId}-reverse`}>
     <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
     <p>{labels.notes.reverse}</p>
-    <div class="trace-scroll" role="region" tabindex="0" aria-label={labels.sections.reverse}>
-      <table class="edge-table">
+    <div class="trace-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.sections.reverse} data-diagram-scroll>
+      <table data-diagram-table class="edge-table">
         <thead>
           <tr>
             <th scope="col">{labels.fields.reverseOrder}</th>
@@ -180,7 +183,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
       {trace.backward.slice(0, 2).map((snapshot, index) => {
         const state = index === 0 ? 'firstPass' : 'secondPass';
         return (
-          <article
+          <article data-diagram-card data-diagram-box
             class={`snapshot-card state-${state}`}
             data-backward-pass={snapshot.pass}
             data-x-gradient={snapshot.x.lexeme}
@@ -199,7 +202,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
           </article>
         );
       })}
-      <article
+      <article data-diagram-card data-diagram-box
         class="snapshot-card state-zeroed"
         data-gradient-state="zeroed"
         data-x-gradient={trace.zeroed.x.lexeme}
@@ -216,7 +219,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
           <div><dt><bdi dir="ltr">loss</bdi></dt><dd><bdi dir="ltr">{trace.zeroed.loss.lexeme}</bdi></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="snapshot-card state-restored"
         data-backward-pass={restored.pass}
         data-x-gradient={restored.x.lexeme}
@@ -240,7 +243,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
     <h3 id={`${titleId}-evidence`}>{labels.sections.evidence}</h3>
     <p>{labels.notes.evidence}</p>
     <div class="evidence-grid">
-      <article
+      <article data-diagram-card data-diagram-box
         class="evidence-card state-detached"
         data-evidence="detach"
         data-expression={trace.detach.expression}
@@ -257,7 +260,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
           <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{trace.detach.xGradient.lexeme}</bdi></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="evidence-card state-nonlinear"
         data-evidence="nonlinear"
         data-expression={trace.nonlinear.expression}
@@ -274,7 +277,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
           <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{trace.nonlinear.gradient.lexeme}</bdi></dd></div>
         </dl>
       </article>
-      <article
+      <article data-diagram-card data-diagram-box
         class="evidence-card state-checked"
         data-evidence="gradcheck"
         data-expression={trace.gradcheck.expression}
@@ -302,7 +305,7 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
     <p>{labels.notes.errors}</p>
     <div class="error-grid">
       {trace.errors.map((error) => (
-        <article
+        <article data-diagram-card data-diagram-box
           class="error-card state-rejected"
           data-error-kind={error.kind}
           data-gradients-unchanged={error.gradientsUnchanged}
@@ -321,7 +324,6 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
 <style>
   .scalar-autodiff-diagram {
     margin-block: 2rem;
-    overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 1rem;
     background: var(--surface);
@@ -437,8 +439,6 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
 
   .trace-scroll {
     max-inline-size: 100%;
-    overflow-x: auto;
-    contain: paint;
     border: 1px solid var(--line);
     border-radius: 0.75rem;
   }
@@ -502,13 +502,13 @@ const errorDetails = (error: ScalarAutodiffTraceError): string => {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
 
-  @media (max-width: 60rem) {
+  @container course-diagram (max-width: 60rem) {
     .snapshot-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 47.5rem) {
+  @container course-diagram (max-width: 47.5rem) {
     .summary-grid,
     .graph-list,
     .snapshot-grid,

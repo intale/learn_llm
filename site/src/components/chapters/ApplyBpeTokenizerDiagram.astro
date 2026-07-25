@@ -31,15 +31,16 @@ const caseTitles = {
 ---
 
 <figure
-  class="apply-bpe-diagram"
+  class="course-diagram apply-bpe-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={applyBpeTokenizerDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId}>{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <dl class="layout-facts">
       <div>
         <dt>{labels.fields.layoutVersion}</dt>
@@ -82,12 +83,12 @@ const caseTitles = {
                 <li data-lane="bytes">
                   <h5 id={`${caseId}-bytes-label`}>{labels.lanes.bytes}</h5>
                   <p
-                    class="token-tape"
+                    class="token-tape course-diagram__scroll"
                     role="region"
                     tabindex="0"
                     aria-labelledby={`${caseId}-bytes-label`}
                     dir="ltr"
-                  >
+                   data-diagram-scroll>
                     {sample.inputBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
                   </p>
                 </li>
@@ -95,12 +96,12 @@ const caseTitles = {
                 <li data-lane="initial">
                   <h5 id={`${caseId}-initial-label`}>{labels.lanes.initial}</h5>
                   <p
-                    class="token-tape"
+                    class="token-tape course-diagram__scroll"
                     role="region"
                     tabindex="0"
                     aria-labelledby={`${caseId}-initial-label`}
                     dir="ltr"
-                  >
+                   data-diagram-scroll>
                     {sample.initialTokens.map((token) => <code data-token-id={token}>{token}</code>)}
                   </p>
                 </li>
@@ -138,12 +139,12 @@ const caseTitles = {
                 <li data-lane="document">
                   <h5 id={`${caseId}-document-label`}>{labels.lanes.document}</h5>
                   <p
-                    class="token-tape document-tape"
+                    class="token-tape document-tape course-diagram__scroll"
                     role="region"
                     tabindex="0"
                     aria-labelledby={`${caseId}-document-label`}
                     dir="ltr"
-                  >
+                   data-diagram-scroll>
                     {sample.documentTokens.map((token, index) => {
                       const isBos = index === 0;
                       const isEos = index === sample.documentTokens.length - 1;
@@ -166,12 +167,12 @@ const caseTitles = {
                 <li data-lane="decoded">
                   <h5 id={`${caseId}-decoded-label`}>{labels.lanes.decoded}</h5>
                   <p
-                    class="token-tape"
+                    class="token-tape course-diagram__scroll"
                     role="region"
                     tabindex="0"
                     aria-labelledby={`${caseId}-decoded-label`}
                     dir="ltr"
-                  >
+                   data-diagram-scroll>
                     {sample.decodedBytesHex.map((byte) => <code data-byte={byte}>{byte}</code>)}
                   </p>
                   <p class="exact-cue" data-round-trip="exact">
@@ -330,7 +331,6 @@ const caseTitles = {
     max-inline-size: 100%;
     margin-block: 0.5rem 0;
     padding: 0.35rem;
-    overflow-x: auto;
     border: 1px dashed var(--line);
     border-radius: 0.45rem;
   }
@@ -415,7 +415,7 @@ const caseTitles = {
     font-weight: 900;
   }
 
-  @media (max-width: 48rem) {
+  @container course-diagram (max-width: 48rem) {
     .example-list,
     .invariants ul {
       grid-template-columns: minmax(0, 1fr);

@@ -20,15 +20,16 @@ const descriptionId = 'neural-ngram-description';
 ---
 
 <figure
-  class="neural-ngram-diagram"
+  class="course-diagram neural-ngram-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id={neuralNgramDiagramId}
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <dl class="fixture-summary">
@@ -65,11 +66,11 @@ const descriptionId = 'neural-ngram-description';
       <p>{labels.notes.pipeline}</p>
     </div>
     <div
-      class="pipeline-scroll"
+      class="pipeline-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.scrollers.pipeline}
-    >
+     data-diagram-scroll>
       <ol class="pipeline-list" aria-label={labels.captions.pipeline}>
         {trace.stages.map((stage) => (
           <li
@@ -207,11 +208,11 @@ const descriptionId = 'neural-ngram-description';
       </div>
     </dl>
     <div
-      class="generation-scroll"
+      class="generation-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
       aria-label={labels.scrollers.generation}
-    >
+     data-diagram-scroll>
       <ol class="token-list" aria-label={labels.fields.generatedIds}>
         {trace.generation.ids.items.map((token) => (
           <li><InlineMath latex={token} /></li>
@@ -318,7 +319,7 @@ const descriptionId = 'neural-ngram-description';
   }
 
   .fixture-summary {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18.5rem), 1fr));
+    --diagram-summary-min: 25rem;
   }
 
   .fixture-summary > div,
@@ -351,7 +352,6 @@ const descriptionId = 'neural-ngram-description';
   .pipeline-scroll,
   .generation-scroll {
     min-inline-size: 0;
-    overflow-x: auto;
     padding: 0.15rem 0.15rem 0.45rem;
   }
 

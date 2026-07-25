@@ -27,15 +27,16 @@ const zeroWeightRelation =
 ---
 
 <figure
-  class="residual-diagram"
+  class="course-diagram residual-diagram"
+  data-diagram-style="course-v1"
   data-visualization-id="residual-connections"
   tabindex="0"
   aria-labelledby={titleId}
   aria-describedby={descriptionId}
 >
-  <figcaption>
+  <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description">{labels.description}</p>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <section class="flow-section" aria-labelledby="residual-forward-title">
@@ -44,35 +45,35 @@ const zeroWeightRelation =
       <p><span class="cue identity-cue">{labels.cues.identity}</span><span class="cue branch-cue">{labels.cues.branch}</span><span class="cue merge-cue">{labels.cues.merge}</span></p>
     </header>
     <div
-      class="flow-scroller"
+      class="flow-scroller course-diagram__scroll"
       data-flow="forward"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.forward}
-    >
+     data-diagram-scroll>
       <div class="path-grid">
-        <article class="flow-node input-node" data-node="forward-input">
+        <article data-diagram-card data-diagram-box class="flow-node input-node" data-node="forward-input">
           <strong>{labels.paths.input}</strong>
           <InlineMath latex={String.raw`x=${trace.forward.input.latex}`} />
         </article>
         <span class="flow-arrow first identity-row" aria-hidden="true">→</span>
-        <article class="flow-node path-node identity-row" data-path="identity">
+        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row" data-path="identity">
           <strong>{labels.paths.identity}</strong>
           <InlineMath latex={String.raw`x=${trace.forward.input.latex}`} />
         </article>
         <span class="flow-arrow second identity-row" aria-hidden="true">→</span>
         <span class="flow-arrow first branch-row" aria-hidden="true">→</span>
-        <article class="flow-node path-node branch-row" data-path="branch">
+        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row" data-path="branch">
           <strong>{labels.paths.branch}</strong>
           <InlineMath latex={String.raw`F(x)=${trace.forward.branch.latex}`} />
         </article>
         <span class="flow-arrow second branch-row" aria-hidden="true">→</span>
-        <article class="flow-node merge-node" data-node="forward-merge">
+        <article data-diagram-card data-diagram-box class="flow-node merge-node" data-node="forward-merge">
           <strong>{labels.paths.merge}</strong>
           <InlineMath latex="+" />
         </article>
         <span class="flow-arrow final" aria-hidden="true">→</span>
-        <article class="flow-node output-node" data-node="forward-output">
+        <article data-diagram-card data-diagram-box class="flow-node output-node" data-node="forward-output">
           <strong>{labels.paths.output}</strong>
           <InlineMath latex={String.raw`y=${trace.forward.output.latex}`} />
         </article>
@@ -87,35 +88,35 @@ const zeroWeightRelation =
       <p><span class="cue identity-cue">{labels.cues.identity}</span><span class="cue branch-cue">{labels.cues.branch}</span><span class="cue merge-cue">{labels.cues.merge}</span></p>
     </header>
     <div
-      class="flow-scroller"
+      class="flow-scroller course-diagram__scroll"
       data-flow="backward"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.backward}
-    >
+     data-diagram-scroll>
       <div class="path-grid">
-        <article class="flow-node input-node" data-node="backward-upstream">
+        <article data-diagram-card data-diagram-box class="flow-node input-node" data-node="backward-upstream">
           <strong>{labels.paths.upstream}</strong>
           <InlineMath latex={String.raw`\bar y=${trace.backward.upstream.latex}`} />
         </article>
         <span class="flow-arrow first identity-row" aria-hidden="true">→</span>
-        <article class="flow-node path-node identity-row" data-path="identity-gradient">
+        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row" data-path="identity-gradient">
           <strong>{labels.paths.identityGradient}</strong>
           <InlineMath latex={String.raw`\bar y=${trace.backward.identity.latex}`} />
         </article>
         <span class="flow-arrow second identity-row" aria-hidden="true">→</span>
         <span class="flow-arrow first branch-row" aria-hidden="true">→</span>
-        <article class="flow-node path-node branch-row" data-path="branch-gradient">
+        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row" data-path="branch-gradient">
           <strong>{labels.paths.branchGradient}</strong>
           <InlineMath latex={String.raw`J_F(x)^\top\bar y=${trace.backward.branch.latex}`} />
         </article>
         <span class="flow-arrow second branch-row" aria-hidden="true">→</span>
-        <article class="flow-node merge-node" data-node="backward-merge">
+        <article data-diagram-card data-diagram-box class="flow-node merge-node" data-node="backward-merge">
           <strong>{labels.paths.merge}</strong>
           <InlineMath latex="+" />
         </article>
         <span class="flow-arrow final" aria-hidden="true">→</span>
-        <article class="flow-node output-node" data-node="backward-input">
+        <article data-diagram-card data-diagram-box class="flow-node output-node" data-node="backward-input">
           <strong>{labels.paths.inputGradient}</strong>
           <InlineMath latex={String.raw`\bar x=${trace.backward.input.latex}`} />
         </article>
@@ -127,19 +128,19 @@ const zeroWeightRelation =
   <section class="evidence-section" aria-labelledby="residual-evidence-title">
     <h4 id="residual-evidence-title">{labels.sections.evidence}</h4>
     <div class="evidence-grid">
-      <article class="evidence-card parameter-card">
+      <article data-diagram-card data-diagram-box class="evidence-card parameter-card">
         <h5>{labels.fields.parameter}</h5>
         <p><code><bdi dir="ltr">{trace.parameter.name}</bdi></code></p>
         <p><InlineMath latex={String.raw`W\in\mathbb{R}^{${trace.parameter.shapeLatex}}`} /></p>
         <p><strong>{labels.fields.parameterGradient}</strong></p>
-        <p class="formula-scroller" tabindex="0" role="region" aria-label={labels.fields.parameterGradient}>
+        <p class="formula-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.fields.parameterGradient} data-diagram-scroll>
           <InlineMath latex={String.raw`\bar W=${trace.parameter.gradient.latex}`} />
         </p>
       </article>
 
-      <article class="evidence-card zero-card" data-evidence="zero-branch">
+      <article data-diagram-card data-diagram-box class="evidence-card zero-card" data-evidence="zero-branch">
         <h5>{labels.fields.zeroBranch}</h5>
-        <div class="formula-scroller" tabindex="0" role="region" aria-label={labels.fields.zeroBranch}>
+        <div class="formula-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.fields.zeroBranch} data-diagram-scroll>
           <p><InlineMath latex={String.raw`F(x)=0,\quad y=x=${trace.zeroBranch.output.latex}`} /></p>
           <p><InlineMath latex={String.raw`\bar x=\bar y=${trace.zeroBranch.inputGradient.latex}`} /></p>
           <p><InlineMath latex={String.raw`\bar W=${trace.zeroBranch.weightGradient.latex}${zeroWeightRelation}`} /></p>
@@ -147,7 +148,7 @@ const zeroWeightRelation =
         <p class="evidence-note">{labels.fields.zeroBranchNote}</p>
       </article>
 
-      <article class="evidence-card error-card" data-evidence="shape-error">
+      <article data-diagram-card data-diagram-box class="evidence-card error-card" data-evidence="shape-error">
         <h5>{labels.fields.shapeError}</h5>
         <p><strong>{labels.fields.shapeInvariant}</strong></p>
         <p><InlineMath latex={String.raw`${trace.shapeError.identity}\ne${trace.shapeError.branch}`} /></p>
@@ -169,9 +170,9 @@ const zeroWeightRelation =
     </div>
 
     <div class="proof-row">
-      <article>
+      <article data-diagram-card data-diagram-box>
         <h5>{labels.fields.numericCheck}</h5>
-        <p class="formula-scroller" tabindex="0" role="region" aria-label={labels.fields.numericCheck}>
+        <p class="formula-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.fields.numericCheck} data-diagram-scroll>
           <InlineMath latex={String.raw`n_x=${trace.gradcheck.inputChecks}`} />
           <span aria-hidden="true"> · </span>
           <InlineMath latex={String.raw`n_W=${trace.gradcheck.weightChecks}`} />
@@ -182,7 +183,7 @@ const zeroWeightRelation =
           {acceptedWhenTrue(trace.gradcheck.passed)} <code><bdi dir="ltr">passed={trace.gradcheck.passed}</bdi></code>
         </p>
       </article>
-      <article>
+      <article data-diagram-card data-diagram-box>
         <h5>{labels.fields.proof}</h5>
         <p><code><bdi dir="ltr">config={trace.config.name}</bdi></code></p>
         <p><code><bdi dir="ltr">shape={trace.config.shapeLatex}</bdi></code></p>
@@ -198,8 +199,8 @@ const zeroWeightRelation =
 
   <section class="stack-section" aria-labelledby="residual-stack-title">
     <h4 id="residual-stack-title">{labels.sections.stack}</h4>
-    <div class="table-scroller" tabindex="0" role="region" aria-label={labels.scrollers.stack}>
-      <table>
+    <div class="table-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.stack} data-diagram-scroll>
+      <table data-diagram-table>
         <caption>{labels.captions.stack}</caption>
         <thead>
           <tr>
@@ -329,7 +330,6 @@ const zeroWeightRelation =
   .table-scroller {
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     padding: 0.35rem;
     scrollbar-gutter: stable;
   }
@@ -462,7 +462,6 @@ const zeroWeightRelation =
     gap: 0.35rem;
     max-inline-size: 100%;
     min-inline-size: 0;
-    overflow-x: auto;
     overflow-y: visible;
     padding-block: 0.2rem;
     scrollbar-gutter: stable;
