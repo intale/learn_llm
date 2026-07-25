@@ -295,7 +295,7 @@ async function expectChapterContent(
   ).toHaveAttribute('data-chapter-id', '28-causal-masking');
   await expect(
     page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]'),
-  ).toHaveCount(0);
+  ).toHaveAttribute('data-chapter-id', '30-multi-head-attention');
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -306,7 +306,7 @@ test.describe('chapter 29 rotary position embedding vertical slice', {
     page,
   }) => {
     const english = await readOrderedCourseChapters(page, 'en');
-    expect(english).toHaveLength(29);
+    expect(english.length).toBeGreaterThanOrEqual(29);
     expect(english[28]).toEqual(
       expect.objectContaining({ chapterId, order: 29, title: chapterTitle }),
     );

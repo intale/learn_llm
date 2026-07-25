@@ -12,6 +12,7 @@ pub mod metrics;
 /// Learned feature views and weighted mixtures used by self-attention.
 pub mod attention {
     pub mod causal_mask;
+    pub mod multi_head;
     pub mod qkv;
     pub mod rope;
     pub mod self_attention;

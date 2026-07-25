@@ -1,17 +1,17 @@
 schema_version: 1
-updated_at: "2026-07-24T17:47:13Z"
+updated_at: "2026-07-25T09:07:30Z"
 
 environment:
   os: "Linux x86_64"
   execution: "Docker-only build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
-  docker: "29.6.2"
-  docker_compose: "5.3.1"
+  docker: "25.0.2"
+  docker_compose: "2.17.3"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
-  git: "2.55.0.windows.3"
-  notes: "Current orchestration environment refreshed on 2026-07-22; repository-defined Linux toolchain and build pins remain unchanged. Host Node 24.18.0 and npm 11.16.0 are newer but are limited to orchestration."
+  git: "2.53.0"
+  notes: "Current Linux orchestration environment refreshed on 2026-07-25 after moving from the recorded Windows/Dropbox Docker host. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 pins remain unchanged; cached immutable workspace and browser images provide those exact tools, and host Rust/Node/npm remain unused."
 
 active_build: complete-decoder-course
 
@@ -12703,14 +12703,26 @@ builds:
         objective: "Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result."
         depends_on:
           - implement-ch29-rope
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/29-rope.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
+          - "rust/crates/llm-from-scratch/src/attention/self_attention.rs"
+          - "rust/crates/llm-from-scratch/src/attention/causal_mask.rs"
+          - "rust/crates/llm-from-scratch/src/attention/rope.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/demos/ch29-rope/expected.txt"
+          - "rust/demos/ch29-rope/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -12724,7 +12736,24 @@ builds:
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "site/src/content/chapters/en/29-rope.mdx"
+          - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/lib/rope-diagram.ts"
+          - "site/tests/29-rope-diagram.test.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/playwright.config.ts"
+          - "site/src/content.config.ts"
+          - "site/src/styles/global.css"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "Playwright 1.61.1 Firefox revision 1532 browser bundle and Debian runtime dependencies (one bounded Docker-only network acquisition)"
+          - "https://arxiv.org/abs/1409.0473"
+          - "https://arxiv.org/abs/1706.03762"
+          - "https://arxiv.org/abs/2302.13971"
         outputs:
           - "curriculum/chapters/30-multi-head-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/multi_head.rs"
@@ -12732,8 +12761,12 @@ builds:
           - "rust/demos/ch30-multi-head-attention/"
           - "site/src/content/chapters/en/30-multi-head-attention.mdx"
           - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
+          - "site/src/lib/multi-head-attention-diagram.ts"
           - "site/tests/30-multi-head-attention-diagram.test.ts"
           - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result."
@@ -12741,6 +12774,7 @@ builds:
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
           - "The English lesson is the complete declared chapter-active locale set; it matches shared metadata, source evidence, course navigation, and rendered browser coverage, while registered deferred locales publish no placeholder route."
+          - "Every learner-facing expression uses the math pipeline, and built Chromium and Firefox pages prove readable formula spacing and page containment at desktop and narrow widths."
           - "The full staged slice publishes atomically, all canonical regression gates pass, and this step is persisted in its own commit before the next chapter starts."
         validate:
           - "node scripts/check-course-plan.mjs"
@@ -12751,6 +12785,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch30-multi-head-attention | diff -u rust/demos/ch30-multi-head-attention/expected.txt -"
+          - "cargo run --quiet --locked -p ch30-multi-head-attention --example diagram_trace | diff -u rust/demos/ch30-multi-head-attention/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 30-multi-head-attention"
           - "npm --prefix site run check:parity -- --chapter 30-multi-head-attention"
           - "npm --prefix site run check:content"
@@ -12759,11 +12794,107 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:30-multi-head-attention'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:30-multi-head-attention'"
+          - "npm --prefix site run test:e2e -- --grep '@formula'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using deterministic local implementation, three bounded read-only primary-paper inputs, cached Docker Rust/Chromium validation, and one bounded Docker-only acquisition of the lockfile-pinned Playwright 1.61.1 Firefox revision 1532 browser plus runtime packages after the cache audit proved Firefox absent. Registered deferred locales require no lesson or route. No paid service, generation service, package dependency, build-definition change, hosting, deployment, or concept-implementing dependency."
+        runs:
+          - run_id: 20260725T072057Z-implement-ch30-multi-head-attention-01
+            started_at: "2026-07-25T07:20:57Z"
+            finished_at: "2026-07-25T09:07:30Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b7becaac7a2ae3d947b360cdff4e85787fa36de8"
+              manifest: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/input-fingerprint.txt"
+              checksum: "sha256:18942001aa24393a9fd3c3fd30b60e6345e076c413e9b45c6251e0e7472f0e34"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3; cached workspace image sha256:3d61b0d3...dae7 provides Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0; cached browser image sha256:64bf9230...515e provides Playwright 1.61.1."
+            staging_dir: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/"
+            commands:
+              - "Run the complete startup protocol, preserve all pre-existing .build evidence, verify the first eligible step, and inspect the complete Chapter 29 handoff plus Chapter 30 declarations."
+              - "Verify every recorded Chapter 29 reusable artifact checksum and compare the changed host environment with repository-pinned container tools."
+              - "Expand the Chapter 30 declaration before product work to include cumulative attention inputs, exact Rust diagram evidence, a strict site parser, aggregate formula coverage, two-engine layout gates, and three bounded primary sources."
+              - "Fingerprint forty material repository inputs, primary-source URLs, the exact Git commit, host orchestration tools, and immutable cached tool images."
+              - "Review bounded primary-source evidence from Bahdanau et al. (2014), Vaswani et al. (2017), and Touvron et al. (2023), then freeze the permitted historical and modern claims before authoring."
+              - "Apply independent source and Rust architecture audits to freeze the nonzero-width, RoPE ownership, deterministic constructor, error precedence, packed-projection explanation, and predict-first two-head fixture details before implementation."
+              - "Apply an independent static-site audit to freeze the 34-line Rust-authored diagram grammar, strict no-arithmetic parser boundary, semantic responsive rendering, two-engine coverage, aggregate formula updates, and the Chapter 29 navigation assertion that Chapter 30 publication makes stale."
+              - "Implement the staged dependency-free MultiHeadAttention primitive, public taped split/merge helpers, deterministic four-matrix constructor, exhaustive fixture evidence, and full 76-coordinate gradient oracle; format and validate them only inside the pinned offline Rust container."
+              - "Generate the exact 30-line learner report and 34-line locale-neutral diagram trace from the staged Rust executable, then freeze their checksums before site authoring."
+              - "Apply independent pedagogy, Rust, and static-site reviews; strengthen the historical executable contrast, typed constructor errors, lane-order and transactionality oracles, predict-first arithmetic, symbol/index explanations, output-mixing exercise, accessible exact-trace rendering, and focused regression assertions."
+              - "Pass the staged content contract, chapter/parity/content checks, Astro diagnostics, focused unit tests, 42-page static build, and all five Chapter 30 Chromium cases after correcting formula and accessibility-label containment at narrow widths."
+              - "Audit every cached project browser image and confirm that only Chromium revision 1228 is present; record one bounded acquisition of lockfile-pinned Firefox revision 1532 before executing the required independent Firefox gates."
+              - "Build run-scoped image learn-llm-ch30-playwright:firefox-1532 from the cached browser image; install only the Playwright 1.61.1 Firefox revision 1532 bundle and its Debian runtime packages."
+              - "Freeze and checksum the exact 19-file publication manifest, prepare same-directory siblings, back up five existing canonical targets, and atomically publish every manifest entry."
+              - "Replay the complete offline Rust, site, link, formula, focused Chromium/Firefox, and full Chromium matrix from a fresh base archive overlaid only with checksum-verified canonical paths."
+              - "Remove stale regenerable host build caches from earlier runs, rerun the repository host-artifact audit, and verify that no Chapter 30 validation container remains."
+            artifacts:
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/input-fingerprint.txt"
+                sha256: "18942001aa24393a9fd3c3fd30b60e6345e076c413e9b45c6251e0e7472f0e34"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/research/source-notes.md"
+                sha256: "6c43645cf4bfdb73fded72c1578fbafe89ce88bb8a1401bf7c970788f1d03823"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/evidence/rust-staged.sha256"
+                sha256: "e6bf8e226b114ce54155ff02f3b2931ef99bb9fe6845dbf9388394f2bbf7648b"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/publish/rust/demos/ch30-multi-head-attention/expected.txt"
+                sha256: "e1a9e6aabbd6c0d19fb8efe6b8fdd422094b5e9fdc50b3009dd446bf8b77c517"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/publish/rust/demos/ch30-multi-head-attention/diagram-trace.txt"
+                sha256: "a6f96871c038d9a15708340b4183097f44062cf27b0f6e7bd25f95dd45fcc652"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/publish.sha256"
+                sha256: "44689431863047817a04777de4375d566976f902f8c0b9a9734eeb94c9913dc3"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/validation/staged-full-validation.log"
+                sha256: "19c512145712b5ac65f2276876354bc7cc8f8aef4a5992a919f65e4344df6e62"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/publication-backups.sha256"
+                sha256: "ae3bc753d2ac3beb83da57f21d3b8297df27c5e30464f9bca77fb8b799135b8f"
+              - path: ".build/runs/20260725T072057Z-implement-ch30-multi-head-attention-01/validation/canonical-full-validation.log"
+                sha256: "853ba040bd005f1c43771486124d5b6c94cbb034a3f5a92a890ad51eb055525c"
+            validation:
+              - command: "Startup ledger, dependency, locale, and working-tree audit"
+                status: passed
+                notes: "Tracked files are clean at b7becaa; only preserved pre-existing .build evidence is untracked. The ledger has one active build, no running step before this claim, Chapter 29 completed, and Chapter 30 as the first dependency-satisfied pending step. English is its sole active locale."
+              - command: "Recorded Chapter 29 artifact checksum verification"
+                status: passed
+                notes: "The input fingerprint, primary-source notes, canonical archive, exact learner output, exact diagram trace, and publication manifest all match the immutable hashes recorded by the succeeded Chapter 29 run."
+              - command: "Pinned container tool and cached-image audit"
+                status: passed
+                notes: "The host Docker/Git versions changed materially and are now recorded. Repository pins remain exact inside immutable cached images: Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host Rust/Node/npm are not used."
+              - command: "Bounded primary-source claim audit"
+                status: passed
+                notes: "Primary-paper evidence plus an independent audit supports the fixed-vector bottleneck and soft alignment history, parallel learned Q/K/V head projections followed by concatenation/output projection, and LLaMA as a bounded causal Transformer language-model example combining multiple heads with RoPE. The notes explicitly exclude anachronistic terminology, globally independent or guaranteed semantic head roles, and claims that this inspectable dense implementation reproduces an optimized production kernel."
+              - command: "Independent cumulative Rust architecture audit"
+                status: passed
+                notes: "The audit confirmed full-width Q/K/V projection before taped split, per-head-width RoPE before flattened causal attention, taped merge before one output projection, four-matrix transactional initialization, empty-batch handling, exact error precedence, and complete 76-coordinate finite-difference coverage. Its three previously implicit API choices are now recorded in DECISIONS.md."
+              - command: "Independent static-site integration audit"
+                status: passed
+                notes: "The audit froze a 34-line exact Rust trace, string-preserving parser with no model arithmetic, semantic table/scroller structure, non-color and forced-color cues, RTL and JavaScript-disabled behavior, five focused cases per browser, and aggregate formula coverage. It also found that Chapter 29's previous terminal-navigation assertion must become an owned Chapter 30 integration output before the full suite can pass."
+              - command: "Pinned offline Docker crate tests for the staged cumulative primitive"
+                status: passed
+                notes: "The exact base archive overlaid with staged lib.rs and multi_head.rs compiled under Rust 1.93.1 and passed all 287 llm-from-scratch unit tests plus both compile-fail doc tests. The primitive proves full-width projection before split, per-head RoPE/causal attention, taped inverse merge, output block mixing, parameter identity/order, deterministic transactional initialization, empty-batch differentiation, typed boundaries, head isolation, and prefix invariance."
+              - command: "Pinned offline Docker Chapter 30 demo tests and exact fixture generation"
+                status: passed
+                notes: "All three demo tests pass. The deterministic B=1, T=3, d_model=4, h=2 fixture proves one uniform and one nonuniform causal table, exact future zeros, bitwise split/merge, pre-output head isolation, bitwise prefix invariance, common-offset attention preservation, finite reverse mode, four bias-free full-width matrices, and central differences for all 12 input plus 64 weight coordinates within 0.000008. The executable froze a 30-line learner report and exact 34-line diagram trace with no negative zero."
+              - command: "Run-scoped pinned Firefox Docker image acquisition"
+                status: passed
+                notes: "After every cached project browser image proved Chromium-only, Docker acquired 47.0 MB of Debian runtime packages and the 104.9 MiB official Playwright Firefox 151.0 revision 1532 bundle. The completed image is sha256:ffdfa03dbc2f21140dd49641806683570960681ca6fddd0644349c801b914314; no browser or dependency was installed on the host or added to product files."
+              - command: "Independent Chapter 30 pedagogy, Rust, and static-site reviews"
+                status: passed
+                notes: "Three read-only audits found and closed every substantive issue: the lesson now labels every shape transition, works token-one arithmetic, distinguishes concatenation from learned cross-head mixing, defines symbols and indexing, and executes its bounded historical contrast; Rust now preserves the RoPE configuration source, tests multi-batch lane order, exact released-input nesting, and constructor transactionality; the site binds exact Rust strings, provides semantic tables and named local scrollers, uses token-derived colors plus non-color cues, and keeps spoken RTL labels independent from technical direction."
+              - command: "Complete offline staged Rust, site, link, formula, and Chromium replay"
+                status: passed
+                notes: "The exact base archive plus all 19 manifest-matched staged files passed the course plan and integrated contract, formatting, warning-denying Clippy, every workspace test including 288 cumulative crate tests, dependency/demo policies, both exact fixtures, chapter/parity/content/Astro checks, all 739 unit tests, the 42-page build, 1,487 local references, all 74 Chromium formula cases, and the complete 206-case Chromium suite. The 1,523-line validation log is preserved with sha256:19c512...df6e62."
+              - command: "Independent staged Firefox Chapter 30 and aggregate formula replay"
+                status: passed
+                notes: "Firefox revision 1532 independently passed all five Chapter 30 cases and all 74 aggregate formula cases, including desktop and narrow containment, exact Rust evidence, forced colors, synthetic RTL, JavaScript-disabled output, and active/deferred locale routing."
+              - command: "Checksum-verified atomic canonical publication"
+                status: passed
+                notes: "All 19 product files were pre-hashed through same-directory siblings and atomically renamed into their canonical paths. Five overwritten targets have recoverable run-scoped originals; every canonical target matches publish.sha256 and no prepared or rollback sibling remains."
+              - command: "Complete offline canonical Rust, site, link, formula, Chromium, and Firefox replay"
+                status: passed
+                notes: "A fresh pinned environment reconstructed the base commit and overlaid only the 19 checksum-verified canonical paths. It passed the course plan and contract, formatting, warning-denying Clippy, every workspace test including 288 cumulative crate tests, dependency/demo policies, both exact fixtures, chapter/parity/content/Astro checks, all 739 site unit tests, the 42-page build, 1,487 local references, five focused Chapter 30 cases in each browser, all 74 formula cases in each browser, and the complete 206-case Chromium suite. The 1,631-line log is preserved with sha256:853ba040...5525c."
+              - command: "Docker-only host artifact and resource cleanup audit"
+                status: passed
+                notes: "Stale regenerable target, node_modules, .astro, and test-results directories from earlier Docker runs were removed without touching run manifests, logs, staged evidence, publication backups, or site/dist. The repository audit now passes with only site/dist as the intentional release exception, and no Chapter 30 validation container remains."
+            notes: "Succeeded. Chapter 30 publishes one dependency-free English multi-head causal-attention vertical slice with full-width Q/K/V projections, per-head RoPE and causal attention, exact split/merge evidence, learned output mixing, complete differentiable Rust tests, source-bounded history, strict server-rendered formulas, and an accessible static visualization driven only by the exact Rust trace. Staged and fresh canonical Rust, site, link, formula, Chromium, and Firefox gates pass; Russian remains registered but deferred and receives no placeholder."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:

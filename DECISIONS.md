@@ -5239,3 +5239,205 @@ same rotary operation independently within each attention head.
 
 **Affected step and run:** `implement-ch29-rope`, run
 `20260724T172741Z-ch29-rope-01`.
+
+## 2026-07-25 - Define the Chapter 30 multi-head attention boundary
+
+**Status:** Accepted during Chapter 30 preflight.
+
+**Context:** Chapter 30 is the first eligible course step after the completed
+RoPE chapter. It must assemble the already-taught projections, rotary position
+operation, causal attention, head reshape, concatenation, and output projection
+without turning the whole decoder block into one chapter. The scheduled ledger
+omitted the cumulative attention inputs, strict Rust-trace parser, aggregate
+formula suites, Firefox layout gates, and primary sources required by the
+established chapter workflow and the learner-facing math policy. The current
+Linux host also has Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3 rather
+than the previous Windows host versions; the pinned container toolchain remains
+Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0.
+
+**Decision:** Add a dependency-free `MultiHeadAttention` layer with model width
+$d_{\mathrm{model}}$, nonzero head count $h$, and even per-head width
+$d_h=d_{\mathrm{model}}/h$. Require exact divisibility before allocating
+parameters. Use four independent bias-free matrices in stable query, key, value,
+output order. The Q/K/V and output matrices each have shape
+$[d_{\mathrm{model}},d_{\mathrm{model}}]$; initialization is transactional and
+parameter names end in `query.weight`, `key.weight`, `value.weight`, and
+`output.weight`.
+
+For input $X$ with shape $[B,T,d_{\mathrm{model}}]$, project Q/K/V, reshape and
+transpose each to $[B,h,T,d_h]$, rotate only Q and K at the checked absolute
+position interval, flatten the independent batch/head lanes to reuse the
+existing causal single-head operation, restore $[B,h,T,d_h]$, concatenate to
+$[B,T,d_{\mathrm{model}}]$, and apply the output projection. Preserve an empty
+batch, require at least one token, return inspectable per-head attention weights
+and pre-projection merged values, and keep residual addition, normalization,
+cache state, dropout, grouped-query attention, and full decoder-block composition
+for later chapters. Public split/merge helpers expose the exact inverse layout
+and use taped reshape/transpose operations rather than a second array algorithm.
+
+Freeze one three-token, four-feature, two-head fixture with block-isolating
+Q/K/V weights and an obvious head-reordering output matrix. It must expose every
+intermediate shape, distinct causal weight triangles, split/merge inversion,
+head isolation before output mixing, prefix invariance, four bias-free parameter
+matrices, deterministic replay, typed configuration/shape/range failures, finite
+reverse mode, and all input/weight gradient coordinates. Rust emits the learner
+report and one strict locale-neutral diagram trace. The site parser validates and
+projects exact strings without computing projections, rotations, softmax,
+mixtures, or gradients.
+
+Use Bahdanau, Cho, and Bengio only for the earlier recurrent
+encoder-decoder alignment distribution and its one decoder-state-to-source
+alignment calculation. Use Vaswani et al. for parallel projected heads,
+concatenation and output projection, and the authors' stated representation-
+subspace motivation. Use Touvron et al. only as a bounded decoder-only example
+whose architecture table uses multiple attention heads and whose model applies
+RoPE; do not attribute this course's bias policy, matrix orientation, names,
+fixture, error order, trace grammar, or accessibility design to those papers.
+
+Render the useful visualization as static semantic HTML/CSS driven by the exact
+Rust trace: feature partitions, separate causal head tables, concatenation, and
+output projection. Every spoken label stays in the English lesson, every
+mathematical expression uses server-rendered math, and named narrow-width
+scrollers, non-color cues, forced colors, and JavaScript-disabled behavior are
+covered in Chromium and Firefox. Extend both aggregate formula suites through
+Chapter 30.
+
+The ledger declaration is expanded before product work to own
+`site/src/lib/multi-head-attention-diagram.ts`, both aggregate formula suites, the
+exact diagram-trace command, cumulative attention inputs, and the three primary
+paper URLs. Cached immutable workspace and browser images are explicit run
+inputs; the host version change is provenance, not a change to repository pins.
+
+**Consequences:** Chapter 30 remains one medium, deterministic, English-only
+vertical slice with no Russian placeholder. No package dependency, Docker build
+definition, locale policy, hosting configuration, deployment action, paid
+service, or generation service is introduced. Chapter 31 may wrap this layer in
+the first pre-normalized residual branch.
+
+**Affected step and run:** `implement-ch30-multi-head-attention`, run
+`20260725T072057Z-implement-ch30-multi-head-attention-01`.
+
+## 2026-07-25 - Freeze Chapter 30 static evidence and navigation integration
+
+**Status:** Accepted before Chapter 30 site implementation.
+
+**Context:** The independent static-site audit checked the exact current parser,
+component, formula, route, browser, and accessibility conventions. It found one
+previously undeclared integration edit: Chapter 29's focused browser test still
+asserts that exactly 29 English chapters exist and that RoPE has no next link.
+Publishing Chapter 30 necessarily invalidates both assertions.
+
+**Decision:** Chapter 30 owns the narrow update to
+`site/tests/e2e/ch29-rope.spec.ts` that changes its course-count/navigation
+expectation to include Chapter 30. Add the shared content schema, global styles,
+Playwright configuration, and browser helper to the step's material inputs.
+
+Freeze one 34-line Rust-authored diagram trace: one configuration record, eight
+shape records, two head-partition records, six head-major causal-weight rows, six
+head-major outputs, three merged token rows, four output-matrix rows, three final
+token rows, and one prefix/split-merge proof. The TypeScript parser requires LF,
+one final newline, exact order, tags, fields, lexemes, coordinate counts, and full
+fixture equality. It preserves numbers as strings and performs no projection,
+rotation, softmax, mixture, concatenation, reduction, or output arithmetic.
+
+Render semantic partition, per-head probability, concatenation, output-matrix,
+and before/after tables with captions and scoped headers. Every dense region has
+a named keyboard-focusable local scroller. Head and causal states use explicit
+text plus solid/dashed/double border cues, remain visible in forced colors, keep
+matrix data isolated left-to-right under synthetic RTL, fit narrow pages without
+page overflow, and remain complete when JavaScript is disabled. English lesson
+labels provide all spoken text through a strict exact-key object.
+
+Extend the aggregate unit and browser formula suites through Chapter 30 and run
+the focused five-case chapter suite plus aggregate formula cases independently
+in Chromium and Firefox. No shared global style change is planned; the existing
+style sheet is a validation input unless a staged component proves an unavoidable
+shared defect.
+
+**Consequences:** The declared output set now includes the one stale predecessor
+test whose expected navigation changes when Chapter 30 is published. Product
+scope, locale policy, dependencies, build configuration, and runtime behavior do
+not expand.
+
+**Affected step and run:** `implement-ch30-multi-head-attention`, run
+`20260725T072057Z-implement-ch30-multi-head-attention-01`.
+
+## 2026-07-25 - Freeze Chapter 30 construction and fixture details
+
+**Status:** Accepted before Chapter 30 implementation.
+
+**Context:** The independent Rust and primary-source audits confirmed the
+full-width-projection-then-split design, but found three details that the initial
+boundary left implicit: whether zero model width has its own configuration
+error, who owns the RoPE capacity and base, and how the deterministic teaching
+fixture injects exact matrices. The source audit also identified a clearer
+predict-first fixture and language needed to keep a course-local implementation
+choice from sounding universal.
+
+**Decision:** `MultiHeadAttention::new` accepts a parameter prefix,
+$d_{\mathrm{model}}$, head count, maximum positions, RoPE base, and a mutable
+`SplitMix64`. It rejects zero model width, zero head count, nondivisibility, and
+odd per-head width in that order, constructs the per-head `RotaryEmbedding`, and
+then initializes full-width Q, K, V, and output matrices transactionally through
+one trial generator. A public deterministic `from_parameters` constructor
+accepts four named matrices plus the same head count, capacity, and base so the
+demo and downstream model loading do not require random initialization.
+
+`forward` accepts an absolute position offset. It checks input rank, input width,
+nonempty tokens, and the complete RoPE interval before executing projections;
+then it performs Q/K/V projection, taped split, Q rotation, K rotation, flattened
+causal attention, restoration, taped merge, and output projection. Errors retain
+the responsible stage. Empty batches remain valid, and all four zero-bias
+parameter matrices plus the input receive complete finite-difference coverage.
+
+Freeze the observable fixture at $B=1$, $T=3$, $d_{\mathrm{model}}=4$, and
+$h=2$. Q/K/V are identity matrices only to expose the two feature blocks; the
+lesson must state that a general dense head projection may read every input
+feature. The first input block counter-rotates positions zero, one, and two, so
+RoPE maps its Q/K rows to the same vector and head zero has the easily predicted
+causal rows $[1,0,0]$, $[1/2,1/2,0]$, and $[1/3,1/3,1/3]$. The second block
+produces a nonuniform causal table. The output matrix swaps the two head blocks,
+making concatenation and learned output mixing visibly different operations.
+
+Describe the heads as separate projected lanes before concatenation, not as
+globally independent modules or guaranteed semantic specialists. Describe LLaMA
+as a bounded causal Transformer language-model example when summarizing the
+paper. Returning dense attention weights is a teaching/debugging API; it is not
+attributed to LLaMA's optimized implementation.
+
+**Consequences:** Chapter 30 gains stable public construction and error
+semantics without changing its declared outputs or deferred scope. The fixture
+supports structural prediction before nonuniform arithmetic, and all packed
+matrix, even-width, bias, naming, offset, and trace choices remain explicitly
+course-local.
+
+**Affected step and run:** `implement-ch30-multi-head-attention`, run
+`20260725T072057Z-implement-ch30-multi-head-attention-01`.
+
+## 2026-07-25 - Acquire the pinned Firefox browser only inside Docker
+
+**Status:** Accepted during Chapter 30 validation after exhausting cached inputs.
+
+**Context:** Chapter 30 acceptance requires its focused layout cases and the
+aggregate formula cases to pass independently in Chromium and Firefox. The
+immutable cached Playwright image contains the lockfile-matched Playwright
+1.61.1 package and Chromium revision 1228, but a direct audit of every cached
+project browser image found no Firefox bundle. Omitting the second engine would
+weaken an explicit learner-facing formula and containment gate; installing a
+browser on the host would violate the repository's Docker-only boundary.
+
+**Decision:** Build one run-scoped Docker validation image from the cached
+browser image. Inside that image only, use the lockfile-pinned Playwright 1.61.1
+installer to acquire Firefox revision 1532 and its Debian runtime packages.
+Record the resulting immutable image ID and use it for the independent focused
+Chapter 30 and aggregate formula replays. Do not change `Dockerfile`, package
+manifests, the lockfile, host toolchains, or canonical product files merely to
+cache a validation browser.
+
+**Consequences:** This run gains one bounded network and CPU input, but no paid
+service, generation service, host artifact, runtime dependency, or product build
+change. If the acquisition fails, Chapter 30 remains running rather than being
+reported as complete from Chromium evidence alone.
+
+**Affected step and run:** `implement-ch30-multi-head-attention`, run
+`20260725T072057Z-implement-ch30-multi-head-attention-01`.
