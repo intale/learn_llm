@@ -7,12 +7,8 @@ import { describe, expect, it } from 'vitest';
 
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import {
-  hasMaterialHorizontalOverflow,
   DIAGRAM_FULL_VIEW_MEDIA,
   DIAGRAM_SELECTOR,
-  MATERIAL_OVERFLOW_RATIO,
-  MATERIAL_OVERFLOW_PX,
-  MINIMUM_FULLSCREEN_GAIN_PX,
 } from '../src/lib/diagram-full-view';
 import {
   parseJsonFrontmatter,
@@ -168,20 +164,18 @@ describe('course-wide diagram full-view contract', () => {
     expect(russian.diagramFullViewCloseLabel).toBe('Выйти из полноэкранного режима');
   });
 
-  it('enables only materially overflowing diagrams on desktop-sized viewports', () => {
+  it('enables every registered diagram on supported desktop-sized viewports', () => {
     expect(DIAGRAM_SELECTOR).toBe('figure[data-visualization-id]');
     expect(DIAGRAM_FULL_VIEW_MEDIA).toBe(
       '(min-width: 64rem) and (min-height: 36rem)',
     );
-    expect(MATERIAL_OVERFLOW_PX).toBe(64);
-    expect(MATERIAL_OVERFLOW_RATIO).toBe(0.125);
-    expect(MINIMUM_FULLSCREEN_GAIN_PX).toBe(64);
-    expect(hasMaterialHorizontalOverflow(300, 363)).toBe(false);
-    expect(hasMaterialHorizontalOverflow(300, 364)).toBe(true);
-    expect(hasMaterialHorizontalOverflow(800, 899)).toBe(false);
-    expect(hasMaterialHorizontalOverflow(800, 900)).toBe(true);
-    expect(hasMaterialHorizontalOverflow(0, 500)).toBe(false);
-    expect(hasMaterialHorizontalOverflow(Number.NaN, 500)).toBe(false);
+    const controller = read('site/src/lib/diagram-full-view.ts');
+    expect(controller).not.toContain('MATERIAL_OVERFLOW');
+    expect(controller).not.toContain('MINIMUM_FULLSCREEN_GAIN');
+    expect(controller).not.toContain('hasMaterialHorizontalOverflow');
+    expect(controller).not.toContain('horizontalScrollOwners');
+    expect(controller).not.toContain('ResizeObserver');
+    expect(controller).toContain("typeof state.figure.requestFullscreen === 'function'");
   });
 
   it('documents the shared rule and leaves diagram tables under their named scrollers', () => {
@@ -194,11 +188,15 @@ describe('course-wide diagram full-view contract', () => {
 
     expect(agents).toContain('### Diagram presentation');
     expect(agents).toContain('Do not implement chapter-specific full-view behavior.');
+    expect(agents).toContain('regardless of its content size, measured overflow');
     expect(playbook).toMatch(/layout-level diagram full-view\s+controller/);
     expect(playbook).toContain('no chapter-local client script');
+    expect(playbook).toContain('including compact diagrams with');
     expect(layout).toContain("import diagramStyles from '../styles/diagram.module.css';");
     expect(layout).toContain('<body class={diagramStyles.host}>');
     expect(diagramStyles).toContain("course-diagram[data-diagram-style='course-v1']");
+    expect(diagramStyles).toContain('.course-diagram__scroll[data-diagram-scroll]');
+    expect(diagramStyles).not.toContain('data-diagram-full-view-scroll-owner');
     expect(globalStyles).not.toContain('data-diagram-full-view');
     expect(lessonRoute).toContain('.lesson-body > table');
     expect(lessonRoute).not.toContain('.lesson-body table {');

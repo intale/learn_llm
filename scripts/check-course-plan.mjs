@@ -531,10 +531,31 @@ export function validateLedgerText(
     }
 
     if (index > 0) {
+      const replacements = listField(step, "replaces") ?? [];
+      let dependencyIndex = index - 1;
+      while (
+        dependencyIndex >= 0 &&
+        steps[dependencyIndex].status === "invalidated" &&
+        replacements.includes(steps[dependencyIndex].id)
+      ) {
+        dependencyIndex -= 1;
+      }
+      assert(
+        dependencyIndex >= 0,
+        `${statePath}: ${step.id} has no non-invalidated predecessor`,
+      );
+      const replacedPredecessors = steps
+        .slice(dependencyIndex + 1, index)
+        .map((candidate) => candidate.id);
+      assert(
+        JSON.stringify(replacements) === JSON.stringify(replacedPredecessors),
+        `${statePath}: ${step.id} replaces must name only its contiguous invalidated predecessors`,
+      );
+      const expectedDependency = steps[dependencyIndex].id;
       const dependencies = listField(step, "depends_on");
       assert(
-        JSON.stringify(dependencies) === JSON.stringify([steps[index - 1].id]),
-        `${statePath}: ${step.id} must depend only on ${steps[index - 1].id}`,
+        JSON.stringify(dependencies) === JSON.stringify([expectedDependency]),
+        `${statePath}: ${step.id} must depend only on ${expectedDependency}`,
       );
     }
   }

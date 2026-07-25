@@ -1,8 +1,5 @@
 export const DIAGRAM_SELECTOR = 'figure[data-visualization-id]';
 export const DIAGRAM_FULL_VIEW_MEDIA = '(min-width: 64rem) and (min-height: 36rem)';
-export const MATERIAL_OVERFLOW_PX = 64;
-export const MATERIAL_OVERFLOW_RATIO = 0.125;
-export const MINIMUM_FULLSCREEN_GAIN_PX = 64;
 
 interface DiagramFullViewLabels {
   open: string;
@@ -19,19 +16,6 @@ interface DiagramState {
   figure: HTMLElement;
   controls: DiagramControls | null;
   failed: boolean;
-}
-
-export function hasMaterialHorizontalOverflow(
-  clientWidth: number,
-  scrollWidth: number,
-  threshold = MATERIAL_OVERFLOW_PX,
-): boolean {
-  return (
-    Number.isFinite(clientWidth) &&
-    Number.isFinite(scrollWidth) &&
-    clientWidth > 0 &&
-    scrollWidth - clientWidth >= Math.max(threshold, clientWidth * MATERIAL_OVERFLOW_RATIO)
-  );
 }
 
 function ensureFigureId(figure: HTMLElement, document: Document): string {
@@ -56,16 +40,6 @@ function readLabels(document: Document): DiagramFullViewLabels | null {
     open: diagramFullViewOpen,
     close: diagramFullViewClose,
   };
-}
-
-function horizontalScrollOwners(figure: HTMLElement, view: Window): HTMLElement[] {
-  return [figure, ...figure.querySelectorAll<HTMLElement>('*')].filter((element) => {
-    const { overflowX } = view.getComputedStyle(element);
-    return (
-      ['auto', 'scroll'].includes(overflowX) &&
-      hasMaterialHorizontalOverflow(element.clientWidth, element.scrollWidth)
-    );
-  });
 }
 
 export function initializeDiagramFullView(
@@ -124,18 +98,22 @@ export function initializeDiagramFullView(
     state.controls = { actions, button, label };
 
     button.addEventListener('click', async () => {
-      try {
-        if (document.fullscreenElement === state.figure) {
+      if (document.fullscreenElement === state.figure) {
+        try {
           await document.exitFullscreen();
-          return;
+        } catch {
+          scheduleUpdate();
         }
-        returnFocus = button;
-        returnFigure = state.figure;
+        return;
+      }
+
+      returnFocus = button;
+      returnFigure = state.figure;
+      try {
         await state.figure.requestFullscreen({ navigationUI: 'hide' });
       } catch {
         state.failed = true;
         returnFocus = null;
-        returnFigure = null;
         scheduleUpdate();
       }
     });
@@ -152,29 +130,23 @@ export function initializeDiagramFullView(
       typeof document.exitFullscreen === 'function';
 
     for (const state of states) {
-      state.figure
-        .querySelectorAll<HTMLElement>('[data-diagram-full-view-scroll-owner]')
-        .forEach((owner) => delete owner.dataset.diagramFullViewScrollOwner);
-
       const active = fullscreen === state.figure;
-      const owners = horizontalScrollOwners(state.figure, view);
-      const fullscreenContentWidth = Math.max(0, view.innerWidth - 48);
-      const offersUsefulWidth =
-        fullscreenContentWidth - state.figure.clientWidth >= MINIMUM_FULLSCREEN_GAIN_PX;
+      const controlHadFocus = document.activeElement === state.controls?.button;
       const eligible =
         active ||
         (canOpen &&
           !state.failed &&
-          offersUsefulWidth &&
-          typeof state.figure.requestFullscreen === 'function' &&
-          owners.length > 0);
+          typeof state.figure.requestFullscreen === 'function');
 
       if (!eligible) {
         removeControls(state);
+        if (controlHadFocus) {
+          returnFocus = null;
+          returnFigure = state.figure;
+        }
         continue;
       }
 
-      for (const owner of owners) owner.dataset.diagramFullViewScrollOwner = 'true';
       const controls = ensureControls(state);
       controls.button.setAttribute('aria-expanded', String(active));
       controls.button.setAttribute('aria-label', active ? labels.close : labels.open);
@@ -218,30 +190,16 @@ export function initializeDiagramFullView(
   document.addEventListener('fullscreenerror', scheduleUpdate);
   document.addEventListener('keydown', onKeyDown, true);
   media.addEventListener('change', onFullscreenChange);
-  view.addEventListener('resize', scheduleUpdate, { passive: true });
-
-  const ResizeObserverConstructor = (
-    view as Window & { ResizeObserver?: typeof ResizeObserver }
-  ).ResizeObserver;
-  const resizeObserver =
-    typeof ResizeObserverConstructor === 'function'
-      ? new ResizeObserverConstructor(scheduleUpdate)
-      : null;
-  for (const state of states) resizeObserver?.observe(state.figure);
-
-  void document.fonts.ready.then(scheduleUpdate);
 
   update();
 
   return () => {
     destroyed = true;
     if (animationFrame !== 0) view.cancelAnimationFrame(animationFrame);
-    resizeObserver?.disconnect();
     document.removeEventListener('fullscreenchange', onFullscreenChange);
     document.removeEventListener('fullscreenerror', scheduleUpdate);
     document.removeEventListener('keydown', onKeyDown, true);
     media.removeEventListener('change', onFullscreenChange);
-    view.removeEventListener('resize', scheduleUpdate);
     for (const state of states) removeControls(state);
     delete document.documentElement.dataset.diagramFullViewReady;
   };

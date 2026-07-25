@@ -1523,6 +1523,7 @@ export function validateDiagramComponents(repositoryRoot) {
     'course-diagram__description',
     'course-diagram__scroll',
     'data-diagram-card',
+    'data-diagram-box',
     'data-diagram-table',
     'state-symbol',
     '--diagram-summary-min',

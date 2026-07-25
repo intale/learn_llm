@@ -74,6 +74,7 @@ const descriptionId = 'neural-ngram-description';
       <ol class="pipeline-list" aria-label={labels.captions.pipeline}>
         {trace.stages.map((stage) => (
           <li
+            data-diagram-box
             class:list={[
               'pipeline-card',
               stage.name === 'context_ids' && 'input-card',
@@ -105,7 +106,7 @@ const descriptionId = 'neural-ngram-description';
                 <dd>
                   <ol class="value-list">
                     {stage.values.items.map((value) => (
-                      <li><InlineMath latex={value} /></li>
+                      <li data-diagram-box><InlineMath latex={value} /></li>
                     ))}
                   </ol>
                 </dd>
@@ -138,6 +139,7 @@ const descriptionId = 'neural-ngram-description';
     <ol class="checkpoint-list" aria-label={labels.captions.checkpoints}>
       {trace.losses.map((checkpoint, index) => (
         <li
+          data-diagram-box
           class:list={['checkpoint-card', index === trace.losses.length - 1 && 'final-checkpoint']}
           data-step={checkpoint.step}
         >
@@ -215,7 +217,7 @@ const descriptionId = 'neural-ngram-description';
      data-diagram-scroll>
       <ol class="token-list" aria-label={labels.fields.generatedIds}>
         {trace.generation.ids.items.map((token) => (
-          <li><InlineMath latex={token} /></li>
+          <li data-diagram-box><InlineMath latex={token} /></li>
         ))}
       </ol>
     </div>
@@ -364,10 +366,10 @@ const descriptionId = 'neural-ngram-description';
 
   .pipeline-list {
     display: grid;
-    grid-template-columns: repeat(5, minmax(11.5rem, 1fr));
+    grid-template-columns: repeat(5, minmax(12.125rem, 1fr));
     align-items: start;
     gap: 1.35rem;
-    min-inline-size: 64rem;
+    min-inline-size: 66rem;
     padding: 0;
     list-style: none;
   }
@@ -511,7 +513,7 @@ const descriptionId = 'neural-ngram-description';
     }
 
     .pipeline-list {
-      min-inline-size: 61rem;
+      min-inline-size: 66rem;
     }
   }
 

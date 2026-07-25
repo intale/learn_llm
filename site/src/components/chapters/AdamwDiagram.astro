@@ -112,7 +112,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
           aria-label={`${labels.scrollers.parameterFlow} ${parameter.name}`}
          data-diagram-scroll>
           <div class="flow" aria-label={labels.captions.parameterFlow}>
-            <section class="input-node" aria-label={labels.stages.inputs}>
+            <section data-diagram-box class="input-node" aria-label={labels.stages.inputs}>
               <dl>
                 <div>
                   <dt>{labels.fields.before} <InlineMath latex={String.raw`\theta_{t-1}`} /></dt>
@@ -127,7 +127,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow adaptive-arrow input-to-moments" aria-hidden="true">→</span>
 
-            <section class="moment-node" aria-label={labels.stages.moments}>
+            <section data-diagram-box class="moment-node" aria-label={labels.stages.moments}>
               <span class="lane-label">{labels.symbols.adaptive}</span>
               <dl>
                 <div>
@@ -151,7 +151,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow adaptive-arrow moments-to-adaptive" aria-hidden="true">→</span>
 
-            <section class="adaptive-delta" aria-label={labels.symbols.adaptive}>
+            <section data-diagram-box class="adaptive-delta" aria-label={labels.symbols.adaptive}>
               <span class="lane-label">{labels.symbols.adaptive}</span>
               <p>{labels.fields.adaptiveDelta}</p>
               <strong><InlineMath latex={vectorLatex(parameter.adaptive)} /></strong>
@@ -162,9 +162,11 @@ const vectorLatex = (vector: AdamwTraceVector) =>
               data-decay-bypass="direct-from-parameter"
               aria-label={`${labels.symbols.decay}: ${parameter.group === 'decay' ? labels.symbols.applyDecay : labels.symbols.skipDecay}`}
             >
-              <div class="bypass-origin">
-                <span class="lane-label">{labels.fields.before}</span>
-                <InlineMath latex={String.raw`\theta_{t-1}=${vectorLatex(parameter.before)}`} />
+              <div data-diagram-box class="bypass-origin">
+                <span class="lane-label">
+                  {labels.fields.before} <InlineMath latex={String.raw`\theta_{t-1}`} />
+                </span>
+                <InlineMath latex={vectorLatex(parameter.before)} />
               </div>
               <span class="bypass-arrow" aria-hidden="true">
                 {parameter.group === 'decay' ? '┄┄┄→' : '┄┄┄×'}
@@ -172,6 +174,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
               <div
                 class:list={['decay-delta', { skipped: parameter.group === 'no_decay' }]}
                 data-decay-action={parameter.group === 'decay' ? 'apply' : 'skip'}
+                data-diagram-box
               >
                 <span class="lane-label">
                   {labels.symbols.decay} · {parameter.group === 'decay' ? labels.symbols.applyDecay : labels.symbols.skipDecay}
@@ -183,7 +186,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow merge-arrow" aria-label={labels.symbols.subtract}>−</span>
 
-            <section class="output-node" aria-label={labels.stages.replacement}>
+            <section data-diagram-box class="output-node" aria-label={labels.stages.replacement}>
               <span class="lane-label">{labels.symbols.subtract}</span>
               <p>{labels.fields.after} <InlineMath latex={String.raw`\theta_t`} /></p>
               <strong><InlineMath latex={vectorLatex(parameter.after)} /></strong>

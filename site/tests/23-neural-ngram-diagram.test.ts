@@ -276,6 +276,10 @@ describe('Chapter 23 static diagram boundary', () => {
     expect(componentSource).toContain('container-type: inline-size');
     expect(componentSource).toContain('@container (max-width: 42rem)');
     expect(componentSource).toContain('class="pipeline-scroll course-diagram__scroll"');
+    expect(componentSource).toContain('<li data-diagram-box><InlineMath latex={value} /></li>');
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(5, minmax(12.125rem, 1fr))',
+    );
     expect(componentSource).toContain('class="generation-scroll course-diagram__scroll"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('tabindex="0"');

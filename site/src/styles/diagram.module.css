@@ -467,7 +467,7 @@
 .host
   :global(
     figure.course-diagram[data-diagram-style='course-v1']:fullscreen
-      [data-diagram-full-view-scroll-owner]
+      .course-diagram__scroll[data-diagram-scroll]
   ) {
   max-inline-size: 100%;
 }

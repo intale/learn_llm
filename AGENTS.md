@@ -57,30 +57,38 @@ cues. It must not introduce a private frame skin, palette, focus treatment,
 generic card/table chrome, or horizontal-scroll implementation.
 
 A diagram frame, section, card, table cell, or other bounded box must contain
-all of its ordinary content. Never use `overflow: hidden`, `overflow: clip`, or
-paint containment to conceal a layout defect. Horizontal overflow is valid only
-inside the smallest meaningful element marked `data-diagram-scroll`; that
-element must also be a named `role="region"` with `tabindex="0"`. Use the shared
-container, not the browser viewport, for diagram layout breakpoints. Reflow or
-wrap content that does not fit; do not truncate it, overlap adjacent boxes, or
-reduce its text size.
+all of its ordinary content. This remains true for a box nested inside a valid
+scroll region: an ancestor scroller owns travel for the wider relationship but
+never permits a descendant box's text or formula ink to cross its inner border.
+Mark every nonstandard content-owning bounded element with `data-diagram-box`;
+browser validation must also discover complete four-sided computed borders so a
+missing marker cannot bypass containment.
+Never use `overflow: hidden`, `overflow: clip`, or paint containment to conceal
+a layout defect. Horizontal
+overflow is valid only inside the smallest meaningful element marked
+`data-diagram-scroll`; that element must also be a named `role="region"` with
+`tabindex="0"`. Use the shared container, not the browser viewport, for diagram
+layout breakpoints. Reflow or wrap content that does not fit; do not truncate it,
+overlap adjacent boxes, or reduce its text size.
 
 The site layout owns one localized progressive full-view enhancement for every
-registered figure. It may expose its control only on a sufficiently large
-viewport where measured horizontal overflow makes expansion useful. Expansion
-must reuse the existing semantic figure, preserve readable text without scaling
-it down, materially increase the available reading width, support keyboard entry,
-native Escape exit, focus restoration, forced colors, and configured text
-direction, and leave no usable or focusable control on mobile or without
-JavaScript. Do not implement chapter-specific full-view behavior.
+registered figure. On a sufficiently large viewport with JavaScript and
+Fullscreen API support, every registered figure must receive exactly one
+localized control regardless of its content size, measured overflow, or expected
+width gain. Expansion must reuse the existing semantic figure, preserve readable
+text without scaling it down, support keyboard entry, native Escape exit, focus
+restoration, forced colors, and configured text direction, and leave no usable
+or focusable control on mobile, without JavaScript, or without API support.
+Do not implement chapter-specific full-view behavior.
 
 Content and browser validation must enforce this contract for all existing and
 future diagrams. Verify the inline fallback and expanded presentation in built
 HTML in Chromium and Firefox; include desktop, narrow, no-JavaScript, and
 direction-sensitive cases. Geometry checks must inspect individual bounded boxes
-and painted text, not only page width or declared scroll owners, and must fail if
-clipping hides overflow. A diagram that still requires substantial scrolling in
-full view must be reorganized rather than made smaller.
+and painted text, including the nearest bounded box inside a sanctioned scroller,
+not only page width or declared scroll owners, and must fail if clipping hides
+overflow. A diagram that still requires substantial scrolling in full view must
+be reorganized rather than made smaller.
 
 ## Sources of truth
 
@@ -141,6 +149,12 @@ must contain:
 - `cost`: `small`, `medium`, or `large`, plus a note when network, generation,
   substantial CPU time, or a paid service may be used;
 - `runs`: immutable summaries of attempts.
+
+A corrective step may also declare `replaces`, listing only the contiguous
+immediately preceding steps whose status is `invalidated`. Its `depends_on`
+must then name the nearest preceding step not in that replacement list. This
+keeps invalidated history visible without making an invalidated checkpoint a
+scheduler prerequisite; never infer this relationship from status alone.
 
 Keep steps narrow. For example, chapter outline, executable Rust example, chapter
 page, visualization, and site integration may be separate steps when each can be

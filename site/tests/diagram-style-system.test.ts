@@ -63,6 +63,7 @@ describe('course diagram design system', () => {
     expect(module).toContain('--course-diagram-style-version: course-v1');
     expect(module).toContain("figure.course-diagram[data-diagram-style='course-v1']");
     expect(module).toContain('.course-diagram__scroll[data-diagram-scroll]');
+    expect(module).toContain('[data-diagram-card][data-diagram-box]');
     expect(module).toContain('table[data-diagram-table]');
     expect(module).toContain('--diagram-summary-min');
     expect(module).toContain('--diagram-cell-padding-inline');
@@ -107,9 +108,13 @@ describe('course diagram design system', () => {
     expect(agents).toContain('site/src/styles/diagram.module.css');
     expect(agents).toContain('Never use `overflow: hidden`, `overflow: clip`');
     expect(agents).toMatch(/Use the shared\s+container, not the browser viewport/);
+    expect(agents).toContain('an ancestor scroller owns travel');
+    expect(agents).toContain('complete four-sided computed borders');
     expect(skills).toContain('data-diagram-style="course-v1"');
     expect(skills).toContain('data-diagram-card');
     expect(skills).toContain('data-diagram-scroll');
+    expect(skills).toContain('A named ancestor scroller never');
+    expect(skills).toContain('complete four-sided computed borders');
     expect(skills).toContain('--diagram-scroll-inline-size');
     expect(skills).toContain('painted text');
   });

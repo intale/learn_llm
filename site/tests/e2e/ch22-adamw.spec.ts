@@ -85,6 +85,45 @@ async function expectFormulaGeometry(page: Page) {
   expect(problems).toEqual([]);
 }
 
+async function expectDecayBypassFormulaContainment(page: Page) {
+  const problems = await page
+    .locator('figure[data-visualization-id="adamw"] .bypass-origin')
+    .evaluateAll((boxes) =>
+      boxes.flatMap((box, boxIndex) => {
+        const element = box as HTMLElement;
+        const boxRect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        const edges = {
+          bottom: boxRect.bottom - Number.parseFloat(style.borderBottomWidth),
+          left: boxRect.left + Number.parseFloat(style.borderLeftWidth),
+          right: boxRect.right - Number.parseFloat(style.borderRightWidth),
+          top: boxRect.top + Number.parseFloat(style.borderTopWidth),
+        };
+        const issues: string[] = [];
+        if (element.scrollWidth > element.clientWidth + 2) {
+          issues.push(
+            `box ${boxIndex} has ${element.scrollWidth - element.clientWidth}px inline debt`,
+          );
+        }
+        for (const [formulaIndex, formula] of Array.from(
+          element.querySelectorAll<HTMLElement>('.katex'),
+        ).entries()) {
+          const rect = formula.getBoundingClientRect();
+          if (
+            rect.left < edges.left - 2 ||
+            rect.right > edges.right + 2 ||
+            rect.top < edges.top - 2 ||
+            rect.bottom > edges.bottom + 2
+          ) {
+            issues.push(`box ${boxIndex} formula ${formulaIndex} crosses its inner border`);
+          }
+        }
+        return issues;
+      }),
+    );
+  expect(problems).toEqual([]);
+}
+
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
@@ -158,6 +197,7 @@ async function expectChapterContent(
   await expect(diagram).toHaveAccessibleDescription(
     'Compare exact Rust-authored SGD and AdamW paths on unequal curvature, then follow named parameter vectors through moments, group-specific decay, and one atomic replacement.',
   );
+  await expectDecayBypassFormulaContainment(page);
   const cards = diagram.locator('.parameter-card');
   await expect(cards).toHaveCount(2);
   await expect(cards.locator('h5')).toHaveText([
@@ -337,6 +377,16 @@ test.describe('chapter 22 AdamW vertical slice', {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(chapterPath('en', chapterId));
     await expectChapterContent(page, chapters, false);
+    const diagram = page.locator('figure[data-visualization-id="adamw"]');
+    const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+    await expect(toggle).toHaveCount(1);
+    await toggle.click();
+    await page.waitForFunction(
+      () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'adamw',
+    );
+    await expectDecayBypassFormulaContainment(page);
+    await toggle.click();
+    await page.waitForFunction(() => document.fullscreenElement === null);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
     await expectChapterContent(page, chapters, true);

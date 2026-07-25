@@ -112,10 +112,9 @@ async function auditFigure(page: Page, route: DiagramRoute): Promise<DiagramAudi
       const node = element as HTMLElement;
       return Math.max(0, node.scrollWidth - node.clientWidth);
     };
-    const insideSanctionedScroll = (element: Element) =>
-      element.closest('[data-diagram-scroll]') !== null;
-    const insideMathViewport = (element: Element) =>
-      element.closest('.katex, .katex-display') !== null;
+    const excludedFromPaintAudit = (element: Element) =>
+      element.closest('.katex-mathml, .visually-hidden') !== null ||
+      element.closest('[aria-hidden="true"]') !== null;
 
     if (root.firstElementChild?.tagName !== 'FIGCAPTION') {
       errors.push('figcaption is not the first element child');
@@ -163,17 +162,105 @@ async function auditFigure(page: Page, route: DiagramRoute): Promise<DiagramAudi
     const all = [root, ...root.querySelectorAll<HTMLElement>('*')].filter(
       (element) => visible(element) && !element.closest('.visually-hidden'),
     );
-    for (const element of all) {
+    const hasCompleteBorder = (element: HTMLElement) => {
       const style = getComputedStyle(element);
-      const isStructuralBox =
+      const widths = [
+        style.borderTopWidth,
+        style.borderRightWidth,
+        style.borderBottomWidth,
+        style.borderLeftWidth,
+      ].map((width) => Number.parseFloat(width));
+      const styles = [
+        style.borderTopStyle,
+        style.borderRightStyle,
+        style.borderBottomStyle,
+        style.borderLeftStyle,
+      ];
+      return (
+        widths.every((width) => Number.isFinite(width) && width > 0) &&
+        styles.every((borderStyle) => !['none', 'hidden'].includes(borderStyle))
+      );
+    };
+    const isBoundedBox = (element: HTMLElement) => {
+      if (element === root && document.fullscreenElement === root) return false;
+      const display = getComputedStyle(element).display;
+      if (
+        element.hasAttribute('data-diagram-scroll') ||
+        element.closest('.katex, .katex-mathml, .visually-hidden, [aria-hidden="true"]') ||
+        display === 'inline' ||
+        display === 'contents' ||
+        display.startsWith('table-row')
+      ) {
+        return false;
+      }
+      return (
         element === root ||
         element.parentElement === root && element.tagName === 'SECTION' ||
         element.parentElement?.tagName === 'DL' &&
           element.parentElement.parentElement === root ||
         element.hasAttribute('data-diagram-box') ||
-        ['TH', 'TD'].includes(element.tagName);
+        ['TH', 'TD'].includes(element.tagName) ||
+        hasCompleteBorder(element)
+      );
+    };
+    const boxes = all.filter(isBoundedBox);
+    const boxSet = new Set(boxes);
+    const nearestBoundedBox = (element: HTMLElement | null): HTMLElement | null => {
+      if (!element) return null;
+      const scrollOwner = element.closest<HTMLElement>('[data-diagram-scroll]');
+      let candidate: HTMLElement | null = element;
+      while (candidate && root.contains(candidate)) {
+        if (boxSet.has(candidate)) {
+          // A scroller may license travel only for content without a nearer box.
+          // If the candidate sits outside that scroller, its boundary is not the
+          // content's box and the paint is intentionally owned by the scroller.
+          if (scrollOwner && !scrollOwner.contains(candidate)) return null;
+          return candidate;
+        }
+        if (candidate === root) break;
+        candidate = candidate.parentElement;
+      }
+      return null;
+    };
+    const innerEdges = (box: HTMLElement) => {
+      const rect = box.getBoundingClientRect();
+      const style = getComputedStyle(box);
+      return {
+        bottom: rect.bottom - Number.parseFloat(style.borderBottomWidth || '0'),
+        left: rect.left + Number.parseFloat(style.borderLeftWidth || '0'),
+        right: rect.right - Number.parseFloat(style.borderRightWidth || '0'),
+        top: rect.top + Number.parseFloat(style.borderTopWidth || '0'),
+      };
+    };
+    const auditPaintRect = (
+      rect: DOMRect,
+      box: HTMLElement,
+      witness: HTMLElement,
+      kind: string,
+    ) => {
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const edges = innerEdges(box);
+      const escapes =
+        rect.left < edges.left - allowedError ||
+        rect.right > edges.right + allowedError ||
+        rect.top < edges.top - allowedError ||
+        rect.bottom > edges.bottom + allowedError;
+      if (!escapes) return;
+      const debt = Math.max(
+        edges.left - rect.left,
+        rect.right - edges.right,
+        edges.top - rect.top,
+        rect.bottom - edges.bottom,
+      );
+      errors.push(
+        `${describe(witness)} paints ${kind} outside ${describe(box)} by ${debt.toFixed(1)}px`,
+      );
+    };
+
+    for (const element of all) {
+      const style = getComputedStyle(element);
       if (
-        isStructuralBox &&
+        boxSet.has(element) &&
         [style.overflowX, style.overflowY].some((overflow) =>
           ['hidden', 'clip'].includes(overflow)
         )
@@ -189,15 +276,15 @@ async function auditFigure(page: Page, route: DiagramRoute): Promise<DiagramAudi
         errors.push(`${describe(element)} cannot contain its complete state label`);
       }
 
-      if (!isStructuralBox) continue;
-      const debt = inlineDebt(element);
-      if (debt <= allowedError || insideMathViewport(element)) continue;
-      if (element.hasAttribute('data-diagram-scroll')) continue;
-      if (insideSanctionedScroll(element) && !['TH', 'TD'].includes(element.tagName)) continue;
-      errors.push(`${describe(element)} has ${debt}px unowned inline overflow`);
     }
 
-    const boxSelector = '[data-diagram-box], figure.course-diagram > dl > div, th, td';
+    for (const box of boxes) {
+      const parentBox = nearestBoundedBox(box.parentElement);
+      if (parentBox && parentBox !== box) {
+        auditPaintRect(box.getBoundingClientRect(), parentBox, box, 'a nested box');
+      }
+    }
+
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let textNode = walker.nextNode();
     while (textNode) {
@@ -207,32 +294,32 @@ async function auditFigure(page: Page, route: DiagramRoute): Promise<DiagramAudi
         parent &&
         text &&
         visible(parent) &&
-        !insideSanctionedScroll(parent) &&
-        !parent.closest('.katex-mathml, .visually-hidden, [aria-hidden="true"]')
+        !parent.closest('.katex') &&
+        !excludedFromPaintAudit(parent)
       ) {
-        let box = parent.closest<HTMLElement>(boxSelector);
-        if (!box && !insideMathViewport(parent)) {
-          box = parent.closest<HTMLElement>('section, figure.course-diagram');
-        }
+        const box = nearestBoundedBox(parent);
         if (box) {
-          const boxRect = box.getBoundingClientRect();
           const range = document.createRange();
           range.selectNodeContents(textNode);
           for (const rect of range.getClientRects()) {
-            if (
-              rect.width > 0 &&
-              (rect.left < boxRect.left - allowedError || rect.right > boxRect.right + allowedError)
-            ) {
-              errors.push(
-                `${describe(parent)} paints text outside ${describe(box)} by ` +
-                `${Math.max(boxRect.left - rect.left, rect.right - boxRect.right).toFixed(1)}px`,
-              );
-              break;
-            }
+            auditPaintRect(rect, box, parent, 'text');
           }
         }
       }
       textNode = walker.nextNode();
+    }
+
+    const formulas = root.querySelectorAll<HTMLElement>('.katex');
+    for (const formula of formulas) {
+      if (
+        !visible(formula) ||
+        formula.parentElement?.closest('.katex') ||
+        formula.closest('.katex-mathml, .visually-hidden')
+      ) {
+        continue;
+      }
+      const box = nearestBoundedBox(formula.parentElement);
+      if (box) auditPaintRect(formula.getBoundingClientRect(), box, formula, 'formula');
     }
 
     const signature = (element: Element | null, properties: string[]) => {
@@ -349,6 +436,35 @@ async function auditRoutes(
   expect(failures).toEqual([]);
 }
 
+async function auditFullscreenRoutes(page: Page, selectedRoutes = routes) {
+  await page.setViewportSize(desktop);
+  const failures: string[] = [];
+
+  for (const route of selectedRoutes) {
+    await page.goto(route.path);
+    await settle(page);
+    const figure = figureFor(page, route);
+    const toggle = figure.locator('[data-diagram-full-view-toggle]');
+    await expect(toggle).toHaveCount(1);
+    await toggle.click();
+    await page.waitForFunction(
+      (visualizationId) =>
+        document.fullscreenElement?.getAttribute('data-visualization-id') ===
+        visualizationId,
+      route.visualizationId,
+    );
+    await settle(page);
+
+    const audit = await auditFigure(page, route);
+    failures.push(...audit.errors.map((error) => `${route.chapterId}: ${error}`));
+
+    await toggle.click();
+    await page.waitForFunction(() => document.fullscreenElement === null);
+  }
+
+  expect(failures).toEqual([]);
+}
+
 test.describe('course diagram style system', { tag: '@diagram-style' }, () => {
   test('all published diagrams share one contained desktop presentation', async ({ page }) => {
     test.setTimeout(240_000);
@@ -362,11 +478,42 @@ test.describe('course diagram style system', { tag: '@diagram-style' }, () => {
     await auditRoutes(page, mobile);
   });
 
+  test('all published diagrams keep every bounded box contained in full view', async ({ page }) => {
+    test.setTimeout(240_000);
+    await auditFullscreenRoutes(page);
+  });
+
   test('Chapters 12 and 13 contain every cell, card, and text fragment', async ({ page }) => {
     test.setTimeout(90_000);
     const focused = englishRoutes.filter(({ order }) => order === 12 || order === 13);
     expect(focused).toHaveLength(2);
     await auditRoutes(page, medium, focused);
+  });
+
+  test('Chapters 22 and 23 contain every nested formula box', async ({ page }) => {
+    test.setTimeout(90_000);
+    const focused = englishRoutes.filter(({ order }) => order === 22 || order === 23);
+    expect(focused).toHaveLength(2);
+    await auditRoutes(page, medium, focused);
+  });
+
+  test('a sanctioned scroller never exempts an overflowing nested box', async ({ page }) => {
+    const chapter22 = englishRoutes.find(({ order }) => order === 22);
+    if (!chapter22) throw new Error('Chapter 22 must register a useful diagram.');
+    await page.setViewportSize(desktop);
+    await page.goto(chapter22.path);
+    await settle(page);
+    await figureFor(page, chapter22).locator('.bypass-origin').first().evaluate((box) => {
+      (box as HTMLElement).style.inlineSize = '8rem';
+    });
+    const audit = await auditFigure(page, chapter22);
+    expect(
+      audit.errors.some(
+        (error) =>
+          error.includes('bypass-origin') &&
+          error.includes('paints formula outside'),
+      ),
+    ).toBe(true);
   });
 
   test('the shared system remains legible and contained in forced colors', async ({ page }) => {

@@ -1066,7 +1066,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 23',
+      '"plan_revision": 24',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1181,6 +1181,27 @@ describe('curriculum and catalog contracts', () => {
     );
     expect(() => validateLedgerText(tagDrift, metadata)).toThrow(
       /missing validation/,
+    );
+
+    const invalidatedDependencyDrift = replaceOnce(
+      stateSource,
+      [
+        '      - id: harden-diagram-containment-full-view',
+        '        objective: "Guarantee that ordinary content stays inside every bounded diagram box and expose full view for every registered desktop diagram."',
+        '        depends_on:',
+        '          - standardize-course-diagram-full-view',
+      ].join('\n'),
+      [
+        '      - id: harden-diagram-containment-full-view',
+        '        objective: "Guarantee that ordinary content stays inside every bounded diagram box and expose full view for every registered desktop diagram."',
+        '        depends_on:',
+        '          - standardize-course-diagram-design-system',
+      ].join('\n'),
+    );
+    expect(() =>
+      validateLedgerText(invalidatedDependencyDrift, metadata),
+    ).toThrow(
+      /harden-diagram-containment-full-view must depend only on standardize-course-diagram-full-view/,
     );
   });
 

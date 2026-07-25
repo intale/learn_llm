@@ -5658,3 +5658,165 @@ unchanged. Chapter 31 depends on this completed design-system step.
 **Affected step and run:** `standardize-course-diagram-design-system`, run
 `20260725T130503Z-standardize-course-diagram-design-system-01`; and
 `implement-ch31-decoder-block`.
+
+## 2026-07-25 - Enforce nested diagram boxes and universal supported-desktop full view
+
+**Status:** Accepted before corrective product work.
+
+**Context:** Direct learner review found that the lower, second “Value before”
+box in Chapter 22 paints its first-parameter formula through the right border.
+Pinned Chromium and Firefox reproduction shows that the box provides about 182
+pixels of inner width for an unbreakable formula about 242 pixels wide. The
+previous all-diagram gate did not report this roughly 44–47 pixel escape because
+it exempted every descendant of an approved horizontal scroll region, including
+ordinary content inside a visibly bounded nested box. The learner also
+superseded the earlier policy that exposed full view only when measured overflow
+and an estimated width gain crossed fixed thresholds: the shared control must be
+available for every diagram regardless of content size.
+
+**Decision:** Treat every visibly bounded, content-owning element as a diagram
+box, including a box nested inside a valid named scroll region. Ordinary visible
+text and formula ink must remain inside that box's inner border edge at desktop,
+narrow, and fullscreen widths; a parent scroller owns travel for the wider
+diagram but never waives containment inside its descendants. Use the shared
+`data-diagram-box` role for generic boxes, and have the authoritative two-engine
+browser audit also discover four-sided computed borders so an omitted role
+cannot silently bypass the geometry check. Exclude only nonvisual accessibility
+layers and explicitly decorative hidden content. Reflow Chapter 22's decay
+bypass track to fit the preserved Rust-authored formula; do not clip, shrink,
+wrap mathematical tokens arbitrarily, or change learner evidence.
+
+The same stricter probe may expose pre-existing bounded-box failures elsewhere;
+declare each affected component before correcting it and apply the same rule.
+The first such finding is a roughly five-pixel Chapter 23 value-pill formula
+escape at narrow Chromium width. Correct that pill geometry rather than raising
+the shared tolerance.
+
+Universal full-view replay also makes an existing Chapter 21 batch-card reflow
+eligible for the first time: fullscreen can place two cards side by side and
+make their two-column mean summaries narrower than inline, adding 28 pixels of
+formula scroll debt. Let that inner summary choose its own column count from
+available card width; do not weaken the residual-travel rule.
+
+Subsequent owner-level replay supersedes that initial mean-summary diagnosis:
+the debt belongs to the 544-pixel batch row inside a 516-pixel `batch-scroll`
+when two cards share the fullscreen row. Keep the original mean-summary layout
+and raise the batch-card track minimum so this viewport uses one card per row.
+
+On a sufficiently large viewport with JavaScript and the Fullscreen API, insert
+exactly one localized full-view control for every registered semantic diagram.
+Content overflow, intrinsic width, and predicted fullscreen gain no longer
+control availability. Preserve the complete static diagram and expose no
+nonfunctional control on mobile, without JavaScript, or without API support.
+Keep entry-failure removal, exit, Escape, focus restoration, forced-colors, and
+directionality behavior under the shared layout controller. This supersedes
+only the measured-overflow and useful-width eligibility clauses of the earlier
+full-view decision; its shared-DOM, accessibility, localization, and residual-
+travel requirements remain in force.
+
+Invalidate the previous design-system step without altering its immutable
+succeeded run because its all-box containment acceptance has been disproved.
+Insert one corrective cross-cutting step before Chapter 31 and validate its
+staged publication in cached Docker Chromium and Firefox. Do not change learner
+content, Rust fixtures, locale availability or labels, packages, runtime,
+hosting, deployment, or `site/dist`.
+
+An invalidated step cannot satisfy the scheduler's dependency eligibility rule,
+so the corrective step depends on the last valid completed infrastructure
+checkpoint, `standardize-course-diagram-full-view`. The invalidated design-system
+artifacts remain explicit correction inputs; they are not treated as a completed
+dependency or given a new succeeded run retroactively.
+
+Course-plan revision changes must update the generated
+`site/src/i18n/chapter-locales.json` revision projection in the same corrective
+step. This is metadata synchronization only; locale ranges, active and deferred
+locale sets, labels, and published routes remain unchanged.
+
+Final pre-commit review found that the browser suites initially checked every
+diagram's nearest-box paint at desktop and narrow widths and entered every
+diagram in fullscreen for scroll-debt checks, but composed both invariants only
+for Chapter 22. The authoritative gate must also run the same painted-content
+audit while every registered diagram is fullscreen so a fullscreen-only box
+escape cannot satisfy this decision accidentally.
+
+In fullscreen, the semantic figure itself is the intentional fixed-height
+vertical scroll viewport. Its off-screen flow content may therefore travel past
+the figure's visible rectangle. The fullscreen geometry pass excludes only that
+active root from ordinary fixed-box ownership; it still discovers and audits
+every nested bordered box, including boxes currently below the viewport, against
+its own inner edges. Named horizontal scroll regions retain the same narrower
+ownership rule.
+
+**Consequences:** A sanctioned outer scroller can no longer hide a broken inner
+card or formula box, and future bordered diagram structures receive the same
+computed-geometry protection even if an author forgets an annotation. Compact
+desktop diagrams gain the same discoverable full-view affordance as wide ones,
+while progressive-enhancement fallbacks remain unchanged. The correction adds
+no frontend implementation of an LLM concept and no release artifact.
+
+**Affected steps and run:** invalidated
+`standardize-course-diagram-design-system`, preserved run
+`20260725T130503Z-standardize-course-diagram-design-system-01`;
+`harden-diagram-containment-full-view`, run
+`20260725T155329Z-harden-diagram-containment-full-view-01`; and
+`implement-ch31-decoder-block`.
+
+## 2026-07-25 - Make plan dependency validation honor invalidated checkpoints
+
+**Status:** Accepted before the corrective validator change.
+
+**Context:** The final Docker replay against the live ledger found that
+`check-course-plan.mjs` still required every scheduled step to depend on the
+immediately preceding list item. That assumption conflicts with the repository
+scheduler once the preceding design-system checkpoint is `invalidated`: under
+`AGENTS.md`, only `completed` or `skipped` dependencies can make a pending step
+eligible. Repointing the correction to the invalidated checkpoint would make the
+ledger superficially pass the plan checker while violating resumption rules.
+
+**Decision:** Preserve the correction's dependency on the nearest preceding
+non-invalidated checkpoint and teach the ledger validator the same narrow rule.
+When checking scheduled steps, walk backward across only `invalidated` entries;
+do not skip `pending`, `running`, `blocked`, `completed`, or `skipped` entries.
+Keep invalidated steps in the reviewed schedule and validate their own historical
+dependency normally. Add a unit mutation that changes this correction back to
+the invalidated design-system dependency and requires the validator to reject it.
+
+Freeze a superseding publication set rather than changing either earlier
+manifest. The validator and its focused unit fixture are the only newly declared
+product paths; learner content, diagram behavior, Rust, dependencies, locales,
+release artifacts, and the already-passed two-engine browser evidence remain
+unchanged.
+
+**Consequences:** The course plan now enforces both reviewed order and executable
+resumption semantics. A stale checkpoint remains visible in history without
+blocking its explicit replacement or being misrepresented as completed.
+
+**Affected step and run:** `harden-diagram-containment-full-view`, run
+`20260725T155329Z-harden-diagram-containment-full-view-01`.
+
+## 2026-07-25 - Require an explicit replacement edge before bypassing invalidated history
+
+**Status:** Supersedes the implicit invalidation-skipping mechanism above before
+publication; the replacement dependency itself is unchanged.
+
+**Context:** A first generalized validator replay showed that status alone is
+insufficient. Several old completed steps legitimately retain the dependency
+they used when their predecessor was still completed; that predecessor was
+invalidated only later. Automatically skipping every invalidated predecessor
+would rewrite those historical scheduling edges retroactively.
+
+**Decision:** Add an optional `replaces` field to a corrective ledger step. It
+must exactly name the contiguous immediately preceding invalidated entries that
+the correction supersedes. Only those explicitly named entries are bypassed
+when deriving the correction's executable dependency; all other steps retain
+strict adjacency, regardless of their present status. Declare
+`harden-diagram-containment-full-view` as replacing
+`standardize-course-diagram-design-system` and depending on the last valid
+checkpoint, `standardize-course-diagram-full-view`.
+
+**Consequences:** Historical edges remain immutable, while new replacement work
+cannot accidentally depend on a checkpoint already known to be stale. The plan
+validator rejects undeclared, noncontiguous, or non-invalidated replacements.
+
+**Affected step and run:** `harden-diagram-containment-full-view`, run
+`20260725T155329Z-harden-diagram-containment-full-view-01`.

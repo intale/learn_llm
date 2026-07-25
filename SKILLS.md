@@ -291,7 +291,11 @@ tokens, duplicate shared card/table/scroll chrome, or use viewport media queries
 for layout inside the lesson column. The shared figure is a named inline-size
 container; use its container queries.
 
-Ordinary content must fit every shared box. Do not use hidden or clipped overflow
+Ordinary content must fit every shared box. A named ancestor scroller never
+licenses a nested box to let text or formula ink cross its own inner border.
+Mark every nonstandard bounded content owner with `data-diagram-box`; the
+course-wide browser gate also discovers complete four-sided computed borders so
+forgetting the marker cannot hide a defect. Do not use hidden or clipped overflow
 or paint containment to make a failing layout appear contained. Use
 `min-inline-size: 0`, deliberate wrapping, or a shape-aware reflow; reserve
 horizontal overflow for the marked shared scroll region. Browser review must
@@ -301,12 +305,13 @@ and Firefox at desktop and narrow widths, not just the document width.
 Do not add a component-specific expand button, dialog, cloned diagram, Fullscreen
 API handler, or alternate mobile tree. The layout-level diagram full-view
 controller progressively enhances every registered figure. On a sufficiently
-large viewport it exposes a localized control only when measured overflow makes
-the wider presentation useful, reuses the same semantic DOM in full view,
-supports native Escape and focus restoration, and keeps text at a readable size.
-On mobile or without JavaScript, no nonfunctional control is exposed. If full
-view still leaves a large horizontal journey, reorganize the diagram's grouping
-or sequence instead of shrinking its text.
+large viewport with JavaScript and Fullscreen API support it exposes exactly one
+localized control for every registered diagram, including compact diagrams with
+no measured overflow, reuses the same semantic DOM in full view, supports native
+Escape and focus restoration, and keeps text at a readable size. On mobile,
+without JavaScript, or without API support, no nonfunctional control is exposed.
+If full view still leaves a large horizontal journey, reorganize the diagram's
+grouping or sequence instead of shrinking its text.
 
 Test the parser, data-to-view mapping, label completeness, failure cases, the
 component's no-private-script/accessibility contract, and registration with the
@@ -314,8 +319,9 @@ shared controller. Browser tests must confirm desktop inline and full-view
 rendering plus narrow and no-JavaScript fallbacks in both Chromium and Firefox;
 include forced-colors and direction-sensitive coverage where applicable. The
 course-wide style gate must also prove that only marked shared scroll regions
-overflow and that no frame, section, card, table cell, or visible text fragment
-escapes its nearest shared box.
+overflow and that no frame, section, card, table cell, or visible text or formula
+fragment escapes its nearest shared box, including a box inside a marked scroll
+region.
 
 ## 6. Author every chapter-active locale by meaning
 

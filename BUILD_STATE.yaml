@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-25T13:05:03Z"
+updated_at: "2026-07-25T17:23:45Z"
 
 environment:
   os: "Linux x86_64"
@@ -13248,13 +13248,14 @@ builds:
         objective: "Give every current and future course diagram one shared visual grammar and prevent content from escaping its semantic box."
         depends_on:
           - standardize-course-diagram-full-view
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
+          - "scripts/check-course-plan.mjs"
           - "scripts/check-site-content.mjs"
           - "site/src/components/chapters/*Diagram.astro"
           - "site/src/layouts/BaseLayout.astro"
@@ -13514,10 +13515,311 @@ builds:
                 status: passed
                 notes: "The working-tree path set is exactly the 80 checksum-frozen product and policy files, BUILD_STATE.yaml, DECISIONS.md, and untracked run evidence under .build/. git diff --check passes, and ./course audit-host reports only site/dist as the intentional static-release exception. No learner chapter source, Rust fixture, package manifest, dependency lockfile, generated host toolchain artifact, release artifact, deployment, or hosting state changed."
             notes: "Succeeded. All 30 current diagrams now use one versioned course-v1 visual grammar loaded once by BaseLayout, while local component styles retain only concept topology and semantic state cues. Chapter 12 tables and Chapter 13 cards, secant geometry, formulas, and multi-character OK badges stay inside their intended boxes at desktop and narrow widths. Horizontal overflow is owned only by named keyboard-reachable regions, and the same shared contract is enforced for future chapters and verified in Chromium, Firefox, fullscreen, forced colors, no-JavaScript, desktop, and narrow modes."
+      - id: harden-diagram-containment-full-view
+        objective: "Guarantee that ordinary content stays inside every bounded diagram box and expose full view for every registered desktop diagram."
+        depends_on:
+          - standardize-course-diagram-full-view
+        replaces:
+          - standardize-course-diagram-design-system
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-site-content.mjs"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/lib/diagram-full-view.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/components/chapters/*Diagram.astro"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "rust/demos/ch22-adamw/diagram-trace.txt"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/23-neural-ngram-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/playwright.config.ts"
+          - "User report: the second Chapter 22 Value before box paints outside its border"
+          - "User requirement: every diagram gets the shared full-view control regardless of content size"
+        outputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-site-content.mjs"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/lib/diagram-full-view.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/23-neural-ngram-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+        acceptance:
+          - "The Chapter 22 second Value before formula remains inside its own visible box at desktop, narrow, and fullscreen widths in Chromium and Firefox without clipping, shrinking, or changing Rust evidence."
+          - "Every visually bounded content-owning diagram element, including boxes nested in a valid scroll region, keeps each visible ordinary text or formula fragment inside its inner border box."
+          - "The all-diagram browser audit discovers bounded boxes from semantic roles and computed borders, and a focused fixture proves that a sanctioned ancestor scroller never exempts an overflowing nested box."
+          - "Every registered diagram receives exactly one localized full-view control on a sufficiently large viewport with JavaScript and Fullscreen API support, even when the diagram has no measured overflow or expected width gain."
+          - "Mobile, no-JavaScript, unsupported-API, entry-failure, exit, Escape, focus-restoration, RTL, and forced-colors behavior remain accessible and deterministic."
+          - "The policy, chapter workflow, content validator, and course plan state the nested-box containment and universal supported-desktop full-view rules for future diagrams."
+          - "No learner content, Rust fixture, localization availability or label, package dependency, server runtime, hosting action, release artifact, or deployment changes."
+          - "Staged and canonical Docker-only content, diagnostics, unit, build, link, and two-engine diagram gates pass; the correction is persisted in its own commit before Chapter 31."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:22-adamw|@diagram-style|@diagram-full-view|@formula'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:22-adamw|@diagram-style|@diagram-full-view|@formula'"
+          - "npm --prefix site run test:e2e"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@diagram-style|@diagram-full-view'"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "A bounded shared-controller and Chapter 22 layout correction plus course-wide computed-geometry replay in cached Docker Chromium and Firefox. No network, paid service, content generation, host toolchain, dependency, release, hosting, or deployment input."
+        runs:
+          - run_id: 20260725T155329Z-harden-diagram-containment-full-view-01
+            started_at: "2026-07-25T15:53:29Z"
+            finished_at: "2026-07-25T17:23:45Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7dd40edcc60b4709d40ef19ce4a6df5e6ae80d76"
+              manifest: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/input-fingerprint.txt"
+              checksum: "sha256:f67877b37f379aa6e06b591715e7dc771a54505f3da0057cfada037f59ace916"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3; cached containers provide Node 22.12.0/npm 10.9.0, Playwright 1.61.1 Chromium revision 1228, and Firefox revision 1532."
+            staging_dir: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/"
+            commands:
+              - "Complete the startup protocol at commit 7dd40ed, preserve untracked .build evidence, verify no stale running step, and select this user-requested correction before Chapter 31."
+              - "Reproduce the Chapter 22 lower Value before overflow in pinned Chromium and Firefox and localize it to the 13rem decay-bypass origin track."
+              - "Fingerprint policy, ledger, plan, validator, shared styles/controller, Chapter 22 source and Rust evidence, all diagram components, relevant tests, and cached browser tools before product work."
+              - "Run three independent read-only audits of Chapter 22 geometry, universal full-view behavior, and enforceable nested-box browser geometry."
+              - "Expand the declared correction boundary after the stricter read-only probe exposes a separate existing Chapter 23 bordered-pill formula escape of about five pixels at narrow Chromium width."
+              - "Run the first staged plan gate; retain validation/staged-core-01.log and declare the required plan-revision projection before changing locale metadata."
+              - "Run the second staged core gate through all 751 unit cases; retain validation/staged-core-02.log and declare the one stale plan-revision fixture before updating it."
+              - "Pass the corrected complete staged plan, content, diagnostics, 751-case unit, 42-page build, and 1,487-link core gate; retain validation/staged-core-03.log."
+              - "Run the first 95-case Chromium Chapter 22, diagram-style, universal-full-view, and formula matrix; retain validation/staged-chromium-01.log and declare the exposed Chapter 21 fullscreen reflow before correction."
+              - "Pass the complete staged core gate after Chromium-driven controller, audit, and Chapter 21 reflow corrections; retain validation/staged-core-04.log."
+              - "Run the second 95-case Chromium matrix; retain validation/staged-chromium-02.log and localize its sole failure to Chapter 21's 544px batch row inside a 516px fullscreen card."
+              - "Pass the complete staged core gate after correcting Chapter 21's actual batch-card track owner; retain validation/staged-core-05.log."
+              - "Pass the third 95-case Chromium Chapter 22, diagram-style, universal-full-view, and formula matrix; retain validation/staged-chromium-03.log."
+              - "Pass the matching 95-case Firefox Chapter 22, diagram-style, universal-full-view, and formula matrix; retain validation/staged-firefox-01.log."
+              - "Pass the complete 222-case staged Chromium regression suite; retain validation/staged-full-chromium-01.log."
+              - "Freeze the exact 19-file publication overlay in publish/ and publish.sha256, then pass the repository's Docker-only review reconstruction; retain validation/staged-publication-review-01.log."
+              - "Pass the 39-chapter/71-step plan gate and all 751 unit cases in the checksum-frozen reconstructed workspace image; retain validation/staged-publication-units-01.log."
+              - "Capture and inspect checksum-frozen Chapter 21-23 desktop, narrow, and fullscreen renders; retain visual-review.sha256."
+              - "Promote the 19 checksum-frozen files to canonical paths, verify byte identity, and pass the complete canonical core gate; retain validation/canonical-core-01.log."
+              - "Rebuild the canonical site and pass the complete 222-case Chromium browser suite; retain validation/canonical-chromium-01.log."
+              - "Rebuild the canonical site and pass the matching 95-case Firefox Chapter 22, diagram-style, universal-full-view, and formula matrix; retain validation/canonical-firefox-01.log."
+              - "Run an independent final diff audit and declare its finding that the course-wide bounded-box paint audit was not yet composed with the all-diagram fullscreen loop."
+              - "Run the first strengthened seven-case Chromium style matrix; retain validation/staged-fullscreen-audit-chromium-01.log and localize its failure to treating the fullscreen figure's intentional vertical scroll viewport as an ordinary fixed box."
+              - "Run the second strengthened Chromium style matrix; retain validation/staged-fullscreen-audit-chromium-02.log and identify that computed-border discovery re-added the fullscreen root after its explicit-role branch was excluded."
+              - "Pass the corrected seven-case style matrix, including all 37 localized routes in fullscreen, in Chromium and Firefox; retain validation/staged-fullscreen-audit-chromium-03.log and validation/staged-fullscreen-audit-firefox-01.log."
+              - "Freeze the superseding 19-file publication as publish-02/ and publish-02.sha256 without mutating the earlier publication, then retain the first network-disabled reconstruction failure in validation/staged-publication-02.log."
+              - "Pass the corrected cached Docker reconstruction of publish-02; retain validation/staged-publication-03.log."
+              - "Run the final live-ledger plan replay, expose the validator's stale strict-adjacency assumption for the invalidated predecessor, and declare the validator plus its focused unit fixture before correction."
+              - "Run the first generalized-validator replay, retain its historical-ledger failure, and constrain invalidated-step skipping to an explicit replacement declaration."
+              - "Pass the corrected live-ledger plan check and its 29-case focused content-contract suite with the explicit replacement edge."
+              - "Freeze the superseding 20-file publication as publish-03/ and publish-03.sha256, then pass its complete Docker-only plan, content, diagnostics, 751-case unit, 42-page build, and 1,487-link core gate."
+              - "Pass the final complete 223-case canonical Chromium replay and the final seven-case canonical Firefox style/fullscreen replay."
+              - "Remove the exact ignored 2.4 MiB root Cargo target artifact detected after browser replay, then pass publication identity, forbidden-scope, diff, and Docker-only host-artifact audits."
+            artifacts:
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/input-fingerprint.txt"
+                sha256: "f67877b37f379aa6e06b591715e7dc771a54505f3da0057cfada037f59ace916"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/scope-expansion-fingerprint.txt"
+                sha256: "9e3da47b4afec24a3962926a4476922d9bee3da9c6c26088c7bd48131d062fc9"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/scope-expansion-fingerprint-02.txt"
+                sha256: "68751cd5aabca650fb0471b879eea13dcd21a1a45aad7906d8d2cdb3aa389c48"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-core-01.log"
+                sha256: "de2e8409d25b9d1aa88102d165f0f10a55ca2164de34c4f6860bc15de0ecc4f4"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/scope-expansion-fingerprint-03.txt"
+                sha256: "b9a77400e7e184f06ce5ea05f9231ea4ef25490a4b62124b7172748cc8846d4c"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-core-02.log"
+                sha256: "d83da10331cc91502ffd464f323dc0138fc013061032f15717d4427d3edbc954"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-core-03.log"
+                sha256: "e6fe4f567fd691536883cb46d40156e1b5c50a5f8064cfeb6824b4a9b952ae1f"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/scope-expansion-fingerprint-04.txt"
+                sha256: "7f101a90f000f0c6f0ea5f09c96d577bb0e4aafa9237294fd6366e983e650f0a"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-chromium-01.log"
+                sha256: "9e0d97a1d78f25aacf862c04690a8ed3c95dcc61f7b0f772f72514578fa982f4"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-core-04.log"
+                sha256: "061f330d0ced8b5c7f5cf03b77899d190870e5e1577b44453bcf8e8306c807e2"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-chromium-02.log"
+                sha256: "f979d92f0714855c92366201d1f050c74de4ac958e3249ff79882a9de24ce184"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-core-05.log"
+                sha256: "9fd76b8a7fe134779f6db9911ba5885fb436c8d9876596b28233c7bc0706e15b"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-chromium-03.log"
+                sha256: "ef4c7665f9e12c9fb279e43bed30a719cae89448df009d7793860f134d16dad4"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-firefox-01.log"
+                sha256: "5964c1abecb0346a324964e01e392e8b4880da5357ab680c6af085bcba767c3c"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-full-chromium-01.log"
+                sha256: "3087188d3f28ce29565e51178e358146186a133a7dd46af14d9b0ce18034e3ea"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/publish.sha256"
+                sha256: "8c242961bdd420d6d84e5b2976bd04a19f71a0e8d8e86ce9ac4c705c070abd0f"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-publication-review-01.log"
+                sha256: "93cf72e0cc03e8c8162f8aa0e1866d715bc862b222c06cb8e7bfa6fc5d4f7b20"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-publication-units-01.log"
+                sha256: "b1a181c11367a04d9f3694988f785c7ff82a984de63d692c64bc9cafc89f021b"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/visual-review.sha256"
+                sha256: "fa7cce19ef52be2340bed056c898a6181491c4de751b7fb110241ca227cf3b62"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/CanonicalBrowser.Dockerfile"
+                sha256: "48b6b1729e54abb478cd32aa0f50ca8ea0a780729aeefebf454705f714d8b4fd"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/canonical-core-01.log"
+                sha256: "6b62eba41cc3bf34cc2de83a4ef3b2f84a13cd8a47e110bca41891a3bdeb9720"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/canonical-chromium-01.log"
+                sha256: "34f67b67260f92d81c2005346e303e652698693534288bf8fb95e1a109f7f674"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/canonical-firefox-01.log"
+                sha256: "976e606d4d50aec02eddd1b167301d44ac85bd265f99782903452f33207c8ada"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-fullscreen-audit-chromium-01.log"
+                sha256: "fed7205547de5e950f3768061ea332208f0e72862a0ff3eadcd21dace6cd1010"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-fullscreen-audit-chromium-02.log"
+                sha256: "b50d92af7aef3b69e43046bc8fc961b78209546cac61367c3ea81d397da078c2"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-fullscreen-audit-chromium-03.log"
+                sha256: "8c95a3183565f09ced281ac08f262745f336a1addc178a082d20d1c93c236926"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-fullscreen-audit-firefox-01.log"
+                sha256: "8340f568d67f2a165729efdc122ce8766ebf193b410cea244126a76de4b65101"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/publish-02.sha256"
+                sha256: "08e252d8dfb52e8fe9117fd7785f2888e77c67f776f57c138ad696f11561c427"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-publication-02.log"
+                sha256: "d3d10df52f783699f09f3a229d68050de8add4a8a96e70bf9718192fc0b00d63"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/staged-publication-03.log"
+                sha256: "83561fcf9dcbf1a203bdcafec07ece9391229bf5469e2a5e6061437b5a99051f"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/scope-expansion-fingerprint-05.txt"
+                sha256: "20d648aa5f173837cbb2e0a44924022567713bb1ec408c544a4a284bb387957c"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/publish-03.sha256"
+                sha256: "c46abfcf9fd2e4031d625cbe354afafa639ec2b8efad26e59c80109cc8653236"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/publication-03-core.log"
+                sha256: "4de95b88bcc42add1ea4d24e9bddd24d131ec9d45d5e4ee145583c98a0823c70"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/canonical-chromium-02.log"
+                sha256: "f205335bfc0045e5aea7d67a8ef0e8182020bda046f83b0efd5267f582efdf75"
+              - path: ".build/runs/20260725T155329Z-harden-diagram-containment-full-view-01/validation/canonical-firefox-02.log"
+                sha256: "c006fb1db1fcb979032820bae9d483191d9bf0953506b84abfea4900a6001982"
+            validation:
+              - command: "Startup ledger, dependency, environment, and working-tree audit"
+                status: passed
+                notes: "Tracked files are clean at 7dd40ed; only preserved .build run evidence is untracked. No step was running, the shared diagram design-system step was completed, and Chapter 31 was the first pending step before this user-requested corrective insertion. Recorded Docker, Compose, Git, Node, npm, and browser versions remain exact."
+              - command: "Pinned Chromium and Firefox Chapter 22 reproduction"
+                status: passed
+                notes: "The lower first-parameter Value before box is 208px wide with about 182px of usable content space, while its unbreakable KaTeX formula paints about 242px wide. It crosses the right border by about 47px in Chromium and 44px in Firefox; the current course-wide audit misses it solely because the box is nested inside an approved scroll region."
+              - command: "Independent nested-box test-design audit"
+                status: passed
+                notes: "The nearest-bounded-box algorithm independently reproduces Chapter 22 and establishes a two-pixel cross-engine tolerance. It also finds a genuine Chapter 23 value-pill formula escape of roughly five pixels at 390px in Chromium; that existing component and focused unit contract are declared before correction rather than weakening the shared rule."
+              - command: "First staged plan, content, diagnostics, unit, build, and link gate"
+                status: failed
+                notes: "The first command stopped immediately because chapter-locales.json still projected planRevision 23 while the staged plan is revision 24. No content, Astro, unit, build, link, or browser command ran. The exact metadata file was fingerprinted and declared before updating only that revision; the retry also enables explicit shell pipeline failure propagation."
+              - command: "Second staged plan, content, diagnostics, unit, build, and link gate"
+                status: failed
+                notes: "Plan, all content contracts, and zero-diagnostic Astro validation passed. Of 751 unit cases, 748 passed; two durable policy assertions required their established phrases to remain contiguous after the expanded rule, and one synthetic plan-drift test still searched for revision 23. No build, link, or browser command ran after the unit stop. The policy prose is reflowed without weakening either assertion, and content-contract.test.ts is fingerprinted and declared before updating only its current-revision fixture to 24."
+              - command: "Third staged plan, content, diagnostics, unit, build, and link gate"
+                status: passed
+                notes: "The 39-chapter/71-step plan, 30 shared diagram contracts, zero-diagnostic Astro check across 156 files, all 751 unit cases, 42-page static build, and all 1,487 local references pass with exact KaTeX 0.16.47 in the cached Docker toolchain. No host Node, Rust, Python, package, cache, or release artifact was produced."
+              - command: "First staged 95-case Chromium diagram and formula matrix"
+                status: failed
+                notes: "Eighty-nine cases passed and two were not run after four focused failures. Universal controls exposed an existing-ID assertion that assumed every figure ID was generated, a missing focused-button-to-figure handoff on desktop-to-mobile transition, a false structural scrollWidth failure from Chapter 1's decorative arrow despite contained painted content, and a genuine Chapter 21 fullscreen two-column reflow that added 28 pixels of formula scroll debt. The first three are corrected in already declared shared files; the Chapter 21 component and focused unit contract are fingerprinted and declared before changing its width-aware mean-summary layout."
+              - command: "Post-Chromium staged core replay"
+                status: passed
+                notes: "The 39-chapter/71-step plan, all content contracts, zero Astro diagnostics, all 751 unit cases including the Chapter 21 width-aware summary contract, 42-page build, and 1,487-link audit pass after the browser-driven corrections."
+              - command: "Second staged 95-case Chromium diagram and formula matrix"
+                status: failed
+                notes: "Ninety-two cases passed and two serial cases were not run after the sole failure. Enhanced Chapter 21 placed both batch cards side by side: each batch-scroll had 516px of client width for its preserved 544px window row, creating exactly 28px of debt. Revert the non-causal mean-summary experiment and raise the batch-card track minimum so this viewport keeps one readable card per row; do not weaken the zero-debt-growth rule."
+              - command: "Final corrected staged core replay"
+                status: passed
+                notes: "The 39-chapter/71-step plan, all content contracts, zero Astro diagnostics across 156 files, all 751 unit cases, the 42-page static build, and all 1,487 local-reference checks pass after raising Chapter 21's batch-card track minimum to preserve one card per row in full view."
+              - command: "Third staged 95-case Chromium diagram and formula matrix"
+                status: passed
+                notes: "All 95 Chapter 22, course-wide diagram-style, universal supported-desktop full-view, and formula-rendering cases pass in Chromium. The Chapter 22 lower Value before formula is contained at desktop, narrow, and fullscreen widths; every published diagram receives exactly one control under supported desktop conditions; and the stricter nearest-box audit reports no ordinary-content escape."
+              - command: "Staged 95-case Firefox diagram and formula matrix"
+                status: passed
+                notes: "All 95 matching Chapter 22, course-wide diagram-style, universal supported-desktop full-view, and formula-rendering cases pass in Firefox. The same nested-box containment, ancestor-scroller mutation, control availability, accessibility fallbacks, and full-view invariants hold in the second rendering engine."
+              - command: "Complete staged Chromium browser regression"
+                status: passed
+                notes: "All 222 Chromium browser cases pass across Chapters 1-30, locale routing, the localized shell, SEO, no-JavaScript rendering, forced colors, RTL, formula layout, the shared diagram style system, and universal full-view behavior."
+              - command: "Publication identity freeze and Docker review reconstruction"
+                status: passed
+                notes: "The publication set contains exactly the 19 declared product, policy, controller, component, and test files; every file matches the successfully validated workspace byte-for-byte and verifies against publish.sha256. The repository review path overlays that immutable set on the canonical base, then passes content and parity checks, zero Astro diagnostics across 156 files, the 42-page static build, and all 1,487 local-reference checks without changing publish/."
+              - command: "Reconstructed publication plan and unit validation"
+                status: passed
+                notes: "The checksum-frozen reconstructed workspace passes the 39-chapter/71-step course-plan gate and all 751 unit cases across 39 test files, including the Chapter 21-23 layout contracts, policy assertions, universal full-view controller, and shared style-system rules."
+              - command: "Rendered diagram visual review"
+                status: passed
+                notes: "Seven checksum-frozen Chromium captures confirm that Chapter 22's second Value before formula remains visibly inside its dashed box at desktop, 390px narrow, and fullscreen widths; the control is present before entry and becomes the localized exit control in fullscreen; Chapter 21's batch rows remain readable in full view; and Chapter 23's narrow value pills remain contained."
+              - command: "Checksum-frozen canonical publication and core replay"
+                status: passed
+                notes: "All 19 canonical files match the frozen publication byte-for-byte. A network-disabled overlay on the pinned browser image then passes the 39-chapter/71-step plan, content contracts, zero Astro diagnostics across 156 files, all 751 unit cases, the 42-page static build, and all 1,487 local-reference checks from the canonical tree."
+              - command: "Complete canonical Chromium browser replay"
+                status: passed
+                notes: "After rebuilding all 42 pages from canonical source, all 222 Chromium browser cases pass across Chapters 1-30, locale routing, no-JavaScript rendering, forced colors, RTL, formulas, nested-box containment, the Chapter 22 focused regression, and universal full-view availability."
+              - command: "Canonical Firefox diagram and formula replay"
+                status: passed
+                notes: "After rebuilding all 42 pages from canonical source, all 95 matching Chapter 22, course-wide diagram-style, universal supported-desktop full-view, and formula-rendering cases pass in Firefox, including the focused overflow mutation and desktop, narrow, fullscreen, RTL, forced-colors, and no-JavaScript states."
+              - command: "Independent final acceptance and diff audit"
+                status: failed
+                notes: "The audit found one genuine coverage gap before commit: every diagram was audited for bounded-box paint at desktop and narrow widths, and every diagram was separately entered in fullscreen for scroll-debt checks, but only Chapter 22 combined fullscreen with box-paint containment. Add an all-diagram fullscreen audit using the same nearest-box geometry invariant, then replay both engines and issue a new frozen publication artifact without overwriting the earlier manifest."
+              - command: "First strengthened staged Chromium fullscreen paint audit"
+                status: failed
+                notes: "Six existing style cases passed. The new all-diagram fullscreen case correctly ran, but reported 110 false escapes against the outer figure: fullscreen intentionally turns that fixed-height frame into the vertical scroll viewport, so off-screen sections have rectangles below the visible frame while remaining valid scroll content. Exempt only the active fullscreen root from fixed-box ownership; continue auditing every nested bordered box and its text/formula ink, including off-screen boxes, against its own inner edges."
+              - command: "Second strengthened staged Chromium fullscreen paint audit"
+                status: failed
+                notes: "The same six existing cases passed, while the fullscreen case repeated the outer-root false positives because the computed four-sided-border fallback reclassified the root after its explicit-root condition was disabled. Make active-fullscreen-root exclusion an early return before every semantic and computed-border classifier, and cover all 37 active localized routes rather than English alone."
+              - command: "Corrected staged Chromium and Firefox fullscreen paint audits"
+                status: passed
+                notes: "All seven style-system cases pass independently in Chromium and Firefox. The new case enters every one of the 37 active English and Russian routes in fullscreen, excludes only the active figure's intentional vertical scroll viewport from fixed-box ownership, and applies the unchanged nearest-box text/formula geometry invariant to every nested bounded box, including off-screen boxes."
+              - command: "First superseding publication reconstruction"
+                status: failed
+                notes: "All 19 publish-02 files verify against the new immutable manifest, and only diagram-style-system.spec.ts differs from the earlier publication. The network-disabled Docker reconstruction changed the RUN cache key and therefore attempted the uncached source apt layer, which correctly failed at DNS before project files or validation ran. Retry the identical frozen overlay with the already verified ordinary cached Docker build path; no dependency, product, or manifest change is required."
+              - command: "Corrected superseding publication reconstruction"
+                status: passed
+                notes: "All 19 publish-02 files verify against the superseding immutable manifest. The clean Docker overlay with current ledgers passes content and parity checks, zero Astro diagnostics across 156 files, the 42-page static build, and all 1,487 local-reference checks; the only product delta from the earlier frozen set is the strengthened fullscreen geometry test."
+              - command: "First final live-ledger course-plan audit"
+                status: failed
+                notes: "The Docker-only validator rejected the otherwise intentional dependency from the corrective step to the last valid completed infrastructure checkpoint because it still required strict list adjacency to the now-invalidated design-system step. No product or ledger file changed during the audit. Generalize the validator to skip only invalidated predecessors, retain skipped steps as valid dependencies, and add a focused mutation proving that dependence on the invalidated step is rejected."
+              - command: "First generalized invalidated-dependency validator replay"
+                status: failed
+                notes: "The initial generalization correctly accepted this replacement but retroactively required every historical completed step following any later-invalidated predecessor to bypass that predecessor. It stopped at containerize-build-workflow before inspecting later invariants. Preserve historical dependency edges and skip an invalidated predecessor only when the corrective step explicitly names it in a replaces field."
+              - command: "Corrected explicit-replacement plan and focused unit replay"
+                status: passed
+                notes: "The Docker-only plan gate accepts 39 chapters and 71 scheduled steps while preserving historical dependency edges and bypassing only the explicitly replaced invalidated design-system checkpoint. All 29 focused content-contract cases pass, including the mutation that rejects restoring the invalidated dependency."
+              - command: "Superseding publication identity and complete core replay"
+                status: passed
+                notes: "All 20 canonical product, policy, validator, component, controller, and test files match publish-03 byte-for-byte and verify against its immutable manifest. The frozen overlay passes the 39-chapter/71-step plan, all 30 diagram content contracts, zero Astro diagnostics across 156 files, all 751 unit cases, the 42-page static build, and all 1,487 local-reference checks."
+              - command: "Final complete canonical Chromium replay"
+                status: passed
+                notes: "All 223 Chromium cases pass, including every Chapter 1-30 semantic contract, Chapter 22's focused box containment, all-route desktop/narrow/fullscreen box geometry, universal full-view controls, fallbacks, forced colors, RTL, formulas, localization, links, and SEO."
+              - command: "Final canonical Firefox style and fullscreen replay"
+                status: passed
+                notes: "All seven Firefox style-system cases pass. Every one of the 37 active localized diagram routes keeps nested bounded boxes contained at desktop, narrow, and fullscreen widths, and the Chapter 22-23 focused and ancestor-scroller regressions retain the two-pixel geometry tolerance."
+              - command: "Final publication, scope, diff, and host-artifact audit"
+                status: passed
+                notes: "The changed path set is exactly the 20 frozen publication files plus BUILD_STATE.yaml and DECISIONS.md; git diff --check passes; learner content, Rust, packages, lockfiles, Docker configuration, and site/dist are unchanged. After removing the exact ignored root Cargo target directory, ./course audit-host passes with only site/dist as the intentional static-release exception."
+            notes: "Succeeded. Chapter 22's lower Value before formula now stays inside its own box in Chromium and Firefox at desktop, narrow, and fullscreen widths. The shared audit enforces nearest-box text and formula containment for every current and future registered diagram even inside a sanctioned ancestor scroller and while all 37 active localized routes are fullscreen. Every supported desktop diagram receives exactly one localized full-view control regardless of measured overflow, while mobile, no-JavaScript, unsupported-API, failure, focus, RTL, and forced-colors fallbacks remain intact. The superseded design-system checkpoint is explicitly replaced without rewriting its immutable run."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
-          - standardize-course-diagram-design-system
+          - harden-diagram-containment-full-view
         status: pending
         inputs:
           - "SKILLS.md"

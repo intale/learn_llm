@@ -192,7 +192,7 @@ describe('Chapter 21 static diagram boundary', () => {
   it('keeps natural heights, local scrollers, narrow stacking, and non-color structure', () => {
     expect(componentSource).toMatch(/\.batch-grid\s*\{[^}]*align-items:\s*start;/s);
     expect(componentSource).toContain(
-      'grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr))',
+      'grid-template-columns: repeat(auto-fit, minmax(min(100%, 39rem), 1fr))',
     );
     expect(componentSource).toContain('@container (max-width: 36rem)');
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');

@@ -5,11 +5,6 @@ import { resolve } from 'node:path';
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import {
-  MATERIAL_OVERFLOW_PX,
-  MATERIAL_OVERFLOW_RATIO,
-  MINIMUM_FULLSCREEN_GAIN_PX,
-} from '../../src/lib/diagram-full-view';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import { parseJsonFrontmatter } from '../../../scripts/check-site-content.mjs';
 import {
@@ -33,12 +28,10 @@ interface DiagramMetrics {
   figureWidth: number;
   fullscreen: boolean;
   innerWidth: number;
-  materialOwners: number;
   maximumOverflowDebt: number;
   maximumOverflowOwner: string;
   overflowDebt: number;
   pageWidth: number;
-  shouldEnhance: boolean;
   staticCounts: {
     captions: number;
     formulas: number;
@@ -51,6 +44,7 @@ interface DiagramMetrics {
 
 const desktop = { width: 1280, height: 900 } as const;
 const mobile = { width: 390, height: 844 } as const;
+const expectedChapter30WidthGain = 64;
 const englishChapterDirectory = resolve(
   process.cwd(),
   'src/content/chapters/en',
@@ -94,7 +88,7 @@ async function waitForController(page: Page) {
 
 async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetrics> {
   return figureFor(page, route).evaluate(
-    (figure, limits) => {
+    (figure) => {
       const root = figure as HTMLElement;
       const elements = [root, ...root.querySelectorAll<HTMLElement>('*')];
       const scrollOwners = elements.filter((element) => {
@@ -104,13 +98,6 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
           element.getClientRects().length > 0 &&
           ['auto', 'scroll'].includes(style.overflowX) &&
           element.scrollWidth > element.clientWidth + 2
-        );
-      });
-      const materialOwners = scrollOwners.filter((element) => {
-        const debt = element.scrollWidth - element.clientWidth;
-        return (
-          element.clientWidth > 0 &&
-          debt >= Math.max(limits.minimumOverflow, element.clientWidth * limits.ratio)
         );
       });
       const accessibleName = (element: HTMLElement) => {
@@ -136,12 +123,6 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
         root.querySelector<HTMLElement>(
           'figcaption p, figcaption, td, th, li, p',
         ) ?? root;
-      const fullscreenContentWidth = Math.max(0, window.innerWidth - 48);
-      const offersUsefulWidth =
-        fullscreenContentWidth - root.clientWidth >= limits.minimumGain;
-      const mediaMatches = matchMedia(
-        '(min-width: 64rem) and (min-height: 36rem)',
-      ).matches;
       const overflowDebts = scrollOwners
         .map((owner) => ({
           debt: owner.scrollWidth - owner.clientWidth,
@@ -156,7 +137,6 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
         figureWidth: root.getBoundingClientRect().width,
         fullscreen: document.fullscreenElement === root,
         innerWidth: window.innerWidth,
-        materialOwners: materialOwners.length,
         maximumOverflowDebt: Math.max(
           0,
           ...overflowDebts.map(({ debt }) => debt),
@@ -167,12 +147,6 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
           0,
         ),
         pageWidth: document.documentElement.clientWidth,
-        shouldEnhance:
-          !document.fullscreenElement &&
-          document.fullscreenEnabled &&
-          mediaMatches &&
-          offersUsefulWidth &&
-          materialOwners.length > 0,
         staticCounts: {
           captions: root.querySelectorAll('figcaption').length,
           formulas: root.querySelectorAll('.katex').length,
@@ -182,11 +156,6 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
         textFontSize: Number.parseFloat(getComputedStyle(textProbe).fontSize),
         unnamedOwners,
       };
-    },
-    {
-      minimumGain: MINIMUM_FULLSCREEN_GAIN_PX,
-      minimumOverflow: MATERIAL_OVERFLOW_PX,
-      ratio: MATERIAL_OVERFLOW_RATIO,
     },
   );
 }
@@ -252,19 +221,17 @@ test.describe('course-wide diagram full view', {
       await expectNoNestedTableScrollers(page, route);
 
       const metrics = await readMetrics(page, route);
-      expect(metrics.controls, route.chapterId).toBe(metrics.shouldEnhance ? 1 : 0);
+      expect(metrics.controls, route.chapterId).toBe(1);
       fallbackProblems.push(
         ...metrics.unnamedOwners.map((problem) => `${route.chapterId}: ${problem}`),
       );
-      if (metrics.controls === 1) {
-        const figure = figureFor(page, route);
-        const toggle = figure.locator('[data-diagram-full-view-toggle]');
-        await expect(figure).toHaveAttribute('id', /^course-diagram-/);
-        await expect(toggle).toHaveAttribute('type', 'button');
-        await expect(toggle).toHaveAttribute('aria-controls', await figure.getAttribute('id') ?? '');
-        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-        await expect(toggle).toHaveAccessibleName('View diagram full screen');
-      }
+      const figure = figureFor(page, route);
+      const toggle = figure.locator('[data-diagram-full-view-toggle]');
+      await expect(figure).toHaveAttribute('id', /\S/);
+      await expect(toggle).toHaveAttribute('type', 'button');
+      await expect(toggle).toHaveAttribute('aria-controls', await figure.getAttribute('id') ?? '');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await expect(toggle).toHaveAccessibleName('View diagram full screen');
       await expectNoPageOverflow(page);
     }
     expect(fallbackProblems).toEqual([]);
@@ -283,13 +250,16 @@ test.describe('course-wide diagram full view', {
 
     await page.setViewportSize(desktop);
     await waitForController(page);
-    const desktopMetrics = await readMetrics(page, chapter30);
-    expect(desktopMetrics.shouldEnhance).toBe(true);
     await expect(figureFor(page, chapter30).locator('[data-diagram-full-view-toggle]')).toHaveCount(1);
+    const figure = figureFor(page, chapter30);
+    const toggle = figure.locator('[data-diagram-full-view-toggle]');
+    await toggle.focus();
+    await expect(toggle).toBeFocused();
 
     await page.setViewportSize(mobile);
     await waitForController(page);
-    await expect(figureFor(page, chapter30).locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
+    await expect(toggle).toHaveCount(0);
+    await expect(figure).toBeFocused();
     await expectNoPageOverflow(page);
   });
 
@@ -299,7 +269,7 @@ test.describe('course-wide diagram full view', {
     test.setTimeout(180_000);
     const context = await browser.newContext({
       javaScriptEnabled: false,
-      viewport: mobile,
+      viewport: desktop,
     });
     const page = await context.newPage();
     const fallbackProblems: string[] = [];
@@ -335,6 +305,45 @@ test.describe('course-wide diagram full view', {
     await expect(figureFor(page, chapter30).locator('[data-diagram-full-view-toggle]')).toHaveCount(0);
   });
 
+  test('availability does not depend on measured overflow or content width', async ({ page }) => {
+    await page.setViewportSize(desktop);
+    await page.goto(chapter30.path);
+    await waitForController(page);
+    const figure = figureFor(page, chapter30);
+    await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(1);
+    await figure.locator('[data-diagram-scroll]').evaluateAll((regions) => {
+      for (const region of regions) {
+        (region as HTMLElement).style.overflowX = 'visible';
+      }
+    });
+    await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+    await page.evaluate(
+      () => new Promise<void>((resolveFrame) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+      ),
+    );
+    await expect(figure.locator('[data-diagram-full-view-toggle]')).toHaveCount(1);
+  });
+
+  test('a rejected entry removes only the failed control and focuses its figure', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+        configurable: true,
+        value: () => Promise.reject(new Error('synthetic rejection')),
+      });
+    });
+    await page.setViewportSize(desktop);
+    await page.goto(chapter30.path);
+    await waitForController(page);
+    const figure = figureFor(page, chapter30);
+    const toggle = figure.locator('[data-diagram-full-view-toggle]');
+    await toggle.click();
+    await expect(toggle).toHaveCount(0);
+    await expect(figure).toBeFocused();
+  });
+
   test.describe('real fullscreen behavior', () => {
     test.describe.configure({ mode: 'serial' });
 
@@ -345,7 +354,6 @@ test.describe('course-wide diagram full view', {
       await page.goto(chapter30.path);
       await waitForController(page);
       const before = await readMetrics(page, chapter30);
-      expect(before.shouldEnhance).toBe(true);
       await figureFor(page, chapter30).evaluate((figure) => {
         (window as typeof window & { __diagramIdentity?: Element }).__diagramIdentity = figure;
       });
@@ -366,7 +374,7 @@ test.describe('course-wide diagram full view', {
       expect(after.fullscreen).toBe(true);
       expect(after.figureWidth).toBeGreaterThanOrEqual(after.innerWidth - 4);
       expect(after.figureWidth - before.figureWidth).toBeGreaterThanOrEqual(
-        MINIMUM_FULLSCREEN_GAIN_PX,
+        expectedChapter30WidthGain,
       );
       expect(after.staticCounts).toEqual(before.staticCounts);
       expect(after.textFontSize).toBeGreaterThanOrEqual(before.textFontSize - 0.1);
@@ -402,7 +410,7 @@ test.describe('course-wide diagram full view', {
       await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     });
 
-    test('every eligible diagram avoids a multi-viewport journey in full view', async ({
+    test('every diagram avoids a multi-viewport journey in full view', async ({
       page,
     }) => {
       test.setTimeout(180_000);
@@ -415,8 +423,6 @@ test.describe('course-wide diagram full view', {
         await waitForController(page);
         const figure = figureFor(page, route);
         const toggle = figure.locator('[data-diagram-full-view-toggle]');
-        if ((await toggle.count()) === 0) continue;
-
         enhancedCount += 1;
         const before = await readMetrics(page, route);
         await openFullView(page, route);
@@ -429,14 +435,15 @@ test.describe('course-wide diagram full view', {
         }
         if (after.overflowDebt > before.overflowDebt) {
           residualProblems.push(
-            `${route.chapterId}: total debt grew from ${before.overflowDebt}px to ${after.overflowDebt}px`,
+            `${route.chapterId}: total debt grew from ${before.overflowDebt}px to ` +
+            `${after.overflowDebt}px (${after.maximumOverflowOwner})`,
           );
         }
         await toggle.click();
         await page.waitForFunction(() => document.fullscreenElement === null);
       }
 
-      expect(enhancedCount).toBeGreaterThan(0);
+      expect(enhancedCount).toBe(diagramRoutes.length);
       expect(residualProblems).toEqual([]);
     });
 
@@ -444,18 +451,11 @@ test.describe('course-wide diagram full view', {
       page,
     }) => {
       await page.setViewportSize(desktop);
-      let chosen: DiagramRoute | undefined;
-      for (const route of diagramRoutes.filter(({ order }) => order <= 7)) {
-        const localized = { ...route, path: `/ru/course/${route.chapterId}/` };
-        await page.goto(localized.path);
-        await waitForController(page);
-        if (await figureFor(page, localized).locator('[data-diagram-full-view-toggle]').count()) {
-          chosen = localized;
-          break;
-        }
-      }
-      expect(chosen, 'a published Russian diagram must benefit from full view').toBeDefined();
-      const route = chosen!;
+      const english = diagramRoutes.find(({ order }) => order === 1);
+      if (!english) throw new Error('Chapter 1 must register a useful diagram.');
+      const route = { ...english, path: `/ru/course/${english.chapterId}/` };
+      await page.goto(route.path);
+      await waitForController(page);
       const toggle = figureFor(page, route).locator('[data-diagram-full-view-toggle]');
       await expect(toggle).toHaveAccessibleName('Развернуть схему на весь экран');
       await openFullView(page, route);
