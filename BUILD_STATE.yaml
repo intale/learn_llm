@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-26T16:52:22Z"
+updated_at: "2026-07-26T18:56:34Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -15772,14 +15772,30 @@ builds:
         objective: "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
         depends_on:
           - implement-ch36-temperature-top-k
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/36-temperature-top-k.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/attention/multi_head.rs"
+          - "rust/crates/llm-from-scratch/src/attention/qkv.rs"
+          - "rust/crates/llm-from-scratch/src/attention/rope.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/demos/ch30-multi-head-attention/src/lib.rs"
+          - "rust/demos/ch30-multi-head-attention/diagram-trace.txt"
+          - "rust/demos/ch36-temperature-top-k/Cargo.toml"
+          - "rust/demos/ch36-temperature-top-k/src/lib.rs"
+          - "rust/demos/ch36-temperature-top-k/expected.txt"
+          - "rust/demos/ch36-temperature-top-k/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -15790,10 +15806,32 @@ builds:
           - "Cargo.lock"
           - "site/package.json"
           - "site/package-lock.json"
+          - "site/playwright.config.ts"
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/content/chapters/en/36-temperature-top-k.mdx"
+          - "site/src/components/chapters/TemperatureTopKDiagram.astro"
+          - "site/src/lib/temperature-top-k-diagram.ts"
+          - "site/tests/36-temperature-top-k-diagram.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
+          - "https://arxiv.org/pdf/1706.03762"
+          - "https://arxiv.org/pdf/1911.02150"
+          - "https://arxiv.org/pdf/2309.06180"
+          - "C:/Users/Ivan/.codex/plugins/cache/openai-bundled/browser/26.715.61943/skills/control-in-app-browser/SKILL.md"
         outputs:
           - "curriculum/chapters/37-incremental-attention.md"
           - "rust/crates/llm-from-scratch/src/attention/incremental.rs"
@@ -15801,8 +15839,17 @@ builds:
           - "rust/demos/ch37-incremental-attention/"
           - "site/src/content/chapters/en/37-incremental-attention.mdx"
           - "site/src/components/chapters/IncrementalAttentionDiagram.astro"
+          - "site/src/lib/incremental-attention-diagram.ts"
           - "site/tests/37-incremental-attention-diagram.test.ts"
           - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
@@ -15820,6 +15867,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch37-incremental-attention | diff -u rust/demos/ch37-incremental-attention/expected.txt -"
+          - "cargo run --quiet --locked -p ch37-incremental-attention --example diagram_trace | diff -u rust/demos/ch37-incremental-attention/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 37-incremental-attention"
           - "npm --prefix site run check:parity -- --chapter 37-incremental-attention"
           - "npm --prefix site run check:content"
@@ -15828,11 +15876,91 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:37-incremental-attention'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:37-incremental-attention|en/37-incremental-attention exposes'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only primary-paper research, cached product/browser containers, and substantial local regression CPU; registered deferred locales require no lesson or route. No paid service, generation service, dependency change, Linux build-definition change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260726T170310Z-implement-ch37-incremental-attention-01
+            started_at: "2026-07-26T17:03:10Z"
+            finished_at: "2026-07-26T18:56:34Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b87fdb5adc9c311fb32798acba9b2c92ac2588bb"
+              manifest: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/input-fingerprint.txt"
+              checksum: "sha256:d9b1493d53e24df9d56eaa7c42179432a4f06ce7be80cea3232a67bb2e948fdb"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate pinned Linux Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product work plus Playwright 1.61.1 on Node 24.17.0/npm 11.13.0."
+            staging_dir: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/"
+            commands:
+              - "Run the complete startup protocol, verify the dedicated Chapter 36 commit and manifests, inventory the ledger, preserve unrelated desktop.ini, and select the first eligible Chapter 37 step."
+              - "Read the complete chapter-delivery and browser-control instructions; inspect the Chapter 37 plan, cumulative attention/RoPE/tensor APIs, Chapter 30 fixture, Chapter 36 integration patterns, and shared diagram/formula/navigation boundaries."
+              - "Create the run staging and validation directories plus a checksummed 55-file input fingerprint before any product edit."
+              - "Audit the three declared primary papers and run independent read-only Rust and site boundary reviews; tighten the cache contract to bind exact parameter nodes and RoPE configuration."
+              - "Stage the layer cache, incremental forward path, deterministic Rust demo, exact report and 19-line trace, chapter contract, English lesson, strict trace parser, shared static figure, and focused/shared site tests under the run publish directory."
+              - "Build a fresh HEAD archive candidate with the staged overlay and use a dedicated Docker target volume for network-disabled formatting, targeted Clippy, package tests, and exact stdout diffs."
+              - "Add the strict static-figure and formula/browser regressions, update shared route/navigation counts, split exact K/V evidence into wrapping coordinate formulas, and keep projection explanations as ordinary localized prose."
+              - "Reject an old validation module cache after proving it contains KaTeX 0.18.0 rather than the lockfile's 0.16.47; seed all accepted Node and browser replays from the current pinned source image."
+              - "Run the complete network-disabled Rust, contract, content, type, unit, static-build, link, focused Chromium/Firefox, and 275-case Chromium matrices against validation/source-02."
+              - "Freeze all 23 staged product files in publish-manifest.sha256 after staged validation succeeds."
+              - "Publish the exact 23-file manifest to canonical paths with apply_patch, then prove byte-for-byte identity before any canonical replay."
+              - "Create fresh canonical-source-01 and canonical-source-02 snapshots from tracked working-tree files plus the declared new manifest paths, excluding .build and unrelated desktop.ini."
+              - "Diagnose a pre-existing Chapter 23 wall-clock guard under concurrent host load and a Windows bind-mount Astro rename denial; retain both as rejected environment diagnostics, then replay Rust with serialized test scheduling and site/browser work inside isolated Linux filesystems."
+              - "Run the complete network-disabled canonical Rust, static-site, focused Chromium/Firefox, and 275-case Chromium matrices, then verify every manifest hash across canonical, snapshot, site-container, and browser-container trees."
+            artifacts:
+              - path: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/input-fingerprint.txt"
+                checksum: "sha256:d9b1493d53e24df9d56eaa7c42179432a4f06ce7be80cea3232a67bb2e948fdb"
+                notes: "Commit, preserved dirty boundary, environment, cost, prior verified artifacts, three intended primary papers, browser-skill identity, and 55 material local inputs."
+              - path: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/publish/rust/crates/llm-from-scratch/src/attention/incremental.rs"
+                checksum: "sha256:eaae1635d9dd04c9fe3157ef453095e9651d6df18c3e36a1c6f444ca6b61e2d1"
+                notes: "Staged fixed-capacity layer-bound cache, transactional append/reset boundary, one-row inference path, and seven focused tests."
+              - path: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/publish/rust/demos/ch37-incremental-attention/expected.txt"
+                checksum: "sha256:6d40eac9540150f0e5565a0fce553579092375549af6f241baaef60e014cc828"
+                notes: "Exact learner report; network-disabled execution matches byte for byte."
+              - path: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/publish/rust/demos/ch37-incremental-attention/diagram-trace.txt"
+                checksum: "sha256:6406beb693dcecaa03d823abe6a232ca592775246245a81b9695223c21a5bc91"
+                notes: "Exact 19-line cache trace including full retained K/V prefixes, append rows, weights, matches, work, reset, errors, history, and handoff."
+              - path: ".build/runs/20260726T170310Z-implement-ch37-incremental-attention-01/publish-manifest.sha256"
+                checksum: "sha256:7206563c6298b18e87ce67ef6c8c48754185f3acc2443c825272c95452d620ea"
+                notes: "Frozen checksums for exactly 23 staged product files; every hash matches both publish/ and validation/source-02."
+            validation:
+              - command: "Startup, recovery, environment, prior-run, eligibility, ownership, locale, and cost preflight"
+                status: passed
+                notes: "HEAD b87fdb5 is the dedicated completed Chapter 36 commit; its final 23-file manifest and canonical archive checksums match; no step is running; Chapter 37 is first eligible; only unrelated desktop.ini is untracked; host and cached container pins match; English is the sole active Chapter 37 locale; medium local work, bounded research, and substantial regression CPU fit the unlimited recorded budget."
+              - command: "Network-disabled targeted Rust formatting, Clippy, package tests, and exact learner/trace diffs in validation/source-02"
+                status: passed
+                notes: "cargo fmt is stable; Clippy passes for llm-from-scratch and ch37-incremental-attention with -D warnings; all 346 library tests, 2 compile-fail doctests, and 2 demo tests pass; both exact stdout diffs are empty."
+              - command: "Bounded primary-source and independent read-only implementation audits"
+                status: passed
+                notes: "The 2017 Transformer, 2019 incremental decoding, and 2023 PagedAttention papers support the stated road from causal prefix attention through retained K/V state to serving-memory management; local layout, RoPE offset, reset, identity, and equality policies are explicitly course-owned. The Rust and site audits found and closed same-shaped stale-layer reuse, exact RoPE binding, multi-batch, parser, route-count, and browser-containment gaps."
+              - command: "Complete network-disabled Rust workspace and deterministic demo matrix"
+                status: passed
+                notes: "cargo fmt and workspace Clippy pass with -D warnings; every workspace and doctest target passes including 346 library tests; dependency policy reports workspace packages only with no external crates; all 37 discovered demos match their frozen outputs; Chapter 37 learner and trace diffs are empty."
+              - command: "Complete pinned static-site contract, content, type, unit, build, link, SEO, and sitemap matrix"
+                status: passed
+                notes: "The accepted cache contains KaTeX 0.16.47 exactly. Plan revision 29 reports 39 chapters, 76 steps, and 37 contracts; Chapter 37 contract/chapter/parity and all 44 localized-source/37-set content gates pass; Astro reports zero diagnostics across 186 files; all 794 unit cases pass; 49 pages, 1785 links, 49 SEO routes, 49 sitemap URLs, and 137 artifacts validate."
+              - command: "Fresh network-disabled staged Chromium and Firefox rendered-browser matrix"
+                status: passed
+                notes: "On the owned 127.0.0.1:64173 fixture with no host-published port or reused server, focused Chromium passes 6/6; focused Firefox passes the same 6/6 plus both Chapter 37 desktop/narrow formula cases; the complete Chromium regression passes 275/275 with zero failures or retries. The 21 bounded boxes contain all text and math in desktop, narrow, full-view, forced-colors, RTL, and no-JavaScript presentations."
+              - command: "Staged publication-manifest and scope audit"
+                status: passed
+                notes: "Exactly 23 product files are frozen; their hashes match publish/ and validation/source-02; canonical product paths remain untouched; BUILD_STATE.yaml and DECISIONS.md are the only tracked canonical changes, and unrelated desktop.ini remains untracked."
+              - command: "Initial fresh-canonical environment diagnostics"
+                status: failed
+                notes: "A concurrent default-thread canonical replay reached only the pre-existing Chapter 23 60-second wall-clock guard, and its isolated default-thread rerun reproduced that host-load timing without a Chapter 37 assertion failure. A separate Windows/Dropbox bind-mounted Astro build passed all prior static gates and 794 unit cases before Windows denied an atomic generated-CSS rename. No product file changed; the already-passing staged default-thread matrix remains valid, and accepted canonical replays use serialized Rust test scheduling plus an isolated Linux site filesystem."
+              - command: "Fresh network-disabled canonical Rust workspace, dependency, demo, and exact-fixture matrix"
+                status: passed
+                notes: "With RUST_TEST_THREADS=1 recorded solely to stabilize the existing Chapter 23 elapsed-time guard on the loaded host, the declared cargo fmt, workspace Clippy, and cargo test commands pass; every workspace and doctest target passes including 346 library tests; dependency policy reports workspace packages only with no external crates; all 37 demos pass; Chapter 37 learner and 19-line trace diffs are empty. The staged canonical-identical default-thread matrix had already passed."
+              - command: "Fresh isolated-Linux canonical static-site matrix"
+                status: passed
+                notes: "Using KaTeX 0.16.47 with no network or host bind-mounted output directory, plan revision 29, Chapter 37 contract/chapter/parity, all 44 localized-source/37-set content gates, Astro diagnostics across 186 files, 47 unit files with 794 cases, a 49-page production build, 1785 local references, 49 SEO routes, 49 sitemap URLs, and 137 artifacts all pass."
+              - command: "Fresh isolated-Linux canonical Chromium and Firefox rendered-browser matrix"
+                status: passed
+                notes: "On a new network-disabled browser container with no published port or reusable preview, the 49-page build passes; focused Chromium is 6/6; focused Firefox is 8/8 including desktop/narrow Chapter 37 formula geometry; and the complete Chromium suite is 275/275 in 2.2 minutes with zero failures or retries."
+              - command: "Final canonical manifest, ledger, whitespace, and scope audit"
+                status: passed
+                notes: "All 23 product hashes match publish-manifest.sha256 (sha256:7206563c6298b18e87ce67ef6c8c48754185f3acc2443c825272c95452d620ea) across staging, canonical, canonical-source-02, the Linux site tree, and the Linux browser tree; git diff --check passes; only the 23 product paths plus BUILD_STATE.yaml and DECISIONS.md are in scope, while desktop.ini remains unrelated and untracked."
+            notes: "Succeeded. Chapter 37 now adds an exact layer-bound fixed-capacity KV cache, transactional one-token incremental attention, deterministic full-prefix equivalence evidence, a strict Rust-derived trace, and one contained shared static figure. Staged and fresh canonical network-disabled matrices pass 346 library tests, 37 demos, 794 site tests, 49-page/link/SEO/sitemap validation, focused Chromium/Firefox formula and accessibility geometry, and all 275 Chromium regressions; the 23-file manifest is byte-identical everywhere and unrelated desktop.ini remains untouched."
       - id: implement-ch38-cached-generation
         objective: "Thread independent layer caches through the decoder so prefill plus one-token decode reproduces uncached generation."
         depends_on:

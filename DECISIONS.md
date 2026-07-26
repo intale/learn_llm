@@ -6691,3 +6691,118 @@ hosting, or deployment behavior changes.
 
 **Affected step and run:** `implement-ch36-temperature-top-k`, run
 `20260726T144338Z-implement-ch36-temperature-top-k-01`.
+
+## 2026-07-26 - Make one attention layer's cache transactional inference state
+
+**Status:** Accepted before Chapter 37 product work.
+
+**Context:** Chapter 37 must isolate the smallest useful cache boundary: one
+decoder-attention layer appends one position and reproduces that position from a
+full-prefix attention pass. The scheduled checkpoint did not yet name the exact
+cache contract, source boundary, shared diagram and formula registries,
+predecessor navigation counts, strict trace parser, or focused Firefox gate.
+
+**Decision:** Add an inference-only `LayerKvCache` whose configuration records
+batch size, model width, head count, head width, and fixed capacity. It owns
+preallocated key and value storage plus a logical length. Incremental attention
+accepts exactly one new row shaped `[B, 1, D]`; the cache length is that row's
+absolute position. Project only the new query, key, and value, apply RoPE to the
+query and key at that absolute position, retain the rotated key and unrotated
+value, attend the new query over retained and candidate rows with stable
+softmax, then apply the existing output projection.
+
+Validate every fallible operation and compatibility boundary before committing
+the append, so any error leaves the cache byte-for-byte and length-for-length
+unchanged. Reset changes the logical length to zero while retaining allocation.
+The exact fixture must match every incremental output row to the corresponding
+full-prefix last row within a declared tolerance and reproduce the same evidence
+after reset. Report projection work explicitly: full-prefix calls visit
+`1 + ... + T` input rows per projection, incremental calls visit `T`, and the
+avoided earlier key/value rows are identified without claiming a hardware timing
+result.
+
+Use Vaswani et al. for the causal Transformer reference, Shazeer 2019 for the
+incremental-decoding key/value memory-bandwidth motivation, and the PagedAttention
+paper for modern serving pressure around KV-cache memory. These sources do not
+define this course's local storage layout, error taxonomy, reset semantics, or
+transaction policy. TypeScript may parse and cross-check the Rust-authored trace
+grammar but performs no attention arithmetic. Present the exact evidence as one
+locale-neutral static figure using the shared diagram system.
+
+**Consequences:** Chapter 38 can compose one independent cache per decoder block
+without Chapter 37 prematurely owning model-wide prefill or generation. The
+declared outputs now include the strict parser, aggregate diagram/formula tests,
+predecessor navigation counts, exact diagram-trace diff, and focused Firefox
+coverage. No dependency, package, locale activation, deployment behavior, or
+Linux build definition changes.
+
+**Affected step and run:** `implement-ch37-incremental-attention`, run
+`20260726T170310Z-implement-ch37-incremental-attention-01`.
+
+## 2026-07-26 - Bind a layer cache to exact weights and rotary configuration
+
+**Status:** Accepted during the Chapter 37 read-only Rust audit.
+
+**Context:** Batch, model, head, and capacity dimensions alone cannot prove that
+retained keys and values were produced by the layer receiving the next row. A
+same-shaped rebuilt layer can have different weights, and the same parameter
+nodes can be assembled with a different RoPE base or position capacity. Either
+case would make shape-valid cached state semantically stale.
+
+**Decision:** Construct `LayerKvCache` from a `MultiHeadAttention` rather than
+from free-standing dimensions. In addition to its visible shape and capacity
+configuration, keep private handles to the four parameter nodes and the exact
+RoPE feature width, position capacity, and floating-point base bits. Incremental
+forward accepts a cloned layer that shares those nodes and configuration, but
+rejects rebuilt parameters or any rotary mismatch before projection and before
+the sole append commit. The cache continues to store rotated keys and unrotated
+values in fixed `[B, H, C, d_h]` buffers.
+
+**Consequences:** A cache cannot silently cross a model/checkpoint or positional
+configuration boundary merely because dimensions agree. Chapter 38 must create
+each block cache from the block's actual attention layer and replace caches when
+model parameters or RoPE configuration change. This adds no dependency and does
+not change the full-prefix or training path.
+
+**Affected step and run:** `implement-ch37-incremental-attention`, run
+`20260726T170310Z-implement-ch37-incremental-attention-01`.
+
+## 2026-07-26 - Reflow exact cache evidence and verify the actual site dependency pin
+
+**Status:** Accepted after complete staged Rust, static-site, Chromium, and
+Firefox validation and before canonical publication.
+
+**Context:** The first browser candidate placed two full vector coordinates in
+one unbreakable formula inside each cache row and rendered explanatory work-card
+sentences through the math helper. Narrow, forced-colors, and full-view geometry
+therefore exposed overflowing bounded boxes. A separate Firefox replay also
+revealed that an old workspace image contained KaTeX 0.18.0 even though the
+repository and recorded environment pin 0.16.47; results from that stale module
+cache cannot prove the current build.
+
+**Decision:** Keep every numeric cache coordinate in the shared math pipeline,
+but render each key and value coordinate as its own inline equation so the exact
+Rust evidence can wrap without shrinking or clipping. Render explanatory
+projection-count sentences as ordinary localized prose. Keep both attention
+heads in one column inside each timeline card and retain the three-position
+desktop timeline, solid/double state cues, exact row order, and complete static
+figure. Learner-facing content discusses the LLM inference boundary and the Rust
+implementation; site-build mechanics and programming-language-specific parser
+commentary stay outside the chapter.
+
+Before accepting any site result, verify the installed package itself matches
+the lockfile pin. Replay every Node, build, and browser gate with the current
+source image containing KaTeX 0.16.47, and use its module tree in the Playwright
+1.61.1 container. Discard validation evidence produced with the stale 0.18.0
+cache.
+
+**Consequences:** All 21 runtime bounded boxes contain their text and formulas
+at desktop and narrow widths, in full view, forced colors, synthetic RTL, and
+the no-JavaScript fallback in both Chromium and Firefox. Work explanations are
+readable prose rather than pseudo-formulas, while every mathematical value
+remains server-rendered HTML plus MathML. No dependency declaration, shared
+style, Linux build definition, locale activation, hosting, or deployment
+behavior changes.
+
+**Affected step and run:** `implement-ch37-incremental-attention`, run
+`20260726T170310Z-implement-ch37-incremental-attention-01`.

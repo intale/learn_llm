@@ -1,0 +1,300 @@
+---
+import traceSource from '../../../../rust/demos/ch37-incremental-attention/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseIncrementalAttentionTrace,
+  validateIncrementalAttentionDiagramLabels,
+  type IncrementalAttentionDiagramLabels,
+} from '../../lib/incremental-attention-diagram';
+
+interface Props {
+  labels: IncrementalAttentionDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateIncrementalAttentionDiagramLabels(labels);
+const trace = parseIncrementalAttentionTrace(traceSource);
+const titleId = 'incremental-attention-diagram-title';
+const descriptionId = 'incremental-attention-diagram-description';
+
+function pairRows(values: readonly string[]): readonly (readonly string[])[] {
+  const rows: string[][] = [];
+  for (let index = 0; index < values.length; index += 2) {
+    rows.push(values.slice(index, index + 2));
+  }
+  return rows;
+}
+---
+
+<figure
+  class="course-diagram incremental-attention-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="incremental-attention"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.timeline}>
+      <li><span aria-hidden="true">|</span> {labels.cues.retained}</li>
+      <li><span aria-hidden="true">||</span> {labels.cues.appended}</li>
+      <li><span aria-hidden="true">=</span> {labels.cues.match}</li>
+    </ul>
+  </figcaption>
+
+  <section aria-labelledby="incremental-timeline-title">
+    <h4 id="incremental-timeline-title">{labels.sections.timeline}</h4>
+    <p>{labels.captions.timeline}</p>
+    <div class="step-grid">
+      {trace.steps.map((step) => (
+        <article
+          class="step-card"
+          data-diagram-card
+          data-diagram-box
+          data-cache-step={step.position}
+          data-position={step.position}
+          data-cache-before={step.cacheBefore}
+          data-cache-after={step.cacheAfter}
+          data-rope-position={step.position}
+          data-cache-shape={step.cacheShape.join(',')}
+          data-status="match"
+        >
+          <header class="step-header">
+            <h5>{labels.fields.position} <InlineMath latex={`p=${step.position}`} /></h5>
+            <span aria-hidden="true">-&gt;</span>
+            <p>
+              {labels.fields.cache}
+              <InlineMath latex={`${step.cacheBefore}\\to${step.cacheAfter}`} />
+            </p>
+          </header>
+          <p>
+            <strong>{labels.fields.shape}:</strong>
+            <code><bdi dir="ltr">[{step.cacheShape.join(',')}]</bdi></code>
+          </p>
+          <div class="head-grid">
+            {step.heads.map((head) => {
+              const keys = pairRows(head.keys);
+              const values = pairRows(head.values);
+              return (
+                <section
+                  class="head-lane"
+                  data-head={head.head}
+                  aria-label={`${labels.fields.head} ${head.head}`}
+                >
+                  <h6>{labels.fields.head} <InlineMath latex={`h=${head.head}`} /></h6>
+                  <ol class="cache-rows" aria-label={labels.scrollers.cacheRows}>
+                    {keys.map((key, position) => (
+                      <li
+                        class="cache-row"
+                        data-diagram-box
+                        data-cache-row={position}
+                        data-state={position === keys.length - 1 ? 'appended' : 'retained'}
+                      >
+                        <strong>
+                          {position === keys.length - 1 ? labels.cues.appended : labels.cues.retained}
+                        </strong>
+                        <span>
+                          <strong>{labels.fields.keys}:</strong>
+                          <span class="coordinate-list">
+                            {key.map((coordinate, coordinateIndex) => (
+                              <InlineMath latex={`K_{${position},${coordinateIndex}}=${coordinate}`} />
+                            ))}
+                          </span>
+                        </span>
+                        <span>
+                          <strong>{labels.fields.values}:</strong>
+                          <span class="coordinate-list">
+                            {values[position].map((coordinate, coordinateIndex) => (
+                              <InlineMath latex={`V_{${position},${coordinateIndex}}=${coordinate}`} />
+                            ))}
+                          </span>
+                        </span>
+                        <span>
+                          <strong>{labels.fields.weights}:</strong>
+                          <InlineMath latex={`a_{${position}}=${head.weights[position]}`} />
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              );
+            })}
+          </div>
+          <div class="match-proof" data-match-proof={step.position}>
+            <p>
+              <strong>{labels.fields.cached}:</strong>
+              <span class="value-list">
+                {step.incremental.map((value, index) => (
+                  <InlineMath latex={`y_{${index}}=${value}`} />
+                ))}
+              </span>
+            </p>
+            <p>
+              <strong>{labels.fields.full}:</strong>
+              <span class="value-list">
+                {step.full.map((value, index) => (
+                  <InlineMath latex={`y_{${index}}=${value}`} />
+                ))}
+              </span>
+            </p>
+            <p class="match-cue">
+              <span aria-hidden="true">=</span>
+              {labels.cues.match}
+              <strong>{labels.fields.difference}:</strong>
+              <InlineMath latex={`\\Delta_{\\max}=${step.maxAbsDiff}`} />
+            </p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section aria-labelledby="incremental-work-title">
+    <h4 id="incremental-work-title">{labels.sections.work}</h4>
+    <p>{labels.captions.work}</p>
+    <div class="proof-grid">
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="full">
+        <h5>{labels.fields.full}</h5>
+        <InlineMath latex={`1+2+3=${trace.work.full_rows_per_projection}`} />
+        <p>{labels.proofs.full}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="cached">
+        <h5>{labels.fields.cached}</h5>
+        <InlineMath latex={`1+1+1=${trace.work.incremental_rows_per_projection}`} />
+        <p>{labels.proofs.cached}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="reuse">
+        <h5>{labels.cues.retained}</h5>
+        <InlineMath latex={`2\\times${trace.work.reused_rows_per_kv_projection}=${trace.work.avoided_rows_across_kv}`} />
+        <p>{labels.proofs.reused}</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="incremental-reset-title">
+    <h4 id="incremental-reset-title">{labels.sections.reset}</h4>
+    <p>{labels.captions.reset}</p>
+    <div class="proof-grid">
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="reset" data-status="pass">
+        <h5>{labels.cues.unchanged}</h5>
+        <p><InlineMath latex={`${trace.reset.before}\to${trace.reset.after}`} /></p>
+        <code><bdi dir="ltr">allocation_reused={trace.reset.allocation_reused}</bdi></code>
+        <code><bdi dir="ltr">storage_unchanged={trace.reset.storage_unchanged}</bdi></code>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="replay" data-status="pass">
+        <h5>{labels.cues.replay}</h5>
+        <code><bdi dir="ltr">replay_identical={trace.reset.replay_identical}</bdi></code>
+        <p><span aria-hidden="true">OK</span> {labels.cues.match}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-proof="errors" data-status="pass">
+        <h5>{labels.cues.errors}</h5>
+        <code><bdi dir="ltr">two_tokens={trace.errors.two_tokens}</bdi></code>
+        <code><bdi dir="ltr">full_cache={trace.errors.full_cache}</bdi></code>
+        <code><bdi dir="ltr">model_mismatch={trace.errors.model_mismatch}</bdi></code>
+        <code><bdi dir="ltr">head_mismatch={trace.errors.head_mismatch}</bdi></code>
+        <code><bdi dir="ltr">layer_mismatch={trace.errors.layer_mismatch}</bdi></code>
+        <code><bdi dir="ltr">rope_mismatch={trace.errors.rope_mismatch}</bdi></code>
+        <code><bdi dir="ltr">nonfinite_append={trace.errors.nonfinite_append}</bdi></code>
+        <code><bdi dir="ltr">unchanged={trace.errors.unchanged}</bdi></code>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .incremental-attention-diagram,
+  .incremental-attention-diagram > *,
+  .step-card,
+  .head-lane,
+  .cache-rows,
+  .cache-row,
+  .match-proof,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .step-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .step-card,
+  .proof-card,
+  .head-lane,
+  .match-proof {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+
+  .step-card > *,
+  .proof-card > *,
+  .head-lane > *,
+  .match-proof > * {
+    margin: 0;
+  }
+
+  .step-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.55rem;
+  }
+
+  .step-header > * {
+    margin: 0;
+  }
+
+  .head-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+
+  .cache-rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cache-row {
+    display: grid;
+    gap: 0.2rem;
+    max-inline-size: 100%;
+    padding: 0.4rem;
+    border: 0.12rem solid currentColor;
+  }
+
+  .cache-row[data-state='appended'] {
+    border-style: double;
+    border-width: 0.28rem;
+  }
+
+  .value-list,
+  .coordinate-list,
+  .match-cue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.55rem;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.65rem;
+  }
+
+  @container course-diagram (max-width: 62rem) {
+    .step-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+</style>
