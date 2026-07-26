@@ -12,23 +12,23 @@ import {
   type CourseChapterLink,
 } from "./chapter-helpers";
 
-const chapterId = "31-decoder-block";
-const chapterTitle = "Compose one pre-norm Transformer decoder block";
+const chapterId = "32-decoder-model";
+const chapterTitle = "Stack a decoder and tie its vocabulary head";
 const chapterDescription =
-  "Learn how RMSNorm, causal multi-head attention, SwiGLU, and two residual paths compose one shape-preserving Transformer decoder block.";
+  "Learn how token embeddings, repeated causal blocks, final RMSNorm, and one tied vocabulary table produce differentiable next-token logits.";
 const diagramTitle =
-  "Follow two pre-normalized branches around one residual stream";
+  "Follow one tied vocabulary table through a complete decoder";
 const diagramDescription =
-  "Read exact Rust-authored rows through attention normalization, causal multi-head attention, the first residual merge, feed-forward normalization, SwiGLU, and the second residual merge.";
+  "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.";
 const chapterHeadings = [
-  "Trace both residual paths before running the block",
-  "Add each branch to the stream that entered it",
-  "Keep branch values separate from residual values",
-  "From recurrent state and post-norm blocks to pre-norm decoders",
-  "Compose tested parts without hiding their boundaries",
-  "Inspect both bypasses and both transformation branches",
-  "Test order, shape, causality, and parameter ownership",
-  "Repeat the block only at the next model boundary",
+  "Predict the axes before tracing the decoder",
+  "Reuse the embedding table at the far end of the stack",
+  "Distinguish one parameter from its two uses",
+  "From separate recurrent components to one decoder stack",
+  "Make the complete model boundary explicit in Rust",
+  "Inspect one table at both ends of the forward path",
+  "Test axes, ownership, causality, and failures",
+  "Train this exact model at the next boundary",
 ] as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
@@ -120,7 +120,7 @@ async function expectFormulaGeometry(page: Page) {
 
 async function expectDiagramContainment(page: Page) {
   const diagram = page.locator(
-    'figure[data-visualization-id="pre-norm-decoder-block-flow"]',
+    'figure[data-visualization-id="tied-decoder-model-flow"]',
   );
   const result = await diagram.evaluate((node) => {
     const root = node as HTMLElement;
@@ -195,7 +195,7 @@ async function expectDiagramContainment(page: Page) {
   });
   expect(result.problems).toEqual([]);
   expect(result.scrollWidth).toBeLessThanOrEqual(result.clientWidth + 2);
-  expect(result.scrollerCount).toBe(7);
+  expect(result.scrollerCount).toBe(3);
   for (const scroller of await diagram.locator("[data-diagram-scroll]").all()) {
     await scroller.focus();
     await expect(scroller).toBeFocused();
@@ -209,7 +209,7 @@ async function expectChapterContent(
   await expectLocalizedChapterRoute(page, {
     chapterId,
     locale: "en",
-    order: 31,
+    order: 32,
     revision: 1,
     revisionLabel: "Content revision",
     title: chapterTitle,
@@ -226,12 +226,12 @@ async function expectChapterContent(
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
     .allTextContents();
   for (const expected of [
-    "x'=x+\\operatorname{MHA}(\\operatorname{RMSNorm}(x)),\\quad",
-    "y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))",
-    "x,x',y\\in\\mathbb{R}^{B\\times T\\times d_{\\mathrm{model}}}",
-    "N_\\theta",
-    "\\operatorname{LayerNorm}(x+\\operatorname{MHA}(x))",
-    "x'_1=[0.010881,3.989119,0,0]",
+    "\\ell=\\operatorname{RMSNorm}(B_N(\\cdots B_1(E[z])\\cdots))E^\\top",
+    "\\ell\\in\\mathbb{R}^{B\\times T\\times V}",
+    "\\mathcal{L}=-\\frac{1}{BT}",
+    "\\bar E=\\bar E_{\\mathrm{lookup}}+\\bar E_{\\mathrm{output}}",
+    "\\tau=2\\times10^{-5}",
+    "[-0.338936,\\ 1.116846,\\ 1.308420,\\ -0.962186]",
   ]) {
     expect(
       annotations
@@ -248,73 +248,67 @@ async function expectChapterContent(
     " ",
   );
   expect(lessonText).toContain(
-    "rather than a claim about every later LSTM language model",
+    "making its tied-head choice explicit rather than universal",
   );
-  expect(lessonText).toContain(
-    "without claiming that the helper reproduces an LSTM",
-  );
+  expect(lessonText).toContain("does not recreate a historical model");
   await expect(
     page.locator('.lesson-body a[href^="https://arxiv.org/abs/"]'),
   ).toHaveCount(3);
   await expect(
-    page.locator(
-      '.lesson-body a[href^="https://direct.mit.edu/neco/article/"]',
-    ),
+    page.locator('.lesson-body a[href^="https://cdn.openai.com/"]'),
   ).toHaveCount(1);
-  await expect(page.locator("figure.rust-source")).toHaveCount(6);
+  await expect(page.locator("figure.rust-source")).toHaveCount(9);
   await expectVisualizationDecision(page, {
     decision: "useful",
-    id: "pre-norm-decoder-block-flow",
+    id: "tied-decoder-model-flow",
   });
 
   const diagram = page.locator(
-    'figure[data-visualization-id="pre-norm-decoder-block-flow"]',
+    'figure[data-visualization-id="tied-decoder-model-flow"]',
   );
   await expect(diagram).toHaveAccessibleName(diagramTitle);
   await expect(diagram).toHaveAccessibleDescription(diagramDescription);
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
-  await expect(diagram.locator("[data-shape-stage]")).toHaveCount(9);
-  await expect(diagram.locator("[data-flow]")).toHaveCount(2);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(16);
-  await expect(diagram.locator("[data-stage-token]")).toHaveCount(3);
-  await expect(diagram.locator("[data-attention-head]")).toHaveCount(6);
-  await expect(diagram.locator('[data-visibility="allowed"]')).toHaveCount(12);
-  await expect(diagram.locator('[data-visibility="blocked"]')).toHaveCount(6);
-  await expect(diagram.locator("table")).toHaveCount(4);
-  await expect(diagram.locator("table caption")).toHaveCount(4);
+  await expect(diagram.locator("[data-model-stage]")).toHaveCount(6);
+  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(10);
+  await expect(diagram.locator("[data-stage-evidence]")).toHaveCount(4);
+  await expect(diagram.locator("[data-logit-token]")).toHaveCount(3);
+  await expect(diagram.locator("table")).toHaveCount(2);
+  await expect(diagram.locator("table caption")).toHaveCount(2);
+  await expect(diagram.locator("[data-shared-parameter]")).toHaveAttribute(
+    "data-shared-parameter",
+    "token_embedding.weight",
+  );
+  await expect(diagram.locator("[data-shared-parameter]")).toHaveAttribute(
+    "data-tied-roles",
+    "lookup+output",
+  );
   await expect(
-    diagram.locator(
-      '[data-attention-head="0"][data-attention-query="1"] annotation',
-    ),
-  ).toHaveText(["0", "q=1", "0.005440", "0.994560", "0.000000", "1.000000"]);
-  const tokenOne = await diagram
-    .locator('[data-stage-token="1"] annotation')
-    .allTextContents();
-  expect(tokenOne).toContain("[0.010881,3.989119,0.000000,0.000000]");
-  const feedForwardTokenOne = await diagram
-    .locator('[data-feed-forward-token="1"] annotation')
-    .allTextContents();
-  expect(feedForwardTokenOne).toContain(
-    "[0.010896,7.512278,0.000000,0.000000]",
+    diagram.locator('[data-stage-evidence="block-1"] [data-trace-vector]'),
+  ).toHaveAttribute(
+    "data-trace-vector",
+    "[-0.183854,0.605829,0.709748,-0.521934]",
   );
-  const probeTokenOne = await diagram
-    .locator('[data-probe-token-row="1"] annotation')
-    .allTextContents();
-  expect(probeTokenOne).toContain("[0.010896,7.512278,-7.523174]");
-  await expect(diagram.locator('[data-order-proof="true"]')).toContainText(
-    "Numerically different",
+  await expect(diagram.locator('[data-logit-token="1"] annotation')).toHaveText(
+    [
+      "t=1",
+      "-0.862249",
+      "0.967613",
+      "-0.991545",
+      "-0.446363",
+      "1.234533",
+      "\\operatorname*{argmax}=4",
+      "y=2",
+    ],
   );
-  await expect(diagram.locator('[data-prefix-position="0"]')).toHaveAttribute(
-    "data-prefix-status",
-    "bitwise-unchanged",
+  await expect(diagram.locator('[data-prefix-position="0"]')).toContainText(
+    "Bitwise unchanged",
   );
-  await expect(diagram.locator('[data-prefix-position="1"]')).toHaveAttribute(
-    "data-prefix-status",
-    "bitwise-unchanged",
+  await expect(diagram.locator('[data-prefix-position="1"]')).toContainText(
+    "Bitwise unchanged",
   );
-  await expect(diagram.locator('[data-prefix-position="2"]')).toHaveAttribute(
-    "data-prefix-status",
-    "changed",
+  await expect(diagram.locator('[data-prefix-position="2"]')).toContainText(
+    "Numerically changed",
   );
   await expectDiagramContainment(page);
 
@@ -323,35 +317,30 @@ async function expectChapterContent(
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(6);
   await expect(details).toContainText(
-    "The feed-forward branch can still change",
+    "The output role can contribute to every vocabulary row",
   );
   await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
-  ).toHaveAttribute("data-chapter-id", "30-multi-head-attention");
-  await expect(
-    page.locator(
-      'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-    ),
-  ).toHaveAttribute("data-chapter-id", "32-decoder-model");
+  ).toHaveAttribute("data-chapter-id", "31-decoder-block");
   await expectNoOverflowOrClientScripts(page);
 }
 
 test.describe(
-  "chapter 31 pre-normalized decoder block vertical slice",
+  "chapter 32 complete tied decoder model vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 31 while Russian remains complete through Chapter 7", async ({
+    test("English publishes Chapter 32 while Russian remains complete through Chapter 7", async ({
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
-      expect(english.length).toBeGreaterThanOrEqual(31);
-      expect(english[30]).toEqual(
+      expect(english.length).toBeGreaterThanOrEqual(32);
+      expect(english[31]).toEqual(
         expect.objectContaining({
           chapterId,
-          order: 31,
+          order: 32,
           title: chapterTitle,
         }),
       );
@@ -383,51 +372,45 @@ test.describe(
       await expectChapterContent(page, chapters);
     });
 
-    test("identity, branch, merge, allowed, and blocked cues survive forced colors", async ({
+    test("repeated, tied, and verified cues survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
       await page.goto(chapterPath("en", chapterId));
       const diagram = page.locator(
-        'figure[data-visualization-id="pre-norm-decoder-block-flow"]',
+        'figure[data-visualization-id="tied-decoder-model-flow"]',
       );
       await expect(diagram.locator(".cue-list li")).toHaveText([
-        "Solid border: unchanged identity path",
-        "Dashed border: learned transformation branch",
-        "Double border: residual addition",
-        "Solid underline: visible key",
-        "Dashed underline: masked future key",
+        "Double edge: repeated blocks with distinct weights",
+        "Dashed edge: two uses of one parameter",
+        "Double underline: verified Rust evidence",
       ]);
-      await expect(diagram.locator(".identity-card").first()).toHaveCSS(
-        "border-left-style",
-        "solid",
-      );
-      await expect(diagram.locator(".branch-card").first()).toHaveCSS(
-        "border-left-style",
-        "dashed",
-      );
-      await expect(diagram.locator(".merge-card").first()).toHaveCSS(
+      await expect(diagram.locator(".block-stack")).toHaveCSS(
         "border-left-style",
         "double",
       );
-      await expect(diagram.locator("td.allowed").first()).toHaveCSS(
-        "border-bottom-style",
-        "solid",
+      await expect(diagram.locator(".shared-table-card")).toHaveCSS(
+        "border-left-style",
+        "dashed",
       );
-      await expect(diagram.locator("td.blocked").first()).toHaveCSS(
+      await expect(diagram.locator(".tied-cue")).toHaveCSS(
         "border-bottom-style",
         "dashed",
+      );
+      await expect(diagram.locator(".verified-cue")).toHaveCSS(
+        "border-bottom-style",
+        "double",
       );
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test("RTL prose keeps formulas, trace values, and causal table order left-to-right", async ({
+    test("RTL prose keeps formulas, trace values, and vocabulary order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(chapterPath("en", chapterId));
       const diagram = page.locator(
-        'figure[data-visualization-id="pre-norm-decoder-block-flow"]',
+        'figure[data-visualization-id="tied-decoder-model-flow"]',
       );
       await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
       await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
@@ -440,25 +423,15 @@ test.describe(
       ).toBe(true);
       expect(
         await diagram
-          .locator("[data-attention-head]")
+          .locator("[data-logit-token]")
           .evaluateAll((rows) =>
-            rows.map((row) => [
-              row.getAttribute("data-attention-head"),
-              row.getAttribute("data-attention-query"),
-            ]),
+            rows.map((row) => row.getAttribute("data-logit-token")),
           ),
-      ).toEqual([
-        ["0", "0"],
-        ["0", "1"],
-        ["0", "2"],
-        ["1", "0"],
-        ["1", "1"],
-        ["1", "2"],
-      ]);
+      ).toEqual(["0", "1", "2"]);
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test("the lesson and exact decoder-block trace render without JavaScript", async ({
+    test("the lesson and exact decoder-model trace render without JavaScript", async ({
       browser,
     }, testInfo) => {
       const context = await browser.newContext({
@@ -470,15 +443,17 @@ test.describe(
       await expect(
         page.getByRole("heading", { level: 1, name: chapterTitle }),
       ).toBeVisible();
-      await expect(page.locator("[data-shape-stage]")).toHaveCount(9);
-      await expect(page.locator("[data-flow]")).toHaveCount(2);
-      await expect(page.locator("[data-stage-token]")).toHaveCount(3);
-      await expect(page.locator("[data-attention-head]")).toHaveCount(6);
+      await expect(page.locator("[data-model-stage]")).toHaveCount(6);
+      await expect(page.locator("[data-stage-evidence]")).toHaveCount(4);
+      await expect(page.locator("[data-logit-token]")).toHaveCount(3);
+      await expect(page.locator("[data-shared-parameter]")).toContainText(
+        "token_embedding.weight",
+      );
       await expect(page.locator('[data-prefix-position="0"]')).toContainText(
         "Bitwise unchanged",
       );
       await expect(page.locator('[data-prefix-position="2"]')).toContainText(
-        "Numerically different",
+        "Numerically changed",
       );
       await expectNoOverflowOrClientScripts(page);
       await context.close();

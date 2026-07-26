@@ -6105,3 +6105,120 @@ formula pipeline, static runtime, and Linux build remain unchanged.
 
 **Affected step and run:** `implement-ch31-decoder-block`, run
 `20260726T043038Z-implement-ch31-decoder-block-01`.
+
+## 2026-07-26 - Register Chapter 32's complete evidence and history boundary
+
+**Status:** Accepted during preflight before Chapter 32 product files were
+edited.
+
+**Context:** The scheduled Chapter 32 outputs name the decoder model, lesson,
+diagram, and focused tests, but the repository-wide diagram and formula gates
+intentionally enumerate every useful visualization and reviewed formula. The
+static diagram also needs a strict locale-neutral parser for its Rust-authored
+trace. The historical explanation must trace the road to a modern decoder model,
+not drift into programming-language history or make the course's tied-head choice
+sound universal.
+
+**Decision:** Expand the step boundary to include
+`decoder-model-diagram.ts`, the exact diagram-trace executable output, and both
+aggregate diagram and formula test pairs. Advance their expected coverage only
+when the complete English Chapter 32 route exists. Bound read-only research to
+the primary Press and Wolf weight-tying paper, the original Transformer paper,
+the GPT-2 technical report, and the LLaMA paper. Use those sources to distinguish
+historical architecture choices from this course's cumulative configuration;
+do not present programming-language history or claim that every decoder ties its
+input and output weights.
+
+**Consequences:** Chapter 32 must pass the same static, formula-spacing,
+containment, no-JavaScript, forced-color, direction-sensitive, fullscreen, and
+two-engine checks as prior useful diagrams. The research access is explicit and
+bounded; it changes no dependency, build tool, runtime service, locale policy,
+deployment behavior, or Linux build.
+
+**Affected step and run:** `implement-ch32-decoder-model`, run
+`20260726T055601Z-implement-ch32-decoder-model-01`.
+
+## 2026-07-26 - Assemble Chapter 32 around one genuinely tied decoder table
+
+**Status:** Accepted for the Chapter 32 implementation and frozen fixture.
+
+**Context:** Chapter 31 exposes one same-width causal decoder block, while the
+embedding, RMSNorm, tape transpose/matmul, and indexed mean-loss primitives
+already exist. Chapter 32 must add the model boundary without creating a second
+output-head parameter, duplicating block arithmetic, silently allowing an
+invalid zero-depth config, or anticipating cache state and optimization.
+
+**Decision:** Add a bias-free `DecoderModel` configured by vocabulary size,
+model width, heads, feed-forward width, layer count, context capacity, RoPE base,
+and RMSNorm epsilon. Zero, one, and multiple blocks are valid, but every config
+field is validated even at zero depth. Initialization is transactional and owns
+one stable parameter order: `token_embedding.weight`, nine tensors per
+`blocks.N`, then `final_norm.gain`. The vocabulary projection transposes the
+same embedding tape leaf; there is no `lm_head` parameter. Consequently the tied
+table accumulates lookup-role and classifier-role gradients, which the fixture
+proves by decomposing and summing those two contributions.
+
+Accept rank-two `[B,T]` token IDs, enforce a nonempty batch and sequence within
+the fixed context, run every block at position offset zero, apply final RMSNorm,
+and return `[B,T,V]` logits. The indexed loss validates exactly one in-vocabulary
+target per token. Cache offsets, generation, optimization, dropout, and trained
+quality remain deferred. Use a deterministic `V=5`, `d_model=4`, two-head,
+two-block fixture with 20 tensors and 264 scalar parameters; an untied head would
+add 20 more. Check all 24 coordinates introduced by the tied zero-block boundary,
+finite gradients for all 20 stacked tensors, exact causality, errors, and replay.
+
+**Consequences:** Chapter 33 can train one complete decoder through its public
+loss and stable parameter list. The tied design is explicit course scope, not a
+claim that all modern LLMs tie weights. No concept-implementing dependency,
+runtime service, build change, cache state, or optimizer is introduced.
+
+**Affected step and run:** `implement-ch32-decoder-model`, run
+`20260726T055601Z-implement-ch32-decoder-model-01`.
+
+## 2026-07-26 - Reuse one refreshed locked validation image for Chapter 32
+
+**Status:** Accepted after the validation-image cache miss was observed.
+
+**Context:** The Dockerfile copies the complete Rust tree before copying the
+site package manifests and running `npm ci`. Adding the staged decoder source
+therefore changed an ancestor layer key and caused Docker to rerun the package
+installation even though `site/package.json` and `site/package-lock.json` are
+byte-identical to the completed Chapter 31 inputs.
+
+**Decision:** Record this one package-registry operation as an explicit Chapter
+32 input and resource cost. Accept only the exact locked dependency graph, keep
+both package files unchanged, retain the resulting Node 22.12/Rust 1.93.1 source
+image, and reuse it for every remaining staged validation command. Do not alter
+the Dockerfile or the Linux build merely to optimize this run's cache topology.
+
+**Consequences:** No dependency selection, product source, runtime architecture,
+deployment behavior, learner content, or build definition changes. Later
+Chapter 32 validation does not repeat the install unless a material image input
+changes again.
+
+**Affected step and run:** `implement-ch32-decoder-model`, run
+`20260726T055601Z-implement-ch32-decoder-model-01`.
+
+## 2026-07-26 - Advance Chapter 31's terminal navigation with Chapter 32
+
+**Status:** Accepted before changing the staged browser suite.
+
+**Context:** The completed Chapter 31 browser slice correctly proved that its
+route had no next link while Chapter 31 was the English publication frontier.
+Publishing Chapter 32 changes that route relationship: the shared navigation
+helper will expect Chapter 32, while one additional Chapter 31 assertion still
+expects zero next links.
+
+**Decision:** Expand `implement-ch32-decoder-model` by one necessary shared
+integration output, `site/tests/e2e/ch31-decoder-block.spec.ts`, and replace only
+the obsolete terminal assertion with the exact Chapter 32 next-link assertion.
+Write the Chapter 32 suite against the ordered course index so it does not freeze
+the publication frontier and need the same correction when Chapter 33 appears.
+
+**Consequences:** No Chapter 31 learner content, implementation, fixture, route,
+or acceptance evidence changes. The browser contract now checks the real
+ordered link graph created by this step, and Chapter 32 remains independently
+committable before Chapter 33 begins.
+
+**Affected step and run:** `implement-ch32-decoder-model`, run
+`20260726T055601Z-implement-ch32-decoder-model-01`.

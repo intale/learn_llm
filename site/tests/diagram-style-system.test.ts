@@ -1,22 +1,23 @@
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from "node:fs";
 // @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
-import { resolve } from 'node:path';
+import { resolve } from "node:path";
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 
 import {
   validateDiagramComponents,
   validateDiagramComponentSource,
-} from '../../scripts/check-site-content.mjs';
+} from "../../scripts/check-site-content.mjs";
 
 declare const process: { cwd(): string };
 
-const repositoryRoot = resolve(process.cwd(), '..');
-const componentDirectory = resolve(process.cwd(), 'src/components/chapters');
-const read = (path: string) => readFileSync(resolve(repositoryRoot, path), 'utf8');
+const repositoryRoot = resolve(process.cwd(), "..");
+const componentDirectory = resolve(process.cwd(), "src/components/chapters");
+const read = (path: string) =>
+  readFileSync(resolve(repositoryRoot, path), "utf8");
 const components = (readdirSync(componentDirectory) as string[])
-  .filter((name) => name.endsWith('Diagram.astro'))
+  .filter((name) => name.endsWith("Diagram.astro"))
   .sort();
 
 const fixture = `
@@ -36,9 +37,9 @@ const fixture = `
     </section>
   </figure>`;
 
-describe('course diagram design system', () => {
-  it('applies one complete source contract to every current diagram', () => {
-    expect(components).toHaveLength(31);
+describe("course diagram design system", () => {
+  it("applies one complete source contract to every current diagram", () => {
+    expect(components).toHaveLength(32);
     expect(validateDiagramComponents(repositoryRoot)).toBe(components.length);
 
     for (const component of components) {
@@ -46,76 +47,94 @@ describe('course diagram design system', () => {
       expect(source.match(/class="course-diagram\s/g)).toHaveLength(1);
       expect(source.match(/data-diagram-style="course-v1"/g)).toHaveLength(1);
       expect(source.match(/course-diagram__caption/g)).toHaveLength(1);
-      expect(source).toContain('course-diagram__description');
+      expect(source).toContain("course-diagram__description");
       expect(source).not.toMatch(/@media\s*\(\s*max-width\s*:/);
       expect(source).not.toMatch(/contain\s*:\s*paint\b/);
       expect(source).not.toMatch(/overflow-x\s*:\s*(?:auto|scroll)\b/);
     }
   });
 
-  it('loads all diagram presentation from one CSS module', () => {
-    const layout = read('site/src/layouts/BaseLayout.astro');
-    const module = read('site/src/styles/diagram.module.css');
-    const global = read('site/src/styles/global.css');
+  it("loads all diagram presentation from one CSS module", () => {
+    const layout = read("site/src/layouts/BaseLayout.astro");
+    const module = read("site/src/styles/diagram.module.css");
+    const global = read("site/src/styles/global.css");
 
     expect(layout.match(/diagram\.module\.css/g)).toHaveLength(1);
-    expect(layout).toContain('<body class={diagramStyles.host}>');
-    expect(module).toContain('--course-diagram-style-version: course-v1');
-    expect(module).toContain("figure.course-diagram[data-diagram-style='course-v1']");
-    expect(module).toContain('.course-diagram__scroll[data-diagram-scroll]');
-    expect(module).toContain('[data-diagram-card][data-diagram-box]');
-    expect(module).toContain('table[data-diagram-table]');
-    expect(module).toContain('--diagram-summary-min');
-    expect(module).toContain('--diagram-cell-padding-inline');
-    expect(module).toContain('--diagram-scroll-inline-size');
+    expect(layout).toContain("<body class={diagramStyles.host}>");
+    expect(module).toContain("--course-diagram-style-version: course-v1");
+    expect(module).toContain(
+      "figure.course-diagram[data-diagram-style='course-v1']",
+    );
+    expect(module).toContain(".course-diagram__scroll[data-diagram-scroll]");
+    expect(module).toContain("[data-diagram-card][data-diagram-box]");
+    expect(module).toContain("table[data-diagram-table]");
+    expect(module).toContain("--diagram-summary-min");
+    expect(module).toContain("--diagram-cell-padding-inline");
+    expect(module).toContain("--diagram-scroll-inline-size");
     expect(module).toMatch(/\.state-symbol[\s\S]*min-inline-size:\s*1\.7rem/);
     expect(module).toMatch(/\.state-symbol[\s\S]*white-space:\s*nowrap/);
     expect(module).toMatch(
       /\.course-diagram__scroll\[data-diagram-scroll\][\s\S]*position:\s*relative/,
     );
-    expect(global).not.toMatch(/data-diagram-full-view|figure\[data-visualization-id\]/);
+    expect(global).not.toMatch(
+      /data-diagram-full-view|figure\[data-visualization-id\]/,
+    );
   });
 
-  it('rejects style drift, clipped roots, and private scroll implementations', () => {
+  it("rejects style drift, clipped roots, and private scroll implementations", () => {
     expect(() => validateDiagramComponentSource(fixture)).not.toThrow();
     expect(() =>
-      validateDiagramComponentSource(fixture.replace('course-diagram ', '')),
+      validateDiagramComponentSource(fixture.replace("course-diagram ", "")),
     ).toThrow(/course-diagram class/);
     expect(() =>
-      validateDiagramComponentSource(fixture.replace(' data-diagram-style="course-v1"', '')),
+      validateDiagramComponentSource(
+        fixture.replace(' data-diagram-style="course-v1"', ""),
+      ),
     ).toThrow(/data-diagram-style/);
     expect(() =>
-      validateDiagramComponentSource(fixture.replace(' data-diagram-scroll', '')),
+      validateDiagramComponentSource(
+        fixture.replace(" data-diagram-scroll", ""),
+      ),
     ).toThrow(/data-diagram-scroll/);
     expect(() =>
-      validateDiagramComponentSource(fixture.replace(' data-diagram-table', '')),
+      validateDiagramComponentSource(
+        fixture.replace(" data-diagram-table", ""),
+      ),
     ).toThrow(/data-diagram-table/);
     expect(() =>
-      validateDiagramComponentSource(`${fixture}<style>.fixture-diagram { overflow: hidden; }</style>`),
+      validateDiagramComponentSource(
+        `${fixture}<style>.fixture-diagram { overflow: hidden; }</style>`,
+      ),
     ).toThrow(/must not hide or clip overflow/);
     expect(() =>
-      validateDiagramComponentSource(`${fixture}<style>.private { overflow-x: auto; }</style>`),
+      validateDiagramComponentSource(
+        `${fixture}<style>.private { overflow-x: auto; }</style>`,
+      ),
     ).toThrow(/private horizontal-scroll implementation/);
     expect(() =>
-      validateDiagramComponentSource(`${fixture}<style>@media (max-width: 40rem) {}</style>`),
+      validateDiagramComponentSource(
+        `${fixture}<style>@media (max-width: 40rem) {}</style>`,
+      ),
     ).toThrow(/viewport-width diagram breakpoint/);
   });
 
-  it('keeps the permanent rules in both authoring sources of truth', () => {
-    const agents = read('AGENTS.md');
-    const skills = read('SKILLS.md');
+  it("keeps the permanent rules in both authoring sources of truth", () => {
+    const agents = read("AGENTS.md");
+    const skills = read("SKILLS.md");
 
-    expect(agents).toContain('site/src/styles/diagram.module.css');
-    expect(agents).toContain('Never use `overflow: hidden`, `overflow: clip`');
-    expect(agents).toMatch(/Use the shared\s+container, not the browser viewport/);
-    expect(agents).toContain('an ancestor scroller owns travel');
-    expect(agents).toContain('complete four-sided computed borders');
+    expect(agents).toContain("site/src/styles/diagram.module.css");
+    expect(agents).toContain("Never use `overflow: hidden`, `overflow: clip`");
+    expect(agents).toMatch(
+      /Use the shared\s+container, not the browser viewport/,
+    );
+    expect(agents).toContain("an ancestor scroller owns travel");
+    expect(agents).toContain("complete four-sided computed borders");
     expect(skills).toContain('data-diagram-style="course-v1"');
-    expect(skills).toContain('data-diagram-card');
-    expect(skills).toContain('data-diagram-scroll');
-    expect(skills).toContain('A named ancestor scroller never');
-    expect(skills).toContain('complete four-sided computed borders');
-    expect(skills).toContain('--diagram-scroll-inline-size');
-    expect(skills).toContain('painted text');
+    expect(skills).toContain("data-diagram-card");
+    expect(skills).toContain("data-diagram-scroll");
+    expect(skills).toContain("A named ancestor scroller never");
+    expect(skills).toContain("complete four-sided computed borders");
+    expect(skills).toContain("--diagram-scroll-inline-size");
+    expect(skills).toContain("painted text");
   });
 });

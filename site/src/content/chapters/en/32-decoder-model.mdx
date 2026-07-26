@@ -1,0 +1,564 @@
+---
+{
+  "chapter_id": "32-decoder-model",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 32,
+  "concept_id": "decoder-model",
+  "title": "Stack a decoder and tie its vocabulary head",
+  "description": "Learn how token embeddings, repeated causal blocks, final RMSNorm, and one tied vocabulary table produce differentiable next-token logits.",
+  "objective": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits.",
+  "worked_inputs": "Send token IDs [0,1,2] through a deterministic two-block decoder with vocabulary size five and model width four, then inspect every stage, tied-head logits, indexed loss, causality, parameter ownership, and gradients.",
+  "formula": {
+    "latex": "\\ell=\\operatorname{RMSNorm}(B_N(\\cdots B_1(E[z])\\cdots))E^\\top",
+    "symbols": [
+      {
+        "symbol": "\\ell",
+        "meaning": "the vocabulary-logit tensor, not the scalar training loss"
+      },
+      {
+        "symbol": "z",
+        "meaning": "the rank-two batch of integer token IDs"
+      },
+      {
+        "symbol": "E",
+        "meaning": "the single trainable vocabulary-by-feature table used for both token lookup and output projection"
+      },
+      {
+        "symbol": "E[z]",
+        "meaning": "the token embeddings gathered from rows of the tied table"
+      },
+      {
+        "symbol": "B_i",
+        "meaning": "the i-th pre-normalized causal decoder block from Chapter 31, with parameters distinct from every other block"
+      },
+      {
+        "symbol": "N",
+        "meaning": "the configured number of repeated decoder blocks; zero, one, and larger depths are valid"
+      },
+      {
+        "symbol": "\\operatorname{RMSNorm}",
+        "meaning": "the learned-gain final normalization applied after the complete block stack"
+      },
+      {
+        "symbol": "E^\\top",
+        "meaning": "the transpose view of the same embedding parameter, producing one score per vocabulary item"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "Earlier recurrent neural language models commonly separated an input embedding, stepwise recurrent computation, and a distinct vocabulary classifier, so input and output word tables could own independent parameters and updates.",
+      "later_advance": "Weight tying made one vocabulary-feature matrix serve both roles, the Transformer organized causally masked layers into a stack, and GPT-style pre-normalized decoders added a final normalization before the vocabulary head.",
+      "modern_llm_role": "A decoder-only LLM maps token IDs through a repeated causal residual stack into vocabulary logits; this course uses the already-taught RMSNorm, RoPE, attention, and SwiGLU pieces while making its tied-head choice explicit rather than universal.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2017,
+          "name": "Using the Output Embedding to Improve Language Models",
+          "source_url": "https://arxiv.org/abs/1608.05859",
+          "claim": "Press and Wolf describe the input-embedding, intervening-computation, and output-score-matrix roles in recurrent neural language models, recommend tying the two embeddings, and analyze the tied update as contributions from both roles."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Attention Is All You Need",
+          "source_url": "https://arxiv.org/abs/1706.03762",
+          "claim": "Vaswani and colleagues define a stacked causally masked Transformer decoder and report sharing one matrix between embeddings and the pre-softmax linear transformation."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Language Models are Unsupervised Multitask Learners",
+          "source_url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf",
+          "claim": "Radford and colleagues describe GPT-2 as a multi-layer Transformer language model with normalization at each sub-block input and an additional normalization after the final block."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "LLaMA: Open and Efficient Foundation Language Models",
+          "source_url": "https://arxiv.org/abs/2302.13971",
+          "claim": "Touvron and colleagues place pre-normalization with RMSNorm, SwiGLU, RoPE, and causal attention in a modern Transformer language-model family with model depth as an explicit architecture dimension."
+        }
+      ]
+    },
+    "approach": "Recurrent language models with separate input and output tables, followed by the transition to tied vocabulary weights and repeated causal Transformer layers.",
+    "summary": "The model boundary evolved from a token embedding feeding stepwise recurrent state and a separate classifier toward repeated causally masked blocks whose final hidden states are normalized and projected to vocabulary logits. Weight tying lets one table own lookup and classifier roles, reducing parameters while requiring both gradient contributions to accumulate on one leaf.",
+    "rust_source": "rust/demos/ch32-decoder-model/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
+      "region": "decoder-model-errors",
+      "purpose": "Keep configuration, component, token, context, target, and tape failures explicit at the complete model boundary."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
+      "region": "decoder-model-config",
+      "purpose": "Validate the vocabulary, widths, depth, context, RoPE, and normalization settings even for an empty block stack."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
+      "region": "decoder-model-layer",
+      "purpose": "Own one embedding table, distinct repeated blocks, final RMSNorm, tied projection, indexed loss, and stable parameters."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/lib.rs",
+      "region": "tied-gradient-proof",
+      "purpose": "Separate lookup and output roles and prove their gradients add on the one tied table leaf."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/lib.rs",
+      "region": "gradient-checks",
+      "purpose": "Compare all tied-table and final-normalization gradients with central differences."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/lib.rs",
+      "region": "learner-evidence",
+      "purpose": "Collect deterministic stage, logits, causality, parameter, depth, history, and replay evidence."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/lib.rs",
+      "region": "learner-report",
+      "purpose": "Format the exact learner report without moving optimization into this chapter."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/main.rs",
+      "purpose": "Print the frozen Chapter 32 learner report."
+    },
+    {
+      "path": "rust/demos/ch32-decoder-model/src/diagram_trace.rs",
+      "purpose": "Emit the strict locale-neutral twenty-nine-line trace consumed by the static visualization."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "tied-decoder-model-flow",
+    "rationale": "A single pipeline makes the repeated same-shaped block stack and the one embedding table's two distant roles visible together, while exact per-stage vectors and logits prove that the diagram is evidence rather than decorative architecture art."
+  },
+  "decoder_connection": "The cumulative implementation now produces differentiable next-token logits and mean indexed loss from token IDs; Chapter 33 will train this exact model with a bounded deterministic loop and choose one state using validation loss only."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import DecoderModelDiagram from "../../../components/chapters/DecoderModelDiagram.astro";
+
+export const diagramLabels = {
+  title: "Follow one tied vocabulary table through a complete decoder",
+  description:
+    "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.",
+  sections: {
+    pipeline: "One decoder path with one table in two roles",
+    evidence: "Inspect representative hidden rows and every logit",
+    proof: "Verify ownership, tied gradients, causality, and depth boundaries",
+  },
+  stages: {
+    ids: "Token IDs",
+    lookup: "Embedding lookup",
+    blocks: "Two distinct decoder blocks",
+    finalNorm: "Final RMSNorm",
+    projection: "Tied projection",
+    logits: "Vocabulary logits",
+  },
+  fields: {
+    shape: "Shape",
+    stage: "Stage",
+    token: "Token position",
+    target: "Target",
+    values: "Exact feature row",
+    prediction: "Prediction",
+    meanLoss: "Mean indexed loss",
+    parameterCount: "One stable parameter list",
+    parameterSaving: "Scalars saved by tying",
+    gradientProof: "Both roles accumulate on one leaf",
+    causalProof: "Changing only the suffix",
+    depthProof: "Depth and boundary checks",
+  },
+  cues: {
+    oneTable: "One parameter, used twice",
+    lookupRole: "Lookup role",
+    projectionRole: "Transpose projection role",
+    repeated: "Double edge: repeated blocks with distinct weights",
+    tied: "Dashed edge: two uses of one parameter",
+    verified: "Double underline: verified Rust evidence",
+    unchanged: "Bitwise unchanged",
+    changed: "Numerically changed",
+  },
+  captions: {
+    pipeline:
+      "The residual width remains four through lookup, both blocks, and final normalization; only the tied projection changes the final axis to vocabulary width five.",
+    evidence:
+      "The page labels frozen lexemes from Rust. It does not recompute lookup, either block, normalization, projection, prediction, or loss.",
+    proof:
+      "Parameter counts, role decomposition, prefix invariance, valid depths, and named input failures all come from the same deterministic fixture.",
+  },
+  scrollers: {
+    pipeline: "Scrollable tied decoder-model pipeline",
+    stages: "Scrollable representative decoder-stage evidence table",
+    logits: "Scrollable vocabulary-logit evidence table",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict the axes before tracing the decoder
+
+Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm,
+and one genuinely tied vocabulary projection into differentiable logits. The
+fixture sends token IDs $z=[0,1,2]$ through a two-block decoder with vocabulary
+size $V=5$, model width $d_{\mathrm{model}}=4$, two attention heads,
+feed-forward width $d_{\mathrm{ff}}=4$, and context capacity $4$. Its targets
+are $y=[1,2,3]$.
+
+Before running it, predict the five structural results:
+
+1. lookup returns shape $[1,3,4]$;
+2. both decoder blocks and final RMSNorm preserve $[1,3,4]$;
+3. the vocabulary projection returns $[1,3,5]$;
+4. `token_embedding.weight` appears once, even though two tape paths use it;
+5. changing only token position $2$ cannot change logit rows $0$ or $1$.
+
+The deterministic fixture then supplies numbers. At token position $1$, the
+logit row is
+
+$$
+[-0.862249,\ 0.967613,\ -0.991545,\ -0.446363,\ 1.234533].
+$$
+
+Its largest entry is vocabulary ID $4$. Across the three target positions, the
+mean indexed negative log likelihood is $2.045535$. This is evidence from an
+untrained tiny fixture, not evidence that it has learned language.
+
+{/* chapter-section:formula */}
+
+## Reuse the embedding table at the far end of the stack
+
+The complete forward formula is
+
+$$
+\ell=\operatorname{RMSNorm}(B_N(\cdots B_1(E[z])\cdots))E^\top
+$$
+
+The token selectors satisfy
+$z\in\{0,\ldots,V-1\}^{B\times T}$. Lookup through
+$E\in\mathbb{R}^{V\times d_{\mathrm{model}}}$ produces a residual stream in
+$\mathbb{R}^{B\times T\times d_{\mathrm{model}}}$. Every $B_i$ preserves that
+shape. Final $\operatorname{RMSNorm}$ also preserves it. Multiplication by
+$E^\top$ changes only the last axis, so
+
+$$
+\ell\in\mathbb{R}^{B\times T\times V}.
+$$
+
+Here $\ell$ is the logit tensor, not the scalar training loss. For targets $y$,
+the fixture computes
+
+$$
+\mathcal{L}=-\frac{1}{BT}\sum_{b=1}^{B}\sum_{t=1}^{T}
+\log\operatorname{softmax}(\ell_{b,t,:})_{y_{b,t}}.
+$$
+
+With bias-free components, one block owns
+$4d_{\mathrm{model}}^2+3d_{\mathrm{model}}d_{\mathrm{ff}}+2d_{\mathrm{model}}$
+scalars. The complete tied model owns
+
+$$
+Vd_{\mathrm{model}}+N\left(4d_{\mathrm{model}}^2
++3d_{\mathrm{model}}d_{\mathrm{ff}}+2d_{\mathrm{model}}\right)
++d_{\mathrm{model}}.
+$$
+
+For this fixture, the count is $20+2(64+48+8)+4=264$. A separate vocabulary
+matrix would add $Vd_{\mathrm{model}}=20$ scalars and raise the total to $284$.
+
+{/* chapter-section:symbol-glossary */}
+
+## Distinguish one parameter from its two uses
+
+- $z$ is the rank-two batch of integer token IDs.
+- $E$ is one trainable vocabulary-by-feature table.
+- $E[z]$ gathers token rows from that table for the lookup role.
+- $B_i$ is the $i$-th pre-normalized causal decoder block. Equal configuration
+  does not mean shared block parameters.
+- $N$ is decoder depth. This implementation accepts zero, one, or more blocks.
+- Final $\operatorname{RMSNorm}$ owns a gain separate from every block gain.
+- $E^\top$ is a differentiable transpose view of $E$, not another parameter.
+- $\ell$ contains vocabulary logits; $\mathcal{L}$ is the scalar mean loss.
+
+Weight tying is stronger than equal initialization. There is no
+`lm_head.weight`, no copied matrix, and no synchronization step. Reverse mode
+reaches `token_embedding.weight` once through gathered input rows and once
+through the output projection, then adds both contributions on the same leaf:
+
+$$
+\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}.
+$$
+
+{/* chapter-section:history */}
+
+## From separate recurrent components to one decoder stack
+
+Recurrent language models with separate input and output tables, followed by
+the transition to tied vocabulary weights and repeated causal Transformer
+layers. This is the bounded road to the modern LLM boundary assembled here.
+
+[Using the Output Embedding to Improve Language Models](https://arxiv.org/abs/1608.05859)
+supplies the earlier comparison. Press and Wolf describe the input-embedding,
+intervening-computation, and output-score-matrix roles in recurrent neural
+language models, recommend tying the two embeddings, and analyze the tied
+update as contributions from both roles. Earlier recurrent neural language
+models commonly separated an input embedding, stepwise recurrent computation,
+and a distinct vocabulary classifier, so input and output word tables could own
+independent parameters and updates.
+
+[Attention Is All You Need](https://arxiv.org/abs/1706.03762) changes the
+sequence architecture. Vaswani and colleagues define a stacked causally masked
+Transformer decoder and report sharing one matrix between embeddings and the
+pre-softmax linear transformation. Their full translation decoder also has
+encoder-decoder attention and post-normalization, so it is not the same model
+as this decoder-only pre-norm fixture.
+
+[Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf)
+provides the next model-level ordering. Radford and colleagues describe GPT-2
+as a multi-layer Transformer language model with normalization at each
+sub-block input and an additional normalization after the final block. This
+chapter uses that ordering boundary without claiming GPT-2's scale,
+initialization, tokenizer, context, or trained parameters.
+
+[LLaMA](https://arxiv.org/abs/2302.13971) gives a bounded modern family.
+Touvron and colleagues place pre-normalization with RMSNorm, SwiGLU, RoPE, and
+causal attention in a modern Transformer language-model family with model depth
+as an explicit architecture dimension. A decoder-only LLM maps token IDs
+through a repeated causal residual stack into vocabulary logits; this course
+uses the already-taught RMSNorm, RoPE, attention, and SwiGLU pieces while making
+its tied-head choice explicit rather than universal.
+
+Weight tying made one vocabulary-feature matrix serve both roles, the
+Transformer organized causally masked layers into a stack, and GPT-style
+pre-normalized decoders added a final normalization before the vocabulary head.
+The model boundary therefore evolved from a token embedding feeding stepwise
+recurrent state and a separate classifier toward repeated causally masked
+blocks whose final hidden states are normalized and projected to vocabulary
+logits. Weight tying reduces parameters while requiring both gradient
+contributions to accumulate on one leaf.
+
+The runnable contrast stays on that LLM architecture path. The tied fixture has
+$264$ scalars; an otherwise identical model with a separate
+$[5,4]$ vocabulary classifier would have $284$. Detaching each use in turn
+checks that the full table gradient is the sum of the lookup-role and
+output-role contributions. It does not recreate a historical model or turn the
+history into a comparison of programming languages.
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/lib.rs"
+  region="tied-gradient-proof"
+  caption="Separate the lookup and output paths and add their contributions on one vocabulary table"
+  label="Rust source proving the Chapter 32 tied-embedding history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Make the complete model boundary explicit in Rust
+
+`DecoderModelError` identifies invalid vocabulary, width, head, feed-forward,
+depth, context, RoPE, RMSNorm, component, parameter-name, token, target, and tape
+boundaries. Delegated block, embedding, normalization, projection, and indexed
+loss failures retain their source instead of collapsing into one generic model
+error.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder.rs"
+  region="decoder-model-errors"
+  caption="Attribute each complete-model failure to the boundary that rejected it"
+  label="Rust source defining Chapter 32 decoder-model errors"
+/>
+
+`DecoderModelConfig` validates all architecture settings even when $N=0$. An
+empty stack therefore cannot hide an invalid head layout, zero vocabulary, bad
+context capacity, nonfinite RoPE base, or invalid RMSNorm epsilon.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder.rs"
+  region="decoder-model-config"
+  caption="Validate vocabulary, dimensions, depth, context, RoPE, and normalization before assembly"
+  label="Rust source defining and validating the Chapter 32 decoder configuration"
+/>
+
+Construction owns `token_embedding.weight`, then nine stable parameters for
+each entry under `blocks.N`, then `final_norm.gain`. The two-block fixture has
+$20$ tensors and $264$ scalars. There is deliberately no output-head parameter.
+Initialization uses a trial random stream and commits the caller's stream only
+after all components and cross-component invariants pass.
+
+`forward` accepts only nonempty rank-two token IDs with
+$T\leq\mathrm{max\_positions}$. It looks up rows, calls each block at position
+offset zero, applies final RMSNorm, transposes the original table leaf, and
+multiplies directly to obtain logits. `loss` first checks one valid target per
+token, then applies indexed mean negative log likelihood on vocabulary axis
+$2$.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder.rs"
+  region="decoder-model-layer"
+  caption="Compose lookup, distinct blocks, final RMSNorm, tied logits, indexed loss, and stable parameters"
+  label="Rust source implementing the complete Chapter 32 decoder model"
+/>
+
+The focused numerical proof checks all $20$ coordinates of the tied table and
+all $4$ coordinates of the final gain against central differences. Its bound is
+
+$$
+\tau=2\times10^{-5}.
+$$
+
+The full two-block loss also gives finite gradients to all $20$ registered
+parameter tensors.
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/lib.rs"
+  region="gradient-checks"
+  caption="Check the tied table and final gain numerically, then inspect every stacked parameter gradient"
+  label="Rust source validating Chapter 32 decoder gradients"
+/>
+
+The deterministic fixture collects exact stage values, logits, mean loss,
+parameter ownership, depth checks, named invalid inputs, causality, history
+evidence, and bitwise replay.
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/lib.rs"
+  region="learner-evidence"
+  caption="Collect one coherent evidence record for the complete decoder boundary"
+  label="Rust source collecting Chapter 32 learner evidence"
+/>
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/lib.rs"
+  region="learner-report"
+  caption="Format the exact decoder-model report while deferring optimization to Chapter 33"
+  label="Rust source formatting the Chapter 32 learner report"
+/>
+
+The executable prints only the frozen report:
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/main.rs"
+  caption="Print the frozen Chapter 32 decoder-model learner report"
+  label="Rust entry point for the Chapter 32 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch32-decoder-model`. Its standard output
+matches `rust/demos/ch32-decoder-model/expected.txt` byte for byte, including the
+final newline.
+
+{/* chapter-section:visualization */}
+
+## Inspect one table at both ends of the forward path
+
+The trace executable emits one fixed grammar containing the model
+configuration, token IDs, every feature row after lookup and each stacked
+stage, all vocabulary logits, targets, predictions, mean loss, tying evidence,
+parameter counts, input boundaries, causality, gradient checks, history flags,
+and replay status.
+
+<RustSource
+  path="rust/demos/ch32-decoder-model/src/diagram_trace.rs"
+  caption="Emit the strict twenty-nine-line decoder-model trace"
+  label="Rust source producing the Chapter 32 static diagram trace"
+/>
+
+<DecoderModelDiagram labels={diagramLabels} />
+
+The figure contains one card for `token_embedding.weight`. The lookup relation
+uses $E[z]$ near the beginning of the path, and the projection relation uses
+$E^\top$ after final normalization. That single-card structure matters: two
+separate matrix cards would suggest copied parameters. Double and dashed cues
+retain the repeated-versus-tied distinction without color.
+
+Read token position $1$ downward through the evidence table. Lookup begins at
+
+$$
+[0.104430,\ 0.699156,\ 0.051971,\ -0.160217].
+$$
+
+The two distinct blocks produce
+
+$$
+[-0.772509,\ 0.841246,\ 1.816030,\ 0.156071]
+$$
+
+and then
+
+$$
+[-0.183854,\ 0.605829,\ 0.709748,\ -0.521934].
+$$
+
+Final RMSNorm gives
+
+$$
+[-0.338936,\ 1.116846,\ 1.308420,\ -0.962186],
+$$
+
+which the tied transpose maps to the five logits shown earlier. The site parser
+accepts only the exact Rust-authored trace and keeps every numeric lexeme as a
+string. It performs no lookup, block, RMSNorm, projection, softmax, loss,
+parameter-count, prediction, or gradient arithmetic.
+
+{/* chapter-section:exercises */}
+
+## Test axes, ownership, causality, and failures
+
+1. For $B=2$, $T=6$, $d_{\mathrm{model}}=12$, and $V=40$, write the shape
+   after lookup, each block, final RMSNorm, and the tied projection.
+2. For $V=40$, $d_{\mathrm{model}}=12$, $d_{\mathrm{ff}}=32$, and $N=3$,
+   compute the tied model's parameter count. How many scalars would an untied
+   vocabulary head add?
+3. List the first, tenth, and last parameter names for a two-block model. Why is
+   there no `lm_head.weight`?
+4. Draw both tape paths that reach `token_embedding.weight`. Which rows can the
+   lookup role update, and which rows can the classifier role update?
+5. Change only the final token in a three-token input. Which logits must remain
+   bitwise unchanged?
+6. Classify these failures: zero heads, token length above capacity, token ID
+   $V$, and one missing target.
+
+<details>
+  <summary>Check the structural answers</summary>
+
+  1. Lookup, every block, and final RMSNorm have shape $[2,6,12]$. The tied
+     projection has shape $[2,6,40]$.
+  2. The tied count is $40(12)+3(4(12)^2+3(12)(32)+2(12))+12=5748$.
+     An untied head adds $40(12)=480$ scalars.
+  3. The first is `token_embedding.weight`, the tenth is
+     `blocks.0.ffn.down.weight`, and the last is `final_norm.gain`.
+     The transpose of the first leaf serves as the head, so no head parameter
+     exists.
+  4. Lookup directly touches rows selected by input IDs. The output role can
+     contribute to every vocabulary row because every row receives a logit.
+     Reverse mode adds both contributions on the one table.
+  5. Logit rows $0$ and $1$ remain bitwise unchanged; row $2$ may change.
+     Causal masking inside every repeated block preserves that prefix boundary.
+  6. Zero heads is a configuration failure, excess token length is a context
+     failure, ID $V$ is a vocabulary-input failure, and a missing target is a
+     target-shape failure.
+</details>
+
+Misconception: tying copies the embedding matrix into an output head. Correction:
+there is one table leaf and two differentiable uses. A separate but equal matrix
+would have separate identity, parameter ownership, and gradients.
+
+{/* chapter-section:decoder-connection */}
+
+## Train this exact model at the next boundary
+
+The cumulative implementation now produces differentiable next-token logits
+and mean indexed loss from token IDs; Chapter 33 will train this exact model
+with a bounded deterministic loop and choose one state using validation loss
+only.
+
+This chapter stops before optimization. It owns architecture, parameter
+identity, logits, indexed loss, causality, and gradients, but it does not clip
+gradients, apply AdamW, zero gradients between steps, evaluate validation data,
+select a checkpoint, inspect test data, generate tokens, or manage a KV cache.
+Those responsibilities stay visible when Chapter 33 adds the training loop.

@@ -1,0 +1,14 @@
+chapter=32-decoder-model
+config=batch:1 tokens:3 vocabulary:5 model_width:4 layers:2 heads:2 head_width:2 feed_forward_width:4 context:4
+shape=embedding:[1, 3, 4] block_0:[1, 3, 4] block_1:[1, 3, 4] final_norm:[1, 3, 4] logits:[1, 3, 5]
+token_1_logits=[-0.862249,0.967613,-0.991545,-0.446363,1.234533]
+targets=[1,2,3] mean_loss:2.045535
+prediction=token_0:0 token_1:4 token_2:1
+tying=name:token_embedding.weight lookup_and_head:true gradient_roles:lookup+output decomposition_error:0.000000000000
+parameters=tensors:20 scalars:264 untied_scalars:284 saved:20 bias_free:true stable_order:true
+depths=zero_one_two:true context_limit:true vocabulary_errors:true target_errors:true
+causality=prefix_0_bitwise:true prefix_1_bitwise:true suffix_changed:true
+gradcheck=tied_table:20 final_norm:4 total:24 tolerance:0.000020 passed:true stack_gradients:20/20
+history=recurrent_components:true tied_embeddings:true transformer_stack:true final_norm:true rmsnorm_decoder:true
+replay=bitwise:true
+next=train this decoder and select a state with validation loss only

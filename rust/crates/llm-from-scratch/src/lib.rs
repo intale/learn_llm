@@ -20,6 +20,7 @@ pub mod attention {
 
 /// Complete decoder models assembled from the chapter-by-chapter primitives.
 pub mod models {
+    pub mod decoder;
     pub mod decoder_block;
     pub mod neural_ngram;
 }

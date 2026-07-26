@@ -1,0 +1,395 @@
+---
+import traceSource from '../../../../rust/demos/ch32-decoder-model/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseDecoderModelTrace,
+  validateDecoderModelDiagramLabels,
+  type DecoderModelDiagramLabels,
+} from '../../lib/decoder-model-diagram';
+
+interface Props {
+  labels: DecoderModelDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateDecoderModelDiagramLabels(labels);
+const trace = parseDecoderModelTrace(traceSource);
+const stage = (name: string) => {
+  const found = trace.stages.find((candidate) => candidate.name === name);
+  if (found === undefined) throw new Error('missing decoder-model stage ' + name);
+  return found;
+};
+const embedding = stage('embedding');
+const blockZero = stage('block-0');
+const blockOne = stage('block-1');
+const finalNorm = stage('final-norm');
+const representativeStages = [embedding, blockZero, blockOne, finalNorm];
+const titleId = 'decoder-model-diagram-title';
+const descriptionId = 'decoder-model-diagram-description';
+const vectorParts = (name: string, values: readonly string[]) =>
+  values.map(
+    (value, index) =>
+      (index === 0 ? (name === '' ? '[' : name + '=[') : '') +
+      value +
+      (index === values.length - 1 ? ']' : ','),
+  );
+---
+
+<figure
+  class="course-diagram decoder-model-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="tied-decoder-model-flow"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.pipeline}>
+      <li class="repeated-cue">{labels.cues.repeated}</li>
+      <li class="tied-cue">{labels.cues.tied}</li>
+      <li class="verified-cue">{labels.cues.verified}</li>
+    </ul>
+  </figcaption>
+
+  <section class="pipeline-section" aria-labelledby="decoder-model-pipeline-title">
+    <h4 id="decoder-model-pipeline-title">{labels.sections.pipeline}</h4>
+    <p>{labels.captions.pipeline}</p>
+    <div
+      class="pipeline-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.pipeline}
+      data-diagram-scroll
+    >
+      <div class="pipeline-layout">
+        <article data-diagram-card data-diagram-box class="flow-card ids-card" data-model-stage="ids">
+          <h5>{labels.stages.ids}</h5>
+          <InlineMath latex={'z=' + trace.tokens.values.latex} />
+          <InlineMath latex={trace.tokens.shape} />
+        </article>
+        <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        <article data-diagram-card data-diagram-box class="flow-card lookup-card" data-model-stage="lookup">
+          <h5>{labels.stages.lookup}</h5>
+          <InlineMath latex="E[z]" />
+          <InlineMath latex={embedding.shape} />
+        </article>
+        <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        <article data-diagram-card data-diagram-box class="flow-card block-stack" data-model-stage="blocks" data-repeat-count={trace.config.layers}>
+          <h5>{labels.stages.blocks}</h5>
+          <p><InlineMath latex="B_1" /> <span aria-hidden="true">&rarr;</span> <InlineMath latex="B_2" /></p>
+          <code><bdi dir="ltr">blocks.0, blocks.1</bdi></code>
+          <InlineMath latex={blockOne.shape} />
+        </article>
+        <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        <article data-diagram-card data-diagram-box class="flow-card norm-card" data-model-stage="final-norm">
+          <h5>{labels.stages.finalNorm}</h5>
+          <InlineMath latex={String.raw`\operatorname{RMSNorm}`} />
+          <InlineMath latex={finalNorm.shape} />
+        </article>
+        <span class="projection-step" data-model-stage="projection">
+          <span>{labels.stages.projection}</span>
+          <InlineMath latex={String.raw`E^\top`} />
+          <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        </span>
+        <article data-diagram-card data-diagram-box class="flow-card logits-card" data-model-stage="logits">
+          <h5>{labels.stages.logits}</h5>
+          <InlineMath latex={String.raw`\ell`} />
+          <InlineMath latex="[1,3,5]" />
+        </article>
+
+        <article
+          data-diagram-card
+          data-diagram-box
+          class="shared-table-card"
+          data-shared-parameter={trace.tying.name}
+          data-tied-roles={trace.tying.gradient_roles}
+        >
+          <h5>{labels.cues.oneTable}</h5>
+          <code><bdi dir="ltr">{trace.tying.name}</bdi></code>
+          <p class="role-cues">
+            <span>{labels.cues.lookupRole}: <InlineMath latex="E[z]" /></span>
+            <span>{labels.cues.projectionRole}: <InlineMath latex={String.raw`E^\top`} /></span>
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="evidence-section" aria-labelledby="decoder-model-evidence-title">
+    <h4 id="decoder-model-evidence-title">{labels.sections.evidence}</h4>
+    <p>{labels.captions.evidence}</p>
+    <div
+      class="stage-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.stages}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="stage-table">
+        <caption>{labels.scrollers.stages}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.stage}</th>
+            <th scope="col">{labels.fields.token}</th>
+            <th scope="col">{labels.fields.shape}</th>
+            <th scope="col">{labels.fields.values}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {representativeStages.map((item) => (
+            <tr data-stage-evidence={item.name}>
+              <th scope="row"><code><bdi dir="ltr">{item.name}</bdi></code></th>
+              <td><InlineMath latex="t=1" /></td>
+              <td><InlineMath latex={item.shape} /></td>
+              <td>
+                <span class="wrapped-vector" data-trace-vector={item.tokens[1].values.latex}>
+                  {vectorParts('', item.tokens[1].values.values).map((part) => <InlineMath latex={part} />)}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="logits-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.logits}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="logits-table">
+        <caption>{labels.scrollers.logits}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.token}</th>
+            {['0', '1', '2', '3', '4'].map((vocabularyId) => (
+              <th scope="col"><InlineMath latex={'v=' + vocabularyId} /></th>
+            ))}
+            <th scope="col">{labels.fields.prediction}</th>
+            <th scope="col">{labels.fields.target}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.logits.map((row, rowIndex) => (
+            <tr data-logit-token={row.token}>
+              <th scope="row"><InlineMath latex={'t=' + row.token} /></th>
+              {row.values.values.map((value) => <td><InlineMath latex={value} /></td>)}
+              <td data-prediction={trace.predictions.values[rowIndex]}>
+                <InlineMath latex={String.raw`\operatorname*{argmax}=${trace.predictions.values[rowIndex]}`} />
+              </td>
+              <td><InlineMath latex={'y=' + trace.targets.values[rowIndex]} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="loss-line">
+      {labels.fields.meanLoss}: <InlineMath latex={String.raw`\mathcal{L}=${trace.loss.mean}`} />
+    </p>
+  </section>
+
+  <section class="proof-section" aria-labelledby="decoder-model-proof-title">
+    <h4 id="decoder-model-proof-title">{labels.sections.proof}</h4>
+    <p>{labels.captions.proof}</p>
+    <div class="proof-grid">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card parameter-card">
+        <h5>{labels.fields.parameterCount}</h5>
+        <p><InlineMath latex={String.raw`N_\theta=${trace.parameters.scalars}`} /></p>
+        <p>{labels.fields.parameterSaving}: <InlineMath latex={trace.parameters.untied_scalars + '-' + trace.parameters.scalars + '=' + trace.parameters.saved} /></p>
+        <code><bdi dir="ltr">tensors={trace.parameters.tensors}, bias_free={trace.parameters.bias_free}</bdi></code>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card gradient-card">
+        <h5>{labels.fields.gradientProof}</h5>
+        <p><InlineMath latex={String.raw`\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}`} /></p>
+        <p><InlineMath latex={String.raw`\Delta=${trace.tying.decomposition_error}`} /></p>
+        <code><bdi dir="ltr">checked={trace.gradcheck.total}, stack={trace.gradcheck.stack_gradients}</bdi></code>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card causal-card">
+        <h5>{labels.fields.causalProof}</h5>
+        <p data-prefix-position="0" data-prefix-status={trace.causality.prefix_0_bitwise}>
+          <InlineMath latex="t=0" />: {labels.cues.unchanged}
+        </p>
+        <p data-prefix-position="1" data-prefix-status={trace.causality.prefix_1_bitwise}>
+          <InlineMath latex="t=1" />: {labels.cues.unchanged}
+        </p>
+        <p data-prefix-position="2" data-prefix-status={trace.causality.suffix_changed}>
+          <InlineMath latex="t=2" />: {labels.cues.changed}
+        </p>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card depth-card">
+        <h5>{labels.fields.depthProof}</h5>
+        <p><InlineMath latex={String.raw`N\in\{0,1,2\}`} />: {labels.cues.verified}</p>
+        <code><bdi dir="ltr">context={trace.depths.context_limit}</bdi></code>
+        <code><bdi dir="ltr">vocabulary={trace.depths.vocabulary_errors}</bdi></code>
+        <code><bdi dir="ltr">targets={trace.depths.target_errors}</bdi></code>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .decoder-model-diagram,
+  .decoder-model-diagram > *,
+  .pipeline-region,
+  .stage-region,
+  .logits-region,
+  .flow-card,
+  .shared-table-card,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .technical,
+  .projection-step,
+  .wrapped-vector {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .pipeline-layout {
+    display: grid;
+    grid-template-columns: 8rem 1.25rem 10rem 1.25rem 15rem 1.25rem 10rem 5rem 10rem;
+    grid-template-rows: auto auto;
+    inline-size: max-content;
+    min-inline-size: 68rem;
+    gap: 0.7rem;
+    align-items: stretch;
+  }
+
+  .flow-card,
+  .shared-table-card,
+  .proof-card {
+    display: grid;
+    gap: 0.4rem;
+    align-content: center;
+  }
+
+  .flow-card {
+    text-align: center;
+  }
+
+  .flow-card h5,
+  .shared-table-card h5,
+  .shared-table-card p,
+  .proof-card h5,
+  .proof-card p {
+    margin: 0;
+  }
+
+  .flow-arrow {
+    align-self: center;
+    justify-self: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .projection-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem;
+    align-content: center;
+    text-align: center;
+  }
+
+  .projection-step > span:first-child,
+  .projection-step > :global([data-inline-math]) {
+    grid-column: 1;
+  }
+
+  .projection-step > .flow-arrow {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+
+  .block-stack,
+  .repeated-cue {
+    border-inline-start-style: double;
+    border-inline-start-width: 4px;
+  }
+
+  .shared-table-card {
+    grid-column: 3 / 9;
+    grid-row: 2;
+    text-align: center;
+    border-style: dashed;
+  }
+
+  .role-cues,
+  .cue-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+  }
+
+  .role-cues {
+    justify-content: center;
+  }
+
+  .tied-cue {
+    border-block-end-style: dashed;
+    border-block-end-width: 3px;
+  }
+
+  .verified-cue {
+    border-block-end-style: double;
+    border-block-end-width: 4px;
+  }
+
+  .stage-table,
+  .logits-table {
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+
+  .stage-table {
+    min-inline-size: 44rem;
+  }
+
+  .logits-table {
+    min-inline-size: 58rem;
+  }
+
+  .wrapped-vector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.12rem 0.2rem;
+    max-inline-size: 100%;
+  }
+
+  .loss-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: baseline;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  @container course-diagram (max-width: 48rem) {
+    .proof-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .shared-table-card,
+    .tied-cue {
+      border-style: dashed;
+    }
+
+    .block-stack,
+    .repeated-cue,
+    .verified-cue {
+      border-style: double;
+    }
+  }
+</style>
