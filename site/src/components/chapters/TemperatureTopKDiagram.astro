@@ -1,0 +1,337 @@
+---
+import traceSource from '../../../../rust/demos/ch36-temperature-top-k/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseTemperatureTopKTrace,
+  validateTemperatureTopKDiagramLabels,
+  type TemperatureTopKDiagramLabels,
+} from '../../lib/temperature-top-k-diagram';
+
+interface Props {
+  labels: TemperatureTopKDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateTemperatureTopKDiagramLabels(labels);
+const trace = parseTemperatureTopKTrace(traceSource);
+const titleId = 'temperature-top-k-diagram-title';
+const descriptionId = 'temperature-top-k-diagram-description';
+const temperatureLabels = [
+  labels.temperatures.cold,
+  labels.temperatures.neutral,
+  labels.temperatures.warm,
+] as const;
+---
+
+<figure
+  class="course-diagram temperature-top-k-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="temperature-top-k"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.topK}>
+      <li><span aria-hidden="true">✓</span> {labels.cues.retained}</li>
+      <li><span aria-hidden="true">×</span> {labels.cues.removed}</li>
+      <li><span aria-hidden="true">→</span> {labels.cues.selected}</li>
+    </ul>
+  </figcaption>
+
+  <section aria-labelledby="temperature-comparison-title">
+    <h4 id="temperature-comparison-title">{labels.sections.temperature}</h4>
+    <p
+      class="fixture-label"
+      data-fixture="synthetic"
+      data-vocabulary={trace.input.vocabulary}
+    >
+      <strong>{labels.fixtures.synthetic}</strong>
+      <InlineMath latex={`V=${trace.input.vocabulary}`} />
+    </p>
+    <p>{labels.captions.temperature}</p>
+    <div class="temperature-grid">
+      {trace.temperatures.map((scenario, scenarioIndex) => (
+        <article
+          class="temperature-card"
+          data-diagram-card
+          data-diagram-box
+          data-temperature={scenario.tau}
+        >
+          <h5>{temperatureLabels[scenarioIndex]}</h5>
+          <p><InlineMath latex={`\\tau=${scenario.tau}`} /></p>
+          <ol class="probability-list">
+            {scenario.tokens.map((token) => (
+              <li data-token-id={token.id} data-probability={token.probability}>
+                <span class="probability-label">
+                  <InlineMath latex={`i=${token.id}`} />
+                  <InlineMath latex={`q_i=${token.probability}`} />
+                </span>
+                <span
+                  class="probability-track"
+                  data-probability-track
+                  aria-hidden="true"
+                >
+                  <span
+                    class="probability-fill"
+                    data-probability-fill
+                    data-probability-percent={token.percent}
+                    style={`--probability-percent: ${token.percent}%`}
+                  ></span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section aria-labelledby="top-k-boundary-title">
+    <h4 id="top-k-boundary-title">{labels.sections.topK}</h4>
+    <p>{labels.captions.topK}</p>
+    <div
+      class="top-k-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.topK}
+      data-diagram-scroll
+    >
+      <table class="top-k-table" data-diagram-table>
+        <caption>{labels.scrollers.topK}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.token}</th>
+            <th scope="col">{labels.fields.logit}</th>
+            <th scope="col">{labels.fields.rank}</th>
+            <th scope="col">{labels.fields.status}</th>
+            <th scope="col">{labels.fields.probability}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.topK.tokens.map((token) => (
+            <tr
+              data-top-k-token={token.id}
+              data-retained={token.retained}
+              data-state={token.retained === 'true' ? 'retained' : 'removed'}
+            >
+              <th scope="row"><InlineMath latex={`i=${token.id}`} /></th>
+              <td><InlineMath latex={`\\ell_i=${token.logit}`} /></td>
+              <td><InlineMath latex={`r_i=${token.rank}`} /></td>
+              <td>
+                <span class="state-symbol" aria-hidden="true">
+                  {token.retained === 'true' ? '✓' : '×'}
+                </span>
+                {token.retained === 'true' ? labels.cues.retained : labels.cues.removed}
+              </td>
+              <td><InlineMath latex={`q_i=${token.probability}`} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="seeded-draws-title">
+    <h4 id="seeded-draws-title">{labels.sections.draws}</h4>
+    <p>{labels.captions.draws}</p>
+    <div
+      class="draw-policy"
+      data-draw-policy
+      data-fixture="synthetic"
+      data-vocabulary={trace.drawPolicy.vocabulary}
+      data-top-k={trace.drawPolicy.top_k}
+      data-seed={trace.drawPolicy.seed}
+    >
+      <strong>{labels.fixtures.synthetic}</strong>
+      <InlineMath
+        latex={`\\tau=${trace.drawPolicy.tau},\\ k=${trace.drawPolicy.top_k},\\ V=${trace.drawPolicy.vocabulary}`}
+      />
+      <code><bdi dir="ltr">seed={trace.drawPolicy.seed}</bdi></code>
+      <code><bdi dir="ltr">survivors={trace.drawPolicy.survivors}</bdi></code>
+      <code><bdi dir="ltr">sum={trace.drawPolicy.sum}</bdi></code>
+    </div>
+    <ol class="draw-list">
+      {trace.draws.map((draw) => (
+        <li data-draw-index={draw.index} data-selected-token={draw.token}>
+          <strong>{labels.fields.draw} {Number(draw.index) + 1}</strong>
+          <InlineMath latex={`u=${draw.unit}`} />
+          <span aria-hidden="true">→</span>
+          <InlineMath
+            latex={String.raw`[${draw.interval_start},${draw.interval_end})`}
+          />
+          <span>{labels.fields.selectedToken}</span>
+          <InlineMath latex={`i=${draw.token}`} />
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section aria-labelledby="generation-proof-title">
+    <h4 id="generation-proof-title">{labels.sections.generation}</h4>
+    <p>{labels.captions.generation}</p>
+    <p
+      class="fixture-label"
+      data-fixture="checkpoint"
+      data-vocabulary={trace.loaded.vocabulary}
+    >
+      <strong>{labels.fixtures.checkpoint}</strong>
+      <InlineMath latex={`V=${trace.loaded.vocabulary}`} />
+      <code><bdi dir="ltr">context={trace.loaded.context}</bdi></code>
+    </p>
+    <div class="proof-grid">
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="greedy">
+        <h5>{labels.proofs.greedy}</h5>
+        <p><InlineMath latex={`i=${trace.greedy.token}`} /> — {labels.cues.greedy}</p>
+        <code><bdi dir="ltr">draw={trace.greedy.draw}</bdi></code>
+        <p>{labels.cues.noDraw}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="loaded" data-eos-policy={trace.loaded.eos}>
+        <h5>{labels.proofs.loaded}</h5>
+        <p><InlineMath latex={`[${trace.loaded.prompt.slice(1, -1)}]\\to[${trace.loaded.generated.slice(1, -1)}]`} /></p>
+        <code><bdi dir="ltr">eos={trace.loaded.eos}</bdi></code>
+        <code><bdi dir="ltr">max_new_tokens={trace.loaded.max_new_tokens}</bdi></code>
+        <code><bdi dir="ltr">prefixes={trace.loaded.prefixes}</bdi></code>
+        <code><bdi dir="ltr">calls={trace.loaded.calls}</bdi></code>
+        <p>{labels.cues.contextStop}; {labels.cues.replayed}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="eos" data-eos-policy={trace.eos.eos}>
+        <h5>{labels.proofs.eos}</h5>
+        <p><InlineMath latex={`i_{\\mathrm{EOS}}=${trace.eos.eos}`} /></p>
+        <code><bdi dir="ltr">eos={trace.eos.eos}</bdi></code>
+        <code><bdi dir="ltr">max_new_tokens={trace.eos.max_new_tokens}</bdi></code>
+        <code><bdi dir="ltr">generated={trace.eos.generated}</bdi></code>
+        <code><bdi dir="ltr">calls={trace.eos.calls}</bdi></code>
+        <p>{labels.cues.eosStop}</p>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass" data-proof="errors">
+        <h5>{labels.proofs.errors}</h5>
+        <code><bdi dir="ltr">temperature_zero={trace.errors.temperature_zero}</bdi></code>
+        <code><bdi dir="ltr">top_k_zero={trace.errors.top_k_zero}</bdi></code>
+        <code><bdi dir="ltr">nonfinite_logit={trace.errors.nonfinite_logit}</bdi></code>
+        <code><bdi dir="ltr">rng_unchanged={trace.errors.rng_unchanged}</bdi></code>
+        <p>{labels.cues.validErrors}</p>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .temperature-top-k-diagram,
+  .temperature-top-k-diagram > *,
+  .temperature-card,
+  .probability-list,
+  .probability-list > li,
+  .top-k-region,
+  .draw-list,
+  .draw-list > li,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .temperature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .temperature-card,
+  .proof-card {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+
+  .temperature-card h5,
+  .temperature-card p,
+  .proof-card h5,
+  .proof-card p {
+    margin: 0;
+  }
+
+  .fixture-label,
+  .draw-policy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.65rem;
+  }
+
+  .probability-list {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .probability-list > li {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .probability-label {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 0.65rem;
+  }
+
+  .probability-track {
+    display: block;
+    block-size: 0.55rem;
+    border-block-end: 0.2rem solid currentColor;
+  }
+
+  .probability-fill {
+    display: block;
+    inline-size: var(--probability-percent);
+    block-size: 100%;
+    border-block-end: 0.5rem double currentColor;
+    color: var(--diagram-accent-dark);
+  }
+
+  .top-k-table {
+    inline-size: max(100%, 36rem);
+  }
+
+  .top-k-table tr[data-retained='true'] > :first-child {
+    border-inline-start-style: double;
+    border-inline-start-width: 0.35rem;
+  }
+
+  .top-k-table tr[data-retained='false'] > :first-child {
+    border-inline-start-style: dashed;
+    border-inline-start-width: 0.2rem;
+  }
+
+  .draw-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 1rem;
+    margin: 0;
+    padding-inline-start: 1.35rem;
+  }
+
+  .draw-list > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.45rem;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.65rem;
+  }
+
+  @container course-diagram (max-width: 46rem) {
+    .temperature-grid,
+    .draw-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

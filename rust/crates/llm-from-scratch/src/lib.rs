@@ -9,6 +9,7 @@ pub mod checkpoint;
 pub mod corpus;
 pub mod data;
 pub mod evaluation;
+pub mod generation;
 pub mod metrics;
 
 /// Learned feature views and weighted mixtures used by self-attention.

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-26T09:23:23Z"
+updated_at: "2026-07-26T16:52:22Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -15561,14 +15561,26 @@ builds:
         objective: "Sample the next token reproducibly after temperature scaling and top-k filtering."
         depends_on:
           - repair-ch35-learner-rationale
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
           - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/35-checkpoints.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
+          - "rust/crates/llm-from-scratch/src/nn/init.rs"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/demos/ch35-checkpoints/Cargo.toml"
+          - "rust/demos/ch35-checkpoints/src/lib.rs"
+          - "rust/demos/ch35-checkpoints/expected.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -15583,15 +15595,44 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/lib/final-evaluation-diagram.ts"
+          - "site/src/components/chapters/FinalEvaluationDiagram.astro"
+          - "site/tests/34-final-evaluation-diagram.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "rust/demos/ch34-final-evaluation/diagram-trace.txt"
+          - "rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
+          - "https://arxiv.org/pdf/1805.04833"
+          - "https://cdn.openai.com/better-language-models/language-models.pdf"
+          - "https://arxiv.org/pdf/1904.09751"
+          - "C:/Users/Ivan/.codex/plugins/cache/openai-bundled/browser/26.715.61943/skills/control-in-app-browser/SKILL.md"
         outputs:
           - "curriculum/chapters/36-temperature-top-k.md"
+          - "rust/crates/llm-from-scratch/src/generation/mod.rs"
           - "rust/crates/llm-from-scratch/src/generation/sampling.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch36-temperature-top-k/"
           - "site/src/content/chapters/en/36-temperature-top-k.mdx"
           - "site/src/components/chapters/TemperatureTopKDiagram.astro"
+          - "site/src/lib/temperature-top-k-diagram.ts"
           - "site/tests/36-temperature-top-k-diagram.test.ts"
           - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Sample the next token reproducibly after temperature scaling and top-k filtering."
@@ -15617,11 +15658,116 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:36-temperature-top-k'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:36-temperature-top-k|en/36-temperature-top-k exposes'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set using local deterministic work, bounded read-only primary-source research, and cached product/browser containers; registered deferred locales require no lesson or route. No paid service, generation service, dependency change, Linux build-definition change, or concept-implementing dependency."
+        runs:
+          - run_id: 20260726T144338Z-implement-ch36-temperature-top-k-01
+            started_at: "2026-07-26T14:43:38Z"
+            finished_at: "2026-07-26T16:52:22Z"
+            status: succeeded
+            input_fingerprint:
+              git: "e3eba336068666a5ce5f1187aef546a24eb65db3"
+              manifest: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/input-fingerprint.txt"
+              checksum: "sha256:99a4ce1a5ee0d19cb8577ec540e0fd1d56714f815cdc4fa45cea80474a58ae4f"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate pinned Linux Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product work plus Playwright 1.61.1 on Node 24.17.0/npm 11.13.0."
+            staging_dir: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/"
+            commands:
+              - "Run the complete startup protocol, verify the dedicated Chapter 35 repair commit and manifest, inventory every ledger step, preserve unrelated desktop.ini, and select the first eligible Chapter 36 step."
+              - "Read the complete chapter-delivery and browser-control instructions; inspect the Chapter 36 plan, prior contract, cumulative checkpoint/decoder/RNG APIs, shared diagram/formula/browser boundaries, and previous chapter integrations."
+              - "Review Fan et al. 2018, the GPT-2 report, and Holtzman et al. ICLR 2020 as bounded primary evidence for the LLM-decoding progression; separate their claims from the course's seed, tie, error, EOS, and context policy."
+              - "Run independent read-only Rust, historical-source, and site/diagram audits; expand the declared inputs, outputs, Firefox gate, and fingerprint before product work."
+              - "Author the Chapter 36 contract, dependency-free Rust sampling and uncached-generation APIs, exact demo/report/diagram trace, English lesson, strict static trace parser, shared semantic figure, and focused plus aggregate regression coverage entirely in the run staging tree."
+              - "Validate the staged Rust workspace with formatting, strict Clippy, dependency policy, 36 demo packages, exact report/trace diffs, and a complete one-test-at-a-time workspace replay after the unchanged Chapter 23 timing guard failed twice under concurrent test scheduling."
+              - "Validate the staged site with contract, chapter, parity, content, Astro diagnostics, 789 unit cases, a 48-page production build, 1748 local links, 48 SEO routes, and 48 sitemap URLs."
+              - "Attempt the required in-app browser runtime, read its bootstrap troubleshooting after discovery returned no available browser, then use the pinned unexposed Playwright 1.61.1 fixture on loopback port 64173 for 6 focused Chromium, 8 focused Firefox/formula, and 267 complete Chromium cases."
+              - "Apply final independent audit corrections in staging: compensated normalization, pre-draw fallible allocation, compact O(T) generation evidence, positive token-limit and 100,000-logit regressions, explicit draw/checkpoint policies, non-background probability geometry, complete error evidence, learner-facing history cleanup, and raw/code formula regressions."
+              - "Repeat the complete serial Rust workspace, 789-case unit, 48-page build/link/SEO/sitemap, focused Chromium/Firefox, formula-geometry, visual screenshot, and 267-case Chromium validation matrix after the audit corrections."
+              - "Preserve the superseded pre-audit 23-file manifest separately, freeze and verify the corrected 23-file manifest, and checkpoint the ready-to-publish candidate before canonical mutation."
+              - "Publish the manifest-verified 23-file candidate, create a 576-file source archive excluding .build and unrelated desktop.ini, and replay Rust, site, and browser gates in fresh network-disabled canonical containers."
+              - "Run one final read-only working-tree audit; correct its learner-facing overflow rationale and verbalized k notation, align the contract plus lesson history metadata, and extend raw, code-span, and rendered k=40 formula regressions in staging."
+              - "Preserve the superseded candidate manifest and canonical archive, freeze the final 23-file manifest, publish the four revised files, and build a replacement 576-file canonical archive whose complete product manifest matches staging and the working tree."
+              - "Replay the complete serial Rust, static-site, focused Chromium/Firefox, rendered-formula, and 267-case Chromium matrices in fresh network-disabled final canonical containers with no published ports."
+            artifacts:
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/input-fingerprint.txt"
+                checksum: "sha256:99a4ce1a5ee0d19cb8577ec540e0fd1d56714f815cdc4fa45cea80474a58ae4f"
+                notes: "Commit, preserved dirty boundary, environment, cost, three reviewed primary sources, browser-skill identity, and material chapter inputs."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/input-fingerprint-addendum-01.txt"
+                checksum: "sha256:437c03dc574babd0f35bd2ea5dc10eb13ac8025df6d6d43ef54eee9317c41a1d"
+                notes: "Pre-edit hashes for the shared static diagram, full-view, formula, parser, and browser-helper inputs identified by review."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/input-fingerprint-addendum-02.txt"
+                checksum: "sha256:6108b16e4030c1a8b7e525d34895820ecf06a76508d2a5cbcb855ac12c2e1224"
+                notes: "Pre-edit hashes for the exact probability, tensor, and prior checkpoint-demo inputs identified by Rust review."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/staged-manifest-pre-audit.sha256"
+                checksum: "sha256:176f3c43d8cb040e538a8440876719092dfbb1b9e8e68a137374d985ed1d3359"
+                notes: "Preserved initial 23-file candidate manifest. Its command matrix passed, but final read-only audits found numerical, retained-memory, evidence-boundary, and formula-caption defects before canonical publication."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/staged-manifest.sha256"
+                checksum: "sha256:ee8b4419f33da92885546fe20436e68e28e32e68d2d08b65311f2d17815d2864"
+                notes: "Final frozen SHA-256 manifest for all 23 staged and canonical outputs after the learner-facing language/formula audit and complete replacement replay."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/staged-manifest-pre-language-audit.sha256"
+                checksum: "sha256:79ab87f86a234088d943392736702953f551ef00f9318ed969166ab65c0d9326"
+                notes: "Preserved post-numerical-audit candidate manifest. Its full matrix passed, but the final scope audit found learner-facing scroll mechanics and verbalized k notation before commit."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/canonical-source-pre-language-audit.tar"
+                checksum: "sha256:8dd04a95ac99d209eb0b3ce526b91fe413288cf6de276ee61f0ac97b1b093b8a"
+                notes: "Preserved 576-file canonical replay source for the superseded language-audit candidate; excludes .build and unrelated desktop.ini."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/canonical-source.tar"
+                checksum: "sha256:f82e879cc132f3c827b7f2c85a791d3adc73921c54b3a99e5b08260c2275ea67"
+                notes: "Final 576-file canonical replay source; all 23 product hashes match the final staged manifest and .build plus unrelated desktop.ini are excluded."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/validation/ch36-diagram-desktop-final.png"
+                checksum: "sha256:0c8c08189e197bdb6f69e4ff588160ff9a96f6e8d66591ea0da132b90216ee8e"
+                notes: "Final Chromium desktop visual review of the corrected static diagram."
+              - path: ".build/runs/20260726T144338Z-implement-ch36-temperature-top-k-01/validation/ch36-diagram-narrow-final.png"
+                checksum: "sha256:ef73592c337dc2a10e7243744201b9b6750193391f10391b692c4e628e8ae824"
+                notes: "Final Chromium 390-pixel visual review of the corrected static diagram and its sanctioned table scroller."
+            validation:
+              - command: "Startup, recovery, environment, prior-run, eligibility, ownership, locale, and cost preflight"
+                status: passed
+                notes: "HEAD e3eba33 is the dedicated completed Chapter 35 repair; its canonical manifest is intact; no step is running; Chapter 36 is first eligible; only unrelated desktop.ini is untracked; host and cached container pins match; English is the sole active Chapter 36 locale; medium local work plus bounded primary-source research is within the unlimited recorded budget."
+              - command: "Read-only Rust, history, diagram, formula, navigation, and browser-boundary reviews"
+                status: passed
+                notes: "The reviewed boundary now includes generation module registration, strict Rust-authored diagram parsing, aggregate formula/style registries, predecessor navigation/counts, and focused Firefox coverage. The selected checkpoint has context two, so it will prove two uncached full-prefix calls while separate exact logits expose temperature, stable top-k ties, and seeded sequences."
+              - command: "Chapter 36 staged Rust validation matrix"
+                status: passed
+                notes: "Course plan and full contract pass; cargo fmt and strict workspace Clippy pass; dependency policy reports no external crates; 36 demos pass; exact stdout and diagram trace match byte for byte. The default concurrent cargo test replay twice hit the unchanged Chapter 23 60-second per-test guard, including once in isolation; setting RUST_TEST_THREADS=1 removed CPU contention and the unchanged Chapter 23 binary plus complete workspace passed."
+              - command: "Chapter 36 staged content, static-site, link, SEO, and unit validation matrix"
+                status: passed
+                notes: "Chapter, parity, and complete content gates report 43 localized sources, 36 publishable locale sets, and 35 shared diagrams; Astro reports zero diagnostics across 182 files; all 789 unit cases pass; 48 pages build; link validation covers 1748 local references, 48 SEO routes, and 48 sitemap URLs."
+              - command: "Chapter 36 staged rendered-browser validation matrix"
+                status: passed
+                notes: "The in-app runtime had no available browser and its troubleshooting instructions were followed before fallback. Pinned Playwright 1.61.1 passes 6 focused Chromium cases, 8 focused Firefox cases including desktop/narrow formula geometry, and all 267 Chromium cases on container-only 127.0.0.1:64173; desktop, narrow, no-JavaScript, forced-colors, RTL, full-view reuse, formulas, bounded boxes, and the sole named table scroller are covered."
+              - command: "Final independent Rust, source, formula, and diagram re-audits"
+                status: passed
+                notes: "Three read-only audits confirm the corrected 100,000-logit normalization, positive token-limit branch, pre-draw allocation boundary, compact O(T) generation trace, complete symbol/history wording, explicit k=2-to-k=3 and V=4-to-V=5 evidence boundaries, EOS policies, non-background bar geometry, forced-colors width checks, and nonfinite error evidence. The final plain-text k caption found by re-audit was replaced with natural language and protected by spaced plus compact raw/code regressions."
+              - command: "Complete post-audit staged validation matrix"
+                status: passed
+                notes: "Serial cargo fmt, strict workspace Clippy, all demos, all 339 cumulative Rust library tests, exact Chapter 36 report/trace, course/contract/content/parity, zero-diagnostic Astro analysis, all 789 site tests, 48-page build, 1748 links, 48 SEO routes, and 48 sitemap URLs pass. Pinned Playwright passes 6 focused Chromium, 6 focused Firefox, 2 Firefox formula cases, and all 267 Chromium regressions after the final formula-caption correction; desktop and 390-pixel screenshots were visually reviewed."
+              - command: "Corrected staged manifest and pre-audit provenance verification"
+                status: passed
+                notes: "The initial CRLF manifest remains checksummed at sha256:176f3c43d8cb040e538a8440876719092dfbb1b9e8e68a137374d985ed1d3359. Every corrected staged output matches the 23-line sorted manifest, whose checksum is sha256:79ab87f86a234088d943392736702953f551ef00f9318ed969166ab65c0d9326."
+              - command: "Final learner-facing scope, history, and formula audit plus correction"
+                status: passed
+                notes: "A final read-only audit caught one visible horizontal-scroll implementation rationale and history prose that verbalized k instead of using math. The staged correction replaces the layout rationale with token evidence, renders k=2, k=40, and standalone k through math, aligns the contract and lesson history metadata, rejects raw/code integer k assignments plus verbal evasions, and asserts rendered k=40; an independent re-audit reports no remaining blocker."
+              - command: "Post-language-audit staged content, formula, static-site, and focused-browser replay"
+                status: passed
+                notes: "Course/contract/chapter/parity/content gates pass; the generalized formula source suite passes 11/11; all 789 unit cases and zero-diagnostic Astro analysis pass; 48 pages, 1748 links, 48 SEO routes, and 48 sitemap URLs pass. Focused Chromium passes 6/6, focused Firefox passes 6/6, and the two desktop/narrow Firefox formula cases pass with rendered k=40."
+              - command: "Final manifest publication and canonical archive integrity"
+                status: passed
+                notes: "The superseded candidate remains preserved at sha256:79ab87f86a234088d943392736702953f551ef00f9318ed969166ab65c0d9326. All 23 final outputs match staging and the canonical working tree under manifest sha256:ee8b4419f33da92885546fe20436e68e28e32e68d2d08b65311f2d17815d2864. The 576-file final archive is sha256:f82e879cc132f3c827b7f2c85a791d3adc73921c54b3a99e5b08260c2275ea67 and excludes .build plus desktop.ini."
+              - command: "Fresh final canonical Rust validation matrix"
+                status: passed
+                notes: "In a new network-disabled source container, cargo fmt, strict workspace Clippy, the complete serial workspace including all 339 cumulative library tests, dependency policy, 36-demo discovery, and both exact Chapter 36 outputs pass. Windows projected the script mode as 100644, so the unchanged Bash scripts were invoked explicitly with bash; no source mode or Linux build definition changed."
+              - command: "Fresh final canonical content and static-site validation matrix"
+                status: passed
+                notes: "In the replacement network-disabled canonical tree, plan revision 29 with 39 chapters, 76 steps, and 36 contracts passes; Chapter 36 contract/chapter/parity and all 43 localized-source/36-set content gates pass; Astro reports zero diagnostics across 182 files; all 789 unit cases pass; 48 pages, 1748 links, 48 SEO routes, 48 sitemap URLs, and 136 artifacts validate."
+              - command: "Fresh final canonical rendered-browser validation matrix"
+                status: passed
+                notes: "A new network-disabled browser container with no published ports and no reusable preview passes a 48-page build, 6/6 focused Chromium, 6/6 focused Firefox, 2/2 desktop/narrow Firefox formula cases including k=40, and 267/267 complete Chromium cases on its owned 127.0.0.1:64173 server with zero failures or retries."
+              - command: "Final ledger, manifest, whitespace, and working-tree-scope audit"
+                status: passed
+                notes: "BUILD_STATE.yaml parses as schema version 1; git diff --check passes; exactly the 23 manifest product paths plus BUILD_STATE.yaml and DECISIONS.md are in scope; every product hash matches staging, the canonical working tree, and the final archive tree; desktop.ini remains the sole unrelated untracked path."
+            notes: "Succeeded. Chapter 36 now teaches explicit greedy and positive-temperature stable top-k policies, reproducible one-draw sampling, and uncached checkpoint-backed generation with exact tie, RNG, EOS, token-budget, and context semantics. The shared static figure distinguishes every fixture and policy boundary, preserves contained desktop/narrow evidence, and uses rendered math throughout. Final staging and fresh network-disabled canonical matrices pass strict Rust checks with 339 library tests and 36 demos, 789 site tests, 48-page/link/SEO/sitemap validation, focused Chromium/Firefox and formula geometry, and all 267 Chromium regressions; all 23 product hashes are frozen and unrelated desktop.ini is untouched."
       - id: implement-ch37-incremental-attention
         objective: "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
         depends_on:

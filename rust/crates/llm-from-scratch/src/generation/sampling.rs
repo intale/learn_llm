@@ -1,0 +1,1298 @@
+//! Greedy decoding, temperature/top-k sampling, and uncached generation.
+
+use std::cmp::Ordering;
+use std::error::Error;
+use std::fmt;
+
+use crate::autograd::tensor_core::no_grad;
+use crate::models::decoder::{DecoderModel, DecoderModelError};
+use crate::nn::init::SplitMix64;
+
+const PROBABILITY_TOLERANCE: f64 = 1e-12;
+
+// region:sampling-policy
+/// The two intentionally distinct next-token policies taught in Chapter 36.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SamplingMode {
+    /// Select the highest logit, resolving equal logits by lower token ID.
+    Greedy,
+    /// Sample after positive-temperature scaling and stable top-k truncation.
+    TemperatureTopK { temperature: f64, top_k: usize },
+}
+
+/// One vocabulary entry after ranking and probability construction.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SamplingCandidate {
+    token_id: u32,
+    logit: f64,
+    rank: usize,
+    retained: bool,
+    probability: f64,
+}
+
+impl SamplingCandidate {
+    pub const fn token_id(self) -> u32 {
+        self.token_id
+    }
+
+    pub const fn logit(self) -> f64 {
+        self.logit
+    }
+
+    /// One-based rank under descending logit and ascending token-ID ties.
+    pub const fn rank(self) -> usize {
+        self.rank
+    }
+
+    pub const fn retained(self) -> bool {
+        self.retained
+    }
+
+    pub const fn probability(self) -> f64 {
+        self.probability
+    }
+}
+
+/// The complete token-ID-ordered distribution plus rank-ordered survivors.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SamplingDistribution {
+    mode: SamplingMode,
+    candidates: Vec<SamplingCandidate>,
+    survivors: Vec<u32>,
+}
+
+impl SamplingDistribution {
+    pub const fn mode(&self) -> SamplingMode {
+        self.mode
+    }
+
+    /// Candidates are always returned in ascending token-ID order.
+    pub fn candidates(&self) -> &[SamplingCandidate] {
+        &self.candidates
+    }
+
+    /// Survivors are returned in stable descending-logit rank order.
+    pub fn survivors(&self) -> &[u32] {
+        &self.survivors
+    }
+
+    pub fn probability_sum(&self) -> f64 {
+        compensated_sum(
+            self.candidates
+                .iter()
+                .map(|candidate| candidate.probability),
+        )
+    }
+
+    pub fn candidate(&self, token_id: u32) -> Option<SamplingCandidate> {
+        self.candidates
+            .get(usize::try_from(token_id).ok()?)
+            .copied()
+    }
+}
+
+/// One selected token and the half-open categorical interval that selected it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SamplingDecision {
+    distribution: SamplingDistribution,
+    token_id: u32,
+    unit_draw: Option<f64>,
+    interval_start: f64,
+    interval_end: f64,
+}
+
+impl SamplingDecision {
+    pub const fn token_id(&self) -> u32 {
+        self.token_id
+    }
+
+    pub const fn unit_draw(&self) -> Option<f64> {
+        self.unit_draw
+    }
+
+    pub const fn interval_start(&self) -> f64 {
+        self.interval_start
+    }
+
+    pub const fn interval_end(&self) -> f64 {
+        self.interval_end
+    }
+
+    pub const fn distribution(&self) -> &SamplingDistribution {
+        &self.distribution
+    }
+}
+
+/// A setting or numerical input that cannot define a sampling distribution.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SamplingError {
+    EmptyLogits,
+    VocabularyTooLarge {
+        classes: usize,
+    },
+    NonFiniteLogit {
+        token_id: usize,
+        value: f64,
+    },
+    InvalidTemperature {
+        value: f64,
+    },
+    InvalidTopK {
+        top_k: usize,
+        vocabulary_size: usize,
+    },
+    AllocationFailed {
+        values: usize,
+    },
+    InvalidProbabilitySum {
+        value: f64,
+    },
+}
+
+impl fmt::Display for SamplingError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EmptyLogits => formatter.write_str("sampling needs at least one finite logit"),
+            Self::VocabularyTooLarge { classes } => write!(
+                formatter,
+                "sampling vocabulary of {classes} classes does not fit u32 token IDs"
+            ),
+            Self::NonFiniteLogit { token_id, value } => {
+                write!(
+                    formatter,
+                    "logit for token {token_id} is not finite: {value}"
+                )
+            }
+            Self::InvalidTemperature { value } => write!(
+                formatter,
+                "sampling temperature must be finite and positive, received {value}"
+            ),
+            Self::InvalidTopK {
+                top_k,
+                vocabulary_size,
+            } => write!(
+                formatter,
+                "top-k must be in 1..={vocabulary_size}, received {top_k}"
+            ),
+            Self::AllocationFailed { values } => {
+                write!(
+                    formatter,
+                    "cannot allocate sampling evidence for {values} values"
+                )
+            }
+            Self::InvalidProbabilitySum { value } => write!(
+                formatter,
+                "sampling probabilities did not normalize to one: {value}"
+            ),
+        }
+    }
+}
+
+impl Error for SamplingError {}
+
+fn retained_count(mode: SamplingMode, vocabulary_size: usize) -> Result<usize, SamplingError> {
+    match mode {
+        SamplingMode::Greedy => Ok(1),
+        SamplingMode::TemperatureTopK { temperature, top_k } => {
+            if !temperature.is_finite() || temperature <= 0.0 {
+                return Err(SamplingError::InvalidTemperature { value: temperature });
+            }
+            if top_k == 0 || top_k > vocabulary_size {
+                return Err(SamplingError::InvalidTopK {
+                    top_k,
+                    vocabulary_size,
+                });
+            }
+            Ok(top_k)
+        }
+    }
+}
+
+fn compensated_sum(values: impl IntoIterator<Item = f64>) -> f64 {
+    let mut sum = 0.0;
+    let mut compensation = 0.0;
+    for value in values {
+        let corrected = value - compensation;
+        let next = sum + corrected;
+        compensation = (next - sum) - corrected;
+        sum = next;
+    }
+    sum
+}
+
+fn stable_ranks(logits: &[f64]) -> Result<Vec<usize>, SamplingError> {
+    if logits.is_empty() {
+        return Err(SamplingError::EmptyLogits);
+    }
+    if u32::try_from(logits.len() - 1).is_err() {
+        return Err(SamplingError::VocabularyTooLarge {
+            classes: logits.len(),
+        });
+    }
+    for (token_id, &value) in logits.iter().enumerate() {
+        if !value.is_finite() {
+            return Err(SamplingError::NonFiniteLogit { token_id, value });
+        }
+    }
+
+    let mut ranked = Vec::new();
+    ranked
+        .try_reserve_exact(logits.len())
+        .map_err(|_| SamplingError::AllocationFailed {
+            values: logits.len(),
+        })?;
+    ranked.extend(0..logits.len());
+    ranked.sort_unstable_by(|&left, &right| {
+        logits[right]
+            .partial_cmp(&logits[left])
+            .unwrap_or(Ordering::Equal)
+            .then_with(|| left.cmp(&right))
+    });
+    Ok(ranked)
+}
+
+fn scaled_gap(logit: f64, maximum: f64, temperature: f64) -> f64 {
+    if temperature < 1.0 {
+        (logit - maximum) / temperature
+    } else {
+        logit / temperature - maximum / temperature
+    }
+}
+
+/// Builds a complete, inspectable distribution without consuming randomness.
+pub fn sampling_distribution(
+    logits: &[f64],
+    mode: SamplingMode,
+) -> Result<SamplingDistribution, SamplingError> {
+    let ranked = stable_ranks(logits)?;
+    let keep = retained_count(mode, logits.len())?;
+    let maximum = logits[ranked[0]];
+
+    let mut probabilities = Vec::new();
+    probabilities
+        .try_reserve_exact(logits.len())
+        .map_err(|_| SamplingError::AllocationFailed {
+            values: logits.len(),
+        })?;
+    probabilities.resize(logits.len(), 0.0);
+
+    match mode {
+        SamplingMode::Greedy => probabilities[ranked[0]] = 1.0,
+        SamplingMode::TemperatureTopK { temperature, .. } => {
+            for (position, &token_id) in ranked[..keep].iter().enumerate() {
+                let weight = if position == 0 {
+                    1.0
+                } else {
+                    scaled_gap(logits[token_id], maximum, temperature).exp()
+                };
+                probabilities[token_id] = weight;
+            }
+            let weight_sum = compensated_sum(
+                ranked[..keep]
+                    .iter()
+                    .map(|&token_id| probabilities[token_id]),
+            );
+            if !weight_sum.is_finite() || weight_sum <= 0.0 {
+                return Err(SamplingError::InvalidProbabilitySum { value: weight_sum });
+            }
+            for &token_id in &ranked[..keep] {
+                probabilities[token_id] /= weight_sum;
+            }
+        }
+    }
+
+    let probability_sum = compensated_sum(probabilities.iter().copied());
+    if !probability_sum.is_finite() || (probability_sum - 1.0).abs() > PROBABILITY_TOLERANCE {
+        return Err(SamplingError::InvalidProbabilitySum {
+            value: probability_sum,
+        });
+    }
+
+    let mut rank_by_token = Vec::new();
+    rank_by_token
+        .try_reserve_exact(logits.len())
+        .map_err(|_| SamplingError::AllocationFailed {
+            values: logits.len(),
+        })?;
+    rank_by_token.resize(logits.len(), 0);
+    for (position, &token_id) in ranked.iter().enumerate() {
+        rank_by_token[token_id] = position + 1;
+    }
+
+    let mut candidates = Vec::new();
+    candidates
+        .try_reserve_exact(logits.len())
+        .map_err(|_| SamplingError::AllocationFailed {
+            values: logits.len(),
+        })?;
+    for (token_id, ((&logit, &probability), &rank)) in logits
+        .iter()
+        .zip(&probabilities)
+        .zip(&rank_by_token)
+        .enumerate()
+    {
+        candidates.push(SamplingCandidate {
+            token_id: u32::try_from(token_id).expect("validated token ID must fit u32"),
+            logit,
+            rank,
+            retained: rank <= keep,
+            probability,
+        });
+    }
+
+    let mut survivors = Vec::new();
+    survivors
+        .try_reserve_exact(keep)
+        .map_err(|_| SamplingError::AllocationFailed { values: keep })?;
+    for &token_id in &ranked[..keep] {
+        survivors.push(u32::try_from(token_id).expect("validated token ID must fit u32"));
+    }
+    Ok(SamplingDistribution {
+        mode,
+        candidates,
+        survivors,
+    })
+}
+
+/// Selects one token. Invalid input is rejected before the RNG can advance.
+pub fn sample_next_token(
+    logits: &[f64],
+    mode: SamplingMode,
+    rng: &mut SplitMix64,
+) -> Result<SamplingDecision, SamplingError> {
+    let distribution = sampling_distribution(logits, mode)?;
+    if mode == SamplingMode::Greedy {
+        return Ok(SamplingDecision {
+            token_id: distribution.survivors[0],
+            distribution,
+            unit_draw: None,
+            interval_start: 0.0,
+            interval_end: 1.0,
+        });
+    }
+
+    let draw = rng.next_unit_f64();
+    let final_id = distribution
+        .candidates
+        .iter()
+        .rev()
+        .find(|candidate| candidate.retained && candidate.probability > 0.0)
+        .map(|candidate| candidate.token_id)
+        .expect("a normalized distribution must have a positive survivor");
+    let mut start = 0.0;
+    for candidate in distribution
+        .candidates
+        .iter()
+        .filter(|candidate| candidate.retained && candidate.probability > 0.0)
+    {
+        let end = if candidate.token_id == final_id {
+            1.0
+        } else {
+            (start + candidate.probability).min(1.0)
+        };
+        if draw < end || candidate.token_id == final_id {
+            return Ok(SamplingDecision {
+                token_id: candidate.token_id,
+                distribution,
+                unit_draw: Some(draw),
+                interval_start: start,
+                interval_end: end,
+            });
+        }
+        start = end;
+    }
+    unreachable!("the final positive survivor covers every unit draw")
+}
+// endregion:sampling-policy
+
+// region:uncached-generation
+/// Settings for one bounded, uncached autoregressive call.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GenerationConfig {
+    mode: SamplingMode,
+    eos_token: Option<u32>,
+    max_new_tokens: usize,
+}
+
+impl GenerationConfig {
+    pub const fn new(mode: SamplingMode, eos_token: Option<u32>, max_new_tokens: usize) -> Self {
+        Self {
+            mode,
+            eos_token,
+            max_new_tokens,
+        }
+    }
+
+    pub const fn mode(self) -> SamplingMode {
+        self.mode
+    }
+
+    pub const fn eos_token(self) -> Option<u32> {
+        self.eos_token
+    }
+
+    pub const fn max_new_tokens(self) -> usize {
+        self.max_new_tokens
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum GenerationStop {
+    Eos,
+    TokenLimit,
+    ContextLimit,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GenerationStep {
+    prefix_length: usize,
+    token_id: u32,
+    unit_draw: Option<f64>,
+    interval_start: f64,
+    interval_end: f64,
+}
+
+impl GenerationStep {
+    pub const fn prefix_length(&self) -> usize {
+        self.prefix_length
+    }
+
+    pub const fn token_id(&self) -> u32 {
+        self.token_id
+    }
+
+    pub const fn unit_draw(&self) -> Option<f64> {
+        self.unit_draw
+    }
+
+    pub const fn interval_start(&self) -> f64 {
+        self.interval_start
+    }
+
+    pub const fn interval_end(&self) -> f64 {
+        self.interval_end
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GenerationResult {
+    prompt: Vec<u32>,
+    generated: Vec<u32>,
+    steps: Vec<GenerationStep>,
+    stop: GenerationStop,
+    full_prefix_calls: usize,
+}
+
+impl GenerationResult {
+    pub fn prompt(&self) -> &[u32] {
+        &self.prompt
+    }
+
+    pub fn generated(&self) -> &[u32] {
+        &self.generated
+    }
+
+    pub fn steps(&self) -> &[GenerationStep] {
+        &self.steps
+    }
+
+    pub const fn stop(&self) -> GenerationStop {
+        self.stop
+    }
+
+    pub const fn full_prefix_calls(&self) -> usize {
+        self.full_prefix_calls
+    }
+}
+
+#[derive(Debug)]
+pub enum GenerationError {
+    Sampling(SamplingError),
+    Model(DecoderModelError),
+    EmptyPrompt,
+    PromptTooLong {
+        tokens: usize,
+        max_positions: usize,
+    },
+    PromptTokenOutOfBounds {
+        position: usize,
+        token_id: u32,
+        vocabulary_size: usize,
+    },
+    EosTokenOutOfBounds {
+        token_id: u32,
+        vocabulary_size: usize,
+    },
+    LogitCountMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    AllocationFailed {
+        values: usize,
+    },
+}
+
+impl fmt::Display for GenerationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Sampling(error) => error.fmt(formatter),
+            Self::Model(error) => error.fmt(formatter),
+            Self::EmptyPrompt => formatter.write_str("generation needs a nonempty prompt"),
+            Self::PromptTooLong {
+                tokens,
+                max_positions,
+            } => write!(
+                formatter,
+                "prompt has {tokens} tokens, exceeding context capacity {max_positions}"
+            ),
+            Self::PromptTokenOutOfBounds {
+                position,
+                token_id,
+                vocabulary_size,
+            } => write!(
+                formatter,
+                "prompt token {token_id} at position {position} is out of bounds for vocabulary {vocabulary_size}"
+            ),
+            Self::EosTokenOutOfBounds {
+                token_id,
+                vocabulary_size,
+            } => write!(
+                formatter,
+                "EOS token {token_id} is out of bounds for vocabulary {vocabulary_size}"
+            ),
+            Self::LogitCountMismatch { expected, actual } => write!(
+                formatter,
+                "last-position logits need {expected} values, received {actual}"
+            ),
+            Self::AllocationFailed { values } => {
+                write!(
+                    formatter,
+                    "cannot allocate generation evidence for {values} values"
+                )
+            }
+        }
+    }
+}
+
+impl Error for GenerationError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Sampling(error) => Some(error),
+            Self::Model(error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
+impl From<SamplingError> for GenerationError {
+    fn from(error: SamplingError) -> Self {
+        Self::Sampling(error)
+    }
+}
+
+impl From<DecoderModelError> for GenerationError {
+    fn from(error: DecoderModelError) -> Self {
+        Self::Model(error)
+    }
+}
+
+fn generate_with<F>(
+    vocabulary_size: usize,
+    max_positions: usize,
+    prompt: &[u32],
+    config: GenerationConfig,
+    rng: &mut SplitMix64,
+    mut last_logits: F,
+) -> Result<GenerationResult, GenerationError>
+where
+    F: FnMut(&[u32]) -> Result<Vec<f64>, GenerationError>,
+{
+    if prompt.is_empty() {
+        return Err(GenerationError::EmptyPrompt);
+    }
+    if prompt.len() > max_positions {
+        return Err(GenerationError::PromptTooLong {
+            tokens: prompt.len(),
+            max_positions,
+        });
+    }
+    for (position, &token_id) in prompt.iter().enumerate() {
+        if usize::try_from(token_id)
+            .ok()
+            .is_none_or(|token| token >= vocabulary_size)
+        {
+            return Err(GenerationError::PromptTokenOutOfBounds {
+                position,
+                token_id,
+                vocabulary_size,
+            });
+        }
+    }
+    if let Some(token_id) = config.eos_token
+        && usize::try_from(token_id)
+            .ok()
+            .is_none_or(|token| token >= vocabulary_size)
+    {
+        return Err(GenerationError::EosTokenOutOfBounds {
+            token_id,
+            vocabulary_size,
+        });
+    }
+    retained_count(config.mode, vocabulary_size)?;
+
+    let planned_steps = config.max_new_tokens.min(
+        max_positions
+            .checked_sub(prompt.len())
+            .and_then(|remaining| remaining.checked_add(1))
+            .ok_or(GenerationError::AllocationFailed { values: usize::MAX })?,
+    );
+    let prefix_capacity = prompt
+        .len()
+        .checked_add(planned_steps)
+        .ok_or(GenerationError::AllocationFailed { values: usize::MAX })?;
+
+    let mut prompt_copy = Vec::new();
+    prompt_copy
+        .try_reserve_exact(prompt.len())
+        .map_err(|_| GenerationError::AllocationFailed {
+            values: prompt.len(),
+        })?;
+    prompt_copy.extend_from_slice(prompt);
+
+    let mut prefix = Vec::new();
+    prefix
+        .try_reserve_exact(prefix_capacity)
+        .map_err(|_| GenerationError::AllocationFailed {
+            values: prefix_capacity,
+        })?;
+    prefix.extend_from_slice(prompt);
+    let mut generated = Vec::new();
+    generated
+        .try_reserve_exact(planned_steps)
+        .map_err(|_| GenerationError::AllocationFailed {
+            values: planned_steps,
+        })?;
+    let mut steps = Vec::new();
+    steps
+        .try_reserve_exact(planned_steps)
+        .map_err(|_| GenerationError::AllocationFailed {
+            values: planned_steps,
+        })?;
+    let mut full_prefix_calls = 0usize;
+
+    if config.max_new_tokens == 0 {
+        return Ok(GenerationResult {
+            prompt: prompt_copy,
+            generated,
+            steps,
+            stop: GenerationStop::TokenLimit,
+            full_prefix_calls,
+        });
+    }
+
+    let stop = loop {
+        let prefix_length = prefix.len();
+        let logits = last_logits(&prefix)?;
+        full_prefix_calls += 1;
+        if logits.len() != vocabulary_size {
+            return Err(GenerationError::LogitCountMismatch {
+                expected: vocabulary_size,
+                actual: logits.len(),
+            });
+        }
+        let decision = sample_next_token(&logits, config.mode, rng)?;
+        let token_id = decision.token_id();
+        let unit_draw = decision.unit_draw();
+        let interval_start = decision.interval_start();
+        let interval_end = decision.interval_end();
+        prefix.push(token_id);
+        generated.push(token_id);
+        steps.push(GenerationStep {
+            prefix_length,
+            token_id,
+            unit_draw,
+            interval_start,
+            interval_end,
+        });
+
+        if config.eos_token == Some(token_id) {
+            break GenerationStop::Eos;
+        }
+        if generated.len() == config.max_new_tokens {
+            break GenerationStop::TokenLimit;
+        }
+        if prefix.len() > max_positions {
+            break GenerationStop::ContextLimit;
+        }
+    };
+
+    Ok(GenerationResult {
+        prompt: prompt_copy,
+        generated,
+        steps,
+        stop,
+        full_prefix_calls,
+    })
+}
+
+/// Recomputes the complete decoder prefix for every selected token.
+pub fn generate_uncached(
+    model: &DecoderModel,
+    prompt: &[u32],
+    config: GenerationConfig,
+    rng: &mut SplitMix64,
+) -> Result<GenerationResult, GenerationError> {
+    let model_config = model.config();
+    let vocabulary_size = model_config.vocabulary_size();
+    generate_with(
+        vocabulary_size,
+        model_config.max_positions(),
+        prompt,
+        config,
+        rng,
+        |prefix| {
+            let forward = no_grad(|| model.forward(prefix, &[1, prefix.len()]))?;
+            let logits = forward.logits().value();
+            let expected = prefix
+                .len()
+                .checked_mul(vocabulary_size)
+                .ok_or(GenerationError::AllocationFailed { values: usize::MAX })?;
+            if logits.len() != expected {
+                return Err(GenerationError::LogitCountMismatch {
+                    expected,
+                    actual: logits.len(),
+                });
+            }
+            let start = expected - vocabulary_size;
+            let mut final_logits = Vec::new();
+            final_logits
+                .try_reserve_exact(vocabulary_size)
+                .map_err(|_| GenerationError::AllocationFailed {
+                    values: vocabulary_size,
+                })?;
+            final_logits.extend_from_slice(&logits.as_slice()[start..]);
+            Ok(final_logits)
+        },
+    )
+}
+// endregion:uncached-generation
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::decoder::DecoderModelConfig;
+    use crate::nn::probability::softmax;
+    use crate::tensor::storage::Tensor;
+
+    fn assert_close(left: f64, right: f64, tolerance: f64) {
+        assert!(
+            (left - right).abs() <= tolerance,
+            "expected {left:.17} to be within {tolerance} of {right:.17}"
+        );
+    }
+
+    #[test]
+    fn stable_top_k_keeps_exactly_k_and_resolves_boundary_ties_by_token_id() {
+        let logits = [0.0, 1.0, 1.0, 2.0];
+        let distribution = sampling_distribution(
+            &logits,
+            SamplingMode::TemperatureTopK {
+                temperature: 1.0,
+                top_k: 2,
+            },
+        )
+        .unwrap();
+        assert_eq!(distribution.survivors(), &[3, 1]);
+        assert_eq!(
+            distribution
+                .candidates()
+                .iter()
+                .map(|candidate| (candidate.rank(), candidate.retained()))
+                .collect::<Vec<_>>(),
+            [(4, false), (2, true), (3, false), (1, true)]
+        );
+        assert_eq!(distribution.candidates()[0].probability().to_bits(), 0);
+        assert_eq!(distribution.candidates()[2].probability().to_bits(), 0);
+        assert_close(
+            distribution.candidates()[1].probability(),
+            0.268_941_421_369_995_1,
+            1e-15,
+        );
+        assert_close(
+            distribution.candidates()[3].probability(),
+            0.731_058_578_630_004_9,
+            1e-15,
+        );
+        assert_close(distribution.probability_sum(), 1.0, PROBABILITY_TOLERANCE);
+    }
+
+    #[test]
+    fn signed_zero_ties_and_greedy_do_not_advance_rng() {
+        let mut rng = SplitMix64::from_seed(36);
+        let before = rng.state();
+        let decision =
+            sample_next_token(&[-0.0, 0.0, -1.0], SamplingMode::Greedy, &mut rng).unwrap();
+        assert_eq!(decision.token_id(), 0);
+        assert_eq!(decision.unit_draw(), None);
+        assert_eq!(
+            (decision.interval_start(), decision.interval_end()),
+            (0.0, 1.0)
+        );
+        assert_eq!(rng.state(), before);
+    }
+
+    #[test]
+    fn top_k_one_matches_greedy_but_still_consumes_one_stochastic_draw() {
+        let logits = [0.0, 1.0, 1.0, 2.0];
+        let mut greedy_rng = SplitMix64::from_seed(36);
+        let mut sample_rng = greedy_rng.clone();
+        let greedy = sample_next_token(&logits, SamplingMode::Greedy, &mut greedy_rng).unwrap();
+        let sampled = sample_next_token(
+            &logits,
+            SamplingMode::TemperatureTopK {
+                temperature: 9.0,
+                top_k: 1,
+            },
+            &mut sample_rng,
+        )
+        .unwrap();
+        assert_eq!(greedy.token_id(), 3);
+        assert_eq!(sampled.token_id(), greedy.token_id());
+        assert_eq!(sampled.distribution().candidates()[3].probability(), 1.0);
+        assert_eq!(greedy_rng.state(), 36);
+        assert_ne!(sample_rng.state(), 36);
+    }
+
+    #[test]
+    fn full_vocabulary_distribution_matches_the_existing_stable_softmax() {
+        let logits = [1_000.0, 999.0, 998.0, -1_000.0];
+        let distribution = sampling_distribution(
+            &logits,
+            SamplingMode::TemperatureTopK {
+                temperature: 1.0,
+                top_k: logits.len(),
+            },
+        )
+        .unwrap();
+        let expected = softmax(
+            &Tensor::from_vec(vec![1, logits.len()], logits.to_vec())
+                .unwrap()
+                .view(),
+            1,
+        )
+        .unwrap();
+        for (candidate, expected) in distribution.candidates().iter().zip(expected.as_slice()) {
+            assert_close(candidate.probability(), *expected, 1e-15);
+        }
+    }
+
+    #[test]
+    fn uniform_llm_sized_vocabulary_normalizes_with_compensated_summation() {
+        let logits = vec![0.0; 100_000];
+        let distribution = sampling_distribution(
+            &logits,
+            SamplingMode::TemperatureTopK {
+                temperature: 1.0,
+                top_k: logits.len(),
+            },
+        )
+        .unwrap();
+        assert_eq!(distribution.candidates().len(), logits.len());
+        assert_eq!(distribution.survivors().len(), logits.len());
+        assert_eq!(distribution.survivors()[..3], [0, 1, 2]);
+        assert_close(distribution.candidates()[99_999].probability(), 1e-5, 1e-18);
+        assert_close(distribution.probability_sum(), 1.0, PROBABILITY_TOLERANCE);
+    }
+
+    #[test]
+    fn temperature_limits_are_finite_normalized_and_keep_maximum_ties() {
+        let low = sampling_distribution(
+            &[2.0, 2.0, 1.0],
+            SamplingMode::TemperatureTopK {
+                temperature: f64::MIN_POSITIVE,
+                top_k: 3,
+            },
+        )
+        .unwrap();
+        assert_eq!(low.candidates()[0].probability(), 0.5);
+        assert_eq!(low.candidates()[1].probability(), 0.5);
+        assert_eq!(low.candidates()[2].probability(), 0.0);
+
+        let high = sampling_distribution(
+            &[-f64::MAX, 0.0, f64::MAX],
+            SamplingMode::TemperatureTopK {
+                temperature: f64::MAX,
+                top_k: 3,
+            },
+        )
+        .unwrap();
+        let probabilities = high
+            .candidates()
+            .iter()
+            .map(|candidate| candidate.probability())
+            .collect::<Vec<_>>();
+        assert!(
+            probabilities
+                .iter()
+                .all(|value| value.is_finite() && *value >= 0.0)
+        );
+        assert_close(probabilities.iter().sum(), 1.0, PROBABILITY_TOLERANCE);
+        assert!(probabilities[0] < probabilities[1] && probabilities[1] < probabilities[2]);
+    }
+
+    #[test]
+    fn frozen_seeded_sequence_and_half_open_intervals_are_reproducible() {
+        let logits = [0.0, 1.0, 1.0, 2.0];
+        let mode = SamplingMode::TemperatureTopK {
+            temperature: 1.0,
+            top_k: 3,
+        };
+        let distribution = sampling_distribution(&logits, mode).unwrap();
+        let expected = [
+            0.0,
+            0.211_941_557_617_085_44,
+            0.211_941_557_617_085_44,
+            0.576_116_884_765_829_1,
+        ];
+        for (candidate, expected) in distribution.candidates().iter().zip(expected) {
+            assert_close(candidate.probability(), expected, 1e-15);
+        }
+        assert_eq!(distribution.survivors(), &[3, 1, 2]);
+
+        let mut left = SplitMix64::from_seed(36);
+        let mut right = SplitMix64::from_seed(36);
+        let mut sequence = Vec::new();
+        for _ in 0..8 {
+            let decision = sample_next_token(&logits, mode, &mut left).unwrap();
+            let draw = decision.unit_draw().unwrap();
+            assert!(draw >= decision.interval_start() && draw < decision.interval_end());
+            sequence.push(decision.token_id());
+            assert_eq!(
+                decision,
+                sample_next_token(&logits, mode, &mut right).unwrap()
+            );
+        }
+        assert_eq!(sequence, [3, 2, 2, 2, 3, 3, 3, 3]);
+        assert_eq!(left.state(), right.state());
+    }
+
+    #[test]
+    fn invalid_inputs_are_specific_and_transactional() {
+        let cases = [
+            sampling_distribution(&[], SamplingMode::Greedy).unwrap_err(),
+            sampling_distribution(&[0.0, f64::NAN], SamplingMode::Greedy).unwrap_err(),
+            sampling_distribution(
+                &[0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 0.0,
+                    top_k: 1,
+                },
+            )
+            .unwrap_err(),
+            sampling_distribution(
+                &[0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: f64::INFINITY,
+                    top_k: 1,
+                },
+            )
+            .unwrap_err(),
+            sampling_distribution(
+                &[0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 0,
+                },
+            )
+            .unwrap_err(),
+            sampling_distribution(
+                &[0.0],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 2,
+                },
+            )
+            .unwrap_err(),
+        ];
+        assert!(matches!(cases[0], SamplingError::EmptyLogits));
+        assert!(matches!(
+            cases[1],
+            SamplingError::NonFiniteLogit { token_id: 1, .. }
+        ));
+        assert!(matches!(
+            cases[2],
+            SamplingError::InvalidTemperature { value: 0.0 }
+        ));
+        assert!(matches!(cases[3], SamplingError::InvalidTemperature { .. }));
+        assert!(matches!(
+            cases[4],
+            SamplingError::InvalidTopK { top_k: 0, .. }
+        ));
+        assert!(matches!(
+            cases[5],
+            SamplingError::InvalidTopK { top_k: 2, .. }
+        ));
+
+        let mut rng = SplitMix64::from_seed(99);
+        let state = rng.state();
+        assert!(
+            sample_next_token(
+                &[0.0, f64::INFINITY],
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 1,
+                },
+                &mut rng,
+            )
+            .is_err()
+        );
+        assert_eq!(rng.state(), state);
+    }
+
+    #[test]
+    fn scripted_generation_includes_eos_and_audits_complete_prefixes() {
+        let mut calls = Vec::new();
+        let mut rng = SplitMix64::from_seed(1);
+        let state = rng.state();
+        let result = generate_with(
+            5,
+            4,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, Some(4), 4),
+            &mut rng,
+            |prefix| {
+                calls.push(prefix.to_vec());
+                Ok(if prefix.len() == 1 {
+                    vec![0.0, 0.0, 2.0, 0.0, 0.0]
+                } else {
+                    vec![0.0, 0.0, 0.0, 0.0, 3.0]
+                })
+            },
+        )
+        .unwrap();
+        assert_eq!(calls, [vec![0], vec![0, 2]]);
+        assert_eq!(result.generated(), &[2, 4]);
+        assert_eq!(result.stop(), GenerationStop::Eos);
+        assert_eq!(result.full_prefix_calls(), 2);
+        assert_eq!(
+            result
+                .steps()
+                .iter()
+                .map(GenerationStep::prefix_length)
+                .collect::<Vec<_>>(),
+            [1, 2]
+        );
+        assert_eq!(
+            result
+                .steps()
+                .iter()
+                .map(GenerationStep::token_id)
+                .collect::<Vec<_>>(),
+            [2, 4]
+        );
+        assert!(result.steps().iter().all(|step| step.unit_draw().is_none()));
+        assert!(std::mem::size_of::<GenerationStep>() <= 64);
+        assert_eq!(rng.state(), state);
+    }
+
+    #[test]
+    fn context_and_token_limits_stop_without_an_extra_forward() {
+        let mut context_calls = Vec::new();
+        let mut rng = SplitMix64::from_seed(2);
+        let context = generate_with(
+            2,
+            2,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, None, 4),
+            &mut rng,
+            |prefix| {
+                context_calls.push(prefix.to_vec());
+                Ok(vec![0.0, 1.0])
+            },
+        )
+        .unwrap();
+        assert_eq!(context_calls, [vec![0], vec![0, 1]]);
+        assert_eq!(context.generated(), &[1, 1]);
+        assert_eq!(context.stop(), GenerationStop::ContextLimit);
+        assert_eq!(context.full_prefix_calls(), 2);
+
+        let mut token_calls = 0;
+        let token_limit = generate_with(
+            2,
+            2,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, None, 1),
+            &mut rng,
+            |_| {
+                token_calls += 1;
+                Ok(vec![0.0, 1.0])
+            },
+        )
+        .unwrap();
+        assert_eq!(token_limit.generated(), &[1]);
+        assert_eq!(token_limit.stop(), GenerationStop::TokenLimit);
+        assert_eq!(token_limit.full_prefix_calls(), 1);
+        assert_eq!(token_calls, 1);
+
+        let mut stochastic_rng = SplitMix64::from_seed(11);
+        let mut expected_rng = stochastic_rng.clone();
+        expected_rng.next_unit_f64();
+        expected_rng.next_unit_f64();
+        let stochastic = generate_with(
+            2,
+            4,
+            &[0],
+            GenerationConfig::new(
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 1,
+                },
+                None,
+                2,
+            ),
+            &mut stochastic_rng,
+            |_| Ok(vec![0.0, 1.0]),
+        )
+        .unwrap();
+        assert_eq!(stochastic.stop(), GenerationStop::TokenLimit);
+        assert_eq!(stochastic.full_prefix_calls(), 2);
+        assert!(stochastic.steps().iter().all(|step| {
+            step.unit_draw().is_some() && step.interval_start() == 0.0 && step.interval_end() == 1.0
+        }));
+        assert_eq!(stochastic_rng.state(), expected_rng.state());
+
+        let zero = generate_with(
+            2,
+            2,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, None, 0),
+            &mut rng,
+            |_| panic!("zero budget must not call the model"),
+        )
+        .unwrap();
+        assert_eq!(zero.stop(), GenerationStop::TokenLimit);
+        assert_eq!(zero.full_prefix_calls(), 0);
+    }
+
+    #[test]
+    fn generation_rejects_prompt_eos_settings_and_logit_shape_before_extra_work() {
+        let mut rng = SplitMix64::from_seed(3);
+        assert!(matches!(
+            generate_with(
+                2,
+                2,
+                &[],
+                GenerationConfig::new(SamplingMode::Greedy, None, 1),
+                &mut rng,
+                |_| panic!("invalid prompt must not call model"),
+            ),
+            Err(GenerationError::EmptyPrompt)
+        ));
+        assert!(matches!(
+            generate_with(
+                2,
+                2,
+                &[0, 1, 0],
+                GenerationConfig::new(SamplingMode::Greedy, None, 1),
+                &mut rng,
+                |_| panic!("long prompt must not call model"),
+            ),
+            Err(GenerationError::PromptTooLong { .. })
+        ));
+        assert!(matches!(
+            generate_with(
+                2,
+                2,
+                &[2],
+                GenerationConfig::new(SamplingMode::Greedy, None, 1),
+                &mut rng,
+                |_| panic!("invalid token must not call model"),
+            ),
+            Err(GenerationError::PromptTokenOutOfBounds { .. })
+        ));
+        assert!(matches!(
+            generate_with(
+                2,
+                2,
+                &[0],
+                GenerationConfig::new(SamplingMode::Greedy, Some(2), 1),
+                &mut rng,
+                |_| panic!("invalid EOS must not call model"),
+            ),
+            Err(GenerationError::EosTokenOutOfBounds { .. })
+        ));
+        assert!(matches!(
+            generate_with(
+                2,
+                2,
+                &[0],
+                GenerationConfig::new(SamplingMode::Greedy, None, 1),
+                &mut rng,
+                |_| Ok(vec![0.0]),
+            ),
+            Err(GenerationError::LogitCountMismatch {
+                expected: 2,
+                actual: 1
+            })
+        ));
+    }
+
+    #[test]
+    fn actual_decoder_generation_is_graph_free_and_advances_once_per_sample() {
+        let mut init_rng = SplitMix64::from_seed(36);
+        let model = DecoderModel::new(
+            DecoderModelConfig::new(5, 4, 2, 4, 1, 2, 10_000.0, 1e-6),
+            &mut init_rng,
+        )
+        .unwrap();
+        let before = model
+            .parameters()
+            .iter()
+            .map(|parameter| {
+                parameter.tensor().gradient().map(|gradient| {
+                    gradient
+                        .as_slice()
+                        .iter()
+                        .map(|value| value.to_bits())
+                        .collect::<Vec<_>>()
+                })
+            })
+            .collect::<Vec<_>>();
+        let mut sample_rng = SplitMix64::from_seed(36);
+        let initial_state = sample_rng.state();
+        let result = generate_uncached(
+            &model,
+            &[0],
+            GenerationConfig::new(
+                SamplingMode::TemperatureTopK {
+                    temperature: 1.0,
+                    top_k: 3,
+                },
+                None,
+                4,
+            ),
+            &mut sample_rng,
+        )
+        .unwrap();
+        assert_eq!(result.full_prefix_calls(), 2);
+        assert_eq!(result.steps().len(), 2);
+        assert_eq!(result.stop(), GenerationStop::ContextLimit);
+        assert_ne!(sample_rng.state(), initial_state);
+        assert_eq!(
+            model
+                .parameters()
+                .iter()
+                .map(|parameter| {
+                    parameter.tensor().gradient().map(|gradient| {
+                        gradient
+                            .as_slice()
+                            .iter()
+                            .map(|value| value.to_bits())
+                            .collect::<Vec<_>>()
+                    })
+                })
+                .collect::<Vec<_>>(),
+            before
+        );
+    }
+}

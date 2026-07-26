@@ -1,0 +1,10 @@
+chapter=36-temperature-top-k
+input=logits:[0.000000,1.000000,1.000000,2.000000] stable_rank:[3,1,2,0]
+temperature=tau:0.500000 probabilities:[0.014209336619,0.104993585404,0.104993585404,0.775803492574] tau:1.000000 probabilities:[0.072329488129,0.196611933241,0.196611933241,0.534446645389] tau:2.000000 probabilities:[0.142536956597,0.235003712202,0.235003712202,0.387455619000]
+top_k=k:2 survivors:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000
+sample=seed:36 top_k:3 sequence:[3,2,2,2,3,3,3,3] draws:8 greedy_token:3 greedy_draw:none
+checkpoint=loaded_bytes:6330 rng_state:0x9e3779b97f4a7c38 vocabulary:5 context:2 eos:none max_new_tokens:4 prompt:[0] generated:[4,4] prefixes:[1,2] stop:context-limit full_prefix_calls:2 replay_identical:true
+eos=vocabulary:5 context:2 eos_token:4 max_new_tokens:4 generated:[4] stop:eos full_prefix_calls:1
+errors=temperature_zero:true top_k_zero:true nonfinite_logit:true rng_unchanged:true
+history=beam_constrained:true open_ended_many_valid:true top_k_limits_tail:true fixed_k_context_insensitive:true
+next=cache one attention layer while preserving its newest-position output

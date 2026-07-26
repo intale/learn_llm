@@ -247,6 +247,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch36-temperature-top-k"
+version = "0.1.0"
+dependencies = [
+ "ch35-checkpoints",
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

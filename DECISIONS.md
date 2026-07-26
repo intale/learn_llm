@@ -6589,3 +6589,105 @@ or locale activation changes.
 
 **Affected step and run:** `repair-ch35-learner-rationale`, run
 `20260726T120316Z-repair-ch35-learner-rationale-01`.
+
+## 2026-07-26 - Separate deterministic decoding policy from positive-temperature sampling
+
+**Status:** Accepted during Chapter 36 preflight before product files were edited.
+
+**Context:** Chapter 36 must turn one loaded decoder's final-position logits into
+reproducible token choices, while teaching both the greedy limit and stochastic
+temperature/top-k sampling. The formula is defined only for positive temperature;
+using a literal zero in the denominator would turn a useful limit into an invalid
+API setting. Equal logits also leave a top-k boundary ambiguous unless the course
+states one stable rule. The selected Chapter 35 fixture has a context capacity of
+two, so it cannot honestly serve as a long-generation example.
+
+**Decision:** Add a dependency-free generation module with an explicit `Greedy`
+mode and a `TemperatureTopK` mode requiring finite positive temperature and
+`1 <= k <= vocabulary size`. Rank finite logits by descending value and then
+ascending token ID, retain exactly `k`, evaluate max-shifted exponentials, and
+renormalize only the retained set. Traverse the categorical distribution in
+ascending token-ID order. Greedy consumes no random draw; every valid stochastic
+choice consumes exactly one high-53-bit SplitMix64 draw, including `k = 1`.
+Reject invalid settings before advancing the RNG.
+
+Run uncached generation under the existing no-gradient boundary. At each step,
+evaluate the complete current prefix with shape `[1, prefix length]`, use only the
+last vocabulary row, append the sampled token including EOS, and report the exact
+prefix lengths and full-prefix call count. EOS wins immediately after selection;
+otherwise token budget or the inability to run another prefix determines the stop
+reason. A prefix of exactly the model capacity may still produce one next token,
+but no later call may exceed capacity.
+
+Use two complementary fixtures. Exact synthetic logits `[0, 1, 1, 2]` expose
+temperature shape, the stable tied boundary, normalized probabilities, and a
+seeded token sequence. Separately, encode and load the Chapter 35 selected
+checkpoint, resume its saved RNG, and prove uncached calls at prefix lengths one
+and two before the next context-limited call. The lesson must distinguish the
+zero-temperature limit from the valid positive-temperature API and present these
+seed, tie, error, EOS, and context choices as this course's reproducibility
+contract.
+
+Use Fan, Lewis, and Dauphin only for their open-ended story-generation use of
+temperature-controlled top-k and their task-bounded contrast with beam search;
+use the GPT-2 report only for its documented top-k generation settings; and use
+Holtzman and colleagues for the analyzed maximization, unrestricted-tail, fixed-k,
+renormalization, and temperature trade-offs. None of these sources establishes
+the course's tie order, seed, error precedence, stop semantics, exact fixture, or
+claim that top-k is universally best.
+
+**Consequences:** The Rust implementation owns every sampling decision and trace
+value. A strict build-time site parser may validate record grammar, canonical
+numeric lexemes, IDs, counts, and cross-references, but may not reproduce softmax,
+ranking, probability sums, cumulative intervals, or random selection. One static
+shared-style figure will project Rust-authored temperature bars, kept/removed
+top-k rows, categorical intervals, and generation proofs with text and border
+cues. Focused Chromium and Firefox checks cover formulas, containment, full view,
+narrow and no-JavaScript fallbacks. No concept library, package dependency,
+Linux build definition, locale activation, deployment, or learner-facing build
+instruction is introduced.
+
+**Affected step and run:** `implement-ch36-temperature-top-k`, run
+`20260726T144338Z-implement-ch36-temperature-top-k-01`.
+
+## 2026-07-26 - Make Chapter 36 sampling and figure evidence scale and identify themselves
+
+**Status:** Accepted after final read-only audits and before canonical
+publication.
+
+**Context:** The first fully validated staging candidate exposed four boundaries
+that its narrow fixtures did not prove. Naive summation could reject a valid
+large uniform vocabulary; a positive token-budget stop was not covered; retained
+per-step distributions made a generation trace grow with both token count and
+vocabulary size; and allocation after a random draw could weaken the documented
+transaction boundary. The static figure also placed a displayed `k = 2`
+boundary immediately before draws produced with `k = 3`, then changed from a
+four-token synthetic distribution to a five-token checkpoint without identifying
+either transition.
+
+**Decision:** Use compensated summation for weights and probabilities, reserve
+all bounded generation result storage before the first draw, and retain only
+prefix length, selected token, draw, and interval for each generated step. Cover
+a uniform vocabulary of 100,000 logits, the positive token-limit branch, compact
+step storage, and the exact stochastic draw count.
+
+Extend the Rust-authored diagram trace with one exact draw-policy record and with
+vocabulary, context, EOS, and token-budget fields for both checkpoint runs. The
+static figure must render the `tau = 1, k = 3, V = 4, seed = 36` draw policy,
+label the later `V = 5` checkpoint fixture, and show `eos = none` beside the
+context stop and `eos = 4` beside the EOS stop. Probability bars use measured
+solid/double border geometry rather than background fills, and their authored and
+computed widths are verified in ordinary and forced-colors rendering. Add raw
+prose and code-span regressions for Chapter 36 notation, and keep internal
+history-authoring reminders out of learner-facing prose.
+
+**Consequences:** The public sampling result remains fully inspectable for one
+next-token decision, while an uncached multi-token generation result now retains
+O(T) compact evidence instead of O(TV) distributions. The exact report and trace
+advance together, so their earlier staged manifest is superseded by a fresh
+23-file manifest after complete Rust, content, Chromium, and Firefox replay. No
+dependency, package, Linux build definition, shared style, locale activation,
+hosting, or deployment behavior changes.
+
+**Affected step and run:** `implement-ch36-temperature-top-k`, run
+`20260726T144338Z-implement-ch36-temperature-top-k-01`.

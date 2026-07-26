@@ -19,7 +19,7 @@ const chapter08To13Ids = [
   "12-stable-softmax",
   "13-gradient-checking",
 ] as const;
-const chapter14To35Ids = [
+const chapter14To36Ids = [
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
   "16-model-autodiff-ops",
@@ -42,6 +42,7 @@ const chapter14To35Ids = [
   "33-training-selection",
   "34-final-evaluation",
   "35-checkpoints",
+  "36-temperature-top-k",
 ] as const;
 const locales = ["en", "ru"] as const;
 const viewports = {
@@ -258,7 +259,7 @@ const formerMathCode = new Set([
   "d_in",
 ]);
 
-const formerChapter14To35MathCode = new Set([
+const formerChapter14To36MathCode = new Set([
   "square=4",
   "loss=8",
   "bar(loss)=1",
@@ -358,6 +359,16 @@ const formerChapter14To35MathCode = new Set([
   "n_i^{(k)}",
   "o_0=h",
   "2874+8(5*4)=3034",
+  "tau=0",
+  "tau->0+",
+  "1<=k<=V",
+  "q_i",
+  "[a_i,b_i)",
+  "a_i<=u<b_i",
+  "k=2",
+  "k = 2",
+  "k=3",
+  "k = 3",
 ]);
 
 const chapter08To13Latex: Record<
@@ -384,8 +395,8 @@ const chapter08To13Latex: Record<
   "13-gradient-checking": [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To35Latex: Record<
-  (typeof chapter14To35Ids)[number],
+const chapter14To36Latex: Record<
+  (typeof chapter14To36Ids)[number],
   readonly string[]
 > = {
   "14-scalar-autodiff": [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
@@ -536,6 +547,21 @@ const chapter14To35Latex: Record<
     String.raw`n_i^{(k)}`,
     String.raw`\prod_i n_i^{(k)}`,
     String.raw`o_0=h`,
+  ],
+  "36-temperature-top-k": [
+    String.raw`q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)}`,
+    String.raw`\tau=0.5`,
+    String.raw`q_1=0.268941421370`,
+    String.raw`k=2`,
+    String.raw`k=3`,
+    String.raw`k=40`,
+    String.raw`1\le k\le V`,
+    String.raw`\tau\to0^+`,
+    String.raw`\tau=0`,
+    String.raw`[a_i,b_i)`,
+    String.raw`a_i\le u<b_i`,
+    String.raw`[0.211941557617,0.423883115234)`,
+    String.raw`i_{\mathrm{EOS}}=4`,
   ],
 };
 
@@ -758,9 +784,9 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
   }
 });
 
-test.describe("@formula-rendering:ch14-ch35 rendered formula contract", () => {
+test.describe("@formula-rendering:ch14-ch36 rendered formula contract", () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To35Ids) {
+    for (const chapterId of chapter14To36Ids) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -799,7 +825,7 @@ test.describe("@formula-rendering:ch14-ch35 rendered formula contract", () => {
           latex.some((expression) => expression.includes(String.raw`\*`)),
           `${chapterId} must not render the malformed TeX control symbol \\*`,
         ).toBe(false);
-        for (const fragment of chapter14To35Latex[chapterId]) {
+        for (const fragment of chapter14To36Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
@@ -878,7 +904,7 @@ test.describe("@formula-rendering:ch14-ch35 rendered formula contract", () => {
           .allInnerTexts();
         expect(
           inlineCode.filter((value) =>
-            formerChapter14To35MathCode.has(value.trim()),
+            formerChapter14To36MathCode.has(value.trim()),
           ),
         ).toEqual([]);
       });

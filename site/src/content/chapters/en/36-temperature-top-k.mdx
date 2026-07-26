@@ -1,0 +1,434 @@
+---
+{
+  "chapter_id": "36-temperature-top-k",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 36,
+  "concept_id": "temperature-top-k",
+  "title": "Shape the choices, then draw once",
+  "description": "Learn how positive temperature, stable top-k filtering, and one seeded categorical draw turn decoder logits into reproducible uncached LLM generation.",
+  "objective": "Sample one next token reproducibly after positive-temperature scaling and stable top-k filtering, then repeat that choice in an uncached autoregressive loop.",
+  "worked_inputs": "Rank logits [0,1,1,2] by descending value and ascending token ID, compare temperatures 0.5, 1, and 2, keep two tokens across the tied boundary, and replay eight top-three draws from SplitMix64 seed 36 before loading the Chapter 35 checkpoint.",
+  "formula": {
+    "latex": "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
+    "symbols": [
+      {
+        "symbol": "q_i^{(\\tau,k)}",
+        "meaning": "the final probability assigned to token i after temperature scaling, top-k filtering, and renormalization"
+      },
+      {
+        "symbol": "\\tau",
+        "meaning": "a finite positive temperature; smaller values sharpen differences and larger values flatten them"
+      },
+      {
+        "symbol": "k",
+        "meaning": "the exact number of ranked token IDs retained for stochastic sampling"
+      },
+      {
+        "symbol": "V",
+        "meaning": "the vocabulary size, which bounds the retained candidate count k"
+      },
+      {
+        "symbol": "K_k",
+        "meaning": "the retained set of k highest logits, with equal logits ordered by ascending token ID in this implementation"
+      },
+      {
+        "symbol": "\\mathbf{1}[i\\in K_k]",
+        "meaning": "the indicator that is one for a retained token and zero for a filtered token"
+      },
+      {
+        "symbol": "\\ell_i",
+        "meaning": "the decoder logit for candidate token i at the current final prefix position"
+      },
+      {
+        "symbol": "i",
+        "meaning": "the candidate token ID whose final probability is being computed"
+      },
+      {
+        "symbol": "j",
+        "meaning": "the denominator index ranging across the vocabulary, where filtered terms contribute zero"
+      },
+      {
+        "symbol": "\\exp",
+        "meaning": "the exponential used by softmax after subtracting the retained maximum for numerical stability"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "Likelihood-maximizing beam decoding is useful when a source tightly constrains the target, but open-ended continuation admits many plausible futures; beam output can become generic or repetitive, while unrestricted sampling can admit an unreliable low-probability tail.",
+      "later_advance": "Open-ended story systems combined softmax temperature with top-k sampling, GPT-2 used top-k for summaries and long continuations, and later GPT-2 analysis made the truncation and renormalization trade-off explicit while showing why one fixed $k$ cannot fit every context.",
+      "modern_llm_role": "Controlled stochastic decoding turns an autoregressive LLM distribution into repeatable choices while exposing an adjustable diversity-versus-concentration boundary; later methods can replace the fixed candidate count without changing the decoder logits.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2018,
+          "name": "Hierarchical Neural Story Generation",
+          "source_url": "https://arxiv.org/pdf/1805.04833",
+          "claim": "Fan, Lewis, and Dauphin sample at each step from the ten most likely words, tune a generation-time softmax temperature, and report that this task-bounded strategy works better for their open-ended stories than beam search, while unrestricted random sampling can introduce damaging unlikely words."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Language Models are Unsupervised Multitask Learners",
+          "source_url": "https://cdn.openai.com/better-language-models/language-models.pdf",
+          "claim": "The GPT-2 report uses top-k random sampling with $k=2$ for one summarization setup and $k=40$ for open WebText continuations, showing truncated stochastic decoding in large Transformer language-model practice without claiming one $k$ is universal."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "The Curious Case of Neural Text Degeneration",
+          "source_url": "https://arxiv.org/pdf/1904.09751",
+          "claim": "Holtzman and colleagues compare maximization and stochastic decoders on GPT-2, define top-k as sampling from the $k$ highest-probability tokens after renormalization, give the temperature-scaled softmax, and show why flat and peaked contexts make a fixed $k$ an imperfect compromise."
+        }
+      ]
+    },
+    "approach": "Move from choosing one high-likelihood continuation toward controlled stochastic decoding for open-ended language-model continuations, while keeping greedy selection as an explicit deterministic policy.",
+    "summary": "The road to modern LLM generation distinguishes constrained search from open-ended continuation, truncates unreliable tails before sampling, and treats temperature and candidate-set policy as visible inference choices. Stable token-ID ties, seed replay, error precedence, and stop rules are course-specific reproducibility decisions.",
+    "rust_source": "rust/demos/ch36-temperature-top-k/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/generation/sampling.rs",
+      "region": "sampling-policy",
+      "purpose": "Validate explicit greedy or positive-temperature top-k policy, rank ties stably, normalize retained logits, and draw once from ascending token-ID intervals."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/generation/sampling.rs",
+      "region": "uncached-generation",
+      "purpose": "Run complete decoder prefixes under no-gradient inference until EOS, token budget, or context capacity."
+    },
+    {
+      "path": "rust/demos/ch36-temperature-top-k/src/lib.rs",
+      "region": "historical-decoding-contrast",
+      "purpose": "Contrast constrained likelihood search, open-ended alternatives, unreliable tails, and fixed-cardinality filtering without attributing local policy details to the cited systems."
+    },
+    {
+      "path": "rust/demos/ch36-temperature-top-k/src/lib.rs",
+      "region": "learner-evidence",
+      "purpose": "Produce the temperature, tied-boundary, seeded replay, checkpoint generation, EOS, and transactional-error evidence."
+    },
+    {
+      "path": "rust/demos/ch36-temperature-top-k/src/main.rs",
+      "purpose": "Print the exact Chapter 36 learner report."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "temperature-top-k",
+    "rationale": "Aligned probability bars make temperature sharpening and flattening visible, while one tied-boundary table and seeded interval list show exactly which candidates survive, how they are renormalized, and where one random draw lands."
+  },
+  "decoder_connection": "The cumulative decoder can now load its selected checkpoint, turn each final-position logit row into a reproducible next token, stop at EOS or context capacity, and expose the uncached reference sequence that Chapter 37 will preserve incrementally."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import TemperatureTopKDiagram from "../../../components/chapters/TemperatureTopKDiagram.astro";
+
+export const diagramLabels = {
+  title: "Temperature reshapes; top-k removes; one draw selects",
+  description: "The exact Rust trace compares three temperatures, exposes a stable tied boundary, follows eight seeded half-open intervals, and proves checkpoint generation stops.",
+  sections: {
+    temperature: "Compare temperature on the same logits",
+    topK: "Keep exactly two stable ranks",
+    draws: "Replay the seeded categorical draws",
+    generation: "Carry the policy into uncached generation",
+  },
+  temperatures: {
+    cold: "Sharper",
+    neutral: "Original scale",
+    warm: "Flatter",
+  },
+  fixtures: {
+    synthetic: "Synthetic four-token fixture",
+    checkpoint: "Loaded five-token decoder fixture",
+  },
+  fields: {
+    token: "Token",
+    logit: "Logit",
+    rank: "Stable rank",
+    status: "Top-k status",
+    probability: "Final probability",
+    draw: "Draw",
+    interval: "Half-open interval",
+    selectedToken: "selects token",
+  },
+  cues: {
+    retained: "retained — double cue",
+    removed: "removed — dashed cue",
+    selected: "selected by the draw",
+    greedy: "highest logit, lowest ID on a tie",
+    noDraw: "Greedy leaves the random stream untouched.",
+    replayed: "the restored stream replays exactly",
+    contextStop: "stops at context capacity",
+    eosStop: "EOS remains in the emitted sequence",
+    validErrors: "Invalid settings return before the random stream advances.",
+  },
+  captions: {
+    temperature: "All four tokens remain; only the probability ratios change. Each bar carries its exact value as text.",
+    topK: "At equal logits, ascending token ID breaks the boundary tie: token 1 remains and token 2 becomes exactly zero.",
+    draws: "This section changes the illustrated candidate count from two retained candidates to the trace-authored three-candidate draw policy. Sampling visits retained intervals in ascending token-ID order.",
+    generation: "This fixture boundary changes from four synthetic token IDs to the loaded five-token decoder. The exact EOS and context policies remain visible beside each run.",
+  },
+  proofs: {
+    greedy: "Explicit greedy mode",
+    loaded: "Loaded checkpoint",
+    eos: "EOS boundary",
+    errors: "Transactional errors",
+  },
+  scrollers: {
+    topK: "Stable top-k candidate table",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Start with four logits and make every choice visible
+
+The decoder supplies final-position logits in token-ID order:
+$[0,1,1,2]$. Their stable descending rank is $[3,1,2,0]$. Token $3$ is
+unambiguously first. Tokens $1$ and $2$ have equal logits, so the course policy
+places the smaller ID first. That local rule makes a boundary tie repeatable.
+
+First keep all four tokens and vary only the positive temperature. At
+$\tau=0.5$, token $3$ receives probability $0.775803492574$; at $\tau=1$, it
+receives $0.534446645389$; at $\tau=2$, it receives $0.387455619000$. Lower
+temperature sharpens existing logit differences. Higher temperature flattens
+them. Neither changes the stable rank.
+
+Now set $\tau=1$ and $k=2$. The survivor order is $[3,1]$. Token $1$ survives
+the tied boundary and receives $q_1=0.268941421370$; token $2$ is removed and
+receives exactly $q_2=0$. Token $3$ receives $q_3=0.731058578630$. The retained
+probabilities sum to $1$.
+
+With $k=3$, SplitMix64 seed $36$ produces the reproducible sequence
+$[3,2,2,2,3,3,3,3]$. For example, the second unit draw is
+$u=0.338833394523$. It lies in token $2$'s half-open interval
+$[0.211941557617,0.423883115234)$, so that draw selects token $2$.
+
+{/* chapter-section:formula */}
+
+## Filter the candidate set, then renormalize
+
+For finite logits, finite positive temperature, and $1\le k\le V$, the final
+token probability is
+
+$$
+q_i^{(\tau,k)}=\frac{\mathbf{1}[i\in K_k]\exp(\ell_i/\tau)}{\sum_j\mathbf{1}[j\in K_k]\exp(\ell_j/\tau)}
+$$
+
+The implementation subtracts the largest retained scaled logit before applying
+the exponential. This does not alter probability ratios, but prevents a large
+common offset from overflowing. Removed IDs keep exact probability $0$ rather
+than a tiny approximation.
+
+Temperature must be strictly positive. The mathematical limit
+$\tau\to0^+$ helps explain concentration toward a unique maximum, but literal
+$\tau=0$ would divide by zero. Greedy decoding is therefore a separate policy:
+it validates the same logits, chooses the first stable rank, and consumes no
+random draw. Stochastic $k=1$ chooses the same ID but deliberately consumes one
+draw, because it still follows the sampling policy.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep logits, candidates, and probabilities distinct
+
+- $q_i^{(\tau,k)}$ is token $i$'s final probability after all three operations.
+- $\tau$ is a finite positive temperature. Lower values sharpen; higher values
+  flatten.
+- $k$ is the exact number of retained token IDs.
+- $V$ is the vocabulary size, so the valid candidate count satisfies
+  $1\le k\le V$.
+- $K_k$ is the stable top-$k$ set. Equal logits use ascending token ID here.
+- $\mathbf{1}[i\in K_k]$ is $1$ for a retained ID and $0$ for a removed ID.
+- $\ell_i$ is the decoder logit for token $i$ at the final prefix position.
+- $i$ names the candidate whose final probability is being described.
+- $j$ ranges over the vocabulary in the denominator.
+- $\exp$ turns each shifted scaled logit into a positive softmax weight.
+
+These names protect an important boundary. A logit is an unrestricted decoder
+score, stable rank determines membership, and a probability is normalized mass.
+Temperature changes score gaps before normalization. Top-k changes which terms
+exist in the denominator. The categorical draw acts only after both decisions.
+
+The sampler traverses retained mass in ascending token-ID order with half-open
+intervals $[a_i,b_i)$. A unit draw $u$ selects token $i$ exactly when
+$a_i\le u<b_i$. Here $a_i$ is token $i$'s cumulative lower endpoint and $b_i$
+is its cumulative upper endpoint. The final interval accepts the tiny endpoint
+discrepancy that can arise from floating-point summation; it does not silently
+revive a removed token.
+
+{/* chapter-section:history */}
+
+## From constrained search to open-ended LLM sampling
+
+Likelihood-maximizing beam decoding is useful when a source tightly constrains
+the target, but open-ended continuation admits many plausible futures; beam
+output can become generic or repetitive, while unrestricted sampling can admit
+an unreliable low-probability tail.
+
+[Fan, Lewis, and Dauphin](https://arxiv.org/pdf/1805.04833) make that open-ended
+boundary concrete. Fan, Lewis, and Dauphin sample at each step from the ten most
+likely words, tune a generation-time softmax temperature, and report that this
+task-bounded strategy works better for their open-ended stories than beam search,
+while unrestricted random sampling can introduce damaging unlikely words.
+
+[The GPT-2 report](https://cdn.openai.com/better-language-models/language-models.pdf)
+then shows the policy in a large Transformer language model. The GPT-2 report
+uses top-k random sampling with $k=2$ for one summarization setup and $k=40$
+for open WebText continuations, showing truncated stochastic decoding in large
+Transformer language-model practice without claiming one $k$ is universal.
+
+[Holtzman and colleagues](https://arxiv.org/pdf/1904.09751) examine the trade-off
+directly. Holtzman and colleagues compare maximization and stochastic decoders
+on GPT-2, define top-k as sampling from the $k$ highest-probability tokens after
+renormalization, give the temperature-scaled softmax, and show why flat and
+peaked contexts make a fixed $k$ an imperfect compromise.
+
+Open-ended story systems combined softmax temperature with top-k sampling,
+GPT-2 used top-k for summaries and long continuations, and later GPT-2 analysis
+made the truncation and renormalization trade-off explicit while showing why one
+fixed $k$ cannot fit every context.
+
+Controlled stochastic decoding turns an autoregressive LLM distribution into
+repeatable choices while exposing an adjustable
+diversity-versus-concentration boundary; later methods can replace the fixed
+candidate count without changing the decoder logits.
+
+Top-k is therefore a clear first controlled stochastic decoder, not a universal
+quality guarantee, a hallucination defense, or the endpoint of decoding
+research. Stable token-ID ties, seed replay, invalid-setting behavior, EOS, and
+context stops are this course's reproducibility policy rather than claims about
+the cited systems.
+
+<RustSource
+  path="rust/demos/ch36-temperature-top-k/src/lib.rs"
+  region="historical-decoding-contrast"
+  caption="Contrast constrained sequence search with controlled open-ended LLM sampling"
+  label="Rust source for the Chapter 36 LLM-decoding history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Validate first, rank stably, and advance the random stream once
+
+`SamplingMode::Greedy` and `SamplingMode::TemperatureTopK` are explicit choices.
+Both reject empty or nonfinite logits. The stochastic policy additionally rejects
+nonfinite or nonpositive temperature and any $k$ outside $1\le k\le V$. All
+validation happens before the SplitMix64 state changes.
+
+The distribution keeps candidates in token-ID order for inspection and stores a
+separate survivor list in stable rank order. Ranking compares finite logits
+descending and token IDs ascending. After max-shifted normalization, removed
+IDs remain present with exact zero probability. Categorical sampling visits the
+positive intervals in ascending token-ID order and consumes exactly one unit
+draw.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/generation/sampling.rs"
+  region="sampling-policy"
+  caption="Validate and expose explicit greedy or positive-temperature stable top-k sampling"
+  label="Rust source implementing the Chapter 36 sampling policy"
+/>
+
+`generate_uncached` retains the complete prefix. Before each decoder call it
+checks that the prefix fits the configured context. It evaluates without an
+autodiff graph, takes the final vocabulary row, samples one token, appends that
+token, and records only compact step evidence: prefix length, selected ID, draw,
+and interval. It does not retain a full vocabulary distribution for every
+generated token. EOS is included before the loop stops. A valid capacity-$2$
+prefix can therefore emit a next token even though the resulting length-$3$
+sequence cannot be submitted for another call.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/generation/sampling.rs"
+  region="uncached-generation"
+  caption="Recompute each complete prefix and stop at EOS, token budget, or context capacity"
+  label="Rust source implementing Chapter 36 uncached autoregressive generation"
+/>
+
+The fixture loads the exact Chapter 35 checkpoint bytes and restores its saved
+random state. Prompt $[0]$ emits $[4,4]$ from prefix lengths $[1,2]$, performs
+two complete-prefix calls, and reports a context stop. Repeating the run restores
+the same sequence and final random state. With token $4$ configured as EOS, the
+result includes $[4]$ and stops after one call.
+
+<RustSource
+  path="rust/demos/ch36-temperature-top-k/src/lib.rs"
+  region="learner-evidence"
+  caption="Assemble exact temperature, tie, replay, checkpoint, EOS, context, and error evidence"
+  label="Rust source assembling the Chapter 36 learner evidence"
+/>
+
+Run `cargo run --quiet --locked -p ch36-temperature-top-k`. The key evidence is
+printed directly by the Rust program:
+
+```text
+top_k=k:2 survivors:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000
+sample=seed:36 top_k:3 sequence:[3,2,2,2,3,3,3,3] draws:8 greedy_token:3 greedy_draw:none
+checkpoint=loaded_bytes:6330 rng_state:0x9e3779b97f4a7c38 vocabulary:5 context:2 eos:none max_new_tokens:4 prompt:[0] generated:[4,4] prefixes:[1,2] stop:context-limit full_prefix_calls:2 replay_identical:true
+eos=vocabulary:5 context:2 eos_token:4 max_new_tokens:4 generated:[4] stop:eos full_prefix_calls:1
+errors=temperature_zero:true top_k_zero:true nonfinite_logit:true rng_unchanged:true
+```
+
+<RustSource
+  path="rust/demos/ch36-temperature-top-k/src/main.rs"
+  caption="Print the exact Chapter 36 learner report"
+  label="Rust source printing Chapter 36 temperature and top-k evidence"
+/>
+
+{/* chapter-section:visualization */}
+
+## Read the distribution from left to right
+
+The figure begins with three aligned views of the same four-token logits. It then
+isolates the $k=2$ tie and explicitly switches to the $\tau=1$, $k=3$, seed-$36$
+draw policy before following each recorded interval. A labeled fixture boundary
+then changes from synthetic vocabulary size $V=4$ to the loaded decoder's
+$V=5$, with no EOS configured for the context-stop run and token $4$ configured
+as EOS for the EOS run. Double and dashed cues repeat retained and removed states
+in text. The table preserves each token's exact logit, stable rank, probability,
+and retained state so the border bars can be checked against numeric evidence.
+
+<TemperatureTopKDiagram labels={diagramLabels} />
+
+{/* chapter-section:exercises */}
+
+## Predict before revealing the trace
+
+1. Which ID wins greedy for logits $[0,1,1,2]$?
+2. Which equal-logit ID survives the $k=2$ boundary?
+3. Does raising $\tau$ change stable rank?
+4. Why is literal $\tau=0$ rejected even though $\tau\to0^+$ is informative?
+5. Does stochastic $k=1$ consume a random draw?
+6. Which token owns draw $u=0.338833394523$ in the $k=3$ fixture?
+7. Is EOS included in the emitted sequence?
+8. Why can a capacity-$2$ prefix emit one token before a context stop?
+
+<details>
+<summary>Check the eight predictions</summary>
+
+1. Token $3$ wins because its logit $2$ is the unique maximum.
+2. Token $1$ survives because equal logits use ascending token ID, leaving token $2$ at exact zero.
+3. No. Positive temperature changes probability ratios but preserves logit order.
+4. The limit describes concentration, while literal zero would require division by zero; explicit greedy owns that policy.
+5. Yes. It selects the greedy ID but remains a stochastic policy with exactly one draw.
+6. Token $2$ owns $[0.211941557617,0.423883115234)$, which contains the draw.
+7. Yes. Token $4$ is appended before the EOS stop is reported.
+8. The valid length-$2$ prefix predicts a next token; only the following decoder call would exceed capacity.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Preserve this uncached sequence when generation becomes incremental
+
+The cumulative decoder can now load its selected checkpoint, turn each
+final-position logit row into a reproducible next token, stop at EOS or context
+capacity, and expose the uncached reference sequence that Chapter 37 will
+preserve incrementally.
+
+Chapter 37 will cache one attention layer's earlier key and value vectors. Its
+newest-position output must match the complete-prefix computation here before
+Chapter 38 extends caching across the whole decoder.
