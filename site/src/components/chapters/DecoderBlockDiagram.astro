@@ -1,0 +1,593 @@
+---
+import traceSource from '../../../../rust/demos/ch31-decoder-block/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseDecoderBlockTrace,
+  validateDecoderBlockDiagramLabels,
+  type DecoderBlockDiagramLabels,
+} from '../../lib/decoder-block-diagram';
+
+interface Props {
+  labels: DecoderBlockDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateDecoderBlockDiagramLabels(labels);
+const trace = parseDecoderBlockTrace(traceSource);
+const stage = (name: string) => {
+  const found = trace.stages.find((candidate) => candidate.name === name);
+  if (found === undefined) throw new Error('missing decoder-block stage ' + name);
+  return found;
+};
+const attentionInput = stage('input');
+const attentionNorm = stage('attention-norm');
+const attentionBranch = stage('attention-branch');
+const afterAttention = stage('after-attention');
+const feedForwardNorm = stage('feed-forward-norm');
+const feedForwardBranch = stage('feed-forward-branch');
+const output = stage('output');
+const attentionEvidenceStages = [
+  attentionInput,
+  attentionNorm,
+  attentionBranch,
+  afterAttention,
+];
+const feedForwardEvidenceStages = [
+  feedForwardNorm,
+  feedForwardBranch,
+  output,
+];
+const titleId = 'decoder-block-diagram-title';
+const descriptionId = 'decoder-block-diagram-description';
+const tokenLabels = ['0', '1', '2'];
+const keyLabels = ['0', '1', '2'];
+const vectorParts = (name: string, values: readonly string[]) =>
+  values.map(
+    (value, index) =>
+      (index === 0 ? name + '=[' : '') +
+      value +
+      (index === values.length - 1 ? ']' : ','),
+  );
+const statusLabel = (value: string) =>
+  value === 'changed' ? labels.cues.changed : labels.cues.unchanged;
+---
+
+<figure
+  class="course-diagram decoder-block-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="pre-norm-decoder-block-flow"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.overview}>
+      <li class="identity-cue">{labels.cues.identity}</li>
+      <li class="branch-cue">{labels.cues.branch}</li>
+      <li class="merge-cue">{labels.cues.merge}</li>
+      <li class="allowed-cue">{labels.cues.allowed}</li>
+      <li class="blocked-cue">{labels.cues.blocked}</li>
+    </ul>
+  </figcaption>
+
+  <section class="overview-section" aria-labelledby="decoder-block-overview-title">
+    <h4 id="decoder-block-overview-title">{labels.sections.overview}</h4>
+    <div
+      class="formula-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.formula}
+      data-diagram-scroll
+    >
+      <p class="formula-line technical">
+        <InlineMath latex={"x'=x+\\operatorname{MHA}(\\operatorname{RMSNorm}(x))"} />
+        <InlineMath latex={"y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))"} />
+      </p>
+    </div>
+    <dl class="shape-grid" aria-label={labels.fields.shape}>
+      {Object.entries(trace.shapes).map(([name, shape]) => (
+        <div data-shape-stage={name}>
+          <dt class="technical">{name}</dt>
+          <dd><InlineMath latex={shape} /></dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="path-section" aria-labelledby="decoder-block-attention-title">
+    <h4 id="decoder-block-attention-title">{labels.sections.attention}</h4>
+    <p>{labels.captions.attention}</p>
+    <div
+      class="flow-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.flow + ': ' + labels.sections.attention}
+      data-diagram-scroll
+    >
+      <div class="flow-layout" data-flow="attention">
+        <article data-diagram-card data-diagram-box class="flow-card source-card" data-stage="input">
+          <h5>{labels.stages.input}</h5>
+          <span class="wrapped-vector" data-trace-vector={'x=' + attentionInput.tokens[1].latex}>
+            {vectorParts('x', attentionInput.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+          <InlineMath latex={trace.shapes.input} />
+        </article>
+        <span class="arrow source-to-identity" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card identity-card" data-path="identity">
+          <h5>{labels.fields.identity}</h5>
+          <span class="wrapped-vector" data-trace-vector={'x=' + attentionInput.tokens[1].latex}>
+            {vectorParts('x', attentionInput.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow identity-to-merge" aria-hidden="true">→</span>
+        <span class="arrow source-to-norm" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card" data-stage="attention-norm">
+          <h5>{labels.stages.normalization}</h5>
+          <span class="wrapped-vector" data-trace-vector={'N_a=' + attentionNorm.tokens[1].latex}>
+            {vectorParts('N_a', attentionNorm.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow norm-to-branch" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card" data-stage="attention-branch">
+          <h5>{labels.stages.attention}</h5>
+          <span class="wrapped-vector" data-trace-vector={'A=' + attentionBranch.tokens[1].latex}>
+            {vectorParts('A', attentionBranch.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow branch-to-merge" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card merge-card" data-merge="attention" data-status="pass">
+          <h5>{labels.cues.merge}</h5>
+          <InlineMath latex="+" />
+        </article>
+        <span class="arrow merge-to-result" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card result-card" data-stage="after-attention">
+          <h5>{labels.stages.attentionResidual}</h5>
+          <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
+            {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+          <InlineMath latex={trace.shapes['after-attention']} />
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="path-section" aria-labelledby="decoder-block-ffn-title">
+    <h4 id="decoder-block-ffn-title">{labels.sections.feedForward}</h4>
+    <p>{labels.captions.feedForward}</p>
+    <div
+      class="flow-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.flow + ': ' + labels.sections.feedForward}
+      data-diagram-scroll
+    >
+      <div class="flow-layout" data-flow="feed-forward">
+        <article data-diagram-card data-diagram-box class="flow-card source-card" data-stage="after-attention">
+          <h5>{labels.stages.attentionResidual}</h5>
+          <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
+            {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+          <InlineMath latex={trace.shapes['after-attention']} />
+        </article>
+        <span class="arrow source-to-identity" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card identity-card" data-path="identity">
+          <h5>{labels.fields.identity}</h5>
+          <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
+            {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow identity-to-merge" aria-hidden="true">→</span>
+        <span class="arrow source-to-norm" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card" data-stage="feed-forward-norm">
+          <h5>{labels.stages.normalization}</h5>
+          <span class="wrapped-vector" data-trace-vector={'N_f=' + feedForwardNorm.tokens[1].latex}>
+            {vectorParts('N_f', feedForwardNorm.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow norm-to-branch" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card" data-stage="feed-forward-branch">
+          <h5>{labels.stages.feedForward}</h5>
+          <span class="wrapped-vector" data-trace-vector={'F=' + feedForwardBranch.tokens[1].latex}>
+            {vectorParts('F', feedForwardBranch.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+        </article>
+        <span class="arrow branch-to-merge" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card merge-card" data-merge="feed-forward" data-status="pass">
+          <h5>{labels.cues.merge}</h5>
+          <InlineMath latex="+" />
+        </article>
+        <span class="arrow merge-to-result" aria-hidden="true">→</span>
+        <article data-diagram-card data-diagram-box class="flow-card result-card" data-stage="output">
+          <h5>{labels.stages.output}</h5>
+          <span class="wrapped-vector" data-trace-vector={'y=' + output.tokens[1].latex}>
+            {vectorParts('y', output.tokens[1].values).map((part) => <InlineMath latex={part} />)}
+          </span>
+          <InlineMath latex={trace.shapes.output} />
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof-section" aria-labelledby="decoder-block-proof-title">
+    <h4 id="decoder-block-proof-title">{labels.sections.proof}</h4>
+    <p>{labels.captions.proof}</p>
+    <div
+      class="evidence-region attention-evidence-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.evidence + ': ' + labels.sections.attention}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="stage-table attention-stage-table">
+        <caption>{labels.scrollers.evidence}: {labels.sections.attention}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.token}</th>
+            {attentionEvidenceStages.map((item) => <th scope="col">{item.name}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {tokenLabels.map((token, tokenIndex) => (
+            <tr data-stage-token={token}>
+              <th scope="row"><InlineMath latex={'t=' + token} /></th>
+              {attentionEvidenceStages.map((item) => (
+                <td data-stage-name={item.name}><InlineMath latex={item.tokens[tokenIndex].latex} /></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="evidence-region feed-forward-evidence-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.evidence + ': ' + labels.sections.feedForward}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="stage-table feed-forward-stage-table">
+        <caption>{labels.scrollers.evidence}: {labels.sections.feedForward}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.token}</th>
+            {feedForwardEvidenceStages.map((item) => <th scope="col">{item.name}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {tokenLabels.map((token, tokenIndex) => (
+            <tr data-feed-forward-token={token}>
+              <th scope="row"><InlineMath latex={'t=' + token} /></th>
+              {feedForwardEvidenceStages.map((item) => (
+                <td data-stage-name={item.name}><InlineMath latex={item.tokens[tokenIndex].latex} /></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="evidence-region probe-evidence-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.evidence + ': ' + labels.sections.proof}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="probe-table">
+        <caption>{labels.scrollers.evidence}: {labels.sections.proof}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.token}</th>
+            <th scope="col">{labels.fields.probe}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tokenLabels.map((token, tokenIndex) => (
+            <tr data-probe-token-row={token}>
+              <th scope="row"><InlineMath latex={'t=' + token} /></th>
+              <td data-probe-token={token}><InlineMath latex={trace.probes[tokenIndex].values.latex} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div
+      class="weights-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.weights}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="weights-table">
+        <caption>{labels.scrollers.weights}</caption>
+        <thead>
+          <tr>
+            <th scope="col">h</th>
+            <th scope="col">{labels.fields.query}</th>
+            {keyLabels.map((key) => <th scope="col"><InlineMath latex={'k=' + key} /></th>)}
+            <th scope="col">{labels.fields.rowSum}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.weights.map((row) => (
+            <tr data-attention-head={row.head} data-attention-query={row.query}>
+              <th scope="row"><InlineMath latex={row.head} /></th>
+              <th scope="row"><InlineMath latex={'q=' + row.query} /></th>
+              {row.values.values.map((probability, keyIndex) => (
+                <td class={row.visibility[keyIndex]} data-visibility={row.visibility[keyIndex]}>
+                  <InlineMath latex={probability} />
+                  <small>{row.visibility[keyIndex] === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                </td>
+              ))}
+              <td><InlineMath latex={row.rowSum} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="proof-grid">
+      <article data-diagram-card data-diagram-box class="proof-card order-card" data-order-proof={trace.orderProof.pre_norm}>
+        <h5>{labels.fields.orderContrast}</h5>
+        <p><strong>{labels.cues.changed}</strong></p>
+        <p class="wrapped-vector" data-trace-vector={'\\operatorname{PostNorm}_1=' + trace.orderProof.postNormToken.latex}>
+          {vectorParts('\\operatorname{PostNorm}_1', trace.orderProof.postNormToken.values).map((part) => <InlineMath latex={part} />)}
+        </p>
+        <p class="wrapped-vector" data-trace-vector={"x'=" + trace.orderProof.preNormToken.latex}>
+          {vectorParts("x'", trace.orderProof.preNormToken.values).map((part) => <InlineMath latex={part} />)}
+        </p>
+      </article>
+      <article data-diagram-card data-diagram-box class="proof-card causal-card">
+        <h5>{labels.captions.attention}</h5>
+        {(['0', '1', '2'] as const).map((position) => {
+          const key = ('position_' + position) as 'position_0' | 'position_1' | 'position_2';
+          const value = trace.causalProof[key];
+          return (
+            <p data-prefix-position={position} data-prefix-status={value}>
+              <InlineMath latex={'t=' + position} />: {statusLabel(value)}
+            </p>
+          );
+        })}
+      </article>
+      <article data-diagram-card data-diagram-box class="proof-card parameter-card">
+        <h5>{labels.fields.parameterCount}</h5>
+        <p><InlineMath latex={'N_\\theta=' + trace.parameters.scalars} /></p>
+        <p><code><bdi dir="ltr">tensors={trace.parameters.tensors}</bdi></code></p>
+        <p><code><bdi dir="ltr">bias={trace.parameters.bias}</bdi></code></p>
+      </article>
+      <article data-diagram-card data-diagram-box class="proof-card gradient-card">
+        <h5>{labels.fields.gradientCount}</h5>
+        <p><InlineMath latex={'n=' + trace.gradients.total} /></p>
+        <p><InlineMath latex={'\\tau=' + trace.gradients.tolerance} /></p>
+        <p><strong>{labels.cues.verified}</strong></p>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .decoder-block-diagram,
+  .decoder-block-diagram > *,
+  .flow-region,
+  .evidence-region,
+  .weights-region,
+  .flow-card,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .formula-line,
+  .proof-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+  }
+
+  .technical {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .wrapped-vector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.12rem 0.2rem;
+    max-inline-size: 100%;
+  }
+
+  .shape-grid,
+  .proof-grid {
+    display: grid;
+    gap: 0.7rem;
+    align-items: start;
+  }
+
+  .shape-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .shape-grid > div,
+  .proof-grid > * {
+    min-inline-size: 0;
+  }
+
+  .shape-grid dd {
+    margin-inline-start: 0;
+  }
+
+  .flow-layout {
+    display: grid;
+    grid-template-columns: 17.5rem 1.5rem 17.5rem 1.5rem 17.5rem 1.5rem 4rem 1.5rem 17.5rem;
+    grid-template-rows: repeat(2, auto);
+    inline-size: max-content;
+    min-inline-size: 80rem;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  .flow-card {
+    display: grid;
+    gap: 0.35rem;
+    align-self: stretch;
+    align-content: center;
+    text-align: center;
+  }
+
+  .flow-card h5,
+  .proof-card h5,
+  .proof-card p {
+    margin: 0;
+  }
+
+  .source-card {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  .source-to-identity {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .identity-card {
+    grid-column: 3 / 6;
+    grid-row: 1;
+    border-inline-start-style: solid;
+    border-inline-start-width: 4px;
+  }
+
+  .identity-to-merge {
+    grid-column: 6;
+    grid-row: 1;
+  }
+
+  .source-to-norm {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .norm-card {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .norm-to-branch {
+    grid-column: 4;
+    grid-row: 2;
+  }
+
+  .transform-card {
+    grid-column: 5;
+    grid-row: 2;
+  }
+
+  .branch-to-merge {
+    grid-column: 6;
+    grid-row: 2;
+  }
+
+  .branch-card,
+  .branch-cue,
+  .blocked-cue,
+  td.blocked {
+    border-style: dashed;
+  }
+
+  .merge-card {
+    grid-column: 7;
+    grid-row: 1 / 3;
+    border-style: double;
+    border-width: 4px;
+  }
+
+  .merge-to-result {
+    grid-column: 8;
+    grid-row: 1 / 3;
+  }
+
+  .result-card {
+    grid-column: 9;
+    grid-row: 1 / 3;
+  }
+
+  .arrow {
+    align-self: center;
+    justify-self: center;
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+
+  .stage-table,
+  .probe-table,
+  .weights-table {
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+
+  .weights-table {
+    min-inline-size: 50rem;
+  }
+
+  .weights-table small {
+    display: block;
+    margin-block-start: 0.2rem;
+  }
+
+  td.allowed,
+  .allowed-cue {
+    border-block-end-style: solid;
+    border-block-end-width: 3px;
+  }
+
+  td.blocked,
+  .blocked-cue {
+    border-block-end-width: 3px;
+  }
+
+  .merge-cue {
+    border-style: double;
+    border-width: 4px;
+  }
+
+  .proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-block-start: 0.75rem;
+  }
+
+  .proof-card {
+    flex-direction: column;
+  }
+
+  @container course-diagram (max-width: 48rem) {
+    .shape-grid,
+    .proof-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .identity-card,
+    .identity-cue,
+    .allowed-cue,
+    td.allowed {
+      border-style: solid;
+    }
+
+    .branch-card,
+    .branch-cue,
+    .blocked-cue,
+    td.blocked {
+      border-style: dashed;
+    }
+
+    .merge-card,
+    .merge-cue {
+      border-style: double;
+    }
+  }
+</style>

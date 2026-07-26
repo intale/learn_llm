@@ -468,8 +468,8 @@ async function auditFullscreenRoutes(page: Page, selectedRoutes = routes) {
 test.describe('course diagram style system', { tag: '@diagram-style' }, () => {
   test('all published diagrams share one contained desktop presentation', async ({ page }) => {
     test.setTimeout(240_000);
-    expect(englishRoutes).toHaveLength(30);
-    expect(routes).toHaveLength(37);
+    expect(englishRoutes).toHaveLength(31);
+    expect(routes).toHaveLength(38);
     await auditRoutes(page, desktop);
   });
 

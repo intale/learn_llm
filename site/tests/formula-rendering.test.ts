@@ -24,7 +24,7 @@ const chapter08To13Files = [
   '12-stable-softmax.mdx',
   '13-gradient-checking.mdx',
 ] as const;
-const chapter14To30Files = [
+const chapter14To31Files = [
   '14-scalar-autodiff.mdx',
   '15-tensor-autodiff-core.mdx',
   '16-model-autodiff-ops.mdx',
@@ -42,6 +42,7 @@ const chapter14To30Files = [
   '28-causal-masking.mdx',
   '29-rope.mdx',
   '30-multi-head-attention.mdx',
+  '31-decoder-block.mdx',
 ] as const;
 const locales = ['en', 'ru'] as const;
 const chapterRoot = resolve(process.cwd(), 'src/content/chapters');
@@ -283,7 +284,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To30Math: Record<string, readonly string[]> = {
+const requiredChapter14To31Math: Record<string, readonly string[]> = {
   '14': [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -383,9 +384,16 @@ const requiredChapter14To30Math: Record<string, readonly string[]> = {
     String.raw`H_i=A_iV_i`,
     String.raw`W_O\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`,
   ],
+  '31': [
+    String.raw`x'=x+\operatorname{MHA}(\operatorname{RMSNorm}(x)),\quad`,
+    String.raw`y=x'+\operatorname{FFN}(\operatorname{RMSNorm}(x'))`,
+    String.raw`x,x',y\in\mathbb{R}^{B\times T\times d_{\mathrm{model}}}`,
+    String.raw`N_\theta`,
+    String.raw`\operatorname{LayerNorm}(x+\operatorname{MHA}(x))`,
+  ],
 };
 
-const formerChapter14To30MathCodeSpans = [
+const formerChapter14To31MathCodeSpans = [
   'square=4',
   'loss=8',
   'bar(loss)=1',
@@ -476,9 +484,12 @@ const formerChapter14To30MathCodeSpans = [
   'W_O',
   'd_h',
   '[B,h,T,d_h]',
+  "x'=x+MHA(RMSNorm(x))",
+  "y=x'+FFN(RMSNorm(x'))",
+  'N_theta',
 ] as const;
 
-const rawChapter14To30FormulaPatterns = [
+const rawChapter14To31FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -523,7 +534,7 @@ const rawChapter14To30FormulaPatterns = [
   /\[B\s*,\s*h\s*,\s*T\s*,\s*d_h\s*\]/,
 ] as const;
 
-const documentedChapter14To30Code = [
+const documentedChapter14To31Code = [
   {
     name: 'literal tensor shapes, coordinates, vectors, and matrices',
     pattern: /^\[[^\r\n]*\]$/,
@@ -680,10 +691,10 @@ describe('Chapter 8-13 formula-source contract', () => {
   });
 });
 
-describe('Chapter 14-30 formula-source contract', () => {
-  it('completes the source audit for all 37 published localized lessons', () => {
+describe('Chapter 14-31 formula-source contract', () => {
+  it('completes the source audit for all 38 published localized lessons', () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To30Files) {
+    for (const file of chapter14To31Files) {
       const source = readChapter('en', file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -691,31 +702,31 @@ describe('Chapter 14-30 formula-source contract', () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To30Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To31Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To30MathCodeSpans) {
+      for (const oldExpression of formerChapter14To31MathCodeSpans) {
         expect(code, `${file} still styles ${oldExpression} as code`).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To30FormulaPatterns) {
+      for (const pattern of rawChapter14To31FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter14To30Files);
+    expect(reviewed).toEqual(chapter14To31Files);
     expect(chapterFiles.length * locales.length + chapter08To13Files.length + reviewed.length).toBe(
-      37,
+      38,
     );
   });
 
   it('keeps every remaining code span within a documented program-data category', () => {
-    for (const file of chapter14To30Files) {
+    for (const file of chapter14To31Files) {
       for (const value of inlineCode(readChapter('en', file))) {
-        const allowance = documentedChapter14To30Code.find(({ pattern }) => pattern.test(value));
+        const allowance = documentedChapter14To31Code.find(({ pattern }) => pattern.test(value));
         expect(
           allowance?.name,
           `${file} has an undocumented code span after the formula audit: \`${value}\``,
@@ -725,7 +736,7 @@ describe('Chapter 14-30 formula-source contract', () => {
   });
 });
 
-describe('build-time formula rendering in Chapter 14-30 diagrams', () => {
+describe('build-time formula rendering in Chapter 14-31 diagrams', () => {
   it('renders every diagram-owned expression as strict HTML plus MathML', () => {
     const components = {
       initialization: readFileSync(

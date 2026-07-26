@@ -5972,3 +5972,136 @@ their complete site base through the pinned action output.
 `20260726T031905Z-add-static-sitemap-01`; `correct-sitemap-public-base`, run
 `20260726T040141Z-correct-sitemap-public-base-01`; and
 `implement-ch31-decoder-block`.
+
+## 2026-07-26 - Compose Chapter 31 as one sequential pre-norm decoder block
+
+**Status:** Accepted before product work.
+
+**Context:** Chapters 20, 24, 25, and 30 already own differentiable SwiGLU,
+exact-shape residual addition, RMSNorm, and causal multi-head attention. Chapter
+31 must teach their model-level order without duplicating their arithmetic,
+quietly introducing a stack, or turning the historical section into programming
+language history. The original Transformer describes residual connections
+followed by LayerNorm; the later Pre-LN analysis distinguishes normalization
+inside the residual block; and LLaMA documents input pre-normalization with
+RMSNorm together with SwiGLU in a modern causal language model.
+
+**Decision:** Add one `DecoderBlock` whose forward path is exactly attention
+RMSNorm, causal multi-head attention, first exact-shape residual addition,
+feed-forward RMSNorm, SwiGLU, and second exact-shape residual addition. Preserve
+the shared shape `[B,T,d_model]` throughout the residual stream and expose the
+normalization outputs, attention weights, both branch outputs, and both residual
+states as teaching evidence. Initialization is transactional from one
+deterministic stream, uses stable parameter order—attention gain, four attention
+matrices, feed-forward gain, then three SwiGLU matrices—and adds no bias or new
+dependency. Construction and forward failures retain the owning stage; stacking,
+dropout, cache state, and optimized kernels remain deferred.
+
+Use a tiny depth-one fixture with one batch, three tokens, model width four, two
+heads, and a model-width SwiGLU hidden axis. Identity-like named weights make
+the exact operation order and two residual updates inspectable while still
+exercising every trainable tensor. The runnable report owns deterministic values,
+causality probes, misordering contrasts, parameter counts, shape/error evidence,
+and finite-difference gradients. The static diagram consumes only its frozen
+Rust trace and renders one shared-style semantic figure with two explicit
+identity paths; it performs no model arithmetic.
+
+Frame the history as the road from sequential recurrent language-model state,
+through the original post-normalized Transformer block, to pre-normalized modern
+decoder blocks. Bound claims to the primary papers at
+`https://arxiv.org/abs/1706.03762`, `https://arxiv.org/abs/2002.04745`, and
+`https://arxiv.org/abs/2302.13971`. Do not claim that every modern model uses the
+same block or that the repository reproduces a production LLaMA implementation.
+
+**Consequences:** Chapter 31 contributes the first complete depth-one decoder
+block and a checked learner-visible execution trace while reusing all prior
+course primitives. Chapter 32 can own repetition, embeddings, final
+normalization, and the tied vocabulary head. Russian remains registered but
+inactive for this chapter, and the existing Astro, localization, diagram,
+formula, GitHub Pages, and Linux build contracts do not change.
+
+**Affected step and run:** `implement-ch31-decoder-block`, run
+`20260726T043038Z-implement-ch31-decoder-block-01`.
+
+## 2026-07-26 - Register Chapter 31 in the aggregate diagram and formula gates
+
+**Status:** Accepted during preflight before those product files were edited.
+
+**Context:** The scheduled Chapter 31 outputs named the chapter component and
+focused tests but omitted the strict trace parser and the existing aggregate
+diagram/formula registries. Those registries intentionally enumerate every
+published useful diagram and every reviewed lesson formula. Publishing a
+thirty-first English diagram without advancing their counts and formula corpus
+would make correct global tests fail or leave the new page outside the durable
+cross-chapter formula rule.
+
+**Decision:** Expand the running step's declared integration boundary to add the
+dependency-free `decoder-block-diagram.ts` trace parser, both diagram-style
+registry tests, and both aggregate formula-rendering tests. Advance the expected
+useful-diagram route counts from thirty English/thirty-seven total to thirty-one
+English/thirty-eight total. Extend the reviewed formula corpus through Chapter
+31 and run its Chromium and Firefox gates independently. Also freeze the exact
+diagram-trace executable output and run the focused Chapter 31 browser suite in
+both engines. No shared presentation CSS or formula renderer change is planned;
+these are registry and evidence updates only.
+
+**Consequences:** Chapter 31 cannot publish while omitted from the same static,
+containment, forced-color, no-JavaScript, formula-spacing, and two-engine checks
+that protect earlier chapters. Dependencies, locale activation, runtime behavior,
+build architecture, public routes, and deployment ownership remain unchanged.
+
+**Affected step and run:** `implement-ch31-decoder-block`, run
+`20260726T043038Z-implement-ch31-decoder-block-01`.
+
+## 2026-07-26 - Reuse one refreshed locked validation image for Chapter 31
+
+**Status:** Accepted after the validation-image cache miss was observed.
+
+**Context:** The Chapter 31 workspace lockfile adds only the new local demo
+package, but that material input changes the Docker dependency-layer key. The
+pinned source-image build therefore reran `npm ci --ignore-scripts` for the
+unchanged `site/package-lock.json` graph instead of reusing the preceding
+layer. This package-registry access was visible during the run and must not
+remain an undeclared side effect.
+
+**Decision:** Record one network-backed reinstall as an explicit run input and
+resource cost. Keep the exact package manifest and lockfile unchanged, accept no
+floating or newly selected dependency, retain the resulting Node 22.12/Rust
+1.93.1 source image, and reuse that image for every remaining staged static and
+unit gate. Browser images remain the already pinned Playwright 1.61.1 image.
+
+**Consequences:** Validation remains reproducible from the checked-in locks and
+does not alter the Linux build, site dependency graph, runtime architecture, or
+learner output. Later commands do not repeat the install unless an input
+fingerprint changes again.
+
+**Affected step and run:** `implement-ch31-decoder-block`, run
+`20260726T043038Z-implement-ch31-decoder-block-01`.
+
+## 2026-07-26 - Partition Chapter 31 trace evidence by decoder sublayer
+
+**Status:** Accepted after the complete staged browser audit exposed excessive
+full-view travel.
+
+**Context:** Chapter 31's first diagram placed every token vector from all seven
+decoder stages plus the vocabulary probe in one table. Local scrolling made the
+inline fallback valid, but the complete Chromium audit measured 1,516 pixels of
+residual horizontal travel in full view against a 320-pixel limit. The evidence
+was exact and useful; its presentation grouped more relationships than a learner
+needs to compare at once.
+
+**Decision:** Keep every Rust-derived value and reorganize the evidence into
+three independently captioned, named, keyboard-reachable shared scroll regions:
+the attention path, the feed-forward path, and the fixed readout probe. Do not
+shrink the math, hide overflow, duplicate a fullscreen presentation tree, or
+change the shared diagram module. Each table now contains only the nearest
+meaningful comparison and the existing figure remains the sole semantic
+visualization.
+
+**Consequences:** The inline fallback remains complete and exact, while both
+Chromium and Firefox full-view checks can inspect the same figure without a
+multi-viewport journey. The trace schema, model arithmetic, locale policy,
+formula pipeline, static runtime, and Linux build remain unchanged.
+
+**Affected step and run:** `implement-ch31-decoder-block`, run
+`20260726T043038Z-implement-ch31-decoder-block-01`.

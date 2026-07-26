@@ -1,0 +1,481 @@
+---
+{
+  "chapter_id": "31-decoder-block",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 31,
+  "concept_id": "decoder-block",
+  "title": "Compose one pre-norm Transformer decoder block",
+  "description": "Learn how RMSNorm, causal multi-head attention, SwiGLU, and two residual paths compose one shape-preserving Transformer decoder block.",
+  "objective": "Compose one differentiable pre-normalized decoder block and verify the exact order of its attention and feed-forward residual paths.",
+  "worked_inputs": "Trace one batch of three model-width-four token rows through two RMSNorm gains, two rotary causal attention heads, identity-like SwiGLU projections, and two residual additions.",
+  "formula": {
+    "latex": "x'=x+\\operatorname{MHA}(\\operatorname{RMSNorm}(x)),\\quad y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))",
+    "symbols": [
+      { "symbol": "x", "meaning": "the model-width residual stream entering this decoder block" },
+      { "symbol": "x'", "meaning": "the residual stream after the causal multi-head attention branch is added" },
+      { "symbol": "y", "meaning": "the block output after the feed-forward branch is added to the intermediate residual stream" },
+      { "symbol": "\\operatorname{RMSNorm}", "meaning": "one learned-gain root-mean-square normalization; the two appearances own separate gains" },
+      { "symbol": "\\operatorname{MHA}", "meaning": "the bias-free rotary causal multi-head self-attention transformation from Chapter 30" },
+      { "symbol": "\\operatorname{FFN}", "meaning": "the bias-free SwiGLU feed-forward transformation from Chapter 20" }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "neural-architecture",
+      "limitation": "Recurrent LSTM language models advance a carried state one token step at a time, while the original Transformer placed LayerNorm after each residual merge; neither layout is the pre-normalized causal decoder block assembled here.",
+      "later_advance": "Pre-LN moves normalization onto each sublayer input, and LLaMA provides a bounded modern language-model example that combines input pre-normalization with RMSNorm, causal attention, RoPE, and SwiGLU.",
+      "modern_llm_role": "This block keeps a same-shaped residual stream while alternating token-mixing causal attention with per-token feature transformation, providing the repeatable unit that Chapter 32 will stack into a decoder-only language model.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 1997,
+          "name": "Long Short-Term Memory",
+          "source_url": "https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory",
+          "claim": "Hochreiter and Schmidhuber introduce an explicitly recurrent architecture for long-time-lag learning, giving the chapter its sequential-state predecessor rather than a claim about every later LSTM language model."
+        },
+        {
+          "role": "earlier",
+          "year": 2017,
+          "name": "Attention Is All You Need",
+          "source_url": "https://arxiv.org/abs/1706.03762",
+          "claim": "Vaswani and colleagues define the original Transformer sublayer output as a residual merge followed by LayerNorm and mask the decoder self-attention against future positions."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "On Layer Normalization in the Transformer Architecture",
+          "source_url": "https://arxiv.org/abs/2002.04745",
+          "claim": "Xiong and colleagues distinguish Post-LN from Pre-LN and analyze how placing normalization inside residual blocks changes gradient behavior at initialization."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "LLaMA: Open and Efficient Foundation Language Models",
+          "source_url": "https://arxiv.org/abs/2302.13971",
+          "claim": "Touvron and colleagues report a causal Transformer language model that normalizes each sublayer input with RMSNorm and uses SwiGLU and RoPE."
+        }
+      ]
+    },
+    "approach": "Sequential recurrent state and the original Transformer's post-normalized residual sublayers.",
+    "summary": "LSTM improved long-lag learning but retained stepwise recurrent state; the Transformer removed recurrence but originally normalized after residual merges. Pre-normalization moves the normalizer before each transformation, and a modern causal decoder block uses that order to preserve an explicit residual stream around attention and feed-forward work.",
+    "rust_source": "rust/demos/ch31-decoder-block/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/models/decoder_block.rs",
+      "region": "decoder-block-errors",
+      "purpose": "Keep configuration, component-width, input, position, tape, and delegated stage failures explicit."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/models/decoder_block.rs",
+      "region": "decoder-block-layer",
+      "purpose": "Own two normalizers and compose attention, feed-forward work, and both residual merges in pre-norm order."
+    },
+    {
+      "path": "rust/demos/ch31-decoder-block/src/lib.rs",
+      "region": "historical-block-order-contrast",
+      "purpose": "Compare sequential recurrent state, the original post-norm order, and the chapter's pre-norm first residual state."
+    },
+    {
+      "path": "rust/demos/ch31-decoder-block/src/lib.rs",
+      "region": "learner-report",
+      "purpose": "Format the exact block fixture, invariants, gradients, boundaries, replay, and next boundary."
+    },
+    {
+      "path": "rust/demos/ch31-decoder-block/src/main.rs",
+      "purpose": "Print the frozen Chapter 31 learner report."
+    },
+    {
+      "path": "rust/demos/ch31-decoder-block/src/diagram_trace.rs",
+      "region": "decoder-block-trace",
+      "purpose": "Emit the strict locale-neutral thirty-three-line trace consumed by the static visualization."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "pre-norm-decoder-block-flow",
+    "rationale": "Two visible identity paths and their exact same-shaped branch values make the pre-normalization order, the two separate residual merges, and the attention-versus-feature-mixing boundary easier to inspect than a formula alone."
+  },
+  "decoder_connection": "The cumulative implementation now has one complete depth-one causal decoder block; Chapter 32 will repeat it between token embeddings, a final RMSNorm, and a tied vocabulary projection."
+}
+---
+
+import RustSource from '../../../components/RustSource.astro';
+import DecoderBlockDiagram from '../../../components/chapters/DecoderBlockDiagram.astro';
+
+export const diagramLabels = {
+  title: 'Follow two pre-normalized branches around one residual stream',
+  description:
+    'Read exact Rust-authored rows through attention normalization, causal multi-head attention, the first residual merge, feed-forward normalization, SwiGLU, and the second residual merge.',
+  sections: {
+    overview: 'One shape-preserving block, in source order',
+    attention: 'Normalize before the causal attention branch',
+    feedForward: 'Normalize the intermediate stream before SwiGLU',
+    proof: 'Check exact stage values, causal rows, order, parameters, and gradients',
+  },
+  stages: {
+    input: 'Input residual stream',
+    normalization: 'RMSNorm branch input',
+    attention: 'Causal multi-head attention',
+    attentionResidual: 'After attention residual',
+    feedForward: 'SwiGLU feed-forward branch',
+    output: 'Block output',
+  },
+  fields: {
+    shape: 'Tensor shapes from the Rust trace',
+    token: 'Token position',
+    query: 'Query position',
+    key: 'Key position',
+    probability: 'Probability',
+    rowSum: 'Row sum',
+    identity: 'Identity path',
+    branch: 'Transformation branch',
+    result: 'Residual result',
+    probe: 'Probe logits',
+    orderContrast: 'Pre-norm and post-norm differ',
+    parameterCount: 'Stable parameter ownership',
+    gradientCount: 'Complete central-difference check',
+  },
+  cues: {
+    identity: 'Solid border: unchanged identity path',
+    branch: 'Dashed border: learned transformation branch',
+    merge: 'Double border: residual addition',
+    allowed: 'Solid underline: visible key',
+    blocked: 'Dashed underline: masked future key',
+    unchanged: 'Bitwise unchanged',
+    changed: 'Numerically different',
+    verified: 'Verified from the Rust fixture',
+  },
+  captions: {
+    attention: 'The identity copy bypasses RMSNorm and attention; only the dashed branch mixes visible token positions.',
+    feedForward: 'The second identity copy bypasses the separate RMSNorm and per-token feature transformation.',
+    proof: 'The page labels frozen lexemes; it does not recompute normalization, attention, residuals, SwiGLU, probes, or gradients.',
+  },
+  scrollers: {
+    formula: 'Scrollable pre-normalized decoder-block formula',
+    flow: 'Scrollable residual-path flow',
+    weights: 'Scrollable causal attention probability table',
+    evidence: 'Scrollable decoder-block stage evidence table',
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Trace both residual paths before running the block
+
+Compose one differentiable pre-normalized decoder block and verify the exact
+order of its attention and feed-forward residual paths. Trace one batch of three
+model-width-four token rows through two RMSNorm gains, two rotary causal
+attention heads, identity-like SwiGLU projections, and two residual additions.
+
+The fixture uses $B=1$, $T=3$, $d_{\mathrm{model}}=4$, $h=2$, and
+$d_{\mathrm{ff}}=4$. Its input is
+
+$$
+X=
+\begin{bmatrix}
+2&0&0&0\\
+0&2&0&0\\
+0&0&2&0
+\end{bmatrix}.
+$$
+
+Both RMSNorm gain vectors are $[1,1,1,1]$, and this teaching fixture uses
+$\varepsilon=0$. Every input row therefore has root mean square $1$. The
+attention query, key, value, and output matrices are identity matrices. The
+SwiGLU gate, up, and down matrices are also identity matrices.
+
+Those choices reveal operation order; they do not turn the block into an
+identity function. Causal attention mixes visible token rows. The intermediate
+residual state is normalized again. SwiGLU applies
+$\operatorname{SiLU}(z)\odot z$ to each token row.
+
+Before looking at the output, write the six transformations and two bypasses:
+
+$$
+X\xrightarrow{\operatorname{RMSNorm}_a}N_a
+\xrightarrow{\operatorname{MHA}}A,
+\qquad X'=X+A,
+$$
+
+$$
+X'\xrightarrow{\operatorname{RMSNorm}_f}N_f
+\xrightarrow{\operatorname{FFN}}F,
+\qquad Y=X'+F.
+$$
+
+All six residual-stream tensors have shape $[1,3,4]$. The attention
+probabilities alone have shape $[1,2,3,3]$. For token position $1$, predict
+which value reaches the first identity path unchanged and which value reaches
+attention only after $\operatorname{RMSNorm}_a$.
+
+{/* chapter-section:formula */}
+
+## Add each branch to the stream that entered it
+
+The complete pre-normalized block is
+
+$$
+x'=x+\operatorname{MHA}(\operatorname{RMSNorm}(x)),\quad
+y=x'+\operatorname{FFN}(\operatorname{RMSNorm}(x'))
+$$
+
+The two appearances of $\operatorname{RMSNorm}$ own separate learned gains.
+The first branch uses token-mixing $\operatorname{MHA}$; the second applies the
+same learned feature map independently at each token position through
+$\operatorname{FFN}$. Both transformation outputs must return to model width so
+their residual additions are defined:
+
+$$
+x,x',y\in\mathbb{R}^{B\times T\times d_{\mathrm{model}}}.
+$$
+
+With bias-free projections, the two gain vectors, four attention matrices, and
+three SwiGLU matrices contain
+
+$$
+N_\theta
+=2d_{\mathrm{model}}+4d_{\mathrm{model}}^2
++3d_{\mathrm{model}}d_{\mathrm{ff}}.
+$$
+
+For the frozen widths, $N_\theta=8+64+48=120$. The example backpropagates a
+nonuniform scalar loss through all $12$ input coordinates and all $120$
+parameter coordinates, checking $132$ analytic gradients against central
+differences.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep branch values separate from residual values
+
+- $x$ is the model-width residual stream entering the block.
+- $x'$ is the stream after the causal attention result is added to $x$.
+- $y$ is the block output after the feed-forward result is added to $x'$.
+- $\operatorname{RMSNorm}_a$ and $\operatorname{RMSNorm}_f$ use the same
+  operation but own distinct gain vectors.
+- $\operatorname{MHA}$ is the bias-free rotary causal multi-head attention
+  transformation from Chapter 30.
+- $\operatorname{FFN}$ is the bias-free SwiGLU transformation from Chapter 20.
+- $B$ is batch size, $T$ is token count, $d_{\mathrm{model}}$ is residual-stream
+  width, and $d_{\mathrm{ff}}$ is the hidden width of SwiGLU.
+- $N_a$ and $N_f$ are normalized branch inputs. $A$ and $F$ are learned branch
+  outputs. None of those four names denotes an identity path.
+
+The order matters. Moving either normalizer after its residual merge changes the
+function even when all component weights stay fixed.
+
+{/* chapter-section:history */}
+
+## From recurrent state and post-norm blocks to pre-norm decoders
+
+Sequential recurrent state and the original Transformer's post-normalized
+residual sublayers. These are the two bounded predecessors compared here.
+
+[Long Short-Term Memory](https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory)
+is the source for the first boundary. Hochreiter and Schmidhuber introduce an
+explicitly recurrent architecture for long-time-lag learning, giving the chapter
+its sequential-state predecessor rather than a claim about every later LSTM
+language model. Recurrent LSTM language models advance a carried state one token
+step at a time, while the original Transformer placed LayerNorm after each
+residual merge; neither layout is the pre-normalized causal decoder block
+assembled here.
+
+[Attention Is All You Need](https://arxiv.org/abs/1706.03762) defines the next
+architecture boundary. Vaswani and colleagues define the original Transformer
+sublayer output as a residual merge followed by LayerNorm and mask the decoder
+self-attention against future positions. Its first sublayer can be summarized as
+$\operatorname{LayerNorm}(x+\operatorname{MHA}(x))$, which is post-normalized.
+
+[On Layer Normalization in the Transformer Architecture](https://arxiv.org/abs/2002.04745)
+names and analyzes the change. Xiong and colleagues distinguish Post-LN from
+Pre-LN and analyze how placing normalization inside residual blocks changes
+gradient behavior at initialization. Pre-LN moves normalization onto each
+sublayer input, and LLaMA provides a bounded modern language-model example that
+combines input pre-normalization with RMSNorm, causal attention, RoPE, and
+SwiGLU.
+
+[LLaMA](https://arxiv.org/abs/2302.13971) supplies that bounded modern example.
+Touvron and colleagues report a causal Transformer language model that
+normalizes each sublayer input with RMSNorm and uses SwiGLU and RoPE. This block
+keeps a same-shaped residual stream while alternating token-mixing causal
+attention with per-token feature transformation, providing the repeatable unit
+that Chapter 32 will stack into a decoder-only language model.
+
+LSTM improved long-lag learning but retained stepwise recurrent state; the
+Transformer removed recurrence but originally normalized after residual merges.
+Pre-normalization moves the normalizer before each transformation, and a modern
+causal decoder block uses that order to preserve an explicit residual stream
+around attention and feed-forward work.
+
+The runnable contrast computes a small RNN-style carried state, then sends the
+same frozen Transformer components through the chapter's first pre-norm residual
+stage and through a residual-then-normalize alternative. It demonstrates the
+operation-order difference without claiming that the helper reproduces an LSTM,
+a complete historical model, or any paper's trained weights.
+
+<RustSource
+  path="rust/demos/ch31-decoder-block/src/lib.rs"
+  region="historical-block-order-contrast"
+  caption="Compare a sequential carried state with fixed post-norm and pre-norm residual orderings"
+  label="Rust source computing the Chapter 31 neural-architecture history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Compose tested parts without hiding their boundaries
+
+`DecoderBlockError` preserves ownership of configuration, component-width,
+input-shape, position, released-tape, normalization, attention, feed-forward,
+and residual failures. Construction uses a trial random stream and commits it
+only after every component and cross-component width check passes.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder_block.rs"
+  region="decoder-block-errors"
+  caption="Attribute every invalid boundary to configuration, input, position, tape, or the stage that failed"
+  label="Rust source defining Chapter 31 decoder-block errors"
+/>
+
+`DecoderBlock` owns two `RmsNorm` values, one `MultiHeadAttention`, and one
+`SwiGlu`. Its stable parameter order is the attention-normalizer gain, four
+attention matrices, the feed-forward-normalizer gain, then the gate, up, and
+down matrices. The two gains are separate tensors even when their frozen values
+match.
+
+The public `forward` path calls normalization, attention, and the first residual
+addition before it calls the second normalization, SwiGLU, and the second
+residual addition. Returned evidence keeps all six stage values and the complete
+attention and feed-forward evidence on one differentiable tape.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder_block.rs"
+  region="decoder-block-layer"
+  caption="Run two independently normalized transformations and add each result to its entering residual stream"
+  label="Rust source implementing the Chapter 31 pre-norm decoder block"
+/>
+
+The fixture verifies shape preservation, exact future-mask zeros, bitwise prefix
+invariance under a final-token perturbation, stable parameter names, distinct
+parameter identity, deterministic replay, transactional initialization, and all
+declared invalid boundaries. Its central-difference step and tolerance are
+
+$$
+\delta=10^{-6},\qquad \tau=2\times10^{-5}.
+$$
+
+Every one of the $132$ checked coordinates has a finite analytic gradient and a
+finite numerical comparison inside that tolerance. The learner report freezes
+these conclusions without replacing the tests:
+
+<RustSource
+  path="rust/demos/ch31-decoder-block/src/lib.rs"
+  region="learner-report"
+  caption="Format the exact fixture, order, causality, parameters, gradients, errors, replay, and next boundary"
+  label="Rust source formatting the Chapter 31 learner report"
+/>
+
+The executable entry point prints only that report:
+
+<RustSource
+  path="rust/demos/ch31-decoder-block/src/main.rs"
+  caption="Print the frozen decoder-block learner report"
+  label="Rust entry point for the Chapter 31 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch31-decoder-block`. Its standard output
+matches `rust/demos/ch31-decoder-block/expected.txt` byte for byte, including the
+final newline.
+
+{/* chapter-section:visualization */}
+
+## Inspect both bypasses and both transformation branches
+
+The separate trace executable emits shapes, all stage rows, causal probability
+rows, residual-merge provenance, probe logits, a numeric order contrast, the
+causality proof, parameter ownership, gradient totals, and the bounded history
+contrast.
+
+<RustSource
+  path="rust/demos/ch31-decoder-block/src/diagram_trace.rs"
+  region="decoder-block-trace"
+  caption="Emit the strict thirty-three-line decoder-block trace"
+  label="Rust source producing the Chapter 31 static diagram trace"
+/>
+
+<DecoderBlockDiagram labels={diagramLabels} />
+
+The site parser accepts only that exact Rust-authored trace and keeps numeric
+lexemes as strings. It performs no normalization, attention, residual, SwiGLU,
+probe, or gradient arithmetic. Solid identity paths, dashed transformation
+branches, and double residual merges preserve meaning without color. Each wide
+relationship owns the smallest named keyboard-focusable scroll region, while
+the complete figure remains static HTML with JavaScript disabled.
+
+Read token position $1$ across the first branch. The input row is
+$[0,2,0,0]$, while the attention result is
+$[0.010881,1.989119,0,0]$. Their first residual merge produces
+
+$$
+x'_1=[0.010881,3.989119,0,0].
+$$
+
+Normalizing after that merge instead produces
+$[-0.573144,1.732042,-0.579449,-0.579449]$ in the fixed contrast. The mismatch
+is direct numeric evidence that pre-norm and post-norm orderings are not
+interchangeable.
+
+{/* chapter-section:exercises */}
+
+## Test order, shape, causality, and parameter ownership
+
+1. Put these operations in order: first residual addition, feed-forward
+   RMSNorm, attention RMSNorm, SwiGLU, causal attention, second residual
+   addition.
+2. For $B=2$, $T=5$, and $d_{\mathrm{model}}=12$, write every residual-stream
+   shape. Which axis may either residual addition change?
+3. If the attention branch returns zero, derive $x'$. Does that make the whole
+   block an identity function?
+4. Change only the final input token. Which output rows must remain unchanged,
+   and which transformation establishes that boundary?
+5. For $d_{\mathrm{model}}=12$ and $d_{\mathrm{ff}}=32$, compute the complete
+   bias-free parameter count, including both RMSNorm gains.
+6. Rewrite only the first residual stage in post-norm order and identify where
+   its value can first diverge.
+
+<details>
+  <summary>Check the structural answers</summary>
+
+  1. Attention RMSNorm, causal attention, first residual addition,
+     feed-forward RMSNorm, SwiGLU, second residual addition.
+  2. Every residual-stream value is $[2,5,12]$. Neither residual addition may
+     change any axis; both operands must have identical shapes.
+  3. $x'=x$. The feed-forward branch can still change $y$, so the whole block
+     need not be an identity.
+  4. Rows $0$ through $3$ must stay unchanged. The causal mask in attention
+     blocks the suffix from reaching earlier rows; the per-token feed-forward
+     map cannot introduce cross-token mixing afterward.
+  5. $2(12)+4(12)^2+3(12)(32)=1752$ scalar parameters.
+  6. Post-norm forms $\operatorname{LayerNorm}(x+\operatorname{MHA}(x))$;
+     pre-norm forms $x+\operatorname{MHA}(\operatorname{RMSNorm}(x))$. Their
+     attention inputs can already differ before the residual result exists.
+</details>
+
+Misconception: pre-normalization means normalizing once before the complete
+block. Correction: each transformation has its own normalizer, and each learned
+result is added to the unnormalized residual stream that entered that branch.
+
+{/* chapter-section:decoder-connection */}
+
+## Repeat the block only at the next model boundary
+
+The cumulative implementation now has one complete depth-one causal decoder
+block; Chapter 32 will repeat it between token embeddings, a final RMSNorm, and
+a tied vocabulary projection.
+
+This chapter's input and output both have shape
+$[B,T,d_{\mathrm{model}}]$. Attention mixes visible token history, SwiGLU
+transforms features independently at each position, and two residual paths keep
+direct routes around both transformations. Stacking, final normalization,
+vocabulary projection, checkpoint ownership, and cache state remain outside
+this block.

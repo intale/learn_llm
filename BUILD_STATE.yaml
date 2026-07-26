@@ -14221,7 +14221,7 @@ builds:
               git: "03a97d8741f2d05f5afb130aa4b3bdf3ec5d6fa9"
               manifest: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/input-fingerprint.txt"
               checksum: "sha256:21adb621366a958fed291b026d621ebda359f810ccad2dfdd42ce6303685ecca"
-              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate cached Linux product images with Node 22.12.0/npm 10.9.0, Rust 1.93.1, and Playwright 1.61.1."
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate the Linux product image with Node 22.12.0/npm 10.9.0 and Rust 1.93.1; the Playwright 1.61.1 Noble browser image runs its test harness with Node 24.17.0/npm 11.13.0."
             staging_dir: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/"
             commands:
               - "Run the complete startup protocol at commit 03a97d8, preserve unrelated desktop.ini, and confirm no stale running step."
@@ -14288,14 +14288,34 @@ builds:
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
           - correct-sitemap-public-base
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/30-multi-head-attention.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/attention/multi_head.rs"
+          - "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs"
+          - "rust/crates/llm-from-scratch/src/nn/residual.rs"
+          - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/RustSource.astro"
+          - "site/src/content/chapters/en/30-multi-head-attention.mdx"
+          - "site/src/components/chapters/MultiHeadAttentionDiagram.astro"
+          - "site/src/lib/multi-head-attention-diagram.ts"
+          - "site/tests/30-multi-head-attention-diagram.test.ts"
+          - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -14310,6 +14330,11 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory"
+          - "https://arxiv.org/abs/1706.03762"
+          - "https://arxiv.org/abs/2002.04745"
+          - "https://arxiv.org/abs/2302.13971"
+          - "npm registry access for one exact site/package-lock.json reinstall after the validation image cache key changed"
         outputs:
           - "curriculum/chapters/31-decoder-block.md"
           - "rust/crates/llm-from-scratch/src/models/decoder_block.rs"
@@ -14317,8 +14342,13 @@ builds:
           - "rust/demos/ch31-decoder-block/"
           - "site/src/content/chapters/en/31-decoder-block.mdx"
           - "site/src/components/chapters/DecoderBlockDiagram.astro"
+          - "site/src/lib/decoder-block-diagram.ts"
           - "site/tests/31-decoder-block-diagram.test.ts"
           - "site/tests/e2e/ch31-decoder-block.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
@@ -14336,6 +14366,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch31-decoder-block | diff -u rust/demos/ch31-decoder-block/expected.txt -"
+          - "cargo run --quiet --locked -p ch31-decoder-block --example diagram_trace | diff -u rust/demos/ch31-decoder-block/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 31-decoder-block"
           - "npm --prefix site run check:parity -- --chapter 31-decoder-block"
           - "npm --prefix site run check:content"
@@ -14344,11 +14375,136 @@ builds:
           - "npm --prefix site run build"
           - "npm --prefix site run test:links"
           - "npm --prefix site run test:e2e -- --grep '@chapter:31-decoder-block'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:31-decoder-block'"
+          - "npm --prefix site run test:e2e -- --grep '@formula'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula'"
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set using local deterministic work; registered deferred locales require no lesson or route. No hidden network, paid service, generation service, substantial CPU use, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set plus one network-backed reinstall of the unchanged locked site dependency graph after the validation image cache key changed. Registered deferred locales require no lesson or route; no paid service, generation service, substantial CPU use, or concept-implementing dependency is used."
+        runs:
+          - run_id: 20260726T043038Z-implement-ch31-decoder-block-01
+            started_at: "2026-07-26T04:30:38Z"
+            finished_at: "2026-07-26T05:53:16Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7c43b516f7d9acde5680ced700dd1f8673578c05"
+              manifest: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/input-fingerprint.txt"
+              checksum: "sha256:3128a061372c145099ef63ccfa0d6455fdee25fb079b26f2e16720677d8a4628"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate cached Linux product images with Node 22.12.0/npm 10.9.0, Rust 1.93.1, and Playwright 1.61.1."
+            staging_dir: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/"
+            commands:
+              - "Run the complete startup and recovery protocol at commit 7c43b51; preserve unrelated desktop.ini and confirm no stale running step."
+              - "Parse the complete ledger, verify the latest successful sitemap-correction artifacts and checksums, and select implement-ch31-decoder-block as the first eligible step."
+              - "Read the Chapter 31 plan, complete Chapter 30 contract, chapter workflow, reusable Rust component APIs, shared diagram contract, and prior lesson/test patterns."
+              - "Freeze primary-source history boundaries from the original Transformer, the Pre-LN analysis, and LLaMA before authoring learner content."
+              - "Expand the declared integration boundary before implementation to include the strict diagram parser, aggregate diagram registry counts, aggregate formula coverage, four primary sources, and independent Firefox chapter/formula gates."
+              - "Create a run-specific publish/validation staging tree; all generation and validation remain local and deterministic."
+              - "Freeze the Chapter 31 contract and four-source research boundary, then confirm the standalone contract structure reaches only the deliberately not-yet-authored lesson boundary."
+              - "Implement the staged decoder-block module, deterministic depth-one demo, 132-coordinate gradient oracle, compact learner report, and exact thirty-three-line Rust-authored diagram trace."
+              - "Generate Cargo.lock offline, format only the validation overlay, sync formatted Rust back to publish staging, and freeze learner/diagram stdout byte for byte."
+              - "Build the pinned Node 22.12/Rust 1.93.1 staged source image; the changed workspace lockfile invalidated its dependency layer, so npm reinstalled the exact unchanged site/package-lock.json graph once and the resulting image is retained for all remaining validation."
+              - "Build the browser harness from local Playwright 1.61.1 Noble image digest sha256:5b8f294a and the already built staged source; record its Node 24.17/npm 11.13 test-runner versions while retaining Node 22.12 for all product builds."
+              - "Author the complete English lesson, strict string-only trace parser, one shared-role static diagram, focused unit/browser tests, and aggregate Chapter 31 formula/diagram registrations in publish staging."
+              - "After the first rendered containment audit exposed unbreakable four-coordinate formulas, split only those diagram vectors into independently server-rendered math fragments that wrap inside their owning cards; freeze the corrected twenty-file publication manifest."
+              - "After the complete Chromium journey audit found the all-stage evidence table retained 1,516 pixels of horizontal travel in full view, reorganize its unchanged exact evidence into separate attention-stage, feed-forward-stage, and readout tables with independently named smallest-meaningful scroll regions."
+              - "Publish only the checksum-frozen twenty-file slice to canonical paths, verify every canonical file against publish.sha256, and rebuild the exact canonical product in the pinned Linux and two-engine browser harnesses."
+            artifacts:
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/input-fingerprint.txt"
+                checksum: "sha256:3128a061372c145099ef63ccfa0d6455fdee25fb079b26f2e16720677d8a4628"
+                notes: "Pre-change commit, preserved dirty-tree boundary, material input hashes, exact host/product tool versions, and primary paper URLs."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/research.md"
+                checksum: "sha256:2abac323ad452f9d55ee8a6814f91792748571305a9e95eb9d74fd452a2bc717"
+                notes: "Four bounded primary-source claims and the explicit LLM-history/programming-history boundary."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/curriculum/chapters/31-decoder-block.md"
+                checksum: "sha256:598554925fbcb95c8461190a2ca332a1d77407fb792beeba6d56bfa93faa8db2"
+                notes: "Frozen English-only Chapter 31 contract, formula, fixture, historical spine, scope, and acceptance."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/rust/crates/llm-from-scratch/src/models/decoder_block.rs"
+                checksum: "sha256:2e082c84f765f88ebf5250f282987a5085175d8ef387f6b7b5991b9f8df0ea15"
+                notes: "Formatted reusable pre-norm decoder block and seven module tests."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/rust/demos/ch31-decoder-block/src/lib.rs"
+                checksum: "sha256:1a605219495b5d464090103fdd83e0377306c8bc90fbfece16075336cf581daf"
+                notes: "Exact fixture, full-coordinate gradient oracle, historical order contrast, errors, shapes, and learner report."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/rust/demos/ch31-decoder-block/expected.txt"
+                checksum: "sha256:f626f2d12ff4732fa239266cb7f808525ba5ea8cf144dad73fbde415a554bbf7"
+                notes: "Frozen eleven-line learner stdout with final LF."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/rust/demos/ch31-decoder-block/diagram-trace.txt"
+                checksum: "sha256:99c8abd095bdca4659a043e9bbfca0a2a4bca62e1cf18fbe4be08f7c1d54b246"
+                notes: "Frozen thirty-three-line locale-neutral diagram trace with final LF."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish/Cargo.lock"
+                checksum: "sha256:4025782edcbe3c5169e6287504e5cb986abecfc5d36887f46c894a5a798f74ea"
+                notes: "Offline lockfile update containing only the new workspace demo package."
+              - path: ".build/runs/20260726T043038Z-implement-ch31-decoder-block-01/publish.sha256"
+                checksum: "sha256:1d866c5378f6c4dcf08e0338f7559c6886efcab8bece955a3fc84a6e04c67602"
+                notes: "Frozen checksums for all twenty staged canonical product files, including the lesson b31a16fd, reorganized diagram 891aa01c, parser f37f68ba, focused unit test b71a3c31, and focused browser test 8c9c2443."
+            validation:
+              - command: "Staged cargo fmt --all -- --check"
+                status: passed
+                notes: "The isolated overlay is formatted with the pinned Rust toolchain."
+              - command: "Staged cargo test -p llm-from-scratch decoder_block --locked"
+                status: passed
+                notes: "All seven reusable-module order, shape, causality, parameter, initialization, error, and backward tests pass."
+              - command: "Staged cargo test -p ch31-decoder-block --locked"
+                status: passed
+                notes: "All four demo/trace tests pass, including all 132 central-difference checks at tolerance 0.000020."
+              - command: "Staged learner and diagram stdout diffs"
+                status: passed
+                notes: "Both executables match expected.txt and diagram-trace.txt byte for byte."
+              - command: "Staged Chapter 31 contract, locale, parity, complete content, and Astro diagnostics"
+                status: passed
+                notes: "The contract integrates one English active locale, Russian remains deferred, all 38 localized sources and 31 publishable locale sets validate, and Astro reports zero diagnostics across 165 files."
+              - command: "Staged focused parser, formula-source, and diagram-style unit gates"
+                status: passed
+                notes: "All 21 focused and aggregate unit cases pass; the parser rejects every mutated trace line and the formula audit now covers all 38 published localized lessons."
+              - command: "First staged Chromium Chapter 31 and shared desktop containment replay"
+                status: failed
+                notes: "The page, locale, history, formula, and static trace assertions passed, but whole four-coordinate KaTeX vectors painted outside nine cards by up to 331px. No output was published."
+              - command: "Corrected staged static build and link audit"
+                status: passed
+                notes: "All vector coordinates remain server-rendered math but can wrap between coordinates. The production build emits 43 HTML routes; all 1,563 local references, 43 SEO routes, and 43 sitemap URLs pass."
+              - command: "Corrected Chapter 31 Chromium and Firefox browser gates"
+                status: passed
+                notes: "All five focused cases pass independently in both engines at desktop and narrow widths, with forced colors, RTL, no JavaScript, exact trace evidence, navigation, and deferred Russian routing."
+              - command: "Corrected shared diagram desktop, narrow, and full-view containment"
+                status: passed
+                notes: "All 31 English and seven localized duplicate diagrams pass the generic painted-text, formula, nested-box, scroller, and shared-style audits in inline and full-view presentations."
+              - command: "Staged complete Chromium formula-rendering gate"
+                status: passed
+                notes: "All 76 desktop/narrow rendered-formula cases pass, including Chapter 31 source annotations, readable spacing, containment, accessible MathML, and absence of formula-like code spans."
+              - command: "First staged complete Chromium course replay"
+                status: failed
+                notes: "228 of 231 cases passed; the full-view journey audit correctly rejected Chapter 31's single all-stage evidence table because its local scroll region retained 1,516 pixels against a 320-pixel limit. The two subsequent cases did not run, and nothing was published."
+              - command: "Corrected staged content, Astro, complete unit, static-build, and link gates"
+                status: passed
+                notes: "The 74-step plan, Chapter 31 content/parity, all 38 localized sources and 31 publishable locale sets, zero diagnostics across 165 files, all 765 unit cases, 43 static pages, 1,563 local references, 43 SEO routes, and 43 sitemap URLs pass."
+              - command: "Corrected Chapter 31 and full-view journey Chromium replay"
+                status: passed
+                notes: "All six selected cases pass: the five Chapter 31 desktop, narrow, forced-color, RTL, and no-JavaScript checks plus the course-wide full-view journey audit."
+              - command: "Corrected complete Chromium course replay"
+                status: passed
+                notes: "All 231 browser cases pass, including the two cases skipped by the prior failed replay; every Chapter 31 evidence scroller remains below the full-view residual limit."
+              - command: "Corrected Chapter 31, formula, and full-view Firefox gates"
+                status: passed
+                notes: "All 81 focused Chapter 31 and aggregate formula cases pass, followed by all ten course-wide full-view cases in Firefox."
+              - command: "Frozen publication manifest verification"
+                status: passed
+                notes: "All twenty staged product files match publish.sha256, whose SHA-256 is 1d866c5378f6c4dcf08e0338f7559c6886efcab8bece955a3fc84a6e04c67602."
+              - command: "Checksum-verified canonical publication"
+                status: passed
+                notes: "All twenty canonical product files match the frozen manifest exactly; unrelated desktop.ini remains untracked and untouched."
+              - command: "Canonical complete Rust regression"
+                status: passed
+                notes: "Formatting, warning-free clippy, all workspace tests, dependency policy, all 31 demo checks, and byte-exact Chapter 31 learner and diagram outputs pass in Linux."
+              - command: "Canonical complete site, unit, static, and link regression"
+                status: passed
+                notes: "The plan and contract pass; all content/parity and zero-diagnostic Astro checks pass; all 765 unit cases pass; and the 43-page artifact passes all link, SEO, and sitemap checks."
+              - command: "Canonical complete Chromium and selected Firefox browser regressions"
+                status: passed
+                notes: "All 231 Chromium cases and all 91 selected Firefox Chapter 31, aggregate formula, and course-wide full-view cases pass from the canonical static build."
+              - command: "Canonical ledger and worktree integrity pre-check"
+                status: passed
+                notes: "git diff --check and the 74-step course plan pass; only declared Chapter 31 outputs, necessary shared integration files, BUILD_STATE.yaml, and DECISIONS.md are in scope, while desktop.ini remains unrelated."
+            notes: "Succeeded. Chapter 31 now composes the prior RMSNorm, causal multi-head attention, residual, and SwiGLU primitives into one tested pre-norm block with 132-coordinate gradient evidence, exact static trace tables, LLM-focused history, complete formula rendering, and a contained shared diagram. English is the exact active locale set; Russian remains deferred. The checksum-frozen staged slice and canonical publication pass every declared Rust, content, unit, static, two-engine formula, focused chapter, shared diagram, and complete Chromium gate without a concept-implementing dependency, runtime server, paid service, external deployment, or Linux build change."
       - id: implement-ch32-decoder-model
         objective: "Assemble token embeddings, repeated decoder blocks, final RMSNorm, and a tied vocabulary projection into logits."
         depends_on:
