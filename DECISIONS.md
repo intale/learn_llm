@@ -6262,6 +6262,36 @@ build change is introduced.
 **Affected step and run:** `implement-ch33-training-selection`, run
 `20260726T071419Z-implement-ch33-training-selection-01`.
 
+## 2026-07-26 - Use the star token for the selected checkpoint index
+
+**Status:** Accepted before the Chapter 33 notation repair.
+
+**Context:** The Chapter 33 glossary, tie-break equation, numeric explanation,
+and later handoff all name the chosen checkpoint as `s^*`, but the shared formula
+was authored as `s^\*`. In TeX, the backslash makes `\*` a control symbol; it is
+not the ordinary star token that should follow the superscript operator. The
+malformed spelling propagated into the reviewed plan, contract metadata and
+body, lesson metadata and body, and regression expectations. The still-pending
+Chapter 34 plan repeated it inside the selected-state subscript.
+
+**Decision:** Publish Chapter 33 content revision 2 with the exact notation
+`s^*` in every projection, and correct the same notation in Chapter 34's plan
+before that lesson is implemented. Add source and rendered regressions that
+reject `\*` in learner mathematics and require the exact server-rendered TeX
+annotation for the validation-only arg-min formula. Keep the existing KaTeX
+pipeline, formula styles, mathematical meaning, training implementation,
+fixtures, diagram, history, SEO, and locale policy unchanged. Schedule this
+small repair immediately after Chapter 33 and make Chapter 34 depend on it.
+
+**Consequences:** The displayed star is an unambiguous superscript on `s`, the
+contract and English lesson advance together, and a future accidental control
+symbol fails both source and built-page validation. No Rust, package, dependency,
+build definition, shared style, hosting, deployment, or locale activation
+changes.
+
+**Affected step and run:** `repair-ch33-selection-star-notation`, run
+`20260726T085300Z-repair-ch33-selection-star-notation-01`.
+
 ## 2026-07-26 - Replay wall-clock-bounded Rust gates without browser contention
 
 **Status:** Accepted during Chapter 33 canonical validation.
@@ -6287,3 +6317,49 @@ runtime architecture, or Linux build.
 
 **Affected step and run:** `implement-ch33-training-selection`, run
 `20260726T071419Z-implement-ch33-training-selection-01`.
+
+## 2026-07-26 - Mirror the notation repair's plan revision in the locale projection
+
+**Status:** Accepted after the first staged plan validation.
+
+**Context:** Scheduling the Chapter 33 corrective step advances the reviewed
+course plan from revision 27 to 28. The first staged `check-course-plan` run
+correctly found that `site/src/i18n/chapter-locales.json` also pins the reviewed
+revision. Leaving it at 27 would create projection drift even though the repair
+does not activate or deactivate any locale.
+
+**Decision:** Add the locale registry to the declared repair outputs and advance
+only its `planRevision` field to 28. Preserve every chapter order, reference
+locale, policy ID, and active-locale array exactly. The file was already a
+fingerprinted input. Rerun all staged plan, locale, content, static, and browser
+gates before publication.
+
+**Consequences:** Plan scheduling and localization policy remain mechanically
+aligned. The correction still changes no translated content, locale coverage,
+Rust, package, build definition, shared style, hosting, or deployment behavior.
+
+**Affected step and run:** `repair-ch33-selection-star-notation`, run
+`20260726T085300Z-repair-ch33-selection-star-notation-01`.
+
+## 2026-07-26 - Keep the plan-drift fixture on the current plan revision
+
+**Status:** Accepted after the first complete staged unit suite.
+
+**Context:** The course-plan revision increase also invalidated one deliberate
+negative-test setup in `site/tests/content-contract.test.ts`. Its `replaceOnce`
+guard searches for the exact current revision before substituting an obsolete
+revision and checking the validator's history-policy error. With the fixture
+still searching for revision 27, the guard failed before the intended negative
+assertion; 777 other unit tests passed.
+
+**Decision:** Add the unit file as a fingerprinted repair input/output and change
+only that fixture's current-plan token from 27 to 28. Retain the replacement
+revision 15 and the expected validation error, so the test continues to prove
+the same failure mode.
+
+**Consequences:** The unit suite remains synchronized with the reviewed plan
+without weakening its negative validation. The repair gains no runtime code,
+dependency, localization, styling, hosting, deployment, or Rust change.
+
+**Affected step and run:** `repair-ch33-selection-star-notation`, run
+`20260726T085300Z-repair-ch33-selection-star-notation-01`.

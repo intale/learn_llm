@@ -247,7 +247,7 @@ async function expectChapterContent(
     chapterId,
     locale: "en",
     order: 33,
-    revision: 1,
+    revision: 2,
     revisionLabel: "Content revision",
     title: chapterTitle,
     equivalentLocales: ["en"],
@@ -264,7 +264,7 @@ async function expectChapterContent(
     .allTextContents();
   for (const expected of [
     "\\theta_{s+1}=\\operatorname{AdamW}",
-    "s^\\*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+    "s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
     "\\widetilde g_s=\\alpha_s g_s",
     "\\mathcal{L}_{va}",
     "\\frac{\\sum_j n_j\\mathcal{L}^{(j)}_{va}}{\\sum_j n_j}",
@@ -278,6 +278,9 @@ async function expectChapterContent(
       "expected a rendered formula containing " + expected,
     ).toBe(true);
   }
+  expect(annotations.some((expression) => expression.includes("\\*"))).toBe(
+    false,
+  );
   await expect(page.locator(".lesson-body .katex-error")).toHaveCount(0);
   await expectFormulaGeometry(page);
 

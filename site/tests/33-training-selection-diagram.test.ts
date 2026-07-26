@@ -361,8 +361,13 @@ describe("Chapter 33 static diagram and content boundary", () => {
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^\\*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+      "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
     );
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
+    expect(coursePlanSource).not.toContain("s^\\*");
+    expect(contractSource).not.toContain("s^\\*");
+    expect(lessonSource).not.toContain("s^\\*");
 
     const normalizedLesson = lessonSource.replace(/\s+/g, " ");
     for (const source of lesson.history.llm_evolution.sources) {

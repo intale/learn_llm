@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 33,
   "objective": {
     "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data."
@@ -11,7 +11,7 @@
     "en": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8."
   },
   "formula": {
-    "latex": "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^\\*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+    "latex": "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
     "symbols": [
       {
         "symbol": "\\theta_s",
@@ -263,7 +263,7 @@ $$
 \theta_{s+1}=\operatorname{AdamW}\!\left(
 \theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)
 \right),\quad
-s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s).
+s^*=\arg\min_s\mathcal{L}_{va}(\theta_s).
 $$
 
 $\theta_s$ is the complete decoder state before update $s$.

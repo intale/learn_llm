@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 27,
+  "plan_revision": 28,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -191,6 +191,10 @@
       {
         "step_id": "correct-sitemap-public-base",
         "after_chapter": "30-multi-head-attention"
+      },
+      {
+        "step_id": "repair-ch33-selection-star-notation",
+        "after_chapter": "33-training-selection"
       }
     ],
     "planned_chapter_splits": [],
@@ -1287,7 +1291,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.
-- **Formula:** `\theta_{s+1}=\operatorname{AdamW}\!\left(\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)\right),\quad s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s)`.
+- **Formula:** `\theta_{s+1}=\operatorname{AdamW}\!\left(\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)\right),\quad s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`.
 - **Historical contrast:** Contrast full-corpus updates and training-set-only reporting with mini-batch optimization plus validation-based model selection.
 - **Rust contribution:** Add trainer and no-grad validation APIs with a CPU-bounded tiny configuration, fixed schedule, best-state snapshot, and deterministic trace.
 - **Visualization:** Useful — plot discrete train/validation checkpoints and mark the selected step without drawing invented values between observations.
@@ -1302,7 +1306,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `33-training-selection`.
 - **Outcome:** Evaluate the frozen selected decoder once on the previously unscored test partition and compare it fairly with the frozen bigram.
 - **Scope boundary:** Teach no-grad evaluation, token-weighted aggregation, separation of model selection from final evidence, and like-for-like tokenizer/corpus provenance. Do not tune, stop, or select on test results.
-- **Formula:** `\mathcal{L}_{te}(\theta_{s^\*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^\*}}(y_n\mid x_n)`.
+- **Formula:** `\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)`.
 - **Historical contrast:** Contrast training-set scores and repeatedly inspected holdouts with a three-way experimental protocol and a single final test comparison.
 - **Rust contribution:** Add a graph-free evaluator and immutable report schema that scores the selected decoder and frozen bigram on identical test targets.
 - **Visualization:** Useful — show the train/validation/test information flow and a numeric two-model test-loss comparison with provenance, not a decorative chart.

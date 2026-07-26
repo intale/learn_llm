@@ -422,7 +422,7 @@ const requiredChapter14To33Math: Record<string, readonly string[]> = {
   ],
   "33": [
     String.raw`\theta_{s+1}=\operatorname{AdamW}`,
-    String.raw`s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
+    String.raw`s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
     String.raw`\widetilde g_s=\alpha_s g_s`,
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
     String.raw`s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)`,
@@ -778,6 +778,12 @@ describe("Chapter 14-33 formula-source contract", () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
+      for (const expression of [...display, ...inline]) {
+        expect(
+          expression,
+          `${file} uses the malformed TeX control symbol \\*`,
+        ).not.toContain(String.raw`\*`);
+      }
       for (const fragment of requiredChapter14To33Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }

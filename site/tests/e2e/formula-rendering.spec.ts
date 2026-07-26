@@ -503,7 +503,7 @@ const chapter14To33Latex: Record<
   ],
   "33-training-selection": [
     String.raw`\theta_{s+1}=\operatorname{AdamW}`,
-    String.raw`s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
+    String.raw`s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
     String.raw`\widetilde g_s=\alpha_s g_s`,
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
     String.raw`s^*=8`,
@@ -767,6 +767,10 @@ test.describe("@formula-rendering:ch14-ch33 rendered formula contract", () => {
             '.lesson-body .katex annotation[encoding="application/x-tex"]',
           )
           .evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ""));
+        expect(
+          latex.some((expression) => expression.includes(String.raw`\*`)),
+          `${chapterId} must not render the malformed TeX control symbol \\*`,
+        ).toBe(false);
         for (const fragment of chapter14To33Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
