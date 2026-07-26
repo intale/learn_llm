@@ -95,12 +95,12 @@ describe('GitHub Pages deployment workflow', () => {
     ).toThrow(/main-only/);
   });
 
-  it('derives sitemap origin and project base from the same Pages configuration', () => {
+  it('derives the complete sitemap project URL from the Pages configuration', () => {
     expect(workflowSource).toContain(
-      'SITE_ORIGIN: ${{ steps.pages.outputs.origin }}',
+      'SITE_URL: ${{ steps.pages.outputs.base_url }}',
     );
     expect(workflowSource).toContain(
-      '--build-arg "SITE_ORIGIN=${SITE_ORIGIN}"',
+      '--build-arg "SITE_URL=${SITE_URL}"',
     );
     expect(workflowSource).toContain('test -f pages-artifact/sitemap.xml');
 
@@ -108,20 +108,20 @@ describe('GitHub Pages deployment workflow', () => {
       validateDeploymentWorkflow(
         replaceOnce(
           workflowSource,
-          'SITE_ORIGIN: ${{ steps.pages.outputs.origin }}',
-          'SITE_ORIGIN: https://intale.github.io',
+          'SITE_URL: ${{ steps.pages.outputs.base_url }}',
+          'SITE_URL: https://intale.github.io',
         ),
       ),
-    ).toThrow(/SITE_ORIGIN must come from configure-pages origin/);
+    ).toThrow(/SITE_URL must come from configure-pages base_url/);
     expect(() =>
       validateDeploymentWorkflow(
         replaceOnce(
           workflowSource,
-          '            --build-arg "SITE_ORIGIN=${SITE_ORIGIN}" \\',
+          '            --build-arg "SITE_URL=${SITE_URL}" \\',
           '            --build-arg "UNRELATED=value" \\',
         ),
       ),
-    ).toThrow(/SITE_ORIGIN/);
+    ).toThrow(/SITE_URL/);
     expect(() =>
       validateDeploymentWorkflow(
         replaceOnce(

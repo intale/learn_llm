@@ -33,12 +33,12 @@ jobs:
       - name: Build and validate static site
         env:
           SITE_BASE: ${{ steps.pages.outputs.base_path }}/
-          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: |
           set -euo pipefail
           docker build \
             --build-arg "SITE_BASE=${SITE_BASE}" \
-            --build-arg "SITE_ORIGIN=${SITE_ORIGIN}" \
+            --build-arg "SITE_URL=${SITE_URL}" \
             --target site \
             --tag learn-llm-site:pages \
             .

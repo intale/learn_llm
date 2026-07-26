@@ -5919,3 +5919,56 @@ unchanged.
 **Affected step and run:** `add-static-sitemap`, run
 `20260726T031905Z-add-static-sitemap-01`; and
 `implement-ch31-decoder-block`.
+
+## 2026-07-26 - Bind every sitemap to the project site, not the account origin
+
+**Status:** Supersedes the sitemap URL-composition decision above after the
+first published checkpoint was reviewed.
+
+**Context:** The Git remote is `intale/learn_llm`, so GitHub Pages serves this
+project at `https://intale.github.io/learn_llm/`. The account origin
+`https://intale.github.io/` is a separate URL namespace that may host an account
+site and other repositories. The preserved root-build artifact from
+`add-static-sitemap` nevertheless starts its URLs at that account origin because
+the implementation coupled sitemap paths to `SITE_BASE`, whose deliberate local
+default is `/`. Its deployment-shaped `/learn_llm/` artifact is correct, but a
+successful root build must not produce a semantically valid-looking sitemap for
+the wrong site.
+
+GitHub documents project Pages sites below the repository-name path, and the
+pinned `actions/configure-pages@v5` action exposes `base_url` as the complete
+public site base. That value is a safer boundary than recombining the action's
+account-wide `origin` with an asset-routing variable.
+
+**Decision:** Invalidate `add-static-sitemap` and replace it with
+`correct-sitemap-public-base` before Chapter 31. Replace `SITE_ORIGIN` plus the
+build's `SITE_BASE` in sitemap composition with one independently validated
+`SITE_URL`. Its repository default is exactly
+`https://intale.github.io/learn_llm/`; it must use HTTPS, contain no credentials,
+query, or fragment, and end at a normalized directory path. Continue using
+`SITE_BASE` only for where the static artifact's links and assets are mounted.
+
+Have GitHub Actions pass `${{ steps.pages.outputs.base_url }}/` as `SITE_URL`
+and keep `${{ steps.pages.outputs.base_path }}/` as `SITE_BASE`. Configure Astro
+with the full site URL and render every logical route relative to that URL. The
+static validator and browser contract must use the same full public base and
+must reject account-root, sibling-project, wrong-path, relative, duplicate, or
+extra sitemap locations. Both the normal root build and the deployed-base build
+must therefore begin with `https://intale.github.io/learn_llm/`.
+
+Advance the reviewed course plan and locale projection to revision 27 while
+leaving locale activation and all learner routes unchanged. Preserve the
+dependency-free static implementation, package locks, runtime architecture,
+chapter content, formulas, diagrams, Rust code, and existing GitHub Pages
+deployment mechanism. Do not publish this correction to a different hosting
+provider or trigger an immediate external deployment.
+
+**Consequences:** A local or generic root build can no longer claim the GitHub
+account root in its sitemap. Search-engine URLs identify only the `learn_llm`
+project, while alternate Pages or custom-domain deployments can still supply
+their complete site base through the pinned action output.
+
+**Affected steps and runs:** invalidated `add-static-sitemap`, preserved run
+`20260726T031905Z-add-static-sitemap-01`; `correct-sitemap-public-base`, run
+`20260726T040141Z-correct-sitemap-public-base-01`; and
+`implement-ch31-decoder-block`.

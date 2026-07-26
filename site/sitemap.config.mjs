@@ -1,61 +1,70 @@
-export const DEFAULT_SITE_ORIGIN = 'https://intale.github.io';
+export const DEFAULT_SITE_URL = 'https://intale.github.io/learn_llm/';
 export const MAX_SITEMAP_URLS = 50_000;
 
-const siteBaseSegmentPattern = /^[A-Za-z0-9._~-]+$/;
+const githubPagesAccountHost = 'intale.github.io';
+const githubPagesProjectPath = '/learn_llm/';
+const siteUrlPathSegmentPattern = /^[A-Za-z0-9._~-]+$/;
 const sitemapRoutePattern = /^\/(?:[A-Za-z0-9._~-]+\/)+$/;
 
-/** Normalize the public HTTPS origin used in absolute sitemap URLs. */
-export function normalizeSiteOrigin(value) {
+/** Normalize the complete public HTTPS base URL used by sitemap entries. */
+export function normalizeSiteUrl(value) {
   if (typeof value !== 'string' || value.length === 0 || value.trim() !== value) {
-    throw new Error('SITE_ORIGIN must be a non-empty HTTPS origin.');
+    throw new Error('SITE_URL must be a non-empty HTTPS site URL.');
+  }
+  if (value.includes('\\')) {
+    throw new Error('SITE_URL must not contain a backslash.');
   }
 
   let parsed;
   try {
     parsed = new URL(value);
   } catch {
-    throw new Error('SITE_ORIGIN must be a valid absolute URL.');
+    throw new Error('SITE_URL must be a valid absolute URL.');
   }
   if (parsed.protocol !== 'https:') {
-    throw new Error('SITE_ORIGIN must use HTTPS.');
+    throw new Error('SITE_URL must use HTTPS.');
   }
   if (parsed.username || parsed.password) {
-    throw new Error('SITE_ORIGIN must not contain credentials.');
+    throw new Error('SITE_URL must not contain credentials.');
   }
-  if (parsed.pathname !== '/' || parsed.search || parsed.hash) {
-    throw new Error('SITE_ORIGIN must contain only an origin, without a path, query, or fragment.');
-  }
-  return parsed.origin;
-}
-
-/** Normalize the build-time path prefix reused by sitemap URLs. */
-export function normalizeSitemapBase(value) {
-  if (typeof value !== 'string' || value.length === 0) {
-    throw new Error('Sitemap base must be a non-empty absolute path.');
-  }
-  if (!value.startsWith('/') || value.includes('\\') || /[?#]/.test(value)) {
-    throw new Error(
-      'Sitemap base must start with / and contain no query, fragment, or backslash.',
-    );
+  if (parsed.search || parsed.hash) {
+    throw new Error('SITE_URL must not contain a query or fragment.');
   }
 
-  const segments = value.split('/').filter(Boolean);
+  const authorityStart = value.indexOf('://') + 3;
+  const pathStart = value.indexOf('/', authorityStart);
+  const rawPath = pathStart === -1 ? '/' : value.slice(pathStart);
+  const segments = rawPath.split('/').filter(Boolean);
   if (
     segments.some(
       (segment) =>
         segment === '.' ||
         segment === '..' ||
-        !siteBaseSegmentPattern.test(segment),
+        !siteUrlPathSegmentPattern.test(segment),
     )
   ) {
-    throw new Error('Sitemap base contains an unsafe path segment.');
+    throw new Error('SITE_URL contains an unsafe path segment.');
   }
 
-  const normalized = segments.length === 0 ? '/' : `/${segments.join('/')}/`;
-  if (value !== normalized) {
-    throw new Error(`Sitemap base must use normalized directory syntax: ${normalized}`);
+  const normalizedPath = segments.length === 0 ? '/' : `/${segments.join('/')}/`;
+  const pathWithoutOptionalTrailingSlash = rawPath.endsWith('/')
+    ? rawPath.slice(0, -1) || '/'
+    : rawPath;
+  if (
+    pathWithoutOptionalTrailingSlash !==
+    (normalizedPath === '/' ? '/' : normalizedPath.slice(0, -1))
+  ) {
+    throw new Error(`SITE_URL must use normalized directory syntax: ${normalizedPath}`);
   }
-  return normalized;
+  if (
+    parsed.hostname === githubPagesAccountHost &&
+    (parsed.port !== '' || normalizedPath !== githubPagesProjectPath)
+  ) {
+    throw new Error(
+      `SITE_URL on ${githubPagesAccountHost} must identify ${githubPagesProjectPath}, not the account root or another project.`,
+    );
+  }
+  return parsed.origin + normalizedPath;
 }
 
 /** Normalize one logical directory route emitted by the static site. */
@@ -92,7 +101,7 @@ function escapeXml(value) {
 }
 
 /** Render the complete deterministic sitemap document. */
-export function renderSitemapXml(routes, origin, base) {
+export function renderSitemapXml(routes, siteUrl) {
   if (!Array.isArray(routes) || routes.length === 0) {
     throw new Error('Sitemap routes must be a non-empty array.');
   }
@@ -100,8 +109,7 @@ export function renderSitemapXml(routes, origin, base) {
     throw new Error(`Sitemap may contain at most ${MAX_SITEMAP_URLS} URLs.`);
   }
 
-  const normalizedOrigin = normalizeSiteOrigin(origin);
-  const normalizedBase = normalizeSitemapBase(base);
+  const normalizedSiteUrl = normalizeSiteUrl(siteUrl);
   const normalizedRoutes = routes.map(normalizeSitemapRoute);
   if (new Set(normalizedRoutes).size !== normalizedRoutes.length) {
     throw new Error('Sitemap routes must be unique.');
@@ -109,8 +117,8 @@ export function renderSitemapXml(routes, origin, base) {
   normalizedRoutes.sort(compareRoutes);
 
   const entries = normalizedRoutes.map((route) => {
-    const path = normalizedBase + (route === '/' ? '' : route.slice(1));
-    const absoluteUrl = new URL(path, normalizedOrigin).href;
+    const relativeRoute = route === '/' ? '' : route.slice(1);
+    const absoluteUrl = new URL(relativeRoute, normalizedSiteUrl).href;
     return `  <url><loc>${escapeXml(absoluteUrl)}</loc></url>`;
   });
 

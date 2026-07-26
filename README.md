@@ -107,12 +107,15 @@ the first deployment: open **Settings → Pages**, then set **Build and deployme
 → Source** to **GitHub Actions**.
 
 Every push to `main` runs `.github/workflows/deploy-pages.yml`. The workflow asks
-GitHub Pages for the repository's current origin and base path, builds and
-validates the static site in the pinned Docker toolchain, uploads that exact
-static artifact, and deploys it through the `github-pages` environment. The
-generated sitemap is available at
-<https://intale.github.io/learn_llm/sitemap.xml>; its absolute URLs come from the
-same Pages origin and project base as the HTML routes. To rerun the workflow
+GitHub Pages for the repository's complete public site URL and artifact base
+path, builds and validates the static site in the pinned Docker toolchain,
+uploads that exact static artifact, and deploys it through the `github-pages`
+environment. The generated sitemap is available at
+<https://intale.github.io/learn_llm/sitemap.xml>; every absolute URL stays below
+`https://intale.github.io/learn_llm/`, never the account-wide
+`https://intale.github.io/` namespace used by other Pages sites. The normal
+root-path development build retains that same public sitemap target while its
+local links remain rooted at `/`. To rerun the workflow
 without a commit, open **Actions → Deploy GitHub Pages → Run workflow** and select
 `main`. Manual runs from other branches are skipped.
 

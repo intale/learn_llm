@@ -15,7 +15,7 @@ import {
   readChapterLocaleConfiguration,
 } from './chapter-locale-config.mjs';
 import {
-  DEFAULT_SITE_ORIGIN,
+  DEFAULT_SITE_URL,
   renderSitemapXml,
 } from '../site/sitemap.config.mjs';
 
@@ -573,8 +573,7 @@ function validateSitemapArtifact(
   absoluteDist,
   knownFiles,
   logicalRoutes,
-  sitemapOrigin,
-  siteBase,
+  sitemapUrl,
   issues,
 ) {
   const sitemapFiles = [...knownFiles].filter((relativePath) =>
@@ -593,7 +592,7 @@ function validateSitemapArtifact(
 
   let expected;
   try {
-    expected = renderSitemapXml(logicalRoutes, sitemapOrigin, siteBase);
+    expected = renderSitemapXml(logicalRoutes, sitemapUrl);
   } catch (error) {
     issues.push('sitemap.xml expectation is invalid: ' + error.message);
     return 0;
@@ -876,7 +875,7 @@ function validateLocalizedCourseEntry(
  *   basePath?: string,
  *   chapterLocaleConfiguration?: *,
  *   seoExpectations?: Map<string, string>,
- *   sitemapOrigin?: string
+ *   sitemapUrl?: string
  * }} options
  */
 export function auditStaticSite(
@@ -886,7 +885,7 @@ export function auditStaticSite(
     basePath = '/',
     chapterLocaleConfiguration = undefined,
     seoExpectations = undefined,
-    sitemapOrigin = DEFAULT_SITE_ORIGIN,
+    sitemapUrl = DEFAULT_SITE_URL,
   } = {},
 ) {
   if (!existsSync(distDirectory)) {
@@ -971,8 +970,7 @@ export function auditStaticSite(
         absoluteDist,
         knownFiles,
         [...normalizedSeoExpectations.keys()],
-        sitemapOrigin,
-        siteBase,
+        sitemapUrl,
         issues,
       )
     : 0;
@@ -1010,7 +1008,7 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
       basePath: process.env.SITE_BASE ?? '/',
       chapterLocaleConfiguration,
       seoExpectations,
-      sitemapOrigin: process.env.SITE_ORIGIN ?? DEFAULT_SITE_ORIGIN,
+      sitemapUrl: process.env.SITE_URL ?? DEFAULT_SITE_URL,
     },
   );
 }

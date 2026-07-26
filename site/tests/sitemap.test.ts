@@ -4,29 +4,30 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import {
+  DEFAULT_SITE_URL,
   MAX_SITEMAP_URLS,
-  normalizeSiteOrigin,
-  normalizeSitemapBase,
   normalizeSitemapRoute,
+  normalizeSiteUrl,
   renderSitemapXml,
 } from '../sitemap.config.mjs';
 
 describe('sitemap configuration', () => {
-  it('passes the validated origin through the pinned Docker build', () => {
+  it('passes the complete public project URL through the pinned Docker build', () => {
     const dockerfile = readFileSync(
       new URL('../../Dockerfile', import.meta.url),
       'utf8',
     );
-    expect(dockerfile.match(/^ARG SITE_ORIGIN=https:\/\/intale\.github\.io$/gm)).toHaveLength(1);
-    expect(dockerfile.match(/^ENV SITE_ORIGIN=\$\{SITE_ORIGIN\}$/gm)).toHaveLength(1);
+    expect(DEFAULT_SITE_URL).toBe('https://intale.github.io/learn_llm/');
+    expect(dockerfile.match(/^ARG SITE_URL=https:\/\/intale\.github\.io\/learn_llm\/$/gm)).toHaveLength(1);
+    expect(dockerfile.match(/^ENV SITE_URL=\$\{SITE_URL\}$/gm)).toHaveLength(1);
   });
 
-  it('normalizes an HTTPS origin without accepting URL state', () => {
-    expect(normalizeSiteOrigin('https://Example.TEST/')).toBe(
-      'https://example.test',
+  it('normalizes a complete HTTPS site URL without dropping its project path', () => {
+    expect(normalizeSiteUrl('https://Example.TEST/project')).toBe(
+      'https://example.test/project/',
     );
-    expect(normalizeSiteOrigin('https://example.test:8443')).toBe(
-      'https://example.test:8443',
+    expect(normalizeSiteUrl('https://example.test:8443/course/')).toBe(
+      'https://example.test:8443/course/',
     );
 
     for (const value of [
@@ -34,25 +35,24 @@ describe('sitemap configuration', () => {
       ' https://example.test',
       'http://example.test',
       'https://user@example.test',
-      'https://example.test/path/',
       'https://example.test?query=1',
       'https://example.test#fragment',
+      'https://example.test/../other/',
+      'https://example.test/project//nested/',
+      'https://example.test/project%2Fother/',
+      'https://intale.github.io/',
+      'https://intale.github.io/another-project/',
     ]) {
-      expect(() => normalizeSiteOrigin(value)).toThrow(/SITE_ORIGIN/);
+      expect(() => normalizeSiteUrl(value)).toThrow(/SITE_URL/);
     }
   });
 
-  it('accepts only normalized site bases and directory routes', () => {
-    expect(normalizeSitemapBase('/')).toBe('/');
-    expect(normalizeSitemapBase('/learn_llm/')).toBe('/learn_llm/');
+  it('accepts only normalized logical directory routes', () => {
     expect(normalizeSitemapRoute('/')).toBe('/');
     expect(normalizeSitemapRoute('/en/course/30-multi-head-attention/')).toBe(
       '/en/course/30-multi-head-attention/',
     );
 
-    for (const value of ['learn_llm/', '/learn_llm', '/../', '/a//b/']) {
-      expect(() => normalizeSitemapBase(value)).toThrow(/Sitemap base/);
-    }
     for (const value of [
       '',
       'en/',
@@ -69,8 +69,7 @@ describe('sitemap configuration', () => {
   it('renders a deterministic absolute-URL sitemap without speculative fields', () => {
     const result = renderSitemapXml(
       ['/ru/', '/', '/en/course/', '/en/'],
-      'https://example.test',
-      '/learn_llm/',
+      'https://example.test/learn_llm/',
     );
 
     expect(result).toBe(
@@ -89,20 +88,22 @@ describe('sitemap configuration', () => {
   });
 
   it('rejects empty, duplicate, excessive, and unsafe route sets', () => {
-    expect(() => renderSitemapXml([], 'https://example.test', '/')).toThrow(
+    expect(() => renderSitemapXml([], 'https://example.test/learn_llm/')).toThrow(
       /non-empty array/,
     );
     expect(() =>
-      renderSitemapXml(['/', '/'], 'https://example.test', '/'),
+      renderSitemapXml(['/', '/'], 'https://example.test/learn_llm/'),
     ).toThrow(/unique/);
     expect(() =>
-      renderSitemapXml(['/safe/', '/unsafe.xml'], 'https://example.test', '/'),
+      renderSitemapXml(
+        ['/safe/', '/unsafe.xml'],
+        'https://example.test/learn_llm/',
+      ),
     ).toThrow(/directory routes/);
     expect(() =>
       renderSitemapXml(
         Array.from({ length: MAX_SITEMAP_URLS + 1 }, () => '/'),
-        'https://example.test',
-        '/',
+        'https://example.test/learn_llm/',
       ),
     ).toThrow(/at most 50000 URLs/);
   });

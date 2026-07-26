@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-26T03:52:59Z"
+updated_at: "2026-07-26T04:21:32Z"
 
 environment:
   os: "Linux x86_64"
@@ -13965,7 +13965,7 @@ builds:
         objective: "Generate one exact absolute-URL sitemap for every published static HTML route at root and GitHub Pages project bases."
         depends_on:
           - isolate-playwright-preview-port
-        status: completed
+        status: invalidated
         inputs:
           - "AGENTS.md"
           - "BUILD_STATE.yaml"
@@ -14134,10 +14134,160 @@ builds:
                 status: passed
                 notes: "BUILD_STATE.yaml parses as YAML, the completed checkpoint still validates against the 39-chapter/73-step plan, no step remains running, and implement-ch31-decoder-block is the first eligible next step."
             notes: "Succeeded. The static build now emits one deterministic sitemap containing exactly the 42 currently published HTML routes. Absolute URLs use the separately validated Pages origin and normalized build base, selective locale publication remains authoritative, and exact root/project-base artifacts pass unit, static, Chromium, Firefox, and complete course-wide browser validation without a new dependency or runtime service."
+      - id: correct-sitemap-public-base
+        objective: "Make every sitemap build identify the learn_llm GitHub Pages project URL and never the account-wide Pages origin."
+        depends_on:
+          - isolate-playwright-preview-port
+        replaces:
+          - add-static-sitemap
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/astro.config.mjs"
+          - "site/sitemap.config.mjs"
+          - "site/src/pages/sitemap.xml.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "scripts/check-static-links.mjs"
+          - "scripts/check-deployment-workflow.mjs"
+          - ".github/workflows/deploy-pages.yml"
+          - "Dockerfile"
+          - "site/tests/sitemap.test.ts"
+          - "site/tests/e2e/sitemap.spec.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - ".build/runs/20260726T031905Z-add-static-sitemap-01/validation/sitemap-root.xml"
+          - ".build/runs/20260726T031905Z-add-static-sitemap-01/validation/sitemap-project-base.xml"
+          - "GitHub Pages documentation: project site location includes the repository name"
+          - "Official actions/configure-pages@v5 action.yml: base_url is the full GitHub Pages site URL"
+          - "User correction: the public root is https://intale.github.io/learn_llm/ and the account origin may host other projects"
+        outputs:
+          - ".github/workflows/deploy-pages.yml"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Dockerfile"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-deployment-workflow.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/astro.config.mjs"
+          - "site/sitemap.config.mjs"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/pages/sitemap.xml.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/e2e/sitemap.spec.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/sitemap.test.ts"
+        acceptance:
+          - "The default build and the GitHub Pages project-base build both emit exactly 42 sitemap URLs rooted at https://intale.github.io/learn_llm/, with no URL at the account root or a sibling project path."
+          - "Sitemap composition uses one strictly validated full HTTPS SITE_URL with a normalized directory path and remains independent of SITE_BASE, which continues to control only static artifact routing."
+          - "The GitHub Pages workflow supplies SITE_URL from the pinned configure-pages base_url output and SITE_BASE from base_path, without reconstructing the public project URL from the account origin."
+          - "The exact artifact audit and focused tests reject account-root, sibling-project, missing, extra, duplicate, relative, malformed, or otherwise wrong-base sitemap URLs."
+          - "The sitemap remains complete static XML for every and only every published HTML route, with deterministic ordering and no speculative freshness or ranking fields."
+          - "The course plan records this replacement before Chapter 31 without changing learner routes, locale activation, content, formulas, diagrams, Rust, dependencies, runtime architecture, or hosting provider."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-deployment-workflow.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "SITE_URL=https://intale.github.io/learn_llm/ SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_URL=https://intale.github.io/learn_llm/ SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@sitemap'"
+          - "npm --prefix site run test:e2e -- --grep '@sitemap' --browser=firefox"
+          - "npm --prefix site run test:e2e"
+          - "scripts/check-course-cli.sh"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "Deterministic cached static-site and two-engine focused browser validation plus one complete Chromium replay. Read-only official GitHub sources are explicit inputs; no package download, paid service, generation, release, or deployment is used."
+        runs:
+          - run_id: 20260726T040141Z-correct-sitemap-public-base-01
+            started_at: "2026-07-26T04:01:41Z"
+            finished_at: "2026-07-26T04:21:32Z"
+            status: succeeded
+            input_fingerprint:
+              git: "03a97d8741f2d05f5afb130aa4b3bdf3ec5d6fa9"
+              manifest: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/input-fingerprint.txt"
+              checksum: "sha256:21adb621366a958fed291b026d621ebda359f810ccad2dfdd42ce6303685ecca"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate cached Linux product images with Node 22.12.0/npm 10.9.0, Rust 1.93.1, and Playwright 1.61.1."
+            staging_dir: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/"
+            commands:
+              - "Run the complete startup protocol at commit 03a97d8, preserve unrelated desktop.ini, and confirm no stale running step."
+              - "Parse the complete ledger, inspect the latest sitemap decision/run/artifacts, verify their checksums, and compare the unchanged host orchestration versions."
+              - "Compare the Git remote and preserved root/project sitemap artifacts with official GitHub Pages project-site and configure-pages base_url documentation."
+              - "Invalidate the origin-plus-build-base checkpoint, schedule this explicit replacement, and repoint Chapter 31 to the correction before product work."
+              - "Replace SITE_ORIGIN plus SITE_BASE sitemap composition with one validated SITE_URL defaulting to the learn_llm project, while leaving SITE_BASE responsible only for artifact routing."
+              - "Pass the 74-step plan, deployment contract, full unit/type/content gates, default and Pages-shaped builds, exact static audits, explicit account-root rejection, two-engine served-response checks, and the complete Chromium suite."
+              - "Freeze the fifteen declared product files, preserve byte-identical default and Pages sitemap artifacts, and verify both validation candidates against publish.sha256."
+            artifacts:
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/input-fingerprint.txt"
+                sha256: "21adb621366a958fed291b026d621ebda359f810ccad2dfdd42ce6303685ecca"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/research.md"
+                sha256: "8e47ce7a319609c3badf299e7ee45a6345338bdd7cfb664f366c1c7474dee474"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/base-head.tar"
+                sha256: "c8fd2a691c243a56e6ace11a07ca724bb897931bbc19253aff8ec1ca54715c32"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/publish.sha256"
+                sha256: "7b804eb19bfdb2ab76bb4e5f7490221f51cc198ef6d41f9892e412b8d21c9291"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/validation/sitemap-default.xml"
+                sha256: "4933839f36fa6e710303ff80a66fca488af9218bdb5dafe82bc9db02cc32d5b1"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/validation/sitemap-pages.xml"
+                sha256: "4933839f36fa6e710303ff80a66fca488af9218bdb5dafe82bc9db02cc32d5b1"
+              - path: ".build/runs/20260726T040141Z-correct-sitemap-public-base-01/validation/playwright-project-base.config.ts"
+                sha256: "076f5661d1c5f5269fbd4b5c9ad5b3e182423ffb148a891af19fd2eaea012486"
+            validation:
+              - command: "Startup dependency, working-tree, environment, ownership, and cost audit"
+                status: passed
+                notes: "The prior sitemap step was completed and committed, Chapter 31 was first eligible, no run was stale, and only unrelated desktop.ini was untracked. This replacement owns the immediately preceding invalidated sitemap paths and has no dependency, locale, learner-content, or paid-service expansion. Host orchestration versions match the preceding run."
+              - command: "Preserved public-base artifact audit"
+                status: failed
+                notes: "The root-build sitemap begins at https://intale.github.io/ even though the Git remote identifies the learn_llm project; the project-base artifact begins correctly at https://intale.github.io/learn_llm/. The first result can collide with an account site and sibling projects, so add-static-sitemap is invalidated despite its previously passing declared checks."
+              - command: "Official GitHub Pages boundary audit"
+                status: passed
+                notes: "GitHub documents project sites at the owner origin plus repository name, and configure-pages@v5 exposes base_url as that complete public site base. A single full SITE_URL can preserve custom-domain support while preventing account-origin fallback."
+              - command: "Corrective plan, deployment, content, type, and unit gates"
+                status: passed
+                notes: "The revision-27 ledger and plan report 39 chapters, 74 scheduled steps, and 30 implemented contracts; the Pages workflow uses base_url for SITE_URL and base_path for SITE_BASE; content remains 37 localized sources and 30 publishable locale sets; Astro reports zero diagnostics across 161 files; and all 759 unit cases across 41 files pass."
+              - command: "Default and Pages-shaped exact sitemap builds"
+                status: passed
+                notes: "Both builds emit 42 HTML pages and exactly 42 sitemap URLs, pass all 1,487 local references and 42 SEO routes, and produce byte-identical sitemap.xml artifacts rooted only at https://intale.github.io/learn_llm/. The Pages-shaped input accepts configure-pages' no-trailing-slash base_url without duplicating the project path."
+              - command: "Account-root and sibling-project rejection"
+                status: passed
+                notes: "Unit mutations reject the intale.github.io account root and a sibling project, and an explicit Astro build with SITE_URL=https://intale.github.io/ stops during configuration with the required learn_llm project-path error. Custom-domain URLs remain supported through their complete site base."
+              - command: "First Pages-shaped browser replay with the canonical root readiness probe"
+                status: failed
+                notes: "The project-base build correctly omits the account-root preview route, so the standard Playwright server fixture timed out while probing /. No browser assertion ran. A disposable run-specific configuration probes /learn_llm/ instead; the product and canonical root-path test harness remain unchanged."
+              - command: "Default and Pages-shaped served sitemap response gates"
+                status: passed
+                notes: "The exact default response passes in Chromium and Firefox. The disposable project-base readiness configuration then serves /learn_llm/sitemap.xml and passes the same exact 42-URL contract in both engines."
+              - command: "Complete final Chromium replay"
+                status: passed
+                notes: "All 224 browser cases pass from the final frozen default build, including sitemap, SEO, selective locales, localized shells, 74 desktop/narrow formula cases, diagram containment, no-JavaScript, forced-colors, and fullscreen contracts."
+              - command: "Course CLI validation reuse"
+                status: passed
+                notes: "The course launcher, CLI contract, host-artifact checker, and mock release Docker implementation retain exact Git blob identities e177ae2d, 0d3b182b, fe40179c, and 97810d1a from the preceding successful CLI checkpoint; the sitemap public-base correction does not reach that boundary."
+              - command: "Frozen source, diff, and clean-host audit"
+                status: passed
+                notes: "Both exact candidates and the working product files match the fifteen-entry publish.sha256 manifest; git diff --check passes; and a clean exact candidate passes the host-artifact audit. Package manifests, locks, learner content, Rust, generated releases, hosting state, and unrelated desktop.ini remain unchanged."
+              - command: "Completed-checkpoint ledger replay"
+                status: passed
+                notes: "BUILD_STATE.yaml parses as YAML, the completed revision-27 checkpoint validates against the 39-chapter/74-step plan, no step remains running, the invalidated sitemap history remains visible, and implement-ch31-decoder-block is again the first eligible step through the correction."
+            notes: "Succeeded. Every build now composes sitemap entries from one complete public SITE_URL whose repository default is https://intale.github.io/learn_llm/. The intale.github.io account root and sibling project paths are rejected, while GitHub Actions supplies configure-pages base_url for deployment and keeps SITE_BASE separate for artifact routing. Default and Pages-shaped sitemaps are byte-identical and all unit, static, Chromium, Firefox, and course-wide browser gates pass without new dependencies or an external deployment."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
-          - add-static-sitemap
+          - correct-sitemap-public-base
         status: pending
         inputs:
           - "SKILLS.md"

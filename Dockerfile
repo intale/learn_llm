@@ -11,9 +11,9 @@ COPY rust/ rust/
 COPY site/package.json site/package-lock.json site/
 RUN npm --prefix site ci --ignore-scripts
 ARG SITE_BASE=/
-ARG SITE_ORIGIN=https://intale.github.io
+ARG SITE_URL=https://intale.github.io/learn_llm/
 ENV SITE_BASE=${SITE_BASE}
-ENV SITE_ORIGIN=${SITE_ORIGIN}
+ENV SITE_URL=${SITE_URL}
 COPY . .
 
 FROM source AS workspace

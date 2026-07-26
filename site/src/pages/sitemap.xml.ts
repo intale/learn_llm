@@ -9,7 +9,7 @@ export const prerender = true;
 
 export const GET: APIRoute = async ({ site }) => {
   if (!site) {
-    throw new Error('Astro site origin is required to generate sitemap.xml.');
+    throw new Error('Astro public site URL is required to generate sitemap.xml.');
   }
 
   const chapterModules = import.meta.glob(
@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ site }) => {
   ];
 
   return new Response(
-    renderSitemapXml(routes, site.origin, import.meta.env.BASE_URL),
+    renderSitemapXml(routes, site.href),
     {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',

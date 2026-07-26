@@ -142,12 +142,12 @@ export function validateDeploymentWorkflow(source) {
         if (buildStep.env?.SITE_BASE !== '${{ steps.pages.outputs.base_path }}/') {
           issues.push('Docker build SITE_BASE must come from configure-pages base_path');
         }
-        if (buildStep.env?.SITE_ORIGIN !== '${{ steps.pages.outputs.origin }}') {
-          issues.push('Docker build SITE_ORIGIN must come from configure-pages origin');
+        if (buildStep.env?.SITE_URL !== '${{ steps.pages.outputs.base_url }}') {
+          issues.push('Docker build SITE_URL must come from configure-pages base_url');
         }
         for (const required of [
           '--build-arg "SITE_BASE=${SITE_BASE}"',
-          '--build-arg "SITE_ORIGIN=${SITE_ORIGIN}"',
+          '--build-arg "SITE_URL=${SITE_URL}"',
           '--target site',
           '--tag learn-llm-site:pages',
         ]) {

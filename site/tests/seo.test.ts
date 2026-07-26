@@ -16,7 +16,7 @@ import {
 import { renderSitemapXml } from '../sitemap.config.mjs';
 
 const temporaryDirectories: string[] = [];
-const sitemapOrigin = 'https://example.test';
+const sitemapUrl = 'https://example.test/learn_llm/';
 
 const localeConfiguration = {
   defaultLocale: 'en',
@@ -272,7 +272,7 @@ function createStaticFixture(basePath = '/') {
 
   writeFileSync(
     join(root, 'sitemap.xml'),
-    renderSitemapXml([...expectedSeoDescriptions().keys()], sitemapOrigin, basePath),
+    renderSitemapXml([...expectedSeoDescriptions().keys()], sitemapUrl),
   );
 
   return {
@@ -280,7 +280,7 @@ function createStaticFixture(basePath = '/') {
     paths,
     basePath,
     seoExpectations: expectedSeoDescriptions(),
-    sitemapOrigin,
+    sitemapUrl,
   };
 }
 
@@ -289,7 +289,7 @@ function auditFixture(fixture: ReturnType<typeof createStaticFixture>) {
     basePath: fixture.basePath,
     chapterLocaleConfiguration,
     seoExpectations: fixture.seoExpectations,
-    sitemapOrigin: fixture.sitemapOrigin,
+    sitemapUrl: fixture.sitemapUrl,
   });
 }
 
@@ -395,6 +395,16 @@ describe('static SEO audit', () => {
         sitemapRouteCount: 8,
       }),
     );
+
+    const rootSitemap = readFileSync(join(rootFixture.root, 'sitemap.xml'), 'utf8');
+    const projectSitemap = readFileSync(
+      join(projectFixture.root, 'sitemap.xml'),
+      'utf8',
+    );
+    expect(rootSitemap).toBe(projectSitemap);
+    expect(rootSitemap).toContain(
+      '<loc>https://example.test/learn_llm/</loc>',
+    );
   });
 
   it('rejects missing, extra, duplicate, relative, and wrong-base sitemap URLs', () => {
@@ -411,6 +421,20 @@ describe('static SEO audit', () => {
           source.replace(
             '</urlset>',
             '  <url><loc>https://example.test/extra/</loc></url>\n</urlset>',
+          ),
+        );
+      },
+      /exactly contain one absolute URL/,
+    );
+    expectSeoFailure(
+      ({ root }) => {
+        const path = join(root, 'sitemap.xml');
+        const source = readFileSync(path, 'utf8');
+        writeFileSync(
+          path,
+          source.replaceAll(
+            'https://example.test/learn_llm/',
+            'https://example.test/',
           ),
         );
       },

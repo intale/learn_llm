@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 26,
+  "plan_revision": 27,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -186,6 +186,10 @@
       },
       {
         "step_id": "add-static-sitemap",
+        "after_chapter": "30-multi-head-attention"
+      },
+      {
+        "step_id": "correct-sitemap-public-base",
         "after_chapter": "30-multi-head-attention"
       }
     ],
