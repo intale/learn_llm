@@ -6529,3 +6529,63 @@ actual mixed-width tokenizer and floating-point spans without alignment padding.
 
 **Affected step and run:** `implement-ch35-checkpoints`, run
 `20260726T103829Z-implement-ch35-checkpoints-01`.
+
+## 2026-07-26 - Keep authoring mechanics out of learner-facing chapter prose
+
+**Status:** Accepted from the user's Chapter 35 correction before product files
+were edited.
+
+**Context:** Chapter 35's visible visualization section correctly preferred an
+exact descriptor table and executable corruption evidence over a flow diagram,
+but then justified the choice using internal delivery vocabulary: diagram
+registration, full-view controls, static HTML, shared styling and overflow
+treatment, private scrollers, scripts, hydration, and presentation trees. Those
+details describe how the site is built and validated rather than how an LLM
+checkpoint should be understood.
+
+**Decision:** Learner-facing chapter prose must explain concepts and evidence at
+the learner's level. It must not quote, paraphrase, or justify itself through
+build instructions, authoring contracts, test requirements, framework details,
+deployment constraints, or presentation implementation mechanics. Keep those
+requirements in `AGENTS.md`, chapter contracts, state, decisions, and tests. In
+Chapter 35, retitle the section around byte-level auditing and explain how to
+cross-check record order, half-open byte ranges, the header prefix, and loader
+rejections. Add a content-validator boundary for explicit build/presentation
+contract vocabulary and focused source/rendered regression evidence. Do not
+alter the internal visualization decision or add a diagram.
+
+**Consequences:** The lesson will state why the table and executable evidence
+are useful without discussing the machinery that renders them. The repair
+changes no checkpoint bytes or Rust behavior, formula, history, SEO, locale
+policy, navigation, dependency, build definition, shared style, diagram system,
+hosting, or deployment behavior. `implement-ch35-checkpoints` is invalidated and
+replaced by a contiguous corrective step; Chapter 36 depends on that repair.
+
+**Affected step and run:** `repair-ch35-learner-rationale`, run
+`20260726T120316Z-repair-ch35-learner-rationale-01`.
+
+## 2026-07-26 - Project the Chapter 35 prose repair into the reviewed schedule
+
+**Status:** Accepted after the first preflight course-plan mirror check.
+
+**Context:** The corrective run was recorded in the ledger before product work,
+but the course-plan validator requires the ordered ledger to mirror every
+chapter implementation and cross-cutting correction. The locale registry also
+pins the reviewed plan revision, and the content-contract negative fixture uses
+the current revision as its guarded replacement token.
+
+**Decision:** Advance the course plan from revision 28 to 29 and insert
+`repair-ch35-learner-rationale` as a cross-cutting step immediately after
+`35-checkpoints`. Advance only `planRevision` in the chapter-locale projection
+and the current-plan token in its negative unit fixture. Preserve all chapter
+records, chapter order, implementation-step IDs, active locale arrays, policy
+IDs, and the negative fixture's obsolete revision and expected error.
+
+**Consequences:** The corrective dependency order becomes mechanically
+reviewable without changing course content scope or route availability. These
+two newly discovered files were clean and fingerprinted before editing. No Rust,
+dependency, build definition, shared style, diagram system, hosting, deployment,
+or locale activation changes.
+
+**Affected step and run:** `repair-ch35-learner-rationale`, run
+`20260726T120316Z-repair-ch35-learner-rationale-01`.

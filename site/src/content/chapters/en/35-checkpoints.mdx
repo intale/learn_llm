@@ -387,17 +387,22 @@ re-encoding.
 
 {/* chapter-section:visualization */}
 
-## Audit exact bytes instead of drawing a diagram
+## Audit the byte layout before trusting the payload
 
-A flow diagram would hide the evidence that matters: precise record order,
-width, shape, and byte range. The semantic descriptor table, fixed $16$-byte
-hex prefix, and executable rejection lines expose those facts directly. This
-chapter therefore registers no course diagram and needs no full-view control.
+A checkpoint loader needs exact record order, element width, shape, and byte
+range. A flow diagram would discard those details, while the descriptor table
+keeps them available for direct inspection.
 
-The page remains complete static HTML. Its table uses the shared lesson-table
-treatment, and exact program output uses the site's shared code-block overflow
-treatment on narrow screens. The chapter adds no private scroller, script,
-hydration directive, or duplicated presentation tree.
+Audit the table from top to bottom. Each row must begin exactly where the
+previous row ends, its width must agree with its dtype and shape, and the final
+exclusive end must equal the declared file length. The fixed $16$-byte prefix
+then lets you cross-check the magic, schema version, endian marker, and start of
+the header length against the same bytes the loader receives.
+
+The rejection lines test complementary failure boundaries: an unknown version,
+an incompatible vocabulary, a truncated range, and a changed checked byte.
+Together with the exact round trip and resumed update, they show both what was
+stored and which inconsistencies are refused.
 
 Read the proof conservatively. `logits_bits_identical:true` establishes exact
 replay for this fixture. `checksum:true` shows that one modified checked byte is

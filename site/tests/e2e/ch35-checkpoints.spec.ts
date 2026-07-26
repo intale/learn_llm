@@ -22,7 +22,7 @@ const chapterHeadings = [
   "Separate record order, shape, and representation",
   "From artifact bundles to validated LLM checkpoints",
   "Encode, validate, and replace atomically",
-  "Audit exact bytes instead of drawing a diagram",
+  "Audit the byte layout before trusting the payload",
   "Predict offsets before loading corruptions",
   "Load the same state before choosing a token",
 ] as const;
@@ -240,6 +240,26 @@ async function expectChapterContent(
   expect(lessonText).toContain(
     "supported Unix same-filesystem rename semantics",
   );
+  expect(lessonText).toContain(
+    "Each row must begin exactly where the previous row ends",
+  );
+  expect(lessonText).toContain(
+    "Together with the exact round trip and resumed update",
+  );
+  for (const buildMeta of [
+    "build instructions",
+    "authoring contract",
+    "registers no course diagram",
+    "full-view control",
+    "static HTML",
+    "shared lesson-table",
+    "shared code-block overflow",
+    "private scroller",
+    "hydration directive",
+    "presentation tree",
+  ]) {
+    expect(lessonText).not.toContain(buildMeta);
+  }
 
   await expect(
     page.locator(

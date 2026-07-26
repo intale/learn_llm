@@ -350,6 +350,26 @@ describe('localized chapter documents', () => {
     }
   });
 
+  it('rejects build and presentation-contract vocabulary in learner prose', () => {
+    for (const leak of [
+      'Follow the build instructions to choose this evidence.',
+      'This chapter registers no course diagram.',
+      'This page remains complete static HTML.',
+      'The chapter adds no private scroller, hydration directive, or duplicated presentation tree.',
+      "The site's shared code-block overflow treatment handles the evidence.",
+    ]) {
+      const body = chapterBody().replace(
+        'Trace the same position through every representation using labels in addition to color.',
+        leak,
+      );
+      expect(() =>
+        validateChapterDocument(chapterSource(chapterMetadata(), body), {
+          checkSourceFiles: false,
+        }),
+      ).toThrow(/learner-facing prose must not expose/);
+    }
+  });
+
   it('rejects missing sections and Rust paths outside the allowlist', () => {
     const missingSection = chapterBody().replace(
       '{/* chapter-section:exercises */}',
@@ -1066,7 +1086,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 28',
+      '"plan_revision": 29',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

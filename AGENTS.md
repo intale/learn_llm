@@ -21,6 +21,16 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### Learner-facing prose
+
+Learner-facing chapter content must explain LLM concepts, evidence, and
+presentation choices at the learner's level. Never refer to build instructions,
+authoring contracts, test requirements, framework or deployment constraints, or
+presentation implementation machinery in visible chapter prose. When a diagram
+is not useful, state the concrete informational or pedagogical reason and teach
+from the chosen evidence. Keep delivery mechanics in this file, chapter
+contracts, state and decision records, and tests.
+
 ### Formula rendering
 
 Every learner-facing mathematical expression or equation must use the site's

@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 28,
+  "plan_revision": 29,
   "chapter_count": 39,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -195,6 +195,10 @@
       {
         "step_id": "repair-ch33-selection-star-notation",
         "after_chapter": "33-training-selection"
+      },
+      {
+        "step_id": "repair-ch35-learner-rationale",
+        "after_chapter": "35-checkpoints"
       }
     ],
     "planned_chapter_splits": [],

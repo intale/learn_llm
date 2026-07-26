@@ -45,6 +45,30 @@ const LLM_PREDECESSOR_KINDS = new Set([
   'inference-design',
 ]);
 const LLM_SOURCE_ROLES = new Set(['earlier', 'later']);
+const LEARNER_BUILD_META_PATTERNS = Object.freeze([
+  {
+    label: 'build or authoring instructions',
+    pattern: /\b(?:build|authoring|content) (?:instruction|contract|requirement|rule)s?\b/i,
+  },
+  {
+    label: 'diagram registration',
+    pattern: /\b(?:diagram registration|registers? (?:a |no |the )?course diagram)\b/i,
+  },
+  {
+    label: 'presentation implementation machinery',
+    pattern:
+      /\b(?:full-view control|presentation tree|private scroller|hydration directive)\b/i,
+  },
+  {
+    label: 'static-page delivery requirements',
+    pattern: /\b(?:page|chapter|lesson) remains (?:complete )?static HTML\b/i,
+  },
+  {
+    label: 'site styling internals',
+    pattern:
+      /\b(?:shared lesson-table treatment|(?:the )?site(?:'s)? shared code-block overflow treatment)\b/i,
+  },
+]);
 
 export class ContentValidationError extends Error {
   constructor(issues, heading = 'Content validation failed') {
@@ -764,6 +788,18 @@ export function validateChapterDocument(
   const parsed = parseJsonFrontmatter(source, sourceName);
   validateChapterMetadata(parsed.data, sourceName, supportedLocales);
   const issues = [];
+  const learnerProse = renderableMdxSource(parsed.body);
+
+  for (const { label, pattern } of LEARNER_BUILD_META_PATTERNS) {
+    if (pattern.test(learnerProse)) {
+      issues.push(
+        sourceName +
+          ': learner-facing prose must not expose ' +
+          label +
+          '; explain the LLM concept or pedagogical evidence instead',
+      );
+    }
+  }
 
   if (filePath) {
     validateFileLocation(parsed.data, filePath, issues, supportedLocales);
