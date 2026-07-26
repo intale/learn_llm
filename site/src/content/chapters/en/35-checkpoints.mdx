@@ -1,0 +1,458 @@
+---
+{
+  "chapter_id": "35-checkpoints",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 35,
+  "concept_id": "checkpoints",
+  "title": "Save every state, resume exactly",
+  "description": "Learn how a versioned LLM checkpoint stores tokenizer and decoder configuration, parameters, optimizer moments, and RNG state, rejects corrupted bytes, and resumes with identical logits and one identical update.",
+  "objective": "Save and load one versioned decoder checkpoint that reproduces its tokenizer and configuration, parameter and optimizer state, continuation RNG, logits, and one resumed update.",
+  "worked_inputs": "Serialize the Chapter 33 step-8 vocabulary-five decoder with five one-byte literal-token labels, 11 parameter tensors, 22 AdamW moment tensors, and one saved SplitMix64 state; then load it and apply the same step-9 update.",
+  "formula": {
+    "latex": "o_{k+1}=o_k+b_k\\prod_i n_i^{(k)},\\quad o_0=h",
+    "symbols": [
+      {
+        "symbol": "o_{k+1}",
+        "meaning": "the absolute file-byte offset where the next ordered payload record begins"
+      },
+      {
+        "symbol": "o_k",
+        "meaning": "the absolute file-byte offset where ordered payload record k begins"
+      },
+      {
+        "symbol": "b_k",
+        "meaning": "the stored byte width of one element in record k, such as 1 for u8, 4 for u32, or 8 for f64"
+      },
+      {
+        "symbol": "n_i^{(k)}",
+        "meaning": "the length of axis i in the declared shape of record k"
+      },
+      {
+        "symbol": "i",
+        "meaning": "one axis index inside the shape of the current record"
+      },
+      {
+        "symbol": "k",
+        "meaning": "one record index in the canonical tokenizer, parameter, and optimizer order"
+      },
+      {
+        "symbol": "h",
+        "meaning": "the complete header length in bytes, which is also the first payload offset"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "model-building-practice",
+      "limitation": "An isolated parameter blob does not say which tokenizer, model configuration, tensor shapes, optimizer moments, or random stream gives those bytes their meaning, while separately coordinated artifacts can drift apart.",
+      "later_advance": "Released neural language models coordinated tokenizer, configuration, and checkpoint artifacts; large-model training made optimizer state a major state family, and later tensor containers exposed dtype, shape, and byte offsets before loading values.",
+      "modern_llm_role": "A reproducible LLM checkpoint binds self-describing tensor storage to an application schema for tokenizer, decoder configuration, optimizer continuation, RNG state, validation, and publication.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2019,
+          "name": "OpenAI GPT-2 model downloader",
+          "source_url": "https://github.com/openai/gpt-2/blob/master/download_model.py",
+          "claim": "OpenAI's downloader retrieves GPT-2 checkpoint data, index, and metadata together with a checkpoint pointer, hyperparameters, encoder data, and BPE vocabulary, showing that the released language model was a coordinated artifact bundle rather than one isolated weight file."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "ZeRO: Memory Optimizations Toward Training Trillion Parameter Models",
+          "source_url": "https://arxiv.org/pdf/1910.02054",
+          "claim": "Rajbhandari and colleagues classify large-model training state as parameters, gradients, and optimizer state such as Adam momentum and variance, then quantify and partition those state families as language models scale."
+        },
+        {
+          "role": "later",
+          "year": 2022,
+          "name": "Safetensors format specification",
+          "source_url": "https://github.com/huggingface/safetensors/blob/main/README.md",
+          "claim": "The safetensors format describes a little-endian header length, per-tensor dtype, shape, and half-open byte offsets, and a completely indexed row-major data buffer without holes."
+        }
+      ]
+    },
+    "approach": "Move from isolated weight bytes and separately coordinated model artifacts toward a versioned, validated checkpoint that binds every state needed to interpret and continue one LLM.",
+    "summary": "The road to reproducible modern LLMs joins coordinated tokenizer and configuration artifacts, first-class optimizer state, and self-describing tensor metadata. This chapter's checksum and atomic file policy are course-specific integrity boundaries, not properties attributed to GPT-2, ZeRO, or safetensors.",
+    "rust_source": "rust/demos/ch35-checkpoints/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "region": "versioned-checkpoint-encoding",
+      "purpose": "Encode one canonical little-endian header, descriptor table, mixed-width payload, and complete-file accidental-corruption checksum."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "region": "validated-checkpoint-loading",
+      "purpose": "Reject extent, checksum, descriptor, tokenizer, model, optimizer, and canonical-reencoding drift before exposing restored state."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/checkpoint.rs",
+      "region": "atomic-checkpoint-save",
+      "purpose": "Publish a synchronized complete file through same-directory atomic replacement in the supported Unix workflow."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
+      "region": "adamw-persistence-state",
+      "purpose": "Validate and preserve named moment tensors, step count, groups, configuration, and exact accumulated beta powers."
+    },
+    {
+      "path": "rust/demos/ch35-checkpoints/src/lib.rs",
+      "region": "historical-checkpoint-contrast",
+      "purpose": "Distinguish a deliberately isolated local value blob from coordinated model artifacts and a complete resumable checkpoint."
+    },
+    {
+      "path": "rust/demos/ch35-checkpoints/src/lib.rs",
+      "region": "learner-evidence",
+      "purpose": "Serialize the selected Chapter 33 state, reload it independently, compare exact logits and RNG continuation, and execute the same next update."
+    },
+    {
+      "path": "rust/demos/ch35-checkpoints/src/main.rs",
+      "purpose": "Print the exact schema, layout, replay, rejection, atomic-publication, and history evidence."
+    }
+  ],
+  "visualization": {
+    "decision": "not-useful",
+    "id": null,
+    "rationale": "A semantic byte-layout table, a short exact hex prefix, and executable corruption results expose record order and offsets more precisely than a diagram would."
+  },
+  "decoder_connection": "The cumulative decoder can now leave memory as one validated selected-state checkpoint and return with identical logits, optimizer continuation, and RNG continuation; Chapter 36 will load it before converting logits into token choices."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+
+{/* chapter-section:worked-example */}
+
+## Freeze the whole state, not only weights
+
+Chapter 33 selected decoder step $8$. In this fixed fixture that is also the
+last training step, so the parameters and AdamW state describe one common
+boundary. Chapter 35 asserts that equality before saving; pairing a selected
+step-$6$ model with a step-$8$ optimizer would be rejected rather than called a
+checkpoint.
+
+The complete state includes:
+
+1. schema, tokenizer-layout, and continuation-RNG versions;
+2. five ordered literal token pieces and every decoder configuration field;
+3. $11$ stable named parameter tensors;
+4. $22$ named AdamW moment tensors, parameter groups, step, and exact
+   accumulated beta powers; and
+5. the selected step plus one raw SplitMix64 continuation state.
+
+At this clean post-update boundary there are no gradients to save. The Chapter
+34 test documents and final-evaluation gate are not reopened or embedded. An
+attention cache is also absent; Chapter 38 will own cache state.
+
+The fixture's five token IDs, $0$ through $4$, map to the one-byte program
+labels `0` through `4`. Together with the model and optimizer records they make
+$5+11+22=38$ ordered payload records. Encoding the same state twice produces
+the same $6330$ bytes and the same checksum label
+`fnv1a64:2b8b6097eaed6a91`.
+
+The promise is deliberately narrow: in the controlled course implementation
+and toolchain, loading reproduces exact bits. Changing hardware or arithmetic
+kernels can change floating-point behavior even when a checkpoint is valid.
+FNV-1a detects accidental corruption; it does not authenticate a file against
+an attacker.
+
+{/* chapter-section:formula */}
+
+## Advance each offset by shape times byte width
+
+For canonical payload record $k$, the next absolute byte offset is
+
+$$
+o_{k+1}=o_k+b_k\prod_i n_i^{(k)},\quad o_0=h
+$$
+
+The header is $h=2869$ bytes. Five one-byte token records occupy
+$[2869,2874)$, so the first parameter begins at offset $2874$. It is
+`token_embedding.weight`, has shape $[5,4]$, and stores each element as an
+eight-byte `f64`. Its exclusive end is therefore
+
+$$
+2874+8(5\cdot4)=3034.
+$$
+
+No alignment padding is inserted. An on-disk `f64` need not start at a native
+memory alignment boundary because the loader copies eight bytes and applies
+little-endian decoding; it never casts a file pointer to an `f64` pointer.
+
+Every shape product, byte-width multiplication, offset addition, and conversion
+from on-disk `u64` to process `usize` is checked. The loader requires each start
+to equal the preceding end and the final end to equal byte $6330$. A gap,
+overlap, arithmetic overflow, truncation, or trailing byte is an error.
+
+{/* chapter-section:symbol-glossary */}
+
+## Separate record order, shape, and representation
+
+- $o_k$ is the absolute start offset of record $k$.
+- $o_{k+1}$ is the absolute start offset of the following record.
+- $b_k$ is one element's stored byte width in record $k$: $1$ for `u8`, $4$
+  for `u32`, or $8$ for `f64`.
+- $n_i^{(k)}$ is the length of axis $i$ in record $k$.
+- $\prod_i n_i^{(k)}$ is the record's element count.
+- $i$ selects one shape axis.
+- $k$ follows one stable tokenizer, parameter, and optimizer-state order.
+- $h$ is the complete header size and first payload offset, so $o_0=h$.
+
+A descriptor stores role, name, dtype, shape, absolute offset, and byte length.
+Those fields have different jobs. Shape says how values become a tensor; dtype
+says how many bytes represent each value; canonical order says which component
+owns the values. A matching file length cannot compensate for a changed name or
+shape.
+
+The fixed run exposes representative rows from the exact Rust descriptor table:
+
+| Record | Role | Dtype | Shape or count | Bytes per element | Half-open byte range |
+| --- | --- | --- | ---: | ---: | --- |
+| `literal-token-0` | literal token | `u8` | $1$ | $1$ | $[2869,2870)$ |
+| `literal-token-4` | literal token | `u8` | $1$ | $1$ | $[2873,2874)$ |
+| `token_embedding.weight` | model parameter | `f64` | $[5,4]$ | $8$ | $[2874,3034)$ |
+| remaining parameters and moments | model and AdamW state | `f64` | declared per tensor | $8$ | contiguous through $6330$ |
+
+The first $16$ bytes are short enough to inspect without a diagram or a wide
+mobile line:
+
+```text
+4c 4c 4d 43 50 33 35 00 01 00 04 03 02 01 35 0b
+```
+
+They begin with the magic bytes for `LLMCP35`, followed by schema version $1$,
+the little-endian marker, and the start of the encoded header length. The table,
+not machine alignment, determines where every payload record lives.
+
+{/* chapter-section:history */}
+
+## From artifact bundles to validated LLM checkpoints
+
+This progression is about preserving language-model meaning and continuation,
+not about the history of programming languages or serialization syntax.
+
+An isolated parameter blob does not say which tokenizer, model configuration,
+tensor shapes, optimizer moments, or random stream gives those bytes their
+meaning, while separately coordinated artifacts can drift apart.
+
+[OpenAI's GPT-2 downloader](https://github.com/openai/gpt-2/blob/master/download_model.py)
+is a concrete 2019 language-model artifact boundary. OpenAI's downloader
+retrieves GPT-2 checkpoint data, index, and metadata together with a checkpoint
+pointer, hyperparameters, encoder data, and BPE vocabulary, showing that the
+released language model was a coordinated artifact bundle rather than one
+isolated weight file. The script does not establish a single self-contained
+file, exact training resumption, optimizer or RNG restoration, checksums, or
+this chapter's wire format.
+
+[ZeRO](https://arxiv.org/pdf/1910.02054) exposes the scale pressure behind
+complete training state. Rajbhandari and colleagues classify large-model
+training state as parameters, gradients, and optimizer state such as Adam
+momentum and variance, then quantify and partition those state families as
+language models scale. From that accounting we can infer that weights alone do
+not determine the next adaptive update. ZeRO studies distributed memory; its
+activation-checkpoint discussion is about recomputation. It does not define
+durable serialization or require gradients at this chapter's clean post-update
+boundary.
+
+The later [safetensors format specification](https://github.com/huggingface/safetensors/blob/main/README.md)
+is a self-describing tensor boundary. The safetensors format describes a
+little-endian header length, per-tensor dtype, shape, and half-open byte offsets,
+and a completely indexed row-major data buffer without holes. It does not by
+itself define tokenizer, decoder configuration, optimizer, RNG, checksum, or
+atomic-publication semantics. Its safety goal must not be confused with this
+chapter's accidental-corruption check.
+
+Released neural language models coordinated tokenizer, configuration, and
+checkpoint artifacts; large-model training made optimizer state a major state
+family, and later tensor containers exposed dtype, shape, and byte offsets
+before loading values.
+
+A reproducible LLM checkpoint binds self-describing tensor storage to an
+application schema for tokenizer, decoder configuration, optimizer
+continuation, RNG state, validation, and publication.
+
+The road to reproducible modern LLMs joins coordinated model artifacts,
+first-class optimizer state, and inspectable tensor metadata with an
+application-level schema. The local contrast below deliberately flattens only
+values to demonstrate what isolated bytes omit. It does not describe GPT-2 or
+safetensors as a raw-memory dump, and the course format is not
+safetensors-compatible or a proposed universal standard.
+
+<RustSource
+  path="rust/demos/ch35-checkpoints/src/lib.rs"
+  region="historical-checkpoint-contrast"
+  caption="Contrast an intentionally context-free local value blob with coordinated model artifacts and complete resume state"
+  label="Rust source for the Chapter 35 LLM-checkpoint history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Encode, validate, and replace atomically
+
+`AdamWStateEntry` owns one parameter name, shape, finite first moment, and
+finite non-negative second moment. `AdamWState` adds configuration, optional
+decay groups, step count, exact repeatedly multiplied beta powers, and a stable
+name-keyed map. Step $0$ requires powers exactly $1$ and no moments; later steps
+require powers in $[0,1)$ and nonempty moments. Loading restores those powers
+directly instead of recomputing them through a potentially different arithmetic
+path.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/adamw.rs"
+  region="adamw-persistence-state"
+  caption="Validate every named AdamW moment tensor and preserve the exact continuation arithmetic"
+  label="Rust source implementing the Chapter 35 AdamW persistence boundary"
+/>
+
+`CheckpointTokenizer` stores either nonempty unique literal byte pieces or the
+byte-BPE tokenizer's ordered training-space merge pairs. The file records the
+tokenizer-layout and SplitMix64 algorithm versions. Restoring BPE calls the
+existing validated tokenizer constructor; restoring the random stream uses its
+raw state. This is a continuation stream for later sampling, not the Chapter 33
+batch-shuffle seed.
+
+The encoder first builds the `u8`, `u32`, and `f64` records, then measures the
+header and assigns absolute offsets. Every primitive is written explicitly in
+little-endian form. FNV-1a covers the complete canonical file while the checksum
+field itself is treated as zero.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/checkpoint.rs"
+  region="versioned-checkpoint-encoding"
+  caption="Measure and encode one canonical descriptor table and mixed-width payload"
+  label="Rust source implementing Chapter 35 versioned checkpoint encoding"
+/>
+
+The reader validates magic, schema, endian marker, complete extent, checksum,
+known roles and dtypes, canonical descriptor order, contiguous ranges, component
+invariants, and exact canonical re-encoding before it exposes a `Checkpoint`.
+It constructs neither tokenizer nor model when preflight fails.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/checkpoint.rs"
+  region="validated-checkpoint-loading"
+  caption="Reject corrupt or semantically inconsistent bytes before restoring any decoder component"
+  label="Rust source implementing Chapter 35 validated checkpoint loading"
+/>
+
+Saving creates a unique file in the destination directory with `create_new`,
+writes and synchronizes the complete bytes, renames it over the destination,
+then synchronizes the directory. That is atomic replacement under the supported
+Unix same-filesystem rename semantics. Other targets return an explicit
+unsupported error instead of deleting the prior checkpoint.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/checkpoint.rs"
+  region="atomic-checkpoint-save"
+  caption="Synchronize a complete same-directory temporary file before atomic replacement"
+  label="Rust source implementing Chapter 35 checkpoint publication"
+/>
+
+The executable fixture restores independent original and loaded models. Both
+produce no-gradient logits for inputs $[0,1]$, then backpropagate targets
+$[1,2]$ and apply the same explicit next learning rate $0.006$. It compares
+every parameter bit, exact optimizer state, post-update logits, and the next
+SplitMix64 draw.
+
+<RustSource
+  path="rust/demos/ch35-checkpoints/src/lib.rs"
+  region="learner-evidence"
+  caption="Prove deterministic bytes, exact reload, corruption rejection, one equal resumed update, and atomic replacement"
+  label="Rust source assembling the Chapter 35 learner evidence"
+/>
+
+Run `cargo run --quiet --locked -p ch35-checkpoints`. The key proof lines are
+exact program output:
+
+```text
+roundtrip=bytes_deterministic:true loaded_bytes_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:6029064fe7cd162d rng_next_identical:true rng_next:0x9a8c505971939232
+resume=learning_rate:0.006000 next_step:9 parameter_bits_identical:true optimizer_state_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:0b875a0c9f380d8f
+reject=version:true vocabulary_mismatch:true truncation:true checksum:true
+atomic=replaced_complete_file:true loaded_rng_state:0x9e3779b97f4a7c39 temporary_files:0 unix_same_directory:true
+```
+
+The complete stdout matches `rust/demos/ch35-checkpoints/expected.txt` byte for
+byte, including its final newline. Tests additionally cover the byte-BPE variant,
+mixed element widths, version and endian drift, metadata corruption, trailing
+bytes, tokenizer and model mismatches, negative second moments, and deterministic
+re-encoding.
+
+<RustSource
+  path="rust/demos/ch35-checkpoints/src/main.rs"
+  caption="Print only the exact Chapter 35 schema, layout, replay, rejection, and publication evidence"
+  label="Rust entry point for the Chapter 35 learner report"
+/>
+
+{/* chapter-section:visualization */}
+
+## Audit exact bytes instead of drawing a diagram
+
+A flow diagram would hide the evidence that matters: precise record order,
+width, shape, and byte range. The semantic descriptor table, fixed $16$-byte
+hex prefix, and executable rejection lines expose those facts directly. This
+chapter therefore registers no course diagram and needs no full-view control.
+
+The page remains complete static HTML. Its table uses the shared lesson-table
+treatment, and exact program output uses the site's shared code-block overflow
+treatment on narrow screens. The chapter adds no private scroller, script,
+hydration directive, or duplicated presentation tree.
+
+Read the proof conservatively. `logits_bits_identical:true` establishes exact
+replay for this fixture. `checksum:true` shows that one modified checked byte is
+rejected; it does not turn FNV-1a into a cryptographic signature.
+
+{/* chapter-section:exercises */}
+
+## Predict offsets before loading corruptions
+
+1. Start at offset $2874$ with a $[5,4]$ `f64` tensor. Predict its exclusive
+   end.
+2. A $[3,2]$ BPE-pair tensor stores `u32`. How many bytes does it occupy?
+3. One literal token grows from one byte to four. Which later offsets change?
+4. Parameter values stay intact but a descriptor shape changes. Should loading
+   succeed when the checksum covers metadata and values?
+5. Weights reload exactly but AdamW moments reset. Will the next update match?
+6. The selected state moves to step $6$ while the optimizer remains at step $8$.
+   Which construction invariant rejects the pair?
+7. A process stops after the temporary file is synchronized but before rename.
+   Which complete destination remains visible?
+8. Does a matching FNV-1a value prove that no adversary changed the file?
+
+<details>
+  <summary>Check your reasoning</summary>
+
+  1. $3034$, because $2874+8(5\cdot4)=3034$.
+  2. $4(3\cdot2)=24$ bytes.
+  3. The changed token's end and every subsequent absolute offset move by three
+     bytes; canonical re-encoding also changes the checked metadata.
+  4. No. The metadata checksum changes, and semantic shape validation would
+     reject a freshly checksummed inconsistent descriptor too.
+  5. No. AdamW's next adaptive direction depends on its first and second
+     moments and accumulated beta powers.
+  6. Checkpoint construction requires the selected step and optimizer step to
+     agree.
+  7. The prior complete destination remains visible; the unpublished temporary
+     file can be cleaned up.
+  8. No. FNV-1a detects accidental corruption but provides no authentication.
+</details>
+
+The central misconception is that a checkpoint is only weights. Weights
+reproduce a function only with their tokenizer and configuration; exact
+training continuation additionally requires optimizer and RNG state from the
+same step.
+
+{/* chapter-section:decoder-connection */}
+
+## Load the same state before choosing a token
+
+The cumulative decoder can now leave memory as one validated selected-state
+checkpoint and return with identical logits, optimizer continuation, and RNG
+continuation. The loader restores model meaning before any consumer can use the
+values.
+
+Chapter 36 will load this checkpoint before converting logits into token choices
+with temperature and top-$k$ sampling. That next boundary can vary sampling
+policy without silently changing tokenizer, model configuration, weights,
+optimizer provenance, or the random stream being continued.

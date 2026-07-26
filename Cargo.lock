@@ -239,6 +239,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch35-checkpoints"
+version = "0.1.0"
+dependencies = [
+ "ch33-training-selection",
+ "llm-from-scratch",
+]
+
+[[package]]
 name = "chapter-demo-template"
 version = "0.1.0"
 

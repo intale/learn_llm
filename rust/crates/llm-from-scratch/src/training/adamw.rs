@@ -408,6 +408,275 @@ impl AdamWMomentState {
     }
 }
 
+// region:adamw-persistence-state
+/// One validated name-keyed moment pair prepared for persistence.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AdamWStateEntry {
+    name: String,
+    moments: AdamWMomentState,
+}
+
+impl AdamWStateEntry {
+    pub fn new(
+        name: impl Into<String>,
+        shape: Vec<usize>,
+        first_moment: Vec<f64>,
+        second_moment: Vec<f64>,
+    ) -> Result<Self, AdamWStateError> {
+        let name = name.into();
+        if name.is_empty() {
+            return Err(AdamWStateError::EmptyParameterName);
+        }
+        let elements = shape.iter().try_fold(1_usize, |product, &dimension| {
+            product.checked_mul(dimension)
+        });
+        let Some(elements) = elements else {
+            return Err(AdamWStateError::ShapeProductOverflow { name });
+        };
+        if first_moment.len() != elements || second_moment.len() != elements {
+            return Err(AdamWStateError::MomentLengthMismatch {
+                name,
+                shape,
+                expected: elements,
+                first: first_moment.len(),
+                second: second_moment.len(),
+            });
+        }
+        for (kind, values) in [
+            ("first", first_moment.as_slice()),
+            ("second", second_moment.as_slice()),
+        ] {
+            if let Some((index, &value)) = values
+                .iter()
+                .enumerate()
+                .find(|(_, value)| !value.is_finite())
+            {
+                return Err(AdamWStateError::NonFiniteMoment {
+                    name,
+                    kind,
+                    index,
+                    value,
+                });
+            }
+        }
+        if let Some((index, &value)) = second_moment
+            .iter()
+            .enumerate()
+            .find(|(_, value)| **value < 0.0)
+        {
+            return Err(AdamWStateError::NegativeSecondMoment { name, index, value });
+        }
+        Ok(Self {
+            name,
+            moments: AdamWMomentState {
+                shape,
+                first: first_moment,
+                second: second_moment,
+            },
+        })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub const fn moments(&self) -> &AdamWMomentState {
+        &self.moments
+    }
+}
+
+/// A complete graph-free AdamW continuation snapshot.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AdamWState {
+    config: AdamWConfig,
+    groups: Option<AdamWParameterGroups>,
+    step: u64,
+    beta1_power: f64,
+    beta2_power: f64,
+    states: BTreeMap<String, AdamWMomentState>,
+}
+
+impl AdamWState {
+    pub fn new(
+        config: AdamWConfig,
+        groups: Option<AdamWParameterGroups>,
+        step: u64,
+        beta1_power: f64,
+        beta2_power: f64,
+        entries: Vec<AdamWStateEntry>,
+    ) -> Result<Self, AdamWStateError> {
+        validate_beta_power("beta1", beta1_power, step)?;
+        validate_beta_power("beta2", beta2_power, step)?;
+        if (step == 0) != entries.is_empty() {
+            return Err(AdamWStateError::StatePresence {
+                step,
+                entries: entries.len(),
+            });
+        }
+        let mut states = BTreeMap::new();
+        for entry in entries {
+            if states.insert(entry.name.clone(), entry.moments).is_some() {
+                return Err(AdamWStateError::DuplicateParameterName { name: entry.name });
+            }
+        }
+        if let Some(groups) = &groups {
+            let expected = groups.parameter_names();
+            let actual = states.keys().cloned().collect::<Vec<_>>();
+            if step > 0 && expected != actual {
+                return Err(AdamWStateError::ParameterGroupsMismatch { expected, actual });
+            }
+        }
+        Ok(Self {
+            config,
+            groups,
+            step,
+            beta1_power,
+            beta2_power,
+            states,
+        })
+    }
+
+    pub const fn config(&self) -> AdamWConfig {
+        self.config
+    }
+
+    pub const fn parameter_groups(&self) -> Option<&AdamWParameterGroups> {
+        self.groups.as_ref()
+    }
+
+    pub const fn step_count(&self) -> u64 {
+        self.step
+    }
+
+    pub const fn beta1_power(&self) -> f64 {
+        self.beta1_power
+    }
+
+    pub const fn beta2_power(&self) -> f64 {
+        self.beta2_power
+    }
+
+    pub fn parameter_names(&self) -> impl ExactSizeIterator<Item = &str> {
+        self.states.keys().map(String::as_str)
+    }
+
+    pub fn state(&self, name: &str) -> Option<&AdamWMomentState> {
+        self.states.get(name)
+    }
+}
+
+fn validate_beta_power(name: &'static str, value: f64, step: u64) -> Result<(), AdamWStateError> {
+    let valid = if step == 0 {
+        value.to_bits() == 1.0_f64.to_bits()
+    } else {
+        value.is_finite() && (0.0..1.0).contains(&value)
+    };
+    if valid {
+        Ok(())
+    } else {
+        Err(AdamWStateError::InvalidBetaPower { name, value, step })
+    }
+}
+
+/// A malformed optimizer snapshot rejected before an AdamW instance is built.
+#[derive(Clone, Debug, PartialEq)]
+pub enum AdamWStateError {
+    InvalidBetaPower {
+        name: &'static str,
+        value: f64,
+        step: u64,
+    },
+    StatePresence {
+        step: u64,
+        entries: usize,
+    },
+    EmptyParameterName,
+    DuplicateParameterName {
+        name: String,
+    },
+    ShapeProductOverflow {
+        name: String,
+    },
+    MomentLengthMismatch {
+        name: String,
+        shape: Vec<usize>,
+        expected: usize,
+        first: usize,
+        second: usize,
+    },
+    NonFiniteMoment {
+        name: String,
+        kind: &'static str,
+        index: usize,
+        value: f64,
+    },
+    NegativeSecondMoment {
+        name: String,
+        index: usize,
+        value: f64,
+    },
+    ParameterGroupsMismatch {
+        expected: Vec<String>,
+        actual: Vec<String>,
+    },
+}
+
+impl fmt::Display for AdamWStateError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidBetaPower { name, value, step } => write!(
+                formatter,
+                "{name} power must be exactly 1 at step zero or finite in [0,1) later, got {value} at step {step}"
+            ),
+            Self::StatePresence { step, entries } => write!(
+                formatter,
+                "AdamW step {step} is incompatible with {entries} persisted moment entries"
+            ),
+            Self::EmptyParameterName => {
+                formatter.write_str("an AdamW persistence entry has an empty parameter name")
+            }
+            Self::DuplicateParameterName { name } => write!(
+                formatter,
+                "AdamW persistence parameter name {name:?} appears more than once"
+            ),
+            Self::ShapeProductOverflow { name } => write!(
+                formatter,
+                "AdamW persistence shape for parameter {name:?} overflows usize"
+            ),
+            Self::MomentLengthMismatch {
+                name,
+                shape,
+                expected,
+                first,
+                second,
+            } => write!(
+                formatter,
+                "AdamW persistence parameter {name:?} with shape {shape:?} needs {expected} moments, got {first} first and {second} second"
+            ),
+            Self::NonFiniteMoment {
+                name,
+                kind,
+                index,
+                value,
+            } => write!(
+                formatter,
+                "AdamW persistence parameter {name:?} has non-finite {kind} moment at flat index {index}: {value}"
+            ),
+            Self::NegativeSecondMoment { name, index, value } => write!(
+                formatter,
+                "AdamW persistence parameter {name:?} has negative second moment at flat index {index}: {value}"
+            ),
+            Self::ParameterGroupsMismatch { expected, actual } => write!(
+                formatter,
+                "AdamW persistence groups name {expected:?}, but moments name {actual:?}"
+            ),
+        }
+    }
+}
+
+impl Error for AdamWStateError {}
+// endregion:adamw-persistence-state
+
 /// Exact elementwise evidence prepared for one named parameter in a step.
 #[derive(Clone, Debug, PartialEq)]
 pub struct AdamWParameterUpdate {
@@ -567,6 +836,30 @@ impl AdamW {
 
     pub fn state(&self, name: &str) -> Option<&AdamWMomentState> {
         self.states.get(name)
+    }
+
+    /// Captures every value required to reproduce the next optimizer update.
+    pub fn persistence_state(&self) -> AdamWState {
+        AdamWState {
+            config: self.config,
+            groups: self.groups.clone(),
+            step: self.step,
+            beta1_power: self.beta1_power,
+            beta2_power: self.beta2_power,
+            states: self.states.clone(),
+        }
+    }
+
+    /// Restores a previously validated continuation snapshot without arithmetic.
+    pub fn from_persistence_state(state: &AdamWState) -> Self {
+        Self {
+            config: state.config,
+            groups: state.groups.clone(),
+            step: state.step,
+            beta1_power: state.beta1_power,
+            beta2_power: state.beta2_power,
+            states: state.states.clone(),
+        }
     }
 
     // region:transactional-adamw-step
@@ -1250,5 +1543,63 @@ mod tests {
             parameters[0].tensor().gradient().unwrap().as_slice(),
             &[0.0],
         );
+    }
+
+    #[test]
+    fn persistence_state_round_trips_exact_powers_groups_and_moments() {
+        let groups = AdamWParameterGroups::new(["decoder.weight"], ["decoder.gain"]).unwrap();
+        let mut optimizer = AdamW::with_parameter_groups(fixture_config(), groups);
+        let mut parameters = vec![
+            parameter("decoder.gain", &[1], &[1.0]),
+            parameter("decoder.weight", &[1], &[2.0]),
+        ];
+        seed_gradient(&parameters[0], &[0.2]);
+        seed_gradient(&parameters[1], &[-0.3]);
+        optimizer.step(&mut parameters).unwrap();
+
+        let snapshot = optimizer.persistence_state();
+        let restored = AdamW::from_persistence_state(&snapshot);
+
+        assert_eq!(restored, optimizer);
+        assert_eq!(restored.persistence_state(), snapshot);
+        assert_eq!(snapshot.step_count(), 1);
+        assert_eq!(snapshot.beta1_power().to_bits(), 0.5_f64.to_bits());
+        assert_eq!(snapshot.beta2_power().to_bits(), 0.5_f64.to_bits());
+    }
+
+    #[test]
+    fn persistence_constructor_rejects_incoherent_or_unsafe_state() {
+        assert!(matches!(
+            AdamWState::new(fixture_config(), None, 1, 0.5, 0.5, Vec::new()),
+            Err(AdamWStateError::StatePresence {
+                step: 1,
+                entries: 0
+            })
+        ));
+        assert!(matches!(
+            AdamWStateEntry::new("decoder.weight", vec![2], vec![0.0], vec![0.0]),
+            Err(AdamWStateError::MomentLengthMismatch { .. })
+        ));
+        assert!(matches!(
+            AdamWStateEntry::new("decoder.weight", vec![1], vec![0.0], vec![-0.1]),
+            Err(AdamWStateError::NegativeSecondMoment { .. })
+        ));
+
+        let entry = AdamWStateEntry::new("decoder.weight", vec![1], vec![0.0], vec![0.0]).unwrap();
+        assert!(matches!(
+            AdamWState::new(fixture_config(), None, 0, 1.0, 1.0, vec![entry.clone()]),
+            Err(AdamWStateError::StatePresence { step: 0, .. })
+        ));
+        assert!(matches!(
+            AdamWState::new(
+                fixture_config(),
+                None,
+                1,
+                0.5,
+                0.5,
+                vec![entry.clone(), entry]
+            ),
+            Err(AdamWStateError::DuplicateParameterName { .. })
+        ));
     }
 }

@@ -1,0 +1,12 @@
+chapter=35-checkpoints
+schema=version:1 magic:LLMCP35 endian:little header_bytes:2869 payload_bytes:3461 file_bytes:6330 checksum:fnv1a64:2b8b6097eaed6a91
+tokenizer=kind:literal-u32 layout_version:1 vocabulary:5 pieces:5 decoder_vocabulary:5
+layout=records:38 first:0:LiteralToken/u8[1]@2869..2870 first_parameter:token_embedding.weight:ModelParameter/f64[5, 4]@2874..3034 final_end:6330 alignment_padding:0
+hex=4c 4c 4d 43 50 33 35 00 01 00 04 03 02 01 35 0b
+state=selected_step:8 optimizer_step:8 parameter_tensors:11 parameter_scalars:144 rng:splitmix64-v1 rng_state:0x9e3779b97f4a7c38
+roundtrip=bytes_deterministic:true loaded_bytes_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:6029064fe7cd162d rng_next_identical:true rng_next:0x9a8c505971939232
+resume=learning_rate:0.006000 next_step:9 parameter_bits_identical:true optimizer_state_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:0b875a0c9f380d8f
+reject=version:true vocabulary_mismatch:true truncation:true checksum:true
+atomic=replaced_complete_file:true loaded_rng_state:0x9e3779b97f4a7c39 temporary_files:0 unix_same_directory:true
+history=isolated_blob_loses_context:true coordinated_model_artifacts:true optimizer_state_scales:true self_describing_offsets:true complete_resume_schema:true
+next=load this checkpoint for temperature and top-k sampling

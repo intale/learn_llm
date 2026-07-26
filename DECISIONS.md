@@ -6456,3 +6456,76 @@ shared edit adds no dependency, copied corpus, new training path, or test access
 
 **Affected step and run:** `implement-ch34-final-evaluation`, run
 `20260726T092323Z-implement-ch34-final-evaluation-01`.
+
+## 2026-07-26 - Persist one validated decoder bundle and exact restart state
+
+**Status:** Accepted during Chapter 35 preflight before product files were edited.
+
+**Context:** Chapter 34 proves that final evaluation leaves the Chapter 33
+validation-selected decoder byte-identical. Chapter 35 must persist that state
+with everything needed to interpret and continue it: tokenizer identity, decoder
+configuration, stable named parameters, AdamW moments and bias-correction powers,
+and the raw course RNG state. The scheduled boundary omitted the shared AdamW
+restore API, Chapter 34's new next link, aggregate formula registries, direct site
+dependencies, a Firefox-specific rendered-formula gate, and bounded primary
+checkpoint sources.
+
+**Decision:** Define a dependency-free checkpoint version 1 with an explicit
+magic value, schema version, little-endian marker, fixed-width lengths, stable
+name/shape/dtype descriptors, absolute tensor offsets, and one checked payload.
+Support both the synthetic fixture's ordered literal-token table and the
+course's byte-level BPE merge ranks, and require tokenizer vocabulary extent to
+match the decoder configuration. Add a validated public AdamW state boundary
+that preserves exact step, parameter groups, moment tensors, and stored beta
+powers without exposing mutable optimizer internals. Save through a unique
+same-directory temporary file, synchronize it, and replace the destination with
+the supported Linux filesystem's atomic rename boundary; remove an abandoned
+temporary file on failure. Use FNV-1a only to detect accidental corruption, not
+as an authenticity or adversarial-integrity claim. Defer attention-cache state
+as planned.
+
+Use OpenAI's GPT-2 download manifest only as evidence that a released language
+model required coordinated checkpoint, hyperparameter, and tokenizer artifacts;
+use the ZeRO paper for the modern scale of parameter, gradient, and optimizer
+state; and use the safetensors format specification for self-describing tensor
+dtype, shape, and byte offsets. None of these sources establishes this course's
+wire bytes, literal-token fixture, checksum choice, atomic-write API, or universal
+checkpoint standard.
+
+**Consequences:** One loaded bundle can reject wrong versions, layouts,
+tokenizers, configurations, truncation, and checksum changes before restoring a
+model. The demo can prove bit-identical logits, deterministic bytes, RNG
+continuation, and one exact resumed AdamW update without a serialization library
+or browser-side arithmetic. The lesson uses a semantic byte-layout table, hex
+evidence, and executable corruption results because a diagram would add no useful
+relationship. No paid service, generation service, runtime server, deployment,
+locale activation, shared diagram system, or Linux build definition changes.
+
+**Affected step and run:** `implement-ch35-checkpoints`, run
+`20260726T103829Z-implement-ch35-checkpoints-01`.
+
+## 2026-07-26 - Bind checkpoint metadata and payload to one checksum
+
+**Status:** Accepted during Chapter 35 format review before the checkpoint module was written.
+
+**Context:** The initial Chapter 35 decision described one checked tensor
+payload. A payload-only checksum detects changed values but not a coordinated
+change to a tensor's name, dtype, shape, or absolute offset. Those descriptors
+are exactly what let the loader interpret the values safely.
+
+**Decision:** Compute the version-1 FNV-1a value over the complete canonical file
+with only the checksum field itself treated as zero. Validate magic, version,
+endianness, and declared file extent first, then validate this checksum before
+constructing tokenizer, model, or optimizer state. Keep exact structural checks
+for contiguous monotone spans, checked shape products, dtype byte widths, stable
+roles, and final file coverage. Continue to describe the checksum only as
+accidental-corruption evidence; a writer able to modify both bytes and checksum
+is outside the threat model.
+
+**Consequences:** Header and tensor corruption share one deterministic failure
+boundary, while targeted unsupported-version and wrong-endianness errors remain
+readable. The file stays dependency-free and the offset recurrence now covers
+actual mixed-width tokenizer and floating-point spans without alignment padding.
+
+**Affected step and run:** `implement-ch35-checkpoints`, run
+`20260726T103829Z-implement-ch35-checkpoints-01`.

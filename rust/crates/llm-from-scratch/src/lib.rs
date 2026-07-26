@@ -5,6 +5,7 @@
 //! demo.
 
 pub mod bigram;
+pub mod checkpoint;
 pub mod corpus;
 pub mod data;
 pub mod evaluation;
