@@ -1,0 +1,408 @@
+---
+import traceSource from '../../../../rust/demos/ch33-training-selection/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseTrainingSelectionTrace,
+  trainingSelectionPointPosition,
+  validateTrainingSelectionDiagramLabels,
+  type TrainingSelectionDiagramLabels,
+} from '../../lib/training-selection-diagram';
+
+interface Props {
+  labels: TrainingSelectionDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateTrainingSelectionDiagramLabels(labels);
+const trace = parseTrainingSelectionTrace(traceSource);
+const titleId = 'training-selection-diagram-title';
+const descriptionId = 'training-selection-diagram-description';
+const operationLabels = [
+  labels.operations.forward,
+  labels.operations.backward,
+  labels.operations.finiteCheck,
+  labels.operations.clip,
+  labels.operations.adamwStep,
+  labels.operations.zeroGrad,
+];
+const checkpoints = trace.checkpoints.map((checkpoint, checkpointIndex) => {
+  const step = checkpoint.step ?? '';
+  const trainLoss = checkpoint.train_loss ?? '';
+  const validationLoss = checkpoint.validation_loss ?? '';
+  const selected = checkpoint.selected ?? '';
+  return {
+    checkpointIndex,
+    step,
+    trainLoss,
+    validationLoss,
+    selected,
+    trainPosition: trainingSelectionPointPosition(
+      step,
+      trainLoss,
+      trace.axis,
+      trace.config.updates ?? '',
+    ),
+    validationPosition: trainingSelectionPointPosition(
+      step,
+      validationLoss,
+      trace.axis,
+      trace.config.updates ?? '',
+    ),
+  };
+});
+const axisTicks = trace.axis.ticks.map((value) => ({
+  value,
+  position: trainingSelectionPointPosition('0', value, trace.axis, trace.config.updates).y,
+}));
+const selectedCheckpoint = checkpoints.find((checkpoint) => checkpoint.selected === 'true');
+if (selectedCheckpoint === undefined) {
+  throw new Error('training-selection trace has no selected checkpoint');
+}
+---
+
+<figure
+  class="course-diagram training-selection-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="training-validation-checkpoints"
+  data-no-interpolation="true"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.checkpoints}>
+      <li><span aria-hidden="true">●</span> {labels.cues.trainMeasurement}</li>
+      <li><span aria-hidden="true">◆</span> {labels.cues.validationMeasurement}</li>
+      <li class="selected-cue"><span aria-hidden="true">◎</span> {labels.cues.selectedState}</li>
+      <li><span aria-hidden="true">↔</span> {labels.cues.gapsUnobserved}</li>
+    </ul>
+  </figcaption>
+
+  <section aria-labelledby="training-selection-order-title">
+    <h4 id="training-selection-order-title">{labels.sections.order}</h4>
+    <p>{labels.captions.order}</p>
+    <ol class="operation-list">
+      {operationLabels.map((label, index) => (
+        <li>
+          <article
+            class="operation-card"
+            data-diagram-card
+            data-diagram-box
+            data-operation-order={index + 1}
+          >
+            <span class="state-symbol" aria-hidden="true">{index + 1}</span>
+            <h5>{label}</h5>
+          </article>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section aria-labelledby="training-selection-checkpoints-title">
+    <h4 id="training-selection-checkpoints-title">{labels.sections.checkpoints}</h4>
+    <p>{labels.captions.checkpoints}</p>
+    <div
+      class="checkpoint-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.checkpoints}
+      data-diagram-scroll
+    >
+      <div class="checkpoint-content">
+        <article class="plot-card" data-diagram-card data-diagram-box>
+          <h5>{labels.sections.checkpoints}</h5>
+          <div
+            class="plot-field"
+            role="img"
+            aria-label={`${labels.cues.trainMeasurement}; ${labels.cues.validationMeasurement}; ${labels.cues.gapsUnobserved}`}
+          >
+            {axisTicks.map((tick) => (
+              <span class="grid-rule" style={`--tick-y:${tick.position}`} aria-hidden="true">
+                <span>{tick.value}</span>
+              </span>
+            ))}
+            <ul class="marker-list">
+              {checkpoints.flatMap((checkpoint) => [
+                <li
+                  class="measurement-point train-point"
+                  style={`--point-column:${checkpoint.checkpointIndex};--point-x:${checkpoint.trainPosition.x};--point-y:${checkpoint.trainPosition.y}`}
+                  data-checkpoint-step={checkpoint.step}
+                  data-series="train"
+                  data-loss={checkpoint.trainLoss}
+                  aria-label={`${labels.fields.step} ${checkpoint.step}, ${labels.fields.trainLoss} ${checkpoint.trainLoss}`}
+                >
+                  <span aria-hidden="true">●</span>
+                </li>,
+                <li
+                  class:list={[
+                    'measurement-point',
+                    'validation-point',
+                    { 'selected-point': checkpoint.selected === 'true' },
+                  ]}
+                  style={`--point-column:${checkpoint.checkpointIndex};--point-x:${checkpoint.validationPosition.x};--point-y:${checkpoint.validationPosition.y}`}
+                  data-checkpoint-step={checkpoint.step}
+                  data-series="validation"
+                  data-loss={checkpoint.validationLoss}
+                  data-selected={checkpoint.selected}
+                  aria-label={`${labels.fields.step} ${checkpoint.step}, ${labels.fields.validationLoss} ${checkpoint.validationLoss}, ${checkpoint.selected === 'true' ? labels.cues.selectedState : labels.cues.notSelected}`}
+                >
+                  <span aria-hidden="true">{checkpoint.selected === 'true' ? '◎' : '◆'}</span>
+                </li>,
+              ])}
+            </ul>
+            <ol class="step-axis" aria-label={labels.fields.step}>
+              {checkpoints.map((checkpoint) => <li>{checkpoint.step}</li>)}
+            </ol>
+          </div>
+        </article>
+
+        <table class="checkpoint-table" data-diagram-table>
+          <caption>{labels.scrollers.checkpoints}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{labels.fields.step}</th>
+              <th scope="col">{labels.fields.trainLoss}</th>
+              <th scope="col">{labels.fields.validationLoss}</th>
+              <th scope="col">{labels.fields.selected}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {checkpoints.map((checkpoint) => (
+              <tr
+                class:list={{ 'selected-row': checkpoint.selected === 'true' }}
+                data-checkpoint-row={checkpoint.step}
+                data-selected={checkpoint.selected}
+              >
+                <th scope="row"><InlineMath latex={`s=${checkpoint.step}`} /></th>
+                <td data-series="train" data-loss={checkpoint.trainLoss}>
+                  <InlineMath latex={checkpoint.trainLoss} />
+                </td>
+                <td data-series="validation" data-loss={checkpoint.validationLoss}>
+                  <InlineMath latex={checkpoint.validationLoss} />
+                </td>
+                <td>
+                  <span class="state-symbol" aria-hidden="true">
+                    {checkpoint.selected === 'true' ? '◎' : '—'}
+                  </span>
+                  {checkpoint.selected === 'true' ? labels.cues.selectedState : labels.cues.notSelected}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="training-selection-proof-title">
+    <h4 id="training-selection-proof-title">{labels.sections.proof}</h4>
+    <p>{labels.captions.proof}</p>
+    <div class="proof-grid">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+        <h5>{labels.proofs.selection}</h5>
+        <p><InlineMath latex={`s^*=${selectedCheckpoint.step}`} /></p>
+        <p><InlineMath latex={String.raw`\mathcal{L}_{va}=${selectedCheckpoint.validationLoss}`} /></p>
+        <code><bdi dir="ltr">criterion={trace.selection.criterion}, test_reads={trace.selection.test_reads}</bdi></code>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+        <h5>{labels.proofs.noGrad}</h5>
+        <p><InlineMath latex="0\to0" /> {labels.cues.verified}</p>
+        <code><bdi dir="ltr">graph_nodes_before=0, graph_nodes_after=0</bdi></code>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+        <h5>{labels.proofs.partitions}</h5>
+        <p><code>Train</code> → {labels.operations.forward}</p>
+        <p><code>Validation</code> → {labels.proofs.selection}</p>
+        <p><code>Test</code> → <bdi dir="ltr">test_reads=0</bdi></p>
+      </article>
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+        <h5>{labels.proofs.optimization}</h5>
+        <p>
+          <InlineMath latex={String.raw`\lVert g_s\rVert_2\leq0.35`} />
+          {labels.cues.clipped}
+        </p>
+        <p><InlineMath latex={String.raw`\eta_s\in\{0.040,0.025,0.015,0.008\}`} /></p>
+        <code><bdi dir="ltr">schedule_exact=true, replay_bitwise=true</bdi></code>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .training-selection-diagram,
+  .training-selection-diagram > *,
+  .checkpoint-region,
+  .checkpoint-content,
+  .operation-card,
+  .plot-card,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .operation-list,
+  .marker-list,
+  .step-axis {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .operation-list {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(7.5rem, 1fr));
+    gap: 0.55rem;
+  }
+
+  .operation-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.45rem;
+    align-content: start;
+    justify-items: start;
+    block-size: 100%;
+  }
+
+  .operation-card h5,
+  .plot-card h5,
+  .proof-card h5,
+  .proof-card p {
+    margin: 0;
+  }
+
+  .operation-card h5 {
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+  }
+
+  .checkpoint-content {
+    display: grid;
+    inline-size: max(100%, 52rem);
+    gap: 0.75rem;
+  }
+
+  .plot-card {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .plot-field {
+    position: relative;
+    block-size: 19rem;
+    margin-inline: 4.75rem 1rem;
+    margin-block-end: 2rem;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .grid-rule {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: var(--tick-y);
+    border-block-start: 1px dashed currentColor;
+    opacity: 0.62;
+  }
+
+  .grid-rule > span {
+    position: absolute;
+    inset-inline-end: calc(100% + 0.45rem);
+    inset-block-start: -0.7em;
+    inline-size: 4.25rem;
+    text-align: end;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+
+  .marker-list {
+    position: absolute;
+    inset: 0;
+  }
+
+  .measurement-point {
+    position: absolute;
+    inset-inline-start: calc(var(--point-column) * 20%);
+    inset-block-end: clamp(1.5rem, var(--point-y), calc(100% - 1.5rem));
+    display: grid;
+    inline-size: 20%;
+    place-items: center;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .train-point > span {
+    translate: -0.35rem 0;
+  }
+
+  .validation-point > span {
+    translate: 0.35rem 0;
+  }
+
+  .selected-point > span,
+  .selected-cue {
+    text-decoration-line: underline;
+    text-decoration-style: double;
+    text-decoration-thickness: 0.16rem;
+    text-underline-offset: 0.18rem;
+  }
+
+  .step-axis {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(100% + 0.45rem);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .checkpoint-table {
+    inline-size: 100%;
+    min-inline-size: 46rem;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  .selected-row {
+    font-weight: 750;
+  }
+
+  .selected-row > :last-child {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .proof-card {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+  }
+
+  @container course-diagram (max-width: 48rem) {
+    .operation-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .proof-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .selected-point > span,
+    .selected-cue {
+      text-decoration-style: double;
+    }
+  }
+</style>

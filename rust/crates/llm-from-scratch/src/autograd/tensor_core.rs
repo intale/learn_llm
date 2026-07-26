@@ -1,6 +1,6 @@
 //! A dependency-free reverse-mode tape for owned tensors.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fmt;
@@ -17,6 +17,50 @@ use crate::tensor::storage::{Tensor, TensorError};
 use crate::tensor::view::{TensorView, TensorViewError};
 
 type NodeKey = *const RefCell<Node>;
+
+// region:no-grad-scope
+thread_local! {
+    static NO_GRAD_DEPTH: Cell<usize> = const { Cell::new(0) };
+}
+
+struct NoGradGuard;
+
+impl Drop for NoGradGuard {
+    fn drop(&mut self) {
+        NO_GRAD_DEPTH.with(|depth| {
+            depth.set(
+                depth
+                    .get()
+                    .checked_sub(1)
+                    .expect("a no-grad guard must balance one entered scope"),
+            );
+        });
+    }
+}
+
+fn no_grad_active() -> bool {
+    NO_GRAD_DEPTH.with(|depth| depth.get() != 0)
+}
+
+/// Runs `operation` without recording reverse-mode parent edges.
+///
+/// The scope is thread-local, nestable, and restored even if `operation`
+/// unwinds. Forward arithmetic and finite-value checks are unchanged, but every
+/// result created inside the scope is untracked and cannot mutate parameter
+/// gradients through `backward`.
+pub fn no_grad<T>(operation: impl FnOnce() -> T) -> T {
+    NO_GRAD_DEPTH.with(|depth| {
+        depth.set(
+            depth
+                .get()
+                .checked_add(1)
+                .expect("no-grad nesting depth must fit usize"),
+        );
+    });
+    let _guard = NoGradGuard;
+    operation()
+}
+// endregion:no-grad-scope
 
 /// The tensor operation represented by one tape node.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -456,10 +500,13 @@ impl TensorValue {
     fn operation_node(
         value: Tensor,
         operation: TensorOperation,
-        parents: Vec<ParentEdge>,
+        mut parents: Vec<ParentEdge>,
     ) -> Result<Self, TensorAutodiffError> {
         check_finite_forward(&value, operation)?;
-        let tracked = parents.iter().any(|edge| edge.parent.tracks_gradient());
+        let tracked = !no_grad_active() && parents.iter().any(|edge| edge.parent.tracks_gradient());
+        if no_grad_active() {
+            parents.clear();
+        }
         Ok(Self::new_node(value, operation, parents, tracked, None))
     }
 
@@ -1638,6 +1685,34 @@ mod tests {
                 operation: TensorOperation::Multiply,
             })
         );
+    }
+
+    #[test]
+    fn no_grad_is_graph_free_nestable_and_restored_after_unwind() {
+        let parameter = TensorValue::parameter(tensor(&[2], &[1.0, 2.0])).unwrap();
+        let untracked = no_grad(|| no_grad(|| parameter.mul(&parameter).unwrap()));
+
+        assert_eq!(untracked.operation(), TensorOperation::Multiply);
+        assert!(!untracked.tracks_gradient());
+        assert_eq!(untracked.topology().unwrap().len(), 1);
+        assert_eq!(parameter.gradient().unwrap().as_slice(), [0.0, 0.0]);
+        assert_eq!(
+            untracked.backward(),
+            Err(TensorAutodiffError::UntrackedOutput {
+                operation: TensorOperation::Multiply,
+            })
+        );
+
+        let panic = std::panic::catch_unwind(|| no_grad(|| panic!("no-grad unwind probe")));
+        assert!(panic.is_err());
+
+        let tracked = parameter.mul(&parameter).unwrap();
+        assert!(tracked.tracks_gradient());
+        let seed = tensor(&[2], &[1.0, 1.0]);
+        tracked
+            .backward_with_seed(&seed.view(), GraphRetention::Release)
+            .unwrap();
+        assert_eq!(parameter.gradient().unwrap().as_slice(), [2.0, 4.0]);
     }
 
     #[test]

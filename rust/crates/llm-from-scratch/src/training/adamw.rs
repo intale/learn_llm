@@ -74,6 +74,18 @@ impl AdamWConfig {
     pub const fn weight_decay(self) -> f64 {
         self.weight_decay
     }
+
+    /// Revalidates only the scheduled learning rate while preserving AdamW's
+    /// moment and decay controls.
+    pub fn with_learning_rate(self, learning_rate: f64) -> Result<Self, AdamWError> {
+        Self::new(
+            learning_rate,
+            self.beta1,
+            self.beta2,
+            self.epsilon,
+            self.weight_decay,
+        )
+    }
 }
 // endregion:adamw-configuration
 
@@ -477,6 +489,7 @@ impl AdamWParameterUpdate {
 #[derive(Clone, Debug, PartialEq)]
 pub struct AdamWStep {
     step: u64,
+    learning_rate: f64,
     first_correction: f64,
     second_correction: f64,
     updates: Vec<AdamWParameterUpdate>,
@@ -485,6 +498,10 @@ pub struct AdamWStep {
 impl AdamWStep {
     pub const fn step(&self) -> u64 {
         self.step
+    }
+
+    pub const fn learning_rate(&self) -> f64 {
+        self.learning_rate
     }
 
     pub const fn first_correction(&self) -> f64 {
@@ -560,6 +577,20 @@ impl AdamW {
     /// optimizer bit-identical. A successful replacement creates fresh
     /// trainable leaves, so the consumed gradients restart at exact zero.
     pub fn step(&mut self, parameters: &mut [NamedParameter]) -> Result<AdamWStep, AdamWError> {
+        self.step_with_learning_rate(parameters, self.config.learning_rate)
+    }
+
+    /// Applies one validated scheduled learning rate without resetting moments.
+    ///
+    /// The override belongs only to this update; `config()` keeps the optimizer's
+    /// base rate. An invalid rate or any later preparation error leaves the
+    /// parameters, moments, powers, and step counter unchanged.
+    pub fn step_with_learning_rate(
+        &mut self,
+        parameters: &mut [NamedParameter],
+        learning_rate: f64,
+    ) -> Result<AdamWStep, AdamWError> {
+        let step_config = self.config.with_learning_rate(learning_rate)?;
         let actual_names = validate_parameter_names(parameters)?;
         if let Some(groups) = &self.groups {
             let expected_names = groups.parameter_names();
@@ -571,8 +602,8 @@ impl AdamW {
             }
         }
         let next_step = self.step.checked_add(1).ok_or(AdamWError::StepOverflow)?;
-        let next_beta1_power = self.beta1_power * self.config.beta1;
-        let next_beta2_power = self.beta2_power * self.config.beta2;
+        let next_beta1_power = self.beta1_power * step_config.beta1;
+        let next_beta2_power = self.beta2_power * step_config.beta2;
         let first_correction = 1.0 - next_beta1_power;
         let second_correction = 1.0 - next_beta2_power;
 
@@ -630,7 +661,7 @@ impl AdamW {
 
             let update = prepare_parameter_update(
                 AdamWPreparation {
-                    config: self.config,
+                    config: step_config,
                     decay_applied: self
                         .groups
                         .as_ref()
@@ -658,6 +689,7 @@ impl AdamW {
 
         Ok(AdamWStep {
             step: next_step,
+            learning_rate,
             first_correction,
             second_correction,
             updates,
@@ -921,6 +953,7 @@ mod tests {
         let update = &step.updates()[0];
 
         assert_eq!(step.step(), 1);
+        assert_eq!(step.learning_rate(), 0.1);
         assert_close(&[step.first_correction()], &[0.5]);
         assert_close(&[step.second_correction()], &[0.5]);
         assert_close(update.first_moment(), &[0.1, -0.2]);
@@ -937,6 +970,45 @@ mod tests {
             &[0.0, 0.0],
         );
         assert!(!old_leaf.is_same_node(parameters[0].tensor()));
+    }
+
+    #[test]
+    fn scheduled_rates_preserve_moments_and_invalid_overrides_are_transactional() {
+        let mut parameters = vec![parameter("decoder.weight", &[1], &[1.0])];
+        seed_gradient(&parameters[0], &[0.25]);
+        let mut optimizer = AdamW::new(fixture_config());
+
+        let first = optimizer
+            .step_with_learning_rate(&mut parameters, 0.2)
+            .unwrap();
+        assert_eq!(first.learning_rate(), 0.2);
+        assert_eq!(optimizer.config().learning_rate(), 0.1);
+        assert_eq!(optimizer.step_count(), 1);
+        assert_close(
+            optimizer.state("decoder.weight").unwrap().first_moment(),
+            &[0.125],
+        );
+
+        seed_gradient(&parameters[0], &[-0.5]);
+        let second = optimizer
+            .step_with_learning_rate(&mut parameters, 0.05)
+            .unwrap();
+        assert_eq!(second.learning_rate(), 0.05);
+        assert_eq!(optimizer.config().learning_rate(), 0.1);
+        assert_eq!(optimizer.step_count(), 2);
+        assert_close(
+            optimizer.state("decoder.weight").unwrap().first_moment(),
+            &[-0.1875],
+        );
+
+        let optimizer_before = optimizer.clone();
+        let leaf_before = parameters[0].tensor().clone();
+        assert!(matches!(
+            optimizer.step_with_learning_rate(&mut parameters, f64::NAN),
+            Err(AdamWError::InvalidLearningRate { .. })
+        ));
+        assert_eq!(optimizer, optimizer_before);
+        assert!(parameters[0].tensor().is_same_node(&leaf_before));
     }
 
     #[test]

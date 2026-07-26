@@ -1,0 +1,8 @@
+[package]
+name = "ch33-training-selection"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }

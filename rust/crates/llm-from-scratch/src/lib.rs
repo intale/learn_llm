@@ -29,6 +29,7 @@ pub mod models {
 pub mod training {
     pub mod adamw;
     pub mod batch;
+    pub mod trainer;
 }
 
 /// Numerical gradient checks and reverse-mode differentiation.

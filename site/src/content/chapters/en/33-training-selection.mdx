@@ -1,0 +1,570 @@
+---
+{
+  "chapter_id": "33-training-selection",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 33,
+  "concept_id": "training-selection",
+  "title": "Train every step, select with validation",
+  "description": "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.",
+  "objective": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data.",
+  "worked_inputs": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
+  "formula":
+    {
+      "latex": "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^\\*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+      "symbols":
+        [
+          {
+            "symbol": "\\theta_s",
+            "meaning": "the complete stable-name decoder parameter state before update step s"
+          },
+          {
+            "symbol": "s",
+            "meaning": "a planned update or measured checkpoint index; step zero is the initialized model"
+          },
+          {
+            "symbol": "\\mathcal{L}_{tr}",
+            "meaning": "next-token loss computed only from the training partition"
+          },
+          {
+            "symbol": "\\nabla_\\theta\\mathcal{L}_{tr}",
+            "meaning": "the finite decoder gradient, globally clipped before the optimizer consumes it"
+          },
+          {
+            "symbol": "\\operatorname{AdamW}",
+            "meaning": "the Chapter 22 optimizer, preserving moments while using the predetermined learning rate for this step and returning fresh zero-gradient leaves"
+          },
+          {
+            "symbol": "s^*",
+            "meaning": "the selected checkpoint step, with the earliest checkpoint retained on an exact tie"
+          },
+          {
+            "symbol": "\\mathcal{L}_{va}",
+            "meaning": "the token-weighted graph-free loss on the validation partition, never the test partition"
+          }
+        ]
+    },
+  "history":
+    {
+      "llm_evolution":
+        {
+          "predecessor_kind": "training-practice",
+          "limitation": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states.",
+          "later_advance": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection.",
+          "modern_llm_role": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for a later once-only evaluation.",
+          "sources":
+            [
+              {
+                "role": "earlier",
+                "year": 2003,
+                "name": "A Neural Probabilistic Language Model",
+                "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+                "claim": "Bengio and colleagues separate training, validation, and test text, explicitly associate validation with model selection and early stopping, and describe stochastic per-example parameter updates for a feed-forward neural language model."
+              },
+              {
+                "role": "earlier",
+                "year": 2014,
+                "name": "Sequence to Sequence Learning with Neural Networks",
+                "source_url": "https://arxiv.org/pdf/1409.3215",
+                "claim": "Sutskever, Vinyals, and Le report batches of sequences, a predetermined learning-rate reduction policy, and rescaling when the global gradient norm crosses a fixed threshold in a recurrent sequence model."
+              },
+              {
+                "role": "later",
+                "year": 2017,
+                "name": "Attention Is All You Need",
+                "source_url": "https://arxiv.org/pdf/1706.03762",
+                "claim": "Vaswani and colleagues train Transformers with token-budgeted batches, a step-indexed warmup and inverse-square-root schedule, and periodically written checkpoints."
+              },
+              {
+                "role": "later",
+                "year": 2020,
+                "name": "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
+                "source_url": "https://www.jmlr.org/papers/volume21/20-074/20-074.pdf",
+                "claim": "Raffel and colleagues save fine-tuning checkpoints at a fixed cadence, choose the one with the best validation performance, and explicitly avoid using the test set for model selection."
+              },
+              {
+                "role": "later",
+                "year": 2020,
+                "name": "Language Models are Few-Shot Learners",
+                "source_url": "https://arxiv.org/pdf/2005.14165",
+                "claim": "Brown and colleagues carry Adam, scheduled learning rates, token-based batch scaling, and global-gradient-norm clipping into decoder-only language-model training at GPT-3 scale."
+              }
+            ]
+        },
+      "approach": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while a separate test partition stays unopened.",
+      "summary": "The road to modern LLM training combines partition discipline with reproducible batches, finite gradients, norm control, an explicit learning-rate schedule, periodic graph-free validation, and checkpoint selection. These papers use different architectures and recipes, so the course's fixed seed, exact cadence, and earliest-tie rule are local teaching choices rather than universal practice.",
+      "rust_source": "rust/demos/ch33-training-selection/src/lib.rs"
+    },
+  "rust_sources":
+    [
+      {
+        "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
+        "region": "training-plan",
+        "purpose": "Declare the exact update order, one rate per update, validation cadence, and clipping ceiling before any model state can change."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
+        "region": "no-grad-evaluation",
+        "purpose": "Measure token-weighted epoch loss without recording parent edges or changing any parameter gradient bits."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/training/trainer.rs",
+        "region": "complete-training-loop",
+        "purpose": "Execute every scheduled update, measure declared checkpoints, and restore the earliest validation minimum."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
+        "region": "transactional-adamw-step",
+        "purpose": "Apply each scheduled rate transactionally while preserving Adam moments and returning fresh parameter leaves."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
+        "region": "no-grad-scope",
+        "purpose": "Disable tape recording in a nestable, panic-safe scope while retaining ordinary forward checks."
+      },
+      {
+        "path": "rust/crates/llm-from-scratch/src/models/decoder.rs",
+        "region": "decoder-parameter-rebuild",
+        "purpose": "Rebind every decoder component to the optimizer's fresh stable-name leaves after an update."
+      },
+      {
+        "path": "rust/demos/ch33-training-selection/src/lib.rs",
+        "region": "historical-selection-contrast",
+        "purpose": "Contrast a training-only choice with an independent validation choice without recreating a historical architecture."
+      },
+      {
+        "path": "rust/demos/ch33-training-selection/src/lib.rs",
+        "region": "learner-evidence",
+        "purpose": "Run the bounded fixture twice and collect selection, clipping, ownership, graph, and replay evidence."
+      },
+      {
+        "path": "rust/demos/ch33-training-selection/src/main.rs",
+        "purpose": "Print only the frozen learner report."
+      },
+      {
+        "path": "rust/demos/ch33-training-selection/src/diagram_trace.rs",
+        "region": "training-selection-trace",
+        "purpose": "Serialize the exact update, checkpoint, axis, selection, and proof records consumed by the static figure."
+      }
+    ],
+  "visualization":
+    {
+      "decision": "useful",
+      "id": "training-validation-checkpoints",
+      "rationale": "A discrete checkpoint plot makes train and validation measurements comparable without inventing values between observations, while the selected validation marker and operation-order cards expose why the chosen state is evidence rather than simply the last update."
+    },
+  "decoder_connection": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will score that state once on the test partition and compare it fairly with the frozen baseline."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import TrainingSelectionDiagram from "../../../components/chapters/TrainingSelectionDiagram.astro";
+
+export const diagramLabels = {
+  title: "Separate updates from validation-based selection",
+  description:
+    "Follow six ordered operations through eight Rust-authored updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
+  sections: {
+    order: "One successful update has six ordered operations",
+    checkpoints: "Measure candidates only at declared checkpoints",
+    proof: "Keep optimization, selection, and test evidence separate",
+  },
+  operations: {
+    forward: "Training forward",
+    backward: "Backward and release",
+    finiteCheck: "Finite-gradient check",
+    clip: "Global-norm clip",
+    adamwStep: "Scheduled AdamW step",
+    zeroGrad: "Confirm fresh zero gradients",
+  },
+  fields: {
+    step: "Step",
+    trainLoss: "Training loss",
+    validationLoss: "Validation loss",
+    selected: "Selected state",
+    learningRate: "Learning rate",
+    rawNorm: "Raw gradient norm",
+    clippedNorm: "Clipped gradient norm",
+  },
+  cues: {
+    trainMeasurement: "Circle: measured training loss",
+    validationMeasurement: "Diamond: measured validation loss",
+    selectedState: "Double underline: selected validation state",
+    gapsUnobserved: "Gaps contain no measured values or interpolated line",
+    clipped: "Clipped before the optimizer step",
+    notSelected: "Not selected",
+    verified: "Verified by the Rust trace",
+  },
+  proofs: {
+    selection: "Earliest validation minimum",
+    noGrad: "Validation records no graph",
+    partitions: "Partition information boundary",
+    optimization: "Clipping, schedule, and replay",
+  },
+  captions: {
+    order:
+      "The trainer releases the backward graph, checks every gradient, clips once across the complete decoder, applies the predetermined rate, and verifies the replacement leaves are clear.",
+    checkpoints:
+      "The table and markers preserve six-decimal Rust lexemes. Only observations at steps 0, 2, 4, 6, and 8 exist; their visual spacing is presentation, not new arithmetic.",
+    proof:
+      "Validation can choose a snapshot but cannot update it, and the test partition remains unread until the next chapter.",
+  },
+  scrollers: {
+    checkpoints: "Scrollable training and validation checkpoint evidence",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Plan every update before you train
+
+Run every step of a bounded decoder training plan, measure graph-free validation
+loss at fixed checkpoints, and restore the earliest validation minimum without
+consulting test data. The worked fixture trains the one-block decoder from the
+previous chapter: vocabulary size $V=5$, residual width
+$d_{\mathrm{model}}=4$, two attention heads, feed-forward width
+$d_{\mathrm{ff}}=4$, context length $T=2$, and $144$ trainable scalars.
+
+Train a deterministic one-block, 144-parameter decoder for eight fixed
+mini-batch updates with an explicit four-segment learning-rate schedule,
+global-norm clipping at $0.35$, and validation measurements at steps
+$0,2,4,6,8$. Before executing the first forward pass, the trainer already owns
+all of these decisions:
+
+1. the update batches come only from `Train` and have fixed order;
+2. every planned update has one finite positive learning rate;
+3. each successful update uses `forward>backward>finite-check>clip>adamw-step>zero-grad`;
+4. both reported losses are token-weighted means measured without a graph;
+5. only `Validation` may select a state, while `Test` is rejected here.
+
+The schedule is
+
+$$
+(\eta_1,\ldots,\eta_8)
+=(0.040,0.040,0.025,0.025,0.015,0.015,0.008,0.008).
+$$
+
+All eight steps execute. Validation does not stop the run early. In this
+fixture, the five validation losses are
+
+$$
+(1.918167,1.696310,1.687788,1.642599,1.595297),
+$$
+
+so the selected snapshot is $s^*=8$. That happens to be the final planned
+state in this fixture; the selection rule itself does not prefer the last state.
+
+{/* chapter-section:formula */}
+
+## Update on train, choose on validation
+
+The complete boundary is
+
+$$
+\theta_{s+1}=\operatorname{AdamW}\!\left(\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)\right),\quad s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s)
+$$
+
+The two losses have different jobs. The gradient comes from
+$\mathcal{L}_{tr}$ and changes the parameters. The value
+$\mathcal{L}_{va}$ is measured after selected update counts and may replace
+the saved candidate, but it is never differentiated and never updates the
+decoder.
+
+For a raw gradient $g_s$ and ceiling $c=0.35$, the trainer applies one global
+scale across every parameter tensor:
+
+$$
+\alpha_s=\min\!\left(1,\frac{c}{\lVert g_s\rVert_2}\right),
+\qquad \widetilde g_s=\alpha_s g_s.
+$$
+
+The scheduled optimizer call is therefore more explicitly
+
+$$
+\theta_{s+1}=\operatorname{AdamW}_{\eta_s}
+\!\left(\theta_s,\widetilde g_s,m_s,v_s\right),
+$$
+
+where the rate $\eta_s$ changes at declared boundaries while the moment states
+$m_s$ and $v_s$ continue across those boundaries.
+
+Validation averages by predicted-token count, not by number of batches. If
+validation batch $j$ contains $n_j$ target tokens and has mean loss
+$\mathcal{L}^{(j)}_{va}$, then
+
+$$
+\mathcal{L}_{va}
+=\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}.
+$$
+
+On an exact tie, strict comparison retains the earlier candidate. Equivalently,
+
+$$
+s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)
+=\min_k\mathcal{L}_{va}(\theta_k)\right\}.
+$$
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep steps, gradients, and partitions distinct
+
+- $\theta_s$ is the complete stable-name decoder state before update $s$.
+- $s=0$ names the initialized state; $s\geq1$ names completed updates.
+- $\mathcal{L}_{tr}$ is next-token loss from the training partition only.
+- $g_s=\nabla_\theta\mathcal{L}_{tr}(\theta_s)$ is the raw finite gradient.
+- $\widetilde g_s$ is the globally clipped gradient consumed by AdamW.
+- $\eta_s$ is the predetermined learning rate for update $s$.
+- $m_s$ and $v_s$ are Adam's continuing first- and second-moment states.
+- $\mathcal{L}_{va}$ is graph-free validation loss used only for selection.
+- $s^*$ is the earliest measured validation minimum.
+
+The names `Train`, `Validation`, and `Test` are concrete `Partition` variants in
+the program. In the explanation, their roles are conceptual: training fits,
+validation selects, and test evaluates once after selection. A lower training
+loss cannot substitute for held-out validation evidence.
+
+Fresh optimizer outputs create an ownership issue as well. AdamW returns new
+parameter leaves. The decoder's embedding, block, normalization, and tied
+projection handles must all be rebuilt from those same leaves before the next
+forward pass. Merely replacing a separate registry would leave the component
+handles pointing at stale parameters.
+
+{/* chapter-section:history */}
+
+## From training-only reports to validation-selected LLM checkpoints
+
+Move from fitting and reporting one training state toward predetermined
+mini-batch updates that produce periodic validation candidates while a separate
+test partition stays unopened. This is a history of the training practices on
+the road to modern LLMs, not a history of implementation languages.
+
+[A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+provides an early neural-language-model boundary. Bengio and colleagues
+separate training, validation, and test text, explicitly associate validation
+with model selection and early stopping, and describe stochastic per-example
+parameter updates for a feed-forward neural language model. Full-corpus or
+per-example updates and training-set-only reporting do not by themselves define
+a scalable update cadence or an independent rule for choosing among candidate
+language-model states.
+
+[Sequence to Sequence Learning with Neural Networks](https://arxiv.org/pdf/1409.3215)
+adds practical sequence-training controls. Sutskever, Vinyals, and Le report
+batches of sequences, a predetermined learning-rate reduction policy, and
+rescaling when the global gradient norm crosses a fixed threshold in a
+recurrent sequence model.
+
+[Attention Is All You Need](https://arxiv.org/pdf/1706.03762) carries those
+ideas into the Transformer era. Vaswani and colleagues train Transformers with
+token-budgeted batches, a step-indexed warmup and inverse-square-root schedule,
+and periodically written checkpoints. Their reported checkpoint averaging is
+not the validation-minimum selection rule implemented here.
+
+[Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf)
+makes the selection boundary explicit. Raffel and colleagues save fine-tuning
+checkpoints at a fixed cadence, choose the one with the best validation
+performance, and explicitly avoid using the test set for model selection.
+
+[Language Models are Few-Shot Learners](https://arxiv.org/pdf/2005.14165)
+connects the controls to decoder-only scale. Brown and colleagues carry Adam,
+scheduled learning rates, token-based batch scaling, and global-gradient-norm
+clipping into decoder-only language-model training at GPT-3 scale.
+
+Neural language-model work separated train, validation, and test
+responsibilities; sequence and Transformer systems added mini-batches, explicit
+schedules, clipping, and periodic candidates; later text-to-text work stated
+that validation chooses a checkpoint so test data does not perform model
+selection. Decoder-only LLM training repeatedly forms token batches,
+differentiates the training objective, controls gradient magnitude, applies a
+step schedule, and measures held-out validation candidates while reserving test
+evidence for a later once-only evaluation.
+
+These papers use different architectures and recipes. The course's fixed seed,
+exact cadence, eight-step budget, and earliest-tie rule are local teaching
+choices, not universal properties of LLM training. The small runnable contrast
+shows why the selection signal matters: a training-only trace chooses its final
+entry, while a held-out validation trace can choose an earlier one.
+
+<RustSource
+  path="rust/demos/ch33-training-selection/src/lib.rs"
+  region="historical-selection-contrast"
+  caption="Contrast selection by training loss with selection by an independent validation trace"
+  label="Rust source for the Chapter 33 LLM-training history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Make the cumulative training boundary explicit in Rust
+
+`LearningRateSchedule` stores exactly one finite positive rate per update.
+`TrainerConfig` requires validation at $s=0$, strictly increasing checkpoint
+steps, a final checkpoint after the last update, and one positive finite global
+norm ceiling. The operation order is data, not an implication hidden inside a
+loop.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/trainer.rs"
+  region="training-plan"
+  caption="Validate the complete schedule, checkpoint cadence, clipping ceiling, and update order before execution"
+  label="Rust source declaring the Chapter 33 training plan"
+/>
+
+Graph-free evaluation needs a real tape boundary. Calling `value` or `detach`
+after a forward pass would be too late because the intermediate graph would
+already exist. The thread-local `no_grad` scope suppresses parent edges as each
+operation is created, supports nesting, and restores recording during unwinding.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+  region="no-grad-scope"
+  caption="Suppress reverse-mode parent edges in a nestable and panic-safe scope"
+  label="Rust source implementing Chapter 33 graph-free evaluation support"
+/>
+
+`evaluate_no_grad` computes a token-weighted epoch mean and proves that every
+result is untracked. It snapshots gradient bits before evaluation and rejects
+the call if any bit changes.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/trainer.rs"
+  region="no-grad-evaluation"
+  caption="Measure token-weighted loss without recording a graph or changing gradients"
+  label="Rust source implementing Chapter 33 graph-free epoch evaluation"
+/>
+
+The scheduled AdamW boundary validates the temporary rate before mutation,
+continues the existing moments and step counter, and commits only after the
+candidate update succeeds.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/adamw.rs"
+  region="transactional-adamw-step"
+  caption="Apply one predetermined learning rate while preserving optimizer state transactionally"
+  label="Rust source applying Chapter 33 scheduled AdamW updates"
+/>
+
+Because AdamW replaces leaves, `DecoderModel::from_parameters` reconstructs
+every component from one exact stable-order parameter vector. It rejects count,
+name, and component-shape drift, and it preserves one genuinely tied embedding
+leaf for both lookup and output projection.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/models/decoder.rs"
+  region="decoder-parameter-rebuild"
+  caption="Rebuild every decoder handle from the optimizer's fresh stable-name leaves"
+  label="Rust source reconnecting the Chapter 33 decoder after each optimizer step"
+/>
+
+`train_decoder` first rejects the wrong partitions and incompatible epochs. It
+then deep-copies the caller's model, executes all scheduled updates, measures
+only declared checkpoints, replaces the selected snapshot only on strict loss
+improvement, and restores that snapshot at the end. The caller's model and
+optimizer remain unchanged even on failure.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/trainer.rs"
+  region="complete-training-loop"
+  caption="Execute every update and restore the earliest validation minimum without consulting test data"
+  label="Rust source implementing the complete Chapter 33 training loop"
+/>
+
+The deterministic fixture runs the complete plan twice, checks bitwise replay,
+confirms clipping occurred, proves evaluation recorded no graphs, and verifies
+that the selected model reproduces the saved parameter bits.
+
+<RustSource
+  path="rust/demos/ch33-training-selection/src/lib.rs"
+  region="learner-evidence"
+  caption="Collect clipping, graph, ownership, selection, and replay evidence from two complete runs"
+  label="Rust source collecting Chapter 33 learner evidence"
+/>
+
+<RustSource
+  path="rust/demos/ch33-training-selection/src/main.rs"
+  caption="Print only the frozen Chapter 33 learner report"
+  label="Rust entry point for the Chapter 33 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch33-training-selection`. Standard output
+matches `rust/demos/ch33-training-selection/expected.txt` byte for byte,
+including its final newline. The two-run fixture must also finish inside the
+declared ten-second local ceiling.
+
+{/* chapter-section:visualization */}
+
+## Read measured checkpoints without inventing a curve
+
+The trace executable serializes the fixed configuration, six-operation order,
+four schedule segments, all eight update records, a Rust-authored plot axis,
+five checkpoint pairs, one selection record, and proof flags. The page parses
+that grammar strictly and presents the lexemes; it performs no model or tensor
+arithmetic.
+
+<RustSource
+  path="rust/demos/ch33-training-selection/src/diagram_trace.rs"
+  region="training-selection-trace"
+  caption="Emit the strict twenty-five-line training and validation selection trace"
+  label="Rust source producing the Chapter 33 static diagram trace"
+/>
+
+<TrainingSelectionDiagram labels={diagramLabels} />
+
+There are ten isolated markers: one training and one validation observation at
+each of five checkpoints. No segment joins them. A line would imply values at
+unmeasured steps, so the exact table remains the authoritative comparison.
+
+At $s=0$, the losses are $2.095016$ and $1.918167$. At $s=8$, they are
+$1.322897$ and $1.595297$. The double-underlined validation marker identifies
+$s^*=8$ because $1.595297$ is the smallest measured validation loss. The
+selection record also says `criterion=validation-only`, `snapshot=true`, and
+`test_reads=0`.
+
+Every update in this particular fixture has raw gradient norm above $0.35$ and
+therefore reaches AdamW with norm $0.35$. That observation is fixture evidence,
+not a requirement that all real LLM updates clip. The generic trainer also
+accepts finite gradients already below the ceiling.
+
+{/* chapter-section:exercises */}
+
+## Test the information boundary and state ownership
+
+1. Change the update epoch from `Train` to `Test`. Predict which preflight error
+   occurs and why neither the caller's decoder nor optimizer may change.
+2. Replace checkpoint steps $[0,2,4,6,8]$ with $[0,2,4,6]$. Explain why a
+   final candidate is required after all planned updates.
+3. Construct validation losses $[1.8,1.6,1.6]$. Predict which checkpoint strict
+   comparison retains and relate it to the definition of $s^*$.
+4. Average two batch means without token weights when their token counts differ.
+   Compare that result with the token-weighted formula above.
+5. Replace only the parameter registry after AdamW and leave component handles
+   untouched. Identify which state the next decoder forward would use.
+6. Draw a line between the five validation markers. List the unmeasured claims
+   that line introduces, then remove it and recover the discrete evidence.
+
+<details>
+  <summary>Check your reasoning</summary>
+
+  1. `Test` is rejected before a forward pass because it cannot update or
+     select.
+  2. The checkpoint schedule must include the final planned update so every
+     completed run has a final candidate.
+  3. The first loss equal to the minimum wins because replacement uses strict
+     less-than comparison.
+  4. Batch means need weights proportional to their predicted-token counts.
+  5. Stale component handles would execute the old leaves even if a separate
+     registry held new values.
+  6. Only the ten measured markers and exact table are justified; values
+     between checkpoints remain unknown.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Freeze the selected decoder for one test pass
+
+The cumulative decoder can now execute a complete bounded training plan and
+return a frozen validation-selected state; Chapter 34 will score that state once
+on the test partition and compare it fairly with the frozen baseline.
+
+That next step must not tune the schedule, clipping ceiling, number of updates,
+or checkpoint choice after seeing test results. Chapter 33 ends with model
+selection complete and `test_reads=0`; Chapter 34 will open the held-out test
+partition exactly once for evaluation rather than selection.

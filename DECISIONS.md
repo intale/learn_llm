@@ -6222,3 +6222,68 @@ committable before Chapter 33 begins.
 
 **Affected step and run:** `implement-ch32-decoder-model`, run
 `20260726T055601Z-implement-ch32-decoder-model-01`.
+
+## 2026-07-26 - Register Chapter 33's trainable boundary and LLM-history evidence
+
+**Status:** Accepted during preflight before Chapter 33 product files were edited.
+
+**Context:** The scheduled outputs name a trainer, lesson, diagram, and focused
+tests, but the completed decoder keeps component handles alongside a cloned
+parameter registry while AdamW replaces registry leaves. Stepping a copied
+registry would therefore leave the forward components stale. AdamW also exposes
+one fixed learning rate, the tape has no graph-free validation scope, and the
+repository-wide diagram/formula gates enumerate every published chapter. The
+original cost note still requested a resource approval pause, contrary to the
+user's standing instruction and the current orchestration rule that cost alone
+does not require one.
+
+**Decision:** Expand `implement-ch33-training-selection` before product work to
+include the decoder reconstruction boundary, the minimal scheduled/clipped
+AdamW integration, graph-free tensor evaluation support, a strict locale-neutral
+training-trace parser, both aggregate diagram/formula registry pairs, and the
+Chapter 32-to-33 navigation evidence. Preserve one complete English active
+locale set and no Russian placeholder. Bound historical research to the primary
+Bengio neural language-model paper, the Sutskever sequence-to-sequence paper,
+the Transformer paper, the T5 paper, and the GPT-3 paper. Use them only for the
+road through partition discipline, stochastic or mini-batch updates, schedules,
+clipping, periodic candidates, validation-only selection, and decoder-scale
+optimization. Treat fixed seeds, exact ordering, earliest-on-tie selection, and
+the tiny fixture as local reproducibility choices; never substitute
+programming-language history or claim one recipe is universal.
+
+**Consequences:** Chapter 33 must prove that parameter replacement reaches the
+model used by the next forward pass, validation produces no gradient graph or
+parameter mutation, test data cannot enter selection, and all exact values come
+from Rust. The medium local CPU work proceeds without another cost prompt. No
+concept-implementing dependency, paid service, generation service, runtime
+server, deployment change, locale activation, shared diagram skin, or Linux
+build change is introduced.
+
+**Affected step and run:** `implement-ch33-training-selection`, run
+`20260726T071419Z-implement-ch33-training-selection-01`.
+
+## 2026-07-26 - Replay wall-clock-bounded Rust gates without browser contention
+
+**Status:** Accepted during Chapter 33 canonical validation.
+
+**Context:** The first canonical replay ran the full Rust workspace beside the
+complete Chromium suite. Chapter 23's deterministic computation produced its
+normal evidence, but its existing elapsed-time assertion crossed 60 seconds
+under that artificial CPU contention. The same frozen Rust tree had passed
+before publication and passed again in 47.38 seconds when replayed alone.
+
+**Decision:** Treat full-workspace Rust tests that contain explicit wall-clock
+ceilings and the complete multi-worker browser suite as mutually exclusive
+validation phases on this host. Preserve the failed contention result in the
+run ledger, then require an uncontended successful replay; do not weaken the
+existing timing assertion or change product/build files to accommodate an
+orchestration artifact.
+
+**Consequences:** Chapter 33 retains the exact checksum-frozen implementation
+and all declared acceptance gates. Future runs on this host should schedule
+these two CPU-heavy regression groups sequentially when an existing test uses a
+wall-clock bound. This changes no learner behavior, dependency, deployment,
+runtime architecture, or Linux build.
+
+**Affected step and run:** `implement-ch33-training-selection`, run
+`20260726T071419Z-implement-ch33-training-selection-01`.

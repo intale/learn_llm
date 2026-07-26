@@ -24,7 +24,7 @@ const chapter08To13Files = [
   "12-stable-softmax.mdx",
   "13-gradient-checking.mdx",
 ] as const;
-const chapter14To32Files = [
+const chapter14To33Files = [
   "14-scalar-autodiff.mdx",
   "15-tensor-autodiff-core.mdx",
   "16-model-autodiff-ops.mdx",
@@ -44,6 +44,7 @@ const chapter14To32Files = [
   "30-multi-head-attention.mdx",
   "31-decoder-block.mdx",
   "32-decoder-model.mdx",
+  "33-training-selection.mdx",
 ] as const;
 const locales = ["en", "ru"] as const;
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
@@ -305,7 +306,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To32Math: Record<string, readonly string[]> = {
+const requiredChapter14To33Math: Record<string, readonly string[]> = {
   "14": [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -419,9 +420,16 @@ const requiredChapter14To32Math: Record<string, readonly string[]> = {
     String.raw`\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}`,
     String.raw`\tau=2\times10^{-5}`,
   ],
+  "33": [
+    String.raw`\theta_{s+1}=\operatorname{AdamW}`,
+    String.raw`s^\*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
+    String.raw`\widetilde g_s=\alpha_s g_s`,
+    String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
+    String.raw`s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)`,
+  ],
 };
 
-const formerChapter14To32MathCodeSpans = [
+const formerChapter14To33MathCodeSpans = [
   "square=4",
   "loss=8",
   "bar(loss)=1",
@@ -522,7 +530,7 @@ const formerChapter14To32MathCodeSpans = [
   "N in {0,1,2}",
 ] as const;
 
-const rawChapter14To32FormulaPatterns = [
+const rawChapter14To33FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -571,7 +579,7 @@ const rawChapter14To32FormulaPatterns = [
   /\bN\s+in\s*\{/i,
 ] as const;
 
-const documentedChapter14To32Code = [
+const documentedChapter14To33Code = [
   {
     name: "literal tensor shapes, coordinates, vectors, and matrices",
     pattern: /^\[[^\r\n]*\]$/,
@@ -600,6 +608,14 @@ const documentedChapter14To32Code = [
   {
     name: "literal shuffled window trace tokens",
     pattern: /^[a-z][a-z0-9-]*@\d+$/,
+  },
+  {
+    name: "literal ordered update-event trace",
+    pattern: /^forward>backward>finite-check>clip>adamw-step>zero-grad$/,
+  },
+  {
+    name: "literal selection trace fields",
+    pattern: /^(?:criterion=validation-only|snapshot=true|test_reads=0)$/,
   },
 ] as const;
 
@@ -751,10 +767,10 @@ describe("Chapter 8-13 formula-source contract", () => {
   });
 });
 
-describe("Chapter 14-32 formula-source contract", () => {
-  it("completes the source audit for all 39 published localized lessons", () => {
+describe("Chapter 14-33 formula-source contract", () => {
+  it("completes the source audit for all 40 published localized lessons", () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To32Files) {
+    for (const file of chapter14To33Files) {
       const source = readChapter("en", file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -762,12 +778,12 @@ describe("Chapter 14-32 formula-source contract", () => {
 
       expect(display.length, `${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
-      for (const fragment of requiredChapter14To32Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To33Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To32MathCodeSpans) {
+      for (const oldExpression of formerChapter14To33MathCodeSpans) {
         expect(
           code,
           `${file} still styles ${oldExpression} as code`,
@@ -775,25 +791,25 @@ describe("Chapter 14-32 formula-source contract", () => {
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To32FormulaPatterns) {
+      for (const pattern of rawChapter14To33FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
           pattern,
         );
       }
     }
 
-    expect(reviewed).toEqual(chapter14To32Files);
+    expect(reviewed).toEqual(chapter14To33Files);
     expect(
       chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(39);
+    ).toBe(40);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
-    for (const file of chapter14To32Files) {
+    for (const file of chapter14To33Files) {
       for (const value of inlineCode(readChapter("en", file))) {
-        const allowance = documentedChapter14To32Code.find(({ pattern }) =>
+        const allowance = documentedChapter14To33Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
@@ -805,7 +821,7 @@ describe("Chapter 14-32 formula-source contract", () => {
   });
 });
 
-describe("build-time formula rendering in Chapter 14-32 diagrams", () => {
+describe("build-time formula rendering in Chapter 14-33 diagrams", () => {
   it("renders every diagram-owned expression as strict HTML plus MathML", () => {
     const components = {
       initialization: readFileSync(
@@ -866,6 +882,10 @@ describe("build-time formula rendering in Chapter 14-32 diagrams", () => {
       ),
       decoderModel: readFileSync(
         resolve(componentRoot, "chapters/DecoderModelDiagram.astro"),
+        "utf8",
+      ),
+      trainingSelection: readFileSync(
+        resolve(componentRoot, "chapters/TrainingSelectionDiagram.astro"),
         "utf8",
       ),
     };
@@ -1071,12 +1091,25 @@ describe("build-time formula rendering in Chapter 14-32 diagrams", () => {
     expect(components.decoderModel).toContain(
       "import InlineMath from '../InlineMath.astro'",
     );
-    expect(components.decoderModel).toContain('String.raw`E^\\top`');
+    expect(components.decoderModel).toContain("String.raw`E^\\top`");
     expect(components.decoderModel).toContain(
-      'String.raw`\\bar E=\\bar E_{\\mathrm{lookup}}+\\bar E_{\\mathrm{output}}`',
+      "String.raw`\\bar E=\\bar E_{\\mathrm{lookup}}+\\bar E_{\\mathrm{output}}`",
     );
     expect(components.decoderModel).toContain(
-      'String.raw`\\mathcal{L}=${trace.loss.mean}`',
+      "String.raw`\\mathcal{L}=${trace.loss.mean}`",
+    );
+
+    expect(components.trainingSelection).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.trainingSelection).toContain(
+      "String.raw`\\mathcal{L}_{va}=${selectedCheckpoint.validationLoss}`",
+    );
+    expect(components.trainingSelection).toContain(
+      "String.raw`\\lVert g_s\\rVert_2\\leq0.35`",
+    );
+    expect(components.trainingSelection).toContain(
+      "String.raw`\\eta_s\\in\\{0.040,0.025,0.015,0.008\\}`",
     );
 
     for (const source of Object.values(components)) {

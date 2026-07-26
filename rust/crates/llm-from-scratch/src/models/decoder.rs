@@ -3,6 +3,7 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::attention::multi_head::MultiHeadAttention;
 use crate::autograd::tensor_core::{TensorAutodiffError, TensorValue};
 use crate::models::decoder_block::{
     DecoderBlock, DecoderBlockConfig, DecoderBlockError, DecoderBlockForward,
@@ -10,6 +11,7 @@ use crate::models::decoder_block::{
 use crate::nn::embedding::{Embedding, EmbeddingError};
 use crate::nn::init::{InitializationError, NamedParameter, NamedParameters, SplitMix64};
 use crate::nn::rmsnorm::{RmsNorm, RmsNormError, RmsNormForward};
+use crate::nn::swiglu::SwiGlu;
 
 const BLOCK_PARAMETER_SUFFIXES: [&str; 9] = [
     "attention_norm.gain",
@@ -84,6 +86,10 @@ pub enum DecoderModelError {
     },
     ParameterAllocationFailed {
         tensors: usize,
+    },
+    ParameterCountMismatch {
+        expected: usize,
+        actual: usize,
     },
     TargetAllocationFailed {
         targets: usize,
@@ -224,6 +230,10 @@ impl fmt::Display for DecoderModelError {
                     "could not reserve {tensors} decoder parameter handles"
                 )
             }
+            Self::ParameterCountMismatch { expected, actual } => write!(
+                formatter,
+                "decoder parameter count must be {expected}, got {actual}"
+            ),
             Self::TargetAllocationFailed { targets } => {
                 write!(
                     formatter,
@@ -505,6 +515,15 @@ fn validate_config(config: DecoderModelConfig) -> Result<(), DecoderModelError> 
     }
     Ok(())
 }
+
+fn expected_parameter_tensors(layers: usize) -> Result<usize, DecoderModelError> {
+    layers
+        .checked_mul(BLOCK_PARAMETER_SUFFIXES.len())
+        .and_then(|count| count.checked_add(2))
+        .ok_or(DecoderModelError::ParameterAllocationFailed {
+            tensors: usize::MAX,
+        })
+}
 // endregion:decoder-model-config
 
 // region:decoder-model-layer
@@ -582,6 +601,86 @@ impl DecoderModel {
         *rng = trial;
         Ok(model)
     }
+
+    // region:decoder-parameter-rebuild
+    /// Rebuilds every component handle from one exact stable-order parameter set.
+    ///
+    /// Optimizers replace trainable leaves. Reconstructing the model through
+    /// this boundary guarantees that the next forward pass, the public registry,
+    /// and the tied embedding all refer to those new leaves.
+    pub fn from_parameters(
+        config: DecoderModelConfig,
+        parameters: Vec<NamedParameter>,
+    ) -> Result<Self, DecoderModelError> {
+        validate_config(config)?;
+        let expected = expected_parameter_tensors(config.layers)?;
+        if parameters.len() != expected {
+            return Err(DecoderModelError::ParameterCountMismatch {
+                expected,
+                actual: parameters.len(),
+            });
+        }
+        validate_parameter_names(&parameters, config.layers)?;
+
+        let embedding = Embedding::from_parameter(parameters[0].clone())
+            .map_err(DecoderModelError::Embedding)?;
+        let mut blocks = Vec::new();
+        blocks.try_reserve_exact(config.layers).map_err(|_| {
+            DecoderModelError::LayerAllocationFailed {
+                layers: config.layers,
+            }
+        })?;
+        for layer in 0..config.layers {
+            let start = 1 + layer * BLOCK_PARAMETER_SUFFIXES.len();
+            let attention_norm = RmsNorm::from_gain(parameters[start].clone(), config.rms_epsilon)
+                .map_err(|source| DecoderModelError::Block {
+                    layer,
+                    source: DecoderBlockError::AttentionNorm(source),
+                })?;
+            let attention = MultiHeadAttention::from_parameters(
+                parameters[start + 1].clone(),
+                parameters[start + 2].clone(),
+                parameters[start + 3].clone(),
+                parameters[start + 4].clone(),
+                config.heads,
+                config.max_positions,
+                config.rope_base,
+            )
+            .map_err(|source| DecoderModelError::Block {
+                layer,
+                source: DecoderBlockError::Attention(source),
+            })?;
+            let feed_forward_norm =
+                RmsNorm::from_gain(parameters[start + 5].clone(), config.rms_epsilon).map_err(
+                    |source| DecoderModelError::Block {
+                        layer,
+                        source: DecoderBlockError::FeedForwardNorm(source),
+                    },
+                )?;
+            let feed_forward = SwiGlu::from_parameters(
+                parameters[start + 6].clone(),
+                parameters[start + 7].clone(),
+                parameters[start + 8].clone(),
+            )
+            .map_err(|source| DecoderModelError::Block {
+                layer,
+                source: DecoderBlockError::FeedForward(source),
+            })?;
+            blocks.push(
+                DecoderBlock::from_parts(
+                    attention_norm,
+                    attention,
+                    feed_forward_norm,
+                    feed_forward,
+                )
+                .map_err(|source| DecoderModelError::Block { layer, source })?,
+            );
+        }
+        let final_norm = RmsNorm::from_gain(parameters[expected - 1].clone(), config.rms_epsilon)
+            .map_err(DecoderModelError::FinalNorm)?;
+        Self::from_parts(config, embedding, blocks, final_norm)
+    }
+    // endregion:decoder-parameter-rebuild
 
     /// Assembles exact named components and rejects any configuration drift.
     pub fn from_parts(
@@ -678,13 +777,7 @@ impl DecoderModel {
             });
         }
 
-        let parameter_tensors = config
-            .layers
-            .checked_mul(BLOCK_PARAMETER_SUFFIXES.len())
-            .and_then(|count| count.checked_add(2))
-            .ok_or(DecoderModelError::ParameterAllocationFailed {
-                tensors: usize::MAX,
-            })?;
+        let parameter_tensors = expected_parameter_tensors(config.layers)?;
         let mut listed = Vec::new();
         listed.try_reserve_exact(parameter_tensors).map_err(|_| {
             DecoderModelError::ParameterAllocationFailed {
@@ -910,6 +1003,16 @@ mod tests {
         DecoderModel::new(config(layers), &mut SplitMix64::from_seed(seed)).unwrap()
     }
 
+    fn copied_parameters(model: &DecoderModel) -> Vec<NamedParameter> {
+        model
+            .parameters()
+            .iter()
+            .map(|parameter| {
+                NamedParameter::from_tensor(parameter.name(), parameter.tensor().value()).unwrap()
+            })
+            .collect()
+    }
+
     fn zero_layer_model(table: Tensor, gain: Tensor) -> DecoderModel {
         let embedding = Embedding::from_parameter(
             NamedParameter::from_tensor("token_embedding.weight", table).unwrap(),
@@ -980,6 +1083,90 @@ mod tests {
                 .tensor()
                 .is_same_node(left.tied_embedding().tensor())
         );
+    }
+
+    #[test]
+    fn parameter_reconstruction_rebinds_every_component_and_rejects_drift() {
+        let original = model(1, 33);
+        let ids = [0, 1, 2];
+        let expected_logits = original
+            .forward(&ids, &[1, 3])
+            .unwrap()
+            .into_logits()
+            .value();
+        let rebuilt =
+            DecoderModel::from_parameters(config(1), copied_parameters(&original)).unwrap();
+
+        assert_eq!(
+            rebuilt
+                .forward(&ids, &[1, 3])
+                .unwrap()
+                .into_logits()
+                .value(),
+            expected_logits
+        );
+        assert!(
+            rebuilt
+                .embedding()
+                .table()
+                .tensor()
+                .is_same_node(rebuilt.parameters()[0].tensor())
+        );
+        for (component, listed) in rebuilt.blocks()[0]
+            .parameters()
+            .iter()
+            .zip(&rebuilt.parameters()[1..10])
+        {
+            assert!(component.tensor().is_same_node(listed.tensor()));
+        }
+        assert!(
+            rebuilt
+                .final_norm()
+                .gain()
+                .tensor()
+                .is_same_node(rebuilt.parameters().last().unwrap().tensor())
+        );
+        assert!(rebuilt.parameters().iter().all(|parameter| {
+            parameter
+                .tensor()
+                .gradient()
+                .is_some_and(|gradient| gradient.as_slice().iter().all(|value| *value == 0.0))
+        }));
+
+        let mut missing = copied_parameters(&original);
+        missing.pop();
+        assert_eq!(
+            DecoderModel::from_parameters(config(1), missing).unwrap_err(),
+            DecoderModelError::ParameterCountMismatch {
+                expected: 11,
+                actual: 10,
+            }
+        );
+
+        let mut renamed = copied_parameters(&original);
+        renamed[1] =
+            NamedParameter::from_tensor("blocks.0.wrong.gain", renamed[1].tensor().value())
+                .unwrap();
+        assert_eq!(
+            DecoderModel::from_parameters(config(1), renamed).unwrap_err(),
+            DecoderModelError::ParameterNameMismatch {
+                index: 1,
+                expected: "blocks.0.attention_norm.gain".to_owned(),
+                actual: "blocks.0.wrong.gain".to_owned(),
+            }
+        );
+
+        let mut wrong_shape = copied_parameters(&original);
+        wrong_shape[2] =
+            NamedParameter::from_tensor("blocks.0.attention.query.weight", tensor(&[1], &[0.0]))
+                .unwrap();
+        assert!(matches!(
+            DecoderModel::from_parameters(config(1), wrong_shape),
+            Err(DecoderModelError::Block {
+                layer: 0,
+                source: DecoderBlockError::Attention(_),
+            })
+        ));
     }
 
     #[test]

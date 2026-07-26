@@ -14712,14 +14712,21 @@ builds:
         objective: "Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data."
         depends_on:
           - implement-ch32-decoder-model
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/32-decoder-model.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -14733,16 +14740,35 @@ builds:
           - "site/src/i18n/locales.json"
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/e2e/ch32-decoder-model.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://arxiv.org/pdf/1409.3215"
+          - "https://arxiv.org/pdf/1706.03762"
+          - "https://www.jmlr.org/papers/volume21/20-074/20-074.pdf"
+          - "https://arxiv.org/pdf/2005.14165"
         outputs:
           - "curriculum/chapters/33-training-selection.md"
           - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch33-training-selection/"
           - "site/src/content/chapters/en/33-training-selection.mdx"
           - "site/src/components/chapters/TrainingSelectionDiagram.astro"
+          - "site/src/lib/training-selection-diagram.ts"
           - "site/tests/33-training-selection-diagram.test.ts"
           - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data."
@@ -14760,6 +14786,7 @@ builds:
           - "scripts/check-rust-dependencies.sh"
           - "scripts/check-rust-demos.sh"
           - "cargo run --quiet --locked -p ch33-training-selection | diff -u rust/demos/ch33-training-selection/expected.txt -"
+          - "cargo run --quiet --locked -p ch33-training-selection --example diagram_trace | diff -u rust/demos/ch33-training-selection/diagram-trace.txt -"
           - "npm --prefix site run check:chapter -- --locale en --chapter 33-training-selection"
           - "npm --prefix site run check:parity -- --chapter 33-training-selection"
           - "npm --prefix site run check:content"
@@ -14771,8 +14798,74 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set, five bounded read-only primary-paper inputs, and a deterministic tiny CPU training fixture benchmarked before the full gate. Registered deferred locales require no lesson or route. Cost alone causes no approval pause; no paid service, generation service, concept-implementing dependency, runtime server, deployment, or Linux build change is authorized."
+        runs:
+          - run_id: 20260726T071419Z-implement-ch33-training-selection-01
+            started_at: "2026-07-26T07:14:19Z"
+            finished_at: "2026-07-26T08:40:34Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7e379a2aa6c3a44ce11c7e5f33eeadacd01fba9a"
+              manifest: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/input-fingerprint.txt"
+              checksum: "sha256:513b62186af92ee892749bf1b1306f0870c04ae7f41e984d65de5a3236c297cc"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate pinned Linux product images with Node 22.12.0/npm 10.9.0, Rust 1.93.1, and Playwright 1.61.1."
+            staging_dir: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/"
+            commands:
+              - "Verify commit 7e379a2 contains only the completed Chapter 32 slice, preserve unrelated desktop.ini, parse the 74-step ledger, and select implement-ch33-training-selection as the first eligible step."
+              - "Read the Chapter 33 plan, delivery playbook, Chapter 32 contract/model, existing mini-batch and AdamW APIs, localization policy, and shared diagram/formula contracts."
+              - "Run three bounded read-only preflight reviews for cumulative Rust ownership, static-site integration, and primary LLM-training history; no subagent edits product files."
+              - "Expand the declared boundary before product work to cover trainable decoder reconstruction, scheduled/clipped AdamW integration, graph-free validation, the strict diagram-trace parser, aggregate formula/diagram registries, and the Chapter 32-to-33 navigation transition."
+              - "Create run-specific publish and validation staging directories; all product generation and validation remain local and deterministic."
+              - "Implement a panic-safe graph-free scope, scheduled transactional AdamW, decoder reconstruction from fresh leaves, overflow-safe global-norm clipping, exact six-event training order, token-weighted validation, earliest validation argmin, and test-partition rejection."
+              - "Create the deterministic eight-update Rust fixture, frozen learner report and diagram trace, strict semantic trace parser, complete English lesson, shared-style checkpoint figure, and focused plus aggregate regression coverage."
+              - "Inspect the 1440-pixel and 390-pixel Chapter 33 renderings, correct operation-card and axis-label containment, and replay focused Chromium and Firefox geometry, formula, RTL, forced-color, no-JavaScript, and full-view checks."
+              - "Freeze all 23 BOM-free LF product files in publish.sha256 after full staged Rust, content, unit, static, and browser validation."
+              - "Publish the 23 checksum-frozen product files to canonical paths with bounded host-scanner retries and verify every destination against publish.sha256."
+              - "Replay the canonical Rust, site, Chromium, and focused Firefox gates sequentially after recording that parallel CPU contention alone violated Chapter 23's pre-existing wall-clock assertion."
+              - "Audit the final canonical manifest, diff hygiene, ledger syntax, exact step boundary, and commit contents while preserving unrelated desktop.ini."
+              - "Remove the final-audit Cargo.toml blank line, regenerate its manifest entry, rerun the complete uncontended Rust gate, and repeat the exact 25-file staging boundary and diff audit."
+            artifacts:
+              - path: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/input-fingerprint.txt"
+                checksum: "sha256:513b62186af92ee892749bf1b1306f0870c04ae7f41e984d65de5a3236c297cc"
+                notes: "Pre-change commit, preserved dirty-tree boundary, material file hashes, pinned tool versions, and five declared primary-source URLs."
+              - path: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/research.md"
+                checksum: "sha256:ce38b149e41afa5cde48336a94b54b101f2c5663d5084886c2485d4cb25e8946"
+                notes: "Five primary-source claim boundaries plus explicit decoder/recurrent, deterministic/nondeterministic, programming-history, and universal/non-universal caveats."
+              - path: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/publish.sha256"
+                checksum: "sha256:dbc8356b8c537022734860e50211fccbc1b822269e798556b4254506a7670f96"
+                notes: "Frozen SHA-256 manifest for all 23 BOM-free, LF-terminated canonical product files owned by this step."
+              - path: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/ch33-desktop.png"
+                checksum: "sha256:8b7cf9b18b5a1857750f93b53dc932851e0db68ddfb423ae6cda4c992750a4ec"
+                notes: "Inspected 1440-pixel Chromium rendering after the final operation-card, plot-gutter, and checkpoint-marker containment corrections."
+              - path: ".build/runs/20260726T071419Z-implement-ch33-training-selection-01/ch33-narrow.png"
+                checksum: "sha256:dc408453724611c36bb9171f74cb9cf221721729c892db9a5f872d1e813f3de7"
+                notes: "Inspected 390-pixel Chromium fallback with the relationship isolated in one named keyboard scroller and all descendant boxes contained."
+            validation:
+              - command: "Staged full Rust workspace, policy, demo, and exact-output gates"
+                status: passed
+                notes: "Formatting, warning-free locked clippy, all 311 core and three Chapter 33 demo tests, dependency policy, all 33 demo discovery checks, and both exact learner and diagram output comparisons pass in pinned Linux."
+              - command: "Staged contract, content, type, unit, static-build, link, SEO, and sitemap gates"
+                status: passed
+                notes: "The 39-chapter plan, Chapter 33 contract and locale parity, all 40 localized sources, zero-diagnostic Astro check, 778 unit tests, 45-page production build, 1637 local references, 45 SEO routes, and 45 sitemap URLs pass."
+              - command: "Staged complete Chromium and focused Firefox browser gates"
+                status: passed
+                notes: "All 246 Chromium cases and 15 Chapter 33, shared-diagram, and formula Firefox cases pass against the checksum-frozen snapshot, including desktop, narrow, full-view, no-JavaScript, forced-color, RTL, formula-spacing, and nested-box containment behavior."
+              - command: "First canonical Rust and Chromium replay in parallel"
+                status: failed
+                notes: "The browser workers made Chapter 23's existing wall-clock guard take 70.01 seconds instead of less than 60; its evidence completed normally, no Chapter 33 assertion failed, the browser job was allowed to stop, and no product byte changed."
+              - command: "Canonical checksum publication and uncontended full Rust/site replay"
+                status: passed
+                notes: "All 23 canonical product files match publish.sha256; formatting, warning-free locked clippy, the complete Rust workspace, all 33 demos, exact Chapter 33 outputs, plan/contract/content/parity, zero-diagnostic Astro, 778 unit tests, 45-page static build, 1637 links, 45 SEO routes, and 45 sitemap URLs pass sequentially. Chapter 23 completes in 47.38 seconds."
+              - command: "Canonical complete Chromium and focused Firefox replay"
+                status: passed
+                notes: "All 246 Chromium cases and 15 Chapter 33, formula, and shared-diagram Firefox cases pass against the canonical publication, including desktop, narrow, full-view, no-JavaScript, forced-color, RTL, formula-spacing, and descendant-box containment behavior."
+              - command: "Final publication, state, and diff audit"
+                status: failed
+                notes: "All functional and checksum checks passed, but git diff --cached --check found one extra blank line at EOF in the new demo Cargo.toml before commit. The file and manifest were corrected in staging and canonical paths; no learner or runtime behavior changed."
+              - command: "Corrected manifest, full Rust replay, and final publication audit"
+                status: passed
+                notes: "All 23 canonical files match the regenerated manifest; the complete formatted, warning-free, locked Rust workspace, all 33 demos, and exact Chapter 33 outputs pass again; Chapter 23 completes in 45.54 seconds; git diff --cached --check is clean; and exactly the 23 declared product files plus BUILD_STATE.yaml and DECISIONS.md are staged while desktop.ini remains untracked."
+            notes: "Succeeded. Chapter 33 now runs every bounded decoder update, clips by an overflow-safe global norm, applies the declared rate schedule, evaluates token-weighted validation without a graph, snapshots fresh leaves, selects the earliest validation minimum, and rejects test data from selection. The exact Rust fixture drives a complete LLM-history lesson and one contained shared-style checkpoint figure. English is the exact active locale set; Russian remains deferred. The checksum-frozen staged and canonical slices pass every declared Rust, content, unit, static, complete Chromium, and focused Firefox gate without a concept-implementing dependency, runtime server, paid service, external deployment, locale activation, shared diagram skin change, or Linux build change."
       - id: implement-ch34-final-evaluation
         objective: "Evaluate the frozen selected decoder once on the previously unscored test partition and compare it fairly with the frozen bigram."
         depends_on:
