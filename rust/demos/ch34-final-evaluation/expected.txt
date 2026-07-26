@@ -1,0 +1,11 @@
+chapter=34-final-evaluation
+selection=step:8 validation_loss:1.595297 criterion:validation-only test_reads_before:0
+provenance=corpus:ch33-34-synthetic-v1 split:fixed-role-split-v1 tokenizer:literal-u32-v1 vocabulary:5 context:2
+baseline=alpha:1.000000 fitted_partition:train documents:2 transitions:22 frozen:true
+test=documents:2 windows:12 batches:3 targets:24 access_count:1 selectable:false fingerprint:fnv1a64:dac4bb4d76beeb59
+decoder=mean_nll:1.607679 perplexity:4.991215 total_nll:38.584306 graphs:0 parameters_unchanged:true gradients_unchanged:true
+bigram=mean_nll:2.236735 perplexity:9.362710 total_nll:53.681634
+comparison=lower_loss:selected-decoder gap:0.629055 same_targets:true fixture_specific:true
+proof=token_weighted:true provenance_match:true selection_closed:true report_version:1 immutable:true
+history=training_score_only:true repeated_holdout_inspection:true three_way_protocol:true contamination_checks:true
+next=serialize the selected evaluated state in a versioned checkpoint

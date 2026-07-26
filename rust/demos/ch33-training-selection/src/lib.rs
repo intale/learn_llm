@@ -35,6 +35,17 @@ const TRAIN_B: [u32; 12] = [2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3];
 const VALIDATION_A: [u32; 9] = [0, 1, 2, 3, 4, 0, 1, 2, 3];
 const VALIDATION_B: [u32; 9] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+/// Returns the exact immutable training documents used by the Chapter 33 fixture.
+///
+/// Chapter 34 uses this read-only view to fit a fair baseline without copying
+/// token arrays or gaining access to validation or test data.
+pub fn fixture_training_documents() -> [(&'static str, &'static [u32]); 2] {
+    [
+        ("train-a", TRAIN_A.as_slice()),
+        ("train-b", TRAIN_B.as_slice()),
+    ]
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum FixtureError {
     Batch(BatchError),

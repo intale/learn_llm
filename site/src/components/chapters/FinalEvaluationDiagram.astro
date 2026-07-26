@@ -1,0 +1,223 @@
+---
+import traceSource from '../../../../rust/demos/ch34-final-evaluation/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  parseFinalEvaluationTrace,
+  validateFinalEvaluationDiagramLabels,
+  type FinalEvaluationDiagramLabels,
+} from '../../lib/final-evaluation-diagram';
+
+interface Props {
+  labels: FinalEvaluationDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateFinalEvaluationDiagramLabels(labels);
+const trace = parseFinalEvaluationTrace(traceSource);
+const titleId = 'final-evaluation-diagram-title';
+const descriptionId = 'final-evaluation-diagram-description';
+const stages = [
+  { key: 'train', label: labels.stages.train, cue: labels.cues.fits, state: 'available' },
+  { key: 'validation', label: labels.stages.validation, cue: labels.cues.selects, state: 'trusted' },
+  { key: 'frozen', label: labels.stages.frozen, cue: labels.cues.sealed, state: 'trusted' },
+  { key: 'test', label: labels.stages.test, cue: labels.cues.evaluatesOnce, state: 'trusted' },
+  { key: 'report', label: labels.stages.report, cue: labels.cues.verified, state: 'trusted' },
+] as const;
+const scores = trace.scores.map((score) => ({
+  model: score.model,
+  fit_partition: score.fit_partition,
+  selected_by: score.selected_by,
+  targets: score.targets,
+  total_nll: score.total_nll,
+  mean_nll: score.mean_nll,
+  label: score.model === 'selected-decoder' ? labels.models.decoder : labels.models.bigram,
+  lower: score.model === trace.comparison.lower_loss,
+}));
+---
+
+<figure
+  class="course-diagram final-evaluation-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id="final-evaluation-boundary"
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+    <ul class="cue-list" aria-label={labels.sections.comparison}>
+      <li><span aria-hidden="true">≡</span> {labels.cues.sameTargets}</li>
+      <li><span aria-hidden="true">║</span> {labels.cues.lowerLoss}</li>
+      <li><span aria-hidden="true">×</span> {labels.cues.rejectedBeforeFreeze}</li>
+    </ul>
+  </figcaption>
+
+  <section aria-labelledby="final-evaluation-boundary-title">
+    <h4 id="final-evaluation-boundary-title">{labels.sections.boundary}</h4>
+    <p>{labels.captions.boundary}</p>
+    <ol class="stage-list">
+      {stages.map((stage, index) => (
+        <li>
+          <article
+            class="stage-card"
+            data-diagram-card
+            data-diagram-box
+            data-stage={stage.key}
+            data-state={stage.state}
+          >
+            <span class="state-symbol" aria-hidden="true">{index + 1}</span>
+            <h5>{stage.label}</h5>
+            <p>{stage.cue}</p>
+          </article>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section aria-labelledby="final-evaluation-comparison-title">
+    <h4 id="final-evaluation-comparison-title">{labels.sections.comparison}</h4>
+    <p>{labels.captions.comparison}</p>
+    <div
+      class="comparison-region course-diagram__scroll"
+      tabindex="0"
+      role="region"
+      aria-label={labels.scrollers.comparison}
+      data-diagram-scroll
+    >
+      <table class="score-table" data-diagram-table>
+        <caption>{labels.scrollers.comparison}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.model}</th>
+            <th scope="col">{labels.fields.fittedRole}</th>
+            <th scope="col">{labels.fields.selectedBy}</th>
+            <th scope="col">{labels.fields.targetCount}</th>
+            <th scope="col">{labels.fields.totalNll}</th>
+            <th scope="col">{labels.fields.meanLoss}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {scores.map((score) => (
+            <tr data-score-model={score.model} data-lower-loss={String(score.lower)}>
+              <th scope="row">
+                {score.label}
+                {score.lower && <strong class="lower-loss-cue">{labels.cues.lowerLoss}</strong>}
+              </th>
+              <td><code>{score.fit_partition}</code></td>
+              <td><code>{score.selected_by}</code></td>
+              <td><InlineMath latex={`N_{te}=${score.targets}`} /></td>
+              <td><InlineMath latex={String.raw`\sum_n-\log p_n=${score.total_nll}`} /></td>
+              <td><InlineMath latex={String.raw`\mathcal{L}_{te}=${score.mean_nll}`} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="final-evaluation-proof-title">
+    <h4 id="final-evaluation-proof-title">{labels.sections.proof}</h4>
+    <p>{labels.captions.proof}</p>
+    <div class="proof-grid">
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+        <h5>{labels.proofs.provenance}</h5>
+        <p><InlineMath latex={`V=${trace.provenance.vocabulary},\;T=${trace.provenance.context}`} /></p>
+        <code><bdi dir="ltr">corpus={trace.provenance.corpus}</bdi></code>
+        <code><bdi dir="ltr">split={trace.provenance.split}</bdi></code>
+        <code><bdi dir="ltr">tokenizer={trace.provenance.tokenizer}</bdi></code>
+        <code><bdi dir="ltr">{trace.provenance.target_fingerprint}</bdi></code>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+        <h5>{labels.proofs.selectionClosed}</h5>
+        <p><InlineMath latex={`s^*=${trace.report.selected_step}`} /></p>
+        <code><bdi dir="ltr">selection_test_reads={trace.boundary.selection_test_reads}</bdi></code>
+        <code><bdi dir="ltr">test_selectable={trace.boundary.test_selectable}</bdi></code>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+        <h5>{labels.proofs.noGrad}</h5>
+        <p><InlineMath latex="0\to0" /> {labels.cues.verified}</p>
+        <code><bdi dir="ltr">parameters_unchanged={trace.proof.parameters_unchanged}</bdi></code>
+        <code><bdi dir="ltr">gradients_unchanged={trace.proof.gradients_unchanged}</bdi></code>
+      </article>
+      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+        <h5>{labels.proofs.immutableState}</h5>
+        <p><InlineMath latex={`N_{te}=${trace.provenance.targets}`} /></p>
+        <code><bdi dir="ltr">test_accesses={trace.report.test_accesses}</bdi></code>
+        <code><bdi dir="ltr">report_version={trace.report.version}</bdi></code>
+        <code><bdi dir="ltr">report_immutable={trace.proof.report_immutable}</bdi></code>
+      </article>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .final-evaluation-diagram,
+  .final-evaluation-diagram > *,
+  .comparison-region,
+  .stage-card,
+  .proof-card {
+    min-inline-size: 0;
+  }
+
+  .stage-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(7.5rem, 1fr));
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stage-card {
+    display: grid;
+    block-size: 100%;
+    align-content: start;
+    gap: 0.4rem;
+  }
+
+  .stage-card h5,
+  .stage-card p,
+  .proof-card h5,
+  .proof-card p {
+    margin: 0;
+  }
+
+  .score-table {
+    inline-size: max(100%, 42rem);
+  }
+
+  .score-table tr[data-lower-loss='true'] > :first-child {
+    border-inline-start-style: double;
+    border-inline-start-width: 0.35rem;
+  }
+
+  .lower-loss-cue {
+    display: block;
+    margin-block-start: 0.25rem;
+  }
+
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 0.65rem;
+  }
+
+  .proof-card {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+  }
+
+  @container course-diagram (max-width: 52rem) {
+    .stage-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container course-diagram (max-width: 30rem) {
+    .stage-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

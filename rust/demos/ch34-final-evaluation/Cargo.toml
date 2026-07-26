@@ -1,0 +1,13 @@
+[package]
+name = "ch34-final-evaluation"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+ch33-training-selection = { path = "../ch33-training-selection" }
+llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[lints]
+workspace = true

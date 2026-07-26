@@ -12,22 +12,22 @@ import {
   type CourseChapterLink,
 } from "./chapter-helpers";
 
-const chapterId = "33-training-selection";
-const chapterTitle = "Train every step, select with validation";
+const chapterId = "34-final-evaluation";
+const chapterTitle = "Open test once, keep the report";
 const chapterDescription =
-  "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.";
-const diagramTitle = "Separate updates from validation-based selection";
+  "Learn how to freeze validation-selected model decisions, score identical held-out targets once without a gradient graph, and publish a provenance-checked final LLM evaluation report.";
+const diagramTitle = "Freeze choices before final evidence";
 const diagramDescription =
-  "Follow six ordered operations through eight Rust-authored updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.";
+  "Follow training, validation selection, a sealed state, one test evaluation, and an immutable report; then compare two Rust-authored losses over the same 24 target slots.";
 const chapterHeadings = [
-  "Plan every update before you train",
-  "Update on train, choose on validation",
-  "Keep steps, gradients, and partitions distinct",
-  "From training-only reports to validation-selected LLM checkpoints",
-  "Make the cumulative training boundary explicit in Rust",
-  "Read measured checkpoints without inventing a curve",
-  "Test the information boundary and state ownership",
-  "Freeze the selected decoder for one test pass",
+  "Freeze the comparison before opening test",
+  "Average surprise over target tokens",
+  "Keep states, slots, and roles distinct",
+  "From training scores to governed final LLM evidence",
+  "Make the final boundary executable",
+  "Read one information boundary and one comparison",
+  "Classify legal decisions before you run",
+  "Carry the selected and evaluated state forward",
 ] as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
@@ -66,30 +66,15 @@ async function expectFormulaGeometry(page: Page) {
         ) {
           issues.push(source + " escapes the viewport");
         }
-        if (rect.width <= 0 || rect.height <= 0) {
+        if (rect.width <= 0 || rect.height <= 0)
           issues.push(source + " has no visible box");
-        }
-        const struts = element.querySelectorAll<HTMLElement>(
-          ".katex-html .strut, .katex-html .katex-strut",
-        );
-        if (struts.length === 0) {
-          issues.push(source + " has no KaTeX layout strut");
-        }
-        for (const [strutIndex, strut] of Array.from(struts).entries()) {
-          if (getComputedStyle(strut).display !== "inline-block") {
-            issues.push(
-              source + " strut " + strutIndex + " is not inline-block",
-            );
-          }
-        }
         const mathml = element.querySelector<HTMLElement>(".katex-mathml");
         if (!mathml) {
           issues.push(source + " has no accessible MathML projection");
         } else {
           const style = getComputedStyle(mathml);
-          if (style.display !== "block" || style.overflowX !== "clip") {
+          if (style.display !== "block" || style.overflowX !== "clip")
             issues.push(source + " does not contain its MathML projection");
-          }
         }
         const { direction, overflowY } = getComputedStyle(element);
         if (direction !== "ltr") issues.push(source + " is not left-to-right");
@@ -119,7 +104,7 @@ async function expectFormulaGeometry(page: Page) {
 
 async function expectDiagramContainment(page: Page) {
   const diagram = page.locator(
-    'figure[data-visualization-id="training-validation-checkpoints"]',
+    'figure[data-visualization-id="final-evaluation-boundary"]',
   );
   const result = await diagram.evaluate((node) => {
     const root = node as HTMLElement;
@@ -130,21 +115,21 @@ async function expectDiagramContainment(page: Page) {
     );
     for (const [index, box] of boxes.entries()) {
       const style = getComputedStyle(box);
-      const borders = [
+      const widths = [
         style.borderTopWidth,
         style.borderRightWidth,
         style.borderBottomWidth,
         style.borderLeftWidth,
       ].map(Number.parseFloat);
-      const borderStyles = [
+      const styles = [
         style.borderTopStyle,
         style.borderRightStyle,
         style.borderBottomStyle,
         style.borderLeftStyle,
       ];
       if (
-        borders.some((width) => !(width > 0)) ||
-        borderStyles.some((value) => ["none", "hidden"].includes(value))
+        widths.some((width) => !(width > 0)) ||
+        styles.some((value) => ["none", "hidden"].includes(value))
       ) {
         problems.push("box " + index + " lacks a four-sided border");
       }
@@ -162,24 +147,31 @@ async function expectDiagramContainment(page: Page) {
         problems.push("box " + index + " hides overflow");
       }
       const boxRect = box.getBoundingClientRect();
-      for (const [textIndex, text] of Array.from(
-        box.querySelectorAll<HTMLElement>(
-          ":scope > :is(h5,p,code), :scope > :is(h5,p,code) *",
-        ),
-      ).entries()) {
-        if (text.closest("[data-diagram-box]") !== box) continue;
-        const rect = text.getBoundingClientRect();
-        if (
-          rect.width > 0 &&
-          (rect.left < boxRect.left - 2 ||
-            rect.right > boxRect.right + 2 ||
-            rect.top < boxRect.top - 2 ||
-            rect.bottom > boxRect.bottom + 2)
-        ) {
-          problems.push(
-            "box " + index + " text " + textIndex + " crosses its border",
-          );
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+      let textNode = walker.nextNode();
+      let textIndex = 0;
+      while (textNode) {
+        const text = textNode.textContent?.trim() ?? "";
+        const parent = textNode.parentElement;
+        if (text && parent && parent.closest("[data-diagram-box]") === box) {
+          const range = document.createRange();
+          range.selectNodeContents(textNode);
+          for (const rect of Array.from(range.getClientRects())) {
+            if (
+              rect.width > 0 &&
+              (rect.left < boxRect.left - 2 ||
+                rect.right > boxRect.right + 2 ||
+                rect.top < boxRect.top - 2 ||
+                rect.bottom > boxRect.bottom + 2)
+            ) {
+              problems.push(
+                "box " + index + " text " + textIndex + " crosses its border",
+              );
+            }
+          }
+          textIndex += 1;
         }
+        textNode = walker.nextNode();
       }
     }
     const scrollers = Array.from(
@@ -195,36 +187,15 @@ async function expectDiagramContainment(page: Page) {
       ) {
         problems.push("scroller " + index + " is not a named keyboard region");
       }
-      if (!["auto", "scroll"].includes(style.overflowX)) {
+      if (!["auto", "scroll"].includes(style.overflowX))
         problems.push("scroller " + index + " does not own horizontal travel");
-      }
-      if (scroller.scrollHeight > scroller.clientHeight + 2) {
+      if (scroller.scrollHeight > scroller.clientHeight + 2)
         problems.push("scroller " + index + " clips vertically");
-      }
-      if (rect.left < rootRect.left - 2 || rect.right > rootRect.right + 2) {
+      if (rect.left < rootRect.left - 2 || rect.right > rootRect.right + 2)
         problems.push("scroller " + index + " escapes the figure");
-      }
-    }
-    const plot = root.querySelector<HTMLElement>(".plot-field");
-    if (plot === null) {
-      problems.push("plot field is missing");
-    } else {
-      const plotRect = plot.getBoundingClientRect();
-      for (const [index, point] of Array.from(
-        plot.querySelectorAll<HTMLElement>(".measurement-point > span"),
-      ).entries()) {
-        const rect = point.getBoundingClientRect();
-        if (
-          rect.left < plotRect.left - 2 ||
-          rect.right > plotRect.right + 2 ||
-          rect.top < plotRect.top - 2 ||
-          rect.bottom > plotRect.bottom + 2
-        ) {
-          problems.push("measurement point " + index + " escapes the plot");
-        }
-      }
     }
     return {
+      boxCount: boxes.length,
       clientWidth: root.clientWidth,
       problems,
       scrollerCount: scrollers.length,
@@ -232,8 +203,9 @@ async function expectDiagramContainment(page: Page) {
     };
   });
   expect(result.problems).toEqual([]);
-  expect(result.scrollWidth).toBeLessThanOrEqual(result.clientWidth + 2);
+  expect(result.boxCount).toBe(9);
   expect(result.scrollerCount).toBe(1);
+  expect(result.scrollWidth).toBeLessThanOrEqual(result.clientWidth + 2);
   const scroller = diagram.locator("[data-diagram-scroll]");
   await scroller.focus();
   await expect(scroller).toBeFocused();
@@ -246,8 +218,8 @@ async function expectChapterContent(
   await expectLocalizedChapterRoute(page, {
     chapterId,
     locale: "en",
-    order: 33,
-    revision: 2,
+    order: 34,
+    revision: 1,
     revisionLabel: "Content revision",
     title: chapterTitle,
     equivalentLocales: ["en"],
@@ -263,13 +235,11 @@ async function expectChapterContent(
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
     .allTextContents();
   for (const expected of [
-    "\\theta_{s+1}=\\operatorname{AdamW}",
-    "s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
-    "\\widetilde g_s=\\alpha_s g_s",
-    "\\mathcal{L}_{va}",
-    "\\frac{\\sum_j n_j\\mathcal{L}^{(j)}_{va}}{\\sum_j n_j}",
-    "s^*=\\min\\left\\{s:",
-    "\\lVert g_s\\rVert_2\\leq0.35",
+    "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}",
+    "\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
+    "\\frac{\\sum_d N_d\\mathcal{L}^{(d)}_{te}}{\\sum_d N_d}",
+    "N_{te}=24",
+    "\\Delta_{te}=0.629055",
   ]) {
     expect(
       annotations
@@ -289,96 +259,88 @@ async function expectChapterContent(
     " ",
   );
   expect(lessonText).toContain(
-    "This is a history of the training practices on the road to modern LLMs",
+    "This is a history of LLM evaluation practice, not a history of programming languages",
   );
   expect(lessonText).toContain(
-    "local teaching choices, not universal properties of LLM training",
+    "does not claim that decoders always beat bigrams",
+  );
+  expect(lessonText).toContain(
+    "not a replacement for organizational data governance",
   );
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
   ).toHaveCount(2);
   await expect(
-    page.locator('.lesson-body a[href^="https://arxiv.org/"]'),
-  ).toHaveCount(3);
-  await expect(page.locator("figure.rust-source")).toHaveCount(10);
+    page.locator('.lesson-body a[href^="https://proceedings.neurips.cc/"]'),
+  ).toHaveCount(1);
+  await expect(page.locator("figure.rust-source")).toHaveCount(6);
   await expectVisualizationDecision(page, {
     decision: "useful",
-    id: "training-validation-checkpoints",
+    id: "final-evaluation-boundary",
   });
 
   const diagram = page.locator(
-    'figure[data-visualization-id="training-validation-checkpoints"]',
+    'figure[data-visualization-id="final-evaluation-boundary"]',
   );
   await expect(diagram).toHaveAccessibleName(diagramTitle);
   await expect(diagram).toHaveAccessibleDescription(diagramDescription);
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
-  await expect(diagram).toHaveAttribute("data-no-interpolation", "true");
-  await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
-  await expect(diagram.locator(".measurement-point")).toHaveCount(10);
-  await expect(
-    diagram.locator('[data-series="train"].measurement-point'),
-  ).toHaveCount(5);
-  await expect(
-    diagram.locator('[data-series="validation"].measurement-point'),
-  ).toHaveCount(5);
-  await expect(diagram.locator(".selected-point")).toHaveCount(1);
-  await expect(
-    diagram.locator('[data-selected="true"].selected-point'),
-  ).toHaveAttribute("data-checkpoint-step", "8");
-  await expect(
-    diagram.locator('[data-selected="true"].selected-point'),
-  ).toHaveAttribute("data-loss", "1.595297");
-  await expect(diagram.locator("[data-checkpoint-row]")).toHaveCount(5);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(11);
+  await expect(diagram.locator("[data-stage]")).toHaveCount(5);
+  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(9);
   await expect(diagram.locator("table")).toHaveCount(1);
-  await expect(
-    diagram.locator("svg, canvas, path, polyline, line"),
-  ).toHaveCount(0);
-  await expect(
-    diagram.locator('[data-checkpoint-row="0"] annotation'),
-  ).toHaveText(["s=0", "2.095016", "1.918167"]);
-  await expect(
-    diagram.locator('[data-checkpoint-row="8"] annotation'),
-  ).toHaveText(["s=8", "1.322897", "1.595297"]);
-  await expect(diagram.locator(".selected-row")).toContainText(
-    "Double underline: selected validation state",
+  await expect(diagram.locator("tbody tr")).toHaveCount(2);
+  await expect(diagram.locator('[data-score-model="selected-decoder"]')).toHaveAttribute(
+    "data-lower-loss",
+    "true",
+  );
+  await expect(diagram.locator('[data-score-model="selected-decoder"] annotation')).toHaveText([
+    "N_{te}=24",
+    "\\sum_n-\\log p_n=38.584306",
+    "\\mathcal{L}_{te}=1.607679",
+  ]);
+  await expect(diagram.locator('[data-score-model="frozen-bigram"] annotation')).toHaveText([
+    "N_{te}=24",
+    "\\sum_n-\\log p_n=53.681634",
+    "\\mathcal{L}_{te}=2.236735",
+  ]);
+  await expect(diagram).toContainText("fnv1a64:dac4bb4d76beeb59");
+  await expect(diagram).toContainText("selection_test_reads=0");
+  await expect(diagram).toContainText("test_accesses=1");
+  await expect(diagram.locator("svg, canvas, path, polyline, line")).toHaveCount(
+    0,
   );
   await expectDiagramContainment(page);
 
   const details = page.locator(".lesson-body details");
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
-  await expect(details.locator("ol > li")).toHaveCount(6);
-  await expect(details).toContainText(
-    "The first loss equal to the minimum wins",
-  );
+  await expect(details.locator("ol > li")).toHaveCount(8);
+  await expect(details).toContainText("Dataset access control and a shared audit log");
   await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
-  ).toHaveAttribute("data-chapter-id", "32-decoder-model");
+  ).toHaveAttribute("data-chapter-id", "33-training-selection");
   await expect(
-    page.locator(
-      'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-    ),
-  ).toHaveAttribute("data-chapter-id", "34-final-evaluation");
+    page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]'),
+  ).toHaveCount(0);
   await expectNoOverflowOrClientScripts(page);
 }
 
 test.describe(
-  "chapter 33 training and validation selection vertical slice",
+  "chapter 34 once-only final evaluation vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 33 while Russian remains complete through Chapter 7", async ({
+    test("English publishes Chapter 34 while Russian remains complete through Chapter 7", async ({
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
       expect(english).toHaveLength(34);
-      expect(english[32]).toEqual(
+      expect(english[33]).toEqual(
         expect.objectContaining({
           chapterId,
-          order: 33,
+          order: 34,
           title: chapterTitle,
         }),
       );
@@ -398,7 +360,7 @@ test.describe(
       expect(missing?.status()).toBe(404);
     });
 
-    test("the Rust-backed lesson and discrete diagram render at desktop and narrow widths", async ({
+    test("the Rust-backed lesson and final report render at desktop and narrow widths", async ({
       page,
     }) => {
       const chapters = await readOrderedCourseChapters(page, "en");
@@ -416,7 +378,7 @@ test.describe(
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(chapterPath("en", chapterId));
       const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
+        'figure[data-visualization-id="final-evaluation-boundary"]',
       );
       const toggle = diagram.locator("[data-diagram-full-view-toggle]");
       await expect(toggle).toHaveCount(1);
@@ -424,65 +386,57 @@ test.describe(
       await page.waitForFunction(
         () =>
           document.fullscreenElement?.getAttribute("data-visualization-id") ===
-          "training-validation-checkpoints",
+          "final-evaluation-boundary",
       );
-      await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
-      await expect(diagram.locator(".measurement-point")).toHaveCount(10);
+      await expect(diagram.locator("[data-stage]")).toHaveCount(5);
+      await expect(diagram.locator("tbody tr")).toHaveCount(2);
       await expectDiagramContainment(page);
       await page.keyboard.press("Escape");
       await page.waitForFunction(() => document.fullscreenElement === null);
       await expect(toggle).toBeFocused();
     });
 
-    test("marker shapes and selection emphasis survive forced colors", async ({
+    test("text, double borders, and numbered states survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
       await page.goto(chapterPath("en", chapterId));
       const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
+        'figure[data-visualization-id="final-evaluation-boundary"]',
       );
       await expect(diagram.locator(".cue-list li")).toHaveText([
-        "● Circle: measured training loss",
-        "◆ Diamond: measured validation loss",
-        "◎ Double underline: selected validation state",
-        "↔ Gaps contain no measured values or interpolated line",
+        "≡ Equal sign: identical target slots",
+        "║ Double border: lower loss in this fixture",
+        "× Cross: reject test access before choices close",
       ]);
-      await expect(diagram.locator(".selected-point > span")).toHaveCSS(
-        "text-decoration-style",
+      await expect(diagram.locator('[data-stage="validation"]')).toHaveCSS(
+        "border-top-style",
         "double",
       );
-      await expect(diagram.locator(".selected-row > :last-child")).toHaveCSS(
-        "border-left-style",
-        "double",
-      );
+      await expect(
+        diagram.locator('[data-score-model="selected-decoder"] > :first-child'),
+      ).toHaveCSS("border-left-style", "double");
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test("RTL prose keeps the plot, table values, and checkpoint order left-to-right", async ({
+    test("RTL prose keeps technical values and evidence order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(chapterPath("en", chapterId));
       const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
+        'figure[data-visualization-id="final-evaluation-boundary"]',
       );
       await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
       await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      await expect(diagram.locator(".plot-field")).toHaveCSS(
-        "direction",
-        "ltr",
-      );
       expect(
         await diagram
-          .locator("[data-checkpoint-row]")
-          .evaluateAll((rows) =>
-            rows.map((row) => row.getAttribute("data-checkpoint-row")),
-          ),
-      ).toEqual(["0", "2", "4", "6", "8"]);
+          .locator("[data-stage]")
+          .evaluateAll((stages) => stages.map((stage) => stage.getAttribute("data-stage"))),
+      ).toEqual(["train", "validation", "frozen", "test", "report"]);
       expect(
         await diagram
-          .locator("[data-inline-math]")
+          .locator("code, bdi, [data-inline-math]")
           .evaluateAll((nodes) =>
             nodes.every((node) => getComputedStyle(node).direction === "ltr"),
           ),
@@ -490,7 +444,7 @@ test.describe(
       await expectNoOverflowOrClientScripts(page);
     });
 
-    test("the lesson and exact checkpoint evidence render without JavaScript", async ({
+    test("the lesson and exact report evidence render without JavaScript", async ({
       browser,
     }, testInfo) => {
       const context = await browser.newContext({
@@ -502,12 +456,15 @@ test.describe(
       await expect(
         page.getByRole("heading", { level: 1, name: chapterTitle }),
       ).toBeVisible();
-      await expect(page.locator("[data-operation-order]")).toHaveCount(6);
-      await expect(page.locator(".measurement-point")).toHaveCount(10);
-      await expect(page.locator("[data-checkpoint-row]")).toHaveCount(5);
-      await expect(page.locator(".selected-point")).toHaveCount(1);
+      await expect(page.locator("[data-stage]")).toHaveCount(5);
+      await expect(page.locator("[data-diagram-box]")).toHaveCount(9);
+      await expect(page.locator("tbody tr")).toHaveCount(2);
+      await expect(page.locator("[data-diagram-scroll]")).toHaveCount(1);
       await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
         0,
+      );
+      await expect(page.locator(".lesson-body")).toContainText(
+        "fnv1a64:dac4bb4d76beeb59",
       );
       await expectNoOverflowOrClientScripts(page);
       await context.close();

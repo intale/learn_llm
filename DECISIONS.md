@@ -6363,3 +6363,96 @@ dependency, localization, styling, hosting, deployment, or Rust change.
 
 **Affected step and run:** `repair-ch33-selection-star-notation`, run
 `20260726T085300Z-repair-ch33-selection-star-notation-01`.
+
+## 2026-07-26 - Seal final evaluation behind one test-only report
+
+**Status:** Accepted during Chapter 34 preflight before product files were edited.
+
+**Context:** Chapter 33 returns a deep validation-selected decoder state and
+proves that training and selection read no test data. Chapter 34 must now compare
+that state with the frozen bigram on identical test targets without turning the
+test partition into another checkpoint selector. The scheduled outputs omitted
+the strict Rust-trace parser, aggregate diagram/formula registries, Chapter 33's
+new next link, exact diagram-trace command, and Firefox-specific rendered gate.
+The global ledger also still described an earlier orchestration host even though
+the product pins themselves have not changed.
+
+**Decision:** Add a dependency-free `evaluation.rs` boundary that admits only a
+test epoch, requires matching corpus/split/tokenizer/context provenance for the
+validation-selected decoder and frozen training-only bigram, scores both over
+the same target tokens, aggregates token-weighted negative log-likelihood, and
+returns one immutable versioned report. Decoder scoring remains graph-free and
+must preserve parameter and gradient bits. The tiny demo reuses Chapter 33's
+selected-state evidence through a local workspace dependency, opens one new test
+fixture only for this report, and emits both learner and diagram traces. The
+diagram remains one static shared-style figure showing partition information
+flow plus the two numeric test scores. Expand the declared output and validation
+boundary before product work, record the current Windows orchestration plus
+separate canonical browser harness, and proceed without a cost approval prompt.
+
+Use the Bengio neural language-model paper only for its explicit train,
+validation, and test responsibilities; use the T5 paper only for validation
+checkpoint selection that avoids test-driven selection; and use the GPT-3 paper
+for the modern scale pressure of benchmark contamination checks. None of these
+sources establishes this repository's exact one-shot API, fixture, provenance
+strings, smoothing constant, deterministic trace, or claim that one recipe is
+universal.
+
+**Consequences:** Test loss supplies final comparative evidence but cannot change
+the selected state. The baseline and decoder see byte-for-byte aligned targets,
+the report makes provenance and access count inspectable, and the browser view is
+derived from Rust rather than reimplementing evaluation decisions. No external
+Rust dependency, paid service, generation service, runtime server, deployment,
+locale activation, shared diagram skin, or Linux build change is introduced.
+
+**Affected step and run:** `implement-ch34-final-evaluation`, run
+`20260726T092323Z-implement-ch34-final-evaluation-01`.
+
+## 2026-07-26 - Make the final-evaluation fixture unequal and explicitly distribution-shifted
+
+**Status:** Accepted during Chapter 34 fixture review before product files were edited.
+
+**Context:** The reviewed course plan requires the frozen decoder to beat the
+frozen bigram on the test fixture and asks learners to reason about token-weighted
+aggregation across unequal documents. The existing Chapter 33 training fixture is
+a nearly deterministic forward cycle, so its alpha-one bigram is extremely strong
+on matching transitions. A neutral seeded holdout does not reliably preserve the
+planned ordering, while copying the all-zero validation pattern into test would
+weaken the separation boundary.
+
+**Decision:** Freeze two previously unscored reverse-cycle test documents of nine
+and seven token IDs. At context length two they contribute fourteen and ten aligned
+target slots. Score both models over the same twenty-four slots. Require every
+contract, lesson, trace, and test to call the result fixture-specific and explain
+that the reversed synthetic holdout is a deliberate distribution shift, not broad
+evidence that decoders outperform bigrams.
+
+**Consequences:** The executable fixture satisfies the reviewed ordering with a
+healthy deterministic margin and visibly exercises token weighting. It does not
+reuse validation text, hide target selection, or support a universal model-quality
+claim. The fixture choice and caveat are checkpointed before implementation.
+
+**Affected step and run:** `implement-ch34-final-evaluation`, run
+`20260726T092323Z-implement-ch34-final-evaluation-01`.
+
+## 2026-07-26 - Reuse the Chapter 33 training fixture through one read-only boundary
+
+**Status:** Accepted during Chapter 34 API review before product files were edited.
+
+**Context:** The Chapter 34 baseline must be fitted on exactly the training
+documents that produced the validation-selected decoder. Those two token arrays
+are private to the Chapter 33 fixture. Copying them into the new demo would make
+the fairness claim depend on duplicated constants that could drift independently.
+
+**Decision:** Add `rust/demos/ch33-training-selection/src/lib.rs` to the declared
+Chapter 34 output boundary and expose one read-only helper that returns the
+existing immutable training-document slices. The Chapter 34 demo will depend on
+that local workspace package, obtain the selected decoder from the existing
+learner evidence, and fit the frozen bigram from the helper's exact slices.
+
+**Consequences:** Decoder and baseline training provenance has one executable
+source of truth. Chapter 33 behavior and report output remain unchanged; the
+shared edit adds no dependency, copied corpus, new training path, or test access.
+
+**Affected step and run:** `implement-ch34-final-evaluation`, run
+`20260726T092323Z-implement-ch34-final-evaluation-01`.

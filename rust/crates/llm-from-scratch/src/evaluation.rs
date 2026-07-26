@@ -1,0 +1,1177 @@
+//! Test-only final evaluation for one frozen validation-selected decoder.
+
+use std::error::Error;
+use std::fmt;
+
+use crate::bigram::{BigramError, BigramModel};
+use crate::corpus::Partition;
+use crate::metrics::{MetricError, score_assigned_probabilities};
+use crate::models::decoder::DecoderModel;
+use crate::training::batch::MiniBatchEpoch;
+use crate::training::trainer::{DecoderModelState, TrainerError, evaluate_no_grad};
+
+pub const FINAL_EVALUATION_REPORT_VERSION: u32 = 1;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ProvenanceField {
+    Corpus,
+    Split,
+    Tokenizer,
+    Context,
+}
+
+impl fmt::Display for ProvenanceField {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(match self {
+            Self::Corpus => "corpus",
+            Self::Split => "split",
+            Self::Tokenizer => "tokenizer",
+            Self::Context => "context",
+        })
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EvaluatedModel {
+    SelectedDecoder,
+    FrozenBigram,
+}
+
+impl fmt::Display for EvaluatedModel {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(match self {
+            Self::SelectedDecoder => "selected decoder",
+            Self::FrozenBigram => "frozen bigram",
+        })
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum EvaluationError {
+    EmptyProvenance {
+        field: ProvenanceField,
+    },
+    ZeroContextLength,
+    WrongSelectionPartition {
+        actual: Partition,
+    },
+    InvalidSelectionLoss {
+        value: f64,
+    },
+    WrongBaselinePartition {
+        actual: Partition,
+    },
+    UnfittedBigram,
+    WrongTestPartition {
+        actual: Partition,
+    },
+    EmptyTestEpoch,
+    AlreadyEvaluated,
+    ProvenanceMismatch {
+        field: ProvenanceField,
+    },
+    EpochContextMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    ModelContextMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    VocabularyMismatch {
+        decoder: usize,
+        bigram: usize,
+    },
+    TargetAlignmentMismatch {
+        batch: usize,
+        inputs: usize,
+        targets: usize,
+    },
+    InputTokenOutOfRange {
+        batch: usize,
+        position: usize,
+        id: u32,
+        vocabulary_size: usize,
+    },
+    TargetTokenOutOfRange {
+        batch: usize,
+        position: usize,
+        id: u32,
+        vocabulary_size: usize,
+    },
+    RestoredStateMismatch,
+    MissingGradient {
+        name: String,
+    },
+    DecoderParameterChanged,
+    DecoderGradientChanged,
+    GraphRecorded {
+        count: usize,
+    },
+    TargetCountMismatch {
+        expected: usize,
+        decoder: usize,
+        bigram: usize,
+    },
+    NonFiniteScore {
+        model: EvaluatedModel,
+        mean_nll: f64,
+    },
+    Trainer(TrainerError),
+    Metric(MetricError),
+    Bigram(BigramError),
+}
+
+impl fmt::Display for EvaluationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EmptyProvenance { field } => {
+                write!(formatter, "{field} provenance must not be blank")
+            }
+            Self::ZeroContextLength => {
+                formatter.write_str("provenance context length must be positive")
+            }
+            Self::WrongSelectionPartition { actual } => write!(
+                formatter,
+                "the selected decoder must come from Validation, got {actual:?}"
+            ),
+            Self::InvalidSelectionLoss { value } => write!(
+                formatter,
+                "selected validation loss must be finite and nonnegative, got {value}"
+            ),
+            Self::WrongBaselinePartition { actual } => write!(
+                formatter,
+                "the frozen bigram must be fitted on Train, got {actual:?}"
+            ),
+            Self::UnfittedBigram => {
+                formatter.write_str("the frozen bigram must own at least one fitted document")
+            }
+            Self::WrongTestPartition { actual } => {
+                write!(formatter, "final evaluation requires Test, got {actual:?}")
+            }
+            Self::EmptyTestEpoch => formatter.write_str("test epoch must contain targets"),
+            Self::AlreadyEvaluated => {
+                formatter.write_str("this final evaluator has already opened test data")
+            }
+            Self::ProvenanceMismatch { field } => {
+                write!(formatter, "{field} provenance does not match")
+            }
+            Self::EpochContextMismatch { expected, actual } => write!(
+                formatter,
+                "test epoch context length must be {expected}, got {actual}"
+            ),
+            Self::ModelContextMismatch { expected, actual } => write!(
+                formatter,
+                "decoder context capacity must be {expected}, got {actual}"
+            ),
+            Self::VocabularyMismatch { decoder, bigram } => write!(
+                formatter,
+                "decoder vocabulary {decoder} does not match bigram vocabulary {bigram}"
+            ),
+            Self::TargetAlignmentMismatch {
+                batch,
+                inputs,
+                targets,
+            } => write!(
+                formatter,
+                "test batch {batch} has {inputs} inputs but {targets} targets"
+            ),
+            Self::InputTokenOutOfRange {
+                batch,
+                position,
+                id,
+                vocabulary_size,
+            } => write!(
+                formatter,
+                "test batch {batch} input {position} has token {id} outside vocabulary {vocabulary_size}"
+            ),
+            Self::TargetTokenOutOfRange {
+                batch,
+                position,
+                id,
+                vocabulary_size,
+            } => write!(
+                formatter,
+                "test batch {batch} target {position} has token {id} outside vocabulary {vocabulary_size}"
+            ),
+            Self::RestoredStateMismatch => {
+                formatter.write_str("restored decoder bits differ from the selected state")
+            }
+            Self::MissingGradient { name } => {
+                write!(
+                    formatter,
+                    "decoder parameter {name} has no gradient storage"
+                )
+            }
+            Self::DecoderParameterChanged => {
+                formatter.write_str("final evaluation changed decoder parameter bits")
+            }
+            Self::DecoderGradientChanged => {
+                formatter.write_str("final evaluation changed decoder gradient bits")
+            }
+            Self::GraphRecorded { count } => {
+                write!(
+                    formatter,
+                    "final evaluation recorded {count} gradient graphs"
+                )
+            }
+            Self::TargetCountMismatch {
+                expected,
+                decoder,
+                bigram,
+            } => write!(
+                formatter,
+                "test evidence has {expected} targets, decoder scored {decoder}, and bigram scored {bigram}"
+            ),
+            Self::NonFiniteScore { model, mean_nll } => {
+                write!(formatter, "{model} produced non-finite mean NLL {mean_nll}")
+            }
+            Self::Trainer(error) => write!(formatter, "decoder evaluation failed: {error}"),
+            Self::Metric(error) => write!(formatter, "metric evaluation failed: {error}"),
+            Self::Bigram(error) => write!(formatter, "bigram evaluation failed: {error}"),
+        }
+    }
+}
+
+impl Error for EvaluationError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Trainer(error) => Some(error),
+            Self::Metric(error) => Some(error),
+            Self::Bigram(error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
+impl From<TrainerError> for EvaluationError {
+    fn from(error: TrainerError) -> Self {
+        Self::Trainer(error)
+    }
+}
+
+impl From<MetricError> for EvaluationError {
+    fn from(error: MetricError) -> Self {
+        Self::Metric(error)
+    }
+}
+
+impl From<BigramError> for EvaluationError {
+    fn from(error: BigramError) -> Self {
+        Self::Bigram(error)
+    }
+}
+
+// region:evaluation-provenance
+/// The data and context identity shared by every participant in a final report.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EvaluationProvenance {
+    corpus_fingerprint: String,
+    split_fingerprint: String,
+    tokenizer_fingerprint: String,
+    context_length: usize,
+}
+
+impl EvaluationProvenance {
+    pub fn new(
+        corpus_fingerprint: impl Into<String>,
+        split_fingerprint: impl Into<String>,
+        tokenizer_fingerprint: impl Into<String>,
+        context_length: usize,
+    ) -> Result<Self, EvaluationError> {
+        let provenance = Self {
+            corpus_fingerprint: corpus_fingerprint.into(),
+            split_fingerprint: split_fingerprint.into(),
+            tokenizer_fingerprint: tokenizer_fingerprint.into(),
+            context_length,
+        };
+        for (field, value) in [
+            (ProvenanceField::Corpus, provenance.corpus_fingerprint()),
+            (ProvenanceField::Split, provenance.split_fingerprint()),
+            (
+                ProvenanceField::Tokenizer,
+                provenance.tokenizer_fingerprint(),
+            ),
+        ] {
+            if value.trim().is_empty() {
+                return Err(EvaluationError::EmptyProvenance { field });
+            }
+        }
+        if context_length == 0 {
+            return Err(EvaluationError::ZeroContextLength);
+        }
+        Ok(provenance)
+    }
+
+    pub fn corpus_fingerprint(&self) -> &str {
+        &self.corpus_fingerprint
+    }
+
+    pub fn split_fingerprint(&self) -> &str {
+        &self.split_fingerprint
+    }
+
+    pub fn tokenizer_fingerprint(&self) -> &str {
+        &self.tokenizer_fingerprint
+    }
+
+    pub const fn context_length(&self) -> usize {
+        self.context_length
+    }
+}
+// endregion:evaluation-provenance
+
+/// A borrowed validation-selected decoder snapshot with no mutation API.
+#[derive(Clone, Copy, Debug)]
+pub struct SelectedDecoder<'a> {
+    state: &'a DecoderModelState,
+    selected_step: usize,
+    selected_validation_loss: f64,
+    provenance: &'a EvaluationProvenance,
+}
+
+impl<'a> SelectedDecoder<'a> {
+    pub fn new(
+        state: &'a DecoderModelState,
+        selected_step: usize,
+        selected_validation_loss: f64,
+        selection_partition: Partition,
+        provenance: &'a EvaluationProvenance,
+    ) -> Result<Self, EvaluationError> {
+        if selection_partition != Partition::Validation {
+            return Err(EvaluationError::WrongSelectionPartition {
+                actual: selection_partition,
+            });
+        }
+        if !selected_validation_loss.is_finite() || selected_validation_loss < 0.0 {
+            return Err(EvaluationError::InvalidSelectionLoss {
+                value: selected_validation_loss,
+            });
+        }
+        Ok(Self {
+            state,
+            selected_step,
+            selected_validation_loss,
+            provenance,
+        })
+    }
+
+    pub const fn state(self) -> &'a DecoderModelState {
+        self.state
+    }
+
+    pub const fn selected_step(self) -> usize {
+        self.selected_step
+    }
+
+    pub const fn selected_validation_loss(self) -> f64 {
+        self.selected_validation_loss
+    }
+
+    pub const fn provenance(self) -> &'a EvaluationProvenance {
+        self.provenance
+    }
+}
+
+/// A borrowed training-only count baseline with no refit operation.
+#[derive(Clone, Copy, Debug)]
+pub struct FrozenBigram<'a> {
+    model: &'a BigramModel,
+    provenance: &'a EvaluationProvenance,
+}
+
+impl<'a> FrozenBigram<'a> {
+    pub fn new(
+        model: &'a BigramModel,
+        fit_partition: Partition,
+        provenance: &'a EvaluationProvenance,
+    ) -> Result<Self, EvaluationError> {
+        if fit_partition != Partition::Train {
+            return Err(EvaluationError::WrongBaselinePartition {
+                actual: fit_partition,
+            });
+        }
+        if model.fitted_documents() == 0 {
+            return Err(EvaluationError::UnfittedBigram);
+        }
+        Ok(Self { model, provenance })
+    }
+
+    pub const fn model(self) -> &'a BigramModel {
+        self.model
+    }
+
+    pub const fn provenance(self) -> &'a EvaluationProvenance {
+        self.provenance
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ModelScore {
+    total_nll: f64,
+    target_count: usize,
+    mean_nll: f64,
+    perplexity: f64,
+}
+
+impl ModelScore {
+    fn new(
+        model: EvaluatedModel,
+        total_nll: f64,
+        target_count: usize,
+        mean_nll: f64,
+        perplexity: f64,
+    ) -> Result<Self, EvaluationError> {
+        if !total_nll.is_finite() || !mean_nll.is_finite() || !perplexity.is_finite() {
+            return Err(EvaluationError::NonFiniteScore { model, mean_nll });
+        }
+        Ok(Self {
+            total_nll,
+            target_count,
+            mean_nll,
+            perplexity,
+        })
+    }
+
+    pub const fn total_nll(self) -> f64 {
+        self.total_nll
+    }
+
+    pub const fn target_count(self) -> usize {
+        self.target_count
+    }
+
+    pub const fn mean_nll(self) -> f64 {
+        self.mean_nll
+    }
+
+    pub const fn perplexity(self) -> f64 {
+        self.perplexity
+    }
+}
+
+/// An owned versioned result with no setters and no model-selection operation.
+#[derive(Clone, Debug, PartialEq)]
+pub struct FinalEvaluationReport {
+    version: u32,
+    selected_step: usize,
+    selected_validation_loss: f64,
+    provenance: EvaluationProvenance,
+    test_document_ids: Vec<String>,
+    target_fingerprint: String,
+    window_count: usize,
+    batch_count: usize,
+    target_count: usize,
+    decoder: ModelScore,
+    bigram: ModelScore,
+    access_count: u8,
+    recorded_graphs: usize,
+    parameters_unchanged: bool,
+    gradients_unchanged: bool,
+}
+
+impl FinalEvaluationReport {
+    pub const fn version(&self) -> u32 {
+        self.version
+    }
+
+    pub const fn selected_step(&self) -> usize {
+        self.selected_step
+    }
+
+    pub const fn selected_validation_loss(&self) -> f64 {
+        self.selected_validation_loss
+    }
+
+    pub const fn provenance(&self) -> &EvaluationProvenance {
+        &self.provenance
+    }
+
+    pub fn test_document_ids(&self) -> &[String] {
+        &self.test_document_ids
+    }
+
+    pub fn target_fingerprint(&self) -> &str {
+        &self.target_fingerprint
+    }
+
+    pub const fn window_count(&self) -> usize {
+        self.window_count
+    }
+
+    pub const fn batch_count(&self) -> usize {
+        self.batch_count
+    }
+
+    pub const fn target_count(&self) -> usize {
+        self.target_count
+    }
+
+    pub const fn decoder(&self) -> ModelScore {
+        self.decoder
+    }
+
+    pub const fn bigram(&self) -> ModelScore {
+        self.bigram
+    }
+
+    pub const fn access_count(&self) -> u8 {
+        self.access_count
+    }
+
+    pub const fn recorded_graphs(&self) -> usize {
+        self.recorded_graphs
+    }
+
+    pub const fn parameters_unchanged(&self) -> bool {
+        self.parameters_unchanged
+    }
+
+    pub const fn gradients_unchanged(&self) -> bool {
+        self.gradients_unchanged
+    }
+
+    pub fn loss_gap(&self) -> f64 {
+        self.bigram.mean_nll - self.decoder.mean_nll
+    }
+
+    pub fn decoder_has_lower_loss(&self) -> bool {
+        self.decoder.mean_nll < self.bigram.mean_nll
+    }
+}
+
+#[derive(Debug)]
+struct TestEvidence {
+    document_ids: Vec<String>,
+    target_fingerprint: String,
+    target_count: usize,
+}
+
+fn require_matching_provenance(
+    expected: &EvaluationProvenance,
+    actual: &EvaluationProvenance,
+) -> Result<(), EvaluationError> {
+    for (field, matches) in [
+        (
+            ProvenanceField::Corpus,
+            expected.corpus_fingerprint == actual.corpus_fingerprint,
+        ),
+        (
+            ProvenanceField::Split,
+            expected.split_fingerprint == actual.split_fingerprint,
+        ),
+        (
+            ProvenanceField::Tokenizer,
+            expected.tokenizer_fingerprint == actual.tokenizer_fingerprint,
+        ),
+        (
+            ProvenanceField::Context,
+            expected.context_length == actual.context_length,
+        ),
+    ] {
+        if !matches {
+            return Err(EvaluationError::ProvenanceMismatch { field });
+        }
+    }
+    Ok(())
+}
+
+fn parameter_bits(model: &DecoderModel) -> Vec<u64> {
+    model
+        .parameters()
+        .iter()
+        .flat_map(|parameter| {
+            parameter
+                .tensor()
+                .value()
+                .into_vec()
+                .into_iter()
+                .map(f64::to_bits)
+        })
+        .collect()
+}
+
+fn gradient_bits(model: &DecoderModel) -> Result<Vec<u64>, EvaluationError> {
+    let mut bits = Vec::new();
+    for parameter in model.parameters() {
+        let gradient =
+            parameter
+                .tensor()
+                .gradient()
+                .ok_or_else(|| EvaluationError::MissingGradient {
+                    name: parameter.name().to_owned(),
+                })?;
+        bits.extend(gradient.as_slice().iter().map(|value| value.to_bits()));
+    }
+    Ok(bits)
+}
+
+fn fnv1a_byte(hash: &mut u64, byte: u8) {
+    *hash ^= u64::from(byte);
+    *hash = hash.wrapping_mul(1_099_511_628_211);
+}
+
+fn fnv1a_bytes(hash: &mut u64, bytes: &[u8]) {
+    for byte in bytes {
+        fnv1a_byte(hash, *byte);
+    }
+}
+
+fn validate_aligned_tokens(
+    batch: usize,
+    inputs: &[u32],
+    targets: &[u32],
+    vocabulary_size: usize,
+) -> Result<(), EvaluationError> {
+    if inputs.len() != targets.len() {
+        return Err(EvaluationError::TargetAlignmentMismatch {
+            batch,
+            inputs: inputs.len(),
+            targets: targets.len(),
+        });
+    }
+    for (position, (&input, &target)) in inputs.iter().zip(targets).enumerate() {
+        if usize::try_from(input)
+            .ok()
+            .is_none_or(|id| id >= vocabulary_size)
+        {
+            return Err(EvaluationError::InputTokenOutOfRange {
+                batch,
+                position,
+                id: input,
+                vocabulary_size,
+            });
+        }
+        if usize::try_from(target)
+            .ok()
+            .is_none_or(|id| id >= vocabulary_size)
+        {
+            return Err(EvaluationError::TargetTokenOutOfRange {
+                batch,
+                position,
+                id: target,
+                vocabulary_size,
+            });
+        }
+    }
+    Ok(())
+}
+
+fn inspect_test_epoch(
+    epoch: &MiniBatchEpoch,
+    vocabulary_size: usize,
+) -> Result<TestEvidence, EvaluationError> {
+    let mut document_ids = Vec::new();
+    let mut target_count = 0_usize;
+    let mut fingerprint = 14_695_981_039_346_656_037_u64;
+
+    for (batch_index, batch) in epoch.batches().iter().enumerate() {
+        validate_aligned_tokens(
+            batch_index,
+            batch.inputs(),
+            batch.targets(),
+            vocabulary_size,
+        )?;
+        for row in 0..batch.batch_width() {
+            let origin = &batch.provenance()[row];
+            if !document_ids
+                .iter()
+                .any(|existing| existing == origin.document_id())
+            {
+                document_ids.push(origin.document_id().to_owned());
+            }
+            fnv1a_bytes(&mut fingerprint, origin.document_id().as_bytes());
+            fnv1a_byte(&mut fingerprint, 0xff);
+            fnv1a_bytes(&mut fingerprint, &(origin.start() as u64).to_le_bytes());
+            let inputs = batch
+                .input_row(row)
+                .expect("batch row is constructed from complete inputs");
+            let targets = batch
+                .target_row(row)
+                .expect("batch row is constructed from complete targets");
+            for (&input, &target) in inputs.iter().zip(targets) {
+                fnv1a_bytes(&mut fingerprint, &input.to_le_bytes());
+                fnv1a_bytes(&mut fingerprint, &target.to_le_bytes());
+                target_count += 1;
+            }
+        }
+    }
+
+    Ok(TestEvidence {
+        document_ids,
+        target_fingerprint: format!("fnv1a64:{fingerprint:016x}"),
+        target_count,
+    })
+}
+
+fn score_bigram(
+    model: &BigramModel,
+    epoch: &MiniBatchEpoch,
+) -> Result<ModelScore, EvaluationError> {
+    let capacity = epoch
+        .batches()
+        .iter()
+        .map(|batch| batch.targets().len())
+        .sum();
+    let mut probabilities = Vec::with_capacity(capacity);
+    for (batch_index, batch) in epoch.batches().iter().enumerate() {
+        validate_aligned_tokens(
+            batch_index,
+            batch.inputs(),
+            batch.targets(),
+            model.vocabulary_size(),
+        )?;
+        for (&input, &target) in batch.inputs().iter().zip(batch.targets()) {
+            probabilities.push(model.smoothed_probability(input, target)?);
+        }
+    }
+    let metrics = score_assigned_probabilities(&probabilities)?;
+    ModelScore::new(
+        EvaluatedModel::FrozenBigram,
+        metrics.total_surprise(),
+        metrics.target_count(),
+        metrics.mean_nll(),
+        metrics.perplexity(),
+    )
+}
+
+// region:once-only-final-evaluation
+/// Owns one test epoch and consumes its local scoring permission on first use.
+///
+/// This type is deliberately not cloneable. It enforces one access through one
+/// owner; external dataset governance is still required to prevent another
+/// process from constructing a separate owner over copied data.
+#[derive(Debug)]
+pub struct FinalEvaluator {
+    test_epoch: MiniBatchEpoch,
+    provenance: EvaluationProvenance,
+    access_count: u8,
+}
+
+impl FinalEvaluator {
+    pub fn new(
+        test_epoch: MiniBatchEpoch,
+        provenance: EvaluationProvenance,
+    ) -> Result<Self, EvaluationError> {
+        if test_epoch.partition() != Partition::Test {
+            return Err(EvaluationError::WrongTestPartition {
+                actual: test_epoch.partition(),
+            });
+        }
+        if test_epoch.window_count() == 0 {
+            return Err(EvaluationError::EmptyTestEpoch);
+        }
+        if test_epoch.context_length() != provenance.context_length() {
+            return Err(EvaluationError::EpochContextMismatch {
+                expected: provenance.context_length(),
+                actual: test_epoch.context_length(),
+            });
+        }
+        Ok(Self {
+            test_epoch,
+            provenance,
+            access_count: 0,
+        })
+    }
+
+    pub const fn access_count(&self) -> u8 {
+        self.access_count
+    }
+
+    pub fn evaluate_once(
+        &mut self,
+        decoder: SelectedDecoder<'_>,
+        bigram: FrozenBigram<'_>,
+    ) -> Result<FinalEvaluationReport, EvaluationError> {
+        if self.access_count != 0 {
+            return Err(EvaluationError::AlreadyEvaluated);
+        }
+        require_matching_provenance(&self.provenance, decoder.provenance())?;
+        require_matching_provenance(&self.provenance, bigram.provenance())?;
+
+        let model_config = decoder.state().config();
+        if model_config.max_positions() != self.provenance.context_length() {
+            return Err(EvaluationError::ModelContextMismatch {
+                expected: self.provenance.context_length(),
+                actual: model_config.max_positions(),
+            });
+        }
+        let decoder_vocabulary = model_config.vocabulary_size();
+        let bigram_vocabulary = bigram.model().vocabulary_size();
+        if decoder_vocabulary != bigram_vocabulary {
+            return Err(EvaluationError::VocabularyMismatch {
+                decoder: decoder_vocabulary,
+                bigram: bigram_vocabulary,
+            });
+        }
+
+        // Every metadata error above leaves the test unopened. From this line on,
+        // even an error burns the local gate because token evidence is inspected.
+        self.access_count = 1;
+        let evidence = inspect_test_epoch(&self.test_epoch, decoder_vocabulary)?;
+        let model = decoder.state().restore()?;
+        let selected_bits = decoder.state().bit_pattern();
+        let parameters_before = parameter_bits(&model);
+        if parameters_before != selected_bits {
+            return Err(EvaluationError::RestoredStateMismatch);
+        }
+        let gradients_before = gradient_bits(&model)?;
+
+        let measured = evaluate_no_grad(&model, &self.test_epoch)?;
+        if measured.recorded_graphs() != 0 {
+            return Err(EvaluationError::GraphRecorded {
+                count: measured.recorded_graphs(),
+            });
+        }
+        let parameters_after = parameter_bits(&model);
+        if parameters_after != parameters_before {
+            return Err(EvaluationError::DecoderParameterChanged);
+        }
+        let gradients_after = gradient_bits(&model)?;
+        if gradients_after != gradients_before {
+            return Err(EvaluationError::DecoderGradientChanged);
+        }
+
+        let decoder_score = ModelScore::new(
+            EvaluatedModel::SelectedDecoder,
+            measured.mean_loss() * measured.token_count() as f64,
+            measured.token_count(),
+            measured.mean_loss(),
+            measured.mean_loss().exp(),
+        )?;
+        let bigram_score = score_bigram(bigram.model(), &self.test_epoch)?;
+        if evidence.target_count != measured.token_count()
+            || evidence.target_count != bigram_score.target_count()
+        {
+            return Err(EvaluationError::TargetCountMismatch {
+                expected: evidence.target_count,
+                decoder: measured.token_count(),
+                bigram: bigram_score.target_count(),
+            });
+        }
+
+        Ok(FinalEvaluationReport {
+            version: FINAL_EVALUATION_REPORT_VERSION,
+            selected_step: decoder.selected_step(),
+            selected_validation_loss: decoder.selected_validation_loss(),
+            provenance: self.provenance.clone(),
+            test_document_ids: evidence.document_ids,
+            target_fingerprint: evidence.target_fingerprint,
+            window_count: self.test_epoch.window_count(),
+            batch_count: self.test_epoch.batch_count(),
+            target_count: evidence.target_count,
+            decoder: decoder_score,
+            bigram: bigram_score,
+            access_count: self.access_count,
+            recorded_graphs: measured.recorded_graphs(),
+            parameters_unchanged: true,
+            gradients_unchanged: true,
+        })
+    }
+}
+// endregion:once-only-final-evaluation
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::data::CausalWindowConfig;
+    use crate::models::decoder::{DecoderModel, DecoderModelConfig};
+    use crate::nn::init::SplitMix64;
+    use crate::training::batch::{BatchDocument, BatchOrder, MiniBatchConfig, MiniBatchEpoch};
+
+    const TRAIN: [u32; 8] = [0, 1, 2, 3, 4, 0, 1, 2];
+    const TEST_A: [u32; 6] = [4, 3, 2, 1, 0, 4];
+    const TEST_B: [u32; 5] = [3, 2, 1, 0, 4];
+
+    fn provenance() -> EvaluationProvenance {
+        EvaluationProvenance::new("corpus-v1", "split-v1", "tokens-v1", 2).unwrap()
+    }
+
+    fn model(vocabulary_size: usize, context: usize) -> DecoderModel {
+        DecoderModel::new(
+            DecoderModelConfig::new(vocabulary_size, 4, 2, 4, 0, context, 10_000.0, 1e-6),
+            &mut SplitMix64::from_seed(34),
+        )
+        .unwrap()
+    }
+
+    fn epoch(partition: Partition, documents: &[(&str, &[u32])]) -> MiniBatchEpoch {
+        let documents = documents
+            .iter()
+            .map(|(id, tokens)| BatchDocument::new(id, partition, tokens).unwrap())
+            .collect::<Vec<_>>();
+        MiniBatchEpoch::build(
+            partition,
+            &documents,
+            CausalWindowConfig::new(2, 1).unwrap(),
+            MiniBatchConfig::new(3, BatchOrder::Sequential).unwrap(),
+        )
+        .unwrap()
+    }
+
+    fn baseline(vocabulary_size: usize) -> BigramModel {
+        BigramModel::fit_training_documents(vocabulary_size, 1.0, [&TRAIN[..]]).unwrap()
+    }
+
+    #[test]
+    fn provenance_rejects_blank_fields_and_zero_context() {
+        assert_eq!(
+            EvaluationProvenance::new(" ", "split", "tokens", 2),
+            Err(EvaluationError::EmptyProvenance {
+                field: ProvenanceField::Corpus,
+            })
+        );
+        assert_eq!(
+            EvaluationProvenance::new("corpus", "", "tokens", 2),
+            Err(EvaluationError::EmptyProvenance {
+                field: ProvenanceField::Split,
+            })
+        );
+        assert_eq!(
+            EvaluationProvenance::new("corpus", "split", "", 2),
+            Err(EvaluationError::EmptyProvenance {
+                field: ProvenanceField::Tokenizer,
+            })
+        );
+        assert_eq!(
+            EvaluationProvenance::new("corpus", "split", "tokens", 0),
+            Err(EvaluationError::ZeroContextLength)
+        );
+    }
+
+    #[test]
+    fn typed_views_enforce_validation_selection_and_training_fit() {
+        let state = DecoderModelState::capture(&model(5, 2));
+        let provenance = provenance();
+        assert!(matches!(
+            SelectedDecoder::new(&state, 2, 1.0, Partition::Train, &provenance),
+            Err(EvaluationError::WrongSelectionPartition {
+                actual: Partition::Train
+            })
+        ));
+        assert!(matches!(
+            SelectedDecoder::new(&state, 2, f64::NAN, Partition::Validation, &provenance),
+            Err(EvaluationError::InvalidSelectionLoss { .. })
+        ));
+        assert!(matches!(
+            FrozenBigram::new(&baseline(5), Partition::Validation, &provenance),
+            Err(EvaluationError::WrongBaselinePartition {
+                actual: Partition::Validation
+            })
+        ));
+        let empty =
+            BigramModel::fit_training_documents(5, 1.0, std::iter::empty::<&'static [u32]>())
+                .unwrap();
+        assert!(matches!(
+            FrozenBigram::new(&empty, Partition::Train, &provenance),
+            Err(EvaluationError::UnfittedBigram)
+        ));
+    }
+
+    #[test]
+    fn evaluator_requires_nonempty_test_data_with_matching_context() {
+        let provenance = provenance();
+        assert!(matches!(
+            FinalEvaluator::new(
+                epoch(Partition::Train, &[("train", &TEST_A)]),
+                provenance.clone()
+            ),
+            Err(EvaluationError::WrongTestPartition {
+                actual: Partition::Train
+            })
+        ));
+        assert!(matches!(
+            FinalEvaluator::new(
+                epoch(Partition::Validation, &[("validation", &TEST_A)]),
+                provenance.clone()
+            ),
+            Err(EvaluationError::WrongTestPartition {
+                actual: Partition::Validation
+            })
+        ));
+        assert_eq!(
+            FinalEvaluator::new(
+                epoch(Partition::Test, &[("empty", &[])]),
+                provenance.clone()
+            )
+            .unwrap_err(),
+            EvaluationError::EmptyTestEpoch
+        );
+        let wrong_context =
+            EvaluationProvenance::new("corpus-v1", "split-v1", "tokens-v1", 3).unwrap();
+        assert_eq!(
+            FinalEvaluator::new(epoch(Partition::Test, &[("test", &TEST_A)]), wrong_context)
+                .unwrap_err(),
+            EvaluationError::EpochContextMismatch {
+                expected: 3,
+                actual: 2,
+            }
+        );
+    }
+
+    #[test]
+    fn one_report_scores_identical_targets_without_changing_decoder_bits() {
+        let provenance = provenance();
+        let decoder_model = model(5, 2);
+        let state = DecoderModelState::capture(&decoder_model);
+        let decoder =
+            SelectedDecoder::new(&state, 7, 1.25, Partition::Validation, &provenance).unwrap();
+        let bigram_model = baseline(5);
+        let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
+        let mut evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("test-a", &TEST_A), ("test-b", &TEST_B)]),
+            provenance.clone(),
+        )
+        .unwrap();
+        let report = evaluator.evaluate_once(decoder, bigram).unwrap();
+
+        assert_eq!(report.version(), FINAL_EVALUATION_REPORT_VERSION);
+        assert_eq!(report.selected_step(), 7);
+        assert_eq!(report.selected_validation_loss(), 1.25);
+        assert_eq!(report.provenance(), &provenance);
+        assert_eq!(report.test_document_ids(), ["test-a", "test-b"]);
+        assert_eq!(report.window_count(), 7);
+        assert_eq!(report.batch_count(), 3);
+        assert_eq!(report.target_count(), 14);
+        assert_eq!(report.decoder().target_count(), report.target_count());
+        assert_eq!(report.bigram().target_count(), report.target_count());
+        assert!(report.decoder().mean_nll().is_finite());
+        assert!(report.bigram().mean_nll().is_finite());
+        assert_eq!(report.recorded_graphs(), 0);
+        assert!(report.parameters_unchanged());
+        assert!(report.gradients_unchanged());
+        assert_eq!(report.access_count(), 1);
+        assert_eq!(evaluator.access_count(), 1);
+        assert_eq!(
+            evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+            EvaluationError::AlreadyEvaluated
+        );
+    }
+
+    #[test]
+    fn provenance_and_shape_errors_before_open_leave_access_unused() {
+        let provenance = provenance();
+        let state = DecoderModelState::capture(&model(5, 2));
+        let bigram_model = baseline(5);
+        let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
+        for (wrong, field) in [
+            (
+                EvaluationProvenance::new("other", "split-v1", "tokens-v1", 2).unwrap(),
+                ProvenanceField::Corpus,
+            ),
+            (
+                EvaluationProvenance::new("corpus-v1", "other", "tokens-v1", 2).unwrap(),
+                ProvenanceField::Split,
+            ),
+            (
+                EvaluationProvenance::new("corpus-v1", "split-v1", "other", 2).unwrap(),
+                ProvenanceField::Tokenizer,
+            ),
+            (
+                EvaluationProvenance::new("corpus-v1", "split-v1", "tokens-v1", 3).unwrap(),
+                ProvenanceField::Context,
+            ),
+        ] {
+            let decoder =
+                SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &wrong).unwrap();
+            let mut evaluator = FinalEvaluator::new(
+                epoch(Partition::Test, &[("test", &TEST_A)]),
+                provenance.clone(),
+            )
+            .unwrap();
+            assert_eq!(
+                evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+                EvaluationError::ProvenanceMismatch { field }
+            );
+            assert_eq!(evaluator.access_count(), 0);
+        }
+
+        let mut evaluator = FinalEvaluator::new(
+            epoch(Partition::Test, &[("test", &TEST_A)]),
+            provenance.clone(),
+        )
+        .unwrap();
+
+        let state = DecoderModelState::capture(&model(5, 3));
+        let decoder =
+            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        assert_eq!(
+            evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+            EvaluationError::ModelContextMismatch {
+                expected: 2,
+                actual: 3,
+            }
+        );
+        assert_eq!(evaluator.access_count(), 0);
+
+        let state = DecoderModelState::capture(&model(6, 2));
+        let decoder =
+            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        assert_eq!(
+            evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+            EvaluationError::VocabularyMismatch {
+                decoder: 6,
+                bigram: 5,
+            }
+        );
+        assert_eq!(evaluator.access_count(), 0);
+    }
+
+    #[test]
+    fn post_open_token_error_consumes_the_gate() {
+        let provenance = provenance();
+        let state = DecoderModelState::capture(&model(5, 2));
+        let decoder =
+            SelectedDecoder::new(&state, 1, 1.0, Partition::Validation, &provenance).unwrap();
+        let bigram_model = baseline(5);
+        let bigram = FrozenBigram::new(&bigram_model, Partition::Train, &provenance).unwrap();
+        for (invalid, expected_input_error) in [([5, 0, 0, 0], true), ([0, 0, 5, 0], false)] {
+            let mut evaluator = FinalEvaluator::new(
+                epoch(Partition::Test, &[("test", &invalid)]),
+                provenance.clone(),
+            )
+            .unwrap();
+            let error = evaluator.evaluate_once(decoder, bigram).unwrap_err();
+            assert!(if expected_input_error {
+                matches!(error, EvaluationError::InputTokenOutOfRange { id: 5, .. })
+            } else {
+                matches!(error, EvaluationError::TargetTokenOutOfRange { id: 5, .. })
+            });
+            assert_eq!(evaluator.access_count(), 1);
+            assert_eq!(
+                evaluator.evaluate_once(decoder, bigram).unwrap_err(),
+                EvaluationError::AlreadyEvaluated
+            );
+        }
+    }
+
+    #[test]
+    fn alignment_guard_rejects_length_drift_before_zip_can_truncate() {
+        assert_eq!(
+            validate_aligned_tokens(3, &[0, 1], &[1], 5),
+            Err(EvaluationError::TargetAlignmentMismatch {
+                batch: 3,
+                inputs: 2,
+                targets: 1,
+            })
+        );
+    }
+
+    #[test]
+    fn evidence_fingerprint_covers_ordered_origins_inputs_and_targets() {
+        let first = epoch(Partition::Test, &[("test-a", &TEST_A), ("test-b", &TEST_B)]);
+        let reversed = epoch(Partition::Test, &[("test-b", &TEST_B), ("test-a", &TEST_A)]);
+        let first_evidence = inspect_test_epoch(&first, 5).unwrap();
+        let repeated = inspect_test_epoch(&first, 5).unwrap();
+        let reversed_evidence = inspect_test_epoch(&reversed, 5).unwrap();
+        assert_eq!(first_evidence.target_count, 14);
+        assert_eq!(
+            first_evidence.target_fingerprint,
+            repeated.target_fingerprint
+        );
+        assert_ne!(
+            first_evidence.target_fingerprint,
+            reversed_evidence.target_fingerprint
+        );
+    }
+}

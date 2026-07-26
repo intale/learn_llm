@@ -1,0 +1,458 @@
+---
+{
+  "chapter_id": "34-final-evaluation",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 34,
+  "concept_id": "final-evaluation",
+  "title": "Open test once, keep the report",
+  "description": "Learn how to freeze validation-selected model decisions, score identical held-out targets once without a gradient graph, and publish a provenance-checked final LLM evaluation report.",
+  "objective": "Evaluate the frozen validation-selected decoder through one test-only gate, aggregate every target token fairly, and compare it with a frozen bigram fitted on the same training tokens.",
+  "worked_inputs": "Score two fixed reverse-cycle test documents of nine and seven token IDs with the Chapter 33 context-two decoder and an alpha-one bigram fitted on the exact same two training documents; compare all 24 aligned target slots once.",
+  "formula": {
+    "latex": "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
+    "symbols": [
+      {
+        "symbol": "\\mathcal{L}_{te}",
+        "meaning": "the final token-weighted mean negative log-likelihood on the test partition"
+      },
+      {
+        "symbol": "\\theta_{s^*}",
+        "meaning": "the frozen decoder state already selected by validation at checkpoint step s star"
+      },
+      {
+        "symbol": "s^*",
+        "meaning": "the checkpoint index chosen before test evaluation; it cannot change after the gate opens"
+      },
+      {
+        "symbol": "N_{te}",
+        "meaning": "the number of aligned target-token slots scored in the complete test epoch"
+      },
+      {
+        "symbol": "n",
+        "meaning": "one aligned test target slot in stable document, window, and position order"
+      },
+      {
+        "symbol": "x_n",
+        "meaning": "the causal input available at test target slot n"
+      },
+      {
+        "symbol": "y_n",
+        "meaning": "the observed next-token target at slot n"
+      },
+      {
+        "symbol": "p_{\\theta_{s^*}}(y_n\\mid x_n)",
+        "meaning": "the frozen selected decoder probability assigned to the observed target under its causal context"
+      },
+      {
+        "symbol": "\\log",
+        "meaning": "the natural logarithm, so the loss is measured in nats per target token"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "evaluation-method",
+      "limitation": "Training scores judge data the model already fitted, while repeatedly inspecting one holdout gradually turns that holdout into another selection signal.",
+      "later_advance": "Neural language-model studies separated fitting, validation-driven choices, and test reporting; large transfer studies made validation checkpoint choice operationally explicit, while web-scale pretraining added dataset-overlap and provenance audits to the evaluation boundary.",
+      "modern_llm_role": "A trustworthy final LLM comparison freezes model and data decisions, scores like-for-like targets without a gradient graph, records provenance, and treats the held-out result as evidence rather than permission to tune again.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio and colleagues use separate training, validation, and test portions, use validation for model choices and early stopping, and then report test perplexity for an early neural language model."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
+          "source_url": "https://www.jmlr.org/papers/volume21/20-074/20-074.pdf",
+          "claim": "Raffel and colleagues save fine-tuning checkpoints, select by validation performance, and generally keep exploratory comparisons on validation data to avoid test-set model selection before final reporting."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Language Models are Few-Shot Learners",
+          "source_url": "https://proceedings.neurips.cc/paper_files/paper/2020/file/1457c0d6bfcb4967418bfb8ac142f64a-Paper.pdf",
+          "claim": "Brown and colleagues examine overlap between web-scale pretraining data and evaluation benchmarks, compare clean subsets, and omit heavily contaminated language-model tasks, showing why nominal split labels alone do not settle provenance."
+        }
+      ]
+    },
+    "approach": "Move from training-set reporting and repeatedly consulted holdouts toward a frozen three-role protocol: training fits, validation selects, and test supplies one final comparison.",
+    "summary": "The road to modern LLM evaluation combines three-way role separation with checkpoint discipline and data-overlap audits. The chapter's one-gate rule is a deliberately strict executable course policy, not a claim that the cited papers used exactly one test query or that a local gate can replace real dataset governance.",
+    "rust_source": "rust/demos/ch34-final-evaluation/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
+      "region": "evaluation-provenance",
+      "purpose": "Own and validate the corpus, split, tokenizer, and context identity shared by the selected decoder, frozen baseline, and test epoch."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/evaluation.rs",
+      "region": "once-only-final-evaluation",
+      "purpose": "Reject pre-open role and provenance drift, consume one local test permission, score both models over identical targets, and return the immutable report."
+    },
+    {
+      "path": "rust/demos/ch34-final-evaluation/src/lib.rs",
+      "region": "historical-evaluation-contrast",
+      "purpose": "Keep the historical training-score, repeatedly inspected holdout, three-way protocol, and contamination-audit responsibilities distinct."
+    },
+    {
+      "path": "rust/demos/ch34-final-evaluation/src/lib.rs",
+      "region": "learner-evidence",
+      "purpose": "Freeze the exact Chapter 33-selected state and same-training-token bigram before opening the unequal two-document test epoch once."
+    },
+    {
+      "path": "rust/demos/ch34-final-evaluation/src/main.rs",
+      "purpose": "Print only the frozen Chapter 34 learner report."
+    },
+    {
+      "path": "rust/demos/ch34-final-evaluation/src/diagram_trace.rs",
+      "region": "final-evaluation-trace",
+      "purpose": "Serialize the exact boundary, provenance, score, comparison, proof, and history records consumed by the static figure."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "final-evaluation-boundary",
+    "rationale": "One information-flow sequence makes the fit/select/evaluate boundary visible, while an exact two-row score table and provenance cards show why the numeric comparison is like-for-like evidence rather than another model-selection step."
+  },
+  "decoder_connection": "The cumulative decoder now has one validation-selected state and one immutable test report on shared targets; Chapter 35 will serialize that exact selected and evaluated state with its tokenizer, configuration, optimizer, and RNG provenance."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import FinalEvaluationDiagram from "../../../components/chapters/FinalEvaluationDiagram.astro";
+
+export const diagramLabels = {
+  title: "Freeze choices before final evidence",
+  description:
+    "Follow training, validation selection, a sealed state, one test evaluation, and an immutable report; then compare two Rust-authored losses over the same 24 target slots.",
+  sections: {
+    boundary: "Give each partition one responsibility",
+    comparison: "Score identical target evidence",
+    proof: "Audit provenance, access, and state",
+  },
+  stages: {
+    train: "Train fits parameters",
+    validation: "Validation selects the checkpoint",
+    frozen: "Freeze every decision",
+    test: "Test evaluates once",
+    report: "Keep the report immutable",
+  },
+  models: {
+    decoder: "Selected decoder",
+    bigram: "Frozen bigram",
+  },
+  fields: {
+    model: "Model",
+    fittedRole: "Fitted on",
+    selectedBy: "Selected by",
+    targetCount: "Shared targets",
+    totalNll: "Total NLL",
+    meanLoss: "Mean test loss",
+  },
+  cues: {
+    fits: "May update parameters",
+    selects: "May choose among planned states",
+    sealed: "No choice may change now",
+    evaluatesOnce: "May supply evidence, never selection",
+    lowerLoss: "Double border: lower loss in this fixture",
+    sameTargets: "Equal sign: identical target slots",
+    rejectedBeforeFreeze: "Cross: reject test access before choices close",
+    verified: "Verified by the Rust report",
+  },
+  proofs: {
+    provenance: "Matching data provenance",
+    selectionClosed: "Selection was already closed",
+    noGrad: "No graph or state mutation",
+    immutableState: "One versioned report",
+  },
+  captions: {
+    boundary:
+      "The arrows are responsibilities, not data reuse: training fits, validation selects, and test becomes readable only after the frozen boundary.",
+    comparison:
+      "Both rows preserve the exact six-decimal Rust lexemes and the same target count; no browser-side loss arithmetic chooses the lower row.",
+    proof:
+      "The report binds the comparison to one corpus, split, literal-token mapping, context length, ordered target fingerprint, and local access count.",
+  },
+  scrollers: {
+    comparison: "Scrollable final decoder and bigram score comparison",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Freeze the comparison before opening test
+
+Evaluate the frozen validation-selected decoder through one test-only gate,
+aggregate every target token fairly, and compare it with a frozen bigram fitted
+on the same training tokens. Chapter 33 already chose checkpoint $s^*=8$ with
+validation loss $1.595297$ and recorded `test_reads=0` during training and
+selection.
+
+Before creating the test gate, the fixture freezes every remaining choice:
+
+1. vocabulary size $V=5$ and context length $T=2$;
+2. the Chapter 33 selected parameter snapshot;
+3. an add-one bigram fitted on the exact same two training token slices;
+4. sequential stride-one windows and batch width $4$; and
+5. two test documents of unequal length.
+
+```text
+test-a = [4,3,2,1,0,4,3,2,1]
+test-b = [3,2,1,0,4,3,2]
+```
+
+The first document contributes $14$ aligned target slots and the second
+contributes $10$, so predict $N_{te}=24$. The canonical report opens its local
+gate once, preserves every decoder parameter and gradient bit, and reports
+
+$$
+\mathcal{L}_{te}^{\mathrm{decoder}}=1.607679,qquad
+\mathcal{L}_{te}^{\mathrm{bigram}}=2.236735.
+$$
+
+Thus the decoder is lower by $\Delta_{te}=0.629055$ in this fixture. The test
+documents deliberately reverse the synthetic training cycle, so this result
+does not claim that decoders always beat bigrams. It verifies the comparison
+mechanics and the reviewed tiny-course acceptance case.
+
+{/* chapter-section:formula */}
+
+## Average surprise over target tokens
+
+The complete final decoder score is
+
+$$
+\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)
+$$
+
+The state $\theta_{s^*}$ is already frozen. Test loss may describe it but cannot
+change $s^*$, the learning-rate schedule, the tokenizer, the baseline, or any
+other choice.
+
+Unequal documents require token weighting. If document $d$ contributes $N_d$
+targets with mean loss $\mathcal{L}^{(d)}_{te}$, then
+
+$$
+\mathcal{L}_{te}=\frac{\sum_d N_d\mathcal{L}^{(d)}_{te}}{\sum_d N_d},\qquad N_{te}=\sum_d N_d
+$$
+
+For this run, $N_1=14$, $N_2=10$, and $N_{te}=24$. Averaging two document means
+would incorrectly give the shorter document the same weight as the longer one.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep states, slots, and roles distinct
+
+- $\mathcal{L}_{te}$ is token-weighted mean negative log-likelihood on `Test`.
+- $\theta_{s^*}$ is the complete decoder state chosen before test opens.
+- $s^*$ is the validation-selected checkpoint index, here $s^*=8$.
+- $N_{te}$ is the complete test target count, here $N_{te}=24$.
+- $n$ indexes one stable document, window, and target position.
+- $x_n$ is the causal input available at slot $n$.
+- $y_n$ is the observed next-token target at slot $n$.
+- $p_{\theta_{s^*}}(y_n\mid x_n)$ is the frozen decoder probability assigned
+  to that target.
+- $\log$ is the natural logarithm, so loss is in nats per target token.
+
+`Train`, `Validation`, and `Test` are concrete partition variants in the
+implementation. Conceptually, training fits, validation selects, and test
+supplies final evidence. Once a test result changes a choice, that result has
+become selection evidence rather than an independent final measurement.
+
+The local gate is deliberately not a claim of global uniqueness. Another process
+could construct another owner from copied data. Real evaluations also require
+access control, audit logs, and dataset governance.
+
+{/* chapter-section:history */}
+
+## From training scores to governed final LLM evidence
+
+Move from training-set reporting and repeatedly consulted holdouts toward a
+frozen three-role protocol: training fits, validation selects, and test supplies
+one final comparison. This is a history of LLM evaluation practice, not a history
+of programming languages.
+
+[A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+shows an early neural-language-model separation. Bengio and colleagues use
+separate training, validation, and test portions, use validation for model
+choices and early stopping, and then report test perplexity for an early neural
+language model. Training scores
+judge data the model already fitted, while repeatedly inspecting one holdout
+gradually turns that holdout into another selection signal. The paper supports
+the three roles; it does not establish an exactly-once access count.
+
+[Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer](https://www.jmlr.org/papers/volume21/20-074/20-074.pdf)
+makes checkpoint responsibility operational at larger scale. Raffel and
+colleagues save fine-tuning checkpoints, select by validation performance, and
+generally keep exploratory comparisons on validation data to avoid test-set
+model selection before final reporting. The selected quantity is task-dependent
+validation performance, not universally validation loss.
+
+[Language Models are Few-Shot Learners](https://proceedings.neurips.cc/paper_files/paper/2020/file/1457c0d6bfcb4967418bfb8ac142f64a-Paper.pdf)
+adds the web-scale provenance pressure. Brown and colleagues examine overlap
+between web-scale pretraining data and evaluation benchmarks, compare clean
+subsets, and omit heavily contaminated language-model tasks, showing why nominal
+split labels alone do not settle provenance. A nominal test label therefore does
+not by itself prove independence. The mostly small clean-subset changes
+permit multiple interpretations and do not prove contamination caused a score
+increase.
+
+Neural language-model studies separated fitting, validation-driven choices, and
+test reporting; large transfer studies made validation checkpoint choice
+operationally explicit, while web-scale pretraining added dataset-overlap and
+provenance audits to the evaluation boundary. A trustworthy final LLM comparison
+freezes model and data decisions, scores like-for-like targets without a gradient
+graph, records provenance, and treats the held-out result as evidence rather than
+permission to tune again.
+
+The chapter's one-gate rule is a deliberately strict executable course policy.
+It is not a claim that these papers used exactly one test query, and the local
+Rust counter is not a replacement for organizational data governance.
+
+<RustSource
+  path="rust/demos/ch34-final-evaluation/src/lib.rs"
+  region="historical-evaluation-contrast"
+  caption="Keep training-only reporting, repeated holdout inspection, three-way roles, and contamination audits distinct"
+  label="Rust source for the Chapter 34 LLM-evaluation history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Make the final boundary executable
+
+`EvaluationProvenance` owns nonblank corpus, split, and tokenizer fingerprints
+plus a positive context length. Equality is field-by-field, so a matching label
+cannot hide a changed tokenizer or context.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/evaluation.rs"
+  region="evaluation-provenance"
+  caption="Bind every participant in the final comparison to one corpus, split, tokenizer, and context identity"
+  label="Rust source implementing Chapter 34 evaluation provenance"
+/>
+
+`SelectedDecoder` accepts only a `Validation`-selected snapshot.
+`FrozenBigram` accepts only a model fitted on `Train`. The Chapter 34 fixture
+obtains the exact Chapter 33 training slices through a read-only helper, so the
+baseline does not depend on copied constants. It fits the unchanged alpha-one
+bigram algorithm before constructing the test evaluator.
+
+<RustSource
+  path="rust/demos/ch34-final-evaluation/src/lib.rs"
+  region="learner-evidence"
+  caption="Freeze the selected decoder and same-training-token baseline before opening the unequal test documents once"
+  label="Rust source assembling the Chapter 34 final comparison"
+/>
+
+`FinalEvaluator` owns a nonempty `Test` epoch and is neither cloneable nor
+copyable. Role, provenance, context, and vocabulary errors leave access count
+$0$. Immediately before reading test token IDs for scoring, the evaluator sets
+the count to $1$. A later error still consumes that local permission.
+
+The decoder is restored from its deep state, scored inside the existing no-grad
+boundary, and checked bit for bit afterward. The bigram then visits the exact
+same flat input/target slots, including repetitions from overlapping decoder
+windows. A length check runs before `zip`, so future alignment drift cannot be
+silently truncated.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/evaluation.rs"
+  region="once-only-final-evaluation"
+  caption="Consume one local test permission, score identical targets graph-free, and return an immutable versioned report"
+  label="Rust source implementing the complete Chapter 34 final evaluator"
+/>
+
+The report has getters but no setters or selection operation. It owns schema
+version $1$, the selected step, provenance, ordered target fingerprint, counts,
+both model scores, one access count, and state-preservation proofs.
+
+<RustSource
+  path="rust/demos/ch34-final-evaluation/src/main.rs"
+  caption="Print only the frozen Chapter 34 learner report"
+  label="Rust entry point for the Chapter 34 learner report"
+/>
+
+Run `cargo run --quiet --locked -p ch34-final-evaluation`. Standard output
+matches `rust/demos/ch34-final-evaluation/expected.txt` byte for byte, including
+its final newline. Tests cover wrong roles, all provenance fields, empty data,
+context and vocabulary drift, input and target bounds, alignment, consumed-on-error
+behavior, graph freedom, exact bits, unequal weighting, deterministic replay, and
+the exact fixture scores.
+
+{/* chapter-section:visualization */}
+
+## Read one information boundary and one comparison
+
+The diagram trace serializes the final report, partition responsibilities,
+provenance, two scores, comparison, proof flags, and history boundary as ten
+strict lines.
+
+<RustSource
+  path="rust/demos/ch34-final-evaluation/src/diagram_trace.rs"
+  region="final-evaluation-trace"
+  caption="Emit the strict ten-line final-evaluation trace consumed by the static figure"
+  label="Rust source producing the Chapter 34 diagram trace"
+/>
+
+<FinalEvaluationDiagram labels={diagramLabels} />
+
+The build-time parser validates and projects the Rust-authored trace; it performs
+no loss arithmetic. The five numbered cards show why test cannot appear before
+the frozen boundary. The table repeats $N_{te}=24$ for both rows and marks the
+lower fixture loss with text plus a double start border. The four proof cards
+retain `test_reads=0` during selection, one final access, zero graph nodes,
+unchanged state bits, and `fnv1a64:dac4bb4d76beeb59` target evidence.
+
+{/* chapter-section:exercises */}
+
+## Classify legal decisions before you run
+
+1. Two documents contribute $14$ and $10$ targets. Predict the correct
+   denominator and explain why the mean of two document means is wrong.
+2. A developer lowers the learning rate after seeing test loss. Is that legal
+   final reporting or a leak?
+3. Another checkpoint has lower test loss than $\theta_{s^*}$. May the report
+   replace $s^*$?
+4. The decoder scores overlapping context-two windows, but the bigram scores
+   each original transition once. Are the resulting means comparable?
+5. Change only the tokenizer fingerprint. Does the gate open, and does its
+   access count change?
+6. Put token ID $5$ into this vocabulary-$5$ test epoch. What happens if the
+   error is discovered after test scoring begins?
+7. From losses $1.607679$ and $2.236735$, state one justified conclusion and
+   one unjustified universal conclusion.
+8. Two processes each build a fresh local evaluator over copied test data. What
+   external control is missing?
+
+<details>
+  <summary>Check your reasoning</summary>
+
+  1. $N_{te}=14+10=24$; each target, not each document, receives equal weight.
+  2. It leaks test information into optimization; validation should have driven
+     that choice.
+  3. No. $s^*$ was already chosen by validation. A new untouched test set would
+     be needed after reselection.
+  4. No. Both models must score the same ordered slots, including repetitions.
+  5. Provenance preflight rejects it while the local access count remains $0$.
+  6. Scoring fails and the owner remains consumed, so retry is forbidden.
+  7. The selected decoder is lower on this reversed synthetic fixture; the
+     numbers do not show that decoders always beat bigrams.
+  8. Dataset access control and a shared audit log are missing.
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Carry the selected and evaluated state forward
+
+The cumulative decoder now has one validation-selected state and one immutable
+test report on shared targets; Chapter 35 will serialize that exact selected and
+evaluated state with its tokenizer, configuration, optimizer, and RNG provenance.
+
+Serialization must reproduce this model and its logits, not reopen test data or
+turn the final report into a new selection signal.

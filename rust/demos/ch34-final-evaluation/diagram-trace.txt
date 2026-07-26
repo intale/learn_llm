@@ -1,0 +1,10 @@
+FINAL_EVALUATION_TRACE_V1
+REPORT|version=1|partition=test|selected_step=8|selection_criterion=validation-only|test_accesses=1
+BOUNDARY|train_role=fit|validation_role=select|test_role=evaluate-once|selection_test_reads=0|evaluation_test_reads=1|test_selectable=false
+PROVENANCE|corpus=ch33-34-synthetic-v1|split=fixed-role-split-v1|tokenizer=literal-u32-v1|vocabulary=5|context=2|documents=test-a,test-b|windows=12|batches=3|targets=24|target_fingerprint=fnv1a64:dac4bb4d76beeb59
+SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets=24|total_nll=38.584306|mean_nll=1.607679|perplexity=4.991215
+SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets=24|total_nll=53.681634|mean_nll=2.236735|perplexity=9.362710
+COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true|fixture_specific=true
+PROOF|token_weighted=true|provenance_match=true|graph_nodes_before=0|graph_nodes_after=0|parameters_unchanged=true|gradients_unchanged=true|report_immutable=true|selection_closed=true
+HISTORY|training_score_only=true|repeated_holdout_inspection=true|three_way_protocol=true|contamination_checks=true
+END_FINAL_EVALUATION_TRACE

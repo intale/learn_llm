@@ -24,7 +24,7 @@ const chapter08To13Files = [
   "12-stable-softmax.mdx",
   "13-gradient-checking.mdx",
 ] as const;
-const chapter14To33Files = [
+const chapter14To34Files = [
   "14-scalar-autodiff.mdx",
   "15-tensor-autodiff-core.mdx",
   "16-model-autodiff-ops.mdx",
@@ -45,6 +45,7 @@ const chapter14To33Files = [
   "31-decoder-block.mdx",
   "32-decoder-model.mdx",
   "33-training-selection.mdx",
+  "34-final-evaluation.mdx",
 ] as const;
 const locales = ["en", "ru"] as const;
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
@@ -306,7 +307,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To33Math: Record<string, readonly string[]> = {
+const requiredChapter14To34Math: Record<string, readonly string[]> = {
   "14": [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -427,9 +428,16 @@ const requiredChapter14To33Math: Record<string, readonly string[]> = {
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
     String.raw`s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)`,
   ],
+  "34": [
+    String.raw`\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}`,
+    String.raw`\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)`,
+    String.raw`\frac{\sum_d N_d\mathcal{L}^{(d)}_{te}}{\sum_d N_d}`,
+    String.raw`N_{te}=24`,
+    String.raw`\Delta_{te}=0.629055`,
+  ],
 };
 
-const formerChapter14To33MathCodeSpans = [
+const formerChapter14To34MathCodeSpans = [
   "square=4",
   "loss=8",
   "bar(loss)=1",
@@ -530,7 +538,7 @@ const formerChapter14To33MathCodeSpans = [
   "N in {0,1,2}",
 ] as const;
 
-const rawChapter14To33FormulaPatterns = [
+const rawChapter14To34FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -579,7 +587,7 @@ const rawChapter14To33FormulaPatterns = [
   /\bN\s+in\s*\{/i,
 ] as const;
 
-const documentedChapter14To33Code = [
+const documentedChapter14To34Code = [
   {
     name: "literal tensor shapes, coordinates, vectors, and matrices",
     pattern: /^\[[^\r\n]*\]$/,
@@ -614,8 +622,9 @@ const documentedChapter14To33Code = [
     pattern: /^forward>backward>finite-check>clip>adamw-step>zero-grad$/,
   },
   {
-    name: "literal selection trace fields",
-    pattern: /^(?:criterion=validation-only|snapshot=true|test_reads=0)$/,
+    name: "literal selection and final-evaluation trace fields",
+    pattern:
+      /^(?:criterion=validation-only|snapshot=true|test_reads=[01]|test_accesses=1|fnv1a64:[0-9a-f]{16})$/,
   },
 ] as const;
 
@@ -767,10 +776,10 @@ describe("Chapter 8-13 formula-source contract", () => {
   });
 });
 
-describe("Chapter 14-33 formula-source contract", () => {
-  it("completes the source audit for all 40 published localized lessons", () => {
+describe("Chapter 14-34 formula-source contract", () => {
+  it("completes the source audit for all 41 published localized lessons", () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To33Files) {
+    for (const file of chapter14To34Files) {
       const source = readChapter("en", file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -784,12 +793,12 @@ describe("Chapter 14-33 formula-source contract", () => {
           `${file} uses the malformed TeX control symbol \\*`,
         ).not.toContain(String.raw`\*`);
       }
-      for (const fragment of requiredChapter14To33Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To34Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To33MathCodeSpans) {
+      for (const oldExpression of formerChapter14To34MathCodeSpans) {
         expect(
           code,
           `${file} still styles ${oldExpression} as code`,
@@ -797,25 +806,25 @@ describe("Chapter 14-33 formula-source contract", () => {
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To33FormulaPatterns) {
+      for (const pattern of rawChapter14To34FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
           pattern,
         );
       }
     }
 
-    expect(reviewed).toEqual(chapter14To33Files);
+    expect(reviewed).toEqual(chapter14To34Files);
     expect(
       chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(40);
+    ).toBe(41);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
-    for (const file of chapter14To33Files) {
+    for (const file of chapter14To34Files) {
       for (const value of inlineCode(readChapter("en", file))) {
-        const allowance = documentedChapter14To33Code.find(({ pattern }) =>
+        const allowance = documentedChapter14To34Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
@@ -827,7 +836,7 @@ describe("Chapter 14-33 formula-source contract", () => {
   });
 });
 
-describe("build-time formula rendering in Chapter 14-33 diagrams", () => {
+describe("build-time formula rendering in Chapter 14-34 diagrams", () => {
   it("renders every diagram-owned expression as strict HTML plus MathML", () => {
     const components = {
       initialization: readFileSync(
@@ -892,6 +901,10 @@ describe("build-time formula rendering in Chapter 14-33 diagrams", () => {
       ),
       trainingSelection: readFileSync(
         resolve(componentRoot, "chapters/TrainingSelectionDiagram.astro"),
+        "utf8",
+      ),
+      finalEvaluation: readFileSync(
+        resolve(componentRoot, "chapters/FinalEvaluationDiagram.astro"),
         "utf8",
       ),
     };
@@ -1116,6 +1129,19 @@ describe("build-time formula rendering in Chapter 14-33 diagrams", () => {
     );
     expect(components.trainingSelection).toContain(
       "String.raw`\\eta_s\\in\\{0.040,0.025,0.015,0.008\\}`",
+    );
+
+    expect(components.finalEvaluation).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.finalEvaluation).toContain(
+      "String.raw`\\sum_n-\\log p_n=${score.total_nll}`",
+    );
+    expect(components.finalEvaluation).toContain(
+      "String.raw`\\mathcal{L}_{te}=${score.mean_nll}`",
+    );
+    expect(components.finalEvaluation).toContain(
+      "latex={`N_{te}=${trace.provenance.targets}`}",
     );
 
     for (const source of Object.values(components)) {
