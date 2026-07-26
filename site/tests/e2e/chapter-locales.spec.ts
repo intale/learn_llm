@@ -134,7 +134,12 @@ function createFixtureRepository(): void {
   if (existsSync(sourcePublic)) {
     cpSync(sourcePublic, join(fixtureSite, 'public'), { recursive: true });
   }
-  for (const file of ['astro.config.mjs', 'package.json', 'tsconfig.json']) {
+  for (const file of [
+    'astro.config.mjs',
+    'package.json',
+    'sitemap.config.mjs',
+    'tsconfig.json',
+  ]) {
     copyFileSync(join(sourceSite, file), join(fixtureSite, file));
   }
 

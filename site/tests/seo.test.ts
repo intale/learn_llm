@@ -12,8 +12,11 @@ import {
   auditStaticSite,
   deriveSeoExpectations,
 } from '../../scripts/check-static-links.mjs';
+// @ts-ignore Dependency-free ESM is shared by the Astro build and artifact audit.
+import { renderSitemapXml } from '../sitemap.config.mjs';
 
 const temporaryDirectories: string[] = [];
+const sitemapOrigin = 'https://example.test';
 
 const localeConfiguration = {
   defaultLocale: 'en',
@@ -267,11 +270,17 @@ function createStaticFixture(basePath = '/') {
     paths,
   );
 
+  writeFileSync(
+    join(root, 'sitemap.xml'),
+    renderSitemapXml([...expectedSeoDescriptions().keys()], sitemapOrigin, basePath),
+  );
+
   return {
     root,
     paths,
     basePath,
     seoExpectations: expectedSeoDescriptions(),
+    sitemapOrigin,
   };
 }
 
@@ -280,6 +289,7 @@ function auditFixture(fixture: ReturnType<typeof createStaticFixture>) {
     basePath: fixture.basePath,
     chapterLocaleConfiguration,
     seoExpectations: fixture.seoExpectations,
+    sitemapOrigin: fixture.sitemapOrigin,
   });
 }
 
@@ -370,12 +380,67 @@ describe('static SEO audit', () => {
   it('accepts exact route-specific descriptions at root and project bases', () => {
     const rootFixture = createStaticFixture();
     expect(auditFixture(rootFixture)).toEqual(
-      expect.objectContaining({ htmlCount: 8, seoRouteCount: 8 }),
+      expect.objectContaining({
+        htmlCount: 8,
+        seoRouteCount: 8,
+        sitemapRouteCount: 8,
+      }),
     );
 
     const projectFixture = createStaticFixture('/learn_llm/');
     expect(auditFixture(projectFixture)).toEqual(
-      expect.objectContaining({ htmlCount: 8, seoRouteCount: 8 }),
+      expect.objectContaining({
+        htmlCount: 8,
+        seoRouteCount: 8,
+        sitemapRouteCount: 8,
+      }),
+    );
+  });
+
+  it('rejects missing, extra, duplicate, relative, and wrong-base sitemap URLs', () => {
+    expectSeoFailure(
+      ({ root }) => rmSync(join(root, 'sitemap.xml')),
+      /exactly one root sitemap\.xml; found none/,
+    );
+    expectSeoFailure(
+      ({ root }) => {
+        const path = join(root, 'sitemap.xml');
+        const source = readFileSync(path, 'utf8');
+        writeFileSync(
+          path,
+          source.replace(
+            '</urlset>',
+            '  <url><loc>https://example.test/extra/</loc></url>\n</urlset>',
+          ),
+        );
+      },
+      /exactly contain one absolute URL/,
+    );
+    expectSeoFailure(
+      ({ root }) => {
+        const path = join(root, 'sitemap.xml');
+        const source = readFileSync(path, 'utf8');
+        const firstEntry = source.match(/  <url><loc>[^<]+<\/loc><\/url>\n/)?.[0];
+        expect(firstEntry).toBeTruthy();
+        writeFileSync(path, source.replace('</urlset>', firstEntry + '</urlset>'));
+      },
+      /exactly contain one absolute URL/,
+    );
+    expectSeoFailure(
+      ({ root }) => {
+        const path = join(root, 'sitemap.xml');
+        const source = readFileSync(path, 'utf8');
+        writeFileSync(path, source.replace('https://example.test/', '/'));
+      },
+      /exactly contain one absolute URL/,
+    );
+
+    const projectFixture = createStaticFixture('/learn_llm/');
+    const path = join(projectFixture.root, 'sitemap.xml');
+    const source = readFileSync(path, 'utf8');
+    writeFileSync(path, source.replaceAll('/learn_llm/', '/wrong-base/'));
+    expect(() => auditFixture(projectFixture)).toThrow(
+      /exactly contain one absolute URL/,
     );
   });
 

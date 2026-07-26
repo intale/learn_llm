@@ -4,6 +4,11 @@ import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 
+import {
+  DEFAULT_SITE_ORIGIN,
+  normalizeSiteOrigin,
+} from './sitemap.config.mjs';
+
 const siteBaseSegmentPattern = /^[A-Za-z0-9._~-]+$/;
 
 export function normalizeSiteBase(value) {
@@ -36,6 +41,9 @@ export function normalizeSiteBase(value) {
 }
 
 const siteBase = normalizeSiteBase(process.env.SITE_BASE ?? '/');
+const siteOrigin = normalizeSiteOrigin(
+  process.env.SITE_ORIGIN ?? DEFAULT_SITE_ORIGIN,
+);
 
 function rehypeLeftToRightCode() {
   return (tree) => {
@@ -52,6 +60,7 @@ function rehypeLeftToRightCode() {
 
 export default defineConfig({
   output: 'static',
+  site: siteOrigin,
   base: siteBase,
   trailingSlash: 'always',
   compressHTML: true,

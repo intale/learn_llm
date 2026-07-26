@@ -94,4 +94,42 @@ describe('GitHub Pages deployment workflow', () => {
       ),
     ).toThrow(/main-only/);
   });
+
+  it('derives sitemap origin and project base from the same Pages configuration', () => {
+    expect(workflowSource).toContain(
+      'SITE_ORIGIN: ${{ steps.pages.outputs.origin }}',
+    );
+    expect(workflowSource).toContain(
+      '--build-arg "SITE_ORIGIN=${SITE_ORIGIN}"',
+    );
+    expect(workflowSource).toContain('test -f pages-artifact/sitemap.xml');
+
+    expect(() =>
+      validateDeploymentWorkflow(
+        replaceOnce(
+          workflowSource,
+          'SITE_ORIGIN: ${{ steps.pages.outputs.origin }}',
+          'SITE_ORIGIN: https://intale.github.io',
+        ),
+      ),
+    ).toThrow(/SITE_ORIGIN must come from configure-pages origin/);
+    expect(() =>
+      validateDeploymentWorkflow(
+        replaceOnce(
+          workflowSource,
+          '            --build-arg "SITE_ORIGIN=${SITE_ORIGIN}" \\',
+          '            --build-arg "UNRELATED=value" \\',
+        ),
+      ),
+    ).toThrow(/SITE_ORIGIN/);
+    expect(() =>
+      validateDeploymentWorkflow(
+        replaceOnce(
+          workflowSource,
+          '          test -f pages-artifact/sitemap.xml',
+          '          test -f pages-artifact/missing.xml',
+        ),
+      ),
+    ).toThrow(/sitemap\.xml/);
+  });
 });

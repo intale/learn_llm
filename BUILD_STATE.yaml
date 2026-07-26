@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-25T17:43:57Z"
+updated_at: "2026-07-26T03:52:59Z"
 
 environment:
   os: "Linux x86_64"
@@ -13961,10 +13961,183 @@ builds:
                 status: passed
                 notes: "The Docker-only ledger validator accepts the finalized checkpoint and reports 39 chapters, 72 scheduled steps, and 30 implemented chapter contracts through Chapter 30. Chapter 31 is now eligible only after this completed infrastructure dependency."
             notes: "Succeeded. Playwright's disposable Astro preview now binds explicitly to loopback port 64173, with one exported origin driving browser navigation, readiness, and the command port. Existing-server reuse is disabled, while every human preview path remains on 4321. The full browser suite passes on the isolated port, and a final adversarial replay proves that an occupied 4321 cannot block or satisfy Playwright."
+      - id: add-static-sitemap
+        objective: "Generate one exact absolute-URL sitemap for every published static HTML route at root and GitHub Pages project bases."
+        depends_on:
+          - isolate-playwright-preview-port
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/astro.config.mjs"
+          - "site/src/pages/index.astro"
+          - "site/src/pages/[locale]/index.astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/lib/site-path.ts"
+          - "scripts/check-static-links.mjs"
+          - "scripts/check-deployment-workflow.mjs"
+          - ".github/workflows/deploy-pages.yml"
+          - "Dockerfile"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "site/tests/seo.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/playwright.config.ts"
+          - "Official actions/configure-pages@v5 action.yml: origin, base_path, and base_url outputs"
+          - "User request: add sitemap"
+        outputs:
+          - ".github/workflows/deploy-pages.yml"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Dockerfile"
+          - "README.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-deployment-workflow.mjs"
+          - "scripts/check-static-links.mjs"
+          - "site/astro.config.mjs"
+          - "site/sitemap.config.mjs"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/pages/sitemap.xml.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/deployment.test.ts"
+          - "site/tests/e2e/sitemap.spec.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/sitemap.test.ts"
+        acceptance:
+          - "The static build emits exactly one sitemap.xml with one unique absolute HTTPS URL for every and only every published HTML route, including general locale pages and only active localized chapter routes."
+          - "Sitemap paths reuse the normalized SITE_BASE route prefix, while the absolute origin is a separately validated SITE_ORIGIN with no credentials, path, query, or fragment."
+          - "The root build remains deterministic, and the GitHub Pages workflow supplies both origin and base path from the pinned configure-pages action rather than hard-coding the repository project path."
+          - "The sitemap is complete static XML with a deterministic order and no unreliable lastmod, changefreq, or priority values; it adds no server runtime or package dependency."
+          - "The static artifact audit compares sitemap.xml exactly with the source-derived HTML route set and rejects missing, extra, duplicate, relative, malformed, or wrong-base URLs."
+          - "Focused unit, deployment-workflow, root/project-base build, link, and served-response tests cover content type, route selection, origin/base configuration, and XML safety."
+          - "The course plan schedules this cross-cutting checkpoint after Chapter 30 and before Chapter 31 without changing chapter content or locale activation."
+          - "No learner content, formulas, diagrams, Rust source, package manifest or lockfile, server runtime, generated release tree, robots policy, or immediate external deployment changes."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-deployment-workflow.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "SITE_ORIGIN=https://intale.github.io SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_ORIGIN=https://intale.github.io SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@sitemap'"
+          - "npm --prefix site run test:e2e -- --grep '@sitemap' --browser=firefox"
+          - "npm --prefix site run test:e2e"
+          - "scripts/check-course-cli.sh"
+          - "./course audit-host"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "Deterministic static-site and cached two-engine browser work. One read-only request to the official pinned GitHub action source is an explicit input; no package download, paid service, generation, host toolchain, release, or immediate deployment is used."
+        runs:
+          - run_id: 20260726T031905Z-add-static-sitemap-01
+            started_at: "2026-07-26T03:19:05Z"
+            finished_at: "2026-07-26T03:52:59Z"
+            status: succeeded
+            input_fingerprint:
+              git: "319bf0a6ce0ec7e3eef2f824f9ec74e7482ffb55"
+              manifest: ".build/runs/20260726T031905Z-add-static-sitemap-01/input-fingerprint.txt"
+              checksum: "sha256:c464c86b67c08f31ca914a51f139a12ccee0102fa570e5fba2c901a6c5a1feb4"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate cached Linux images; product validation retains Node 22.12.0/npm 10.9.0, Rust 1.93.1, Playwright 1.61.1 Chromium revision 1228, and Firefox revision 1532. Host Node 24.18.0 is not a product-validation input."
+            staging_dir: ".build/runs/20260726T031905Z-add-static-sitemap-01/"
+            commands:
+              - "Run the complete startup protocol at commit 319bf0a, preserving unrelated desktop.ini and confirming no stale running step."
+              - "Parse all 15,014 lines of BUILD_STATE.yaml and inspect the latest completed isolate-playwright-preview-port run plus the latest durable decisions."
+              - "Inventory every static route source, publication-locale rule, base-path helper, artifact validator, Docker build input, and GitHub Pages workflow boundary."
+              - "Review the official pinned actions/configure-pages@v5 action.yml and confirm its origin, base_path, and base_url outputs."
+              - "Fingerprint policy, ledger, plan, locale projection, route generators, link/deployment validators, workflow, Docker build, package locks, focused tests, cached images, and material host orchestration versions before product work."
+              - "Attempt a network-disabled Docker source rebuild, retain the expected Debian package-index cache miss, and switch to an exact HEAD archive plus declared working-file overlay on the cached pinned source image."
+              - "Implement a dependency-free static Astro sitemap endpoint, strict origin/base/route normalizers, deterministic XML renderer, exact artifact audit, Pages origin propagation, documentation, and focused unit/browser contracts."
+              - "Pass the 39-chapter/73-step plan, deployment validator, zero-diagnostic 161-file Astro check, and 44 focused plan/sitemap/SEO/deployment cases in the exact candidate container."
+              - "Pass root and /learn_llm/ static builds, exact 42-URL sitemap audits, active-locale route assertions, and all 758 initial unit cases; then add and pass a fifth Docker-origin source contract."
+              - "Run the first complete Chromium replay, identify the cached image's stale root KaTeX 0.18 package, hydrate its already-cached exact 0.16.47 package required by the unchanged lockfile, rebuild, and pass all 74 formula cases."
+              - "Run the corrected complete Chromium replay, retain its isolated selective-locale fixture failure, and declare that fixture before teaching it to copy the new sitemap configuration dependency."
+              - "Freeze all sixteen declared product files in the run-specific publication directory and verify both disposable canonical candidates against publish.sha256."
+              - "Replay the plan, deployment, content, Astro, complete unit, root-build, project-base-build, exact static-artifact, focused Chromium/Firefox sitemap, and complete Chromium gates from the frozen source identity."
+              - "Preserve root and project-base sitemap.xml artifacts, verify a clean exact candidate with the host-artifact audit, and confirm the working product files still match the frozen publication manifest."
+            artifacts:
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/input-fingerprint.txt"
+                sha256: "c464c86b67c08f31ca914a51f139a12ccee0102fa570e5fba2c901a6c5a1feb4"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/research.md"
+                sha256: "9163c01ee916d658aac352747569dc93b0c6b41ce21f95ea900ed8b392b41835"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/base-head.tar"
+                sha256: "e49d69d025a3e851e5c0626613404ec1958518955a9a87fd485d4fdc670bea70"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/scope-expansion-fingerprint.txt"
+                sha256: "3d83e8c094e1bded024099e18b779ff44073c37d5239ff90a25fe3fcab873af7"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/publish.sha256"
+                sha256: "384da89b82256cb24d7d89043f9c6650f6a14a6d5d5ca56358a7ee78d8e6d50a"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/validation/sitemap-root.xml"
+                sha256: "136e0f45f3bdeef93adedb0512a60cbf21db50f41265903e07de76a213e2a386"
+              - path: ".build/runs/20260726T031905Z-add-static-sitemap-01/validation/sitemap-project-base.xml"
+                sha256: "4933839f36fa6e710303ff80a66fca488af9218bdb5dafe82bc9db02cc32d5b1"
+            validation:
+              - command: "Startup dependency, working-tree, environment, prior-run, ownership, and cost audit"
+                status: passed
+                notes: "The prior preview-port step is completed and committed; only unrelated desktop.ini is untracked; no run is stale; Chapter 31 was first eligible before this explicit sitemap request; the new outputs precede and do not overlap Chapter 31; and the medium cached-validation cost has no budget limit or paid input. Host Docker/Compose/Git versions changed materially from the recorded Linux host and are frozen in this run, while all product tools remain pinned in Linux containers."
+              - command: "Static route, deployment-base, and sitemap capability preflight"
+                status: passed
+                notes: "The current build emits 42 HTML routes but no sitemap. Route truth is already available from locale registration, active chapter publication, and SEO expectations. The pinned GitHub action exposes origin and base_path separately, so one dependency-free static endpoint can emit exact absolute URLs for both root and project-base builds without a runtime server."
+              - command: "Network-disabled Dockerfile source rebuild"
+                status: failed
+                notes: "Docker 29 did not reuse the older builder's Debian/Rust source layer, so apt-get stopped on an unavailable offline package index before copying repository source. No product assertion ran and no repository file changed. Validation continues from an exact commit archive and declared working-file overlay on the checksum-frozen cached Linux image."
+              - command: "Focused staged plan, deployment, Astro, and unit gate"
+                status: passed
+                notes: "The live ledger reports 39 chapters, 73 scheduled steps, and 30 implemented contracts; the Pages workflow contract passes; Astro reports zero errors, warnings, or hints across 161 files; and all 44 focused content/sitemap/SEO/deployment cases pass."
+              - command: "Root static build and exact sitemap artifact audit"
+                status: passed
+                notes: "Astro emits 42 HTML pages plus sitemap.xml. The static audit verifies 1,487 local references, 42 exact SEO routes, and 42 exact absolute sitemap URLs rooted at https://intale.github.io/."
+              - command: "GitHub Pages project-base build and exact sitemap artifact audit"
+                status: passed
+                notes: "With SITE_ORIGIN=https://intale.github.io and SITE_BASE=/learn_llm/, all 42 sitemap URLs use the project prefix, English Chapter 30 is present, inactive Russian Chapter 30 is absent, and the complete link/SEO/sitemap audit passes."
+              - command: "Initial complete staged unit replay"
+                status: passed
+                notes: "All 758 existing and new cases across 41 files pass. A subsequent focused replay also passes the added fifth sitemap source contract proving Docker declares and exports SITE_ORIGIN."
+              - command: "First complete staged Chromium replay"
+                status: failed
+                notes: "The cached July 24 browser image exposed root KaTeX 0.18.0 despite the current lockfile requiring 0.16.47, producing 76 formula/layout failures unrelated to sitemap behavior. Its existing rehype-katex subtree already contains the exact cached 0.16.47 package, so the disposable validation container was hydrated from that package without network or repository changes."
+              - command: "Corrected focused two-engine sitemap and Chromium formula replays"
+                status: passed
+                notes: "The exact sitemap response passes in Chromium and Firefox with the static server's valid text/xml media type, and all 74 desktop/narrow formula cases pass after the disposable browser environment matches the unchanged KaTeX 0.16.47 lock."
+              - command: "Second complete staged Chromium replay"
+                status: failed
+                notes: "222 of 224 cases pass; one later case is not run after the isolated selective-locale fixture stops. That fixture copies astro.config.mjs into a temporary site but not its new sibling sitemap.config.mjs dependency. Declare the fixture path and copy that configuration file; no sitemap, chapter, locale, or production behavior change is required."
+              - command: "Declared isolated-locale fixture dependency and staged complete replays"
+                status: passed
+                notes: "The fixture now copies sitemap.config.mjs alongside astro.config.mjs. All 759 unit cases across 41 files, both isolated locale cases, and all 224 Chromium browser cases pass without changing any learner route or locale activation."
+              - command: "First frozen course-plan replay"
+                status: failed
+                notes: "The exact commit archive intentionally contained the pre-run BUILD_STATE checkpoint, so the plan validator rejected its 72-step ledger against the frozen revision-26 course plan. Copying the current running ledger into the disposable integration candidate restored the declared 73-step state; no product file or sitemap assertion failed."
+              - command: "Frozen source identity and complete non-browser replay"
+                status: passed
+                notes: "All sixteen product files match publish.sha256. The exact candidate reports 39 chapters, 73 steps, 30 implemented contracts, a valid Pages workflow, 37 localized sources, 30 publishable locale sets, zero Astro diagnostics across 161 files, and all 759 unit cases. Root and /learn_llm/ builds each emit 42 HTML pages and exactly 42 absolute sitemap URLs while all 1,487 local references and 42 SEO routes pass."
+              - command: "Frozen two-engine sitemap and complete Chromium replay"
+                status: passed
+                notes: "The served sitemap response matches the generated route set in Chromium and Firefox, and all 224 Chromium browser cases pass from the frozen root build, including the 74 desktop/narrow formula-rendering cases and the isolated locale fixture."
+              - command: "Course CLI validation reuse"
+                status: passed
+                notes: "The course launcher, CLI contract, host-artifact checker, and mock release Docker implementation retain exact Git blob identities e177ae2d, 0d3b182b, fe40179c, and 97810d1a from the immediately preceding successful CLI checkpoint; no sitemap output reaches or changes that boundary."
+              - command: "Final artifact, scope, diff, and clean-host audit"
+                status: passed
+                notes: "The preserved root and project-base sitemap artifacts have recorded checksums; a clean exact source candidate passes the host-artifact audit; git diff --check passes; and every working product file remains byte-identical to the frozen publication manifest. The unrelated desktop.ini stays untracked and untouched."
+              - command: "Completed-checkpoint ledger replay"
+                status: passed
+                notes: "BUILD_STATE.yaml parses as YAML, the completed checkpoint still validates against the 39-chapter/73-step plan, no step remains running, and implement-ch31-decoder-block is the first eligible next step."
+            notes: "Succeeded. The static build now emits one deterministic sitemap containing exactly the 42 currently published HTML routes. Absolute URLs use the separately validated Pages origin and normalized build base, selective locale publication remains authoritative, and exact root/project-base artifacts pass unit, static, Chromium, Firefox, and complete course-wide browser validation without a new dependency or runtime service."
       - id: implement-ch31-decoder-block
         objective: "Compose RMSNorm, causal multi-head attention, SwiGLU, and two residual additions into one decoder block."
         depends_on:
-          - isolate-playwright-preview-port
+          - add-static-sitemap
         status: pending
         inputs:
           - "SKILLS.md"

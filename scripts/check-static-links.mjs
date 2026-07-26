@@ -14,6 +14,10 @@ import {
   activeLocalesForChapter,
   readChapterLocaleConfiguration,
 } from './chapter-locale-config.mjs';
+import {
+  DEFAULT_SITE_ORIGIN,
+  renderSitemapXml,
+} from '../site/sitemap.config.mjs';
 
 function listFiles(directory) {
   const files = [];
@@ -562,7 +566,46 @@ function validateSeoRouteMatrix(htmlDocuments, expectationsValue, issues) {
       issues.push(route + ': expected SEO route has no generated HTML file');
     }
   }
-  return expectations.size;
+  return expectations;
+}
+
+function validateSitemapArtifact(
+  absoluteDist,
+  knownFiles,
+  logicalRoutes,
+  sitemapOrigin,
+  siteBase,
+  issues,
+) {
+  const sitemapFiles = [...knownFiles].filter((relativePath) =>
+    /(?:^|\/)sitemap\.xml$/i.test(relativePath),
+  );
+  if (
+    sitemapFiles.length !== 1 ||
+    sitemapFiles[0] !== 'sitemap.xml'
+  ) {
+    issues.push(
+      'static output must contain exactly one root sitemap.xml; found ' +
+        (sitemapFiles.length === 0 ? 'none' : sitemapFiles.join(', ')),
+    );
+    return 0;
+  }
+
+  let expected;
+  try {
+    expected = renderSitemapXml(logicalRoutes, sitemapOrigin, siteBase);
+  } catch (error) {
+    issues.push('sitemap.xml expectation is invalid: ' + error.message);
+    return 0;
+  }
+
+  const source = readFileSync(nodePath.join(absoluteDist, 'sitemap.xml'), 'utf8');
+  if (source !== expected) {
+    issues.push(
+      'sitemap.xml must exactly contain one absolute URL for every generated HTML route in deterministic order',
+    );
+  }
+  return logicalRoutes.length;
 }
 
 function validateHreflang(
@@ -832,7 +875,8 @@ function validateLocalizedCourseEntry(
  * @param {{
  *   basePath?: string,
  *   chapterLocaleConfiguration?: *,
- *   seoExpectations?: Map<string, string>
+ *   seoExpectations?: Map<string, string>,
+ *   sitemapOrigin?: string
  * }} options
  */
 export function auditStaticSite(
@@ -842,6 +886,7 @@ export function auditStaticSite(
     basePath = '/',
     chapterLocaleConfiguration = undefined,
     seoExpectations = undefined,
+    sitemapOrigin = DEFAULT_SITE_ORIGIN,
   } = {},
 ) {
   if (!existsSync(distDirectory)) {
@@ -917,10 +962,20 @@ export function auditStaticSite(
   if (htmlCount === 0) {
     issues.push('static output contains no HTML files');
   }
-  const seoRouteCount =
+  const normalizedSeoExpectations =
     seoExpectations === undefined
-      ? 0
+      ? null
       : validateSeoRouteMatrix(htmlDocuments, seoExpectations, issues);
+  const sitemapRouteCount = normalizedSeoExpectations
+    ? validateSitemapArtifact(
+        absoluteDist,
+        knownFiles,
+        [...normalizedSeoExpectations.keys()],
+        sitemapOrigin,
+        siteBase,
+        issues,
+      )
+    : 0;
   if (issues.length > 0) {
     throw new ContentValidationError(issues, 'Static link and asset audit failed');
   }
@@ -930,7 +985,10 @@ export function auditStaticSite(
     htmlCount,
     referenceCount,
   };
-  if (seoExpectations !== undefined) result.seoRouteCount = seoRouteCount;
+  if (normalizedSeoExpectations) {
+    result.seoRouteCount = normalizedSeoExpectations.size;
+    result.sitemapRouteCount = sitemapRouteCount;
+  }
   return result;
 }
 
@@ -952,6 +1010,7 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
       basePath: process.env.SITE_BASE ?? '/',
       chapterLocaleConfiguration,
       seoExpectations,
+      sitemapOrigin: process.env.SITE_ORIGIN ?? DEFAULT_SITE_ORIGIN,
     },
   );
 }
@@ -974,6 +1033,8 @@ if (isMainModule()) {
         ' local reference(s), ' +
         result.seoRouteCount +
         ' SEO route(s), ' +
+        result.sitemapRouteCount +
+        ' sitemap URL(s), ' +
         result.fileCount +
         ' total artifact(s).',
     );

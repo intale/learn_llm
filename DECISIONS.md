@@ -5859,3 +5859,63 @@ hosting, or deployment behavior changes.
 
 **Affected step and run:** `isolate-playwright-preview-port`, run
 `20260725T173305Z-isolate-playwright-preview-port-01`.
+
+## 2026-07-26 - Publish one exact base-aware static sitemap
+
+**Status:** Accepted before product work.
+
+**Context:** The current Astro build publishes 42 HTML routes but no sitemap.
+Those routes are not a rectangular locale matrix: general pages exist for every
+registered locale, Chapters 1 through 7 are English/Russian, and later completed
+chapters are English-only under the active-locale policy. The public GitHub Pages
+site also lives below a repository project path, while canonical local release
+builds intentionally retain `/` as their route base. A handwritten URL list or a
+hard-coded `/learn_llm/` prefix would therefore drift from either publication
+state or future Pages configuration.
+
+The pinned `actions/configure-pages@v5` metadata declares separate `origin`,
+`base_path`, and `base_url` outputs. The existing workflow already trusts
+`base_path` for all generated links, so the same action can supply the sitemap's
+origin without adding credentials or another external service.
+
+**Decision:** Insert `add-static-sitemap` after
+`isolate-playwright-preview-port` and before Chapter 31, then advance the course
+plan and locale projection to revision 26. Add one dependency-free Astro static
+endpoint at `sitemap.xml`. It derives its logical URL set from the same locale
+registry and publishable chapter sets as the HTML pages: the language picker,
+every localized home and course index, and every active localized lesson. Sort
+the normalized routes deterministically and emit exactly one `<loc>` for each.
+
+Compose each absolute URL from a separately validated HTTPS `SITE_ORIGIN` and
+the existing normalized `SITE_BASE`. The canonical root-build default origin is
+`https://intale.github.io`; the GitHub Pages workflow passes both
+`steps.pages.outputs.origin` and `steps.pages.outputs.base_path` into the Docker
+build. Do not hard-code the current repository project path in source. Reject
+credentials, paths, queries, fragments, unsafe routes, duplicates, and XML-unsafe
+output. Omit `lastmod`, `changefreq`, and `priority` because the repository has no
+honest per-route freshness or ranking source.
+
+Extend the static artifact audit to compare `sitemap.xml` byte-for-byte with the
+source-derived HTML route matrix. Add mutation tests plus a served-response check
+for XML content type and base-aware URLs, and validate root and `/learn_llm/`
+builds. Keep the package manifests and lockfile unchanged; do not introduce the
+Astro sitemap integration, a runtime server, `robots.txt`, canonical-link tags,
+learner-content changes, or an immediate deployment. The existing workflow will
+publish the artifact only through its normal future main-branch execution.
+
+This run is orchestrated from a Windows host with Git 2.55.0, Docker 29.6.2,
+and Compose 5.3.1 rather than the previously recorded Linux host versions. Freeze
+that material host change in the run fingerprint, but retain all product
+validation in the cached Linux images with the repository's Node, npm, Rust, and
+browser pins. Do not alter the supported Linux build definition for the host.
+
+**Consequences:** Search engines receive a complete deterministic sitemap that
+tracks selective localization and the deployment base automatically. Extra,
+missing, duplicated, relative, malformed, or stale URLs fail the normal build
+gate. Chapter content, formulas, diagrams, Rust behavior, locale activation,
+dependencies, runtime architecture, and generated release ownership remain
+unchanged.
+
+**Affected step and run:** `add-static-sitemap`, run
+`20260726T031905Z-add-static-sitemap-01`; and
+`implement-ch31-decoder-block`.

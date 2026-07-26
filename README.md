@@ -107,11 +107,14 @@ the first deployment: open **Settings → Pages**, then set **Build and deployme
 → Source** to **GitHub Actions**.
 
 Every push to `main` runs `.github/workflows/deploy-pages.yml`. The workflow asks
-GitHub Pages for the repository's current base path, builds and validates the
-static site in the pinned Docker toolchain, uploads that exact static artifact,
-and deploys it through the `github-pages` environment. To rerun it without a
-commit, open **Actions → Deploy GitHub Pages → Run workflow** and select `main`.
-Manual runs from other branches are skipped.
+GitHub Pages for the repository's current origin and base path, builds and
+validates the static site in the pinned Docker toolchain, uploads that exact
+static artifact, and deploys it through the `github-pages` environment. The
+generated sitemap is available at
+<https://intale.github.io/learn_llm/sitemap.xml>; its absolute URLs come from the
+same Pages origin and project base as the HTML routes. To rerun the workflow
+without a commit, open **Actions → Deploy GitHub Pages → Run workflow** and select
+`main`. Manual runs from other branches are skipped.
 
 No personal access token, deployment branch, generated-site commit, or separate
 repository is involved. The workflow uses only the current repository's scoped

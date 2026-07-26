@@ -33,10 +33,12 @@ jobs:
       - name: Build and validate static site
         env:
           SITE_BASE: ${{ steps.pages.outputs.base_path }}/
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
         run: |
           set -euo pipefail
           docker build \
             --build-arg "SITE_BASE=${SITE_BASE}" \
+            --build-arg "SITE_ORIGIN=${SITE_ORIGIN}" \
             --target site \
             --tag learn-llm-site:pages \
             .
@@ -53,6 +55,7 @@ jobs:
           test -f pages-artifact/index.html
           test -f pages-artifact/en/course/index.html
           test -f pages-artifact/ru/course/index.html
+          test -f pages-artifact/sitemap.xml
           test -z "$(find pages-artifact -type l -print -quit)"
 
       - name: Upload GitHub Pages artifact
