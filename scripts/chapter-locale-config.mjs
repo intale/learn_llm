@@ -68,6 +68,7 @@ export function validateChapterLocaleConfiguration(
   const chapterIds = new Set();
   const orders = new Set();
   const chapters = [];
+  const firstOrder = value.chapters?.[0]?.order;
   for (const [index, chapter] of (
     Array.isArray(value.chapters) ? value.chapters : []
   ).entries()) {
@@ -84,10 +85,11 @@ export function validateChapterLocaleConfiguration(
     }
     chapterIds.add(chapter.chapterId);
 
-    const expectedOrder = index + 1;
+    const expectedOrder = Number(firstOrder) + index;
     const expectedPrefix = String(expectedOrder).padStart(2, '0') + '-';
     if (
       !Number.isInteger(chapter.order) ||
+      (firstOrder !== 0 && firstOrder !== 1) ||
       chapter.order !== expectedOrder ||
       !String(chapter.chapterId).startsWith(expectedPrefix)
     ) {

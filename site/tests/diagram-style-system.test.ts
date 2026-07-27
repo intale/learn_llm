@@ -39,7 +39,7 @@ const fixture = `
 
 describe("course diagram design system", () => {
   it("applies one complete source contract to every current diagram", () => {
-    expect(components).toHaveLength(38);
+    expect(components).toHaveLength(39);
     expect(validateDiagramComponents(repositoryRoot)).toBe(components.length);
 
     for (const component of components) {
@@ -67,6 +67,11 @@ describe("course diagram design system", () => {
     );
     expect(module).toContain(".course-diagram__scroll[data-diagram-scroll]");
     expect(module).toContain("[data-diagram-card][data-diagram-box]");
+    expect(module).toContain(".course-diagram__grid");
+    expect(module).toContain(".course-diagram__card-stack");
+    expect(module).toContain(".course-diagram__card-heading");
+    expect(module).toContain(".course-diagram__link-list");
+    expect(module).toContain(".course-diagram__link-separator");
     expect(module).toContain("table[data-diagram-table]");
     expect(module).toContain("--diagram-summary-min");
     expect(module).toContain("--diagram-cell-padding-inline");

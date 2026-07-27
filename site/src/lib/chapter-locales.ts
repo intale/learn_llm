@@ -104,16 +104,18 @@ export function validateChapterLocaleManifest(
 
   const registered = new Set(registeredLocales);
   const chapterIds = new Set<string>();
+  const firstOrder = manifest.chapters[0]?.order;
   const chapters = manifest.chapters.map((chapter, index) => {
     if (!isObject(chapter) || !hasExactKeys(chapter, chapterKeys)) {
       throw new Error(`Chapter-locale entry ${index + 1} has unexpected fields.`);
     }
     const raw = chapter as unknown as RawChapterLocaleEntry;
-    const expectedOrder = index + 1;
+    const expectedOrder = Number(firstOrder) + index;
     const expectedPrefix = String(expectedOrder).padStart(2, '0') + '-';
     if (
       !chapterIdPattern.test(raw.chapterId) ||
       chapterIds.has(raw.chapterId) ||
+      (firstOrder !== 0 && firstOrder !== 1) ||
       raw.order !== expectedOrder ||
       !raw.chapterId.startsWith(expectedPrefix)
     ) {

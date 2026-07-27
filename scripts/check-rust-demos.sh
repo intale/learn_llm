@@ -73,7 +73,7 @@ const contracts = readdirSync(contractRoot, { withFileTypes: true })
     if (!chapterIdPattern.test(data.chapter_id)) {
       fail(`${path}: invalid chapter_id`);
     }
-    if (!Number.isInteger(data.order) || data.order < 1) {
+    if (!Number.isInteger(data.order) || data.order < 0) {
       fail(`${path}: invalid chapter order`);
     }
     if (!data.chapter_id.startsWith(String(data.order).padStart(2, '0') + '-')) {
@@ -90,9 +90,13 @@ const contracts = readdirSync(contractRoot, { withFileTypes: true })
 if (contracts.length === 0) fail('no chapter contracts were found');
 duplicate(contracts.map((contract) => contract.data.chapter_id), 'contract chapter_id');
 duplicate(contracts.map((contract) => contract.data.order), 'contract order');
+const firstOrder = contracts[0]?.data.order;
+if (firstOrder !== 0 && firstOrder !== 1) {
+  fail('chapter contracts must begin at order 0 or 1');
+}
 contracts.forEach((contract, index) => {
-  if (contract.data.order !== index + 1) {
-    fail('chapter contracts must form a contiguous prefix beginning at order 1');
+  if (contract.data.order !== firstOrder + index) {
+    fail('chapter contracts must form a contiguous prefix');
   }
 });
 

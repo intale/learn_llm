@@ -44,7 +44,10 @@ const copy = getMessages(locale);
 
   {
     chapters.length > 0 ? (
-      <ol class="feature-grid shell-container course-list">
+      <ol
+        class="feature-grid shell-container course-list"
+        start={chapters[0]?.data.order ?? 1}
+      >
         {chapters.map((chapter) => (
           <li>
             <article class="feature-card">

@@ -1,0 +1,345 @@
+---
+import { getCollection } from 'astro:content';
+
+import traceSource from '../../../../rust/demos/ch00-llm-parts/diagram-trace.txt?raw';
+import { localePath, type Locale } from '../../i18n';
+import {
+  llmPartsDiagramId,
+  parseLlmPartsTrace,
+  validateLlmPartsDiagramLabels,
+  type LlmPartId,
+  type LlmPartsDiagramLabels,
+} from '../../lib/llm-parts-diagram';
+
+interface Props {
+  labels: LlmPartsDiagramLabels;
+  locale: Locale;
+}
+
+const { labels, locale } = Astro.props;
+validateLlmPartsDiagramLabels(labels);
+const trace = parseLlmPartsTrace(traceSource);
+const localizedChapters = await getCollection(
+  'chapters',
+  (entry) => entry.data.locale === locale,
+);
+const chapterById = new Map(
+  localizedChapters.map((chapter) => [chapter.data.chapter_id, chapter.data]),
+);
+for (const chapterId of trace.parts.flatMap((part) => part.chapters)) {
+  if (!chapterById.has(chapterId)) {
+    throw new Error(`LLM-parts diagram cannot link missing ${locale} chapter ${chapterId}`);
+  }
+}
+
+const titleId = 'llm-parts-diagram-title';
+const descriptionId = 'llm-parts-diagram-description';
+const card = (id: LlmPartId, occurrence: number) => ({
+  occurrence,
+  part: trace.byId[id],
+  labels: labels.parts[id],
+});
+const inference = trace.flows.inference.map((id, index) => card(id, index + 1));
+const decoder = trace.flows['decoder-block'].map((id, index) => card(id, index + 1));
+const sharedForwardLength = trace.flows.inference.length - 1;
+const learning = trace.flows.learning
+  .slice(sharedForwardLength)
+  .map((id, index) => card(id, index + 1));
+const cache = card('kv-cache', 1);
+const foundation = card('numeric-core', 1);
+const capstone = card('capstone', 1);
+const chapterHref = (chapterId: string) =>
+  localePath(locale, `/course/${chapterId}/`);
+const chapterNumber = (chapterId: string) =>
+  chapterById.get(chapterId)!.order.toString().padStart(2, '0');
+const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
+---
+
+<figure
+  class="course-diagram llm-parts-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={llmPartsDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">
+      {labels.description}
+      <span
+        class="capstone-card"
+        data-part-id={capstone.part.id}
+        data-part-path={capstone.part.path}
+        data-trace-purpose={capstone.part.purpose}
+      >
+        <strong>{capstone.labels.name}:</strong> {capstone.labels.purpose}
+        <a
+          href={chapterHref(trace.capstone)}
+          data-chapter-link={trace.capstone}
+          aria-label={`Ch ${chapterNumber(trace.capstone)} — ${chapterTitle(trace.capstone)}`}
+        >
+          Ch {chapterNumber(trace.capstone)}
+        </a>
+      </span>
+    </p>
+  </figcaption>
+
+  <section class="inference-panel" aria-labelledby="llm-parts-inference-title">
+    <h4 id="llm-parts-inference-title">{labels.sections.inference}</h4>
+    <p>{labels.captions.inference}</p>
+    <ol class="part-flow inference-flow course-diagram__grid">
+      {inference.map(({ occurrence, part, labels: partLabels }) => (
+        <li
+          class="course-diagram__card-stack"
+          data-diagram-card
+          data-diagram-box
+          data-part-id={part.id}
+          data-part-path={part.path}
+          data-flow-order={occurrence}
+          data-trace-purpose={part.purpose}
+        >
+          <header class="course-diagram__card-heading">
+            <h5><strong class="state-symbol" aria-hidden="true">{occurrence}</strong>{' '}{partLabels.name}</h5>
+          </header>
+          <p>{partLabels.purpose}</p>
+          {part.id === 'decoder-block' && <p class="cue">↻ {labels.cues.repeated}</p>}
+          {part.id === 'sampler' && <p class="cue">↺ {labels.cues.nextTokenLoop}</p>}
+          <ul class="chapter-links course-diagram__link-list" aria-label={`${partLabels.name}: ${labels.cues.chapterLinks}`}>
+            {part.chapters.map((chapterId, chapterIndex) => (
+              <li>
+                <a
+                  href={chapterHref(chapterId)}
+                  data-chapter-link={chapterId}
+                  aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                >
+                  <span>Ch {chapterNumber(chapterId)}</span>
+                </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="decoder-panel" aria-labelledby="llm-parts-decoder-title">
+    <h4 id="llm-parts-decoder-title">{labels.sections.decoder}</h4>
+    <p>{labels.captions.decoder}</p>
+    <div class="decoder-map course-diagram__grid">
+      <ol class="part-flow decoder-flow course-diagram__grid">
+        {decoder.map(({ occurrence, part, labels: partLabels }) => (
+          <li
+            class="course-diagram__card-stack"
+            data-diagram-card
+            data-diagram-box
+            data-part-id={part.id}
+            data-part-path={part.path}
+            data-flow-order={occurrence}
+            data-trace-purpose={part.purpose}
+          >
+            <header class="course-diagram__card-heading">
+              <h5><strong class="state-symbol" aria-hidden="true">{occurrence}</strong>{' '}{partLabels.name}</h5>
+            </header>
+            <p>{partLabels.purpose}</p>
+            <ul class="chapter-links course-diagram__link-list" aria-label={`${partLabels.name}: ${labels.cues.chapterLinks}`}>
+              {part.chapters.map((chapterId, chapterIndex) => (
+                <li>
+                  <a
+                    href={chapterHref(chapterId)}
+                    data-chapter-link={chapterId}
+                    aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                  >
+                    <span>Ch {chapterNumber(chapterId)}</span>
+                  </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+      <aside
+        class="cache-attachment course-diagram__card-stack"
+        data-diagram-card
+        data-diagram-box
+        data-part-id={cache.part.id}
+        data-part-path={cache.part.path}
+        data-trace-purpose={cache.part.purpose}
+        aria-label={cache.labels.name}
+      >
+        <header class="course-diagram__card-heading"><h5><strong class="state-symbol" aria-hidden="true">↳</strong>{' '}{cache.labels.name}</h5></header>
+        <p>
+          {cache.labels.purpose}{' '}
+          {cache.part.chapters.map((chapterId, chapterIndex) => (
+            <>
+              <a
+                href={chapterHref(chapterId)}
+                data-chapter-link={chapterId}
+                aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+              >
+                Ch {chapterNumber(chapterId)}
+              </a>{chapterIndex < cache.part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}{' '}
+            </>
+          ))}
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="learning-panel" aria-labelledby="llm-parts-learning-title">
+    <h4 id="llm-parts-learning-title">{labels.sections.learning}</h4>
+    <p>{labels.captions.learning}</p>
+    <div class="learning-map course-diagram__grid">
+      <div
+        class="learning-reuse course-diagram__card-stack"
+        data-diagram-card
+        data-diagram-box
+        data-learning-reuse
+        data-flow-range={`1-${sharedForwardLength}`}
+      >
+        <header class="course-diagram__card-heading"><h5><strong class="state-symbol" aria-hidden="true">↘</strong>{' '}{labels.cues.reuseTitle}</h5></header>
+        <p>{labels.cues.sharedForward}; {labels.cues.learningBoundary}.</p>
+      </div>
+      <aside
+        class="numeric-foundation course-diagram__card-stack"
+        data-diagram-card
+        data-diagram-box
+        data-part-id={foundation.part.id}
+        data-part-path={foundation.part.path}
+        data-trace-purpose={foundation.part.purpose}
+        aria-label={foundation.labels.name}
+      >
+        <header class="course-diagram__card-heading"><h5><strong class="state-symbol" aria-hidden="true">⊥</strong>{' '}{foundation.labels.name}</h5></header>
+        <p>{foundation.labels.purpose}</p>
+        <ul class="chapter-links course-diagram__link-list" aria-label={`${foundation.labels.name}: ${labels.cues.chapterLinks}`}>
+          {foundation.part.chapters.map((chapterId, chapterIndex) => (
+            <li>
+              <a
+                href={chapterHref(chapterId)}
+                data-chapter-link={chapterId}
+                aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+              >
+                <span>Ch {chapterNumber(chapterId)}</span>
+              </a>{chapterIndex < foundation.part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <ol class="part-flow learning-flow course-diagram__grid" start={sharedForwardLength + 1}>
+        {learning.map(({ occurrence, part, labels: partLabels }) => (
+          <li
+            class="course-diagram__card-stack"
+            data-diagram-card
+            data-diagram-box
+            data-part-id={part.id}
+            data-part-path={part.path}
+            data-flow-order={sharedForwardLength + occurrence}
+            data-trace-purpose={part.purpose}
+          >
+            <header class="course-diagram__card-heading">
+              <h5>
+                <strong class="state-symbol" aria-hidden="true">{sharedForwardLength + occurrence}</strong>{' '}
+                {part.id === 'checkpoint' ? <>Check<wbr />point</> : partLabels.name}
+              </h5>
+            </header>
+            <p>{partLabels.purpose}</p>
+            <ul class="chapter-links course-diagram__link-list" aria-label={`${partLabels.name}: ${labels.cues.chapterLinks}`}>
+              {part.chapters.map((chapterId, chapterIndex) => (
+                <li>
+                  <a
+                    href={chapterHref(chapterId)}
+                    data-chapter-link={chapterId}
+                    aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                  >
+                    <span>Ch {chapterNumber(chapterId)}</span>
+                  </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .part-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .capstone-card {
+    min-inline-size: 0;
+  }
+
+  @container course-diagram (min-width: 70rem) {
+    .inference-flow,
+    .decoder-flow {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .learning-map {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .learning-reuse {
+      grid-column: span 2;
+    }
+
+    .learning-flow {
+      grid-column: span 4;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .numeric-foundation {
+      grid-column: span 4;
+    }
+
+    .cache-attachment {
+      inline-size: calc((100% - 5 * var(--diagram-gap)) / 6 * 2 + var(--diagram-gap));
+      margin-inline-start: calc((100% - 5 * var(--diagram-gap)) / 6 + var(--diagram-gap));
+    }
+  }
+
+  @container course-diagram (max-width: 42rem) {
+    .part-flow {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .llm-parts-diagram:fullscreen {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .llm-parts-diagram:fullscreen > figcaption {
+    grid-column: 1 / -1;
+  }
+
+  .llm-parts-diagram:fullscreen .inference-flow,
+  .llm-parts-diagram:fullscreen .decoder-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .llm-parts-diagram:fullscreen .learning-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .llm-parts-diagram:fullscreen .learning-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .llm-parts-diagram:fullscreen .learning-reuse,
+  .llm-parts-diagram:fullscreen .numeric-foundation {
+    grid-column: auto;
+  }
+
+  .llm-parts-diagram:fullscreen .learning-flow {
+    grid-column: 1 / -1;
+  }
+
+  .llm-parts-diagram:fullscreen .cache-attachment {
+    inline-size: 100%;
+    margin-inline-start: 0;
+  }
+</style>

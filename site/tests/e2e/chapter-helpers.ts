@@ -43,6 +43,7 @@ interface LocalizedChapterRoute {
 }
 
 interface ReadOrderedCourseChapterOptions {
+  includeIntroduction?: boolean;
   origin?: string;
   requireContiguousPrefix?: boolean;
 }
@@ -92,6 +93,7 @@ export async function readOrderedCourseChapters(
   page: Page,
   locale: ChapterLocale,
   {
+    includeIntroduction = false,
     origin,
     requireContiguousPrefix,
   }: ReadOrderedCourseChapterOptions = {},
@@ -120,9 +122,13 @@ export async function readOrderedCourseChapters(
     }),
   );
 
-  return chapters.map((chapter, index) => {
-    const previousOrder = chapters[index - 1]?.order ?? 0;
-    const expectedOrder = expectsContiguousPrefix ? index + 1 : chapter.order;
+  const firstOrder = chapters[0]?.order;
+  expect(firstOrder === 0 || firstOrder === 1).toBe(true);
+  const validated = chapters.map((chapter, index) => {
+    const previousOrder = chapters[index - 1]?.order ?? Number(firstOrder) - 1;
+    const expectedOrder = expectsContiguousPrefix
+      ? Number(firstOrder) + index
+      : chapter.order;
     const match = chapter.href.match(
       new RegExp(`^/${locale}/course/(\\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*)/$`),
     );
@@ -143,6 +149,9 @@ export async function readOrderedCourseChapters(
       chapterId: match?.[1] ?? '',
     };
   });
+  return includeIntroduction
+    ? validated
+    : validated.filter((chapter) => chapter.order !== 0);
 }
 
 export async function expectLocalizedChapterRoute(

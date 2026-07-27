@@ -1060,8 +1060,71 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateLedgerText(stateSource, metadata, statePath),
     ).not.toThrow();
+
+    const missingIntroductionBuild = replaceOnce(
+      stateSource,
+      '  - build_id: introduce-ch00-llm-map',
+      '  - build_id: missing-ch00-llm-map',
+    );
+    expect(() =>
+      validateLedgerText(missingIntroductionBuild, metadata, statePath),
+    ).toThrow(/missing build introduce-ch00-llm-map/);
+
+    const introductionDependencyDrift = replaceOnce(
+      stateSource,
+      [
+        '      - id: implement-ch00-llm-parts',
+        '        objective: "Identify the major parts of a decoder-only LLM, state each part\'s purpose, and follow the course links that build it."',
+        '        depends_on:',
+        '          - implement-ch39-end-to-end-llm',
+      ].join('\n'),
+      [
+        '      - id: implement-ch00-llm-parts',
+        '        objective: "Identify the major parts of a decoder-only LLM, state each part\'s purpose, and follow the course links that build it."',
+        '        depends_on:',
+        '          - implement-ch38-cached-generation',
+      ].join('\n'),
+    );
+    expect(() =>
+      validateLedgerText(introductionDependencyDrift, metadata, statePath),
+    ).toThrow(/must depend only on the completed capstone step/);
+
+    const missingIntroductionOutput = replaceOnce(
+      stateSource,
+      [
+        '          - "curriculum/chapters/00-llm-parts.md"',
+        '          - "rust/demos/ch00-llm-parts/"',
+      ].join('\n'),
+      '          - "rust/demos/ch00-llm-parts/"',
+    );
+    expect(() =>
+      validateLedgerText(missingIntroductionOutput, metadata, statePath),
+    ).toThrow(/does not own curriculum\/chapters\/00-llm-parts\.md/);
+
+    const missingIntroductionValidation = replaceOnce(
+      stateSource,
+      '          - "npm --prefix site run check:parity -- --chapter 00-llm-parts"',
+      '          - "npm --prefix site run check:parity -- --chapter wrong"',
+    );
+    expect(() =>
+      validateLedgerText(missingIntroductionValidation, metadata, statePath),
+    ).toThrow(/is missing validation/);
+
     expect(() =>
       validateImplementedContracts(metadata, [
+        {
+          path: '00-llm-parts.md',
+          data: validateChapterContractText(
+            readFileSync(
+              join(root, 'curriculum/chapters/00-llm-parts.md'),
+              'utf8',
+            ),
+            {
+              sourceName: 'curriculum/chapters/00-llm-parts.md',
+              supportedLocales: ['en'],
+            },
+          ).data,
+        },
         { path: '01-text-units.md', data: canonicalContract().data },
       ]),
     ).not.toThrow();
@@ -1086,7 +1149,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 29',
+      '"plan_revision": 30',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1336,7 +1399,7 @@ describe('curriculum and catalog contracts', () => {
     const plan = validateCoursePlanText(
       readFileSync(join(repositoryRoot(), 'curriculum/course-plan.md'), 'utf8'),
     );
-    const contracts = plan.chapters.slice(0, 2).map(
+    const contracts = plan.chapters.slice(0, 3).map(
       (
         chapter: {
           chapter_id: string;
@@ -1362,13 +1425,16 @@ describe('curriculum and catalog contracts', () => {
               : [],
           },
           visualization: { decision: chapter.visualization },
-          terminology: [
-            {
-              concept_id: 'shared-term',
-              en: index === 0 ? 'stable term' : 'drifted term',
-              ru: 'устойчивый термин',
-            },
-          ],
+          terminology:
+            index === 0
+              ? [{ concept_id: 'intro-term', en: 'intro term' }]
+              : [
+                  {
+                    concept_id: 'shared-term',
+                    en: index === 1 ? 'stable term' : 'drifted term',
+                    ru: 'устойчивый термин',
+                  },
+                ],
         },
       }),
     );
@@ -1488,6 +1554,7 @@ describe('curriculum and catalog contracts', () => {
 describe('published order and chapter navigation', () => {
   const targets = [
     { chapterId: '03-third', order: 3, title: 'Third' },
+    { chapterId: '00-intro', order: 0, title: 'Intro' },
     { chapterId: '01-first', order: 1, title: 'First' },
     { chapterId: '02-second', order: 2, title: 'Second' },
   ];
@@ -1495,15 +1562,18 @@ describe('published order and chapter navigation', () => {
   it('orders shuffled chapters and returns first, middle, and last neighbors', () => {
     expect(
       orderChapterTargets(targets).map((target) => target.chapterId),
-    ).toEqual(['01-first', '02-second', '03-third']);
-    expect(findChapterNeighbors(targets, '01-first')).toEqual(
+    ).toEqual(['00-intro', '01-first', '02-second', '03-third']);
+    expect(findChapterNeighbors(targets, '00-intro')).toEqual(
       expect.objectContaining({ previous: null, next: targets[2] }),
     );
+    expect(findChapterNeighbors(targets, '01-first')).toEqual(
+      expect.objectContaining({ previous: targets[1], next: targets[3] }),
+    );
     expect(findChapterNeighbors(targets, '02-second')).toEqual(
-      expect.objectContaining({ previous: targets[1], next: targets[0] }),
+      expect.objectContaining({ previous: targets[2], next: targets[0] }),
     );
     expect(findChapterNeighbors(targets, '03-third')).toEqual(
-      expect.objectContaining({ previous: targets[2], next: null }),
+      expect.objectContaining({ previous: targets[3], next: null }),
     );
   });
 
@@ -1520,6 +1590,12 @@ describe('published order and chapter navigation', () => {
     expect(() => findChapterNeighbors(targets, '04-missing')).toThrow(
       /absent from published navigation/,
     );
+    expect(() =>
+      orderChapterTargets([
+        ...targets,
+        { chapterId: '04-negative', order: -1, title: 'Negative' },
+      ]),
+    ).toThrow(/invalid chapter navigation order/);
 
     const localeSet = (chapterId: string, order: number, conceptId: string) => ({
       chapterId,

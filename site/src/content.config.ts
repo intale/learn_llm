@@ -165,7 +165,7 @@ const chapters = defineCollection({
         'locale must be configured in src/i18n/locales.json',
       ),
       content_revision: z.number().int().positive(),
-      order: z.number().int().positive(),
+      order: z.number().int().nonnegative(),
       concept_id: kebabId,
       title: z.string().min(1),
       description: z.string().min(1),

@@ -480,8 +480,8 @@ export function validateChapterContractText(
   if (!Number.isInteger(data.content_revision) || data.content_revision < 1) {
     issues.push(sourceName + ': content_revision must be a positive integer');
   }
-  if (!Number.isInteger(data.order) || data.order < 1) {
-    issues.push(sourceName + ': order must be a positive integer');
+  if (!Number.isInteger(data.order) || data.order < 0) {
+    issues.push(sourceName + ': order must be a nonnegative integer');
   }
 
   requireLocalizedText(

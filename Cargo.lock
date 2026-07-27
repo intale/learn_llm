@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "ch00-llm-parts"
+version = "0.1.0"
+
+[[package]]
 name = "ch01-text-units"
 version = "0.1.0"
 

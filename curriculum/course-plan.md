@@ -1,14 +1,22 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 29,
-  "chapter_count": 39,
+  "plan_revision": 30,
+  "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "english-only-from-chapter-08-until-further-notice",
+    "policy_id": "selective-english-only-intro-and-chapter-08-onward",
     "reference_locale": "en",
     "ranges": [
+      {
+        "from_chapter": "00-llm-parts",
+        "through_chapter": "00-llm-parts",
+        "locales": [
+          "en"
+        ],
+        "reason": "Publish the requested orientation chapter in English first without creating a Russian placeholder route."
+      },
       {
         "from_chapter": "01-text-units",
         "through_chapter": "07-language-model-metrics",
@@ -210,6 +218,14 @@
     ]
   },
   "chapters": [
+    {
+      "order": 0,
+      "chapter_id": "00-llm-parts",
+      "implementation_step": "implement-ch00-llm-parts",
+      "depends_on": [],
+      "primary_module": null,
+      "visualization": "useful"
+    },
     {
       "order": 1,
       "chapter_id": "01-text-units",
@@ -665,10 +681,11 @@ chapter from Chapter 10 onward, use structured history metadata plus visible
 localized claims and direct rendered citations to make the LLM lens and its
 bounded evidence machine-checkable; semantic accuracy still requires review.
 
-## Why the plan has 39 chapters
+## Why the plan has 40 chapters
 
-The review expanded the earlier sketch where two distinct mental models or failure
-modes had been compressed:
+Chapter 0 supplies the block-level mental model that lets a new learner place
+each later mechanism before implementing it. The review also expanded the earlier
+sketch where two distinct mental models or failure modes had been compressed:
 
 - raw documents are partitioned before BPE, so tokenizer statistics cannot leak;
 - BPE learning and applying a frozen tokenizer remain separate algorithms;
@@ -685,8 +702,9 @@ These are actual chapters with their own learning outcomes, not workflow fragmen
 
 ## One chapter, one vertical-slice step
 
-After the Chapter 1 revision and the recorded cross-cutting prerequisites, every
-chapter from 2 through 39 is one `BUILD_STATE.yaml` step and one Git commit.
+Chapter 0 is one post-course orientation step and commit. After the Chapter 1
+revision and the recorded cross-cutting prerequisites, every chapter from 2
+through 39 is likewise one `BUILD_STATE.yaml` step and one Git commit.
 Outline, Rust, visualization, every translation in the chapter's checked active
 locale set, and integration are phases of the same run.
 
@@ -758,10 +776,11 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 1–7 activate
-both, while Chapters 8–39 currently activate English only. Russian therefore keeps
-its index and existing Chapter 1–7 lessons, but receives no placeholder lesson or
-route for a deferred chapter. The same rules apply to any registered locale.
+and chapter validation. English and Russian are registered; Chapter 0 currently
+activates English only, Chapters 1–7 activate both, and Chapters 8–39 activate
+English only. Russian therefore keeps its index and existing Chapter 1–7 lessons,
+but receives no placeholder lesson or route for a deferred chapter. The same rules
+apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
 
@@ -792,6 +811,21 @@ mapping from its contract through Rust evidence, every chapter-active locale,
 visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 ## Dependency-ordered chapter map
+
+## 00. A map of a modern LLM
+
+- **Chapter ID:** `00-llm-parts`
+- **Implementation step:** `implement-ch00-llm-parts`
+- **Depends on:** none; this orientation names completed course parts but introduces no implementation prerequisite.
+- **Outcome:** Identify the major parts of a decoder-only LLM, state each part's purpose, and follow the course links that build it.
+- **Scope boundary:** Build a mental map of inference and learning without pre-teaching tensor arithmetic, optimization derivations, implementation internals, or production extensions.
+- **Formula:** `P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`.
+- **Historical contrast:** Connect short-context count language models to learned distributed representations, masked Transformer attention, and scaled autoregressive language models while stating that each earlier stage lacked part of the modern learned long-context path.
+- **Rust contribution:** Add a dependency-free topology fixture that prints every named block, its role in inference or learning, and the exact chapter destinations used by the diagram.
+- **Visualization:** Useful — show the text-to-next-token inference spine, the repeated decoder block's internal branches, the KV-cache attachment, and the learning/evaluation rail as one linked semantic block schema.
+- **Practice:** Trace one prompt token through the blocks, then identify which paths run during training, generation, or both.
+- **Integration evidence:** Exact Rust topology, contract/page parity, all working chapter links, SEO and sitemap inclusion, shared full-view behavior, and desktop/narrow Chromium and Firefox containment pass.
+- **Handoff:** Chapter 1 begins the implementation path by distinguishing text units from the token IDs consumed by the model.
 
 ## 01. Text units and vocabulary IDs
 

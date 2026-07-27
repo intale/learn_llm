@@ -161,8 +161,8 @@ inactive locale.
 
 Only a complete, same-revision chapter-active set is returned by the static course
 route. Every registered locale index always exists, even before the first lesson is
-publishable. The current checked projection activates English and Russian for
-Chapters 1–7 and English only for Chapters 8–39. Russian keeps its localized index
+publishable. The current checked projection activates English only for Chapter 0,
+English and Russian for Chapters 1–7, and English only for Chapters 8–39. Russian keeps its localized index
 and existing lessons, but a deferred Russian chapter has no lesson route; its
 language switch target falls back to the Russian course index.
 

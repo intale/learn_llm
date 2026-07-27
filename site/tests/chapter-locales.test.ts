@@ -1,3 +1,8 @@
+// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
+import { readFileSync } from 'node:fs';
+// @ts-ignore Node APIs are supplied by the test runtime; the site has no Node runtime.
+import { resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
@@ -19,6 +24,8 @@ interface FixtureChapter {
   order: number;
   activeLocales: string[];
 }
+
+declare const process: { cwd(): string };
 
 interface FixtureManifest {
   schemaVersion: number;
@@ -52,32 +59,53 @@ function fixtureManifest(
 }
 
 describe('chapter-locale manifest', () => {
-  it('projects the canonical 39-chapter policy at both activation boundaries', () => {
-    expect(chapterLocaleConfiguration.chapters).toHaveLength(39);
+  it('keeps all authoring guides aligned with the three current locale ranges', () => {
+    const repositoryRoot = resolve(process.cwd(), '..');
+    const normalized = (path: string) =>
+      readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
+
+    expect(normalized('curriculum/README.md')).toContain(
+      'English only for Chapter 0, English and Russian for Chapters 1–7, and English only for Chapters 8–39',
+    );
+    expect(normalized('curriculum/chapter-template.md')).toContain(
+      'current Chapter 0 and Chapter 8–39 active sets; Chapters 1–7 use English and Russian',
+    );
+    expect(normalized('SKILLS.md')).toContain(
+      'Chapter 0 uses English only, Chapters 1 through 7 use English and Russian, and Chapters 8 through 39 use English only',
+    );
+  });
+
+  it('projects the canonical 40-chapter policy at all activation boundaries', () => {
+    expect(chapterLocaleConfiguration.chapters).toHaveLength(40);
     expect(chapterLocaleConfiguration.referenceLocale).toBe('en');
     expect(chapterLocaleConfiguration.chapters[0]).toMatchObject({
+      chapterId: '00-llm-parts',
+      order: 0,
+      activeLocales: ['en'],
+    });
+    expect(chapterLocaleConfiguration.chapters[1]).toMatchObject({
       chapterId: '01-text-units',
       order: 1,
       activeLocales: ['en', 'ru'],
     });
-    expect(chapterLocaleConfiguration.chapters[6]).toMatchObject({
+    expect(chapterLocaleConfiguration.chapters[7]).toMatchObject({
       chapterId: '07-language-model-metrics',
       order: 7,
       activeLocales: ['en', 'ru'],
     });
-    expect(chapterLocaleConfiguration.chapters[7]).toMatchObject({
+    expect(chapterLocaleConfiguration.chapters[8]).toMatchObject({
       chapterId: '08-tensor-storage',
       order: 8,
       activeLocales: ['en'],
     });
-    expect(chapterLocaleConfiguration.chapters[38]).toMatchObject({
+    expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
       activeLocales: ['en'],
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 7)
+        .slice(1, 8)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -87,7 +115,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(7)
+        .filter((chapter) => chapter.order === 0 || chapter.order >= 8)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -95,6 +123,7 @@ describe('chapter-locale manifest', () => {
         ),
     ).toBe(true);
 
+    expect(activeLocalesForChapter('00-llm-parts')).toEqual(['en']);
     expect(activeLocalesForChapter('07-language-model-metrics')).toEqual([
       'en',
       'ru',

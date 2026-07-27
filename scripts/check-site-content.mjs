@@ -691,8 +691,8 @@ export function validateChapterMetadata(
   if (!Number.isInteger(data.content_revision) || data.content_revision < 1) {
     issues.push(sourceName + ': content_revision must be a positive integer');
   }
-  if (!Number.isInteger(data.order) || data.order < 1) {
-    issues.push(sourceName + ': order must be a positive integer');
+  if (!Number.isInteger(data.order) || data.order < 0) {
+    issues.push(sourceName + ': order must be a nonnegative integer');
   }
   if (!hasText(data.concept_id) || !CONCEPT_ID_PATTERN.test(data.concept_id)) {
     issues.push(sourceName + ': concept_id must be lowercase kebab-case');
@@ -1063,9 +1063,14 @@ export function validatePublishedChapterSequence(sets) {
   const orders = new Set();
   const concepts = new Set();
   const issues = [];
+  const firstOrder = ordered[0]?.reference.data.order ?? 1;
+
+  if (firstOrder !== 0 && firstOrder !== 1) {
+    issues.push('published chapters must begin at order 0 or 1');
+  }
 
   ordered.forEach((set, index) => {
-    const expectedOrder = index + 1;
+    const expectedOrder = firstOrder + index;
     const expectedPrefix = String(expectedOrder).padStart(2, '0') + '-';
     const order = set.reference.data.order;
     const concept = set.reference.data.concept_id;
@@ -1103,6 +1108,11 @@ export function validatePublishedContractSequence(sets, contracts) {
   const contractIds = new Set();
   const contractOrders = new Set();
   const contractConcepts = new Set();
+  const firstContractOrder = orderedContracts[0]?.data.order ?? 1;
+
+  if (firstContractOrder !== 0 && firstContractOrder !== 1) {
+    issues.push('implemented contracts must begin at order 0 or 1');
+  }
 
   orderedContracts.forEach((contract, index) => {
     const data = contract.data;
@@ -1115,7 +1125,7 @@ export function validatePublishedContractSequence(sets, contracts) {
     if (contractConcepts.has(data.concept_id)) {
       issues.push('duplicate implemented contract concept_id "' + data.concept_id + '"');
     }
-    if (data.order !== index + 1) {
+    if (data.order !== firstContractOrder + index) {
       issues.push(
         data.chapter_id + ': implemented contracts must form a contiguous ordered prefix',
       );
@@ -1558,6 +1568,7 @@ export function validateDiagramComponents(repositoryRoot) {
     'course-diagram__caption',
     'course-diagram__description',
     'course-diagram__scroll',
+    'course-diagram__link-separator',
     'data-diagram-card',
     'data-diagram-box',
     'data-diagram-table',

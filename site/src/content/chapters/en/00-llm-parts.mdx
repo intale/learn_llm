@@ -1,0 +1,384 @@
+---
+{
+  "chapter_id": "00-llm-parts",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 0,
+  "concept_id": "llm-parts",
+  "title": "A map of a modern LLM",
+  "description": "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.",
+  "objective": "Identify the major parts of a decoder-only LLM, state each part's purpose, and follow the course links that build it.",
+  "worked_inputs": "Trace the prompt text A through tokenization, token embeddings, one repeated pre-norm decoder block, the tied vocabulary head, and temperature/top-k sampling; then reuse that forward path for an observed next-token target and follow its loss, gradients, AdamW update, validation selection, final evaluation, checkpointing, and cached generation.",
+  "formula": {
+    "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
+    "symbols": [
+      {
+        "symbol": "P_\\theta",
+        "meaning": "the probability model defined by all learned parameters; its arguments specify a sequence or conditional event"
+      },
+      {
+        "symbol": "\\theta",
+        "meaning": "the collection of learned embeddings, normalization gains, attention weights, and feed-forward weights"
+      },
+      {
+        "symbol": "z_{1:T}",
+        "meaning": "one complete sequence of token IDs"
+      },
+      {
+        "symbol": "T",
+        "meaning": "the number of tokens in the sequence"
+      },
+      {
+        "symbol": "t",
+        "meaning": "the current token position"
+      },
+      {
+        "symbol": "z_t",
+        "meaning": "the observed token at the current position"
+      },
+      {
+        "symbol": "z_{<t}",
+        "meaning": "all earlier tokens available as causal context"
+      },
+      {
+        "symbol": "\\prod_{t=1}^{T}",
+        "meaning": "multiplication of one conditional next-token probability at every position"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "language-model",
+      "limitation": "Count n-grams condition on a fixed short context and cannot learn reusable distributed features or content-dependent access to a longer prefix.",
+      "later_advance": "Neural language models learned distributed token representations, the Transformer supplied masked self-attention over the prefix, and later autoregressive Transformer language models scaled the same next-token objective.",
+      "modern_llm_role": "A modern decoder-only LLM repeatedly transforms token features with normalized causal attention and gated feed-forward branches, then projects the result to a next-token distribution used by training or generation.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2003,
+          "name": "A Neural Probabilistic Language Model",
+          "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
+          "claim": "Bengio and colleagues contrast n-gram generalization with a neural probability function that learns distributed word representations; their model predates the Transformer and this course's decoder block."
+        },
+        {
+          "role": "later",
+          "year": 2017,
+          "name": "Attention Is All You Need",
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "claim": "Vaswani and colleagues define the Transformer and mask decoder self-attention against later positions; their published system is an encoder-decoder model, not this course's decoder-only topology."
+        },
+        {
+          "role": "later",
+          "year": 2020,
+          "name": "Language Models are Few-Shot Learners",
+          "source_url": "https://arxiv.org/pdf/2005.14165",
+          "claim": "Brown and colleagues describe GPT-3 as a scaled autoregressive language model; its scale and measured capabilities do not transfer to the tiny reference model used here."
+        }
+      ]
+    },
+    "approach": "Begin with a count-based short-context language model, then place learned representations, masked self-attention, decoder blocks, optimization, and autoregressive generation on one road to the modern decoder-only LLM.",
+    "summary": "The useful mental model is not one mysterious intelligence box: it is a text interface, a learned feature pipeline repeated across decoder blocks, a vocabulary prediction head, and a learning process that adjusts those weights from next-token evidence.",
+    "rust_source": "rust/demos/ch00-llm-parts/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/demos/ch00-llm-parts/src/lib.rs",
+      "region": "model-map",
+      "purpose": "Declare the exact inference, decoder-block, and learning paths."
+    },
+    {
+      "path": "rust/demos/ch00-llm-parts/src/main.rs",
+      "purpose": "Print the stable topology consumed by the chapter diagram."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "llm-parts-map",
+    "rationale": "A linked block schema makes nesting, repeated decoder computation, the next-token feedback loop, and the learning branch from the shared forward path easier to understand than a flat list of chapter titles."
+  },
+  "decoder_connection": "The map previews the complete decoder: token IDs become feature vectors, repeated pre-norm blocks mix causal context and transform features, a tied head produces logits, sampling chooses a token, and training changes the same weights through loss, gradients, and AdamW."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import LlmPartsDiagram from "../../../components/chapters/LlmPartsDiagram.astro";
+
+export const diagramLabels = {
+  title: "Build one mental model before building the parts",
+  description: "Follow the shared blocks that produce next-token logits, open the repeated decoder block, and see where inference and learning branch.",
+  sections: {
+    inference: "The next-token inference path",
+    decoder: "Inside every pre-norm decoder block",
+    learning: "Learning and evaluating the same weights",
+  },
+  captions: {
+    inference: "Tokenize the prompt once; each chosen token ID loops back to embeddings for the next cached decode.",
+    decoder: "Each block adds attention, then a feed-forward update.",
+    learning: "Use target loss to update the same weights.",
+  },
+  parts: {
+    "input-text": {
+      name: "Text / examples",
+      purpose: "Prompt input; separate training documents.",
+    },
+    tokenizer: {
+      name: "Tokenizer",
+      purpose: "Text to token IDs and back.",
+    },
+    "numeric-core": {
+      name: "Shared numeric core",
+      purpose: "Run tensor operations; record gradients only while learning.",
+    },
+    embeddings: {
+      name: "Embeddings",
+      purpose: "Token IDs to learned features.",
+    },
+    "decoder-block": {
+      name: "Decoder stack",
+      purpose: "Repeat attention and feed-forward.",
+    },
+    rmsnorm: {
+      name: "RMSNorm",
+      purpose: "Set branch input scale.",
+    },
+    "causal-attention": {
+      name: "Causal attention",
+      purpose: "Read the allowed prefix.",
+    },
+    "residual-stream": {
+      name: "Residual add",
+      purpose: "Add a branch update to the stream.",
+    },
+    swiglu: {
+      name: "SwiGLU",
+      purpose: "Gated transform at each position.",
+    },
+    "vocabulary-head": {
+      name: "Vocabulary head",
+      purpose: "Final features to token logits.",
+    },
+    sampler: {
+      name: "Sampler",
+      purpose: "Choose the next token.",
+    },
+    "kv-cache": {
+      name: "Per-layer KV cache",
+      purpose: "Reuse earlier keys and values.",
+    },
+    loss: {
+      name: "Loss",
+      purpose: "Score the target token.",
+    },
+    optimizer: {
+      name: "AdamW + selection",
+      purpose: "Update weights; choose with validation.",
+    },
+    evaluation: {
+      name: "Evaluation",
+      purpose: "Score the frozen state once.",
+    },
+    checkpoint: {
+      name: "Checkpoint",
+      purpose: "Save the exact model state.",
+    },
+    capstone: {
+      name: "Capstone",
+      purpose: "Assemble everything.",
+    },
+  },
+  cues: {
+    chapterLinks: "related course chapters",
+    repeated: "repeat",
+    nextTokenLoop: "token ID to embeddings",
+    reuseTitle: "Reuse the forward path through logits",
+    sharedForward: "text → tokenizer → embeddings → decoder blocks → vocabulary head",
+    learningBoundary: "the observed target replaces sampling",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Trace one token before learning any details
+
+Start with the prompt <code>A</code>. A tokenizer turns that text into token IDs.
+Embedding lookup replaces each ID with a learned feature vector. That vector enters
+a stack of decoder blocks. Every block first uses normalized causal attention to
+mix information from the current decoder-input position and earlier input
+positions, then uses a normalized SwiGLU branch to transform features at the
+current position. Training shifts targets by one position, so this allowed
+diagonal never exposes the token being predicted. Residual additions keep the
+main representation moving through both branches.
+
+After the final block, RMSNorm controls the feature scale once more. The tied
+vocabulary head produces one logit for each vocabulary item at every sequence
+position. Softmax and the decoding policy turn those logits into a next-token
+choice. The chosen token ID is appended to the token-ID sequence. The next cached
+decode starts from that ID's embedding; it does not detokenize and tokenize the
+whole growing sequence again.
+
+Training reuses that same tokenizer, embedding lookup, decoder stack, and
+vocabulary head to produce logits. It branches before sampling: the observed next
+token becomes the target, loss measures the prediction, reverse mode sends
+gradients through the shared blocks, and AdamW updates their weights. Validation
+selects a state; final evaluation measures that already frozen choice. Those
+operations create and check the model, but they are not extra layers traversed for
+every generated token.
+
+{/* chapter-section:formula */}
+
+## One objective connects all the blocks
+
+A causal language model assigns a sequence probability by multiplying one
+next-token conditional probability at every position:
+
+$$
+P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})
+$$
+
+The tokenizer defines the token sequence, the decoder computes features from the
+earlier prefix, the vocabulary head and softmax produce each conditional
+distribution, and training adjusts parameters to increase the probabilities of
+the observed next tokens.
+
+{/* chapter-section:symbol-glossary */}
+
+## Read the notation
+
+- $P_\theta$ is the probability model defined by all learned parameters; its
+  arguments specify a sequence or conditional event.
+- $\theta$ is the collection of learned embeddings, normalization gains,
+  attention weights, and feed-forward weights.
+- $z_{1:T}$ is one complete sequence of token IDs.
+- $T$ is the number of tokens in the sequence.
+- $t$ is the current token position.
+- $z_t$ is the observed token at the current position.
+- $z_{<t}$ is all earlier tokens available as causal context.
+- $\prod_{t=1}^{T}$ means multiplication of one conditional next-token
+  probability at every position.
+
+{/* chapter-section:history */}
+
+## A short road to the modern block diagram
+
+Count n-grams condition on a fixed short context and cannot learn reusable
+distributed features or content-dependent access to a longer prefix. Neural
+language models learned distributed token representations, the Transformer
+supplied masked self-attention over the prefix, and later autoregressive
+Transformer language models scaled the same next-token objective. A modern
+decoder-only LLM repeatedly transforms token features with normalized causal
+attention and gated feed-forward branches, then projects the result to a
+next-token distribution used by training or generation.
+
+[A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
+supports the earlier boundary. Bengio and colleagues contrast n-gram generalization
+with a neural probability function that learns distributed word representations;
+their model predates the Transformer and this course's decoder block.
+
+[Attention Is All You Need](https://arxiv.org/pdf/1706.03762) supports the later
+architecture boundary. Vaswani and colleagues define the Transformer and mask
+decoder self-attention against later positions; their published system is an
+encoder-decoder model, not this course's decoder-only topology.
+
+[Language Models are Few-Shot Learners](https://arxiv.org/pdf/2005.14165) supports
+the scaling boundary. Brown and colleagues describe GPT-3 as a scaled autoregressive
+language model; its scale and measured capabilities do not transfer to the tiny
+reference model used here.
+
+The progression is therefore about language models: short count contexts, learned
+distributed features, masked attention over a prefix, repeated decoder blocks, and
+scaled autoregressive training. Rust gives us executable evidence for the small
+version; it is not the subject of the history.
+
+{/* chapter-section:rust-implementation */}
+
+## Freeze the topology as data
+
+The Rust example names the three paths directly. The outer inference path owns the
+text-to-token loop, the decoder-block path exposes its two normalized residual
+branches, and the learning path keeps loss and optimization outside ordinary
+generation.
+
+<RustSource
+  path="rust/demos/ch00-llm-parts/src/lib.rs"
+  region="model-map"
+  caption="Declare the inference, decoder-block, and learning paths"
+  label="Rust source for the Chapter 0 LLM topology"
+/>
+
+<RustSource
+  path="rust/demos/ch00-llm-parts/src/main.rs"
+  caption="Print the complete stable Chapter 0 topology"
+  label="Rust source for the Chapter 0 topology entry point"
+/>
+
+Every named part also points to its implementation lessons. Together those
+destinations cover Chapters 1 through 39, so the map can take you directly from
+a high-level purpose to the Rust chapter that builds it.
+
+{/* chapter-section:visualization */}
+
+## Put every later lesson in one place
+
+The inference section is the path a trained model follows to choose a token. The
+decoder-block section opens the repeated block, including both residual additions
+and the cache owned by attention. The learning section reuses the first five
+blocks through logits, then branches to loss and updates. The numeric foundation
+supports both paths, evaluation checks the selected state, and a checkpoint
+preserves the state that inference can use.
+
+That numeric foundation is shared: tensor operations execute during inference as
+well as learning. Recording the operation graph and propagating gradients are the
+learning-only responsibilities.
+
+Each card links to the chapter or chapters that build it. Read the compact map once
+for orientation, then return to it whenever a new formula needs a home.
+
+<LlmPartsDiagram labels={diagramLabels} locale="en" />
+
+{/* chapter-section:exercises */}
+
+## Check your first mental model
+
+1. Which part first turns token IDs into learned features?
+2. Which branch lets a query use its current decoder input and earlier inputs without reading its prediction target?
+3. Why does one decoder block contain two residual additions?
+4. Which part emits one score for every vocabulary token?
+5. Does AdamW run while an already trained model generates text?
+6. What does the KV cache retain, and where does that state belong?
+7. Where does the chosen next token go?
+8. Which chapter joins every part into a functioning program?
+
+Misconception: an LLM is one opaque neural-network box. The model is better
+understood as a composition: token interface, learned feature path, repeated
+decoder blocks, vocabulary prediction, and a separate process that learns and
+checks the weights.
+
+<details>
+  <summary>Check the answers</summary>
+
+1. Embedding lookup turns each token ID into learned features.
+2. Causal attention reads the allowed decoder-input prefix through the query's
+   own position. Because targets are shifted, that prefix excludes the token being
+   predicted.
+3. One residual addition wraps attention; the other wraps the SwiGLU branch.
+4. The tied vocabulary head emits one logit for every vocabulary token.
+5. No. AdamW changes weights during training, not ordinary generation.
+6. The KV cache retains earlier keys and values owned by attention in each layer.
+7. Its token ID joins the growing token-ID sequence, and the next cached step
+   begins at embedding lookup.
+8. The Chapter 39 capstone joins every part in one functioning program.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Start the implementation path
+
+Chapters 1 through 7 establish text, tokenization, causal examples, a count
+baseline, and language-model metrics. Chapters 8 through 23 build the numeric and
+learning foundation. Chapters 24 through 32 assemble the decoder. Chapters 33
+through 38 train, evaluate, persist, sample, and cache it. Chapter 39 runs the whole
+tiny LLM.
+
+Chapter 1 starts with the boundary every later block depends on: text is not yet a
+model input. It must first become stable token IDs.

@@ -22,7 +22,7 @@ export function orderChapterTargets<T extends ChapterNavigationTarget>(
     if (!chapterIdPattern.test(target.chapterId)) {
       throw new Error(`invalid chapter navigation ID "${target.chapterId}"`);
     }
-    if (!Number.isInteger(target.order) || target.order < 1) {
+    if (!Number.isInteger(target.order) || target.order < 0) {
       throw new Error(
         `invalid chapter navigation order for ${target.chapterId}`,
       );

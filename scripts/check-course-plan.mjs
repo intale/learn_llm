@@ -249,7 +249,7 @@ export function validateCoursePlanText(
   );
   assert(Array.isArray(chapters), `${path}: chapters must be an array`);
   assert(metadata.chapter_count === chapters.length, `${path}: chapter_count does not match chapters`);
-  assert(chapters.length === 39, `${path}: the reviewed plan must contain 39 chapters`);
+  assert(chapters.length === 40, `${path}: the reviewed plan must contain 40 chapters`);
   assert(
     metadata.implementation_state_source === "curriculum/chapters",
     `${path}: implementation state must be derived from curriculum/chapters`,
@@ -355,24 +355,26 @@ export function validateCoursePlanText(
   unique(stepIds, "implementation_step");
 
   for (const [index, chapter] of chapters.entries()) {
-    const order = index + 1;
+    const order = index;
     const prefix = String(order).padStart(2, "0");
     assert(CHAPTER_ID_PATTERN.test(chapter.chapter_id), `${path}: invalid chapter_id ${chapter.chapter_id}`);
     assert(chapter.order === order, `${path}: chapter order must be contiguous at ${chapter.chapter_id}`);
     assert(chapter.chapter_id.startsWith(`${prefix}-`), `${path}: ${chapter.chapter_id} does not match order ${order}`);
     assert(
       chapter.implementation_step ===
-        (order === 1 ? "revise-ch01-language-neutral-formula" : `implement-ch${prefix}-${chapter.chapter_id.slice(3)}`),
+        (order === 1
+          ? "revise-ch01-language-neutral-formula"
+          : `implement-ch${prefix}-${chapter.chapter_id.slice(3)}`),
       `${path}: implementation step does not match ${chapter.chapter_id}`,
     );
     assert(
       JSON.stringify(chapter.depends_on) ===
-        JSON.stringify(order === 1 ? [] : [chapters[index - 1].chapter_id]),
-      `${path}: ${chapter.chapter_id} must depend only on its immediate predecessor`,
+        JSON.stringify(order <= 1 ? [] : [chapters[index - 1].chapter_id]),
+      `${path}: ${chapter.chapter_id} must preserve the reviewed dependency chain`,
     );
     assert(chapter.visualization === "useful" || chapter.visualization === "not-useful", `${path}: invalid visualization decision for ${chapter.chapter_id}`);
     assert(
-      order === 1 ? chapter.primary_module === null : /^[-a-z0-9_/]+\.rs$/.test(chapter.primary_module),
+      order <= 1 ? chapter.primary_module === null : /^[-a-z0-9_/]+\.rs$/.test(chapter.primary_module),
       `${path}: invalid primary_module for ${chapter.chapter_id}`,
     );
     assert(
@@ -382,7 +384,9 @@ export function validateCoursePlanText(
     );
   }
 
-  const modulePaths = chapters.slice(1).map((chapter) => chapter.primary_module);
+  const modulePaths = chapters
+    .map((chapter) => chapter.primary_module)
+    .filter((modulePath) => modulePath !== null);
   unique(modulePaths, "primary_module");
   const auditStart = body.indexOf("## Chapter 1 audit");
   const auditEnd = body.indexOf("## Target model and explicit boundaries", auditStart);
@@ -397,7 +401,7 @@ export function validateCoursePlanText(
   );
   assert(chapterIds.at(-1) === "39-end-to-end-llm", `${path}: the final chapter must be the end-to-end LLM capstone`);
   const historyPolicyStart = body.indexOf("## One historical road to the target LLM");
-  const historyPolicyEnd = body.indexOf("\n## Why the plan has 39 chapters", historyPolicyStart);
+  const historyPolicyEnd = body.indexOf("\n## Why the plan has 40 chapters", historyPolicyStart);
   const historyPolicy = body
     .slice(historyPolicyStart, historyPolicyEnd)
     .replace(/\s+/g, " ");
@@ -418,7 +422,7 @@ export function validateCoursePlanText(
     const end = index + 1 < headings.length ? headings[index + 1].index : body.indexOf("\n## Primary architecture anchors", start);
     assert(end > start, `${path}: cannot determine section boundary for ${chapter.chapter_id}`);
     const section = body.slice(start, end);
-    const prefix = String(index + 1).padStart(2, "0");
+    const prefix = String(chapter.order).padStart(2, "0");
     assert(heading[1] === prefix, `${path}: heading order mismatch for ${chapter.chapter_id}`);
 
     for (const field of REQUIRED_CHAPTER_FIELDS) {
@@ -438,7 +442,13 @@ export function validateCoursePlanText(
     assert(writtenId === chapter.chapter_id, `${path}: body chapter ID mismatch for ${chapter.chapter_id}`);
     assert(writtenStep === chapter.implementation_step, `${path}: body implementation step mismatch for ${chapter.chapter_id}`);
     assert(outcome, `${path}: missing outcome for ${chapter.chapter_id}`);
-    if (index === 0) {
+    if (chapter.order === 0) {
+      assert(
+        writtenDependency ===
+          "none; this orientation names completed course parts but introduces no implementation prerequisite.",
+        `${path}: body dependency mismatch for ${chapter.chapter_id}`,
+      );
+    } else if (chapter.order === 1) {
       assert(
         writtenDependency === "the completed chapter-1 foundation.",
         `${path}: body dependency mismatch for ${chapter.chapter_id}`,
@@ -495,7 +505,7 @@ export function validateCoursePlanText(
 
 export function deriveScheduledStepIds(metadata) {
   const expectedIds = ["define-complete-curriculum"];
-  for (const chapter of metadata.chapters) {
+  for (const chapter of metadata.chapters.filter((entry) => entry.order > 0)) {
     expectedIds.push(
       ...metadata.scheduling.cross_cutting_steps
         .filter((step) => step.before_chapter === chapter.chapter_id)
@@ -560,8 +570,82 @@ export function validateLedgerText(
     }
   }
 
+  const introChapter = metadata.chapters.find((chapter) => chapter.order === 0);
+  assert(introChapter, `${statePath}: reviewed plan is missing Chapter 0`);
+  const introBuild = extractBuild(
+    stateSource,
+    "introduce-ch00-llm-map",
+    statePath,
+  );
+  const introSteps = extractSteps(introBuild, statePath);
+  assert(
+    introSteps.length === 1 && introSteps[0].id === introChapter.implementation_step,
+    `${statePath}: Chapter 0 build must own exactly ${introChapter.implementation_step}`,
+  );
+  const introStep = introSteps[0];
+  assert(
+    VALID_STEP_STATUSES.has(introStep.status),
+    `${statePath}: invalid status for ${introStep.id}`,
+  );
+  for (const field of [
+    "objective",
+    "depends_on",
+    "inputs",
+    "outputs",
+    "acceptance",
+    "validate",
+    "cost",
+    "runs",
+  ]) {
+    assert(
+      hasTopLevelField(introStep, field),
+      `${statePath}: ${introStep.id} is missing ${field}`,
+    );
+  }
+  assert(
+    scalarField(introStep, "objective") === introChapter.outcome,
+    `${statePath}: ${introStep.id} objective does not match the reviewed outcome`,
+  );
+  assert(
+    JSON.stringify(listField(introStep, "depends_on")) ===
+      JSON.stringify(["implement-ch39-end-to-end-llm"]),
+    `${statePath}: ${introStep.id} must depend only on the completed capstone step`,
+  );
+  const introInputs = listField(introStep, "inputs") ?? [];
+  assert(
+    introInputs.includes("curriculum/chapters/39-end-to-end-llm.md") &&
+      introInputs.includes(metadata.localization_registry),
+    `${statePath}: ${introStep.id} must consume the capstone contract and locale projection`,
+  );
+  const introOutputs = listField(introStep, "outputs") ?? [];
+  for (const required of [
+    "curriculum/chapters/00-llm-parts.md",
+    "rust/demos/ch00-llm-parts/",
+    "site/src/content/chapters/en/00-llm-parts.mdx",
+    "site/src/components/chapters/LlmPartsDiagram.astro",
+    "site/tests/00-llm-parts-diagram.test.ts",
+    "site/tests/e2e/ch00-llm-parts.spec.ts",
+  ]) {
+    assert(
+      introOutputs.includes(required),
+      `${statePath}: ${introStep.id} does not own ${required}`,
+    );
+  }
+  const introValidation = listField(introStep, "validate") ?? [];
+  for (const required of [
+    "npm --prefix site run check:contract -- ../curriculum/chapters/00-llm-parts.md",
+    "scripts/check-rust-demos.sh",
+    "npm --prefix site run check:chapter -- --locale en --chapter 00-llm-parts",
+    "npm --prefix site run check:parity -- --chapter 00-llm-parts",
+  ]) {
+    assert(
+      introValidation.includes(required),
+      `${statePath}: ${introStep.id} is missing validation "${required}"`,
+    );
+  }
+
   const byId = new Map(steps.map((step) => [step.id, step]));
-  for (const chapter of metadata.chapters.slice(1)) {
+  for (const chapter of metadata.chapters.filter((entry) => entry.order >= 2)) {
     const step = byId.get(chapter.implementation_step);
     assert(
       scalarField(step, "objective") === chapter.outcome,
@@ -573,7 +657,13 @@ export function validateLedgerText(
       `${statePath}: ${step.id} first acceptance item does not match the reviewed outcome`,
     );
     const inputs = listField(step, "inputs") ?? [];
-    const previousChapter = metadata.chapters[chapter.order - 2];
+    const previousChapter = metadata.chapters.find(
+      (candidate) => candidate.order === chapter.order - 1,
+    );
+    assert(
+      previousChapter,
+      `${statePath}: ${step.id} has no reviewed predecessor chapter`,
+    );
     assert(
       inputs.includes(`curriculum/chapters/${previousChapter.chapter_id}.md`),
       `${statePath}: ${step.id} does not consume its predecessor contract`,
@@ -665,7 +755,7 @@ export function validateLedgerText(
     );
   }
 
-  return steps;
+  return [...steps, ...introSteps];
 }
 
 export function validateImplementedContracts(

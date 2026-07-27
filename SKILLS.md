@@ -274,8 +274,12 @@ layout class and `data-diagram-style="course-v1"`. Its `figcaption` uses
 `course-diagram__description`, semantic `article` cards carry
 `data-diagram-card` and `data-diagram-box`, tables carry `data-diagram-table`,
 and every permitted horizontal region uses both `course-diagram__scroll` and
-`data-diagram-scroll`. Keep title and description together inside the caption so
-shared controls never split them.
+`data-diagram-scroll`. Use `course-diagram__grid` for shared grid spacing,
+`course-diagram__card-stack` and `course-diagram__card-heading` for card content,
+`course-diagram__link-list` for compact related links,
+`course-diagram__link-separator` for visible punctuation between those links,
+and `state-symbol` for auto-sized ordinal or state markers. Keep title and
+description together inside the caption so shared controls never split them.
 
 The shared module owns frame, caption, direct-section, summary, card, table,
 technical-value, auto-sized state-symbol, scroll-region, focus, palette, forced-colors, and fullscreen
@@ -332,8 +336,8 @@ language tags, native names, and directions. The course plan defines which of
 those registered locales are active for a particular chapter. Do not hard-code
 an English/Russian pair in chapter logic.
 
-For the current approved policy, Chapters 1 through 7 use English and Russian;
-Chapters 8 through 39 use English only until a later explicit activation. A
+For the current approved policy, Chapter 0 uses English only, Chapters 1 through
+7 use English and Russian, and Chapters 8 through 39 use English only until a later explicit activation. A
 registered but deferred locale keeps its site chrome, existing lessons, and
 future activation path, but it does not require a new lesson or receive a
 chapter route. For each locale active for the selected chapter, create:

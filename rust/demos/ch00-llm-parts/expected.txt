@@ -1,0 +1,22 @@
+LLM_PARTS_TRACE_V1
+PART|id=input-text|path=both|purpose=Supply prompt text and preserve document boundaries for causal training examples.|chapters=02-corpus-partitions,05-autoregressive-examples,21-mini-batches
+PART|id=tokenizer|path=both|purpose=Convert text to stable token IDs and convert generated IDs back to text.|chapters=01-text-units,03-learn-bpe-merges,04-apply-bpe-tokenizer
+PART|id=numeric-core|path=both|purpose=Execute tensor operations on both paths and record gradients only during learning.|chapters=08-tensor-storage,09-tensor-views,10-broadcasting-reductions,11-matrix-multiplication,12-stable-softmax,13-gradient-checking,14-scalar-autodiff,15-tensor-autodiff-core,16-model-autodiff-ops,17-parameter-initialization,18-token-embeddings,19-linear-layers
+PART|id=embeddings|path=both|purpose=Look up a learned feature vector for each token ID.|chapters=18-token-embeddings
+PART|id=decoder-block|path=both|purpose=Repeat attention and feed-forward transformations while preserving a residual stream.|chapters=31-decoder-block
+PART|id=rmsnorm|path=both|purpose=Control feature scale before each learned branch.|chapters=25-rmsnorm
+PART|id=causal-attention|path=both|purpose=Mix information from the allowed prefix through multiple learned heads.|chapters=26-qkv-projections,27-self-attention,28-causal-masking,29-rope,30-multi-head-attention
+PART|id=residual-stream|path=both|purpose=Carry the current representation around each learned branch and add its update.|chapters=24-residual-connections
+PART|id=swiglu|path=both|purpose=Transform features independently at each position through a gated feed-forward branch.|chapters=20-swiglu-feed-forward
+PART|id=vocabulary-head|path=both|purpose=Normalize final features and project each position to one logit per vocabulary item.|chapters=32-decoder-model
+PART|id=sampler|path=inference|purpose=Turn logits into probabilities and choose the next token under a decoding policy.|chapters=12-stable-softmax,36-temperature-top-k
+PART|id=kv-cache|path=inference|purpose=Retain earlier attention keys and values so generation need not recompute them.|chapters=37-incremental-attention,38-cached-generation
+PART|id=loss|path=learning|purpose=Measure how much probability the model assigned to the observed next token.|chapters=06-bigram-baseline,07-language-model-metrics,23-neural-ngram
+PART|id=optimizer|path=learning|purpose=Use gradients to update parameters and select a trained state with validation data.|chapters=22-adamw,33-training-selection
+PART|id=evaluation|path=learning|purpose=Score the frozen selected model once on previously unopened test examples.|chapters=34-final-evaluation
+PART|id=checkpoint|path=integration|purpose=Save and restore the exact tokenizer, configuration, parameters, and training state.|chapters=35-checkpoints
+PART|id=capstone|path=integration|purpose=Connect training, evaluation, persistence, and cached generation in one program.|chapters=39-end-to-end-llm
+FLOW|name=inference|parts=input-text,tokenizer,embeddings,decoder-block,vocabulary-head,sampler
+FLOW|name=decoder-block|parts=rmsnorm,causal-attention,residual-stream,rmsnorm,swiglu,residual-stream
+FLOW|name=learning|parts=input-text,tokenizer,embeddings,decoder-block,vocabulary-head,loss,optimizer,evaluation,checkpoint
+END|chapter=39-end-to-end-llm

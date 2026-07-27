@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 
 declare const process: { cwd(): string };
 
+const chapter00Files = ["00-llm-parts.mdx"] as const;
 const chapterFiles = [
   "01-text-units.mdx",
   "02-corpus-partitions.mdx",
@@ -66,6 +67,12 @@ function withoutFrontmatter(source: string): string {
   const result = source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
   expect(result, "chapter frontmatter must be present").not.toBe(source);
   return result;
+}
+
+function jsonFrontmatter(source: string): Record<string, unknown> {
+  const match = source.match(/^---\r?\n(\{[\s\S]*?\})\r?\n---\r?\n/);
+  expect(match, "JSON chapter frontmatter must be present").not.toBeNull();
+  return JSON.parse(match![1]) as Record<string, unknown>;
 }
 
 function withoutFencedCode(source: string): string {
@@ -749,6 +756,50 @@ describe("KaTeX renderer and stylesheet compatibility", () => {
   });
 });
 
+describe("Chapter 0 formula-source contract", () => {
+  it("routes the causal objective and every explanatory symbol through math markup", () => {
+    const source = readChapter("en", chapter00Files[0]);
+    const frontmatter = jsonFrontmatter(source) as {
+      formula: { symbols: Array<{ symbol: string; meaning: string }> };
+    };
+    const { body, display, inline } = mathMarkup(source);
+    expect(display).toHaveLength(1);
+    expect(display[0]).toContain(
+      String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
+    );
+    expect(inline.length).toBeGreaterThanOrEqual(8);
+    for (const fragment of [
+      String.raw`P_\theta`,
+      String.raw`\theta`,
+      String.raw`z_{1:T}`,
+      String.raw`z_{<t}`,
+      String.raw`\prod_{t=1}^{T}`,
+    ]) {
+      expect(body).toContain(fragment);
+    }
+    const glossaryStart = source.indexOf("{/* chapter-section:symbol-glossary */}");
+    const glossaryEnd = source.indexOf("{/* chapter-section:history */}", glossaryStart);
+    expect(glossaryStart).toBeGreaterThan(-1);
+    expect(glossaryEnd).toBeGreaterThan(glossaryStart);
+    const glossary = source.slice(glossaryStart, glossaryEnd);
+    const normalizedGlossary = glossary.replace(/\s+/g, " ");
+    expect(frontmatter.formula.symbols).toHaveLength(8);
+    for (const { symbol, meaning } of frontmatter.formula.symbols) {
+      expect(glossary, `missing Chapter 0 glossary notation ${symbol}`).toContain(`$${symbol}$`);
+      expect(
+        normalizedGlossary,
+        `missing Chapter 0 glossary meaning for ${symbol}`,
+      ).toContain(meaning.replace(/\s+/g, " "));
+    }
+    expect(proseOutsideMathAndCode(source)).not.toMatch(
+      /P_\\theta|z_\{|\\prod|z_<t/,
+    );
+    expect(inlineCode(source)).not.toEqual(
+      expect.arrayContaining(["P_theta", "z_{1:T}", "z_{<t}"]),
+    );
+  });
+});
+
 describe("Chapter 1-7 formula-source contract", () => {
   it("enumerates both published locales and routes every reviewed expression through math markup", () => {
     const reviewed: string[] = [];
@@ -874,7 +925,7 @@ describe("Chapter 8-13 formula-source contract", () => {
 });
 
 describe("Chapter 14-39 formula-source contract", () => {
-  it("completes the source audit for all 46 published localized lessons", () => {
+  it("completes the source audit for all 47 published localized lessons", () => {
     const reviewed: string[] = [];
     for (const file of chapter14To39Files) {
       const source = readChapter("en", file);
@@ -912,10 +963,11 @@ describe("Chapter 14-39 formula-source contract", () => {
 
     expect(reviewed).toEqual(chapter14To39Files);
     expect(
-      chapterFiles.length * locales.length +
+      chapter00Files.length +
+        chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(46);
+    ).toBe(47);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {

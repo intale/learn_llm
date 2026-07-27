@@ -340,7 +340,9 @@ test.describe(
           ({ code }) => code === locale,
         );
         expect(localeDefinition).toBeDefined();
-        const chapters = await readOrderedCourseChapters(page, locale);
+        const chapters = await readOrderedCourseChapters(page, locale, {
+          includeIntroduction: true,
+        });
 
         await expect(page.locator('html')).toHaveAttribute(
           'lang',
@@ -353,7 +355,9 @@ test.describe(
         await expect(
           page.getByRole('heading', { level: 1, name: localized.indexTitle }),
         ).toBeVisible();
-        expect(chapters[0]).toEqual(
+        expect(
+          chapters.find(({ chapterId: candidate }) => candidate === chapterId),
+        ).toEqual(
           expect.objectContaining({
             chapterId,
             order: 1,
@@ -441,7 +445,9 @@ test.describe(
         page,
       }) => {
         await page.setViewportSize({ width: 1440, height: 1000 });
-        const chapters = await readOrderedCourseChapters(page, locale);
+        const chapters = await readOrderedCourseChapters(page, locale, {
+          includeIntroduction: true,
+        });
         await page.goto(chapterPath(locale, chapterId));
         await expectChapterContent(page, locale, 4, chapters);
 

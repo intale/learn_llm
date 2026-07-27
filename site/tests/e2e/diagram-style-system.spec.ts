@@ -60,7 +60,7 @@ const englishRoutes = (readdirSync(englishChapterDirectory) as string[])
 const routes: DiagramRoute[] = [
   ...englishRoutes,
   ...englishRoutes
-    .filter(({ order }) => order <= 7)
+    .filter(({ order }) => order >= 1 && order <= 7)
     .map((route) => ({
       ...route,
       locale: "ru" as const,
@@ -553,8 +553,8 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
     page,
   }) => {
     test.setTimeout(240_000);
-    expect(englishRoutes).toHaveLength(38);
-    expect(routes).toHaveLength(45);
+    expect(englishRoutes).toHaveLength(39);
+    expect(routes).toHaveLength(46);
     await auditRoutes(page, desktop);
   });
 

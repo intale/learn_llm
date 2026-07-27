@@ -19,7 +19,8 @@ const chapter08To13Ids = [
   "12-stable-softmax",
   "13-gradient-checking",
 ] as const;
-const chapter14To39Ids = [
+const englishOnlyFormulaChapterIds = [
+  "00-llm-parts",
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
   "16-model-autodiff-ops",
@@ -431,10 +432,16 @@ const chapter08To13Latex: Record<
   "13-gradient-checking": [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To39Latex: Record<
-  (typeof chapter14To39Ids)[number],
+const englishOnlyFormulaLatex: Record<
+  (typeof englishOnlyFormulaChapterIds)[number],
   readonly string[]
 > = {
+  "00-llm-parts": [
+    String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
+    String.raw`P_\theta`,
+    String.raw`z_{1:T}`,
+    String.raw`z_{<t}`,
+  ],
   "14-scalar-autodiff": [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
   "15-tensor-autodiff-core": [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
@@ -845,9 +852,9 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
   }
 });
 
-test.describe("@formula-rendering:ch14-ch39 rendered formula contract", () => {
+test.describe("@formula-rendering:english-only rendered formula contract", () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To39Ids) {
+    for (const chapterId of englishOnlyFormulaChapterIds) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -886,7 +893,7 @@ test.describe("@formula-rendering:ch14-ch39 rendered formula contract", () => {
           latex.some((expression) => expression.includes(String.raw`\*`)),
           `${chapterId} must not render the malformed TeX control symbol \\*`,
         ).toBe(false);
-        for (const fragment of chapter14To39Latex[chapterId]) {
+        for (const fragment of englishOnlyFormulaLatex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,

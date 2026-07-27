@@ -7441,3 +7441,270 @@ dependency, build configuration, or unrelated file changes.
 **Affected step and runs:** `implement-ch39-end-to-end-llm`, succeeded run
 `20260727T080259Z-implement-ch39-end-to-end-llm-01` and corrective run
 `20260727T095537Z-implement-ch39-publication-whitespace-02`.
+
+## 2026-07-27 - Publish the course map as ordered Chapter 0
+
+**Status:** Accepted before implementation.
+
+**Context:** The completed course teaches every decoder component in small
+increments, but a new learner currently meets those parts one at a time without
+an initial block-level mental model. The requested introduction must be English
+only for now, must link each named part to its lessons, and must use the shared
+progressive full-view presentation rather than chapter-specific client code.
+
+**Decision:** Add `00-llm-parts` as a real order-zero course chapter ahead of
+Chapter 1. Advance the authoritative course plan and locale projection from 39
+to 40 ordered entries while retaining Chapters 1-7 as the existing bilingual
+range and Chapters 8-39 as English-only. Chapter 0 is English-only and orients
+rather than reimplements: its Rust fixture freezes the names, order, ownership,
+and chapter destinations of the inference path and learning loop. Its semantic
+HTML figure shows text, tokenizer, embeddings, a repeated pre-norm decoder
+block, tied vocabulary head, sampling, KV caching, and the training/evaluation
+path. Every block states its purpose and links to the applicable chapter pages.
+The existing site layout supplies the single localized full-view control.
+
+**Consequences:** Order validators, navigation helpers, formula inventories,
+diagram inventories, sitemap/SEO route audits, and course-plan tests must learn
+that a valid contiguous course can begin at zero. Existing Chapter 1-39 route
+assertions continue to describe the 39 implementation lessons, while focused
+Chapter 0 coverage proves the full 40-entry English index. No Russian Chapter 0
+placeholder is published, and no package, dependency, Docker/Linux build
+definition, GitHub Pages base, analytics, sitemap policy, or runtime server is
+changed.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Show learning as a branch from the shared forward spine
+
+**Status:** Accepted during the staged content and fullscreen audit.
+
+**Context:** The first map drew `input text -> numeric core -> loss` as a second
+numbered path. That can imply that training bypasses tokenization, embeddings,
+decoder blocks, and the vocabulary head, and it incorrectly places tensor and
+autodiff infrastructure in the runtime data flow. Training instead reuses the
+same forward computation through logits, replaces sampling with comparison to an
+observed target, and sends gradients back through those learned blocks.
+
+**Decision:** Make the learning flow explicitly repeat the inference spine from
+input text through the vocabulary head, then branch to loss, parameter updates,
+selection, evaluation, and checkpointing. In the rendered map, summarize the
+reused prefix once and render only the post-logit tail as numbered cards. Present
+tensors and reverse mode as a supporting foundation, not as a sequential model
+stage. Keep every related implementation chapter reachable.
+
+**Consequences:** The introductory mental model distinguishes shared model
+computation, inference-only sampling/cache behavior, and learning-only evidence
+without duplicating a tall presentation tree. The compact full-view layout and
+accessible link names must still retain readable text and all Chapter 1-39
+destinations.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Close Chapter 0 integration and locale-policy scope
+
+**Status:** Accepted during staged integration review.
+
+**Context:** The broad validators passed until the Rust-demo inventory retained
+its one-based contract, English Chapter 1 browser assertions omitted its new
+predecessor, and three durable policy summaries still described only Chapters
+1-7 and 8-39. The global diagram route audit also derived Russian availability
+from a numeric range and therefore fabricated a Russian Chapter 0 route.
+
+**Decision:** Accept a contiguous Rust-demo inventory beginning at order 0 or 1;
+make English Chapter 1 navigation assertions include Chapter 0; exclude order 0
+from the existing Russian diagram range; and update `curriculum/README.md`,
+`curriculum/chapter-template.md`, and `SKILLS.md` to state the three locale ranges
+explicitly: Chapter 0 English-only, Chapters 1-7 bilingual, Chapters 8-39
+English-only. Record all five newly claimed files and their pre-edit Git blobs.
+
+**Consequences:** Validation and documentation describe the same selective
+publication policy without creating a Russian placeholder or changing any
+existing URL, dependency, Docker/Linux build definition, or deployment behavior.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Extend the shared navigation domain to Chapter 0
+
+**Status:** Accepted after the first staged static build.
+
+**Context:** Contract, content, parity, diagnostics, and all 843 unit cases passed,
+but static route generation stopped before emitting pages because
+`orderChapterTargets` still required an order greater than zero. This is the final
+route-level copy of the original one-based assumption.
+
+**Decision:** Declare `site/src/lib/chapter-navigation.ts` as a shared input and
+output of the Chapter 0 step. Accept any nonnegative integer order while preserving
+the chapter-ID pattern, nonblank titles, duplicate rejection, numeric sort, and
+previous/next behavior. Extend its existing unit coverage to prove Chapter 0 sorts
+before Chapter 1 and rejects a negative order.
+
+**Consequences:** The English Chapter 0 route can be generated with no special
+page or navigation component. Chapter 1 gains Chapter 0 as its previous link;
+Russian still starts at Chapter 1 because no Russian Chapter 0 entry exists. No
+route spelling, existing chapter order, site shell, deployment base, or client
+behavior changes.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Rebuild the pinned candidate source image after the Rust workspace changes
+
+**Status:** Accepted after the first staged source-image build.
+
+**Context:** Adding the Chapter 0 Cargo member changes `Cargo.lock`. In the existing
+Dockerfile, the complete `rust/` copy precedes `npm ci`, so this Rust-only change
+invalidated the candidate image's cached npm-install layer even though
+`site/package.json` and `site/package-lock.json` are unchanged. The builder fetched
+the already pinned packages while constructing the isolated staged image.
+
+**Decision:** Retain the unchanged Node lockfile and use the newly built staged
+source image for validation. Classify the fetch as a reproducible pinned cache
+refill, not a dependency or build-definition change. Record its image digest and
+do not introduce a new package, update a version, or alter the Dockerfile merely to
+avoid this one candidate rebuild.
+
+**Consequences:** The run's actual resource record supersedes its preflight
+expectation of no retrieval: one networked `npm ci --ignore-scripts` completed from
+the existing lockfile. Product scope, accepted dependency graph, Linux build,
+deployment, and runtime behavior are unchanged.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Define chapter order as a nonnegative course position
+
+**Status:** Accepted during the pre-edit validator audit.
+
+**Context:** The Astro schema, contract checker, lesson checker, locale projection,
+and course-plan checker independently reject zero because the original course
+began at Chapter 1. Chapter 0 cannot be honest metadata if only the route layer is
+special-cased; contract and publication parity would disagree about its position.
+
+**Decision:** Treat a chapter order as a nonnegative integer and derive a
+contiguous sequence from the first authoritative plan entry. For this plan the
+sequence is exactly 0 through 39, and every two-digit ID must match its numeric
+order. Keep Chapter 0 out of the historical `complete-decoder-course` build's
+implementation-step mirror because that build is already completed; validate its
+new standalone step and outputs explicitly. Chapter 1 remains the implementation
+foundation with no model dependency on the orientation chapter.
+
+**Consequences:** `scripts/check-chapter-contract.mjs` is a necessary shared
+output in addition to the previously declared order validators. Tests must cover
+both valid order zero and invalid negative/noncontiguous positions. Existing
+positive-order chapters keep identical IDs, routes, metadata, and dependencies.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Keep the numeric foundation shared and its presentation shared-owned
+
+**Status:** Accepted during final staged policy review.
+
+**Context:** The candidate correctly kept the numeric core outside the sequential
+learning trace, but still labeled its combined tensor/autodiff inventory as
+learning-only. Tensor storage, views, matrix operations, softmax, embeddings, and
+linear layers execute during inference too; only graph recording and reverse-mode
+gradient propagation are learning-specific. The same review found that Chapter 0
+locally sized ordinal markers and tightened fullscreen spacing even though the
+diagram contract assigns those presentation concerns to the shared module.
+
+**Decision:** Mark the numeric core as shared by inference and learning, state
+explicitly that tensor execution occurs on both paths, and reserve gradient
+recording for learning. Keep it beside the flows as a foundation rather than
+inserting it as a sequential stage. Add documented shared grid, card-stack,
+card-heading, and compact-link roles to `diagram.module.css`, use the existing
+auto-sized `state-symbol`, and retain only track topology and placement in the
+Chapter 0 component. Reorganize fullscreen into two top panels plus one full-width
+learning panel instead of shrinking shared typography or spacing.
+
+**Consequences:** The learner-facing topology no longer implies that inference
+runs without tensors or that autodiff is always active. Chapter 0 follows the same
+presentation ownership as every other diagram, while its wider learning panel
+keeps complete text and Chapter 1-39 destinations readable. The shared additions
+are opt-in roles and do not restyle existing diagrams.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Present the three Chapter 0 model views in parallel at full size
+
+**Status:** Accepted after the final cross-browser geometry validation.
+
+**Context:** The shared presentation roles fixed card ownership and containment,
+but the initial two-top-panels-plus-learning-row fullscreen geometry still needed
+substantial vertical travel on Firefox's native fullscreen surface. All content
+fit its own box; the remaining problem was the relationship between the three
+large conceptual views, not typography, clipping, or an individual card defect.
+
+**Decision:** Supersede only the earlier Chapter 0 fullscreen placement with three
+parallel panels: next-token inference, the repeated decoder-block interior, and
+learning/evaluation. Preserve the same semantic figure and source order, the
+stacked inline and narrow fallback, shared typography and spacing, and every
+Chapter 1-39 link. Keep the KV-cache purpose and its two adjacent course links in
+one compact sidecar sentence, and remove repeated words from diagram captions
+where the surrounding panel already states the loop or learning relationship.
+
+**Consequences:** Full view exposes the three branches together as one mental
+model without scaling text down or hiding overflow. Chromium and Firefox can keep
+the complete map within the declared small vertical-travel budget, while inline,
+narrow, no-JavaScript, focus, forced-color, and semantic behavior remain unchanged.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Make the Chapter 0 causal and generation boundaries explicit
+
+**Status:** Accepted during final semantic and cross-browser review.
+
+**Context:** A bare reference to a position reading its "current" token could be
+mistaken for target leakage even though decoder training uses shifted inputs. The
+first inference caption could also imply that every sampled token traverses the
+prompt tokenizer again. Accessibility review separately found that the visual
+zero and six-based sequences needed matching ordered-list semantics. At the exact
+1366 by 768 fullscreen boundary, compact chapter links also needed visible
+separation and the shared presentation needed less non-content spacing.
+
+**Decision:** Describe causal attention as reading the decoder-input prefix
+through the query position while the shifted prediction target remains excluded.
+Tokenize prompt text once; append each sampled token ID and re-enter cached decoding
+at embedding lookup. Set the English course list's semantic start from its first
+chapter order and set the learning branch's start after the five shared forward
+stages. Render commas outside the anchors through the documented shared
+`course-diagram__link-separator` role so visible link text still matches each
+accessible name. Keep fullscreen chrome in the shared module and compact only its
+gaps and padding; do not reduce text, clip content, or add chapter-owned controls.
+
+**Consequences:** Chapter 0 no longer suggests target leakage or a tokenizer loop,
+screen readers announce the same sequence numbers learners see, and related
+chapter links remain visually distinct without changing their accessible names.
+The shared fullscreen surface uses slightly denser spacing for every diagram;
+course-wide browser validation must therefore pass before publication. The three
+Chapter 0 panels remain parallel and require only bounded vertical travel in both
+Chromium and Firefox.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Preserve the shared card inset in compact fullscreen layouts
+
+**Status:** Accepted after the exhaustive candidate regression.
+
+**Context:** Compacting Chapter 0's shared fullscreen layout initially reduced the
+shared card inset as well as the frame and panel gaps. That made the Chapter 33
+proof card's KaTeX superscript cross its top border by a few pixels even though
+Chapter 0 itself remained contained.
+
+**Decision:** Restore the shared card inset to its established value. Compact only
+the fullscreen frame and panel spacing needed to present Chapter 0's three views;
+do not trade a content-owning box's inner clearance for viewport fit.
+
+**Consequences:** Chapter 0 retains bounded fullscreen travel in Chromium and
+Firefox, while all existing diagram boxes preserve their formula clearance. The
+final exhaustive Chromium matrix passes all 297 cases, including the Chapter 33
+containment check that exposed the regression.
+
+**Affected step and run:** `implement-ch00-llm-parts`, run
+`20260727T102947Z-implement-ch00-llm-parts-01`.
