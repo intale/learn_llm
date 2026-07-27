@@ -12,3 +12,5 @@
 /site/coverage/
 /site/test-results/
 /site/playwright-report/
+.idea/
+desktop.ini
