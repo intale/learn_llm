@@ -11,6 +11,7 @@ pub mod data;
 pub mod evaluation;
 pub mod generation;
 pub mod metrics;
+pub mod pipeline;
 
 /// Learned feature views and weighted mixtures used by self-attention.
 pub mod attention {

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-27T07:55:24Z"
+updated_at: "2026-07-27T10:02:10Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-26. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in cached Linux source/workspace images; the separate canonical Playwright 1.61.1 browser image runs its harness on Node 24.17.0/npm 11.13.0. Host Rust/Node/npm remain unused."
 
-active_build: complete-decoder-course
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -1418,7 +1418,7 @@ builds:
             notes: "Completed locally with the locked Astro/Vitest toolchain and cached Chromium, without dependency changes, external network access, browser download, paid service, or substantial CPU use. Published current English/Russian home copy and accessible same-locale course calls to action, plus static and rendered-navigation gates that prevent the dead end from recurring."
   - build_id: complete-decoder-course
     objective: "Define and implement the remaining localized course so a student incrementally builds, trains, evaluates, saves, and runs a functional decoder-only LLM in Rust."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -16347,14 +16347,34 @@ builds:
         objective: "Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust."
         depends_on:
           - implement-ch38-cached-generation
-        status: pending
+        status: completed
         inputs:
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
           - "SKILLS.md"
           - "curriculum/course-plan.md"
           - "curriculum/chapters/38-cached-generation.md"
           - "curriculum/chapter-template.md"
           - "curriculum/README.md"
+          - "rust/data/tiny-bilingual-corpus.txt"
+          - "rust/data/splits.json"
+          - "rust/crates/llm-from-scratch/src/bigram.rs"
+          - "rust/crates/llm-from-scratch/src/checkpoint.rs"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/evaluation.rs"
+          - "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
+          - "rust/crates/llm-from-scratch/src/generation/sampling.rs"
+          - "rust/crates/llm-from-scratch/src/models/decoder.rs"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/crates/llm-from-scratch/src/training/trainer.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
+          - "rust/demos/ch38-cached-generation/src/lib.rs"
+          - "rust/demos/ch38-cached-generation/diagram-trace.txt"
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-rust-dependencies.sh"
@@ -16369,6 +16389,25 @@ builds:
           - "site/src/i18n/chapter-locales.json"
           - "site/src/lib/chapter-locales.ts"
           - "scripts/chapter-locale-config.mjs"
+          - "site/src/content/chapters/en/38-cached-generation.mdx"
+          - "site/src/components/chapters/CachedGenerationDiagram.astro"
+          - "site/src/lib/cached-generation-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/38-cached-generation-diagram.test.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf"
+          - "https://arxiv.org/pdf/1706.03762"
+          - "https://arxiv.org/pdf/2005.14165"
         outputs:
           - "curriculum/chapters/39-end-to-end-llm.md"
           - "rust/crates/llm-from-scratch/src/pipeline.rs"
@@ -16376,8 +16415,19 @@ builds:
           - "rust/demos/ch39-end-to-end-llm/"
           - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
           - "site/src/components/chapters/EndToEndLlmDiagram.astro"
+          - "site/src/lib/end-to-end-llm-diagram.ts"
           - "site/tests/39-end-to-end-llm-diagram.test.ts"
           - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
           - "Cargo.lock"
         acceptance:
           - "Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust."
@@ -16406,8 +16456,154 @@ builds:
           - "npm --prefix site run test:e2e"
         cost:
           class: medium
-          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Preflight must benchmark and seek approval before any substantial-CPU expansion. No hidden network, paid service, generation service, or concept-implementing dependency."
-        runs: []
+          notes: "One complete English chapter-active locale set with a bounded deterministic CPU fixture; registered deferred locales require no lesson or route. Benchmark and checkpoint before any substantial-CPU expansion; cost alone requires no human approval. No hidden network, paid service, generation service, or concept-implementing dependency."
+        runs:
+          - run_id: 20260727T080259Z-implement-ch39-end-to-end-llm-01
+            started_at: "2026-07-27T08:02:59Z"
+            finished_at: "2026-07-27T09:52:42Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d32d420b7631deae7e82e5d450d617528f14d793"
+              manifest: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-fingerprint.txt"
+              checksum: "sha256:721fb2384b26d1e680b5137b2b73673c63bfa53e35faa79828dc4cf98503e11c"
+              prior_artifact: "Chapter 38 input fingerprint sha256:7ba73a63392e2e00c325050396c01a945d0a4d3c00fe2dc7b717ed5a40562ceb and publication manifest sha256:be56b6def45dbc469d158a1f597f73a60f77afd8a064201ee94048b6859500c7 reverified."
+              tools: "Host Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository Linux pins Rust/Cargo 1.93.1 and Node 22.12.0/npm 10.9.0, plus Playwright 1.61.1 and KaTeX 0.16.47."
+              external_sources: "Read-only primary-source review of Bengio et al. 2003, Vaswani et al. 2017, and Brown et al. 2020; no implementation artifact or dependency downloaded."
+            staging_dir: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/"
+            commands:
+              - "Run the complete startup protocol; verify the Chapter 38 and MathML compatibility commits, preserve unrelated desktop.ini, compare current tools with repository pins, parse the full ledger, and confirm Chapter 39 is the sole pending and first eligible step."
+              - "Audit the capstone plan, chapter playbook, preceding contract, cumulative Rust APIs, locale projection, diagram contract, and three primary LLM-history sources before product edits."
+              - "Close the declared input set over the checked-in corpus/split, cumulative pipeline APIs, prior chapter evidence, shared diagram system, and browser helpers; add the missing diagram parser output."
+              - "Run network-disabled bounded CPU probes for the smallest one-block model; retain the failed one-update context-2 candidate, select 32 updates from a validation-only baseline crossing, and accept context 4 only after it preserves that validation result and leaves generation room."
+              - "Freeze the context-four architecture and update schedule, run the complete seed-39 pipeline twice, open the test partition once, verify the decoder beats the frozen bigram, and prove exact checkpoint and cached-generation replay."
+              - "After model and final-test evidence were frozen, inspect the saved checkpoint only for a three-token valid-UTF-8 teaching sample; select prompt A, top-k four, and generation seed 38 without changing training, selection, checkpoint values, or test loss."
+              - "Run the complete staged matrix; preserve the passing full Rust result and declare the shared all-diagram unit test after it correctly reports the new component against its stale pre-capstone count."
+              - "Run the complete staged site and two-engine browser matrices; declare the exact course-boundary, diagram-inventory, and global formula-route tests that still stop at Chapter 38 before correcting their stale expectations."
+              - "Audit the parallel source-formula inventory after the browser omission is found; declare its pre-edit hash and extend the same Chapter 39 formula boundary before changing it."
+              - "Rebuild the network-disabled staged site and browser images from the corrected workspace; replay the complete site matrix and all rendered cases independently in Chromium and Firefox."
+              - "Freeze the 25-file publication set and its SHA-256 manifest after every staged gate passes."
+              - "Publish only the 25 frozen staged products through apply_patch; verify every canonical byte against publish.sha256 before canonical reconstruction."
+              - "Build a fresh network-disabled canonical image; replay the complete Rust, content, diagnostics, unit, static-build, link, Chromium, and Firefox matrices from the published tree."
+              - "Reverify canonical hashes, whitespace, plan state, declared Git scope, and removal of the run-specific container and preview listener before completing the checkpoint."
+            artifacts:
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-fingerprint.txt"
+                checksum: "sha256:721fb2384b26d1e680b5137b2b73673c63bfa53e35faa79828dc4cf98503e11c"
+                notes: "Pre-claim commit, unrelated working-tree boundary, exact material input hashes, tool pins, prior Chapter 38 artifacts, primary-source URLs, cost, and expanded input/output closure."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/evidence/benchmark-results.md"
+                checksum: "sha256:af8e264c25b749dda60255a2c2e5d34ee77be1f5b2b9e406ed2d3eaf97b73770"
+                notes: "Immutable exact losses, target counts, runtimes, rejected context-2 candidate, validation-only 16/32 update boundary, and accepted context-4 configuration."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/evidence/frozen-capstone-results.md"
+                checksum: "sha256:b6a347b9c4b36799916c332b8ccbfbaccc9e41c36907df349bfe30cddfb18afa"
+                notes: "Frozen one-time test result, exact checkpoint and generation evidence, inference-only UTF-8 fixture choice, and product-fixture checksums."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion.txt"
+                checksum: "sha256:49d700766c8c67091b69cd3ba4ab568e3aa36a83acd98b3533941dea8809f437"
+                notes: "Pre-edit hash and ownership declaration for the shared diagram inventory test discovered by the first complete staged unit matrix."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion-browser.txt"
+                checksum: "sha256:76c6f1599bd559a9dcb9aef86c68e4103bfad8f2d57c747c4c115d4a7643acd7"
+                notes: "Pre-edit hashes and narrow correction boundary for the existing course-route, diagram-browser, and global formula-browser tests discovered by the first complete browser gate."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion-formula-unit.txt"
+                checksum: "sha256:d53ab5abcaf811353029effeebeac50d4ffcfe7f273141e9d1763624853672f3"
+                notes: "Pre-edit hash and exact Chapter 39 extension boundary for the source-level and diagram-emission formula unit audit."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/visual-review.sha256"
+                checksum: "sha256:57c0df05d13c76ce90cd134f6efee9023475c0778a8f32da19e76f9d2eba1f55"
+                notes: "Checksums for the final Chromium and Firefox desktop, narrow, and native-fullscreen visual-review captures."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/publish.sha256"
+                checksum: "sha256:7640f8a689cd8df7bcb5a8f9b3c0b20c94bafb49bcf3ff01696652ce1bc95f24"
+                notes: "Frozen 25-file staged publication set after complete Rust, site, visual, and two-engine browser acceptance."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/canonical-publication-proof.txt"
+                checksum: "sha256:6419061dbf99f03c5b670ef534cf7e3c92f4600f80c2fbaaafcce52711796bc3"
+                notes: "Timestamped verification that all 25 canonical products match the frozen staged manifest and generated/unrelated files remain excluded."
+              - path: ".build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/evidence/Dockerfile.browser-canonical"
+                checksum: "sha256:b6625e046197c83e3d0548a95325d6b8b2d2adb44fec77613ae1b9992d765485"
+                notes: "Run-specific immutable Playwright reconstruction from the published canonical image."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, locale, cost, and complete-ledger preflight"
+                status: passed
+                notes: "The full YAML ledger parses and reports 39 chapters, 76 steps, and 38 implemented contracts; Chapter 39 is the sole pending step, its Chapter 38 dependency is complete and committed, declared outputs are clean, current tools match repository pins, the medium local work fits the unlimited budget, and unrelated desktop.ini remains untouched."
+              - command: "Read-only capstone source and primary-paper audit"
+                status: passed
+                notes: "The course boundary requires the checked-in bilingual corpus and frozen split, training-only BPE, validation-only selection, previously unscored test comparison, checkpoint reload, and cached generation. Primary sources support only the bounded n-gram, neural representation, causal Transformer, and scaled autoregressive-LM claims; course-specific determinism and pipeline ownership remain local choices."
+              - command: "Network-disabled one-block CPU benchmark"
+                status: passed
+                notes: "A 1,188-parameter context-2 candidate confirms one update is insufficient. Validation-only evidence fixes 32 updates after 16 remains above the alpha-one bigram validation loss; context 4 preserves the win at 3.889531885 versus 3.981939681 in 38.6 seconds and gives the final generation path room. The accepted context-4 model has not opened its test score."
+              - command: "Frozen context-four capstone test, checkpoint reload, and seeded generation replay"
+                status: passed
+                notes: "Two seed-39 training runs select step 32 identically; one final evaluator scores 1,744 targets and reports decoder loss 3.866087547 below frozen bigram loss 3.981342714 by 0.115255167. The 30,994-byte checkpoint restores exact tokenizer state and logits; cached and complete-prefix generation select [260,34,34] with equal final RNG state."
+              - command: "First complete staged Rust and site matrix"
+                status: failed
+                notes: "The complete Rust half passes plan and contract validation, formatting, strict workspace Clippy, all workspace tests, dependency policy, all 39 demos, and both exact Chapter 39 fixtures. Site chapter, parity, content, and zero-diagnostic Astro checks pass; the unit matrix stops only because the shared all-diagram inventory still expects 37 components while the capstone correctly registers component 38."
+              - command: "Corrected complete staged site matrix"
+                status: passed
+                notes: "Plan, Chapter 39 contract, chapter, parity, content, and zero-diagnostic Astro checks pass; all 829 unit cases pass; the static build emits 51 pages; and link validation confirms 1,859 local references, 51 SEO routes, 51 sitemap URLs, 51 analytics routes, and 139 artifacts."
+              - command: "First complete staged Chromium and Firefox browser matrix"
+                status: failed
+                notes: "Chromium executes all 289 cases and reports eight stale publication-boundary expectations: six Chapter 33-38 course lists still expect 38 English entries, Chapter 38 still expects no next link, and the shared diagram audit expects 37 English / 44 total figures. The global formula audit also omits Chapter 39 without failing, so it joins the declared correction boundary before replay. No Chapter 39 content, formula, or geometry assertion fails."
+              - command: "Read-only parallel formula-inventory audit"
+                status: passed
+                notes: "The browser omission has one source-level twin: formula-rendering.test.ts enumerates Chapters 14-38 and therefore passes while omitting Chapter 39. Its pre-edit hash and narrow extension through the 46th localized lesson and capstone diagram emitter are checkpointed before editing."
+              - command: "Final corrected complete staged site matrix"
+                status: passed
+                notes: "The corrected source and browser inventories pass plan and contract validation, chapter/parity/content checks, zero diagnostics across 199 Astro files, all 829 unit cases, the 51-page static build, and validation of 1,859 local references, 51 SEO routes, 51 sitemap URLs, 51 analytics routes, and 139 artifacts."
+              - command: "Final complete staged Chromium and Firefox browser matrices"
+                status: passed
+                notes: "Fresh network-disabled Playwright 1.61.1 containers independently pass all 291 Chromium and all 291 Firefox cases. Chapter 39 now participates in the global desktop/narrow formula audit, all-diagram inline and native-fullscreen containment, no-JavaScript fallback, RTL, forced-colors, navigation, SEO, sitemap, and analytics coverage with zero retries."
+              - command: "Freeze and verify staged publication manifest"
+                status: passed
+                notes: "All 25 declared product files exist and match publish.sha256; visual-review.sha256 fixes the final desktop, narrow, and native-fullscreen evidence from both engines. Generated dist, preview, probe, and run evidence remain outside the publication set."
+              - command: "Exact canonical publication and immediate hash audit"
+                status: passed
+                notes: "Apply-patch publication adds 13 new files and updates 12 clean tracked files. All 25 canonical paths match publish.sha256 exactly; git diff --check passes; generated run artifacts and unrelated desktop.ini remain outside the product slice."
+              - command: "Fresh published-canonical Rust and site reconstruction"
+                status: passed
+                notes: "A new network-disabled canonical overlay passes the 39-chapter/76-step plan and Chapter 39 contract, formatting, strict workspace Clippy, every workspace and doctest target including 361 core tests, dependency policy, all 39 demos, both exact Chapter 39 diffs, chapter/parity/content checks, zero diagnostics across 199 Astro files, all 829 unit cases, the 51-page build, and 1,859-reference/51-SEO-route/51-sitemap-URL/51-analytics-route/139-artifact validation. Existing Cargo example-name collision notices remain non-Clippy warnings and are unchanged."
+              - command: "Fresh published-canonical Chromium and Firefox rendered-browser matrices"
+                status: passed
+                notes: "A new canonical Playwright 1.61.1 image independently passes all 291 Chromium and all 291 Firefox cases on owned loopback previews with no published host port and zero retries."
+              - command: "Final canonical hash, whitespace, plan, Git-scope, and temporary-process audit"
+                status: passed
+                notes: "All 25 canonical products still match publish.sha256; git diff --check and the 39-chapter/76-step/39-contract plan pass; exactly the declared product slice plus BUILD_STATE.yaml and DECISIONS.md is in scope; unrelated desktop.ini remains untouched; and the run-specific container and host preview listener are stopped."
+            notes: "Succeeded. Chapter 39 closes the course over one deterministic Rust pipeline: training-only BPE, validation-only selection, one-time same-target test comparison, exact checkpoint reload, and cached/reference generation. The 25-file slice is frozen and published byte-for-byte. Complete staged and fresh canonical Rust, 829-unit-test, 51-page/link, 291-case Chromium, and 291-case Firefox matrices pass; global formula and diagram inventories now include the capstone; unrelated desktop.ini remains untouched."
+          - run_id: 20260727T095537Z-implement-ch39-publication-whitespace-02
+            started_at: "2026-07-27T09:55:37Z"
+            finished_at: "2026-07-27T10:02:10Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d32d420b7631deae7e82e5d450d617528f14d793"
+              manifest: ".build/runs/20260727T095537Z-implement-ch39-publication-whitespace-02/input-fingerprint.txt"
+              checksum: "sha256:ceda6ec8d02c2ef97f6d20ced924a52b4e7a091e35c5b1871e06a12a5246d2c2"
+              prior_artifact: "Run 01 publish manifest sha256:7640f8a689cd8df7bcb5a8f9b3c0b20c94bafb49bcf3ff01696652ce1bc95f24; the other 24 products remain byte-identical and retain their complete staged and canonical validation."
+              tools: "Unchanged Docker 29.6.2 orchestration over repository Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins."
+            staging_dir: ".build/runs/20260727T095537Z-implement-ch39-publication-whitespace-02/"
+            commands:
+              - "Preserve the succeeded run-01 record after the dedicated commit precheck finds one extra terminal blank line in the new Chapter 39 demo manifest."
+              - "Reopen the completed step under the explicit invalid-checkpoint condition; fingerprint the exact pre-edit manifest byte and retain the other 24 verified products unchanged."
+              - "Remove the one terminal blank line through apply_patch, stage the corrected manifest byte in run 02, and freeze a superseding 25-file publication manifest."
+              - "Reconstruct the corrected canonical tree in a fresh network-disabled image; rerun the capstone Rust gates, both exact fixtures, and the complete static-site matrix."
+              - "Stage exactly the 25 products and two ledgers, then run the commit-ready cached-diff whitespace and file-scope checks before completing the replacement checkpoint."
+            artifacts:
+              - path: ".build/runs/20260727T095537Z-implement-ch39-publication-whitespace-02/input-fingerprint.txt"
+                checksum: "sha256:ceda6ec8d02c2ef97f6d20ced924a52b4e7a091e35c5b1871e06a12a5246d2c2"
+                notes: "Prior publication provenance, exact affected-file hash, one-line correction boundary, unchanged tool pins, and unrelated-file exclusion."
+              - path: ".build/runs/20260727T095537Z-implement-ch39-publication-whitespace-02/workspace/rust/demos/ch39-end-to-end-llm/Cargo.toml"
+                checksum: "sha256:e183abe7c52231c98009a04081b4722afbdc2decb7fef00577767a290f422fa3"
+                notes: "Corrected 232-byte Chapter 39 demo manifest with one final newline and no terminal blank line."
+              - path: ".build/runs/20260727T095537Z-implement-ch39-publication-whitespace-02/publish.sha256"
+                checksum: "sha256:5a48906d321214f30104ec4387f2d52e78af0a7f7883e2e580e194fc8c46ef17"
+                notes: "Superseding 25-file canonical manifest; exactly the Chapter 39 demo Cargo.toml hash differs from run 01."
+            validation:
+              - command: "Dedicated commit-ready whitespace precheck"
+                status: failed
+                notes: "git diff --cached --check finds exactly one defect: rust/demos/ch39-end-to-end-llm/Cargo.toml has a new blank line at EOF. No commit was created. The earlier run-01 working-tree check could not inspect then-untracked additions; all product, site, Rust, and browser gates remain valid."
+              - command: "Superseding manifest construction and canonical comparison"
+                status: passed
+                notes: "All 25 canonical products match run-02 publish.sha256; exactly rust/demos/ch39-end-to-end-llm/Cargo.toml differs from run 01, changing from 233 to 232 bytes while preserving every TOML field."
+              - command: "Corrected published-canonical Rust and static-site replay"
+                status: passed
+                notes: "A fresh network-disabled overlay passes the 39-chapter plan and Chapter 39 contract, locked Cargo metadata, formatting, strict Chapter 39 all-target Clippy, all four capstone tests, dependency policy, both exact fixture diffs, content, zero diagnostics across 199 Astro files, all 829 unit cases, the 51-page build, and the 1,859-reference/51-SEO-route/51-sitemap-URL/51-analytics-route/139-artifact link audit."
+              - command: "Corrected staged commit-ready whitespace and declared-scope audit"
+                status: passed
+                notes: "git diff --cached --check reports no whitespace defect, and the staged set is exactly the 25 declared products plus BUILD_STATE.yaml and DECISIONS.md; unrelated desktop.ini and all run artifacts remain excluded."
+            notes: "Succeeded. The one-byte terminal-blank-line defect is removed from the Chapter 39 demo manifest. The superseding 25-file manifest differs from run 01 at only that path; proportional canonical Rust and complete static-site validation pass; and the exact 27-file commit slice is whitespace-clean. The complete decoder-course build is closed again with no active build."
   - build_id: expose-example-repository-from-localized-homes
     objective: "Expose the public Rust-example repository from every localized course starting page."
     status: completed

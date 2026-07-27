@@ -1,0 +1,303 @@
+---
+import traceSource from '../../../../rust/demos/ch39-end-to-end-llm/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  endToEndLlmDiagramId,
+  parseEndToEndLlmTrace,
+  validateEndToEndLlmDiagramLabels,
+  type EndToEndLlmDiagramLabels,
+} from '../../lib/end-to-end-llm-diagram';
+
+interface Props {
+  labels: EndToEndLlmDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateEndToEndLlmDiagramLabels(labels);
+const trace = parseEndToEndLlmTrace(traceSource);
+const titleId = 'end-to-end-llm-diagram-title';
+const descriptionId = 'end-to-end-llm-diagram-description';
+const [initial, selected] = trace.selection;
+---
+
+<figure
+  class="course-diagram end-to-end-llm-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={endToEndLlmDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section aria-labelledby="end-to-end-pipeline-title">
+    <h4 id="end-to-end-pipeline-title">{labels.sections.pipeline}</h4>
+    <p>{labels.captions.pipeline}</p>
+    <ol class="pipeline">
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="data"
+        data-stage-index="1"
+      >
+        <header><strong aria-hidden="true">1</strong><h5>{labels.stages.data}</h5></header>
+        <p>
+          <strong>{labels.fields.documents}:</strong>
+          <code><bdi dir="ltr">{trace.data.train}/{trace.data.validation}/{trace.data.test}</bdi></code>
+        </p>
+        <p class="technical">
+          <code><bdi dir="ltr">{trace.data.checksum}</bdi></code>
+        </p>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="tokenizer"
+        data-stage-index="2"
+        data-state="trusted"
+      >
+        <header><strong aria-hidden="true">2</strong><h5>{labels.stages.tokenizer}</h5></header>
+        <p class="cue">= {labels.cues.trainingOnly}</p>
+        <p>
+          <strong>{labels.fields.vocabulary}:</strong>
+          <code><bdi dir="ltr">{trace.tokenizer.vocabulary}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.encodedTokens}:</strong>
+          <code><bdi dir="ltr">[{trace.tokenizer.encoded.join(',')}]</bdi></code>
+        </p>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="batches"
+        data-stage-index="3"
+      >
+        <header><strong aria-hidden="true">3</strong><h5>{labels.stages.batches}</h5></header>
+        <p>
+          <strong>{labels.fields.context}:</strong>
+          <InlineMath latex={'C=' + trace.batches.context} />
+        </p>
+        <p>
+          <strong>{labels.fields.windows}:</strong>
+          <code><bdi dir="ltr">[{trace.batches.windows.join(',')}]</bdi></code>
+        </p>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="model"
+        data-stage-index="4"
+      >
+        <header><strong aria-hidden="true">4</strong><h5>{labels.stages.model}</h5></header>
+        <p>
+          <strong>{labels.fields.parameters}:</strong>
+          <code><bdi dir="ltr">{trace.model.parameters}</bdi></code>
+        </p>
+        <p class="technical">
+          <InlineMath latex={'L=' + trace.model.layers + ',\\ H=' + trace.model.heads + ',\\ D=' + trace.model.width} />
+        </p>
+      </li>
+
+      <li
+        class="stage-card selection-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="selection"
+        data-stage-index="5"
+        data-state="trusted"
+      >
+        <header><strong aria-hidden="true">5</strong><h5>{labels.stages.selection}</h5></header>
+        <dl>
+          <div>
+            <dt>{labels.cues.candidate} <InlineMath latex={'s=' + initial.step} /></dt>
+            <dd>
+              <span>{labels.fields.trainLoss} <InlineMath latex={initial.train} /></span>
+              <span>{labels.fields.validationLoss} <InlineMath latex={initial.validation} /></span>
+            </dd>
+          </div>
+          <div class="selected-row">
+            <dt>{labels.cues.selected} <InlineMath latex={'s=' + selected.step} /></dt>
+            <dd>
+              <span>{labels.fields.trainLoss} <InlineMath latex={selected.train} /></span>
+              <span>{labels.fields.validationLoss} <InlineMath latex={selected.validation} /></span>
+            </dd>
+          </div>
+        </dl>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="test"
+        data-stage-index="6"
+        data-state="trusted"
+      >
+        <header><strong aria-hidden="true">6</strong><h5>{labels.stages.test}</h5></header>
+        <p class="cue">|| {labels.cues.oneTime}</p>
+        <p>
+          <strong>{labels.fields.targets}:</strong>
+          <code><bdi dir="ltr">{trace.test.targets}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.decoderLoss}:</strong>
+          <InlineMath latex={trace.test.decoder} />
+        </p>
+        <p>
+          <strong>{labels.fields.bigramLoss}:</strong>
+          <InlineMath latex={trace.test.bigram} />
+        </p>
+        <p class="cue">
+          <span aria-hidden="true">✓</span>
+          <InlineMath latex={trace.test.decoder + '<' + trace.test.bigram} />;
+          {labels.fields.gap} <InlineMath latex={trace.test.gap} />
+        </p>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="checkpoint"
+        data-stage-index="7"
+        data-state="trusted"
+      >
+        <header><strong aria-hidden="true">7</strong><h5>{labels.stages.checkpoint}</h5></header>
+        <p class="cue">= {labels.cues.exact}</p>
+        <p>
+          <strong>{labels.fields.bytes}:</strong>
+          <code><bdi dir="ltr">{trace.checkpoint.bytes}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.records}:</strong>
+          <code><bdi dir="ltr">{trace.checkpoint.records}</bdi></code>
+        </p>
+      </li>
+
+      <li
+        class="stage-card"
+        data-diagram-card
+        data-diagram-box
+        data-stage="generation"
+        data-stage-index="8"
+        data-state="trusted"
+      >
+        <header><strong aria-hidden="true">8</strong><h5>{labels.stages.generation}</h5></header>
+        <p class="cue">= {labels.cues.cachedMatch}</p>
+        <p>
+          <strong>{labels.fields.prompt}:</strong>
+          <code><bdi dir="ltr">{trace.generation.prompt} [{trace.generation.prompt_ids.join(',')}]</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.generated}:</strong>
+          <code><bdi dir="ltr">[{trace.generation.generated.join(',')}]</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.decoded}:</strong>
+          <q><bdi dir="auto">{trace.generation.text}</bdi></q>
+        </p>
+        <p>
+          <strong>{labels.fields.attentionScores}:</strong>
+          <code><bdi dir="ltr">{trace.generation.cached_scores}/{trace.generation.complete_prefix_scores}</bdi></code>
+        </p>
+      </li>
+    </ol>
+  </section>
+
+</figure>
+
+<style>
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--diagram-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+  }
+
+  .stage-card {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    min-inline-size: 0;
+  }
+
+  .stage-card header {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-inline-size: 0;
+  }
+
+  .stage-card header > strong {
+    display: inline-grid;
+    flex: 0 0 2rem;
+    inline-size: 2rem;
+    block-size: 2rem;
+    place-items: center;
+  }
+
+  .stage-card h5,
+  .stage-card p,
+  .stage-card dl,
+  .stage-card dd {
+    min-inline-size: 0;
+    margin: 0;
+  }
+
+  .selection-card dl {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .selection-card dl > div {
+    display: grid;
+    gap: 0.25rem;
+    min-inline-size: 0;
+  }
+
+  .selection-card dd {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .selected-row {
+    border-inline-start: 0.28rem double currentColor;
+    padding-inline-start: 0.55rem;
+  }
+
+  @container course-diagram (min-width: 68rem) {
+    .pipeline {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .selection-card dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container course-diagram (max-width: 42rem) {
+    .pipeline {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .selected-row {
+      border-color: CanvasText;
+    }
+  }
+</style>

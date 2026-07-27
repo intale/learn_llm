@@ -24,7 +24,7 @@ const chapter08To13Files = [
   "12-stable-softmax.mdx",
   "13-gradient-checking.mdx",
 ] as const;
-const chapter14To38Files = [
+const chapter14To39Files = [
   "14-scalar-autodiff.mdx",
   "15-tensor-autodiff-core.mdx",
   "16-model-autodiff-ops.mdx",
@@ -50,6 +50,7 @@ const chapter14To38Files = [
   "36-temperature-top-k.mdx",
   "37-incremental-attention.mdx",
   "38-cached-generation.mdx",
+  "39-end-to-end-llm.mdx",
 ] as const;
 const locales = ["en", "ru"] as const;
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
@@ -311,7 +312,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To38Math: Record<string, readonly string[]> = {
+const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "14": [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -484,9 +485,14 @@ const requiredChapter14To38Math: Record<string, readonly string[]> = {
     String.raw`1\times2\times2=4`,
     String.raw`4\times6=24`,
   ],
+  "39": [
+    String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
+    String.raw`C=4`,
+    String.raw`3.981342714-3.866087547=0.115255167`,
+  ],
 };
 
-const formerChapter14To38MathCodeSpans = [
+const formerChapter14To39MathCodeSpans = [
   "square=4",
   "loss=8",
   "bar(loss)=1",
@@ -605,7 +611,7 @@ const formerChapter14To38MathCodeSpans = [
   "k = 40",
 ] as const;
 
-const rawChapter14To38FormulaPatterns = [
+const rawChapter14To39FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -669,7 +675,7 @@ const rawChapter14To38FormulaPatterns = [
   /\b(?:one|fixed|the)\s+k\b/i,
 ] as const;
 
-const documentedChapter14To38Code = [
+const documentedChapter14To39Code = [
   {
     name: "literal tensor shapes, coordinates, vectors, and matrices",
     pattern: /^\[[^\r\n]*\]$/,
@@ -867,10 +873,10 @@ describe("Chapter 8-13 formula-source contract", () => {
   });
 });
 
-describe("Chapter 14-38 formula-source contract", () => {
-  it("completes the source audit for all 45 published localized lessons", () => {
+describe("Chapter 14-39 formula-source contract", () => {
+  it("completes the source audit for all 46 published localized lessons", () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To38Files) {
+    for (const file of chapter14To39Files) {
       const source = readChapter("en", file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -884,12 +890,12 @@ describe("Chapter 14-38 formula-source contract", () => {
           `${file} uses the malformed TeX control symbol \\*`,
         ).not.toContain(String.raw`\*`);
       }
-      for (const fragment of requiredChapter14To38Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To39Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To38MathCodeSpans) {
+      for (const oldExpression of formerChapter14To39MathCodeSpans) {
         expect(
           code,
           `${file} still styles ${oldExpression} as code`,
@@ -897,25 +903,25 @@ describe("Chapter 14-38 formula-source contract", () => {
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To38FormulaPatterns) {
+      for (const pattern of rawChapter14To39FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
           pattern,
         );
       }
     }
 
-    expect(reviewed).toEqual(chapter14To38Files);
+    expect(reviewed).toEqual(chapter14To39Files);
     expect(
       chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(45);
+    ).toBe(46);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
-    for (const file of chapter14To38Files) {
+    for (const file of chapter14To39Files) {
       for (const value of inlineCode(readChapter("en", file))) {
-        const allowance = documentedChapter14To38Code.find(({ pattern }) =>
+        const allowance = documentedChapter14To39Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
@@ -927,7 +933,7 @@ describe("Chapter 14-38 formula-source contract", () => {
   });
 });
 
-describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
+describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
   it("renders every diagram-owned expression as strict HTML plus MathML", () => {
     const components = {
       initialization: readFileSync(
@@ -1008,6 +1014,10 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
       ),
       cachedGeneration: readFileSync(
         resolve(componentRoot, "chapters/CachedGenerationDiagram.astro"),
+        "utf8",
+      ),
+      endToEndLlm: readFileSync(
+        resolve(componentRoot, "chapters/EndToEndLlmDiagram.astro"),
         "utf8",
       ),
     };
@@ -1296,6 +1306,16 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
     );
     expect(components.cachedGeneration).toContain(
       "latex={`z_{\\\\mathrm{EOS}}=${trace.eos.token}`}",
+    );
+
+    expect(components.endToEndLlm).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.endToEndLlm).toContain(
+      "latex={'C=' + trace.batches.context}",
+    );
+    expect(components.endToEndLlm).toContain(
+      "latex={trace.test.decoder + '<' + trace.test.bigram}",
     );
 
     for (const source of Object.values(components)) {

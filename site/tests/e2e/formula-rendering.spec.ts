@@ -19,7 +19,7 @@ const chapter08To13Ids = [
   "12-stable-softmax",
   "13-gradient-checking",
 ] as const;
-const chapter14To38Ids = [
+const chapter14To39Ids = [
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
   "16-model-autodiff-ops",
@@ -45,6 +45,7 @@ const chapter14To38Ids = [
   "36-temperature-top-k",
   "37-incremental-attention",
   "38-cached-generation",
+  "39-end-to-end-llm",
 ] as const;
 const locales = ["en", "ru"] as const;
 const viewports = {
@@ -430,8 +431,8 @@ const chapter08To13Latex: Record<
   "13-gradient-checking": [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const chapter14To38Latex: Record<
-  (typeof chapter14To38Ids)[number],
+const chapter14To39Latex: Record<
+  (typeof chapter14To39Ids)[number],
   readonly string[]
 > = {
   "14-scalar-autodiff": [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
@@ -616,6 +617,12 @@ const chapter14To38Latex: Record<
     String.raw`4\times(2^2+3^2)=52`,
     String.raw`N_{\mathrm{cache}}=6`,
     String.raw`z_{\mathrm{EOS}}=4`,
+  ],
+  "39-end-to-end-llm": [
+    String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
+    String.raw`C=4`,
+    String.raw`3.981342714-3.866087547=0.115255167`,
+    String.raw`3.866087547<3.981342714`,
   ],
 };
 
@@ -838,9 +845,9 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
   }
 });
 
-test.describe("@formula-rendering:ch14-ch38 rendered formula contract", () => {
+test.describe("@formula-rendering:ch14-ch39 rendered formula contract", () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter14To38Ids) {
+    for (const chapterId of chapter14To39Ids) {
       test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
@@ -879,7 +886,7 @@ test.describe("@formula-rendering:ch14-ch38 rendered formula contract", () => {
           latex.some((expression) => expression.includes(String.raw`\*`)),
           `${chapterId} must not render the malformed TeX control symbol \\*`,
         ).toBe(false);
-        for (const fragment of chapter14To38Latex[chapterId]) {
+        for (const fragment of chapter14To39Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,

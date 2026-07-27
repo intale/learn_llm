@@ -391,7 +391,7 @@ async function expectChapterContent(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
     ),
-  ).toHaveCount(0);
+  ).toHaveAttribute("data-chapter-id", "39-end-to-end-llm");
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -403,7 +403,7 @@ test.describe(
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(38);
+      expect(english).toHaveLength(39);
       expect(english[37]).toEqual(
         expect.objectContaining({
           chapterId,

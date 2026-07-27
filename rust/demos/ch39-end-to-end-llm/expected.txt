@@ -1,0 +1,10 @@
+chapter=39-end-to-end-llm
+data=checksum:fnv1a64:04786e7303f1dfd6 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]
+tokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]
+model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 windows:[1820,463,436] batches:[15,4,4]
+training=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true
+test=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true
+checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 tokenizer_exact:true logits_bitwise:true
+generation=prompt:A prompt_ids:[67] generated:[260,34,34] text:"т  " stop:token-limit final_cache:3 cached_scores:6 complete_prefix_scores:14 tokens_exact:true decisions_bitwise:true rng_exact:true
+history=bigram_context:1 decoder_context:4 distributed_features:true causal_transformer:true scaled_autoregressive:true local_pipeline:true
+next=inspect, modify, test, and extend the complete decoder

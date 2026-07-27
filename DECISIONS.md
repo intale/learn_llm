@@ -7211,3 +7211,233 @@ Chapter 39 step resumes.
 
 **Affected step and run:** `normalize-katex-mathml-for-firefox`, run
 `20260727T071736Z-normalize-katex-mathml-for-firefox-01`.
+
+## 2026-07-27 - Close the capstone over the checked-in pipeline and its exact evidence
+
+**Status:** Accepted before Chapter 39 product edits.
+
+**Context:** The scheduled Chapter 39 step named the capstone module, lesson,
+diagram, tests, and lockfile, but its initial input list did not enumerate the
+checked-in bilingual corpus and split, cumulative data/training/evaluation/
+checkpoint/generation APIs, preceding executable trace, shared diagram contract,
+or rendered-browser helper. It also omitted the small parser that a static,
+Rust-driven diagram needs. Leaving those material inputs implicit would make the
+run fingerprint incomplete and the visualization output unowned.
+
+**Decision:** Keep Chapter 39 as one medium, independently committed vertical
+slice. Expand its declared inputs over the exact checked-in corpus, frozen split,
+cumulative Rust boundaries, Chapter 38 evidence, locale projection, shared
+diagram presentation module, and browser helper. Add only
+`site/src/lib/end-to-end-llm-diagram.ts` to outputs; the already-declared demo
+directory owns its generated exact trace and trace command. Use Bengio et al.
+(2003), Vaswani et al. (2017), and Brown et al. (2020) only for bounded claims
+about the n-gram limitation, learned distributed representations, causal
+Transformer computation, and scaled autoregressive language models. Attribute
+the exact split, deterministic seed, validation schedule, checkpoint format,
+cached-generation boundary, and acceptance thresholds to this course.
+
+Benchmark the smallest one-block configuration against the entire frozen test
+partition before expanding training work. Any accepted fixture must learn BPE
+only from training documents, select only by validation loss, score the test
+partition once after selection, beat the frozen training-only bigram there,
+round-trip exact logits through the versioned checkpoint, and make cached and
+complete-prefix seeded generation agree. The benchmark is local and bounded; it
+does not authorize a new dependency, corpus, framework, paid service, or Linux
+build change.
+
+The earlier step note saying to seek approval for substantial CPU predates the
+accepted `remove-cost-approval-gate` decision. Replace that stale wording with a
+benchmark-and-checkpoint requirement; cost alone does not pause this run.
+
+**Consequences:** The preflight fingerprint now captures every material input,
+the static diagram remains a validated projection of Rust rather than a second
+implementation, and the capstone cannot quietly tune on its test evidence. The
+English-only locale policy and deferred Russian route remain unchanged. No
+canonical chapter output has been edited at this checkpoint.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Freeze the capstone fixture from validation-only evidence
+
+**Status:** Accepted after the bounded CPU benchmark and before product code.
+
+**Context:** The smallest one-block context-2 probe has 1,188 parameters and
+starts far above the frozen bigram. Sixteen fixed-rate updates reduce validation
+loss to `3.993881815`, still above the training-only bigram's validation loss
+`3.981939681`; 32 updates reduce it to `3.884929072`. A four-token context keeps
+the same model size, gives prompt plus continuation room, and reaches validation
+loss `3.889531885`. Evaluation batch width 512 preserved the loss exactly but
+was no faster than 128.
+
+The first context-2 preflight probe also inspected its test score under the
+initial benchmark wording. Preserve it as rejected candidate evidence. Do not
+use that score to choose the accepted fixture, and do not describe that rejected
+configuration as an untouched holdout. The accepted context-4 configuration has
+not been scored on test; its update budget and architecture are fixed from
+training/validation evidence before that gate opens.
+
+**Decision:** Freeze eight BPE merges learned only from the eight training
+documents; vocabulary size 266; seed 39; one decoder block; width 4; one head;
+feed-forward width 4; context capacity 4; batch widths 16 for updates and 128 for
+evaluation; 32 AdamW updates at learning rate 0.04, beta values 0.9/0.999,
+epsilon `1e-8`, zero weight decay, and global gradient limit 1.0. Measure
+validation at the initial and final steps, select the lower loss with the
+existing earliest-minimum rule, and require the selected state to share the
+final optimizer step before checkpointing.
+
+Execute the complete deterministic training path twice and compare selected
+steps, checkpoints, and model bits without opening test during the replay. Then
+open one context-4 final evaluator for the primary selected model and frozen
+alpha-one bigram, require the decoder's full test loss to be lower, save and
+reload the versioned checkpoint, compare logits bit-for-bit, and compare seeded
+cached and complete-prefix generation including final RNG state. If the frozen
+context-4 test acceptance fails, record the run as failed rather than tuning this
+fixture on the holdout.
+
+**Consequences:** The final test result is now a genuine pass/fail acceptance
+for one frozen context-4 program. The capstone remains small enough for cached
+CPU execution, includes an actual causal decoder block, and gains generation
+space without changing data, dependencies, or build definitions. Exact benchmark
+evidence is stored at `.build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/evidence/benchmark-results.md`.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Choose the capstone sample only after freezing model evidence
+
+**Status:** Accepted after the one-time final evaluation; inference-only choice.
+
+**Context:** The frozen context-four model passed its one-time test acceptance,
+checkpoint reload, and deterministic training replay without an authored sample
+yet. Initial top-k-one continuations ended on incomplete UTF-8 byte prefixes
+within the deliberately short three-token generation budget. That is a poor
+learner-facing decoded-text fixture, but it says nothing about the already fixed
+model loss or state.
+
+**Decision:** Keep the seed-39 training configuration, selected step, parameters,
+checkpoint values, test score, three-token limit, tokenizer, and corpus exactly
+unchanged. Search only inference inputs against the saved frozen checkpoint and
+use prompt `A`, top-k `4`, and generation seed `38`. This produces token IDs
+`[260,34,34]`, decoded as Cyrillic `т` followed by two spaces, while cached and
+complete-prefix generation preserve identical decisions and final RNG state.
+Present this as one deterministic sample from a tiny bilingual model, never as a
+translation or general quality result.
+
+**Consequences:** The learner can inspect valid decoded UTF-8 and the exact cache
+comparison without test-driven model tuning. The lesson and tests must keep the
+training seed and generation seed distinct, preserve literal token IDs in code
+markup, and keep all probability/loss notation in the math pipeline. Evidence is
+stored in `.build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/evidence/frozen-capstone-results.md`.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Advance the shared diagram count with the capstone
+
+**Status:** Accepted after the first complete staged unit matrix.
+
+**Context:** Chapter 39 adds one registered diagram component. The shared
+all-diagram inventory discovered all 38 components but still asserted the
+pre-capstone total of 37, so the otherwise passing site matrix stopped at that
+single stale expectation.
+
+**Decision:** Declare `site/tests/diagram-style-system.test.ts` as both a
+material input and a shared integration output of the Chapter 39 step. Change
+only its expected component count from 37 to 38 and preserve every per-component
+shared-style, semantic-role, and containment assertion.
+
+**Consequences:** The capstone remains subject to the same shared diagram
+contract as the preceding chapters without changing the shared style module,
+runtime behavior, build configuration, or chapter presentation. The pre-edit
+hash and ownership expansion are recorded in
+`.build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion.txt`.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Advance every shared publication boundary through Chapter 39
+
+**Status:** Accepted after the first complete staged browser matrix.
+
+**Context:** The capstone route makes the English course 39 chapters long,
+makes Chapter 39 the next route after Chapter 38, and adds the 38th English and
+45th localized diagram route. Existing Chapter 33-38 browser tests and the
+shared diagram browser inventory deliberately assert those course-wide
+boundaries, so their frozen Chapter 38 totals now fail. The course-wide formula
+browser matrix also ends at Chapter 38; unlike the explicit count checks, that
+omission passes silently and would leave Chapter 39 outside the global formula
+compatibility audit.
+
+**Decision:** Declare the six Chapter 33-38 route specs, the shared diagram
+browser spec, and the shared formula browser spec as Chapter 39 integration
+outputs. Advance only the course length, Chapter 38 next-route expectation,
+diagram totals, formula route range, and exact Chapter 39 annotations. Preserve
+every existing chapter-specific assertion and every layout, containment,
+accessibility, localization, forced-colors, no-JavaScript, and fullscreen gate.
+
+**Consequences:** Older chapter tests continue to prove their own content while
+tracking the complete course boundary, and Chapter 39 is covered by both its
+focused formula checks and the global two-width compatibility matrix. No lesson,
+Rust evidence, shared style, browser runtime, package, or build configuration
+changes. Pre-edit hashes and the allowed correction are stored in
+`.build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion-browser.txt`.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Include the capstone in the source-level formula audit
+
+**Status:** Accepted after auditing the browser omission's parallel unit gate.
+
+**Context:** `site/tests/formula-rendering.test.ts` explicitly audits English
+Chapters 14-38 and totals 45 localized lesson sources. It remains green after
+adding Chapter 39 precisely because the new source and diagram are outside its
+fixed inventory. Rendered browser coverage alone cannot replace its independent
+checks for raw prose formulas, misused code spans, malformed TeX, and strict
+component-owned math emission.
+
+**Decision:** Declare the source formula test as a Chapter 39 integration output.
+Advance its names and inventory through Chapter 39, require the capstone's causal
+factorization, context value, and exact loss gap, audit the capstone diagram's
+shared `InlineMath` emissions, and advance the localized-source total from 45 to
+46. Preserve all existing source and component assertions.
+
+**Consequences:** Chapter 39 is now covered by the same source-level formula rule
+as every earlier chapter instead of relying only on its focused and rendered
+browser tests. No formula spelling, lesson prose, component behavior, shared math
+pipeline, dependency, or build configuration changes. The pre-edit hash and
+allowed extension are stored in
+`.build/runs/20260727T080259Z-implement-ch39-end-to-end-llm-01/input-scope-expansion-formula-unit.txt`.
+
+**Affected step and run:** `implement-ch39-end-to-end-llm`, run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01`.
+
+## 2026-07-27 - Supersede the capstone publication manifest for commit-ready whitespace
+
+**Status:** Accepted after the dedicated staged commit precheck; before correction.
+
+**Context:** Run 01 passed complete staged and canonical product, Rust, site, and
+two-engine browser validation, then published 25 exact files. Its final
+`git diff --check` inspected tracked working-tree changes before new files were
+staged. The required post-staging `git diff --cached --check` therefore found one
+previously invisible defect: the new Chapter 39 demo `Cargo.toml` ends with an
+extra blank line. No commit was created.
+
+**Decision:** Preserve run 01 as a succeeded record of its completed product
+validation, reopen the step under the invalid-checkpoint exception, and create
+run 02. Remove only the extra terminal blank line while retaining one final
+newline and identical Cargo semantics. Freeze a superseding 25-file manifest,
+prove the other 24 files are byte-identical to run 01, rerun proportional Rust
+and static-site validation from canonical bytes, and require the staged
+commit-ready whitespace audit before completing the step again.
+
+**Consequences:** The expensive and still-valid run-01 evidence is retained with
+its provenance rather than relabeled or discarded. The final commit cannot carry
+the whitespace defect, and future completion notes must distinguish a
+working-tree check from a staged-new-file check. No code, lesson, diagram,
+dependency, build configuration, or unrelated file changes.
+
+**Affected step and runs:** `implement-ch39-end-to-end-llm`, succeeded run
+`20260727T080259Z-implement-ch39-end-to-end-llm-01` and corrective run
+`20260727T095537Z-implement-ch39-publication-whitespace-02`.
