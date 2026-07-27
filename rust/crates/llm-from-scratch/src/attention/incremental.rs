@@ -222,17 +222,22 @@ impl LayerKvCache {
     /// capacity, and finite-value checks finish before either backing buffer is
     /// changed.
     pub fn append(&mut self, key: &Tensor, value: &Tensor) -> Result<(), LayerKvCacheError> {
-        let expected = vec![self.batch_size, self.heads, 1, self.head_width];
-        if key.shape() != expected {
+        self.validate_append(key, value)?;
+        self.append_prevalidated(key, value);
+        Ok(())
+    }
+
+    fn validate_append(&self, key: &Tensor, value: &Tensor) -> Result<(), LayerKvCacheError> {
+        let expected = [self.batch_size, self.heads, 1, self.head_width];
+        if key.shape() != expected.as_slice() {
             return Err(LayerKvCacheError::KeyShapeMismatch {
-                expected,
+                expected: expected.to_vec(),
                 actual: key.shape().to_vec(),
             });
         }
-        let expected = vec![self.batch_size, self.heads, 1, self.head_width];
-        if value.shape() != expected {
+        if value.shape() != expected.as_slice() {
             return Err(LayerKvCacheError::ValueShapeMismatch {
-                expected,
+                expected: expected.to_vec(),
                 actual: value.shape().to_vec(),
             });
         }
@@ -247,7 +252,11 @@ impl LayerKvCache {
         if let Some((index, value)) = first_nonfinite(value.as_slice()) {
             return Err(LayerKvCacheError::NonFiniteValue { index, value });
         }
+        Ok(())
+    }
 
+    fn append_prevalidated(&mut self, key: &Tensor, value: &Tensor) {
+        debug_assert!(self.validate_append(key, value).is_ok());
         for batch in 0..self.batch_size {
             for head in 0..self.heads {
                 let source_start = (batch * self.heads + head) * self.head_width;
@@ -262,7 +271,6 @@ impl LayerKvCache {
             }
         }
         self.len += 1;
-        Ok(())
     }
 
     /// Returns the logical rotated-key prefix as `[batch, heads, len, head_width]`.
@@ -661,6 +669,46 @@ impl IncrementalAttentionForward {
     }
 }
 
+/// A crate-sealed incremental result whose candidate K/V row is not committed.
+///
+/// Chapter 38 prepares one ticket per decoder block, completes the later blocks
+/// and tied vocabulary head, verifies every ticket still targets its original
+/// cache, and only then commits the complete stack.
+pub(crate) struct PreparedIncrementalAttention {
+    forward: IncrementalAttentionForward,
+    candidate_key: Tensor,
+    candidate_value: Tensor,
+    expected_len: usize,
+    key_storage: *const f64,
+    value_storage: *const f64,
+}
+
+impl PreparedIncrementalAttention {
+    pub(crate) fn output(&self) -> &TensorValue {
+        self.forward.output()
+    }
+
+    pub(crate) const fn cache_len(&self) -> usize {
+        self.forward.cache_len()
+    }
+
+    pub(crate) fn attention_score_values(&self) -> usize {
+        self.forward.attention_weights().len()
+    }
+
+    pub(crate) fn matches_cache(&self, cache: &LayerKvCache) -> bool {
+        self.expected_len == cache.len()
+            && std::ptr::eq(self.key_storage, cache.key_storage().as_ptr())
+            && std::ptr::eq(self.value_storage, cache.value_storage().as_ptr())
+    }
+
+    pub(crate) fn commit(self, cache: &mut LayerKvCache) -> IncrementalAttentionForward {
+        debug_assert!(self.matches_cache(cache));
+        cache.append_prevalidated(&self.candidate_key, &self.candidate_value);
+        self.forward
+    }
+}
+
 impl MultiHeadAttention {
     /// Projects one new row, attends over retained K/V rows, and commits one append.
     ///
@@ -671,6 +719,16 @@ impl MultiHeadAttention {
         input: &TensorValue,
         cache: &mut LayerKvCache,
     ) -> Result<IncrementalAttentionForward, IncrementalAttentionError> {
+        let prepared = self.prepare_incremental(input, cache)?;
+        Ok(prepared.commit(cache))
+    }
+
+    /// Computes one incremental row without changing the layer cache.
+    pub(crate) fn prepare_incremental(
+        &self,
+        input: &TensorValue,
+        cache: &LayerKvCache,
+    ) -> Result<PreparedIncrementalAttention, IncrementalAttentionError> {
         let shape = input.shape();
         if shape.len() != 3 {
             return Err(IncrementalAttentionError::InputRank { rank: shape.len() });
@@ -816,9 +874,15 @@ impl MultiHeadAttention {
                 },
                 cache_len,
             };
-
-            cache.append(&candidate_key, &candidate_value)?;
-            Ok(result)
+            cache.validate_append(&candidate_key, &candidate_value)?;
+            Ok(PreparedIncrementalAttention {
+                forward: result,
+                candidate_key,
+                candidate_value,
+                expected_len: position,
+                key_storage: cache.key_storage().as_ptr(),
+                value_storage: cache.value_storage().as_ptr(),
+            })
         })
     }
 }

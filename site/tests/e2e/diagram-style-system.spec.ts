@@ -553,8 +553,8 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
     page,
   }) => {
     test.setTimeout(240_000);
-    expect(englishRoutes).toHaveLength(36);
-    expect(routes).toHaveLength(43);
+    expect(englishRoutes).toHaveLength(37);
+    expect(routes).toHaveLength(44);
     await auditRoutes(page, desktop);
   });
 

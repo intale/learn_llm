@@ -1,0 +1,11 @@
+chapter=38-cached-generation
+config=layers:2 heads:2 model_width:4 context:4 tolerance:0.000000000002
+prefill=prompt:[0,1] cache:0->2 layer_lengths:[2,2] shape:[1,2,2,2] max_abs_diff:0.000000000000 logits:[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]
+decode=token:2 position:2 cache:2->3 layer_lengths:[3,3] shape:[1,2,3,2] max_abs_diff:0.000000000000 logits:[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]
+work=prefill_tokens:2 decode_tokens:1 layer_caches:2 cache_appends:6 qkv_rows:18 cached_scores:24 complete_prefix_scores:52 layer_storage_distinct:true
+loaded=checkpoint_bytes:6330 rng_state:0x9e3779b97f4a7c38 prompt:[0] generated:[4,4] text:44 prefixes:[1,2] stop:context-limit final_cache:2 cached_scores:6 complete_prefix_scores:10 tokens_match:true rng_match:true
+eos=token:4 generated:[4] stop:eos final_cache:1 decode_tokens:0 tokens_match:true rng_match:true
+reset=before:3 after:0 allocation_reused:true storage_unchanged:true work_zeroed:true replay_identical:true
+errors=decode_before_prefill:true prefill_nonempty:true overflow:true rebuilt_model:true changed_config:true unchanged:true
+history=causal_stack:true previous_kv:true prompt_decode:true paging_deferred:true
+next=assemble the complete end-to-end LLM pipeline

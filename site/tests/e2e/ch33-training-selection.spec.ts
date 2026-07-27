@@ -374,7 +374,7 @@ test.describe(
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(37);
+      expect(english).toHaveLength(38);
       expect(english[32]).toEqual(
         expect.objectContaining({
           chapterId,

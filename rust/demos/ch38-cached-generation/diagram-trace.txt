@@ -1,0 +1,17 @@
+CACHED_GENERATION_TRACE_V1
+CONFIG|layers=2|heads=2|model_width=4|head_width=2|capacity=4|tolerance=0.000000000002
+PREFILL|prompt=[0,1]|cache_before=0|cache_after=2|positions=[0,1]|layer_lengths=[2,2]|cache_shape=[1,2,2,2]
+LAYER|phase=prefill|layer=0|cache_len=2|shape=[1,2,2,2]|storage=distinct
+LAYER|phase=prefill|layer=1|cache_len=2|shape=[1,2,2,2]|storage=distinct
+MATCH|phase=prefill|cached=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|complete_prefix=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|max_abs_diff=0.000000000000
+DECODE|token=2|position=2|cache_before=2|cache_after=3|layer_lengths=[3,3]|cache_shape=[1,2,3,2]
+LAYER|phase=decode|layer=0|cache_len=3|shape=[1,2,3,2]|storage=distinct
+LAYER|phase=decode|layer=1|cache_len=3|shape=[1,2,3,2]|storage=distinct
+MATCH|phase=decode|cached=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|complete_prefix=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|max_abs_diff=0.000000000000
+WORK|prefill_tokens=2|decode_tokens=1|layer_caches=2|cache_appends=6|qkv_rows=18|cached_scores=24|complete_prefix_scores=52|formula_cached=4*(1+2+3)|formula_complete=4*(2^2+3^2)
+LOADED|checkpoint_bytes=6330|rng_state=0x9e3779b97f4a7c38|prompt=[0]|generated=[4,4]|text=44|prefixes=[1,2]|stop=context-limit|final_cache=2|cached_scores=6|complete_prefix_scores=10|tokens_match=true|rng_match=true
+EOS|token=4|generated=[4]|stop=eos|final_cache=1|decode_tokens=0|tokens_match=true|rng_match=true
+RESET|before=3|after=0|allocation_reused=true|storage_unchanged=true|work_zeroed=true|replay_identical=true
+ERRORS|decode_before_prefill=true|prefill_nonempty=true|overflow=true|rebuilt_model=true|changed_config=true|unchanged=true
+HISTORY|causal_stack=true|previous_kv=true|prompt_decode=true|paging_deferred=true
+END|next=end-to-end-llm

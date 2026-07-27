@@ -24,7 +24,7 @@ const chapter08To13Files = [
   "12-stable-softmax.mdx",
   "13-gradient-checking.mdx",
 ] as const;
-const chapter14To37Files = [
+const chapter14To38Files = [
   "14-scalar-autodiff.mdx",
   "15-tensor-autodiff-core.mdx",
   "16-model-autodiff-ops.mdx",
@@ -49,6 +49,7 @@ const chapter14To37Files = [
   "35-checkpoints.mdx",
   "36-temperature-top-k.mdx",
   "37-incremental-attention.mdx",
+  "38-cached-generation.mdx",
 ] as const;
 const locales = ["en", "ru"] as const;
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
@@ -310,7 +311,7 @@ const documentedChapter08To13Code = [
   },
 ] as const;
 
-const requiredChapter14To37Math: Record<string, readonly string[]> = {
+const requiredChapter14To38Math: Record<string, readonly string[]> = {
   "14": [
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
@@ -474,9 +475,18 @@ const requiredChapter14To37Math: Record<string, readonly string[]> = {
     String.raw`1+2+3=6`,
     String.raw`1+1+1=3`,
   ],
+  "38": [
+    String.raw`\sum_{t=1}^{T}t^2\in\Theta(T^3),\quad \sum_{t=1}^{T}t\in\Theta(T^2)`,
+    String.raw`[1,2,2,2]`,
+    String.raw`2\times10^{-12}`,
+    String.raw`4(1+2+3)=24`,
+    String.raw`4(2^2+3^2)=52`,
+    String.raw`1\times2\times2=4`,
+    String.raw`4\times6=24`,
+  ],
 };
 
-const formerChapter14To37MathCodeSpans = [
+const formerChapter14To38MathCodeSpans = [
   "square=4",
   "loss=8",
   "bar(loss)=1",
@@ -595,7 +605,7 @@ const formerChapter14To37MathCodeSpans = [
   "k = 40",
 ] as const;
 
-const rawChapter14To37FormulaPatterns = [
+const rawChapter14To38FormulaPatterns = [
   /\bbar\s*\([A-Za-z]+\)/,
   /\b(?:square|loss|dbias|dx|dE|dW)\s*=/,
   /\b1\s*\/\s*sqrt\s*\(/i,
@@ -659,7 +669,7 @@ const rawChapter14To37FormulaPatterns = [
   /\b(?:one|fixed|the)\s+k\b/i,
 ] as const;
 
-const documentedChapter14To37Code = [
+const documentedChapter14To38Code = [
   {
     name: "literal tensor shapes, coordinates, vectors, and matrices",
     pattern: /^\[[^\r\n]*\]$/,
@@ -667,6 +677,10 @@ const documentedChapter14To37Code = [
   {
     name: "literal numeric fixture, index, seed, or tolerance values",
     pattern: /^[+-]?(?:\d+(?:\.\d+)?)(?:e[+-]?\d+)?$/i,
+  },
+  {
+    name: "literal hexadecimal RNG states",
+    pattern: /^0x[0-9a-f]+$/i,
   },
   {
     name: "concrete Rust APIs, node names, identifiers, and types",
@@ -853,10 +867,10 @@ describe("Chapter 8-13 formula-source contract", () => {
   });
 });
 
-describe("Chapter 14-37 formula-source contract", () => {
-  it("completes the source audit for all 44 published localized lessons", () => {
+describe("Chapter 14-38 formula-source contract", () => {
+  it("completes the source audit for all 45 published localized lessons", () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To37Files) {
+    for (const file of chapter14To38Files) {
       const source = readChapter("en", file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
@@ -870,12 +884,12 @@ describe("Chapter 14-37 formula-source contract", () => {
           `${file} uses the malformed TeX control symbol \\*`,
         ).not.toContain(String.raw`\*`);
       }
-      for (const fragment of requiredChapter14To37Math[chapter] ?? []) {
+      for (const fragment of requiredChapter14To38Math[chapter] ?? []) {
         expect(body, `${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
-      for (const oldExpression of formerChapter14To37MathCodeSpans) {
+      for (const oldExpression of formerChapter14To38MathCodeSpans) {
         expect(
           code,
           `${file} still styles ${oldExpression} as code`,
@@ -883,25 +897,25 @@ describe("Chapter 14-37 formula-source contract", () => {
       }
 
       const prose = proseOutsideMathAndCode(source);
-      for (const pattern of rawChapter14To37FormulaPatterns) {
+      for (const pattern of rawChapter14To38FormulaPatterns) {
         expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
           pattern,
         );
       }
     }
 
-    expect(reviewed).toEqual(chapter14To37Files);
+    expect(reviewed).toEqual(chapter14To38Files);
     expect(
       chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(44);
+    ).toBe(45);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
-    for (const file of chapter14To37Files) {
+    for (const file of chapter14To38Files) {
       for (const value of inlineCode(readChapter("en", file))) {
-        const allowance = documentedChapter14To37Code.find(({ pattern }) =>
+        const allowance = documentedChapter14To38Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
@@ -913,7 +927,7 @@ describe("Chapter 14-37 formula-source contract", () => {
   });
 });
 
-describe("build-time formula rendering in Chapter 14-37 diagrams", () => {
+describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
   it("renders every diagram-owned expression as strict HTML plus MathML", () => {
     const components = {
       initialization: readFileSync(
@@ -990,6 +1004,10 @@ describe("build-time formula rendering in Chapter 14-37 diagrams", () => {
       ),
       incrementalAttention: readFileSync(
         resolve(componentRoot, "chapters/IncrementalAttentionDiagram.astro"),
+        "utf8",
+      ),
+      cachedGeneration: readFileSync(
+        resolve(componentRoot, "chapters/CachedGenerationDiagram.astro"),
         "utf8",
       ),
     };
@@ -1256,6 +1274,28 @@ describe("build-time formula rendering in Chapter 14-37 diagrams", () => {
     );
     expect(components.incrementalAttention).toContain(
       "latex={`2\\\\times${trace.work.reused_rows_per_kv_projection}=${trace.work.avoided_rows_across_kv}`}",
+    );
+
+    expect(components.cachedGeneration).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`${trace.prefill.cacheBefore}\\\\to${trace.prefill.cacheAfter}`}",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`g^{\\\\mathrm{cache}}_{${index}}=${value}`}",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`\\\\Delta_{\\\\max}=${trace.decode.match.maxAbsDiff}`}",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`4\\\\times(1+2+3)=${trace.work.cachedScores}`}",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`N_{\\\\mathrm{cache}}=${trace.loaded.cachedScores}`}",
+    );
+    expect(components.cachedGeneration).toContain(
+      "latex={`z_{\\\\mathrm{EOS}}=${trace.eos.token}`}",
     );
 
     for (const source of Object.values(components)) {

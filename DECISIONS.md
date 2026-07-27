@@ -6739,6 +6739,222 @@ Linux build definition changes.
 **Affected step and run:** `implement-ch37-incremental-attention`, run
 `20260726T170310Z-implement-ch37-incremental-attention-01`.
 
+## 2026-07-27 - Explain Chapter 38 equality as model evidence, not layout behavior
+
+**Status:** Accepted during the final Chapter 38 learner-facing prose audit.
+
+**Context:** The published-but-uncommitted Chapter 38 candidate says paired cached
+and complete-prefix logit coordinates let equality evidence “wrap cleanly without
+shrinking.” The coordinate pairing is useful model evidence, but wrapping and
+shrinking describe presentation implementation machinery rather than cached
+generation. The repository's learner-facing prose rule was already a material
+input to the run, so the sentence fails the existing acceptance boundary even
+though content, type, unit, Rust, and static-build gates pass.
+
+**Decision:** State the informational purpose directly: each cached logit
+coordinate sits beside its complete-prefix counterpart, making their equality
+comparison direct. Preserve every formula, trace value, diagram geometry, Rust
+artifact, source claim, and responsive behavior. Close the first Chapter 38 run
+without relabeling its frozen manifest, create a second run with a complete new
+25-file staging tree, and replay the declared canonical validation before commit.
+
+**Consequences:** Learners see why the paired coordinates matter without being
+asked to reason about responsive layout mechanics. The first run's publication,
+backup, and validation evidence remains immutable; the replacement run changes
+one prose sentence, introduces no dependency or build-definition change, and
+must publish a new manifest before the step can complete.
+
+**Affected step and runs:** `implement-ch38-cached-generation`, runs
+`20260726T191434Z-implement-ch38-cached-generation-01` and
+`20260727T053526Z-implement-ch38-cached-generation-02`.
+
+## 2026-07-26 - Record and independently verify Chapter 38's parser formatting
+
+**Status:** Accepted as a disclosed run-input correction before staged site
+validation.
+
+**Context:** Delegated parser validation invoked `npm exec` because the host had
+no local `node_modules`. npm fetched Prettier 3.9.6 into its external cache, then
+used it first to check and then to format the two staged parser files. This was
+not a declared network input. It changed no dependency manifest, lockfile,
+canonical product file, Linux build definition, or repository-owned cache, but
+the formatter version is material provenance for those candidate bytes.
+
+**Decision:** Add an immutable run addendum with the exact version and commands,
+declare the formatter as a material run input, and retain the formatted staged
+files only after their hashes and LF endings are verified. Do not treat the
+formatter invocation as acceptance evidence. Revalidate the parser, TypeScript,
+static build, and rendered chapter independently with the repository-pinned
+containers and package lock, without another formatter download.
+
+**Consequences:** The unexpected network side effect remains visible and
+reproducibility does not depend on an undeclared host package. No product scope,
+dependency, or deployment behavior changes.
+
+**Affected step and run:** `implement-ch38-cached-generation`, run
+`20260726T191434Z-implement-ch38-cached-generation-01`.
+
+## 2026-07-26 - Disclose the Chapter 38 official review dependency refill
+
+**Status:** Accepted as a run-input correction after complete network-disabled
+staged validation and before publication.
+
+**Context:** The official `course review` image starts its dependency layer after
+copying the root Cargo lockfile. Adding the local Chapter 38 demo changed that
+lockfile, so Docker could not reuse the otherwise unchanged site-dependency layer
+and `npm ci` fetched the lockfile-resolved tree. The review then passed content,
+parity, type, 50-page build, and link/SEO/sitemap gates. Its first final container
+launch was rejected because Git Bash rewrote `/bin/sh` to a Windows path; replay
+with only that argument excluded from MSYS conversion verified the same cached
+image and unchanged manifest.
+
+**Decision:** Record the exact build command, cache-invalidation cause, package
+count, image manifest, and launch correction in an immutable run addendum. Accept
+the review result because package manifests and locks were unchanged by the
+fetch, the complete candidate had already passed an independent network-disabled
+matrix with KaTeX 0.16.47, and the cached replay reverified the frozen publish
+tree. Do not alter Dockerfile ordering as part of this chapter.
+
+**Consequences:** The network side effect and Windows wrapper diagnostic remain
+auditable without broadening product scope or changing dependencies, Linux build
+definitions, or deployment behavior.
+
+**Affected step and run:** `implement-ch38-cached-generation`, run
+`20260726T191434Z-implement-ch38-cached-generation-01`.
+
+## 2026-07-26 - Declare Chapter 38 model-wide cache and publication ownership
+
+**Status:** Accepted during Chapter 38 preflight before product files were edited.
+
+**Context:** The scheduled Chapter 38 checkpoint names the model-wide cache module,
+demo, lesson, figure, and focused tests, but it predates the current strict trace
+parser, aggregate diagram/formula registries, predecessor navigation counts, exact
+diagram-trace comparison, and focused Firefox formula gate. Its input list also
+does not yet name the decoder, block, layer-cache, sampler, checkpoint fixture, or
+Chapter 37 publication boundaries that materially constrain cached generation.
+
+**Decision:** Keep Chapter 38 as one English-only vertical slice and expand its
+declared inputs, outputs, validation commands, and medium-cost note before product
+work. The step owns `generation/kv_cache.rs`, the exact Rust demo and trace, a
+strict build-time trace parser, one shared-style static figure, its unit and
+focused browser tests, the aggregate diagram/formula registries, and every current
+predecessor test with a fixed English course count or terminal navigation link.
+Add the exact trace diff and Chapter 38 Firefox desktop/narrow formula cases to the
+declared gate. Research remains bounded to primary Transformer/incremental-decoding
+and LLM-serving papers; substantial regression CPU is recorded local work and does
+not require an approval pause.
+
+**Consequences:** Chapter 38 can publish atomically without leaving an unowned
+parser, stale route count, missing formula geometry case, or Chapter 37 terminal
+link. Russian remains registered but deferred, and no dependency, package source,
+Linux build definition, locale activation, deployment behavior, or paid service is
+introduced. The exact cached-generation API and transactional state boundary will
+be frozen only after the read-only cumulative Rust and source audits.
+
+**Affected step and run:** `implement-ch38-cached-generation`, run
+`20260726T191434Z-implement-ch38-cached-generation-01`.
+
+## 2026-07-26 - Prepare every Chapter 38 layer before an allocation-free commit
+
+**Status:** Accepted after the focused Rust audit; supersedes only the trial-clone
+and shared-driver details in the immediately following Chapter 38 decision.
+
+**Context:** Cloning complete fixed-capacity K/V buffers for every decoded token
+would make failures atomic, but it would also copy all retained state on every
+step and materially undermine the reuse mechanism being taught. Chapter 37's
+public `forward_incremental` currently appends immediately, while model-wide
+coherence requires later blocks and the tied head to succeed before any layer
+advances. Reusing `GenerationResult` would also force a cached path into an
+uncached evidence type whose `full_prefix_calls` field has an intentionally
+specific meaning.
+
+**Decision:** Extend `attention/incremental.rs` with a crate-sealed two-phase
+boundary. Preparation performs all existing validation and computation, validates
+the candidate K/V append, and returns the incremental evidence plus an opaque
+candidate ticket without changing cache state. Chapter 38 prepares one ticket per
+block while running the exact pre-norm residual/FFN order, completes final RMSNorm
+and tied vocabulary projection, verifies the tickets still target the current
+logical position, and only then commits every prevalidated row and advances model
+length/work. Keep `forward_incremental` public as prepare followed immediately by
+commit so Chapter 37 behavior is unchanged. Prompt tokens are validated in full
+before work; a later internal prefill failure resets every logical layer length and
+work counter to the required empty state while preserving the allocated buffers
+and treating unused backing bytes as outside logical state.
+
+Give cached generation its own step, work, result, and typed-error records. Mirror
+the Chapter 36 validation, RNG, EOS, token-limit, and context-limit precedence in
+a small cached loop that calls the same `sample_next_token`; do not modify the
+uncached `GenerationResult` or `full_prefix_calls` contract. Count cached and
+complete-prefix attention score values with checked arithmetic and explicit layer
+and head factors. The final selected token is not decoded when no later logits are
+needed.
+
+**Consequences:** Decode appends retain their intended asymptotic state reuse,
+ordinary runtime failures cannot leave a partially advanced stack, Chapter 36's
+frozen evidence remains untouched, and Chapter 38 can explain logical rollback
+honestly. `attention/incremental.rs` becomes a declared output;
+`generation/sampling.rs` remains a read-only input. No public prepare ticket,
+buffer-copy transaction, production-kernel claim, or byte-restoration promise is
+introduced.
+
+**Affected step and run:** `implement-ch38-cached-generation`, run
+`20260726T191434Z-implement-ch38-cached-generation-01`.
+
+## 2026-07-26 - Make Chapter 38 cache ownership model-wide and commits atomic
+
+**Status:** Accepted after the Chapter 38 read-only Rust, source, and publication
+audits and before staged product implementation.
+
+**Context:** A decoder-block cache stores K/V rows produced from the hidden state
+entering that block. Those rows therefore depend not only on the block's attention
+matrices, but also on the embedding and every earlier normalization, attention,
+residual, and feed-forward parameter. Committing one block at a time would also
+leave earlier layers advanced if a later block rejected a token. The existing
+Chapter 36 driver counts every callback as a complete-prefix call, which would be
+false for a stateful callback. The source review supports causal stacked decoders,
+explicit previous-K/V state, and the prompt/decode split, but does not specify this
+course's ownership, transaction, reset, or error policies.
+
+**Decision:** Add a caller-owned `DecoderKvCache` in `generation/kv_cache.rs`.
+It stores one `LayerKvCache` per decoder block, exact decoder configuration and
+all model parameter-node identities, logical length, capacity, phase row counts,
+and exact attention-score-cell work. `prefill` accepts a nonempty prompt only on
+an empty state; `decode` accepts exactly one later token only after prefill. Both
+run graph-free against a trial clone and replace the complete model-wide state
+only after embedding, every block, final normalization, and tied vocabulary
+projection succeed. Reset reuses the committed allocations and clears only
+logical state and counters. The teaching prefill advances prompt rows serially to
+reuse the already verified one-row primitive; it is a correctness reference, not
+a production parallel prefill kernel. Trial cloning is likewise an explicit
+all-or-nothing teaching policy, not performance evidence.
+
+Reuse the Chapter 36 sampling and stop driver for `generate_cached`, but classify
+driver callbacks as complete-prefix or cached-state work so
+`GenerationResult::full_prefix_calls` remains truthful. A cached result exposes
+the ordinary generation evidence plus prefill/decode rows, cached score cells,
+and the dense complete-prefix score-cell baseline. Count score cells only for
+attention with batch, layer, and head factors explicit; do not generalize the
+course derivation to total runtime, projection/MLP work, memory traffic, or
+constant-time decoding. This requires declaring `generation/mod.rs` and
+`generation/sampling.rs` as integration outputs; decoder and block modules remain
+unchanged public inputs.
+
+The publication audit also identified nine dynamic route/publication/SEO/sitemap/
+full-view files that constrain acceptance without needing edits. Record their
+hashes in the immutable run addendum and declare them as read-only inputs. Dynamic
+discovery must add only the English Chapter 38 route and its project-base sitemap
+URL; Russian remains deferred.
+
+**Consequences:** Same-shaped or equal-valued rebuilt models cannot reuse stale
+state; every layer length advances coherently or none does; invalid later prompt
+tokens and full/mismatched caches preserve the prior state; cached and reference
+sampling share ties, RNG, EOS, token, and context semantics. The implementation
+makes no paged-attention, batching, eviction, optimized-prefill, memory-efficiency,
+wall-clock speedup, or paper-invention claim.
+
+**Affected step and run:** `implement-ch38-cached-generation`, run
+`20260726T191434Z-implement-ch38-cached-generation-01`.
+
 ## 2026-07-26 - Bind a layer cache to exact weights and rotary configuration
 
 **Status:** Accepted during the Chapter 37 read-only Rust audit.

@@ -1,0 +1,427 @@
+---
+{
+  "chapter_id": "38-cached-generation",
+  "locale": "en",
+  "content_revision": 1,
+  "order": 38,
+  "concept_id": "cached-generation",
+  "title": "Prefill once, then advance one token",
+  "description": "Learn how one independent KV cache per decoder block turns prompt prefill into coherent one-token decoding while matching complete-prefix generation.",
+  "objective": "Give every decoder block its own KV cache, prefill the prompt once, and reproduce uncached one-token generation with coherent model-wide state.",
+  "worked_inputs": "Prefill token IDs 0 and 1 through a two-layer, two-head decoder, decode token ID 2, compare both newest-position logits with complete-prefix references within 2e-12, and then match seeded cached generation against the Chapter 36 uncached loop.",
+  "formula": {
+    "latex": "\\sum_{t=1}^{T}t^2\\in\\Theta(T^3),\\quad \\sum_{t=1}^{T}t\\in\\Theta(T^2)",
+    "symbols": [
+      {
+        "symbol": "t",
+        "meaning": "the current retained prefix length and therefore the number of attention scores made when one cached newest query scans all retained keys"
+      },
+      {
+        "symbol": "T",
+        "meaning": "the final retained prefix length covered by the comparison"
+      },
+      {
+        "symbol": "t^2",
+        "meaning": "the dense causal attention score grid rebuilt by one complete-prefix decoder replay at length t"
+      },
+      {
+        "symbol": "\\sum_{t=1}^{T}",
+        "meaning": "accumulation of that attention-score work over retained lengths one through T"
+      },
+      {
+        "symbol": "\\Theta(T^3)",
+        "meaning": "the cubic growth class of repeated complete-prefix attention-score grids when batch, layers, heads, and head width are fixed"
+      },
+      {
+        "symbol": "\\Theta(T^2)",
+        "meaning": "the quadratic growth class of cached newest-query attention-score rows under the same fixed factors"
+      }
+    ]
+  },
+  "history": {
+    "llm_evolution": {
+      "predecessor_kind": "inference-design",
+      "limitation": "A causal Transformer decoder can generate one token at a time by replaying the complete known prefix, but that stateless interface rebuilds earlier attention score grids and key/value projections on every later call.",
+      "later_advance": "Incremental decoding made previous key/value tensors explicit state, and later LLM serving work separated one prompt phase from sequential generation while retaining key/value state across decoder layers and heads.",
+      "modern_llm_role": "Model-wide cached generation prefills one independent cache per decoder block, threads each selected token through every block once, and preserves the same logits, sampling decisions, random draws, and stopping behavior as complete-prefix generation.",
+      "sources": [
+        {
+          "role": "earlier",
+          "year": 2017,
+          "name": "Attention Is All You Need",
+          "source_url": "https://arxiv.org/pdf/1706.03762",
+          "claim": "Vaswani and colleagues describe a stacked autoregressive Transformer decoder whose masked self-attention prevents a position from reading later positions; their encoder-decoder architecture also includes cross-attention and does not specify a KV-cache API."
+        },
+        {
+          "role": "later",
+          "year": 2019,
+          "name": "Fast Transformer Decoding: One Write-Head is All You Need",
+          "source_url": "https://arxiv.org/pdf/1911.02150",
+          "claim": "Shazeer's incremental self-attention receives previous key and value tensors, appends the current projected key and value, and returns the updated state; the paper's contribution is multi-query attention, not a claim to have invented KV caching."
+        },
+        {
+          "role": "later",
+          "year": 2023,
+          "name": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+          "source_url": "https://arxiv.org/pdf/2309.06180",
+          "claim": "Kwon and colleagues separate a prompt phase from sequential generation, describe later iterations reusing cached keys and values while computing only the newest pair, and account for KV-cache state across Transformer layers and heads."
+        }
+      ]
+    },
+    "approach": "Move from replaying the complete causal decoder prefix for each selection to one prompt prefill followed by stateful one-token decoder calls.",
+    "summary": "The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's exact model binding, coherent commit, reset, counter, error, and serial-prefill rules are local correctness choices rather than policies defined by those papers.",
+    "rust_source": "rust/demos/ch38-cached-generation/src/lib.rs"
+  },
+  "rust_sources": [
+    {
+      "path": "rust/crates/llm-from-scratch/src/attention/incremental.rs",
+      "region": "incremental-attention",
+      "purpose": "Prepare one layer's candidate incremental-attention append without changing cache state, then commit the already validated row."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
+      "region": "decoder-kv-cache",
+      "purpose": "Bind one independent layer cache per decoder block to the exact model, prefill and decode coherently, count work, and reset logical state."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/generation/kv_cache.rs",
+      "region": "cached-generation",
+      "purpose": "Combine model-wide cached state with the existing sampler while preserving EOS, token-limit, context-limit, and RNG behavior."
+    },
+    {
+      "path": "rust/demos/ch38-cached-generation/src/lib.rs",
+      "region": "historical-cache-contrast",
+      "purpose": "Record the LLM-inference progression from a causal stack through explicit previous K/V state to prompt and decode phases."
+    },
+    {
+      "path": "rust/demos/ch38-cached-generation/src/lib.rs",
+      "region": "learner-evidence",
+      "purpose": "Assemble exact prefill, decode, work, generation, reset, storage-isolation, and unchanged-error evidence."
+    },
+    {
+      "path": "rust/demos/ch38-cached-generation/src/main.rs",
+      "purpose": "Print the exact Chapter 38 learner report."
+    }
+  ],
+  "visualization": {
+    "decision": "useful",
+    "id": "cached-generation",
+    "rationale": "A prompt-to-decode timeline across two distinct layer caches makes model-wide ownership, coherent length changes, newest-position matches, and the attention-score comparison visible together."
+  },
+  "decoder_connection": "The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, decode only selected later tokens, reset for reuse, and generate the same token sequence as the complete-prefix reference; Chapter 39 will connect that inference path to the full train, evaluate, save, load, and generate pipeline."
+}
+---
+
+import RustSource from "../../../components/RustSource.astro";
+import CachedGenerationDiagram from "../../../components/chapters/CachedGenerationDiagram.astro";
+
+export const diagramLabels = {
+  title: "Prefill every layer once; decode every layer together",
+  description: "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, matches newest-position logits, and compares bounded attention-score work plus stopping and reset behavior.",
+  sections: {
+    timeline: "Move from prompt prefill to one-token decode",
+    work: "Count attention-score values only",
+    generation: "Keep sampling and stopping decisions unchanged",
+    reset: "Reset or reject without corrupting model-wide state",
+  },
+  fields: {
+    prompt: "Prompt token IDs",
+    token: "Selected token",
+    position: "Absolute position",
+    cache: "Logical cache length",
+    layer: "Decoder block",
+    shape: "Layer-cache shape",
+    cached: "Cached path",
+    completePrefix: "Complete-prefix reference",
+    difference: "Maximum absolute difference",
+    scoreCells: "Attention-score values",
+    generated: "Generated token IDs and text",
+    stop: "Stopping reason",
+  },
+  cues: {
+    prefill: "prompt prefill - solid cue",
+    decode: "new one-token decode - double cue",
+    distinct: "owns separate K/V storage",
+    match: "newest logits match within tolerance",
+    reset: "logical state returns to zero",
+    unchanged: "rejected calls commit no state change",
+  },
+  captions: {
+    timeline: "The prompt initializes both block caches at positions zero and one. Token two then enters at position two, and both block lengths advance coherently.",
+    work: "The fixture counts score values formed inside attention. It does not treat those counts as total runtime or a hardware measurement.",
+    generation: "The restored model makes the same token and random-draw decisions in cached and complete-prefix paths, including context and EOS stopping.",
+    reset: "Reset retains allocations while clearing logical state and work. Invalid phase, capacity, model, or configuration requests leave committed state unchanged.",
+  },
+  proofs: {
+    cache: "Four layer-head lanes form one score row at each retained length.",
+    reference: "The two reference calls rebuild square score grids at prompt length two and decoded length three.",
+    loaded: "Restored checkpoint: matching tokens, draws, and context stop",
+    eos: "EOS: select the token, then stop before an unnecessary decode",
+  },
+};
+
+{/* chapter-section:worked-example */}
+
+## Predict both cache lengths before running
+
+The fixture has $L=2$ decoder blocks, $H=2$ attention heads per block, model
+width $D=4$, head width $d_h=2$, and context capacity $C=4$. It begins with
+prompt token IDs $[0,1]$ and an empty model-wide cache.
+
+Before revealing the trace, predict four facts:
+
+1. Prefill sends both prompt positions through both blocks, so each block cache
+   reaches logical length $2$ and shape $[1,2,2,2]$.
+2. The first later token is token ID $2$ at absolute position $2$.
+3. A successful decode advances both caches from length $2$ to length $3$; one
+   block cannot remain behind the other.
+4. The selected EOS token is returned to the caller but is not decoded when no
+   later logits are needed.
+
+The final prompt logits are
+$[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]$. After token
+$2$, the next logits are
+$[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]$. At both
+boundaries, the cached and complete-prefix results have an unrounded maximum
+absolute difference no greater than $2\times10^{-12}$; the displayed difference
+is $0.000000000000$.
+
+The restored checkpoint uses prompt $[0]$ and RNG state
+`0x9e3779b97f4a7c38`. Both generation paths select $[4,4]$, decode literal text
+`44`, consume matching random draws, and stop at the context limit. With token
+$4$ configured as EOS, both paths stop after selecting $[4]$ and perform $0$
+later decode-token forwards.
+
+{/* chapter-section:formula */}
+
+## Count attention-score cells, not total runtime
+
+Hold batch size, layer count, head count, and head width fixed. Over a final
+retained length $T$, the two score-cell totals grow as
+
+$$
+\sum_{t=1}^{T}t^2\in\Theta(T^3),\quad \sum_{t=1}^{T}t\in\Theta(T^2)
+$$
+
+At retained length $t$, complete-prefix replay rebuilds a dense causal score grid
+with $t^2$ entries for every fixed batch-layer-head lane. A cached step forms
+only the newest query's row of $t$ scores against all retained keys. Summing
+those per-step quantities from $t=1$ through $T$ gives the two growth classes.
+
+This comparison is deliberately narrow. Cached attention is not constant-time:
+the newest query still scans a prefix that grows with $t$. The formula does not
+count projection or MLP work, memory traffic, allocation behavior, total runtime,
+or wall-clock speedup.
+
+For the exact fixture, batch $1$, $2$ blocks, and $2$ heads give a fixed factor
+of $4$. Serial prefill plus decode forms
+$4(1+2+3)=24$ cached attention-score values. The two independent reference calls
+at lengths $2$ and $3$ form $4(2^2+3^2)=52$ values.
+
+{/* chapter-section:symbol-glossary */}
+
+## Keep retained length and final length separate
+
+- $t$ is the current retained prefix length. It is also the number of keys read
+  by the one newest cached query.
+- $T$ is the final retained length covered by the comparison.
+- $t^2$ is the complete-prefix score grid rebuilt at length $t$ for each fixed
+  batch-layer-head lane.
+- $\sum_{t=1}^{T}$ accumulates score-cell work from retained length $1$ through
+  retained length $T$.
+- $\Theta(T^3)$ is the growth class of repeated complete-prefix score grids when
+  the omitted factors remain fixed.
+- $\Theta(T^2)$ is the growth class of cached newest-query score rows under those
+  same fixed factors.
+
+The cache itself still stores one logical K/V prefix per block with shape
+$[B,H,t,d_h]$. Equal shapes do not make two caches interchangeable: their rows
+were produced at different depths of the decoder stack.
+
+{/* chapter-section:history */}
+
+## From causal stacks to prompt and decode phases
+
+A causal Transformer decoder can generate one token at a time by replaying the complete known prefix, but that stateless interface rebuilds earlier attention score grids and key/value projections on every later call.
+
+[Attention Is All You Need](https://arxiv.org/pdf/1706.03762) establishes the
+causal stack. Vaswani and colleagues describe a stacked autoregressive Transformer decoder whose masked self-attention prevents a position from reading later positions; their encoder-decoder architecture also includes cross-attention and does not specify a KV-cache API.
+
+[Fast Transformer Decoding: One Write-Head is All You Need](https://arxiv.org/pdf/1911.02150)
+makes previous state explicit. Shazeer's incremental self-attention receives previous key and value tensors, appends the current projected key and value, and returns the updated state; the paper's contribution is multi-query attention, not a claim to have invented KV caching.
+
+[Efficient Memory Management for Large Language Model Serving with PagedAttention](https://arxiv.org/pdf/2309.06180)
+continues the road into modern LLM inference. Kwon and colleagues separate a prompt phase from sequential generation, describe later iterations reusing cached keys and values while computing only the newest pair, and account for KV-cache state across Transformer layers and heads.
+
+Incremental decoding made previous key/value tensors explicit state, and later LLM serving work separated one prompt phase from sequential generation while retaining key/value state across decoder layers and heads.
+
+Model-wide cached generation prefills one independent cache per decoder block, threads each selected token through every block once, and preserves the same logits, sampling decisions, random draws, and stopping behavior as complete-prefix generation.
+
+Move from replaying the complete causal decoder prefix for each selection to one prompt prefill followed by stateful one-token decoder calls.
+
+The original Transformer establishes the stacked causal decoder, explicit previous-K/V interfaces expose reusable inference state, and modern LLM serving separates prompt processing from sequential decode. This course's exact model binding, coherent commit, reset, counter, error, and serial-prefill rules are local correctness choices rather than policies defined by those papers.
+
+Paging, sharing, eviction, and production memory management remain outside this
+chapter. The contiguous cache here isolates the correctness boundary needed
+before those serving concerns can be studied.
+
+<RustSource
+  path="rust/demos/ch38-cached-generation/src/lib.rs"
+  region="historical-cache-contrast"
+  caption="Record the causal-stack, previous-K/V, and prompt/decode progression"
+  label="Rust source for the Chapter 38 LLM-inference history contrast"
+/>
+
+{/* chapter-section:rust-implementation */}
+
+## Prepare every block, then commit the stack
+
+Chapter 37's layer primitive now has an internal prepare boundary. It calculates
+the candidate newest output and K/V row without changing logical state. Its
+ordinary public call still prepares and immediately commits one layer, while the
+model-wide path can hold one prepared result per block.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
+  region="incremental-attention"
+  caption="Prepare one candidate layer append and commit it only at the chosen boundary"
+  label="Rust source for prepared Chapter 38 incremental attention"
+/>
+
+`DecoderKvCache::new` takes the actual decoder. It allocates one fixed-capacity
+`LayerKvCache` per block and records the exact decoder configuration plus every
+parameter-node identity. The state therefore rejects rebuilt equal-valued weights
+and changed positional or decoder configuration, even when all visible dimensions
+match.
+
+`prefill` accepts a validated nonempty prompt only while state is empty. This
+teaching implementation sends prompt rows serially through the same one-row path,
+which keeps the state transition transparent; it is not an optimized parallel
+prefill kernel. `decode` accepts exactly one in-vocabulary token only after
+prefill and before capacity is full.
+
+For each row, the decoder runs embedding, every block's pre-norm attention and
+feed-forward residual path, final RMSNorm, and tied vocabulary projection. Every
+block prepares its candidate append first. Only after all later calculations
+succeed do the layer caches, common length, phase counts, and score-cell counts
+advance together.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
+  region="decoder-kv-cache"
+  caption="Own one exact-model cache per block and advance the decoder state coherently"
+  label="Rust source implementing the Chapter 38 model-wide decoder KV cache"
+/>
+
+`generate_cached` reuses the Chapter 36 selection rule and preserves RNG, EOS,
+token-limit, and context-limit precedence. A selected final token is part of the
+result, but it is not sent through `decode` when generation has already stopped
+and no following logits are needed.
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
+  region="cached-generation"
+  caption="Generate from prefilled model-wide state with the existing sampling and stop semantics"
+  label="Rust source implementing Chapter 38 cached generation"
+/>
+
+Reset clears logical length, phase, and work counters while retaining allocations
+and backing storage. Decode before prefill, prefill into nonempty state, overflow,
+a rebuilt model, or changed configuration returns a typed error without changing
+the committed model-wide state.
+
+The executable assembles prefill and decode matches, proves the two layer buffers
+are distinct, compares loaded generation and EOS behavior, resets and replays,
+and records all rejected operations against unchanged snapshots.
+
+<RustSource
+  path="rust/demos/ch38-cached-generation/src/lib.rs"
+  region="learner-evidence"
+  caption="Assemble model-wide parity, work, generation, reset, and error evidence"
+  label="Rust source assembling the Chapter 38 learner evidence"
+/>
+
+Run `cargo run --quiet --locked -p ch38-cached-generation`. It prints the exact
+learner report:
+
+```text
+chapter=38-cached-generation
+config=layers:2 heads:2 model_width:4 context:4 tolerance:0.000000000002
+prefill=prompt:[0,1] cache:0->2 layer_lengths:[2,2] shape:[1,2,2,2] max_abs_diff:0.000000000000 logits:[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]
+decode=token:2 position:2 cache:2->3 layer_lengths:[3,3] shape:[1,2,3,2] max_abs_diff:0.000000000000 logits:[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]
+work=prefill_tokens:2 decode_tokens:1 layer_caches:2 cache_appends:6 qkv_rows:18 cached_scores:24 complete_prefix_scores:52 layer_storage_distinct:true
+loaded=checkpoint_bytes:6330 rng_state:0x9e3779b97f4a7c38 prompt:[0] generated:[4,4] text:44 prefixes:[1,2] stop:context-limit final_cache:2 cached_scores:6 complete_prefix_scores:10 tokens_match:true rng_match:true
+eos=token:4 generated:[4] stop:eos final_cache:1 decode_tokens:0 tokens_match:true rng_match:true
+reset=before:3 after:0 allocation_reused:true storage_unchanged:true work_zeroed:true replay_identical:true
+errors=decode_before_prefill:true prefill_nonempty:true overflow:true rebuilt_model:true changed_config:true unchanged:true
+history=causal_stack:true previous_kv:true prompt_decode:true paging_deferred:true
+next=assemble the complete end-to-end LLM pipeline
+```
+
+<RustSource
+  path="rust/demos/ch38-cached-generation/src/main.rs"
+  caption="Print the exact Chapter 38 cached-generation report"
+  label="Rust source for the Chapter 38 executable entry point"
+/>
+
+{/* chapter-section:visualization */}
+
+## Follow prefill into one-token decode
+
+The figure begins with prompt positions $0$ and $1$ in two distinct block caches,
+then follows selected token $2$ into absolute position $2$. The solid prefill cue
+and double decode cue distinguish the phases even without color. Each cached
+logit coordinate sits beside its complete-prefix counterpart, making their
+equality comparison direct.
+
+The work cards compare $24$ cached score values with $52$ reference values. The
+remaining evidence keeps two different stop boundaries separate: the loaded run
+decodes selected tokens until the context is full, whereas the EOS run returns
+its first selected token and stops before another decoder forward.
+
+<CachedGenerationDiagram labels={diagramLabels} />
+
+{/* chapter-section:exercises */}
+
+## Predict before checking the evidence
+
+1. How many layer caches does a two-block decoder own?
+2. After prefill with two tokens, what is each layer cache's logical length?
+3. Which absolute position does the first decode token use?
+4. Why can a cache from rebuilt equal-valued weights not be reused?
+5. How many cache appends occur across two prompt rows and one decode row?
+6. Why does the fixture form $24$ cached attention-score values?
+7. Does caching make the newest attention query constant-time?
+8. If the first selected token is EOS, must that token be decoded?
+9. What does reset change, and what does it retain?
+
+Misconception: caches with equal shapes can be shared by different blocks. In
+fact, each retained row depends on the hidden state entering its block, so block
+$1$ cannot reuse block $0$'s K/V rows. The model-wide state also binds every cache
+to the exact decoder parameters and configuration that produced it.
+
+<details>
+<summary>Check the nine predictions</summary>
+
+1. The decoder owns $2$ layer caches, one for each block.
+2. Both caches reach logical length $2$ and shape $[1,2,2,2]$.
+3. The first later token uses absolute position $2$, equal to the old cache length.
+4. Equal values and shapes do not preserve parameter-node identity or the exact decoder configuration recorded by the cache.
+5. $2$ blocks times $3$ token rows gives $6$ coherent cache appends.
+6. There are $1\times2\times2=4$ batch-layer-head lanes, and each forms $1+2+3=6$ score values, giving $4\times6=24$.
+7. No. The newest query still reads $t$ retained keys at prefix length $t$.
+8. No. EOS is returned as the selected token, and no later logits are needed.
+9. Reset changes logical length, phase, and counters to zero while retaining allocations and backing storage for reuse.
+
+</details>
+
+{/* chapter-section:decoder-connection */}
+
+## Connect inference to the whole pipeline
+
+The complete decoder can now retain compatible graph-free K/V state across all blocks, prefill a prompt, decode only selected later tokens, reset for reuse, and generate the same token sequence as the complete-prefix reference; Chapter 39 will connect that inference path to the full train, evaluate, save, load, and generate pipeline.
+
+That final chapter will exercise the whole road in one program: partition data,
+learn and apply BPE, train and select the decoder, evaluate untouched data, save
+and reload the checkpoint, prefill the prompt, generate through the model-wide
+cache, and decode the resulting token IDs back to text.
