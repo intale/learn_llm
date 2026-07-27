@@ -4,8 +4,12 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import {
+  assertSitemapByteLimit,
   DEFAULT_SITE_URL,
+  MAX_SITEMAP_BYTES,
+  MAX_SITEMAP_URL_LENGTH,
   MAX_SITEMAP_URLS,
+  SITEMAP_NAMESPACE,
   normalizeSitemapRoute,
   normalizeSiteUrl,
   renderSitemapXml,
@@ -81,10 +85,29 @@ describe('sitemap configuration', () => {
         '  <url><loc>https://example.test/learn_llm/en/course/</loc></url>',
         '  <url><loc>https://example.test/learn_llm/ru/</loc></url>',
         '</urlset>',
-        '',
-      ].join('\n'),
+      ].join(''),
     );
     expect(result).not.toMatch(/<lastmod>|<changefreq>|<priority>/);
+    expect(SITEMAP_NAMESPACE).toBe(
+      'http://www.sitemaps.org/schemas/sitemap/0.9',
+    );
+    expect(MAX_SITEMAP_BYTES).toBe(52_428_800);
+    expect(MAX_SITEMAP_URL_LENGTH).toBe(2_047);
+    expect(assertSitemapByteLimit(result)).toBe(
+      new TextEncoder().encode(result).byteLength,
+    );
+    expect(result).not.toMatch(/[\r\n]/);
+    expect(result).not.toContain(String.raw`\n`);
+  });
+
+  it('measures the uncompressed UTF-8 representation rather than code units', () => {
+    expect(assertSitemapByteLimit('é', 2)).toBe(2);
+    expect(() => assertSitemapByteLimit('é', 1)).toThrow(
+      /at most 1 uncompressed UTF-8 bytes/,
+    );
+    expect(() => assertSitemapByteLimit('valid', 0)).toThrow(
+      /positive safe integer/,
+    );
   });
 
   it('rejects empty, duplicate, excessive, and unsafe route sets', () => {
@@ -106,5 +129,15 @@ describe('sitemap configuration', () => {
         'https://example.test/learn_llm/',
       ),
     ).toThrow(/at most 50000 URLs/);
+    const siteUrl = 'https://example.test/learn_llm/';
+    const longestAcceptedSegment = 'a'.repeat(
+      MAX_SITEMAP_URL_LENGTH - siteUrl.length - 1,
+    );
+    expect(() =>
+      renderSitemapXml([`/${longestAcceptedSegment}/`], siteUrl),
+    ).not.toThrow();
+    expect(() =>
+      renderSitemapXml([`/${longestAcceptedSegment}a/`], siteUrl),
+    ).toThrow(/at most 2047 characters/);
   });
 });

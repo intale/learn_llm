@@ -7921,3 +7921,49 @@ standalone step is committed.
 
 **Affected step and run:** `set-google-analytics-cookie-domain`, run
 `20260727T190731Z-set-google-analytics-cookie-domain-01`.
+
+## 2026-07-27 - Diagnose sitemap fetch state separately from XML validity
+
+**Status:** Accepted from the reported Search Console failure and live audit.
+
+**Context:** Google Search Console reported “Не удалось обработать файл Sitemap.”
+The currently deployed project sitemap nevertheless returns a direct `200` with
+an XML content type, is UTF-8 without a BOM, validates against the official
+Sitemap 0.9 schema, contains 52 unique absolute project URLs, and is returned
+byte-for-byte to Googlebot. Every listed URL also returns a direct `200`. The
+account-root `/sitemap.xml` is a different URL and returns `404`. Separately, the
+ignored local `site/dist` release predates the sitemap and contains no copy of it.
+
+**Decision:** Keep the current XML vocabulary and route set. Treat the reported
+message as a Search Console fetch/submission diagnosis rather than evidence that
+valid live XML should be rewritten. Independently parse every served candidate in
+Chromium and Firefox, enforce Sitemap 0.9 namespace and element structure plus
+Google's 50,000-URL, less-than-2,048-character-location, and 50 MB
+uncompressed limits, and make both release publication and the host completeness
+gate require the root `sitemap.xml`.
+
+Document the exact complete public URL. For an origin URL-prefix property rooted
+at `https://intale.github.io/`, submit `learn_llm/sitemap.xml`; for a project
+URL-prefix property rooted at `https://intale.github.io/learn_llm/`, submit
+`sitemap.xml`. State explicitly that sitemap submission and diagnostics belong to
+Google Search Console, not Google Analytics. Do not add a project-level
+`/learn_llm/robots.txt`: crawler directives are discovered at the origin root,
+which this project-site artifact does not own, and the absent root robots file
+does not block crawling.
+
+**Consequences:** A generator regression can no longer pass merely by agreeing
+with its own expected string, and a stale or partial human release cannot be
+presented as complete without the sitemap. No `lastmod`, `changefreq`, `priority`,
+schema-location attribute, sitemap index, robots file, route, dependency, Pages
+workflow, or deployment change is introduced. The live error may still require
+correcting the submitted property-relative path or asking Search Console to retry
+after a successful live URL inspection.
+
+The renderer's former `.join('\n')` argument was a JavaScript escape for one
+line-feed character, not a backslash followed by `n`, and the resulting document
+was valid XML. At the user's request, remove even that legal whitespace so the
+artifact is one compact line. Enforce the absence of CR/LF bytes and literal
+backslash-`n` text in generated and served artifacts.
+
+**Affected step and run:** `harden-google-search-sitemap`, run
+`20260727T200000Z-harden-google-search-sitemap-01`.

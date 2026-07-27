@@ -36,9 +36,18 @@ if [[ -n $forbidden_python ]]; then
   exit 1
 fi
 
-if [[ -e "$root/site/dist" && ! -f "$root/site/dist/index.html" ]]; then
-  echo 'site/dist exists but is not a complete static release' >&2
-  exit 1
+if [[ -e "$root/site/dist" ]]; then
+  for required_release_file in \
+    index.html \
+    en/course/index.html \
+    ru/course/index.html \
+    sitemap.xml; do
+    if [[ ! -f "$root/site/dist/$required_release_file" || -L "$root/site/dist/$required_release_file" ]]; then
+      printf 'site/dist is missing required release file: %s\n' \
+        "$required_release_file" >&2
+      exit 1
+    fi
+  done
 fi
 
 echo 'host artifact audit passed (site/dist is the intentional static-release exception)'

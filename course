@@ -103,6 +103,8 @@ release_site() {
   [[ -f "$export_directory/index.html" ]] || fail 'the site image has no root index.html'
   [[ -f "$export_directory/en/course/index.html" ]] || fail 'the site image has no English course index'
   [[ -f "$export_directory/ru/course/index.html" ]] || fail 'the site image has no Russian course index'
+  [[ -f "$export_directory/sitemap.xml" && ! -L "$export_directory/sitemap.xml" ]] ||
+    fail 'the site image has no regular root sitemap.xml'
 
   if [[ -e "$repository_root/site/dist" ]]; then
     mv --exchange --no-copy -T "$export_directory" "$repository_root/site/dist"

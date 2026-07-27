@@ -16,6 +16,7 @@ import {
 } from './chapter-locale-config.mjs';
 import {
   DEFAULT_SITE_URL,
+  MAX_SITEMAP_BYTES,
   renderSitemapXml,
 } from '../site/sitemap.config.mjs';
 
@@ -845,7 +846,40 @@ function validateSitemapArtifact(
     return 0;
   }
 
-  const source = readFileSync(nodePath.join(absoluteDist, 'sitemap.xml'), 'utf8');
+  const sitemapPath = nodePath.join(absoluteDist, 'sitemap.xml');
+  const bytes = readFileSync(sitemapPath);
+  if (bytes.byteLength > MAX_SITEMAP_BYTES) {
+    issues.push(
+      `sitemap.xml exceeds ${MAX_SITEMAP_BYTES} uncompressed bytes`,
+    );
+  }
+  if (
+    bytes.byteLength >= 3 &&
+    bytes[0] === 0xef &&
+    bytes[1] === 0xbb &&
+    bytes[2] === 0xbf
+  ) {
+    issues.push('sitemap.xml must be UTF-8 without a byte-order mark');
+  }
+
+  let source;
+  try {
+    source = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    issues.push('sitemap.xml must contain valid UTF-8');
+    return 0;
+  }
+  if (!source.startsWith('<?xml version="1.0" encoding="UTF-8"?><urlset')) {
+    issues.push(
+      'sitemap.xml must begin with its UTF-8 XML declaration and no leading content',
+    );
+  }
+  if (/[\r\n]/.test(source)) {
+    issues.push('sitemap.xml must be compact XML without line-break bytes');
+  }
+  if (source.includes(String.raw`\n`)) {
+    issues.push('sitemap.xml must not contain literal backslash-n text');
+  }
   if (source !== expected) {
     issues.push(
       'sitemap.xml must exactly contain one absolute URL for every generated HTML route in deterministic order',

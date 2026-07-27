@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-27T19:22:01Z"
+updated_at: "2026-07-27T20:37:11Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -18338,3 +18338,157 @@ builds:
                 status: passed
                 notes: "Running from /workspace/site resolves the pinned yaml package, parses the complete ledger, and confirms active_build is null, the target build and step are completed, the target run succeeded, and no step or run remains running."
             notes: "Succeeded. Every generated HTML page now queues the exact intale.github.io cookie domain after gtag initialization and before the unchanged measurement configuration. The dependency-free artifact audit, explicit mutations, and rendered browser helper enforce the exact five-statement initializer; root/project artifacts, all 838 unit cases, and exhaustive Chromium/Firefox route traversals pass without Analytics egress. Learner content, localization, routes, dependencies, build definitions, hosting, and deployment remain unchanged."
+  - build_id: harden-google-search-sitemap
+    objective: "Prove that the generated and released sitemap is standards-compliant, Google Search Console compatible, and submitted with the correct GitHub Pages project URL."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium deterministic step uses cached Docker builds, focused Chromium and Firefox checks, and read-only live/official-source audits; no paid service, dependency download, hosting mutation, or deployment is planned."
+    completion_criteria:
+      - "The generated sitemap is well-formed UTF-8 Sitemap 0.9 XML with one canonical absolute HTTPS project URL per generated HTML route and stays within Google's URL-count, less-than-2,048-character location, and uncompressed-byte limits."
+      - "A browser parser independently rejects malformed XML, namespace or element drift, invalid encoding, duplicate locations, and locations outside the configured project URL."
+      - "The release command and host-artifact audit reject a site/dist tree that lacks sitemap.xml, and a fresh release contains the validated artifact."
+      - "README distinguishes Google Search Console from Google Analytics and documents the exact submission value for each relevant URL-prefix property."
+      - "The public sitemap remains a direct 200 XML response and the completed step is persisted in its own Git commit."
+    steps:
+      - id: harden-google-search-sitemap
+        objective: "Close sitemap parser and release-completeness gaps without changing the already valid public route set, then document the exact Search Console submission URL."
+        depends_on:
+          - set-google-analytics-cookie-domain
+        status: completed
+        inputs:
+          - "Human report on 2026-07-27: Google showed ‘Не удалось обработать файл Sitemap’; verify valid XML and Google compatibility."
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "README.md"
+          - "course"
+          - "scripts/check-course-cli.sh"
+          - "scripts/check-host-artifacts.sh"
+          - "scripts/check-static-links.mjs"
+          - "site/sitemap.config.mjs"
+          - "site/src/pages/sitemap.xml.ts"
+          - "site/tests/sitemap.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/sitemap.spec.ts"
+          - ".github/workflows/deploy-pages.yml"
+          - "Read-only live audit of https://intale.github.io/learn_llm/sitemap.xml on 2026-07-27"
+          - "Official Google Search sitemap construction and Search Console Sitemaps-report documentation, plus the Sitemap 0.9 protocol and XSD"
+          - "Three independent read-only local, live, and requirements audits"
+        outputs:
+          - "README.md"
+          - "course"
+          - "scripts/check-course-cli.sh"
+          - "scripts/check-host-artifacts.sh"
+          - "scripts/check-static-links.mjs"
+          - "site/sitemap.config.mjs"
+          - "site/tests/sitemap.test.ts"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/sitemap.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The existing XML declaration, Sitemap 0.9 namespace, deterministic route inventory, and public project URL remain unchanged."
+          - "Generation and the static audit enforce at most 50,000 URLs, at most 2,047 characters per absolute location, and 52,428,800 uncompressed UTF-8 bytes, with no BOM or leading content."
+          - "Generated and served sitemap XML is one compact line with no CR/LF bytes and no literal backslash-n text."
+          - "Chromium and Firefox parse the served response through DOMParser and confirm the exact namespace, url-to-loc structure, unique canonical HTTPS locations, configured project containment, encoding, content type, and size."
+          - "The release wrapper checks sitemap.xml before atomic publication; its CLI fixture covers success and missing-sitemap rejection without replacing the prior release."
+          - "The host-artifact audit considers site/dist complete only when the root and localized indexes plus sitemap.xml are regular files."
+          - "A fresh root release includes sitemap.xml that passes the static audit and independent XML/schema validation; the project-base build passes the same route contract."
+          - "README gives the full public URL and the correct relative value for both the origin and project URL-prefix Search Console properties, and states that Analytics does not ingest sitemaps."
+          - "No learner content, locale, route, SEO URL, analytics initializer, dependency, lockfile, Docker definition, Pages workflow, hosting state, or deployment changes."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run test -- --run tests/sitemap.test.ts tests/seo.test.ts tests/deployment.test.ts"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "SITE_BASE=/learn_llm/ Docker workspace build and static-link audit"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@sitemap'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@sitemap'"
+          - "scripts/check-course-cli.sh"
+          - "./course release; independently parse and schema-validate site/dist/sitemap.xml in Docker"
+          - "Read-only live direct-response, Googlebot parity, schema, URL resolution, and official-requirements audit"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Exact staged/canonical manifest, generated route set, release completeness, scope, and complete-ledger audit"
+        cost:
+          class: medium
+          notes: "Small source/test/documentation changes plus cached root/project static builds, the complete unit suite, two focused browsers, a fresh local release, and read-only public verification. No paid service, generation, dependency change, hosting mutation, or deployment."
+        runs:
+          - run_id: 20260727T200000Z-harden-google-search-sitemap-01
+            started_at: "2026-07-27T20:00:00Z"
+            finished_at: "2026-07-27T20:37:11Z"
+            status: succeeded
+            input_fingerprint:
+              git: "481534015b64936435f9f08713f0a2bd9b3aff8e"
+              manifest: ".build/runs/20260727T200000Z-harden-google-search-sitemap-01/input-fingerprint.txt"
+              checksum: "sha256:39a2a29af56970c267e99d85ac2d45a20d13fc38fb467c4db4fdb19b6233cb50"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "Official Google and sitemaps.org documentation plus the deployed sitemap were consulted read-only; no external state is changed."
+            staging_dir: ".build/runs/20260727T200000Z-harden-google-search-sitemap-01/"
+            commands:
+              - "Run the startup protocol at clean commit 4815340, verify the latest completed-run checksums, inspect the complete sitemap generator, endpoint, artifact audit, release wrapper, tests, workflow, and README, and confirm no active build or stale running work."
+              - "Run three independent read-only audits of the local implementation, current public response, Sitemap 0.9 schema, URL inventory, Googlebot response, official Google requirements, and exact Russian Search Console error wording."
+              - "Confirm the live file is already a direct 200 application/xml response, valid UTF-8 Sitemap 0.9 XML, and an exact 52-URL project-scoped route set; identify wrong property-relative submission, transient fetch state, stale local release, and missing independent-parser/release guards as the actionable boundaries."
+              - "Stage generator, static-audit, browser-parser, release-completeness, CLI-contract, and README changes under the run-specific publish tree; publish only after focused validation and exact checksum comparison."
+              - "At the user's request, change the generated document from legal indented XML to one compact line and add explicit rejection of CR/LF bytes and literal backslash-n text."
+              - "Run focused and complete site suites, root and /learn_llm/ static builds, Chromium and Firefox sitemap parsing, the complete Docker course check, release-wrapper fixtures, and a fresh atomic release."
+              - "Validate the released artifact against the official Sitemap 0.9 XSD in an ephemeral Docker container and audit the exported host tree."
+            artifacts:
+              - path: ".build/runs/20260727T200000Z-harden-google-search-sitemap-01/publish.sha256"
+                checksum: "sha256:ade40884f49d0161fc63ff3dfd1465cce61f35ee59c4f66a1c7f0d906a26a8c0"
+              - path: ".build/runs/20260727T200000Z-harden-google-search-sitemap-01/candidate-sitemap.xml"
+                checksum: "sha256:c05d719f0c42f59af5fa0e5c9d611cd4e8fb2162d7510588bfdebf93b563365a"
+              - path: "site/dist/sitemap.xml"
+                checksum: "sha256:c05d719f0c42f59af5fa0e5c9d611cd4e8fb2162d7510588bfdebf93b563365a"
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The tree is clean at 4815340; no build or run is active; current tools match the recorded Linux environment and repository product pins; the medium cached work fits the unlimited budget; outputs overlap no active owner; and the latest completed analytics fingerprint and publication manifest checksums match."
+              - command: "Independent live Sitemap 0.9 and fetch audit before edits"
+                status: passed
+                notes: "The deployed file returns direct HTTP 200 as application/xml, is 4,656 bytes with no BOM, passes xmllint and the official Sitemap 0.9 XSD, contains 52 unique absolute HTTPS project URLs that all return direct 200 HTML, and is byte-identical for Googlebot."
+              - command: "Focused sitemap, SEO, and deployment unit validation"
+                status: passed
+                notes: "All 18 pre-compaction cases passed; after the compact-output revision, all 14 affected sitemap and SEO cases pass, including byte limits, exact 2,047/2,048-character boundaries, UTF-8 multibyte accounting, BOM/leading-content rejection, and both line-break representations."
+              - command: "Complete Astro diagnostics, content checks, and Vitest suite"
+                status: passed
+                notes: "Astro reports zero diagnostics across 204 files, content/parity checks pass, and all 840 unit and artifact cases pass."
+              - command: "Root and /learn_llm/ production builds plus static artifact audits"
+                status: passed
+                notes: "Both configurations build 52 pages and verify 52 canonical sitemap locations, 52 SEO routes, 52 analytics routes, 1,988 local references, and 141 artifacts. The compact sitemap is 4,601 UTF-8 bytes with zero CR/LF bytes."
+              - command: "Project-base Playwright sitemap attempt using the existing root readiness URL"
+                status: failed
+                notes: "The browser harness timed out at its configured root readiness URL because a /learn_llm/ build intentionally serves only beneath that base. It did not reach a sitemap assertion and changed no file; project-base static validation plus root browser validation cover the route contract."
+              - command: "Chromium and Firefox @sitemap browser validation"
+                status: passed
+                notes: "Both engines receive the exact compact candidate, parse it with DOMParser without parser errors, and confirm media type, UTF-8, namespace, url-to-loc structure, uniqueness, length, HTTPS canonicalization, and project containment."
+              - command: "scripts/check-course-cli.sh"
+                status: passed
+                notes: "Release fixtures require a regular non-symlink sitemap, reject missing and symlinked sitemap candidates without replacing the previous release, and make the host audit reject the same incomplete shapes."
+              - command: "Independent implementation review"
+                status: passed
+                notes: "The reviewer found one protocol-boundary error: a 2,048-character location was accepted. The limit was corrected to 2,047 and exact boundary regression cases pass; a later symlink concern was also closed in both publication and host gates. Final review reports no blocker."
+              - command: "Exact staged-to-canonical publication manifest"
+                status: passed
+                notes: "Every declared product file matches the frozen publish manifest. The generated candidate and released site/dist/sitemap.xml are byte-identical at sha256:c05d719f0c42f59af5fa0e5c9d611cd4e8fb2162d7510588bfdebf93b563365a."
+              - command: "./course check"
+                status: passed
+                notes: "The final canonical Docker image sha256:3b3902bb17a2176e6b21388e38c6eef5f6c82a638dc1543bc5c41fbe02650355 passes Rust formatting/workspace/doc tests, all site diagnostics and content checks, the 52-page root build, and the complete static audit."
+              - command: "./course release and independent official-XSD validation"
+                status: passed
+                notes: "The Docker release image sha256:2d823cb3c18d651570e761874735102677bcb02ab983facaeaece3ba42d380f8 was exported atomically. An ephemeral Docker validator reports that the 4,601-byte line-break-free release is well formed and validates against the freshly fetched official Sitemap 0.9 XSD."
+              - command: "./course audit-host"
+                status: passed
+                notes: "The host is artifact-clean except for the intentional complete site/dist static release; sitemap.xml is a regular 0644 file and matches the tested candidate exactly."
+              - command: "Post-completion course-plan and complete-ledger validation"
+                status: passed
+                notes: "The finalized Docker-mounted ledger has no active build or running step, remains valid with 40 chapters, 77 scheduled curriculum steps, and 40 implemented contracts through Chapter 39, and rebuilt the complete validation image at sha256:b2f90e8c87a68113956440f58787b92ef76615b7e82384b0c3253fb0bc4633ca."
+              - command: "git diff --check and frozen publication-manifest verification"
+                status: passed
+                notes: "The completed checkpoint has no whitespace errors, and all nine staged product files still match their frozen checksums after finalization."
+            notes: "Succeeded. Sitemap generation is compact and line-break-free, all URL and byte protocol limits are enforced independently in source, artifact, and browser checks, and partial releases can no longer omit sitemap.xml. README now gives property-specific Search Console submission values. The already valid public multiline artifact remains unchanged until this commit is pushed and Pages deploys it; no hosting or Search Console state was mutated."
