@@ -10,6 +10,20 @@ export const chapterLocaleDefinitions = Object.freeze(
   chapterLocales.map((code) => ({ code, ...localeManifest.locales[code] })),
 );
 
+const googleAnalyticsMeasurementId = 'G-B5JVTL721S';
+const googleAnalyticsScriptUrl =
+  'https://www.googletagmanager.com/gtag/js?id=' +
+  googleAnalyticsMeasurementId;
+
+function normalizeInlineScript(source: string) {
+  return source
+    .replaceAll('\r\n', '\n')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '')
+    .join('\n');
+}
+
 export interface CourseChapterLink {
   chapterId: string;
   href: string;
@@ -305,20 +319,65 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
         src: (node as HTMLScriptElement).src,
         text: node.textContent?.trim() ?? '',
         type: (node as HTMLScriptElement).type,
+        async: (node as HTMLScriptElement).async,
+        parent: node.parentElement?.tagName ?? '',
       })),
     );
-  expect(scripts).toHaveLength(hasSharedShell ? 1 : 0);
+  const loaderIndex = scripts.findIndex(
+    (script) => script.src === googleAnalyticsScriptUrl,
+  );
+  expect(loaderIndex, 'expected one exact Google Analytics loader').toBeGreaterThanOrEqual(0);
+  expect(
+    scripts.filter((script) => script.src === googleAnalyticsScriptUrl),
+  ).toHaveLength(1);
+  const loader = scripts[loaderIndex];
+  expect(loader).toEqual(
+    expect.objectContaining({
+      async: true,
+      parent: 'HEAD',
+      text: '',
+      type: '',
+    }),
+  );
+
+  const initializerIndexes = scripts
+    .map((script, index) => ({ script, index }))
+    .filter(({ script }) =>
+      script.text.includes(`gtag('config', '${googleAnalyticsMeasurementId}');`),
+    )
+    .map(({ index }) => index);
+  expect(initializerIndexes).toHaveLength(1);
+  const initializerIndex = initializerIndexes[0];
+  const initializer = scripts[initializerIndex];
+  expect(initializer.src).toBe('');
+  expect(initializer.async).toBe(false);
+  expect(initializer.parent).toBe('HEAD');
+  expect(initializer.type).toBe('');
+  expect(normalizeInlineScript(initializer.text)).toBe(
+    [
+      'window.dataLayer = window.dataLayer || [];',
+      'function gtag(){dataLayer.push(arguments);}',
+      "gtag('js', new Date());",
+      `gtag('config', '${googleAnalyticsMeasurementId}');`,
+    ].join('\n'),
+  );
+  expect(loaderIndex).toBeLessThan(initializerIndex);
+
+  const sharedScripts = scripts.filter(
+    (_script, index) => index !== loaderIndex && index !== initializerIndex,
+  );
+  expect(sharedScripts).toHaveLength(hasSharedShell ? 1 : 0);
   if (!hasSharedShell) return;
 
-  expect(scripts[0]?.type).toBe('module');
-  if (scripts[0]?.src) {
-    expect(scripts[0].text).toBe('');
-    expect(new URL(scripts[0].src).pathname).toMatch(/^\/_astro\/.+\.js$/);
+  const sharedScript = sharedScripts[0];
+  expect(sharedScript?.type).toBe('module');
+  if (sharedScript?.src) {
+    expect(sharedScript.text).toBe('');
+    expect(new URL(sharedScript.src).pathname).toMatch(/^\/_astro\/.+\.js$/);
   } else {
-    expect(scripts[0]?.text).toContain('diagramFullViewReady');
-    expect(scripts[0]?.text).toContain('figure[data-visualization-id]');
+    expect(sharedScript?.text).toContain('diagramFullViewReady');
+    expect(sharedScript?.text).toContain('figure[data-visualization-id]');
   }
-
 }
 
 export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {
@@ -327,6 +386,6 @@ export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {
 }
 
 // Compatibility name retained for existing chapter suites. The assertion now
-// permits exactly the shared progressive diagram enhancement and nothing else.
+// permits exactly the analytics pair and shared progressive diagram enhancement.
 export const expectNoOverflowOrClientScripts =
   expectNoOverflowOrUnexpectedClientScripts;

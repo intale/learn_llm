@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+
 import {
   defaultLocale,
   getMessages,
@@ -26,6 +28,7 @@ const defaultCopy = getMessages(defaultLocale);
       content={defaultCopy.siteDescription}
     />
     <meta name="color-scheme" content="light" />
+    <GoogleAnalytics />
     <title>{defaultCopy.languagePickerTitle}</title>
     {
       pickerCopy.map((entry) => (

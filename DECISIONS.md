@@ -7022,3 +7022,147 @@ behavior changes.
 
 **Affected step and run:** `implement-ch37-incremental-attention`, run
 `20260726T170310Z-implement-ch37-incremental-attention-01`.
+
+## 2026-07-27 - Put one exact analytics component in both HTML head owners
+
+**Status:** Accepted by explicit human request before Chapter 39.
+
+**Context:** The human supplied the Google Analytics loader and initializer for
+measurement ID `G-B5JVTL721S` and asked for it in the head template of every
+page. Localized home, course-index, and chapter routes all use
+`BaseLayout.astro`, but the multilingual root chooser is a separate complete
+HTML document. `sitemap.xml` is XML rather than an HTML page. Astro otherwise
+processes ordinary script tags, which could move or bundle the supplied code,
+and the existing browser contract intentionally rejects scripts other than the
+shared diagram enhancement.
+
+**Decision:** Add one static `GoogleAnalytics.astro` component containing the
+supplied loader and initializer, with Astro's `is:inline` compile-time directive
+so the emitted HTML retains the external async loader and inline initialization
+at their head position. Render that component once inside both HTML head owners;
+do not add analytics to XML or duplicate it in routes or chapters. The tag loads
+on every HTML page and uses the human-supplied endpoint and identifier exactly;
+no consent UI, conditional loading, environment toggle, alternate measurement
+ID, package, proxy, or server runtime is introduced by this request.
+
+Extend the dependency-free static artifact audit with an explicit expected
+measurement-ID option that production link checks always enable. It must inspect
+every built HTML file, require exactly one async exact-ID loader followed by one
+complete exact-ID initializer inside the sole head, and fail on omissions,
+duplicates, wrong placement/order, or malformed initialization. Keep the option
+off for unrelated synthetic link fixtures. Update the rendered-page allowlist to
+recognize exactly those two head scripts plus the existing optional shared
+diagram module, and have the existing SEO browser traversal apply that assertion
+to every current root, localized-home, course-index, and chapter route.
+
+**Consequences:** Root and `/learn_llm/` deployments receive identical analytics
+behavior without route-specific copies, while the site remains static and its
+sitemap, SEO, navigation, build definitions, dependencies, and GitHub Pages base
+remain unchanged. Live browsers now make the requested asynchronous request to
+Google; offline builds do not fetch it. The standalone integration build is
+temporarily selected while Chapter 39 stays pending and unstarted, then the
+decoder-course build resumes after this step's dedicated commit.
+
+**Affected step and run:** `embed-google-analytics-in-static-heads`, run
+`20260727T060258Z-embed-google-analytics-in-static-heads-01`.
+
+## 2026-07-27 - Keep analytics live in production but offline in browser tests
+
+**Status:** Accepted after the independent final review of the first analytics
+candidate; supersedes only that decision's browser-validation boundary.
+
+**Context:** The first candidate rendered the human-supplied tag exactly once in
+all 50 HTML heads and passed its network-disabled browser matrices. A separate
+networked review confirmed that an ordinary Playwright navigation then sends a
+real `page_view` to Google's regional Analytics endpoint. That would pollute the
+production property during local or CI regression runs and make deterministic
+tests depend on an external service. The production behavior itself is the
+explicitly requested outcome and must remain unchanged.
+
+**Decision:** Keep `GoogleAnalytics.astro` byte-for-byte unchanged. Configure
+Playwright's browser contexts to use a closed loopback HTTP proxy at
+`127.0.0.1:9` for external requests while bypassing exactly `127.0.0.1`, where
+the owned preview runs. Export and unit-test that boundary together with the
+existing fixed preview origin, port, and no-reuse contract. This applies only to
+automated browser tests: deployed pages continue to load the supplied Google
+script normally. Also make the static artifact audit compare the whitespace-
+normalized initializer body to the complete supplied statement sequence rather
+than merely looking for its fragments, so added code or reordered statements
+cannot pass as the supplied snippet.
+
+Preserve the first run, its seven-file manifest, and its passing evidence as a
+failed pre-publication attempt. Start a replacement run with the two Playwright
+files declared as additional outputs, repeat every affected static, unit, and
+browser gate, and publish only the replacement's new immutable manifest.
+
+**Consequences:** Production analytics remains enabled on every page, while
+automated tests cannot report page views or depend on Google availability even
+when their container or host otherwise has network access. The loopback preview
+remains reachable and retains its fixed owned port. No package, dependency,
+build, route, SEO, sitemap, hosting, consent, or runtime-server behavior changes.
+
+**Affected step and runs:** `embed-google-analytics-in-static-heads`, failed run
+`20260727T060258Z-embed-google-analytics-in-static-heads-01` and replacement run
+`20260727T062345Z-embed-google-analytics-in-static-heads-02`.
+
+## 2026-07-27 - Preserve quoted JavaScript bytes in the analytics audit
+
+**Status:** Accepted after the replacement-run exactness review; supersedes the
+all-whitespace normalization detail in the immediately preceding decision.
+
+**Context:** Removing every whitespace character before comparing the inline
+initializer also removes whitespace inside JavaScript string literals. The
+reviewer demonstrated that `G- B5JVTL721S` therefore collapsed to the expected
+identifier and passed despite configuring a different, invalid property. The
+same normalization in the browser helper obscured the distinction, even though
+its earlier exact-substring selection happened to reject that particular
+mutation.
+
+**Decision:** Normalize only presentation indentation: normalize line endings,
+trim the start and end of each source line, remove blank lines, and compare the
+remaining ordered lines exactly with the supplied four statements. Never remove
+or rewrite whitespace within a statement or quoted string. Apply the same exact
+line comparison in the rendered browser helper, retain the separate one-config-
+call check, and add a mutation containing whitespace inside the measurement ID.
+
+**Consequences:** Harmless component indentation and blank lines do not affect
+the audit, while string contents, identifier spelling, statement order,
+punctuation, and added code remain exact. The emitted production tag is unchanged
+and canonical files remain unpublished until the corrected replacement passes.
+
+**Affected step and run:** `embed-google-analytics-in-static-heads`, run
+`20260727T062345Z-embed-google-analytics-in-static-heads-02`.
+
+## 2026-07-27 - Own the browser-test rejecting proxy and prove no analytics egress
+
+**Status:** Accepted after the replacement-run proxy portability review;
+supersedes the assumption that loopback port 9 is necessarily closed.
+
+**Context:** TCP port 9 is assigned to the Discard service and can legitimately
+be open. A service listening there could hang browser requests and an unexpected
+HTTP proxy could even permit egress. The configuration unit test proved only the
+declared proxy shape, while DOM assertions proved only that the authored tags
+existed; neither independently demonstrated that the Analytics loader failed or
+that no collection request followed.
+
+**Decision:** Start a second Playwright-managed, test-only Node HTTP server on a
+separate fixed loopback port. Its readiness path returns success, every ordinary
+proxy request returns `502`, and every HTTPS `CONNECT` tunnel is rejected with
+`502`; it never resolves or forwards the requested host. Configure browser
+contexts to use this owned endpoint while bypassing the distinct owned preview
+at `127.0.0.1`. Both servers disable reuse and publish no host port in Docker.
+
+During the first all-route SEO navigation, register network observers before
+navigation, require the exact gtag loader request to emit `requestfailed`, require
+no response from either Google Tag Manager or Google Analytics, and retain the
+observer through every route to prove that no collection request appears. Keep
+the configuration test for exact ports, commands, hosts, readiness URLs, proxy,
+bypass, and non-reuse boundaries.
+
+**Consequences:** Browser tests fail closed without assuming host services or
+external network state, and future proxy-semantics drift becomes a rendered-test
+failure. The deployed tag and all production HTML remain unchanged; the added
+HTTP server exists only for automated tests and is not part of the static output.
+
+**Affected step and run:** `embed-google-analytics-in-static-heads`, run
+`20260727T062345Z-embed-google-analytics-in-static-heads-02`.

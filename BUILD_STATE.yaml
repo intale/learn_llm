@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-26T19:54:55Z"
+updated_at: "2026-07-27T06:58:16Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -1731,6 +1731,7 @@ builds:
           - "site/src/pages/[locale]/course/[...slug].astro"
           - "site/tests/e2e/ch01-text-units.spec.ts"
           - "site/tests/e2e/localized-shell.spec.ts"
+          - "Node.js built-in HTTP server behavior for the test-only rejecting proxy"
           - "Cargo.toml"
           - "Cargo.lock"
           - "site/package.json"
@@ -16874,3 +16875,270 @@ builds:
                 status: passed
                 notes: "BUILD_STATE.yaml parses and has exactly the intended active standalone build plus its running step/run before completion. The earlier failure was confined to wrapper syntax."
             notes: "Succeeded. Cost remains estimated, classified, compared with the recorded budget, and documented for large, paid, or above-budget work, but it no longer causes a human approval pause by itself. Scope, acceptance, external-authority, safety, destructive-action, build, product, and deployment boundaries are unchanged. The standalone build is complete and active_build returns to complete-decoder-course before Chapter 26."
+  - build_id: add-google-analytics-to-static-pages
+    objective: "Embed the supplied Google Analytics tag in the head of every generated HTML page."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This bounded site integration uses cached local containers and browser images; no paid service, dependency download, generated content, or build-definition change is planned."
+    completion_criteria:
+      - "Every generated HTML page contains exactly one supplied Google Analytics loader and initializer inside its head."
+      - "The root chooser and all localized home, course-index, and chapter routes share one analytics component while sitemap XML remains unchanged."
+      - "Root and /learn_llm/ artifacts enforce the exact measurement ID and reject missing, duplicate, misplaced, or malformed analytics tags."
+      - "Static-site, type, unit, link, and rendered-browser regressions pass without changing dependencies, the Linux build, hosting, or route behavior."
+      - "The completed integration is committed independently before Chapter 39 resumes."
+    steps:
+      - id: embed-google-analytics-in-static-heads
+        objective: "Render the supplied G-B5JVTL721S Google Analytics tag once in every HTML head through the shared Astro templates."
+        depends_on:
+          - implement-ch38-cached-generation
+        status: completed
+        inputs:
+          - "Human-supplied Google Analytics snippet and measurement ID G-B5JVTL721S"
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/src/pages/[locale]/index.astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/sitemap.xml.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "scripts/check-static-links.mjs"
+          - "scripts/check-site-content.mjs"
+          - "site/tests/seo.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+          - "site/playwright.config.ts"
+          - "site/tests/playwright-config.test.ts"
+          - "site/astro.config.mjs"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
+        outputs:
+          - "site/src/components/GoogleAnalytics.astro"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/google-analytics.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/playwright.config.ts"
+          - "site/tests/playwright-config.test.ts"
+          - "site/tests/e2e/block-external-proxy.mjs"
+        acceptance:
+          - "Each built HTML document contains exactly one async https://www.googletagmanager.com/gtag/js?id=G-B5JVTL721S loader followed by exactly one inline dataLayer/gtag initializer configured for G-B5JVTL721S, and both scripts are inside head."
+          - "One static Astro component owns the human-supplied tag and is rendered by both the localized BaseLayout head and the separate multilingual root head; no chapter or route duplicates the snippet."
+          - "The static artifact checker audits every HTML file at both / and /learn_llm/ bases and rejects a missing, duplicate, out-of-head, non-async, reordered, incomplete, or wrong-ID tag."
+          - "Rendered-page script allowlisting recognizes only the two exact analytics head scripts plus the existing shared diagram enhancement, and the SEO route matrix checks analytics on every current HTML route."
+          - "Automated browser tests keep their owned loopback preview reachable while routing every external request to a closed loopback proxy, so validation cannot send real Analytics events or depend on Google availability."
+          - "The site remains fully static; sitemap XML, internal URLs, SEO metadata, dependencies, package locks, Docker/Linux build definitions, GitHub Pages configuration, and hosting behavior are unchanged."
+          - "Focused and complete type, unit, root/project build, link, Chromium, and focused Firefox validations pass before atomic publication."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run tests/google-analytics.test.ts"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@seo|localized shell'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@seo'"
+          - "npm --prefix site run test:e2e"
+          - "./course check"
+          - "git diff --check"
+          - "Exact staged/canonical manifest, dependency, mode, route, tag-order, and unrelated-file audit"
+        cost:
+          class: medium
+          notes: "Ten small site/test outputs plus complete cached static and rendered-browser regression CPU. The live production tag intentionally makes an asynchronous browser request to the human-supplied Google endpoint; builds and automated browser validation block external access through an owned rejecting proxy. No paid service, new dependency, generated content, or build-definition change."
+        runs:
+          - run_id: 20260727T060258Z-embed-google-analytics-in-static-heads-01
+            started_at: "2026-07-27T06:02:58Z"
+            finished_at: "2026-07-27T06:23:45Z"
+            status: failed
+            input_fingerprint:
+              git: "be05a9265170fcfcb5f8e19367986c47e9b3ead0"
+              manifest: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/input-fingerprint.txt"
+              checksum: "sha256:7c9f55b8676868343e0632e1873014aea5d039a43c67373135b71cfc1a7bdc83"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, Docker Compose 5.3.1, and Git Bash 5.3.15 orchestrate unchanged repository pins Node 22.12.0/npm 10.9.0 and Playwright 1.61.1."
+              external: "Human-supplied https://www.googletagmanager.com/gtag/js endpoint and G-B5JVTL721S identifier; no network lookup or fetch used as an implementation input."
+            staging_dir: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/"
+            commands:
+              - "Run the startup protocol, verify Chapter 38 commit be05a926, preserve unrelated desktop.ini, compare recorded tool pins, inspect the last successful run, and confirm no stale running work."
+              - "Audit every Astro page template and identify BaseLayout as the localized head owner plus the separate multilingual root head; confirm sitemap.xml is the sole non-HTML route."
+              - "Audit static and rendered-page test contracts; select the existing all-HTML link audit plus the all-route SEO browser matrix as the narrow integration points."
+              - "Temporarily select this standalone site build while Chapter 39 remains pending and unstarted; all product outputs are disjoint from its declared files."
+              - "Fingerprint the exact supplied tag, current commit, material sources, tool versions, dependency/build boundaries, and accepted sites-building capability constraints before product editing."
+              - "Create the seven-file candidate only in publish/, use one inline-preserved Astro component from both HTML head owners, and extend static plus browser contracts without changing packages or build definitions."
+              - "Build and inspect root and /learn_llm/ candidates in pinned, network-disabled containers; run focused and complete unit/browser matrices; freeze the byte-identical seven-file publication manifest."
+            artifacts:
+              - path: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/input-fingerprint.txt"
+                checksum: "sha256:7c9f55b8676868343e0632e1873014aea5d039a43c67373135b71cfc1a7bdc83"
+                notes: "Pre-claim commit, exact human-supplied endpoint/ID, tool versions, and hashes for all material local inputs."
+              - path: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/publish.sha256"
+                checksum: "sha256:7e3003d3ddf84514554ef5be73ab1e9869c323f67bd57becf3f7696d359316e1"
+                notes: "Frozen manifest for exactly seven staged product files after complete static, unit, Chromium, and focused Firefox validation."
+              - path: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/evidence/Dockerfile.browser"
+                checksum: "sha256:e63178a36d1f6da334c7c07521eff0c0aaae21fa36457da08d3c828bde96a760"
+                notes: "Network-disabled Playwright 1.61.1 validation image recipe copying the already validated staged workspace without fetching dependencies."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, ownership, cost, route-template, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 38 is completed and committed; no stale run exists; the seven product outputs do not overlap pending Chapter 39; current tools preserve repository pins; no build or package edit is needed; unrelated desktop.ini remains untouched; and the medium cached validation fits the unlimited budget without an approval pause."
+              - command: "Independent read-only layout and regression-contract audits"
+                status: passed
+                notes: "All localized HTML pages use BaseLayout, while / owns a separate head and sitemap.xml is non-HTML. The existing link audit can enforce exact tags over every root/project artifact, and the shared browser script allowlist plus SEO matrix can cover every current rendered route."
+              - command: "First read-only YAML invariant wrapper"
+                status: failed
+                notes: "PowerShell truncated a nested inline JavaScript argument before Node could parse it. No ledger assertion ran, no product file changed, and the same check was immediately repeated with a PowerShell here-string."
+              - command: "Corrected read-only YAML parse and sole-running-run invariant"
+                status: passed
+                notes: "The complete ledger parses in pinned Node 22.12.0/yaml 2.9.0; active_build selects add-google-analytics-to-static-pages and exactly its declared step/run is running."
+              - command: "First staged ./course review --check wrapper"
+                status: failed
+                notes: "The staged Astro/content/build/link pipeline itself passed with zero diagnostics, 50 pages, 50 SEO routes, 50 sitemap URLs, and 50 analytics routes. Afterward Git Bash rewrote Docker's /bin/sh verifier entrypoint to a Windows path, so the wrapper exited nonzero; no candidate file changed."
+              - command: "MSYS_NO_PATHCONV staged-review retry"
+                status: failed
+                notes: "Disabling all MSYS path conversion preserved /bin/sh but also left the Docker build context as /c/Users/..., which Docker Desktop could not resolve. The retry stopped before product validation and changed no file."
+              - command: "Direct PowerShell staged review-workspace and artifact verification"
+                status: passed
+                notes: "The immutable candidate reused the successful pinned build, produced review image sha256:43b86faf0a0138b8c9b948819550045bd45b54a6afbede2b8e971f67f1f958f0, and verified root plus Chapter 38 artifacts without MSYS path rewriting."
+              - command: "Pinned network-disabled course-plan and focused analytics unit tests"
+                status: passed
+                notes: "The reviewed plan remains exactly 39 chapters and 76 scheduled course steps through Chapter 38; all 6 focused source/artifact positive and mutation tests pass."
+              - command: "Complete staged Vitest matrix"
+                status: passed
+                notes: "All 49 test files and 805 cases pass, including the exact tag, both head owners, opt-in fixture behavior, and missing/duplicate/misplaced/non-async/reordered/incomplete/wrong-ID rejection cases."
+              - command: "Root and /learn_llm/ pinned static-site matrices"
+                status: passed
+                notes: "Both bases pass content/parity, zero-diagnostic Astro checks across 192 files, 50-page builds, and 1822-reference/50-SEO-route/50-sitemap-URL/50-analytics-route audits. Project image sha256:fc534529c02d182b527210fea92b5688652342eb2adf6635c6deb5c82eceb7ce uses the unchanged /learn_llm/ base."
+              - command: "Network-disabled focused Chromium and Firefox analytics route matrices"
+                status: passed
+                notes: "Playwright 1.61.1 browser image sha256:ec84dae6768743498952f483583a7575fea4baa39743201322f0fea6aa796194 passes 5/5 Chromium root/localized-shell/all-route cases and the 1/1 Firefox all-route SEO/analytics traversal."
+              - command: "Complete network-disabled Chromium regression matrix"
+                status: passed
+                notes: "All 283 existing browser cases pass in 55.5 seconds with the updated strict allowlist: every inspected page has exactly the analytics loader/initializer pair plus only the existing optional shared diagram module."
+              - command: "First exact built-HTML audit wrapper"
+                status: failed
+                notes: "PowerShell removed quotes from an inline JavaScript string before Node parsed it. No assertion ran and no candidate file changed; the same read-only audit was immediately repeated with quote-free argument construction."
+              - command: "Corrected exact 50-document built-HTML and sitemap audit"
+                status: passed
+                notes: "All 50 root-build HTML files contain exactly one loader before exactly one target-ID config call inside head, no Astro is:inline directive leaks into output, and sitemap.xml contains no analytics tag or identifier."
+              - command: "Independent final staged implementation and traffic-boundary review"
+                status: failed
+                notes: "No route, rendering, Astro, or static-audit blocker was found, but an ordinary networked Playwright navigation sent a real page_view to region1.google-analytics.com. Publishing would make local/CI regression runs pollute production analytics and depend on an external service, so the otherwise passing seven-file candidate is retained and replaced before canonical publication."
+            notes: "Failed before publication. The exact production tag and all 50 routes passed, but the final independent review found that browser tests with ordinary network access could send real Analytics events. The frozen seven-file manifest and all passing evidence remain immutable; canonical product files were never changed."
+          - run_id: 20260727T062345Z-embed-google-analytics-in-static-heads-02
+            started_at: "2026-07-27T06:23:45Z"
+            finished_at: "2026-07-27T06:57:28Z"
+            status: succeeded
+            input_fingerprint:
+              git: "be05a9265170fcfcb5f8e19367986c47e9b3ead0"
+              manifest: ".build/runs/20260727T062345Z-embed-google-analytics-in-static-heads-02/input-fingerprint.txt"
+              checksum: "sha256:7771021615a0bfcdfc1f3d35ac7362e9dd706bfb12259d0fbf7e164a96279cdd"
+              prior_candidate: ".build/runs/20260727T060258Z-embed-google-analytics-in-static-heads-01/publish.sha256 (sha256:7e3003d3ddf84514554ef5be73ab1e9869c323f67bd57becf3f7696d359316e1)"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Node 22.12.0/npm 10.9.0 and Playwright 1.61.1."
+              external: "Independent run-01 review finding: networked Playwright navigations can send real Analytics page_view events unless external traffic is explicitly blocked."
+            staging_dir: ".build/runs/20260727T062345Z-embed-google-analytics-in-static-heads-02/"
+            commands:
+              - "Fail run 01 before publication, preserve its frozen manifest and passing evidence, and create a new fingerprinted staging boundary for the audit-driven test-network correction."
+              - "Reuse the seven verified production/test candidates byte-for-byte, add the current Playwright configuration and its focused contract test as declared outputs, and leave all canonical product files untouched."
+              - "Replace whitespace-erasing JavaScript comparison with line-aware exact comparison, add an embedded-whitespace mutation, and preserve the supplied initializer's quoted bytes."
+              - "Replace the assumed-closed port with an owned loopback rejecting proxy, route browser external traffic through it, and assert loader failure plus the absence of Analytics responses and collection requests."
+              - "Repeat root and /learn_llm/ static builds, focused and complete unit matrices, focused Chromium/Firefox matrices, and the complete Chromium regression in pinned containers."
+              - "Freeze the audited ten-file manifest, publish those exact bytes to canonical paths with apply_patch, and verify every canonical SHA-256 before post-publication validation."
+              - "Run the repository's Git-Bash ./course check from the Windows host, repeat the canonical /learn_llm/ workspace build and complete Vitest matrix, and rebuild the pinned browser image from the canonical workspace."
+              - "Repeat the all-route Chromium/Firefox analytics checks, audit exact scope/modes/dependency boundaries, parse the final ledger, and restore complete-decoder-course as the active build."
+            artifacts:
+              - path: ".build/runs/20260727T062345Z-embed-google-analytics-in-static-heads-02/input-fingerprint.txt"
+                checksum: "sha256:7771021615a0bfcdfc1f3d35ac7362e9dd706bfb12259d0fbf7e164a96279cdd"
+                notes: "Run-01 frozen candidate, exact new Playwright inputs, audit finding, unchanged commit/tool pins, and pre-replacement ledger/decision hashes."
+              - path: ".build/runs/20260727T062345Z-embed-google-analytics-in-static-heads-02/evidence/Dockerfile.browser"
+                checksum: "sha256:f0f93e64f4d3a2ddd7d6ac58396ad1619fba298e8fe44dfc3f83ab15b92931f4"
+                notes: "Network-disabled browser-image recipe copying the validated run-02 workspace into the pinned Playwright 1.61.1 image without fetching dependencies."
+              - path: ".build/runs/20260727T062345Z-embed-google-analytics-in-static-heads-02/publish.sha256"
+                checksum: "sha256:2bc32ef76149aca57146dbe89a35f77883170c579c6c0741dd2b1744b00da04c"
+                notes: "Frozen manifest for exactly ten independently audited staged files after final root/project, unit, Chromium, and Firefox validation."
+            validation:
+              - command: "Replacement-run dependency, reusable-artifact, scope, environment, and publication-boundary preflight"
+                status: passed
+                notes: "Run 01 is retained as failed with no canonical publication; its seven listed product hashes still match the frozen manifest; two clean Playwright files expand the replacement to nine declared outputs; Chapter 39 remains pending; and unrelated desktop.ini is untouched."
+              - command: "First network-disabled replacement workspace build"
+                status: failed
+                notes: "Changing BuildKit's network mode invalidated the unchanged cached toolchain-install RUN key, so apt correctly failed without DNS before copying or validating product source. No repository file changed; the normal cached builder mode was restored while browser execution remains isolated."
+              - command: "Cached replacement root static-site and unit matrices"
+                status: passed
+                notes: "The corrected build passes content/parity, zero-diagnostic Astro checks across 192 files, 50-page build, 1822-reference/50-SEO/50-sitemap/50-analytics audit, 7/7 focused analytics/proxy tests, and all 805 unit cases."
+              - command: "Network-enabled-container proxy smoke in Chromium and Firefox"
+                status: passed
+                notes: "With ordinary Docker networking available, the closed proxy still leaves the owned 127.0.0.1 preview reachable; 5/5 Chromium shell/all-route cases and 1/1 Firefox all-route case pass without reaching Google's loader or collect endpoints."
+              - command: "Independent run-02 exact-initializer audit"
+                status: failed
+                notes: "The reviewer proved that removing every whitespace character before equality also erased whitespace inside quoted strings, so a mutated config ID G- B5JVTL721S could pass the static audit. Canonical publication remains untouched; the comparison and mutation suite are being corrected in this run."
+              - command: "Independent run-02 proxy portability and egress-proof audit"
+                status: failed
+                notes: "Port 9 is assigned to the Discard service and cannot be assumed closed on every host, while the config-shape test and DOM traversal did not themselves prove request failure or absence of collection traffic. The replacement remains unpublished and is being hardened with an owned rejecting proxy plus runtime request evidence."
+              - command: "First line-aware focused analytics/config retry"
+                status: failed
+                notes: "The real 50-page build passed its exact initializer audit, but the valid synthetic fixture still joined the supplied statements onto one line, so 1/7 focused cases failed before browser execution. No canonical file changed; the fixture was corrected to retain the supplied line structure."
+              - command: "Second line-aware focused analytics/config retry"
+                status: failed
+                notes: "Six positive and mutation cases passed, but the reordered-script mutation still searched for the old concatenated tag boundary and therefore made no mutation. No product assertion failed; the mutation was updated for the newline-preserving fixture."
+              - command: "Corrected exact analytics/config focus and complete unit matrix"
+                status: passed
+                notes: "All 7 focused cases and all 49 Vitest files/805 cases pass, including rejection of whitespace inserted inside the configured measurement ID and the owned-proxy configuration contract."
+              - command: "Final root and /learn_llm/ static-site matrices"
+                status: passed
+                notes: "Both bases pass content/parity, zero-diagnostic Astro checks across 193 files, 50-page builds, and 1822-reference/50-SEO/50-sitemap/50-analytics exact artifact audits without package, Docker, route, sitemap, or hosting changes."
+              - command: "Owned-proxy focused Chromium and Firefox route matrices"
+                status: passed
+                notes: "5/5 Chromium shell/all-route cases and 1/1 Firefox all-route case pass with normal container networking while the owned proxy returns 502 to every external request; the loader fails locally and no Google response or collection request occurs."
+              - command: "Complete run-02 Chromium regression matrix"
+                status: passed
+                notes: "All 283 browser cases pass against the final staged candidate with the deterministic rejecting proxy and exact analytics script allowlist."
+              - command: "Concurrent Firefox all-route timeout stress audit"
+                status: failed
+                notes: "The exhaustive 50-page Firefox traversal exceeded Playwright's default 30-second test budget only while competing with the 16-worker Chromium matrix; all assertions before the final route had passed and an isolated rerun passed. No product defect or network escape occurred."
+              - command: "Explicit exhaustive-route timeout and contended browser retry"
+                status: passed
+                notes: "The SEO/analytics traversal now declares a 90-second whole-test budget. Under simultaneous complete Chromium load, Firefox passes the 50-page route matrix in 41.6 seconds and Chromium passes all 283 cases; assertion timeouts remain unchanged."
+              - command: "Final independent exact-tag, head-owner, proxy, egress, and route audit"
+                status: passed
+                notes: "No blocking, high-, or medium-severity finding remains. The reviewer independently confirmed both head owners, all 50 artifacts, exact byte/order enforcement, embedded-whitespace rejection, clean sitemap, deterministic 204/502 proxy behavior, local loader failure, and absence of Google responses or collection requests."
+              - command: "Frozen ten-file staged publication manifest verification"
+                status: passed
+                notes: "All ten staged files match publish.sha256 exactly; the manifest itself is sha256:2bc32ef76149aca57146dbe89a35f77883170c579c6c0741dd2b1744b00da04c."
+              - command: "Exact canonical publication and post-copy manifest verification"
+                status: passed
+                notes: "Exactly the ten declared output paths were published with apply_patch and each canonical SHA-256 matches the frozen run-02 manifest; BUILD_STATE.yaml and DECISIONS.md remain the only ledger/rationale edits, and unrelated desktop.ini is untouched."
+              - command: "Canonical ./course check and /learn_llm/ workspace build"
+                status: passed
+                notes: "The repository wrapper passes Rust formatting and the complete locked Rust workspace tests, then zero-diagnostic Astro/content/parity, 50-page root build, and exact 50-route analytics/link audit. The separate canonical /learn_llm/ build passes the same gates and preserves all project-base URLs."
+              - command: "Canonical complete Vitest and course-plan matrices"
+                status: passed
+                notes: "All 49 Vitest files/805 cases pass from the canonical workspace, and the plan remains valid at 39 chapters, 76 scheduled steps, and 38 implemented contracts through Chapter 38; Chapter 39 remains pending and untouched."
+              - command: "Canonical focused Chromium and Firefox analytics route matrices"
+                status: passed
+                notes: "The browser image rebuilt from canonical workspace sha256:646bea1dfa1856799b97060f64a315271542461459d47dbf5cda6bd509e36d23 passes 5/5 Chromium shell/all-route cases and 1/1 Firefox all-route case with the owned rejecting proxy."
+              - command: "First current-ledger Docker inline parser wrapper"
+                status: failed
+                notes: "PowerShell removed JavaScript string quotes from the native Docker --eval argument, so Node raised a syntax error before reading BUILD_STATE.yaml. No ledger assertion ran and no file changed; the same read-only parser was immediately piped on standard input."
+              - command: "Corrected current-ledger YAML and sole-running invariant"
+                status: passed
+                notes: "The complete current BUILD_STATE.yaml parses in pinned Node/yaml and contained exactly the analytics step/run as running immediately before this completion checkpoint."
+              - command: "Final canonical manifest, scope, whitespace, mode, dependency, build, hosting, and unrelated-file audit"
+                status: passed
+                notes: "All ten canonical output hashes still match the frozen manifest; git diff --check passes; the exact expected ten outputs plus BUILD_STATE.yaml and DECISIONS.md are the only in-scope changes; no mode, dependency, Docker, Astro config, sitemap, or hosting file changed; desktop.ini remains untracked and untouched."
+              - command: "Post-completion YAML, scheduler, and course-plan validation"
+                status: passed
+                notes: "The finalized ledger parses, records the standalone build/step as completed and run 02 as succeeded with a finish time, contains no running step or run, restores complete-decoder-course, and keeps the 39-chapter/76-step plan valid through Chapter 38."
+            notes: "Succeeded. The exact supplied tag is rendered once inside every generated HTML head through one shared component, all 50 root and project-base artifacts enforce it, automated browser traffic fails closed without Analytics egress, and canonical static/Rust/unit/browser validation passes. The standalone build is complete and active_build returns to complete-decoder-course for pending Chapter 39."

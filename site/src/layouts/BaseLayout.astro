@@ -3,6 +3,8 @@ import 'katex/dist/katex.min.css';
 import '../styles/global.css';
 import diagramStyles from '../styles/diagram.module.css';
 
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+
 import {
   getLocaleDefinition,
   getMessages,
@@ -76,6 +78,7 @@ const switchTargets = localeDefinitions
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <meta name="color-scheme" content="light" />
+    <GoogleAnalytics />
     <title>{fullTitle}</title>
     {
       equivalentDefinitions.map((alternate) => (

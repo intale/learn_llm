@@ -8,6 +8,7 @@ import { normalizeSiteBase, sitePathForBase } from '../../src/lib/site-path';
 import {
   chapterLocaleDefinitions,
   chapterLocales,
+  expectOnlySharedDiagramClientScript,
   expectSeoDescription,
   type ChapterLocale,
 } from './chapter-helpers';
@@ -20,6 +21,25 @@ interface SeoCatalog {
 }
 
 const deploymentBase = normalizeSiteBase(process.env.SITE_BASE ?? '/');
+const googleAnalyticsLoaderUrl =
+  'https://www.googletagmanager.com/gtag/js?id=G-B5JVTL721S';
+
+function isGoogleAnalyticsNetworkUrl(value: string): boolean {
+  const hostname = new URL(value).hostname;
+  return (
+    hostname === 'www.googletagmanager.com' ||
+    hostname === 'google-analytics.com' ||
+    hostname.endsWith('.google-analytics.com')
+  );
+}
+
+function isGoogleAnalyticsCollectionUrl(value: string): boolean {
+  const hostname = new URL(value).hostname;
+  return (
+    hostname === 'google-analytics.com' ||
+    hostname.endsWith('.google-analytics.com')
+  );
+}
 
 function deploymentPath(path: string): string {
   return sitePathForBase(path, deploymentBase);
@@ -69,23 +89,50 @@ async function readCourseChapterPaths(
 test('@seo publishes one relevant localized description for every current page type', async ({
   page,
 }) => {
+  test.setTimeout(90_000);
+
   const catalogs = Object.fromEntries(
     chapterLocales.map((locale) => [locale, readSeoCatalog(locale)]),
   ) as Record<ChapterLocale, SeoCatalog>;
   const defaultLocale = localeManifest.defaultLocale as ChapterLocale;
   expect(chapterLocales).toContain(defaultLocale);
 
-  await page.goto(deploymentPath('/'));
+  const analyticsResponses: string[] = [];
+  const analyticsCollectionRequests: string[] = [];
+  page.on('response', (response) => {
+    if (isGoogleAnalyticsNetworkUrl(response.url())) {
+      analyticsResponses.push(response.url());
+    }
+  });
+  page.on('request', (request) => {
+    if (isGoogleAnalyticsCollectionUrl(request.url())) {
+      analyticsCollectionRequests.push(request.url());
+    }
+  });
+  const failedLoader = page.waitForEvent('requestfailed', {
+    predicate: (request) => request.url() === googleAnalyticsLoaderUrl,
+  });
+
+  const [loaderFailure] = await Promise.all([
+    failedLoader,
+    page.goto(deploymentPath('/')),
+  ]);
+  expect(loaderFailure.failure()?.errorText.trim()).toMatch(/\S/);
+  expect(analyticsResponses).toEqual([]);
+  expect(analyticsCollectionRequests).toEqual([]);
   await expectSeoDescription(page, catalogs[defaultLocale].siteDescription);
+  await expectOnlySharedDiagramClientScript(page);
 
   for (const locale of chapterLocaleDefinitions) {
     const catalog = catalogs[locale.code];
 
     await page.goto(deploymentPath(`/${locale.code}/`));
     await expectSeoDescription(page, catalog.siteDescription);
+    await expectOnlySharedDiagramClientScript(page);
 
     const chapterPaths = await readCourseChapterPaths(page, locale.code);
     await expectSeoDescription(page, catalog.courseDescription);
+    await expectOnlySharedDiagramClientScript(page);
 
     for (const chapterPath of chapterPaths) {
       await page.goto(chapterPath);
@@ -95,6 +142,10 @@ test('@seo publishes one relevant localized description for every current page t
         page,
         (await visibleDescription.innerText()).trim(),
       );
+      await expectOnlySharedDiagramClientScript(page);
     }
   }
+
+  expect(analyticsResponses).toEqual([]);
+  expect(analyticsCollectionRequests).toEqual([]);
 });

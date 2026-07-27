@@ -19,6 +19,13 @@ import {
   renderSitemapXml,
 } from '../site/sitemap.config.mjs';
 
+export const GOOGLE_ANALYTICS_MEASUREMENT_ID = 'G-B5JVTL721S';
+export const GOOGLE_ANALYTICS_SCRIPT_URL =
+  'https://www.googletagmanager.com/gtag/js?id=' +
+  GOOGLE_ANALYTICS_MEASUREMENT_ID;
+const googleAnalyticsScriptBase =
+  'https://www.googletagmanager.com/gtag/js';
+
 function listFiles(directory) {
   const files = [];
   if (!existsSync(directory)) return files;
@@ -41,6 +48,36 @@ function attributes(tag) {
     result[match[1].toLowerCase()] = match[2];
   }
   return result;
+}
+
+function hasBooleanAttribute(tag, name) {
+  return new RegExp('\\s' + name + '(?=\\s|=|/?>)', 'i').test(tag);
+}
+
+function scriptElements(source) {
+  return [...source.matchAll(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi)].map(
+    (match) => {
+      const opening = match[0].match(/^<script\b[^>]*>/i)?.[0] ?? '';
+      const body = match[0]
+        .slice(opening.length)
+        .replace(/<\/script\s*>$/i, '');
+      return {
+        index: match.index,
+        opening,
+        body,
+        values: attributes(opening),
+      };
+    },
+  );
+}
+
+function normalizeInlineScript(source) {
+  return source
+    .replaceAll('\r\n', '\n')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '')
+    .join('\n');
 }
 
 function isExternalReference(value) {
@@ -528,6 +565,110 @@ function validateSeoDescription(relativePath, source, expected, issues) {
   }
 }
 
+function validateGoogleAnalytics(
+  relativePath,
+  source,
+  measurementId,
+  issues,
+) {
+  const expectedScriptUrl =
+    googleAnalyticsScriptBase + '?id=' + measurementId;
+  const headElements = [
+    ...source.matchAll(/<head\b[^>]*>[\s\S]*?<\/head\s*>/gi),
+  ];
+  const head = headElements.length === 1 ? headElements[0] : null;
+  const headStart = head?.index ?? -1;
+  const headEnd = head ? headStart + head[0].length : -1;
+  const isInsideHead = (script) =>
+    Boolean(head) && script.index >= headStart && script.index < headEnd;
+  const scripts = scriptElements(source);
+  const loaders = scripts.filter(({ values }) =>
+    values.src?.startsWith(googleAnalyticsScriptBase),
+  );
+
+  if (loaders.length !== 1) {
+    issues.push(
+      relativePath +
+        ': expected exactly one Google Analytics loader; found ' +
+        loaders.length,
+    );
+  } else {
+    const loader = loaders[0];
+    if (loader.values.src !== expectedScriptUrl) {
+      issues.push(
+        relativePath +
+          ': Google Analytics loader must use exactly ' +
+          expectedScriptUrl,
+      );
+    }
+    if (!hasBooleanAttribute(loader.opening, 'async')) {
+      issues.push(relativePath + ': Google Analytics loader must be async');
+    }
+    if (loader.body.trim() !== '') {
+      issues.push(
+        relativePath + ': Google Analytics loader must not contain inline code',
+      );
+    }
+    if (!isInsideHead(loader)) {
+      issues.push(
+        relativePath + ': Google Analytics loader must be inside the head element',
+      );
+    }
+  }
+
+  const initializers = scripts.filter(
+    ({ body, values }) =>
+      !values.src &&
+      (body.includes('window.dataLayer') ||
+        /function\s+gtag\b/.test(body) ||
+        /gtag\s*\(\s*['"]config['"]/.test(body)),
+  );
+  if (initializers.length !== 1) {
+    issues.push(
+      relativePath +
+        ': expected exactly one Google Analytics initializer; found ' +
+        initializers.length,
+    );
+  } else {
+    const initializer = initializers[0];
+    const normalized = normalizeInlineScript(initializer.body);
+    const expectedInitializer = [
+      'window.dataLayer = window.dataLayer || [];',
+      'function gtag(){dataLayer.push(arguments);}',
+      "gtag('js', new Date());",
+      "gtag('config', '" + measurementId + "');",
+    ].join('\n');
+    if (normalized !== expectedInitializer) {
+      issues.push(
+        relativePath +
+          ': Google Analytics initializer must exactly reproduce the supplied dataLayer, gtag, js-time, and ' +
+          measurementId,
+      );
+    }
+    if (
+      [...initializer.body.matchAll(/gtag\s*\(\s*['"]config['"]\s*,/g)]
+        .length !== 1
+    ) {
+      issues.push(
+        relativePath +
+          ': Google Analytics initializer must contain exactly one config call',
+      );
+    }
+    if (!isInsideHead(initializer)) {
+      issues.push(
+        relativePath +
+          ': Google Analytics initializer must be inside the head element',
+      );
+    }
+    if (loaders.length === 1 && loaders[0].index >= initializer.index) {
+      issues.push(
+        relativePath +
+          ': Google Analytics loader must appear before its initializer',
+      );
+    }
+  }
+}
+
 function validateSeoRouteMatrix(htmlDocuments, expectationsValue, issues) {
   const expectations = normalizeSeoExpectationMap(expectationsValue, issues);
   const byRoute = new Map();
@@ -875,7 +1016,8 @@ function validateLocalizedCourseEntry(
  *   basePath?: string,
  *   chapterLocaleConfiguration?: *,
  *   seoExpectations?: Map<string, string>,
- *   sitemapUrl?: string
+ *   sitemapUrl?: string,
+ *   googleAnalyticsMeasurementId?: string
  * }} options
  */
 export function auditStaticSite(
@@ -886,6 +1028,7 @@ export function auditStaticSite(
     chapterLocaleConfiguration = undefined,
     seoExpectations = undefined,
     sitemapUrl = DEFAULT_SITE_URL,
+    googleAnalyticsMeasurementId = undefined,
   } = {},
 ) {
   if (!existsSync(distDirectory)) {
@@ -903,8 +1046,18 @@ export function auditStaticSite(
     ),
   );
   const issues = [];
+  const analyticsEnabled = googleAnalyticsMeasurementId !== undefined;
+  const analyticsMeasurementIdIsValid =
+    typeof googleAnalyticsMeasurementId === 'string' &&
+    /^G-[A-Z0-9]+$/.test(googleAnalyticsMeasurementId);
+  if (analyticsEnabled && !analyticsMeasurementIdIsValid) {
+    issues.push(
+      'Google Analytics measurement ID must match G-[A-Z0-9]+',
+    );
+  }
   let referenceCount = 0;
   let htmlCount = 0;
+  let analyticsRouteCount = 0;
   const htmlDocuments = [];
 
   for (const filePath of files) {
@@ -935,6 +1088,15 @@ export function auditStaticSite(
         localeConfiguration,
         siteBase,
       );
+      if (analyticsMeasurementIdIsValid) {
+        validateGoogleAnalytics(
+          relative,
+          source,
+          googleAnalyticsMeasurementId,
+          issues,
+        );
+        analyticsRouteCount += 1;
+      }
     }
 
     for (const reference of references) {
@@ -987,6 +1149,9 @@ export function auditStaticSite(
     result.seoRouteCount = normalizedSeoExpectations.size;
     result.sitemapRouteCount = sitemapRouteCount;
   }
+  if (analyticsEnabled) {
+    result.analyticsRouteCount = analyticsRouteCount;
+  }
   return result;
 }
 
@@ -1009,6 +1174,7 @@ export function runStaticLinkCheck(cwd = process.cwd()) {
       chapterLocaleConfiguration,
       seoExpectations,
       sitemapUrl: process.env.SITE_URL ?? DEFAULT_SITE_URL,
+      googleAnalyticsMeasurementId: GOOGLE_ANALYTICS_MEASUREMENT_ID,
     },
   );
 }
@@ -1033,6 +1199,8 @@ if (isMainModule()) {
         ' SEO route(s), ' +
         result.sitemapRouteCount +
         ' sitemap URL(s), ' +
+        result.analyticsRouteCount +
+        ' analytics route(s), ' +
         result.fileCount +
         ' total artifact(s).',
     );
