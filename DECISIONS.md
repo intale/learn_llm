@@ -7166,3 +7166,48 @@ HTTP server exists only for automated tests and is not part of the static output
 
 **Affected step and run:** `embed-google-analytics-in-static-heads`, run
 `20260727T062345Z-embed-google-analytics-in-static-heads-02`.
+
+## 2026-07-27 - Normalize legacy KaTeX variants at the MathML boundary
+
+**Status:** Accepted for the Firefox compatibility repair before Chapter 39.
+
+**Context:** Firefox reports non-normal `mathvariant` values as deprecated and
+reports an invalid number of children for several `msub` elements. A complete
+50-page artifact audit found that KaTeX 0.16.47 emits 134 legacy `script`,
+`double-struck`, `bold`, and `sans-serif` attributes through both the Markdown
+and component math paths. It also found ten three-child subscripts in Chapters
+21, 23, 25, 37, and 38: the source used the function operator `\\max` where
+`max` is a descriptive subscript label, so KaTeX emitted both the operator name
+and its function-application marker as separate subscript children.
+
+MathML Core retains only `mathvariant="normal"` on `mi` and represents other
+mathematical alphabets with Unicode Mathematical Alphanumeric Symbols. The
+corresponding KaTeX issue remains open, so waiting for the pinned renderer does
+not protect current Firefox users or future generated formulas.
+
+**Decision:** Keep KaTeX 0.16.47 and its visible HTML projection unchanged. Add
+one shared post-render compatibility module after `rehype-katex` and at the
+`InlineMath` string boundary. For every supported non-normal variant, replace
+ASCII Latin letters and digits in the accessible MathML token with the exact
+Unicode mathematical-alphabet code point and remove the deprecated attribute.
+Retain `mathvariant="normal"` only on `mi`; remove it from `mo`, where upright
+operator presentation is already the default. Fail closed if a future renderer emits
+an unsupported variant, non-token subtree, or alphabetic/numeric character that
+cannot be mapped, rather than silently discarding mathematical semantics.
+
+Where `max` is a label rather than a function, write `\\mathrm{max}`. Preserve
+genuine `\\max` and `\\arg\\max` operators elsewhere. Extend the all-artifact
+static audit and the shared Chromium/Firefox formula assertion to reject every
+non-normal variant and require the MathML Core arity of `mfrac`, `mroot`,
+`msub`, `msup`, `munder`, `mover`, `msubsup`, and `munderover`.
+
+**Consequences:** Accessible MathML carries the same bold, script,
+double-struck, and sans-serif meaning without Firefox deprecation warnings, and
+all affected maximum labels become valid two-child subscripts. The visual KaTeX
+tree, TeX annotations, learner-facing prose, dependencies, lockfile, Linux
+build, routes, analytics, SEO, sitemap, and hosting behavior remain unchanged.
+The corrective build is committed independently, after which the pending
+Chapter 39 step resumes.
+
+**Affected step and run:** `normalize-katex-mathml-for-firefox`, run
+`20260727T071736Z-normalize-katex-mathml-for-firefox-01`.

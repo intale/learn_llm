@@ -88,6 +88,39 @@ async function expectCompatibleKatexLayout(page: Page) {
           }
           if (style.clipPath === "none")
             problems.push(`${source} MathML has no clip path`);
+
+          for (const element of mathml.querySelectorAll<MathMLElement>(
+            "[mathvariant]",
+          )) {
+            const variant = element.getAttribute("mathvariant");
+            if (variant !== "normal" || element.localName !== "mi") {
+              problems.push(
+                `${source} has unsupported mathvariant=${variant} on <${element.localName}>`,
+              );
+            }
+          }
+
+          const fixedArities = {
+            mfrac: 2,
+            mroot: 2,
+            msub: 2,
+            msup: 2,
+            munder: 2,
+            mover: 2,
+            msubsup: 3,
+            munderover: 3,
+          } as const;
+          for (const [tagName, expectedChildren] of Object.entries(
+            fixedArities,
+          )) {
+            for (const element of mathml.querySelectorAll(tagName)) {
+              if (element.children.length !== expectedChildren) {
+                problems.push(
+                  `${source} has <${tagName}> with ${element.children.length} children; expected ${expectedChildren}`,
+                );
+              }
+            }
+          }
         }
         return problems;
       }),
@@ -430,7 +463,7 @@ const chapter14To38Latex: Record<
   "21-mini-batches": [
     String.raw`\mathcal{L}_B=\frac{1}{|B|T}\sum_{b\in B}\sum_{t=1}^{T}\mathcal{L}_{b,t}`,
     String.raw`\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375`,
-    String.raw`|B|_{\max}=3`,
+    String.raw`|B|_{\mathrm{max}}=3`,
     String.raw`\bar g_{B_1}=[0.875000, 1.562500]`,
   ],
   "22-adamw": [
@@ -465,7 +498,7 @@ const chapter14To38Latex: Record<
     String.raw`\operatorname{mean}(\hat{x}^2)=`,
     String.raw`\bar x=[0.407293,-0.305470]`,
     String.raw`\bar g=[0.848528,-2.262741]`,
-    String.raw`\Delta_{\max}=0.717566`,
+    String.raw`\Delta_{\mathrm{max}}=0.717566`,
   ],
   "26-qkv-projections": [
     String.raw`Q=XW_Q,\quad K=XW_K,\quad V=XW_V`,
@@ -569,7 +602,7 @@ const chapter14To38Latex: Record<
     String.raw`K^{(\ell)}_{1:t}=[K^{(\ell)}_{1:t-1};k^{(\ell)}_t],\quad V^{(\ell)}_{1:t}=[V^{(\ell)}_{1:t-1};v^{(\ell)}_t]`,
     String.raw`K_{2,0}=-1.325444263`,
     String.raw`K_{2,1}=0.493150590`,
-    String.raw`\Delta_{\max}=0.000000000000`,
+    String.raw`\Delta_{\mathrm{max}}=0.000000000000`,
     String.raw`2\times3=6`,
     String.raw`10^{-12}`,
   ],
@@ -578,7 +611,7 @@ const chapter14To38Latex: Record<
     String.raw`2\times10^{-12}`,
     String.raw`4(1+2+3)=24`,
     String.raw`4(2^2+3^2)=52`,
-    String.raw`\Delta_{\max}=0.000000000000`,
+    String.raw`\Delta_{\mathrm{max}}=0.000000000000`,
     String.raw`4\times(1+2+3)=24`,
     String.raw`4\times(2^2+3^2)=52`,
     String.raw`N_{\mathrm{cache}}=6`,

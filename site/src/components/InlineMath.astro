@@ -1,6 +1,8 @@
 ---
 import { renderToString } from 'katex';
 
+import { normalizeMathmlVariantsInHtml } from '../lib/mathml-compat.mjs';
+
 interface Props {
   latex: string;
   class?: string;
@@ -11,12 +13,14 @@ if (typeof latex !== 'string' || latex.trim().length === 0) {
   throw new Error('InlineMath requires a non-blank LaTeX expression.');
 }
 
-const html = renderToString(latex, {
-  displayMode: false,
-  output: 'htmlAndMathml',
-  strict: 'error',
-  throwOnError: true,
-});
+const html = normalizeMathmlVariantsInHtml(
+  renderToString(latex, {
+    displayMode: false,
+    output: 'htmlAndMathml',
+    strict: 'error',
+    throwOnError: true,
+  }),
+);
 ---
 
 <span

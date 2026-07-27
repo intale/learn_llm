@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-27T06:58:16Z"
+updated_at: "2026-07-27T07:55:24Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -17142,3 +17142,211 @@ builds:
                 status: passed
                 notes: "The finalized ledger parses, records the standalone build/step as completed and run 02 as succeeded with a finish time, contains no running step or run, restores complete-decoder-course, and keeps the 39-chapter/76-step plan valid through Chapter 38."
             notes: "Succeeded. The exact supplied tag is rendered once inside every generated HTML head through one shared component, all 50 root and project-base artifacts enforce it, automated browser traffic fails closed without Analytics egress, and canonical static/Rust/unit/browser validation passes. The standalone build is complete and active_build returns to complete-decoder-course for pending Chapter 39."
+  - build_id: repair-firefox-mathml-compatibility
+    objective: "Emit standards-compatible accessible MathML without Firefox deprecation warnings or invalid fixed-arity subscript nodes."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium corrective build uses cached local static and browser validation; no paid service, dependency download, generated content, or Linux build-definition change is planned."
+    completion_criteria:
+      - "Every generated course formula preserves its visible KaTeX presentation and accessible TeX annotation while emitting no non-normal mathvariant attribute."
+      - "Every fixed-arity MathML element has its required number of element children, including all max-label subscripts in Chapters 21, 23, 25, 37, and 38."
+      - "Static artifacts and rendered Firefox/Chromium tests reject deprecated variants and malformed fixed-arity MathML course-wide."
+      - "Root and /learn_llm/ builds pass without dependency, package-lock, route, learner-prose, Docker, Linux, hosting, or analytics changes."
+      - "The repair is committed independently before Chapter 39 resumes."
+    steps:
+      - id: normalize-katex-mathml-for-firefox
+        objective: "Normalize KaTeX MathML to MathML Core-compatible Unicode symbols and correct every operator-shaped max subscript label."
+        depends_on:
+          - implement-ch38-cached-generation
+        status: completed
+        inputs:
+          - "Human Firefox console report for deprecated mathvariant values and invalid msub child counts in Chapters 37 and 38"
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "SKILLS.md"
+          - "site/astro.config.mjs"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/components/chapters/RmsnormDiagram.astro"
+          - "site/src/components/chapters/IncrementalAttentionDiagram.astro"
+          - "site/src/components/chapters/CachedGenerationDiagram.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/e2e/ch25-rmsnorm.spec.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "MDN Firefox 118 MathML release notes"
+          - "W3C MathML Core issue 182 and W3C MathML compatibility guidance"
+          - "Mozilla bug 1845461 and KaTeX issue 4049"
+        outputs:
+          - "site/src/lib/mathml-compat.mjs"
+          - "site/astro.config.mjs"
+          - "site/src/components/InlineMath.astro"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/components/chapters/RmsnormDiagram.astro"
+          - "site/src/components/chapters/IncrementalAttentionDiagram.astro"
+          - "site/src/components/chapters/CachedGenerationDiagram.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/mathml-compat.test.ts"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/e2e/ch25-rmsnorm.spec.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+        acceptance:
+          - "One shared post-KaTeX normalizer replaces every supported non-normal mathvariant token with the corresponding Unicode Mathematical Alphanumeric Symbol and removes the deprecated attribute in both Markdown/MDX and InlineMath component paths."
+          - "The normalizer preserves mathvariant=normal only on mi, removes redundant normal attributes from operators, preserves visible KaTeX HTML and application/x-tex annotations, and fails closed on an unsupported variant or token instead of silently dropping mathematical semantics."
+          - "Textual maximum labels use \\mathrm{max}, while genuine max and argmax operators remain unchanged; all resulting msub elements have exactly two element children."
+          - "The dependency-free static artifact checker rejects any non-normal mathvariant and any wrong child count for mfrac, mroot, msub, msup, munder, mover, msubsup, or munderover."
+          - "Course-wide browser assertions inspect the accessible MathML DOM in desktop and narrow Chromium and Firefox runs and find neither deprecated variants nor malformed fixed-arity elements."
+          - "All 50 root and project-base HTML pages build and pass the static audit with zero deprecated mathvariant attributes and zero malformed fixed-arity MathML elements."
+          - "No learner-facing prose, dependency, package lock, Docker/Linux build definition, route, sitemap, SEO, analytics, or hosting behavior changes."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run tests/mathml-compat.test.ts tests/formula-rendering.test.ts"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@formula-rendering|Chapter 21|Chapter 23|Chapter 25|Chapter 37|Chapter 38'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@formula-rendering|Chapter 21|Chapter 23|Chapter 25|Chapter 37|Chapter 38'"
+          - "npm --prefix site run test:e2e"
+          - "./course check"
+          - "git diff --check"
+          - "Exact staged/canonical manifest, dependency, mode, route, MathML, and unrelated-file audit"
+        cost:
+          class: medium
+          notes: "One shared compatibility module, five narrow formula-label corrections, and static/unit/browser regression gates using cached local images. Read-only standards research used primary web sources. No paid service, new dependency, generated content, or build-definition change."
+        runs:
+          - run_id: 20260727T071736Z-normalize-katex-mathml-for-firefox-01
+            started_at: "2026-07-27T07:17:36Z"
+            finished_at: "2026-07-27T07:55:24Z"
+            status: succeeded
+            input_fingerprint:
+              git: "2abcc701d126e05c2b64574a1b3fed42aed0c8af"
+              manifest: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/input-fingerprint.txt"
+              checksum: "sha256:80a8b4f0ca246d3422158e21b3291ae8a34d06f4ff0c96dd6602b9ec4b2d8349"
+              tools: "Host Windows Git 2.55.0, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Node 22.12.0/npm 10.9.0, KaTeX 0.16.47, and Playwright 1.61.1."
+              external: "Read-only primary-source verification of Firefox/MathML deprecation semantics and open KaTeX issue 4049; no dependency or implementation artifact was downloaded."
+            staging_dir: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/"
+            commands:
+              - "Run the complete startup protocol, verify Chapter 38 and analytics commits, preserve unrelated desktop.ini, compare recorded tool pins, and confirm no stale running work."
+              - "Audit all 50 current built HTML pages and identify 134 deprecated non-normal mathvariant attributes plus ten malformed msub elements across Chapters 21, 23, 25, 37, and 38."
+              - "Trace deprecated variants to KaTeX 0.16.47 output and malformed subscripts to using the max function operator as a textual label; verify MathML Core's Unicode-symbol replacement boundary from primary sources."
+              - "Attempt a read-only Firefox console replay in the pinned browser image; the first request used the wrong root/project base and the second navigation wrapper did not complete before termination, so static DOM evidence remains the pre-edit baseline."
+              - "Temporarily select this standalone corrective build while Chapter 39 remains pending and unstarted; all declared product outputs are disjoint from Chapter 39."
+              - "Add the pre-existing Chapter 21 component-source contract to declared inputs and outputs after the max-label correction exposed its exact-string dependency."
+              - "Tighten the artifact boundary after the staged inventory found 43 redundant mathvariant=normal attributes on mo; MathML Core permits the retained normal attribute only on mi."
+              - "Create one shared Unicode Mathematical Alphanumeric Symbol mapper, place it after rehype-katex and around direct InlineMath rendering, and fail closed on unsupported variants or token alphabets."
+              - "Correct only descriptive maximum subscripts in Chapters 21, 23, 25, 37, and 38 to use \\mathrm{max}; preserve every genuine max and argmax operator."
+              - "Extend the all-HTML static audit and course-wide desktop/narrow browser formula contract with MathML Core attribute and fixed-arity checks."
+              - "Build and validate three staged candidates, freeze the final exact 18-file publication manifest, and leave canonical product files unchanged pending publication."
+            artifacts:
+              - path: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/input-fingerprint.txt"
+                checksum: "sha256:80a8b4f0ca246d3422158e21b3291ae8a34d06f4ff0c96dd6602b9ec4b2d8349"
+                notes: "Pre-edit commit, tool pins, exact material input hashes, primary-source boundary, course-wide built-artifact diagnosis, and preserved scope."
+              - path: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/evidence/Dockerfile.browser"
+                checksum: "sha256:60708b2393764eff810a899773f006c03b8c9e8134778fd1ef6ae90388e9930d"
+                notes: "Network-disabled Playwright 1.61.1 image recipe copying the final validated staged workspace without fetching dependencies."
+              - path: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/publish.sha256"
+                checksum: "sha256:9414fe00d8f4bcde98dd1a4dc500f81ba723b6b4579dee90f79607e14fd5d141"
+                notes: "Frozen publication manifest for exactly 18 staged product/test files after complete static, unit, Chromium, and focused Firefox validation."
+              - path: ".build/runs/20260727T071736Z-normalize-katex-mathml-for-firefox-01/evidence/Dockerfile.canonical-browser"
+                checksum: "sha256:6146f1f614e27710ca1385b279c25dcae14eab72d424e70147aa5839eb8c5c99"
+                notes: "Network-disabled Playwright 1.61.1 image recipe copying the post-publication canonical workspace for independent browser replay."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 38 and analytics are completed and committed; no stale run exists; Chapter 39 remains pending; current tools preserve repository pins; the medium local repair fits the unlimited budget; desktop.ini remains untracked and untouched."
+              - command: "Read-only 50-page built MathML inventory"
+                status: passed
+                notes: "The current build exposes 78 script, 30 double-struck, 21 bold, and 5 sans-serif deprecated attributes, plus ten three-child msub nodes produced by max labels in Chapters 21, 23, 25, 37, and 38."
+              - command: "First read-only Firefox preview replay"
+                status: failed
+                notes: "The owned preview served a root-base artifact while the probe requested /learn_llm/, so readiness never succeeded; no product or ledger file changed."
+              - command: "Second read-only Firefox preview replay"
+                status: interrupted
+                notes: "The inline probe did not produce output before the bounded orchestration timeout and was terminated. The static DOM already proves the exact deprecated attributes and invalid child counts; no product file changed."
+              - command: "First network-disabled staged review-workspace build"
+                status: failed
+                notes: "Changing Docker's network mode invalidated the cached source layer, so the unchanged Dockerfile attempted its normal apt setup without DNS and stopped before candidate validation. No product file changed; the same build was rerun with its ordinary cached network mode."
+              - command: "First staged root review-workspace build"
+                status: passed
+                notes: "Content/parity, Astro, 50-page root build, and static link/SEO/sitemap/analytics/MathML audits passed; Astro reported one unused callback-parameter hint, which was corrected before the final candidate."
+              - command: "First focused MathML unit matrix"
+                status: failed
+                notes: "32 of 33 focused cases passed; one new test assumed the max operator rendered as mo although KaTeX correctly wraps the operator name and application marker in mrow. The assertion was corrected to verify preserved TeX semantics and valid arity."
+              - command: "Intermediate complete Vitest, root/project builds, static MathML inventory, and course-plan matrices"
+                status: passed
+                notes: "All 50 Vitest files/811 cases passed; both bases built 50 pages; the static audit found zero non-normal variants and zero fixed-arity defects; the 39-chapter/76-step plan remained valid through Chapter 38."
+              - command: "Intermediate Chromium and Firefox formula/chapter matrices"
+                status: passed
+                notes: "Chromium passed 117/117 focused cases. A concurrent 16-worker Firefox run passed 116/117 with one unrelated Chapter 23 navigation timeout; its isolated retry passed 5/5 and the uncontended focused Firefox rerun passed 117/117."
+              - command: "MathML Core normal-attribute scope review"
+                status: passed
+                notes: "The intermediate build retained 43 redundant normal attributes on mo. The final candidate removes those too and permits normal only on mi, matching the standards boundary without altering visible KaTeX HTML."
+              - command: "Final staged root and /learn_llm/ static-site matrices"
+                status: passed
+                notes: "Both bases pass zero-diagnostic Astro checks, 50-page builds, and exact 1822-reference/50-SEO/50-sitemap/50-analytics audits. Across all HTML, exactly 1359 normal attributes remain on mi, none exist outside the MathML Core boundary, and no fixed-arity issue exists."
+              - command: "Final complete and focused staged Vitest matrices"
+                status: passed
+                notes: "All 50 test files/811 cases pass, including variant mapping, fail-closed mutations, max-label/operator distinction, static artifact mutations, component-source contracts, and renderer integration."
+              - command: "Final focused Firefox formula and affected-chapter matrix"
+                status: passed
+                notes: "All 117 desktop, narrow, forced-colors, RTL, no-JavaScript, course-wide formula, and Chapters 21/23/25/37/38 cases pass in pinned Firefox with exact MathML DOM arity and attribute assertions."
+              - command: "Final exhaustive Firefox console traversal"
+                status: passed
+                notes: "Pinned Firefox visited all 50 generated HTML pages with observers installed before navigation and emitted no console message matching mathvariant, invalid markup, incorrect child count, or msub. External analytics traffic was blocked."
+              - command: "Final complete Chromium regression matrix"
+                status: passed
+                notes: "All 283 existing browser cases pass against the final candidate, including course-wide desktop/narrow formula and diagram geometry checks."
+              - command: "Final staged ./course check"
+                status: passed
+                notes: "The unchanged Linux workflow passes Rust formatting, all locked workspace and documentation tests, zero-diagnostic Astro/content/parity checks, the 50-page root build, and exact static audits. Existing Cargo example-name collision warnings are unrelated and unchanged."
+              - command: "Frozen 18-file staged publication manifest and scope audit"
+                status: passed
+                notes: "All staged product hashes match publish.sha256 exactly; git diff --check passes; no mode, package, lockfile, dependency, Docker, compose, route, learner-prose, sitemap, SEO, analytics, or hosting file changed."
+              - command: "Exact canonical publication and post-copy manifest verification"
+                status: passed
+                notes: "Exactly the 18 declared product/test outputs were published with apply_patch and every canonical SHA-256 matches the frozen staged manifest byte-for-byte; unrelated desktop.ini remains untracked and untouched."
+              - command: "Canonical ./course check"
+                status: passed
+                notes: "The host Git-Bash wrapper passes the unchanged Linux workflow: Rust formatting, all locked workspace/documentation tests, zero-diagnostic Astro/content/parity checks, the 50-page root build, and the full static audit."
+              - command: "Canonical complete Vitest and /learn_llm/ static-site matrices"
+                status: passed
+                notes: "All 50 Vitest files/811 cases pass from the canonical workspace; the project-base build produces all 50 pages and passes its 1822-reference/50-SEO/50-sitemap/50-analytics/MathML audit."
+              - command: "Canonical focused Chromium and Firefox MathML matrices"
+                status: passed
+                notes: "The browser image rebuilt from canonical workspace passes 117/117 desktop, narrow, formula, and affected-chapter cases in each engine, including exact DOM attribute and fixed-arity assertions."
+              - command: "Canonical exhaustive Firefox console traversal"
+                status: passed
+                notes: "Firefox visits all 50 canonical pages and emits no console message matching mathvariant, invalid markup, incorrect child count, or msub; external analytics traffic remains blocked."
+              - command: "First final canonical scope comparison wrapper"
+                status: failed
+                notes: "PowerShell constructed two nested arrays instead of one flattened path list, so Compare-Object compared aggregate objects and falsely reported every path. Product hashes had already passed and no file changed; the corrected wrapper immediately followed."
+              - command: "Corrected final canonical manifest, scope, dependency, mode, and unrelated-file audit"
+                status: passed
+                notes: "All 18 canonical hashes still match publish.sha256; exactly those outputs plus BUILD_STATE.yaml and DECISIONS.md are in scope; dependency/package/build boundaries retain their input hashes; git diff --check passes; no mode change exists; desktop.ini is untouched."
+              - command: "Current-ledger YAML and sole-running invariant before completion"
+                status: passed
+                notes: "The complete ledger parses in pinned Node/yaml and contained exactly this corrective build, step, and run as active/running immediately before the completion checkpoint."
+            notes: "Succeeded. All generated formulas now use the MathML Core attribute boundary, the five descriptive maximum subscripts produce valid fixed-arity nodes, all 50 Firefox pages are free of the reported console messages, and canonical static/unit/browser/Linux validation passes. The standalone build is complete and active_build returns to complete-decoder-course for pending Chapter 39."

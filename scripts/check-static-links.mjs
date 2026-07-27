@@ -223,6 +223,98 @@ function htmlRoute(relativePath) {
   return '/' + normalized;
 }
 
+export const MATHML_FIXED_ARITY = Object.freeze({
+  mfrac: 2,
+  mroot: 2,
+  msub: 2,
+  msup: 2,
+  munder: 2,
+  mover: 2,
+  msubsup: 3,
+  munderover: 3,
+});
+
+function mathmlFormulaLabel(fragment, index) {
+  const annotation = fragment.match(
+    /<annotation\b[^>]*encoding=["']application\/x-tex["'][^>]*>([\s\S]*?)<\/annotation\s*>/i,
+  );
+  const source = annotation ? decodeHtmlEntities(annotation[1]).trim() : '';
+  return source === '' ? 'formula ' + index : 'formula "' + source + '"';
+}
+
+function validateFixedMathmlArity(frame, relativePath, formula, issues) {
+  const expected = MATHML_FIXED_ARITY[frame.tagName];
+  if (expected === undefined || frame.elementChildren === expected) return;
+  issues.push(
+    relativePath + ': ' + formula + ' has <' + frame.tagName + '> with ' +
+      frame.elementChildren + ' element children; expected ' + expected,
+  );
+}
+
+export function mathmlCompatibilityIssues(relativePath, source) {
+  const issues = [];
+  const fragments = [
+    ...String(source).matchAll(/<math\b[^>]*>[\s\S]*?<\/math\s*>/gi),
+  ];
+
+  for (const [formulaIndex, fragmentMatch] of fragments.entries()) {
+    const fragment = fragmentMatch[0];
+    const formula = mathmlFormulaLabel(fragment, formulaIndex);
+    const stack = [];
+
+    for (const tagMatch of fragment.matchAll(
+      /<(\/?)([A-Za-z][\w:-]*)\b[^>]*>/g,
+    )) {
+      const closing = tagMatch[1] === '/';
+      const tagName = tagMatch[2].toLowerCase();
+      if (closing) {
+        const frame = stack.pop();
+        if (!frame || frame.tagName !== tagName) {
+          issues.push(
+            relativePath + ': ' + formula + ' has invalid MathML nesting at </' +
+              tagName + '>',
+          );
+          stack.length = 0;
+          break;
+        }
+        validateFixedMathmlArity(frame, relativePath, formula, issues);
+        continue;
+      }
+
+      if (stack.length > 0) stack[stack.length - 1].elementChildren += 1;
+      const values = attributes(tagMatch[0]);
+      if (
+        typeof values.mathvariant === 'string' &&
+        !(
+          tagName === 'mi' &&
+          values.mathvariant.toLowerCase() === 'normal'
+        )
+      ) {
+        issues.push(
+          relativePath + ': ' + formula + ' has unsupported mathvariant="' +
+            values.mathvariant + '" on <' + tagName +
+            '>; only normal on <mi> is allowed',
+        );
+      }
+
+      const frame = { tagName, elementChildren: 0 };
+      if (/\/\s*>$/.test(tagMatch[0])) {
+        validateFixedMathmlArity(frame, relativePath, formula, issues);
+      } else {
+        stack.push(frame);
+      }
+    }
+
+    if (stack.length > 0) {
+      issues.push(
+        relativePath + ': ' + formula + ' has unclosed MathML element <' +
+          stack[stack.length - 1].tagName + '>',
+      );
+    }
+  }
+  return issues;
+}
+
 export const SEO_PLACEHOLDER_SENTINELS = Object.freeze([
   'todo',
   'tbd',
@@ -1073,6 +1165,7 @@ export function auditStaticSite(
     if (extension === '.html') {
       htmlCount += 1;
       htmlDocuments.push({ relativePath: relative, source });
+      issues.push(...mathmlCompatibilityIssues(relative, source));
       validateHreflang(
         relative,
         source,

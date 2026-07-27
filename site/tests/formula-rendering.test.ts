@@ -1074,7 +1074,7 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.batches).toContain(
-      "String.raw`|B|_{\\max}=${trace.meta.capacity}`",
+      "String.raw`|B|_{\\mathrm{max}}=${trace.meta.capacity}`",
     );
     expect(components.batches).toContain(
       "String.raw`\\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`",
@@ -1129,7 +1129,7 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
       "String.raw`\\bar g=${trace.backward.gainGradient.latex}`",
     );
     expect(components.rmsnorm).toContain(
-      "String.raw`\\Delta_{\\max}=${scale.maxAbsDiff}`",
+      "String.raw`\\Delta_{\\mathrm{max}}=${scale.maxAbsDiff}`",
     );
 
     expect(components.qkv).toContain(
@@ -1270,7 +1270,7 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
       "latex={`${step.cacheBefore}\\\\to${step.cacheAfter}`}",
     );
     expect(components.incrementalAttention).toContain(
-      "latex={`\\\\Delta_{\\\\max}=${step.maxAbsDiff}`}",
+      "latex={`\\\\Delta_{\\\\mathrm{max}}=${step.maxAbsDiff}`}",
     );
     expect(components.incrementalAttention).toContain(
       "latex={`2\\\\times${trace.work.reused_rows_per_kv_projection}=${trace.work.avoided_rows_across_kv}`}",
@@ -1286,7 +1286,7 @@ describe("build-time formula rendering in Chapter 14-38 diagrams", () => {
       "latex={`g^{\\\\mathrm{cache}}_{${index}}=${value}`}",
     );
     expect(components.cachedGeneration).toContain(
-      "latex={`\\\\Delta_{\\\\max}=${trace.decode.match.maxAbsDiff}`}",
+      "latex={`\\\\Delta_{\\\\mathrm{max}}=${trace.decode.match.maxAbsDiff}`}",
     );
     expect(components.cachedGeneration).toContain(
       "latex={`4\\\\times(1+2+3)=${trace.work.cachedScores}`}",
@@ -1360,6 +1360,10 @@ describe("build-time formula rendering in Chapter 1-7 diagrams", () => {
       "utf8",
     );
     expect(source).toContain("import { renderToString } from 'katex'");
+    expect(source).toContain(
+      "import { normalizeMathmlVariantsInHtml } from '../lib/mathml-compat.mjs'",
+    );
+    expect(source).toContain("normalizeMathmlVariantsInHtml(");
     expect(source).toContain("output: 'htmlAndMathml'");
     expect(source).toContain("strict: 'error'");
     expect(source).toContain("throwOnError: true");

@@ -221,7 +221,7 @@ async function expectChapterContent(
     "[B,H,1,t+1]",
     "K_{2,0}=-1.325444263",
     "K_{2,1}=0.493150590",
-    "\\Delta_{\\max}=0.000000000000",
+    "\\Delta_{\\mathrm{max}}=0.000000000000",
     "2\\times3=6",
     "10^{-12}",
   ]) {

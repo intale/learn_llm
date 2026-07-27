@@ -177,7 +177,7 @@ describe('Chapter 21 static diagram boundary', () => {
     );
     expect(componentSource).toContain('parseMiniBatchesTrace');
     expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
-    expect(componentSource).toContain('String.raw`|B|_{\\max}=${trace.meta.capacity}`');
+    expect(componentSource).toContain('String.raw`|B|_{\\mathrm{max}}=${trace.meta.capacity}`');
     expect(componentSource).toContain(
       'String.raw`\\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`',
     );

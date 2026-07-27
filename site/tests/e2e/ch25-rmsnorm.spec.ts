@@ -166,7 +166,7 @@ async function expectChapterContent(
     String.raw`\operatorname{mean}(\hat{x}^2)=`,
     String.raw`\bar x=[0.407293,-0.305470]`,
     String.raw`\bar g=[0.848528,-2.262741]`,
-    String.raw`\Delta_{\max}=0.717566`,
+    String.raw`\Delta_{\mathrm{max}}=0.717566`,
   ]) {
     expect(
       annotations.map(normalizeMath).some((formula) => formula.includes(normalizeMath(expected))),

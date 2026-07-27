@@ -163,7 +163,7 @@ async function expectChapterContent(
     String.raw`y_b=\operatorname{target\_row}(b)_{C-1}`,
     String.raw`V=266,\ C=2,\ D=4,\ H=8`,
     String.raw`N_{\mathrm{train}}=1836,\ N_{\mathrm{val}}=467`,
-    String.raw`\eta=0.010000,\ t_{\max}=15`,
+    String.raw`\eta=0.010000,\ t_{\mathrm{max}}=15`,
     String.raw`L_{\mathrm{train}}=5.555850`,
     String.raw`L_{\mathrm{val}}=5.557362`,
     String.raw`\Delta L_{\mathrm{val}}=0.026120`,

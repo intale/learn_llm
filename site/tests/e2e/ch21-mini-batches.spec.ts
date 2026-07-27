@@ -111,7 +111,7 @@ async function expectChapterContent(
     String.raw`\mathcal{L}_B=\frac{1}{|B|T}\sum_{b\in B}\sum_{t=1}^{T}\mathcal{L}_{b,t}`,
     String.raw`\nabla_{\theta}\mathcal{L}_B`,
     String.raw`\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375`,
-    String.raw`|B|_{\max}=3`,
+    String.raw`|B|_{\mathrm{max}}=3`,
     String.raw`\bar g_{B_1}=[0.875000, 1.562500]`,
   ]) {
     expect(

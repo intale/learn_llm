@@ -245,7 +245,7 @@ async function expectChapterContent(
     "4(1+2+3)=24",
     "4(2^2+3^2)=52",
     "[B,H,t,d_h]",
-    "\\Delta_{\\max}=0.000000000000",
+    "\\Delta_{\\mathrm{max}}=0.000000000000",
     "4\\times(1+2+3)=24",
     "4\\times(2^2+3^2)=52",
     "z_{\\mathrm{EOS}}=4",

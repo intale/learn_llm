@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 
+import { rehypeMathmlCompatibility } from './src/lib/mathml-compat.mjs';
 import {
   DEFAULT_SITE_URL,
   normalizeSiteUrl,
@@ -78,7 +79,11 @@ export default defineConfig({
     },
     processor: unified({
       remarkPlugins: [remarkMath],
-      rehypePlugins: [rehypeKatex, rehypeLeftToRightCode],
+      rehypePlugins: [
+        rehypeKatex,
+        rehypeMathmlCompatibility,
+        rehypeLeftToRightCode,
+      ],
     }),
   },
 });
