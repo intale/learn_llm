@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   chapterPath,
@@ -15,19 +15,17 @@ const chapterId = "00-llm-parts";
 const chapterTitle = "A map of a modern LLM";
 const chapterDescription =
   "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.";
-const diagramId = "llm-parts-map";
+const systemDiagramId = "llm-system-map";
+const detailDiagramId = "llm-parts-map";
 const chapterHeadings = [
-  "Trace one token before learning any details",
-  "One objective connects all the blocks",
-  "Read the notation",
+  "See the system before its mechanisms",
   "A short road to the modern block diagram",
-  "Freeze the topology as data",
-  "Put every later lesson in one place",
-  "Check your first mental model",
-  "Start the implementation path",
+  "Follow the blocks as one connected system",
+  "Use the map as a table of contents",
+  "Start with the model’s input boundary",
 ] as const;
 
-async function expectContainedDiagram(page: Page) {
+async function expectContainedDiagram(page: Page, diagramId: string) {
   const problems = await page
     .locator(`figure[data-visualization-id="${diagramId}"]`)
     .evaluate((node) => {
@@ -74,12 +72,33 @@ async function expectContainedDiagram(page: Page) {
   expect(problems).toEqual([]);
 }
 
+async function splitOrdinaryWords(diagram: Locator) {
+  return diagram.locator("[data-diagram-box]").evaluateAll((boxes) =>
+    boxes.flatMap((box, boxIndex) => {
+      const split: string[] = [];
+      const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text;
+        for (const match of node.data.matchAll(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g)) {
+          const range = document.createRange();
+          range.setStart(node, match.index ?? 0);
+          range.setEnd(node, (match.index ?? 0) + match[0].length);
+          if (range.getClientRects().length > 1) {
+            split.push(`${boxIndex}:${match[0]}`);
+          }
+        }
+      }
+      return split;
+    }),
+  );
+}
+
 async function expectChapter(page: Page) {
   await expectLocalizedChapterRoute(page, {
     chapterId,
     locale: "en",
     order: 0,
-    revision: 1,
+    revision: 2,
     revisionLabel: "Content revision",
     title: chapterTitle,
     equivalentLocales: ["en"],
@@ -94,57 +113,117 @@ async function expectChapter(page: Page) {
   ).toEqual(chapterHeadings);
   await expectVisualizationDecision(page, {
     decision: "useful",
-    id: diagramId,
+    id: systemDiagramId,
+    supplementary: [{ id: detailDiagramId }],
   });
-  const diagram = page.locator(`figure[data-visualization-id="${diagramId}"]`);
-  await expect(diagram.getByRole("heading", { name: "The next-token inference path" })).toBeVisible();
-  await expect(diagram.getByRole("heading", { name: "Inside every pre-norm decoder block" })).toBeVisible();
-  await expect(diagram.getByRole("heading", { name: "Learning and evaluating the same weights" })).toBeVisible();
-  await expect(diagram.locator("[data-part-id]")).toHaveCount(19);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(19);
-  await expect(diagram.locator('[data-part-id="numeric-core"]')).toHaveAttribute(
+  const systemDiagram = page.locator(
+    `figure[data-visualization-id="${systemDiagramId}"]`,
+  );
+  const detailDiagram = page.locator(
+    `figure[data-visualization-id="${detailDiagramId}"]`,
+  );
+  const system = systemDiagram.locator(".system-panel");
+  await expect(
+    system.getByRole("heading", { name: "How the complete system connects" }),
+  ).toBeVisible();
+  await expect(system.getByRole("heading", { name: "Shared forward path" })).toBeVisible();
+  await expect(system.getByRole("heading", { name: "Generation branch" })).toBeVisible();
+  await expect(system.getByRole("heading", { name: "Learning branch" })).toBeVisible();
+  await expect(system.locator("[data-schema-stage]")).toHaveCount(18);
+  expect(
+    await system.locator("[data-schema-stage]").evaluateAll((stages) =>
+      stages.map((stage) => stage.getAttribute("data-schema-stage")),
+    ),
+  ).toEqual([
+    "prompt",
+    "tokenizer",
+    "embeddings",
+    "decoder-stack",
+    "vocabulary-head",
+    "logits",
+    "sampler",
+    "next-token",
+    "learning-logits",
+    "target",
+    "loss",
+    "gradients",
+    "optimizer",
+    "weights",
+    "kv-cache",
+    "numeric-foundation",
+    "evaluation",
+    "checkpoint",
+  ]);
+  await expect(system).toContainText(
+    "The chosen ID returns to embedding lookup for the next cached step.",
+  );
+  await expect(system).toContainText(
+    "Updated weights feed the shared forward path on the next training step.",
+  );
+  await expect(system.locator('[data-schema-stage="evaluation"]')).toContainText(
+    "Selected weights → frozen model → final test score",
+  );
+  await expect(system.locator('[data-schema-stage="checkpoint"]')).toContainText(
+    "training state ↔ saved checkpoint",
+  );
+  await expect(detailDiagram.getByRole("heading", { name: "The next-token inference path" })).toBeVisible();
+  await expect(detailDiagram.getByRole("heading", { name: "Inside every pre-norm decoder block" })).toBeVisible();
+  await expect(detailDiagram.getByRole("heading", { name: "Learning and evaluating the same weights" })).toBeVisible();
+  await expect(systemDiagram.locator("[data-diagram-box]")).toHaveCount(18);
+  await expect(systemDiagram.locator('[data-schema-stage="learning-logits"]')).toContainText(
+    "Forward logits",
+  );
+  await expect(systemDiagram.locator(".system-join")).toHaveText("and");
+  await expect(detailDiagram.locator('[data-part-id="optimizer"]')).toContainText(
+    "validation chooses a state",
+  );
+  await expect(detailDiagram.locator("[data-part-id]")).toHaveCount(19);
+  await expect(detailDiagram.locator("[data-diagram-box]")).toHaveCount(19);
+  expect(await splitOrdinaryWords(systemDiagram), "whole-system word wrapping").toEqual([]);
+  expect(await splitOrdinaryWords(detailDiagram), "detail-map word wrapping").toEqual([]);
+  await expect(detailDiagram.locator('[data-part-id="numeric-core"]')).toHaveAttribute(
     "data-part-path",
     "both",
   );
-  await expect(diagram.locator('[data-part-id="numeric-core"]')).toContainText(
+  await expect(detailDiagram.locator('[data-part-id="numeric-core"]')).toContainText(
     "record gradients only while learning",
   );
-  await expect(diagram.locator("[data-learning-reuse]")).toContainText(
+  await expect(detailDiagram.locator("[data-learning-reuse]")).toContainText(
     "text → tokenizer → embeddings → decoder blocks → vocabulary head",
   );
   await expect(page.locator(".lesson-body")).toContainText(
-    "Training shifts targets by one position, so this allowed diagonal never exposes the token being predicted.",
+    "This overview deliberately stops at names, purposes, and connections.",
   );
   await expect(page.locator(".lesson-body")).toContainText(
-    /ID[’']s embedding/,
+    "You do not need to memorize this map.",
   );
   await expect(page.locator(".lesson-body")).toContainText(
-    "does not detokenize and tokenize the whole growing sequence again",
+    "Every named part links to the chapter that implements it.",
   );
-  await expect(diagram.locator('[data-part-id="sampler"]')).toContainText(
+  await expect(detailDiagram.locator('[data-part-id="sampler"]')).toContainText(
     "token ID to embeddings",
   );
-  await expect(diagram.locator("ol.inference-flow")).toHaveCount(1);
-  await expect(diagram.locator("ol.decoder-flow")).toHaveCount(1);
-  await expect(diagram.locator("ol.learning-flow")).toHaveCount(1);
-  await expect(diagram.locator(".learning-flow")).toHaveAttribute("start", "6");
-  const stateSymbols = diagram.locator(".state-symbol");
+  await expect(detailDiagram.locator("ol.inference-flow")).toHaveCount(1);
+  await expect(detailDiagram.locator("ol.decoder-flow")).toHaveCount(1);
+  await expect(detailDiagram.locator("ol.learning-flow")).toHaveCount(1);
+  await expect(detailDiagram.locator(".learning-flow")).toHaveAttribute("start", "6");
+  const stateSymbols = detailDiagram.locator(".state-symbol");
   await expect(stateSymbols).toHaveCount(19);
   expect(
     await stateSymbols.evaluateAll((symbols) =>
       symbols.every((symbol) => symbol.getAttribute("aria-hidden") === "true"),
     ),
   ).toBe(true);
-  const chapterLinks = diagram.locator("a[data-chapter-link]");
+  const chapterLinks = detailDiagram.locator("a[data-chapter-link]");
   await expect(chapterLinks).toHaveCount(43);
   await expect(
-    diagram.getByRole("link", {
+    detailDiagram.getByRole("link", {
       name: "Ch 01 — Text units and vocabulary IDs",
       exact: true,
     }),
   ).toBeVisible();
   await expect(
-    diagram.getByRole("link", {
+    detailDiagram.getByRole("link", {
       name: "Ch 39 — Run the whole tiny LLM",
       exact: true,
     }),
@@ -159,7 +238,7 @@ async function expectChapter(page: Page) {
     ),
   ).toBe(true);
   expect(
-    await diagram.locator(".learning-flow > li").evaluateAll((cards) =>
+    await detailDiagram.locator(".learning-flow > li").evaluateAll((cards) =>
       cards.map((card) => ({
         metadata: card.getAttribute("data-flow-order"),
         visible: card.querySelector("header .state-symbol")?.textContent?.trim(),
@@ -179,12 +258,15 @@ async function expectChapter(page: Page) {
     const prefix = `${order.toString().padStart(2, "0")}-`;
     expect(destinations.some((chapter) => chapter.startsWith(prefix))).toBe(true);
   }
+  await expect(page.locator(".lesson-body .katex")).toHaveCount(0);
   await expect(
-    page.locator('.lesson-body annotation[encoding="application/x-tex"]').filter({
-      hasText: String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
-    }),
-  ).toHaveCount(1);
-  await expectContainedDiagram(page);
+    page.locator(".lesson-body pre, .lesson-body details, .lesson-body [data-rust-source]"),
+  ).toHaveCount(0);
+  await expect(page.locator(".lesson-body")).not.toContainText(
+    "Check your first mental model",
+  );
+  await expectContainedDiagram(page, systemDiagramId);
+  await expectContainedDiagram(page, detailDiagramId);
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -197,7 +279,7 @@ async function expectCompleteChapterLinks(
       .filter(({ order }) => order > 0)
       .map((chapter) => [chapter.chapterId, chapter]),
   );
-  const diagram = page.locator(`figure[data-visualization-id="${diagramId}"]`);
+  const diagram = page.locator(`figure[data-visualization-id="${detailDiagramId}"]`);
   const links = await diagram.locator("a[data-chapter-link]").evaluateAll((nodes) =>
     nodes.map((node) => ({
       chapterId: node.getAttribute("data-chapter-link") ?? "",
@@ -304,68 +386,50 @@ test.describe(
       await page.reload();
       await expectChapter(page);
       await expect(
-        page.locator(`[data-visualization-id="${diagramId}"] [data-diagram-full-view-toggle]`),
+        page.locator(
+          `[data-visualization-id="${systemDiagramId}"] [data-diagram-full-view-toggle], ` +
+          `[data-visualization-id="${detailDiagramId}"] [data-diagram-full-view-toggle]`,
+        ),
       ).toHaveCount(0);
     });
 
-    test("the shared full-view control expands the same figure and restores focus", async ({
+    test("the shared full-view control expands each figure and restores focus", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1366, height: 768 });
       await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(`figure[data-visualization-id="${diagramId}"]`);
-      const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-      await expect(toggle).toHaveCount(1);
-      await toggle.click();
-      await page.waitForFunction(
-        (id) => document.fullscreenElement?.getAttribute("data-visualization-id") === id,
-        diagramId,
-      );
-      await expect(page.locator(`figure[data-visualization-id="${diagramId}"]`)).toHaveCount(1);
-      await expect(diagram.locator("[data-diagram-box]")).toHaveCount(19);
-      await expectContainedDiagram(page);
-      const panels = await diagram.locator(":scope > section").evaluateAll((sections) =>
-        sections.map((section) => {
-          const rect = section.getBoundingClientRect();
-          return { top: rect.top, left: rect.left, right: rect.right };
-        }),
-      );
-      expect(panels).toHaveLength(3);
-      expect(
-        Math.max(...panels.map(({ top }) => top)) -
-          Math.min(...panels.map(({ top }) => top)),
-      ).toBeLessThanOrEqual(1);
-      expect(panels[0]!.right).toBeLessThanOrEqual(panels[1]!.left);
-      expect(panels[1]!.right).toBeLessThanOrEqual(panels[2]!.left);
-      const splitHeadingWords = await diagram.locator("h5").evaluateAll((headings) => {
-        const split: string[] = [];
-        for (const heading of headings) {
-          const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT);
-          while (walker.nextNode()) {
-            const node = walker.currentNode as Text;
-            for (const match of node.data.matchAll(/\S+/g)) {
-              const range = document.createRange();
-              range.setStart(node, match.index ?? 0);
-              range.setEnd(node, (match.index ?? 0) + match[0].length);
-              if (range.getClientRects().length > 1) {
-                split.push(match[0]);
-              }
-            }
-          }
-        }
-        return split;
-      });
-      expect(splitHeadingWords).toEqual([]);
-      const travel = await diagram.evaluate((node) => ({
-        horizontal: node.scrollWidth - node.clientWidth,
-        vertical: node.scrollHeight - node.clientHeight,
-        verticalLimit: Math.ceil(node.clientHeight * 0.2),
-      }));
-      expect(travel.horizontal).toBe(0);
-      expect(travel.vertical).toBeLessThanOrEqual(travel.verticalLimit);
-      await page.keyboard.press("Escape");
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
+
+      for (const [id, boxCount] of [
+        [systemDiagramId, 18],
+        [detailDiagramId, 19],
+      ] as const) {
+        const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        await toggle.click();
+        await page.waitForFunction(
+          (visualizationId) =>
+            document.fullscreenElement?.getAttribute("data-visualization-id") ===
+            visualizationId,
+          id,
+        );
+        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(boxCount);
+        await expectContainedDiagram(page, id);
+
+        expect(await splitOrdinaryWords(diagram), `${id} word wrapping`).toEqual([]);
+
+        const travel = await diagram.evaluate((node) => ({
+          horizontal: node.scrollWidth - node.clientWidth,
+          vertical: node.scrollHeight - node.clientHeight,
+          verticalLimit: Math.ceil(node.clientHeight * 0.2),
+        }));
+        expect(travel.horizontal, id).toBe(0);
+        expect(travel.vertical, id).toBeLessThanOrEqual(travel.verticalLimit);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
     });
 
     test("the complete linked map remains available without JavaScript", async ({
@@ -379,10 +443,15 @@ test.describe(
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(chapterPath("en", chapterId));
       await expect(page.getByRole("heading", { level: 1, name: chapterTitle })).toBeVisible();
-      await expect(page.locator(`[data-visualization-id="${diagramId}"]`)).toHaveCount(1);
+      await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
+      await expect(page.locator(`[data-visualization-id="${systemDiagramId}"]`)).toHaveCount(1);
+      await expect(page.locator(`[data-visualization-id="${detailDiagramId}"]`)).toHaveCount(1);
       await expect(page.locator("a[data-chapter-link]")).toHaveCount(43);
+      await expect(page.locator("[data-schema-stage]")).toHaveCount(18);
+      await expect(page.locator("[data-diagram-box]")).toHaveCount(37);
       await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(0);
-      await expectContainedDiagram(page);
+      await expectContainedDiagram(page, systemDiagramId);
+      await expectContainedDiagram(page, detailDiagramId);
       await expectNoOverflowOrClientScripts(page);
       await context.close();
     });

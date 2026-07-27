@@ -7708,3 +7708,110 @@ containment check that exposed the regression.
 
 **Affected step and run:** `implement-ch00-llm-parts`, run
 `20260727T102947Z-implement-ch00-llm-parts-01`.
+
+## 2026-07-27 - Treat Chapter 0 as orientation rather than an implementation lesson
+
+**Status:** Accepted from direct learner review.
+
+**Context:** The first Chapter 0 revision inherited the ordinary chapter template:
+it displayed a course-level probability formula and symbol glossary, printed the
+roadmap from a dedicated Rust package, and ended with a checked questionnaire.
+Those elements do not help a learner implement an LLM at this point. They turn an
+overview into an assessed lesson and make a formula from later material appear to
+be the organizing explanation for the entire model. The existing inference,
+decoder-interior, and learning views are useful, but they do not by themselves
+show all major blocks as one visibly connected system.
+
+**Decision:** Make `00-llm-parts` an explicit orientation content kind. It keeps
+an objective, brief LLM-history context, linked chapter destinations, SEO, and the
+shared semantic visualization, but has no chapter formula, symbol glossary, Rust
+example, executable output fixture, predict-first exercise, or checked answers.
+The lesson and contract validators must recognize this exception only when the
+orientation kind, Chapter 0 ID, and order zero agree; every implementation lesson
+from Chapter 1 onward retains the full formula, Rust, and exercise contract.
+
+Move the diagram's topology inventory from the removed Rust demo into validated
+build-time site data. Add an explicit connected overview showing prompt text,
+tokenizer, embeddings, repeated decoder stack, vocabulary head, logits,
+generation feedback, the training branch, weight updates, evaluation,
+checkpointing, and the shared numeric foundation. Keep the three existing
+detailed views and keep all full-view behavior owned by the site layout.
+
+**Consequences:** The course still uses Rust for every implementation example,
+beginning in Chapter 1; Chapter 0 no longer contains a non-implementation program
+whose only behavior is printing navigation data. Formula rendering coverage now
+starts with Chapter 1. The connected map remains complete static HTML, links every
+implementation chapter, and must pass the existing bounded-box, narrow-width,
+no-JavaScript, fullscreen, Chromium, and Firefox checks without a private script
+or a build/deployment change. The completed `implement-ch00-llm-parts` checkpoint
+is invalidated and replaced by `revise-ch00-orientation` while its run history is
+preserved.
+
+**Affected step and run:** `revise-ch00-orientation`, run
+`20260727T151628Z-revise-ch00-orientation-01`, replacing
+`implement-ch00-llm-parts`.
+
+## 2026-07-27 - Give the Chapter 0 overview and detail map independent full views
+
+**Status:** Accepted during the Chapter 0 orientation correction.
+
+**Context:** The connected whole-system schema adds 17 described stages to the
+19 bounded cards in the useful inference, decoder-block, and learning roadmap.
+Browser measurements at 1366 by 768 showed that a single registered figure still
+needed more than one extra viewport of vertical travel after its content was
+reorganized across the available width. Further compaction would require smaller
+text, hidden evidence, or boxes too narrow to contain ordinary words.
+
+**Decision:** Supersede the initial single-figure placement. Keep the connected
+system schema and the retained detail roadmap as two semantic figures with unique
+visualization IDs. Register both in Chapter 0's content metadata, give each
+exactly one control through the existing shared progressive full-view module, and
+extend course-wide content and browser checks to validate every registered figure
+rather than assuming one figure per chapter. Do not duplicate a presentation tree
+or add private Chapter 0 behavior.
+
+**Consequences:** A learner can expand the high-level system connection map or the
+chapter-by-chapter detail map independently at readable text size. Both inline
+fallbacks remain complete static HTML, and every retained detail remains present,
+but neither full view inherits the other figure's layout debt. The Chapter 0
+metadata schema gains a narrow supplementary-visualization list; existing chapter
+metadata and routes remain unchanged.
+
+**Affected step and run:** `revise-ch00-orientation`, run
+`20260727T151628Z-revise-ch00-orientation-01`.
+
+## 2026-07-27 - Make the Chapter 0 learning and finalization connections explicit
+
+**Status:** Accepted after semantic and rendered-layout review.
+
+**Context:** The first connected-schema candidate placed an observed target before
+loss with a plus sign, but did not render logits as the other loss input. That
+could be read as adding a target to loss rather than comparing forward-path logits
+with the target. The shared detail label also grouped Chapters 22 and 33 under
+`AdamW`, which incorrectly made validation-based model selection appear to be an
+optimizer operation. Evaluation and checkpoint cards named their purposes without
+showing what state reaches them. Intermediate-width inspection separately found
+that narrow grid tracks could split ordinary words even when no box overflowed.
+
+**Decision:** Render a second, explicitly labeled forward-logits card at the
+learning branch and join it with the observed target using the word “and” before
+loss. Continue directionally through gradients, the system-level AdamW optimizer,
+and updated weights. Give the detailed roadmap a separate “AdamW and selection”
+label whose prose assigns weight updates to AdamW and state choice to validation.
+Attach evaluation to selected frozen weights and checkpointing bidirectionally to
+model and training state. The final whole-system figure therefore owns 18 bounded
+boxes while the detail figure retains 19. Validate that ordinary words remain on
+one visual line inside every Chapter 0 box at inline and fullscreen widths; solve
+failures through reflow or concise learner-facing labels, never smaller text or
+clipping.
+
+**Consequences:** The overview now presents the correct loss inputs, keeps
+optimization distinct from selection, and shows how evaluation and persistence
+connect to trained state. Both figures remain readable at desktop, narrow, and
+native-fullscreen sizes in Chromium and Firefox, with zero horizontal travel and
+bounded vertical travel. The earlier 17-stage measurement records the candidate
+that motivated the two-figure decision; this decision records the final 18-box
+system topology.
+
+**Affected step and run:** `revise-ch00-orientation`, run
+`20260727T151628Z-revise-ch00-orientation-01`.

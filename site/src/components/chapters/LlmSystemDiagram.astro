@@ -1,0 +1,347 @@
+---
+import {
+  llmSystemDiagramId,
+  validateLlmPartsDiagramLabels,
+  type LlmPartsDiagramLabels,
+} from '../../lib/llm-parts-diagram';
+
+interface Props {
+  labels: LlmPartsDiagramLabels;
+}
+
+const { labels } = Astro.props;
+validateLlmPartsDiagramLabels(labels);
+
+const titleId = 'llm-system-diagram-title';
+const descriptionId = 'llm-system-diagram-description';
+---
+
+<figure
+  class="course-diagram llm-system-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={llmSystemDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.title}</h3>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
+  </figcaption>
+
+  <section class="system-panel" aria-labelledby="llm-system-title">
+    <h4 id="llm-system-title">{labels.sections.system}</h4>
+    <p>{labels.captions.system}</p>
+
+    <div class="system-map course-diagram__grid">
+      <section class="system-lane forward-lane course-diagram__card-stack" aria-labelledby="llm-system-forward-title">
+        <h5 id="llm-system-forward-title">{labels.system.forwardTitle}</h5>
+        <div class="system-forward course-diagram__grid">
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="prompt">
+            <header class="course-diagram__card-heading"><h6>{labels.parts['input-text'].name}</h6></header>
+            <p>{labels.parts['input-text'].purpose}</p>
+          </article>
+          <strong class="system-arrow" aria-hidden="true">→</strong>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="tokenizer">
+            <header class="course-diagram__card-heading"><h6>{labels.parts.tokenizer.name}</h6></header>
+            <p>{labels.parts.tokenizer.purpose}</p>
+          </article>
+          <strong class="system-arrow" aria-hidden="true">→</strong>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="embeddings">
+            <header class="course-diagram__card-heading"><h6>{labels.parts.embeddings.name}</h6></header>
+            <p>{labels.parts.embeddings.purpose}</p>
+          </article>
+          <strong class="system-arrow" aria-hidden="true">→</strong>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="decoder-stack">
+            <header class="course-diagram__card-heading"><h6>{labels.parts['decoder-block'].name}</h6></header>
+            <p>{labels.parts['decoder-block'].purpose}</p>
+            <p class="cue">↻ {labels.cues.repeated}</p>
+          </article>
+          <strong class="system-arrow" aria-hidden="true">→</strong>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="vocabulary-head">
+            <header class="course-diagram__card-heading"><h6>{labels.parts['vocabulary-head'].name}</h6></header>
+            <p>{labels.parts['vocabulary-head'].purpose}</p>
+          </article>
+          <strong class="system-arrow" aria-hidden="true">→</strong>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="logits">
+            <header class="course-diagram__card-heading"><h6>{labels.system.logits.name}</h6></header>
+            <p>{labels.system.logits.purpose}</p>
+          </article>
+        </div>
+      </section>
+
+      <div class="system-branches course-diagram__grid">
+        <section class="system-lane generation-lane course-diagram__card-stack" aria-labelledby="llm-system-generation-title">
+          <h5 id="llm-system-generation-title"><span aria-hidden="true">↙</span> {labels.system.generationTitle}</h5>
+          <div class="branch-flow generation-flow course-diagram__grid">
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="sampler">
+              <header class="course-diagram__card-heading"><h6>{labels.parts.sampler.name}</h6></header>
+              <p>{labels.parts.sampler.purpose}</p>
+            </article>
+            <strong class="system-arrow" aria-hidden="true">→</strong>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="next-token">
+              <header class="course-diagram__card-heading"><h6>{labels.system.nextToken.name}</h6></header>
+              <p>{labels.system.nextToken.purpose}</p>
+            </article>
+          </div>
+          <p class="feedback-cue"><strong><span aria-hidden="true">↺</span> {labels.system.generationFeedback}</strong></p>
+        </section>
+
+        <section class="system-lane learning-lane course-diagram__card-stack" aria-labelledby="llm-system-learning-title">
+          <h5 id="llm-system-learning-title"><span aria-hidden="true">↘</span> {labels.system.learningTitle}</h5>
+          <div class="branch-flow learning-branch-flow course-diagram__grid">
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="learning-logits">
+              <header class="course-diagram__card-heading"><h6>{labels.system.learningLogits.name}</h6></header>
+              <p>{labels.system.learningLogits.purpose}</p>
+            </article>
+            <span class="system-join">{labels.system.learningJoin}</span>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="target">
+              <header class="course-diagram__card-heading"><h6>{labels.system.target.name}</h6></header>
+              <p>{labels.system.target.purpose}</p>
+            </article>
+            <strong class="system-arrow" aria-hidden="true">→</strong>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="loss">
+              <header class="course-diagram__card-heading"><h6>{labels.parts.loss.name}</h6></header>
+              <p>{labels.parts.loss.purpose}</p>
+            </article>
+            <strong class="system-arrow" aria-hidden="true">→</strong>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="gradients">
+              <header class="course-diagram__card-heading"><h6>{labels.system.gradients.name}</h6></header>
+              <p>{labels.system.gradients.purpose}</p>
+            </article>
+            <strong class="system-arrow" aria-hidden="true">→</strong>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="optimizer">
+              <header class="course-diagram__card-heading"><h6>{labels.system.optimizer.name}</h6></header>
+              <p>{labels.system.optimizer.purpose}</p>
+            </article>
+            <strong class="system-arrow" aria-hidden="true">→</strong>
+            <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="weights">
+              <header class="course-diagram__card-heading"><h6>{labels.system.weights.name}</h6></header>
+              <p>{labels.system.weights.purpose}</p>
+            </article>
+          </div>
+          <p class="feedback-cue"><strong><span aria-hidden="true">↺</span> {labels.system.weightFeedback}</strong></p>
+        </section>
+      </div>
+
+      <section class="system-lane support-lane course-diagram__card-stack" aria-labelledby="llm-system-support-title">
+        <h5 id="llm-system-support-title">{labels.system.supportTitle}</h5>
+        <div class="support-grid course-diagram__grid">
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="kv-cache">
+            <header class="course-diagram__card-heading"><h6>{labels.parts['kv-cache'].name}</h6></header>
+            <p>{labels.system.cacheRelationship}</p>
+          </article>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="numeric-foundation">
+            <header class="course-diagram__card-heading"><h6>{labels.parts['numeric-core'].name}</h6></header>
+            <p>{labels.system.numericRelationship}</p>
+          </article>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="evaluation">
+            <header class="course-diagram__card-heading"><h6>{labels.parts.evaluation.name}</h6></header>
+            <p>{labels.system.evaluationRelationship}</p>
+          </article>
+          <article class="system-stage course-diagram__card-stack" data-diagram-card data-diagram-box data-schema-stage="checkpoint">
+            <header class="course-diagram__card-heading"><h6>{labels.parts.checkpoint.name}</h6></header>
+            <p>{labels.system.checkpointRelationship}</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </section>
+</figure>
+
+<style>
+  .system-map,
+  .system-lane {
+    min-inline-size: 0;
+  }
+
+  .system-forward {
+    grid-template-columns: repeat(11, minmax(0, auto));
+    align-items: stretch;
+  }
+
+  .system-stage {
+    align-content: start;
+  }
+
+  .system-arrow,
+  .system-join {
+    display: grid;
+    min-inline-size: 1.25rem;
+    place-items: center;
+    align-self: center;
+  }
+
+  .system-branches {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 5fr);
+  }
+
+  .branch-flow {
+    grid-template-columns: repeat(3, minmax(0, auto));
+    align-items: stretch;
+  }
+
+  .learning-branch-flow {
+    grid-template-columns: repeat(11, minmax(0, auto));
+  }
+
+  .support-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  @container course-diagram (min-width: 42.01rem) {
+    .learning-branch-flow {
+      grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr);
+    }
+
+    .learning-branch-flow > :nth-child(1) {
+      grid-area: 1 / 1;
+    }
+
+    .learning-branch-flow > :nth-child(2) {
+      grid-area: 1 / 2;
+    }
+
+    .learning-branch-flow > :nth-child(3) {
+      grid-area: 1 / 3;
+    }
+
+    .learning-branch-flow > :nth-child(4) {
+      grid-area: 1 / 4;
+    }
+
+    .learning-branch-flow > :nth-child(5) {
+      grid-area: 1 / 5;
+    }
+
+    .learning-branch-flow > :nth-child(6) {
+      grid-area: 2 / 5;
+      transform: rotate(90deg);
+    }
+
+    .learning-branch-flow > :nth-child(7) {
+      grid-area: 3 / 5;
+    }
+
+    .learning-branch-flow > :nth-child(8) {
+      grid-area: 3 / 4;
+      transform: rotate(180deg);
+    }
+
+    .learning-branch-flow > :nth-child(9) {
+      grid-area: 3 / 3;
+    }
+
+    .learning-branch-flow > :nth-child(10) {
+      grid-area: 3 / 2;
+      transform: rotate(180deg);
+    }
+
+    .learning-branch-flow > :nth-child(11) {
+      grid-area: 3 / 1;
+    }
+  }
+
+  @container course-diagram (min-width: 42.01rem) and (max-width: 70rem) {
+    .system-forward {
+      grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr)
+        auto
+        minmax(0, 1fr);
+    }
+
+    .system-forward > :nth-child(1) {
+      grid-area: 1 / 1;
+    }
+
+    .system-forward > :nth-child(2) {
+      grid-area: 1 / 2;
+    }
+
+    .system-forward > :nth-child(3) {
+      grid-area: 1 / 3;
+    }
+
+    .system-forward > :nth-child(4) {
+      grid-area: 1 / 4;
+    }
+
+    .system-forward > :nth-child(5) {
+      grid-area: 1 / 5;
+    }
+
+    .system-forward > :nth-child(6) {
+      grid-area: 2 / 5;
+      transform: rotate(90deg);
+    }
+
+    .system-forward > :nth-child(7) {
+      grid-area: 3 / 5;
+    }
+
+    .system-forward > :nth-child(8) {
+      grid-area: 3 / 4;
+      transform: rotate(180deg);
+    }
+
+    .system-forward > :nth-child(9) {
+      grid-area: 3 / 3;
+    }
+
+    .system-forward > :nth-child(10) {
+      grid-area: 3 / 2;
+      transform: rotate(180deg);
+    }
+
+    .system-forward > :nth-child(11) {
+      grid-area: 3 / 1;
+    }
+
+    .system-branches {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @container course-diagram (max-width: 42rem) {
+    .system-forward,
+    .branch-flow,
+    .learning-branch-flow,
+    .system-branches,
+    .support-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .system-arrow {
+      transform: rotate(90deg);
+    }
+  }
+
+  .llm-system-diagram:fullscreen .system-map {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 2fr);
+    align-items: start;
+  }
+
+  .llm-system-diagram:fullscreen .forward-lane {
+    grid-column: 1 / -1;
+  }
+
+  .llm-system-diagram:fullscreen .system-branches {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+
+  .llm-system-diagram:fullscreen .support-lane {
+    grid-column: 2;
+  }
+
+  .llm-system-diagram:fullscreen .support-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+</style>

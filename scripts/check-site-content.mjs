@@ -27,8 +27,17 @@ export const REQUIRED_CHAPTER_SECTIONS = Object.freeze([
   'decoder-connection',
 ]);
 
+export const ORIENTATION_CHAPTER_SECTIONS = Object.freeze([
+  'overview',
+  'history',
+  'visualization',
+  'course-path',
+  'decoder-connection',
+]);
+
 const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const DIAGRAM_COMPONENT_PATTERN = /^[A-Z][A-Za-z0-9]*Diagram$/;
 const REGION_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const LATEX_PROSE_PATTERN =
   /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
@@ -84,6 +93,10 @@ function isObject(value) {
 
 function hasText(value) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isOrientationChapter(data) {
+  return data?.chapter_kind === 'orientation';
 }
 
 function addTextIssue(issues, value, field, sourceName) {
@@ -399,7 +412,10 @@ function directMarkdownLinkDestinations(source) {
 
 function validateChapterSections(data, body, issues, sourceName) {
   const sections = sliceChapterSections(body);
-  for (const name of REQUIRED_CHAPTER_SECTIONS) {
+  const requiredSections = isOrientationChapter(data)
+    ? ORIENTATION_CHAPTER_SECTIONS
+    : REQUIRED_CHAPTER_SECTIONS;
+  for (const name of requiredSections) {
     const section = sections.get(name) ?? '';
     if (!/^\s*##\s+\S/m.test(section)) {
       issues.push(sourceName + ': ' + name + ' section must start with a level-two heading');
@@ -445,27 +461,29 @@ function validateChapterSections(data, body, issues, sourceName) {
     }
   }
 
-  const formulaSection = renderableMdxSource(sections.get('formula') ?? '');
-  const displayedFormulae = [...formulaSection.matchAll(/\$\$\s*([\s\S]*?)\s*\$\$/g)].map(
-    (match) => normalizedFormula(match[1]),
-  );
-  if (!displayedFormulae.includes(normalizedFormula(data.formula?.latex))) {
-    issues.push(
-      sourceName + ': formula section must display formula.latex exactly once as notation',
+  if (!isOrientationChapter(data)) {
+    const formulaSection = renderableMdxSource(sections.get('formula') ?? '');
+    const displayedFormulae = [...formulaSection.matchAll(/\$\$\s*([\s\S]*?)\s*\$\$/g)].map(
+      (match) => normalizedFormula(match[1]),
     );
-  } else if (
-    displayedFormulae.filter(
-      (formula) => formula === normalizedFormula(data.formula?.latex),
-    ).length !== 1
-  ) {
-    issues.push(sourceName + ': formula section must display formula.latex exactly once');
-  }
+    if (!displayedFormulae.includes(normalizedFormula(data.formula?.latex))) {
+      issues.push(
+        sourceName + ': formula section must display formula.latex exactly once as notation',
+      );
+    } else if (
+      displayedFormulae.filter(
+        (formula) => formula === normalizedFormula(data.formula?.latex),
+      ).length !== 1
+    ) {
+      issues.push(sourceName + ': formula section must display formula.latex exactly once');
+    }
 
-  const rustSection = renderableMdxSource(
-    sections.get('rust-implementation') ?? '',
-  );
-  if (extractRustSourceReferences(rustSection).length === 0) {
-    issues.push(sourceName + ': rust-implementation section must contain <RustSource> evidence');
+    const rustSection = renderableMdxSource(
+      sections.get('rust-implementation') ?? '',
+    );
+    if (extractRustSourceReferences(rustSection).length === 0) {
+      issues.push(sourceName + ': rust-implementation section must contain <RustSource> evidence');
+    }
   }
 
   const visualizationSection = renderableMdxSource(
@@ -474,13 +492,20 @@ function validateChapterSections(data, body, issues, sourceName) {
   const diagramInvocation = /<[A-Z][A-Za-z0-9]*Diagram(?:\s|\/|>)/g;
   const visualizationInvocations = visualizationSection.match(diagramInvocation) ?? [];
   const bodyInvocations = renderableMdxSource(body).match(diagramInvocation) ?? [];
+  const expectedVisualizationCount =
+    data.visualization?.decision === 'useful'
+      ? 1 + (data.visualization.supplementary?.length ?? 0)
+      : 0;
   if (
     data.visualization?.decision === 'useful' &&
-    (visualizationInvocations.length !== 1 || bodyInvocations.length !== 1)
+    (visualizationInvocations.length !== expectedVisualizationCount ||
+      bodyInvocations.length !== expectedVisualizationCount)
   ) {
     issues.push(
       sourceName +
-        ': useful visualization must be invoked inside its section; exactly one *Diagram component is required in the complete body',
+        ': useful visualization must be invoked inside its section; exactly ' +
+        expectedVisualizationCount +
+        ' *Diagram component invocation(s) are required in the complete body',
     );
   }
   if (
@@ -490,30 +515,32 @@ function validateChapterSections(data, body, issues, sourceName) {
     issues.push(sourceName + ': not-useful visualization must not invoke a diagram');
   }
 
-  const exercises = renderableMdxSource(sections.get('exercises') ?? '');
-  const answerStart = exercises.indexOf('<details');
-  const predictionPrompts =
-    answerStart === -1 ? exercises : exercises.slice(0, answerStart);
-  const checkedAnswers = answerStart === -1 ? '' : exercises.slice(answerStart);
-  const predictionCount = [...predictionPrompts.matchAll(/^\s*\d+\.\s+\S/gm)].length;
-  if (!/^\s*1\.\s+\S/m.test(predictionPrompts)) {
-    issues.push(sourceName + ': exercises section must contain a predict-first ordered list');
-  }
-  const answerBlock = checkedAnswers.match(
-    /^<details\b[^>]*>\s*<summary\b[^>]*>\s*\S[\s\S]*?<\/summary>([\s\S]*?)<\/details>/,
-  );
-  if (!answerBlock) {
-    issues.push(sourceName + ': exercises section must contain checked answers in <details>');
-  } else {
-    const answerCount = [...answerBlock[1].matchAll(/^\s*\d+\.\s+\S/gm)].length;
-    if (
-      visibleSectionEvidence(answerBlock[1]).length < 40 ||
-      answerCount !== predictionCount
-    ) {
-      issues.push(
-        sourceName +
-          ': checked answers must contain one substantive ordered answer per prediction',
-      );
+  if (!isOrientationChapter(data)) {
+    const exercises = renderableMdxSource(sections.get('exercises') ?? '');
+    const answerStart = exercises.indexOf('<details');
+    const predictionPrompts =
+      answerStart === -1 ? exercises : exercises.slice(0, answerStart);
+    const checkedAnswers = answerStart === -1 ? '' : exercises.slice(answerStart);
+    const predictionCount = [...predictionPrompts.matchAll(/^\s*\d+\.\s+\S/gm)].length;
+    if (!/^\s*1\.\s+\S/m.test(predictionPrompts)) {
+      issues.push(sourceName + ': exercises section must contain a predict-first ordered list');
+    }
+    const answerBlock = checkedAnswers.match(
+      /^<details\b[^>]*>\s*<summary\b[^>]*>\s*\S[\s\S]*?<\/summary>([\s\S]*?)<\/details>/,
+    );
+    if (!answerBlock) {
+      issues.push(sourceName + ': exercises section must contain checked answers in <details>');
+    } else {
+      const answerCount = [...answerBlock[1].matchAll(/^\s*\d+\.\s+\S/gm)].length;
+      if (
+        visibleSectionEvidence(answerBlock[1]).length < 40 ||
+        answerCount !== predictionCount
+      ) {
+        issues.push(
+          sourceName +
+            ': checked answers must contain one substantive ordered answer per prediction',
+        );
+      }
     }
   }
 
@@ -662,12 +689,75 @@ function validateVisualization(visualization, issues, sourceName) {
           ': a useful visualization requires a lowercase kebab-case visualization.id',
       );
     }
+    if (
+      visualization.component !== undefined &&
+      (!hasText(visualization.component) ||
+        !DIAGRAM_COMPONENT_PATTERN.test(visualization.component))
+    ) {
+      issues.push(
+        sourceName + ': visualization.component must name a *Diagram component',
+      );
+    }
+    const supplementary = visualization.supplementary ?? [];
+    if (!Array.isArray(supplementary)) {
+      issues.push(sourceName + ': visualization.supplementary must be an array when present');
+    } else {
+      const ids = [visualization.id];
+      const components = visualization.component ? [visualization.component] : [];
+      supplementary.forEach((entry, index) => {
+        if (!isObject(entry)) {
+          issues.push(
+            sourceName + ': visualization.supplementary[' + index + '] must be an object',
+          );
+          return;
+        }
+        if (!hasText(entry.id) || !CONCEPT_ID_PATTERN.test(entry.id)) {
+          issues.push(
+            sourceName +
+              ': visualization.supplementary[' +
+              index +
+              '].id must be lowercase kebab-case',
+          );
+        }
+        if (
+          !hasText(entry.component) ||
+          !DIAGRAM_COMPONENT_PATTERN.test(entry.component)
+        ) {
+          issues.push(
+            sourceName +
+              ': visualization.supplementary[' +
+              index +
+              '].component must name a *Diagram component',
+          );
+        }
+        addTextIssue(
+          issues,
+          entry.rationale,
+          'visualization.supplementary[' + index + '].rationale',
+          sourceName,
+        );
+        ids.push(entry.id);
+        components.push(entry.component);
+      });
+      if (new Set(ids).size !== ids.length) {
+        issues.push(sourceName + ': visualization IDs must be unique within the chapter');
+      }
+      if (new Set(components).size !== components.length) {
+        issues.push(sourceName + ': visualization components must be unique within the chapter');
+      }
+    }
   }
 
   if (visualization.decision === 'not-useful' && visualization.id !== null) {
     issues.push(
       sourceName + ': a not-useful visualization must set visualization.id to null',
     );
+  }
+  if (
+    visualization.decision === 'not-useful' &&
+    (visualization.component !== undefined || visualization.supplementary !== undefined)
+  ) {
+    issues.push(sourceName + ': a not-useful visualization cannot register components');
   }
 }
 
@@ -698,6 +788,14 @@ export function validateChapterMetadata(
     issues.push(sourceName + ': concept_id must be lowercase kebab-case');
   }
 
+  const orientation = isOrientationChapter(data);
+  if (orientation && (data.chapter_id !== '00-llm-parts' || data.order !== 0)) {
+    issues.push(sourceName + ': only 00-llm-parts at order zero may be an orientation');
+  }
+  if (data.chapter_kind !== undefined && !['lesson', 'orientation'].includes(data.chapter_kind)) {
+    issues.push(sourceName + ': chapter_kind must be lesson or orientation when present');
+  }
+
   for (const field of [
     'title',
     'description',
@@ -708,7 +806,13 @@ export function validateChapterMetadata(
     addTextIssue(issues, data[field], field, sourceName);
   }
 
-  validateFormula(data.formula, issues, sourceName);
+  if (orientation) {
+    if (data.formula !== null) {
+      issues.push(sourceName + ': orientation formula must be null');
+    }
+  } else {
+    validateFormula(data.formula, issues, sourceName);
+  }
 
   if (!isObject(data.history)) {
     issues.push(sourceName + ': history must be an object');
@@ -721,16 +825,49 @@ export function validateChapterMetadata(
     );
     addTextIssue(issues, data.history.approach, 'history.approach', sourceName);
     addTextIssue(issues, data.history.summary, 'history.summary', sourceName);
-    if (!isAllowedRustSourcePath(data.history.rust_source)) {
+    if (orientation) {
+      if (data.history.rust_source !== null) {
+        issues.push(sourceName + ': orientation history.rust_source must be null');
+      }
+    } else if (!isAllowedRustSourcePath(data.history.rust_source)) {
       issues.push(sourceName + ': history.rust_source is not an allowed repository Rust path');
     }
   }
 
-  validateRustSources(data.rust_sources, issues, sourceName);
+  if (orientation) {
+    if (!Array.isArray(data.rust_sources) || data.rust_sources.length !== 0) {
+      issues.push(sourceName + ': orientation rust_sources must be an empty array');
+    }
+  } else {
+    validateRustSources(data.rust_sources, issues, sourceName);
+  }
   validateVisualization(data.visualization, issues, sourceName);
+  if (orientation) {
+    if (
+      data.visualization?.decision !== 'useful' ||
+      data.visualization.id !== 'llm-system-map' ||
+      data.visualization.component !== 'LlmSystemDiagram' ||
+      JSON.stringify(data.visualization.supplementary?.map((entry) => entry?.id) ?? []) !==
+        JSON.stringify(['llm-parts-map']) ||
+      data.visualization.supplementary?.[0]?.component !== 'LlmPartsDiagram'
+    ) {
+      issues.push(
+        sourceName +
+          ': the orientation must register llm-system-map and supplementary llm-parts-map',
+      );
+    }
+  } else if (
+    data.visualization?.component !== undefined ||
+    data.visualization?.supplementary !== undefined
+  ) {
+    issues.push(
+      sourceName + ': supplementary visualizations are reserved for the orientation',
+    );
+  }
 
   if (
     isObject(data.history) &&
+    !orientation &&
     Array.isArray(data.rust_sources) &&
     !data.rust_sources.some((source) => source?.path === data.history.rust_source)
   ) {
@@ -806,21 +943,27 @@ export function validateChapterDocument(
   }
 
   const markers = extractChapterSectionMarkers(parsed.body);
-  if (JSON.stringify(markers) !== JSON.stringify(REQUIRED_CHAPTER_SECTIONS)) {
+  const requiredSections = isOrientationChapter(parsed.data)
+    ? ORIENTATION_CHAPTER_SECTIONS
+    : REQUIRED_CHAPTER_SECTIONS;
+  if (JSON.stringify(markers) !== JSON.stringify(requiredSections)) {
     issues.push(
       sourceName +
         ': chapter section markers must appear exactly once in this order: ' +
-        REQUIRED_CHAPTER_SECTIONS.join(', '),
+        requiredSections.join(', '),
     );
   }
 
-  if (JSON.stringify(markers) === JSON.stringify(REQUIRED_CHAPTER_SECTIONS)) {
+  if (JSON.stringify(markers) === JSON.stringify(requiredSections)) {
     validateChapterSections(parsed.data, parsed.body, issues, sourceName);
   }
 
   const references = extractRustSourceReferences(renderableMdxSource(parsed.body));
-  if (references.length === 0) {
+  if (!isOrientationChapter(parsed.data) && references.length === 0) {
     issues.push(sourceName + ': body must include at least one <RustSource> component');
+  }
+  if (isOrientationChapter(parsed.data) && references.length !== 0) {
+    issues.push(sourceName + ': orientation must not include <RustSource> components');
   }
 
   const declared = new Set(parsed.data.rust_sources.map(sourceIdentity));
@@ -912,10 +1055,13 @@ export function sharedChapterData(data) {
     chapter_id: data.chapter_id,
     order: data.order,
     concept_id: data.concept_id,
-    formula: {
-      latex: data.formula.latex,
-      symbols: data.formula.symbols.map((symbol) => symbol.symbol),
-    },
+    chapter_kind: data.chapter_kind ?? 'lesson',
+    formula: data.formula
+      ? {
+          latex: data.formula.latex,
+          symbols: data.formula.symbols.map((symbol) => symbol.symbol),
+        }
+      : null,
     history_rust_source: data.history.rust_source,
     history_llm_evolution: data.history.llm_evolution
       ? {
@@ -935,6 +1081,16 @@ export function sharedChapterData(data) {
     visualization: {
       decision: data.visualization.decision,
       id: data.visualization.id,
+      ...(data.visualization.component
+        ? { component: data.visualization.component }
+        : {}),
+      ...((data.visualization.supplementary?.length ?? 0) > 0
+        ? {
+            supplementary: data.visualization.supplementary.map(
+              ({ id, component }) => ({ id, component }),
+            ),
+          }
+        : {}),
     },
   };
 }

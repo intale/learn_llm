@@ -95,7 +95,7 @@ describe('manifest-driven chapter publication', () => {
       'shared metadata drift',
       () => {
         const spanish = lesson('es');
-        spanish.data.formula.latex = 'i = W(t)';
+        spanish.data.formula!.latex = 'i = W(t)';
         return [lesson('en'), lesson('ru'), spanish];
       },
     ],
@@ -120,6 +120,23 @@ describe('manifest-driven chapter publication', () => {
       'https://example.com/later';
     entries[2].data.history.llm_evolution!.predecessor_kind =
       'training-practice';
+    expect(
+      findPublishableChapterSets(entries, configuredLocales, 'en'),
+    ).toEqual([]);
+  });
+
+  it('keeps supplementary visualization registration drift unpublished', () => {
+    const entries = configuredLocales.map((locale) => lesson(locale));
+    for (const entry of entries) {
+      entry.data.visualization.component = 'LlmSystemDiagram';
+      entry.data.visualization.supplementary = [
+        { id: 'llm-parts-map', component: 'LlmPartsDiagram' },
+      ];
+    }
+    entries[2].data.visualization.supplementary = [
+      { id: 'drifted-map', component: 'LlmPartsDiagram' },
+    ];
+
     expect(
       findPublishableChapterSets(entries, configuredLocales, 'en'),
     ).toEqual([]);

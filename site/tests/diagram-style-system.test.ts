@@ -39,7 +39,7 @@ const fixture = `
 
 describe("course diagram design system", () => {
   it("applies one complete source contract to every current diagram", () => {
-    expect(components).toHaveLength(39);
+    expect(components).toHaveLength(40);
     expect(validateDiagramComponents(repositoryRoot)).toBe(components.length);
 
     for (const component of components) {

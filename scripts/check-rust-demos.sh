@@ -65,7 +65,7 @@ function duplicate(values, label) {
   if (new Set(values).size !== values.length) fail(`duplicate ${label}`);
 }
 
-const contracts = readdirSync(contractRoot, { withFileTypes: true })
+const chapterContracts = readdirSync(contractRoot, { withFileTypes: true })
   .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
   .map((entry) => {
     const path = join(contractRoot, entry.name);
@@ -79,6 +79,18 @@ const contracts = readdirSync(contractRoot, { withFileTypes: true })
     if (!data.chapter_id.startsWith(String(data.order).padStart(2, '0') + '-')) {
       fail(`${path}: chapter_id prefix and order differ`);
     }
+    const orientation = data.chapter_kind === 'orientation';
+    if (orientation) {
+      if (
+        data.chapter_id !== '00-llm-parts' ||
+        data.order !== 0 ||
+        data.formula !== null ||
+        data.rust !== null
+      ) {
+        fail(`${path}: the Chapter 0 orientation must have null formula and Rust plans`);
+      }
+      return { path, data, packageName: null };
+    }
     const expectedPackage = `ch${data.chapter_id}`;
     if (data.rust?.package !== expectedPackage) {
       fail(`${path}: rust.package must equal ${expectedPackage}`);
@@ -87,18 +99,19 @@ const contracts = readdirSync(contractRoot, { withFileTypes: true })
   })
   .sort((left, right) => left.data.order - right.data.order);
 
-if (contracts.length === 0) fail('no chapter contracts were found');
-duplicate(contracts.map((contract) => contract.data.chapter_id), 'contract chapter_id');
-duplicate(contracts.map((contract) => contract.data.order), 'contract order');
-const firstOrder = contracts[0]?.data.order;
+if (chapterContracts.length === 0) fail('no chapter contracts were found');
+duplicate(chapterContracts.map((contract) => contract.data.chapter_id), 'contract chapter_id');
+duplicate(chapterContracts.map((contract) => contract.data.order), 'contract order');
+const firstOrder = chapterContracts[0]?.data.order;
 if (firstOrder !== 0 && firstOrder !== 1) {
   fail('chapter contracts must begin at order 0 or 1');
 }
-contracts.forEach((contract, index) => {
+chapterContracts.forEach((contract, index) => {
   if (contract.data.order !== firstOrder + index) {
     fail('chapter contracts must form a contiguous prefix');
   }
 });
+const contracts = chapterContracts.filter((contract) => contract.packageName !== null);
 
 const chapterEntries = [];
 for (const entry of readdirSync(demoRoot, { withFileTypes: true })) {

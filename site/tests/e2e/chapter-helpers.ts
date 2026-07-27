@@ -276,7 +276,11 @@ export async function expectOrderedChapterNavigation(
 export async function expectVisualizationDecision(
   page: Page,
   visualization:
-    { decision: 'useful'; id: string } | { decision: 'not-useful'; id: null },
+    {
+      decision: 'useful';
+      id: string;
+      supplementary?: readonly { id: string }[];
+    } | { decision: 'not-useful'; id: null },
 ) {
   const figures = page.locator('figure[data-visualization-id]');
   if (visualization.decision === 'not-useful') {
@@ -284,22 +288,29 @@ export async function expectVisualizationDecision(
     return;
   }
 
-  const figure = page.locator(
-    `figure[data-visualization-id="${visualization.id}"]`,
-  );
-  await expect(figure).toHaveCount(1);
-  await expect(figure).toBeVisible();
-  await expect(figure.locator('figcaption')).not.toHaveText('');
-  await expect(figure).toHaveAttribute('tabindex', '0');
-  const labelledBy = await figure.getAttribute('aria-labelledby');
-  const describedBy = await figure.getAttribute('aria-describedby');
-  expect(labelledBy).toBeTruthy();
-  expect(describedBy).toBeTruthy();
-  for (const id of `${labelledBy} ${describedBy}`.trim().split(/\s+/)) {
-    await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+  const registrations = [
+    visualization.id,
+    ...(visualization.supplementary ?? []).map(({ id }) => id),
+  ];
+  await expect(figures).toHaveCount(registrations.length);
+  for (const visualizationId of registrations) {
+    const figure = page.locator(
+      `figure[data-visualization-id="${visualizationId}"]`,
+    );
+    await expect(figure).toHaveCount(1);
+    await expect(figure).toBeVisible();
+    await expect(figure.locator('figcaption')).not.toHaveText('');
+    await expect(figure).toHaveAttribute('tabindex', '0');
+    const labelledBy = await figure.getAttribute('aria-labelledby');
+    const describedBy = await figure.getAttribute('aria-describedby');
+    expect(labelledBy).toBeTruthy();
+    expect(describedBy).toBeTruthy();
+    for (const id of `${labelledBy} ${describedBy}`.trim().split(/\s+/)) {
+      await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+    }
+    await figure.focus();
+    await expect(figure).toBeFocused();
   }
-  await figure.focus();
-  await expect(figure).toBeFocused();
 }
 
 export async function expectNoPageOverflow(page: Page) {

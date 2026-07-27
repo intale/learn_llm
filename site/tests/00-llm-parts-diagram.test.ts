@@ -8,7 +8,8 @@ import { describe, expect, it } from "vitest";
 import {
   llmPartIds,
   llmPartsDiagramId,
-  parseLlmPartsTrace,
+  llmSystemDiagramId,
+  llmPartsTrace,
   validateLlmPartsDiagramLabels,
   type LlmPartsDiagramLabels,
 } from "../src/lib/llm-parts-diagram";
@@ -17,8 +18,8 @@ declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), "..");
 const read = (path: string) => readFileSync(resolve(repositoryRoot, path), "utf8");
-const fixture = read("rust/demos/ch00-llm-parts/diagram-trace.txt");
-const component = read("site/src/components/chapters/LlmPartsDiagram.astro");
+const detailComponent = read("site/src/components/chapters/LlmPartsDiagram.astro");
+const systemComponent = read("site/src/components/chapters/LlmSystemDiagram.astro");
 const chapterPage = read("site/src/content/chapters/en/00-llm-parts.mdx");
 
 const labels = Object.fromEntries(
@@ -27,9 +28,41 @@ const labels = Object.fromEntries(
 const completeLabels: LlmPartsDiagramLabels = {
   title: "title",
   description: "description",
-  sections: { inference: "inference", decoder: "decoder", learning: "learning" },
-  captions: { inference: "inference", decoder: "decoder", learning: "learning" },
+  detailTitle: "detail title",
+  detailDescription: "detail description",
+  sections: {
+    system: "system",
+    inference: "inference",
+    decoder: "decoder",
+    learning: "learning",
+  },
+  captions: {
+    system: "system",
+    inference: "inference",
+    decoder: "decoder",
+    learning: "learning",
+  },
   parts: labels,
+  system: {
+    forwardTitle: "forward",
+    generationTitle: "generation",
+    learningTitle: "learning",
+    supportTitle: "support",
+    logits: { name: "logits", purpose: "scores" },
+    learningLogits: { name: "forward logits", purpose: "prediction scores" },
+    learningJoin: "and",
+    nextToken: { name: "next token", purpose: "append it" },
+    target: { name: "target", purpose: "observed token" },
+    gradients: { name: "gradients", purpose: "responsibility" },
+    optimizer: { name: "optimizer", purpose: "change weights" },
+    weights: { name: "weights", purpose: "updated parameters" },
+    generationFeedback: "token feedback",
+    weightFeedback: "weight feedback",
+    cacheRelationship: "cache relationship",
+    numericRelationship: "numeric relationship",
+    evaluationRelationship: "selected weights to test score",
+    checkpointRelationship: "training state to checkpoint",
+  },
   cues: {
     chapterLinks: "chapters",
     repeated: "repeated",
@@ -40,11 +73,10 @@ const completeLabels: LlmPartsDiagramLabels = {
   },
 };
 
-describe("Chapter 0 Rust topology parser", () => {
+describe("Chapter 0 site-owned topology", () => {
   it("keeps every model part, nested flow, and implementation chapter reachable", () => {
-    const trace = parseLlmPartsTrace(fixture);
-    expect(trace.parts.map((part) => part.id)).toEqual(llmPartIds);
-    expect(trace.flows.inference).toEqual([
+    expect(llmPartsTrace.parts.map((part) => part.id)).toEqual(llmPartIds);
+    expect(llmPartsTrace.flows.inference).toEqual([
       "input-text",
       "tokenizer",
       "embeddings",
@@ -52,7 +84,7 @@ describe("Chapter 0 Rust topology parser", () => {
       "vocabulary-head",
       "sampler",
     ]);
-    expect(trace.flows["decoder-block"]).toEqual([
+    expect(llmPartsTrace.flows["decoder-block"]).toEqual([
       "rmsnorm",
       "causal-attention",
       "residual-stream",
@@ -60,7 +92,7 @@ describe("Chapter 0 Rust topology parser", () => {
       "swiglu",
       "residual-stream",
     ]);
-    expect(trace.flows.learning).toEqual([
+    expect(llmPartsTrace.flows.learning).toEqual([
       "input-text",
       "tokenizer",
       "embeddings",
@@ -71,48 +103,22 @@ describe("Chapter 0 Rust topology parser", () => {
       "evaluation",
       "checkpoint",
     ]);
-    expect(trace.byId["numeric-core"]).toEqual(
+    expect(llmPartsTrace.byId["numeric-core"]).toEqual(
       expect.objectContaining({
         path: "both",
         purpose: expect.stringContaining("only during learning"),
       }),
     );
-    expect(Object.values(trace.flows).flat()).not.toContain("numeric-core");
-    expect(trace.capstone).toBe("39-end-to-end-llm");
+    expect(Object.values(llmPartsTrace.flows).flat()).not.toContain("numeric-core");
+    expect(llmPartsTrace.capstone).toBe("39-end-to-end-llm");
     const linkedOrders = new Set(
-      trace.parts.flatMap((part) =>
+      llmPartsTrace.parts.flatMap((part) =>
         part.chapters.map((chapter) => Number(chapter.slice(0, 2))),
       ),
     );
-    expect(linkedOrders).toEqual(new Set(Array.from({ length: 39 }, (_, index) => index + 1)));
-  });
-
-  it.each([
-    ["header", fixture.replace("LLM_PARTS_TRACE_V1", "LLM_PARTS_TRACE_V2")],
-    ["part order", fixture.replace("id=tokenizer", "id=embeddings")],
-    ["path", fixture.replace("path=inference", "path=unknown")],
-    ["destination", fixture.replace("01-text-units", "chapter-one")],
-    ["duplicate destination", fixture.replace("03-learn-bpe-merges", "01-text-units")],
-    [
-      "missing chapter",
-      fixture.replace(
-        "chapters=39-end-to-end-llm",
-        "chapters=38-cached-generation",
-      ),
-    ],
-    ["flow order", fixture.replace("name=inference", "name=learning")],
-    ["unknown flow part", fixture.replace("parts=input-text,tokenizer", "parts=unknown,tokenizer")],
-    [
-      "separate learning path",
-      fixture.replace(
-        "parts=input-text,tokenizer,embeddings,decoder-block,vocabulary-head,loss",
-        "parts=input-text,numeric-core,loss",
-      ),
-    ],
-    ["capstone", fixture.replace("END|chapter=39-end-to-end-llm", "END|chapter=38-cached-generation")],
-    ["extra record", fixture.replace("END|", "FLOW|name=extra|parts=tokenizer\nEND|")],
-  ])("rejects a changed %s", (_name, mutation) => {
-    expect(() => parseLlmPartsTrace(mutation)).toThrow();
+    expect(linkedOrders).toEqual(
+      new Set(Array.from({ length: 39 }, (_, index) => index + 1)),
+    );
   });
 });
 
@@ -120,47 +126,70 @@ describe("Chapter 0 diagram labels and component contract", () => {
   it("accepts exactly one complete ordered label set", () => {
     expect(() => validateLlmPartsDiagramLabels(completeLabels)).not.toThrow();
     const blank = structuredClone(completeLabels);
-    blank.parts["causal-attention"].purpose = " ";
-    expect(() => validateLlmPartsDiagramLabels(blank)).toThrow(/causal-attention/);
+    blank.system.generationFeedback = " ";
+    expect(() => validateLlmPartsDiagramLabels(blank)).toThrow(/generationFeedback/);
     const reordered = structuredClone(completeLabels);
     reordered.parts = Object.fromEntries(
       Object.entries(reordered.parts).reverse(),
     ) as LlmPartsDiagramLabels["parts"];
-    expect(() => validateLlmPartsDiagramLabels(reordered)).toThrow(/complete Rust part order/);
+    expect(() => validateLlmPartsDiagramLabels(reordered)).toThrow(
+      /canonical part order/,
+    );
   });
 
-  it("registers one static shared-style semantic figure with build-time course links", () => {
+  it("renders the connected system and retained details as separate shared figures", () => {
+    expect(llmSystemDiagramId).toBe("llm-system-map");
     expect(llmPartsDiagramId).toBe("llm-parts-map");
-    expect(component.match(/<figure\b/g)).toHaveLength(1);
-    expect(component).toContain('class="course-diagram llm-parts-diagram"');
-    expect(component).toContain('data-diagram-style="course-v1"');
-    expect(component).toContain("data-visualization-id={llmPartsDiagramId}");
-    expect(component).toContain('tabindex="0"');
-    expect(component).toContain("await getCollection(");
-    expect(component).toContain("localePath(locale, `/course/${chapterId}/`)");
-    expect(component).toContain("data-chapter-link={chapterId}");
-    expect(component).toContain('aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}');
-    expect(component).toContain("chapterTitle(chapterId)");
-    expect(component).toContain("{sharedForwardLength + occurrence}");
-    expect(component).toContain("data-diagram-card");
-    expect(component).toContain("data-diagram-box");
-    expect(component).toContain('class="state-symbol"');
-    expect(component).toContain("course-diagram__grid");
-    expect(component).toContain("course-diagram__card-stack");
-    expect(component).toContain("start={sharedForwardLength + 1}");
-    expect(component).toContain("course-diagram__card-heading");
-    expect(component).toContain("course-diagram__link-list");
-    expect(component).toContain("course-diagram__link-separator");
-    expect(component.match(/class="state-symbol" aria-hidden="true"/g)).toHaveLength(6);
-    expect(component).toContain("cache.part.chapters.map((chapterId, chapterIndex)");
-    expect(chapterPage).toContain(
-      "Training shifts targets by one position, so this allowed",
+    expect(systemComponent.match(/<figure\b/g)).toHaveLength(1);
+    expect(detailComponent.match(/<figure\b/g)).toHaveLength(1);
+    expect(systemComponent).toContain('class="course-diagram llm-system-diagram"');
+    expect(systemComponent).toContain('data-diagram-style="course-v1"');
+    expect(systemComponent).toContain("data-visualization-id={llmSystemDiagramId}");
+    expect(systemComponent).toContain('class="system-panel"');
+    expect(systemComponent).toContain('class="system-forward course-diagram__grid"');
+    expect(systemComponent).toContain('class="system-branches course-diagram__grid"');
+    for (const stage of [
+      "logits",
+      "learning-logits",
+      "next-token",
+      "target",
+      "gradients",
+      "weights",
+      "kv-cache",
+      "numeric-foundation",
+    ]) {
+      expect(systemComponent).toContain(`data-schema-stage="${stage}"`);
+    }
+    expect(systemComponent.match(/data-schema-stage=/g)).toHaveLength(18);
+    expect(detailComponent).toContain('class="course-diagram llm-parts-diagram"');
+    expect(detailComponent).toContain('data-diagram-style="course-v1"');
+    expect(detailComponent).toContain("data-visualization-id={llmPartsDiagramId}");
+    expect(detailComponent).toContain('class="inference-panel"');
+    expect(detailComponent).toContain('class="decoder-panel"');
+    expect(detailComponent).toContain('class="learning-panel"');
+    expect(detailComponent).not.toContain('class="system-panel"');
+    expect(detailComponent).toContain("await getCollection(");
+    expect(detailComponent).toContain("localePath(locale, `/course/${chapterId}/`)");
+    expect(detailComponent).toContain("data-chapter-link={chapterId}");
+    for (const component of [systemComponent, detailComponent]) {
+      expect(component).toContain("data-diagram-card");
+      expect(component).toContain("data-diagram-box");
+      expect(component).not.toMatch(/diagram-trace|rust\/demos\/ch00|<script\b|client:|<dialog\b|overflow:\s*(?:hidden|clip)/);
+    }
+  });
+
+  it("keeps the learner page an unassessed orientation", () => {
+    expect(chapterPage).toContain('"chapter_kind": "orientation"');
+    expect(chapterPage).toContain('"formula": null');
+    expect(chapterPage).toContain('"rust_sources": []');
+    expect(chapterPage).toContain("You do not need to memorize this map.");
+    expect(chapterPage).toContain("The first figure is the whole-system schema");
+    expect(chapterPage).toContain("import LlmSystemDiagram");
+    expect(chapterPage).toContain("import LlmPartsDiagram");
+    expect(chapterPage).toContain("<LlmSystemDiagram labels={diagramLabels} />");
+    expect(chapterPage).toContain('<LlmPartsDiagram labels={diagramLabels} locale="en" />');
+    expect(chapterPage).not.toMatch(
+      /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|Check your first mental model|P_\\theta|rust\/demos\/ch00/,
     );
-    expect(chapterPage).toContain(
-      "The next cached\ndecode starts from that ID's embedding; it does not detokenize and tokenize the\nwhole growing sequence again.",
-    );
-    const localStyle = component.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? "";
-    expect(localStyle).not.toMatch(/\bgap\s*:|overflow-wrap|word-break|font-size|\.state-symbol/);
-    expect(component).not.toMatch(/<script\b|client:|<dialog\b|overflow:\s*(?:hidden|clip)/);
   });
 });

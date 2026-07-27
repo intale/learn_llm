@@ -756,46 +756,28 @@ describe("KaTeX renderer and stylesheet compatibility", () => {
   });
 });
 
-describe("Chapter 0 formula-source contract", () => {
-  it("routes the causal objective and every explanatory symbol through math markup", () => {
+describe("Chapter 0 orientation-source contract", () => {
+  it("does not borrow a formula or symbol lesson from the implementation chapters", () => {
     const source = readChapter("en", chapter00Files[0]);
     const frontmatter = jsonFrontmatter(source) as {
-      formula: { symbols: Array<{ symbol: string; meaning: string }> };
+      chapter_kind: string;
+      formula: null;
+      history: { rust_source: null };
+      rust_sources: unknown[];
     };
-    const { body, display, inline } = mathMarkup(source);
-    expect(display).toHaveLength(1);
-    expect(display[0]).toContain(
-      String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
+    const { display, inline } = mathMarkup(source);
+    expect(frontmatter).toEqual(
+      expect.objectContaining({
+        chapter_kind: "orientation",
+        formula: null,
+        history: expect.objectContaining({ rust_source: null }),
+        rust_sources: [],
+      }),
     );
-    expect(inline.length).toBeGreaterThanOrEqual(8);
-    for (const fragment of [
-      String.raw`P_\theta`,
-      String.raw`\theta`,
-      String.raw`z_{1:T}`,
-      String.raw`z_{<t}`,
-      String.raw`\prod_{t=1}^{T}`,
-    ]) {
-      expect(body).toContain(fragment);
-    }
-    const glossaryStart = source.indexOf("{/* chapter-section:symbol-glossary */}");
-    const glossaryEnd = source.indexOf("{/* chapter-section:history */}", glossaryStart);
-    expect(glossaryStart).toBeGreaterThan(-1);
-    expect(glossaryEnd).toBeGreaterThan(glossaryStart);
-    const glossary = source.slice(glossaryStart, glossaryEnd);
-    const normalizedGlossary = glossary.replace(/\s+/g, " ");
-    expect(frontmatter.formula.symbols).toHaveLength(8);
-    for (const { symbol, meaning } of frontmatter.formula.symbols) {
-      expect(glossary, `missing Chapter 0 glossary notation ${symbol}`).toContain(`$${symbol}$`);
-      expect(
-        normalizedGlossary,
-        `missing Chapter 0 glossary meaning for ${symbol}`,
-      ).toContain(meaning.replace(/\s+/g, " "));
-    }
-    expect(proseOutsideMathAndCode(source)).not.toMatch(
-      /P_\\theta|z_\{|\\prod|z_<t/,
-    );
-    expect(inlineCode(source)).not.toEqual(
-      expect.arrayContaining(["P_theta", "z_{1:T}", "z_{<t}"]),
+    expect(display).toHaveLength(0);
+    expect(inline).toHaveLength(0);
+    expect(source).not.toMatch(
+      /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|rust\/demos\/ch00/,
     );
   });
 });

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-27T14:14:41Z"
+updated_at: "2026-07-27T17:47:11Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -17566,7 +17566,7 @@ builds:
         objective: "Identify the major parts of a decoder-only LLM, state each part's purpose, and follow the course links that build it."
         depends_on:
           - implement-ch39-end-to-end-llm
-        status: completed
+        status: invalidated
         inputs:
           - "Human request for an English-only zero chapter, concise LLM part descriptions, related-chapter links, and a full-view block schema"
           - "AGENTS.md"
@@ -17627,6 +17627,7 @@ builds:
           - "scripts/check-site-content.mjs"
           - "scripts/check-rust-demos.sh"
           - "site/src/content/chapters/en/00-llm-parts.mdx"
+          - "site/src/components/chapters/LlmSystemDiagram.astro"
           - "site/src/components/chapters/LlmPartsDiagram.astro"
           - "site/src/pages/[locale]/course/index.astro"
           - "site/src/styles/diagram.module.css"
@@ -17827,3 +17828,214 @@ builds:
                 status: passed
                 notes: "The valid 40-chapter/77-step plan contained exactly this active step/run before completion; all 35 canonical product modes/blobs still equal candidate 08; no Docker, Compose, package, Astro, Playwright, workflow, or other build/deployment file changed; scripts/check-rust-demos.sh remains 100755; git whitespace checks pass; desktop.ini is the sole untracked path and remains untouched."
             notes: "Succeeded. English Chapter 0 now gives a concise linked mental model of inference, the decoder-block interior, shared numeric foundations, and learning/evaluation; its deterministic Rust topology covers Chapters 1-39. The one shared semantic figure supplies the layout-owned full-view mode and remains contained across Chromium, Firefox, desktop, narrow, no-JavaScript, forced-color, and project-base validation. Candidate 08 was published byte-for-byte, all canonical gates pass, no Russian placeholder or build-definition change was introduced, and the standalone step is ready for its dedicated commit."
+  - build_id: revise-ch00-orientation
+    objective: "Make Chapter 0 a clear, non-assessed orientation with one visibly connected map of the complete decoder-only LLM."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium corrective build uses cached local Rust-workspace, static-site, Chromium, and Firefox validation; no paid service, dependency download, or build-definition change is planned."
+    completion_criteria:
+      - "Chapter 0 contains no Rust sample, formula lesson, symbol glossary, questionnaire, checked answer, or other normal-lesson template artifact."
+      - "One complete connected block schema shows the forward path, repeated decoder interior, generation feedback, learning branch, weight-update relationship, evaluation, checkpoints, and shared numeric foundation."
+      - "The useful existing inference, decoder-interior, and learning views remain available in a separate static semantic figure with complete Chapter 1-39 links; both figures receive one layout-owned full-view control."
+      - "The orientation exception is explicit and narrow; every implementation chapter from Chapter 1 onward still requires formula, Rust, exercises, and the normal lesson section contract."
+      - "The obsolete Chapter 0 Rust package is removed from the workspace while every remaining Rust implementation demo and the unchanged Linux build workflow pass."
+      - "Root and /learn_llm/ static builds plus Chromium and Firefox desktop, narrow, no-JavaScript, fullscreen, formula-inventory, and containment checks pass."
+      - "The corrective step is committed independently while unrelated desktop.ini remains untouched."
+    steps:
+      - id: revise-ch00-orientation
+        objective: "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."
+        depends_on:
+          - implement-ch39-end-to-end-llm
+        replaces:
+          - implement-ch00-llm-parts
+        status: completed
+        inputs:
+          - "Human Chapter 0 review on 2026-07-27: remove roadmap-printing Rust, questionnaire, and confusing course-level formula; add a connected whole-LLM schema and retain useful existing diagrams."
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapters/00-llm-parts.md"
+          - "Cargo.toml"
+          - "Cargo.lock"
+          - "rust/demos/ch00-llm-parts/"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-rust-demos.sh"
+          - "site/src/content.config.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/content/chapters/en/00-llm-parts.mdx"
+          - "site/src/components/chapters/LlmPartsDiagram.astro"
+          - "site/src/lib/llm-parts-diagram.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/00-llm-parts-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/ch00-llm-parts.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "C:/Users/Ivan/.codex/plugins/cache/openai-bundled/sites/0.1.30/skills/sites-building/SKILL.md"
+          - "C:/Users/Ivan/.codex/plugins/cache/openai-bundled/browser/26.715.61943/skills/control-in-app-browser/SKILL.md"
+        outputs:
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapters/00-llm-parts.md"
+          - "Cargo.toml"
+          - "Cargo.lock"
+          - "rust/demos/ch00-llm-parts/"
+          - "scripts/check-course-plan.mjs"
+          - "scripts/check-chapter-contract.mjs"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-rust-demos.sh"
+          - "site/src/content.config.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/content/chapters/en/00-llm-parts.mdx"
+          - "site/src/components/chapters/LlmSystemDiagram.astro"
+          - "site/src/components/chapters/LlmPartsDiagram.astro"
+          - "site/src/lib/llm-parts-diagram.ts"
+          - "site/src/lib/chapter-publication.ts"
+          - "site/tests/00-llm-parts-diagram.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/ch00-llm-parts.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+        acceptance:
+          - "The rendered English Chapter 0 presents an overview, short LLM-history context, the connected system map, guidance for using its chapter links, and the handoff to Chapter 1 without asking the learner to memorize or reproduce the map."
+          - "Neither Chapter 0 source nor built HTML contains a learner-facing formula, symbol glossary, Rust source sample, questionnaire, answer disclosure, or reference to a Chapter 0 executable package."
+          - "The connected overview uses explicit directional and branch cues to distinguish prompt tokenization, shared model computation, generation feedback, target/loss/gradient updates, evaluation, checkpointing, and the numeric foundation."
+          - "The connected overview and the retained inference/decoder/learning detail map are separate registered semantic figures, each uses only shared diagram roles plus concept geometry and receives exactly one shared full-view control; the detail map still covers every implementation chapter."
+          - "Orientation metadata is valid only for 00-llm-parts at order zero with null formula/Rust evidence and orientation-specific sections; normal lesson fixtures prove Chapters 1-39 still reject missing formula, Rust, or exercises."
+          - "The Chapter 0 Rust demo directory and Cargo package are absent; every remaining workspace member, demo contract, and locked Rust test still passes without changing Docker, package, dependency, deployment, hosting, SEO, sitemap, or analytics definitions."
+          - "Built HTML and browser checks pass for both Chapter 0 figures at desktop and 390px widths, without JavaScript, in native fullscreen, and in Chromium and Firefox with no clipped, overlapping, escaping, duplicated, or substantially scrolling box content."
+          - "The exact staged publication is promoted with apply_patch, canonical validation passes, the step is committed alone, and desktop.ini remains untracked and untouched."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/00-llm-parts.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 00-llm-parts"
+          - "npm --prefix site run check:parity -- --chapter 00-llm-parts"
+          - "scripts/check-rust-demos.sh"
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run build"
+          - "SITE_BASE=/learn_llm/ npm --prefix site run test:links"
+          - "npm --prefix site run test:e2e -- --grep '@chapter:00-llm-parts|@formula-rendering|diagram style|diagram full view'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:00-llm-parts|@formula-rendering|diagram style|diagram full view'"
+          - "./course check"
+          - "git diff --check"
+          - "Exact staged/canonical manifest, dependency, mode, route, built-content, and unrelated-file audit"
+        cost:
+          class: medium
+          notes: "Bounded content/schema/diagram correction plus cached local unit, static, Chromium, and Firefox validation. No paid input, new dependency, content-generation service, or build-definition change."
+        runs:
+          - run_id: 20260727T151628Z-revise-ch00-orientation-01
+            started_at: "2026-07-27T15:16:28Z"
+            finished_at: "2026-07-27T17:47:11Z"
+            status: succeeded
+            input_fingerprint:
+              git: "854950283cd37e3530d65232e4e91ce818849124"
+              manifest: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/input-fingerprint.txt"
+              checksum: "sha256:968ce64b10c768fcb0310fa9901bce21ee026a0598fa8a9ab9bdd94b5332fd77"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external source or service. The user supplied the product review directly."
+            staging_dir: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/"
+            commands:
+              - "Run the complete startup protocol; verify the dedicated Chapter 0 commit and prior artifacts, preserve unrelated desktop.ini, compare tool pins, and confirm no stale running work."
+              - "Read the site-building and browser-control skill instructions, current Chapter 0 contract/page/diagram/data/tests, content schemas, formula inventory, Rust workspace, course plan, and prior Chapter 0 decisions."
+              - "Invalidate the stale implementation checkpoint, record the narrow orientation exception and connected-schema decision, fingerprint all material inputs, and create a detached run-specific staging worktree before product edits."
+              - "Add the unchanged locale registry to the declared inputs after the focused ledger invariant confirmed that the replacement orientation step must consume its English-only publication policy."
+              - "Claim the checked chapter-locale projection after the revised course-plan number exposed its otherwise unchanged planRevision field."
+              - "Reorganize the connected overview and retained chapter-linked detail map as two independently registered semantic figures after measured fullscreen geometry proved that one combined figure could not remain readable without substantial travel."
+              - "Build immutable staged source candidate 17 (sha256:6614c0b947f60de56a43b3128b3b82143ba20512d8f8a33bc425d3100d6551ee) and browser candidate 16 (sha256:a32235dd70e719bf541710fabcc40e1f3c24e13e5508118ca1fb87c65a7cca52); validate before canonical publication."
+              - "Apply independent layout, test, and semantic review findings: reflow intermediate widths, prohibit split ordinary words, connect forward logits and the observed target to loss, distinguish optimization from validation-based selection, and attach explicit evaluation and checkpoint cues."
+              - "Build final immutable source candidate 26 (sha256:f06737c607c317b89a5d36d9650582475d36f496342f3870e3d9c7e535b91477) and browser candidate 25 (sha256:3da9397a3f652e38f5c2e7300e33d47d0b050771c2411b9f659bdd50ad80d635)."
+              - "Run an optional concurrent 295-case all-browser stress diagnostic, identify 32-worker Docker oversubscription from scattered unrelated failures, then rerun the declared 113-case matrix sequentially in each engine and the representative Chapter 2 Firefox slice alone."
+              - "Create the exact final product/deletion checksum manifest, render the final Chapter 0 page, and complete plan, content, Astro, Vitest, static-link, project-base, Rust-mode, demo, formatting, and locked-offline workspace validation."
+              - "Publish all 31 manifest-owned product paths to the canonical worktree with apply_patch, verify every checksum or deletion marker, preserve desktop.ini, remove only the verified-empty deleted package directories, and rerun the canonical ./course check wrapper to completion."
+            artifacts:
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/input-fingerprint.txt"
+                checksum: "sha256:968ce64b10c768fcb0310fa9901bce21ee026a0598fa8a9ab9bdd94b5332fd77"
+                notes: "Pre-edit commit, exact material input hashes, tool pins, user review, cost boundary, and preserved unrelated-file scope."
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/input-scope-expansion-locale-registry.txt"
+                checksum: "sha256:bb8e2a7746eafabf981868eb016a78c6aac61c1c48c6ec7ac09b702038eb8065"
+                notes: "Unchanged locale-registry hash and the narrow ledger-invariant reason for consuming it."
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/input-scope-expansion-locale-projection.txt"
+                checksum: "sha256:5b5c42c44dd7a850ee32a470dae86a2570b3452c39659384f3b29cbb404dbf85"
+                notes: "Pre-edit projection hash and the required course-plan revision synchronization boundary; active locale sets remain unchanged."
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/ch00-page-candidate16.png"
+                checksum: "sha256:fc2a90cf1cb6654aed8fa09c01a5e901b51d79a62b19e6dc2e3314f1e143c8a0"
+                notes: "Rendered 1366px full-page visual-QA capture of the exact browser candidate; retained only as a run artifact, not for publication."
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/candidate-source-manifest.txt"
+                checksum: "sha256:213cc277658cbeb83038c3f4397701972e7619fec25a2033c856979053511d14"
+                notes: "Exact final staged product manifest: base commit, immutable source/browser image digests, Git modes, SHA-256 checksums for every added or modified path, and explicit deletion markers."
+              - path: ".build/runs/20260727T151628Z-revise-ch00-orientation-01/ch00-page-candidate25.png"
+                checksum: "sha256:6d9998235f9205fa3e494e0e65d6634cbbf24940c3058ec712ab5d9ae6ac2532"
+                notes: "Final 1366px full-page Chromium capture of the exact browser candidate after topology, wording, and layout corrections; retained only as a run artifact."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The original Chapter 0 step and commit were complete but are stale by direct learner review; Chapter 39 remains completed; no other run is active; current tools preserve repository pins; the medium local correction fits the unlimited budget; declared outputs do not overlap another running step; desktop.ini remains untracked and untouched."
+              - command: "Focused plan, contract, Chapter 0, parity, Astro, and complete Vitest validation against the running canonical ledger"
+                status: passed
+                notes: "The plan reports 40 chapters/77 steps/40 contracts; both Chapter 0 registrations integrate; Astro checks 204 files with zero diagnostics; all 52 Vitest files and 837 cases pass."
+              - command: "Root and SITE_BASE=/learn_llm/ static builds, exact Chapter 0 HTML inventory, and link/SEO/sitemap/analytics audits"
+                status: passed
+                notes: "Both static builds produce 52 pages; 1,939 local references, 52 SEO routes, 52 sitemap URLs, 52 analytics routes, and 140 artifacts pass. Built Chapter 0 has exactly two registered figures, 36 bounded boxes, 43 chapter links, and no formula, Rust sample, or questionnaire residue."
+              - command: "Chromium and Firefox Chapter 0 plus course-wide formula, diagram-style, and full-view matrix"
+                status: passed
+                notes: "Each engine passes 113/113 cases across desktop, 390px, no-JavaScript, fullscreen, forced-colors, containment, focus restoration, and all 40 diagram registrations; the two Chapter 0 figures each receive one shared control and stay within the full-view travel bound."
+              - command: "Rendered-page visual inspection at 1366px"
+                status: passed
+                notes: "The connected whole-system schema precedes the retained linked detail map, labels and arrows remain readable, no box overlaps its neighbor, and the page keeps the intended orientation hierarchy."
+              - command: "Linux mode, cargo fmt, 39-demo contract, and cargo test --workspace --locked --offline"
+                status: passed
+                notes: "scripts/check-rust-demos.sh remains mode 100755; formatting passes; all 39 remaining chapter demos are discovered; the full locked workspace, binaries, library tests, and doc tests pass without the obsolete Chapter 0 package."
+              - command: "Independent final code, test-policy, and rendered layout review"
+                status: passed
+                notes: "Reviewers confirmed the orientation exception remains narrow, deletion ownership is declared, the logits-and-target loss topology is correct, optimization and validation selection are not conflated, and both figures contain all 37 bounded boxes with complete borders and no split ordinary words, clipping, overlap, or hidden overflow."
+              - command: "Optional concurrent Chromium and Firefox 295-case stress diagnostic"
+                status: failed
+                notes: "Running two 16-worker browser suites simultaneously oversubscribed Docker and produced scattered failures in unchanged chapters; Chapter 0 stayed green. The declared one-engine-at-a-time matrix and a formerly failing Chapter 2 Firefox slice were rerun independently and passed, establishing resource contention rather than a product regression."
+              - command: "Sequential final Chromium and Firefox Chapter 0, formula, diagram-style, and full-view matrix"
+                status: passed
+                notes: "Final browser candidate 25 passes 113/113 in Chromium and 113/113 in Firefox. Chapter 0 passes 4/4 per engine at 1366px, 390px, no JavaScript, and native fullscreen; measured vertical travel is at most 19.5%, horizontal travel is zero, and the representative Chapter 2 Firefox slice passes 3/3 alone."
+              - command: "Final source candidate plan, Chapter 0 contract/content/parity, Astro, Vitest, root/project-base builds, and static audit"
+                status: passed
+                notes: "Source candidate 26 reports 40 chapters, 77 steps, 40 contracts, 204 Astro files with zero diagnostics, all 52 Vitest files and 837 cases, 52 pages in both base modes, and 1,988 local references plus 52 SEO, 52 sitemap, 52 analytics, and 141 artifact checks. Built Chapter 0 contains 18 system boxes, 19 detail boxes, 43 chapter links, and no formula, Rust sample, questionnaire, or answer disclosure."
+              - command: "Final source candidate executable mode, cargo fmt, 39-demo contract, and cargo test --workspace --locked --offline"
+                status: passed
+                notes: "The final immutable source image keeps scripts/check-rust-demos.sh at 100755, formatting is clean, all 39 remaining demos are discovered, and every locked offline workspace, binary, library, and doc test passes in 320.2 seconds."
+              - command: "Exact staged source/deletion manifest and final rendered-page inspection"
+                status: passed
+                notes: "The 37-line manifest records every final product byte, Git mode, and deletion against base commit 854950283cd37e3530d65232e4e91ce818849124. The final full-page capture shows the whole-system schema before the retained chapter-linked detail map with readable arrows, labels, boxes, and orientation hierarchy."
+              - command: "Initial canonical ./course check after patch publication"
+                status: failed
+                notes: "All tracked Rust package files were deleted correctly, but Windows retained the now-empty rust/demos/ch00-llm-parts/src directory. Docker copied that empty directory and Cargo's workspace glob rejected it as a package without Cargo.toml; no product byte or build definition was wrong."
+              - command: "Canonical checksum, scope, whitespace, plan, and unrelated-file audit"
+                status: passed
+                notes: "All 31 published product paths match the final manifest byte-for-byte or are absent as declared; the plan is valid, git diff --check passes, scripts/check-rust-demos.sh retains Git mode 100755, no build/deployment definition changed, and desktop.ini remains the sole unrelated untracked file."
+              - command: "Canonical ./course check after verified empty-directory cleanup"
+                status: passed
+                notes: "After resolving and confirming the deleted package contained only an empty src directory, non-recursive removal made the canonical Windows tree match the staged Linux tree. The unchanged wrapper then passed formatting, every locked Rust workspace/doc test, Astro/content/parity validation, the 52-page build, and the 1,988-reference static audit in 303.9 seconds."
+            notes: "Succeeded. English Chapter 0 is now a non-assessed orientation with no random formula, Rust roadmap printer, or questionnaire. Its connected system schema explicitly joins forward logits and the observed target at loss, separates generation from learning, and attaches cache, numeric, evaluation, and checkpoint relationships; the retained detail map links every implementation chapter and keeps optimization distinct from validation selection. Both semantic figures pass static, desktop, narrow, no-JavaScript, Chromium, Firefox, fullscreen, forced-color, containment, and word-integrity validation. Final source candidate 26 was published byte-for-byte, the obsolete Chapter 0 Rust package and empty directory were removed, all canonical gates pass, and desktop.ini remains untouched."

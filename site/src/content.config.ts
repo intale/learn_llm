@@ -125,12 +125,24 @@ const rustSource = z
   })
   .strict();
 
+const diagramComponent = z.string().regex(/^[A-Z][A-Za-z0-9]*Diagram$/);
+
+const supplementaryVisualization = z
+  .object({
+    id: kebabId,
+    component: diagramComponent,
+    rationale: z.string().min(1),
+  })
+  .strict();
+
 const visualization = z.discriminatedUnion('decision', [
   z
     .object({
       decision: z.literal('useful'),
       id: kebabId,
+      component: diagramComponent.optional(),
       rationale: z.string().min(1),
+      supplementary: z.array(supplementaryVisualization).optional(),
     })
     .strict(),
   z
@@ -160,6 +172,7 @@ const chapters = defineCollection({
   schema: z
     .object({
       chapter_id: chapterId,
+      chapter_kind: z.enum(['lesson', 'orientation']).optional(),
       locale: z.custom<Locale>(
         (value) => typeof value === 'string' && isLocale(value),
         'locale must be configured in src/i18n/locales.json',
@@ -171,21 +184,92 @@ const chapters = defineCollection({
       description: z.string().min(1),
       objective: z.string().min(1),
       worked_inputs: z.string().min(1),
-      formula,
+      formula: formula.nullable(),
       history: z
         .object({
           llm_evolution: llmEvolution.optional(),
           approach: z.string().min(1),
           summary: z.string().min(1),
-          rust_source: rustPath,
+          rust_source: rustPath.nullable(),
         })
         .strict(),
-      rust_sources: z.array(rustSource).min(1),
+      rust_sources: z.array(rustSource),
       visualization,
       decoder_connection: z.string().min(1),
     })
     .strict()
     .superRefine((chapter, context) => {
+      const isOrientation = chapter.chapter_kind === 'orientation';
+      if (isOrientation) {
+        if (chapter.chapter_id !== '00-llm-parts' || chapter.order !== 0) {
+          context.addIssue({
+            code: 'custom',
+            path: ['chapter_kind'],
+            message: 'Only 00-llm-parts at order zero may use the orientation kind.',
+          });
+        }
+        if (
+          chapter.formula !== null ||
+          chapter.history.rust_source !== null ||
+          chapter.rust_sources.length !== 0
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['chapter_kind'],
+            message: 'The orientation must have null formula/Rust history and no Rust sources.',
+          });
+        }
+        if (
+          chapter.visualization.decision !== 'useful' ||
+          chapter.visualization.id !== 'llm-system-map' ||
+          chapter.visualization.component !== 'LlmSystemDiagram' ||
+          JSON.stringify(chapter.visualization.supplementary?.map(({ id }) => id) ?? []) !==
+            JSON.stringify(['llm-parts-map']) ||
+          chapter.visualization.supplementary?.[0]?.component !== 'LlmPartsDiagram'
+        ) {
+          context.addIssue({
+            code: 'custom',
+            path: ['visualization'],
+            message:
+              'The orientation must register llm-system-map with llm-parts-map as its sole supplementary visualization.',
+          });
+        }
+      } else if (
+        chapter.formula === null ||
+        chapter.history.rust_source === null ||
+        chapter.rust_sources.length === 0
+      ) {
+        context.addIssue({
+          code: 'custom',
+          path: ['chapter_kind'],
+          message: 'Implementation lessons require formula and Rust evidence.',
+        });
+      }
+      if (
+        !isOrientation &&
+        chapter.visualization.decision === 'useful' &&
+        (chapter.visualization.component !== undefined ||
+          chapter.visualization.supplementary !== undefined)
+      ) {
+        context.addIssue({
+          code: 'custom',
+          path: ['visualization', 'supplementary'],
+          message: 'Supplementary visualizations are reserved for the Chapter 0 orientation.',
+        });
+      }
+      if (chapter.visualization.decision === 'useful') {
+        const visualizationIds = [
+          chapter.visualization.id,
+          ...(chapter.visualization.supplementary?.map(({ id }) => id) ?? []),
+        ];
+        if (new Set(visualizationIds).size !== visualizationIds.length) {
+          context.addIssue({
+            code: 'custom',
+            path: ['visualization'],
+            message: 'Visualization IDs must be unique within a chapter.',
+          });
+        }
+      }
       const requiresLlmEvolution =
         chapter.order >= 10 ||
         ([8, 9].includes(chapter.order) && chapter.content_revision >= 2);

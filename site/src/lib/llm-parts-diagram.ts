@@ -1,4 +1,5 @@
 export const llmPartsDiagramId = "llm-parts-map";
+export const llmSystemDiagramId = "llm-system-map";
 
 export const llmPartIds = [
   "input-text",
@@ -27,7 +28,7 @@ export interface LlmPartTrace {
   id: LlmPartId;
   path: LlmPartPath;
   purpose: string;
-  chapters: string[];
+  chapters: readonly string[];
 }
 
 export interface LlmPartsTrace {
@@ -40,17 +41,41 @@ export interface LlmPartsTrace {
 export interface LlmPartsDiagramLabels {
   title: string;
   description: string;
+  detailTitle: string;
+  detailDescription: string;
   sections: {
+    system: string;
     inference: string;
     decoder: string;
     learning: string;
   };
   captions: {
+    system: string;
     inference: string;
     decoder: string;
     learning: string;
   };
   parts: Record<LlmPartId, { name: string; purpose: string }>;
+  system: {
+    forwardTitle: string;
+    generationTitle: string;
+    learningTitle: string;
+    supportTitle: string;
+    logits: { name: string; purpose: string };
+    learningLogits: { name: string; purpose: string };
+    learningJoin: string;
+    nextToken: { name: string; purpose: string };
+    target: { name: string; purpose: string };
+    gradients: { name: string; purpose: string };
+    optimizer: { name: string; purpose: string };
+    weights: { name: string; purpose: string };
+    generationFeedback: string;
+    weightFeedback: string;
+    cacheRelationship: string;
+    numericRelationship: string;
+    evaluationRelationship: string;
+    checkpointRelationship: string;
+  };
   cues: {
     chapterLinks: string;
     repeated: string;
@@ -63,7 +88,6 @@ export interface LlmPartsDiagramLabels {
 
 const chapterPattern = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const partIdSet = new Set<string>(llmPartIds);
-const flowNames = ["inference", "decoder-block", "learning"] as const;
 const allowedPaths = new Set<LlmPartPath>([
   "inference",
   "learning",
@@ -71,92 +95,187 @@ const allowedPaths = new Set<LlmPartPath>([
   "integration",
 ]);
 
-function parseFields(line: string, kind: string, expected: readonly string[]) {
-  const fields = line.split("|");
-  if (fields.shift() !== kind) throw new Error(`expected ${kind} record`);
-  const result: Record<string, string> = {};
-  for (const field of fields) {
-    const split = field.indexOf("=");
-    if (split < 1) throw new Error(`${kind} contains a malformed field`);
-    const key = field.slice(0, split);
-    const value = field.slice(split + 1);
-    if (!expected.includes(key) || key in result || value.trim().length === 0) {
-      throw new Error(`${kind} contains an unknown, duplicate, or empty ${key}`);
-    }
-    result[key] = value;
-  }
-  if (Object.keys(result).length !== expected.length) {
-    throw new Error(`${kind} does not contain its complete field set`);
-  }
-  return result;
-}
+const partDefinitions: LlmPartTrace[] = [
+  {
+    id: "input-text",
+    path: "both",
+    purpose: "Supply prompt text and preserve document boundaries for causal training examples.",
+    chapters: ["02-corpus-partitions", "05-autoregressive-examples", "21-mini-batches"],
+  },
+  {
+    id: "tokenizer",
+    path: "both",
+    purpose: "Convert text to stable token IDs and convert generated IDs back to text.",
+    chapters: ["01-text-units", "03-learn-bpe-merges", "04-apply-bpe-tokenizer"],
+  },
+  {
+    id: "numeric-core",
+    path: "both",
+    purpose: "Execute tensor operations on both paths and record gradients only during learning.",
+    chapters: [
+      "08-tensor-storage",
+      "09-tensor-views",
+      "10-broadcasting-reductions",
+      "11-matrix-multiplication",
+      "12-stable-softmax",
+      "13-gradient-checking",
+      "14-scalar-autodiff",
+      "15-tensor-autodiff-core",
+      "16-model-autodiff-ops",
+      "17-parameter-initialization",
+      "18-token-embeddings",
+      "19-linear-layers",
+    ],
+  },
+  {
+    id: "embeddings",
+    path: "both",
+    purpose: "Look up a learned feature vector for each token ID.",
+    chapters: ["18-token-embeddings"],
+  },
+  {
+    id: "decoder-block",
+    path: "both",
+    purpose: "Repeat attention and feed-forward transformations while preserving a residual stream.",
+    chapters: ["31-decoder-block"],
+  },
+  {
+    id: "rmsnorm",
+    path: "both",
+    purpose: "Control feature scale before each learned branch.",
+    chapters: ["25-rmsnorm"],
+  },
+  {
+    id: "causal-attention",
+    path: "both",
+    purpose: "Mix information from the allowed prefix through multiple learned heads.",
+    chapters: [
+      "26-qkv-projections",
+      "27-self-attention",
+      "28-causal-masking",
+      "29-rope",
+      "30-multi-head-attention",
+    ],
+  },
+  {
+    id: "residual-stream",
+    path: "both",
+    purpose: "Carry the current representation around each learned branch and add its update.",
+    chapters: ["24-residual-connections"],
+  },
+  {
+    id: "swiglu",
+    path: "both",
+    purpose: "Transform features independently at each position through a gated feed-forward branch.",
+    chapters: ["20-swiglu-feed-forward"],
+  },
+  {
+    id: "vocabulary-head",
+    path: "both",
+    purpose: "Normalize final features and project each position to one logit per vocabulary item.",
+    chapters: ["32-decoder-model"],
+  },
+  {
+    id: "sampler",
+    path: "inference",
+    purpose: "Turn logits into probabilities and choose the next token under a decoding policy.",
+    chapters: ["12-stable-softmax", "36-temperature-top-k"],
+  },
+  {
+    id: "kv-cache",
+    path: "inference",
+    purpose: "Retain earlier attention keys and values so generation need not recompute them.",
+    chapters: ["37-incremental-attention", "38-cached-generation"],
+  },
+  {
+    id: "loss",
+    path: "learning",
+    purpose: "Measure how much probability the model assigned to the observed next token.",
+    chapters: ["06-bigram-baseline", "07-language-model-metrics", "23-neural-ngram"],
+  },
+  {
+    id: "optimizer",
+    path: "learning",
+    purpose: "Use gradients to update parameters and select a trained state with validation data.",
+    chapters: ["22-adamw", "33-training-selection"],
+  },
+  {
+    id: "evaluation",
+    path: "learning",
+    purpose: "Score the frozen selected model once on previously unopened test examples.",
+    chapters: ["34-final-evaluation"],
+  },
+  {
+    id: "checkpoint",
+    path: "integration",
+    purpose: "Save and restore the exact tokenizer, configuration, parameters, and training state.",
+    chapters: ["35-checkpoints"],
+  },
+  {
+    id: "capstone",
+    path: "integration",
+    purpose: "Connect training, evaluation, persistence, and cached generation in one program.",
+    chapters: ["39-end-to-end-llm"],
+  },
+];
 
-function parseList(value: string, label: string) {
-  const items = value.split(",");
-  if (items.length === 0 || items.some((item) => item.length === 0)) {
-    throw new Error(`${label} must contain a nonempty comma-separated list`);
-  }
-  return items;
-}
+const flowDefinitions: LlmPartsTrace["flows"] = {
+  inference: [
+    "input-text",
+    "tokenizer",
+    "embeddings",
+    "decoder-block",
+    "vocabulary-head",
+    "sampler",
+  ],
+  "decoder-block": [
+    "rmsnorm",
+    "causal-attention",
+    "residual-stream",
+    "rmsnorm",
+    "swiglu",
+    "residual-stream",
+  ],
+  learning: [
+    "input-text",
+    "tokenizer",
+    "embeddings",
+    "decoder-block",
+    "vocabulary-head",
+    "loss",
+    "optimizer",
+    "evaluation",
+    "checkpoint",
+  ],
+};
 
-export function parseLlmPartsTrace(source: string): LlmPartsTrace {
-  const lines = source.trimEnd().split(/\r?\n/);
-  if (lines[0] !== "LLM_PARTS_TRACE_V1") {
-    throw new Error("LLM-parts trace header changed");
-  }
-  const end = parseFields(lines.at(-1) ?? "", "END", ["chapter"]);
-  if (end.chapter !== "39-end-to-end-llm") {
-    throw new Error("LLM-parts trace must end at the Chapter 39 capstone");
+function createLlmPartsTrace(): LlmPartsTrace {
+  if (
+    partDefinitions.length !== llmPartIds.length ||
+    partDefinitions.some(
+      (part, index) =>
+        part.id !== llmPartIds[index] ||
+        !partIdSet.has(part.id) ||
+        !allowedPaths.has(part.path) ||
+        part.purpose.trim().length === 0 ||
+        part.chapters.length === 0 ||
+        new Set(part.chapters).size !== part.chapters.length ||
+        part.chapters.some((chapter) => !chapterPattern.test(chapter)),
+    )
+  ) {
+    throw new Error("LLM-parts inventory is incomplete or invalid");
   }
 
-  const partLines = lines.slice(1, 1 + llmPartIds.length);
-  if (partLines.length !== llmPartIds.length) {
-    throw new Error("LLM-parts trace has an incomplete part inventory");
+  for (const ids of Object.values(flowDefinitions)) {
+    if (ids.length === 0 || ids.some((id) => !partIdSet.has(id))) {
+      throw new Error("LLM-parts flow names an unknown or empty part sequence");
+    }
   }
-  const parts = partLines.map((line, index): LlmPartTrace => {
-    const fields = parseFields(line, "PART", ["id", "path", "purpose", "chapters"]);
-    if (fields.id !== llmPartIds[index] || !partIdSet.has(fields.id)) {
-      throw new Error("LLM-parts trace order or part ID changed");
-    }
-    if (!allowedPaths.has(fields.path as LlmPartPath)) {
-      throw new Error(`part ${fields.id} has an unknown path`);
-    }
-    const chapters = parseList(fields.chapters, `${fields.id} chapters`);
-    if (
-      new Set(chapters).size !== chapters.length ||
-      chapters.some((chapter) => !chapterPattern.test(chapter))
-    ) {
-      throw new Error(`part ${fields.id} has invalid chapter destinations`);
-    }
-    return {
-      id: fields.id as LlmPartId,
-      path: fields.path as LlmPartPath,
-      purpose: fields.purpose,
-      chapters,
-    };
-  });
-
-  const flowLines = lines.slice(1 + llmPartIds.length, -1);
-  if (flowLines.length !== flowNames.length) {
-    throw new Error("LLM-parts trace must contain exactly three flows");
-  }
-  const flows = Object.fromEntries(
-    flowLines.map((line, index) => {
-      const fields = parseFields(line, "FLOW", ["name", "parts"]);
-      const expectedName = flowNames[index];
-      if (fields.name !== expectedName) {
-        throw new Error("LLM-parts flow order changed");
-      }
-      const ids = parseList(fields.parts, `${expectedName} flow`);
-      if (ids.some((id) => !partIdSet.has(id))) {
-        throw new Error(`${expectedName} flow names an unknown part`);
-      }
-      return [expectedName, ids as LlmPartId[]];
-    }),
-  ) as Record<(typeof flowNames)[number], LlmPartId[]>;
 
   const linkedOrders = new Set(
-    parts.flatMap((part) => part.chapters.map((chapter) => Number(chapter.slice(0, 2)))),
+    partDefinitions.flatMap((part) =>
+      part.chapters.map((chapter) => Number(chapter.slice(0, 2))),
+    ),
   );
   if (
     linkedOrders.size !== 39 ||
@@ -164,23 +283,25 @@ export function parseLlmPartsTrace(source: string): LlmPartsTrace {
       (order) => !linkedOrders.has(order),
     )
   ) {
-    throw new Error("LLM-parts trace must link every implementation chapter");
+    throw new Error("LLM-parts inventory must link every implementation chapter");
   }
 
-  const predictionLength = flows.inference.length - 1;
+  const sharedForwardLength = flowDefinitions.inference.length - 1;
   if (
-    predictionLength < 1 ||
-    JSON.stringify(flows.learning.slice(0, predictionLength)) !==
-      JSON.stringify(flows.inference.slice(0, predictionLength)) ||
-    flows.learning[predictionLength] !== "loss" ||
-    flows.learning.includes("sampler") ||
-    flows.learning.includes("numeric-core")
+    JSON.stringify(flowDefinitions.learning.slice(0, sharedForwardLength)) !==
+      JSON.stringify(flowDefinitions.inference.slice(0, sharedForwardLength)) ||
+    flowDefinitions.learning[sharedForwardLength] !== "loss" ||
+    flowDefinitions.learning.includes("sampler") ||
+    flowDefinitions.learning.includes("numeric-core")
   ) {
     throw new Error(
       "learning must reuse the forward path through logits before branching to loss",
     );
   }
 
+  const parts = partDefinitions.map((part) =>
+    Object.freeze({ ...part, chapters: Object.freeze([...part.chapters]) }),
+  );
   return Object.freeze({
     parts: Object.freeze(parts),
     byId: Object.freeze(
@@ -189,10 +310,19 @@ export function parseLlmPartsTrace(source: string): LlmPartsTrace {
         LlmPartTrace
       >,
     ),
-    flows: Object.freeze(flows),
-    capstone: end.chapter,
+    flows: Object.freeze(
+      Object.fromEntries(
+        Object.entries(flowDefinitions).map(([name, ids]) => [
+          name,
+          Object.freeze([...ids]),
+        ]),
+      ) as unknown as LlmPartsTrace["flows"],
+    ),
+    capstone: "39-end-to-end-llm",
   });
 }
+
+export const llmPartsTrace = createLlmPartsTrace();
 
 export function validateLlmPartsDiagramLabels(labels: LlmPartsDiagramLabels): void {
   const visit = (value: unknown, path: string): void => {
@@ -207,6 +337,6 @@ export function validateLlmPartsDiagramLabels(labels: LlmPartsDiagramLabels): vo
   };
   visit(labels, "labels");
   if (JSON.stringify(Object.keys(labels.parts)) !== JSON.stringify(llmPartIds)) {
-    throw new Error("diagram part labels must follow the complete Rust part order");
+    throw new Error("diagram part labels must follow the complete canonical part order");
   }
 }

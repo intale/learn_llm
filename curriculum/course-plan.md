@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 30,
+  "plan_revision": 31,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -221,7 +221,7 @@
     {
       "order": 0,
       "chapter_id": "00-llm-parts",
-      "implementation_step": "implement-ch00-llm-parts",
+      "implementation_step": "revise-ch00-orientation",
       "depends_on": [],
       "primary_module": null,
       "visualization": "useful"
@@ -815,16 +815,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 ## 00. A map of a modern LLM
 
 - **Chapter ID:** `00-llm-parts`
-- **Implementation step:** `implement-ch00-llm-parts`
+- **Implementation step:** `revise-ch00-orientation`
 - **Depends on:** none; this orientation names completed course parts but introduces no implementation prerequisite.
-- **Outcome:** Identify the major parts of a decoder-only LLM, state each part's purpose, and follow the course links that build it.
+- **Outcome:** Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.
 - **Scope boundary:** Build a mental map of inference and learning without pre-teaching tensor arithmetic, optimization derivations, implementation internals, or production extensions.
-- **Formula:** `P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`.
+- **Formula:** Not applicable in this orientation; formulas begin when their mechanisms are taught.
 - **Historical contrast:** Connect short-context count language models to learned distributed representations, masked Transformer attention, and scaled autoregressive language models while stating that each earlier stage lacked part of the modern learned long-context path.
-- **Rust contribution:** Add a dependency-free topology fixture that prints every named block, its role in inference or learning, and the exact chapter destinations used by the diagram.
-- **Visualization:** Useful — show the text-to-next-token inference spine, the repeated decoder block's internal branches, the KV-cache attachment, and the learning/evaluation rail as one linked semantic block schema.
-- **Practice:** Trace one prompt token through the blocks, then identify which paths run during training, generation, or both.
-- **Integration evidence:** Exact Rust topology, contract/page parity, all working chapter links, SEO and sitemap inclusion, shared full-view behavior, and desktop/narrow Chromium and Firefox containment pass.
+- **Rust contribution:** None in this orientation; executable implementation examples begin in Chapter 1 when the course starts building the LLM.
+- **Visualization:** Useful — first show one connected whole-system schema from prompt text through logits, generation feedback, and learning updates; retain the detailed inference, decoder-interior, cache, numeric-foundation, and learning views with linked chapter destinations.
+- **Practice:** No questionnaire or memorization check; use the map as a table of contents when a later mechanism needs context.
+- **Integration evidence:** Contract/page parity, absence of lesson-only formula/Rust/exercise material, all working chapter links, SEO and sitemap inclusion, shared full-view behavior, and desktop/narrow Chromium and Firefox containment pass.
 - **Handoff:** Chapter 1 begins the implementation path by distinguishing text units from the token IDs consumed by the model.
 
 ## 01. Text units and vocabulary IDs

@@ -20,7 +20,6 @@ const chapter08To13Ids = [
   "13-gradient-checking",
 ] as const;
 const englishOnlyFormulaChapterIds = [
-  "00-llm-parts",
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
   "16-model-autodiff-ops",
@@ -436,12 +435,6 @@ const englishOnlyFormulaLatex: Record<
   (typeof englishOnlyFormulaChapterIds)[number],
   readonly string[]
 > = {
-  "00-llm-parts": [
-    String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
-    String.raw`P_\theta`,
-    String.raw`z_{1:T}`,
-    String.raw`z_{<t}`,
-  ],
   "14-scalar-autodiff": [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
   "15-tensor-autodiff-core": [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,

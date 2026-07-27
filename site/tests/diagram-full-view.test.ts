@@ -94,7 +94,7 @@ describe('course-wide diagram full-view contract', () => {
     ).toThrow(/shared controller/);
   });
 
-  it('requires exactly one diagram in every useful visualization section', () => {
+  it('requires exactly one diagram in every ordinary lesson visualization section', () => {
     const chapterPath = 'site/src/content/chapters/en/30-multi-head-attention.mdx';
     const chapter = read(chapterPath);
     const invocation = '<MultiHeadAttentionDiagram labels={diagramLabels} />';
@@ -105,28 +105,40 @@ describe('course-wide diagram full-view contract', () => {
         checkSourceFiles: false,
         supportedLocales: ['en'],
       }),
-    ).toThrow(/exactly one \*Diagram component/);
+    ).toThrow(/exactly 1 \*Diagram component invocation/);
   });
 
-  it('maps every useful English chapter to one unique registered diagram', () => {
+  it('maps every useful English registration to one unique diagram', () => {
     const chapterDirectory = resolve(process.cwd(), 'src/content/chapters/en');
     const useful = (readdirSync(chapterDirectory) as string[])
       .filter((name: string) => name.endsWith('.mdx'))
-      .map((name: string): UsefulDiagram | null => {
+      .map((name: string): UsefulDiagram[] | null => {
         const source = readFileSync(resolve(chapterDirectory, name), 'utf8');
         const { data, body } = parseJsonFrontmatter(source, name);
         if (data.visualization.decision !== 'useful') return null;
-        const invocation = body.match(/<([A-Z][A-Za-z0-9]*Diagram)(?:\s|\/|>)/);
-        return {
+        const invocations = [...body.matchAll(
+          /<([A-Z][A-Za-z0-9]*Diagram)(?:\s|\/|>)/g,
+        )].map((match) => match[1]);
+        const registrations = [
+          data.visualization.id as string,
+          ...((data.visualization.supplementary ?? []) as Array<{ id: string }>).map(
+            ({ id }) => id,
+          ),
+        ];
+        expect(invocations).toHaveLength(registrations.length);
+        return registrations.map((visualizationId, index) => ({
           chapterId: data.chapter_id as string,
-          visualizationId: data.visualization.id as string,
-          invocation: invocation?.[1] ?? '',
-        };
+          visualizationId,
+          invocation: invocations[index] ?? '',
+        }));
       })
-      .filter((entry: UsefulDiagram | null): entry is UsefulDiagram => entry !== null);
+      .filter(
+        (entry: UsefulDiagram[] | null): entry is UsefulDiagram[] => entry !== null,
+      )
+      .flat();
 
-    expect(useful.length).toBeGreaterThanOrEqual(30);
-    expect(new Set(useful.map(({ chapterId }) => chapterId)).size).toBe(useful.length);
+    expect(useful).toHaveLength(40);
+    expect(new Set(useful.map(({ chapterId }) => chapterId)).size).toBe(39);
     expect(new Set(useful.map(({ visualizationId }) => visualizationId)).size).toBe(useful.length);
     expect(useful.every(({ invocation }) => invocation.endsWith('Diagram'))).toBe(true);
   });

@@ -5,6 +5,7 @@ import {
 
 export interface PublicationChapterData {
   chapter_id: string;
+  chapter_kind?: 'lesson' | 'orientation';
   locale: string;
   content_revision: number;
   order: number;
@@ -12,9 +13,9 @@ export interface PublicationChapterData {
   formula: {
     latex: string;
     symbols: readonly { symbol: string }[];
-  };
+  } | null;
   history: {
-    rust_source: string;
+    rust_source: string | null;
     llm_evolution?: {
       predecessor_kind: string;
       sources: readonly {
@@ -26,7 +27,12 @@ export interface PublicationChapterData {
     };
   };
   rust_sources: readonly { path: string; region?: string }[];
-  visualization: { decision: string; id: string | null };
+  visualization: {
+    decision: string;
+    id: string | null;
+    component?: string;
+    supplementary?: readonly { id: string; component: string }[];
+  };
 }
 
 export interface PublicationChapterEntry {
@@ -68,12 +74,15 @@ function validatePublicationLocales(
 export function sharedChapterSignature(entry: PublicationChapterEntry): string {
   return JSON.stringify({
     chapter_id: entry.data.chapter_id,
+    chapter_kind: entry.data.chapter_kind ?? 'lesson',
     order: entry.data.order,
     concept_id: entry.data.concept_id,
-    formula: {
-      latex: entry.data.formula.latex,
-      symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
-    },
+    formula: entry.data.formula
+      ? {
+          latex: entry.data.formula.latex,
+          symbols: entry.data.formula.symbols.map((symbol) => symbol.symbol),
+        }
+      : null,
     history_rust_source: entry.data.history.rust_source,
     history_llm_evolution: entry.data.history.llm_evolution
       ? {
@@ -93,6 +102,16 @@ export function sharedChapterSignature(entry: PublicationChapterEntry): string {
     visualization: {
       decision: entry.data.visualization.decision,
       id: entry.data.visualization.id,
+      ...(entry.data.visualization.component
+        ? { component: entry.data.visualization.component }
+        : {}),
+      ...((entry.data.visualization.supplementary?.length ?? 0) > 0
+        ? {
+            supplementary: entry.data.visualization.supplementary!.map(
+              ({ id, component }) => ({ id, component }),
+            ),
+          }
+        : {}),
     },
   });
 }

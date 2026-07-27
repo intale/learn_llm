@@ -35,8 +35,20 @@ export const REQUIRED_CONTRACT_SECTIONS = Object.freeze([
   'acceptance',
 ]);
 
+export const ORIENTATION_CONTRACT_SECTIONS = Object.freeze([
+  'scope',
+  'overview',
+  'history',
+  'visualization',
+  'course-path',
+  'decoder-connection',
+  'localization',
+  'acceptance',
+]);
+
 const CHAPTER_ID_PATTERN = /^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CONCEPT_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const DIAGRAM_COMPONENT_PATTERN = /^[A-Z][A-Za-z0-9]*Diagram$/;
 const PACKAGE_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const LATEX_PROSE_PATTERN =
   /\\(?:hbox|mbox|vbox|text(?:bf|it|normal|rm|sf|tt|up)?)\s*\{/;
@@ -58,6 +70,10 @@ function isObject(value) {
 
 function hasText(value) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isOrientationChapter(data) {
+  return data?.chapter_kind === 'orientation';
 }
 
 function requireText(issues, value, field, sourceName) {
@@ -284,6 +300,7 @@ function validateHistory(
   supportedLocales,
   chapterOrder,
   contentRevision,
+  allowNullRustContrast = false,
 ) {
   if (!isObject(history)) {
     issues.push(sourceName + ': history must be an object');
@@ -310,7 +327,9 @@ function validateHistory(
     sourceName,
     supportedLocales,
   );
-  requireText(issues, history.rust_contrast, 'history.rust_contrast', sourceName);
+  if (!allowNullRustContrast || history.rust_contrast !== null) {
+    requireText(issues, history.rust_contrast, 'history.rust_contrast', sourceName);
+  }
 }
 
 function validateRustPlan(issues, rust, sourceName) {
@@ -373,10 +392,75 @@ function validateVisualization(
       sourceName + ': a useful visualization requires a lowercase kebab-case id',
     );
   }
+  if (
+    visualization.decision === 'useful' &&
+    visualization.component !== undefined &&
+    (!hasText(visualization.component) ||
+      !DIAGRAM_COMPONENT_PATTERN.test(visualization.component))
+  ) {
+    issues.push(sourceName + ': visualization.component must name a *Diagram component');
+  }
+  if (visualization.decision === 'useful') {
+    const supplementary = visualization.supplementary ?? [];
+    if (!Array.isArray(supplementary)) {
+      issues.push(sourceName + ': visualization.supplementary must be an array when present');
+    } else {
+      const ids = [visualization.id];
+      const components = visualization.component ? [visualization.component] : [];
+      supplementary.forEach((entry, index) => {
+        if (!isObject(entry)) {
+          issues.push(
+            sourceName + ': visualization.supplementary[' + index + '] must be an object',
+          );
+          return;
+        }
+        if (!hasText(entry.id) || !CONCEPT_ID_PATTERN.test(entry.id)) {
+          issues.push(
+            sourceName +
+              ': visualization.supplementary[' +
+              index +
+              '].id must be lowercase kebab-case',
+          );
+        }
+        if (
+          !hasText(entry.component) ||
+          !DIAGRAM_COMPONENT_PATTERN.test(entry.component)
+        ) {
+          issues.push(
+            sourceName +
+              ': visualization.supplementary[' +
+              index +
+              '].component must name a *Diagram component',
+          );
+        }
+        requireLocalizedText(
+          issues,
+          entry.rationale,
+          'visualization.supplementary[' + index + '].rationale',
+          sourceName,
+          supportedLocales,
+        );
+        ids.push(entry.id);
+        components.push(entry.component);
+      });
+      if (new Set(ids).size !== ids.length) {
+        issues.push(sourceName + ': visualization IDs must be unique within the chapter');
+      }
+      if (new Set(components).size !== components.length) {
+        issues.push(sourceName + ': visualization components must be unique within the chapter');
+      }
+    }
+  }
   if (visualization.decision === 'not-useful' && visualization.id !== null) {
     issues.push(
       sourceName + ': a not-useful visualization must set visualization.id to null',
     );
+  }
+  if (
+    visualization.decision === 'not-useful' &&
+    (visualization.component !== undefined || visualization.supplementary !== undefined)
+  ) {
+    issues.push(sourceName + ': a not-useful visualization cannot register components');
   }
 }
 
@@ -484,6 +568,14 @@ export function validateChapterContractText(
     issues.push(sourceName + ': order must be a nonnegative integer');
   }
 
+  const orientation = isOrientationChapter(data);
+  if (orientation && (data.chapter_id !== '00-llm-parts' || data.order !== 0)) {
+    issues.push(sourceName + ': only 00-llm-parts at order zero may be an orientation');
+  }
+  if (data.chapter_kind !== undefined && !['lesson', 'orientation'].includes(data.chapter_kind)) {
+    issues.push(sourceName + ': chapter_kind must be lesson or orientation when present');
+  }
+
   requireLocalizedText(
     issues,
     data.objective,
@@ -498,7 +590,13 @@ export function validateChapterContractText(
     sourceName,
     supportedLocales,
   );
-  validateFormula(issues, data.formula, sourceName, supportedLocales);
+  if (orientation) {
+    if (data.formula !== null) {
+      issues.push(sourceName + ': orientation formula must be null');
+    }
+  } else {
+    validateFormula(issues, data.formula, sourceName, supportedLocales);
+  }
   validateHistory(
     issues,
     data.history,
@@ -506,14 +604,46 @@ export function validateChapterContractText(
     supportedLocales,
     data.order,
     data.content_revision,
+    orientation,
   );
-  validateRustPlan(issues, data.rust, sourceName);
+  if (orientation) {
+    if (data.rust !== null) {
+      issues.push(sourceName + ': orientation rust plan must be null');
+    }
+    if (data.history?.rust_contrast !== null) {
+      issues.push(sourceName + ': orientation history.rust_contrast must be null');
+    }
+  } else {
+    validateRustPlan(issues, data.rust, sourceName);
+  }
   validateVisualization(
     issues,
     data.visualization,
     sourceName,
     supportedLocales,
   );
+  if (orientation) {
+    if (
+      data.visualization?.decision !== 'useful' ||
+      data.visualization.id !== 'llm-system-map' ||
+      data.visualization.component !== 'LlmSystemDiagram' ||
+      JSON.stringify(data.visualization.supplementary?.map((entry) => entry?.id) ?? []) !==
+        JSON.stringify(['llm-parts-map']) ||
+      data.visualization.supplementary?.[0]?.component !== 'LlmPartsDiagram'
+    ) {
+      issues.push(
+        sourceName +
+          ': the orientation must register LlmSystemDiagram and supplementary LlmPartsDiagram',
+      );
+    }
+  } else if (
+    data.visualization?.component !== undefined ||
+    data.visualization?.supplementary !== undefined
+  ) {
+    issues.push(
+      sourceName + ': visualization component overrides are reserved for the orientation',
+    );
+  }
   requireLocalizedText(
     issues,
     data.decoder_connection,
@@ -526,11 +656,14 @@ export function validateChapterContractText(
   validateAcceptanceExamples(issues, data.acceptance_examples, sourceName);
 
   const markers = extractContractSectionMarkers(parsed.body);
-  if (JSON.stringify(markers) !== JSON.stringify(REQUIRED_CONTRACT_SECTIONS)) {
+  const requiredSections = orientation
+    ? ORIENTATION_CONTRACT_SECTIONS
+    : REQUIRED_CONTRACT_SECTIONS;
+  if (JSON.stringify(markers) !== JSON.stringify(requiredSections)) {
     issues.push(
       sourceName +
         ': contract section markers must appear exactly once in this order: ' +
-        REQUIRED_CONTRACT_SECTIONS.join(', '),
+        requiredSections.join(', '),
     );
   }
 
@@ -594,19 +727,22 @@ function localizedLessonLlmEvolution(evolution) {
 export function localizedContractProjection(contract, locale) {
   return {
     chapter_id: contract.chapter_id,
+    chapter_kind: contract.chapter_kind ?? 'lesson',
     content_revision: contract.content_revision,
     order: contract.order,
     concept_id: contract.concept_id,
     objective: contract.objective[locale],
     worked_inputs: contract.worked_inputs[locale],
-    formula: {
-      latex: contract.formula.latex,
-      symbols: contract.formula.symbols.map((symbol) => ({
-        symbol: symbol.symbol,
-        meaning: symbol[locale],
-      })),
-    },
-    rust_source_paths: sortedUnique(contract.rust.sources),
+    formula: contract.formula
+      ? {
+          latex: contract.formula.latex,
+          symbols: contract.formula.symbols.map((symbol) => ({
+            symbol: symbol.symbol,
+            meaning: symbol[locale],
+          })),
+        }
+      : null,
+    rust_source_paths: contract.rust ? sortedUnique(contract.rust.sources) : [],
     history: {
       llm_evolution: localizedContractLlmEvolution(
         contract.history.llm_evolution,
@@ -618,7 +754,19 @@ export function localizedContractProjection(contract, locale) {
     visualization: {
       decision: contract.visualization.decision,
       id: contract.visualization.id,
+      ...(contract.visualization.component
+        ? { component: contract.visualization.component }
+        : {}),
       rationale: contract.visualization.rationale[locale],
+      ...((contract.visualization.supplementary?.length ?? 0) > 0
+        ? {
+            supplementary: contract.visualization.supplementary.map((entry) => ({
+              id: entry.id,
+              component: entry.component,
+              rationale: entry.rationale[locale],
+            })),
+          }
+        : {}),
     },
     decoder_connection: contract.decoder_connection[locale],
   };
@@ -627,18 +775,21 @@ export function localizedContractProjection(contract, locale) {
 function localizedLessonProjection(lesson) {
   return {
     chapter_id: lesson.chapter_id,
+    chapter_kind: lesson.chapter_kind ?? 'lesson',
     content_revision: lesson.content_revision,
     order: lesson.order,
     concept_id: lesson.concept_id,
     objective: lesson.objective,
     worked_inputs: lesson.worked_inputs,
-    formula: {
-      latex: lesson.formula.latex,
-      symbols: lesson.formula.symbols.map((symbol) => ({
-        symbol: symbol.symbol,
-        meaning: symbol.meaning,
-      })),
-    },
+    formula: lesson.formula
+      ? {
+          latex: lesson.formula.latex,
+          symbols: lesson.formula.symbols.map((symbol) => ({
+            symbol: symbol.symbol,
+            meaning: symbol.meaning,
+          })),
+        }
+      : null,
     rust_source_paths: sortedUnique(lesson.rust_sources.map((source) => source.path)),
     history: {
       llm_evolution: localizedLessonLlmEvolution(
@@ -650,7 +801,19 @@ function localizedLessonProjection(lesson) {
     visualization: {
       decision: lesson.visualization.decision,
       id: lesson.visualization.id,
+      ...(lesson.visualization.component
+        ? { component: lesson.visualization.component }
+        : {}),
       rationale: lesson.visualization.rationale,
+      ...((lesson.visualization.supplementary?.length ?? 0) > 0
+        ? {
+            supplementary: lesson.visualization.supplementary.map((entry) => ({
+              id: entry.id,
+              component: entry.component,
+              rationale: entry.rationale,
+            })),
+          }
+        : {}),
     },
     decoder_connection: lesson.decoder_connection,
   };
@@ -665,44 +828,72 @@ function expectedDiagramPath(chapterId) {
   return 'site/src/components/chapters/' + componentName + 'Diagram.astro';
 }
 
-function visualizationComponent(body, decision, sourceName, chapterId) {
+function expectedVisualizationPaths(visualization, chapterId) {
+  const primary = visualization.component
+    ? 'site/src/components/chapters/' + visualization.component + '.astro'
+    : expectedDiagramPath(chapterId);
+  return [
+    primary,
+    ...(visualization.supplementary ?? []).map(
+      ({ component }) => 'site/src/components/chapters/' + component + '.astro',
+    ),
+  ];
+}
+
+function visualizationComponents(body, visualization, sourceName, chapterId, chapterKind) {
   const renderableBody = renderableMdxSource(body);
   const imports = [...renderableBody.matchAll(
     /import\s+([A-Z][A-Za-z0-9]*Diagram)\s+from\s+['"]([^'"]+Diagram\.astro)['"];?/g,
   )].map((match) => ({ alias: match[1], importPath: match[2] }));
   const marker = '{/* chapter-section:visualization */}';
   const start = body.indexOf(marker);
-  const end = body.indexOf('{/* chapter-section:exercises */}', start + marker.length);
+  const followingMarker = chapterKind === 'orientation'
+    ? '{/* chapter-section:course-path */}'
+    : '{/* chapter-section:exercises */}';
+  const end = body.indexOf(followingMarker, start + marker.length);
   const section =
     start === -1 || end === -1
       ? ''
       : renderableMdxSource(body.slice(start, end));
-  const invoked = imports.filter((entry) =>
-    new RegExp('<' + entry.alias + '(?:\\s|/|>)').test(section),
-  );
+  const importByAlias = new Map(imports.map((entry) => [entry.alias, entry]));
+  const invocationAliases = [...section.matchAll(
+    /<([A-Z][A-Za-z0-9]*Diagram)(?:\s|\/|>)/g,
+  )].map((match) => match[1]);
+  const invoked = invocationAliases.map((alias) => importByAlias.get(alias));
 
-  if (decision === 'useful') {
-    if (imports.length !== 1 || invoked.length !== 1) {
+  if (visualization.decision === 'useful') {
+    const expectedPaths = expectedVisualizationPaths(visualization, chapterId);
+    if (
+      imports.length !== expectedPaths.length ||
+      invoked.length !== expectedPaths.length ||
+      invoked.some((entry) => !entry) ||
+      new Set(invocationAliases).size !== invocationAliases.length
+    ) {
       throw new ContentValidationError([
         sourceName +
-          ': useful visualization must import and invoke exactly one shared *Diagram component inside the visualization section',
+          ': useful visualization must import and invoke ' +
+          (expectedPaths.length === 1
+            ? 'exactly one shared *Diagram component'
+            : 'exactly ' + expectedPaths.length + ' distinct shared *Diagram components') +
+          ' inside the visualization section',
       ], 'Chapter integration validation failed');
     }
     const sourcePath = sourceName.replaceAll('\\', '/');
-    const resolvedPath = nodePath.posix.normalize(
-      nodePath.posix.join(nodePath.posix.dirname(sourcePath), invoked[0].importPath),
+    const resolvedPaths = invoked.map((entry) =>
+      nodePath.posix.normalize(
+        nodePath.posix.join(nodePath.posix.dirname(sourcePath), entry.importPath),
+      ),
     );
-    const expectedPath = expectedDiagramPath(chapterId);
-    if (resolvedPath !== expectedPath) {
+    if (JSON.stringify(resolvedPaths) !== JSON.stringify(expectedPaths)) {
       throw new ContentValidationError([
         sourceName +
-          ': useful visualization must resolve to the chapter-specific component ' +
-          expectedPath +
+          ': useful visualization must resolve to the exact ordered chapter-specific component set ' +
+          expectedPaths.join(', ') +
           '; found ' +
-          resolvedPath,
+          resolvedPaths.join(', '),
       ], 'Chapter integration validation failed');
     }
-    return resolvedPath;
+    return resolvedPaths;
   }
 
   if (
@@ -713,7 +904,7 @@ function visualizationComponent(body, decision, sourceName, chapterId) {
       sourceName + ': not-useful visualization must not import or invoke a *Diagram component',
     ], 'Chapter integration validation failed');
   }
-  return null;
+  return [];
 }
 
 export function validateContractLesson(contract, lesson, locale, sourceName = 'lesson') {
@@ -725,16 +916,20 @@ export function validateContractLesson(contract, lesson, locale, sourceName = 'l
         ': ID, revision, order, concept, objective, worked input, formula, history, Rust source set, visualization, or decoder connection differs from the contract',
     ], 'Chapter integration validation failed');
   }
-  if (!contract.rust.sources.includes(lesson.data.history.rust_source)) {
+  if (
+    contract.rust &&
+    !contract.rust.sources.includes(lesson.data.history.rust_source)
+  ) {
     throw new ContentValidationError([
       sourceName + ': history.rust_source is absent from contract rust.sources',
     ], 'Chapter integration validation failed');
   }
-  return visualizationComponent(
+  return visualizationComponents(
     lesson.body,
-    contract.visualization.decision,
+    contract.visualization,
     sourceName,
     contract.chapter_id,
+    contract.chapter_kind ?? 'lesson',
   );
 }
 
@@ -773,46 +968,49 @@ export function validateChapterContractIntegration(
     contract.chapter_id,
   );
   const issues = [];
-  const expectedPackage = 'ch' + contract.chapter_id;
-  if (contract.rust.package !== expectedPackage) {
-    issues.push(
-      sourceName + ': rust.package must equal "' + expectedPackage + '"',
-    );
-  }
-
-  const demoPrefix = 'rust/demos/' + contract.rust.package + '/';
-  const demoSources = contract.rust.sources.filter((path) => path.startsWith('rust/demos/'));
-  if (!demoSources.includes(demoPrefix + 'src/main.rs')) {
-    issues.push(sourceName + ': rust.sources must include ' + demoPrefix + 'src/main.rs');
-  }
-  for (const path of demoSources) {
-    if (!path.startsWith(demoPrefix)) {
-      issues.push(sourceName + ': Rust demo source belongs to another package: ' + path);
-    }
-  }
-
-  const manifestPath = nodePath.join(repositoryRoot, demoPrefix, 'Cargo.toml');
-  const expectedPath = nodePath.join(repositoryRoot, demoPrefix, 'expected.txt');
-  if (!existsSync(manifestPath)) {
-    issues.push(sourceName + ': demo manifest does not exist: ' + demoPrefix + 'Cargo.toml');
-  } else {
-    const manifest = readFileSync(manifestPath, 'utf8');
-    const packageName = manifest.match(/^name\s*=\s*"([^"]+)"/m)?.[1];
-    if (packageName !== contract.rust.package) {
-      issues.push(sourceName + ': Cargo package name differs from rust.package');
-    }
-  }
-  if (!existsSync(expectedPath)) {
-    issues.push(sourceName + ': expected-output fixture does not exist: ' + demoPrefix + 'expected.txt');
-  } else {
-    try {
-      validateExpectedOutput(
-        contract,
-        readFileSync(expectedPath, 'utf8'),
-        sourceName,
+  let expectedPath = null;
+  if (!isOrientationChapter(contract)) {
+    const expectedPackage = 'ch' + contract.chapter_id;
+    if (contract.rust.package !== expectedPackage) {
+      issues.push(
+        sourceName + ': rust.package must equal "' + expectedPackage + '"',
       );
-    } catch (error) {
-      issues.push(...(error.issues ?? [error.message]));
+    }
+
+    const demoPrefix = 'rust/demos/' + contract.rust.package + '/';
+    const demoSources = contract.rust.sources.filter((path) => path.startsWith('rust/demos/'));
+    if (!demoSources.includes(demoPrefix + 'src/main.rs')) {
+      issues.push(sourceName + ': rust.sources must include ' + demoPrefix + 'src/main.rs');
+    }
+    for (const path of demoSources) {
+      if (!path.startsWith(demoPrefix)) {
+        issues.push(sourceName + ': Rust demo source belongs to another package: ' + path);
+      }
+    }
+
+    const manifestPath = nodePath.join(repositoryRoot, demoPrefix, 'Cargo.toml');
+    expectedPath = nodePath.join(repositoryRoot, demoPrefix, 'expected.txt');
+    if (!existsSync(manifestPath)) {
+      issues.push(sourceName + ': demo manifest does not exist: ' + demoPrefix + 'Cargo.toml');
+    } else {
+      const manifest = readFileSync(manifestPath, 'utf8');
+      const packageName = manifest.match(/^name\s*=\s*"([^"]+)"/m)?.[1];
+      if (packageName !== contract.rust.package) {
+        issues.push(sourceName + ': Cargo package name differs from rust.package');
+      }
+    }
+    if (!existsSync(expectedPath)) {
+      issues.push(sourceName + ': expected-output fixture does not exist: ' + demoPrefix + 'expected.txt');
+    } else {
+      try {
+        validateExpectedOutput(
+          contract,
+          readFileSync(expectedPath, 'utf8'),
+          sourceName,
+        );
+      } catch (error) {
+        issues.push(...(error.issues ?? [error.message]));
+      }
     }
   }
 
@@ -848,13 +1046,12 @@ export function validateChapterContractIntegration(
       locale,
       nodePath.relative(repositoryRoot, lessonPath),
     );
-    if (
-      diagrams[locale] &&
-      !existsSync(nodePath.join(repositoryRoot, diagrams[locale]))
-    ) {
-      throw new ContentValidationError([
-        sourceName + ': visualization component does not exist: ' + diagrams[locale],
-      ], 'Chapter integration validation failed');
+    for (const diagramPath of diagrams[locale]) {
+      if (!existsSync(nodePath.join(repositoryRoot, diagramPath))) {
+        throw new ContentValidationError([
+          sourceName + ': visualization component does not exist: ' + diagramPath,
+        ], 'Chapter integration validation failed');
+      }
     }
   }
 
@@ -863,7 +1060,7 @@ export function validateChapterContractIntegration(
     requiredLocales,
     localeConfiguration.defaultLocale,
   );
-  const diagramPaths = new Set(Object.values(diagrams));
+  const diagramPaths = new Set(Object.values(diagrams).map((paths) => JSON.stringify(paths)));
   if (diagramPaths.size !== 1) {
     throw new ContentValidationError([
       sourceName + ': all localized lessons must invoke the same visualization component',
@@ -872,7 +1069,10 @@ export function validateChapterContractIntegration(
 
   return {
     lessons,
-    visualizationComponent: diagrams[localeConfiguration.defaultLocale],
+    visualizationComponent:
+      diagrams[localeConfiguration.defaultLocale].length === 1
+        ? diagrams[localeConfiguration.defaultLocale][0]
+        : diagrams[localeConfiguration.defaultLocale],
     expectedPath,
   };
 }

@@ -362,7 +362,9 @@ export function validateCoursePlanText(
     assert(chapter.chapter_id.startsWith(`${prefix}-`), `${path}: ${chapter.chapter_id} does not match order ${order}`);
     assert(
       chapter.implementation_step ===
-        (order === 1
+        (order === 0
+          ? "revise-ch00-orientation"
+          : order === 1
           ? "revise-ch01-language-neutral-formula"
           : `implement-ch${prefix}-${chapter.chapter_id.slice(3)}`),
       `${path}: implementation step does not match ${chapter.chapter_id}`,
@@ -434,7 +436,8 @@ export function validateCoursePlanText(
     const writtenStep = section.match(/^- \*\*Implementation step:\*\* `([^`]+)`/m)?.[1];
     const writtenDependency = section.match(/^- \*\*Depends on:\*\* ([^\n]+)$/m)?.[1];
     const outcome = section.match(/^- \*\*Outcome:\*\* ([^\n]+)$/m)?.[1];
-    const formula = section.match(/^- \*\*Formula:\*\* `([^\n]+)`\./m)?.[1];
+    const formula = section.match(/^- \*\*Formula:\*\* `([^\n]+)`\./m)?.[1] ?? null;
+    const orientationFormula = section.match(/^- \*\*Formula:\*\* ([^\n]+)$/m)?.[1];
     const historicalContrast = section.match(
       /^- \*\*Historical contrast:\*\* ([^\n]+)$/m,
     )?.[1];
@@ -459,7 +462,16 @@ export function validateCoursePlanText(
         `${path}: body dependency mismatch for ${chapter.chapter_id}`,
       );
     }
-    assert(formula, `${path}: missing single-line formula for ${chapter.chapter_id}`);
+    if (chapter.order === 0) {
+      assert(
+        formula === null &&
+          orientationFormula ===
+            "Not applicable in this orientation; formulas begin when their mechanisms are taught.",
+        `${path}: Chapter 0 must declare that its orientation has no formula`,
+      );
+    } else {
+      assert(formula, `${path}: missing single-line formula for ${chapter.chapter_id}`);
+    }
     assert(
       historicalContrast,
       `${path}: missing historical contrast for ${chapter.chapter_id}`,
@@ -490,7 +502,10 @@ export function validateCoursePlanText(
         );
       }
     }
-    assert(!LATEX_PROSE_PATTERN.test(formula), `${path}: ${chapter.chapter_id} formula contains locale-specific prose`);
+    assert(
+      formula === null || !LATEX_PROSE_PATTERN.test(formula),
+      `${path}: ${chapter.chapter_id} formula contains locale-specific prose`,
+    );
     assert(
       visualization === (chapter.visualization === "useful" ? "Useful" : "Not useful"),
       `${path}: body visualization decision mismatch for ${chapter.chapter_id}`,
@@ -572,9 +587,21 @@ export function validateLedgerText(
 
   const introChapter = metadata.chapters.find((chapter) => chapter.order === 0);
   assert(introChapter, `${statePath}: reviewed plan is missing Chapter 0`);
-  const introBuild = extractBuild(
+  const originalIntroBuild = extractBuild(
     stateSource,
     "introduce-ch00-llm-map",
+    statePath,
+  );
+  const originalIntroSteps = extractSteps(originalIntroBuild, statePath);
+  assert(
+    originalIntroSteps.length === 1 &&
+      originalIntroSteps[0].id === "implement-ch00-llm-parts" &&
+      originalIntroSteps[0].status === "invalidated",
+    `${statePath}: the superseded Chapter 0 implementation step must remain invalidated`,
+  );
+  const introBuild = extractBuild(
+    stateSource,
+    "revise-ch00-orientation",
     statePath,
   );
   const introSteps = extractSteps(introBuild, statePath);
@@ -611,17 +638,23 @@ export function validateLedgerText(
       JSON.stringify(["implement-ch39-end-to-end-llm"]),
     `${statePath}: ${introStep.id} must depend only on the completed capstone step`,
   );
+  assert(
+    JSON.stringify(listField(introStep, "replaces")) ===
+      JSON.stringify(["implement-ch00-llm-parts"]),
+    `${statePath}: ${introStep.id} must replace only implement-ch00-llm-parts`,
+  );
   const introInputs = listField(introStep, "inputs") ?? [];
   assert(
-    introInputs.includes("curriculum/chapters/39-end-to-end-llm.md") &&
+    introInputs.includes("curriculum/chapters/00-llm-parts.md") &&
       introInputs.includes(metadata.localization_registry),
-    `${statePath}: ${introStep.id} must consume the capstone contract and locale projection`,
+    `${statePath}: ${introStep.id} must consume the prior orientation contract and locale projection`,
   );
   const introOutputs = listField(introStep, "outputs") ?? [];
   for (const required of [
     "curriculum/chapters/00-llm-parts.md",
     "rust/demos/ch00-llm-parts/",
     "site/src/content/chapters/en/00-llm-parts.mdx",
+    "site/src/components/chapters/LlmSystemDiagram.astro",
     "site/src/components/chapters/LlmPartsDiagram.astro",
     "site/tests/00-llm-parts-diagram.test.ts",
     "site/tests/e2e/ch00-llm-parts.spec.ts",
@@ -634,7 +667,6 @@ export function validateLedgerText(
   const introValidation = listField(introStep, "validate") ?? [];
   for (const required of [
     "npm --prefix site run check:contract -- ../curriculum/chapters/00-llm-parts.md",
-    "scripts/check-rust-demos.sh",
     "npm --prefix site run check:chapter -- --locale en --chapter 00-llm-parts",
     "npm --prefix site run check:parity -- --chapter 00-llm-parts",
   ]) {
@@ -782,7 +814,7 @@ export function validateImplementedContracts(
       `${contract.path}: contract ID/order does not form the implemented plan prefix`,
     );
     assert(
-      data.formula?.latex === planChapter.formula,
+      (data.formula?.latex ?? null) === planChapter.formula,
       `${contract.path}: contract formula differs from the reviewed plan`,
     );
     assert(

@@ -26,6 +26,7 @@ import {
   findPublishableChapterSets,
   validateCatalogParity,
   validateChapterDocument,
+  validateChapterMetadata,
   validateChapterLocaleSet,
   validatePublishedContractSequence,
   validatePublishedChapterSequence,
@@ -934,6 +935,128 @@ describe('curriculum and catalog contracts', () => {
     expect(Object.keys(result.data.objective)).toEqual(['en']);
   });
 
+  it('keeps the Chapter 0 orientation exception narrow and non-assessed', () => {
+    const root = repositoryRoot();
+    const contractPath = join(root, 'curriculum/chapters/00-llm-parts.md');
+    const lessonPath = join(
+      root,
+      'site/src/content/chapters/en/00-llm-parts.mdx',
+    );
+    const contractSource = readFileSync(contractPath, 'utf8');
+    const lessonSource = readFileSync(lessonPath, 'utf8');
+
+    const orientationContract = validateChapterContractText(contractSource, {
+      sourceName: contractPath,
+      supportedLocales: ['en'],
+    });
+    expect(
+      validateChapterContractIntegration(orientationContract, {
+        repositoryRoot: root,
+        sourceName: contractPath,
+      }).visualizationComponent,
+    ).toEqual([
+      'site/src/components/chapters/LlmSystemDiagram.astro',
+      'site/src/components/chapters/LlmPartsDiagram.astro',
+    ]);
+    expect(() =>
+      validateChapterDocument(lessonSource, {
+        sourceName: lessonPath,
+        checkSourceFiles: false,
+      }),
+    ).not.toThrow();
+
+    const movedOrientation = replaceOnce(
+      contractSource,
+      '  "order": 0,',
+      '  "order": 1,',
+    );
+    expect(() =>
+      validateChapterContractText(movedOrientation, {
+        sourceName: 'moved orientation',
+        supportedLocales: ['en'],
+      }),
+    ).toThrow(/only 00-llm-parts at order zero/);
+
+    const disguisedLesson = replaceOnce(
+      contractSource,
+      '  "chapter_kind": "orientation",\n',
+      '',
+    );
+    expect(() =>
+      validateChapterContractText(disguisedLesson, {
+        sourceName: 'disguised orientation',
+        supportedLocales: ['en'],
+      }),
+    ).toThrow(/formula must be an object|rust must be an object/);
+
+    const borrowedFormula = replaceOnce(
+      lessonSource,
+      '  "formula": null,',
+      '  "formula": {"latex":"x=1","symbols":[{"symbol":"x","meaning":"a placeholder"}]},',
+    );
+    expect(() =>
+      validateChapterDocument(borrowedFormula, {
+        sourceName: 'formula-bearing orientation',
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/orientation formula must be null/);
+
+    const assessedOrientation = replaceOnce(
+      lessonSource,
+      '{/* chapter-section:course-path */}',
+      '{/* chapter-section:exercises */}',
+    );
+    expect(() =>
+      validateChapterDocument(assessedOrientation, {
+        sourceName: 'assessed orientation',
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/overview, history, visualization, course-path, decoder-connection/);
+
+    const duplicateVisualizationId = replaceOnce(
+      lessonSource,
+      '"id": "llm-parts-map"',
+      '"id": "llm-system-map"',
+    );
+    expect(() =>
+      validateChapterDocument(duplicateVisualizationId, {
+        sourceName: 'duplicate orientation visualization',
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/visualization IDs must be unique|orientation must register/);
+
+    const missingDetailDiagram = replaceOnce(
+      lessonSource,
+      '\n<LlmPartsDiagram labels={diagramLabels} locale="en" />',
+      '',
+    );
+    expect(() =>
+      validateChapterDocument(missingDetailDiagram, {
+        sourceName: 'missing detail diagram',
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/useful visualization must be invoked inside its section/);
+
+    const duplicatedSystemDiagram = replaceOnce(
+      lessonSource,
+      '<LlmSystemDiagram labels={diagramLabels} />',
+      '<LlmSystemDiagram labels={diagramLabels} />\n\n<LlmSystemDiagram labels={diagramLabels} />',
+    );
+    expect(() =>
+      validateChapterDocument(duplicatedSystemDiagram, {
+        sourceName: 'duplicated system diagram',
+        checkSourceFiles: false,
+      }),
+    ).toThrow(/useful visualization must be invoked inside its section/);
+
+    const normalLesson = canonicalLesson('en');
+    const missingLessonFormula = structuredClone(normalLesson.data);
+    missingLessonFormula.formula = null;
+    expect(() =>
+      validateChapterMetadata(missingLessonFormula, 'formula-free implementation lesson'),
+    ).toThrow(/formula must be an object/);
+  });
+
   it('requires learner-facing equations to use rendered math instead of code styling', () => {
     const agents = readFileSync(resolve(repositoryRoot(), 'AGENTS.md'), 'utf8');
     const playbook = readFileSync(resolve(repositoryRoot(), 'SKILLS.md'), 'utf8');
@@ -1070,17 +1193,32 @@ describe('curriculum and catalog contracts', () => {
       validateLedgerText(missingIntroductionBuild, metadata, statePath),
     ).toThrow(/missing build introduce-ch00-llm-map/);
 
-    const introductionDependencyDrift = replaceOnce(
-      stateSource,
+    const replacementBuildStart = stateSource.indexOf(
+      '  - build_id: revise-ch00-orientation',
+    );
+    expect(replacementBuildStart).toBeGreaterThan(-1);
+    const mutateReplacementBuild = (before: string, after: string) =>
+      stateSource.slice(0, replacementBuildStart) +
+      replaceOnce(stateSource.slice(replacementBuildStart), before, after);
+
+    const missingReplacementBuild = mutateReplacementBuild(
+      '  - build_id: revise-ch00-orientation',
+      '  - build_id: missing-revise-ch00-orientation',
+    );
+    expect(() =>
+      validateLedgerText(missingReplacementBuild, metadata, statePath),
+    ).toThrow(/missing build revise-ch00-orientation/);
+
+    const introductionDependencyDrift = mutateReplacementBuild(
       [
-        '      - id: implement-ch00-llm-parts',
-        '        objective: "Identify the major parts of a decoder-only LLM, state each part\'s purpose, and follow the course links that build it."',
+        '      - id: revise-ch00-orientation',
+        '        objective: "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."',
         '        depends_on:',
         '          - implement-ch39-end-to-end-llm',
       ].join('\n'),
       [
-        '      - id: implement-ch00-llm-parts',
-        '        objective: "Identify the major parts of a decoder-only LLM, state each part\'s purpose, and follow the course links that build it."',
+        '      - id: revise-ch00-orientation',
+        '        objective: "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part."',
         '        depends_on:',
         '          - implement-ch38-cached-generation',
       ].join('\n'),
@@ -1089,20 +1227,24 @@ describe('curriculum and catalog contracts', () => {
       validateLedgerText(introductionDependencyDrift, metadata, statePath),
     ).toThrow(/must depend only on the completed capstone step/);
 
-    const missingIntroductionOutput = replaceOnce(
-      stateSource,
+    const missingIntroductionOutput = mutateReplacementBuild(
       [
+        '        outputs:',
+        '          - "curriculum/course-plan.md"',
+        '          - "curriculum/README.md"',
         '          - "curriculum/chapters/00-llm-parts.md"',
-        '          - "rust/demos/ch00-llm-parts/"',
       ].join('\n'),
-      '          - "rust/demos/ch00-llm-parts/"',
+      [
+        '        outputs:',
+        '          - "curriculum/course-plan.md"',
+        '          - "curriculum/README.md"',
+      ].join('\n'),
     );
     expect(() =>
       validateLedgerText(missingIntroductionOutput, metadata, statePath),
     ).toThrow(/does not own curriculum\/chapters\/00-llm-parts\.md/);
 
-    const missingIntroductionValidation = replaceOnce(
-      stateSource,
+    const missingIntroductionValidation = mutateReplacementBuild(
       '          - "npm --prefix site run check:parity -- --chapter 00-llm-parts"',
       '          - "npm --prefix site run check:parity -- --chapter wrong"',
     );
@@ -1149,7 +1291,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 30',
+      '"plan_revision": 31',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(

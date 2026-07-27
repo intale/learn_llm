@@ -11,9 +11,16 @@ mathematics. Chapter 2 onward extends one cumulative, dependency-free Rust decod
 until the capstone can tokenize, train, evaluate, checkpoint, and generate with a
 small causal Transformer.
 
+Chapter 0 is the sole orientation exception. It carries
+`chapter_kind: "orientation"`, order zero, a null formula, a null Rust plan, no
+Rust source declarations, and orientation-specific overview/course-path sections.
+It names and connects the model parts without assessing recall. Only
+`00-llm-parts` at order zero may use that shape; every implementation lesson from
+Chapter 1 onward retains the normal formula, Rust, and exercise contract.
+
 ## One chapter is one delivery step
 
-A chapter step owns the whole localized vertical slice:
+An implementation-chapter step owns the whole localized vertical slice:
 
 1. freeze its contract and tiny worked example in the run staging directory;
 2. implement and test the reusable Rust concept;
@@ -88,18 +95,24 @@ Contract and lesson frontmatter use a JSON object between Markdown frontmatter
 delimiters. JSON is valid YAML, so Astro reads it normally, while the standalone
 repository checks can parse it without a second YAML dependency.
 
-Each contract records:
+Each implementation contract records:
 
 1. one localized observable objective and tiny worked inputs for every active
    locale;
 2. the formula plus a symbol glossary localized for every active locale;
 3. the earlier LLM-related approach, its limitation or scale pressure, the later
    model or practice, this mechanism's role in the decoder or its correctness
-   pipeline, and the planned Rust contrast;
+   pipeline, and the planned Rust contrast for implementation lessons;
 4. the Cargo package, source files, and deterministic expected output;
 5. a useful visualization plan or a not-useful rationale;
 6. exercises, the cumulative-decoder connection, and acceptance examples; and
 7. terminology for every active locale and translation notes.
+
+The Chapter 0 orientation instead records its connected-map objective, LLM-history
+context, visualization, course-path handoff, terminology, translation notes, and
+acceptance examples. It must not add a placeholder formula, code sample, expected
+output, predict-first exercise, or checked-answer disclosure merely to imitate the
+implementation template.
 
 For Chapter 2 onward, `rust.sources` must include
 `rust/crates/llm-from-scratch/src/<primary_module>` from the reviewed plan as well
@@ -120,8 +133,10 @@ or its training, evaluation, inference, and correctness pipeline. Name an earlie
 language model, neural architecture, model-building or training practice,
 evaluation method, or inference design; state the relevant limitation or scale
 pressure; connect it to later LLM work; and explain how this chapter's mechanism
-supports, implements, measures, or validates that work. The runnable Rust contrast
-must expose one relevant calculation, invariant, cost, or layout consequence.
+supports, implements, measures, or validates that work. In implementation lessons,
+the runnable Rust contrast must expose one relevant calculation, invariant, cost,
+or layout consequence. The Chapter 0 orientation stops at the historical and
+architectural map because it does not implement a mechanism.
 
 Programming-language, array-library, hardware, data-structure, and API history is
 useful supporting evidence, but it cannot replace the LLM progression. Primary
@@ -138,11 +153,12 @@ Every localized narrative field and source claim is rendered as visible History
 prose, and every declared source uses a direct inline Markdown link or HTTPS
 autolink there; metadata alone is not teaching evidence.
 
-Markers are boundaries, not evidence by themselves. Every lesson section needs a
-heading and substantive teaching content; the formula section displays the exact
-frontmatter notation, the Rust section contains its source evidence, a useful
-visualization invokes the chapter-specific diagram in its own section, and the
-exercise section pairs predict-first questions with checked answers.
+Markers are boundaries, not evidence by themselves. Every section needs a heading
+and substantive teaching content. In an implementation lesson, the formula section
+displays the exact frontmatter notation, the Rust section contains its source
+evidence, and the exercise section pairs predict-first questions with checked
+answers. The orientation uses overview and course-path sections instead. A useful
+visualization is invoked in its own section in either content kind.
 
 ## Lesson locations and publication
 
@@ -185,10 +201,14 @@ applicable implemented chapter before publishing any new route. Pending chapter
 steps adopt the newly active locale in their concrete outputs and `check:chapter`
 commands. A partial backfill is not an active locale set and remains unpublished.
 
-Useful diagram names are derived from the chapter slug: `NN-foo-bar` must use
+For ordinary implementation chapters, useful diagram names are derived from the
+chapter slug: `NN-foo-bar` must use
 `site/src/components/chapters/FooBarDiagram.astro` in every active lesson. This
 keeps the plan, ledger output, import path, and rendered chapter-specific
-visualization on one deterministic identity.
+visualization on one deterministic identity. Chapter 0 is the orientation
+exception: its contract metadata registers one primary system schema and may
+register supplementary overview figures, each with an explicit component name and
+rationale.
 
 ## Rust source inclusion
 

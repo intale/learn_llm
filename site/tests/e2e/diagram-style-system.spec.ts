@@ -14,6 +14,7 @@ interface DiagramRoute {
   chapterId: string;
   locale: "en" | "ru";
   order: number;
+  pageFigureCount: number;
   path: string;
   visualizationId: string;
 }
@@ -45,15 +46,18 @@ const englishRoutes = (readdirSync(englishChapterDirectory) as string[])
     const source = readFileSync(resolve(englishChapterDirectory, name), "utf8");
     const { data } = parseJsonFrontmatter(source, name);
     if (data.visualization.decision !== "useful") return [];
-    return [
-      {
+    const registrations = [
+      { id: data.visualization.id as string },
+      ...((data.visualization.supplementary ?? []) as Array<{ id: string }>),
+    ];
+    return registrations.map(({ id }) => ({
         chapterId: data.chapter_id as string,
         locale: "en",
         order: data.order as number,
+        pageFigureCount: registrations.length,
         path: `/en/course/${data.chapter_id}/`,
-        visualizationId: data.visualization.id as string,
-      },
-    ];
+        visualizationId: id,
+      }));
   })
   .sort((left, right) => left.order - right.order);
 
@@ -446,6 +450,9 @@ async function auditRoutes(
   for (const route of selectedRoutes) {
     await page.goto(route.path);
     await settle(page);
+    await expect(page.locator("figure[data-visualization-id]")).toHaveCount(
+      route.pageFigureCount,
+    );
     const figure = figureFor(page, route);
     await expect(figure).toHaveAttribute("class", /\bcourse-diagram\b/);
     await expect(figure).toHaveAttribute("data-diagram-style", "course-v1");
@@ -553,8 +560,8 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
     page,
   }) => {
     test.setTimeout(240_000);
-    expect(englishRoutes).toHaveLength(39);
-    expect(routes).toHaveLength(46);
+    expect(englishRoutes).toHaveLength(40);
+    expect(routes).toHaveLength(47);
     await auditRoutes(page, desktop);
   });
 

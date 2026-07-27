@@ -17,6 +17,7 @@ declare const process: { cwd(): string };
 interface DiagramRoute {
   chapterId: string;
   order: number;
+  pageFigureCount: number;
   path: string;
   visualizationId: string;
 }
@@ -56,12 +57,17 @@ const diagramRoutes = (readdirSync(englishChapterDirectory) as string[])
     const source = readFileSync(resolve(englishChapterDirectory, name), 'utf8');
     const { data } = parseJsonFrontmatter(source, name);
     if (data.visualization.decision !== 'useful') return [];
-    return [{
+    const registrations = [
+      { id: data.visualization.id as string },
+      ...((data.visualization.supplementary ?? []) as Array<{ id: string }>),
+    ];
+    return registrations.map(({ id }) => ({
       chapterId: data.chapter_id as string,
       order: data.order as number,
+      pageFigureCount: registrations.length,
       path: `/en/course/${data.chapter_id}/`,
-      visualizationId: data.visualization.id as string,
-    }];
+      visualizationId: id,
+    }));
   })
   .sort((left, right) => left.order - right.order);
 
@@ -162,7 +168,7 @@ async function readMetrics(page: Page, route: DiagramRoute): Promise<DiagramMetr
 
 async function expectStaticDiagram(page: Page, route: DiagramRoute) {
   const figures = page.locator('figure[data-visualization-id]');
-  await expect(figures).toHaveCount(1);
+  await expect(figures).toHaveCount(route.pageFigureCount);
   const figure = figureFor(page, route);
   await expect(figure).toHaveCount(1);
   await expect(figure.locator('figcaption')).toHaveCount(1);

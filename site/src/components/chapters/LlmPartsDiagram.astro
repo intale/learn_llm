@@ -1,11 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 
-import traceSource from '../../../../rust/demos/ch00-llm-parts/diagram-trace.txt?raw';
 import { localePath, type Locale } from '../../i18n';
 import {
   llmPartsDiagramId,
-  parseLlmPartsTrace,
+  llmPartsTrace,
   validateLlmPartsDiagramLabels,
   type LlmPartId,
   type LlmPartsDiagramLabels,
@@ -18,7 +17,7 @@ interface Props {
 
 const { labels, locale } = Astro.props;
 validateLlmPartsDiagramLabels(labels);
-const trace = parseLlmPartsTrace(traceSource);
+const trace = llmPartsTrace;
 const localizedChapters = await getCollection(
   'chapters',
   (entry) => entry.data.locale === locale,
@@ -64,9 +63,9 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
   aria-describedby={descriptionId}
 >
   <figcaption class="course-diagram__caption">
-    <h3 id={titleId}>{labels.title}</h3>
+    <h3 id={titleId}>{labels.detailTitle}</h3>
     <p id={descriptionId} class="course-diagram__description">
-      {labels.description}
+      {labels.detailDescription}
       <span
         class="capstone-card"
         data-part-id={capstone.part.id}
@@ -177,7 +176,7 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
                 data-chapter-link={chapterId}
                 aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
               >
-                Ch {chapterNumber(chapterId)}
+                <span>Ch {chapterNumber(chapterId)}</span>
               </a>{chapterIndex < cache.part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}{' '}
             </>
           ))}
