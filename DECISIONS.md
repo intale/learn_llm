@@ -7815,3 +7815,75 @@ system topology.
 
 **Affected step and run:** `revise-ch00-orientation`, run
 `20260727T151628Z-revise-ch00-orientation-01`.
+
+## 2026-07-27 - Translate every non-English locale from English by meaning
+
+**Status:** Accepted from direct product instruction.
+
+**Context:** The repository already requires meaning-first localization and fluent
+human review, but the chapter playbook is explicitly not an installable skill and
+does not make the no-translation-chain rule prominent enough. The shared diagram
+browser gate also constructs the currently published Russian routes from a fixed
+chapter-number range. A later locale activation could therefore follow the prose
+policy while silently missing target-language containment coverage.
+
+**Decision:** English is the one canonical semantic source for every localized
+course surface. Author or revise English first, then translate each non-English
+locale directly from that current English revision; never use another translation
+as an intermediate source. Treat formulas, symbols, code, identifiers, numeric
+evidence, links, causal relationships, scope, and pedagogical commitments as the
+meaning lock, while rewriting explanations in natural target-language technical
+and mathematical prose rather than preserving English sentence shape.
+
+Add the repository-owned `localize-llm-course` skill under `.agents/skills` and
+require it from `AGENTS.md` whenever non-English learner-facing content changes.
+The versioned project location keeps course-specific terminology, parity, review,
+and validation rules with the content they govern. Keep the fuller chapter
+delivery playbook as shared context instead of duplicating it into the skill.
+
+Before publication, inspect the complete localized page in Chromium and Firefox
+at desktop and narrow widths and inspect every registered figure in full view.
+The nearest bounded box must contain its target-language text and formula ink;
+page content must not create unintended horizontal overflow. Repair failures by
+natural concise wording, wrapping, reflow, or geometry changes shared safely
+across locales, never by clipping, truncating, hiding overflow, or shrinking text.
+Derive the course-wide diagram route inventory from the locale registry and the
+checked per-chapter active-locale projection so future activations enter this gate
+without a hard-coded language or chapter range.
+
+**Consequences:** Existing approved English and Russian lesson bytes and active
+routes do not change. Future English edits invalidate the semantic and rendered
+review of affected translations until each is refreshed from English and approved
+again. Structural parity remains necessary but cannot replace technical-language,
+monolingual, accessibility, or fluent-human review. The existing course plan
+already declares English as its reference locale, so its revision and checked
+active-locale projection remain unchanged.
+
+**Affected step and run:** `document-english-source-localization`, run
+`20260727T175945Z-document-english-source-localization-01`.
+
+## 2026-07-27 - Let localized Rust source captions reflow inside their frame
+
+**Status:** Accepted from the new target-language containment gate.
+
+**Context:** The registry-derived 390px browser audit exposed an existing defect
+on Russian Chapter 3: two literal Rust source paths painted 38.8px and 50.8px past
+their bordered `RustSource` figure, while the figure's hidden overflow concealed
+the excess. The previous viewport-only check passed because the clipping kept the
+document width unchanged.
+
+**Decision:** Keep the Rust source panel and its local code scroller, but allow its
+caption text and literal path to shrink within the flex track and wrap at safe
+boundaries. Validate the target-language text and path paint against the figure's
+inner border instead of treating a contained page width as sufficient evidence.
+Do not shorten the path, reduce its font, hide the failure, or change lesson bytes.
+
+**Consequences:** English and Russian source captions remain complete and literal,
+but narrow localized pages can grow vertically rather than clipping horizontally.
+The component-only presentation repair must pass every existing source renderer,
+both active locales, desktop and narrow page audits, and the unchanged static
+build. Rust source files, course routes, formulas, dependencies, and build
+definitions remain unchanged.
+
+**Affected step and run:** `document-english-source-localization`, run
+`20260727T175945Z-document-english-source-localization-01`.

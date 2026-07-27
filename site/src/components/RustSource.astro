@@ -107,6 +107,8 @@ if (region) {
 
   figcaption {
     display: flex;
+    min-inline-size: 0;
+    flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
@@ -116,9 +118,19 @@ if (region) {
     font-size: 0.82rem;
   }
 
+  figcaption > * {
+    min-inline-size: 0;
+  }
+
+  figcaption span {
+    overflow-wrap: anywhere;
+  }
+
   figcaption code {
+    max-inline-size: 100%;
     color: #9ad8cf;
     font-size: 0.75rem;
+    overflow-wrap: anywhere;
   }
 
   .rust-source :global(.rust-source-code) {

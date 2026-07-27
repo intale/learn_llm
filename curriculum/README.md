@@ -43,6 +43,34 @@ Rust implementation, visualization work, and localized lesson authoring. Copy
 `chapter-template.md` to `curriculum/chapters/NN-slug.md` and validate the contract
 before writing code or lesson prose.
 
+## English is the translation source
+
+English is the canonical semantic source for every non-English course surface.
+Complete the current English contract fields, lesson, metadata, diagram copy,
+accessibility text, and catalog messages first. Translate each target locale
+directly from that English revision; never translate through Russian or another
+localized version. If English later changes in meaning or presentation, the
+affected target-locale semantic, linguistic, and rendered review is stale until
+the translation is refreshed from English.
+
+Use the project skill at
+`../.agents/skills/localize-llm-course/SKILL.md` for all non-English authoring and
+review. Preserve formulas, symbols, code, identifiers, numeric evidence, links,
+causal claims, scope, and teaching commitments, but write natural target-language
+technical and mathematical prose. Sentence splitting, combination, and reordering
+are expected when they improve clarity. A word-for-word substitution, copied
+English information order, structural parity, or automated score is not an
+acceptable translation review.
+
+Before publication, inspect the exact target page in Chromium and Firefox at
+desktop and narrow widths and inspect every registered diagram in desktop full
+view. The whole page must avoid unintended horizontal overflow, and every bounded
+box must contain its target-language text and formula ink, including boxes inside
+sanctioned scroll regions. Fix a failure through concise natural wording,
+wrapping, or safe reflow, never by clipping, hiding, truncating, overlapping, or
+shrinking text. A fluent target-language human must approve the frozen content and
+rendered surfaces recorded in the run.
+
 ## Why the metadata is strict
 
 Localized lessons are separate authored files, but they describe the same

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Localize LLM Course"
+  short_description: "Translate technical LLM lessons naturally"
+  default_prompt: "Use $localize-llm-course to translate an English learn_llm lesson into the requested target locale and verify its rendered layout."

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-27T17:47:11Z"
+updated_at: "2026-07-27T18:33:31Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -18039,3 +18039,151 @@ builds:
                 status: passed
                 notes: "After resolving and confirming the deleted package contained only an empty src directory, non-recursive removal made the canonical Windows tree match the staged Linux tree. The unchanged wrapper then passed formatting, every locked Rust workspace/doc test, Astro/content/parity validation, the 52-page build, and the 1,988-reference static audit in 303.9 seconds."
             notes: "Succeeded. English Chapter 0 is now a non-assessed orientation with no random formula, Rust roadmap printer, or questionnaire. Its connected system schema explicitly joins forward logits and the observed target at loss, separates generation from learning, and attaches cache, numeric, evaluation, and checkpoint relationships; the retained detail map links every implementation chapter and keeps optimization distinct from validation selection. Both semantic figures pass static, desktop, narrow, no-JavaScript, Chromium, Firefox, fullscreen, forced-color, containment, and word-integrity validation. Final source candidate 26 was published byte-for-byte, the obsolete Chapter 0 Rust package and empty directory were removed, all canonical gates pass, and desktop.ini remains untouched."
+  - build_id: document-english-source-localization
+    objective: "Make English the explicit translation source, provide a reusable meaning-first technical localization skill, and require target-locale layout containment before publication."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium documentation, skill, and browser-policy change uses cached local product validation plus one small pinned Ubuntu python3-yaml package inside an ephemeral skill-validator image; no paid service, repository dependency, content generation, or build-definition change is planned."
+    completion_criteria:
+      - "Repository policy states that English is the sole source locale and forbids translating one non-English locale from another."
+      - "A versioned project skill directs meaning-first translation of LLM, Rust, and mathematical prose with terminology, semantic-parity, anti-calque, accessibility, and human-review passes."
+      - "The browser geometry gate derives every published locale route from the checked chapter-locale projection and checks target-language page and diagram containment at desktop, narrow, and full-view sizes in Chromium and Firefox."
+      - "Contributor playbooks, the project skill, browser policy, and durable decision agree without changing the course plan, active locale sets, or public routes."
+      - "The completed step is committed independently while unrelated desktop.ini remains untouched."
+    steps:
+      - id: document-english-source-localization
+        objective: "Define and verify the English-source, meaning-first, layout-safe workflow for every non-English course locale."
+        depends_on:
+          - revise-ch00-orientation
+        status: completed
+        inputs:
+          - "Human localization-policy request on 2026-07-27."
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/components/RustSource.astro"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "C:/Users/Ivan/.codex/skills/.system/skill-creator/SKILL.md"
+          - "C:/Users/Ivan/.codex/skills/.system/skill-creator/references/openai_yaml.md"
+          - "Ubuntu Noble python3-yaml 6.0.1-2build2, downloaded only into an ephemeral skill-validation image; it is not a repository or product dependency."
+        outputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/src/components/RustSource.astro"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - ".agents/skills/localize-llm-course/agents/openai.yaml"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "AGENTS.md requires agents to use the project localization skill for every non-English lesson, catalog, metadata, diagram label, accessibility label, and other learner-facing translation."
+          - "English is named as the canonical semantic source; translations start from the current English revision, never another translation, and English changes invalidate affected target-locale review."
+          - "The skill preserves formulas, symbols, code, identifiers, numeric evidence, links, causal claims, scope, and pedagogy while producing natural target-language technical and mathematical prose rather than literal sentence substitution."
+          - "The skill requires terminology planning, critical-claim comparison to English, anti-calque and target-only reading passes, accessibility review, and explicit fluent-human approval of frozen target-language bytes and rendered surfaces."
+          - "Localized layout review covers the complete page and every registered diagram at desktop and narrow widths plus full view, checks text and formula ink against the nearest bounded box, and fixes failures by reflowing or rewriting without clipping, truncation, or smaller text."
+          - "The diagram-style route inventory is derived from chapter-locales.json and locales.json so every currently or later activated target locale enters the same Chromium and Firefox containment matrix automatically."
+          - "Long localized RustSource captions and literal source paths wrap within their bordered frame; the Russian Chapter 3 narrow route proves that hidden overflow cannot mask a failure."
+          - "The course plan and checked projection remain byte-for-byte unchanged; active locale sets, lesson bytes, routes, formulas, Rust sources, dependencies, and build definitions remain unchanged."
+        validate:
+          - "docker build -f .build/runs/20260727T175945Z-document-english-source-localization-01/Dockerfile.skill-validator -t learn-llm-skill-validator:run01 .build/runs/20260727T175945Z-document-english-source-localization-01 && docker run --rm -v C:/Users/Ivan/.codex/skills/.system/skill-creator:/skill-creator:ro -v C:/Users/Ivan/Dropbox/learn_llm:/repo:ro -w /repo learn-llm-skill-validator:run01 .agents/skills/localize-llm-course"
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:e2e -- --grep '@diagram-style'"
+          - "npm --prefix site run test:e2e -- --browser firefox --grep '@diagram-style'"
+          - "git diff --check"
+          - "Exact policy, skill metadata, projection, dynamic route inventory, active-locale, dependency, build-definition, and unrelated-file audit"
+        cost:
+          class: medium
+          notes: "Small policy and skill edits plus cached course-plan, Astro, Vitest, build, Chromium, and Firefox validation. One pinned Ubuntu python3-yaml package may be downloaded into an ephemeral validator image; no paid service, repository dependency, learner-content, or build-definition change."
+        runs:
+          - run_id: 20260727T175945Z-document-english-source-localization-01
+            started_at: "2026-07-27T17:59:45Z"
+            finished_at: "2026-07-27T18:33:31Z"
+            status: succeeded
+            input_fingerprint:
+              git: "58d5734d2f2257d4d1445a1ccd0bd62d94964ff5"
+              files: ".build/runs/20260727T175945Z-document-english-source-localization-01/input-fingerprint.txt"
+              checksum: "sha256:4907d8d4da7d7fcb0fb64daaf4a3369e4a56dac1ce3499a93879dc992b895ba2"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external source or service. The user supplied the localization policy directly."
+            staging_dir: ".build/runs/20260727T175945Z-document-english-source-localization-01/"
+            commands:
+              - "Run the complete startup protocol; verify the previous dedicated commit and successful run, preserve unrelated desktop.ini, compare tool versions, and confirm no stale running work."
+              - "Read the skill-creator instructions and OpenAI skill metadata reference, existing localization decisions and playbook, locale registry/projection, and course-wide diagram containment test."
+              - "Use skill-creator/init_skill.py in the cached Linux Playwright environment after confirming that the host python command is only the Windows Store launcher."
+              - "Create the project-owned localize-llm-course skill and align AGENTS.md, SKILLS.md, curriculum/README.md, and DECISIONS.md around direct English-source, meaning-first translation and frozen-byte human approval."
+              - "Replace hard-coded English/Russian browser route ranges with an exact locale-registry and chapter-projection inventory, then extend geometry inspection to complete target pages, nearest bordered boxes, formula ink, and fullscreen figure roots."
+              - "Run the official skill quick validator first without PyYAML, record the missing tool input, then build an ephemeral validator from Ubuntu Noble python3-yaml=6.0.1-2build2 and rerun successfully without changing repository dependencies."
+              - "Forward-test the new skill with a fresh agent on a formula-rich causal-attention excerpt translated from English to Russian; independently audit localization semantics, test coverage, and rendered-layout policy."
+              - "Run the initial Chromium matrix, reproduce concealed narrow-page overflow in the Russian Chapter 3 Rust source caption, declare the corrective shared component output, and make long localized captions and literal paths reflow inside their frame."
+              - "Correct the navigation fixture to accept valid cached 304 responses after the first Firefox pass exposed an overly strict response.ok assertion."
+              - "Build final immutable source and browser images, run course-plan, content, parity, Astro, Vitest, static-build/link, Chromium, and Firefox gates, and create the exact final product manifest."
+              - "Attempt the optional in-app visual pass on a dedicated loopback preview; stop that preview after the browser runtime reported no available browser, retaining the complete automated Chromium and Firefox evidence as the acceptance proof."
+            artifacts:
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/input-fingerprint.txt"
+                checksum: "sha256:4907d8d4da7d7fcb0fb64daaf4a3369e4a56dac1ce3499a93879dc992b895ba2"
+                notes: "Pre-edit commit, material policy/test inputs, tool pins, user request, cost boundary, and preserved unrelated-file scope."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/input-scope-expansion-skill-validator.txt"
+                checksum: "sha256:b59cf9665a6a7ecce3a84a5d57e31aa7b74d9d4259475c9dbf2e06fc5de598e4"
+                notes: "Preserved rejected validator setup assumption after the cached browser image lacked both PyYAML and pip."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/input-scope-expansion-skill-validator-02.txt"
+                checksum: "sha256:1c316debd1719d8f935af277e9349cc72886f84dce455c62aab1c17932dd9015"
+                notes: "Pinned Ubuntu Noble python3-yaml input used only by the ephemeral official skill-validator image."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/input-scope-expansion-rust-source-caption.txt"
+                checksum: "sha256:ae36c2ba659e1c815947a014cfb77968b2923593cad7652d94dd0fc18bda3741"
+                notes: "Measured Russian Chapter 3 overflow evidence and the narrow reason for claiming the shared RustSource caption component."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/Dockerfile.skill-validator"
+                checksum: "sha256:5b42665f81f0c8bc8ae35940f751ae13f709a3503e7d5d33272b04c7a96204dc"
+                notes: "Run-local pinned validator recipe; not a product build definition."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/Dockerfile.browser"
+                checksum: "sha256:71f1ae779db4411ae1203183cfdc1499488534c81c8a4e9e6bb45bf770df75eb"
+                notes: "Run-local final browser-image recipe; not a product build definition."
+              - path: ".build/runs/20260727T175945Z-document-english-source-localization-01/product-manifest.txt"
+                checksum: "sha256:cfd112752c5dd129a6fa09d2d59d951c9d8d1c1ad562c3831867b4ee7d0786cb"
+                notes: "Exact Git modes and SHA-256 checksums for all eight final product and durable-decision files, excluding the self-referential ledger."
+              - path: "docker-image:learn-llm-skill-validator:run01"
+                checksum: "sha256:db3070a47b2e92b89e70bfae0d7baa84fec28df6380df376548003ca5aeb7473"
+                notes: "Ephemeral official quick-validator environment with pinned Ubuntu PyYAML package."
+              - path: "docker-image:learn-llm-localization-source:run01-final"
+                checksum: "sha256:d485b8bd5838a03b7ad114cef92fd29bebea5353e43bcbc001033d003a8fcf4d"
+                notes: "Immutable final source candidate used for static and unit validation."
+              - path: "docker-image:learn-llm-localization-browser-built:run01-final"
+                checksum: "sha256:79c1159c8dbc534a9978847568de3218a9d237b771d87860b8f3e4ccaaa62177"
+                notes: "Immutable final built-site browser candidate used by Chromium and Firefox."
+            validation:
+              - command: "Repository, scheduler, environment, ownership, cost, and localization-policy preflight"
+                status: passed
+                notes: "No prior build or run is active; HEAD is the completed Chapter 0 revision; current Docker, Compose, and Git match the ledger; cached medium work fits the unlimited budget; no output overlaps another owner; desktop.ini remains untracked and untouched."
+              - command: "Official skill quick validation and fresh-agent forward test"
+                status: passed
+                notes: "quick_validate.py accepts the project skill and metadata. A context-independent English-to-Russian causal-attention trial preserves formula and code syntax, produces natural technical prose, cites the exact English source revision, respects the active-locale boundary, and requests the required target-language layout and fluent-human reviews."
+              - command: "Course plan, content, parity, Astro, Vitest, production build, and static-link validation"
+                status: passed
+                notes: "The unchanged plan reports 40 chapters, 77 scheduled steps, and 40 contracts; content/parity cover 47 localized sources, 40 publishable locale sets, 32 catalog keys, and 40 shared full-view components; Astro checks 204 files with zero diagnostics; all 52 Vitest files and 837 cases pass; the build emits 52 pages and the audit accepts 1,988 local references, 52 SEO routes, 52 sitemap URLs, 52 analytics routes, and 141 artifacts."
+              - command: "Initial Chromium target-locale page-containment matrix"
+                status: failed
+                notes: "The new audit correctly found two literal paths in the Russian Chapter 3 Rust source caption painting 38.8px and 50.8px beyond their bordered figure at 390px while overflow:hidden concealed the debt. The shared RustSource caption was then repaired to wrap without clipping or reduced text."
+              - command: "Initial Firefox registry-derived diagram-style matrix"
+                status: failed
+                notes: "Firefox returned a valid cached 304 navigation response that Playwright response.ok excludes. The route helper now accepts the intended 200–399 success range while still rejecting missing/error pages; no page geometry failed."
+              - command: "Final Chromium registry-derived localization and diagram-style matrix"
+                status: passed
+                notes: "All 10/10 matrix cases pass with four workers, including exact route inventory, desktop and 390px target-page containment, inline diagram boxes and formula ink, and native full-view horizontal containment."
+              - command: "Final Firefox registry-derived localization and diagram-style matrix"
+                status: passed
+                notes: "All 10/10 matrix cases pass with four workers under the same dynamic active-locale, desktop, narrow, bounded-box, formula, and native full-view checks."
+              - command: "Independent policy, skill, test, route, scope, checksum, metadata, YAML, whitespace, and unrelated-file audit"
+                status: passed
+                notes: "English is the sole semantic source and translation chains are prohibited consistently across policy, playbook, curriculum guide, skill, and durable decisions. The route matrix is registry-derived; all manifest bytes match; course-plan, locale projection/registry, lesson, dependency, Rust, Docker, and Compose bytes are unchanged; git diff --check passes; desktop.ini remains untracked and untouched."
+            notes: "Succeeded. Every non-English learner-facing surface now has an explicit direct-from-current-English, meaning-first technical localization workflow backed by a valid project skill, target-only and critical-claim reviews, accessibility review, frozen-byte fluent-human approval, and registry-derived Chromium/Firefox containment gates. The stronger audit exposed and fixed a real Russian narrow-layout defect in the shared Rust source caption. No locale was activated, no route or lesson changed, and no product dependency or build definition changed."

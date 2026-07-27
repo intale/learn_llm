@@ -31,6 +31,34 @@ is not useful, state the concrete informational or pedagogical reason and teach
 from the chosen evidence. Keep delivery mechanics in this file, chapter
 contracts, state and decision records, and tests.
 
+### Localization source and review
+
+English is the canonical semantic source for every localized course surface.
+Author or revise English first, then translate each non-English locale directly
+from the matching current English revision; never translate through another
+localized version. An English change that affects meaning or presentation makes
+the corresponding target-locale review stale until that locale is refreshed from
+English and reviewed again.
+
+Use `.agents/skills/localize-llm-course/SKILL.md` whenever creating, revising,
+reviewing, or activating non-English learner-facing content, including contract
+fields, lessons, metadata, SEO copy, catalogs, diagrams, exercises, answers,
+navigation, and accessibility labels. Translate meaning rather than sentence
+shape. Preserve formulas, symbols, code, identifiers, values, links, causal
+relationships, scope, and pedagogical commitments while using natural established
+technical and mathematical language in the target locale. Automated or
+agent-authored translation is a draft; publication still requires approval from a
+fluent target-language human for the exact frozen content and rendered surfaces.
+
+Never infer localized layout safety from English. Validate the complete target
+page in Chromium and Firefox at desktop and narrow widths, and validate every
+registered figure in full view. Target-language text and formula ink must remain
+inside their nearest bounded boxes, including boxes nested in sanctioned scroll
+regions, and the page must not gain unintended horizontal overflow. Fix failures
+through natural concise wording, wrapping, or safe reflow; never clip, hide,
+truncate, overlap, or shrink text to force a translation into English-sized
+geometry.
+
 ### Formula rendering
 
 Every learner-facing mathematical expression or equation must use the site's

@@ -1,11 +1,13 @@
 # Chapter delivery playbook
 
 This is the repository playbook for implementing a new course chapter. It is not
-a runtime dependency or an installable Codex skill. `AGENTS.md` remains the
+itself a runtime dependency or an installable Codex skill. `AGENTS.md` remains the
 authority for orchestration, checkpoints, recovery, and commits; this file turns
 those rules and the accepted decisions into a chapter-specific working method.
-If the two files differ, follow `AGENTS.md` and record the resulting workflow
-change in `DECISIONS.md` before continuing.
+Use the companion project skill at
+`.agents/skills/localize-llm-course/SKILL.md` for every non-English authoring or
+review task. If these files differ, follow `AGENTS.md` and record the resulting
+workflow change in `DECISIONS.md` before continuing.
 
 ## The delivery unit
 
@@ -327,7 +329,7 @@ overflow and that no frame, section, card, table cell, or visible text or formul
 fragment escapes its nearest shared box, including a box inside a marked scroll
 region.
 
-## 6. Author every chapter-active locale by meaning
+## 6. Author English, then every chapter-active locale by meaning
 
 Read `site/src/i18n/locales.json` and the machine-readable
 `chapter_locale_policy` in `curriculum/course-plan.md` at the start of the
@@ -335,6 +337,14 @@ run. The registry defines installed site languages, the reference locale,
 language tags, native names, and directions. The course plan defines which of
 those registered locales are active for a particular chapter. Do not hard-code
 an English/Russian pair in chapter logic.
+
+English is the canonical semantic source. Finish the current English lesson or
+catalog entry first, then translate every non-English locale directly from that
+English revision. Never translate through Russian or another localized version,
+and never reuse an older English revision as the source for a newer target
+revision. When English changes in meaning or presentation, invalidate the
+affected target-locale review until it has been refreshed from English. Invoke
+`.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
 
 For the current approved policy, Chapter 0 uses English only, Chapters 1 through
 7 use English and Russian, and Chapters 8 through 39 use English only until a later explicit activation. A
@@ -346,11 +356,11 @@ chapter route. For each locale active for the selected chapter, create:
 site/src/content/chapters/<locale>/NN-slug.mdx
 ```
 
-All chapter-active locale files form one same-revision publication set. They share the frozen
-fields but are authored prose, not sentence-shaped substitutions. The reference
-lesson receives factual, pedagogical, terminology, accessible-language, and
-monolingual review too; the translation passes below additionally apply to every
-active non-reference locale.
+All chapter-active locale files form one same-revision publication set. They share
+the frozen fields but are authored prose, not sentence-shaped substitutions. The
+English lesson receives factual, pedagogical, terminology, accessible-language,
+and monolingual review too; the translation passes below additionally apply to
+every active non-English locale.
 
 ### Meaning-first translation workflow
 
@@ -389,10 +399,16 @@ in the run's manual review.
    spoken descriptions, focus instructions, table headers, controls, exercise
    prompts, and answer summaries in isolation. They must make sense to a screen
    reader and must not depend on color, position, or an untranslated label.
-9. **Rendered pass.** Inspect the built page at desktop and narrow widths. Check
-   line breaks, formula overflow, code direction, mixed-script isolation,
-   diagrams, keyboard order, visible labels, and the full lesson flow. Include an
-   RTL locale's direction-sensitive checks whenever one is active for the chapter.
+9. **Rendered pass.** Inspect the exact built target page in Chromium and Firefox
+   at desktop and narrow widths; never infer fit from English. Check the complete
+   page for unintended horizontal overflow and inspect text and formula ink
+   against the nearest bounded box. Inspect every registered figure inline and in
+   desktop full view, including boxes inside sanctioned scroll regions. Check line
+   breaks, formulas, code direction, mixed-script isolation, keyboard order,
+   visible labels, and the full lesson flow. Include an RTL locale's
+   direction-sensitive checks whenever one is active for the chapter. Repair
+   failures through concise natural wording, wrapping, or safe reflow, never by
+   clipping, truncating, hiding overflow, overlapping content, or shrinking text.
 
 Counts and plural forms require the locale's real grammatical categories. When a
 full plural system is unnecessary, prefer a localized noun-neutral count label
@@ -400,12 +416,13 @@ followed by the numeric value over a brittle singular/plural shortcut. Never
 encode one language's plural rule in a shared component.
 
 A fluent human reviewer must explicitly approve the target-language lesson and
-rendered labels before publication. Record the locale, revision, reviewer or
-approval reference, and reviewed surface in the run. Agent-authored or automated
-translation may be a draft only; structural parity, an author's self-review, or a
-machine score is not linguistic approval. If competent review is unavailable,
-keep the chapter-active locale set staged and the chapter step blocked rather than publishing a
-partial or unreviewed translation.
+rendered labels before publication. Record the locale, revision, English source
+revision, candidate checksum, reviewer or approval reference, and reviewed
+browser/viewport surfaces in the run. Agent-authored or automated translation may
+be a draft only; structural parity, an author's self-review, or a machine score is
+not linguistic approval. If competent review is unavailable, keep the
+chapter-active locale set staged and the chapter step blocked rather than
+publishing a partial or unreviewed translation.
 
 When enabling a new spoken language, register a separate locale-activation step
 in `curriculum/course-plan.md` under `scheduling.cross_cutting_steps`, immediately
@@ -516,7 +533,10 @@ language. Add a manual mapping that answers all of these:
 - Does each rendered Rust excerpt prove the surrounding claim?
 - Does the visualization clarify the intended relationship without a second
   implementation or a color-only cue?
-- Does every chapter-active locale preserve meaning and read naturally on its own?
+- Was every non-English locale translated directly from the current English
+  source, does it preserve meaning and read naturally on its own, and does its
+  complete rendered page remain contained when target-language text is longer at
+  desktop, narrow, and full-view sizes?
 - Do exercises, answers, accessibility labels, and the handoff agree?
 - Do desktop full view and narrow/no-JavaScript fallbacks remain readable and
   keyboard-usable, with only the approved shared diagram script?
