@@ -11,6 +11,7 @@ export const chapterLocaleDefinitions = Object.freeze(
 );
 
 const googleAnalyticsMeasurementId = 'G-B5JVTL721S';
+const googleAnalyticsCookieDomain = 'intale.github.io';
 const googleAnalyticsScriptUrl =
   'https://www.googletagmanager.com/gtag/js?id=' +
   googleAnalyticsMeasurementId;
@@ -378,6 +379,7 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
       'window.dataLayer = window.dataLayer || [];',
       'function gtag(){dataLayer.push(arguments);}',
       "gtag('js', new Date());",
+      `gtag('set', 'cookie_domain', '${googleAnalyticsCookieDomain}');`,
       `gtag('config', '${googleAnalyticsMeasurementId}');`,
     ].join('\n'),
   );

@@ -1,17 +1,17 @@
 schema_version: 1
-updated_at: "2026-07-27T18:33:31Z"
+updated_at: "2026-07-27T19:22:01Z"
 
 environment:
-  os: "Windows host with Linux x86_64 product and browser containers"
+  os: "Linux x86_64 host with Linux x86_64 product and browser containers"
   execution: "Docker-only product build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
-  docker: "29.6.2"
-  docker_compose: "5.3.1"
+  docker: "25.0.2"
+  docker_compose: "2.17.3"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
-  git: "2.55.0.windows.3"
-  notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-26. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in cached Linux source/workspace images; the separate canonical Playwright 1.61.1 browser image runs its harness on Node 24.17.0/npm 11.13.0. Host Rust/Node/npm remain unused."
+  git: "2.53.0"
+  notes: "Current Linux/Dropbox orchestration environment recorded on 2026-07-27 after moving from the previously recorded Windows host. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
 active_build: null
 
@@ -18187,3 +18187,154 @@ builds:
                 status: passed
                 notes: "English is the sole semantic source and translation chains are prohibited consistently across policy, playbook, curriculum guide, skill, and durable decisions. The route matrix is registry-derived; all manifest bytes match; course-plan, locale projection/registry, lesson, dependency, Rust, Docker, and Compose bytes are unchanged; git diff --check passes; desktop.ini remains untracked and untouched."
             notes: "Succeeded. Every non-English learner-facing surface now has an explicit direct-from-current-English, meaning-first technical localization workflow backed by a valid project skill, target-only and critical-claim reviews, accessibility review, frozen-byte fluent-human approval, and registry-derived Chromium/Firefox containment gates. The stronger audit exposed and fixed a real Russian narrow-layout defect in the shared Rust source caption. No locale was activated, no route or lesson changed, and no product dependency or build definition changed."
+  - build_id: configure-google-analytics-cookie-domain
+    objective: "Set the requested canonical cookie domain before Google Analytics configuration on every generated HTML page."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. Four small deterministic source/test edits use cached Docker static and browser validation; no paid service, generated content, dependency download, hosting mutation, or deployment is planned."
+    completion_criteria:
+      - "Every generated HTML initializer contains exactly one gtag cookie_domain setting for intale.github.io before the existing measurement configuration."
+      - "Static and rendered-page contracts reject omission, duplication, wrong domain, separate extra set scripts, and set-after-config ordering."
+      - "Root and /learn_llm/ artifacts plus Chromium and Firefox all-route analytics checks pass without analytics egress."
+      - "The measurement ID, shared head ownership, routes, content, dependencies, build definitions, hosting, and deployment remain unchanged."
+      - "The completed step is persisted in its own Git commit."
+    steps:
+      - id: set-google-analytics-cookie-domain
+        objective: "Add gtag('set', 'cookie_domain', 'intale.github.io'); to the shared Google tag before its config command and enforce it across generated pages."
+        depends_on:
+          - document-english-source-localization
+        status: completed
+        inputs:
+          - "Human instruction on 2026-07-27 to add gtag('set', 'cookie_domain', 'intale.github.io'); to the Google tag snippet"
+          - "AGENTS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "site/src/components/GoogleAnalytics.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/google-analytics.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/seo.spec.ts"
+          - "site/playwright.config.ts"
+          - "site/tests/playwright-config.test.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/package.json"
+          - "site/package-lock.json"
+          - "Dockerfile"
+          - "compose.yaml"
+          - "course"
+          - "Official Google Analytics configuration and gtag API references, consulted read-only on 2026-07-27 for set-before-config ordering"
+          - "Two independent read-only source, artifact, browser, and negative-test audits"
+        outputs:
+          - "site/src/components/GoogleAnalytics.astro"
+          - "scripts/check-static-links.mjs"
+          - "site/tests/google-analytics.test.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The shared inline initializer contains the exact command gtag('set', 'cookie_domain', 'intale.github.io'); once, after gtag('js', new Date()); and before gtag('config', 'G-B5JVTL721S');."
+          - "The dependency-free static audit recognizes any set-bearing initializer candidate, requires the exact five-statement sequence, and independently requires exactly one cookie_domain set call with the exact domain."
+          - "Focused mutations reject a missing setting, wrong domain, duplicate setting, separate extra setting script, and setting placed after config."
+          - "The rendered-page helper requires the same exact five-statement sequence on every route traversed by the SEO browser matrix."
+          - "Both root and /learn_llm/ static builds report one valid analytics initializer per HTML document, and sitemap XML remains tag-free."
+          - "Chromium and Firefox all-route analytics checks pass through the unchanged owned rejecting proxy with no Google response or collection request."
+          - "No learner content, localization, formula, diagram, Rust, package, lockfile, route, SEO, sitemap, Playwright network boundary, Docker, Compose, hosting, release, or deployment behavior changes."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run test -- --run tests/google-analytics.test.ts"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "SITE_BASE=/learn_llm/ Docker workspace build and static-link audit"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@seo'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@seo'"
+          - "./course audit-host"
+          - "git diff --check"
+          - "Exact staged/canonical manifest, built-initializer order/count, sitemap, dependency, mode, scope, and prior-artifact audit"
+        cost:
+          class: medium
+          notes: "Four small source/test changes plus cached root/project static builds, the complete unit suite, and two focused all-route browser traversals. Official documentation is read-only; no paid service, generation, dependency change, analytics egress, release, hosting action, or deployment."
+        runs:
+          - run_id: 20260727T190731Z-set-google-analytics-cookie-domain-01
+            started_at: "2026-07-27T19:07:31Z"
+            finished_at: "2026-07-27T19:22:01Z"
+            status: succeeded
+            input_fingerprint:
+              git: "3f7c1ec1ef3caae9638c5cbfb91cd1011d79e528"
+              manifest: ".build/runs/20260727T190731Z-set-google-analytics-cookie-domain-01/input-fingerprint.txt"
+              checksum: "sha256:80f0b3660892ec0167fc04e157659e39fbe800381849f0eb61b505ba0d482a5a"
+              tools: "Host Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3 orchestrate unchanged repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "The exact command and domain are human supplied; official Google Analytics configuration and gtag API references were consulted read-only for ordering."
+            staging_dir: ".build/runs/20260727T190731Z-set-google-analytics-cookie-domain-01/"
+            commands:
+              - "Run the startup protocol at clean commit 3f7c1ec, verify the latest localization artifacts, inspect the completed analytics implementation and durable decisions, and confirm no active build or stale running work."
+              - "Record the material move from the prior Windows orchestration environment to Linux Git 2.53.0, Docker 25.0.2, and Docker Compose 2.17.3 while retaining all repository product pins."
+              - "Run two independent read-only audits of shared head ownership, exact initializer mirrors, all-route coverage, command ordering, test-network isolation, and negative mutation coverage."
+              - "Fingerprint the user request, current commit, material policy/analytics/test/build inputs, tool versions, and latest successful run artifacts before product edits."
+              - "Add the exact cookie_domain command between js and config, export the canonical domain for the static audit, recognize set-bearing initializer scripts, and update focused mutation plus rendered-page exactness contracts."
+              - "Pass the focused seven-case analytics contract, then the complete 838-case unit suite, zero-diagnostic Astro check, and root plus /learn_llm/ 52-page static builds and 1,988-reference/52-analytics-route audits in the cached Docker workspace."
+              - "Build immutable browser candidate sha256:1825a06d4085de069b229eb9bf8bf3cdf901fcce19e783fd98f70b1a382a5c8b from cached pinned images with networking disabled during assembly."
+              - "Pass the exhaustive all-route SEO/analytics traversal once in Chromium and once in Firefox through the unchanged owned rejecting proxy."
+              - "Freeze the exact four-file product/test candidate in publish/ and verify its immutable checksum manifest against both staged and canonical bytes."
+              - "Run an independent final audit of the exact command, order, initializer discovery/count logic, mutation coverage, browser parity, frozen bytes, scope, and running checkpoint; retain its approval with no blocker."
+              - "Run the host-artifact gate, discover pre-existing generated Cargo/Astro/Node/test caches, verify that none is a recorded run artifact, remove only those exact reproducible cache directories, and pass the repeated audit."
+              - "Finalize the standalone build, step, and run; pass the post-completion course-plan gate and corrected complete-ledger invariant with zero running records."
+            artifacts:
+              - path: ".build/runs/20260727T190731Z-set-google-analytics-cookie-domain-01/input-fingerprint.txt"
+                checksum: "sha256:80f0b3660892ec0167fc04e157659e39fbe800381849f0eb61b505ba0d482a5a"
+                notes: "Pre-edit commit, exact requested command, material source/test/build hashes, current and pinned tools, primary ordering references, and latest completed-run evidence."
+              - path: ".build/runs/20260727T190731Z-set-google-analytics-cookie-domain-01/Dockerfile.browser"
+                checksum: "sha256:f449a79476ac3a9972cf0e6ba79c0491568192c4bfe18f57c8f4be0277480f2d"
+                notes: "Run-local network-disabled recipe that overlays only the current ledger and four declared product files onto the cached current workspace, then copies it into the pinned Playwright browser environment."
+              - path: "docker-image:learn-llm-cookie-domain:browser"
+                checksum: "sha256:1825a06d4085de069b229eb9bf8bf3cdf901fcce19e783fd98f70b1a382a5c8b"
+                notes: "Immutable 52-page browser candidate used for the final Chromium and Firefox all-route analytics checks."
+              - path: ".build/runs/20260727T190731Z-set-google-analytics-cookie-domain-01/publish.sha256"
+                checksum: "sha256:0c167af838f55c5aad1b90cb434c9f4da285b0079a473c704cab16fdda58dc0f"
+                notes: "Frozen SHA-256 manifest for exactly the four declared product/test outputs after static, unit, and two-engine browser validation."
+            validation:
+              - command: "Repository, scheduler, dependency, environment, prior-artifact, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The tree is clean at 3f7c1ec; all recorded builds/runs are complete; the latest run's fingerprint and product-manifest checksums match; the new output set is disjoint from any active owner; current Linux tools are recorded; cached medium validation fits the unlimited budget; and no host Rust, Node, npm, or Python toolchain is used."
+              - command: "Independent shared-source, exactness, and route-coverage audits"
+                status: passed
+                notes: "GoogleAnalytics.astro is the sole product tag source and its two existing consumers own every HTML head. The static audit reaches every built HTML file and the SEO matrix visits every current route. Both reviewers require set between js and config and identify the same four product/test outputs; one additionally requires set-aware initializer detection so a separate extra script cannot evade counting."
+              - command: "Focused analytics exactness and negative-mutation contract"
+                status: passed
+                notes: "All seven focused cases pass. The contract accepts the exact five-statement initializer and rejects missing, wrong-domain, duplicate, separately scripted, and post-config cookie-domain settings in addition to all prior loader/config failures."
+              - command: "Docker-only plan, Astro, complete unit, root/project build, and static artifact matrix"
+                status: passed
+                notes: "The plan remains 40 chapters and 77 scheduled curriculum steps through Chapter 39; Astro reports zero diagnostics across 204 files; all 52 Vitest files and 838 cases pass; both base modes build 52 pages; and each static audit accepts 1,988 local references, 52 SEO routes, 52 sitemap URLs, 52 exact analytics routes, and 141 artifacts."
+              - command: "Immutable browser-candidate build"
+                status: passed
+                notes: "The run-local Dockerfile assembled only from cached workspace and Playwright images with --network none, built all 52 static pages, and produced image sha256:1825a06d4085de069b229eb9bf8bf3cdf901fcce19e783fd98f70b1a382a5c8b."
+              - command: "Chromium and Firefox all-route analytics traversal"
+                status: passed
+                notes: "The single exhaustive @seo case passes independently in Chromium and Firefox. Each traversal inspects root, both localized homes and course indexes, and every published chapter; each page exposes the exact five-statement initializer, the loader fails through the owned 502 proxy, and no Google response or collection request occurs."
+              - command: "Frozen publication checksum and canonical-byte identity"
+                status: passed
+                notes: "All four staged product/test files verify against publish.sha256 and match their canonical working-tree candidates byte-for-byte; the manifest checksum is 0c167af838f55c5aad1b90cb434c9f4da285b0079a473c704cab16fdda58dc0f."
+              - command: "Independent final implementation, test, ledger, publication, and scope audit"
+                status: passed
+                notes: "The reviewer approved without a blocker: the requested statement appears once in the correct order; static discovery catches extra set scripts; five negative classes are explicit; browser parity, 52-route evidence, immutable image/manifest identity, and six-file working scope all agree; and the running checkpoint is coherent."
+              - command: "Initial host-artifact audit"
+                status: failed
+                notes: "The audit found an ignored 196 MB root Cargo target directory whose newest timestamp predates this run, then exposed unrecorded generated target, node_modules, .astro, and test-results directories inside several older source snapshots. These were not declared artifacts or manifest inputs and no current command used host Rust, Node, npm, or Python."
+              - command: "Exact generated-cache cleanup and repeated host/scope/diff audit"
+                status: passed
+                notes: "After confirming exact paths, directory types, contents, sizes, timestamps, ignore status, and absence from BUILD_STATE/DECISIONS artifact records, only the reproducible generated cache directories were removed. ./course audit-host now passes with site/dist as the intentional release exception; git diff --check and the forbidden-scope audit pass; all source, run manifests, recorded evidence, and product files outside the declared six-file scope remain unchanged."
+              - command: "Post-completion course-plan validation"
+                status: passed
+                notes: "The finalized Docker-mounted ledger remains valid with 40 chapters, 77 scheduled curriculum steps, and 40 implemented contracts through Chapter 39. The standalone analytics build does not alter curriculum scheduling."
+              - command: "First post-completion complete-ledger invariant"
+                status: failed
+                notes: "The ad hoc Node process started at /workspace, so package resolution could not find the pinned yaml dependency installed beneath /workspace/site. It exited before parsing BUILD_STATE.yaml; no ledger assertion ran and no file changed."
+              - command: "Corrected post-completion complete-ledger invariant"
+                status: passed
+                notes: "Running from /workspace/site resolves the pinned yaml package, parses the complete ledger, and confirms active_build is null, the target build and step are completed, the target run succeeded, and no step or run remains running."
+            notes: "Succeeded. Every generated HTML page now queues the exact intale.github.io cookie domain after gtag initialization and before the unchanged measurement configuration. The dependency-free artifact audit, explicit mutations, and rendered browser helper enforce the exact five-statement initializer; root/project artifacts, all 838 unit cases, and exhaustive Chromium/Firefox route traversals pass without Analytics egress. Learner content, localization, routes, dependencies, build definitions, hosting, and deployment remain unchanged."

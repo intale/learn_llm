@@ -7887,3 +7887,37 @@ definitions remain unchanged.
 
 **Affected step and run:** `document-english-source-localization`, run
 `20260727T175945Z-document-english-source-localization-01`.
+
+## 2026-07-27 - Set the canonical Analytics cookie domain before configuration
+
+**Status:** Accepted from direct product instruction before implementation.
+
+**Context:** The shared Google tag currently queues its initialization time and
+then configures measurement property `G-B5JVTL721S`. The user supplied the exact
+global setting `gtag('set', 'cookie_domain', 'intale.github.io');`. A global
+`set` applies to subsequent commands, while `config` may perform initial page
+configuration, so the domain must be queued before `config`, not afterward.
+
+**Decision:** Add the supplied setting exactly once between the existing `js`
+and `config` commands in `GoogleAnalytics.astro`. Supersede the prior exact
+four-statement initializer boundary with this exact five-statement order:
+data-layer initialization, `gtag` definition, `js` timestamp, the requested
+`cookie_domain` setting, then the unchanged measurement-ID configuration.
+
+Update the dependency-free artifact audit and rendered-page helper to require
+that complete order. Make the static initializer detector recognize `set`
+commands, independently require exactly one cookie-domain setting, and add
+mutations for omission, wrong domain, duplication in the initializer, a second
+standalone set script, and placement after `config`. Continue rendering through
+the one shared component and its two existing head owners.
+
+**Consequences:** Every generated HTML page explicitly configures cookies for
+`intale.github.io` before the initial Analytics configuration. The loader,
+measurement ID, production traffic, test-only rejecting proxy, routes, sitemap,
+SEO, learner content, locales, packages, static runtime, Docker build, GitHub
+Pages base, hosting, and deployment remain unchanged. Root and project-base
+artifacts plus Chromium and Firefox all-route checks must pass before this
+standalone step is committed.
+
+**Affected step and run:** `set-google-analytics-cookie-domain`, run
+`20260727T190731Z-set-google-analytics-cookie-domain-01`.

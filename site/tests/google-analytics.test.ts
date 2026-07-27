@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 // @ts-ignore Repository checks are intentionally dependency-free plain ESM modules.
 import {
   auditStaticSite,
+  GOOGLE_ANALYTICS_COOKIE_DOMAIN,
   GOOGLE_ANALYTICS_MEASUREMENT_ID,
   GOOGLE_ANALYTICS_SCRIPT_URL,
 } from '../../scripts/check-static-links.mjs';
@@ -37,6 +38,7 @@ function analyticsTag(measurementId = GOOGLE_ANALYTICS_MEASUREMENT_ID) {
     'window.dataLayer = window.dataLayer || [];',
     'function gtag(){dataLayer.push(arguments);}',
     "gtag('js', new Date());",
+    `gtag('set', 'cookie_domain', '${GOOGLE_ANALYTICS_COOKIE_DOMAIN}');`,
     `gtag('config', '${measurementId}');`,
     '</script>',
   ].join('\n');
@@ -90,6 +92,9 @@ describe('Google Analytics head component', () => {
     expect(component).toContain('window.dataLayer = window.dataLayer || [];');
     expect(component).toContain('function gtag(){dataLayer.push(arguments);}');
     expect(component).toContain("gtag('js', new Date());");
+    expect(component).toContain(
+      `gtag('set', 'cookie_domain', '${GOOGLE_ANALYTICS_COOKIE_DOMAIN}');`,
+    );
     expect(component).toContain(
       `gtag('config', '${GOOGLE_ANALYTICS_MEASUREMENT_ID}');`,
     );
@@ -164,6 +169,37 @@ describe('built Google Analytics audit', () => {
         return source.replace(`${loader}\n${initializer}`, `${initializer}\n${loader}`);
       },
       /loader must appear before its initializer/,
+    );
+  });
+
+  it('rejects missing, wrong, duplicate, separate, and late cookie-domain settings', () => {
+    const cookieDomain =
+      `gtag('set', 'cookie_domain', '${GOOGLE_ANALYTICS_COOKIE_DOMAIN}');`;
+    const config = `gtag('config', '${GOOGLE_ANALYTICS_MEASUREMENT_ID}');`;
+    expectFailure(
+      (source) => source.replace(cookieDomain, ''),
+      /exactly reproduce the supplied|exactly one cookie_domain set call/,
+    );
+    expectFailure(
+      (source) => source.replace(GOOGLE_ANALYTICS_COOKIE_DOMAIN, 'example.com'),
+      /must exactly reproduce the supplied/,
+    );
+    expectFailure(
+      (source) =>
+        source.replace(cookieDomain, `${cookieDomain}\n${cookieDomain}`),
+      /exactly reproduce the supplied|exactly one cookie_domain set call/,
+    );
+    expectFailure(
+      (source) =>
+        source.replace('</head>', `<script>${cookieDomain}</script></head>`),
+      /exactly one Google Analytics initializer; found 2/,
+    );
+    expectFailure(
+      (source) => source.replace(
+        `${cookieDomain}\n${config}`,
+        `${config}\n${cookieDomain}`,
+      ),
+      /must exactly reproduce the supplied/,
     );
   });
 

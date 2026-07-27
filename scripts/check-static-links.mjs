@@ -20,6 +20,7 @@ import {
 } from '../site/sitemap.config.mjs';
 
 export const GOOGLE_ANALYTICS_MEASUREMENT_ID = 'G-B5JVTL721S';
+export const GOOGLE_ANALYTICS_COOKIE_DOMAIN = 'intale.github.io';
 export const GOOGLE_ANALYTICS_SCRIPT_URL =
   'https://www.googletagmanager.com/gtag/js?id=' +
   GOOGLE_ANALYTICS_MEASUREMENT_ID;
@@ -713,7 +714,7 @@ function validateGoogleAnalytics(
       !values.src &&
       (body.includes('window.dataLayer') ||
         /function\s+gtag\b/.test(body) ||
-        /gtag\s*\(\s*['"]config['"]/.test(body)),
+        /gtag\s*\(\s*['"](?:config|set)['"]/.test(body)),
   );
   if (initializers.length !== 1) {
     issues.push(
@@ -728,13 +729,26 @@ function validateGoogleAnalytics(
       'window.dataLayer = window.dataLayer || [];',
       'function gtag(){dataLayer.push(arguments);}',
       "gtag('js', new Date());",
+      `gtag('set', 'cookie_domain', '${GOOGLE_ANALYTICS_COOKIE_DOMAIN}');`,
       "gtag('config', '" + measurementId + "');",
     ].join('\n');
     if (normalized !== expectedInitializer) {
       issues.push(
         relativePath +
-          ': Google Analytics initializer must exactly reproduce the supplied dataLayer, gtag, js-time, and ' +
+          ': Google Analytics initializer must exactly reproduce the supplied dataLayer, gtag, js-time, cookie-domain, and ' +
           measurementId,
+      );
+    }
+    if (
+      [
+        ...initializer.body.matchAll(
+          /gtag\s*\(\s*['"]set['"]\s*,\s*['"]cookie_domain['"]\s*,/g,
+        ),
+      ].length !== 1
+    ) {
+      issues.push(
+        relativePath +
+          ': Google Analytics initializer must contain exactly one cookie_domain set call',
       );
     }
     if (
