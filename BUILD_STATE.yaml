@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-28T11:29:14Z"
+updated_at: "2026-07-28T12:57:37Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -19291,3 +19291,167 @@ builds:
                 status: passed
                 notes: "The ledger parses with 18 completed builds, 102 steps (80 completed and 22 invalidated), and 119 runs (102 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
             notes: "Succeeded. Chapter 9 was repaired in English first, translated directly into natural Russian, and activated at revision 5. Formula, LLM-history, Rust, semantic table, ownership, copy, error, SEO, navigation, sitemap, Analytics, accessibility, exercise, and answer parity pass. The exact candidate passes 840 unit cases and 244 rendered cases across Chromium and Firefox without localized clipping or unintended overflow."
+  - build_id: activate-ch10-russian-localization
+    objective: "Translate Chapter 10 directly from the current English broadcasting-and-reductions lesson, activate its Russian route, and prove semantic and rendered-layout parity."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium step uses authored translation and cached Docker contract, static, unit, Chromium, and Firefox validation; no paid service, external translation, dependency change, product build-definition change, or Rust behavior change is planned."
+    completion_criteria:
+      - "The current English Chapter 10 revision is reviewed first and remains the sole semantic source; any learner-facing, formula, history, evidence, or shared-diagram defect is corrected before the Russian projection is written."
+      - "The complete Russian contract, lesson, metadata, diagram copy, exercises, answers, navigation, SEO, and accessibility labels preserve every formula, symbol, broadcast alignment, reduction result, keep-dimension rule, error precedence, Rust identifier, value, link, qualifier, and pedagogical commitment in natural technical Russian."
+      - "Russian Chapter 10 is activated atomically with a same-revision source, locale projection, plan policy, catalogs, and exact browser expectations; no placeholder route is published."
+      - "The exact candidate passes contract, chapter, parity, content, Astro, unit, static-build, link, SEO, sitemap, Analytics, checksum, scope, ledger, and whitespace checks."
+      - "The Russian route and its registered figure pass Chromium and Firefox desktop, narrow, no-JavaScript fallback, full-view, forced-color, direction, and nearest-bounded-box containment validation."
+      - "The completed checkpoint is committed independently before Chapter 11 activation begins; user review follows delivery and is not a publication prerequisite."
+    steps:
+      - id: activate-ch10-russian-localization
+        objective: "Translate, activate, and validate the complete Russian Chapter 10 broadcasting-and-reductions surface."
+        depends_on:
+          - activate-ch09-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-28 to translate Chapters 8-11 sequentially after the completed Chapter 1-7 audit without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/lib.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/main.rs"
+          - "rust/demos/ch10-broadcasting-reductions/src/diagram_trace.rs"
+          - "rust/demos/ch10-broadcasting-reductions/diagram-trace.txt"
+          - "rust/demos/ch10-broadcasting-reductions/expected.txt"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 327318f9cc80194986c0f2f0cf0c614780e67085."
+        outputs:
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/10-broadcasting-reductions.md"
+          - "site/src/content/chapters/en/10-broadcasting-reductions.mdx"
+          - "site/src/content/chapters/ru/10-broadcasting-reductions.mdx"
+          - "site/src/components/chapters/BroadcastingReductionsDiagram.astro"
+          - "site/src/lib/broadcasting-reductions-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/10-broadcasting-reductions-diagram.test.ts"
+          - "site/tests/e2e/ch10-broadcasting-reductions.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English is the sole semantic source and the exact Russian revision preserves all factual, mathematical, executable, historical, broadcast, reduction, shape, error, and pedagogical evidence."
+          - "Russian prose uses established tensor and mathematical terminology, natural sentence structure, and no unjustified untranslated learner-facing English."
+          - "All mathematical expressions use the site math pipeline and all code spans denote actual code, identifiers, paths, or literal program data."
+          - "The one semantic Chapter 10 figure uses localized labels and the shared diagram system; every ordinary bounded box contains its text and formula ink in both browser engines at desktop, narrow, and full view without clipping or unintended page overflow."
+          - "The locale projection exposes /ru/course/10-broadcasting-reductions/ and updates navigation, alternates, sitemap, SEO, and fallback behavior atomically."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/10-broadcasting-reductions.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 10-broadcasting-reductions"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 10-broadcasting-reductions"
+          - "./course run npm --prefix site run check:parity -- --chapter 10-broadcasting-reductions"
+          - "./course run npm --prefix site run check:content"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:10-broadcasting-reductions|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:10-broadcasting-reductions|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One complete source-to-target chapter translation with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency change, product build-definition change, or Rust behavior change."
+        runs:
+          - run_id: 20260728T113229Z-activate-ch10-russian-localization-01
+            started_at: "2026-07-28T11:32:29Z"
+            finished_at: "2026-07-28T12:57:37Z"
+            status: succeeded
+            input_fingerprint:
+              git: "327318f9cc80194986c0f2f0cf0c614780e67085"
+              manifest: ".build/runs/20260728T113229Z-activate-ch10-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:7c07248061d6adbfe79d37912cd4cfa88f0a9071f02b17231fbc4098d72f0cdb"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; current English Chapter 10 and its contract are authoritative."
+            staging_dir: ".build/runs/20260728T113229Z-activate-ch10-russian-localization-01/"
+            commands:
+              - "Verify independently committed Chapter 9 checkpoint 327318f and a clean worktree, inspect the completed ledger and latest localization decisions, retain the complete localization-skill rules, and inventory the Chapter 10 contract, lesson, diagram, Rust evidence, projection, and tests."
+              - "Fingerprint the exact source, evidence, projection, workflow, environment, user request, and base commit before any product edit."
+              - "Audit and repair the English Chapter 10 formula, LLM-history evidence, learner-facing implementation boundary, diagram semantics, responsive geometry, and exact test expectations before translation."
+              - "Translate the frozen revision directly into natural technical Russian, project every contract and diagram label, activate the locale route, and advance the checked locale policy through Chapter 10."
+              - "Run two independent English-to-Russian meaning, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff reviews; correct every actionable finding."
+              - "Verify the GPT-2 max, exponentiation, sum, retained-axis, normalization, and labeled-axis claims against the official OpenAI source."
+              - "Run exact Linux contract, content, parity, Astro, unit, static-build, link, SEO, sitemap, Analytics, Chromium, Firefox, formula, fallback, forced-color, direction, full-view, and bounded-box validation."
+              - "Freeze the exact final workspace and browser Docker candidates and checksum every changed product, content, test, and authoring-guide output."
+            artifacts:
+              - path: ".build/runs/20260728T113229Z-activate-ch10-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:7c07248061d6adbfe79d37912cd4cfa88f0a9071f02b17231fbc4098d72f0cdb"
+                notes: "Exact base revision, user scope, tool versions, cost, English Chapter 10, contract, diagram, parser, Rust evidence, projection, skill, workflow, and test inputs."
+              - path: ".build/runs/20260728T113229Z-activate-ch10-russian-localization-01/final-candidate-manifest.txt"
+                checksum: "sha256:d997f93eac7e45dcc12d407fcaa036e960fdefbb66fc4e0bcf4d2e2f0b4e48a0"
+                notes: "SHA-256 manifest for every changed product, content, test, and authoring-guide output plus the two exact final Docker image IDs."
+              - path: ".build/runs/20260728T113229Z-activate-ch10-russian-localization-01/final-validation.txt"
+                checksum: "sha256:75020ab1139d381be4fdfeec588702d57efe9df005226e3e7457603d6de2aa04"
+                notes: "Concise replay record for the exact contract, content, parity, unit, Astro, static-artifact, language, Chromium, Firefox, formula, and localized-layout gates."
+              - path: "docker-image://learn-llm-ru-ch10-workspace:run01-final"
+                checksum: "sha256:29cbd5a8b6c272a6e9788bd4fd8f56f39df83688b4c7de1bc7925eda1f6dad81"
+                notes: "Exact Linux source/static validation candidate; local generated image, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch10-browser:run01-final"
+                checksum: "sha256:e4e8422abd470c37fcb736c3d04fcc3c2dd24f28e2e736c39fcd17be27610e32"
+                notes: "Exact Playwright browser candidate with the generated 56-page site; local generated image, not a committed repository artifact."
+            validation:
+              - command: "Repository, predecessor checkpoint, scheduler, environment, ownership, dependency, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Commit 327318f independently completes Chapter 9 and the worktree was clean. The ledger had 18 completed builds, 102 historical steps (80 completed and 22 invalidated), 119 historical runs (102 succeeded, 13 interrupted, and 4 failed), and no active work. Windows orchestration and product pins match the recorded environment; this step has no resource limit and claims all anticipated Chapter 10 and shared projection/test outputs before editing."
+              - command: "Independent canonical-source, LLM-history, formula, Rust-evidence, and shared-diagram audit"
+                status: passed
+                notes: "The English source was frozen at revision 4 after correcting the reduction-group formula, mathematical prose, LLM-history framing, GPT-2 max/sum semantics, learner-facing implementation language, reduction evidence, and the diagram's semantic table organization."
+              - command: "First course-wide Chromium full-view replay"
+                status: failed
+                notes: "The exact shared audit found 39 pixels of new horizontal debt in the fullscreen reductions table because fixed column widths exceeded the two-column panel. Percentage columns totaling 100 percent replaced the fixed widths; no candidate was frozen from the failed replay."
+              - command: "Independent Russian meaning, terminology, anti-calque, monolingual, SEO, accessibility, and handoff audits"
+                status: passed
+                notes: "Two review passes removed literal constructions, clarified model-history claims and feature-axis terminology, repaired formula descriptions and exercise grammar, localized the not-applicable reduction state, and preserved every formula, code identifier, shape, value, error, source, exercise, answer, and Chapter 11 boundary."
+              - command: "Final exact-candidate course plan, contract, content, parity, unit, Astro, static build, and artifact matrix"
+                status: passed
+                notes: "The plan reports 40 chapters and 82 steps; Chapter 10 and the full 51-source, 40-locale-set, 32-catalog-key, 40-diagram corpus validate; all 840 unit tests pass; Astro reports zero diagnostics in 204 files; 56 pages and all 2,032 links plus 56 SEO, sitemap, and Analytics routes pass."
+              - command: "Final exact-candidate Chromium Chapter 10, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 125 Chromium cases pass across English/Russian desktop and narrow routes, no-JavaScript and unsupported-API fallbacks, full view, forced colors, focus, formula geometry, LTR technical tokens, localized not-applicable evidence, and nearest-box containment."
+              - command: "Final exact-candidate Firefox Chapter 10, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 125 Firefox cases pass with the same route, content, formula, fallback, full-view, forced-color, direction, accessibility, and bounded-box assertions."
+              - command: "Candidate checksum, declared-scope, historical-ledger, and whitespace audit"
+                status: passed
+                notes: "The final manifest covers every changed product, content, test, and authoring-guide path plus both exact Docker images; all changed paths are declared, immutable prior run records remain intact, and git diff --check passes."
+              - command: "Final completed-ledger invariant"
+                status: passed
+                notes: "The ledger parses with 19 completed builds, 103 steps (81 completed and 22 invalidated), and 120 runs (103 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
+            notes: "Succeeded. Chapter 10 was repaired in English first, translated directly into natural Russian, and activated at revision 4. Formula, GPT-2/LLM-history, broadcasting, reductions, Rust, errors, ownership, SEO, navigation, sitemap, Analytics, accessibility, exercise, answer, and handoff parity pass. The exact candidate passes 840 unit cases and 250 rendered cases across Chromium and Firefox without localized clipping or unintended overflow."

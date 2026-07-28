@@ -26,9 +26,7 @@ const trace = parseBroadcastingReductionsTrace(readFileSync(fixtureUrl, 'utf8'))
 const titleId = `${instanceId}-title`;
 const descriptionId = `${instanceId}-description`;
 const tuple = (values: readonly TraceNumber[]) =>
-  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
-const list = (values: readonly TraceNumber[]) =>
-  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+  `[${values.map(({ lexeme }) => lexeme).join(',')}]`;
 const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
 ---
 
@@ -43,69 +41,44 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <dl class="summary-facts">
-      <div>
-        <dt>{labels.summary.tokens}</dt>
-        <dd><code dir="ltr">{tuple(trace.inputs[0].shape)}</code></dd>
-      </div>
-      <div>
-        <dt>{labels.summary.bias}</dt>
-        <dd><code dir="ltr">{tuple(trace.inputs[1].shape)}</code></dd>
-      </div>
-      <div>
-        <dt>{labels.summary.output}</dt>
-        <dd><code dir="ltr">{tuple(trace.output.shape)}</code></dd>
-      </div>
-    </dl>
   </figcaption>
 
-  <section class="diagram-panel alignment-panel" aria-labelledby={`${instanceId}-alignment-title`}>
-    <h4 id={`${instanceId}-alignment-title`}>{labels.sections.alignment}</h4>
-    <p>{labels.notes.alignment}</p>
-    <table data-diagram-table class="alignment-table">
-      <caption class="visually-hidden">{labels.sections.alignment}</caption>
-      <thead>
-        <tr>
-          <th scope="col">{labels.fields.tensor}</th>
-          <th scope="col">{labels.fields.originalShape}</th>
-          <th scope="col">{labels.fields.alignedShape}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-alignment-id="tokens">
-          <th scope="row"><code dir="ltr">tokens</code></th>
-          <td><code dir="ltr">{tuple(trace.plan.leftShape)}</code></td>
-          <td><code dir="ltr">{tuple(trace.plan.alignedLeft)}</code></td>
-        </tr>
-        <tr data-alignment-id="bias" class="reused-row">
-          <th scope="row">
-            <span class="state-symbol" aria-hidden="true">↻</span>
-            <span class="visually-hidden">{labels.symbols.reused}: </span>
-            <code dir="ltr">bias</code>
-          </th>
-          <td><code dir="ltr">{tuple(trace.plan.rightShape)}</code></td>
-          <td><code dir="ltr">{tuple(trace.plan.alignedRight)}</code></td>
-        </tr>
-        <tr data-alignment-id="output">
-          <th scope="row"><code dir="ltr">output</code></th>
-          <td><span aria-hidden="true">—</span></td>
-          <td><code dir="ltr">{tuple(trace.plan.outputShape)}</code></td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section class="diagram-panel mapping-panel" aria-labelledby={`${instanceId}-mapping-title`}>
-    <h4 id={`${instanceId}-mapping-title`}>{labels.sections.mapping}</h4>
-    <p>{labels.notes.mapping}</p>
+  <section class="broadcast-panel" data-diagram-box aria-labelledby={`${instanceId}-broadcast-title`}>
+    <h4 id={`${instanceId}-broadcast-title`}>{labels.sections.broadcasting}</h4>
+    <p>{labels.notes.broadcasting}</p>
+    <ul class="alignment-facts">
+      <li data-alignment-id="tokens">
+        <span class="visually-hidden">{labels.fields.tensor}: </span>
+        <strong>{labels.summary.tokens}</strong>
+        <span>{labels.fields.originalShape}</span>
+        <code dir="ltr">{tuple(trace.plan.leftShape)}</code>
+        <span aria-hidden="true">→</span>
+        <span>{labels.fields.alignedShape}</span>
+        <code dir="ltr">{tuple(trace.plan.alignedLeft)}</code>
+      </li>
+      <li data-alignment-id="bias">
+        <span class="state-symbol" aria-hidden="true">↻</span>
+        <span class="visually-hidden">{labels.symbols.reused}: </span>
+        <strong>{labels.summary.bias}</strong>
+        <span>{labels.fields.originalShape}</span>
+        <code dir="ltr">{tuple(trace.plan.rightShape)}</code>
+        <span aria-hidden="true">→</span>
+        <span>{labels.fields.alignedShape}</span>
+        <code dir="ltr">{tuple(trace.plan.alignedRight)}</code>
+      </li>
+      <li data-alignment-id="output">
+        <strong>{labels.summary.output}</strong>
+        <code dir="ltr">{tuple(trace.plan.outputShape)}</code>
+      </li>
+    </ul>
     <div
       class="mapping-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
-      aria-labelledby={`${instanceId}-mapping-title`}
-     data-diagram-scroll>
+      aria-label={labels.sections.broadcasting}
+      data-diagram-scroll
+    >
       <table data-diagram-table class="mapping-table">
-        <caption class="visually-hidden">{labels.sections.mapping}</caption>
         <thead>
           <tr>
             <th scope="col">{labels.fields.outputCoordinate}</th>
@@ -124,10 +97,12 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
             >
               <th scope="row"><code dir="ltr">{tuple(mapping.output)}</code></th>
               <td><code dir="ltr">{tuple(mapping.left)}</code></td>
-              <td class="reused-value">
-                <span class="state-symbol" aria-hidden="true">↻</span>
-                <span class="visually-hidden">{labels.symbols.reused}: </span>
-                <code dir="ltr">{tuple(mapping.right)}</code>
+              <td>
+                <span class="state-cue reused-value">
+                  <span class="state-symbol" aria-hidden="true">↻</span>
+                  <span class="visually-hidden">{labels.symbols.reused}: </span>
+                  <code dir="ltr">{tuple(mapping.right)}</code>
+                </span>
               </td>
               <td><bdi dir="ltr">{mapping.value.lexeme}</bdi></td>
             </tr>
@@ -135,182 +110,177 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section class="diagram-panel reductions-panel" aria-labelledby={`${instanceId}-reductions-title`}>
-    <h4 id={`${instanceId}-reductions-title`}>{labels.sections.reductions}</h4>
-    <p>{labels.notes.reductions}</p>
-    <ol class="reduction-list">
-      {trace.reductions.map((reduction) => (
-        <li data-diagram-card data-diagram-box
-          class="reduction-card"
-          data-reduction-operation={reduction.operation}
-          data-reduction-axis={reduction.axis.lexeme}
-          data-keep-dim={reduction.keepDim}
-          data-output-shape={reduction.outputShape.map(({ lexeme }) => lexeme).join(',')}
-        >
-          <h5>
-            <span class="state-symbol" aria-hidden="true">↓</span>
-            <span class="visually-hidden">{labels.symbols.reduced}: </span>
-            <code dir="ltr">{reduction.operation}</code>
-          </h5>
-          <dl class="reduction-facts">
-            <div><dt>{labels.fields.axis}</dt><dd><bdi dir="ltr">{reduction.axis.lexeme}</bdi></dd></div>
-            <div>
-              <dt>{labels.fields.keepDimension}</dt>
-              <dd>{reduction.keepDim === 'yes' ? labels.symbols.yes : labels.symbols.no}</dd>
-            </div>
-            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{tuple(reduction.outputShape)}</code></dd></div>
-            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{list(reduction.values)}</code></dd></div>
-          </dl>
-          <ol class="group-list">
-            {reduction.groups.map((group, groupIndex) => (
-              <li data-group-indices={group.map(({ lexeme }) => lexeme).join(',')}>
-                <span>{labels.fields.group} <bdi dir="ltr">{groupIndex}</bdi>:</span>
-                <code dir="ltr">{list(group.map(({ value }) => trace.output.values[value]!))}</code>
-                <span aria-hidden="true"> → </span>
-                <bdi dir="ltr">{reduction.values[groupIndex]!.lexeme}</bdi>
-              </li>
-            ))}
-          </ol>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <section class="diagram-panel errors-panel" aria-labelledby={`${instanceId}-errors-title`}>
-    <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
-    <p>{labels.notes.errors}</p>
-    <ol class="error-list">
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
+    <article
+      class="broadcast-error error-card course-diagram__card-stack"
+      data-diagram-card
+      data-diagram-box
+      data-status="fail"
+      data-error-kind={trace.errors[0].kind}
+    >
+      <div class="course-diagram__card-heading">
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
-        <code dir="ltr">{trace.errors[0].operation}</code>
+        <h5><code dir="ltr">{trace.errors[0].operation}</code></h5>
+      </div>
+      <p class="rejection-summary">
         <span>
-          <code dir="ltr">{tuple(trace.errors[0].leftShape)}</code>
-          {' / '}
+          <strong>{labels.fields.request}:</strong>{' '}
+          <code dir="ltr">{tuple(trace.errors[0].leftShape)}</code>{' / '}
           <code dir="ltr">{tuple(trace.errors[0].rightShape)}</code>
         </span>
+        <span aria-hidden="true"> • </span>
         <span>
-          {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>:
-          {' '}<InlineMath
-            latex={String.raw`${trace.errors[0].leftSize.lexeme}\ne${trace.errors[0].rightSize.lexeme}`}
-          />
+          <strong>{labels.fields.evidence}:</strong>{' '}
+          {labels.fields.axis} <bdi dir="ltr">{trace.errors[0].axis.lexeme}</bdi>,{' '}
+          <InlineMath latex={String.raw`${trace.errors[0].leftSize.lexeme}\ne${trace.errors[0].rightSize.lexeme}`} />
         </span>
-      </li>
-      {emptyErrors.map((error) => (
-        <li data-diagram-card data-diagram-box class="error-card" data-error-kind={error.kind}>
-          <span class="state-symbol" aria-hidden="true">×</span>
-          <span class="visually-hidden">{labels.symbols.rejected}: </span>
-          <code dir="ltr">{error.operation}</code>
-          <code dir="ltr">{tuple(error.inputShape)}</code>
-          <span>{labels.fields.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi></span>
-        </li>
-      ))}
-    </ol>
+        <span aria-hidden="true"> • </span>
+        <span><strong>{labels.fields.reason}:</strong> {labels.reasons.incompatible}</span>
+      </p>
+    </article>
+  </section>
+
+  <section class="reductions-panel" data-diagram-box aria-labelledby={`${instanceId}-reductions-title`}>
+    <h4 id={`${instanceId}-reductions-title`}>{labels.sections.reductions}</h4>
+    <p>{labels.notes.reductions}</p>
+    <div
+      class="reductions-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.sections.reductions}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="reductions-table">
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.operation}</th>
+            <th scope="col">{labels.fields.axis}</th>
+            <th scope="col">{labels.fields.keepDimension}</th>
+            <th scope="col">{labels.fields.outputShape}</th>
+            <th scope="col">{labels.fields.group} / {labels.fields.values}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trace.reductions.map((reduction) => (
+            <tr
+              data-reduction-operation={reduction.operation}
+              data-reduction-axis={reduction.axis.lexeme}
+              data-keep-dim={reduction.keepDim}
+              data-output-shape={reduction.outputShape.map(({ lexeme }) => lexeme).join(',')}
+              data-reduction-values={reduction.values.map(({ lexeme }) => lexeme).join(',')}
+            >
+              <th scope="row">
+                <span class="state-cue">
+                  <span class="state-symbol" aria-hidden="true">↓</span>
+                  <span class="visually-hidden">{labels.symbols.reduced}: </span>
+                  <code dir="ltr">{reduction.operation}</code>
+                </span>
+              </th>
+              <td><bdi dir="ltr">{reduction.axis.lexeme}</bdi></td>
+              <td>{reduction.keepDim === 'yes' ? labels.symbols.yes : labels.symbols.no}</td>
+              <td><code dir="ltr">{tuple(reduction.outputShape)}</code></td>
+              <td>
+                <div class="group-records course-diagram__card-stack">
+                  {reduction.groups.map((group, groupIndex) => (
+                    <div data-group-indices={group.map(({ lexeme }) => lexeme).join(',')}>
+                      <span>{labels.fields.group} <bdi dir="ltr">{groupIndex}</bdi>:</span>
+                      <code dir="ltr">{tuple(group.map(({ value }) => trace.output.values[value]!))}</code>
+                      <span aria-hidden="true">→</span>
+                      <span class="visually-hidden">{labels.fields.result}: </span>
+                      <bdi dir="ltr">{reduction.values[groupIndex]!.lexeme}</bdi>
+                    </div>
+                  ))}
+                </div>
+              </td>
+            </tr>
+          ))}
+          {emptyErrors.map((error) => (
+            <tr data-error-kind={error.kind}>
+              <th scope="row">
+                <span class="state-cue">
+                  <span class="state-symbol" aria-hidden="true">×</span>
+                  <span class="visually-hidden">{labels.symbols.rejected}: </span>
+                  <code dir="ltr">{error.operation}</code>
+                </span>
+              </th>
+              <td><bdi dir="ltr">{error.axis.lexeme}</bdi></td>
+              <td>{labels.symbols.notApplicable}</td>
+              <td>{labels.symbols.rejected}</td>
+              <td>
+                <div class="rejection-record">
+                  <span>
+                    <strong>{labels.fields.request}:</strong>{' '}
+                    <code dir="ltr">{tuple(error.inputShape)}</code>
+                  </span>
+                  <span>
+                    <strong>{labels.fields.reason}:</strong>{' '}
+                    {error.operation === 'mean' ? labels.reasons.emptyMean : labels.reasons.emptyMax}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </section>
 </figure>
 
 <style>
-  .broadcasting-reductions-diagram {
-    --diagram-border: color-mix(in srgb, currentColor 26%, transparent);
-    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+  .broadcasting-reductions-diagram { align-content: start; }
+
+  .alignment-facts {
     display: grid;
-    gap: 1rem;
-    max-width: 100%;
-    margin-block: 1.5rem;
-    padding: clamp(0.85rem, 3vw, 1.5rem);
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.85rem;
-  }
-
-  .broadcasting-reductions-diagram:focus-visible,
-  .mapping-scroll:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  figcaption p,
-  .diagram-panel h4,
-  .diagram-panel > p,
-  .reduction-card h5 { margin-block-start: 0; }
-
-  .summary-facts,
-  .reduction-facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem 1.1rem;
-    margin: 0;
-  }
-
-  .summary-facts div,
-  .reduction-facts div { display: flex; gap: 0.4rem; align-items: baseline; }
-  dt { font-weight: 700; }
-  dd { margin: 0; }
-
-  .diagram-panel {
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.65rem;
-    background: var(--diagram-surface);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  caption { padding-block-end: 0.5rem; }
-  th,
-  td { padding: 0.55rem; border: 1px solid var(--diagram-border); text-align: start; }
-  thead th { font-weight: 750; }
-
-  .mapping-scroll {
-    max-width: 100%;
-  }
-
-  .mapping-table { min-width: 39rem; }
-  .reused-row,
-  .reused-value { border-style: solid; }
-  .state-symbol { margin-inline-end: 0.35rem; font-weight: 800; }
-
-  .reduction-list,
-  .error-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.85rem;
+    gap: 0.35rem;
+    margin: 0 0 0.75rem;
     padding: 0;
     list-style: none;
   }
 
-  .reduction-card,
-  .error-card {
-    min-width: 0;
-    padding: 0.85rem;
-    border: 3px double currentColor;
-    border-radius: 0.55rem;
+  .alignment-facts > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.4rem;
   }
 
-  .group-list {
-    display: grid;
-    gap: 0.4rem;
-    margin-block-end: 0;
-    padding-inline-start: 1.4rem;
+  .mapping-table {
+    inline-size: 100%;
+    min-inline-size: 38rem;
+    table-layout: fixed;
   }
 
-  .group-list li { overflow-wrap: anywhere; }
+  .reductions-table {
+    inline-size: 100%;
+    min-inline-size: 38rem;
+    table-layout: fixed;
+  }
 
-  .error-card {
-    display: grid;
-    align-content: start;
+  .reductions-table th:first-child { inline-size: 15%; }
+  .reductions-table th:nth-child(2) { inline-size: 9%; }
+  .reductions-table th:nth-child(3) { inline-size: 17%; }
+  .reductions-table th:nth-child(4) { inline-size: 17%; }
+  .reductions-table th:nth-child(5) { inline-size: 42%; }
+
+  .state-cue {
+    display: inline-flex;
+    align-items: baseline;
     gap: 0.35rem;
-    border-style: dashed;
   }
 
-  code,
-  bdi { unicode-bidi: isolate; }
+  .group-records > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.4rem;
+  }
+
+  .rejection-record {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .broadcast-error { margin-block-start: 0.75rem; }
 
   .visually-hidden {
     position: absolute;
@@ -324,16 +294,25 @@ const emptyErrors = [trace.errors[1], trace.errors[2]] as const;
     border: 0;
   }
 
-  @container course-diagram (max-width: 48rem) {
-    .reduction-list,
-    .error-list { grid-template-columns: 1fr; }
-    .alignment-table { font-size: 0.92rem; }
+  .broadcasting-reductions-diagram:fullscreen {
+    --diagram-cell-padding-block: 0.35rem !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
   }
 
-  @media (forced-colors: active) {
-    .reused-row,
-    .reused-value { border-style: solid; }
-    .reduction-card { border-style: double; }
-    .error-card { border-style: dashed; }
+  .broadcasting-reductions-diagram:fullscreen > figcaption {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(20rem, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+    column-gap: 1rem;
   }
+
+  .broadcasting-reductions-diagram:fullscreen > figcaption > :is(h3, p) {
+    max-inline-size: none;
+  }
+
+  .broadcasting-reductions-diagram:fullscreen :is(.mapping-table, .reductions-table) {
+    min-inline-size: 100%;
+  }
+
 </style>

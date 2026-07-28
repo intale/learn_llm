@@ -8270,3 +8270,39 @@ localization checkpoint owns the content correction and its new validation.
 **Affected steps:** `implement-ch09-tensor-views` top-level scheduler projection
 and `activate-ch09-russian-localization`; active run
 `20260728T102542Z-activate-ch09-russian-localization-01`.
+
+## 2026-07-28 - Activate Russian Chapter 10 after the Chapter 9 checkpoint
+
+**Status:** Accepted from the user's ordered Chapter 8-11 localization request
+after Chapter 9 completed in commit `327318f`.
+
+**Context:** Chapter 10 is now the first English-only lesson after the complete
+Russian prefix. It teaches trailing-axis broadcasting, unary and binary
+elementwise operations, explicit-axis sum/mean/max reductions, keep-dimension
+behavior, and empty-axis failures used later by softmax, normalization, losses,
+and gradients. Its dense aligned-axis and collapsed-cell visualization must be
+reviewed under the current shared diagram and localized containment rules before
+Russian is activated.
+
+**Decision:** Audit and, where necessary, repair the current English Chapter 10
+contract, lesson, formula presentation, LLM-history framing, Rust evidence, and
+shared-diagram compliance before translation. Freeze that current English
+revision, then translate the complete contract and page directly into natural
+technical Russian while preserving formulas, symbols, shapes, values,
+identifiers, error precedence, sources, exercises, answers, SEO, accessibility,
+and the boundary that defers matrix multiplication. Activate only Chapter 10 in
+this checkpoint, advance the checked locale policy, and validate the exact
+candidate in Chromium and Firefox at desktop, narrow, no-JavaScript, full-view,
+forced-color, and nearest-box containment surfaces.
+
+**Consequences:** Russian becomes complete through Chapter 10 while Chapters
+11-39 remain English-only until their own ordered activation checkpoints. The
+course's explicit broadcast planner and reduction API remain implementation
+choices used to teach operations found in LLMs, not APIs attributed to the
+historical papers. No Rust behavior, dependency, product build definition,
+hosting setting, or deployment target changes merely because this locale is
+activated. Chapter 11 cannot begin until this checkpoint passes and is committed
+independently.
+
+**Affected step and run:** `activate-ch10-russian-localization`, run
+`20260728T113229Z-activate-ch10-russian-localization-01`.

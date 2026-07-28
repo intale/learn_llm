@@ -78,10 +78,8 @@ export interface BroadcastingReductionsDiagramLabels {
     output: string;
   }>;
   readonly sections: Readonly<{
-    alignment: string;
-    mapping: string;
+    broadcasting: string;
     reductions: string;
-    errors: string;
   }>;
   readonly fields: Readonly<{
     tensor: string;
@@ -97,12 +95,13 @@ export interface BroadcastingReductionsDiagramLabels {
     outputShape: string;
     group: string;
     values: string;
+    request: string;
+    evidence: string;
+    reason: string;
   }>;
   readonly notes: Readonly<{
-    alignment: string;
-    mapping: string;
+    broadcasting: string;
     reductions: string;
-    errors: string;
   }>;
   readonly symbols: Readonly<{
     reused: string;
@@ -110,6 +109,12 @@ export interface BroadcastingReductionsDiagramLabels {
     rejected: string;
     yes: string;
     no: string;
+    notApplicable: string;
+  }>;
+  readonly reasons: Readonly<{
+    incompatible: string;
+    emptyMean: string;
+    emptyMax: string;
   }>;
 }
 
@@ -418,7 +423,7 @@ const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
   summary: { tokens: true, bias: true, output: true },
-  sections: { alignment: true, mapping: true, reductions: true, errors: true },
+  sections: { broadcasting: true, reductions: true },
   fields: {
     tensor: true,
     originalShape: true,
@@ -433,9 +438,20 @@ const requiredLabelShape: RequiredLabelShape = {
     outputShape: true,
     group: true,
     values: true,
+    request: true,
+    evidence: true,
+    reason: true,
   },
-  notes: { alignment: true, mapping: true, reductions: true, errors: true },
-  symbols: { reused: true, reduced: true, rejected: true, yes: true, no: true },
+  notes: { broadcasting: true, reductions: true },
+  symbols: {
+    reused: true,
+    reduced: true,
+    rejected: true,
+    yes: true,
+    no: true,
+    notApplicable: true,
+  },
+  reasons: { incompatible: true, emptyMean: true, emptyMax: true },
 };
 
 function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: string): void {

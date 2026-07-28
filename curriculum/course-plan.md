@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 35,
+  "plan_revision": 36,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-09",
+    "policy_id": "selective-russian-through-chapter-10",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "09-tensor-views",
+        "through_chapter": "10-broadcasting-reductions",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-9."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-10."
       },
       {
-        "from_chapter": "10-broadcasting-reductions",
+        "from_chapter": "11-matrix-multiplication",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 9 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 10 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -219,6 +219,11 @@
         "step_id": "activate-ch09-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch09-russian-localization"
+      },
+      {
+        "step_id": "activate-ch10-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch10-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -788,9 +793,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–9 activate
-both, while Chapters 10–39 activate English only. Russian therefore keeps its index
-and Chapter 0–9 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–10 activate
+both, while Chapters 11–39 activate English only. Russian therefore keeps its index
+and Chapter 0–10 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -986,14 +991,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `10-broadcasting-reductions`
 - **Implementation step:** `implement-ch10-broadcasting-reductions`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 adds the complete Russian projection, precise grouped-reduction notation, LLM-focused source wording, and a shared-system diagram during `activate-ch10-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `09-tensor-views`.
 - **Outcome:** Apply elementwise functions across compatible shapes and reduce explicit axes without silent shape ambiguity.
 - **Scope boundary:** Teach trailing-axis broadcasting, unary/binary maps, sum/mean/max, keep-dim behavior, and empty-axis errors; defer matrix multiplication.
-- **Formula:** `y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \quad \mu_k=\frac{1}{n_k}\sum_{i_k}x_{\mathbf{i}}`.
+- **Formula:** `y_{\mathbf{i}}=f(a_{\beta_a(\mathbf{i})},b_{\beta_b(\mathbf{i})}), \qquad \mu_k(\mathbf{i}_{-k})=\frac{1}{n_k}\sum_{i_k=0}^{n_k-1}x_{\mathbf{i}}`.
 - **Historical contrast:** Discrete n-gram rows and one-example fixed-context calculations do not express one shared operation across token, batch, and feature axes; connect Transformer/GPT-2 elementwise transforms, normalization, and softmax reductions to this course's explicit broadcasting and reduction machinery without presenting that API as an architectural invention.
 - **Rust contribution:** Add broadcast planning, elementwise primitives, and axis reductions required by softmax, normalization, loss, and gradients.
-- **Visualization:** Useful — align axes for a `2×3 + 3` broadcast, then highlight which cells collapse under each reduction axis.
+- **Visualization:** Useful — compare trailing-axis alignment and all six coordinate mappings, then show named reduction groups and three rejected requests in shared tables and cards.
 - **Practice:** Predict valid and invalid broadcast pairs and the shapes produced by sum with and without retained axes.
 - **Integration evidence:** Scalar/rank-N broadcasts, incompatible shapes, all reduction axes, empty cases, and numeric invariants pass.
 - **Handoff:** Chapter 11 adds the contraction used by learned projections and attention.

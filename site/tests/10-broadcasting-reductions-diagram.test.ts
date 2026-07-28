@@ -29,10 +29,8 @@ const labels: BroadcastingReductionsDiagramLabels = {
   description: 'description',
   summary: { tokens: 'tokens', bias: 'bias', output: 'output' },
   sections: {
-    alignment: 'alignment',
-    mapping: 'mapping',
+    broadcasting: 'broadcasting',
     reductions: 'reductions',
-    errors: 'errors',
   },
   fields: {
     tensor: 'tensor',
@@ -48,12 +46,13 @@ const labels: BroadcastingReductionsDiagramLabels = {
     outputShape: 'output shape',
     group: 'group',
     values: 'values',
+    request: 'request',
+    evidence: 'evidence',
+    reason: 'reason',
   },
   notes: {
-    alignment: 'alignment note',
-    mapping: 'mapping note',
+    broadcasting: 'broadcasting note',
     reductions: 'reductions note',
-    errors: 'errors note',
   },
   symbols: {
     reused: 'reused',
@@ -61,6 +60,12 @@ const labels: BroadcastingReductionsDiagramLabels = {
     rejected: 'rejected',
     yes: 'yes',
     no: 'no',
+    notApplicable: 'not applicable',
+  },
+  reasons: {
+    incompatible: 'incompatible extents',
+    emptyMean: 'empty axis has no mean',
+    emptyMax: 'empty axis has no maximum',
   },
 };
 
@@ -156,12 +161,12 @@ describe('Chapter 10 Rust trace parser', () => {
   it('requires every visible and accessible localized label', () => {
     expect(() => assertBroadcastingReductionsDiagramLabels(labels)).not.toThrow();
     const missing = structuredClone(labels) as unknown as Record<string, unknown>;
-    (missing.symbols as Record<string, unknown>).reused = ' ';
+    (missing.symbols as Record<string, unknown>).notApplicable = ' ';
     expect(() =>
       assertBroadcastingReductionsDiagramLabels(
         missing as unknown as BroadcastingReductionsDiagramLabels,
       ),
-    ).toThrow(/labels\.symbols\.reused/);
+    ).toThrow(/labels\.symbols\.notApplicable/);
   });
 });
 
@@ -179,8 +184,8 @@ describe('Chapter 10 static diagram component', () => {
   });
 
   it('renders semantic tables and exact Rust-derived record attributes', () => {
-    expect(component).toContain('<table data-diagram-table class="alignment-table">');
     expect(component).toContain('<table data-diagram-table class="mapping-table">');
+    expect(component).toContain('<table data-diagram-table class="reductions-table">');
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
     expect(component).toContain('data-output-coordinate=');
@@ -188,6 +193,7 @@ describe('Chapter 10 static diagram component', () => {
     expect(component).toContain('data-right-coordinate=');
     expect(component).toContain('data-result-value=');
     expect(component).toContain('data-reduction-operation=');
+    expect(component).toContain('data-reduction-values=');
     expect(component).toContain('data-group-indices=');
     expect(component).toContain('data-error-kind=');
   });
@@ -195,17 +201,22 @@ describe('Chapter 10 static diagram component', () => {
   it('uses keyboard-reachable local overflow and non-color state cues', () => {
     expect(component).toContain('data-visualization-id={broadcastingReductionsDiagramId}');
     expect(component).toContain('class="mapping-scroll course-diagram__scroll"');
-    expect(component.match(/tabindex="0"/g)).toHaveLength(2);
-    expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('data-diagram-scroll');
+    expect(component).toContain('class="reductions-scroll course-diagram__scroll"');
+    expect(component.match(/tabindex="0"/g)).toHaveLength(3);
+    expect(component.match(/role="region"/g)).toHaveLength(2);
+    expect(component.match(/data-diagram-scroll/g)).toHaveLength(2);
+    expect(component.match(/data-diagram-table/g)).toHaveLength(2);
+    expect(component.match(/<section[^>]+data-diagram-box/g)).toHaveLength(2);
+    expect(component.match(/data-diagram-card/g)).toHaveLength(1);
+    expect(component.match(/data-status="fail"/g)).toHaveLength(1);
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
     expect(component).toContain('↻');
     expect(component).toContain('↓');
     expect(component).not.toContain('Σ');
     expect(component).toContain('×');
-    expect(component).toContain('.reduction-card { border-style: double; }');
-    expect(component).toContain('.error-card { border-style: dashed; }');
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('data-status="fail"');
+    expect(component).not.toMatch(/\.error-card\s*\{[^}]*border/is);
+    expect(component).not.toMatch(/@media\s*\(forced-colors:\s*active\)/);
   });
 });
