@@ -8344,6 +8344,66 @@ and is not a publication prerequisite.
 **Affected step and run:** `activate-ch11-russian-localization`, run
 `20260728T130110Z-activate-ch11-russian-localization-01`.
 
+## 2026-07-28 - Activate Russian Chapter 12 before Chapters 13 and 14
+
+**Status:** Accepted from the user's ordered Chapter 12-14 localization request
+after Chapter 11 completed in commit `24b6b32`.
+
+**Context:** Chapter 12 is the first English-only lesson after the complete
+Russian prefix. It teaches maximum-shifted softmax, log-sum-exp, log-softmax,
+and indexed mean negative log-likelihood for the vocabulary and attention scores
+used by modern LLMs. Canonical review also found that its figure still owns a
+private frame, card, table, focus, and forced-color skin and hard-codes one
+English error label, so the Russian surface cannot be published safely without
+first bringing the English presentation under the current shared diagram
+contract.
+
+**Decision:** Repair and freeze the current English Chapter 12 meaning and
+presentation before translation. Translate the complete frozen contract and
+page directly into natural technical Russian, preserve all formulas, shapes,
+axes, extreme values, stable-normalization guarantees, representability limits,
+Rust identifiers, errors, sources, exercises, answers, SEO, accessibility, and
+the Chapter 13 handoff, and migrate the single figure to shared presentation
+roles with fully localized labels. Activate only Chapter 12 in this checkpoint,
+then commit it independently before starting the separately recorded Chapter 13
+and Chapter 14 activations requested by the user.
+
+**Consequences:** Russian remains complete through Chapter 11 until this exact
+candidate passes. On completion it will extend through Chapter 12 while Chapters
+13-39 remain English-only. No paid service, external translation, dependency,
+product build definition, hosting setting, deployment target, or Rust behavior
+is changed by this localization step.
+
+**Affected step and run:** `activate-ch12-russian-localization`, run
+`20260728T161407Z-activate-ch12-russian-localization-01`.
+
+## 2026-07-28 - Scope the Chapter 12 outcome to avoidable numerical failures
+
+**Status:** Accepted during canonical English review for Russian Chapter 12.
+
+**Context:** The reviewed outcome promised normalization “without overflow,”
+although the lesson correctly explains that maximum shifting cannot make every
+mathematical `f64` result representable. The same chapter already teaches fused
+indexed mean NLL, but the old outcome omitted that observable result. The course
+plan validator intentionally projects the reviewed outcome into the invalidated
+implementation step's objective and first acceptance item.
+
+**Decision:** State the promise precisely: Chapter 12 converts logits into
+probabilities and log-probabilities and scores indexed targets while preventing
+avoidable overflow and underflow. Update only the plan, contract, lessons, and
+the invalidated implementation step's top-level scheduler projection to that
+wording. Preserve every historical run record, artifact checksum, command,
+validation result, note, status, and original commit.
+
+**Consequences:** The outcome now agrees with the chapter's explicit
+representability limits and implemented indexed loss. Scheduler validation
+remains exact without relabeling the earlier implementation run or claiming that
+its Rust behavior changed.
+
+**Affected steps:** `implement-ch12-stable-softmax` top-level scheduler
+projection and `activate-ch12-russian-localization`; active run
+`20260728T161407Z-activate-ch12-russian-localization-01`.
+
 ## 2026-07-28 - Freeze Chapter 11 revision 4 and its bilingual matrix presentation
 
 **Status:** Accepted after exact candidate validation.
@@ -8374,3 +8434,78 @@ deployment target changed in this checkpoint.
 
 **Affected step and run:** `activate-ch11-russian-localization`, run
 `20260728T130110Z-activate-ch11-russian-localization-01`.
+
+## 2026-07-28 - Freeze Chapter 12 revision 4 and its bilingual stable-softmax presentation
+
+**Status:** Accepted after exact candidate validation.
+
+**Context:** Canonical review found that the earlier Chapter 12 outcome
+overpromised numerical representability, several equations were not explicit
+rendered formulas, learner prose exposed fixture and presentation machinery,
+and the private diagram skin could not safely contain the full Russian surface.
+The first exact shared-diagram candidate also required excessive travel in
+Firefox's shorter fullscreen canvas even though Chromium fit.
+
+**Decision:** Freeze English and Russian Chapter 12 at revision 4. State the
+numerical guarantee as prevention of avoidable overflow and underflow, make
+log-sum-exp, log-softmax, and indexed mean NLL explicit rendered equations, and
+ground the historical progression in neural language-model output softmax,
+Transformer attention and token prediction, and GPT-2's maximum-shifted
+attention softmax. Keep internal trace serialization out of learner Rust
+regions. Present the Rust-derived maximum, shift, exponentials, shared
+denominator, naive failures, stable probabilities, target losses, and rejected
+inputs in one semantic shared-system figure. In full view, allocate more width
+to the longer target-loss cards and remove repeated status and denominator
+presentation while retaining their exact evidence; do not clip, shrink text, or
+relax the travel budget. Activate Russian through Chapter 12 only.
+
+**Consequences:** Chapters 0-12 are now the complete bilingual English/Russian
+prefix; Chapters 13-39 remain intentionally English-only. Candidate 03 remains
+recorded as the Firefox-fullscreen failure, and immutable Candidate 04 passes
+the complete Linux source/static gate, all 840 unit cases, and 129 rendered
+cases in each of Chromium and Firefox, including desktop, narrow,
+no-JavaScript, forced-color, formula, direction, accessibility, focus,
+full-view, and all eleven nearest-box containment checks. No Rust behavior,
+dependency, product build definition, hosting setting, or deployment target
+changed.
+
+**Affected step and run:** `activate-ch12-russian-localization`, run
+`20260728T161407Z-activate-ch12-russian-localization-01`.
+
+## 2026-07-28 - Replace the Chapter 12 activation after final semantic audit
+
+**Status:** Accepted after exact corrective candidate validation.
+
+**Context:** The independently reviewed Candidate 04 passed every automated
+gate, but final human-language and contract review found that one Russian title
+could be read as saying that logits themselves become stable, one target note
+did not name the selected target class, and the authoring contract still
+described row cards and two value rows intentionally removed during the
+fullscreen reorganization. Five localized label fields were consequently
+required but never rendered. These defects made the completed activation
+checkpoint stale even though its recorded candidate and validation remain
+reproducible.
+
+**Decision:** Invalidate `activate-ch12-russian-localization` without rewriting
+its successful run. Add the contiguous replacement step
+`correct-ch12-russian-localization-final-review`, depending on the last valid
+Chapter 11 checkpoint. Correct the two Russian phrases, describe the compact
+semantic table and target/error cards exactly in the contract, and remove only
+the unused localized label requirements. Preserve all trace data and parser
+validation, formulas, Rust evidence, stable-softmax meaning, and visible
+diagram evidence. Publish only the newly built exact Candidate 05.
+
+**Consequences:** Candidate 04 remains immutable evidence for the superseded
+checkpoint but is not the publishable artifact. Candidate 05 passes the full
+Linux source and static build, all 840 unit cases, and 129 rendered cases in
+each of Chromium and Firefox, including formula, fullscreen, no-JavaScript,
+forced-color, direction, focus, and bounded-box containment gates. One
+resource-contended parallel Firefox attempt timed out while 128 cases passed;
+the unchanged image then passed all 129 cases in a sequential rerun. The
+correction changes no Rust behavior, dependency, product build definition,
+hosting setting, or deployment target.
+
+**Affected steps and runs:** invalidated `activate-ch12-russian-localization`,
+run `20260728T161407Z-activate-ch12-russian-localization-01`; replacement
+`correct-ch12-russian-localization-final-review`, run
+`20260728T175142Z-correct-ch12-russian-localization-final-review-01`.

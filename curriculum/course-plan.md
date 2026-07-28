@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 37,
+  "plan_revision": 38,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-11",
+    "policy_id": "selective-russian-through-chapter-12",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "11-matrix-multiplication",
+        "through_chapter": "12-stable-softmax",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-11."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-12."
       },
       {
-        "from_chapter": "12-stable-softmax",
+        "from_chapter": "13-gradient-checking",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 11 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 12 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -229,6 +229,11 @@
         "step_id": "activate-ch11-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch11-russian-localization"
+      },
+      {
+        "step_id": "activate-ch12-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch12-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -798,9 +803,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–11 activate
-both, while Chapters 12–39 activate English only. Russian therefore keeps its index
-and Chapter 0–11 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–12 activate
+both, while Chapters 13–39 activate English only. Russian therefore keeps its index
+and Chapter 0–12 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1028,16 +1033,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `12-stable-softmax`
 - **Implementation step:** `implement-ch12-stable-softmax`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 adds the complete Russian projection, correct exact-arithmetic shift scope, explicit log-domain equations, learner-facing evidence wording, and a shared-system diagram during `activate-ch12-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `11-matrix-multiplication`.
-- **Outcome:** Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow.
+- **Outcome:** Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.
 - **Scope boundary:** Teach logits, max shifting, log-sum-exp, softmax, log-softmax, indexed mean NLL, and edge behavior; defer gradient propagation.
 - **Formula:** `p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j`.
-- **Historical contrast:** Direct exponentiation in a vocabulary or attention softmax can overflow and direct probability products can underflow; trace Bengio et al.'s output softmax to Transformer attention/output softmax and use shifted log-domain computation as correctness-preserving numerical infrastructure.
+- **Historical contrast:** Directly exponentiating unshifted vocabulary or attention logits can overflow or round every sufficiently small term to zero, while an ordinary target probability can itself round to zero; trace Bengio et al.'s output softmax to Transformer attention/output softmax and use maximum-shifted log-domain computation as correctness-preserving numerical infrastructure.
 - **Rust contribution:** Add stable probability, log-probability, and forward indexed-NLL tensor operations with tolerance-tested extreme-logit fixtures.
 - **Visualization:** Useful — compare naive and shifted exponentials for ordinary and extreme logits while showing invariant probabilities.
 - **Practice:** Predict softmax invariance after adding the same constant and diagnose overflow for `[1000,1001]`.
-- **Integration evidence:** Shift invariance, normalization, large/small/equal logits, log-sum-exp agreement, indexed NLL, invalid axes/targets, and finite outputs pass.
+- **Integration evidence:** Exact shift invariance for the worked rows, normalization, large/small/equal finite logits, log-sum-exp agreement, indexed NLL, invalid axes/targets, and explicit representability boundaries pass.
 - **Handoff:** Chapter 13 establishes an independent numerical oracle before automatic differentiation is trusted.
 
 ## 13. Numerical differentiation and gradient checks

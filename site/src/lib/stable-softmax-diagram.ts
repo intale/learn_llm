@@ -103,7 +103,6 @@ export interface StableSoftmaxDiagramLabels {
   };
   readonly sections: {
     readonly shift: string;
-    readonly compare: string;
     readonly targets: string;
     readonly errors: string;
   };
@@ -116,14 +115,12 @@ export interface StableSoftmaxDiagramLabels {
     readonly denominator: string;
     readonly probabilities: string;
     readonly logProbabilities: string;
-    readonly logSumExp: string;
     readonly naivePath: string;
-    readonly stablePath: string;
-    readonly status: string;
     readonly targetClass: string;
     readonly targetLoss: string;
     readonly group: string;
     readonly classes: string;
+    readonly rank: string;
   };
   readonly statuses: {
     readonly finite: string;
@@ -133,7 +130,6 @@ export interface StableSoftmaxDiagramLabels {
   };
   readonly notes: {
     readonly shift: string;
-    readonly compare: string;
     readonly targets: string;
     readonly errors: string;
   };
@@ -518,7 +514,7 @@ const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
   summary: { shape: true, axis: true, meanNll: true },
-  sections: { shift: true, compare: true, targets: true, errors: true },
+  sections: { shift: true, targets: true, errors: true },
   fields: {
     row: true,
     rawLogits: true,
@@ -528,14 +524,12 @@ const requiredLabelShape: RequiredLabelShape = {
     denominator: true,
     probabilities: true,
     logProbabilities: true,
-    logSumExp: true,
     naivePath: true,
-    stablePath: true,
-    status: true,
     targetClass: true,
     targetLoss: true,
     group: true,
     classes: true,
+    rank: true,
   },
   statuses: {
     finite: true,
@@ -543,7 +537,7 @@ const requiredLabelShape: RequiredLabelShape = {
     underflowUndefined: true,
     probabilitiesMatch: true,
   },
-  notes: { shift: true, compare: true, targets: true, errors: true },
+  notes: { shift: true, targets: true, errors: true },
   symbols: { finite: true, stable: true, overflow: true, underflow: true, rejected: true },
 };
 

@@ -2,36 +2,43 @@
 {
   "chapter_id": "12-stable-softmax",
   "concept_id": "stable-softmax",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 12,
   "objective": {
-    "en": "Convert logits into normalized probabilities and log-probabilities and score indexed targets without overflow or avoidable underflow."
+    "en": "Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.",
+    "ru": "Преобразовывать логиты в нормированные вероятности и их логарифмы, а также оценивать целевые классы по индексам, избегая устранимого переполнения и округления слишком малых экспонент до нуля."
   },
   "worked_inputs": {
-    "en": "Normalize shape [3,2] logits with rows [0,1], [1000,1001], and [-1001,-1000] along axis 1. Predict that subtracting each row maximum produces [-1,0] every time, so all three rows have probabilities [0.268941421370,0.731058578630]. Then score targets [1,0,1]."
+    "en": "Normalize shape [3,2] logits with rows [0,1], [1000,1001], and [-1001,-1000] along axis 1. Predict that subtracting each row maximum produces [-1,0] every time, so all three rows have probabilities [0.268941421370,0.731058578630]. Then score targets [1,0,1].",
+    "ru": "Нормируйте по оси 1 логиты формы [3,2] со строками [0,1], [1000,1001] и [-1001,-1000]. Предскажите, что после вычитания максимума каждая строка станет [-1,0], поэтому вероятности во всех трёх строках будут равны [0.268941421370,0.731058578630]. Затем вычислите потери для целевых классов [1,0,1]."
   },
   "formula": {
     "latex": "p_i=\\frac{\\exp(\\ell_i-m)}{\\sum_j\\exp(\\ell_j-m)}, \\quad m=\\max_j\\ell_j",
     "symbols": [
       {
         "symbol": "p_i",
-        "en": "the normalized probability assigned to class i"
+        "en": "the normalized probability assigned to class i",
+        "ru": "нормированная вероятность, присвоенная классу i"
       },
       {
         "symbol": "\\ell_i",
-        "en": "the finite input logit for class i"
+        "en": "the finite input logit for class i",
+        "ru": "конечный входной логит класса i"
       },
       {
         "symbol": "m",
-        "en": "the largest logit in the selected normalization group"
+        "en": "the largest logit in the selected normalization group",
+        "ru": "наибольший логит в выбранной группе нормализации"
       },
       {
         "symbol": "i",
-        "en": "the class whose probability is being computed"
+        "en": "the class whose probability is being computed",
+        "ru": "класс, вероятность которого вычисляется"
       },
       {
         "symbol": "j",
-        "en": "the class index traversed across the complete normalization group"
+        "en": "the class index traversed across the complete normalization group",
+        "ru": "индекс, перебирающий все классы в группе нормализации"
       }
     ]
   },
@@ -39,13 +46,16 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "Bengio et al.'s neural language model turns vocabulary scores into positive next-word probabilities that sum to one with an output softmax. The mathematical normalization is sound, but a literal finite-precision implementation that exponentiates large raw logits first can overflow, while exponentiating very negative raw logits can erase every term through underflow."
+        "en": "Bengio et al.'s neural language model uses an output softmax to turn vocabulary scores into positive next-word probabilities that sum to one. In finite precision, directly exponentiating unshifted large logits can overflow, while directly exponentiating sufficiently negative logits can round every term to zero.",
+        "ru": "Нейронная языковая модель Бенжио и соавторов преобразует оценки словаря в положительные вероятности следующего слова с помощью выходного softmax; сумма вероятностей равна единице. При вычислениях с конечной точностью прямое возведение экспоненты от больших несдвинутых логитов может привести к переполнению, а от достаточно отрицательных — округлить все слагаемые до нуля."
       },
       "later_advance": {
-        "en": "The Transformer applies softmax both to scaled query-key scores inside attention and after a learned output transform for next-token prediction. OpenAI's published GPT-2 source makes the numerical step explicit: its last-axis softmax subtracts the row maximum before exponentiating and summing, then attention applies that helper before multiplying by values."
+        "en": "The Transformer reuses softmax for scaled query-key scores inside attention and for next-token predictions. OpenAI's published GPT-2 source shows a stable implementation for attention: subtract the maximum along the last axis before exponentiating, sum the shifted exponentials, and normalize before combining values.",
+        "ru": "В Transformer softmax применяется и к масштабированным оценкам «запрос — ключ» внутри внимания, и при предсказании следующего токена. В опубликованном исходном коде GPT-2 показано устойчивое вычисление для внимания: перед возведением в экспоненту из оценок по последней оси вычитают максимум, затем складывают сдвинутые экспоненты и нормируют их до взвешивания значений."
       },
       "modern_llm_role": {
-        "en": "Stable softmax converts vocabulary or attention logits into normalized weights without changing the represented distribution under a shared constant shift. Log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when a rounded probability would be too small to represent; this course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions."
+        "en": "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
+        "ru": "В точной арифметике добавление одной и той же константы ко всем логитам не меняет softmax. Вычитание максимума сохраняет это распределение и устраняет сбои прямого вычисления экспонент для рассматриваемых строк; log-sum-exp, log-softmax и объединённое среднее NLL по индексам целевых классов сохраняют сведения для обучения в логарифмической шкале, даже когда обычная вероятность округляется до нуля. Поддержка произвольной оси, требование конечных входов, расположение целей, правила выделения памяти и порядок ошибок — локальные решения этой реализации."
       },
       "sources": [
         {
@@ -54,7 +64,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. describe an output softmax whose values are positive and sum to one, interpreting its inputs as unnormalized log probabilities for the next word."
+            "en": "Bengio et al. describe an output softmax whose values are positive and sum to one, interpreting its inputs as unnormalized log probabilities for the next word.",
+            "ru": "Бенжио и соавторы описывают выходной softmax с положительными значениями, сумма которых равна единице, а его входы трактуют как ненормированные логарифмы вероятностей следующего слова."
           }
         },
         {
@@ -63,7 +74,8 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities."
+            "en": "Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities.",
+            "ru": "Васвани и соавторы определяют внимание на основе масштабированного скалярного произведения: к масштабированным произведениям запросов и ключей применяют softmax, после чего полученными весами взвешивают значения. Для получения вероятностей следующего токена к выходам декодера применяют обучаемое линейное преобразование и softmax."
           }
         },
         {
@@ -72,16 +84,19 @@
           "name": "OpenAI GPT-2 model.py",
           "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
           "claim": {
-            "en": "OpenAI's GPT-2 source implements last-axis softmax by subtracting reduce_max with retained dimensions, exponentiating, and dividing by the retained reduce_sum; its attention path applies that helper to scaled masked scores before combining values."
+            "en": "OpenAI's GPT-2 source implements last-axis softmax by subtracting the maximum with retained dimensions, exponentiating, and dividing by the sum with retained dimensions; its attention path applies that helper to scaled masked scores before combining values.",
+            "ru": "В исходном коде GPT-2 от OpenAI softmax по последней оси вычисляется вычитанием максимума с сохранением размерности, возведением в экспоненту и делением на сумму с сохранением размерности; в механизме внимания эта функция применяется к масштабированным и замаскированным оценкам до объединения значений."
           }
         }
       ]
     },
     "approach": {
-      "en": "From a vocabulary output softmax to stable normalization reused for Transformer attention and next-token prediction"
+      "en": "From a vocabulary output softmax to stable normalization reused for Transformer attention and next-token prediction",
+      "ru": "От выходного softmax по словарю к устойчивой нормализации для внимания Transformer и предсказания следующего токена"
     },
     "summary": {
-      "en": "Bengio et al. use softmax to turn next-word scores into a probability distribution. The Transformer needs the same normalization for both attention weights and predicted tokens, and GPT-2's published source shows the maximum shift that makes the computation stable. This chapter implements that numerical bridge plus log-domain scoring without claiming that its local tensor and error policies come from those sources."
+      "en": "Bengio et al. use output softmax to turn next-word scores into a probability distribution. The Transformer reuses softmax for attention weights and predicted tokens, while GPT-2's published attention code shows maximum shifting before exponentiation. This chapter implements that numerical bridge and log-domain scoring without attributing its local tensor and error policies to those sources.",
+      "ru": "Бенжио и соавторы применяют выходной softmax, чтобы преобразовать оценки следующего слова в распределение вероятностей. Transformer использует softmax и для весов внимания, и для предсказания токенов, а опубликованный код внимания GPT-2 показывает вычитание максимума перед возведением в экспоненту. В этой главе реализуется связующий численный приём и вычисление потерь в логарифмической шкале; локальные правила работы с тензорами и ошибками не приписываются этим источникам."
     },
     "rust_contrast": "Run direct_output_softmax on [0,1], [1000,1001], and [-1001,-1000]. The ordinary row is finite, while the raw extreme exponentials make both normalized results undefined. Then run the cumulative stable operations over the same three rows and show their identical probabilities, retained log-probabilities, and indexed losses."
   },
@@ -90,8 +105,7 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/nn/probability.rs",
       "rust/demos/ch12-stable-softmax/src/lib.rs",
-      "rust/demos/ch12-stable-softmax/src/main.rs",
-      "rust/demos/ch12-stable-softmax/src/diagram_trace.rs"
+      "rust/demos/ch12-stable-softmax/src/main.rs"
     ],
     "expected_output": "logits: shape=[3, 2] class_axis=1 values=[0.000000000000, 1.000000000000, 1000.000000000000, 1001.000000000000, -1001.000000000000, -1000.000000000000]\nstable softmax: shape=[3, 2] values=[0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630, 0.268941421370, 0.731058578630]\nlog softmax: shape=[3, 2] values=[-1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518, -1.313261687518, -0.313261687518]\nlog-sum-exp: shape=[3] values=[1.313261687518, 1001.313261687518, -999.686738312482]\nrow probability sums: [1.000000000000, 1.000000000000, 1.000000000000]\ntargets: [1, 0, 1] losses=[0.313261687518, 1.313261687518, 0.313261687518] mean_nll=0.646595020852\nnaive ordinary [0, 1]: [0.268941421370, 0.731058578630]\nnaive overflow [1000, 1001]: undefined=true\nnaive underflow [-1001, -1000]: undefined=true\nshift invariance: rows 0, 1, and 2 match exactly\naxis error: probability axis 2 is out of bounds for rank 2\nempty-axis error: probability axis 1 has no classes\nnon-finite error: logit at group 0, class 1 is positive infinity\ntarget error: target 2 at group 1 is out of bounds for 2 classes\nchapter 13 handoff: check loss derivatives with an independent numerical oracle\n"
   },
@@ -99,47 +113,56 @@
     "decision": "useful",
     "id": "stable-softmax",
     "rationale": {
-      "en": "Three equal relative-logit rows make raw overflow, raw underflow, the shared maximum shift, invariant probabilities, and target log-loss visible together in a way a final probability vector alone cannot."
+      "en": "Three equal relative-logit rows make raw overflow, raw underflow, the shared maximum shift, invariant probabilities, and target log-loss visible together in a way a final probability vector alone cannot.",
+      "ru": "Три строки с одинаковыми относительными логитами позволяют одновременно увидеть переполнение и округление экспонент до нуля при прямом вычислении, общий сдвиг с вычитанием максимума, совпадающие вероятности и потери целевых классов — один итоговый вектор вероятностей этих связей не показывает."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently."
+    "en": "The cumulative tensor core can now turn finite strided logits into owned probabilities, log-probabilities, log-sum-exp values, and fused indexed mean NLL along any explicit axis. These operations will normalize vocabulary and attention scores and provide the forward loss whose derivatives Chapter 13 checks independently.",
+    "ru": "Теперь тензорное ядро может по любой явно указанной оси преобразовывать конечные логиты из представления с произвольными шагами в тензоры с собственным хранилищем: вероятности, логарифмы вероятностей и значения log-sum-exp; оно также вычисляет объединённое среднее NLL по индексам целевых классов. Эти операции нормируют оценки словаря и внимания и дают значение прямого прохода, производные которого глава 13 проверит независимым способом."
   },
   "terminology": [
     {
       "concept_id": "logit",
-      "en": "logit"
+      "en": "logit",
+      "ru": "логит (ненормированная оценка)"
     },
     {
       "concept_id": "softmax",
-      "en": "softmax"
+      "en": "softmax",
+      "ru": "softmax"
     },
     {
       "concept_id": "maximum-shift",
-      "en": "maximum shift"
+      "en": "maximum shift",
+      "ru": "вычитание максимума"
     },
     {
       "concept_id": "log-sum-exp",
-      "en": "log-sum-exp"
+      "en": "log-sum-exp",
+      "ru": "логарифм суммы экспонент (log-sum-exp)"
     },
     {
       "concept_id": "log-probability",
-      "en": "log-probability"
+      "en": "log-probability",
+      "ru": "логарифм вероятности"
     },
     {
       "concept_id": "negative-log-likelihood",
-      "en": "negative log-likelihood"
+      "en": "negative log-likelihood",
+      "ru": "отрицательное логарифмическое правдоподобие (NLL)"
     },
     {
       "concept_id": "class-axis",
-      "en": "class axis"
+      "en": "class axis",
+      "ru": "ось классов"
     }
   ],
   "translation_notes": [
-    "Chapter 12 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep softmax, log-sum-exp, log-softmax, indexed mean NLL, logits, axis numbers, shape arrays, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence when another locale is activated later.",
-    "Describe a logit as an unnormalized score or unnormalized log probability, not as an ordinary probability. Distinguish unavoidable representability limits from avoidable overflow or underflow in a naive computation.",
-    "A future locale activation must localize every diagram label, explanation, exercise, accessible name, and history claim together with the complete lesson before any Chapter 12 route is published."
+    "Chapter 12 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Keep softmax, log-sum-exp, log-softmax, indexed mean NLL, logits, axis numbers, shape arrays, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence.",
+    "Translate logit as «логит» and explain it as «ненормированная оценка» or «ненормированный логарифм вероятности», never as an ordinary probability. Use «вычитание максимума», «ось классов», «группа нормализации», «логарифм вероятности», «отрицательное логарифмическое правдоподобие (NLL)», and «вычисления в логарифмической шкале» consistently.",
+    "Distinguish the exact-arithmetic invariance of softmax from floating-point addition that may already have rounded away a difference. Explain underflow concretely as sufficiently small exponentials rounding to zero, and distinguish unavoidable representability limits from failures avoided by maximum shifting."
   ],
   "acceptance_examples": [
     {
@@ -247,17 +270,19 @@ zero, so its exponential is one and no shifted exponential exceeds one. Index
 `j` traverses every class in the denominator; `p_i` is the resulting normalized
 probability for class `i`.
 
-Adding one constant to every logit changes both `ell_i` and `m` by that constant,
-so every difference `ell_i - m` stays unchanged. This is why the three worked
-rows share probabilities. Log-sum-exp is `m + ln(sum_j exp(ell_j-m))`, while
-log-softmax keeps the safer shifted form `(ell_i-m) - ln(sum_j exp(ell_j-m))`.
-The fused target loss uses `(m-ell_target) + ln(sum_j exp(ell_j-m))` rather than
-rounding through an ordinary probability first.
+In exact arithmetic, adding one constant to every logit changes both `ell_i` and
+`m` by that constant, so every difference `ell_i - m` stays unchanged. The three
+worked rows preserve those differences exactly in `f64`; an arbitrary
+floating-point shift can round away a difference before softmax sees it.
+Log-sum-exp is `m + ln(sum_j exp(ell_j-m))`, while log-softmax keeps the safer
+shifted form `(ell_i-m) - ln(sum_j exp(ell_j-m))`. The fused target loss uses
+`(m-ell_target) + ln(sum_j exp(ell_j-m))` rather than rounding through an
+ordinary probability first.
 
 <!-- contract-section:history -->
 ## From vocabulary softmax to Transformer probabilities
 
-Bengio et al.'s neural language model turns vocabulary scores into positive next-word probabilities that sum to one with an output softmax. The mathematical normalization is sound, but a literal finite-precision implementation that exponentiates large raw logits first can overflow, while exponentiating very negative raw logits can erase every term through underflow.
+Bengio et al.'s neural language model uses an output softmax to turn vocabulary scores into positive next-word probabilities that sum to one. In finite precision, directly exponentiating unshifted large logits can overflow, while directly exponentiating sufficiently negative logits can round every term to zero.
 
 The earlier checkpoint is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
@@ -268,15 +293,15 @@ not specify this course's arbitrary-axis interface, non-finite policy, or exact
 maximum-shift implementation, and the literal Rust baseline is not attributed
 to the paper's software.
 
-The later checkpoints are
+The Transformer reuses softmax for scaled query-key scores inside attention and for next-token predictions. OpenAI's published GPT-2 source shows a stable implementation for attention: subtract the maximum along the last axis before exponentiating, sum the shifted exponentials, and normalize before combining values.
+
+The later sources are
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
 and
 [OpenAI's published GPT-2 `model.py`](https://github.com/openai/gpt-2/blob/master/src/model.py).
 Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities. OpenAI's GPT-2 source implements last-axis softmax by subtracting reduce_max with retained dimensions, exponentiating, and dividing by the retained reduce_sum; its attention path applies that helper to scaled masked scores before combining values.
 
-The Transformer applies softmax both to scaled query-key scores inside attention and after a learned output transform for next-token prediction. OpenAI's published GPT-2 source makes the numerical step explicit: its last-axis softmax subtracts the row maximum before exponentiating and summing, then attention applies that helper before multiplying by values.
-
-Stable softmax converts vocabulary or attention logits into normalized weights without changing the represented distribution under a shared constant shift. Log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when a rounded probability would be too small to represent; this course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.
+In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.
 
 The Rust contrast first performs a direct exponential normalization for one
 ordinary row and two extreme rows. It then applies the stable cumulative tensor
@@ -340,20 +365,26 @@ absolute tolerance `1e-12`; no dependency implements the taught concept.
 ## Visualization
 
 The useful visualization consumes one strict locale-neutral Rust trace. For each
-row it records raw logits, maximum, shifted values, shifted exponentials,
+row the trace records raw logits, maximum, shifted values, shifted exponentials,
 denominator, log-sum-exp, probabilities, log-probabilities, the naive status, and
 the selected target loss. It also records exact outputs, shift invariance, mean
-NLL, and four typed errors. The visualization only validates and presents those
-lexemes; it never reimplements exponentiation, division, or logarithms.
+NLL, and four typed errors. The parser validates that complete evidence without
+reimplementing exponentiation, division, or logarithms. The rendered figure
+selects the relationship-bearing subset: the maximum-shift stages, raw-path
+status, stable probabilities, their shared denominator, selected target
+log-probabilities and losses, mean NLL, invariance, and rejected inputs. Complete
+log-probability vectors and per-row log-sum-exp remain explicit in the formulas,
+Rust output, and validated trace rather than being duplicated as extra figure
+rows.
 
-The static figure uses semantic tables and cards in source order. A named,
-focusable local region owns any horizontal overflow. On narrow screens the row,
-target, and error cards stack from their content height with `align-items:start`,
-avoiding oversized bottoms. Solid, double, dashed, and dotted borders plus text
-symbols distinguish finite, stable, overflow, and underflow evidence without
-depending on color; forced-colors rules preserve those cues. Every numerical
-lexeme is isolated left-to-right, and the page requires no client hydration or
-JavaScript.
+The static figure uses one semantic table followed by target and error cards in
+source order. A named, focusable local region owns table overflow. On narrow
+screens the target and error cards stack from their content height with
+`align-items:start`; the table remains complete in its smallest meaningful
+scroll region. Solid, double, dashed, and dotted borders plus text symbols
+distinguish finite, stable, overflow, and underflow evidence without depending
+on color; forced-colors rules preserve those cues. Every numerical lexeme is
+isolated left-to-right, and the page requires no client hydration or JavaScript.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -384,16 +415,18 @@ scalar objective before automatic differentiation is introduced.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Chapter 12 publishes only English. Russian remains registered but inactive and
-gets neither a partial lesson nor a placeholder route. Preserve formulae,
-numbers, shapes, source URLs, Rust identifiers, trace tokens, and the distinction
-between logits, probabilities, log-probabilities, and losses during later review.
+Chapter 12 publishes one same-revision English/Russian locale pair. English is
+the sole semantic source; the Russian contract fields, lesson, metadata, diagram
+copy, exercises, answers, SEO, and accessibility labels are translated directly
+from revision 4. Preserve formulae, numbers, shapes, source URLs, Rust identifiers,
+trace tokens, and the distinction between logits, probabilities,
+log-probabilities, and losses.
 
-Translate the numerical cause, not the English syntax: the maximum shift leaves
-relative logits and probabilities unchanged; it does not itself normalize the
-values. Review all diagram labels, accessible names, exercises, history claims,
-and error descriptions as one complete locale set before activating another
-language.
+Translate the numerical cause, not the English syntax: in exact arithmetic the
+maximum shift leaves relative logits and probabilities unchanged, but it does not
+itself normalize the values and cannot recover differences already rounded away
+before softmax. Review all diagram labels, accessible names, exercises, history
+claims, and error descriptions as one complete locale set.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -411,11 +444,12 @@ input errors, and complete target precedence. `cargo fmt`, Clippy with denied
 warnings, the locked workspace tests, dependency policy, demo discovery, learner
 stdout diff, and trace diff must pass in the pinned Linux toolchain.
 
-The contract, English lesson, active-locale parity, full content, Astro analysis,
+The contract, both lessons, active-locale parity, full content, Astro analysis,
 unit tests, production build, static link/SEO audit, focused browser cases, and
 complete browser regression must pass from the staged tree and again after
-publication. Browser evidence must cover direct and indexed English routing,
-Russian fallback and 404, exactly one relevant description meta tag, the three
-LLM-history sources, exact Rust regions, Rust-derived trace attributes, desktop
-and narrow geometry, local keyboard overflow, forced-color non-color cues,
-JavaScript-disabled rendering, and no client scripts.
+publication. Browser evidence must cover direct and indexed English and Russian
+routing, equivalent-page locale switches, exactly one relevant description meta
+tag per route, the three LLM-history sources, exact Rust regions, Rust-derived
+trace attributes, desktop and narrow geometry, full view, local keyboard
+overflow, forced-color non-color cues, JavaScript-disabled rendering, bounded-box
+containment, and no client scripts.

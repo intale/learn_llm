@@ -22,6 +22,8 @@ const fixtureUrl = new URL(
   import.meta.url,
 );
 const trace = parseStableSoftmaxTrace(readFileSync(fixtureUrl, 'utf8'));
+const sharedDenominator = trace.rows[0]?.denominator;
+if (!sharedDenominator) throw new Error('Stable softmax trace has no rows.');
 const titleId = `${instanceId}-title`;
 const descriptionId = `${instanceId}-description`;
 
@@ -70,7 +72,7 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     </div>
   </dl>
 
-  <section aria-labelledby={`${instanceId}-shift`}>
+  <section data-diagram-box aria-labelledby={`${instanceId}-shift`}>
     <h4 id={`${instanceId}-shift`}>{labels.sections.shift}</h4>
     <p>{labels.notes.shift}</p>
     <div
@@ -78,7 +80,8 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
       role="region"
       tabindex="0"
       aria-label={labels.sections.shift}
-     data-diagram-scroll>
+      data-diagram-scroll
+    >
       <table data-diagram-table class="shift-table">
         <colgroup>
           <col class="shift-stage-column" />
@@ -121,70 +124,59 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
             {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.exponentials)}</bdi></td>)}
           </tr>
           <tr>
-            <th scope="row">{labels.fields.denominator}</th>
-            {trace.rows.map((row) => <td><bdi dir="ltr">{row.denominator.lexeme}</bdi></td>)}
+            <th scope="row">{labels.fields.naivePath}</th>
+            {trace.naive.map((naive) => (
+              <td
+                class:list={['naive-cell', `state-${naive.status}`]}
+                data-naive-status={naive.status}
+              >
+                <span class="naive-cell-content course-diagram__card-heading">
+                  <span class="state-symbol" aria-hidden="true">{naiveSymbol(naive.status)}</span>
+                  <span>
+                    {naiveStatus(naive.status)}
+                    {naive.status === 'finite' && (
+                      <>: <bdi dir="ltr">{list(naive.exponentials)}</bdi></>
+                    )}
+                  </span>
+                </span>
+              </td>
+            ))}
           </tr>
-          <tr>
-            <th scope="row">{labels.fields.probabilities}</th>
-            {trace.rows.map((row) => <td><bdi dir="ltr">{list(row.probabilities)}</bdi></td>)}
+          <tr data-stable-probability-row>
+            <th scope="row">
+              <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>{' '}
+              {labels.fields.probabilities}
+            </th>
+            {trace.rows.map((row) => (
+              <td><bdi dir="ltr">{list(row.probabilities)}</bdi></td>
+            ))}
           </tr>
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section aria-labelledby={`${instanceId}-compare`}>
-    <h4 id={`${instanceId}-compare`}>{labels.sections.compare}</h4>
-    <p>{labels.notes.compare}</p>
-    <div class="row-grid">
-      {trace.rows.map((row, index) => {
-        const naive = trace.naive[index]!;
-        return (
-          <article data-diagram-card data-diagram-box class="comparison-card" data-comparison-row={row.row.lexeme}>
-            <h5>{labels.fields.row} <bdi dir="ltr">{row.row.lexeme}</bdi></h5>
-            <div
-              class:list={['naive-card', `state-${naive.status}`]}
-              data-naive-status={naive.status}
-            >
-              <span class="state-symbol" aria-hidden="true">{naiveSymbol(naive.status)}</span>
-              <strong>{labels.fields.naivePath}</strong>
-              <span>{labels.fields.status}: {naiveStatus(naive.status)}</span>
-              {naive.status === 'finite' && (
-                <span>
-                  {labels.fields.exponentials}: <bdi dir="ltr">{list(naive.exponentials)}</bdi>
-                </span>
-              )}
-            </div>
-            <div data-diagram-card data-diagram-box class="stable-card" data-stable-row={row.row.lexeme}>
-              <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
-              <strong>{labels.fields.stablePath}</strong>
-              <span>
-                {labels.fields.logSumExp}: <bdi dir="ltr">{row.logSumExp.lexeme}</bdi>
-              </span>
-              <span>
-                {labels.fields.probabilities}: <bdi dir="ltr">{list(row.probabilities)}</bdi>
-              </span>
-              <span>
-                {labels.fields.logProbabilities}: <bdi dir="ltr">{list(row.logProbabilities)}</bdi>
-              </span>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-    <p class="invariance-note" data-probabilities-match={trace.invariance.probabilitiesMatch}>
+    <p
+      class="invariance-note course-diagram__card-heading"
+      data-diagram-card
+      data-diagram-box
+      data-state="trusted"
+      data-probabilities-match={trace.invariance.probabilitiesMatch}
+      data-denominator={sharedDenominator.lexeme}
+    >
       <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
-      {labels.statuses.probabilitiesMatch}
+      <strong>{labels.statuses.probabilitiesMatch}</strong>
+      <span>
+        {labels.fields.denominator}: <bdi dir="ltr">{sharedDenominator.lexeme}</bdi>
+      </span>
     </p>
   </section>
 
-  <section aria-labelledby={`${instanceId}-targets`}>
+  <section data-diagram-box aria-labelledby={`${instanceId}-targets`}>
     <h4 id={`${instanceId}-targets`}>{labels.sections.targets}</h4>
     <p>{labels.notes.targets}</p>
-    <div class="target-grid">
+    <div class="target-grid course-diagram__grid">
       {trace.targetLosses.map((target) => (
         <article data-diagram-card data-diagram-box
-          class="target-card"
+          class="target-card course-diagram__card-stack"
           data-target-row={target.row.lexeme}
           data-target-class={target.classIndex.lexeme}
           data-target-loss={target.loss.lexeme}
@@ -204,17 +196,18 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     </div>
   </section>
 
-  <section aria-labelledby={`${instanceId}-errors`}>
+  <section data-diagram-box aria-labelledby={`${instanceId}-errors`}>
     <h4 id={`${instanceId}-errors`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
-    <div class="error-grid">
+    <div class="error-grid course-diagram__grid">
       {trace.errors.map((error) => (
-        <article data-diagram-card data-diagram-box class="error-card" data-error-kind={error.kind}>
+        <article data-diagram-card data-diagram-box data-state="rejected" class="error-card course-diagram__card-stack" data-error-kind={error.kind}>
           <span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span>
           <h5><code>{error.kind}</code></h5>
           {error.kind === 'axis-out-of-bounds' && (
             <p>
-              {labels.summary.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi>; rank{' '}
+              {labels.summary.axis} <bdi dir="ltr">{error.axis.lexeme}</bdi>;{' '}
+              {labels.fields.rank}{' '}
               <bdi dir="ltr">{error.rank.lexeme}</bdi>
             </p>
           )}
@@ -241,216 +234,97 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
 </figure>
 
 <style>
-  .softmax-diagram {
-    display: grid;
-    gap: 1.25rem;
-    max-width: 100%;
-    margin: 1.5rem 0;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    background: var(--surface);
-  }
-
-  .softmax-diagram:focus-visible,
-  .trace-scroll:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 3px;
-  }
-
-  .softmax-diagram > section {
-    min-width: 0;
-  }
-
-  figcaption h3,
-  section h4,
-  article h5,
-  figcaption p,
-  section p,
-  article p {
-    margin-block-start: 0;
-  }
-
-  figcaption p,
-  section > p {
-    color: var(--muted);
-  }
+  .softmax-diagram { align-content: start; }
 
   .summary-grid,
-  .row-grid,
   .target-grid,
   .error-grid {
-    display: grid;
-    gap: 0.75rem;
     align-items: start;
   }
 
-  .summary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 0;
-  }
-
-  .summary-grid > div,
-  .comparison-card,
-  .target-card,
-  .error-card {
-    padding: 0.8rem;
-    border: 2px solid var(--border);
-    border-radius: 0.75rem;
-    background: var(--background);
-  }
-
-  .summary-grid dt {
-    color: var(--muted);
-    font-size: 0.82rem;
-  }
-
-  .summary-grid dd {
-    margin: 0.2rem 0 0;
-    font-weight: 700;
-  }
-
-  .target-card p:last-child,
-  .error-card p:last-child {
-    margin-block-end: 0;
-  }
-
-  .trace-scroll {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    padding-block-end: 0.4rem;
-  }
+  .target-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+  .error-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
 
   .shift-table {
-    width: 100%;
-    min-width: 64rem;
-    border-collapse: collapse;
-    font-variant-numeric: tabular-nums;
+    inline-size: 100%;
+    min-inline-size: 64rem;
   }
 
   .shift-stage-column {
     width: 11rem;
   }
 
-  .shift-table th,
-  .shift-table td {
-    padding: 0.55rem;
-    border: 1px solid var(--border);
-    text-align: start;
-    vertical-align: top;
-  }
+  .naive-cell.state-finite { border-style: solid; }
 
-  .shift-table th {
-    white-space: normal;
-  }
+  .naive-cell.state-overflow-undefined { border-style: dashed; }
 
-  .shift-table tbody th {
-    border-inline-start: 4px solid var(--accent);
-  }
-
-  .row-grid,
-  .target-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .error-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .comparison-card {
-    display: grid;
-    gap: 0.65rem;
-  }
-
-  .naive-card,
-  .stable-card {
-    display: grid;
-    gap: 0.35rem;
-    align-items: start;
-    padding: 0.7rem;
-    border: 3px solid var(--border);
-    border-radius: 0.55rem;
-  }
-
-  .naive-card.state-finite {
-    border-style: solid;
-  }
-
-  .naive-card.state-overflow-undefined {
-    border-style: dashed;
-  }
-
-  .naive-card.state-underflow-undefined {
-    border-style: dotted;
-  }
-
-  .stable-card {
-    border-style: double;
-  }
-
-  .target-card {
-    border-style: solid;
-  }
-
-  .error-card {
-    position: relative;
-    border-style: dashed;
-  }
-
-  .state-symbol {
-    display: inline-grid;
-    width: 1.7rem;
-    height: 1.7rem;
-    place-items: center;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .invariance-note {
-    display: flex;
-    gap: 0.6rem;
-    align-items: center;
-    margin-block: 0.9rem 0;
-    font-weight: 700;
-  }
-
-  code,
-  bdi {
-    direction: ltr;
-    unicode-bidi: isolate;
-    font-variant-numeric: tabular-nums;
-  }
+  .naive-cell.state-underflow-undefined { border-style: dotted; }
 
   @container course-diagram (max-width: 760px) {
-    .summary-grid,
-    .row-grid,
     .target-grid,
     .error-grid {
       grid-template-columns: minmax(0, 1fr);
     }
   }
 
-  @media (forced-colors: active) {
-    .softmax-diagram,
-    .summary-grid > div,
-    .comparison-card,
-    .target-card,
-    .error-card,
-    .naive-card,
-    .stable-card,
-    .shift-table th,
-    .shift-table td {
-      background: Canvas;
-      color: CanvasText;
-      border-color: CanvasText;
-      forced-color-adjust: auto;
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .softmax-diagram:fullscreen {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      align-content: start;
     }
 
-    .trace-scroll:focus-visible {
-      outline-color: Highlight;
+    .softmax-diagram:fullscreen > figcaption {
+      grid-column: 1;
+      grid-row: 1;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      align-items: start;
+      column-gap: 1rem;
+    }
+
+    .softmax-diagram:fullscreen > figcaption > :is(h3, p) { max-inline-size: none; }
+
+    .softmax-diagram:fullscreen > .summary-grid {
+      grid-column: 2;
+      grid-row: 1;
+      grid-template-columns: minmax(0, 0.7fr) minmax(0, 0.7fr) minmax(0, 1.6fr);
+    }
+
+    .softmax-diagram:fullscreen > section:first-of-type {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: minmax(13rem, 1fr) minmax(0, 4fr);
+      align-items: start;
+      column-gap: 1rem;
+    }
+
+    .softmax-diagram:fullscreen > section:first-of-type > :is(h4, p) {
+      grid-column: 1;
+    }
+
+    .softmax-diagram:fullscreen > section:first-of-type > .trace-scroll {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+
+    .softmax-diagram:fullscreen .shift-table { min-inline-size: 0; }
+
+    .softmax-diagram:fullscreen > section:nth-of-type(2) {
+      grid-column: 1;
+      grid-row: 4;
+    }
+
+    .softmax-diagram:fullscreen > section:nth-of-type(3) {
+      grid-column: 2;
+      grid-row: 4;
+    }
+
+    .softmax-diagram:fullscreen .target-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .softmax-diagram:fullscreen .error-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

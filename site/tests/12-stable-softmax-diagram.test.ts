@@ -34,7 +34,6 @@ const labels: StableSoftmaxDiagramLabels = {
   summary: { shape: 'shape', axis: 'axis', meanNll: 'mean NLL' },
   sections: {
     shift: 'shift',
-    compare: 'compare',
     targets: 'targets',
     errors: 'errors',
   },
@@ -47,14 +46,12 @@ const labels: StableSoftmaxDiagramLabels = {
     denominator: 'denominator',
     probabilities: 'probabilities',
     logProbabilities: 'log probabilities',
-    logSumExp: 'log sum exp',
     naivePath: 'naive path',
-    stablePath: 'stable path',
-    status: 'status',
     targetClass: 'target class',
     targetLoss: 'target loss',
     group: 'group',
     classes: 'classes',
+    rank: 'rank',
   },
   statuses: {
     finite: 'finite',
@@ -64,7 +61,6 @@ const labels: StableSoftmaxDiagramLabels = {
   },
   notes: {
     shift: 'shift note',
-    compare: 'compare note',
     targets: 'targets note',
     errors: 'errors note',
   },
@@ -182,7 +178,7 @@ describe('Chapter 12 Rust trace parser', () => {
     ).toThrow(/labels\.statuses\.underflowUndefined/);
   });
 
-  it('does not recompute probability arithmetic in TypeScript', () => {
+  it('does not recompute probability arithmetic while parsing the trace', () => {
     expect(parser).not.toMatch(/Math\.(?:exp|log|max)/);
     expect(parser).not.toContain('Math.pow');
     expect(parser).not.toMatch(/\.reduce\([^\n]*(?:\+|\/)/);
@@ -210,6 +206,7 @@ describe('Chapter 12 static diagram component', () => {
     expect(component).toContain('data-shifted=');
     expect(component).toContain('data-probabilities=');
     expect(component).toContain('data-log-probabilities=');
+    expect(component).toContain('data-denominator=');
     expect(component).toContain('data-naive-status=');
     expect(component).toContain('data-target-row=');
     expect(component).toContain('data-target-class=');
@@ -217,8 +214,11 @@ describe('Chapter 12 static diagram component', () => {
     expect(component).toContain('data-error-kind=');
   });
 
-  it('keeps wide evidence local and distinguishes states without fixed heights', () => {
+  it('uses shared presentation roles, local overflow, and redundant state cues', () => {
     expect(component).toContain('data-visualization-id={stableSoftmaxDiagramId}');
+    expect(component).toContain('data-diagram-style="course-v1"');
+    expect(component.match(/<section data-diagram-box/g)).toHaveLength(3);
+    expect(component.match(/data-diagram-card\s+data-diagram-box/g)).toHaveLength(3);
     expect(component).toContain('class="trace-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
@@ -227,13 +227,18 @@ describe('Chapter 12 static diagram component', () => {
     expect(component).not.toContain('contain: paint');
     expect(component).toContain('align-items: start;');
     expect(component).not.toMatch(
-      /\.(?:comparison-card|target-card|error-card)[^{]*\{[^}]*(?:min-)?height\s*:/s,
+      /\.(?:target-card|error-card)[^{]*\{[^}]*(?:min-)?height\s*:/s,
     );
-    expect(component).toContain('.naive-card.state-finite');
+    expect(component).toContain('.naive-cell.state-finite');
+    expect(component).toContain('data-stable-probability-row');
     expect(component).toContain('border-style: solid;');
-    expect(component).toContain('border-style: double;');
     expect(component).toContain('border-style: dashed;');
     expect(component).toContain('border-style: dotted;');
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('data-state="trusted"');
+    expect(component).toContain('data-state="rejected"');
+    expect(component).not.toMatch(/\.softmax-diagram\s*\{[^}]*(?:padding|border|background|box-shadow)\s*:/s);
+    expect(component).not.toMatch(/\.(?:target-card|error-card)\s*\{[^}]*(?:padding|border-radius|background)\s*:/s);
+    expect(component).not.toContain('@media (forced-colors: active)');
+    expect(component).toContain('.softmax-diagram:fullscreen');
   });
 });

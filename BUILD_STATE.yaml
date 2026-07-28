@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-28T16:00:13Z"
+updated_at: "2026-07-28T18:09:10Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -8011,7 +8011,7 @@ builds:
                 notes: "All 16 canonical files still match the frozen manifest; rollback and evidence hashes verify; no generated host artifact, release lock, or publication temporary remains; indexed executable modes are intact; git diff --check passes; and an independent audit confirms exactly 16 product outputs plus BUILD_STATE.yaml and DECISIONS.md with no build-definition, external-dependency, route-policy, or locale-activation change. Unrelated desktop.ini remains untouched."
             notes: "Succeeded. The complete dependency-free Chapter 11 matrix-multiplication vertical slice is canonical and byte-identical to frozen manifest sha256:b43f112967dec0a37c0f9bed61c562f6de11b2082b683c1bf50a4dc97bb4aa3c. Its checked rank-2-plus Rust contraction, learner demo, exact Rust trace, English LLM-history lesson, static accessible visualization, SEO, and regression coverage pass staged, canonical, browser, native-Linux atomic-release, preview, host, identity, governance, and scope gates. Russian remains complete through Chapter 7 with no placeholder. No build definition, external dependency, route policy, locale activation, or indexed executable mode changed. The completion checkpoint is ready for the dedicated implement-ch11-matrix-multiplication commit before Chapter 12 starts."
       - id: implement-ch12-stable-softmax
-        objective: "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
+        objective: "Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow."
         depends_on:
           - implement-ch11-matrix-multiplication
         status: invalidated
@@ -8104,7 +8104,7 @@ builds:
           - "site/tests/e2e/ch12-stable-softmax.spec.ts"
           - "Cargo.lock"
         acceptance:
-          - "Convert logits into normalized probabilities and log-probabilities without overflow or avoidable underflow."
+          - "Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The history traces Bengio's output softmax through Transformer attention and output softmax to GPT-2's explicit max-shifted implementation, while treating axis, finite-input, storage, error, allocation, and target-index policy as course-local."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
@@ -19621,3 +19621,306 @@ builds:
                 status: passed
                 notes: "The ledger parses with 20 completed builds, 104 steps (82 completed and 22 invalidated), and 121 runs (104 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
             notes: "Succeeded. Chapter 11 was repaired in English first, translated directly into natural Russian, and activated at revision 4. Matrix multiplication, batching, transpose, stride, errors, zero-size behavior, LLM history, Rust, SEO, navigation, sitemap, Analytics, accessibility, exercise, answer, diagram, and Chapter 12 handoff parity pass. The exact candidate passes 840 unit cases and 254 rendered cases across Chromium and Firefox without localized clipping or unintended overflow."
+  - build_id: activate-ch12-russian-localization
+    objective: "Translate Chapter 12 directly from the current English stable-softmax lesson, activate its Russian route, and prove semantic and rendered-layout parity."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This medium step uses authored translation and cached Docker contract, static, unit, Chromium, and Firefox validation; no paid service, external translation, dependency change, product build-definition change, or Rust behavior change is planned."
+    completion_criteria:
+      - "The current English Chapter 12 revision is reviewed first and remains the sole semantic source; learner-facing, formula, LLM-history, evidence, or shared-diagram defects are corrected before the Russian projection is written."
+      - "The complete Russian contract, lesson, metadata, diagram copy, exercises, answers, navigation, SEO, and accessibility labels preserve every formula, symbol, stable-normalization rule, shape, axis, error precedence, Rust identifier, value, link, qualifier, and pedagogical commitment in natural technical Russian."
+      - "Russian Chapter 12 is activated atomically with a same-revision source, locale projection, plan policy, catalogs, and exact browser expectations; no placeholder route is published."
+      - "The exact candidate passes contract, chapter, parity, content, Rust, Astro, unit, static-build, link, SEO, sitemap, Analytics, checksum, scope, ledger, and whitespace checks."
+      - "The Russian route and its registered figure pass Chromium and Firefox desktop, narrow, no-JavaScript fallback, full-view, forced-color, direction, and nearest-bounded-box containment validation."
+      - "The completed checkpoint is committed independently before Chapter 13 starts; user review follows delivery and is not a publication prerequisite."
+    steps:
+      - id: activate-ch12-russian-localization
+        objective: "Translate, activate, and validate the complete Russian Chapter 12 stable-softmax surface."
+        depends_on:
+          - activate-ch11-russian-localization
+        status: invalidated
+        inputs:
+          - "Human request on 2026-07-28 to continue with Russian translations of Chapters 12-14."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/lib/stable-softmax-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/crates/llm-from-scratch/src/nn/probability.rs"
+          - "rust/demos/ch12-stable-softmax/src/lib.rs"
+          - "rust/demos/ch12-stable-softmax/src/main.rs"
+          - "rust/demos/ch12-stable-softmax/src/diagram_trace.rs"
+          - "rust/demos/ch12-stable-softmax/diagram-trace.txt"
+          - "rust/demos/ch12-stable-softmax/expected.txt"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 24b6b324f92a1ac28d5cd1322359fc341076cbf0."
+        outputs:
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/ru/12-stable-softmax.mdx"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/lib/stable-softmax-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English is the sole semantic source and the exact Russian revision preserves all factual, mathematical, executable, historical, maximum-shift, log-domain, shape, error, and pedagogical evidence."
+          - "Russian prose uses established probability, numerical-analysis, tensor, and mathematical terminology, natural sentence structure, and no unjustified untranslated learner-facing English."
+          - "All mathematical expressions use the site math pipeline and all code spans denote actual code, identifiers, paths, or literal program data."
+          - "The one semantic Chapter 12 figure uses localized labels and the shared diagram system; every ordinary bounded box contains its text and formula ink in both browser engines at desktop, narrow, and full view without clipping or unintended page overflow."
+          - "The locale projection exposes /ru/course/12-stable-softmax/ and updates navigation, alternates, sitemap, SEO, and fallback behavior atomically."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/12-stable-softmax.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 12-stable-softmax"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 12-stable-softmax"
+          - "./course run npm --prefix site run check:parity -- --chapter 12-stable-softmax"
+          - "./course run npm --prefix site run check:content"
+          - "./course check"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:12-stable-softmax|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:12-stable-softmax|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One complete source-to-target chapter translation plus a canonical shared-diagram repair with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency change, product build-definition change, or Rust behavior change."
+        runs:
+          - run_id: 20260728T161407Z-activate-ch12-russian-localization-01
+            started_at: "2026-07-28T16:14:07Z"
+            finished_at: "2026-07-28T17:44:00Z"
+            status: succeeded
+            input_fingerprint:
+              git: "24b6b324f92a1ac28d5cd1322359fc341076cbf0"
+              manifest: ".build/runs/20260728T161407Z-activate-ch12-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:62cbeddd875b01c117924215e476046b9827f8d18971eccd24d576fd522c5a86"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; current English Chapter 12 and its contract are authoritative."
+            staging_dir: ".build/runs/20260728T161407Z-activate-ch12-russian-localization-01/"
+            commands:
+              - "Verify independently committed Chapter 11 checkpoint 24b6b32 and a clean worktree, parse the complete ledger, inspect the latest localization decisions and completed run, read the localization skill and workflow, and inventory the Chapter 12 contract, lesson, diagram, Rust evidence, projection, and tests."
+              - "Fingerprint the exact source, evidence, projection, workflow, environment, user request, and base commit before any product edit."
+              - "Audit and repair canonical English revision 4 for precise numerical scope, rendered formulas, LLM-history evidence, learner-facing language, Rust evidence boundaries, and current shared-diagram compliance before translating."
+              - "Translate the frozen Chapter 12 contract, lesson, metadata, SEO, diagram labels, exercises, answers, navigation, and accessibility copy directly into natural technical Russian; activate the exact locale route and advance the checked policy through Chapter 12."
+              - "Run independent semantic, terminology, anti-calque, formula, monolingual, history, Rust-evidence, accessibility, and layout reviews; correct all findings and reorganize the shared figure so its complete evidence fits Chromium and Firefox without clipping or excessive full-view travel."
+              - "Build exact Linux workspace Candidates 01-04, preserving superseded candidates; freeze Candidate 04 after Cargo, Astro, content, parity, static-build, link, SEO, sitemap, Analytics, unit, Chromium, Firefox, formula, fallback, forced-color, focus, direction, fullscreen, and nearest-box validation."
+            artifacts:
+              - path: ".build/runs/20260728T161407Z-activate-ch12-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:62cbeddd875b01c117924215e476046b9827f8d18971eccd24d576fd522c5a86"
+                notes: "Exact base revision, user scope, tool versions, cost, English Chapter 12, contract, diagram, parser, Rust evidence, projection, skill, workflow, and test inputs."
+              - path: ".build/runs/20260728T161407Z-activate-ch12-russian-localization-01/validation-summary.txt"
+                checksum: "sha256:cc4e2454197635e749a20e75781fdcb2f11922eec7a0c355f16459953eadf169"
+                notes: "Concise replay record with final source checksums, immutable candidate image digests, exact Linux/static/unit/browser outcomes, and superseded-attempt provenance."
+              - path: ".build/runs/20260728T161407Z-activate-ch12-russian-localization-01/validation/Dockerfile.browser"
+                checksum: "sha256:9eead92eaec77c6a315c329a7fcaf7699a2ad9ba1117c179edf56ee6d6bf7581"
+                notes: "Generated validation recipe that copies the exact Candidate 04 workspace into pinned Playwright 1.61.1; local run evidence, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch12-workspace:run01-candidate04"
+                checksum: "sha256:4ec3eb1897eb2fb3cd20e624e19c651b432032e353167c7f70af6bf7916c7911"
+                notes: "Exact Linux source, Rust, content, static-build, link, SEO, sitemap, and Analytics candidate; local generated image, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch12-browser:run01-candidate04"
+                checksum: "sha256:046ccd5e375ff13710f22fc3f793de325030d7a6bc6bdbaad2e337e9d2d5678b"
+                notes: "Exact pinned Chromium and Firefox candidate containing the frozen 58-page site; local generated image, not a committed repository artifact."
+            validation:
+              - command: "Repository, predecessor checkpoint, scheduler, environment, ownership, dependency, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Commit 24b6b32 independently completes Chapter 11 and the worktree was clean. The ledger had 20 completed builds, 104 historical steps (82 completed and 22 invalidated), 121 historical runs (104 succeeded, 13 interrupted, and 4 failed), and no active work. Windows orchestration and product pins match the recorded environment; this step has no resource limit and claims all anticipated Chapter 12 and shared projection/test outputs before editing."
+              - command: "Independent canonical-source, formula, numerical-scope, LLM-history, Rust-evidence, and learner-facing-language audit"
+                status: passed
+                notes: "English revision 4 now promises only avoidable overflow and underflow prevention, renders log-sum-exp, log-softmax, and indexed NLL through the math pipeline, grounds the historical path in neural language models, Transformer attention/output softmax, and GPT-2, and removes authoring, fixture, and presentation machinery from learner prose."
+              - command: "Independent Russian meaning, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff audit"
+                status: passed
+                notes: "The Russian projection preserves every formula, symbol, shape, axis, stable-normalization rule, representability qualifier, target, error, value, code identifier, source, exercise, answer, and Chapter 13 boundary in natural probability, tensor, and numerical-analysis language."
+              - command: "Final exact-candidate Linux course, Rust, content, parity, unit, Astro, static build, and artifact matrix"
+                status: passed
+                notes: "The plan reports 40 chapters and 84 steps; Chapter 12 and all 53 localized sources validate; Cargo formatting, locked workspace tests, and documentation tests pass; all 840 unit tests pass; Astro reports zero diagnostics in 204 files; 58 pages and 1,996 local references plus 58 SEO, sitemap, and Analytics routes pass."
+              - command: "Final exact-candidate Chromium Chapter 12, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 129 Chromium cases pass across English and Russian desktop and narrow routes, no-JavaScript and unsupported-API fallbacks, fullscreen, focus restoration, forced colors, formula geometry, LTR technical tokens, and nearest-box containment."
+              - command: "Final exact-candidate Firefox Chapter 12, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 129 Firefox cases pass with the same route, content, accessibility, formula, fallback, fullscreen, forced-color, direction, focus, and bounded-box assertions. Candidate 03's 223-pixel Firefox travel defect was corrected without clipping, text shrinking, or relaxing the budget before Candidate 04 was frozen."
+              - command: "Localized full-view and ordinary bounded-box containment audit"
+                status: passed
+                notes: "Both locales pass desktop and 390 by 844 narrow layouts in both engines. The exact browser gates keep full-view block debt within 20 percent of the engine's client height and root, named-region, and all 11 individual bounded-box debts within 2 pixels without hidden or clipped overflow."
+              - command: "Candidate checksum, declared-scope, historical-ledger, formula, source, and whitespace audit"
+                status: passed
+                notes: "The final summary checksums the canonical contract, both lessons, figure, and Chapter 12 browser specification plus both exact Docker images; all changed paths are declared, formulas use server-rendered math, immutable prior runs remain intact, and git diff --check passes."
+              - command: "Final completed-ledger invariant"
+                status: passed
+                notes: "The ledger parses with 21 completed builds, 105 steps (83 completed and 22 invalidated), and 122 runs (105 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
+            notes: "Succeeded and preserved, then superseded by the contiguous final-review replacement. Candidate 04 passed its declared automated matrix, but a subsequent independent semantic audit found two misleading Russian phrases plus a stale compact-figure contract and five unused required label fields."
+  - build_id: correct-ch12-russian-localization-final-review
+    objective: "Correct the final Chapter 12 semantic and visualization-contract findings and freeze a publishable bilingual candidate."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium corrective build uses local authored edits and cached exact Linux, unit, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "The two Russian diagram phrases state the stable computation and selected target-class probability precisely."
+      - "The Chapter 12 visualization contract and required localized label surface exactly match the rendered compact semantic figure while preserving the richer validated trace."
+      - "A new exact candidate passes the complete Chapter 12 source, static, unit, Chromium, Firefox, formula, accessibility, and containment matrix."
+      - "The replacement checkpoint is committed with the full Chapter 12 activation before Chapter 13 starts."
+    steps:
+      - id: correct-ch12-russian-localization-final-review
+        objective: "Correct the final Chapter 12 semantic and visualization-contract findings and publish a new exact bilingual candidate."
+        replaces:
+          - activate-ch12-russian-localization
+        depends_on:
+          - activate-ch11-russian-localization
+        status: completed
+        inputs:
+          - "Independent final read-only review after Candidate 04 validation."
+          - "Human request on 2026-07-28 to continue Russian translations through Chapters 12-14 without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/ru/12-stable-softmax.mdx"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/lib/stable-softmax-diagram.ts"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Superseded workspace image sha256:4ec3eb1897eb2fb3cd20e624e19c651b432032e353167c7f70af6bf7916c7911."
+          - "Superseded browser image sha256:046ccd5e375ff13710f22fc3f793de325030d7a6bc6bdbaad2e337e9d2d5678b."
+          - "Base commit 24b6b324f92a1ac28d5cd1322359fc341076cbf0."
+        outputs:
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/12-stable-softmax.md"
+          - "curriculum/course-plan.md"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/content/chapters/en/12-stable-softmax.mdx"
+          - "site/src/content/chapters/ru/12-stable-softmax.mdx"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/stable-softmax-diagram.ts"
+          - "site/tests/12-stable-softmax-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/ch12-stable-softmax.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Russian diagram copy states that maximum subtraction stabilizes the computation, not the logits, and identifies the selected target-class log-probability precisely."
+          - "The authoring contract describes the rendered semantic table and target/error cards exactly, while preserving the richer strict trace and parser validation as internal evidence."
+          - "The diagram label type, both locale objects, and unit fixtures require only labels rendered by the component; no visible or accessibility label becomes untranslated or missing."
+          - "The new exact candidate passes all Chapter 12 contract, locale, parity, source, unit, static, Chromium, Firefox, formula, full-view, fallback, forced-color, and bounded-box gates."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/12-stable-softmax.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 12-stable-softmax"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 12-stable-softmax"
+          - "npm --prefix site run check:parity -- --chapter 12-stable-softmax"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:12-stable-softmax|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:12-stable-softmax|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Final semantic, rendered-label, checksum, declared-scope, and historical-ledger audit"
+        cost:
+          class: medium
+          notes: "Small authored semantic and contract corrections followed by cached exact Linux, unit, Chromium, and Firefox validation. No paid service, external translation, dependency, product build-definition, hosting, deployment, or Rust behavior change."
+        runs:
+          - run_id: 20260728T175142Z-correct-ch12-russian-localization-final-review-01
+            started_at: "2026-07-28T17:51:42Z"
+            finished_at: "2026-07-28T18:09:10Z"
+            status: succeeded
+            input_fingerprint:
+              git: "24b6b324f92a1ac28d5cd1322359fc341076cbf0"
+              manifest: ".build/runs/20260728T175142Z-correct-ch12-russian-localization-final-review-01/input-fingerprint.txt"
+              checksum: "sha256:61fb92732141761784e39f3db3de02d43c0a98dddaa94a6917cedd9ac98b2115"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external source or service; the frozen English Chapter 12, rendered component, strict trace, and independent final review are authoritative."
+            staging_dir: ".build/runs/20260728T175142Z-correct-ch12-russian-localization-final-review-01/"
+            commands:
+              - "Preserve the completed Candidate 04 run, record the independent final-review findings, invalidate only its stale step, and claim the contiguous replacement before corrective product edits."
+              - "Fingerprint the exact staged bilingual Chapter 12 sources, contract, label type, tests, checkpoint records, superseded image digests, environment, and review trigger."
+              - "Correct the Russian diagram title and target-class note, align the contract with the compact semantic table plus target/error cards, and remove five unused label requirements from both locales, the type, and tests."
+              - "Run an independent post-correction semantic and parity review; confirm the requested findings are closed and no learner-facing authoring or delivery machinery remains."
+              - "Build exact Linux workspace Candidate 05 with docker build --target workspace -t learn-llm-ru-ch12-workspace:run02-candidate05 . and preserve its immutable digest."
+              - "Package the exact workspace in pinned Playwright 1.61.1 with the run-local Dockerfile.browser as learn-llm-ru-ch12-browser:run02-candidate05."
+              - "Run the declared Chapter 12 contract, English/Russian content, parity, unit, static, Chromium, Firefox, formula, full-view, fallback, forced-color, focus, direction, and nearest-box validation matrix."
+            artifacts:
+              - path: ".build/runs/20260728T175142Z-correct-ch12-russian-localization-final-review-01/input-fingerprint.txt"
+                checksum: "sha256:61fb92732141761784e39f3db3de02d43c0a98dddaa94a6917cedd9ac98b2115"
+                notes: "Exact pre-correction contract, bilingual lessons, label type, unit/browser tests, checkpoint records, Candidate 04 digests, environment, and final-review findings."
+              - path: ".build/runs/20260728T175142Z-correct-ch12-russian-localization-final-review-01/validation-summary.txt"
+                checksum: "sha256:55ca8998ff6a65481ea8786c6016ccd0e6111d62814743380ba7be0cb732be25"
+                notes: "Concise replay record with corrected source checksums, exact Candidate 05 image digests, independent-review result, full validation outcomes, and the resource-contended retry provenance."
+              - path: ".build/runs/20260728T175142Z-correct-ch12-russian-localization-final-review-01/validation/Dockerfile.browser"
+                checksum: "sha256:10f0b8689877c6b30ab79f56f7d8278d8cdad8d1732fd8407b8ac6d4bf49b7f6"
+                notes: "Generated validation recipe that copies exact Candidate 05 into pinned Playwright 1.61.1; local run evidence, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch12-workspace:run02-candidate05"
+                checksum: "sha256:1aa9e18e69cd8aab23e22b87d7a30d0611a15a92d6e9278ca61a27c5b4aaaad8"
+                notes: "Exact corrected Linux source, Rust, content, static-build, link, SEO, sitemap, and Analytics candidate; local generated image, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch12-browser:run02-candidate05"
+                checksum: "sha256:971bdddd2f76e9547611c8510d71380ea490a485b6d10978f31b80bb51da8ded"
+                notes: "Exact pinned Chromium and Firefox candidate containing the corrected frozen 58-page site; local generated image, not a committed repository artifact."
+            validation:
+              - command: "Replacement eligibility, dependency, overlap, environment, cost, predecessor provenance, and input-fingerprint preflight"
+                status: passed
+                notes: "The immediately preceding Chapter 12 activation is invalidated and named in replaces; the replacement depends on completed Chapter 11, owns only its correction surfaces, preserves the successful Candidate 04 run, and requires no paid or external service."
+              - command: "Independent corrected Russian meaning, compact-figure contract, rendered-label, formula, code, metadata, and learner-facing-prose audit"
+                status: passed
+                notes: "The computation title no longer describes logits as stable, the target note names the selected target class, the compact figure and contract agree, unused labels are gone, all five formulas and five code regions retain exact parity, and no visible prose exposes authoring or delivery mechanics."
+              - command: "Exact Candidate 05 Linux course, Rust, content, parity, unit, Astro, static build, and artifact matrix"
+                status: passed
+                notes: "The plan reports 40 chapters and 84 scheduled steps; Cargo formatting, locked workspace and documentation tests pass; all 840 unit cases pass; Astro reports zero diagnostics in 204 files; 58 pages and 1,996 local references plus 58 SEO, sitemap, and Analytics routes pass."
+              - command: "Exact Candidate 05 Chromium Chapter 12, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 129 Chromium cases pass across localized desktop and narrow routes, no-JavaScript and unsupported-API fallbacks, fullscreen, focus restoration, forced colors, formula geometry, direction, and nearest-box containment."
+              - command: "Exact Candidate 05 Firefox Chapter 12, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "A resource-contended parallel invocation timed out on one loading assertion while 128 cases passed. The unchanged image then passed all 129 cases sequentially across the full declared Firefox matrix."
+              - command: "Candidate checksum, declared-scope, historical-ledger, source, formula, and whitespace audit"
+                status: passed
+                notes: "The final summary checksums the corrected canonical sources and both exact images; the full replacement owns all Chapter 12 activation paths, Candidate 04 history remains unchanged, and git diff --check passes."
+              - command: "Final completed-ledger invariant"
+                status: passed
+                notes: "The ledger parses with 22 completed builds, 106 steps (83 completed and 23 invalidated), and 123 runs (106 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
+            notes: "Succeeded. Candidate 05 is the publishable Chapter 12 bilingual artifact; Candidate 04 remains immutable evidence for the invalidated predecessor checkpoint."
