@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 36,
-  "policyId": "selective-russian-through-chapter-10",
+  "planRevision": 37,
+  "policyId": "selective-russian-through-chapter-11",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -16,7 +16,7 @@
     { "chapterId": "08-tensor-storage", "order": 8, "activeLocales": ["en", "ru"] },
     { "chapterId": "09-tensor-views", "order": 9, "activeLocales": ["en", "ru"] },
     { "chapterId": "10-broadcasting-reductions", "order": 10, "activeLocales": ["en", "ru"] },
-    { "chapterId": "11-matrix-multiplication", "order": 11, "activeLocales": ["en"] },
+    { "chapterId": "11-matrix-multiplication", "order": 11, "activeLocales": ["en", "ru"] },
     { "chapterId": "12-stable-softmax", "order": 12, "activeLocales": ["en"] },
     { "chapterId": "13-gradient-checking", "order": 13, "activeLocales": ["en"] },
     { "chapterId": "14-scalar-autodiff", "order": 14, "activeLocales": ["en"] },

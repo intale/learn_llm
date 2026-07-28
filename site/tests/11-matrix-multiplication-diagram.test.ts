@@ -41,6 +41,7 @@ const labels: MatrixMultiplicationDiagramLabels = {
     storedShape: 'stored shape',
     logicalShape: 'logical shape',
     outputShape: 'output shape',
+    outputValues: 'output values',
     term: 'term',
     product: 'product',
     runningTotal: 'running total',
@@ -59,9 +60,14 @@ const labels: MatrixMultiplicationDiagramLabels = {
   symbols: {
     selectedRow: 'selected row',
     selectedColumn: 'selected column',
+    focusedOutput: 'focused output',
     contracted: 'contracted',
     reused: 'reused',
     rejected: 'rejected',
+  },
+  reasons: {
+    innerMismatch: 'inner mismatch',
+    batchMismatch: 'batch mismatch',
   },
 };
 
@@ -153,12 +159,12 @@ describe('Chapter 11 Rust trace parser', () => {
   it('requires every visible and accessible localized label', () => {
     expect(() => assertMatrixMultiplicationDiagramLabels(labels)).not.toThrow();
     const missing = structuredClone(labels) as unknown as Record<string, unknown>;
-    (missing.symbols as Record<string, unknown>).reused = ' ';
+    (missing.reasons as Record<string, unknown>).batchMismatch = ' ';
     expect(() =>
       assertMatrixMultiplicationDiagramLabels(
         missing as unknown as MatrixMultiplicationDiagramLabels,
       ),
-    ).toThrow(/labels\.symbols\.reused/);
+    ).toThrow(/labels\.reasons\.batchMismatch/);
   });
 });
 
@@ -193,26 +199,34 @@ describe('Chapter 11 static diagram component', () => {
     expect(component).toContain('data-right-batch=');
     expect(component).toContain('data-error-kind=');
     expect(component).toContain('{labels.fields.batchAxis}');
+    expect(component).toContain('{labels.fields.outputValues}');
+    expect(component).toContain('{labels.reasons.innerMismatch}');
+    expect(component).toContain('{labels.reasons.batchMismatch}');
+    expect(component).toContain('{labels.symbols.focusedOutput}: ');
     expect(component).not.toContain('{labels.fields.outputBatch} <bdi dir="ltr">{trace.errors[1].batchAxis.lexeme}');
   });
 
-  it('keeps wide evidence local and distinguishes states without color', () => {
+  it('uses the shared presentation roles, keeps wide evidence local, and retains state cues', () => {
     expect(component).toContain('data-visualization-id={matrixMultiplicationDiagramId}');
+    expect(component).toContain('data-diagram-style="course-v1"');
+    expect(component.match(/<section[^>]*data-diagram-box/g)).toHaveLength(4);
+    expect(component).toContain('course-diagram__grid');
+    expect(component).toContain('course-diagram__card-stack');
+    expect(component).toContain('data-status="fail"');
     expect(component).toContain('class="matrix-scroll course-diagram__scroll"');
     expect(component.match(/tabindex="0"/g)).toHaveLength(2);
     expect(component.match(/role="region"/g)).toHaveLength(1);
     expect(component).toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
-    expect(component).toContain('>R</span>');
-    expect(component).toContain('>C</span>');
+    expect(component).not.toMatch(/--diagram-(?:border|surface)/);
+    expect(component).not.toContain('border-radius:');
+    expect(component).not.toContain('background:');
+    expect(component).toContain('>→</span>');
     expect(component).toContain('>↓</span>');
-    expect(component).not.toContain('>Σ</span>');
     expect(component).toContain('>↻</span>');
     expect(component).toContain('>×</span>');
-    expect(component).toContain('.term-card { border-style: double; }');
-    expect(component).toContain('.batch-card { border-style: solid; }');
-    expect(component).toContain('.error-card { border-style: dashed; }');
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('grid-template-columns: minmax(0, 3fr) minmax(0, 2fr)');
+    expect(component).not.toContain('@media (forced-colors: active)');
   });
 });

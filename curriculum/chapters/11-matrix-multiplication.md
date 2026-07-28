@@ -2,44 +2,53 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "concept_id": "matrix-multiplication",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 11,
   "objective": {
-    "en": "Compute checked 2-D and batched matrix products from scalar loops and tensor strides."
+    "en": "Compute checked 2-D and batched matrix products from scalar loops and tensor strides.",
+    "ru": "Вычислять произведения двумерных и пакетных матриц скалярными циклами с учётом шагов тензора и проверкой форм."
   },
   "worked_inputs": {
-    "en": "Multiply A with shape [2,3] and values [1,2,3,4,5,6] by W with shape [3,2] and values [1,2,0,1,2,0]. Predict output shape [2,2], values [7,4,16,13], and the focused cell C[1,0] = 4*1 + 5*0 + 6*2 = 16 before running Rust."
+    "en": "Multiply A with shape [2,3] and values [1,2,3,4,5,6] by W with shape [3,2] and values [1,2,0,1,2,0]. Predict output shape [2,2], values [7,4,16,13], and the focused cell C[1,0] = 4*1 + 5*0 + 6*2 = 16 before running Rust.",
+    "ru": "Умножьте A формы [2,3] со значениями [1,2,3,4,5,6] на W формы [3,2] со значениями [1,2,0,1,2,0]. До запуска Rust предскажите форму результата [2,2], значения [7,4,16,13] и выбранную ячейку C[1,0] = 4*1 + 5*0 + 6*2 = 16."
   },
   "formula": {
     "latex": "C_{ij}=\\sum_{k=0}^{K-1} A_{ik}B_{kj}",
     "symbols": [
       {
         "symbol": "C_{ij}",
-        "en": "the output value at row i and column j"
+        "en": "the output value at the selected row and column",
+        "ru": "значение результата в выбранной строке и выбранном столбце"
       },
       {
         "symbol": "A_{ik}",
-        "en": "the left input value at output row i and contracted position k"
+        "en": "the left input value at the selected output row and contracted position",
+        "ru": "значение левого входа в выбранной строке результата и позиции на общей внутренней оси"
       },
       {
         "symbol": "B_{kj}",
-        "en": "the right input value at contracted position k and output column j"
+        "en": "the right input value at the contracted position and selected output column",
+        "ru": "значение правого входа в позиции на общей внутренней оси и выбранном столбце результата"
       },
       {
         "symbol": "i",
-        "en": "the zero-based output-row index"
+        "en": "the zero-based index of the selected output row",
+        "ru": "отсчитываемый от нуля индекс выбранной строки результата"
       },
       {
         "symbol": "j",
-        "en": "the zero-based output-column index"
+        "en": "the zero-based index of the selected output column",
+        "ru": "отсчитываемый от нуля индекс выбранного столбца результата"
       },
       {
         "symbol": "k",
-        "en": "the zero-based index traversed along both contracted inner dimensions"
+        "en": "the zero-based index traversed along the two contracted inner dimensions",
+        "ru": "индекс, отсчитываемый от нуля вдоль двух совпадающих внутренних осей"
       },
       {
         "symbol": "K",
-        "en": "the shared inner-dimension extent and number of scalar multiplications whose products are summed into one output cell"
+        "en": "the common inner extent and number of scalar products accumulated into one output cell",
+        "ru": "общий внутренний размер и число скалярных умножений, результаты которых складываются в одну ячейку"
       }
     ]
   },
@@ -47,13 +56,16 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "Bengio et al.'s feed-forward neural language model looks up a fixed set of learned word vectors, concatenates them into one context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions."
+        "en": "Bengio et al.'s feed-forward neural language model looks up learned vectors for a fixed number of context words, concatenates them into one fixed-length context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction still uses that bounded context instead of masked self-attention across a sequence of positions.",
+        "ru": "Нейронная языковая модель прямого распространения Бенжио и соавторов выбирает обучаемые векторы для фиксированного числа слов контекста, объединяет их в один вектор фиксированной длины и вычисляет оценки следующего слова с помощью обучаемых матрично-векторных преобразований. Общие признаки позволяют модели переносить сведения между похожими словами, но каждое предсказание всё ещё опирается на ограниченный контекст, а не на маскированное самовнимание по последовательности позиций."
       },
       "later_advance": {
-        "en": "Vaswani et al. pack positions into query, key, and value matrices, apply learned projections, compute masked decoder attention from scaled query-key products, project the concatenated heads, and use two more linear transforms in each position-wise feed-forward network. The GPT-2 report then carries an autoregressive Transformer language model to deeper, wider stacks and a 1024-token context."
+        "en": "Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network. The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context.",
+        "ru": "Васвани и соавторы собирают запросы, ключи и значения в матрицы. Для вычисления внимания они получают масштабированные оценки «запрос — ключ», применяют к ним softmax и используют полученные веса для взвешивания значений; кроме того, они используют обучаемые проекции запросов, ключей и значений, выходную проекцию, а также два линейных преобразования в сети прямого распространения, одинаковой для каждой позиции. В отчёте о GPT-2 описана архитектура авторегрессионной языковой модели на основе Transformer: четыре варианта имеют от 12 до 48 слоёв, ширину от 768 до 1600 и контекст длиной 1024 токена."
       },
       "modern_llm_role": {
-        "en": "Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers."
+        "en": "Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers.",
+        "ru": "Матричное умножение с проверкой форм суммирует произведения по общей оси. В современном декодере оно многократно используется в обучаемых проекциях, при вычислении оценок внимания и сумм значений с весами внимания. Согласование форм по осям пакета, флаги транспонирования, обход с учётом шагов, правила хранения, обработка нулевых размеров и явные ошибки — частные правила этой реализации, обеспечивающие корректность; они не заимствованы из статей."
       },
       "sources": [
         {
@@ -62,7 +74,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. store learned word features in a matrix, concatenate the fixed context-word vectors, and compute next-word scores with successive learned matrix-vector transformations and a nonlinear hidden layer."
+            "en": "Bengio et al. store learned word features in a matrix, concatenate the fixed context-word vectors, and compute next-word scores with successive learned matrix-vector transformations and a nonlinear hidden layer.",
+            "ru": "Бенжио и соавторы хранят обучаемые признаки слов в матрице, объединяют векторы слов из контекста фиксированной длины и вычисляют оценки следующего слова последовательными обучаемыми матрично-векторными преобразованиями и нелинейным скрытым слоем."
           }
         },
         {
@@ -71,7 +84,8 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network."
+            "en": "Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network.",
+            "ru": "Васвани и соавторы собирают запросы, ключи и значения в матрицы. Для вычисления внимания они получают масштабированные оценки «запрос — ключ», применяют к ним softmax и используют полученные веса для взвешивания значений; кроме того, они используют обучаемые проекции запросов, ключей и значений, выходную проекцию, а также два линейных преобразования в сети прямого распространения, одинаковой для каждой позиции."
           }
         },
         {
@@ -80,16 +94,19 @@
           "name": "Radford et al., Language Models are Unsupervised Multitask Learners",
           "source_url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf",
           "claim": {
-            "en": "The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context."
+            "en": "The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context.",
+            "ru": "В отчёте о GPT-2 описана архитектура авторегрессионной языковой модели на основе Transformer: четыре варианта имеют от 12 до 48 слоёв, ширину от 768 до 1600 и контекст длиной 1024 токена."
           }
         }
       ]
     },
     "approach": {
-      "en": "From one fixed-context neural-language-model vector to repeated matrix products across Transformer positions and heads"
+      "en": "From one fixed-context neural-language-model vector to repeated matrix products across Transformer positions and heads",
+      "ru": "От одного вектора контекста фиксированной длины в нейронной языковой модели к многократным матричным умножениям для позиций и голов Transformer"
     },
     "summary": {
-      "en": "Bengio et al.'s neural language model applies learned matrix-vector transforms to one concatenated finite context. The Transformer instead packs positions into matrices, projects Q, K, and V, forms attention scores with QK^T, and combines weights with V; GPT-2 scales that autoregressive Transformer pattern across deeper and wider stacks. This chapter implements the checked matrix contraction behind those later operations without attributing its local batching, stride, transpose, or error policy to the model papers."
+      "en": "Bengio et al.'s neural language model applies learned matrix-vector transforms to one concatenated fixed-length context. The Transformer instead packs positions into matrices, projects Q, K, and V, forms attention scores with QK^T, and combines weights with V; GPT-2 scales that autoregressive Transformer pattern across deeper and wider stacks. This chapter implements the checked matrix contraction behind those later operations without attributing its local batching, stride, transpose, or error policy to the model papers.",
+      "ru": "Нейронная языковая модель Бенжио и соавторов применяет обучаемые матрично-векторные преобразования к одному объединённому вектору контекста фиксированной длины. Transformer вместо этого представляет позиции строками матриц, проецирует Q, K и V, вычисляет оценки внимания с помощью QK^T и применяет веса внимания к V; в GPT-2 глубина и ширина такого авторегрессионного Transformer увеличены. В этой главе реализуется суммирование произведений по общей оси с проверкой форм — основа этих более поздних операций. При этом локальные правила пакетной обработки, шагов, транспонирования и ошибок не приписываются статьям о моделях."
     },
     "rust_contrast": "Apply a shape-specific fixed_context_projection to [1,2,3] and W=[[1,2],[0,1],[2,0]] to obtain [7,4]. Then use the cumulative matmul over both rows of A to obtain shape [2,2] with [7,4,16,13], reuse one [1,3,2] weight batch across two [2,3] activation batches, and verify the same result from stored W^T with transpose_right=true. This exposes the contraction shared by later model computations; it is not presented as the complete equation or implementation of any cited model."
   },
@@ -98,8 +115,7 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/tensor/matmul.rs",
       "rust/demos/ch11-matrix-multiplication/src/lib.rs",
-      "rust/demos/ch11-matrix-multiplication/src/main.rs",
-      "rust/demos/ch11-matrix-multiplication/src/diagram_trace.rs"
+      "rust/demos/ch11-matrix-multiplication/src/main.rs"
     ],
     "expected_output": "token rows: shape=[2, 3] values=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]\nprojection weights: shape=[3, 2] values=[1.0, 2.0, 0.0, 1.0, 2.0, 0.0]\nmatrix product: shape=[2, 2] values=[7.0, 4.0, 16.0, 13.0]\ncell [1, 0]: 4.0*1.0 + 5.0*0.0 + 6.0*2.0 = 16.0\nright-transpose flag: stored_shape=[2, 3] output_shape=[2, 2] values=[7.0, 4.0, 16.0, 13.0]\nbatched broadcast: left_shape=[2, 2, 3] right_shape=[1, 3, 2] output_shape=[2, 2, 2] values=[7.0, 4.0, 16.0, 13.0, 4.0, 1.0, 2.0, 5.0]\nzero inner dimension: shape=[2, 2] values=[0.0, 0.0, 0.0, 0.0]\ninner error: matmul inner dimensions do not match: left size 3, right size 4\nbatch error: cannot broadcast batch axis 0: left size 2, right size 3\nrank error: left matmul input must have rank at least 2, got 1\nchapter 12 handoff: stabilize matrix outputs into probabilities and log-probabilities\n"
   },
@@ -107,47 +123,56 @@
     "decision": "useful",
     "id": "matrix-multiplication",
     "rationale": {
-      "en": "A highlighted left row, right column, ordered running sum, and explicit batch mapping make the contracted inner axis and shared weight batch visible in ways a flat result vector does not."
+      "en": "A highlighted left row, right column, ordered running sum, and explicit batch mapping make the contracted inner axis and shared weight batch visible in ways a flat result vector does not.",
+      "ru": "Выделенная строка левой матрицы, столбец правой матрицы, последовательность накопленных сумм и явное сопоставление пакетов позволяют увидеть исчезающую внутреннюю ось и повторное использование матрицы весов — в плоском векторе результата эти связи не видны."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities."
+    "en": "The cumulative tensor core can now multiply rank-two or batched strided views, require equal contracted dimensions, broadcast only leading batch axes, interpret optional final-axis transposes without materializing, and return an owned contiguous result. Later projection and attention chapters will reuse this contraction; Chapter 12 next turns arbitrary matrix outputs into stable probabilities and log-probabilities.",
+    "ru": "Теперь тензорное ядро может умножать двумерные и пакетные представления с произвольными шагами, требовать равенства внутренних размеров, согласовывать формы только по начальным осям пакета, интерпретировать необязательное транспонирование последних осей без материализации и возвращать непрерывный результат с собственным хранилищем. В последующих главах о проекциях и внимании эта операция будет использоваться повторно; в главе 12 произвольные результаты матричного умножения будут преобразованы в устойчивые вероятности и логарифмы вероятностей."
   },
   "terminology": [
     {
       "concept_id": "matrix-multiplication",
-      "en": "matrix multiplication"
+      "en": "matrix multiplication",
+      "ru": "матричное умножение"
     },
     {
       "concept_id": "inner-dimension",
-      "en": "inner dimension"
+      "en": "inner dimension",
+      "ru": "внутренний размер"
     },
     {
       "concept_id": "contraction",
-      "en": "contraction"
+      "en": "contraction",
+      "ru": "суммирование произведений по общей оси"
     },
     {
       "concept_id": "batch-axis",
-      "en": "batch axis"
+      "en": "batch axis",
+      "ru": "ось пакета"
     },
     {
       "concept_id": "batch-broadcasting",
-      "en": "batch broadcasting"
+      "en": "batch broadcasting",
+      "ru": "согласование форм по осям пакета"
     },
     {
       "concept_id": "transpose-flag",
-      "en": "transpose flag"
+      "en": "transpose flag",
+      "ru": "флаг транспонирования"
     },
     {
       "concept_id": "running-sum",
-      "en": "running sum"
+      "en": "running sum",
+      "ru": "накопленная сумма"
     }
   ],
   "translation_notes": [
-    "Chapter 11 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep A, B, C, Q, K, V, W, W^T, d_k, GPT-2, shape arrays, coordinates, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence when another locale is activated later.",
-    "Translate contraction as summing products along one shared inner dimension, not as shrinking every axis. Distinguish batch-axis broadcasting from the contracted axes, which must be equal and never broadcast.",
-    "A future locale activation must localize every diagram label, explanation, exercise, accessible name, and history claim together with the complete lesson before any Chapter 11 route is published."
+    "Chapter 11 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Keep A, B, C, Q, K, V, W, W^T, d_k, GPT-2, shape arrays, coordinates, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence.",
+    "Translate contraction as «суммирование произведений по общей оси», not «свёртка». Use «внутренний размер», «ось пакета», «согласование форм по осям пакета», «флаг транспонирования», «накопленная сумма», «матрица весов проекции», and «представление тензора с произвольными шагами».",
+    "Distinguish batch-axis shape alignment from the contracted axes, whose extents must be equal and never broadcast. A transpose flag changes logical axes without eagerly copying values."
   ],
   "acceptance_examples": [
     {
@@ -267,6 +292,9 @@ The shared notation is:
 C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}
 ```
 
+In the worked input, the general right operand is the projection weight, so
+`B=W`.
+
 `C_ij` is one output value. `i` selects its row and `j` selects its column.
 For every contracted position `k`, the scalar loop multiplies left value `A_ik`
 by right value `B_kj` and adds that product to one running sum. `K` is the
@@ -280,7 +308,11 @@ coordinate supplies `i`, `j`, or `k`; it does not change the contraction.
 <!-- contract-section:history -->
 ## From one fixed context vector to matrices of positions
 
-Bengio et al.'s feed-forward neural language model looks up n - 1 learned word vectors, concatenates them into one context vector x, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions.
+Bengio et al.'s feed-forward neural language model looks up learned vectors for a
+fixed number of context words, concatenates them into one fixed-length context
+vector, and computes next-word scores with learned matrix-vector transforms. It
+shares features beyond count tables, but each prediction still uses that bounded
+context instead of masked self-attention across a sequence of positions.
 
 The earlier source is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
@@ -290,9 +322,12 @@ The later sources are
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
 and
 [Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf).
-Vaswani et al. pack queries, keys, and values into matrices, define attention as softmax(QK^T / sqrt(d_k))V, and use learned Q, K, V, and output projections plus two linear transforms in each position-wise feed-forward network. The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context.
-
-Vaswani et al. pack positions into Q, K, and V matrices, apply learned projections, compute masked decoder attention as softmax(QK^T / sqrt(d_k))V, project the concatenated heads, and use two more linear transforms in each position-wise feed-forward network. The GPT-2 report then carries an autoregressive Transformer language model to deeper, wider stacks and a 1024-token context.
+Vaswani et al. pack queries, keys, and values into matrices, define masked decoder
+attention as softmax(QK^T / sqrt(d_k))V, use learned Q, K, V, and output
+projections, and apply two linear transforms in each position-wise feed-forward
+network. The GPT-2 report uses that autoregressive Transformer pattern and scales
+its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a
+1024-token context.
 
 Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers.
 
@@ -392,21 +427,21 @@ arbitrary matrix outputs safe to normalize as probabilities and log-probabilitie
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set is English only. Russian remains registered and its
-course index remains available, but Chapter 11 has no Russian metadata key,
-lesson placeholder, or route. A later activation must add a complete contract
-projection, lesson, diagram labels, accessible names, exercises, tests, and route
-coverage together.
+The exact active locale set is English and Russian. English content revision 4
+is the canonical semantic source; the complete Russian contract projection,
+lesson, diagram labels, accessible names, exercises, and answers are translated
+directly from that frozen revision and publish as one same-revision set.
 
 Keep formula symbols, source URLs, Rust identifiers, trace keywords, shapes, and
-coordinate tuples exact. Translate inner-dimension contraction as pairwise
-products summed along one shared axis. Do not describe contracted axes as
-broadcastable, and do not translate a transpose flag as eagerly copying values.
+coordinate tuples exact. Translate the contraction as «суммирование произведений
+по общей оси», never «свёртка». Distinguish shape alignment along leading batch
+axes from the contracted axes, whose extents must be equal and never broadcast.
+A transpose flag changes logical axes without eagerly copying values.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
 
-Acceptance requires exact formula and metadata parity, all six declared Rust
+Acceptance requires exact formula and metadata parity, all five learner-facing Rust
 regions rendered once, and one exact visible/SEO description. Rust tests cover
 rank checks, effective inner dimensions, batch-axis compatibility, complete-shape
 overflow, fallible allocation, every transpose combination, strided views,

@@ -105,6 +105,7 @@ export interface MatrixMultiplicationDiagramLabels {
     storedShape: string;
     logicalShape: string;
     outputShape: string;
+    outputValues: string;
     term: string;
     product: string;
     runningTotal: string;
@@ -123,9 +124,14 @@ export interface MatrixMultiplicationDiagramLabels {
   readonly symbols: Readonly<{
     selectedRow: string;
     selectedColumn: string;
+    focusedOutput: string;
     contracted: string;
     reused: string;
     rejected: string;
+  }>;
+  readonly reasons: Readonly<{
+    innerMismatch: string;
+    batchMismatch: string;
   }>;
 }
 
@@ -216,7 +222,7 @@ function requireLexeme(value: TraceNumber, expected: string, label: string): voi
   }
 }
 
-/** Parses Rust-authored records without multiplying or summing in TypeScript. */
+/** Parses Rust-authored records without recomputing multiplication or summation. */
 export function parseMatrixMultiplicationTrace(stdout: string): MatrixMultiplicationTrace {
   if (stdout.includes('\r')) {
     throw new Error('Matrix-multiplication trace must use LF line endings.');
@@ -475,6 +481,7 @@ const requiredLabelShape: RequiredLabelShape = {
     storedShape: true,
     logicalShape: true,
     outputShape: true,
+    outputValues: true,
     term: true,
     product: true,
     runningTotal: true,
@@ -488,10 +495,12 @@ const requiredLabelShape: RequiredLabelShape = {
   symbols: {
     selectedRow: true,
     selectedColumn: true,
+    focusedOutput: true,
     contracted: true,
     reused: true,
     rejected: true,
   },
+  reasons: { innerMismatch: true, batchMismatch: true },
 };
 
 function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: string): void {

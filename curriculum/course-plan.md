@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 36,
+  "plan_revision": 37,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-10",
+    "policy_id": "selective-russian-through-chapter-11",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "10-broadcasting-reductions",
+        "through_chapter": "11-matrix-multiplication",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-10."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-11."
       },
       {
-        "from_chapter": "11-matrix-multiplication",
+        "from_chapter": "12-stable-softmax",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 10 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 11 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -224,6 +224,11 @@
         "step_id": "activate-ch10-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch10-russian-localization"
+      },
+      {
+        "step_id": "activate-ch11-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch11-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -793,9 +798,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–10 activate
-both, while Chapters 11–39 activate English only. Russian therefore keeps its index
-and Chapter 0–10 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–11 activate
+both, while Chapters 12–39 activate English only. Russian therefore keeps its index
+and Chapter 0–11 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1007,14 +1012,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `11-matrix-multiplication`
 - **Implementation step:** `implement-ch11-matrix-multiplication`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 adds the complete Russian projection, repairs the LLM-focused historical account and formula explanations, and migrates the visualization to the shared diagram system during `activate-ch11-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `10-broadcasting-reductions`.
 - **Outcome:** Compute checked 2-D and batched matrix products from scalar loops and tensor strides.
 - **Scope boundary:** Teach inner-dimension contraction, output shapes, batched broadcasting, and transpose flags; defer hardware optimization.
 - **Formula:** `C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}`.
 - **Historical contrast:** Shape-specific weighted sums for one fixed context do not scale cleanly across many positions and heads; trace Bengio et al.'s neural-language-model matrices to the batched Q/K/V and output projections repeated throughout a Transformer.
-- **Rust contribution:** Add dependency-free matmul with naive loops, reference fixtures, shape errors, and batched cases.
-- **Visualization:** Useful — trace one output cell through a highlighted row/column dot product and then show the batch axis.
+- **Rust contribution:** Add dependency-free matmul with naive loops, checked shape errors, transpose flags, and batched cases.
+- **Visualization:** Useful — trace one output cell through a highlighted row/column dot product, then show transpose, batch reuse, and rejected shapes through the shared presentation roles.
 - **Practice:** Predict output shape and two cells for a small product before comparing exact Rust output.
 - **Integration evidence:** Known products, zero dimensions, non-square/batched inputs, incompatible shapes, and tolerance checks pass.
 - **Handoff:** Chapter 12 turns arbitrary contraction outputs into stable probabilities and log-probabilities.

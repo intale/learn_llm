@@ -8306,3 +8306,71 @@ independently.
 
 **Affected step and run:** `activate-ch10-russian-localization`, run
 `20260728T113229Z-activate-ch10-russian-localization-01`.
+
+## 2026-07-28 - Activate Russian Chapter 11 after the Chapter 10 checkpoint
+
+**Status:** Accepted from the user's ordered Chapter 8-11 localization request
+after Chapter 10 completed in commit `6ceb7d5`.
+
+**Context:** Chapter 11 is now the first English-only lesson after the complete
+Russian prefix. It teaches checked two-dimensional and batched matrix
+multiplication, the contracted inner dimension, batch-only broadcasting,
+logical transpose flags, strided traversal, deterministic error precedence, and
+zero-size behavior reused by later projection and attention chapters. Its dense
+matrix cells, term-by-term running sum, transpose state, batch mappings, and
+error cards create target-language layout risks that must be measured rather
+than inferred from English.
+
+**Decision:** Audit and, where necessary, repair the current English Chapter 11
+contract, lesson, formula presentation, LLM-history framing, executable evidence,
+and shared-diagram compliance before translation. Freeze that current English
+revision, then translate the complete contract and page directly into natural
+technical Russian while preserving formulas, symbols, shapes, values,
+coordinates, identifiers, error precedence, sources, exercises, answers, SEO,
+accessibility, and the boundary that defers stable probabilities. Activate only
+Chapter 11 in this checkpoint, advance the checked locale policy, and validate
+the exact candidate in Chromium and Firefox at desktop, narrow, no-JavaScript,
+full-view, forced-color, direction, and nearest-box containment surfaces.
+
+**Consequences:** Russian becomes complete through Chapter 11 while Chapters
+12-39 remain English-only until separate activation work is requested. The
+course's batch-broadcast, transpose, stride, allocation, accumulation-order, and
+error rules remain local correctness decisions rather than APIs attributed to
+the cited language-model papers. No dependency, product build definition,
+hosting setting, deployment target, or Rust behavior changes merely because this
+locale is activated. User review follows the independently committed checkpoint
+and is not a publication prerequisite.
+
+**Affected step and run:** `activate-ch11-russian-localization`, run
+`20260728T130110Z-activate-ch11-russian-localization-01`.
+
+## 2026-07-28 - Freeze Chapter 11 revision 4 and its bilingual matrix presentation
+
+**Status:** Accepted after exact candidate validation.
+
+**Context:** Canonical review found that the earlier English page left the
+worked projection relationship implicit, framed history too generally, exposed
+authoring and presentation machinery to learners, and used a private diagram
+frame whose geometry was not governed by the current shared containment rules.
+The Russian activation therefore could not safely preserve the earlier revision
+as-is.
+
+**Decision:** Freeze English and Russian Chapter 11 at revision 4. The English
+source now names the worked relationship $B=W$, connects matrix multiplication
+to neural language models, Transformer projections, and GPT-2, and keeps
+implementation mechanics out of learner prose. The single semantic figure uses
+the shared course-diagram roles, localized evidence and accessibility labels,
+four explicit content-owning boxes, and one shared progressive full-view
+enhancement. Russian is activated directly from that frozen source, and the
+locale policy is advanced through Chapter 11 only.
+
+**Consequences:** Chapters 0-11 now form the complete bilingual English/Russian
+prefix; Chapters 12-39 remain intentionally English-only. The exact candidate
+passes the complete Linux source/static gate, 840 unit cases, and 127 rendered
+cases in each of Chromium and Firefox, including desktop, narrow, no-JavaScript,
+forced-color, full-view, formula, direction, and nearest-box containment checks.
+No Rust behavior, dependency, product build definition, hosting setting, or
+deployment target changed in this checkpoint.
+
+**Affected step and run:** `activate-ch11-russian-localization`, run
+`20260728T130110Z-activate-ch11-russian-localization-01`.

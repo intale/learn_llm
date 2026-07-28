@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–10 and English only for Chapters 11–39',
+      'English and Russian for Chapters 0–11 and English only for Chapters 12–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–10 use English and Russian',
+      'Chapters 0–11 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 10 use English and Russian, and Chapters 11 through 39 use English only',
+      'Chapters 0 through 11 use English and Russian, and Chapters 12 through 39 use English only',
     );
   });
 
@@ -108,6 +108,11 @@ describe('chapter-locale manifest', () => {
       order: 10,
       activeLocales: ['en', 'ru'],
     });
+    expect(chapterLocaleConfiguration.chapters[11]).toMatchObject({
+      chapterId: '11-matrix-multiplication',
+      order: 11,
+      activeLocales: ['en', 'ru'],
+    });
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
@@ -115,7 +120,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 11)
+        .slice(0, 12)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -125,7 +130,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 11)
+        .filter((chapter) => chapter.order >= 12)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -146,6 +151,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('09-tensor-views', 'ru')).toBe(true);
     expect(activeLocalesForChapter('10-broadcasting-reductions')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('10-broadcasting-reductions', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('11-matrix-multiplication')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('11-matrix-multiplication', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 

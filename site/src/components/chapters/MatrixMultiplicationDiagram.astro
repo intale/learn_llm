@@ -57,7 +57,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     </dl>
   </figcaption>
 
-  <section class="diagram-panel matrices-panel" aria-labelledby={`${instanceId}-matrices-title`}>
+  <section class="matrices-panel" data-diagram-box aria-labelledby={`${instanceId}-matrices-title`}>
     <h4 id={`${instanceId}-matrices-title`}>{labels.sections.matrices}</h4>
     <p>{labels.notes.matrices}</p>
     <div
@@ -70,13 +70,18 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
         <table data-diagram-table class="matrix-table" data-matrix-id="left">
           <caption><InlineMath latex="A" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[0].shape)}</code></caption>
           <thead>
-            <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th><th scope="col">2</th></tr>
+            <tr>
+              <th scope="col">{labels.fields.row}</th>
+              {[0, 1, 2].map((columnIndex) => (
+                <th scope="col"><span class="visually-hidden">{labels.fields.column} </span>{columnIndex}</th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {leftRows.map((row, rowIndex) => (
               <tr class:list={{ 'selected-row': rowIndex === 1 }} data-row={rowIndex}>
                 <th scope="row">
-                  {rowIndex === 1 && <span class="state-symbol" aria-hidden="true">R</span>}
+                  {rowIndex === 1 && <span class="state-symbol" aria-hidden="true">→</span>}
                   {rowIndex === 1 && <span class="visually-hidden">{labels.symbols.selectedRow}: </span>}
                   <bdi dir="ltr">{rowIndex}</bdi>
                 </th>
@@ -93,7 +98,15 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
         <table data-diagram-table class="matrix-table" data-matrix-id="right">
           <caption><InlineMath latex="W" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.inputs[1].shape)}</code></caption>
           <thead>
-            <tr><th scope="col">{labels.fields.row}</th><th scope="col" class="selected-column"><span class="state-symbol" aria-hidden="true">C</span><span class="visually-hidden">{labels.symbols.selectedColumn}: </span>0</th><th scope="col">1</th></tr>
+            <tr>
+              <th scope="col">{labels.fields.row}</th>
+              <th scope="col" class="selected-column">
+                <span class="state-symbol" aria-hidden="true">↓</span>
+                <span class="visually-hidden">{labels.symbols.selectedColumn}: </span>
+                <span class="visually-hidden">{labels.fields.column} </span>0
+              </th>
+              <th scope="col"><span class="visually-hidden">{labels.fields.column} </span>1</th>
+            </tr>
           </thead>
           <tbody>
             {rightRows.map((row, rowIndex) => (
@@ -115,7 +128,12 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
         <table data-diagram-table class="matrix-table" data-matrix-id="output">
           <caption><InlineMath latex="C" /> — {labels.fields.shape} <code dir="ltr">{tuple(trace.output.shape)}</code></caption>
           <thead>
-            <tr><th scope="col">{labels.fields.row}</th><th scope="col">0</th><th scope="col">1</th></tr>
+            <tr>
+              <th scope="col">{labels.fields.row}</th>
+              {[0, 1].map((columnIndex) => (
+                <th scope="col"><span class="visually-hidden">{labels.fields.column} </span>{columnIndex}</th>
+              ))}
+            </tr>
           </thead>
           <tbody>
             {outputRows.map((row, rowIndex) => (
@@ -125,7 +143,12 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
                   <td
                     class:list={{ 'focused-output': rowIndex === 1 && columnIndex === 0 }}
                     data-coordinate={`${rowIndex},${columnIndex}`}
-                  ><bdi dir="ltr">{value.lexeme}</bdi></td>
+                  >
+                    {rowIndex === 1 && columnIndex === 0 && (
+                      <span class="visually-hidden">{labels.symbols.focusedOutput}: </span>
+                    )}
+                    <bdi dir="ltr">{value.lexeme}</bdi>
+                  </td>
                 ))}
               </tr>
             ))}
@@ -135,13 +158,14 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     </div>
   </section>
 
-  <section class="diagram-panel contraction-panel" aria-labelledby={`${instanceId}-contraction-title`}>
+  <section class="contraction-panel" data-diagram-box aria-labelledby={`${instanceId}-contraction-title`}>
     <h4 id={`${instanceId}-contraction-title`}>{labels.sections.contraction}</h4>
     <p>{labels.notes.contraction}</p>
-    <ol class="term-list">
+    <ol class="term-list course-diagram__grid">
       {trace.terms.map((term) => (
         <li data-diagram-card data-diagram-box
-          class="term-card"
+          class="term-card course-diagram__card-stack"
+          data-state="trusted"
           data-output-coordinate={term.output.map(({ lexeme }) => lexeme).join(',')}
           data-contracted-index={term.inner.lexeme}
           data-left-coordinate={term.leftCoordinate.map(({ lexeme }) => lexeme).join(',')}
@@ -149,7 +173,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
           data-product={term.product.lexeme}
           data-running-total={term.partialSum.lexeme}
         >
-          <h5>
+          <h5 class="course-diagram__card-heading">
             <span class="state-symbol" aria-hidden="true">↓</span>
             <span class="visually-hidden">{labels.symbols.contracted}: </span>
             {labels.fields.term}{' '}
@@ -169,24 +193,24 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     </ol>
   </section>
 
-  <section class="diagram-panel reuse-panel" aria-labelledby={`${instanceId}-reuse-title`}>
+  <section class="reuse-panel" data-diagram-box aria-labelledby={`${instanceId}-reuse-title`}>
     <h4 id={`${instanceId}-reuse-title`}>{labels.sections.transposeAndBatch}</h4>
     <p>{labels.notes.transposeAndBatch}</p>
     <dl class="transpose-facts" data-transpose-operand={trace.transpose.operand}>
       <div><dt>{labels.fields.storedShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.storedShape)}</code></dd></div>
       <div><dt>{labels.fields.logicalShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.logicalShape)}</code></dd></div>
       <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{tuple(trace.transpose.outputShape)}</code></dd></div>
-      <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">[{trace.transpose.values.map(({ lexeme }) => lexeme).join(', ')}]</code></dd></div>
+      <div><dt>{labels.fields.outputValues}</dt><dd><code dir="ltr">[{trace.transpose.values.map(({ lexeme }) => lexeme).join(', ')}]</code></dd></div>
     </dl>
-    <ol class="batch-list">
+    <ol class="batch-list course-diagram__grid">
       {trace.batches.map((batch) => (
         <li data-diagram-card data-diagram-box
-          class="batch-card"
+          class="batch-card course-diagram__card-stack"
           data-output-batch={batch.output.lexeme}
           data-left-batch={batch.left.lexeme}
           data-right-batch={batch.right.lexeme}
         >
-          <h5>
+          <h5 class="course-diagram__card-heading">
             <span class="state-symbol" aria-hidden="true">↻</span>
             <span class="visually-hidden">{labels.symbols.reused}: </span>
             {labels.fields.outputBatch} <bdi dir="ltr">{batch.output.lexeme}</bdi>
@@ -201,20 +225,22 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     </ol>
   </section>
 
-  <section class="diagram-panel errors-panel" aria-labelledby={`${instanceId}-errors-title`}>
+  <section class="errors-panel" data-diagram-box aria-labelledby={`${instanceId}-errors-title`}>
     <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
-    <ol class="error-list">
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
+    <ol class="error-list course-diagram__grid">
+      <li data-diagram-card data-diagram-box data-status="fail" class="error-card course-diagram__card-stack" data-error-kind={trace.errors[0].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[0].kind}</code>
+        <span>{labels.reasons.innerMismatch}</span>
         <span><InlineMath latex={String.raw`${trace.errors[0].leftInner.lexeme}\ne${trace.errors[0].rightInner.lexeme}`} /></span>
       </li>
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[1].kind}>
+      <li data-diagram-card data-diagram-box data-status="fail" class="error-card course-diagram__card-stack" data-error-kind={trace.errors[1].kind}>
         <span class="state-symbol" aria-hidden="true">×</span>
         <span class="visually-hidden">{labels.symbols.rejected}: </span>
         <code dir="ltr">{trace.errors[1].kind}</code>
+        <span>{labels.reasons.batchMismatch}</span>
         <span>
           {labels.fields.batchAxis} <bdi dir="ltr">{trace.errors[1].batchAxis.lexeme}</bdi>:{' '}
           <InlineMath latex={String.raw`${trace.errors[1].leftSize.lexeme}\ne${trace.errors[1].rightSize.lexeme}`} />
@@ -225,30 +251,7 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
 </figure>
 
 <style>
-  .matrix-multiplication-diagram {
-    --diagram-border: color-mix(in srgb, currentColor 28%, transparent);
-    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
-    display: grid;
-    gap: 1rem;
-    max-width: 100%;
-    margin-block: 1.5rem;
-    padding: clamp(0.85rem, 3vw, 1.5rem);
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.85rem;
-  }
-
-  .matrix-multiplication-diagram:focus-visible,
-  .matrix-scroll:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  figcaption p,
-  .diagram-panel h4,
-  .diagram-panel > p,
-  .term-card h5,
-  .batch-card h5 { margin-block-start: 0; }
+  .matrix-multiplication-diagram { align-content: start; }
 
   .summary-facts,
   .transpose-facts,
@@ -264,21 +267,6 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
   .transpose-facts div,
   .term-card dl div,
   .batch-card dl div { display: flex; gap: 0.4rem; align-items: baseline; }
-  dt { font-weight: 700; }
-  dd { margin: 0; }
-
-  .diagram-panel {
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.65rem;
-    background: var(--diagram-surface);
-  }
-
-  .matrix-scroll {
-    max-width: 100%;
-  }
-
   .matrix-equation {
     display: grid;
     grid-template-columns: minmax(12rem, 1fr) auto minmax(10rem, 0.8fr) auto minmax(9rem, 0.7fr);
@@ -287,11 +275,8 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     min-width: 40rem;
   }
 
-  .operator { font-size: 1.45rem; font-weight: 800; }
-  table { width: 100%; border-collapse: collapse; }
-  caption { padding-block-end: 0.5rem; font-weight: 700; }
-  th,
-  td { padding: 0.5rem; border: 1px solid var(--diagram-border); text-align: center; }
+  .operator { font-size: 1.45rem; }
+  .matrix-table { inline-size: 100%; table-layout: fixed; }
   .selected-row { border-inline-start: 4px solid currentColor; }
   .selected-column { border-block-end: 4px dotted currentColor; }
   .focused-output { border: 4px double currentColor; font-weight: 800; }
@@ -300,37 +285,13 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
   .batch-list,
   .error-list {
     display: grid;
-    gap: 0.85rem;
-    padding: 0;
-    list-style: none;
   }
 
   .term-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .batch-list,
   .error-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-  .term-card,
-  .batch-card,
-  .error-card {
-    min-width: 0;
-    padding: 0.85rem;
-    border: 3px solid currentColor;
-    border-radius: 0.55rem;
-  }
-
-  .term-card { border-style: double; }
-  .batch-card { border-style: solid; }
-  .error-card {
-    display: grid;
-    align-content: start;
-    gap: 0.4rem;
-    border-style: dashed;
-  }
-
-  .term-expression { font-weight: 750; }
-  .state-symbol { margin-inline-end: 0.35rem; font-weight: 800; }
-  code,
-  bdi { unicode-bidi: isolate; }
+  .error-card { align-content: start; }
 
   .visually-hidden {
     position: absolute;
@@ -350,12 +311,25 @@ const outputRows = matrixRows(trace.output.values, trace.output.shape[1]!.value)
     .error-list { grid-template-columns: 1fr; }
   }
 
-  @media (forced-colors: active) {
-    .selected-row { border-inline-start-style: solid; }
-    .selected-column { border-block-end-style: dotted; }
-    .focused-output,
-    .term-card { border-style: double; }
-    .batch-card { border-style: solid; }
-    .error-card { border-style: dashed; }
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .matrix-multiplication-diagram:fullscreen {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      align-content: start;
+    }
+
+    .matrix-multiplication-diagram:fullscreen > figcaption {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(22rem, 0.85fr) minmax(0, 1.15fr);
+      align-items: start;
+      column-gap: 1rem;
+    }
+
+    .matrix-multiplication-diagram:fullscreen > figcaption > :is(h3, p) {
+      max-inline-size: none;
+    }
+
+    .matrix-multiplication-diagram:fullscreen .matrix-equation {
+      min-inline-size: 100%;
+    }
   }
 </style>

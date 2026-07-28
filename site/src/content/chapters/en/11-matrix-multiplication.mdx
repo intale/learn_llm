@@ -2,7 +2,7 @@
 {
   "chapter_id": "11-matrix-multiplication",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 11,
   "concept_id": "matrix-multiplication",
   "title": "Multiply rows by columns, then reuse batches",
@@ -14,39 +14,39 @@
     "symbols": [
       {
         "symbol": "C_{ij}",
-        "meaning": "the output value at row i and column j"
+        "meaning": "the output value at the selected row and column"
       },
       {
         "symbol": "A_{ik}",
-        "meaning": "the left input value at output row i and contracted position k"
+        "meaning": "the left input value at the selected output row and contracted position"
       },
       {
         "symbol": "B_{kj}",
-        "meaning": "the right input value at contracted position k and output column j"
+        "meaning": "the right input value at the contracted position and selected output column"
       },
       {
         "symbol": "i",
-        "meaning": "the zero-based output-row index"
+        "meaning": "the zero-based index of the selected output row"
       },
       {
         "symbol": "j",
-        "meaning": "the zero-based output-column index"
+        "meaning": "the zero-based index of the selected output column"
       },
       {
         "symbol": "k",
-        "meaning": "the zero-based index traversed along both contracted inner dimensions"
+        "meaning": "the zero-based index traversed along the two contracted inner dimensions"
       },
       {
         "symbol": "K",
-        "meaning": "the shared inner-dimension extent and number of scalar multiplications whose products are summed into one output cell"
+        "meaning": "the common inner extent and number of scalar products accumulated into one output cell"
       }
     ]
   },
   "history": {
     "llm_evolution": {
       "predecessor_kind": "language-model",
-      "limitation": "Bengio et al.'s feed-forward neural language model looks up a fixed set of learned word vectors, concatenates them into one context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction is still organized around one finite context vector rather than masked attention over a matrix of positions.",
-      "later_advance": "Vaswani et al. pack positions into query, key, and value matrices, apply learned projections, compute masked decoder attention from scaled query-key products, project the concatenated heads, and use two more linear transforms in each position-wise feed-forward network. The GPT-2 report then carries an autoregressive Transformer language model to deeper, wider stacks and a 1024-token context.",
+      "limitation": "Bengio et al.'s feed-forward neural language model looks up learned vectors for a fixed number of context words, concatenates them into one fixed-length context vector, and computes next-word scores with learned matrix-vector transforms. It shares features beyond count tables, but each prediction still uses that bounded context instead of masked self-attention across a sequence of positions.",
+      "later_advance": "Vaswani et al. pack queries, keys, and values into matrices, define attention through scaled query-key products followed by softmax and value weighting, and use learned query, key, value, and output projections plus two linear transforms in each position-wise feed-forward network. The GPT-2 report uses a Transformer-based architecture for autoregressive language models and scales its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a 1024-token context.",
       "modern_llm_role": "Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers.",
       "sources": [
         {
@@ -73,7 +73,7 @@
       ]
     },
     "approach": "From one fixed-context neural-language-model vector to repeated matrix products across Transformer positions and heads",
-    "summary": "Bengio et al.'s neural language model applies learned matrix-vector transforms to one concatenated finite context. The Transformer instead packs positions into matrices, projects Q, K, and V, forms attention scores with QK^T, and combines weights with V; GPT-2 scales that autoregressive Transformer pattern across deeper and wider stacks. This chapter implements the checked matrix contraction behind those later operations without attributing its local batching, stride, transpose, or error policy to the model papers.",
+    "summary": "Bengio et al.'s neural language model applies learned matrix-vector transforms to one concatenated fixed-length context. The Transformer instead packs positions into matrices, projects Q, K, and V, forms attention scores with QK^T, and combines weights with V; GPT-2 scales that autoregressive Transformer pattern across deeper and wider stacks. This chapter implements the checked matrix contraction behind those later operations without attributing its local batching, stride, transpose, or error policy to the model papers.",
     "rust_source": "rust/demos/ch11-matrix-multiplication/src/lib.rs"
   },
   "rust_sources": [
@@ -101,11 +101,6 @@
       "path": "rust/demos/ch11-matrix-multiplication/src/main.rs",
       "region": "learner-matrix-multiplication-output",
       "purpose": "Run the frozen product, transpose, batch, zero-inner, and typed-error cases printed for learners."
-    },
-    {
-      "path": "rust/demos/ch11-matrix-multiplication/src/diagram_trace.rs",
-      "region": "matrix-multiplication-trace",
-      "purpose": "Record the exact Rust-derived inputs, shape plan, ordered terms, batch mappings, and rejected requests consumed by the static figure."
     }
   ],
   "visualization": {
@@ -122,7 +117,7 @@ import MatrixMultiplicationDiagram from '../../../components/chapters/MatrixMult
 export const diagramLabels = {
   title: 'Follow one row-by-column contraction, then reuse one weight batch',
   description:
-    'Compare the three Rust-recorded matrices, accumulate the output at row one and column zero in contracted-index order, and inspect transpose, batch reuse, and rejected shapes.',
+    'Compare three matrices, accumulate one selected output cell in contracted-index order, and inspect logical transposition, batch reuse, and rejected shapes.',
   summary: {
     left: 'Left activation shape',
     right: 'Projection weight shape',
@@ -141,6 +136,7 @@ export const diagramLabels = {
     storedShape: 'Stored shape',
     logicalShape: 'Logical shape',
     outputShape: 'Output shape',
+    outputValues: 'Output values',
     term: 'Term',
     product: 'Product',
     runningTotal: 'Running total',
@@ -152,20 +148,25 @@ export const diagramLabels = {
   },
   notes: {
     matrices:
-      'The solid R marker selects row one of the left activation. The dotted C marker selects column zero of the projection weight. Their intersection becomes the double-bordered focused output cell.',
+      'The solid arrow and left border select one row of the left activation. The downward arrow and dotted border select one column of the projection weight. Their intersection becomes the double-bordered focused output cell.',
     contraction:
-      'Each double-bordered card is one contracted-index step copied from the Rust trace; the running total reaches 16.0 only after all three products.',
+      'Each double-bordered card is one contracted-index step; the running total reaches the focused output only after all three products.',
     transposeAndBatch:
-      'A transpose flag changes the logical final axes without materializing, while the curved arrow marks right batch 0 reused for both output batches.',
+      'A transpose flag changes the logical final axes without materializing, while the curved arrow marks the single right batch reused for both output batches.',
     errors:
       'Dashed cards keep the exact dimensions rejected before allocation or scalar multiplication begins.',
   },
   symbols: {
     selectedRow: 'Selected left row',
     selectedColumn: 'Selected right column',
+    focusedOutput: 'Focused output cell',
     contracted: 'Product accumulated along the inner dimension',
     reused: 'Shared weight batch reused by broadcasting',
     rejected: 'Rejected matrix product',
+  },
+  reasons: {
+    innerMismatch: 'The two inner dimensions must be equal.',
+    batchMismatch: 'Leading batch dimensions must be equal or one of them must be singleton.',
   },
 };
 
@@ -189,8 +190,8 @@ The projection weight $W$ has shape `[3,2]`:
  [2, 0]]
 ```
 
-Predict the result shape before multiplying any values. The shared inside
-extents are both $3$. The two outside extents survive, so the result has shape
+Predict the result shape before multiplying any values. The shared inner
+extents are both $3$. The two outer extents survive, so the result has shape
 `[2,2]`.
 
 Now predict cell $C_{1,0}$. Select row $1$ from $A$ and column $0$ from $W$,
@@ -238,6 +239,9 @@ $$
 C_{ij}=\sum_{k=0}^{K-1} A_{ik}B_{kj}
 $$
 
+For the worked example, the general right operand is the projection weight:
+$B=W$.
+
 Fix one output row $i$ and column $j$. Initialize a running sum to $0$.
 For each $k$ from zero through $K-1$, multiply $A_{ik}$ by $B_{kj}$ and add
 that product. The loop order is part of this reference implementation because
@@ -274,13 +278,13 @@ an explicit row or column axis so the output-shape rule has no hidden case.
 
 ## From one fixed context vector to matrices of positions
 
-Bengio et al.'s feed-forward neural language model looks up a fixed set of
-learned word vectors, concatenates them into one context vector, and computes
-next-word scores with learned matrix-vector transforms. It shares features
-beyond count tables, but each prediction is still organized around one finite
-context vector rather than masked attention over a matrix of positions.
+Bengio et al.'s feed-forward neural language model looks up learned vectors for
+a fixed number of context words, concatenates them into one fixed-length context
+vector, and computes next-word scores with learned matrix-vector transforms. It
+shares features beyond count tables, but each prediction still uses that bounded
+context instead of masked self-attention across a sequence of positions.
 
-The earlier checkpoint is
+The earlier model is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
 Bengio et al. store learned word features in a matrix, concatenate the fixed
 context-word vectors, and compute next-word scores with successive learned
@@ -291,10 +295,10 @@ $|V|\times m$ matrix $C$.
 
 That model is already part of LLM history: learned word features and shared
 neural parameters replace separate count-table rows. The bounded contrast here
-is its organization around one concatenated finite context vector. The paper
+is its organization around one concatenated fixed-length context vector. The paper
 does not specify this course's batched tensor API, stride rules, or error types.
 
-The later checkpoints are
+The later sources are
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
 and
 [Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf).
@@ -304,20 +308,13 @@ use learned query, key, value, and output projections plus two linear transforms
 in each position-wise feed-forward network. The GPT-2 report uses a
 Transformer-based architecture for autoregressive language models and scales
 its four model sizes from 12 to 48 layers, model widths 768 to 1600, and a
-1024-token context. In notation, the attention mapping is
+1024-token context. In the Transformer's notation, the attention mapping is
 $\operatorname{softmax}(QK^{\mathsf T}/\sqrt{d_k})V$.
-
-Vaswani et al. pack positions into query, key, and value matrices, apply learned
-projections, compute masked decoder attention from scaled query-key products,
-project the concatenated heads, and use two more linear transforms in each
-position-wise feed-forward network. The GPT-2 report then carries an
-autoregressive Transformer language model to deeper, wider stacks and a
-1024-token context.
 
 Checked matrix multiplication is the reusable contraction behind learned projections, attention scores, and attention-weighted values on the road to a modern decoder. This course's batched broadcasting, transpose flags, strided traversal, storage policy, zero-size rules, and explicit errors are local correctness decisions, not designs attributed to the papers.
 
 The Rust contrast makes that historical step concrete without pretending to
-implement either paper. `fixed_context_projection` calculates one three-feature
+implement any cited model. `fixed_context_projection` calculates one three-feature
 context vector with a shape-specific loop. The general tensor path applies the
 same row-column rule to multiple token rows and leading batches.
 
@@ -369,55 +366,32 @@ reads. If only $K=0$, output cells still exist: each running sum begins at
 positive `0.0` and receives no terms. Contracted extents $0$ and $1$ do not
 broadcast and are rejected as an inner mismatch.
 
-The frozen helper constructs the 2-D product, the stored right transpose, and
-two left batches sharing one weight batch. Its tests compare the shape-specific
-first and second rows with the rank-generic result.
+The small helper constructs the 2-D product, the stored right transpose, and
+two left batches sharing one weight batch. Applying the shape-specific function
+to each row gives the same four values as the rank-generic matrix product.
 
 <RustSource
   path="rust/demos/ch11-matrix-multiplication/src/lib.rs"
   region="tiny-matmul-example"
   caption="Build one 2-D product, logical right transpose, and shared-weight batched product"
-  label="Rust source constructing the complete frozen Chapter 11 matrix-multiplication example"
+  label="Rust source constructing the complete Chapter 11 matrix-multiplication example"
 />
 
-The learner program also prints a zero-inner contraction and exact rank, inner,
-and batch errors. Run it with the pinned Linux toolchain:
+The learner program also shows a zero-inner contraction and the exact rank,
+inner-dimension, and batch-dimension errors.
 
 <RustSource
   path="rust/demos/ch11-matrix-multiplication/src/main.rs"
   region="learner-matrix-multiplication-output"
-  caption="Prepare deterministic 2-D, transpose, batch, zero-inner, and error evidence"
-  label="Rust source running the Chapter 11 learner examples before their exact textual output is printed"
+  caption="Run 2-D, transpose, batch, zero-inner, and error examples"
+  label="Rust source running the Chapter 11 learner examples and printing their results"
 />
 
-```bash
-./course run cargo run --quiet --locked -p ch11-matrix-multiplication
-```
-
-The expected output and unit tests freeze exact integer-valued products. A
-separate decimal dot product uses absolute tolerance `1e-12`; decimal fractions
-are not exact binary floating-point values. A cancellation fixture freezes the
-ascending-$k$ fold and prevents a later optimization from silently changing the
-reference calculation.
-
-The trace producer calls the same checked operations, then serializes inputs,
-the effective plan, three ordered terms, the final output, transpose equivalence,
-two batch mappings, and two typed errors. Formatting code records results; it
-does not replace the matrix calculation.
-
-<RustSource
-  path="rust/demos/ch11-matrix-multiplication/src/diagram_trace.rs"
-  region="matrix-multiplication-trace"
-  caption="Serialize the exact Rust-derived contraction, transpose, batch reuse, and rejected dimensions"
-  label="Rust source producing the locale-neutral Chapter 11 visualization trace from checked matrix operations"
-/>
-
-```bash
-./course run cargo run --quiet --locked -p ch11-matrix-multiplication --example ch11-matrix-multiplication-trace
-```
-
-Both commands must match their checked-in fixtures byte for byte, including one
-final newline. No library implements matrix multiplication for this chapter.
+Integer-valued examples can be compared exactly. A decimal dot product instead
+uses absolute tolerance `1e-12`, because decimal fractions are not generally
+exact binary floating-point values. The cancellation example also makes the
+ascending-$k$ accumulation order observable. No library implements matrix
+multiplication for this chapter.
 
 {/* chapter-section:visualization */}
 
@@ -436,14 +410,11 @@ Read the figure in four passes:
 
 <MatrixMultiplicationDiagram labels={diagramLabels} />
 
-Every number, coordinate, and running total comes from the Rust trace. The figure
-validates and presents that recorded evidence without recalculating any product
-or sum.
-
-The figure follows source order. Its only intentionally wide matrix group is a
-named keyboard-focusable local scroller. Solid row, dotted column, double
-contraction, curved reuse, and dashed rejection cues remain distinguishable
-without color and in forced-colors mode.
+Read the focused output as a complete proof: one selected row and one selected
+column supply exactly three products, and their ordered running totals end at
+$16$. The batch cards then show that only the leading batch axis reuses the
+weight matrix. The two rejected examples distinguish equality of the contracted
+inner extents from broadcasting of leading batch axes.
 
 {/* chapter-section:exercises */}
 
@@ -451,7 +422,7 @@ without color and in forced-colors mode.
 
 Write effective shapes before calculating any values.
 
-1. Predict the output shape and all four values for frozen $A$ shape `[2,3]` multiplied by $W$ shape `[3,2]`.
+1. Predict the output shape and all four values for the example matrix $A$ with shape `[2,3]` multiplied by $W$ with shape `[3,2]`.
 2. Recompute $C_{1,0}$ in ascending $k$ order. Which axis disappears, and why?
 3. Store $W^{\mathsf T}$ as shape `[2,3]`. Which flag restores logical shape `[3,2]`,
    and what output remains unchanged?
@@ -467,7 +438,7 @@ Write effective shapes before calculating any values.
 <details>
   <summary>Check the eight matrix-multiplication predictions</summary>
 
-1. The equal inner extents disappear. The outside extents form shape `[2,2]`,
+1. The equal inner extents disappear. The outer extents form shape `[2,2]`,
    and the values are `[7,4,16,13]` in row-major order.
 2. $4\cdot1$ gives running total $4$; $5\cdot0$ leaves it $4$; $6\cdot2$ raises it to $16$.
    Axis $k$ disappears because all three matching positions contribute to one cell.
