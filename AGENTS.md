@@ -47,8 +47,10 @@ navigation, and accessibility labels. Translate meaning rather than sentence
 shape. Preserve formulas, symbols, code, identifiers, values, links, causal
 relationships, scope, and pedagogical commitments while using natural established
 technical and mathematical language in the target locale. Automated or
-agent-authored translation is a draft; publication still requires approval from a
-fluent target-language human for the exact frozen content and rendered surfaces.
+agent-authored translation must pass the recorded semantic, terminology,
+anti-calque, monolingual, accessibility, and rendered-surface reviews before
+publication. Do not add a pre-publication approval pause; the user reviews
+completed localization changes after delivery.
 
 Never infer localized layout safety from English. Validate the complete target
 page in Chromium and Firefox at desktop and narrow widths, and validate every

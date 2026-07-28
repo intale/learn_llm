@@ -136,7 +136,7 @@ The bigram table is the first complete next-token model in the course. Freeze it
 <!-- contract-section:localization -->
 ## Localization
 
-English and Russian share formula notation, token meanings, IDs, arrays, Rust regions, trace records, primary-source URLs, and revision metadata. Russian prose must describe training-data observations directly rather than translating unseen with visibility metaphors, and its complete staged surface requires explicit fluent-human approval.
+English and Russian share formula notation, token meanings, IDs, arrays, Rust regions, trace records, primary-source URLs, and revision metadata. Russian prose must describe training-data observations directly rather than translating unseen with visibility metaphors, and its complete staged surface must pass the recorded meaning-first language and rendered-layout reviews.
 
 <!-- contract-section:acceptance -->
 ## Acceptance

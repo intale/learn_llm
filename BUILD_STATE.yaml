@@ -1,17 +1,17 @@
 schema_version: 1
-updated_at: "2026-07-27T19:22:01Z"
+updated_at: "2026-07-28T06:37:26Z"
 
 environment:
-  os: "Linux x86_64 host with Linux x86_64 product and browser containers"
+  os: "Windows host with Linux x86_64 product and browser containers"
   execution: "Docker-only product build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
-  docker: "25.0.2"
-  docker_compose: "2.17.3"
+  docker: "29.6.2"
+  docker_compose: "5.3.1"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
-  git: "2.53.0"
-  notes: "Current Linux/Dropbox orchestration environment recorded on 2026-07-27 after moving from the previously recorded Windows host. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
+  git: "2.55.0.windows.3"
+  notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
 active_build: null
 
@@ -18338,3 +18338,259 @@ builds:
                 status: passed
                 notes: "Running from /workspace/site resolves the pinned yaml package, parses the complete ledger, and confirms active_build is null, the target build and step are completed, the target run succeeded, and no step or run remains running."
             notes: "Succeeded. Every generated HTML page now queues the exact intale.github.io cookie domain after gtag initialization and before the unchanged measurement configuration. The dependency-free artifact audit, explicit mutations, and rendered browser helper enforce the exact five-statement initializer; root/project artifacts, all 838 unit cases, and exhaustive Chromium/Firefox route traversals pass without Analytics egress. Learner content, localization, routes, dependencies, build definitions, hosting, and deployment remain unchanged."
+  - build_id: activate-ch00-russian-localization
+    objective: "Translate the complete Chapter 0 orientation directly from current English into natural technical Russian and activate the reviewed Russian route without changing its teaching scope."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium localization uses authored Russian copy and cached Docker contract, static, unit, Chromium, and Firefox validation; no paid service, external generation, dependency download, or build-definition change is planned."
+    completion_criteria:
+      - "The Chapter 0 contract and exact same-revision English/Russian lessons form one complete active locale set sourced directly from English."
+      - "Every Russian learner-facing string is natural technical prose, including SEO, history, diagram labels, captions, purposes, link names, and accessibility text; formulas and Rust remain absent because Chapter 0 is an orientation."
+      - "The detailed Russian map links to Russian Chapters 1-7 and clearly identified English destinations for Chapters 8-39 rather than emitting nonexistent Russian routes."
+      - "The exact frozen Russian candidate passes contract, parity, content, static route/link, Chromium, and Firefox desktop, narrow, no-JavaScript, and full-view containment checks."
+      - "The exact Russian candidate passes recorded semantic, terminology, anti-calque, accessibility, checksum, and rendered-surface review; user review follows delivery and is not a publication or commit prerequisite."
+    steps:
+      - id: activate-ch00-russian-localization
+        objective: "Publish a meaning-first Russian Chapter 0 orientation at the same semantic revision as English, with complete localized diagrams and layout-safe route integration."
+        depends_on:
+          - set-google-analytics-cookie-domain
+        status: completed
+        inputs:
+          - "Human request on 2026-07-28: Translate chapter 0 to russian."
+          - "Human instruction on 2026-07-28: Exclude the pre-publication approval step from the build because the user reviews completed changes after delivery."
+          - "README.md"
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/00-llm-parts.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/content/chapters/en/00-llm-parts.mdx"
+          - "site/src/lib/llm-parts-diagram.ts"
+          - "site/src/components/chapters/LlmSystemDiagram.astro"
+          - "site/src/components/chapters/LlmPartsDiagram.astro"
+          - "site/tests/00-llm-parts-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch00-llm-parts.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/sitemap.config.mjs"
+          - "site/tests/sitemap.test.ts"
+          - "scripts/check-course-plan.mjs"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit f27b3cfdd37436eb6121d2317b35f0d22d8b2a13, including later user-owned sitemap commits not represented as a separate BUILD_STATE step."
+        outputs:
+          - "README.md"
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/00-llm-parts.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/content/chapters/en/00-llm-parts.mdx"
+          - "site/src/content/chapters/ru/00-llm-parts.mdx"
+          - "site/src/lib/llm-parts-diagram.ts"
+          - "site/src/components/chapters/LlmPartsDiagram.astro"
+          - "site/tests/00-llm-parts-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch00-llm-parts.spec.ts"
+          - "site/tests/sitemap.test.ts"
+          - "scripts/check-course-plan.mjs"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English remains the sole semantic source; the Russian lesson records the same content revision and preserves every fact, qualifier, source boundary, chapter handoff, diagram relationship, identifier, URL, and absence of formula/Rust/exercise material."
+          - "Russian syntax, terminology, information order, punctuation, headings, SEO description, history, captions, purposes, and accessible labels read naturally without literal English sentence structure."
+          - "The contract contains exactly en and ru for every localized Chapter 0 field and terminology entry, and the checked locale policy activates en and ru for Chapter 0 while leaving Chapters 8-39 English-only."
+          - "Both Chapter 0 figures remain complete static semantic HTML and receive the shared localized full-view control; every bounded box contains Russian text and any mixed-script technical label."
+          - "Chapter links select a published Russian route when one exists and otherwise use an explicitly identified English chapter destination, with localized visible and accessible link labels."
+          - "The Russian Chapter 0 route appears in the course index, sitemap, SEO inventory, hreflang set, navigation, and exact dynamic locale geometry matrix without changing general route or deployment behavior."
+          - "The frozen candidate records independent Russian semantic and linguistic review plus exact desktop, narrow, and full-view containment evidence; no pre-publication approval pause is part of the build."
+          - "Active localization policy and chapter contracts retain every quality review but contain no pre-publication human-approval prerequisite; historical ledger and decision records remain unchanged."
+          - "The sitemap exact-output test reflects the expanded XML namespace header already committed by the user at the run's base commit; the sitemap generator and public URLs remain unchanged."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/00-llm-parts.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 00-llm-parts"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 00-llm-parts"
+          - "./course run npm --prefix site run check:parity -- --chapter 00-llm-parts"
+          - "./course run npm --prefix site run check:content"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:00-llm-parts|@diagram-style'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:00-llm-parts|@diagram-style'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian terminology, anti-calque, monolingual, accessibility, route, checksum, scope, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One orientation translation, localized diagram/link integration, policy projection update, and cached local static/unit/two-engine browser validation. No paid service, dependency change, LLM-content generation service, Rust change, or build-definition change."
+        runs:
+          - run_id: 20260728T041056Z-activate-ch00-russian-localization-01
+            started_at: "2026-07-28T04:10:56Z"
+            finished_at: "2026-07-28T06:08:46Z"
+            status: interrupted
+            input_fingerprint:
+              git: "f27b3cfdd37436eb6121d2317b35f0d22d8b2a13"
+              manifest: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:a72b199e47dfbb209b41c275dc8303fa7e8387295ae1b5c504562681c6a66e41"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 0 revision and direct human request are authoritative."
+            staging_dir: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/"
+            commands:
+              - "Run the complete startup protocol, parse the full 1,968,073-byte ledger, verify zero pending/running records, inspect the latest completed analytics run and missing host-local artifacts, preserve later user sitemap commits, and compare the material Linux-to-Windows orchestration change."
+              - "Read the complete project localization skill, English Chapter 0 contract and lesson, locale registry/projection, translation playbook, curriculum policy, diagram types/components, and focused/static/browser tests."
+              - "Fingerprint the exact current English source, policy, diagram, test, ledger, decision, tool, and base-commit inputs before product work."
+              - "Expand the declared scope before editing after read-only audits found that the plan validator must represent a post-course standalone locale-activation step and both localized home notes still describe Chapter 1 as the starting page."
+              - "Translate every Chapter 0 learner-facing field directly from English, revise the Russian prose through independent technical-language audits, and retain the orientation's deliberate absence of formulas, Rust, and assessment."
+              - "Activate the exact en/ru Chapter 0 locale pair, integrate the Russian course/home route, and make the detailed map resolve Russian Chapters 1-7 plus visibly and accessibly identified English fallbacks for Chapters 8-39."
+              - "Repair target-language containment with concise natural labels, diagram-only nonbreaking KV-cache hyphens, Unicode word-wrap checks, and a Russian-only fullscreen learning-column reflow that leaves English geometry unchanged."
+              - "Run plan, contract, English/Russian chapter, parity, complete-content, Astro, 837-case unit, 53-page build, link/SEO/sitemap/analytics, Chromium, Firefox, no-JavaScript, forced-color, and full-view gates."
+              - "Build the clean repository workspace target so pinned cargo fmt, all Rust workspace tests/doc tests, and the complete static-site gates replay from the exact final candidate."
+              - "Capture and visually inspect eight exact Chromium/Firefox desktop, narrow, and full-view surfaces, then freeze all candidate and evidence hashes in one replayed manifest."
+            artifacts:
+              - path: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:a72b199e47dfbb209b41c275dc8303fa7e8387295ae1b5c504562681c6a66e41"
+                notes: "Exact base commit, English source and supporting hashes, user request, environment transition, absent prior host-local artifacts, cost, and preserved sitemap scope."
+              - path: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/input-scope-expansion-plan-and-catalogs.txt"
+                checksum: "sha256:7dd7479d340d82dbaa109aa6c2516bd9b3a0c4858c701d21af281821ba6c1554"
+                notes: "Pre-edit hashes and narrow reasons for claiming the plan validator plus the English/Russian home course notes."
+              - path: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/candidate-manifest.sha256"
+                checksum: "sha256:880cf6c074b529d03ebb96f1807c64afb99fc6b55a72711005b23601af54b8d2"
+                notes: "Replayed hashes for 18 exact product/test candidates and eight visually inspected Chromium/Firefox desktop, narrow, and full-view screenshots."
+              - path: ".build/runs/20260728T041056Z-activate-ch00-russian-localization-01/validation-summary.txt"
+                checksum: "sha256:ecf27b3aa8d61de3075d6b255097e5ea0e9a6d632c4edaad84d72c3fb8ffe792"
+                notes: "Compact final validation counts, clean workspace image digest, iteration outcomes, and the still-pending fluent-human release gate."
+            validation:
+              - command: "Repository, complete-ledger, scheduler, environment, latest-run, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The working tree is clean at f27b3cf; active_build is null and all 14 builds, 98 steps, and 114 runs parse with no pending or running record. Current Windows orchestration differs materially from the latest Linux ledger environment and is now recorded; product pins match. The latest Linux-only run artifacts are absent locally but its committed outputs remain present, so no completed work is repeated."
+              - command: "Initial ./course run single-command validation attempt"
+                status: failed
+                notes: "The host invocation exceeded its 124-second timeout because ./course run rebuilds and validates the complete workspace image before executing the requested command. It produced no canonical output; direct pinned-container checks and the later clean workspace build completed successfully."
+              - command: "Course-plan, Chapter 0 contract/source/parity, full-content, and semantic localization audit"
+                status: passed
+                notes: "The plan reports 40 chapters, 78 scheduled steps, and 40 implemented contracts. Chapter 0 passes its contract and both source checks; the en/ru pair is one publishable set among 48 sources and 40 locale sets. Independent final Russian review found no remaining technical, semantic, calque, accessibility, or monolingual defect."
+              - command: "Astro diagnostics, complete unit suite, static build, and artifact/link audit"
+                status: passed
+                notes: "Astro reports 0 errors, warnings, or hints across 204 files; all 52 unit files and 837 tests pass; 53 pages build; and 53 HTML, SEO, sitemap, and analytics routes plus 2,071 local references and 142 artifacts pass."
+              - command: "Intermediate Chapter 0 Chromium layout audits"
+                status: failed
+                notes: "Successive exact candidates exposed stale localized expectations, unsafe wrapping of ordinary Cyrillic words, excess Russian detailed-map travel, and an English regression from a shared column bias. Each failed before freeze; wording and locale-specific reflow were corrected without shrinking, clipping, or hiding content."
+              - command: "Final focused Chromium Chapter 0 and shared diagram matrix"
+                status: passed
+                notes: "All 17 cases pass for English and Russian desktop, narrow, no-JavaScript, fullscreen, forced-color, route, navigation, fallback-link, bounded-box, word-wrap, and scroll-travel behavior."
+              - command: "Final focused Firefox Chapter 0 and shared diagram matrix"
+                status: passed
+                notes: "All corresponding 17 Firefox cases pass with the same two-locale presentation and containment guarantees."
+              - command: "Clean Docker workspace target"
+                status: passed
+                notes: "Image learn-llm-workspace@sha256:3d77c6e6d13073b10325174d53962c5e9a42273a0e2e179cffc4ec5596ecbce1 passes cargo fmt, all locked Rust workspace tests and doc tests, Astro, content, parity, 53-page build, and link/SEO/sitemap/analytics gates. Only pre-existing Cargo example-output collision warnings remain."
+              - command: "Frozen checksum replay and manual rendered-surface review"
+                status: passed
+                notes: "Manifest sha256:880cf6c074b529d03ebb96f1807c64afb99fc6b55a72711005b23601af54b8d2 replays all candidate and evidence bytes. All eight Chromium/Firefox desktop, narrow, system-full-view, and detailed-full-view screenshots were visually inspected with no clipping, overlap, broken word, unintended page overflow, or unreadable fallback label."
+              - command: "git diff --check"
+                status: passed
+                notes: "The frozen product/test candidate and current ledger/decision edits contain no whitespace errors."
+            notes: "Interrupted after the candidate and browser evidence were fully validated because the user removed the pre-publication approval condition, materially changing the run input and acceptance boundary. All exact candidate and screenshot artifacts remain reusable; no learner-facing or site byte changed at interruption."
+          - run_id: 20260728T060846Z-activate-ch00-russian-localization-02
+            started_at: "2026-07-28T06:08:46Z"
+            finished_at: "2026-07-28T06:36:40Z"
+            status: succeeded
+            input_fingerprint:
+              git: "f27b3cfdd37436eb6121d2317b35f0d22d8b2a13"
+              manifest: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/input-fingerprint.txt"
+              checksum: "sha256:6e702a0dcae5e5c1c8caab1c3f8490d50c722d7a8bb6a26e690a5228161a0ee1"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate unchanged repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "The direct user instruction removes the pre-publication approval pause; no external translation source, service, or reviewer is required."
+            staging_dir: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/"
+            commands:
+              - "Audit every active workflow, policy, validator, plan, ledger, and test reference that makes fluent-human approval a publication or completion prerequisite."
+              - "Preserve the exact run-01 product and browser evidence, mark that run interrupted for the material acceptance change, fingerprint the new instruction and prechange policy bytes, and start a successor run."
+              - "Expand the declared policy scope before editing after the audit found continuing approval prerequisites in the current Chapter 5-7 contracts and stale present-tense Chapter 5-6 plan status."
+              - "Run focused policy/contract/content gates and the complete unit/static suite; preserve the user's sitemap generator bytes and claim only its stale exact-output test after the suite exposed the base-commit mismatch."
+              - "Expand the declared documentation scope before editing after an independent final audit found two active root README approval requirements and one stale all-registered-locales publication description."
+              - "Remove five accidentally matched output additions from the immutable completed diagram-system step and place the sitemap generator/test inputs only on the active step before finalization."
+              - "Align every active workflow source and Chapter 5-7 contract with post-delivery user review, make the plan validator reject a blocking approval policy, and add a regression that scans active policy sources for blocking phrases."
+              - "Validate the updated localization skill with the official quick validator and an independent no-context English-to-Russian delivery forward test."
+              - "Freeze 25 exact current policy/product/test files plus eight byte-identical run-01 browser screenshots, replay their hashes, and build the exact final product/test candidate through the clean Docker workspace target."
+            artifacts:
+              - path: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/input-fingerprint.txt"
+                checksum: "sha256:6e702a0dcae5e5c1c8caab1c3f8490d50c722d7a8bb6a26e690a5228161a0ee1"
+                notes: "Exact direct instruction, predecessor evidence hashes, policy/validator/test inputs, environment, unchanged base commit, scope, and small local cost."
+              - path: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/input-scope-expansion-readme.txt"
+                checksum: "sha256:3c07768d5a6d855da4555993e2891ff15e529bf0f58196de954e857696a2ee5b"
+                notes: "Pre-edit root README hash and the exact policy/projection contradictions found by independent final audit."
+              - path: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/candidate-manifest.sha256"
+                checksum: "sha256:c9e57b3dc3f1d2f5bbc7a28cc5d4a438138f4ee4381d3bd32a865b4081a4aec6"
+                notes: "Hashes for all 25 non-ledger outputs plus eight unchanged, visually inspected run-01 Chromium/Firefox desktop, narrow, and full-view screenshots."
+              - path: ".build/runs/20260728T060846Z-activate-ch00-russian-localization-02/validation-summary.txt"
+                checksum: "sha256:84cff489000e195db0bab2f2230ea506851685921795bd247190394b091b1f73"
+                notes: "No-approval policy outcome, exact reused browser-evidence boundary, 839-case unit/static/Rust results, final workspace digest, and every recorded non-success."
+            validation:
+              - command: "Approval-gate and completion-scope audit"
+                status: passed
+                notes: "The active gate is confined to documented workflow policy, course-plan validation, the current build ledger, and appended decisions. Run 01's 18 product/test candidates and eight browser screenshots replay exactly; no unrelated worktree path is present."
+              - command: "First complete 52-file unit-suite replay"
+                status: failed
+                notes: "All 837 non-sitemap cases passed, including the new no-approval policy mutation; the exact sitemap string case failed because base commit f27b3cf expanded the generated XML namespace header without updating its expected fixture. The generator, URLs, and product output are preserved; the stale test is now a declared integration output."
+              - command: "First independent final no-approval policy audit"
+                status: failed
+                notes: "The workflow, skill, curriculum guide, plan, validator, and current contracts were aligned, but root README still required a human approval tied to the reviewed run and before publication. It also described every registered locale as chapter-required despite selective active locale projection. README.md was claimed before correction."
+              - command: "First independent final candidate-scope audit"
+                status: failed
+                notes: "All 27 worktree paths matched the active outputs and the manifest gap was identified, but the BUILD_STATE diff also revealed five additions under an already-completed diagram-system step from an earlier ambiguous patch match. Those historical-step additions were removed; unchanged sitemap.config.mjs is now an active input and sitemap.test.ts remains an active output."
+              - command: "Focused no-approval plan, policy-regression, Chapter 0/5/6/7 contract, content, and parity gates"
+                status: passed
+                notes: "The plan reports 40 chapters, 78 scheduled steps, and 40 implemented contracts; all four touched contracts integrate; 48 sources form 40 publishable sets; and the focused content-contract suite passes 32/32 including mutations that reject a true approval flag and blocking active-policy prose."
+              - command: "Official localization-skill quick validation and independent forward test"
+                status: passed
+                notes: "quick_validate.py accepts the skill. A fresh no-context agent produced natural Russian causal-attention prose, retained the full language/layout validation workflow, completed atomically, and handed the ready change to the user for post-delivery review without an approval pause."
+              - command: "Final complete unit, Astro, content, parity, static build, and artifact/link replay"
+                status: passed
+                notes: "All 52 unit files and 839 tests pass; Astro reports 0 errors, warnings, or hints across 204 files; 53 pages build; and the audit passes 2,071 local references plus 53 SEO, sitemap, and Analytics routes across 142 artifacts."
+              - command: "First run-02 candidate-manifest replay expression"
+                status: failed
+                notes: "PowerShell rejected an ambiguous colon after a variable name before reading or hashing any entry. The corrected expression uses delimited variables and the later replay passes."
+              - command: "First clean Docker workspace client attempt"
+                status: failed
+                notes: "The client timeout expired after 184 seconds during the long clean build. No canonical file changed; the restart-safe build was rerun with a sufficient timeout."
+              - command: "Exact final clean Docker workspace target"
+                status: passed
+                notes: "learn-llm-workspace@sha256:186d13c04b554f5c5c20960976697248296bd7b6075e84e765f50b6199c06c44 contains the frozen README and policy-regression hashes and passes cargo fmt, all locked Rust workspace tests/doc tests, Astro, content, parity, 53-page build, and link/SEO/sitemap/Analytics gates. Only pre-existing Cargo example-output collision warnings remain."
+              - command: "Run-01 browser-evidence applicability and run-02 checksum replay"
+                status: passed
+                notes: "All Chapter 0 rendered inputs and browser specifications remain byte-identical to run 01, whose 17/17 Chromium and 17/17 Firefox matrices plus eight inspected screenshots remain exact. Run-02 manifest c9e57b3d replays all 25 current files and eight screenshots."
+              - command: "Final independent active-policy, candidate-scope, manifest, clean-image, YAML, course-plan, and whitespace audits"
+                status: passed
+                notes: "No active approval prerequisite remains; 27 worktree paths exactly equal 27 declared outputs; 25 non-ledger outputs exactly equal the manifest's current files; all 33 hashes replay at c9e57b3d; the final image embeds the frozen README/test hashes; YAML has only this run active before completion; the plan reports 40/78/40; and git diff --check passes."
+              - command: "Post-completion course-plan and ledger invariant"
+                status: passed
+                notes: "The final mounted ledger and plan parse with 40 chapters, 78 scheduled steps, 40 implemented contracts, 15 builds, 99 steps, and 116 runs. active_build is null; the target build/step are completed; run 02 succeeded; and no step or run remains running."
+              - command: "Post-completion artifact and whitespace replay"
+                status: passed
+                notes: "Candidate manifest c9e57b3d and validation summary 84cff489 retain their recorded hashes, every manifest entry replays, and git diff --check passes after the completion checkpoint."
+            notes: "Succeeded. Russian Chapter 0 revision 3 is complete at /ru/course/00-llm-parts/ with natural technical prose, localized semantic diagrams, working Russian Chapter 1-7 links, explicit English fallbacks for Chapters 8-39, and exact two-browser containment evidence. Localization builds retain every language and rendered-layout quality gate but no longer pause for pre-publication approval; the user reviews completed changes after delivery. All 839 unit cases, the clean Rust/static workspace, and 53-page artifact audit pass."

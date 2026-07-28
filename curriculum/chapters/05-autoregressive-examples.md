@@ -420,8 +420,9 @@ Use natural explanatory Russian rather than mirroring English clause order.
 Introduce stride as «шаг», and explain sequence-derived targets directly rather
 than relying on an unexplained calque of self-supervision. Preserve formula notation,
 trace output, code identifiers, IDs, arrays, BOS/EOS, and source titles. Translate
-all surrounding diagram labels and accessible descriptions. A fluent Russian
-reviewer must approve the complete lesson and rendered labels before publication.
+all surrounding diagram labels and accessible descriptions. The complete lesson
+and rendered labels must pass the recorded meaning, terminology, anti-calque,
+monolingual, accessibility, and target-language layout reviews before publication.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -432,5 +433,5 @@ documents remain visibly and structurally separate. The cumulative API encodes
 the fixed corpus as 8/2/2 documents without reading across boundaries.
 Exact stdout, Rust format/test/lint, contract structure/integration, configured
 locale parity, content, parser/unit, type, production build/link, focused browser,
-full browser, static-host smoke, and fluent-human Russian approval all pass in the
-staged overlay before atomic publication.
+full browser, static-host smoke, and recorded Russian language/render reviews all
+pass in the staged overlay before atomic publication.

@@ -20,7 +20,10 @@ const repositoryRoot = resolve(process.cwd(), "..");
 const read = (path: string) => readFileSync(resolve(repositoryRoot, path), "utf8");
 const detailComponent = read("site/src/components/chapters/LlmPartsDiagram.astro");
 const systemComponent = read("site/src/components/chapters/LlmSystemDiagram.astro");
-const chapterPage = read("site/src/content/chapters/en/00-llm-parts.mdx");
+const chapterPages = {
+  en: read("site/src/content/chapters/en/00-llm-parts.mdx"),
+  ru: read("site/src/content/chapters/ru/00-llm-parts.mdx"),
+};
 
 const labels = Object.fromEntries(
   llmPartIds.map((id) => [id, { name: id, purpose: `${id} purpose` }]),
@@ -65,6 +68,10 @@ const completeLabels: LlmPartsDiagramLabels = {
   },
   cues: {
     chapterLinks: "chapters",
+    chapterShort: "Ch",
+    chapterLong: "Chapter",
+    referenceLocaleBadge: "EN",
+    referenceLocaleDestination: "English-language chapter",
     repeated: "repeated",
     nextTokenLoop: "loop",
     reuseTitle: "reuse",
@@ -169,8 +176,12 @@ describe("Chapter 0 diagram labels and component contract", () => {
     expect(detailComponent).toContain('class="learning-panel"');
     expect(detailComponent).not.toContain('class="system-panel"');
     expect(detailComponent).toContain("await getCollection(");
-    expect(detailComponent).toContain("localePath(locale, `/course/${chapterId}/`)");
+    expect(detailComponent).toContain("chapterSet.byLocale[locale] ?? chapterSet.reference");
+    expect(detailComponent).toContain("localePath(destination.locale, `/course/${chapterId}/`)");
+    expect(detailComponent).toContain("getLocaleDefinition(chapterDestination(chapterId).locale).languageTag");
     expect(detailComponent).toContain("data-chapter-link={chapterId}");
+    expect(detailComponent).toContain("data-chapter-locale={chapterDestination(chapterId).locale}");
+    expect(detailComponent).not.toMatch(/>\s*Ch(?:apter)?\b|Check<wbr\s*\/?>point/);
     for (const component of [systemComponent, detailComponent]) {
       expect(component).toContain("data-diagram-card");
       expect(component).toContain("data-diagram-box");
@@ -179,17 +190,23 @@ describe("Chapter 0 diagram labels and component contract", () => {
   });
 
   it("keeps the learner page an unassessed orientation", () => {
-    expect(chapterPage).toContain('"chapter_kind": "orientation"');
-    expect(chapterPage).toContain('"formula": null');
-    expect(chapterPage).toContain('"rust_sources": []');
-    expect(chapterPage).toContain("You do not need to memorize this map.");
-    expect(chapterPage).toContain("The first figure is the whole-system schema");
-    expect(chapterPage).toContain("import LlmSystemDiagram");
-    expect(chapterPage).toContain("import LlmPartsDiagram");
-    expect(chapterPage).toContain("<LlmSystemDiagram labels={diagramLabels} />");
-    expect(chapterPage).toContain('<LlmPartsDiagram labels={diagramLabels} locale="en" />');
-    expect(chapterPage).not.toMatch(
-      /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|Check your first mental model|P_\\theta|rust\/demos\/ch00/,
-    );
+    for (const [locale, chapterPage] of Object.entries(chapterPages)) {
+      expect(chapterPage).toContain('"chapter_kind": "orientation"');
+      expect(chapterPage).toContain('"formula": null');
+      expect(chapterPage).toContain('"rust_sources": []');
+      expect(chapterPage).toContain("import LlmSystemDiagram");
+      expect(chapterPage).toContain("import LlmPartsDiagram");
+      expect(chapterPage).toContain("<LlmSystemDiagram labels={diagramLabels} />");
+      expect(chapterPage).toContain(
+        `<LlmPartsDiagram labels={diagramLabels} locale="${locale}" />`,
+      );
+      expect(chapterPage).not.toMatch(
+        /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|Check your first mental model|P_\\theta|rust\/demos\/ch00/,
+      );
+    }
+    expect(chapterPages.en).toContain("You do not need to memorize this map.");
+    expect(chapterPages.en).toContain("The first figure is the whole-system schema");
+    expect(chapterPages.ru).toContain("Запоминать эту карту не нужно.");
+    expect(chapterPages.ru).toContain("Первая схема показывает всю систему.");
   });
 });

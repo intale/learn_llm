@@ -68,8 +68,9 @@ view. The whole page must avoid unintended horizontal overflow, and every bounde
 box must contain its target-language text and formula ink, including boxes inside
 sanctioned scroll regions. Fix a failure through concise natural wording,
 wrapping, or safe reflow, never by clipping, hiding, truncating, overlapping, or
-shrinking text. A fluent target-language human must approve the frozen content and
-rendered surfaces recorded in the run.
+shrinking text. Record the frozen content checksum, language-review findings, and
+exact rendered surfaces in the run. Do not pause publication for human approval;
+the user reviews completed localization changes after delivery.
 
 ## Why the metadata is strict
 
@@ -205,8 +206,8 @@ inactive locale.
 
 Only a complete, same-revision chapter-active set is returned by the static course
 route. Every registered locale index always exists, even before the first lesson is
-publishable. The current checked projection activates English only for Chapter 0,
-English and Russian for Chapters 1–7, and English only for Chapters 8–39. Russian keeps its localized index
+publishable. The current checked projection activates English and Russian for
+Chapters 0–7 and English only for Chapters 8–39. Russian keeps its localized index
 and existing lessons, but a deferred Russian chapter has no lesson route; its
 language switch target falls back to the Russian course index.
 

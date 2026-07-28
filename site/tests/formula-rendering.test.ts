@@ -758,27 +758,29 @@ describe("KaTeX renderer and stylesheet compatibility", () => {
 
 describe("Chapter 0 orientation-source contract", () => {
   it("does not borrow a formula or symbol lesson from the implementation chapters", () => {
-    const source = readChapter("en", chapter00Files[0]);
-    const frontmatter = jsonFrontmatter(source) as {
-      chapter_kind: string;
-      formula: null;
-      history: { rust_source: null };
-      rust_sources: unknown[];
-    };
-    const { display, inline } = mathMarkup(source);
-    expect(frontmatter).toEqual(
-      expect.objectContaining({
-        chapter_kind: "orientation",
-        formula: null,
-        history: expect.objectContaining({ rust_source: null }),
-        rust_sources: [],
-      }),
-    );
-    expect(display).toHaveLength(0);
-    expect(inline).toHaveLength(0);
-    expect(source).not.toMatch(
-      /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|rust\/demos\/ch00/,
-    );
+    for (const locale of locales) {
+      const source = readChapter(locale, chapter00Files[0]);
+      const frontmatter = jsonFrontmatter(source) as {
+        chapter_kind: string;
+        formula: null;
+        history: { rust_source: null };
+        rust_sources: unknown[];
+      };
+      const { display, inline } = mathMarkup(source);
+      expect(frontmatter).toEqual(
+        expect.objectContaining({
+          chapter_kind: "orientation",
+          formula: null,
+          history: expect.objectContaining({ rust_source: null }),
+          rust_sources: [],
+        }),
+      );
+      expect(display, `${locale} display math`).toHaveLength(0);
+      expect(inline, `${locale} inline math`).toHaveLength(0);
+      expect(source).not.toMatch(
+        /chapter-section:(?:formula|symbol-glossary|rust-implementation|exercises)|<RustSource\b|<details\b|rust\/demos\/ch00/,
+      );
+    }
   });
 });
 
@@ -907,7 +909,7 @@ describe("Chapter 8-13 formula-source contract", () => {
 });
 
 describe("Chapter 14-39 formula-source contract", () => {
-  it("completes the source audit for all 47 published localized lessons", () => {
+  it("completes the source audit for all 48 published localized lessons", () => {
     const reviewed: string[] = [];
     for (const file of chapter14To39Files) {
       const source = readChapter("en", file);
@@ -945,11 +947,11 @@ describe("Chapter 14-39 formula-source contract", () => {
 
     expect(reviewed).toEqual(chapter14To39Files);
     expect(
-      chapter00Files.length +
+      chapter00Files.length * locales.length +
         chapterFiles.length * locales.length +
         chapter08To13Files.length +
         reviewed.length,
-    ).toBe(47);
+    ).toBe(48);
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {

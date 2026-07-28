@@ -133,7 +133,7 @@
     }
   ],
   "translation_notes": [
-    "The Russian terminology proposal has been reconciled into this contract, but it is not Russian lesson prose and does not satisfy the fluent-human approval gate.",
+    "The Russian terminology proposal has been reconciled into this contract, but it is not Russian lesson prose and does not replace complete meaning-first and rendered-layout review.",
     "At the first learner-visible occurrence, write «среднее отрицательное логарифмическое правдоподобие (NLL)». Thereafter prefer «среднее значение NLL» or «NLL в натах на целевой токен». Use «правдоподобие» for likelihood and «вероятность» for an individual p_t(z_t); never substitute one for the other.",
     "Use «перплексия» consistently. Explain it as «эквивалентное число равновероятных продолжений» only together with the geometric-mean interpretation and an explicit warning that it is not a literal count of choices available to the model.",
     "Use «мера неожиданности» for the predict-first explanation and keep −ln p in the same sentence or immediately adjacent. «Собственная информация» may identify the information-theory term but must not mechanically replace every occurrence.",
@@ -446,17 +446,17 @@ The locale-neutral meaning lock owns all identifiers, formulas, symbol order,
 numeric values, Rust paths and regions, trace grammar, source URLs and scopes,
 boundary rules, misconceptions, exercises and answers, and handoffs. English and
 Russian lessons may reorder explanation for clarity but may not change those
-facts. The Russian metadata above has been reconciled from the dedicated
-terminology proposal, but no Russian lesson exists yet and no fluent-human
-approval has been obtained.
+facts. The Russian metadata above was reconciled from the dedicated terminology
+proposal; the lesson and every later revision must retain those distinctions and
+repeat the complete target-language review.
 
 The Russian lesson must distinguish `правдоподобие` in the metric name from an
 individual token's `вероятность`, explain `перплексия` as an equivalent uniform
 interpretation rather than literal choices, and keep “mean NLL on these targets”
 distinct from unqualified cross-entropy. Accessible labels must name the
-relationship, not visual position or color. A fluent human must approve the exact
-frozen Russian lesson and rendered labels at desktop and narrow widths before
-publication; any content or label change invalidates that approval.
+relationship, not visual position or color. Review the exact frozen Russian lesson
+and rendered labels at desktop and narrow widths before publication; any content
+or label change invalidates that recorded evidence.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -473,5 +473,5 @@ target-count weighting, error versus infinity behavior, same-tokenizer compariso
 scope, no Chapter 7 test-scoring surface, no second metric in TypeScript, exact
 trace projection,
 keyboard and forced-color behavior, natural monolingual prose, and the Chapter 8
-and Chapter 34 handoffs. Structural checks or an agent's self-review do not
-replace the checksum-bound fluent-human Russian approval.
+and Chapter 34 handoffs. Structural checks or a machine score do not replace the
+checksum-bound meaning-first and rendered Russian review.

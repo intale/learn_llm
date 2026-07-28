@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 
-import { localePath, type Locale } from '../../i18n';
+import { getLocaleDefinition, localePath, type Locale } from '../../i18n';
 import {
   llmPartsDiagramId,
   llmPartsTrace,
@@ -9,6 +9,7 @@ import {
   type LlmPartId,
   type LlmPartsDiagramLabels,
 } from '../../lib/llm-parts-diagram';
+import { findPublishableChapterSets } from '../../lib/chapter-publication';
 
 interface Props {
   labels: LlmPartsDiagramLabels;
@@ -18,16 +19,15 @@ interface Props {
 const { labels, locale } = Astro.props;
 validateLlmPartsDiagramLabels(labels);
 const trace = llmPartsTrace;
-const localizedChapters = await getCollection(
-  'chapters',
-  (entry) => entry.data.locale === locale,
+const publishableChapterSets = findPublishableChapterSets(
+  await getCollection('chapters'),
 );
-const chapterById = new Map(
-  localizedChapters.map((chapter) => [chapter.data.chapter_id, chapter.data]),
+const publishableChapterById = new Map(
+  publishableChapterSets.map((chapterSet) => [chapterSet.chapterId, chapterSet]),
 );
 for (const chapterId of trace.parts.flatMap((part) => part.chapters)) {
-  if (!chapterById.has(chapterId)) {
-    throw new Error(`LLM-parts diagram cannot link missing ${locale} chapter ${chapterId}`);
+  if (!publishableChapterById.has(chapterId)) {
+    throw new Error(`LLM-parts diagram cannot link unpublished chapter ${chapterId}`);
   }
 }
 
@@ -47,11 +47,35 @@ const learning = trace.flows.learning
 const cache = card('kv-cache', 1);
 const foundation = card('numeric-core', 1);
 const capstone = card('capstone', 1);
-const chapterHref = (chapterId: string) =>
-  localePath(locale, `/course/${chapterId}/`);
+const chapterDestination = (chapterId: string) => {
+  const chapterSet = publishableChapterById.get(chapterId)!;
+  const chapter = chapterSet.byLocale[locale] ?? chapterSet.reference;
+  return {
+    data: chapter.data,
+    locale: chapter.data.locale as Locale,
+    usesReferenceFallback: chapter.data.locale !== locale,
+  };
+};
+const chapterHref = (chapterId: string) => {
+  const destination = chapterDestination(chapterId);
+  return localePath(destination.locale, `/course/${chapterId}/`);
+};
 const chapterNumber = (chapterId: string) =>
-  chapterById.get(chapterId)!.order.toString().padStart(2, '0');
-const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
+  chapterDestination(chapterId).data.order.toString().padStart(2, '0');
+const chapterHreflang = (chapterId: string) =>
+  getLocaleDefinition(chapterDestination(chapterId).locale).languageTag;
+const chapterVisibleLabel = (chapterId: string) => {
+  const destination = chapterDestination(chapterId);
+  return destination.usesReferenceFallback
+    ? `${chapterNumber(chapterId)} ${labels.cues.referenceLocaleBadge}`
+    : `${labels.cues.chapterShort} ${chapterNumber(chapterId)}`;
+};
+const chapterAccessibleLabel = (chapterId: string) => {
+  const destination = chapterDestination(chapterId);
+  return destination.usesReferenceFallback
+    ? `${labels.cues.chapterLong} ${chapterNumber(chapterId)}, ${labels.cues.referenceLocaleDestination} — ${destination.data.title}`
+    : `${labels.cues.chapterLong} ${chapterNumber(chapterId)} — ${destination.data.title}`;
+};
 ---
 
 <figure
@@ -76,9 +100,11 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
         <a
           href={chapterHref(trace.capstone)}
           data-chapter-link={trace.capstone}
-          aria-label={`Ch ${chapterNumber(trace.capstone)} — ${chapterTitle(trace.capstone)}`}
+          data-chapter-locale={chapterDestination(trace.capstone).locale}
+          hreflang={chapterHreflang(trace.capstone)}
+          aria-label={chapterAccessibleLabel(trace.capstone)}
         >
-          Ch {chapterNumber(trace.capstone)}
+          {chapterVisibleLabel(trace.capstone)}
         </a>
       </span>
     </p>
@@ -110,9 +136,11 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
                 <a
                   href={chapterHref(chapterId)}
                   data-chapter-link={chapterId}
-                  aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                  data-chapter-locale={chapterDestination(chapterId).locale}
+                  hreflang={chapterHreflang(chapterId)}
+                  aria-label={chapterAccessibleLabel(chapterId)}
                 >
-                  <span>Ch {chapterNumber(chapterId)}</span>
+                  <span>{chapterVisibleLabel(chapterId)}</span>
                 </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
               </li>
             ))}
@@ -147,9 +175,11 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
                   <a
                     href={chapterHref(chapterId)}
                     data-chapter-link={chapterId}
-                    aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                    data-chapter-locale={chapterDestination(chapterId).locale}
+                    hreflang={chapterHreflang(chapterId)}
+                    aria-label={chapterAccessibleLabel(chapterId)}
                   >
-                    <span>Ch {chapterNumber(chapterId)}</span>
+                    <span>{chapterVisibleLabel(chapterId)}</span>
                   </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
                 </li>
               ))}
@@ -174,9 +204,11 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
               <a
                 href={chapterHref(chapterId)}
                 data-chapter-link={chapterId}
-                aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                data-chapter-locale={chapterDestination(chapterId).locale}
+                hreflang={chapterHreflang(chapterId)}
+                aria-label={chapterAccessibleLabel(chapterId)}
               >
-                <span>Ch {chapterNumber(chapterId)}</span>
+                <span>{chapterVisibleLabel(chapterId)}</span>
               </a>{chapterIndex < cache.part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}{' '}
             </>
           ))}
@@ -216,9 +248,11 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
               <a
                 href={chapterHref(chapterId)}
                 data-chapter-link={chapterId}
-                aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
+                data-chapter-locale={chapterDestination(chapterId).locale}
+                hreflang={chapterHreflang(chapterId)}
+                aria-label={chapterAccessibleLabel(chapterId)}
               >
-                <span>Ch {chapterNumber(chapterId)}</span>
+                <span>{chapterVisibleLabel(chapterId)}</span>
               </a>{chapterIndex < foundation.part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
             </li>
           ))}
@@ -238,19 +272,21 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
             <header class="course-diagram__card-heading">
               <h5>
                 <strong class="state-symbol" aria-hidden="true">{sharedForwardLength + occurrence}</strong>{' '}
-                {part.id === 'checkpoint' ? <>Check<wbr />point</> : partLabels.name}
+                {partLabels.name}
               </h5>
             </header>
             <p>{partLabels.purpose}</p>
             <ul class="chapter-links course-diagram__link-list" aria-label={`${partLabels.name}: ${labels.cues.chapterLinks}`}>
               {part.chapters.map((chapterId, chapterIndex) => (
                 <li>
-                  <a
-                    href={chapterHref(chapterId)}
-                    data-chapter-link={chapterId}
-                    aria-label={`Ch ${chapterNumber(chapterId)} — ${chapterTitle(chapterId)}`}
-                  >
-                    <span>Ch {chapterNumber(chapterId)}</span>
+                <a
+                  href={chapterHref(chapterId)}
+                  data-chapter-link={chapterId}
+                  data-chapter-locale={chapterDestination(chapterId).locale}
+                  hreflang={chapterHreflang(chapterId)}
+                  aria-label={chapterAccessibleLabel(chapterId)}
+                >
+                  <span>{chapterVisibleLabel(chapterId)}</span>
                   </a>{chapterIndex < part.chapters.length - 1 && <span class="course-diagram__link-separator" aria-hidden="true">,</span>}
                 </li>
               ))}
@@ -322,6 +358,10 @@ const chapterTitle = (chapterId: string) => chapterById.get(chapterId)!.title;
 
   .llm-parts-diagram:fullscreen .learning-flow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :global(html[lang='ru']) .llm-parts-diagram:fullscreen .learning-flow {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   }
 
   .llm-parts-diagram:fullscreen .learning-map {

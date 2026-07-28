@@ -7921,3 +7921,144 @@ standalone step is committed.
 
 **Affected step and run:** `set-google-analytics-cookie-domain`, run
 `20260727T190731Z-set-google-analytics-cookie-domain-01`.
+
+## 2026-07-28 - Activate Russian for Chapter 0 without inventing deferred routes
+
+**Status:** Accepted from the direct request to translate Chapter 0; exact Russian
+bytes and rendered surfaces still require fluent-human approval before publication.
+
+**Context:** Chapter 0 is currently English-only, while Russian Chapters 1-7 are
+published and Chapters 8-39 remain deliberately deferred. The orientation's
+detailed map links every implementation chapter. Rendering that map unchanged on
+a Russian route would either point most links at nonexistent Russian pages or
+misrepresent English destinations as Russian ones. Translating only the prose
+would also leave hard-coded English chapter abbreviations and the checkpoint label
+inside an otherwise localized semantic figure.
+
+**Decision:** Translate the complete Chapter 0 learner surface directly from the
+current English orientation and advance the same-revision English/Russian pair
+together. Activate Russian only for Chapter 0; keep Chapters 8-39 English-only.
+The detailed map chooses a published Russian chapter when one exists and otherwise
+links to the canonical English chapter, marking the visible destination with
+`EN` and describing it in a localized accessible name. Move chapter-link words and
+the checkpoint heading into the chapter's label object so the shared component
+contains no learner-facing English fallback. Keep Chapter 0 an unassessed
+orientation with no formula, Rust example, exercise, or answer block.
+
+Treat agent-authored Russian as a frozen candidate, not a published translation.
+The locale projection, route, sitemap entry, and commit may be finalized only
+after a fluent Russian-speaking human approves the exact candidate content and
+its Chromium and Firefox desktop, narrow, and full-view rendering.
+
+**Consequences:** The Russian course index gains Chapter 0 only after approval.
+Its map provides native-language destinations for Chapters 1-7 and honest,
+working English destinations for Chapters 8-39 without placeholders or 404s.
+English remains the sole semantic source, the existing English lesson changes
+only its shared revision and link-label fields, and no later Russian chapter,
+dependency, Rust source, build definition, hosting setting, or deployment route
+is activated or changed.
+
+**Affected step and run:** `activate-ch00-russian-localization`, run
+`20260728T041056Z-activate-ch00-russian-localization-01`.
+
+## 2026-07-28 - Reflow the Russian Chapter 0 map without shrinking its language
+
+**Status:** Accepted by the localization and rendered-containment gates; fluent
+human approval of the frozen candidate remains pending.
+
+**Context:** The final technical-language audit corrected several compact draft
+labels that had obscured learned feature transformations, loss inputs, gradient
+meaning, frozen evaluation, and KV-cache reuse. The semantically complete Russian
+copy then exceeded the detailed map's bounded full-view travel and split ordinary
+Cyrillic words in Chromium. A uniform column bias repaired Russian learning cards
+but made the unchanged English map taller, so one geometry could not safely serve
+both strings at this width.
+
+**Decision:** Keep the exact technical distinctions and make Russian diagram copy
+concise where the surrounding heading and relationship already carry context.
+Use a nonbreaking hyphen only in diagram instances of `KV‑кэш`. In native full
+view, keep the English learning grid equal and give the second Russian learning
+column a narrow 21:19 width advantage because its optimizer and checkpoint labels
+are longer; make no font-size, clipping, hidden-overflow, or viewport exception.
+Retain equal inline layouts and all shared diagram chrome.
+
+**Consequences:** Both locales preserve their meaning and default geometry, while
+Russian cards contain their text and the detailed map stays below the declared
+20-percent vertical-travel ceiling. Chromium and Firefox pass desktop, narrow,
+no-JavaScript, forced-color, and full-view checks for both Chapter 0 locales, and
+the complete course diagram matrix remains green. Any future wording change must
+replay both locale branches rather than assuming the Russian reflow is safe for
+English.
+
+**Affected step and run:** `activate-ch00-russian-localization`, run
+`20260728T041056Z-activate-ch00-russian-localization-01`.
+
+## 2026-07-28 - Review localized changes after delivery instead of pausing publication
+
+**Status:** Accepted from direct user instruction; this supersedes every active
+workflow rule that makes fluent-human approval a localization publication,
+completion, or commit prerequisite.
+
+**Context:** The Russian Chapter 0 candidate already passed independent semantic,
+terminology, anti-calque, monolingual, accessibility, parity, checksum, Chromium,
+Firefox, narrow, no-JavaScript, forced-color, full-view, and bounded-box review.
+The remaining fluent-human approval checkpoint did not inspect new build evidence;
+it only paused a validated change that the user will review after it is delivered.
+
+**Decision:** Exclude pre-publication human approval from localization builds.
+English remains the sole semantic source, and every non-English surface must still
+pass the complete meaning-first language review and target-language rendered-layout
+matrix before publication. Record the exact source revision, candidate checksum,
+review findings, routes, browsers, viewports, and diagram surfaces, but do not block
+publication, completion, or commit while waiting for an approval response. Deliver
+the completed change for the user's normal post-delivery review; any requested
+correction becomes a new recorded run or corrective step.
+
+Set `requires_fluent_human_approval` to false in the checked future-activation
+policy and make the repository localization skill, authoring playbook, curriculum
+guide, validator, and completion checklist express the same boundary. Preserve old
+approval records and decisions as historical provenance; they do not reinstate the
+superseded gate for current or future work.
+
+The instruction materially changes run acceptance after run 01 froze its evidence.
+Mark run 01 interrupted without altering its artifacts and continue in run 02 with
+a new fingerprint and candidate manifest. Reuse the exact Chapter 0 browser and
+product validation only while their bytes replay unchanged, and rerun the policy,
+plan, unit, static, checksum, ledger, and whitespace gates after this change.
+
+**Consequences:** Localization quality gates remain fail-closed, but the build no
+longer stops to ask the user to approve a candidate they will review after handoff.
+The Chapter 0 Russian route may be finalized once the successor run proves the
+policy and unchanged candidate. No learner-facing wording, diagram geometry, Rust
+source, dependency, build definition, hosting setting, or deployment behavior is
+changed by removing the pause.
+
+**Affected step and runs:** `activate-ch00-russian-localization`, interrupted run
+`20260728T041056Z-activate-ch00-russian-localization-01` and successor run
+`20260728T060846Z-activate-ch00-russian-localization-02`.
+
+## 2026-07-28 - Preserve the user's sitemap header and update its stale exact test
+
+**Status:** Accepted as a narrow validation integration discovered in the active
+Chapter 0 successor run.
+
+**Context:** Base commit `f27b3cf` changes only `site/sitemap.config.mjs`, expanding
+the `<urlset>` namespace header for the user's sitemap compatibility attempt. Its
+exact-output unit test still expects the preceding one-line header, so the complete
+suite fails even though the static build and 53-URL artifact audit pass. The active
+localization edits did not cause that mismatch.
+
+**Decision:** Preserve the user's generator bytes and public sitemap URLs exactly.
+Update only `site/tests/sitemap.test.ts` so its deterministic expected string covers
+the already-committed multiline namespace header. Claim that test as a necessary
+shared validation output, rerun the complete suite and static gates, and record the
+initial failure rather than hiding it.
+
+**Consequences:** The sitemap implementation, route inventory, GitHub Pages base,
+SEO, Analytics, hosting, deployment, and learner content do not change. The exact
+test once again guards the current output, and the Chapter 0 step can satisfy its
+repository-wide unit gate without reverting or silently modifying the user's later
+sitemap work.
+
+**Affected step and run:** `activate-ch00-russian-localization`, run
+`20260728T060846Z-activate-ch00-russian-localization-02`.

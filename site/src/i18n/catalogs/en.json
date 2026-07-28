@@ -15,7 +15,7 @@
   "formulasDescription": "Symbols are introduced only when they explain the behavior you can observe.",
   "historyTitle": "See what came before",
   "historyDescription": "Each chapter contrasts the modern component with the historical approach it replaced.",
-  "courseNote": "Chapter 1 is ready: follow English and Cyrillic text from UTF-8 bytes through Unicode scalar values to vocabulary IDs.",
+  "courseNote": "Start with Chapter 0: see how the whole LLM fits together, then follow the course into each Rust implementation.",
   "courseLinkLabel": "Start the course",
   "repositoryLinkLabel": "Browse all examples on GitHub",
   "courseEyebrow": "The course",

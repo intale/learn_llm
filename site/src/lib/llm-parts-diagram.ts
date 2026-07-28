@@ -78,6 +78,10 @@ export interface LlmPartsDiagramLabels {
   };
   cues: {
     chapterLinks: string;
+    chapterShort: string;
+    chapterLong: string;
+    referenceLocaleBadge: string;
+    referenceLocaleDestination: string;
     repeated: string;
     nextTokenLoop: string;
     reuseTitle: string;

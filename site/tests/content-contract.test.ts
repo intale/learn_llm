@@ -935,19 +935,78 @@ describe('curriculum and catalog contracts', () => {
     expect(Object.keys(result.data.objective)).toEqual(['en']);
   });
 
+  it('keeps localization review mandatory without a pre-publication approval pause', () => {
+    const root = repositoryRoot();
+    const policyPaths = [
+      'README.md',
+      'AGENTS.md',
+      '.agents/skills/localize-llm-course/SKILL.md',
+      'SKILLS.md',
+      'curriculum/README.md',
+      'curriculum/chapters/05-autoregressive-examples.md',
+      'curriculum/chapters/06-bigram-baseline.md',
+      'curriculum/chapters/07-language-model-metrics.md',
+      'curriculum/course-plan.md',
+    ];
+    const blockingApprovalPatterns = [
+      /must (?:explicitly )?approve/i,
+      /requires? (?:explicit )?fluent-human approval/i,
+      /required fluent-human approval/i,
+      /approval (?:remains )?mandatory before publish/i,
+      /publication (?:still )?requires approval/i,
+      /publication (?:waits|is gated) on [^.\n]*approval/i,
+      /obtain the required [^.\n]*approval before publication/i,
+      /cannot publish without [^.\n]*approval/i,
+    ];
+
+    for (const path of policyPaths) {
+      const source = readFileSync(join(root, path), 'utf8');
+      for (const pattern of blockingApprovalPatterns) {
+        expect(source, `${path} contains ${pattern}`).not.toMatch(pattern);
+      }
+    }
+
+    for (const path of [
+      'README.md',
+      'AGENTS.md',
+      '.agents/skills/localize-llm-course/SKILL.md',
+      'SKILLS.md',
+      'curriculum/README.md',
+      'curriculum/course-plan.md',
+    ]) {
+      expect(readFileSync(join(root, path), 'utf8')).toMatch(
+        /user review(?:s)?[\s\S]{0,80}(?:after delivery|follows delivery)/i,
+      );
+    }
+  });
+
   it('keeps the Chapter 0 orientation exception narrow and non-assessed', () => {
     const root = repositoryRoot();
     const contractPath = join(root, 'curriculum/chapters/00-llm-parts.md');
-    const lessonPath = join(
-      root,
-      'site/src/content/chapters/en/00-llm-parts.mdx',
+    const lessonNames = Object.fromEntries(
+      ['en', 'ru'].map((locale) => [
+        locale,
+        `site/src/content/chapters/${locale}/00-llm-parts.mdx`,
+      ]),
+    );
+    const lessonPaths = Object.fromEntries(
+      Object.entries(lessonNames).map(([locale, path]) => [
+        locale,
+        join(root, path),
+      ]),
     );
     const contractSource = readFileSync(contractPath, 'utf8');
-    const lessonSource = readFileSync(lessonPath, 'utf8');
+    const lessonSources = Object.fromEntries(
+      Object.entries(lessonPaths).map(([locale, path]) => [
+        locale,
+        readFileSync(path, 'utf8'),
+      ]),
+    );
+    const lessonSource = lessonSources.en;
 
     const orientationContract = validateChapterContractText(contractSource, {
       sourceName: contractPath,
-      supportedLocales: ['en'],
+      supportedLocales: ['en', 'ru'],
     });
     expect(
       validateChapterContractIntegration(orientationContract, {
@@ -958,12 +1017,20 @@ describe('curriculum and catalog contracts', () => {
       'site/src/components/chapters/LlmSystemDiagram.astro',
       'site/src/components/chapters/LlmPartsDiagram.astro',
     ]);
-    expect(() =>
-      validateChapterDocument(lessonSource, {
-        sourceName: lessonPath,
+    for (const locale of ['en', 'ru'] as const) {
+      const lesson = validateChapterDocument(lessonSources[locale], {
+        sourceName: lessonNames[locale],
         checkSourceFiles: false,
-      }),
-    ).not.toThrow();
+      });
+      expect(() =>
+        validateContractLesson(
+          orientationContract.data,
+          lesson,
+          locale,
+          lessonNames[locale],
+        ),
+      ).not.toThrow();
+    }
 
     const movedOrientation = replaceOnce(
       contractSource,
@@ -973,7 +1040,7 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateChapterContractText(movedOrientation, {
         sourceName: 'moved orientation',
-        supportedLocales: ['en'],
+        supportedLocales: ['en', 'ru'],
       }),
     ).toThrow(/only 00-llm-parts at order zero/);
 
@@ -985,7 +1052,7 @@ describe('curriculum and catalog contracts', () => {
     expect(() =>
       validateChapterContractText(disguisedLesson, {
         sourceName: 'disguised orientation',
-        supportedLocales: ['en'],
+        supportedLocales: ['en', 'ru'],
       }),
     ).toThrow(/formula must be an object|rust must be an object/);
 
@@ -1193,6 +1260,30 @@ describe('curriculum and catalog contracts', () => {
       validateLedgerText(missingIntroductionBuild, metadata, statePath),
     ).toThrow(/missing build introduce-ch00-llm-map/);
 
+    const missingStandaloneBuild = replaceOnce(
+      stateSource,
+      '  - build_id: activate-ch00-russian-localization',
+      '  - build_id: missing-ch00-russian-localization',
+    );
+    expect(() =>
+      validateLedgerText(missingStandaloneBuild, metadata, statePath),
+    ).toThrow(/missing build activate-ch00-russian-localization/);
+
+    const standaloneBuildStart = stateSource.indexOf(
+      '  - build_id: activate-ch00-russian-localization',
+    );
+    expect(standaloneBuildStart).toBeGreaterThan(-1);
+    const wrongStandaloneStep =
+      stateSource.slice(0, standaloneBuildStart) +
+      replaceOnce(
+        stateSource.slice(standaloneBuildStart),
+        '      - id: activate-ch00-russian-localization',
+        '      - id: wrong-ch00-russian-localization',
+      );
+    expect(() =>
+      validateLedgerText(wrongStandaloneStep, metadata, statePath),
+    ).toThrow(/must own exactly activate-ch00-russian-localization/);
+
     const replacementBuildStart = stateSource.indexOf(
       '  - build_id: revise-ch00-orientation',
     );
@@ -1263,7 +1354,7 @@ describe('curriculum and catalog contracts', () => {
             ),
             {
               sourceName: 'curriculum/chapters/00-llm-parts.md',
-              supportedLocales: ['en'],
+              supportedLocales: ['en', 'ru'],
             },
           ).data,
         },
@@ -1289,9 +1380,27 @@ describe('curriculum and catalog contracts', () => {
       /cross-cutting prerequisites/,
     );
 
+    const missingRussianActivationSchedule = replaceOnce(
+      planSource,
+      '"standalone_build_id": "activate-ch00-russian-localization"',
+      '"standalone_build_id": "wrong-ch00-russian-localization"',
+    );
+    expect(() =>
+      validateCoursePlanText(missingRussianActivationSchedule),
+    ).toThrow(/Chapter 0 Russian activation schedule is incomplete/);
+
+    const blockingHumanApproval = replaceOnce(
+      planSource,
+      '"requires_fluent_human_approval": false',
+      '"requires_fluent_human_approval": true',
+    );
+    expect(() => validateCoursePlanText(blockingHumanApproval)).toThrow(
+      /future locale activation policy is incomplete/,
+    );
+
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 31',
+      '"plan_revision": 32',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1348,9 +1457,10 @@ describe('curriculum and catalog contracts', () => {
       finalPlacement,
       'post-course locale activation plan',
     );
-    expect(deriveScheduledStepIds(finalPlacementMetadata).at(-1)).toBe(
+    expect(deriveScheduledStepIds(finalPlacementMetadata).slice(-2)).toEqual([
       'activate-locale-ar-eg',
-    );
+      'activate-ch00-russian-localization',
+    ]);
 
     const ambiguousPlacement = replaceOnce(
       planSource,
@@ -1569,7 +1679,13 @@ describe('curriculum and catalog contracts', () => {
           visualization: { decision: chapter.visualization },
           terminology:
             index === 0
-              ? [{ concept_id: 'intro-term', en: 'intro term' }]
+              ? [
+                  {
+                    concept_id: 'intro-term',
+                    en: 'intro term',
+                    ru: 'вводный термин',
+                  },
+                ]
               : [
                   {
                     concept_id: 'shared-term',

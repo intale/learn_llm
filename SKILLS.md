@@ -346,8 +346,8 @@ revision. When English changes in meaning or presentation, invalidate the
 affected target-locale review until it has been refreshed from English. Invoke
 `.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
 
-For the current approved policy, Chapter 0 uses English only, Chapters 1 through
-7 use English and Russian, and Chapters 8 through 39 use English only until a later explicit activation. A
+For the current approved policy, Chapters 0 through 7 use English and Russian,
+and Chapters 8 through 39 use English only until a later explicit activation. A
 registered but deferred locale keeps its site chrome, existing lessons, and
 future activation path, but it does not require a new lesson or receive a
 chapter route. For each locale active for the selected chapter, create:
@@ -415,14 +415,13 @@ full plural system is unnecessary, prefer a localized noun-neutral count label
 followed by the numeric value over a brittle singular/plural shortcut. Never
 encode one language's plural rule in a shared component.
 
-A fluent human reviewer must explicitly approve the target-language lesson and
-rendered labels before publication. Record the locale, revision, English source
-revision, candidate checksum, reviewer or approval reference, and reviewed
-browser/viewport surfaces in the run. Agent-authored or automated translation may
-be a draft only; structural parity, an author's self-review, or a machine score is
-not linguistic approval. If competent review is unavailable, keep the
-chapter-active locale set staged and the chapter step blocked rather than
-publishing a partial or unreviewed translation.
+The target-language lesson and rendered labels must pass the distinct meaning,
+terminology, anti-calque, monolingual, accessibility, and rendered reviews above.
+Record the locale, revision, English source revision, candidate checksum, review
+findings, and browser/viewport surfaces in the run. Structural parity or a machine
+score cannot replace those checks. Do not add a pre-publication human-approval
+pause; the user reviews the completed change after delivery, and any requested
+correction starts a new recorded run or step.
 
 When enabling a new spoken language, register a separate locale-activation step
 in `curriculum/course-plan.md` under `scheduling.cross_cutting_steps`, immediately
@@ -435,10 +434,10 @@ locale's concrete outputs and per-locale validation only to pending chapters
 whose active sets now include it.
 
 Before activating chapter routes (and before enabling a manifest entry for a new
-registered language), a fluent human must explicitly approve the
-complete catalog, contract fields, every already implemented lesson, and the
-rendered chooser, home, course, chapter, switcher, and navigation surfaces. Record
-the reviewed surfaces and approval references. Verify that the manifest derives
+registered language), review the complete catalog, contract fields, every already
+implemented lesson, and the rendered chooser, home, course, chapter, switcher,
+and navigation surfaces. Record the findings and exact reviewed surfaces. Verify
+that the manifest derives
 the root chooser, static paths, locale switches, `hreflang`, page `lang` and `dir`,
 logical layout direction, and local links. A manifest-only, placeholder, partial,
 or unreviewed activation must fail closed.
@@ -615,8 +614,7 @@ A chapter is complete only when all answers are yes:
 - Are the demo, contract, `expected.txt`, rendered sources, and diagram fixture
   exact views of the same evidence?
 - Does every chapter-active locale form a same-revision set and pass meaning,
-  terminology, anti-calque, monolingual, accessible-label, rendered, and fluent
-  human review?
+  terminology, anti-calque, monolingual, accessible-label, and rendered review?
 - Is the visualization useful, accessible, locale-neutral, static, registered
   with the shared full-view controller, and driven by Rust evidence, or is its
   omission justified?

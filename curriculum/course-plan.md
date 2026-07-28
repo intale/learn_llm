@@ -1,30 +1,22 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 31,
+  "plan_revision": 32,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-english-only-intro-and-chapter-08-onward",
+    "policy_id": "selective-russian-through-chapter-07",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "00-llm-parts",
-        "locales": [
-          "en"
-        ],
-        "reason": "Publish the requested orientation chapter in English first without creating a Russian placeholder route."
-      },
-      {
-        "from_chapter": "01-text-units",
         "through_chapter": "07-language-model-metrics",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Preserve every completed bilingual chapter and the already-started Chapter 7 bilingual contract."
+        "reason": "Publish the reviewed Russian orientation together with the existing bilingual Chapters 1-7."
       },
       {
         "from_chapter": "08-tensor-storage",
@@ -41,8 +33,8 @@
     "future_activation": {
       "requires_cross_cutting_step": true,
       "requires_backfill_for_implemented_chapters": true,
-      "requires_fluent_human_approval": true,
-      "strategy": "Activate a registered or new spoken language only through a reviewed locale-activation step that backfills every applicable implemented chapter before publishing its routes."
+      "requires_fluent_human_approval": false,
+      "strategy": "Activate a registered or new spoken language only through a validated locale-activation step that backfills every applicable implemented chapter before publishing its routes; user review follows delivery rather than pausing the build."
     }
   },
   "chapter_1_disposition": {
@@ -207,6 +199,11 @@
       {
         "step_id": "repair-ch35-learner-rationale",
         "after_chapter": "35-checkpoints"
+      },
+      {
+        "step_id": "activate-ch00-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch00-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -776,11 +773,10 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapter 0 currently
-activates English only, Chapters 1–7 activate both, and Chapters 8–39 activate
-English only. Russian therefore keeps its index and existing Chapter 1–7 lessons,
-but receives no placeholder lesson or route for a deferred chapter. The same rules
-apply to any registered locale.
+and chapter validation. English and Russian are registered; Chapters 0–7 activate
+both, while Chapters 8–39 activate English only. Russian therefore keeps its index
+and Chapter 0–7 lessons but receives no placeholder lesson or route for a deferred
+chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
 
@@ -816,6 +812,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `00-llm-parts`
 - **Implementation step:** `revise-ch00-orientation`
+- **Localization status:** Content revision 3 delivers the complete meaning-first Russian orientation through `activate-ch00-russian-localization` after exact language, checksum, and rendered-diagram validation; user review follows delivery.
 - **Depends on:** none; this orientation names completed course parts but introduces no implementation prerequisite.
 - **Outcome:** Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.
 - **Scope boundary:** Build a mental map of inference and learning without pre-teaching tensor arithmetic, optimization derivations, implementation internals, or production extensions.
@@ -891,7 +888,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
-- **Revision status:** Content revision 2 is delivered by `revise-ch05-russian-localization`; publication is gated on renewed fluent-human approval of the rendered Russian page, recorded in `BUILD_STATE.yaml`.
+- **Revision status:** Content revision 2 was delivered by `revise-ch05-russian-localization`; its exact Russian page and then-required approval remain recorded as historical provenance in `BUILD_STATE.yaml`.
 - **Depends on:** `04-apply-bpe-tokenizer`.
 - **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
 - **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.
@@ -907,7 +904,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `06-bigram-baseline`
 - **Implementation step:** `implement-ch06-bigram-baseline`
-- **Revision status:** Revision 2 is delivered by `rewrite-ch06-bigram-baseline`; publication is gated on explicit fluent-human approval of its rendered Russian page, recorded in `BUILD_STATE.yaml`.
+- **Revision status:** Revision 2 was delivered by `rewrite-ch06-bigram-baseline`; its exact Russian page and then-required approval remain recorded as historical provenance in `BUILD_STATE.yaml`.
 - **Depends on:** `05-autoregressive-examples`.
 - **Outcome:** Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.
 - **Scope boundary:** Teach a one-token context, one count per transition in each original wrapped training document, maximum-likelihood row normalization, and add-alpha smoothing. Include BOS/EOS transitions, exclude padding, keep documents separate, fit only on the training partition, and distinguish an unobserved successor in a defined row from a context whose whole MLE row is undefined. Defer scoring to chapter 7.

@@ -59,19 +59,19 @@ function fixtureManifest(
 }
 
 describe('chapter-locale manifest', () => {
-  it('keeps all authoring guides aligned with the three current locale ranges', () => {
+  it('keeps all authoring guides aligned with the two current locale ranges', () => {
     const repositoryRoot = resolve(process.cwd(), '..');
     const normalized = (path: string) =>
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English only for Chapter 0, English and Russian for Chapters 1–7, and English only for Chapters 8–39',
+      'English and Russian for Chapters 0–7 and English only for Chapters 8–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'current Chapter 0 and Chapter 8–39 active sets; Chapters 1–7 use English and Russian',
+      'Chapters 0–7 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapter 0 uses English only, Chapters 1 through 7 use English and Russian, and Chapters 8 through 39 use English only',
+      'Chapters 0 through 7 use English and Russian, and Chapters 8 through 39 use English only',
     );
   });
 
@@ -81,7 +81,7 @@ describe('chapter-locale manifest', () => {
     expect(chapterLocaleConfiguration.chapters[0]).toMatchObject({
       chapterId: '00-llm-parts',
       order: 0,
-      activeLocales: ['en'],
+      activeLocales: ['en', 'ru'],
     });
     expect(chapterLocaleConfiguration.chapters[1]).toMatchObject({
       chapterId: '01-text-units',
@@ -105,7 +105,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(1, 8)
+        .slice(0, 8)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -115,7 +115,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order === 0 || chapter.order >= 8)
+        .filter((chapter) => chapter.order >= 8)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -123,7 +123,8 @@ describe('chapter-locale manifest', () => {
         ),
     ).toBe(true);
 
-    expect(activeLocalesForChapter('00-llm-parts')).toEqual(['en']);
+    expect(activeLocalesForChapter('00-llm-parts')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('00-llm-parts', 'ru')).toBe(true);
     expect(activeLocalesForChapter('07-language-model-metrics')).toEqual([
       'en',
       'ru',

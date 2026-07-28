@@ -3,6 +3,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   chapterPath,
   chapterTag,
+  type ChapterLocale,
   type CourseChapterLink,
   expectLocalizedChapterRoute,
   expectNoOverflowOrClientScripts,
@@ -12,18 +13,90 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "00-llm-parts";
-const chapterTitle = "A map of a modern LLM";
-const chapterDescription =
-  "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.";
 const systemDiagramId = "llm-system-map";
 const detailDiagramId = "llm-parts-map";
-const chapterHeadings = [
-  "See the system before its mechanisms",
-  "A short road to the modern block diagram",
-  "Follow the blocks as one connected system",
-  "Use the map as a table of contents",
-  "Start with the model’s input boundary",
-] as const;
+
+const chapterCopy = {
+  en: {
+    title: "A map of a modern LLM",
+    description:
+      "See how tokenization, embeddings, decoder blocks, attention, feed-forward layers, training, sampling, and caching fit together in a decoder-only LLM.",
+    revisionLabel: "Content revision",
+    headings: [
+      "See the system before its mechanisms",
+      "A short road to the modern block diagram",
+      "Follow the blocks as one connected system",
+      "Use the map as a table of contents",
+      "Start with the model’s input boundary",
+    ],
+    systemSection: "How the complete system connects",
+    forward: "Shared forward path",
+    generation: "Generation branch",
+    learning: "Learning branch",
+    inference: "The next-token inference path",
+    decoder: "Inside every pre-norm decoder block",
+    learningDetail: "Learning and evaluating the same weights",
+    numericPurpose: "record gradients only while learning",
+    sharedForward: "text → tokenizer → embeddings → decoder blocks → vocabulary head",
+    orientationBoundary:
+      "This overview deliberately stops at names, purposes, and connections.",
+    noMemorization: "You do not need to memorize this map.",
+    linksStatement: "Every named part links to the chapter that implements it.",
+    samplerCue: "token ID to embeddings",
+    generationFeedback:
+      "The chosen ID returns to embedding lookup for the next cached step.",
+    weightFeedback:
+      "Updated weights feed the shared forward path on the next training step.",
+    evaluationRelationship: "Selected weights → frozen model → final test score",
+    checkpointRelationship: "training state ↔ saved checkpoint",
+    learningLogits: "Forward logits",
+    learningJoin: "and",
+    optimizerPurpose: "validation chooses a state",
+    chapterShort: "Ch",
+    chapterLong: "Chapter",
+  },
+  ru: {
+    title: "Карта устройства современной LLM",
+    description:
+      "Посмотрите, как токенизация, эмбеддинги, блоки декодера, внимание, ветви прямого распространения, обучение, выбор токена и KV-кэш соединяются в LLM только с декодером.",
+    revisionLabel: "Версия материала",
+    headings: [
+      "Сначала взгляните на систему целиком",
+      "Короткий путь к современной блок-схеме",
+      "Проследите путь по единой системе",
+      "Используйте карту как оглавление",
+      "Начните с входной границы модели",
+    ],
+    systemSection: "Как связана вся система",
+    forward: "Общий путь прямого распространения",
+    generation: "Генерация",
+    learning: "Обучение",
+    inference: "Генерация следующего токена",
+    decoder: "Внутри блока декодера",
+    learningDetail: "Обучение и оценка тех же весов",
+    numericPurpose: "Тензорные операции; граф вычислений — только при обучении",
+    sharedForward:
+      "текст → токенизатор → эмбеддинги → декодер → проекция на словарь",
+    orientationBoundary:
+      "Этот обзор намеренно ограничивается названиями, назначением и связями частей.",
+    noMemorization: "Запоминать эту карту не нужно.",
+    linksStatement: "Каждая названная часть ведёт к главе, где она реализуется.",
+    samplerCue: "ID токена → эмбеддинг",
+    generationFeedback:
+      "Выбранный ID возвращается к эмбеддингам на следующем шаге с KV‑кэшем.",
+    weightFeedback:
+      "Следующий прямой проход использует обновлённые веса.",
+    evaluationRelationship:
+      "Выбранные веса → веса не меняются → тестовая оценка",
+    checkpointRelationship:
+      "Состояние модели и обучения ↔ контрольная точка",
+    learningLogits: "Логиты модели",
+    learningJoin: "и",
+    optimizerPurpose: "отбор — по валидации",
+    chapterShort: "Гл.",
+    chapterLong: "Глава",
+  },
+} as const;
 
 async function expectContainedDiagram(page: Page, diagramId: string) {
   const problems = await page
@@ -52,12 +125,20 @@ async function expectContainedDiagram(page: Page, diagramId: string) {
           issues.push(`box ${index} is outside the figure`);
         }
         if (
-          [style.borderTopStyle, style.borderRightStyle, style.borderBottomStyle, style.borderLeftStyle]
-            .some((value) => value === "none")
+          [
+            style.borderTopStyle,
+            style.borderRightStyle,
+            style.borderBottomStyle,
+            style.borderLeftStyle,
+          ].some((value) => value === "none")
         ) {
           issues.push(`box ${index} lacks a complete border`);
         }
-        if ([style.overflowX, style.overflowY].some((value) => ["hidden", "clip"].includes(value))) {
+        if (
+          [style.overflowX, style.overflowY].some((value) =>
+            ["hidden", "clip"].includes(value),
+          )
+        ) {
           issues.push(`box ${index} conceals overflow`);
         }
         if (
@@ -79,7 +160,9 @@ async function splitOrdinaryWords(diagram: Locator) {
       const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
       while (walker.nextNode()) {
         const node = walker.currentNode as Text;
-        for (const match of node.data.matchAll(/[A-Za-z]+(?:['’-][A-Za-z]+)*/g)) {
+        for (const match of node.data.matchAll(
+          /[\p{L}\p{M}]+(?:['’‑–—-][\p{L}\p{M}]+)*/gu,
+        )) {
           const range = document.createRange();
           range.setStart(node, match.index ?? 0);
           range.setEnd(node, (match.index ?? 0) + match[0].length);
@@ -93,24 +176,24 @@ async function splitOrdinaryWords(diagram: Locator) {
   );
 }
 
-async function expectChapter(page: Page) {
+async function expectChapter(page: Page, locale: ChapterLocale) {
+  const copy = chapterCopy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 0,
-    revision: 2,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
-    fallbackRouteSuffix: "/course/",
+    revision: 3,
+    revisionLabel: copy.revisionLabel,
+    title: copy.title,
+    equivalentLocales: ["en", "ru"],
   });
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    chapterDescription,
+    copy.description,
   );
-  expect(
-    await page.locator(".lesson-body h2").allInnerTexts(),
-  ).toEqual(chapterHeadings);
+  expect(await page.locator(".lesson-body h2").allInnerTexts()).toEqual(
+    copy.headings,
+  );
   await expectVisualizationDecision(page, {
     decision: "useful",
     id: systemDiagramId,
@@ -124,11 +207,13 @@ async function expectChapter(page: Page) {
   );
   const system = systemDiagram.locator(".system-panel");
   await expect(
-    system.getByRole("heading", { name: "How the complete system connects" }),
+    system.getByRole("heading", { name: copy.systemSection }),
   ).toBeVisible();
-  await expect(system.getByRole("heading", { name: "Shared forward path" })).toBeVisible();
-  await expect(system.getByRole("heading", { name: "Generation branch" })).toBeVisible();
-  await expect(system.getByRole("heading", { name: "Learning branch" })).toBeVisible();
+  await expect(system.getByRole("heading", { name: copy.forward })).toBeVisible();
+  await expect(
+    system.getByRole("heading", { name: copy.generation }),
+  ).toBeVisible();
+  await expect(system.getByRole("heading", { name: copy.learning })).toBeVisible();
   await expect(system.locator("[data-schema-stage]")).toHaveCount(18);
   expect(
     await system.locator("[data-schema-stage]").evaluateAll((stages) =>
@@ -154,59 +239,68 @@ async function expectChapter(page: Page) {
     "evaluation",
     "checkpoint",
   ]);
-  await expect(system).toContainText(
-    "The chosen ID returns to embedding lookup for the next cached step.",
-  );
-  await expect(system).toContainText(
-    "Updated weights feed the shared forward path on the next training step.",
-  );
+  await expect(system).toContainText(copy.generationFeedback);
+  await expect(system).toContainText(copy.weightFeedback);
   await expect(system.locator('[data-schema-stage="evaluation"]')).toContainText(
-    "Selected weights → frozen model → final test score",
+    copy.evaluationRelationship,
   );
   await expect(system.locator('[data-schema-stage="checkpoint"]')).toContainText(
-    "training state ↔ saved checkpoint",
+    copy.checkpointRelationship,
   );
-  await expect(detailDiagram.getByRole("heading", { name: "The next-token inference path" })).toBeVisible();
-  await expect(detailDiagram.getByRole("heading", { name: "Inside every pre-norm decoder block" })).toBeVisible();
-  await expect(detailDiagram.getByRole("heading", { name: "Learning and evaluating the same weights" })).toBeVisible();
+  await expect(
+    detailDiagram.getByRole("heading", { name: copy.inference }),
+  ).toBeVisible();
+  await expect(
+    detailDiagram.getByRole("heading", { name: copy.decoder }),
+  ).toBeVisible();
+  await expect(
+    detailDiagram.getByRole("heading", { name: copy.learningDetail }),
+  ).toBeVisible();
   await expect(systemDiagram.locator("[data-diagram-box]")).toHaveCount(18);
-  await expect(systemDiagram.locator('[data-schema-stage="learning-logits"]')).toContainText(
-    "Forward logits",
+  await expect(
+    systemDiagram.locator('[data-schema-stage="learning-logits"]'),
+  ).toContainText(copy.learningLogits);
+  await expect(systemDiagram.locator(".system-join")).toHaveText(
+    copy.learningJoin,
   );
-  await expect(systemDiagram.locator(".system-join")).toHaveText("and");
   await expect(detailDiagram.locator('[data-part-id="optimizer"]')).toContainText(
-    "validation chooses a state",
+    copy.optimizerPurpose,
   );
   await expect(detailDiagram.locator("[data-part-id]")).toHaveCount(19);
   await expect(detailDiagram.locator("[data-diagram-box]")).toHaveCount(19);
-  expect(await splitOrdinaryWords(systemDiagram), "whole-system word wrapping").toEqual([]);
-  expect(await splitOrdinaryWords(detailDiagram), "detail-map word wrapping").toEqual([]);
+  expect(
+    await splitOrdinaryWords(systemDiagram),
+    `${locale} whole-system word wrapping`,
+  ).toEqual([]);
+  expect(
+    await splitOrdinaryWords(detailDiagram),
+    `${locale} detail-map word wrapping`,
+  ).toEqual([]);
   await expect(detailDiagram.locator('[data-part-id="numeric-core"]')).toHaveAttribute(
     "data-part-path",
     "both",
   );
   await expect(detailDiagram.locator('[data-part-id="numeric-core"]')).toContainText(
-    "record gradients only while learning",
+    copy.numericPurpose,
   );
   await expect(detailDiagram.locator("[data-learning-reuse]")).toContainText(
-    "text → tokenizer → embeddings → decoder blocks → vocabulary head",
+    copy.sharedForward,
   );
   await expect(page.locator(".lesson-body")).toContainText(
-    "This overview deliberately stops at names, purposes, and connections.",
+    copy.orientationBoundary,
   );
-  await expect(page.locator(".lesson-body")).toContainText(
-    "You do not need to memorize this map.",
-  );
-  await expect(page.locator(".lesson-body")).toContainText(
-    "Every named part links to the chapter that implements it.",
-  );
+  await expect(page.locator(".lesson-body")).toContainText(copy.noMemorization);
+  await expect(page.locator(".lesson-body")).toContainText(copy.linksStatement);
   await expect(detailDiagram.locator('[data-part-id="sampler"]')).toContainText(
-    "token ID to embeddings",
+    copy.samplerCue,
   );
   await expect(detailDiagram.locator("ol.inference-flow")).toHaveCount(1);
   await expect(detailDiagram.locator("ol.decoder-flow")).toHaveCount(1);
   await expect(detailDiagram.locator("ol.learning-flow")).toHaveCount(1);
-  await expect(detailDiagram.locator(".learning-flow")).toHaveAttribute("start", "6");
+  await expect(detailDiagram.locator(".learning-flow")).toHaveAttribute(
+    "start",
+    "6",
+  );
   const stateSymbols = detailDiagram.locator(".state-symbol");
   await expect(stateSymbols).toHaveCount(19);
   expect(
@@ -216,27 +310,6 @@ async function expectChapter(page: Page) {
   ).toBe(true);
   const chapterLinks = detailDiagram.locator("a[data-chapter-link]");
   await expect(chapterLinks).toHaveCount(43);
-  await expect(
-    detailDiagram.getByRole("link", {
-      name: "Ch 01 — Text units and vocabulary IDs",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(
-    detailDiagram.getByRole("link", {
-      name: "Ch 39 — Run the whole tiny LLM",
-      exact: true,
-    }),
-  ).toBeVisible();
-  expect(
-    await chapterLinks.evaluateAll((links) =>
-      links.every((link) => {
-        const visible = (link as HTMLElement).innerText.trim();
-        const name = link.getAttribute("aria-label") ?? "";
-        return /^Ch \d{2} — \S/.test(name) && name.startsWith(visible);
-      }),
-    ),
-  ).toBe(true);
   expect(
     await detailDiagram.locator(".learning-flow > li").evaluateAll((cards) =>
       cards.map((card) => ({
@@ -260,7 +333,9 @@ async function expectChapter(page: Page) {
   }
   await expect(page.locator(".lesson-body .katex")).toHaveCount(0);
   await expect(
-    page.locator(".lesson-body pre, .lesson-body details, .lesson-body [data-rust-source]"),
+    page.locator(
+      ".lesson-body pre, .lesson-body details, .lesson-body [data-rust-source]",
+    ),
   ).toHaveCount(0);
   await expect(page.locator(".lesson-body")).not.toContainText(
     "Check your first mental model",
@@ -272,52 +347,88 @@ async function expectChapter(page: Page) {
 
 async function expectCompleteChapterLinks(
   page: Page,
-  courseChapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
+  englishChapters: readonly CourseChapterLink[],
+  russianChapters: readonly CourseChapterLink[],
 ) {
-  const expectedById = new Map(
-    courseChapters
+  const englishById = new Map(
+    englishChapters
       .filter(({ order }) => order > 0)
       .map((chapter) => [chapter.chapterId, chapter]),
   );
-  const diagram = page.locator(`figure[data-visualization-id="${detailDiagramId}"]`);
+  const russianById = new Map(
+    russianChapters
+      .filter(({ order }) => order > 0)
+      .map((chapter) => [chapter.chapterId, chapter]),
+  );
+  const diagram = page.locator(
+    `figure[data-visualization-id="${detailDiagramId}"]`,
+  );
   const links = await diagram.locator("a[data-chapter-link]").evaluateAll((nodes) =>
     nodes.map((node) => ({
       chapterId: node.getAttribute("data-chapter-link") ?? "",
+      destinationLocale: node.getAttribute("data-chapter-locale") ?? "",
       href: node.getAttribute("href") ?? "",
+      hreflang: node.getAttribute("hreflang") ?? "",
       label: node.getAttribute("aria-label") ?? "",
       visible: (node as HTMLElement).innerText.trim(),
     })),
   );
   expect(links).toHaveLength(43);
   for (const link of links) {
-    const chapter = expectedById.get(link.chapterId);
-    expect(chapter, `unknown diagram destination ${link.chapterId}`).toBeDefined();
-    const visible = `Ch ${chapter!.order.toString().padStart(2, "0")}`;
+    const englishChapter = englishById.get(link.chapterId);
+    expect(englishChapter, `unknown diagram destination ${link.chapterId}`).toBeDefined();
+    const useRussianDestination = locale === "ru" && englishChapter!.order <= 7;
+    const destination = useRussianDestination
+      ? russianById.get(link.chapterId)
+      : englishChapter;
+    expect(destination, `missing localized destination ${link.chapterId}`).toBeDefined();
+    const number = englishChapter!.order.toString().padStart(2, "0");
+    const destinationLocale = useRussianDestination ? "ru" : "en";
+    const fallbackPrefix = locale === "ru" && destinationLocale === "en"
+      ? ", страница на английском"
+      : "";
+    const visible = locale === "ru" && destinationLocale === "en"
+      ? `${number} EN`
+      : `${chapterCopy[locale].chapterShort} ${number}`;
     expect(link.visible).toBe(visible);
-    expect(link.label).toBe(`${visible} — ${chapter!.title}`);
-    expect(link.href).toBe(chapterPath("en", chapter!.chapterId));
+    expect(link.label).toBe(
+      `${chapterCopy[locale].chapterLong} ${number}${fallbackPrefix} — ${destination!.title}`,
+    );
+    expect(link.href).toBe(destination!.href);
+    expect(link.destinationLocale).toBe(destinationLocale);
+    expect(link.hreflang).toBe(destinationLocale);
   }
 
-  const listProblems = await diagram.locator(".course-diagram__link-list").evaluateAll((lists) =>
-    lists.flatMap((list, listIndex) => {
-      const items = Array.from(list.children);
-      const issues: string[] = [];
-      items.forEach((item, itemIndex) => {
-        const separators = item.querySelectorAll(":scope > .course-diagram__link-separator");
-        const expected = itemIndex < items.length - 1 ? 1 : 0;
-        if (separators.length !== expected) issues.push(`list ${listIndex} item ${itemIndex}`);
-        separators.forEach((separator) => {
-          if (separator.textContent !== "," || separator.getAttribute("aria-hidden") !== "true") {
-            issues.push(`list ${listIndex} separator ${itemIndex}`);
+  const listProblems = await diagram
+    .locator(".course-diagram__link-list")
+    .evaluateAll((lists) =>
+      lists.flatMap((list, listIndex) => {
+        const items = Array.from(list.children);
+        const issues: string[] = [];
+        items.forEach((item, itemIndex) => {
+          const separators = item.querySelectorAll(
+            ":scope > .course-diagram__link-separator",
+          );
+          const expected = itemIndex < items.length - 1 ? 1 : 0;
+          if (separators.length !== expected) {
+            issues.push(`list ${listIndex} item ${itemIndex}`);
+          }
+          separators.forEach((separator) => {
+            if (
+              separator.textContent !== "," ||
+              separator.getAttribute("aria-hidden") !== "true"
+            ) {
+              issues.push(`list ${listIndex} separator ${itemIndex}`);
+            }
+          });
+          if (item.querySelector("a .course-diagram__link-separator")) {
+            issues.push(`list ${listIndex} nested separator ${itemIndex}`);
           }
         });
-        if (item.querySelector("a .course-diagram__link-separator")) {
-          issues.push(`list ${listIndex} nested separator ${itemIndex}`);
-        }
-      });
-      return issues;
-    }),
-  );
+        return issues;
+      }),
+    );
   expect(listProblems).toEqual([]);
 
   const cache = diagram.locator('[data-part-id="kv-cache"]');
@@ -329,8 +440,13 @@ async function expectCompleteChapterLinks(
   expect(
     await cacheSeparator.evaluate((separator) => {
       const previousLink = separator.previousElementSibling;
-      if (!(previousLink instanceof HTMLAnchorElement)) return Number.POSITIVE_INFINITY;
-      return Math.abs(separator.getBoundingClientRect().left - previousLink.getBoundingClientRect().right);
+      if (!(previousLink instanceof HTMLAnchorElement)) {
+        return Number.POSITIVE_INFINITY;
+      }
+      return Math.abs(
+        separator.getBoundingClientRect().left -
+          previousLink.getBoundingClientRect().right,
+      );
     }),
   ).toBeLessThanOrEqual(0.5);
   await expect(cache.locator("a .course-diagram__link-separator")).toHaveCount(0);
@@ -340,120 +456,148 @@ test.describe(
   "Chapter 0 LLM-parts orientation",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English starts with Chapter 0 while Russian still starts with Chapter 1", async ({
-      page,
-    }) => {
-      const english = await readOrderedCourseChapters(page, "en", {
-        includeIntroduction: true,
-      });
-      expect(english).toHaveLength(40);
-      expect(english[0]).toEqual(
-        expect.objectContaining({ chapterId, order: 0, title: chapterTitle }),
-      );
-      await expect(page.locator("ol.course-list")).toHaveAttribute("start", "0");
-      const implementationChapters = await readOrderedCourseChapters(page, "en");
-      expect(implementationChapters).toHaveLength(39);
-      expect(implementationChapters[0].chapterId).toBe("01-text-units");
-      const russian = await readOrderedCourseChapters(page, "ru", {
-        includeIntroduction: true,
-      });
-      expect(russian).toHaveLength(7);
-      expect(russian[0].chapterId).toBe("01-text-units");
-      await expect(page.locator("ol.course-list")).toHaveAttribute("start", "1");
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
-    });
-
-    test("the linked mental map remains complete at desktop and narrow widths", async ({
-      page,
-    }) => {
-      const chapters = await readOrderedCourseChapters(page, "en", {
-        includeIntroduction: true,
-      });
-      await page.setViewportSize({ width: 1366, height: 768 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapter(page);
-      await expectCompleteChapterLinks(page, chapters);
-      await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
-      await expect(
-        page.locator('a[data-chapter-direction="next"]'),
-      ).toHaveAttribute("data-chapter-id", "01-text-units");
-      await expect(
-        page.locator('a[data-chapter-direction="previous"]'),
-      ).toHaveCount(0);
-
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapter(page);
-      await expect(
-        page.locator(
-          `[data-visualization-id="${systemDiagramId}"] [data-diagram-full-view-toggle], ` +
-          `[data-visualization-id="${detailDiagramId}"] [data-diagram-full-view-toggle]`,
-        ),
-      ).toHaveCount(0);
-    });
-
-    test("the shared full-view control expands each figure and restores focus", async ({
-      page,
-    }) => {
-      await page.setViewportSize({ width: 1366, height: 768 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
-
-      for (const [id, boxCount] of [
-        [systemDiagramId, 18],
-        [detailDiagramId, 19],
-      ] as const) {
-        const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
-        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-        await expect(toggle).toHaveCount(1);
-        await toggle.click();
-        await page.waitForFunction(
-          (visualizationId) =>
-            document.fullscreenElement?.getAttribute("data-visualization-id") ===
-            visualizationId,
-          id,
+    test("English and Russian both start with Chapter 0", async ({ page }) => {
+      for (const locale of ["en", "ru"] as const) {
+        const chapters = await readOrderedCourseChapters(page, locale, {
+          includeIntroduction: true,
+        });
+        expect(chapters).toHaveLength(locale === "en" ? 40 : 8);
+        expect(chapters[0]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 0,
+            title: chapterCopy[locale].title,
+          }),
         );
-        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(boxCount);
-        await expectContainedDiagram(page, id);
-
-        expect(await splitOrdinaryWords(diagram), `${id} word wrapping`).toEqual([]);
-
-        const travel = await diagram.evaluate((node) => ({
-          horizontal: node.scrollWidth - node.clientWidth,
-          vertical: node.scrollHeight - node.clientHeight,
-          verticalLimit: Math.ceil(node.clientHeight * 0.2),
-        }));
-        expect(travel.horizontal, id).toBe(0);
-        expect(travel.vertical, id).toBeLessThanOrEqual(travel.verticalLimit);
-        await page.keyboard.press("Escape");
-        await page.waitForFunction(() => document.fullscreenElement === null);
-        await expect(toggle).toBeFocused();
+        await expect(page.locator("ol.course-list")).toHaveAttribute("start", "0");
+        const implementationChapters = await readOrderedCourseChapters(page, locale);
+        expect(implementationChapters).toHaveLength(locale === "en" ? 39 : 7);
+        expect(implementationChapters[0].chapterId).toBe("01-text-units");
+        const response = await page.goto(chapterPath(locale, chapterId));
+        expect(response?.status()).toBe(200);
       }
     });
 
-    test("the complete linked map remains available without JavaScript", async ({
-      browser,
-    }, testInfo) => {
-      const context = await browser.newContext({
-        javaScriptEnabled: false,
-        baseURL: String(testInfo.project.use.baseURL),
+    for (const locale of ["en", "ru"] as const) {
+      test(`${locale} linked map remains complete at desktop and narrow widths`, async ({
+        page,
+      }) => {
+        const englishChapters = await readOrderedCourseChapters(page, "en", {
+          includeIntroduction: true,
+        });
+        const russianChapters = await readOrderedCourseChapters(page, "ru", {
+          includeIntroduction: true,
+        });
+        const currentChapters = locale === "en" ? englishChapters : russianChapters;
+        await page.setViewportSize({ width: 1366, height: 768 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapter(page, locale);
+        await expectCompleteChapterLinks(
+          page,
+          locale,
+          englishChapters,
+          russianChapters,
+        );
+        await expectOrderedChapterNavigation(
+          page,
+          locale,
+          chapterId,
+          currentChapters,
+        );
+        await expect(page.locator('a[data-chapter-direction="next"]')).toHaveAttribute(
+          "data-chapter-id",
+          "01-text-units",
+        );
+        await expect(
+          page.locator('a[data-chapter-direction="previous"]'),
+        ).toHaveCount(0);
+
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapter(page, locale);
+        await expect(
+          page.locator(
+            `[data-visualization-id="${systemDiagramId}"] [data-diagram-full-view-toggle], ` +
+              `[data-visualization-id="${detailDiagramId}"] [data-diagram-full-view-toggle]`,
+          ),
+        ).toHaveCount(0);
       });
-      const page = await context.newPage();
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(page.getByRole("heading", { level: 1, name: chapterTitle })).toBeVisible();
-      await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
-      await expect(page.locator(`[data-visualization-id="${systemDiagramId}"]`)).toHaveCount(1);
-      await expect(page.locator(`[data-visualization-id="${detailDiagramId}"]`)).toHaveCount(1);
-      await expect(page.locator("a[data-chapter-link]")).toHaveCount(43);
-      await expect(page.locator("[data-schema-stage]")).toHaveCount(18);
-      await expect(page.locator("[data-diagram-box]")).toHaveCount(37);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(0);
-      await expectContainedDiagram(page, systemDiagramId);
-      await expectContainedDiagram(page, detailDiagramId);
-      await expectNoOverflowOrClientScripts(page);
-      await context.close();
-    });
+
+      test(`${locale} full-view controls expand each figure and restore focus`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width: 1366, height: 768 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
+
+        for (const [id, boxCount] of [
+          [systemDiagramId, 18],
+          [detailDiagramId, 19],
+        ] as const) {
+          const diagram = page.locator(`figure[data-visualization-id="${id}"]`);
+          const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+          await expect(toggle).toHaveCount(1);
+          await toggle.click();
+          await page.waitForFunction(
+            (visualizationId) =>
+              document.fullscreenElement?.getAttribute("data-visualization-id") ===
+              visualizationId,
+            id,
+          );
+          await expect(diagram.locator("[data-diagram-box]")).toHaveCount(boxCount);
+          await expectContainedDiagram(page, id);
+          expect(
+            await splitOrdinaryWords(diagram),
+            `${locale} ${id} word wrapping`,
+          ).toEqual([]);
+
+          const travel = await diagram.evaluate((node) => ({
+            horizontal: node.scrollWidth - node.clientWidth,
+            vertical: node.scrollHeight - node.clientHeight,
+            verticalLimit: Math.ceil(node.clientHeight * 0.2),
+          }));
+          expect(travel.horizontal, `${locale} ${id}`).toBe(0);
+          expect(travel.vertical, `${locale} ${id}`).toBeLessThanOrEqual(
+            travel.verticalLimit,
+          );
+          await page.keyboard.press("Escape");
+          await page.waitForFunction(() => document.fullscreenElement === null);
+          await expect(toggle).toBeFocused();
+        }
+      });
+
+      test(`${locale} complete linked map remains available without JavaScript`, async ({
+        browser,
+      }, testInfo) => {
+        const context = await browser.newContext({
+          javaScriptEnabled: false,
+          baseURL: String(testInfo.project.use.baseURL),
+        });
+        const page = await context.newPage();
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", {
+            level: 1,
+            name: chapterCopy[locale].title,
+          }),
+        ).toBeVisible();
+        await expect(page.locator("figure[data-visualization-id]")).toHaveCount(2);
+        await expect(
+          page.locator(`[data-visualization-id="${systemDiagramId}"]`),
+        ).toHaveCount(1);
+        await expect(
+          page.locator(`[data-visualization-id="${detailDiagramId}"]`),
+        ).toHaveCount(1);
+        await expect(page.locator("a[data-chapter-link]")).toHaveCount(43);
+        await expect(page.locator("[data-schema-stage]")).toHaveCount(18);
+        await expect(page.locator("[data-diagram-box]")).toHaveCount(37);
+        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(0);
+        await expectContainedDiagram(page, systemDiagramId);
+        await expectContainedDiagram(page, detailDiagramId);
+        await expectNoOverflowOrClientScripts(page);
+        await context.close();
+      });
+    }
   },
 );

@@ -69,9 +69,10 @@ For an automated render check without starting a server:
 ```
 
 Review builds never publish the candidate or modify its `publish/` tree. Their
-images and build cache remain in the Docker daemon. Human approval should name
-the reviewed run and cover both localized pages, including captions and
-accessible labels.
+images and build cache remain in the Docker daemon. Record the reviewed run and
+cover every active localized page, including captions and accessible labels. The
+build does not pause for human approval; the user reviews the completed change
+after delivery.
 
 ## Export a static release
 
@@ -173,15 +174,16 @@ Show every supported wrapper command with:
 Configured languages are declared in `site/src/i18n/locales.json`. Lessons live
 under `site/src/content/chapters/<locale>/`; interface messages live in
 schema-checked `site/src/i18n/catalogs/<locale>.json` files. A chapter publishes
-only when every configured locale has one same-revision lesson and the shared
-formula, Rust-source, visualization, and order metadata agree.
+only when every locale active for that chapter has one same-revision lesson and
+the shared formula, Rust-source, visualization, and order metadata agree.
 
 Read the [chapter delivery playbook](SKILLS.md) and the
 [localized curriculum workflow](curriculum/README.md) before authoring or
 translating a lesson. Translation is meaning-first: establish terminology,
 rewrite naturally in the target language, compare critical claims, perform an
-anti-calque and monolingual pass, inspect the rendered page, and obtain the
-required fluent-human approval before publication.
+anti-calque and monolingual pass, inspect the rendered page, and record the exact
+review findings before publication. User review follows delivery instead of
+pausing the build.
 
 Adding another spoken language is one atomic activation step. It extends the
 locale registry, message catalog, localized fields in every implemented chapter

@@ -164,7 +164,7 @@ function validateChapterLocalePolicy(
   assert(
     activation?.requires_cross_cutting_step === true &&
       activation?.requires_backfill_for_implemented_chapters === true &&
-      activation?.requires_fluent_human_approval === true &&
+      activation?.requires_fluent_human_approval === false &&
       typeof activation?.strategy === "string" &&
       activation.strategy.trim().length > 0,
     `${path}: future locale activation policy is incomplete`,
@@ -274,6 +274,10 @@ export function validateCoursePlanText(
   );
   const crossCuttingIds = crossCuttingSteps.map((step) => step?.step_id);
   unique(crossCuttingIds, "cross-cutting step_id");
+  const standaloneBuildIds = crossCuttingSteps
+    .map((step) => step?.standalone_build_id)
+    .filter((buildId) => buildId !== undefined);
+  unique(standaloneBuildIds, "cross-cutting standalone_build_id");
   for (const step of crossCuttingSteps) {
     assert(
       typeof step?.step_id === "string" && CONCEPT_ID_PATTERN.test(step.step_id),
@@ -294,6 +298,17 @@ export function validateCoursePlanText(
       target,
       `${path}: ${step.step_id} must name a valid ${placementKey}`,
     );
+    if (step.standalone_build_id !== undefined) {
+      assert(
+        typeof step.standalone_build_id === "string" &&
+          CONCEPT_ID_PATTERN.test(step.standalone_build_id),
+        `${path}: ${step.step_id} has an invalid standalone_build_id`,
+      );
+      assert(
+        step.after_chapter === chapters.at(-1)?.chapter_id,
+        `${path}: standalone cross-cutting steps must follow the final chapter`,
+      );
+    }
   }
   for (const required of [
     "establish-scalable-chapter-delivery",
@@ -334,6 +349,15 @@ export function validateCoursePlanText(
         "realign-ch09-llm-history",
       ]),
     `${path}: LLM-history correction steps must remain in policy, Chapter 8, Chapter 9 order`,
+  );
+  assert(
+    crossCuttingSteps.some(
+      (step) =>
+        step.step_id === "activate-ch00-russian-localization" &&
+        step.after_chapter === "39-end-to-end-llm" &&
+        step.standalone_build_id === "activate-ch00-russian-localization",
+    ),
+    `${path}: Chapter 0 Russian activation schedule is incomplete`,
   );
   assert(
     localeConfiguration.locales.length > 0 &&
@@ -543,11 +567,55 @@ export function validateLedgerText(
   const build = extractBuild(stateSource, "complete-decoder-course", statePath);
   const steps = extractSteps(build, statePath);
   const expectedIds = deriveScheduledStepIds(metadata);
+  const standaloneDefinitions = metadata.scheduling.cross_cutting_steps.filter(
+    (step) => typeof step.standalone_build_id === "string",
+  );
+  const standaloneStepIds = new Set(
+    standaloneDefinitions.map((step) => step.step_id),
+  );
+  const completeCourseExpectedIds = expectedIds.filter(
+    (stepId) => !standaloneStepIds.has(stepId),
+  );
 
   assert(
-    JSON.stringify(steps.map((step) => step.id)) === JSON.stringify(expectedIds),
+    JSON.stringify(steps.map((step) => step.id)) ===
+      JSON.stringify(completeCourseExpectedIds),
     `${statePath}: complete-decoder-course steps do not exactly mirror the reviewed plan`,
   );
+
+  const standaloneSteps = standaloneDefinitions.map((definition) => {
+    const standaloneBuild = extractBuild(
+      stateSource,
+      definition.standalone_build_id,
+      statePath,
+    );
+    const buildSteps = extractSteps(standaloneBuild, statePath);
+    assert(
+      buildSteps.length === 1 && buildSteps[0].id === definition.step_id,
+      `${statePath}: standalone build ${definition.standalone_build_id} must own exactly ${definition.step_id}`,
+    );
+    const step = buildSteps[0];
+    assert(
+      VALID_STEP_STATUSES.has(step.status),
+      `${statePath}: invalid status for ${step.id}`,
+    );
+    for (const field of [
+      "objective",
+      "depends_on",
+      "inputs",
+      "outputs",
+      "acceptance",
+      "validate",
+      "cost",
+      "runs",
+    ]) {
+      assert(
+        hasTopLevelField(step, field),
+        `${statePath}: ${step.id} is missing ${field}`,
+      );
+    }
+    return step;
+  });
 
   for (const [index, step] of steps.entries()) {
     assert(VALID_STEP_STATUSES.has(step.status), `${statePath}: invalid status for ${step.id}`);
@@ -787,7 +855,15 @@ export function validateLedgerText(
     );
   }
 
-  return [...steps, ...introSteps];
+  const scheduledById = new Map(
+    [...steps, ...standaloneSteps].map((step) => [step.id, step]),
+  );
+  const scheduledSteps = expectedIds.map((stepId) => scheduledById.get(stepId));
+  assert(
+    scheduledSteps.every(Boolean),
+    `${statePath}: scheduled step resolution is incomplete`,
+  );
+  return [...scheduledSteps, ...introSteps];
 }
 
 export function validateImplementedContracts(

@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 31,
-  "policyId": "selective-english-only-intro-and-chapter-08-onward",
+  "planRevision": 32,
+  "policyId": "selective-russian-through-chapter-07",
   "referenceLocale": "en",
   "chapters": [
-    { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en"] },
+    { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
     { "chapterId": "01-text-units", "order": 1, "activeLocales": ["en", "ru"] },
     { "chapterId": "02-corpus-partitions", "order": 2, "activeLocales": ["en", "ru"] },
     { "chapterId": "03-learn-bpe-merges", "order": 3, "activeLocales": ["en", "ru"] },

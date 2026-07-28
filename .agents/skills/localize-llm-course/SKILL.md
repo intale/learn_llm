@@ -85,8 +85,10 @@ Perform and record these distinct passes:
    accessible descriptions in isolation. They must not depend on color, position,
    or untranslated neighboring text.
 
-Agent or automated output is a draft. Require a fluent target-language human to
-approve the exact frozen content and rendered labels before publication.
+Agent or automated output must pass every recorded review above against the exact
+frozen content and rendered labels before publication. Do not pause the build for
+pre-publication human approval; the user reviews completed localization changes
+after delivery, and any requested correction starts a new recorded run or step.
 
 ## Validate target-language layout
 
@@ -112,5 +114,5 @@ problem.
 Run the declared repository gate, including the target locale's chapter and parity
 checks, the static build and link audit, and the registry-derived Chromium and
 Firefox diagram-style matrix. Record the locale, revision, English source revision,
-candidate checksum, routes, viewport/browser surfaces, findings, and human approval
+candidate checksum, routes, viewport/browser surfaces, findings, and completion
 reference in `BUILD_STATE.yaml`.
