@@ -26,9 +26,7 @@ const trace = parseTensorViewsTrace(readFileSync(fixtureUrl, 'utf8'));
 const titleId = `${instanceId}-title`;
 const descriptionId = `${instanceId}-description`;
 const tuple = (values: readonly TensorViewTraceNumber[]) =>
-  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
-const sequence = (values: readonly TensorViewTraceNumber[]) =>
-  `[${values.map(({ lexeme }) => lexeme).join(', ')}]`;
+  `[${values.map(({ lexeme }) => lexeme).join(',')}]`;
 const operationLabel = (view: TensorViewTraceRecord) => {
   switch (view.id) {
     case 'base': return labels.operations.identity;
@@ -38,21 +36,31 @@ const operationLabel = (view: TensorViewTraceRecord) => {
     case 'materialized': return labels.operations.materialized;
   }
 };
+const requestLabel = (view: TensorViewTraceRecord) => {
+  if (view.id === 'reshape') return tuple(view.shape);
+  if (view.axes) return tuple(view.axes);
+  if (view.slice) {
+    return `${view.slice.axis.lexeme}: ${view.slice.start.lexeme}..${view.slice.end.lexeme}`;
+  }
+  return null;
+};
 const stateLabel = (view: TensorViewTraceRecord) =>
   view.storage === 'base' ? labels.states.shared : labels.states.materialized;
 const stateSymbol = (view: TensorViewTraceRecord) =>
-  view.storage === 'base' ? labels.symbols.shared : labels.symbols.materialized;
+  view.storage === 'base' ? '◇' : '◆';
 const contiguousLabel = (view: TensorViewTraceRecord) =>
   view.contiguous ? labels.states.yes : labels.states.no;
-const transforms = [trace.views.reshape, trace.views.transpose] as const;
-const copyBoundary = [trace.views.slice, trace.views.materialized] as const;
-const baseStorageCells = trace.storage.base.map((value, index) => ({
-  value,
-  offset: trace.views.base.offsets[index]!,
-}));
+const views = [
+  trace.views.base,
+  trace.views.reshape,
+  trace.views.transpose,
+  trace.views.slice,
+  trace.views.materialized,
+] as const;
 const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
   (sourceOffset, index) => ({
     sourceOffset,
+    value: trace.views.materialized.values[index]!,
     copiedOffset: trace.views.materialized.offsets[index]!,
   }),
 );
@@ -71,314 +79,192 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
   </figcaption>
 
-  <section class="diagram-panel storage-panel" aria-labelledby={`${instanceId}-storage-title`}>
-    <h4 id={`${instanceId}-storage-title`}>{labels.sections.storage}</h4>
-    <p>{labels.notes.storage}</p>
-    <article data-diagram-card data-diagram-box class="view-card shared" data-view-id="base" data-storage-id="base">
-      <h5>{labels.operations.identity}</h5>
-      <p class="state-line">
-        <span class="state-symbol" aria-hidden="true">◇</span>
-        <span>{labels.states.shared}</span>
-        <span class="visually-hidden"> {labels.symbols.shared}</span>
-      </p>
-      <dl class="view-facts">
-        <div><dt>{labels.fields.storage}</dt><dd><code dir="ltr">base</code></dd></div>
-        <div><dt>{labels.fields.shape}</dt><dd><code dir="ltr">{tuple(trace.views.base.shape)}</code></dd></div>
-        <div><dt>{labels.fields.strides}</dt><dd><code dir="ltr">{tuple(trace.views.base.strides)}</code></dd></div>
-        <div><dt>{labels.fields.base}</dt><dd><bdi dir="ltr">{trace.views.base.baseOffset.lexeme}</bdi></dd></div>
-      </dl>
-      <div
-        class="buffer-scroll course-diagram__scroll"
-        role="region"
-        tabindex="0"
-        aria-label={`${labels.fields.storage}: base`}
-       data-diagram-scroll>
-        <ol class="storage-buffer" start="0">
-          {baseStorageCells.map(({ value, offset }) => (
-            <li data-storage-offset={offset.lexeme} data-storage-value={value.lexeme}>
-              <span class="offset"><bdi dir="ltr">{offset.lexeme}</bdi></span>
-              <bdi dir="ltr">{value.lexeme}</bdi>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </article>
-  </section>
-
-  <section class="diagram-panel transforms-panel" aria-labelledby={`${instanceId}-transforms-title`}>
-    <h4 id={`${instanceId}-transforms-title`}>{labels.sections.transforms}</h4>
-    <p>{labels.notes.transforms}</p>
-    <ol class="view-grid transform-grid">
-      {transforms.map((view) => (
-        <li>
-          <article data-diagram-card data-diagram-box
-            class="view-card shared"
-            data-view-id={view.id}
-            data-storage-id={view.storage}
-            data-contiguous={view.contiguousLexeme}
-          >
-            <h5>{operationLabel(view)}</h5>
-            <p class="state-line">
-              <span class="state-symbol" aria-hidden="true">◇</span>
-              <span>{stateLabel(view)}</span>
-              <span class="visually-hidden"> {stateSymbol(view)}</span>
-            </p>
-            <dl class="view-facts">
-              <div><dt>{labels.fields.shape}</dt><dd><code dir="ltr">{tuple(view.shape)}</code></dd></div>
-              <div><dt>{labels.fields.strides}</dt><dd><code dir="ltr">{tuple(view.strides)}</code></dd></div>
-              <div><dt>{labels.fields.base}</dt><dd><bdi dir="ltr">{view.baseOffset.lexeme}</bdi></dd></div>
-              <div><dt>{labels.fields.contiguous}</dt><dd>{contiguousLabel(view)}</dd></div>
-              {view.axes && (
-                <div><dt>{labels.fields.request}</dt><dd><code dir="ltr">{tuple(view.axes)}</code></dd></div>
-              )}
-              <div class="wide-fact"><dt>{labels.fields.offsets}</dt><dd><code class="sequence" dir="ltr">{sequence(view.offsets)}</code></dd></div>
-              <div class="wide-fact"><dt>{labels.fields.values}</dt><dd><code class="sequence" dir="ltr">{sequence(view.values)}</code></dd></div>
-            </dl>
-          </article>
-        </li>
-      ))}
-    </ol>
-  </section>
-
-  <section class="diagram-panel slice-panel" aria-labelledby={`${instanceId}-slice-title`}>
-    <h4 id={`${instanceId}-slice-title`}>{labels.sections.slice}</h4>
-    <p>{labels.notes.slice}</p>
-    <ol class="view-grid copy-grid">
-      {copyBoundary.map((view) => (
-        <li>
-          <article data-diagram-card data-diagram-box
-            class:list={['view-card', view.storage === 'base' ? 'shared' : 'materialized']}
-            data-view-id={view.id}
-            data-storage-id={view.storage}
-            data-contiguous={view.contiguousLexeme}
-          >
-            <h5>{operationLabel(view)}</h5>
-            <p class="state-line">
-              <span class="state-symbol" aria-hidden="true">{view.storage === 'base' ? '◇' : '◆'}</span>
-              <span>{stateLabel(view)}</span>
-              <span class="visually-hidden"> {stateSymbol(view)}</span>
-            </p>
-            <dl class="view-facts">
-              <div><dt>{labels.fields.storage}</dt><dd><code dir="ltr">{view.storage}</code></dd></div>
-              <div><dt>{labels.fields.shape}</dt><dd><code dir="ltr">{tuple(view.shape)}</code></dd></div>
-              <div><dt>{labels.fields.strides}</dt><dd><code dir="ltr">{tuple(view.strides)}</code></dd></div>
-              <div><dt>{labels.fields.base}</dt><dd><bdi dir="ltr">{view.baseOffset.lexeme}</bdi></dd></div>
-              <div><dt>{labels.fields.contiguous}</dt><dd>{contiguousLabel(view)}</dd></div>
-              {view.slice && (
-                <div>
-                  <dt>{labels.fields.request}</dt>
-                  <dd><code dir="ltr">{view.slice.axis.lexeme}: {view.slice.start.lexeme}..{view.slice.end.lexeme}</code></dd>
-                </div>
-              )}
-              <div class="wide-fact"><dt>{labels.fields.offsets}</dt><dd><code class="sequence" dir="ltr">{sequence(view.offsets)}</code></dd></div>
-              {view.sourceOffsets && (
-                <div class="wide-fact"><dt>{labels.fields.sourceOffsets}</dt><dd><code class="sequence" dir="ltr">{sequence(view.sourceOffsets)}</code></dd></div>
-              )}
-              <div class="wide-fact"><dt>{labels.fields.values}</dt><dd><code class="sequence" dir="ltr">{sequence(view.values)}</code></dd></div>
-            </dl>
-          </article>
-        </li>
-      ))}
-    </ol>
-
+  <section class="views-panel" data-diagram-box aria-labelledby={`${instanceId}-views-title`}>
+    <h4 id={`${instanceId}-views-title`}>{labels.sections.views}</h4>
+    <p>{labels.notes.legend}</p>
     <div
-      class="provenance-scroll course-diagram__scroll"
+      class="views-scroll course-diagram__scroll"
       role="region"
       tabindex="0"
-      aria-label={labels.fields.sourceOffsets}
-     data-diagram-scroll>
-      <ol class="provenance-list">
-        {materializedProvenance?.map(({ sourceOffset, copiedOffset }) => (
-          <li data-source-offset={sourceOffset.lexeme} data-copied-offset={copiedOffset.lexeme}>
-            <code dir="ltr">{sourceOffset.lexeme}</code>
-            <span aria-hidden="true"> → </span>
-            <code dir="ltr">{copiedOffset.lexeme}</code>
-          </li>
-        ))}
-      </ol>
+      aria-label={labels.sections.views}
+      data-diagram-scroll
+    >
+      <table class="views-table" data-diagram-table>
+        <colgroup>
+          <col class="operation-column" />
+          <col class="storage-column" />
+          <col class="shape-column" />
+          <col class="strides-column" />
+          <col class="base-column" />
+          <col class="contiguous-column" />
+          <col class="offsets-column" />
+          <col class="values-column" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.operation}</th>
+            <th scope="col">{labels.fields.storage}</th>
+            <th scope="col">{labels.fields.shape}</th>
+            <th scope="col">{labels.fields.strides}</th>
+            <th scope="col">{labels.fields.base}</th>
+            <th scope="col">{labels.fields.contiguous}</th>
+            <th scope="col">{labels.fields.offsets}</th>
+            <th scope="col">{labels.fields.values}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {views.map((view) => (
+            <tr
+              data-view-id={view.id}
+              data-storage-id={view.storage}
+              data-contiguous={view.contiguousLexeme}
+            >
+              <th scope="row">
+                <span>{operationLabel(view)}</span>
+                {requestLabel(view) && <code dir="ltr">{requestLabel(view)}</code>}
+              </th>
+              <td>
+                <span class="storage-state">
+                  <span class="state-symbol" aria-hidden="true">{stateSymbol(view)}</span>
+                  <span class="visually-hidden">{stateLabel(view)}: </span>
+                  <code dir="ltr">{view.storage}</code>
+                </span>
+              </td>
+              <td><code dir="ltr">{tuple(view.shape)}</code></td>
+              <td><code dir="ltr">{tuple(view.strides)}</code></td>
+              <td><bdi dir="ltr">{view.baseOffset.lexeme}</bdi></td>
+              <td>{contiguousLabel(view)}</td>
+              <td><code class="trace-value" dir="ltr">{tuple(view.offsets)}</code></td>
+              <td><code class="trace-value" dir="ltr">{tuple(view.values)}</code></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <section class="diagram-panel errors-panel" aria-labelledby={`${instanceId}-errors-title`}>
+  <section class="copy-panel" data-diagram-box aria-labelledby={`${instanceId}-copy-title`}>
+    <h4 id={`${instanceId}-copy-title`}>{labels.sections.copy}</h4>
+    <p>{labels.notes.copy}</p>
+    <table class="copy-table" data-diagram-table>
+      <thead>
+        <tr>
+          <th scope="col">{labels.fields.sourceOffsets}</th>
+          <th scope="col">{labels.fields.values}</th>
+          <th scope="col">{labels.fields.copiedOffset}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {materializedProvenance?.map(({ sourceOffset, value, copiedOffset }) => (
+          <tr data-source-offset={sourceOffset.lexeme} data-copied-offset={copiedOffset.lexeme}>
+            <td><code dir="ltr">{sourceOffset.lexeme}</code></td>
+            <td><code dir="ltr">{value.lexeme}</code></td>
+            <td><code dir="ltr">{copiedOffset.lexeme}</code></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="errors-panel" data-diagram-box aria-labelledby={`${instanceId}-errors-title`}>
     <h4 id={`${instanceId}-errors-title`}>{labels.sections.errors}</h4>
     <p>{labels.notes.errors}</p>
-    <ol class="error-list">
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[0].kind}>
-        <p class="state-line">
-          <span class="state-symbol" aria-hidden="true">×</span>
-          <span>{labels.states.rejected}</span>
-          <span class="visually-hidden"> {labels.symbols.rejected}</span>
-        </p>
-        <dl>
-          <div><dt>{labels.fields.operation}</dt><dd>{labels.operations.reshape}</dd></div>
-          <div><dt>{labels.fields.request}</dt><dd><code dir="ltr">{tuple(trace.errors[0].requestedShape)}</code></dd></div>
-          <div><dt>{labels.fields.sourceElements}</dt><dd><bdi dir="ltr">{trace.errors[0].sourceElements.lexeme}</bdi></dd></div>
-          <div><dt>{labels.fields.requestedElements}</dt><dd><bdi dir="ltr">{trace.errors[0].requestedElements.lexeme}</bdi></dd></div>
-          <div><dt>{labels.fields.reason}</dt><dd>{labels.reasons.count}</dd></div>
-        </dl>
-      </li>
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[1].kind}>
-        <p class="state-line">
-          <span class="state-symbol" aria-hidden="true">×</span>
-          <span>{labels.states.rejected}</span>
-          <span class="visually-hidden"> {labels.symbols.rejected}</span>
-        </p>
-        <dl>
-          <div><dt>{labels.fields.operation}</dt><dd>{labels.operations.reshape}</dd></div>
-          <div><dt>{labels.fields.request}</dt><dd><code dir="ltr">{tuple(trace.errors[1].requestedShape)}</code></dd></div>
-          <div><dt>{labels.fields.reason}</dt><dd>{labels.reasons.contiguity}</dd></div>
-        </dl>
-      </li>
-      <li data-diagram-card data-diagram-box class="error-card" data-error-kind={trace.errors[2].kind}>
-        <p class="state-line">
-          <span class="state-symbol" aria-hidden="true">×</span>
-          <span>{labels.states.rejected}</span>
-          <span class="visually-hidden"> {labels.symbols.rejected}</span>
-        </p>
-        <dl>
-          <div><dt>{labels.fields.operation}</dt><dd>{labels.operations.slice}</dd></div>
-          <div>
-            <dt>{labels.fields.request}</dt>
-            <dd>
-              <code dir="ltr">
-                {trace.errors[2].axis.lexeme}: {trace.errors[2].start.lexeme}..{trace.errors[2].end.lexeme}
-              </code>
-            </dd>
-          </div>
-          <div><dt>{labels.fields.axisSize}</dt><dd><bdi dir="ltr">{trace.errors[2].size.lexeme}</bdi></dd></div>
-          <div><dt>{labels.fields.reason}</dt><dd>{labels.reasons.bounds}</dd></div>
-        </dl>
-      </li>
-    </ol>
+    <div
+      class="errors-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.sections.errors}
+      data-diagram-scroll
+    >
+      <table class="errors-table" data-diagram-table>
+        <colgroup>
+          <col class="error-operation-column" />
+          <col class="error-request-column" />
+          <col class="error-evidence-column" />
+          <col class="error-reason-column" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.operation}</th>
+            <th scope="col">{labels.fields.request}</th>
+            <th scope="col">{labels.fields.evidence}</th>
+            <th scope="col">{labels.fields.reason}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-error-kind={trace.errors[0].kind}>
+            <th scope="row"><span aria-hidden="true">× </span><span class="visually-hidden">{labels.states.rejected}: </span>{labels.operations.reshape}</th>
+            <td><code dir="ltr">{tuple(trace.errors[0].requestedShape)}</code></td>
+            <td>
+              <span>{labels.fields.sourceElements}: <bdi dir="ltr">{trace.errors[0].sourceElements.lexeme}</bdi></span><br />
+              <span>{labels.fields.requestedElements}: <bdi dir="ltr">{trace.errors[0].requestedElements.lexeme}</bdi></span>
+            </td>
+            <td>{labels.reasons.count}</td>
+          </tr>
+          <tr data-error-kind={trace.errors[1].kind}>
+            <th scope="row"><span aria-hidden="true">× </span><span class="visually-hidden">{labels.states.rejected}: </span>{labels.operations.reshape}</th>
+            <td><code dir="ltr">{tuple(trace.errors[1].requestedShape)}</code></td>
+            <td>{labels.fields.contiguous}: {labels.states.no}</td>
+            <td>{labels.reasons.contiguity}</td>
+          </tr>
+          <tr data-error-kind={trace.errors[2].kind}>
+            <th scope="row"><span aria-hidden="true">× </span><span class="visually-hidden">{labels.states.rejected}: </span>{labels.operations.slice}</th>
+            <td><code dir="ltr">{trace.errors[2].axis.lexeme}: {trace.errors[2].start.lexeme}..{trace.errors[2].end.lexeme}</code></td>
+            <td>{labels.fields.axisSize}: <bdi dir="ltr">{trace.errors[2].size.lexeme}</bdi></td>
+            <td>{labels.reasons.bounds}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </figure>
 
 <style>
-  .tensor-views-diagram {
-    --diagram-border: color-mix(in srgb, currentColor 26%, transparent);
-    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
+  .tensor-views-diagram { align-content: start; }
+
+  .views-table {
+    inline-size: 100%;
+    min-inline-size: 78rem;
+    table-layout: fixed;
+  }
+
+  .operation-column { inline-size: 16rem; }
+  .storage-column { inline-size: 8rem; }
+  .shape-column { inline-size: 5rem; }
+  .strides-column { inline-size: 6rem; }
+  .base-column { inline-size: 4rem; }
+  .contiguous-column { inline-size: 8rem; }
+  .offsets-column { inline-size: 12rem; }
+  .values-column { inline-size: 19rem; }
+
+  .views-table th[scope='row'] {
     display: grid;
-    gap: 1rem;
-    max-width: 100%;
-    margin-block: 1.5rem;
-    padding: clamp(0.9rem, 3vw, 1.5rem);
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.85rem;
+    gap: 0.25rem;
   }
 
-  .tensor-views-diagram:focus-visible,
-  .buffer-scroll:focus-visible,
-  .provenance-scroll:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  figcaption p,
-  .diagram-panel h4,
-  .diagram-panel > p,
-  .view-card h5,
-  .state-line { margin-block-start: 0; }
-
-  .diagram-panel {
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.65rem;
-    background: var(--diagram-surface);
-  }
-
-  .view-grid,
-  .error-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .view-card,
-  .error-card {
-    min-width: 0;
-    padding: 0.9rem;
-    border: 0.15rem solid currentColor;
-    border-radius: 0.55rem;
-  }
-
-  .view-grid .view-card,
-  .error-list .error-card { height: 100%; }
-
-  .view-card.shared { border-style: solid; }
-  .view-card.materialized { border-style: double; border-width: 0.3rem; }
-  .error-card { border-style: dashed; }
-
-  .state-line {
+  .storage-state {
     display: flex;
-    gap: 0.45rem;
-    align-items: baseline;
-    font-weight: 700;
-  }
-
-  .state-symbol { font-size: 1.15em; }
-
-  .view-facts,
-  .error-card dl {
-    display: grid;
-    grid-template-columns: minmax(8rem, 0.8fr) minmax(0, 1.2fr);
-    gap: 0.4rem 0.8rem;
-    margin: 0;
-  }
-
-  .view-facts div,
-  .error-card dl div { display: contents; }
-  dt { font-weight: 700; }
-  dd { min-width: 0; margin: 0; }
-  .sequence { overflow-wrap: anywhere; }
-
-  .buffer-scroll,
-  .provenance-scroll {
-    max-width: 100%;
-    margin-block-start: 0.85rem;
-  }
-
-  .storage-buffer {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(5rem, 1fr));
-    min-width: 33rem;
-    margin: 0;
-    padding: 0.3rem;
-    list-style: none;
-  }
-
-  .storage-buffer li {
-    display: grid;
-    place-items: center;
-    min-height: 4rem;
-    padding: 0.4rem;
-    border: 1px solid var(--diagram-border);
-  }
-
-  .storage-buffer .offset { font-size: 0.75rem; }
-
-  .provenance-list {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(5rem, 1fr));
-    min-width: 24rem;
-    margin: 0;
-    padding: 0.4rem;
-    list-style: none;
-  }
-
-  .provenance-list li {
-    display: flex;
-    justify-content: center;
+    align-items: center;
     gap: 0.35rem;
-    padding: 0.6rem;
-    border-block: 1px solid var(--diagram-border);
   }
 
-  .error-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .error-card dl { grid-template-columns: minmax(6rem, 0.7fr) minmax(0, 1.3fr); }
+  .trace-value { white-space: nowrap; }
+
+  .copy-table {
+    inline-size: 100%;
+    table-layout: fixed;
+  }
+
+  .errors-table {
+    inline-size: 100%;
+    min-inline-size: 46rem;
+    table-layout: fixed;
+  }
+
+  .error-operation-column { inline-size: 8rem; }
+  .error-request-column { inline-size: 7rem; }
+  .error-evidence-column { inline-size: 14rem; }
+  .error-reason-column { inline-size: 17rem; }
 
   .visually-hidden {
     position: absolute;
@@ -392,28 +278,52 @@ const materializedProvenance = trace.views.materialized.sourceOffsets?.map(
     border: 0;
   }
 
-  code,
-  bdi { direction: ltr; unicode-bidi: isolate; }
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .tensor-views-diagram:fullscreen {
+      --diagram-cell-padding-block: 0.35rem !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      align-content: start;
+    }
 
-  @container course-diagram (max-width: 56rem) {
-    .error-list { grid-template-columns: minmax(0, 1fr); }
-  }
+    .tensor-views-diagram:fullscreen > figcaption,
+    .tensor-views-diagram:fullscreen > .views-panel {
+      grid-column: 1 / -1;
+    }
 
-  @container course-diagram (max-width: 42rem) {
-    .view-grid { grid-template-columns: minmax(0, 1fr); }
-    .view-facts,
-    .error-card dl { grid-template-columns: minmax(0, 1fr); }
-    .view-facts div,
-    .error-card dl div { display: grid; gap: 0.1rem; }
-  }
+    .tensor-views-diagram:fullscreen > figcaption {
+      grid-template-columns: minmax(22rem, 0.85fr) minmax(0, 1.15fr);
+      align-items: start;
+      column-gap: 1rem;
+    }
 
-  @media (forced-colors: active) {
-    .tensor-views-diagram,
-    .diagram-panel,
-    .view-card,
-    .error-card,
-    .storage-buffer li,
-    .provenance-list li { border-color: CanvasText; }
-    .view-card.materialized { border-color: Highlight; }
+    .tensor-views-diagram:fullscreen > figcaption > h3,
+    .tensor-views-diagram:fullscreen > figcaption > p {
+      max-inline-size: none;
+    }
+
+    .tensor-views-diagram:fullscreen > .copy-panel { grid-column: 1 / 3; }
+    .tensor-views-diagram:fullscreen > .errors-panel { grid-column: 3 / -1; }
+
+    .tensor-views-diagram:fullscreen > :is(.views-panel, .errors-panel) {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: start;
+      column-gap: 0.75rem;
+    }
+
+    .tensor-views-diagram:fullscreen > :is(.views-panel, .errors-panel) > p:first-of-type {
+      max-inline-size: none;
+    }
+
+    .tensor-views-diagram:fullscreen > :is(.views-panel, .errors-panel) > :is(.views-scroll, .errors-scroll) {
+      grid-column: 1 / -1;
+    }
+
+    .tensor-views-diagram:fullscreen .views-table th[scope='row'] {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      column-gap: 0.4rem;
+    }
   }
 </style>

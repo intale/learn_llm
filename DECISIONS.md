@@ -8209,3 +8209,64 @@ activate a route or alter learner content by itself.
 
 **Affected step and run:** `activate-ch08-russian-localization`, run
 `20260728T085952Z-activate-ch08-russian-localization-01`.
+
+## 2026-07-28 - Activate Russian Chapter 9 after the Chapter 8 checkpoint
+
+**Status:** Accepted from the user's ordered Chapter 8-11 localization request
+after Chapter 8 completed in commit `81be43a`.
+
+**Context:** Chapter 9 is now the first English-only lesson after the reviewed
+Russian prefix. It teaches borrowed tensor views and the reshape, permutation,
+transpose, slice, contiguity, and materialization distinctions later needed to
+express decoder-attention axis layouts. Its dense shape, stride, source-offset,
+ownership, error, and provenance labels create target-language layout risks that
+must be measured rather than inferred from English.
+
+**Decision:** Review and, where necessary, repair the current English Chapter 9
+contract, lesson, and shared-diagram compliance before translating. Translate the
+complete frozen revision directly into natural technical Russian, preserving all
+formula symbols, Q/K/V layout claims, Rust identifiers and lifetime guarantees,
+arrays, offsets, values, error precedence, links, exercises, answers, SEO, and
+accessibility labels. Activate only Chapter 9 in this checkpoint, advance the
+locale policy and plan revision, and update exact publication and browser
+expectations atomically. Validate Chromium and Firefox desktop, narrow,
+no-JavaScript, full-view, forced-color, and nearest-box containment without
+external translation or a pre-publication approval pause.
+
+**Consequences:** Russian becomes complete through Chapter 9 while Chapters 10-39
+remain English-only until their own ordered activation checkpoints. Borrowed
+`TensorView` and explicit materialization remain course-local implementation
+policies rather than claims about Transformer or GPT-2 storage. No Rust behavior,
+dependency, product build definition, hosting setting, or deployment target is
+changed by this localization step. Chapter 10 cannot start until this checkpoint
+passes and is committed independently.
+
+**Affected step and run:** `activate-ch09-russian-localization`, run
+`20260728T102542Z-activate-ch09-russian-localization-01`.
+
+## 2026-07-28 - Clarify the Chapter 9 outcome without rewriting run history
+
+**Status:** Accepted during canonical English review for the Russian Chapter 9
+activation.
+
+**Context:** The reviewed Chapter 9 outcome said that reshape, transpose,
+permutation, slicing, and materialization preserve “value identity.” That phrase
+is ambiguous for a materialized tensor: its logical scalar values and exact bit
+patterns are preserved, but it has a different owner and storage addresses. The
+course-plan validator intentionally projects the reviewed outcome into the
+top-level implementation-step objective and first acceptance item.
+
+**Decision:** State the observable promise precisely: the operations preserve
+logical values, while every materialized copy is explicit. Update the plan,
+contract, lessons, and the invalidated implementation step's top-level scheduler
+projection to that wording. Preserve every immutable historical run record,
+artifact checksum, command, validation result, note, status, and original commit.
+
+**Consequences:** Learners are no longer asked to infer object or address identity
+across an explicit copy. Scheduler validation remains exact without relabeling a
+past run or claiming that its implementation behavior changed. The active
+localization checkpoint owns the content correction and its new validation.
+
+**Affected steps:** `implement-ch09-tensor-views` top-level scheduler projection
+and `activate-ch09-russian-localization`; active run
+`20260728T102542Z-activate-ch09-russian-localization-01`.

@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 34,
+  "plan_revision": 35,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-08",
+    "policy_id": "selective-russian-through-chapter-09",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "08-tensor-storage",
+        "through_chapter": "09-tensor-views",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-8."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-9."
       },
       {
-        "from_chapter": "09-tensor-views",
+        "from_chapter": "10-broadcasting-reductions",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 8 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 9 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -214,6 +214,11 @@
         "step_id": "activate-ch08-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch08-russian-localization"
+      },
+      {
+        "step_id": "activate-ch09-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch09-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -783,9 +788,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–8 activate
-both, while Chapters 9–39 activate English only. Russian therefore keeps its index
-and Chapter 0–8 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–9 activate
+both, while Chapters 10–39 activate English only. Russian therefore keeps its index
+and Chapter 0–9 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -965,14 +970,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `09-tensor-views`
 - **Implementation step:** `implement-ch09-tensor-views`
-- **Revision status:** Content revision 4 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 3 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 5 adds the complete Russian projection, the extent-and-stride permutation formula, precise materialization semantics, and a shared-system comparison diagram during `activate-ch09-russian-localization`; revision 4 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `08-tensor-storage`.
-- **Outcome:** Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity.
+- **Outcome:** Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit.
 - **Scope boundary:** Teach contiguous versus strided layouts, axis permutation, compatible reshape, and view lifetime/ownership; defer arithmetic.
-- **Formula:** `\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}`.
+- **Formula:** `\prod_k n_k=\prod_j n'_j, \qquad n'_k=n_{\pi(k)}, \quad s'_k=s_{\pi(k)}`.
 - **Historical contrast:** Bengio et al.'s concatenated feature vector has one fixed context layout; the Transformer defines packed query/key/value sets and parallel heads, while official GPT-2 code makes split/merge reshape and transpose operations explicit. Use copying versus borrowed views only as this course's local implementation contrast for those LLM layouts.
 - **Rust contribution:** Add safe owned/view APIs with explicit contiguity checks and deterministic materialization to the cumulative tensor core.
-- **Visualization:** Useful — show the same labeled values under reshape and transpose, with unchanged storage and changed axes/strides.
+- **Visualization:** Useful — compare base, reshape, transpose, slice, and materialized records in one table, then show copy provenance and rejected requests.
 - **Practice:** Predict the shape, stride, and reading order after transposing a `2×3` tensor.
 - **Integration evidence:** Compatible/incompatible reshape, transpose, slice bounds, non-contiguous materialization, and alias rules pass.
 - **Handoff:** Chapter 10 uses explicit aligned axes to define broadcasting and reductions.

@@ -29,14 +29,12 @@ const component = readFileSync(
 );
 
 const englishLabels: TensorViewsDiagramLabels = {
-  title: 'One owner, four metadata interpretations',
-  description:
-    'Compare shared reshape, transpose, and slice records, then follow the slice into materialized storage and inspect rejected requests.',
+  title: 'One owner, four shared views, one explicit copy',
+  description: 'Compare shared tensor views, one explicit copy, and three rejected requests.',
   sections: {
-    storage: 'Start with one owned storage buffer',
-    transforms: 'Compare equal shapes with different reading orders',
-    slice: 'Follow source offsets into a materialized copy',
-    errors: 'Keep incompatible operations explicit',
+    views: 'Compare five tensor interpretations',
+    copy: 'Follow values into new storage',
+    errors: 'Inspect three rejected requests',
   },
   fields: {
     operation: 'Operation',
@@ -45,10 +43,12 @@ const englishLabels: TensorViewsDiagramLabels = {
     strides: 'Element strides',
     base: 'Base offset',
     contiguous: 'Row-major contiguous',
-    offsets: 'Logical source offsets',
-    sourceOffsets: 'Copied from source offsets',
+    offsets: 'Logical storage offsets',
+    sourceOffsets: 'Source offset',
+    copiedOffset: 'Offset in new storage',
     values: 'Logical values',
     request: 'Request',
+    evidence: 'Checked evidence',
     sourceElements: 'Source elements',
     requestedElements: 'Requested elements',
     axisSize: 'Axis size',
@@ -74,13 +74,10 @@ const englishLabels: TensorViewsDiagramLabels = {
     bounds: 'The half-open slice end exceeds the selected axis size.',
   },
   notes: {
-    storage:
-      'The base owner keeps one flat Rust buffer. Every shared view below points back to that storage.',
-    transforms:
-      'Compare the recorded shapes, strides, and source-offset sequences: matching shapes need not imply matching logical order.',
-    slice:
-      'Follow the recorded source offsets across the copy boundary into the materialized view\'s fresh offsets.',
-    errors: 'Each failure is recorded by the Rust example, not calculated by the visualization.',
+    legend:
+      '◇ shares the base buffer; ◆ owns a copy; “No” means the logical order is not row-major contiguous.',
+    copy: 'Each row maps one source offset and value to its offset in the new contiguous storage.',
+    errors: 'Each rejected request leaves storage unchanged and names the invariant it violates.',
   },
   symbols: { shared: '◇ shared', materialized: '◆ copied', rejected: '× rejected' },
 };
@@ -258,10 +255,10 @@ describe('Chapter 9 diagram labels and static component contract', () => {
   });
 
   it('renders operation metadata and offsets from parsed Rust records', () => {
-    expect(component).toContain('offset: trace.views.base.offsets[index]!');
     expect(component).toContain('copiedOffset: trace.views.materialized.offsets[index]!');
-    expect(component).toContain('{tuple(view.axes)}');
-    expect(component).toContain('{view.slice.axis.lexeme}: {view.slice.start.lexeme}..{view.slice.end.lexeme}');
+    expect(component).toContain('value: trace.views.materialized.values[index]!');
+    expect(component).toContain("if (view.axes) return tuple(view.axes)");
+    expect(component).toContain('`${view.slice.axis.lexeme}: ${view.slice.start.lexeme}..${view.slice.end.lexeme}`');
     expect(component).not.toContain('trace.storage.base.map((value, offset)');
     expect(component).not.toContain('sourceOffsets?.map((sourceOffset, copiedOffset)');
   });
@@ -270,22 +267,34 @@ describe('Chapter 9 diagram labels and static component contract', () => {
     expect(component).toContain('data-storage-id={view.storage}');
     expect(component).toContain('data-error-kind={trace.errors[0].kind}');
     expect(component).toContain("view.storage === 'base' ? '◇' : '◆'");
-    expect(component).toContain('<span class="state-symbol" aria-hidden="true">×</span>');
-    expect(component).toContain('.view-card.shared { border-style: solid; }');
-    expect(component).toContain('.view-card.materialized { border-style: double;');
-    expect(component).toContain('.error-card { border-style: dashed; }');
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('<span aria-hidden="true">× </span>');
+    expect(component).toContain('{labels.states.rejected}: ');
+    expect(component).toContain('{contiguousLabel(view)}');
   });
 
-  it('makes the figure and intentional horizontal scrollers keyboard reachable', () => {
+  it('uses shared semantic boxes, tables, and the two smallest intentional scrollers', () => {
     expect(component).toContain('data-visualization-id={tensorViewsDiagramId}');
     expect(component).toContain('class="course-diagram tensor-views-diagram"');
-    expect(component).toContain('class="buffer-scroll course-diagram__scroll"');
-    expect(component).toContain('class="provenance-scroll course-diagram__scroll"');
+    expect(component).toContain('class="views-scroll course-diagram__scroll"');
+    expect(component).toContain('class="errors-scroll course-diagram__scroll"');
+    expect(component.match(/data-diagram-box/g)).toHaveLength(3);
+    expect(component.match(/data-diagram-table/g)).toHaveLength(3);
     expect(component.match(/tabindex="0"/g)).toHaveLength(3);
     expect(component.match(/role="region"/g)).toHaveLength(2);
     expect(component).toContain('data-diagram-scroll');
+    expect(component).not.toContain('data-diagram-card');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
+  });
+
+  it('leaves shared presentation chrome to the diagram module and only defines geometry', () => {
+    const style = component.slice(component.indexOf('<style>'), component.indexOf('</style>'));
+    expect(style).not.toMatch(/\b(?:background|outline|box-shadow|color)\s*:/);
+    expect(style.match(/\bborder\s*:/g)).toHaveLength(1);
+    expect(style).toContain('border: 0');
+    expect(style).not.toContain('@media (forced-colors: active)');
+    expect(style).toContain('min-inline-size: 78rem');
+    expect(style).toContain('min-inline-size: 46rem');
+    expect(style).toContain('grid-template-columns: repeat(6, minmax(0, 1fr))');
   });
 });

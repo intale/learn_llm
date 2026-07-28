@@ -2,44 +2,63 @@
 {
   "chapter_id": "09-tensor-views",
   "concept_id": "tensor-views",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 9,
   "objective": {
-    "en": "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
+    "en": "Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit.",
+    "ru": "Преобразовывать форму и порядок осей тензора с помощью изменения формы, транспонирования, перестановки осей и срезов, сохраняя логические значения и явно выполняя каждое копирование при материализации."
   },
   "worked_inputs": {
-    "en": "Start with shape [2,3], row-major strides [3,1], and storage [10,11,12,20,21,22]. Predict the shape, strides, logical reading order, and storage after reshaping to [3,2] and after transposing axes 0 and 1. Reshape keeps offsets [0,1,2,3,4,5] with strides [2,1]; transpose keeps the same storage but reads offsets [0,3,1,4,2,5] with shape [3,2] and strides [1,3]."
+    "en": "Start with shape [2,3], row-major strides [3,1], and storage [10,11,12,20,21,22]. Predict the shape, strides, logical reading order, and storage after reshaping to [3,2] and after transposing axes 0 and 1. Reshape keeps offsets [0,1,2,3,4,5] with strides [2,1]; transpose keeps the same storage but reads offsets [0,3,1,4,2,5] with shape [3,2] and strides [1,3].",
+    "ru": "Начните с формы [2,3], построчных шагов [3,1] и хранилища [10,11,12,20,21,22]. Предскажите форму, шаги, логический порядок обхода и содержимое хранилища после изменения формы на [3,2] и транспонирования осей 0 и 1. Изменение формы сохраняет смещения [0,1,2,3,4,5] и получает шаги [2,1]; транспонирование использует то же хранилище, но при форме [3,2] и шагах [1,3] обходит смещения в порядке [0,3,1,4,2,5]."
   },
   "formula": {
-    "latex": "\\prod_k n_k=\\prod_j n'_j, \\quad s'_k=s_{\\pi(k)}",
+    "latex": "\\prod_k n_k=\\prod_j n'_j, \\qquad n'_k=n_{\\pi(k)}, \\quad s'_k=s_{\\pi(k)}",
     "symbols": [
       {
         "symbol": "n_k",
-        "en": "the extent of source axis k"
+        "en": "the extent of source axis k",
+        "ru": "размер исходной оси k"
       },
       {
         "symbol": "n'_j",
-        "en": "the extent of requested reshape axis j"
+        "en": "the extent of requested reshape axis j",
+        "ru": "размер оси j в запрошенной форме"
       },
       {
         "symbol": "k",
-        "en": "a zero-based source or output axis index, according to the expression where it appears"
+        "en": "a zero-based source or permuted-output axis index, according to the expression where it appears",
+        "ru": "индекс исходной оси или оси результата перестановки, отсчитываемый от нуля; его роль определяется выражением, в котором он встречается"
       },
       {
         "symbol": "j",
-        "en": "a zero-based axis index in the requested reshape"
+        "en": "a zero-based axis index in the requested reshape",
+        "ru": "индекс оси в запрошенной форме, отсчитываемый от нуля"
+      },
+      {
+        "symbol": "n'_k",
+        "en": "the extent of output axis k after an axis permutation",
+        "ru": "размер выходной оси k после перестановки осей"
+      },
+      {
+        "symbol": "n_{\\pi(k)}",
+        "en": "the source extent carried to output axis k",
+        "ru": "размер исходной оси, перенесённый на выходную ось k"
       },
       {
         "symbol": "s'_k",
-        "en": "the element stride of output axis k after an axis permutation"
+        "en": "the element stride of output axis k after an axis permutation",
+        "ru": "шаг в элементах по выходной оси k после перестановки осей"
       },
       {
         "symbol": "\\pi(k)",
-        "en": "the source axis placed at output axis k by the permutation"
+        "en": "the source axis placed at output axis k by the permutation",
+        "ru": "исходная ось, которую перестановка помещает на выходную ось k"
       },
       {
         "symbol": "s_{\\pi(k)}",
-        "en": "the source element stride carried to output axis k"
+        "en": "the source element stride carried to output axis k",
+        "ru": "шаг в элементах по исходной оси, перенесённый на выходную ось k"
       }
     ]
   },
@@ -47,13 +66,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix."
+        "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix.",
+        "ru": "В конфигурации сети прямого распространения Бенжио и соавторов обучаемые векторы признаков фиксированного числа предыдущих слов объединяются в один вектор x, по которому предсказывается распределение следующего слова. Такое расположение данных определяется выбранной шириной контекста и не выделяет оси последовательности и голов внимания для растущего авторегрессионного префикса."
       },
       "later_advance": {
-        "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads."
+        "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads.",
+        "ru": "Васвани и соавторы задают внимание через матрицы запросов, ключей и значений, вычисляют масштабированные произведения с транспонированными ключами и параллельно применяют обучаемые проекции нескольких голов, выходы которых затем конкатенируются. В официальном файле model.py модели GPT-2 один тензор с осями пакета, последовательности и признаков проецируется в упакованные группы запросов, ключей и значений. Затем группы разделяются и транспонируются с выделением оси голов, выполняется умножение на тензор ключей с переставленными двумя последними осями, после чего головы транспонируются обратно и объединяются."
       },
       "modern_llm_role": {
-        "en": "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code."
+        "en": "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention. Whether a merge can reshape without copying depends on the resulting view's contiguity. Borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.",
+        "ru": "Изменение формы, перестановка осей и транспонирование позволяют выразить логические преобразования разделения на головы, транспонирования ключей и обратного объединения голов, используемые во внимании декодера. Можно ли при объединении изменить форму без копирования, зависит от непрерывности полученного представления. Заимствованный TensorView и явная материализация — решения этой реализации; статьи и код GPT-2 на TensorFlow не предписывают такое устройство хранилища."
       },
       "sources": [
         {
@@ -62,7 +84,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution."
+            "en": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution.",
+            "ru": "В конфигурации сети прямого распространения Бенжио и соавторов обучаемые векторы признаков фиксированного числа предыдущих слов объединяются в один вектор x, по которому предсказывается распределение следующего слова."
           }
         },
         {
@@ -71,7 +94,8 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
           "claim": {
-            "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated."
+            "en": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated.",
+            "ru": "Васвани и соавторы задают внимание через матрицы запросов, ключей и значений, вычисляют масштабированные произведения с транспонированными ключами и параллельно применяют обучаемые проекции нескольких голов, выходы которых затем конкатенируются."
           }
         },
         {
@@ -80,16 +104,19 @@
           "name": "OpenAI, GPT-2 model.py",
           "source_url": "https://github.com/openai/gpt-2/blob/master/src/model.py",
           "claim": {
-            "en": "OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads."
+            "en": "OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads.",
+            "ru": "В официальном файле model.py модели GPT-2 один тензор с осями пакета, последовательности и признаков проецируется в упакованные группы запросов, ключей и значений. Затем группы разделяются и транспонируются с выделением оси голов, выполняется умножение на тензор ключей с переставленными двумя последними осями, после чего головы транспонируются обратно и объединяются."
           }
         }
       ]
     },
     "approach": {
-      "en": "From a fixed-context feature vector to packed Q/K/V and rearranged attention heads"
+      "en": "From a fixed-context feature vector to packed Q/K/V and rearranged attention heads",
+      "ru": "От вектора признаков фиксированного контекста к упакованным Q/K/V и преобразованию осей голов внимания"
     },
     "summary": {
-      "en": "Fixed-context neural language models concatenate a chosen number of word-feature vectors into one input layout. Transformer attention introduces Q/K/V matrices and parallel heads, while official GPT-2 code makes split, K-transpose, and merge-head transformations explicit. The local Rust contrast explains copying versus borrowing without attributing either storage choice to those sources."
+      "en": "Fixed-context neural language models concatenate a chosen number of word-feature vectors into one input layout. Transformer attention introduces Q/K/V matrices and parallel heads, while official GPT-2 code makes split, K-transpose, and merge-head transformations explicit. The local Rust contrast explains copying versus borrowing without attributing either storage choice to those sources.",
+      "ru": "В нейронных языковых моделях с фиксированным контекстом векторы признаков выбранного числа слов объединяются в один вход. Внимание Transformer вводит матрицы Q/K/V и параллельные головы, а официальный код GPT-2 явно выполняет разделение на головы, транспонирование K и обратное объединение голов. Локальный пример на Rust показывает разницу между копированием и заимствованием, не приписывая ни один способ хранения этим источникам."
     },
     "rust_contrast": "Treat the frozen [2,3] matrix as one tiny attention key K: copying_transpose eagerly allocates an owned contiguous K transpose with values [10,20,11,21,12,22], while a borrowed TensorView uses shape [3,2] and strides [1,3] to read the same logical order from the owner; this copy-versus-view choice is course-local."
   },
@@ -98,8 +125,7 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/tensor/view.rs",
       "rust/demos/ch09-tensor-views/src/lib.rs",
-      "rust/demos/ch09-tensor-views/src/main.rs",
-      "rust/demos/ch09-tensor-views/src/diagram_trace.rs"
+      "rust/demos/ch09-tensor-views/src/main.rs"
     ],
     "expected_output": "copying transpose: allocated=true shape=[3, 2] strides=[2, 1] values=[10.0, 20.0, 11.0, 21.0, 12.0, 22.0]\nborrowed transpose: shared=true shape=[3, 2] strides=[1, 3] base=0 contiguous=false\nborrowed transpose order: offsets=[0, 3, 1, 4, 2, 5] values=[10.0, 20.0, 11.0, 21.0, 12.0, 22.0]\nreshape: shared=true shape=[3, 2] strides=[2, 1] values=[10.0, 11.0, 12.0, 20.0, 21.0, 22.0]\nslice columns 1..3: shape=[2, 2] strides=[3, 1] base=1 offsets=[1, 2, 4, 5] values=[11.0, 12.0, 21.0, 22.0] contiguous=false\nmaterialized slice: independent=true shape=[2, 2] strides=[2, 1] values=[11.0, 12.0, 21.0, 22.0]\nreshape error: cannot reshape 6 elements into 8 elements\ncontiguity error: cannot reshape a non-row-major-contiguous view without materializing it\nslice error: slice end 4 is out of bounds for axis 1 with size 3\nscalar view: shape=[] strides=[] base=0 value=7.0\nempty view: shape=[2, 0, 3] strides=[0, 3, 1] values=0 contiguous=true\nchapter 10 handoff: explicit axes for broadcasting and reductions\n"
   },
@@ -107,51 +133,86 @@
     "decision": "useful",
     "id": "tensor-views",
     "rationale": {
-      "en": "Aligned shape, stride, source-offset, and value records make it possible to see which transforms share the base storage and where materialization creates a new contiguous buffer."
+      "en": "Aligned shape, stride, storage-offset, and value records make it possible to see which transforms share the base storage and where materialization creates a new contiguous buffer.",
+      "ru": "Сопоставленные записи формы, шагов по осям, смещений в хранилище и значений показывают, какие преобразования используют то же исходное хранилище, а в каком месте материализация создаёт новый непрерывный буфер."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative tensor core can now expose safe borrowed interpretations of owned values, carry explicit axes through transforms, and make every required copy visible. Chapter 10 will use those axes to define broadcasting alignment and reduction dimensions."
+    "en": "The cumulative tensor core can now expose safe borrowed interpretations of owned values, carry explicit axes through transforms, and make every required copy visible. Chapter 10 will use those axes to define broadcasting alignment and reduction dimensions.",
+      "ru": "Теперь тензорное ядро может безопасно создавать заимствованные представления принадлежащих тензору значений, сохранять явный смысл осей при преобразованиях и показывать каждое необходимое копирование. В главе 10 эти оси будут использованы для правил выравнивания при расширении и для указания измерений, по которым выполняются редукции."
   },
   "terminology": [
     {
       "concept_id": "tensor-view",
-      "en": "tensor view"
+      "en": "tensor view",
+      "ru": "представление тензора"
     },
     {
       "concept_id": "reshape",
-      "en": "reshape"
+      "en": "reshape",
+      "ru": "изменение формы"
     },
     {
       "concept_id": "transpose",
-      "en": "transpose"
+      "en": "transpose",
+      "ru": "транспонирование"
     },
     {
       "concept_id": "axis-permutation",
-      "en": "axis permutation"
+      "en": "axis permutation",
+      "ru": "перестановка осей"
     },
     {
       "concept_id": "base-offset",
-      "en": "base offset"
+      "en": "base offset",
+      "ru": "базовое смещение"
     },
     {
       "concept_id": "row-major-contiguous",
-      "en": "row-major contiguous"
+      "en": "row-major contiguous",
+      "ru": "непрерывный при построчном обходе"
     },
     {
       "concept_id": "materialization",
-      "en": "materialization"
+      "en": "materialization",
+      "ru": "материализация"
     },
     {
       "concept_id": "shared-storage",
-      "en": "shared storage"
+      "en": "shared storage",
+      "ru": "то же исходное хранилище"
+    },
+    {
+      "concept_id": "borrowed-view",
+      "en": "borrowed view",
+      "ru": "заимствованное представление"
+    },
+    {
+      "concept_id": "slice",
+      "en": "slice",
+      "ru": "срез"
+    },
+    {
+      "concept_id": "element-stride",
+      "en": "element stride",
+      "ru": "шаг по оси в элементах"
+    },
+    {
+      "concept_id": "logical-reading-order",
+      "en": "logical reading order",
+      "ru": "логический порядок обхода"
+    },
+    {
+      "concept_id": "copy-boundary",
+      "en": "copy boundary",
+      "ru": "место явного копирования"
     }
   ],
   "translation_notes": [
-    "Chapter 9 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep Tensor, TensorView, Q, K, V, QK^T, GPT-2, batch, sequence, head, feature, shape, stride, axis, permutation, base offset, row-major, Range, Rust identifiers, arrays, numeric values, source URLs, and trace keywords as exact technical evidence when another locale is activated later.",
+    "Chapter 9 has the exact active locale set {en,ru}. English is the frozen semantic source; the Russian lesson and every localized contract field are translated directly from content revision 5.",
+    "Keep Tensor, TensorView, Q, K, V, QK^T, GPT-2, Range, Rust identifiers, mathematical symbols, arrays, numeric values, source URLs, and trace keywords exact. Translate ordinary terms such as batch, sequence, head, feature, shape, stride, axis, permutation, base offset, and row-major into natural Russian.",
     "Use view only for the borrowed metadata interpretation, not as a vague synonym for a rendered picture. Distinguish shared storage from equal copied values and row-major contiguous from merely occupying addresses in one allocation.",
-    "A future locale activation must localize the diagram title, description, section labels, fields, notes, exercises, and accessible names with the complete lesson before publishing any Chapter 9 route."
+    "The Russian page requires a separate rendered review in Chromium and Firefox at desktop and narrow widths, including every diagram box, both local scroll regions, and full view; English geometry is not evidence that Russian text fits."
   ],
   "acceptance_examples": [
     {
@@ -256,7 +317,7 @@ non-contiguous. Materializing it creates a new `[2,2]` tensor with strides
 The shared notation is:
 
 ```latex
-\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}
+\prod_k n_k=\prod_j n'_j, \qquad n'_k=n_{\pi(k)}, \quad s'_k=s_{\pi(k)}
 ```
 
 The product equality says a reshape must preserve the number of logical values:
@@ -266,8 +327,8 @@ view must also be row-major contiguous so changing metadata preserves its logica
 reading order.
 
 For a permutation, `π(k)` names the source axis placed at output axis `k`.
-The matching source extent moves with that axis, and `s'_k` becomes the source
-stride `s_{π(k)}`. A contiguous reshape does not use the permutation equation;
+The output extent `n'_k` becomes `n_{π(k)}`, and `s'_k` becomes the source
+stride `s_{π(k)}`. A contiguous reshape does not use the permutation equations;
 it derives fresh row-major strides. Unit-step slicing keeps the existing strides
 and changes an extent plus the base offset.
 
@@ -308,11 +369,12 @@ requests a transposed K operand; it does not establish that a separate K^T
 buffer must be allocated.
 
 Reshape, axis permutation, and transpose let this course express the logical
-split-head, K-transpose, and merge-head layouts used by decoder attention;
-borrowed TensorView and explicit materialization are local implementation
+split-head, K-transpose, and merge-head layouts used by decoder attention.
+Whether a merge can reshape without copying depends on the resulting view's
+contiguity. Borrowed TensorView and explicit materialization are local implementation
 policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.
 
-The frozen rank-two fixture suppresses batch and head axes and stands for one
+The frozen rank-two example suppresses batch and head axes and stands for one
 tiny K with two key positions and three features. `copying_transpose` eagerly
 allocates contiguous K-transpose values `[10,20,11,21,12,22]`. A borrowed
 transpose instead uses shape `[3,2]`, strides `[1,3]`, and offsets
@@ -336,8 +398,14 @@ axis, reversed range, and end bound in that order. This deterministic precedence
 makes each rejected invariant testable.
 
 The rank-generic reshape and permutation primitives can express split-head and
-merge-head layouts for a separately contiguous Q, K, or V tensor. They do not
-make every packed-Q/K/V slice contiguous: under this course's row-major policy,
+merge-head layouts for a separately contiguous Q, K, or V tensor. An inverse
+permutation of a view derived from the original contiguous split can restore
+contiguity. A newly allocated contiguous attention result ordered as
+`[batch,heads,sequence,width]` generally becomes non-contiguous after permutation
+to `[batch,sequence,heads,width]`, so this implementation materializes it before
+merging the final dimensions with reshape. Contiguity, not the operation name,
+decides whether reshape may share storage. These operations also do not make every
+packed-Q/K/V slice contiguous: under this course's row-major policy,
 slicing one last-axis block from `[batch,sequence,3×features]` when
 `batch × sequence > 1` retains outer gaps and requires explicit materialization
 before reshape. GPT-2's TensorFlow code establishes the logical operations, not
@@ -380,12 +448,14 @@ ERROR operation=slice source=base axis=1 start=1 end=4 status=out-of-bounds size
 TRACE tensor-views-v1 END
 ```
 
-Semantic tables present the base owner, reshape and transpose side by side, then
-the slice and its newly materialized owner. Text labels and solid, double, and
-dashed borders distinguish shared, copied, and rejected states without relying
-on color. Every intentionally wide table or buffer has a named, focusable local
-scroll region. The complete figure remains static, script-free, readable at a
-390-pixel viewport, and distinguishable in forced-colors mode.
+One semantic comparison table presents the base, reshape, transpose, slice, and
+materialized rows. A second table maps source offsets and values to offsets in
+new storage; a third table names the evidence and reason for every rejected
+request. Visible owner labels, ◇ and ◆ symbols, explicit Yes/No contiguity, and
+× rejection markers carry the states without relying on color. The two
+intentionally wide tables have named, focusable local scroll regions. The
+complete figure remains static, script-free, readable at a 390-pixel viewport,
+and compact enough to compare in full view without substantial vertical travel.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -425,15 +495,18 @@ alone.
 <!-- contract-section:localization -->
 ## Localization notes
 
-Chapter 9's checked active locale set is English only. Russian remains a
-registered deferred locale with localized chrome and Chapters 1–7, but this step
-must not add a Russian contract key, lesson file, or placeholder route.
+Chapter 9's checked active locale set is English and Russian. English revision 5
+is the canonical semantic source; the complete Russian contract fields, lesson,
+metadata, diagram text, exercises, answers, and accessibility labels are translated
+directly from that frozen English revision.
 
-A later locale activation must preserve formula notation, Rust paths and regions,
-trace keywords, arrays, offsets, and error evidence exactly while naturally
-localizing all explanations, table captions, diagram labels, accessible names,
-exercises, and answers. Review “view” specifically so it always means the borrowed
-storage interpretation rather than a visual illustration.
+The Russian translation preserves formula notation, Rust paths and regions, trace
+keywords, arrays, offsets, and error evidence exactly while naturally localizing
+all explanations, table captions, diagram labels, accessible names, exercises,
+and answers. Review “представление” specifically so it always means the borrowed
+storage interpretation rather than a visual illustration. Validate the complete
+Russian page independently in Chromium and Firefox at desktop and narrow widths,
+including both local table scrollers and the full-view arrangement.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -441,7 +514,7 @@ storage interpretation rather than a visual illustration.
 Validation must prove all metadata, pointer-identity, exact-bit, scalar, empty,
 singleton-axis, overflow, error-precedence, and explicit-copy commitments in the
 frontmatter. The learner output and unique trace example must match their fixtures
-byte for byte. The contract, English active-locale projection, content, Astro,
+byte for byte. The contract, English/Russian active-locale projection, content, Astro,
 unit, production-build, static-link and SEO, focused browser, and full browser
 gates must pass in staging and again after atomic publication.
 
@@ -449,6 +522,6 @@ Manual review must verify the predict-first reveal, notation-only formula and
 complete symbol glossary, the sourced progression from Bengio's fixed context
 through Transformer attention layouts to GPT-2 axis operations, the explicit
 boundary around local borrowing and materialization policy, consistency among
-Rust and diagram evidence, plain-language SEO description, no Russian placeholder,
-keyboard reading order, narrow layout, forced-colors distinctions, misconception
+Rust and diagram evidence, plain-language localized SEO descriptions, complete
+Russian semantic parity, keyboard reading order, narrow layout, forced-colors distinctions, misconception
 correction, and Chapter 10 handoff.

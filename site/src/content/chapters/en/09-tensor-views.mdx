@@ -2,15 +2,15 @@
 {
   "chapter_id": "09-tensor-views",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 9,
   "concept_id": "tensor-views",
-  "title": "One buffer, several tensor interpretations",
-  "description": "Follow fixed-context word features into query, key, and value tensors with split attention heads, then compare copied and borrowed Rust tensor transposes.",
-  "objective": "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity.",
+  "title": "Shared views and explicit tensor copies",
+  "description": "Follow fixed-context word features into Q/K/V tensors and split attention heads, then compare shared tensor views with explicit copies in the course implementation.",
+  "objective": "Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit.",
   "worked_inputs": "Start with shape [2,3], row-major strides [3,1], and storage [10,11,12,20,21,22]. Predict the shape, strides, logical reading order, and storage after reshaping to [3,2] and after transposing axes 0 and 1. Reshape keeps offsets [0,1,2,3,4,5] with strides [2,1]; transpose keeps the same storage but reads offsets [0,3,1,4,2,5] with shape [3,2] and strides [1,3].",
   "formula": {
-    "latex": "\\prod_k n_k=\\prod_j n'_j, \\quad s'_k=s_{\\pi(k)}",
+    "latex": "\\prod_k n_k=\\prod_j n'_j, \\qquad n'_k=n_{\\pi(k)}, \\quad s'_k=s_{\\pi(k)}",
     "symbols": [
       {
         "symbol": "n_k",
@@ -22,11 +22,19 @@
       },
       {
         "symbol": "k",
-        "meaning": "a zero-based source or output axis index, according to the expression where it appears"
+        "meaning": "a zero-based source or permuted-output axis index, according to the expression where it appears"
       },
       {
         "symbol": "j",
         "meaning": "a zero-based axis index in the requested reshape"
+      },
+      {
+        "symbol": "n'_k",
+        "meaning": "the extent of output axis k after an axis permutation"
+      },
+      {
+        "symbol": "n_{\\pi(k)}",
+        "meaning": "the source extent carried to output axis k"
       },
       {
         "symbol": "s'_k",
@@ -47,7 +55,7 @@
       "predecessor_kind": "neural-architecture",
       "limitation": "In Bengio et al.'s feed-forward configuration, learned feature vectors for a fixed number of preceding words are concatenated into one vector x and used to predict the next-word distribution. Its layout is fixed by the selected context width rather than exposing sequence and head axes for a growing causal prefix.",
       "later_advance": "Vaswani et al. define attention on query, key, and value matrices, compute scaled products with transposed keys, and run learned projections in parallel heads whose outputs are concatenated. OpenAI's GPT-2 model.py projects one tensor with batch, sequence, and feature axes into packed query, key, and value groups, splits and transposes them to a head axis, multiplies by the key tensor with its last two axes transposed, then transposes and merges heads.",
-      "modern_llm_role": "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention; borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.",
+      "modern_llm_role": "Reshape, axis permutation, and transpose let this course express the logical split-head, key-transpose, and merge-head layouts used by decoder attention. Whether a merge can reshape without copying depends on the resulting view's contiguity. Borrowed TensorView and explicit materialization are local implementation policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.",
       "sources": [
         {
           "role": "earlier",
@@ -101,17 +109,12 @@
       "path": "rust/demos/ch09-tensor-views/src/main.rs",
       "region": "learner-view-output",
       "purpose": "Construct the frozen owner and derive reshape, transpose, slice, materialization, error, scalar, and empty evidence serialized by the learner demo."
-    },
-    {
-      "path": "rust/demos/ch09-tensor-views/src/diagram_trace.rs",
-      "region": "tensor-views-trace",
-      "purpose": "Record the exact owned buffers, view metadata, logical offsets, values, and rejected operations consumed by the locale-neutral static diagram."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "tensor-views",
-    "rationale": "Aligned shape, stride, source-offset, and value records make it possible to see which transforms share the base storage and where materialization creates a new contiguous buffer."
+    "rationale": "Aligned shape, stride, storage-offset, and value records make it possible to see which transforms share the base storage and where materialization creates a new contiguous buffer."
   },
   "decoder_connection": "The cumulative tensor core can now expose safe borrowed interpretations of owned values, carry explicit axes through transforms, and make every required copy visible. Chapter 10 will use those axes to define broadcasting alignment and reduction dimensions."
 }
@@ -120,14 +123,13 @@
 import TensorViewsDiagram from '../../../components/chapters/TensorViewsDiagram.astro';
 
 export const diagramLabels = {
-  title: 'One owner, four metadata interpretations',
+  title: 'One owner, four shared views, one explicit copy',
   description:
-    'Compare shared reshape, transpose, and slice records, then follow the slice into materialized storage and inspect rejected requests.',
+    'Compare shared tensor views, one explicit copy, and three rejected requests.',
   sections: {
-    storage: 'Start with one owned storage buffer',
-    transforms: 'Compare equal shapes with different reading orders',
-    slice: 'Follow source offsets into a materialized copy',
-    errors: 'Keep incompatible operations explicit',
+    views: 'Compare five tensor interpretations',
+    copy: 'Follow values into new storage',
+    errors: 'Inspect three rejected requests',
   },
   fields: {
     operation: 'Operation',
@@ -136,10 +138,12 @@ export const diagramLabels = {
     strides: 'Element strides',
     base: 'Base offset',
     contiguous: 'Row-major contiguous',
-    offsets: 'Logical source offsets',
-    sourceOffsets: 'Copied from source offsets',
+    offsets: 'Logical storage offsets',
+    sourceOffsets: 'Source offset',
+    copiedOffset: 'Offset in new storage',
     values: 'Logical values',
     request: 'Request',
+    evidence: 'Checked evidence',
     sourceElements: 'Source elements',
     requestedElements: 'Requested elements',
     axisSize: 'Axis size',
@@ -165,14 +169,12 @@ export const diagramLabels = {
     bounds: 'The half-open slice end exceeds the selected axis size.',
   },
   notes: {
-    storage:
-      'The base owner keeps one flat Rust buffer. Every shared view below points back to that storage.',
-    transforms:
-      'Compare the recorded shapes, strides, and source-offset sequences: matching shapes need not imply matching logical order.',
-    slice:
-      'Follow the recorded source offsets across the copy boundary into the materialized view\'s fresh offsets.',
+    legend:
+      '◇ shares the base buffer; ◆ owns a copy; “No” means the logical order is not row-major contiguous.',
+    copy:
+      'Each row maps one source offset and value to its offset in the new contiguous storage.',
     errors:
-      'Each failure is recorded by the Rust example, not calculated by the visualization.',
+      'Each rejected request leaves storage unchanged and names the invariant it violates.',
   },
   symbols: {
     shared: '◇ shared',
@@ -185,7 +187,7 @@ export const diagramLabels = {
 
 ## Predict two `[3, 2]` tensors before reading their values
 
-Start with the same flat owner that a small Rust model will use:
+Start with the same flat owner used by the example:
 
 ```text
 shape   = [2, 3]
@@ -223,8 +225,8 @@ transpose values = [[10, 20], [11, 21], [12, 22]]
 offsets          = [0, 3, 1, 4, 2, 5]
 ```
 
-The two results have equal shapes and contain equal scalar values, yet their
-coordinate meanings differ. Neither changes the owner's storage. For example,
+The two results have equal shapes and contain the same six scalars overall, yet
+the scalars occupy different coordinates. Neither changes the owner's storage. For example,
 transposed coordinate `[2,1]` and source coordinate `[1,2]` both select offset
 `5` and therefore the same stored `22.0`.
 
@@ -237,15 +239,15 @@ order**.
 
 ## Separate reshape compatibility from axis permutation
 
-The chapter uses one shared notation-only formula:
+Two compact rules separate reshape compatibility from permutation metadata:
 
 $$
-\prod_k n_k=\prod_j n'_j, \quad s'_k=s_{\pi(k)}
+\prod_k n_k=\prod_j n'_j, \qquad n'_k=n_{\pi(k)}, \quad s'_k=s_{\pi(k)}
 $$
 
 The first equality is the element-count requirement for reshape. The source
 extents $n_k$ and requested extents $n'_j$ must have equal checked products. For
-the fixture, $2\cdot3=3\cdot2=6$, so `[2,3]` reshaped to `[3,2]` is size-compatible. Shape
+the example, $2\cdot3=3\cdot2=6$, so `[2,3]` reshaped to `[3,2]` is size-compatible. Shape
 `[4,2]` needs eight values and fails before any view is created.
 
 Equal products are not the whole rule in this course. Reshape also requires the
@@ -253,8 +255,8 @@ source view to be row-major contiguous. That policy prevents `reshape` from
 silently allocating after a transpose or inner-axis slice. Call `materialize`
 when a new contiguous owner is intentionally required.
 
-The second equality is for permutation. Output axis $k$ takes the stride of
-source axis $\pi(k)$, and its matching extent moves with it. For permutation
+The last two equalities are for permutation. Output axis $k$ takes the extent
+and stride of source axis $\pi(k)$. For permutation
 `[1,0]`, output axis $0$ takes source axis $1$, while output axis $1$ takes source
 axis $0$; shape and strides therefore become `[3,2]` and `[1,3]`.
 
@@ -264,10 +266,12 @@ axis $0$; shape and strides therefore become `[3,2]` and `[1,3]`.
 
 | Symbol | Operational meaning |
 | :--- | :--- |
-| $n_k$ | The extent of source axis $k$. In the fixture, the source extents are $n_0=2$ and $n_1=3$. |
+| $n_k$ | The extent of source axis $k$. In the example, the source extents are $n_0=2$ and $n_1=3$. |
 | $n'_j$ | The requested reshape extent on axis $j$. For `[3,2]`, $n'_0=3$ and $n'_1=2$. |
-| $k$ | A zero-based source or output axis index, according to the expression containing it. |
+| $k$ | A zero-based source or permuted-output axis index, according to the expression containing it. |
 | $j$ | A zero-based requested-reshape axis index. It need not run over the same number of axes as $k$. |
+| $n'_k$ | The extent of output axis $k$ after a permutation. |
+| $n_{\pi(k)}$ | The source extent carried into output position $k$. |
 | $s'_k$ | The element stride of output axis $k$ after a permutation. |
 | $\pi(k)$ | The source axis placed at output axis $k$. A valid permutation names each source axis exactly once. |
 | $s_{\pi(k)}$ | The source stride carried with axis $\pi(k)$ into output position $k$. |
@@ -292,9 +296,9 @@ fixed number of preceding words are concatenated into one vector $x$ and used to
 predict the next-word distribution. Its layout is fixed by the selected context
 width rather than exposing sequence and head axes for a growing causal prefix.
 
-The earlier checkpoint is
+An earlier model is
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
-The later checkpoints are
+Later sources are
 [Vaswani et al., *Attention Is All You Need*](https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)
 and
 [OpenAI's official GPT-2 model.py](https://github.com/openai/gpt-2/blob/master/src/model.py).
@@ -325,13 +329,14 @@ They do not prescribe whether an implementation copies values, shares a buffer,
 uses row-major strides, or rejects implicit materialization.
 
 Reshape, axis permutation, and transpose let this course express the logical
-split-head, key-transpose, and merge-head layouts used by decoder attention;
-borrowed TensorView and explicit materialization are local implementation
+split-head, key-transpose, and merge-head layouts used by decoder attention.
+Whether a merge can reshape without copying depends on the resulting view's
+contiguity. Borrowed TensorView and explicit materialization are local implementation
 policies, not storage behavior claimed by the papers or GPT-2's TensorFlow code.
 
-Treat the frozen `[2,3]` fixture as a deliberately tiny one-head $K$ with two key
+Treat the frozen `[2,3]` example as a deliberately tiny one-head $K$ with two key
 positions and three features; batch and head axes are suppressed. The existing
-`copying_transpose` loop eagerly creates an owned contiguous $K$ transpose with
+`copying_transpose` function eagerly creates an owned contiguous $K$ transpose with
 values `[10,20,11,21,12,22]`. The borrowed transpose instead retains the owner
 and uses shape `[3,2]`, strides `[1,3]`, and offsets `[0,3,1,4,2,5]` to
 read the same logical order. This prepares one transposed operand; it does not
@@ -360,10 +365,10 @@ not copied.
   label="Rust source defining TensorView, Tensor view creation, metadata accessors, row-major contiguity including scalar empty and singleton rules, checked storage offsets, and borrowed value access"
 />
 
-The compile-fail example in the source is important evidence. If code creates a
-view, mutates its owner, and then uses the view again, Rust rejects the conflicting
-borrow. Multiple immutable views are safe. `materialize` creates an independent
-owner, after which either tensor may be mutated separately.
+If code creates a view, mutates its owner, and then uses the view again, Rust
+rejects the conflicting borrow. Multiple immutable views are safe. `materialize`
+creates an independent tensor that can be mutated on its own; the original owner
+becomes mutable again after the borrowed view's last use.
 
 Axis transforms preserve source identity. `reshape` checks requested-layout
 overflow first, element count second, and current contiguity third. `transpose`
@@ -372,9 +377,15 @@ in-range occurrence of every source axis.
 
 For a separately contiguous $Q$, $K$, or $V$ tensor, those rank-generic operations can
 express the logical split from $[\text{batch},\text{sequence},\text{features}]$ to
-$[\text{batch},\text{heads},\text{sequence},\text{head width}]$ and the inverse merge. The current
-stdout remains a rank-two key-transpose example, so it is evidence for the
-transpose primitive rather than a hidden rank-four attention demo.
+$[\text{batch},\text{heads},\text{sequence},\text{head width}]$. Inverse-permuting a view
+derived from the original contiguous split can restore contiguity. A newly allocated
+contiguous attention result already ordered as
+$[\text{batch},\text{heads},\text{sequence},\text{head width}]$ generally becomes
+non-contiguous after permutation to
+$[\text{batch},\text{sequence},\text{heads},\text{head width}]$; it must then be
+materialized before the head dimensions can be merged by reshape. Contiguity,
+not the operation's name, decides whether reshape may share storage. The small
+rank-two example isolates only the transpose primitive; complete attention comes later.
 
 There is also an intentional contiguity boundary. If this course represented
 GPT-2's packed projection as
@@ -404,8 +415,8 @@ materializer visits its logical coordinates and builds fresh storage
   label="Rust source implementing checked half-open unit-step slicing with a base offset and deterministic logical-row-major materialization into a new owned Tensor"
 />
 
-The runnable learner example derives every displayed success and error from those
-same public methods. Its exact stdout is checked against `expected.txt`.
+The runnable learner example applies those same public methods to every success
+and error case, making each result traceable to one checked invariant.
 
 <RustSource
   path="rust/demos/ch09-tensor-views/src/main.rs"
@@ -414,37 +425,30 @@ same public methods. Its exact stdout is checked against `expected.txt`.
   label="Rust learner source constructing the frozen tensor and deriving copied and borrowed transposes, compatible reshape, column slice, explicit materialization, deterministic errors, scalar view, and empty view"
 />
 
-The parser receives a separate Rust trace so the visualization never becomes a
-second tensor implementation.
-
-<RustSource
-  path="rust/demos/ch09-tensor-views/src/diagram_trace.rs"
-  region="tensor-views-trace"
-  caption="Serialize the exact storage, view metadata, offsets, values, and errors"
-  label="Rust trace source deriving base reshape transpose slice and materialized records plus incompatible reshape non-contiguous reshape and out-of-bounds slice errors for the Chapter 9 diagram"
-/>
-
 {/* chapter-section:visualization */}
 
 ## See shared storage and copied storage as different states
 
-The diagram aligns five Rust records. The base, reshape, transpose, and slice all
-name storage owner `base`; their solid shared-state treatment and hollow diamond
-make that relationship visible without color. The materialized view names a new
-owner and uses a double border plus filled diamond. Rejections use a dashed
-border and multiplication sign.
+The diagram aligns five trace records in one comparison table. The base, reshape,
+transpose, and slice rows all name storage owner `base`; a hollow diamond and the
+visible owner label make that shared relationship clear without color. The
+materialized row names its new owner and uses a filled diamond. Explicit Yes/No
+labels state contiguity, while each rejected request uses a multiplication sign
+and names the violated condition.
 
-Reshape and transpose sit side by side because equal shape `[3,2]` is the tempting
-misconception. Read their stride and offset rows before their value rows. The
-slice/materialization table then maps source offsets `[1,2,4,5]` to new offsets
-`[0,1,2,3]`, making the copy boundary observable.
+Reshape and transpose occupy adjacent rows because equal shape `[3,2]` is the
+tempting misconception. Compare their stride and offset columns before their
+value columns. The materialized row contains offsets `[0,1,2,3]` in its new
+storage; the provenance table maps source offsets `[1,2,4,5]` to those new
+positions, making the copy boundary observable.
 
 <TensorViewsDiagram labels={diagramLabels} />
 
-All numbers come from `diagram-trace.txt`. The visualization rejects malformed
-records and preserves the recorded numeric text. It does not multiply extents,
-permute axes, derive offsets, decide contiguity, or reorder values. The figure is
-static, keyboard reachable, and meaningful in document order.
+The comparison makes each invariant explicit. Shared rows name the original
+owner and their logical storage offsets; the copied row names its new owner and
+new offsets; the provenance table connects the two. Rejected rows name the
+condition they violate. Read the view rows first, then the copy provenance and
+rejection tables.
 
 {/* chapter-section:exercises */}
 
@@ -477,7 +481,7 @@ Use the frozen owner unless a question supplies another shape.
 4. The slice starts at $0+1\cdot1=1$. It has shape `[2,2]`, strides `[3,1]`,
    offsets `[1,2,4,5]`, and values `[11,12,21,22]`. The gap from offset `2` to
    `4` makes it non-contiguous in logical row-major order.
-5. No. Equal element counts do not overcome non-contiguity under this API.
+5. No. Equal element counts do not overcome non-contiguity under this interface.
    Materialize the slice first, then reshape the new contiguous owner to `[4]`.
 6. Materialization creates a new owner with shape `[2,2]`, strides `[2,1]`,
    offsets `[0,1,2,3]`, and storage `[11,12,21,22]`. The values equal the slice's
@@ -503,8 +507,8 @@ data for later numerical operations without hiding allocation.
 
 This distinction matters throughout the decoder. Batched token states, attention
 heads, and matrix operands will repeatedly change axis interpretation. A checked
-view can express those transformations cheaply; explicit materialization keeps
-the moments that allocate visible and testable.
+view can express those transformations cheaply; explicit materialization makes
+each allocation a deliberate operation.
 
 Chapter 10 will use the visible axes to align shapes for broadcasting and will
 name which axes reductions collapse. It will not infer semantic alignment merely

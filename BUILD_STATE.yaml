@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-28T10:22:31Z"
+updated_at: "2026-07-28T11:29:14Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -6768,7 +6768,7 @@ builds:
                 notes: "The host-artifact audit passed with only the intentional ignored static release, all 16 canonical hashes still match publish.sha256, Git diff whitespace checks and BUILD_STATE YAML/course-plan validation pass, and unrelated desktop.ini remains untracked and untouched."
             notes: "Succeeded after exact staged review, 16-file manifest promotion, independent review, complete canonical Linux and browser regression, and host-boundary validation. The active run's originally recorded wall-clock value was corrected to UTC while its already-created stable run identifier was retained. No build definition or Russian Chapter 8 placeholder was added."
       - id: implement-ch09-tensor-views
-        objective: "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
+        objective: "Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit."
         depends_on:
           - implement-ch08-tensor-storage
         status: invalidated
@@ -6825,7 +6825,7 @@ builds:
           - "site/tests/e2e/chapter-locales.spec.ts"
           - "Cargo.lock"
         acceptance:
-          - "Reshape, transpose, permute, slice, and materialize tensor views while preserving value identity."
+          - "Transform tensor layouts with reshape, transpose, permutation, and slicing while preserving logical values and making every materialized copy explicit."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
@@ -18081,6 +18081,7 @@ builds:
           - "site/tests/e2e/diagram-style-system.spec.ts"
           - "site/src/components/RustSource.astro"
           - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
           - ".agents/skills/localize-llm-course/agents/openai.yaml"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -18673,6 +18674,7 @@ builds:
           - "DECISIONS.md"
           - "Base commit 794e1828f0ff115064501bdcf90d70b09796b9bb."
         outputs:
+          - "SKILLS.md"
           - "curriculum/README.md"
           - "curriculum/course-plan.md"
           - "site/src/i18n/chapter-locales.json"
@@ -19118,3 +19120,174 @@ builds:
                 status: passed
                 notes: "The mounted ledger parses with 17 completed builds, 101 steps (79 completed and 22 invalidated), and 118 runs (101 succeeded, 13 interrupted, and 4 failed). No build remains active; IDs are unique and the Chapter 8 build, step, and run complete atomically with 53 declared outputs."
             notes: "Succeeded. Chapter 8 was revised in English first, translated directly into natural Russian, and activated at revision 5. The exact locale projection, navigation, SEO, sitemap, Analytics, formula, accessibility, exercise, answer, LLM-history, diagram, and future-route surfaces remain synchronized. All 839 unit cases, the clean Rust/static workspace, 240 final two-engine browser cases, six independently reviewed screenshots, and the complete artifact audit pass."
+  - build_id: activate-ch09-russian-localization
+    objective: "Translate Chapter 9 directly from the current English tensor-views lesson, activate its Russian route, and prove semantic and rendered-layout parity."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium step uses authored translation and cached Docker contract, static, unit, Chromium, and Firefox validation; no paid service, external translation, dependency change, product build-definition change, or Rust behavior change is planned."
+    completion_criteria:
+      - "The current English Chapter 9 revision is reviewed first and remains the sole semantic source; any learner-facing, formula, history, or shared-diagram defect is corrected before the Russian projection is written."
+      - "The complete Russian contract, lesson, metadata, diagram copy, exercises, answers, navigation, SEO, and accessibility labels preserve every formula, symbol, Q/K/V layout claim, Rust identifier, lifetime guarantee, value, link, qualifier, error precedence, and pedagogical commitment in natural technical Russian."
+      - "Russian Chapter 9 is activated atomically with a same-revision source, locale projection, plan policy, catalogs, and exact browser expectations; no placeholder route is published."
+      - "The exact candidate passes contract, chapter, parity, content, Astro, unit, static-build, link, SEO, sitemap, Analytics, checksum, scope, ledger, and whitespace checks."
+      - "The Russian route and its registered figure pass Chromium and Firefox desktop, narrow, no-JavaScript fallback, full-view, forced-color, direction, and nearest-bounded-box containment validation."
+      - "The completed checkpoint is committed independently before Chapter 10 activation begins; user review follows delivery and is not a publication prerequisite."
+    steps:
+      - id: activate-ch09-russian-localization
+        objective: "Translate, activate, and validate the complete Russian Chapter 9 tensor-views surface."
+        depends_on:
+          - activate-ch08-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-28 to translate Chapters 8-11 sequentially after the completed Chapter 1-7 audit without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/components/chapters/TensorViewsDiagram.astro"
+          - "site/src/lib/tensor-views-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/demos/ch09-tensor-views/src/lib.rs"
+          - "rust/demos/ch09-tensor-views/src/main.rs"
+          - "rust/demos/ch09-tensor-views/src/diagram_trace.rs"
+          - "rust/demos/ch09-tensor-views/diagram-trace.txt"
+          - "rust/demos/ch09-tensor-views/expected.txt"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 81be43a4c958ae18bce7c1bf9ff83be30e4cf020."
+        outputs:
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/09-tensor-views.md"
+          - "site/src/content/chapters/en/09-tensor-views.mdx"
+          - "site/src/content/chapters/ru/09-tensor-views.mdx"
+          - "site/src/components/chapters/TensorViewsDiagram.astro"
+          - "site/src/lib/tensor-views-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/09-tensor-views-diagram.test.ts"
+          - "site/tests/e2e/ch09-tensor-views.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/chapter-publication.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English is the sole semantic source and the exact Russian revision preserves all factual, mathematical, executable, historical, ownership, lifetime, and pedagogical evidence."
+          - "Russian prose uses established tensor and mathematical terminology, natural sentence structure, and no unjustified untranslated learner-facing English."
+          - "All mathematical expressions use the site math pipeline and all code spans denote actual code, identifiers, paths, or literal program data."
+          - "The one semantic Chapter 9 figure uses localized labels and the shared diagram system; every ordinary bounded box contains its text and formula ink in both browser engines at desktop, narrow, and full view without clipping or unintended page overflow."
+          - "The locale projection exposes /ru/course/09-tensor-views/ and updates navigation, alternates, sitemap, SEO, and fallback behavior atomically."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/09-tensor-views.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 09-tensor-views"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 09-tensor-views"
+          - "./course run npm --prefix site run check:parity -- --chapter 09-tensor-views"
+          - "./course run npm --prefix site run check:content"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:09-tensor-views|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:09-tensor-views|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One complete source-to-target chapter translation with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency change, product build-definition change, or Rust behavior change."
+        runs:
+          - run_id: 20260728T102542Z-activate-ch09-russian-localization-01
+            started_at: "2026-07-28T10:25:42Z"
+            finished_at: "2026-07-28T11:29:14Z"
+            status: succeeded
+            input_fingerprint:
+              git: "81be43a4c958ae18bce7c1bf9ff83be30e4cf020"
+              manifest: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:05efd22f9696beb167ee081cc65f633d421d147fa7b96766cf2fe5872f85da95"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; current English Chapter 9 and its contract are authoritative."
+            staging_dir: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/"
+            commands:
+              - "Verify the independently committed Chapter 8 checkpoint 81be43a and clean worktree, inspect the completed ledger and latest localization decisions, retain the complete localization-skill rules, and claim independent canonical-source and diagram audits."
+              - "Fingerprint the exact English lesson, contract, diagram, parser, Rust evidence, locale projection, plan, workflow, tests, environment, user request, and base commit before product edits."
+              - "Expand the declared parser/type output before editing after the canonical audit found that a localized semantic provenance table needs an explicit copied-offset header for assistive technology."
+              - "Expand the declared SKILLS.md documentation output before editing after the checked locale-workflow projection exposed the prior Chapter 0-8 / 9-39 publication boundary."
+              - "Correct the English objective, formula, tensor-layout explanations, learner-facing implementation prose, and LLM-history framing before freezing the semantic source at revision 5."
+              - "Replace the private card visualization with one shared-style comparison table, one semantic copy-provenance table, and one rejection-evidence table, then tune only concept geometry for localized full view."
+              - "Translate the complete frozen Chapter 9 contract and lesson directly into natural technical Russian, activate the route, and advance the checked locale projection through Chapter 9."
+              - "Run exact Linux-source, static-build, Chromium, Firefox, formula, shared-diagram, forced-color, fallback, containment, checksum, scope, and whitespace validation without changing the product build definition."
+            artifacts:
+              - path: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:05efd22f9696beb167ee081cc65f633d421d147fa7b96766cf2fe5872f85da95"
+                notes: "Exact base revision, user scope, tool versions, cost, English Chapter 9, contract, diagram, parser, Rust evidence, projection, plan, skill, workflow, and test inputs."
+              - path: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/scope-expansion.txt"
+                checksum: "sha256:60d5e5858f55ba9239836fc4f5e709cd687ecc8c7a778bd9d929d3ee4fe01a71"
+                notes: "Pre-edit ownership for the parser/type label shape required by a localized semantic copy-provenance table."
+              - path: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/scope-expansion-02.txt"
+                checksum: "sha256:5295879b71d77a2ce39f44a5b7558e0af49761bf202daa86741590be1bdea8a3"
+                notes: "Pre-edit ownership for the checked SKILLS.md locale-boundary projection."
+              - path: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/final-candidate-manifest.txt"
+                checksum: "sha256:002936924bba4414402bb3294480dd80441781cf7070048ca1d05c903777f476"
+                notes: "SHA-256 manifest for every changed product, content, test, and authoring-guide output plus the two exact final Docker image IDs."
+              - path: ".build/runs/20260728T102542Z-activate-ch09-russian-localization-01/final-validation.txt"
+                checksum: "sha256:d42eb1c1b7e924b76116601b586f6621070fdf4810477215f5177b76c7ae1bf9"
+                notes: "Concise replay record for the exact contract, content, parity, unit, Astro, static-artifact, Chromium, Firefox, formula, and localized-layout gates."
+              - path: "docker-image://learn-llm-ru-ch09-workspace:run01-final"
+                checksum: "sha256:4caa374b3978aeb49a727630de456099bf0764e0384449ebb52735d555f5c153"
+                notes: "Exact Linux source/static validation candidate; local generated image, not a committed repository artifact."
+              - path: "docker-image://learn-llm-ru-ch09-browser:run01-final"
+                checksum: "sha256:43d3468fe701054ec7cb43df06483949a15d0c9e10fb3eb42908d6c43de3841d"
+                notes: "Exact Playwright browser candidate with the generated 55-page site; local generated image, not a committed repository artifact."
+            validation:
+              - command: "Repository, predecessor checkpoint, scheduler, environment, ownership, dependency, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Commit 81be43a independently completes Chapter 8 and the worktree was clean. The ledger had 17 completed builds, 101 historical steps (79 completed and 22 invalidated), 118 historical runs (101 succeeded, 13 interrupted, and 4 failed), and no active work. Windows orchestration and product pins match the recorded environment; this step has no resource limit and claims all anticipated Chapter 9 and shared projection/test outputs before editing."
+              - command: "Independent canonical-source, LLM-history, terminology, and diagram audit"
+                status: passed
+                notes: "The audits froze the exact owner/view/copy/error evidence and corrected ambiguous value identity, the incomplete permutation formula, storage-mutation wording, split/merge contiguity, learner-facing build machinery, private diagram chrome, and inaccessible provenance before translation."
+              - command: "First full Vitest replay"
+                status: failed
+                notes: "The shared style-source test found the caption class repeated in a local fullscreen selector. The selector was changed to semantic figcaption; no generated output was published from the failed attempt."
+              - command: "First Chromium Chapter 9 and shared rendered matrix"
+                status: failed
+                notes: "Four Chapter 9 assertions exposed a stale Russian title expectation, strict single-element matching against multi-row contiguity states, and excess fullscreen height. Exact title/multi-row expectations and the bilingual table geometry were corrected without clipping, hiding, truncating, or shrinking text."
+              - command: "Final exact-candidate course plan, contract, content, parity, unit, Astro, static build, and artifact matrix"
+                status: passed
+                notes: "The plan reports 40 chapters and 81 steps; 40 contracts, 50 localized sources, 40 locale sets, 32 catalog keys, and 40 diagrams validate; all 840 unit tests pass; Astro reports zero diagnostics in 204 files; 55 pages and all 1,995 links plus 55 SEO, sitemap, and Analytics routes pass."
+              - command: "Final exact-candidate Chromium Chapter 9, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 122 Chromium cases pass across English/Russian desktop and narrow routes, no-JavaScript and unsupported-API fallbacks, full view, forced colors, focus, formula geometry, LTR technical tokens, and nearest-box containment."
+              - command: "Final exact-candidate Firefox Chapter 9, shared-diagram, full-view, and formula matrix"
+                status: passed
+                notes: "All 122 Firefox cases pass with the same route, content, formula, fallback, full-view, forced-color, direction, and bounded-box assertions."
+              - command: "Candidate checksum, declared-scope, historical-ledger, and whitespace audit"
+                status: passed
+                notes: "The final manifest covers every changed product/content/test/documentation path and both exact Docker images; all paths are declared, immutable prior run records remain intact, and git diff --check passes."
+              - command: "Final completed-ledger invariant"
+                status: passed
+                notes: "The ledger parses with 18 completed builds, 102 steps (80 completed and 22 invalidated), and 119 runs (102 succeeded, 13 interrupted, and 4 failed). IDs remain unique and no build remains active."
+            notes: "Succeeded. Chapter 9 was repaired in English first, translated directly into natural Russian, and activated at revision 5. Formula, LLM-history, Rust, semantic table, ownership, copy, error, SEO, navigation, sitemap, Analytics, accessibility, exercise, and answer parity pass. The exact candidate passes 840 unit cases and 244 rendered cases across Chromium and Firefox without localized clipping or unintended overflow."

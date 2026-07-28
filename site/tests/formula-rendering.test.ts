@@ -318,10 +318,6 @@ const documentedChapter08To13Code = [
     pattern: /^[A-Za-z][A-Za-z0-9_]*\s*\{[^}\r\n]*\}$/,
   },
   {
-    name: "concrete source and trace filenames",
-    pattern: /^[A-Za-z0-9_-]+\.(?:rs|txt|py)$/,
-  },
-  {
     name: "literal Rust ranges",
     pattern: /^\d+\.\.=*\d+$/,
   },

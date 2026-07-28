@@ -65,9 +65,8 @@ export interface TensorViewsDiagramLabels {
   readonly title: string;
   readonly description: string;
   readonly sections: Readonly<{
-    storage: string;
-    transforms: string;
-    slice: string;
+    views: string;
+    copy: string;
     errors: string;
   }>;
   readonly fields: Readonly<{
@@ -79,8 +78,10 @@ export interface TensorViewsDiagramLabels {
     contiguous: string;
     offsets: string;
     sourceOffsets: string;
+    copiedOffset: string;
     values: string;
     request: string;
+    evidence: string;
     sourceElements: string;
     requestedElements: string;
     axisSize: string;
@@ -106,9 +107,8 @@ export interface TensorViewsDiagramLabels {
     bounds: string;
   }>;
   readonly notes: Readonly<{
-    storage: string;
-    transforms: string;
-    slice: string;
+    legend: string;
+    copy: string;
     errors: string;
   }>;
   readonly symbols: Readonly<{
@@ -515,7 +515,7 @@ type RequiredLabelShape = true | RequiredLabelGroup;
 const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
-  sections: { storage: true, transforms: true, slice: true, errors: true },
+  sections: { views: true, copy: true, errors: true },
   fields: {
     operation: true,
     storage: true,
@@ -525,8 +525,10 @@ const requiredLabelShape: RequiredLabelShape = {
     contiguous: true,
     offsets: true,
     sourceOffsets: true,
+    copiedOffset: true,
     values: true,
     request: true,
+    evidence: true,
     sourceElements: true,
     requestedElements: true,
     axisSize: true,
@@ -541,7 +543,7 @@ const requiredLabelShape: RequiredLabelShape = {
     materialized: true,
   },
   reasons: { count: true, contiguity: true, bounds: true },
-  notes: { storage: true, transforms: true, slice: true, errors: true },
+  notes: { legend: true, copy: true, errors: true },
   symbols: { shared: true, materialized: true, rejected: true },
 };
 
