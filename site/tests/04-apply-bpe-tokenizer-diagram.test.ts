@@ -15,6 +15,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch04-apply-bpe-tokenizer/expected.txt'),
   'utf8',
@@ -326,10 +330,10 @@ describe('apply-BPE-tokenizer diagram component contract', () => {
     );
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption class="course-diagram__caption">');
-    expect(source).toContain('<ol class="example-list">');
+    expect(source).toContain('<ol class="example-list course-diagram__grid">');
     expect(source).toContain('<section class="example"');
-    expect(source).toContain('<ol class="pipeline">');
-    expect(source).toContain('<ol class="piece-list">');
+    expect(source).toContain('<ol class="pipeline course-diagram__grid">');
+    expect(source).toContain('<ol class="piece-list course-diagram__grid">');
     expect(source).toContain('data-case={sample.id}');
     expect(source).toContain('data-lane="grouped"');
     expect(source).toContain('data-control={isBos');
@@ -343,9 +347,10 @@ describe('apply-BPE-tokenizer diagram component contract', () => {
     expect(source).toContain('<bdi dir="ltr">{piece.mergeRank}</bdi>');
     expect(source).toContain('data-diagram-scroll');
     expect(source).not.toContain('overflow-x: auto');
-    expect(source).toContain(':focus-visible');
+    expect(sharedStyles).toContain(':focus-visible');
     expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('@media (forced-colors: active)');
+    expect(source).toContain('data-diagram-box');
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseApplyBpeTokenizerTrace');
     expect(source).toContain("piece.mergeRank === null ? '◇' : '◆'");

@@ -51,7 +51,7 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     </p>
   </figcaption>
 
-  <section class="calculation-panel" aria-labelledby={chainTitleId}>
+  <section class="calculation-panel" aria-labelledby={chainTitleId} data-diagram-box>
     <h4 id={chainTitleId}>{labels.sections.calculationChain}</h4>
     <p id={chainInstructionId} class="scroll-instruction">
       {labels.notes.scrollInstruction}
@@ -62,15 +62,21 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
       tabindex="0"
       aria-labelledby={chainTitleId}
       aria-describedby={chainInstructionId}
-     data-diagram-scroll>
+      data-diagram-scroll
+    >
       <div class="calculation-chain">
-        <section class="stage target-stage" data-stage="probability-surprise">
+        <section
+          class="stage target-stage"
+          data-stage="probability-surprise"
+          data-diagram-card
+          data-diagram-box
+        >
           <table data-diagram-table>
             <caption>
-              <span class="stage-number" aria-hidden="true">1</span>
+              <span class="stage-number" aria-hidden="true" data-diagram-box>1</span>
               <span>{labels.stages.probability}</span>
               <span class="inline-arrow causal-arrow" aria-hidden="true">→</span>
-              <span class="stage-number" aria-hidden="true">2</span>
+              <span class="stage-number" aria-hidden="true" data-diagram-box>2</span>
               <span>{labels.stages.surprise}</span>
             </caption>
             <thead>
@@ -103,9 +109,14 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           <span>{labels.notes.nextStep}</span>
         </p>
 
-        <section class="stage aggregate-stage" data-stage="aggregate">
+        <section
+          class="stage aggregate-stage"
+          data-stage="aggregate"
+          data-diagram-card
+          data-diagram-box
+        >
           <h5>
-            <span class="stage-number" aria-hidden="true">3</span>
+            <span class="stage-number" aria-hidden="true" data-diagram-box>3</span>
             {labels.stages.aggregate}
           </h5>
           <dl>
@@ -125,9 +136,14 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           <span>{labels.notes.nextStep}</span>
         </p>
 
-        <section class="stage mean-stage" data-stage="mean-nll">
+        <section
+          class="stage mean-stage"
+          data-stage="mean-nll"
+          data-diagram-card
+          data-diagram-box
+        >
           <h5>
-            <span class="stage-number" aria-hidden="true">4</span>
+            <span class="stage-number" aria-hidden="true" data-diagram-box>4</span>
             {labels.stages.meanNll}
           </h5>
           <p>
@@ -141,9 +157,14 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
           <span>{labels.notes.nextStep}</span>
         </p>
 
-        <section class="stage perplexity-stage" data-stage="perplexity">
+        <section
+          class="stage perplexity-stage"
+          data-stage="perplexity"
+          data-diagram-card
+          data-diagram-box
+        >
           <h5>
-            <span class="stage-number" aria-hidden="true">5</span>
+            <span class="stage-number" aria-hidden="true" data-diagram-box>5</span>
             {labels.stages.perplexity}
           </h5>
           <p>
@@ -155,11 +176,20 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     </div>
   </section>
 
-  <section class="frozen-model-panel" aria-labelledby={frozenModelTitleId}>
+  <section
+    class="frozen-model-panel"
+    aria-labelledby={frozenModelTitleId}
+    data-diagram-box
+  >
     <h4 id={frozenModelTitleId}>{labels.sections.frozenModel}</h4>
     <p id={frozenModelNoteId}>{labels.notes.frozenModel}</p>
 
-    <section class="provenance-panel" aria-labelledby={provenanceTitleId}>
+    <section
+      class="provenance-panel"
+      aria-labelledby={provenanceTitleId}
+      data-diagram-card
+      data-diagram-box
+    >
       <h5 id={provenanceTitleId}>{labels.sections.provenance}</h5>
       <dl class="provenance-facts">
         <div>
@@ -211,7 +241,8 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
       tabindex="0"
       aria-labelledby={scoreTableTitleId}
       aria-describedby={frozenModelNoteId}
-     data-diagram-scroll>
+      data-diagram-scroll
+    >
       <table data-diagram-table aria-labelledby={scoreTableTitleId}>
         <caption id={scoreTableTitleId}>{labels.sections.frozenModel}</caption>
         <thead>
@@ -242,7 +273,12 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
       </table>
     </div>
 
-    <section class="boundary-panel" aria-labelledby={boundariesTitleId}>
+    <section
+      class="boundary-panel"
+      aria-labelledby={boundariesTitleId}
+      data-diagram-card
+      data-diagram-box
+    >
       <h5 id={boundariesTitleId}>{labels.sections.boundaries}</h5>
       <ul>
         <li data-boundary="bos-target">
@@ -267,54 +303,8 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
 </figure>
 
 <style>
-  .metrics-diagram {
-    --diagram-border: color-mix(in srgb, currentColor 24%, transparent);
-    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
-    container-type: inline-size;
-    display: grid;
-    min-inline-size: 0;
-    max-inline-size: 100%;
-    gap: 1.25rem;
-    margin-block: 1.5rem;
-    padding: clamp(0.85rem, 3vw, 1.5rem);
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.85rem;
-  }
-
-  .metrics-diagram:focus-visible,
-  .chain-scroll:focus-visible,
-  .score-table-scroll:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  figcaption p,
-  section h4,
-  section h5,
-  section p {
-    margin-block-start: 0;
-  }
-
-  .calculation-panel,
-  .frozen-model-panel,
-  .provenance-panel,
-  .boundary-panel {
-    min-inline-size: 0;
-    padding: 1rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.65rem;
-    background: var(--diagram-surface);
-  }
-
   .scroll-instruction {
     margin-block-end: 0.75rem;
-  }
-
-  .chain-scroll,
-  .score-table-scroll {
-    min-inline-size: 0;
-    max-inline-size: 100%;
   }
 
   .calculation-chain {
@@ -330,14 +320,9 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
   }
 
   .stage {
-    min-inline-size: 0;
-    padding: 0.85rem;
-    border: 2px solid currentColor;
-    border-radius: 0.55rem;
-  }
-
-  .target-stage {
-    border-style: solid;
+    display: grid;
+    align-content: start;
+    gap: 0.65rem;
   }
 
   .aggregate-stage {
@@ -392,7 +377,6 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
 
   table {
     width: 100%;
-    border-collapse: collapse;
     table-layout: fixed;
   }
 
@@ -410,19 +394,6 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     text-align: start;
   }
 
-  th,
-  td {
-    padding: 0.5rem;
-    border-block-end: 1px solid var(--diagram-border);
-    text-align: start;
-    vertical-align: top;
-  }
-
-  td,
-  dd {
-    font-variant-numeric: tabular-nums;
-  }
-
   .stage dl,
   .provenance-facts {
     display: grid;
@@ -436,24 +407,11 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     gap: 0.2rem;
   }
 
-  dt {
-    font-weight: 650;
-  }
-
-  dd {
-    margin: 0;
-  }
-
   .mean-stage p,
   .perplexity-stage p {
     display: grid;
     gap: 0.65rem;
     margin-block-end: 0;
-  }
-
-  .mean-stage strong,
-  .perplexity-stage strong {
-    font-size: 1.15rem;
   }
 
   .frozen-model-panel {
@@ -464,14 +422,6 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
 
   .provenance-facts {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-  }
-
-  .provenance-facts code {
-    overflow-wrap: anywhere;
-  }
-
-  .score-table-scroll {
-    font-size: 0.9rem;
   }
 
   .score-table-scroll th[scope='row'] {
@@ -563,26 +513,8 @@ const boundariesTitleId = `${instanceId}-boundaries-title`;
     }
   }
 
-  @container course-diagram (max-width: 42rem) {
-    .metrics-diagram,
-    .calculation-panel,
-    .frozen-model-panel,
-    .provenance-panel,
-    .boundary-panel {
-      padding: 0.75rem;
-    }
-  }
-
   @media (forced-colors: active) {
-    .metrics-diagram,
-    .calculation-panel,
-    .frozen-model-panel,
-    .provenance-panel,
-    .boundary-panel,
-    .stage,
-    .stage-number,
-    th,
-    td {
+    .stage-number {
       border-color: CanvasText;
     }
   }

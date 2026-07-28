@@ -18,6 +18,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const corpusSource = readFileSync(
   resolve(repositoryRoot, 'rust/data/tiny-bilingual-corpus.txt'),
   'utf8',
@@ -258,15 +262,16 @@ describe('corpus-partitions diagram component contract', () => {
     expect(source).toContain('data-partition={partition.role}');
     expect(source).toContain('data-document-id={document.id}');
     expect(source).toContain('data-provenance-group={document.provenanceGroup}');
-    expect(source).toContain('<code class="role-badge" dir="ltr">');
+    expect(source).toContain('<code class="role-badge state-symbol" dir="ltr">');
     expect(source).toContain('<dd><code dir="ltr">{document.id}</code></dd>');
     expect(source).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
     expect(source).toContain('@container course-diagram (max-width: 44rem)');
     expect(source).toContain('grid-template-columns: 1fr');
-    expect(source).toContain('unicode-bidi: isolate');
+    expect(sharedStyles).toContain('unicode-bidi: isolate');
     expect(source).not.toContain('letter-spacing');
-    expect(source).toContain(':focus-visible');
-    expect(source).toContain('@media (forced-colors: active)');
+    expect(sharedStyles).toContain(':focus-visible');
+    expect(sharedStyles).toContain('@media (forced-colors: active)');
+    expect(source).toContain('data-diagram-box');
     expect(source).not.toContain('<script');
     expect(source).not.toContain('client:');
 

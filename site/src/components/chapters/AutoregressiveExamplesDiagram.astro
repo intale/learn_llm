@@ -36,30 +36,32 @@ const descriptionId = `${instanceId}-description`;
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <dl class="config-facts">
-      <div>
+    <dl class="config-facts course-diagram__grid">
+      <div data-diagram-card data-diagram-box>
         <dt>{labels.fields.contextLength}</dt>
         <dd><bdi dir="ltr">{trace.config.contextLength}</bdi></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box>
         <dt>{labels.fields.stride}</dt>
         <dd><bdi dir="ltr">{trace.config.stride}</bdi></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box>
         <dt>{labels.fields.requiredSourceTokens}</dt>
         <dd><bdi dir="ltr">{trace.config.requiredSourceTokens}</bdi></dd>
       </div>
     </dl>
   </figcaption>
 
-  <ol class="partition-list">
+  <ol class="partition-list course-diagram__grid">
     {
       trace.partitions.map((partition) => {
         const partitionId = `${instanceId}-${partition.name}`;
         return (
           <li>
             <section
-              class="partition"
+              class="partition course-diagram__card-stack"
+              data-diagram-card
+              data-diagram-box
               data-partition={partition.name}
               aria-labelledby={`${partitionId}-title`}
             >
@@ -71,7 +73,7 @@ const descriptionId = `${instanceId}-description`;
                 </div>
               </header>
 
-              <ol class="document-list">
+              <ol class="document-list course-diagram__grid">
                 {partition.documents.map((document) => {
                   const documentId = `${partitionId}-${document.id}`;
                   const incompleteTail = document.incompleteTail;
@@ -109,7 +111,8 @@ const descriptionId = `${instanceId}-description`;
                             dir="ltr"
                             style={`--token-count: ${document.tokens.length}`}
                             aria-labelledby={`${documentId}-source ${documentId}-source-sequence`}
-                           data-diagram-scroll>
+                            data-diagram-box
+                            data-diagram-scroll>
                             {document.tokens.map((token, position) => {
                               const isBos = position === 0;
                               const isEos = position === document.tokens.length - 1;
@@ -119,6 +122,7 @@ const descriptionId = `${instanceId}-description`;
                                   data-token-id={token}
                                   data-control={isBos ? 'bos' : isEos ? 'eos' : undefined}
                                   aria-hidden="true"
+                                  data-diagram-box
                                 >
                                   {isBos ? `BOS:${token}` : isEos ? `EOS:${token}` : token}
                                 </code>
@@ -127,10 +131,10 @@ const descriptionId = `${instanceId}-description`;
                           </p>
                         </section>
 
-                        <ol class="window-list">
+                        <ol class="window-list course-diagram__grid">
                           {document.windows.map((window) => (
-                            <li data-diagram-box
-                              class="window"
+                            <li data-diagram-card data-diagram-box
+                              class="window course-diagram__card-stack"
                               data-window-index={window.index}
                               data-window-start={window.start}
                               data-status="emitted"
@@ -163,17 +167,19 @@ const descriptionId = `${instanceId}-description`;
                                   tabindex="0"
                                   dir="ltr"
                                   aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-input ${documentId}-window-${window.index}-input-sequence`}
+                                 data-diagram-box
                                  data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start;
                                     const token = window.input[offset];
                                     return token === undefined ? (
-                                      <span class="empty-cell" aria-hidden="true">·</span>
+                                      <span class="empty-cell" data-diagram-box aria-hidden="true">·</span>
                                     ) : (
                                       <code
                                         data-input-position={offset}
                                         data-token-id={token}
                                         aria-hidden="true"
+                                        data-diagram-box
                                       >
                                         {token}
                                       </code>
@@ -198,17 +204,19 @@ const descriptionId = `${instanceId}-description`;
                                   tabindex="0"
                                   dir="ltr"
                                   aria-labelledby={`${documentId}-window-${window.index}-title ${documentId}-window-${window.index}-start ${documentId}-window-${window.index}-target ${documentId}-window-${window.index}-target-sequence`}
+                                 data-diagram-box
                                  data-diagram-scroll>
                                   {document.tokens.map((_, position) => {
                                     const offset = position - window.start - 1;
                                     const token = window.target[offset];
                                     return token === undefined ? (
-                                      <span class="empty-cell" aria-hidden="true">·</span>
+                                      <span class="empty-cell" data-diagram-box aria-hidden="true">·</span>
                                     ) : (
                                       <code
                                         data-target-position={offset}
                                         data-token-id={token}
                                         aria-hidden="true"
+                                        data-diagram-box
                                       >
                                         {token}
                                       </code>
@@ -222,7 +230,9 @@ const descriptionId = `${instanceId}-description`;
 
                         {incompleteTail && (
                           <section
-                            class="incomplete-tail"
+                            class="incomplete-tail course-diagram__card-stack"
+                            data-diagram-card
+                            data-diagram-box
                             data-tail-start={incompleteTail.start}
                             data-status="not-emitted"
                             aria-labelledby={`${documentId}-tail`}
@@ -249,17 +259,19 @@ const descriptionId = `${instanceId}-description`;
                               dir="ltr"
                               style={`--token-count: ${document.tokens.length}`}
                               aria-labelledby={`${documentId}-tail ${documentId}-tail-facts ${documentId}-tail-sequence`}
+                             data-diagram-box
                              data-diagram-scroll>
                               {document.tokens.map((_, position) => {
                                 const offset = position - incompleteTail.start;
                                 const token = incompleteTail.tokens[offset];
                                 return token === undefined ? (
-                                  <span class="empty-cell" aria-hidden="true">·</span>
+                                  <span class="empty-cell" data-diagram-box aria-hidden="true">·</span>
                                 ) : (
                                   <code
                                     data-tail-position={offset}
                                     data-token-id={token}
                                     aria-hidden="true"
+                                    data-diagram-box
                                   >
                                     {token}
                                   </code>
@@ -286,38 +298,19 @@ const descriptionId = `${instanceId}-description`;
     }
   </ol>
 
-  <p class="boundary-note"><span aria-hidden="true">║</span> {labels.boundaryNote}</p>
+  <p class="boundary-note" data-diagram-card data-diagram-box><span aria-hidden="true">║</span> {labels.boundaryNote}</p>
   <section class="invariants" aria-labelledby={`${instanceId}-invariants`}>
     <h4 id={`${instanceId}-invariants`}>{labels.invariantsLabel}</h4>
-    <ul>
-      <li><span aria-hidden="true">→</span> {labels.invariants.shift}</li>
-      <li><span aria-hidden="true">✓</span> {labels.invariants.complete}</li>
-      <li><span aria-hidden="true">║</span> {labels.invariants.boundaries}</li>
-      <li><span aria-hidden="true">↔</span> {labels.invariants.overlap}</li>
+    <ul class="course-diagram__grid">
+      <li data-diagram-card data-diagram-box><span aria-hidden="true">→</span> {labels.invariants.shift}</li>
+      <li data-diagram-card data-diagram-box><span aria-hidden="true">✓</span> {labels.invariants.complete}</li>
+      <li data-diagram-card data-diagram-box><span aria-hidden="true">║</span> {labels.invariants.boundaries}</li>
+      <li data-diagram-card data-diagram-box><span aria-hidden="true">↔</span> {labels.invariants.overlap}</li>
     </ul>
   </section>
 </figure>
 
 <style>
-  .autoregressive-diagram {
-    box-sizing: border-box;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    margin-block: 2rem;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.72);
-  }
-
-  .autoregressive-diagram:focus-visible,
-  .token-tape:focus-visible,
-  .aligned-tape:focus-visible,
-  .tail-tape:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 3px;
-  }
-
   .visually-hidden {
     position: absolute;
     inline-size: 1px;
@@ -331,13 +324,11 @@ const descriptionId = `${instanceId}-description`;
     white-space: nowrap;
   }
 
-  figcaption > p,
   .tail-note,
   .boundary-note {
     max-inline-size: 72ch;
   }
 
-  .config-facts,
   .control-key {
     display: flex;
     flex-wrap: wrap;
@@ -347,10 +338,6 @@ const descriptionId = `${instanceId}-description`;
   .config-facts > div {
     display: flex;
     gap: 0.4rem;
-    padding: 0.35rem 0.6rem;
-    border: 1px solid var(--line);
-    border-radius: 0.55rem;
-    background: var(--surface);
   }
 
   .config-facts dt,
@@ -358,16 +345,7 @@ const descriptionId = `${instanceId}-description`;
     margin: 0;
   }
 
-  .partition-list,
-  .document-list,
-  .window-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
   .partition-list {
-    display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
   }
@@ -379,14 +357,9 @@ const descriptionId = `${instanceId}-description`;
   }
 
   .partition {
-    box-sizing: border-box;
     inline-size: 100%;
     min-inline-size: 0;
-    padding: 1rem;
-    border: 2px solid var(--line);
     border-inline-start-width: 0.55rem;
-    border-radius: 0.85rem;
-    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
   }
 
   .partition-header,
@@ -413,29 +386,17 @@ const descriptionId = `${instanceId}-description`;
     font-weight: 800;
   }
 
-  .boundary-label {
-    color: var(--muted);
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
   .document-list {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
     margin-block-start: 0.9rem;
   }
 
   .document {
-    box-sizing: border-box;
     inline-size: 100%;
     min-inline-size: 0;
-    padding: 0.9rem;
-    border: 1px dashed var(--line);
+    border-style: dashed;
     border-inline: 0.3rem double var(--line);
-    border-radius: 0.7rem;
-    background: rgba(255, 255, 255, 0.68);
   }
 
   .source-lane h6,
@@ -446,22 +407,28 @@ const descriptionId = `${instanceId}-description`;
   .token-tape,
   .aligned-tape,
   .tail-tape {
-    box-sizing: border-box;
     display: grid;
     grid-template-columns: repeat(var(--token-count), minmax(2.25rem, 1fr));
     gap: 0.3rem;
     white-space: nowrap;
-    scrollbar-gutter: stable;
   }
 
+  /*
+   * Window and tail cards keep the shared card padding and borders. Extend only
+   * their shared scroll regions back to the source tape's token-column origin.
+   */
   .aligned-tape {
-    --diagram-scroll-inline-size: calc(100% + 1.5rem + 2px);
-    margin-inline: calc(-0.75rem - 1px);
+    --diagram-scroll-inline-size: calc(
+      100% + var(--diagram-card-padding) + var(--diagram-card-padding) + 2px
+    );
+    margin-inline: calc(0px - var(--diagram-card-padding) - 1px);
   }
 
-  .tail-tape {
-    --diagram-scroll-inline-size: calc(100% + 1.5rem + 4px);
-    margin-inline: calc(-0.75rem - 2px);
+  .autoregressive-diagram .incomplete-tail > .tail-tape {
+    --diagram-scroll-inline-size: calc(
+      100% + var(--diagram-card-padding) + var(--diagram-card-padding) + 2px
+    );
+    margin-inline: calc(0px - var(--diagram-card-padding) - 1px);
   }
 
   code[data-token-id],
@@ -473,7 +440,6 @@ const descriptionId = `${instanceId}-description`;
     padding-inline: 0.35rem;
     border: 1px solid var(--line);
     border-radius: 0.4rem;
-    background: var(--surface);
   }
 
   code[data-control] {
@@ -482,19 +448,14 @@ const descriptionId = `${instanceId}-description`;
   }
 
   .window-list {
-    display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0.7rem;
     margin-block: 0.8rem;
   }
 
   .window {
-    box-sizing: border-box;
     inline-size: 100%;
     min-inline-size: 0;
-    padding: 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 0.65rem;
   }
 
   .window > header {
@@ -522,51 +483,23 @@ const descriptionId = `${instanceId}-description`;
   .lane-label,
   .shift-cue {
     margin-block: 0.25rem;
-    font-size: 0.9rem;
-  }
-
-  .shift-cue {
-    color: var(--muted);
   }
 
   .incomplete-tail {
-    padding: 0.75rem;
-    border: 2px dotted var(--line);
-    border-radius: 0.65rem;
-  }
-
-  .not-emitted {
-    font-weight: 700;
+    border-style: dotted;
   }
 
   .control-key {
     margin-block: 0.75rem 0;
-    font-size: 0.88rem;
-  }
-
-  .boundary-note {
-    padding: 0.65rem 0.8rem;
-    border-inline-start: 0.35rem double var(--line);
   }
 
   .invariants {
     margin-block-start: 1rem;
-    padding-block-start: 1rem;
-    border-block-start: 1px solid var(--line);
   }
 
   .invariants ul {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .invariants li {
-    padding: 0.65rem;
-    border: 1px solid var(--line);
-    border-radius: 0.55rem;
   }
 
   @container course-diagram (max-width: 48rem) {
@@ -585,10 +518,6 @@ const descriptionId = `${instanceId}-description`;
   }
 
   @media (forced-colors: active) {
-    .partition,
-    .document,
-    .window,
-    .incomplete-tail,
     code[data-token-id] {
       forced-color-adjust: auto;
       border-color: CanvasText;

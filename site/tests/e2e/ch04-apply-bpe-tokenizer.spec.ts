@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '04-apply-bpe-tokenizer';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex = String.raw`\operatorname{decode}_{content}(\operatorname{encode}_{content}(x))=\operatorname{bytes}(x)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -66,12 +66,12 @@ const copy = {
       decoder: 'Preserve one boundary-aware sequence per document',
     },
     rustCaptions: [
-      'A closed word table that cannot reverse an unseen spelling',
-      'Tokenizer layout version 1 and its checked ID ranges',
+      'A fixed whole-word vocabulary that cannot recover an unseen spelling',
+      'Tokenizer layout version 1 with validated ID ranges',
       'Initialize byte IDs and replay every frozen rank',
       'Recover bytes first; validate text only on request',
       'Add endpoint controls after encoding and validate them strictly',
-      'Print exact tokenizer, edge-case, and visualization evidence',
+      'Print the tokenizer layout and edge-case results',
     ],
     diagramTitle: 'Ranked byte groups reverse to the exact input',
     cases: [
@@ -102,12 +102,12 @@ const copy = {
       decoder: 'Сохраняйте каждый документ как отдельную последовательность с границами',
     },
     rustCaptions: [
-      'Закрытая таблица слов не восстанавливает отсутствующее в словаре написание',
-      'Схема ID токенизатора версии 1 и проверяемые диапазоны',
+      'Словарь с фиксированным набором слов не восстанавливает незнакомое написание',
+      'Схема ID токенизатора версии 1 с проверкой диапазонов',
       'Преобразуйте байты в ID и примените слияния по возрастанию ранга',
       'Сначала восстановите байты, а корректность UTF-8 проверяйте только при преобразовании в текст',
       'После кодирования добавьте управляющие токены и проверьте их положение',
-      'Выведите проверяемые данные о токенизаторе и граничных случаях',
+      'Выведите схему токенизатора и результаты для граничных случаев',
     ],
     diagramTitle: 'Из групп байтов без потерь восстанавливаются исходные данные',
     cases: [

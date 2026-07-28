@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-28T06:37:26Z"
+updated_at: "2026-07-28T08:57:14Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -18594,3 +18594,273 @@ builds:
                 status: passed
                 notes: "Candidate manifest c9e57b3d and validation summary 84cff489 retain their recorded hashes, every manifest entry replays, and git diff --check passes after the completion checkpoint."
             notes: "Succeeded. Russian Chapter 0 revision 3 is complete at /ru/course/00-llm-parts/ with natural technical prose, localized semantic diagrams, working Russian Chapter 1-7 links, explicit English fallbacks for Chapters 8-39, and exact two-browser containment evidence. Localization builds retain every language and rendered-layout quality gate but no longer pause for pre-publication approval; the user reviews completed changes after delivery. All 839 unit cases, the clean Rust/static workspace, and 53-page artifact audit pass."
+  - build_id: audit-russian-ch01-ch07
+    objective: "Revalidate the published Russian Chapters 1-7 directly against their current English sources and repair any semantic, linguistic, formula, accessibility, or rendered-layout defects."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium audit uses authored review and cached Docker contract, static, unit, Chromium, and Firefox validation; no paid service, external translation, generation, dependency download, or build-definition change is planned."
+    completion_criteria:
+      - "Every Russian Chapter 1-7 lesson and localized contract field is checked directly against the exact current English revision through separate critical-claim, terminology, anti-calque, monolingual, accessibility, and structural-parity passes."
+      - "All discovered defects are repaired without changing the canonical English meaning, formulas, symbols, code, identifiers, values, links, historical claims, or pedagogical scope."
+      - "Every Chapter 1-7 Russian route and registered figure passes Chromium and Firefox desktop, narrow, no-JavaScript fallback, and full-view containment validation on the exact frozen candidate."
+      - "The audit passes contract, chapter, parity, content, Astro, unit, static build, link, SEO, sitemap, Analytics, checksum, scope, ledger, and whitespace checks."
+      - "The completed checkpoint is committed independently before Russian Chapter 8 activation begins; user review follows delivery and is not a publication prerequisite."
+    steps:
+      - id: audit-russian-ch01-ch07
+        objective: "Audit and, where necessary, revise the complete published Russian Chapter 1-7 surfaces against current English and rendered-layout rules."
+        depends_on:
+          - activate-ch00-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-28 to validate translated Chapters 1-7 with current rules and skills, apply necessary fixes, and continue automatically to Chapters 8-11."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/01-text-units.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/en/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/components/chapters/TextUnitsDiagram.astro"
+          - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/components/chapters/BigramBaselineDiagram.astro"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/text-units-diagram.test.ts"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/06-bigram-baseline-diagram.test.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "scripts/check-site-content.mjs"
+          - "scripts/check-course-plan.mjs"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 794e1828f0ff115064501bdcf90d70b09796b9bb."
+        outputs:
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/chapters/01-text-units.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/en/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/components/chapters/TextUnitsDiagram.astro"
+          - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/components/chapters/BigramBaselineDiagram.astro"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/text-units-diagram.test.ts"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/06-bigram-baseline-diagram.test.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "scripts/check-site-content.mjs"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English remains the sole semantic source and every Russian learner-facing string preserves the matching current claim, qualifier, relationship, formula, symbol, code sample, identifier, value, and link."
+          - "Russian headings, prose, SEO copy, history, captions, purposes, exercises, answers, and accessible labels use natural established technical and mathematical language rather than English sentence shape."
+          - "Formula markup remains in the site math pipeline, backticks remain limited to literal code or program data, and no untranslated English learner prose remains except justified technical terms and program literals."
+          - "Each registered figure remains one complete static semantic figure using the shared diagram system, and every bounded box contains its Russian text and formula ink at desktop, narrow, and full view in Chromium and Firefox without clipping, shrinking, or unintended page overflow."
+          - "The exact frozen candidate passes independent semantic, terminology, anti-calque, monolingual, accessibility, checksum, rendered-surface, scope, and ledger review."
+        validate:
+          - "./course run node scripts/check-course-plan.mjs"
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/01-text-units.md through 07-language-model-metrics.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en|ru --chapter 01-text-units through 07-language-model-metrics"
+          - "./course run npm --prefix site run check:parity -- --chapter 01-text-units through 07-language-model-metrics"
+          - "./course run npm --prefix site run check:content"
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:01-text-units|@chapter:02-corpus-partitions|@chapter:03-learn-bpe-merges|@chapter:04-apply-bpe-tokenizer|@chapter:05-autoregressive-examples|@chapter:06-bigram-baseline|@chapter:07-language-model-metrics|@diagram-style'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:01-text-units|@chapter:02-corpus-partitions|@chapter:03-learn-bpe-merges|@chapter:04-apply-bpe-tokenizer|@chapter:05-autoregressive-examples|@chapter:06-bigram-baseline|@chapter:07-language-model-metrics|@diagram-style'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian terminology, anti-calque, monolingual, accessibility, checksum, scope, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "Seven existing locale-pair audits with targeted revisions and cached local static/unit/two-engine browser validation. No paid service, external translation, dependency change, or build-definition change."
+        runs:
+          - run_id: 20260728T074206Z-audit-russian-ch01-ch07-01
+            started_at: "2026-07-28T07:42:06Z"
+            finished_at: "2026-07-28T08:57:14Z"
+            status: succeeded
+            input_fingerprint:
+              git: "794e1828f0ff115064501bdcf90d70b09796b9bb"
+              manifest: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/input-fingerprint.txt"
+              checksum: "sha256:5c345b081954f5100afe366e94f5f19c6bd3e987db470ce339a9cd4e3e1bf3aa"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; current English Chapters 1-7 and their contracts are authoritative."
+            staging_dir: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/"
+            commands:
+              - "Run startup protocol, confirm a clean worktree at 794e182, parse the full ledger with no active or stale run, inspect the latest completed Chapter 0 run and decisions, and verify material tool versions."
+              - "Read the complete localization skill and claim three independent read-only Russian language audits covering Chapters 1-3, 4-5, and 6-7."
+              - "Fingerprint the exact current English/Russian lessons, contracts, locale projection, plan, skill, workflow, environment, request, and base commit before product edits."
+              - "Build a current cached source image and run all 28 baseline Chapter 1-7 contract, English source, Russian source, and locale-parity checks before language revisions."
+              - "Expand the declared output scope before editing after independent audits found stale canonical English learner prose, a stale Chapter 1 plan revision, and bounded-box markers needed for exact target-language containment."
+              - "Claim the learner-prose validator and its focused regression before extending it to reject the build, browser, parser, Docker, and client-script phrases exposed by this audit."
+              - "Expand integration scope before editing the plan projection, curriculum overview, exact E2E revision constants, and focused diagram tests made stale by the new frozen locale-pair revisions and shared-role cleanup."
+            artifacts:
+              - path: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/input-fingerprint.txt"
+                checksum: "sha256:5c345b081954f5100afe366e94f5f19c6bd3e987db470ce339a9cd4e3e1bf3aa"
+                notes: "Exact base revision, user scope, tool versions, cost, English/Russian lesson and contract hashes, locale projection, plan, skill, and workflow inputs."
+              - path: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/language-audit.txt"
+                checksum: "sha256:a119e8343237a70fb56cad6e9a3024f60f43cd48e0d53aedc1687f71252b5bc6"
+                notes: "Independent three-band findings, preserved invariants, exact correction categories, revision targets, and publication boundary."
+              - path: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/candidate.sha256"
+                checksum: "sha256:fad3a6bd67a1987cdf46bfbc15f424694dc28f30a0d6aad1c2bfdfdb49950b4a"
+                notes: "Frozen hashes for all 46 non-ledger product outputs plus DECISIONS.md on the exact validated candidate."
+              - path: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/screenshots.sha256"
+                checksum: "sha256:ae2e97741ea4f6cde05c8bfefa74438b9070ea72f9976545b44753cd767bce5d"
+                notes: "Replayable manifest for the 42 manually inspected Russian desktop, narrow, and full-view screenshots."
+              - path: ".build/runs/20260728T074206Z-audit-russian-ch01-ch07-01/validation-summary.txt"
+                checksum: "sha256:6b549176684ee224b87502d53ba8f67e7382c9df431a4bef3d9748a4c7453e67"
+                notes: "Concise final language, static, rendered, and clean-workspace validation evidence."
+            validation:
+              - command: "Repository, complete-ledger, scheduler, latest-run, environment, ownership, dependency, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The worktree was clean at 794e182; active_build was null; all 15 builds, 99 steps, and 116 runs were completed with no stale running record. Windows orchestration and repository product pins match the latest recorded environment. The audit owns a disjoint declared output set and has no resource limit."
+              - command: "First PowerShell input discovery expression"
+                status: failed
+                notes: "A Bash-style brace glob was invalid PowerShell syntax, so parsing stopped before any hash or file inspection and no file changed. The corrected native PowerShell expression succeeded."
+              - command: "First PowerShell UTC timestamp expression"
+                status: failed
+                notes: "This host PowerShell does not support Get-Date -AsUTC; all hashes and file inspection still completed, no file changed, and the corrected DateTime.UtcNow expression supplied the run timestamp."
+              - command: "First two mounted-ledger YAML parse attempts"
+                status: failed
+                notes: "Mounting the repository over /workspace hid both cached images' installed yaml package, so Node exited before parsing the ledger. No product or state file changed."
+              - command: "Corrected isolated-file YAML parse"
+                status: passed
+                notes: "Mounting only BUILD_STATE.yaml at /tmp preserved the image dependencies. The ledger parses with 16 builds, 100 steps, exactly this build/step/run active, and no other running record."
+              - command: "Baseline Chapter 1-7 contract, English/Russian source, and parity matrix"
+                status: passed
+                notes: "All 28 checks pass in cached image learn-llm-ru-ch01-07-source:run01. Structural publication parity is intact before semantic and linguistic review; this does not by itself prove translation quality or rendered containment."
+              - command: "Independent critical-claim, terminology, anti-calque, monolingual, formula/code/link, SEO, accessibility, and layout-risk audits"
+                status: passed
+                notes: "Three disjoint reviewers completed Chapters 1-3, 4-5, and 6-7. They confirmed core formula, code, identifier, source, exercise, and LLM-history parity, while identifying actionable canonical-prose, Russian-language, same-revision parity, formula-markup, accessibility, and bounded-box defects now being corrected."
+              - command: "First corrected Chapter 1-7 plan, contract, source, and parity matrix"
+                status: failed
+                notes: "The plan advanced cleanly to revision 33 with 79 scheduled steps and the Chapter 1 contract passed. Repository-wide source discovery then stopped on Chapter 4 because a RustSource label contained the literal angle-bracket spelling <UNK>, which the component tag parser cannot preserve as one quoted literal. The English/Russian accessible labels were reworded without changing the program marker or lesson claim; no route was published from the failed candidate."
+              - command: "Corrected Chapter 1-7 plan, contract, English/Russian source, and parity matrix"
+                status: passed
+                notes: "The plan validates 40 chapters, 79 scheduled steps, and 40 contracts. All seven contracts plus 14 locale-source and seven same-revision parity checks pass for exact revisions 5/4/4/4/4/4/3, with 40 shared diagram components discovered."
+              - command: "First complete content, parity, Astro, and 839-case unit replay"
+                status: failed
+                notes: "Content, parity, and Astro diagnostics passed with 48 sources, 40 publishable sets, and zero diagnostics. Unit replay passed 831 cases and exposed eight stale source-shape expectations: seven early-diagram tests still required generic focus/typography/forced-color declarations now correctly owned by the shared module or pre-role class spellings, and one plan mutation still searched for revision 32. No runtime, semantic, or trace-parser test failed. The claimed integration tests are being aligned with the shared-role architecture and plan revision 33."
+              - command: "First focused replay of the eight corrected integration test files"
+                status: failed
+                notes: "The focused matrix passed 121 of 123 cases. It exposed two additional stale source-shape expectations only: Chapter 4's nested shared grid roles and an assertion that assumed no standalone steps could follow Chapter 0. The diagram output and scheduler order were correct; the tests are being made role-aware and future-safe before rerun."
+              - command: "Corrected focused early-diagram and plan-regression replay"
+                status: passed
+                notes: "All eight focused files and 123 cases pass. Tests now verify generic focus, technical typography, bidirectional isolation, and forced-color behavior at their actual shared-module owner; Chapter 4/5 assertions recognize shared grid/card roles, and the synthetic post-course placement assertion remains valid with later standalone localization steps."
+              - command: "Complete corrected Vitest replay"
+                status: passed
+                notes: "All 52 unit files and 839 tests pass on candidate 04. This covers exact Rust-trace parsing, localization projections, formula rendering, SEO, sitemap, Analytics, shared diagram/full-view contracts, publication policy, and every chapter component regression."
+              - command: "First exact-candidate focused Chromium Chapter 1-7 and diagram-style matrix"
+                status: failed
+                notes: "Twenty-three of 32 cases passed. Five failures are stale E2E strings after the frozen English/Russian revision; two reveal Chapter 5 token columns shifted by shared grid gap; and two shared-style audits reveal private section/card declarations still overriding the shared baseline in Chapters 3 and 6. Containment itself, full view, forced colors, and the remaining localized routes passed. The candidate remains unpublished while these bounded defects are corrected."
+              - command: "Second exact-candidate focused Chromium Chapter 1-7 and diagram-style matrix"
+                status: failed
+                notes: "Twenty-eight of 32 cases passed after all frozen-text and Chapter 3/6 shared-style corrections. The remaining four failures all identify one Chapter 5 tail tape: its direct-child shared card-stack margin reset overrode the local edge alignment, while its assumed two-pixel dotted border was actually the shared one-pixel card border. The exact computed-box probe confirmed the cause; the tail now uses a sufficiently scoped one-pixel alignment without crossing its parent box."
+              - command: "Corrected exact-candidate focused Chromium Chapter 1-7 and diagram-style matrix"
+                status: passed
+                notes: "All 32 Chromium cases pass on candidate 08. English/Russian routes, exact frozen prose and labels, desktop/narrow geometry, token-column alignment, bounded-box containment, shared style signatures, full view, locale projection, forced colors, and direction-sensitive behavior are clean."
+              - command: "Corrected exact-candidate focused Firefox Chapter 1-7 and diagram-style matrix"
+                status: passed
+                notes: "All 32 Firefox cases pass on candidate 08 with the same exact route, localization, formula/evidence, desktop/narrow, bounded-box, full-view, forced-color, and directional checks."
+              - command: "Shared full-view enhancement, mobile, unsupported-API, no-JavaScript, focus, forced-color, and localized-control matrices in Chromium and Firefox"
+                status: passed
+                notes: "All 10 full-view cases pass independently in each browser. Every published diagram retains one static semantic tree; mobile, no-JavaScript, and unsupported-API fallbacks expose no unusable control; desktop full view preserves focus, direction, forced colors, and bounded reading width."
+              - command: "First manual exact-candidate Russian desktop, narrow, and full-view screenshot review in Chromium and Firefox"
+                status: failed
+                notes: "The complete 42-image review found one remaining presentation defect: Chapter 3 pair literals such as (97,97) wrapped across several lines in the candidate table even at full-view width. All other Russian chapter pages and figures were visually coherent and matched between engines. The pair cell is a technical value inside the sanctioned table scroller and is being kept intact with no-wrap rather than reduced in size."
+              - command: "Final Chapter 3 two-engine browser delta and complete rendered screenshot review"
+                status: passed
+                notes: "All 13 Chapter 3 plus course-wide diagram-style cases pass in both Chromium and Firefox on candidate 12. The timeline now overrides the learner-prose 70ch list cap inside the diagram, uses the available full-view width, and keeps pair literals intact; refreshed desktop, narrow, and full-view screenshots confirm readable Russian table labels and values. The other 36 screenshots remain byte-applicable from candidate 08 because no other rendered input changed."
+              - command: "First parallel final source-matrix wrapper"
+                status: failed
+                notes: "PowerShell expanded the shell loop variable before Docker received it, so the contract subcommand looked for curriculum/chapters/.md and exited. No source changed; the corrected single-quoted loop then checked all seven exact contracts successfully, and the concurrent results from the failed wrapper were not relied upon."
+              - command: "Corrected final source, contract, unit, static-build, and artifact matrix"
+                status: passed
+                notes: "The plan validates 40 chapters, 79 scheduled steps, and 40 contracts; all seven exact contracts, 48 localized sources, and 40 publishable sets pass. Astro reports zero diagnostics across 204 files; all 52 Vitest files and 839 tests pass; the build emits 53 pages; and 1,971 local references plus all 53 SEO, sitemap, and Analytics routes pass across 140 artifacts."
+              - command: "Clean Docker workspace replay"
+                status: passed
+                notes: "Image learn-llm-ru-ch01-07-workspace:run01-final passed cargo fmt, every locked Rust workspace test and doc test, Astro, content, parity, static build, and link/SEO/sitemap/Analytics checks. Its manifest digest is sha256:50eeaf99accb58aff8f555910214aa7e366df10c1f07ec1fe818efbd4601e422; only the pre-existing Cargo example-output filename collision warnings remain."
+              - command: "Candidate, screenshot, summary, scope, historical-ledger, and whitespace audit"
+                status: passed
+                notes: "All candidate and screenshot manifest entries replay; their manifests and the final summary retain hashes fad3a6bd, ae2e9774, and 6b549176. The 48 changed tracked paths exactly equal the declared outputs, BUILD_STATE history is append-only apart from current top-level/build transitions, and git diff --check passes."
+              - command: "Two final mounted-ledger wrapper attempts"
+                status: failed
+                notes: "One wrapper hid the cached image's YAML dependency and one PowerShell quoting attempt malformed the inline module import. Both exited before inspection and changed no file; the corrected explicit import parsed the same mounted ledger successfully."
+              - command: "Final running-ledger invariant before completion"
+                status: passed
+                notes: "The mounted ledger parses with 16 builds, 100 steps, and 117 runs, with exactly this build, step, and run active before the atomic completion transition."
+            notes: "Succeeded. Russian Chapters 1-7 were audited directly against their current English sources and revised where necessary. Revisions 5/4/4/4/4/4/3 preserve formulas, Rust code, identifiers, values, links, historical claims, exercises, and answers while removing literal phrasing and learner-facing delivery machinery. All 839 unit cases, the clean Rust/static workspace, the exact two-engine desktop/narrow/full-view matrix, 42 inspected screenshots, and the complete artifact audit pass."

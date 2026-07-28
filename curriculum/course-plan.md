@@ -1,7 +1,7 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 32,
+  "plan_revision": 33,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
@@ -40,7 +40,7 @@
   "chapter_1_disposition": {
     "status": "complete",
     "step_id": "revise-ch01-language-neutral-formula",
-    "reason": "Content revision 3 retains the language-neutral shared LaTeX and publishes the reviewed natural-Russian localization."
+    "reason": "Content revision 5 retains the reviewed natural-Russian localization, the shared math-pipeline repair, and learner-facing prose that stays focused on the LLM concept rather than presentation machinery."
   },
   "target": {
     "data_protocol": "document-level train/validation/test partition frozen before tokenizer learning",
@@ -204,6 +204,11 @@
         "step_id": "activate-ch00-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch00-russian-localization"
+      },
+      {
+        "step_id": "audit-russian-ch01-ch07",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "audit-russian-ch01-ch07"
       }
     ],
     "planned_chapter_splits": [],
@@ -830,19 +835,20 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Implementation step:** `revise-ch01-language-neutral-formula`
 - **Depends on:** the completed chapter-1 foundation.
 - **Outcome:** Distinguish UTF-8 bytes, Unicode scalar values, and vocabulary IDs, then round-trip known English and Cyrillic text.
-- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. Revision 2 removed English prose from shared mathematics without changing Rust behavior; revision 3 retains that repair and replaces literal Russian phrasing with a reviewed meaning-first localization.
+- **Scope boundary:** Keep the existing scalar vocabulary as the pedagogical baseline; do not move it into the cumulative crate because BPE replaces it. Revision 3 replaced literal Russian phrasing with a reviewed meaning-first localization, revision 4 rendered every learner-facing expression through the shared math pipeline, and revision 5 removes presentation machinery from the diagram explanation without changing the concept.
 - **Formula:** `z_i = V(u_i), \quad u_i \notin S \Rightarrow V(u_i)=0`.
 - **Historical contrast:** Contrast whitespace-delimited whole-word vocabularies with scalar-level splitting and their respective unknown-word and sequence-length costs.
 - **Rust contribution:** Retain the dependency-free chapter-1 demo and exact output; the revision step changes contract/lesson metadata and strengthens the language-neutral formula gate.
 - **Visualization:** Useful — retain the aligned text → UTF-8 bytes → scalar values → IDs pipeline and its localized accessible labels.
 - **Practice:** Predict byte, scalar, and ID counts for `cat`, `кот`, and an unseen scalar before running the demo.
-- **Integration evidence:** Revision-3 contract and lessons agree; existing six Rust tests, exact stdout, bilingual parity, seven routes, and desktop/narrow browser checks pass.
+- **Integration evidence:** Revision-5 contract and lessons agree; existing six Rust tests, exact stdout, bilingual parity, seven routes, and desktop/narrow browser checks pass.
 - **Handoff:** Chapter 2 preserves documents and partitions the corpus before any vocabulary is learned.
 
 ## 02. Corpus documents, boundaries, and data partitions
 
 - **Chapter ID:** `02-corpus-partitions`
 - **Implementation step:** `implement-ch02-corpus-partitions`
+- **Revision status:** Content revision 4 preserves the document-split protocol while making the implementation attribution, byte-identity limit, Russian mathematical explanation, and learner-facing diagram prose precise under the current localization rules.
 - **Depends on:** `01-text-units`.
 - **Outcome:** Partition an original bilingual corpus into disjoint train, validation, and test documents before learning any tokenizer or model statistic.
 - **Scope boundary:** Teach document identity, provenance, deterministic manifests, boundary preservation, and the roles of train/validation/test; defer byte-token IDs and autoregressive windows. Split whole documents, never lines or tokens derived from them.
@@ -858,6 +864,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `03-learn-bpe-merges`
 - **Implementation step:** `implement-ch03-learn-bpe-merges`
+- **Revision status:** Content revision 4 preserves the learned ranks and Rust behavior while distinguishing tokenizer decoding from the LLM decoder, rendering explanatory tuples as mathematics, and tightening the Russian BPE terminology.
 - **Depends on:** `02-corpus-partitions`.
 - **Outcome:** Learn one deterministic sequence of byte-pair merges from training documents only.
 - **Scope boundary:** Teach overlapping adjacent-pair counting, numeric lexicographic tie-breaking, and left-to-right non-overlapping replacement within each document. Boundary markers are barriers; validation/test documents and arbitrary-input encoding are deferred.
@@ -873,6 +880,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `04-apply-bpe-tokenizer`
 - **Implementation step:** `implement-ch04-apply-bpe-tokenizer`
+- **Revision status:** Content revision 4 restores exact same-revision English/Russian teaching callouts, standardizes «вход — цель» terminology and exact-byte recovery, and removes presentation machinery from learner prose.
 - **Depends on:** `03-learn-bpe-merges`.
 - **Outcome:** Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.
 - **Scope boundary:** Reserve `BOS=0` and `EOS=1`, offset the 256 byte IDs, place learned merge IDs afterward, and forbid control-token merging. Define content decode and wrapped-document decode explicitly. Fixed-length batching needs no `PAD`; defer padding-heavy serving.
@@ -888,7 +896,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
-- **Revision status:** Content revision 2 was delivered by `revise-ch05-russian-localization`; its exact Russian page and then-required approval remain recorded as historical provenance in `BUILD_STATE.yaml`.
+- **Revision status:** Content revision 4 preserves the approved meaning-first Russian rewrite, restores exact code-literal formatting, and aligns the tokenizer handoff with the byte-exact guarantee; earlier revisions and their then-required approval remain historical provenance in `BUILD_STATE.yaml`.
 - **Depends on:** `04-apply-bpe-tokenizer`.
 - **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
 - **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.
@@ -904,7 +912,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `06-bigram-baseline`
 - **Implementation step:** `implement-ch06-bigram-baseline`
-- **Revision status:** Revision 2 was delivered by `rewrite-ch06-bigram-baseline`; its exact Russian page and then-required approval remain recorded as historical provenance in `BUILD_STATE.yaml`.
+- **Revision status:** Content revision 4 retains the rewritten LLM-focused bigram lesson while naturalizing Russian probability language and replacing delivery machinery with implementation behavior and mathematical evidence; earlier revisions remain historical provenance in `BUILD_STATE.yaml`.
 - **Depends on:** `05-autoregressive-examples`.
 - **Outcome:** Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.
 - **Scope boundary:** Teach a one-token context, one count per transition in each original wrapped training document, maximum-likelihood row normalization, and add-alpha smoothing. Include BOS/EOS transitions, exclude padding, keep documents separate, fit only on the training partition, and distinguish an unobserved successor in a defined row from a context whose whole MLE row is undefined. Defer scoring to chapter 7.
@@ -920,6 +928,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `07-language-model-metrics`
 - **Implementation step:** `implement-ch07-language-model-metrics`
+- **Revision status:** Content revision 3 restores evaluated-split SEO scope and exact historical source locators, uses notation-only formulas, and aligns Russian accessibility and evidence prose with the current English source.
 - **Depends on:** `06-bigram-baseline`.
 - **Outcome:** Compute average negative log-likelihood and perplexity for predicted token distributions.
 - **Scope boundary:** Teach sequence likelihood in log space, mean cross-entropy, zero-probability handling, and separate train/validation reporting; defer logits, gradients, and every test-set score.

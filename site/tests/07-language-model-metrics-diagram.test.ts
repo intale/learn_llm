@@ -16,6 +16,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const frozenTrace = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch07-language-model-metrics/diagram-trace.txt'),
   'utf8',
@@ -747,12 +751,12 @@ describe('language-model-metrics diagram component contract', () => {
     for (const destination of ['aggregate', 'mean', 'perplexity']) {
       expect(componentSource).toContain(`data-connector-to="${destination}"`);
     }
-    expect(componentSource).toContain(':focus-visible');
+    expect(sharedStyles).toContain(':focus-visible');
     expect(componentSource).toContain('border-style: double');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-inline-start');
-    expect(componentSource).toContain('@container course-diagram (max-width: 42rem)');
     expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).toContain('data-diagram-box');
   });
 
   it('keeps causal progression and arrow direction coherent in RTL locales', () => {

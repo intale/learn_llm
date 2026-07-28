@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 3,
   "concept_id": "deterministic-bpe-merge-learning",
   "title": "Learning deterministic BPE merges",
@@ -330,12 +330,11 @@ string**. Preserve and display it as bytes or hex.
 
 <LearnBpeMergesDiagram labels={diagramLabels} />
 
-The figure is parsed at build time from the exact Rust expected-output fixture.
-Each stage keeps both documents visible; each candidate table distinguishes the
-overlapping count from the non-overlapping replacement count. The selected row has
-text, a star, weight, and a border, so color is not required. Numeric and hex lanes
-remain left-to-right in every spoken language, and the layout stacks at a narrow
-viewport without any client-side script.
+The figure reproduces the exact Rust expected-output fixture. Each stage keeps both
+documents visible; each candidate table distinguishes the overlapping count from
+the non-overlapping replacement count. The selected row has text, a star, weight,
+and a border, so color is not required. Numeric and hex lanes remain left-to-right
+in every spoken language, and the layout stacks at a narrow viewport.
 
 Read stage 0 again and point to the shared middle `97` in `aaa`. Then compare the
 rank-0 count `2` with replacements `1`. At rank 1, ignore display position and

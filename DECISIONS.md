@@ -8062,3 +8062,65 @@ sitemap work.
 
 **Affected step and run:** `activate-ch00-russian-localization`, run
 `20260728T060846Z-activate-ch00-russian-localization-02`.
+
+## 2026-07-28 - Reaudit Russian Chapters 1-7 before extending the locale
+
+**Status:** Accepted from the user's direct sequencing instruction.
+
+**Context:** Russian Chapters 1-7 predate the current meaning-first localization
+skill and the complete rendered containment contract. The user requests that these
+published chapters be validated and repaired first, then that Russian Chapters
+8-11 be translated without another approval pause. English remains the canonical
+source, and completed checkpoints must still be committed independently.
+
+**Decision:** Treat the Chapter 1-7 revalidation as one bounded corrective build
+because it audits one existing locale band against one shared rule set and can be
+rendered as one exact route matrix. After that checkpoint passes and is committed,
+activate Chapters 8, 9, 10, and 11 as four sequential chapter-specific builds and
+commits. Apply separate critical-claim, terminology, anti-calque, monolingual, and
+accessibility reviews to each exact target; validate Chromium and Firefox desktop,
+narrow, no-JavaScript, and full-view geometry; do not use an external translation
+service; and do not pause for pre-publication approval.
+
+**Consequences:** Existing Russian content is not assumed correct merely because it
+is published. Any repair must preserve current English facts, qualifiers, formulas,
+code, identifiers, links, history, and teaching scope. Chapter 8 does not start
+until the Chapter 1-7 audit has a completed checkpoint and commit, and each later
+chapter similarly waits for its immediate predecessor. The user receives the
+finished work for review after delivery.
+
+**Affected steps:** `audit-russian-ch01-ch07`, followed by
+`activate-ch08-russian-localization`, `activate-ch09-russian-localization`,
+`activate-ch10-russian-localization`, and `activate-ch11-russian-localization`.
+
+## 2026-07-28 - Repair canonical prose before refreshing its Russian projection
+
+**Status:** Accepted as a scope correction discovered before product edits.
+
+**Context:** Three independent Chapter 1-7 audits found genuine Russian defects,
+but also found that matching English learner prose exposes static-build, browser,
+Docker, parser, test, or client-script machinery forbidden by the current
+learner-facing contract. Chapter 4 also gained three English teaching callouts
+without a same-revision Russian refresh, and the course plan still labels Chapter
+1 revision 4 as revision 3. Several early diagram components have bordered
+content-owning elements without the required `data-diagram-box` marker, which is
+especially relevant to validating longer Russian text inside its nearest box.
+
+**Decision:** Expand the active audit outputs to the seven canonical English
+lessons and the course plan before editing. Revise English presentation prose
+first, preserving the underlying evidence and concept, then translate the exact
+current meaning into Russian. Repair Chapter 1 revision references and mark every
+in-scope nonstandard content-owning bounded diagram element needed by the
+two-engine containment audit. Do not change Rust behavior, formulas except where
+the existing prose incorrectly renders notation, references, locale activation,
+shared full-view behavior, dependencies, hosting, or deployment.
+
+**Consequences:** The Russian audit is based on a compliant current English source
+rather than freezing known source defects into another locale. The correction
+remains one coherent Chapter 1-7 audit checkpoint because the English changes are
+prerequisites of the matching Russian refresh and the diagram markers make its
+required target-language geometry testable. Future Chapter 8 work still waits for
+this build's validation and commit.
+
+**Affected step and run:** `audit-russian-ch01-ch07`, run
+`20260728T074206Z-audit-russian-ch01-ch07-01`.

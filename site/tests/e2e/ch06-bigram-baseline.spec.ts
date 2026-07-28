@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '06-bigram-baseline';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex = String.raw`C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -83,7 +83,7 @@ const copy = {
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
-    chapterTitle: 'От подсчета переходов к биграммной модели',
+    chapterTitle: 'От подсчёта переходов к биграммной модели',
     revisionLabel: 'Версия материала',
     headings: {
       worked: 'Подсчитайте семь переходов и постройте прогноз для A',

@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "concept_id": "deterministic-bpe-merge-learning",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 3,
   "objective": {
     "en": "Learn an ordered byte-pair merge table from the frozen training documents only, with overlapping candidate counts, an explicit numeric tie rule, and left-to-right non-overlapping replacement.",
@@ -53,7 +53,7 @@
       {
         "symbol": "\\Vert",
         "en": "concatenation of the byte expansions represented by the two IDs, not arithmetic on the IDs",
-        "ru": "объединение последовательностей байтов, соответствующих двум ID, а не арифметическая операция над ID"
+        "ru": "конкатенация последовательностей байтов, соответствующих двум ID, а не арифметическая операция над ID"
       }
     ]
   },
@@ -64,7 +64,7 @@
     },
     "summary": {
       "en": "A fitted whole-word table maps every unseen spelling to one unknown bucket. Gage's compression BPE repeatedly replaced frequent adjacent byte pairs with unused bytes, and Sennrich, Haddow, and Birch adapted repeated pair merging to character-sequence subwords. This course makes a separate reproducible byte-level variant: spaces may merge inside a document, document boundaries never do, and numeric-smallest ties are an explicit local policy rather than a historical invariant.",
-      "ru": "Таблица целых слов сопоставляет любой словоформе, не встречавшейся при обучении, единый ID неизвестного токена. В алгоритме сжатия BPE Гейджа частые соседние пары байтов многократно заменялись неиспользуемыми значениями байтов, а Сеннич, Хэддоу и Бёрч перенесли повторное слияние пар на подсловные последовательности символов. В этом курсе используется отдельный воспроизводимый байтовый вариант: пробел может участвовать в слиянии внутри документа, а граница документа — нет. При равных частотах выбирается пара с наименьшими числовыми ID; это явное правило курса, а не общее свойство исторических вариантов BPE."
+      "ru": "Таблица целых слов сопоставляет любому написанию, не встречавшемуся при обучении, единый ID неизвестного токена. В алгоритме сжатия BPE Гейджа частые соседние пары байтов многократно заменялись неиспользуемыми значениями байтов, а Сеннич, Хэддоу и Бёрч перенесли повторное слияние пар на подсловные последовательности символов. В этом курсе используется отдельный воспроизводимый байтовый вариант: пробел может участвовать в слиянии внутри документа, а граница документа — нет. При равных частотах выбирается пара с наименьшими числовыми ID; это явное правило курса, а не общее свойство исторических вариантов BPE."
     },
     "rust_contrast": "Fit a deterministic whole-word vocabulary on four observed words, show that lower has its own ID while unseen lowering collapses to ID 0, then contrast that closed table with the learned byte-pair ranks without applying them to arbitrary new text yet."
   },

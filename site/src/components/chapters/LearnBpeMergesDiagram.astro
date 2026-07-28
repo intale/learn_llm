@@ -49,7 +49,12 @@ const descriptionId = `${instance}-description`;
         const round = trace.rounds[stageIndex];
         return (
           <li class="bpe-timeline-step" data-stage={stage.index}>
-            <section class="bpe-stage" aria-labelledby={`${instance}-stage-${stage.index}`}>
+            <section
+              class="bpe-stage"
+              data-diagram-card
+              data-diagram-box
+              aria-labelledby={`${instance}-stage-${stage.index}`}
+            >
               <h5 id={`${instance}-stage-${stage.index}`}>
                 {labels.fields.stage}{' '}
                 <bdi class="numeric" dir="ltr">{stage.index}</bdi>
@@ -78,8 +83,8 @@ const descriptionId = `${instance}-description`;
                           aria-labelledby={`${instance}-stage-${stage.index}-document-${documentIndex}-tokens`}
                           dir="ltr"
                          data-diagram-scroll>
-                          {document.tokens.map((token) => (
-                            <code data-token-id={token}>{token}</code>
+                           {document.tokens.map((token) => (
+                             <code class="state-symbol" data-diagram-box data-token-id={token}>{token}</code>
                           ))}
                         </dd>
                       </div>
@@ -92,6 +97,8 @@ const descriptionId = `${instance}-description`;
             {round && (
               <section
                 class="bpe-round"
+                data-diagram-card
+                data-diagram-box
                 data-round={round.rank}
                 aria-labelledby={`${instance}-round-${round.rank}`}
               >
@@ -117,7 +124,7 @@ const descriptionId = `${instance}-description`;
                     </thead>
                     <tbody>
                       {round.candidates.map((candidate) => (
-                        <tr data-winner={candidate.winner ? 'true' : 'false'}>
+                        <tr data-diagram-box data-winner={candidate.winner ? 'true' : 'false'}>
                           <th scope="row" dir="ltr">
                             <code>({candidate.left},{candidate.right})</code>
                           </th>
@@ -136,19 +143,19 @@ const descriptionId = `${instance}-description`;
                   </table>
                 </div>
                 <dl class="merge-facts">
-                  <div>
+                  <div data-diagram-card data-diagram-box>
                     <dt>{labels.fields.newToken}</dt>
                     <dd class="numeric" dir="ltr">{round.merge.token}</dd>
                   </div>
-                  <div>
+                  <div data-diagram-card data-diagram-box>
                     <dt>{labels.fields.bytesHex}</dt>
                     <dd><code dir="ltr">{round.merge.bytesHex.join(' ')}</code></dd>
                   </div>
-                  <div>
+                  <div data-diagram-card data-diagram-box>
                     <dt>{labels.fields.count}</dt>
                     <dd class="numeric" dir="ltr">{round.merge.count}</dd>
                   </div>
-                  <div>
+                  <div data-diagram-card data-diagram-box>
                     <dt>{labels.fields.replacements}</dt>
                     <dd class="numeric" dir="ltr">{round.merge.replacements}</dd>
                   </div>
@@ -161,7 +168,11 @@ const descriptionId = `${instance}-description`;
     }
   </ol>
 
-  <section class="bpe-invariants" aria-labelledby={`${instance}-invariants`}>
+  <section
+    class="bpe-invariants"
+    data-diagram-box
+    aria-labelledby={`${instance}-invariants`}
+  >
     <h4 id={`${instance}-invariants`}>{labels.invariantsLabel}</h4>
     <ul>
       <li><span aria-hidden="true">✓</span> {labels.invariants.overlap}</li>
@@ -173,40 +184,16 @@ const descriptionId = `${instance}-description`;
 </figure>
 
 <style>
-  .bpe-merge-diagram {
-    margin: 2rem 0;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.7);
-  }
-
-  .bpe-merge-diagram:focus-visible,
-  .token-tape:focus-visible,
-  .candidate-scroll:focus-visible {
-    outline: 0.2rem solid var(--accent-dark);
-    outline-offset: 0.2rem;
-  }
-
-  figcaption h3,
   .bpe-stage h5,
   .bpe-round h5,
   .bpe-invariants h4 {
     margin: 0;
   }
 
-  figcaption p {
-    max-width: 68ch;
-  }
-
   .bpe-training-source {
     display: inline-flex;
     gap: 0.5rem;
     align-items: center;
-    padding: 0.35rem 0.65rem;
-    border: 1px solid var(--accent-dark);
-    border-radius: 999px;
-    font-weight: 750;
   }
 
   .bpe-timeline,
@@ -225,6 +212,8 @@ const descriptionId = `${instance}-description`;
 
   .bpe-timeline-step {
     display: grid;
+    inline-size: 100%;
+    max-inline-size: none;
     grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.9fr);
     gap: 1rem;
     align-items: start;
@@ -232,16 +221,6 @@ const descriptionId = `${instance}-description`;
 
   .bpe-timeline-step:last-child {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .bpe-stage,
-  .bpe-round,
-  .bpe-invariants {
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.75rem;
-    background: var(--paper, #fffdf7);
   }
 
   .bpe-documents {
@@ -258,10 +237,7 @@ const descriptionId = `${instance}-description`;
   .bpe-boundary {
     margin: 0 0 0.75rem;
     padding-block: 0.3rem;
-    border-block: 1px dashed var(--muted);
-    color: var(--muted);
-    font-size: 0.85rem;
-    font-weight: 700;
+    border-block: 1px dashed currentColor;
     text-align: center;
   }
 
@@ -284,12 +260,6 @@ const descriptionId = `${instance}-description`;
     align-items: center;
   }
 
-  dt {
-    color: var(--muted);
-    font-size: 0.82rem;
-    font-weight: 750;
-  }
-
   .token-tape {
     display: flex;
     gap: 0.35rem;
@@ -297,14 +267,8 @@ const descriptionId = `${instance}-description`;
     unicode-bidi: isolate;
   }
 
-  .token-tape code {
+  .token-tape .state-symbol {
     flex: 0 0 auto;
-    min-width: 2.25rem;
-    padding: 0.3rem 0.4rem;
-    border: 1px solid var(--accent-dark);
-    border-radius: 0.35rem;
-    background: rgba(15, 118, 110, 0.08);
-    text-align: center;
   }
 
   .candidate-scroll {
@@ -314,7 +278,10 @@ const descriptionId = `${instance}-description`;
 
   table {
     width: 100%;
-    border-collapse: collapse;
+  }
+
+  .bpe-merge-diagram .candidate-scroll tbody th {
+    white-space: nowrap;
   }
 
   caption {
@@ -323,16 +290,8 @@ const descriptionId = `${instance}-description`;
     text-align: start;
   }
 
-  th,
-  td {
-    padding: 0.5rem;
-    border: 1px solid var(--line);
-    text-align: start;
-  }
-
   tr[data-winner='true'] {
-    border: 0.18rem solid var(--accent-dark);
-    background: rgba(15, 118, 110, 0.1);
+    border: 0.18rem double currentColor;
     font-weight: 750;
   }
 
@@ -349,15 +308,6 @@ const descriptionId = `${instance}-description`;
   .merge-facts > div {
     grid-template-columns: 1fr;
     gap: 0.15rem;
-    padding: 0.55rem;
-    border-inline-start: 0.2rem solid var(--warm);
-    background: rgba(176, 105, 45, 0.08);
-  }
-
-  .numeric,
-  code {
-    direction: ltr;
-    unicode-bidi: isolate;
   }
 
   .bpe-invariants {
@@ -402,17 +352,4 @@ const descriptionId = `${instance}-description`;
     }
   }
 
-  @media (forced-colors: active) {
-    .bpe-stage,
-    .bpe-round,
-    .bpe-invariants,
-    .token-tape code,
-    tr[data-winner='true'] {
-      border-color: CanvasText;
-    }
-
-    tr[data-winner='true'] {
-      border-style: double;
-    }
-  }
 </style>

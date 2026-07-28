@@ -15,6 +15,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch05-autoregressive-examples/diagram-trace.txt'),
   'utf8',
@@ -254,13 +258,13 @@ describe('autoregressive-examples diagram component contract', () => {
     );
     expect(source).toContain('<figure');
     expect(source).toContain('<figcaption class="course-diagram__caption">');
-    expect(source).toContain('<ol class="partition-list">');
-    expect(source).toContain('<section\n              class="partition"');
-    expect(source).toContain('<ol class="document-list">');
+    expect(source).toContain('<ol class="partition-list course-diagram__grid">');
+    expect(source).toContain('class="partition course-diagram__card-stack"');
+    expect(source).toContain('<ol class="document-list course-diagram__grid">');
     expect(source).toContain(
       '<article data-diagram-card data-diagram-box\n                        class="document"',
     );
-    expect(source).toContain('<ol class="window-list">');
+    expect(source).toContain('<ol class="window-list course-diagram__grid">');
     expect(source).toContain('data-partition={partition.name}');
     expect(source).toContain('data-document={document.id}');
     expect(source).toContain('data-window-start={window.start}');
@@ -277,7 +281,7 @@ describe('autoregressive-examples diagram component contract', () => {
     expect(source).toContain('data-diagram-scroll');
     expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('border-inline-start');
-    expect(source).toContain(':focus-visible');
+    expect(sharedStyles).toContain(':focus-visible');
     expect(source).toContain('@container course-diagram (max-width: 48rem)');
     expect(source).toContain('@media (forced-colors: active)');
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");

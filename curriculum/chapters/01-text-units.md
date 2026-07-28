@@ -2,7 +2,7 @@
 {
   "chapter_id": "01-text-units",
   "concept_id": "text-units-vocabulary-ids",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 1,
   "objective": {
     "en": "Implement and verify a reversible mapping from known Unicode scalar values to deterministic vocabulary IDs for English and Cyrillic text.",
@@ -416,7 +416,7 @@ npm --prefix site run test:e2e -- --grep 'chapter 1'
 
 The Rust gates must establish the exact vocabulary, English/Cyrillic rows,
 round-trip behavior, `<UNK>` behavior, historical contrast, and committed stdout.
-The site gates must establish paired revision-3 lessons, shared formula/source/
+The site gates must establish paired revision-5 lessons, shared formula/source/
 visualization metadata, both locale routes, responsive diagram semantics,
 localized accessible labels, working hreflang links, and static output without a
 runtime server.

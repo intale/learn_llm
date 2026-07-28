@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 7,
   "concept_id": "language-model-metrics",
   "title": "From assigned probability to perplexity",
@@ -442,8 +442,9 @@ EOS occupies the final target position of every document, and no `EOS→BOS` pai
 is introduced. Code after the displayed region serializes those results as ten
 trace records. It adds `test_selectable=no` as a literal during serialization;
 the restriction itself is enforced by `ScoredPartition`, which has no `Test`
-variant. The site parser validates and displays the finished records; it does
-not compute logarithms, exponentials, averages, or bigram probabilities.
+variant. All ten trace records therefore preserve evidence produced by those
+metric, fixture, and boundary checks; no second metric is calculated for the
+figure.
 
 <RustSource
   path="rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
@@ -452,7 +453,7 @@ not compute logarithms, exponentials, averages, or bigram probabilities.
   label="Rust source computing the two-target example and training and validation metrics, then checking that BOS is not a target, EOS is each document's final target, and no EOS-to-BOS pair was introduced; later code writes these values to the Chapter 7 trace"
 />
 
-Run the Chapter 7 program through the repository's Docker toolchain:
+Run the Chapter 7 program:
 
 ```bash
 ./course run cargo run --quiet --locked -p ch07-language-model-metrics
@@ -574,7 +575,7 @@ boundaries in sequence problems.
 </details>
 
 **Misconception check:** perplexity and mean NLL are not independent measurements.
-Perplexity is exactly $\exp(\text{mean NLL})$, so either value determines the other. The
+Perplexity is exactly $\exp(\mathcal{L})$, so either value determines the other. The
 value $1/\operatorname{PPL}$ is the constant probability that would produce the same mean NLL if
 assigned to every target. Computing perplexity does not request any additional
 probabilities from the model.

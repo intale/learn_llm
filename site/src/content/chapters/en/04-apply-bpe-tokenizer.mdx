@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 4,
   "concept_id": "reversible-byte-bpe-tokenizer",
   "title": "Applying and reversing a BPE tokenizer",
@@ -31,7 +31,7 @@
     ]
   },
   "history": {
-    "approach": "Closed whole-word vocabularies with an unknown token and byte-level fallback",
+    "approach": "From closed whole-word vocabularies with <UNK> to byte-level fallback",
     "summary": "A closed word table loses the spelling of every unseen word behind <UNK>. Sennrich, Haddow, and Birch used learned subwords to address rare words, while the GPT-2 report described UTF-8 byte-level BPE with a 256-symbol base that can cover any Unicode string. Byte coverage removes the unknown-string hole but can spend several positions on one character; this course uses its own document-boundary policy and explicit BOS/EOS layout.",
     "rust_source": "rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs"
   },
@@ -39,7 +39,7 @@
     {
       "path": "rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs",
       "region": "unknown-token-loss",
-      "purpose": "Expose how a closed whole-word table loses every unseen spelling behind one unknown ID."
+      "purpose": "Show how a fixed whole-word vocabulary loses every unseen spelling behind one unknown ID."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
@@ -64,7 +64,7 @@
     {
       "path": "rust/demos/ch04-apply-bpe-tokenizer/src/main.rs",
       "region": "chapter-output",
-      "purpose": "Print exact layout, edge-case, canonicalization, and diagram evidence."
+      "purpose": "Print the exact layout, canonicalization behavior, edge cases, and reversible diagram pipelines."
     }
   ],
   "visualization": {
@@ -217,8 +217,8 @@ not the original spelling:
 <RustSource
   path="rust/demos/ch04-apply-bpe-tokenizer/src/lib.rs"
   region="unknown-token-loss"
-  caption="A closed word table that cannot reverse an unseen spelling"
-  label="Rust functions that map unseen whole words to one unknown ID and decode only the unknown marker"
+  caption="A fixed whole-word vocabulary that cannot recover an unseen spelling"
+  label="Rust functions that map every unseen whole word to one unknown ID and decode only the literal unknown-token marker"
 />
 
 Sennrich, Haddow, and Birch's
@@ -252,7 +252,7 @@ comment. It validates the final `u32` extent and exposes the byte and merge rang
 <RustSource
   path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
   region="token-id-layout"
-  caption="Tokenizer layout version 1 and its checked ID ranges"
+  caption="Tokenizer layout version 1 with validated ID ranges"
   label="Rust constants and checked layout type for BOS, EOS, byte tokens, and merge tokens"
 />
 
@@ -304,7 +304,7 @@ trace:
 <RustSource
   path="rust/demos/ch04-apply-bpe-tokenizer/src/main.rs"
   region="chapter-output"
-  caption="Print exact tokenizer, edge-case, and visualization evidence"
+  caption="Print the tokenizer layout and edge-case results"
   label="Rust main function that freezes eight ranks and prints reversible English and Cyrillic pipelines"
 />
 
@@ -336,7 +336,7 @@ Read each pipeline downward to encode, then inspect each piece's stored bytes to
 decode. BOS and EOS are outside the content pieces. The check mark, border, text,
 and byte values all carry the equality cue, so color is never the only signal.
 The tapes are keyboard-focusable and horizontally scroll within the figure; the
-two examples stack on a narrow screen without a client script.
+two examples stack on a narrow screen.
 
 {/* chapter-section:exercises */}
 
@@ -371,7 +371,7 @@ two examples stack on a narrow screen without a client script.
   7. The BOS at document position 2 is an interior control. EOS at content
      position 1 is forbidden because content decoding accepts no control IDs.
   8. No. IDs `[257,256]` recover bytes `ff fe` exactly; strict UTF-8 conversion
-     rejects them at byte 0. Byte reversibility is the primary contract.
+     rejects them at byte 0. Exact byte recovery is the primary guarantee.
 </details>
 
 **Misconception check:** “If decoding is lossless, every valid token sequence is

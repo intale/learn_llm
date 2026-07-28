@@ -15,6 +15,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch03-learn-bpe-merges/expected.txt'),
   'utf8',
@@ -385,8 +389,15 @@ describe('learn-BPE-merges diagram component contract', () => {
     expect(source).toContain('data-diagram-scroll');
     expect(source).not.toContain('overflow-x: auto');
     expect(source).toContain('unicode-bidi: isolate');
-    expect(source).toContain(':focus-visible');
-    expect(source).toContain('@media (forced-colors: active)');
+    expect(sharedStyles).toContain(':focus-visible');
+    expect(sharedStyles).toContain('@media (forced-colors: active)');
+    expect(source).toContain('data-diagram-box');
+    expect(source).toMatch(
+      /<section\s+class="bpe-invariants"\s+data-diagram-box\s+aria-labelledby=/,
+    );
+    expect(source).not.toMatch(
+      /<section\s+class="bpe-invariants"\s+data-diagram-card/,
+    );
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseLearnBpeMergesTrace');
     expect(source).toContain('<span aria-hidden="true">◆</span>');

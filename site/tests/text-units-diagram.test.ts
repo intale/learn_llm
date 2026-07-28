@@ -15,6 +15,11 @@ import {
 
 declare const process: { cwd(): string };
 
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
+
 function contractExpectedOutput(): string {
   const source = readFileSync(
     resolve(process.cwd(), '../curriculum/chapters/01-text-units.md'),
@@ -156,9 +161,10 @@ describe('text-unit diagram component contract', () => {
     expect(source).toContain('content: "→"');
     expect(source).toContain('content: "↓"');
     expect(source).toContain('inset-inline-start: calc(100% + 0.25rem)');
-    expect(source).toContain('unicode-bidi: isolate');
+    expect(sharedStyles).toContain('unicode-bidi: isolate');
     expect(source).toContain('@container course-diagram (max-width: 44rem)');
-    expect(source).toContain('@media (forced-colors: active)');
+    expect(sharedStyles).toContain('@media (forced-colors: active)');
+    expect(source).toContain('data-diagram-box');
     expect(source).not.toContain('<script');
     expect(source).not.toContain('client:');
 

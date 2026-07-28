@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
@@ -39,8 +39,8 @@
   },
   "history": {
     "approach": {
-      "en": "Closed whole-word vocabularies with an unknown token and byte-level fallback",
-      "ru": "Закрытые словари целых слов с неизвестным токеном и побайтовое резервное кодирование"
+      "en": "From closed whole-word vocabularies with <UNK> to byte-level fallback",
+      "ru": "От закрытых словарей целых слов с токеном <UNK> к побайтовому резервному кодированию"
     },
     "summary": {
       "en": "A closed word table loses the spelling of every unseen word behind <UNK>. Sennrich, Haddow, and Birch used learned subwords to address rare words, while the GPT-2 report described UTF-8 byte-level BPE with a 256-symbol base that can cover any Unicode string. Byte coverage removes the unknown-string hole but can spend several positions on one character; this course uses its own document-boundary policy and explicit BOS/EOS layout.",
@@ -67,7 +67,7 @@
   },
   "decoder_connection": {
     "en": "The tokenizer now turns each document into one exact sequence [BOS, content..., EOS]. Chapter 5 creates shifted causal examples inside each such sequence without joining documents or partitions.",
-    "ru": "Теперь токенизатор преобразует каждый документ в отдельную последовательность [BOS, содержимое..., EOS], из которой можно без потерь восстановить исходные байты. В главе 5 пары «контекст — целевая последовательность» будут строиться только внутри каждого документа, без объединения документов и пересечения границ между выборками."
+    "ru": "Теперь токенизатор преобразует каждый документ в отдельную последовательность [BOS, содержимое..., EOS], из которой можно без потерь восстановить исходные байты. В главе 5 пары «вход — цель» будут строиться только внутри каждого документа, без объединения документов и пересечения границ обучающей, валидационной и тестовой частей корпуса."
   },
   "terminology": [
     {
@@ -117,7 +117,8 @@
     "Do not imply that every token is valid standalone UTF-8: token 258 stores bytes 20 d0, whose final byte is an incomplete lead byte until the next token contributes b0.",
     "State the guarantee in one direction only. Arbitrary valid content IDs may decode correctly but need not be the canonical output of ranked encoding.",
     "Describe the lack of PAD as this course's fixed-window scope choice, not a claim that production serving never needs padding.",
-    "The GPT-2 source supports the 256-byte base and coverage tradeoff, but its category-boundary policy differs from this course's document-barrier-only variant."
+    "The GPT-2 source supports the 256-byte base and coverage tradeoff, but its category-boundary policy differs from this course's document-barrier-only variant.",
+    "Use пары «вход — цель» for Chapter 5 input–target pairs; do not rename the input as «контекст» in this handoff."
   ],
   "acceptance_examples": [
     {
@@ -268,7 +269,9 @@ Use «восстановление байтов без потерь», «при�
 «побайтовое резервное кодирование», and «управляющий токен». Preserve all IDs,
 hex, formula notation, arrays, trace grammar, Rust names, BOS/EOS/PAD, UTF-8, and
 `<UNK>`. Do not describe an incomplete byte expansion as a character and do not
-turn this course's no-PAD scope into a universal serving recommendation.
+turn this course's no-PAD scope into a universal serving recommendation. Refer to
+Chapter 5's examples as пары «вход — цель», not «контекст — целевая
+последовательность».
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

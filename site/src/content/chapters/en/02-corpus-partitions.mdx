@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -184,10 +184,10 @@ promise explicitly for every pair of distinct roles. Only the training set may
 teach BPE merges or model parameters. Validation may later guide choices, while
 test remains sealed for the final report.
 
-This notation is necessary but not sufficient for the code contract. It says
+This notation is necessary but not sufficient for the implementation. It says
 nothing about empty roles, byte drift, unknown IDs, source order, provenance pairs,
-or whether the sample represents a broader population. Rust checks those operational
-properties separately.
+or whether the sample represents a broader population. The implementation checks
+those operational properties separately.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -321,10 +321,10 @@ region.
 
 <CorpusPartitionsDiagram labels={diagramLabels} />
 
-The diagram is built directly from the same corpus and `splits.json` used by Rust.
-It refuses duplicate, missing, unknown, reordered, or cross-provenance assignments
-during the static build. On a narrow screen the regions stack, but membership and
-source order remain unchanged.
+The diagram uses the same corpus and `splits.json` as the executable. Its data
+validation rejects duplicate, missing, unknown, reordered, or cross-provenance
+assignments. On a narrow screen the regions stack, but membership and source order
+remain unchanged.
 
 {/* chapter-section:exercises */}
 

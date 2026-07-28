@@ -6,10 +6,11 @@ per-chapter learning boundary, cumulative Rust contribution, visualization
 decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
 chapter implementation step per chapter.
 
-Chapter 1 is published at content revision 3 with language-neutral shared
-mathematics. Chapter 2 onward extends one cumulative, dependency-free Rust decoder
-until the capstone can tokenize, train, evaluate, checkpoint, and generate with a
-small causal Transformer.
+Chapters 1–7 publish one exact English/Russian locale pair per chapter. Their
+current revisions are 5, 4, 4, 4, 4, 4, and 3 respectively after the meaning-first
+language, notation, accessibility, and rendered-containment audit. Chapter 2 onward
+extends one cumulative, dependency-free Rust decoder until the capstone can
+tokenize, train, evaluate, checkpoint, and generate with a small causal Transformer.
 
 Chapter 0 is the sole orientation exception. It carries
 `chapter_kind: "orientation"`, order zero, a null formula, a null Rust plan, no

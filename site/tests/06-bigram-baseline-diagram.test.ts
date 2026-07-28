@@ -15,6 +15,10 @@ import {
 declare const process: { cwd(): string };
 
 const repositoryRoot = resolve(process.cwd(), '..');
+const sharedStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch06-bigram-baseline/diagram-trace.txt'),
   'utf8',
@@ -289,10 +293,17 @@ describe('bigram-baseline diagram component contract', () => {
     expect(source).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(source).toContain('min-width: 35rem');
     expect(source).toContain('table-layout: fixed');
-    expect(source).toContain('font-size: 0.9rem');
+    expect(sharedStyles).toContain('font-size: 0.9rem');
     expect(source).toContain('border-inline-start');
-    expect(source).toContain(':focus-visible');
-    expect(source).toContain('@media (forced-colors: active)');
+    expect(sharedStyles).toContain(':focus-visible');
+    expect(sharedStyles).toContain('@media (forced-colors: active)');
+    expect(source).toContain('data-diagram-box');
+    expect(source).toMatch(
+      /class="token-sequence course-diagram__scroll"[^>]*data-diagram-scroll/,
+    );
+    expect(source).not.toMatch(
+      /class="token-sequence course-diagram__scroll"[^>]*data-diagram-card/,
+    );
     expect(source).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(source).toContain('parseBigramBaselineTrace');
     expect(source).not.toContain('Math.random');

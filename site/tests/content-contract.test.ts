@@ -1400,7 +1400,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 32',
+      '"plan_revision": 33',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1457,10 +1457,13 @@ describe('curriculum and catalog contracts', () => {
       finalPlacement,
       'post-course locale activation plan',
     );
-    expect(deriveScheduledStepIds(finalPlacementMetadata).slice(-2)).toEqual([
-      'activate-locale-ar-eg',
-      'activate-ch00-russian-localization',
-    ]);
+    const finalPlacementStepIds = deriveScheduledStepIds(finalPlacementMetadata);
+    expect(finalPlacementStepIds.indexOf('activate-locale-ar-eg')).toBe(
+      finalPlacementStepIds.indexOf('implement-ch39-end-to-end-llm') + 1,
+    );
+    expect(finalPlacementStepIds.indexOf('activate-locale-ar-eg')).toBeLessThan(
+      finalPlacementStepIds.indexOf('activate-ch00-russian-localization'),
+    );
 
     const ambiguousPlacement = replaceOnce(
       planSource,

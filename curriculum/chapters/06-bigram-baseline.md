@@ -2,7 +2,7 @@
 {
   "chapter_id": "06-bigram-baseline",
   "concept_id": "smoothed-bigram-distribution",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 6,
   "objective": {
     "en": "Build and inspect a smoothed bigram next-token distribution by counting each transition in the original wrapped training documents exactly once.",
@@ -40,7 +40,7 @@
     },
     "summary": {
       "en": "A bigram model keeps only the current token as context and estimates the next token from observed pair counts. Maximum likelihood gives zero to an unobserved successor after a seen context and cannot normalize a context with no outgoing observations. Add-alpha smoothing makes every row defined, but distributes its extra mass uniformly and is retained here for transparency rather than strength.",
-      "ru": "Биграммная модель учитывает только текущий токен и оценивает вероятность каждого следующего токена по тому, сколько раз соответствующая пара встретилась в обучающей выборке. Если конкретное продолжение не встречалось после известного контекста, его оценка максимального правдоподобия равна нулю. Если же после текущего токена не наблюдалось ни одного продолжения, строку нельзя нормировать этим методом. Аддитивное сглаживание задаёт распределение и для такой строки: к каждому возможному продолжению добавляется одинаковая псевдочастота. В курсе этот метод используется ради прозрачности расчёта, а не потому, что считается сильным практическим методом."
+      "ru": "Биграммная модель учитывает только текущий токен и оценивает вероятность каждого следующего токена по тому, сколько раз соответствующая пара встретилась в обучающей выборке. Если конкретное продолжение не встречалось после известного контекста, его оценка максимального правдоподобия равна нулю. Если же после текущего токена не наблюдалось ни одного продолжения, строку нельзя нормировать этим методом. Аддитивное сглаживание задаёт распределение и для такой строки: к каждому возможному продолжению добавляется одинаковая псевдочастота. В курсе этот метод выбран ради прозрачности расчёта, а не из-за высокого практического качества."
     },
     "rust_contrast": "Print a zero maximum-likelihood probability for A-to-C, an undefined maximum-likelihood row for C, and the corresponding add-one probabilities from the same Rust table."
   },
@@ -89,7 +89,7 @@
 }
 ---
 
-# Chapter 06: From transition counts to a bigram model / От подсчета переходов к биграммной модели
+# Chapter 06: From transition counts to a bigram model / От подсчёта переходов к биграммной модели
 
 <!-- contract-section:scope -->
 ## Scope
