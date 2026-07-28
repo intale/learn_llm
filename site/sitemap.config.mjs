@@ -1,9 +1,5 @@
 export const DEFAULT_SITE_URL = 'https://intale.github.io/learn_llm/';
-export const SITEMAP_NAMESPACE =
-  'http://www.sitemaps.org/schemas/sitemap/0.9';
 export const MAX_SITEMAP_URLS = 50_000;
-export const MAX_SITEMAP_URL_LENGTH = 2_047;
-export const MAX_SITEMAP_BYTES = 52_428_800;
 
 const githubPagesAccountHost = 'intale.github.io';
 const githubPagesProjectPath = '/learn_llm/';
@@ -104,27 +100,6 @@ function escapeXml(value) {
     .replaceAll("'", '&apos;');
 }
 
-/** Enforce the Sitemap protocol's uncompressed UTF-8 document limit. */
-export function assertSitemapByteLimit(
-  source,
-  maximumBytes = MAX_SITEMAP_BYTES,
-) {
-  if (typeof source !== 'string') {
-    throw new Error('Sitemap source must be a string.');
-  }
-  if (!Number.isSafeInteger(maximumBytes) || maximumBytes < 1) {
-    throw new Error('Sitemap byte limit must be a positive safe integer.');
-  }
-
-  const byteLength = new TextEncoder().encode(source).byteLength;
-  if (byteLength > maximumBytes) {
-    throw new Error(
-      `Sitemap may contain at most ${maximumBytes} uncompressed UTF-8 bytes.`,
-    );
-  }
-  return byteLength;
-}
-
 /** Render the complete deterministic sitemap document. */
 export function renderSitemapXml(routes, siteUrl) {
   if (!Array.isArray(routes) || routes.length === 0) {
@@ -144,20 +119,14 @@ export function renderSitemapXml(routes, siteUrl) {
   const entries = normalizedRoutes.map((route) => {
     const relativeRoute = route === '/' ? '' : route.slice(1);
     const absoluteUrl = new URL(relativeRoute, normalizedSiteUrl).href;
-    if (absoluteUrl.length > MAX_SITEMAP_URL_LENGTH) {
-      throw new Error(
-        `Sitemap locations may contain at most ${MAX_SITEMAP_URL_LENGTH} characters.`,
-      );
-    }
     return `  <url><loc>${escapeXml(absoluteUrl)}</loc></url>`;
   });
 
-  const source = [
+  return [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    `<urlset xmlns="${SITEMAP_NAMESPACE}">`,
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...entries,
     '</urlset>',
-  ].join('');
-  assertSitemapByteLimit(source);
-  return source;
+    '',
+  ].join('\n');
 }

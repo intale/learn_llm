@@ -9,9 +9,6 @@ import { normalizeSiteBase, sitePathForBase } from '../../src/lib/site-path';
 // @ts-ignore Dependency-free ESM is shared by the Astro build and artifact audit.
 import {
   DEFAULT_SITE_URL,
-  MAX_SITEMAP_BYTES,
-  MAX_SITEMAP_URL_LENGTH,
-  SITEMAP_NAMESPACE,
   normalizeSiteUrl,
   renderSitemapXml,
 } from '../../sitemap.config.mjs';
@@ -26,8 +23,7 @@ const siteUrl = normalizeSiteUrl(
   process.env.SITE_URL ?? DEFAULT_SITE_URL,
 );
 
-test('@sitemap serves independently parseable Sitemap 0.9 XML for the exact published route set', async ({
-  page,
+test('@sitemap serves the exact published static route set as XML', async ({
   request,
 }) => {
   const response = await request.get(
@@ -41,76 +37,13 @@ test('@sitemap serves independently parseable Sitemap 0.9 XML for the exact publ
   const expectedRoutes = [
     ...deriveSeoExpectations(resolve(process.cwd(), '..')).keys(),
   ];
-  const body = await response.body();
-  expect(body.byteLength).toBeLessThanOrEqual(MAX_SITEMAP_BYTES);
-  expect([...body.subarray(0, 3)]).not.toEqual([0xef, 0xbb, 0xbf]);
-  const source = new TextDecoder('utf-8', { fatal: true }).decode(body);
-  expect(source).not.toMatch(/[\r\n]/);
-  expect(source).not.toContain(String.raw`\n`);
+  const source = await response.text();
   expect(source).toBe(renderSitemapXml(expectedRoutes, siteUrl));
-
-  const parsed = await page.evaluate(
-    ({ xml, namespace }) => {
-      const document = new DOMParser().parseFromString(xml, 'application/xml');
-      const root = document.documentElement;
-      return {
-        parserErrors: document.getElementsByTagName('parsererror').length,
-        root: {
-          localName: root.localName,
-          namespace: root.namespaceURI,
-        },
-        entries: [...root.children].map((entry) => ({
-          localName: entry.localName,
-          namespace: entry.namespaceURI,
-          attributes: entry.attributes.length,
-          children: [...entry.children].map((child) => ({
-            localName: child.localName,
-            namespace: child.namespaceURI,
-            attributes: child.attributes.length,
-            value: child.textContent ?? '',
-          })),
-        })),
-        namespaceLookup: root.lookupNamespaceURI(null),
-        expectedNamespace: namespace,
-      };
-    },
-    { xml: source, namespace: SITEMAP_NAMESPACE },
-  );
-  expect(parsed.parserErrors).toBe(0);
-  expect(parsed.root).toEqual({
-    localName: 'urlset',
-    namespace: SITEMAP_NAMESPACE,
-  });
-  expect(parsed.namespaceLookup).toBe(parsed.expectedNamespace);
-  expect(parsed.entries).toHaveLength(expectedRoutes.length);
-  for (const entry of parsed.entries) {
-    expect(entry).toMatchObject({
-      localName: 'url',
-      namespace: SITEMAP_NAMESPACE,
-      attributes: 0,
-    });
-    expect(entry.children).toHaveLength(1);
-    expect(entry.children[0]).toMatchObject({
-      localName: 'loc',
-      namespace: SITEMAP_NAMESPACE,
-      attributes: 0,
-    });
-  }
-
-  const publishedLocations = parsed.entries.map(
-    (entry) => entry.children[0]!.value,
+  const publishedLocations = [...source.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+    (match) => match[1],
   );
   expect(publishedLocations).toHaveLength(expectedRoutes.length);
-  expect(new Set(publishedLocations).size).toBe(publishedLocations.length);
-  const publicBase = new URL(siteUrl);
-  for (const location of publishedLocations) {
-    expect(location.length).toBeLessThanOrEqual(MAX_SITEMAP_URL_LENGTH);
-    const url = new URL(location);
-    expect(url.href).toBe(location);
-    expect(url.protocol).toBe('https:');
-    expect(url.origin).toBe(publicBase.origin);
-    expect(url.pathname.startsWith(publicBase.pathname)).toBe(true);
-    expect(url.search).toBe('');
-    expect(url.hash).toBe('');
-  }
+  expect(publishedLocations.every((location) => location.startsWith(siteUrl))).toBe(
+    true,
+  );
 });

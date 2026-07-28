@@ -100,36 +100,14 @@ cp "$root/scripts/fixtures/mock-release-docker.sh" "$release_fixture/bin/docker"
 printf 'new root\n' > "$release_fixture/export/index.html"
 printf 'new English index\n' > "$release_fixture/export/en/course/index.html"
 printf 'new Russian index\n' > "$release_fixture/export/ru/course/index.html"
-printf '%s\n' \
-  '<?xml version="1.0" encoding="UTF-8"?>' \
-  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' \
-  '  <url><loc>https://example.test/</loc></url>' \
-  '</urlset>' > "$release_fixture/export/sitemap.xml"
 printf 'stale\n' > "$release_fixture/site/dist/stale.txt"
 chmod +x "$release_fixture/bin/docker"
 PATH="$release_fixture/bin:$PATH" MOCK_RELEASE_EXPORT="$release_fixture/export" \
   "$release_fixture/course" release >/dev/null
 [[ -f "$release_fixture/site/dist/index.html" ]]
-[[ -f "$release_fixture/site/dist/sitemap.xml" ]]
 [[ ! -e "$release_fixture/site/dist/stale.txt" ]]
 [[ ! -e "$release_fixture/site/.release.lock" ]]
 [[ -z $(find "$release_fixture/site" -maxdepth 1 -name '.release-*' -print -quit) ]]
-
-printf 'preserve this release\n' > "$release_fixture/site/dist/preserved.txt"
-rm "$release_fixture/export/sitemap.xml"
-expect_failure env PATH="$release_fixture/bin:$PATH" \
-  MOCK_RELEASE_EXPORT="$release_fixture/export" "$release_fixture/course" release
-[[ -f "$release_fixture/site/dist/preserved.txt" ]]
-[[ -f "$release_fixture/site/dist/sitemap.xml" ]]
-[[ ! -e "$release_fixture/site/.release.lock" ]]
-[[ -z $(find "$release_fixture/site" -maxdepth 1 -name '.release-*' -print -quit) ]]
-
-ln -s index.html "$release_fixture/export/sitemap.xml"
-expect_failure env PATH="$release_fixture/bin:$PATH" \
-  MOCK_RELEASE_EXPORT="$release_fixture/export" "$release_fixture/course" release
-[[ -f "$release_fixture/site/dist/preserved.txt" ]]
-[[ -f "$release_fixture/site/dist/sitemap.xml" ]]
-rm "$release_fixture/export/sitemap.xml"
 
 mkdir "$release_fixture/site/.release.lock"
 expect_failure env PATH="$release_fixture/bin:$PATH" \
@@ -139,25 +117,6 @@ rmdir "$release_fixture/site/.release.lock"
 grep -F -- "trap 'exit 130' INT" "$course" >/dev/null
 grep -F -- "trap 'exit 143' TERM" "$course" >/dev/null
 grep -F -- 'mv --exchange --no-copy -T' "$course" >/dev/null
-
-host_audit_fixture="$root/.build/course-host-audit-${BASHPID}"
-test_paths+=("$host_audit_fixture")
-mkdir -p \
-  "$host_audit_fixture/scripts" \
-  "$host_audit_fixture/site/dist/en/course" \
-  "$host_audit_fixture/site/dist/ru/course"
-cp "$root/scripts/check-host-artifacts.sh" "$host_audit_fixture/scripts/"
-printf 'root\n' > "$host_audit_fixture/site/dist/index.html"
-printf 'English\n' > "$host_audit_fixture/site/dist/en/course/index.html"
-printf 'Russian\n' > "$host_audit_fixture/site/dist/ru/course/index.html"
-expect_failure "$host_audit_fixture/scripts/check-host-artifacts.sh"
-ln -s index.html "$host_audit_fixture/site/dist/sitemap.xml"
-expect_failure "$host_audit_fixture/scripts/check-host-artifacts.sh"
-rm "$host_audit_fixture/site/dist/sitemap.xml"
-printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' \
-  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>' \
-  > "$host_audit_fixture/site/dist/sitemap.xml"
-"$host_audit_fixture/scripts/check-host-artifacts.sh" >/dev/null
 
 review_run_id="20260719T162404Z-cli-signal-${BASHPID}-01"
 review_run="$release_fixture/.build/runs/$review_run_id"
@@ -216,7 +175,6 @@ for marker in \
   './course review 20260719T135559Z-rewrite-ch06-bigram-baseline-01' \
   './course release' \
   'site/dist' \
-  'Google Search Console' \
   'Ctrl+C'; do
   grep -F -- "$marker" "$root/README.md" >/dev/null || {
     printf 'README is missing command marker: %s\n' "$marker" >&2

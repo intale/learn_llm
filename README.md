@@ -84,8 +84,8 @@ Create a deployable static tree at `site/dist`:
 The command builds the canonical deployable image used by `./course build`; it
 never includes an unpublished `.build` candidate. It copies that image's document
 root into a temporary sibling directory, verifies the localized indexes, and
-verifies the root `sitemap.xml` before atomically exchanging it with `site/dist`.
-Releasing again removes stale files from an older build.
+atomically exchanges it with `site/dist`. Releasing again removes stale files
+from an older build.
 
 Deploy the **contents** of `site/dist/` at the host's URL root. The static host
 must support directory `index.html` routes. Do not open
@@ -125,32 +125,6 @@ repository is involved. The workflow uses only the current repository's scoped
 this deployment. If this repository is renamed, its default Pages URL changes;
 the workflow derives the new project base from GitHub rather than hard-coding
 `/learn_llm/`.
-
-### Submit the sitemap to Google Search Console
-
-Sitemaps are submitted in **Google Search Console**, not Google Analytics. Search
-Console records the sitemap's URL; it does not upload the local file. The complete
-public URL for this project is:
-
-```text
-https://intale.github.io/learn_llm/sitemap.xml
-```
-
-Enter the value that matches the selected URL-prefix property:
-
-- for `https://intale.github.io/learn_llm/`, enter `sitemap.xml`;
-- for `https://intale.github.io/`, enter `learn_llm/sitemap.xml`.
-
-In either case, confirm that Search Console displays the complete URL above. Do
-not submit `https://intale.github.io/sitemap.xml`; that is the account-root path,
-not this GitHub Pages project sitemap.
-
-If Search Console reports that it could not process the sitemap, inspect the
-complete URL with **URL inspection → Test live URL**. Confirm that crawling is
-allowed and the page fetch succeeds, then resubmit it in the **Sitemaps** report.
-The generated release and Pages workflow both require `sitemap.xml`, and the
-repository's browser check independently parses its compact, line-break-free
-UTF-8 Sitemap 0.9 XML.
 
 ## Run a Rust example
 
