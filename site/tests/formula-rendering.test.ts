@@ -5,6 +5,12 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import type { Locale } from "../src/i18n";
+import {
+  activeLocalesForChapter,
+  chapterLocaleConfiguration,
+} from "../src/lib/chapter-locales";
+
 declare const process: { cwd(): string };
 
 const chapter00Files = ["00-llm-parts.mdx"] as const;
@@ -54,12 +60,18 @@ const chapter14To39Files = [
   "39-end-to-end-llm.mdx",
 ] as const;
 const locales = ["en", "ru"] as const;
+const chapter08To13ActiveLessons = chapter08To13Files.flatMap((file) =>
+  activeLocalesForChapter(file.slice(0, -".mdx".length)).map((locale) => ({
+    file,
+    locale,
+  })),
+);
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
 const componentRoot = resolve(process.cwd(), "src/components");
 const packageManifestPath = resolve(process.cwd(), "package.json");
 const packageLockPath = resolve(process.cwd(), "package-lock.json");
 
-function readChapter(locale: (typeof locales)[number], file: string): string {
+function readChapter(locale: Locale, file: string): string {
   return readFileSync(resolve(chapterRoot, locale, file), "utf8");
 }
 
@@ -856,47 +868,50 @@ describe("Chapter 1-7 formula-source contract", () => {
 describe("Chapter 8-13 formula-source contract", () => {
   it("routes every audited expression through math markup and rejects the former code styling", () => {
     const reviewed: string[] = [];
-    for (const file of chapter08To13Files) {
-      const source = readChapter("en", file);
+    for (const { file, locale } of chapter08To13ActiveLessons) {
+      const source = readChapter(locale, file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
-      reviewed.push(file);
+      reviewed.push(`${locale}/${file}`);
 
-      expect(display.length, `${file} display math`).toBeGreaterThan(0);
-      expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
+      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(0);
+      expect(inline.length, `${locale}/${file} inline math`).toBeGreaterThan(0);
       for (const fragment of requiredChapter08To13Math[chapter] ?? []) {
-        expect(body, `${file} must retain ${fragment}`).toContain(fragment);
+        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
       for (const oldExpression of formerChapter08To13MathCodeSpans) {
         expect(
           code,
-          `${file} still styles ${oldExpression} as code`,
+          `${locale}/${file} still styles ${oldExpression} as code`,
         ).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
       for (const pattern of rawChapter08To13FormulaPatterns) {
-        expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
-          pattern,
-        );
+        expect(
+          prose,
+          `${locale}/${file} contains raw formula ${pattern}`,
+        ).not.toMatch(pattern);
       }
     }
 
-    expect(reviewed).toEqual(chapter08To13Files);
+    expect(reviewed).toEqual(
+      chapter08To13ActiveLessons.map(({ file, locale }) => `${locale}/${file}`),
+    );
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
     const seen = new Set<string>();
-    for (const file of chapter08To13Files) {
-      for (const value of inlineCode(readChapter("en", file))) {
+    for (const { file, locale } of chapter08To13ActiveLessons) {
+      for (const value of inlineCode(readChapter(locale, file))) {
         const allowance = documentedChapter08To13Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
           allowance?.name,
-          `${file} has an undocumented code span after the formula audit: \`${value}\``,
+          `${locale}/${file} has an undocumented code span after the formula audit: \`${value}\``,
         ).toBeTruthy();
         if (allowance) seen.add(allowance.name);
       }
@@ -909,7 +924,7 @@ describe("Chapter 8-13 formula-source contract", () => {
 });
 
 describe("Chapter 14-39 formula-source contract", () => {
-  it("completes the source audit for all 48 published localized lessons", () => {
+  it("completes the source audit for every published localized lesson", () => {
     const reviewed: string[] = [];
     for (const file of chapter14To39Files) {
       const source = readChapter("en", file);
@@ -949,9 +964,14 @@ describe("Chapter 14-39 formula-source contract", () => {
     expect(
       chapter00Files.length * locales.length +
         chapterFiles.length * locales.length +
-        chapter08To13Files.length +
+        chapter08To13ActiveLessons.length +
         reviewed.length,
-    ).toBe(48);
+    ).toBe(
+      chapterLocaleConfiguration.chapters.reduce(
+        (count, chapter) => count + chapter.activeLocales.length,
+        0,
+      ),
+    );
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {

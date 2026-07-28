@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import chapterLocaleManifest from "../../src/i18n/chapter-locales.json" with {
+  type: "json",
+};
 import { expectNoOverflowOrClientScripts } from "./chapter-helpers";
 
 const chapterIds = [
@@ -19,6 +22,15 @@ const chapter08To13Ids = [
   "12-stable-softmax",
   "13-gradient-checking",
 ] as const;
+const chapter08To13Routes = chapter08To13Ids.flatMap((chapterId) => {
+  const chapter = chapterLocaleManifest.chapters.find(
+    (candidate) => candidate.chapterId === chapterId,
+  );
+  if (!chapter) {
+    throw new Error(`Chapter-locale configuration has no ${chapterId} entry.`);
+  }
+  return chapter.activeLocales.map((locale) => ({ chapterId, locale }));
+});
 const englishOnlyFormulaChapterIds = [
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
@@ -731,12 +743,12 @@ test.describe("@formula-rendering:ch01-ch07 rendered formula contract", () => {
 
 test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of chapter08To13Ids) {
-      test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
+    for (const { chapterId, locale } of chapter08To13Routes) {
+      test(`${viewportName} ${locale}/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
         await page.setViewportSize(viewport);
-        const response = await page.goto(`/en/course/${chapterId}/`);
+        const response = await page.goto(`/${locale}/course/${chapterId}/`);
         expect(response?.ok()).toBe(true);
         await expect(page.locator("article.lesson")).toBeVisible();
         await expectCompatibleKatexLayout(page);
@@ -746,7 +758,7 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
         const mathCount = await math.count();
         expect(
           mathCount,
-          `${chapterId} should render formulas`,
+          `${locale}/${chapterId} should render formulas`,
         ).toBeGreaterThan(0);
         await expect(
           page.locator(
@@ -766,7 +778,7 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
         for (const fragment of chapter08To13Latex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
-            `${chapterId} should render ${fragment}`,
+            `${locale}/${chapterId} should render ${fragment}`,
           ).toBe(true);
         }
 

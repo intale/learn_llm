@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 33,
-  "policyId": "selective-russian-through-chapter-07",
+  "planRevision": 34,
+  "policyId": "selective-russian-through-chapter-08",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -13,7 +13,7 @@
     { "chapterId": "05-autoregressive-examples", "order": 5, "activeLocales": ["en", "ru"] },
     { "chapterId": "06-bigram-baseline", "order": 6, "activeLocales": ["en", "ru"] },
     { "chapterId": "07-language-model-metrics", "order": 7, "activeLocales": ["en", "ru"] },
-    { "chapterId": "08-tensor-storage", "order": 8, "activeLocales": ["en"] },
+    { "chapterId": "08-tensor-storage", "order": 8, "activeLocales": ["en", "ru"] },
     { "chapterId": "09-tensor-views", "order": 9, "activeLocales": ["en"] },
     { "chapterId": "10-broadcasting-reductions", "order": 10, "activeLocales": ["en"] },
     { "chapterId": "11-matrix-multiplication", "order": 11, "activeLocales": ["en"] },

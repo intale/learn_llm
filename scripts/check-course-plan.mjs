@@ -234,6 +234,88 @@ function scalarField(step, field) {
   return match ? unquoteYamlScalar(match[1]) : null;
 }
 
+function lessonOwnershipForChapter(step, chapter, chapters) {
+  const lessonPrefix = "site/src/content/chapters/";
+  const lessonSuffix = `/${chapter.chapter_id}.mdx`;
+  const outputLocales = (listField(step, "outputs") ?? [])
+    .filter(
+      (output) =>
+        output.startsWith(lessonPrefix) && output.endsWith(lessonSuffix),
+    )
+    .map((output) =>
+      output.slice(lessonPrefix.length, -lessonSuffix.length),
+    );
+
+  const chapterIndex = chapters.findIndex(
+    (candidate) => candidate.chapter_id === chapter.chapter_id,
+  );
+  const validationPattern =
+    /^npm --prefix site run check:chapter -- --locale ([^\s]+) --chapter ([^\s]+)(?: through ([^\s]+))?$/;
+  const validationLocales = [];
+  for (const recordedCommand of listField(step, "validate") ?? []) {
+    const command = recordedCommand.startsWith("./course run ")
+      ? recordedCommand.slice("./course run ".length)
+      : recordedCommand;
+    const match = command.match(validationPattern);
+    if (!match) {
+      continue;
+    }
+    const [, localeExpression, firstChapterId, lastChapterId] = match;
+    const firstIndex = chapters.findIndex(
+      (candidate) => candidate.chapter_id === firstChapterId,
+    );
+    const lastIndex = lastChapterId
+      ? chapters.findIndex(
+          (candidate) => candidate.chapter_id === lastChapterId,
+        )
+      : firstIndex;
+    if (
+      firstIndex === -1 ||
+      lastIndex < firstIndex ||
+      chapterIndex < firstIndex ||
+      chapterIndex > lastIndex
+    ) {
+      continue;
+    }
+    validationLocales.push(...localeExpression.split("|"));
+  }
+
+  return { outputLocales, validationLocales };
+}
+
+function validateLessonOwnership(
+  step,
+  chapter,
+  chapters,
+  statePath,
+  required = false,
+) {
+  const ownership = lessonOwnershipForChapter(step, chapter, chapters);
+  const ownsChapterLesson =
+    ownership.outputLocales.length > 0 ||
+    ownership.validationLocales.length > 0;
+  if (!required && !ownsChapterLesson) {
+    return null;
+  }
+  assert(
+    ownership.outputLocales.length > 0 &&
+      new Set(ownership.outputLocales).size === ownership.outputLocales.length,
+    `${statePath}: ${step.id} must own exactly one lesson output per declared locale for ${chapter.chapter_id}`,
+  );
+  assert(
+    ownership.validationLocales.length > 0 &&
+      new Set(ownership.validationLocales).size ===
+        ownership.validationLocales.length,
+    `${statePath}: ${step.id} must declare exactly one lesson check per owned locale for ${chapter.chapter_id}`,
+  );
+  assert(
+    JSON.stringify([...ownership.validationLocales].sort()) ===
+      JSON.stringify([...ownership.outputLocales].sort()),
+    `${statePath}: ${step.id} lesson outputs and per-locale checks differ for ${chapter.chapter_id}`,
+  );
+  return ownership.outputLocales;
+}
+
 export function validateCoursePlanText(
   source,
   path = "curriculum/course-plan.md",
@@ -784,20 +866,22 @@ export function validateLedgerText(
     ]) {
       assert(outputs.includes(required), `${statePath}: ${step.id} does not own ${required}`);
     }
-    const lessonPrefix = "site/src/content/chapters/";
-    const lessonSuffix = `/${id}.mdx`;
-    const outputLocales = outputs
-      .filter(
-        (output) =>
-          output.startsWith(lessonPrefix) && output.endsWith(lessonSuffix),
-      )
-      .map((output) =>
-        output.slice(lessonPrefix.length, -lessonSuffix.length),
-      );
+    const implementationLocales = validateLessonOwnership(
+      step,
+      chapter,
+      metadata.chapters,
+      statePath,
+      true,
+    );
     assert(
-      outputLocales.length > 0 &&
-        new Set(outputLocales).size === outputLocales.length,
-      `${statePath}: ${step.id} must own exactly one lesson output per declared locale`,
+      implementationLocales.includes(localeConfiguration.defaultLocale),
+      `${statePath}: ${step.id} must own the reference locale ${localeConfiguration.defaultLocale} for ${id}`,
+    );
+    assert(
+      implementationLocales.every((locale) =>
+        chapter.active_locales.includes(locale),
+      ),
+      `${statePath}: ${step.id} must not own a locale outside the chapter-active locales ${chapter.active_locales.join(", ")}`,
     );
     if (chapter.primary_module) {
       const cumulativeSource =
@@ -831,27 +915,22 @@ export function validateLedgerText(
     ]) {
       assert(validation.includes(required), `${statePath}: ${step.id} is missing validation "${required}"`);
     }
-    const validationPrefix =
-      "npm --prefix site run check:chapter -- --locale ";
-    const validationSuffix = ` --chapter ${id}`;
-    const validationLocales = validation
-      .filter(
-        (command) =>
-          command.startsWith(validationPrefix) &&
-          command.endsWith(validationSuffix),
-      )
-      .map((command) =>
-        command.slice(validationPrefix.length, -validationSuffix.length),
+    const aggregateLocales = new Set(implementationLocales);
+    for (const standaloneStep of standaloneSteps) {
+      const standaloneLocales = validateLessonOwnership(
+        standaloneStep,
+        chapter,
+        metadata.chapters,
+        statePath,
       );
+      for (const locale of standaloneLocales ?? []) {
+        aggregateLocales.add(locale);
+      }
+    }
     assert(
-      JSON.stringify([...validationLocales].sort()) ===
-        JSON.stringify([...outputLocales].sort()),
-      `${statePath}: ${step.id} lesson outputs and per-locale checks differ`,
-    );
-    assert(
-      JSON.stringify([...outputLocales].sort()) ===
+      JSON.stringify([...aggregateLocales].sort()) ===
         JSON.stringify([...chapter.active_locales].sort()),
-      `${statePath}: ${step.id} lesson outputs must match chapter-active locales ${chapter.active_locales.join(", ")}`,
+      `${statePath}: scheduled lesson ownership for ${id} must match chapter-active locales ${chapter.active_locales.join(", ")}`,
     );
   }
 

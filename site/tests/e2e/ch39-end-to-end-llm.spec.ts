@@ -416,7 +416,7 @@ test.describe(
   "chapter 39 end-to-end LLM vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 39 while Russian remains complete through Chapter 7", async ({
+    test("English publishes Chapter 39 while its Russian route remains deferred", async ({
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
@@ -425,7 +425,15 @@ test.describe(
         expect.objectContaining({ chapterId, order: 39, title: chapterTitle }),
       );
       const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian).toHaveLength(7);
+      expect(russian.length).toBeGreaterThan(0);
+      const lastRussianChapter = russian[russian.length - 1]!;
+      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
+      await expectOrderedChapterNavigation(
+        page,
+        "ru",
+        lastRussianChapter.chapterId,
+        russian,
+      );
       expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
         false,
       );

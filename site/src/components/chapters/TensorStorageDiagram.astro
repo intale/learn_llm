@@ -57,10 +57,14 @@ const selected = trace.coordinate.map(({ value }) => value);
     </dl>
   </figcaption>
 
-  <section class="diagram-panel slice-panel" aria-labelledby={`${instanceId}-slices-title`}>
+  <section
+    class="diagram-panel slice-panel"
+    aria-labelledby={`${instanceId}-slices-title`}
+    data-diagram-box
+  >
     <h4 id={`${instanceId}-slices-title`}>{labels.sections.slices}</h4>
     <p>{labels.notes.slices}</p>
-    <ol class="slice-list">
+    <ol class="slice-list course-diagram__grid">
       {trace.slices.map((slice) => (
         <li data-slice-axis0={slice.axis0.lexeme}>
           <div
@@ -68,7 +72,8 @@ const selected = trace.coordinate.map(({ value }) => value);
             role="region"
             tabindex="0"
             aria-label={`${labels.fields.slice} ${slice.axis0.lexeme}`}
-           data-diagram-scroll>
+            data-diagram-scroll
+          >
             <table data-diagram-table>
               <caption>
                 {labels.fields.slice}{' '}
@@ -120,6 +125,7 @@ const selected = trace.coordinate.map(({ value }) => value);
     class="diagram-panel calculation-panel"
     data-coordinate={trace.coordinate.map(({ lexeme }) => lexeme).join(',')}
     aria-labelledby={`${instanceId}-calculation-title`}
+    data-diagram-box
   >
     <h4 id={`${instanceId}-calculation-title`}>{labels.sections.calculation}</h4>
     <p>{labels.notes.calculation}</p>
@@ -129,7 +135,7 @@ const selected = trace.coordinate.map(({ value }) => value);
     </p>
     <ol class="term-list" aria-label={labels.sections.calculation}>
       {trace.terms.map((term) => (
-        <li data-term-axis={term.axis.lexeme}>
+        <li data-diagram-card data-diagram-box data-term-axis={term.axis.lexeme}>
           <span class="visually-hidden">{labels.fields.contribution}: </span>
           <span data-contribution={term.contribution.lexeme}>
             <InlineMath
@@ -145,7 +151,11 @@ const selected = trace.coordinate.map(({ value }) => value);
     </dl>
   </section>
 
-  <section class="diagram-panel buffer-panel" aria-labelledby={`${instanceId}-buffer-title`}>
+  <section
+    class="diagram-panel buffer-panel"
+    aria-labelledby={`${instanceId}-buffer-title`}
+    data-diagram-box
+  >
     <h4 id={`${instanceId}-buffer-title`}>{labels.sections.buffer}</h4>
     <p>{labels.notes.buffer}</p>
     <div
@@ -153,12 +163,18 @@ const selected = trace.coordinate.map(({ value }) => value);
       role="region"
       tabindex="0"
       aria-labelledby={`${instanceId}-buffer-title`}
-     data-diagram-scroll>
-      <ol class="flat-buffer" start="0">
+      data-diagram-scroll
+    >
+      <ol class="flat-buffer course-diagram__grid" start="0">
         {trace.buffer.map((value, offset) => {
           const isSelected = offset === trace.lookup.offset.value;
           return (
-            <li data-buffer-offset={offset} data-selected={isSelected ? 'true' : undefined}>
+            <li
+              data-diagram-card
+              data-diagram-box
+              data-buffer-offset={offset}
+              data-selected={isSelected ? 'true' : undefined}
+            >
               <span class="offset-label">{labels.fields.offset} <bdi dir="ltr">{offset}</bdi></span>
               {isSelected && (
                 <>
@@ -177,7 +193,9 @@ const selected = trace.coordinate.map(({ value }) => value);
   <section
     class="diagram-panel bounds-panel"
     data-status={trace.bounds.status}
+    data-state="rejected"
     aria-labelledby={`${instanceId}-bounds-title`}
+    data-diagram-box
   >
     <h4 id={`${instanceId}-bounds-title`}>{labels.sections.bounds}</h4>
     <p>{labels.notes.bounds}</p>
@@ -191,30 +209,6 @@ const selected = trace.coordinate.map(({ value }) => value);
 </figure>
 
 <style>
-  .tensor-storage-diagram {
-    --diagram-border: color-mix(in srgb, currentColor 24%, transparent);
-    --diagram-surface: color-mix(in srgb, currentColor 5%, transparent);
-    display: grid;
-    gap: 1rem;
-    max-width: 100%;
-    margin-block: 1.5rem;
-    padding: clamp(0.9rem, 3vw, 1.5rem);
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.85rem;
-  }
-
-  .tensor-storage-diagram:focus-visible,
-  .table-scroll:focus-visible,
-  .buffer-scroll:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  figcaption p,
-  .diagram-panel h4,
-  .diagram-panel > p { margin-block-start: 0; }
-
   .summary-facts,
   .lookup-result,
   .bounds-facts {
@@ -227,23 +221,9 @@ const selected = trace.coordinate.map(({ value }) => value);
   .summary-facts div,
   .lookup-result div,
   .bounds-facts div { display: flex; gap: 0.4rem; align-items: baseline; }
-  dt { font-weight: 700; }
-  dd { margin: 0; }
-
-  .diagram-panel {
-    min-width: 0;
-    padding: 1rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.65rem;
-    background: var(--diagram-surface);
-  }
 
   .slice-list {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
-    padding: 0;
-    list-style: none;
   }
 
   .table-scroll,
@@ -254,13 +234,12 @@ const selected = trace.coordinate.map(({ value }) => value);
   table {
     width: 100%;
     min-width: 27rem;
-    border-collapse: collapse;
     table-layout: fixed;
   }
 
-  caption { padding-block-end: 0.5rem; font-weight: 700; text-align: start; }
+  caption { padding-block-end: 0.5rem; text-align: start; }
   th,
-  td { padding: 0.55rem; border: 1px solid var(--diagram-border); text-align: center; }
+  td { text-align: center; }
   th:first-child { text-align: start; }
 
   [data-selected='true'] {
@@ -279,32 +258,70 @@ const selected = trace.coordinate.map(({ value }) => value);
   }
 
   .term-list li {
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--diagram-border);
-    border-radius: 0.45rem;
+    display: grid;
+    place-items: center;
   }
 
   .lookup-result { margin-block-start: 1rem; }
 
   .flat-buffer {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(4.25rem, 1fr));
-    min-width: 55rem;
+    grid-template-columns: repeat(12, minmax(6.5rem, 1fr));
+    min-width: 78rem;
+    gap: 0;
     margin: 0;
-    padding: 0.4rem;
-    list-style: none;
   }
 
   .flat-buffer li {
+    position: relative;
     display: grid;
     place-items: center;
     min-height: 4.5rem;
-    padding: 0.4rem;
-    border: 1px solid var(--diagram-border);
   }
 
-  .offset-label { font-size: 0.75rem; }
+  .flat-buffer .selection-marker {
+    position: absolute;
+    inset-block-start: 0.25rem;
+    inset-inline-end: 0.35rem;
+    margin: 0;
+  }
+
+  .offset-label {
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+  }
+
   .bounds-panel { border-style: dashed; }
+
+  .tensor-storage-diagram:fullscreen {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .tensor-storage-diagram:fullscreen > figcaption {
+    grid-column: 1 / -1;
+  }
+
+  .tensor-storage-diagram:fullscreen > .slice-panel {
+    grid-column: 1 / 5;
+  }
+
+  .tensor-storage-diagram:fullscreen > .calculation-panel {
+    grid-column: 5 / -1;
+  }
+
+  .tensor-storage-diagram:fullscreen > .buffer-panel {
+    grid-column: 1 / 5;
+  }
+
+  .tensor-storage-diagram:fullscreen > .bounds-panel {
+    grid-column: 5 / -1;
+  }
+
+  .tensor-storage-diagram:fullscreen .flat-buffer {
+    grid-template-columns: repeat(6, minmax(6.5rem, 1fr));
+    min-width: 39rem;
+  }
 
   .visually-hidden {
     position: absolute;
@@ -318,23 +335,10 @@ const selected = trace.coordinate.map(({ value }) => value);
     border: 0;
   }
 
-  code,
-  bdi { direction: ltr; unicode-bidi: isolate; }
-
   @container course-diagram (max-width: 48rem) {
     .slice-list { grid-template-columns: minmax(0, 1fr); }
     .summary-facts,
     .lookup-result,
     .bounds-facts { display: grid; }
-  }
-
-  @media (forced-colors: active) {
-    .tensor-storage-diagram,
-    .diagram-panel,
-    th,
-    td,
-    .term-list li,
-    .flat-buffer li { border-color: CanvasText; }
-    [data-selected='true'] { border-color: Highlight; }
   }
 </style>

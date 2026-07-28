@@ -2,36 +2,43 @@
 {
   "chapter_id": "08-tensor-storage",
   "concept_id": "row-major-tensor-storage",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 8,
   "objective": {
-    "en": "Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets."
+    "en": "Store a multidimensional tensor in one flat value buffer and map valid coordinates to deterministic offsets.",
+    "ru": "Хранить многомерный тензор в одном плоском буфере значений и по допустимым координатам однозначно вычислять смещения."
   },
   "worked_inputs": {
-    "en": "For shape [2,2,3], row-major strides [6,3,1], and flat values [10,11,12,20,21,22,30,31,32,40,41,42], first predict the offset and value at coordinate [1,0,2], then identify why [1,2,0] is invalid. The checked coordinate contributes 1×6, 0×3, and 2×1, so its offset is 8 and its value is 32; the invalid coordinate fails at axis 1 because index 2 equals that axis's size 2."
+    "en": "For shape [2,2,3], row-major strides [6,3,1], and flat values [10,11,12,20,21,22,30,31,32,40,41,42], first predict the offset and value at coordinate [1,0,2], then identify why [1,2,0] is invalid. The checked coordinate contributes 1×6, 0×3, and 2×1, so its offset is 8 and its value is 32; the invalid coordinate fails at axis 1 because index 2 equals that axis's size 2.",
+    "ru": "Для формы [2,2,3], построчных шагов [6,3,1] и плоского буфера [10,11,12,20,21,22,30,31,32,40,41,42] сначала предскажите смещение и значение для координаты [1,0,2], а затем объясните, почему координата [1,2,0] недопустима. После проверки координаты её вклады равны 1×6, 0×3 и 2×1, поэтому смещение равно 8, а значение — 32. Вторая координата отклоняется на оси 1: индекс 2 равен размеру этой оси, а допустимый индекс должен быть меньше 2."
   },
   "formula": {
     "latex": "\\operatorname{offset}(i_0,\\ldots,i_{d-1})=\\sum_{k=0}^{d-1} i_k s_k",
     "symbols": [
       {
         "symbol": "\\operatorname{offset}",
-        "en": "the zero-based position in the flat data buffer for one valid coordinate"
+        "en": "the zero-based position in the flat data buffer for one valid coordinate",
+        "ru": "позиция в плоском буфере данных, отсчитываемая от нуля и соответствующая одной допустимой координате"
       },
       {
         "symbol": "d",
-        "en": "the tensor rank, equal to the number of axes and shape entries"
+        "en": "the tensor rank, equal to the number of axes and shape entries",
+        "ru": "ранг тензора, равный числу осей и числу элементов в описании формы"
       },
       {
         "symbol": "i_k",
-        "en": "the zero-based coordinate on axis k, constrained to be less than that axis's extent"
+        "en": "the zero-based coordinate on axis k, constrained to be less than that axis's extent",
+        "ru": "индекс координаты на оси k, отсчитываемый от нуля и обязательно меньший размера этой оси"
       },
       {
         "symbol": "k",
-        "en": "the zero-based axis index, ranging from 0 through d-1"
+        "en": "the zero-based axis index, ranging from 0 through d-1",
+        "ru": "номер оси, отсчитываемый от нуля и принимающий значения от 0 до d−1"
       },
       {
         "symbol": "s_k",
-        "en": "the row-major element stride for axis k, equal to the checked product of all later extents"
+        "en": "the row-major element stride for axis k, equal to the checked product of all later extents",
+        "ru": "построчный шаг по оси k, измеряемый в элементах и равный произведению размеров всех последующих осей с проверкой переполнения"
       }
     ]
   },
@@ -39,13 +46,16 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "The Chapter 6 bigram gives each current-token and next-token pair its own count and uses only one token of context, so it cannot share evidence through learned word similarity."
+        "en": "The Chapter 6 bigram gives each current-token and next-token pair its own count and uses only one token of context, so it cannot share evidence through learned word similarity.",
+        "ru": "Биграммная модель из главы 6 хранит отдельный счётчик для каждой пары текущего и следующего токенов и учитывает только один токен контекста, поэтому она не умеет обобщать статистические закономерности между словами благодаря сходству, выученному моделью."
       },
       "later_advance": {
-        "en": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction. Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs."
+        "en": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction. Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs.",
+        "ru": "Бенжио и соавторы описывают n-граммные модели как таблицы условных вероятностей с коротким контекстом, которые не используют сходство слов, а затем вводят нейронную языковую модель с матрицей C размера «словарь × ширина признакового представления», содержащей обучаемые признаки слов, и матрицами параметров для предсказания следующего слова. Позднее Васвани и соавторы объединяют одновременно обрабатываемые запросы, ключи и значения в матрицы Q, K и V и с помощью обучаемых проекций параллельно вычисляют несколько голов внимания, после чего конкатенируют их выходы."
       },
       "modern_llm_role": {
-        "en": "Explicit tensor shapes let this course represent embeddings, learned weights, activations, and attention intermediates in the cumulative decoder; the single contiguous row-major buffer is a local implementation policy, not a requirement of either paper."
+        "en": "Explicit tensor shapes let this course represent embeddings, learned weights, activations, and attention intermediates in the cumulative decoder; the single contiguous row-major buffer is a local implementation policy, not a requirement of either paper.",
+        "ru": "Явно заданные формы тензоров позволяют представить эмбеддинги, обучаемые веса, активации и промежуточные результаты внимания в постепенно расширяемой реализации декодера. Один непрерывный буфер с построчным хранением — локальное решение этого курса, а не требование какой-либо из двух статей."
       },
       "sources": [
         {
@@ -54,7 +64,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction."
+            "en": "Bengio et al. describe n-gram models as short-context conditional-probability tables that do not use word similarity, then define a neural language model with a vocabulary-size-by-feature-width matrix C of learned word features and neural parameter matrices for next-word prediction.",
+            "ru": "Бенжио и соавторы описывают n-граммные модели как таблицы условных вероятностей с коротким контекстом, которые не используют сходство слов, а затем вводят нейронную языковую модель с матрицей C размера «словарь × ширина признакового представления», содержащей обучаемые признаки слов, и матрицами параметров для предсказания следующего слова."
           }
         },
         {
@@ -63,16 +74,19 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf",
           "claim": {
-            "en": "Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs."
+            "en": "Vaswani et al. later pack simultaneous queries, keys, and values into matrices Q, K, and V and use learned projections to run multiple attention heads in parallel before concatenating their outputs.",
+            "ru": "Позднее Васвани и соавторы объединяют одновременно обрабатываемые запросы, ключи и значения в матрицы Q, K и V и с помощью обучаемых проекций параллельно вычисляют несколько голов внимания, после чего конкатенируют их выходы."
           }
         }
       ]
     },
     "approach": {
-      "en": "From independent bigram counts to neural language-model matrices and Transformer attention shapes"
+      "en": "From independent bigram counts to neural language-model matrices and Transformer attention shapes",
+      "ru": "От независимых биграммных счётчиков к матрицам нейронной языковой модели и формам тензоров внимания Transformer"
     },
     "summary": {
-      "en": "Chapter 6's bigram table uses one-token context and independent pair counts. Bengio et al. define a fixed-context neural language model with learned word-feature and neural parameter matrices, while Vaswani et al. define attention through Q, K, and V matrices and parallel projected heads. The same Tensor abstraction can represent these model values, while its contiguous row-major storage remains a separate local policy."
+      "en": "Chapter 6's bigram table uses one-token context and independent pair counts. Bengio et al. define a fixed-context neural language model with learned word-feature and neural parameter matrices, while Vaswani et al. define attention through Q, K, and V matrices and parallel projected heads. The same Tensor abstraction can represent these model values, while its contiguous row-major storage remains a separate local policy.",
+      "ru": "Биграммная таблица из главы 6 использует контекст из одного токена и независимые счётчики пар. Бенжио и соавторы задают нейронную языковую модель с фиксированным контекстом через матрицу обучаемых признаков слов и матрицы параметров нейронной сети, а Васвани и соавторы определяют внимание через матрицы Q, K и V и головы внимания с обучаемыми проекциями, вычисляемые параллельно. Один и тот же тип Tensor может хранить все эти значения модели, тогда как непрерывное построчное хранение остаётся отдельным локальным решением курса."
     },
     "rust_contrast": "Construct tiny C, H, and U parameter tensors plus Q, K, V, and stacked-head activation tensors with the same Rust Tensor type; print their shapes, course-local row-major strides, and element counts without implementing the model operations yet."
   },
@@ -90,47 +104,59 @@
     "decision": "useful",
     "id": "tensor-storage",
     "rationale": {
-      "en": "Two shape slices, an axis-by-axis stride calculation, and the corresponding flat buffer make it possible to see that a coordinate selects one offset before that offset selects a value."
+      "en": "Two shape slices, an axis-by-axis stride calculation, and the corresponding flat buffer make it possible to see that a coordinate selects one offset before that offset selects a value.",
+      "ru": "Два среза тензора, расчёт шагов по каждой оси и соответствующий плоский буфер показывают два последовательных действия: координата определяет одно смещение, а смещение — одно значение."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative model now has a checked, contiguous Tensor value container whose logical coordinates resolve to deterministic row-major offsets. Chapter 9 will reinterpret the same storage through views and axis transforms without silently copying data or changing its values."
+    "en": "The cumulative model now has a checked, contiguous Tensor value container whose logical coordinates resolve to deterministic row-major offsets. Chapter 9 will reinterpret the same storage through views and axis transforms without silently copying data or changing its values.",
+    "ru": "В постепенно расширяемой реализации модели появился непрерывный контейнер значений Tensor с проверкой: его логическим координатам однозначно соответствуют смещения при построчном хранении. В главе 9 представления и преобразования осей позволят по-новому интерпретировать то же хранилище без неявного копирования данных или изменения значений."
   },
   "terminology": [
     {
       "concept_id": "tensor-rank",
-      "en": "rank"
+      "en": "rank",
+      "ru": "ранг тензора"
     },
     {
       "concept_id": "tensor-shape",
-      "en": "shape"
+      "en": "shape",
+      "ru": "форма тензора"
     },
     {
       "concept_id": "axis-extent",
-      "en": "axis extent"
+      "en": "axis extent",
+      "ru": "размер оси"
     },
     {
       "concept_id": "row-major-layout",
-      "en": "row-major layout"
+      "en": "row-major layout",
+      "ru": "построчное хранение"
     },
     {
       "concept_id": "element-stride",
-      "en": "element stride"
+      "en": "element stride",
+      "ru": "шаг по оси в элементах"
     },
     {
       "concept_id": "flat-offset",
-      "en": "flat offset"
+      "en": "flat offset",
+      "ru": "смещение в плоском буфере"
     },
     {
       "concept_id": "contiguous-storage",
-      "en": "contiguous storage"
+      "en": "contiguous storage",
+      "ru": "непрерывное хранение"
     }
   ],
   "translation_notes": [
-    "Chapter 8 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep shape, stride, coordinate, offset, axis, rank, Vec<f64>, usize, Rust identifiers, arrays, numeric values, source URLs, and trace keywords as exact technical evidence when another locale is activated later.",
-    "Do not translate row-major as a claim that either model paper requires this layout. The lesson must identify the contiguous row-major Vec<f64> as this course's explicit implementation policy while preserving the model-level matrix and head shapes.",
-    "A future locale activation must localize the diagram title, description, section labels, fields, and notes together with the complete lesson; it must not publish an incomplete placeholder."
+    "The Russian lesson is translated directly from English content revision 5 and preserves every formula, shape, stride, coordinate, offset, axis number, rank, array, numeric value, source URL, Rust identifier, trace keyword, and causal claim.",
+    "Use «ранг тензора», «форма тензора», «размер оси», «построчное хранение», «шаг по оси в элементах», «смещение в плоском буфере» and «непрерывное хранение». In explanatory prose, prefer «однозначно вычисляемое смещение» to the calque «детерминированное смещение».",
+    "Use «шаг» for tensor stride only with a nearby axis or element qualifier where ambiguity is possible. A shape extent counts positions; an element stride measures movement through the flat buffer. Never translate both as «размер».",
+    "Keep Vec<f64>, usize, Tensor, TensorView, TensorError, ShapeOverflow, DataLengthMismatch, RankMismatch, IndexOutOfBounds, get, get_mut, data, Q, K, V, C, H, U, f64, arrays, paths, trace tokens, and decimal evidence as isolated left-to-right technical text.",
+    "Translate row-major storage only as this course's local implementation policy. Neither cited paper requires one contiguous row-major buffer or the fixture's particular head-axis order.",
+    "Use «голова внимания» for attention head, «обучаемые признаки слов» for learned word features, and «промежуточные результаты внимания» for attention intermediates. Do not let Rust or the programming language act as the mathematical agent; attribute computed evidence to the implementation or example.",
+    "The diagram's complete visible and accessible label tree is locale-owned. Validate Russian text in every summary item, panel, table, buffer cell, bounds field, and selected-state announcement at desktop, narrow, and full-view sizes in Chromium and Firefox."
   ],
   "acceptance_examples": [
     {
@@ -418,17 +444,19 @@ remain later steps.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The exact active locale set for Chapter 8 is `{en}`. The contract therefore has
-only English localized keys, the site has one complete English lesson, and no
-Russian source file or placeholder route is allowed. Russian remains a registered
-but deferred locale; activating it requires a separate cross-cutting backfill and
-review before any Chapter 8 Russian route may publish.
+The exact active locale set for Chapter 8 is `{en, ru}`. English content revision
+5 is the canonical semantic source, and the Russian contract fields and complete
+lesson are translated directly from that revision. Both routes publish only as a
+same-revision pair; a partial source, stale revision, or placeholder remains
+unpublishable.
 
 The locale-neutral meaning lock owns the formula and symbol order, numeric
 fixture, shape/stride convention, edge cases, Rust paths and regions, trace
 grammar, source URLs and bounded claims, exercises, misconception, and Chapter 9
-handoff. Future localized labels must name relationships rather than positions or
-colors, and code identifiers and recorded evidence must remain exact.
+handoff. Russian labels name relationships rather than positions or colors, while
+code identifiers and recorded evidence remain exact. Meaning-first language review
+and Chromium/Firefox desktop, narrow, no-JavaScript, and full-view containment
+validation apply to the complete Russian surface.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -447,5 +475,5 @@ bits, one indexing implementation, Rust-authored diagram data, offset-versus-val
 language, non-color and keyboard behavior, source-bounded history from bigram
 counts through learned neural matrices to Transformer attention shapes, an explicit
 boundary around local row-major policy, the row-major-convention misconception
-check, the English-only active set with no Russian placeholder, and the exact
-Chapter 9 storage handoff.
+check, the complete same-revision English/Russian active set, and the exact Chapter
+9 storage handoff.

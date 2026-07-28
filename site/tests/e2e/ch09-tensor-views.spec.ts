@@ -327,7 +327,7 @@ async function expectChapterContent(
 }
 
 test.describe('chapter 9 tensor-views vertical slice', { tag: chapterTag(chapterId) }, () => {
-  test('English includes Chapter 9 while Russian remains complete through Chapter 7', async ({ page }) => {
+  test('English includes Chapter 9 while its Russian route remains deferred', async ({ page }) => {
     const englishChapters = await readOrderedCourseChapters(page, 'en');
     expect(englishChapters.length).toBeGreaterThanOrEqual(9);
     expect(englishChapters[8]).toEqual(
@@ -335,13 +335,19 @@ test.describe('chapter 9 tensor-views vertical slice', { tag: chapterTag(chapter
     );
 
     const russianChapters = await readOrderedCourseChapters(page, 'ru');
-    expect(russianChapters).toHaveLength(7);
+    expect(russianChapters.length).toBeGreaterThan(0);
+    const lastRussianChapter = russianChapters[russianChapters.length - 1]!;
+    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
+    await expectOrderedChapterNavigation(
+      page,
+      'ru',
+      lastRussianChapter.chapterId,
+      russianChapters,
+    );
     expect(russianChapters.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
 
     await page.goto(chapterPath('en', '08-tensor-storage'));
     await expectOrderedChapterNavigation(page, 'en', '08-tensor-storage', englishChapters);
-    await page.goto(chapterPath('ru', '07-language-model-metrics'));
-    await expectOrderedChapterNavigation(page, 'ru', '07-language-model-metrics', russianChapters);
 
     await page.goto(chapterPath('en', chapterId));
     await expectLocalizedChapterRoute(page, {

@@ -283,7 +283,7 @@ async function expectChapterContent(
 test.describe('chapter 13 gradient-checking vertical slice', {
   tag: chapterTag(chapterId),
 }, () => {
-  test('English publishes Chapter 13 while Russian remains complete through Chapter 7', async ({
+  test('English publishes Chapter 13 while its Russian route remains deferred', async ({
     page,
   }) => {
     const englishChapters = await readOrderedCourseChapters(page, 'en');
@@ -293,7 +293,15 @@ test.describe('chapter 13 gradient-checking vertical slice', {
     );
 
     const russianChapters = await readOrderedCourseChapters(page, 'ru');
-    expect(russianChapters).toHaveLength(7);
+    expect(russianChapters.length).toBeGreaterThan(0);
+    const lastRussianChapter = russianChapters[russianChapters.length - 1]!;
+    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
+    await expectOrderedChapterNavigation(
+      page,
+      'ru',
+      lastRussianChapter.chapterId,
+      russianChapters,
+    );
     expect(russianChapters.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
 
     await page.goto(chapterPath('en', '12-stable-softmax'));

@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 33,
+  "plan_revision": 34,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-07",
+    "policy_id": "selective-russian-through-chapter-08",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "07-language-model-metrics",
+        "through_chapter": "08-tensor-storage",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation together with the existing bilingual Chapters 1-7."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-8."
       },
       {
-        "from_chapter": "08-tensor-storage",
+        "from_chapter": "09-tensor-views",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 7 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 8 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -209,6 +209,11 @@
         "step_id": "audit-russian-ch01-ch07",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "audit-russian-ch01-ch07"
+      },
+      {
+        "step_id": "activate-ch08-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch08-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -778,9 +783,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–7 activate
-both, while Chapters 8–39 activate English only. Russian therefore keeps its index
-and Chapter 0–7 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–8 activate
+both, while Chapters 9–39 activate English only. Russian therefore keeps its index
+and Chapter 0–8 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -944,7 +949,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `08-tensor-storage`
 - **Implementation step:** `implement-ch08-tensor-storage`
-- **Revision status:** Content revision 4 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 3 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 5 adds the complete Russian projection and repairs canonical learner-facing presentation prose during `activate-ch08-russian-localization`; revision 4 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `07-language-model-metrics`.
 - **Outcome:** Store an n-dimensional tensor in a flat `Vec<f64>` and map valid coordinates to deterministic offsets.
 - **Scope boundary:** Teach rank, shape, row-major strides, indexing, bounds, and scalar access; defer views, broadcasting, arithmetic, and gradients.

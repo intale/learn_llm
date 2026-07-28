@@ -8124,3 +8124,88 @@ this build's validation and commit.
 
 **Affected step and run:** `audit-russian-ch01-ch07`, run
 `20260728T074206Z-audit-russian-ch01-ch07-01`.
+
+## 2026-07-28 - Activate Russian Chapter 8 as the first sequential extension
+
+**Status:** Accepted from the user's direct request after the Chapter 1-7 audit
+completed in commit `169927d`.
+
+**Context:** Chapter 8 is the first English-only lesson after the reviewed Russian
+prefix. It introduces the tensor storage representation used by later model
+components, and its figure contains dense shape, stride, buffer, and bounds labels
+whose Russian geometry cannot be inferred from the English rendering.
+
+**Decision:** Review the current English contract and lesson first, correct a
+canonical defect before translation if one is found, then translate the complete
+same-revision Chapter 8 surface directly into natural technical Russian. Activate
+only Chapter 8 in this checkpoint, advance the locale policy and plan revision,
+and update exact navigation, publication, and browser expectations atomically.
+Preserve formulas, symbols, Rust code, identifiers, arrays, numeric evidence,
+links, historical qualifiers, and the distinction between model tensor shapes and
+this course's row-major storage policy. Validate the exact Russian route and every
+bounded figure box in Chromium and Firefox at desktop, narrow, no-JavaScript, and
+full view. Do not use external translation or pause for pre-publication approval.
+
+**Consequences:** Russian becomes complete through Chapter 8 while Chapters 9-39
+remain English-only until their own ordered activation checkpoints. A completed
+Chapter 8 checkpoint and commit are prerequisites for Chapter 9; no Rust behavior,
+dependency, build definition, hosting setting, or deployment target changes.
+
+**Affected step and run:** `activate-ch08-russian-localization`, run
+`20260728T085952Z-activate-ch08-russian-localization-01`.
+
+## 2026-07-28 - Preserve implementation history when a locale is activated later
+
+**Status:** Accepted after the first Chapter 8 plan validation exposed a legacy
+assumption.
+
+**Context:** `implement-ch08-tensor-storage` completed when Chapter 8's active set
+was English only. The current plan deliberately schedules
+`activate-ch08-russian-localization` as a later backfill checkpoint. The ledger
+validator nevertheless compared the old implementation step alone with the new
+bilingual policy, which could pass only by rewriting completed history.
+
+**Decision:** Keep the original implementation step and commit immutable. Validate
+its own lesson outputs against its own per-locale commands and require it to own
+the reference locale. For the current publication policy, aggregate lesson locale
+ownership across the implementation step and any separately scheduled standalone
+steps that name the same chapter lesson outputs; require that aggregate to equal
+the active locale set exactly, with no deferred or unregistered locale. Each
+participating step must still keep its outputs and per-locale validations aligned.
+
+**Consequences:** A later locale activation can add a complete translation in its
+own checkpoint without falsifying the original chapter run. Missing reference
+output, missing active locale coverage, extra deferred output, or mismatched
+per-locale validation still fails. The change affects only plan/ledger validation;
+it does not loosen content parity or route publication gates.
+
+**Affected step and run:** `activate-ch08-russian-localization`, run
+`20260728T085952Z-activate-ch08-russian-localization-01`.
+
+## 2026-07-28 - Make deferred-chapter locale checks independent of the old prefix
+
+**Status:** Accepted as required integration for sequential Chapter 8-11
+activation.
+
+**Context:** The locale manifest is authoritative, but the authoring-guide unit
+test and most later chapter browser specifications repeat the historical claim
+that Russian stops at Chapter 7. Updating those assertions to 8, then 9, 10, and
+11 would make each correct activation invalidate unrelated deferred-chapter tests
+without adding product evidence.
+
+**Decision:** Update the current authoring guides to the Chapter 8 boundary in
+this checkpoint. Refactor browser assertions for still-deferred Chapters 9-39 to
+prove the invariant they actually own: the chapter under test has no Russian
+route while the Russian index and navigation exactly match the locale manifest.
+Do not hard-code the last localized chapter number in those deferred tests. Keep
+the Chapter 8 specification exact and bilingual because Chapter 8 itself is the
+surface activated here.
+
+**Consequences:** Chapters 9-39 remain absent in Russian, but their tests survive
+the ordered growth of the localized prefix and continue failing if their own
+deferred route appears unexpectedly. Chapter-specific tests still become exact
+bilingual tests when each chapter is activated. This integration change does not
+activate a route or alter learner content by itself.
+
+**Affected step and run:** `activate-ch08-russian-localization`, run
+`20260728T085952Z-activate-ch08-russian-localization-01`.

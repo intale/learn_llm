@@ -1400,7 +1400,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 33',
+      '"plan_revision": 34',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1543,7 +1543,7 @@ describe('curriculum and catalog contracts', () => {
     );
   });
 
-  it('keeps registry expansion deferred until chapter policy activation', () => {
+  it('aggregates scheduled lesson activation without rewriting implementation history', () => {
     const root = repositoryRoot();
     const planSource = readFileSync(
       join(root, 'curriculum/course-plan.md'),
@@ -1577,7 +1577,36 @@ describe('curriculum and catalog contracts', () => {
       'synthetic three-locale plan',
       localeConfiguration,
     );
+    const mutateLedgerStep = (
+      source: string,
+      stepId: string,
+      before: string,
+      after: string,
+    ) => {
+      const marker = `      - id: ${stepId}\n`;
+      const start = source.indexOf(marker);
+      expect(start).toBeGreaterThan(-1);
+      const next = source.indexOf('\n      - id: ', start + marker.length);
+      const end = next === -1 ? source.length : next;
+      return (
+        source.slice(0, start) +
+        replaceOnce(source.slice(start, end), before, after) +
+        source.slice(end)
+      );
+    };
 
+    expect(
+      stateSource.slice(
+        stateSource.indexOf('      - id: implement-ch08-tensor-storage\n'),
+        stateSource.indexOf(
+          '\n      - id: ',
+          stateSource.indexOf('      - id: implement-ch08-tensor-storage\n') +
+            1,
+        ),
+      ),
+    ).not.toContain(
+      'site/src/content/chapters/ru/08-tensor-storage.mdx',
+    );
     expect(() =>
       validateLedgerText(
         stateSource,
@@ -1587,8 +1616,16 @@ describe('curriculum and catalog contracts', () => {
       ),
     ).not.toThrow();
 
-    const missingActiveLocale = stateSource.replace(
-      `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
+    const missingActiveLocaleOutput = mutateLedgerStep(
+      stateSource,
+      'activate-ch08-russian-localization',
+      `          - "site/src/content/chapters/ru/08-tensor-storage.mdx"\n`,
+      '',
+    );
+    const missingActiveLocale = mutateLedgerStep(
+      missingActiveLocaleOutput,
+      'activate-ch08-russian-localization',
+      `          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage"\n`,
       '',
     );
     expect(() =>
@@ -1598,25 +1635,30 @@ describe('curriculum and catalog contracts', () => {
         'missing active Chapter 8 locale ledger',
         localeConfiguration,
       ),
-    ).toThrow(/must own exactly one lesson output per declared locale/);
+    ).toThrow(
+      /scheduled lesson ownership for 08-tensor-storage must match chapter-active locales en, ru/,
+    );
 
-    const extraDeferredLocale = stateSource
-      .replace(
-        `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
-        [
-          `          - "site/src/content/chapters/en/08-tensor-storage.mdx"`,
-          `          - "site/src/content/chapters/es/08-tensor-storage.mdx"`,
-          '',
-        ].join('\n'),
-      )
-      .replace(
-        `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"\n`,
-        [
-          `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"`,
-          `          - "npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage"`,
-          '',
-        ].join('\n'),
-      );
+    const extraDeferredLocaleOutput = mutateLedgerStep(
+      stateSource,
+      'implement-ch08-tensor-storage',
+      `          - "site/src/content/chapters/en/08-tensor-storage.mdx"\n`,
+      [
+        `          - "site/src/content/chapters/en/08-tensor-storage.mdx"`,
+        `          - "site/src/content/chapters/es/08-tensor-storage.mdx"`,
+        '',
+      ].join('\n'),
+    );
+    const extraDeferredLocale = mutateLedgerStep(
+      extraDeferredLocaleOutput,
+      'implement-ch08-tensor-storage',
+      `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"\n`,
+      [
+        `          - "npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage"`,
+        `          - "npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage"`,
+        '',
+      ].join('\n'),
+    );
     expect(() =>
       validateLedgerText(
         extraDeferredLocale,
@@ -1624,12 +1666,50 @@ describe('curriculum and catalog contracts', () => {
         'extra deferred Chapter 8 locale ledger',
         localeConfiguration,
       ),
-    ).toThrow(/lesson outputs must match chapter-active locales en/);
+    ).toThrow(/must not own a locale outside the chapter-active locales en, ru/);
+
+    const missingReferenceLocaleOutput = mutateLedgerStep(
+      stateSource,
+      'implement-ch08-tensor-storage',
+      'site/src/content/chapters/en/08-tensor-storage.mdx',
+      'site/src/content/chapters/ru/08-tensor-storage.mdx',
+    );
+    const missingReferenceLocale = mutateLedgerStep(
+      missingReferenceLocaleOutput,
+      'implement-ch08-tensor-storage',
+      'npm --prefix site run check:chapter -- --locale en --chapter 08-tensor-storage',
+      'npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage',
+    );
+    expect(() =>
+      validateLedgerText(
+        missingReferenceLocale,
+        metadata,
+        'missing reference Chapter 8 locale ledger',
+        localeConfiguration,
+      ),
+    ).toThrow(/implement-ch08-tensor-storage must own the reference locale en/);
+
+    const outputCheckMismatch = mutateLedgerStep(
+      stateSource,
+      'activate-ch08-russian-localization',
+      './course run npm --prefix site run check:chapter -- --locale ru --chapter 08-tensor-storage',
+      './course run npm --prefix site run check:chapter -- --locale es --chapter 08-tensor-storage',
+    );
+    expect(() =>
+      validateLedgerText(
+        outputCheckMismatch,
+        metadata,
+        'mismatched Chapter 8 activation ledger',
+        localeConfiguration,
+      ),
+    ).toThrow(
+      /activate-ch08-russian-localization lesson outputs and per-locale checks differ/,
+    );
 
     const uncoveredChapter = replaceOnce(
       deferredPlanSource,
+      '        "through_chapter": "08-tensor-storage",',
       '        "through_chapter": "07-language-model-metrics",',
-      '        "through_chapter": "06-bigram-baseline",',
     );
     expect(() =>
       validateCoursePlanText(

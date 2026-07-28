@@ -23,11 +23,23 @@ const contract = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/08-tensor-storage.md'),
   'utf8',
 );
+const englishLesson = readFileSync(
+  resolve(process.cwd(), 'src/content/chapters/en/08-tensor-storage.mdx'),
+  'utf8',
+);
+const russianLesson = readFileSync(
+  resolve(process.cwd(), 'src/content/chapters/ru/08-tensor-storage.mdx'),
+  'utf8',
+);
+const sharedDiagramStyles = readFileSync(
+  resolve(process.cwd(), 'src/styles/diagram.module.css'),
+  'utf8',
+);
 
 const englishLabels: TensorStorageDiagramLabels = {
   title: 'One coordinate, one row-major offset',
   description:
-    'Two 2 × 3 slices and one flat buffer come from the same Rust fixture. Follow [1, 0, 2] through its three stride contributions, then compare the checked out-of-bounds coordinate.',
+    'Two slices with two rows and three columns, plus one flat buffer, come from the same Rust fixture. Follow [1, 0, 2] through its three stride contributions, then compare the checked out-of-bounds coordinate.',
   summary: { shape: 'Shape', strides: 'Row-major strides', length: 'Stored values' },
   sections: {
     slices: 'Two slices from one rank-3 tensor',
@@ -55,6 +67,38 @@ const englishLabels: TensorStorageDiagramLabels = {
     bounds: 'Axis 1 has size 2, so index 2 is rejected before any buffer access.',
   },
   symbols: { selected: 'Selected coordinate and buffer element' },
+};
+
+const russianLabels: TensorStorageDiagramLabels = {
+  title: 'Одна координата — одно смещение при построчном хранении',
+  description:
+    'Два среза — в каждом две строки по три столбца — и один плоский буфер получены из одного примера на Rust. Проследите три вклада координаты [1, 0, 2] в смещение, затем сравните с проверкой координаты, выходящей за границы.',
+  summary: { shape: 'Форма', strides: 'Построчные шаги', length: 'Число значений' },
+  sections: {
+    slices: 'Два среза одного тензора ранга 3',
+    calculation: 'Как [1, 0, 2] даёт смещение 8',
+    buffer: 'Найдите смещение 8 в плоском буфере',
+    bounds: 'Проверка недопустимой координаты до чтения буфера',
+  },
+  fields: {
+    slice: 'Срез',
+    row: 'Строка',
+    coordinate: 'Координата',
+    contribution: 'Вклад',
+    offset: 'Смещение',
+    value: 'Значение',
+    axis: 'Ось',
+    index: 'Индекс',
+    size: 'Размер оси',
+  },
+  notes: {
+    slices: 'Первая координата выбирает срез, следующие две — строку и столбец внутри него.',
+    calculation:
+      'Трассировка программы на Rust выводит каждый член суммы. Сумма задаёт позицию в плоском буфере, а не хранящееся значение.',
+    buffer: 'Двойная рамка и ромб отмечают смещение 8 независимо от цвета.',
+    bounds: 'Размер оси 1 равен 2, поэтому индекс 2 отклоняется до обращения к буферу.',
+  },
+  symbols: { selected: 'Выбранная координата и соответствующий элемент буфера' },
 };
 
 function mutate(search: string, replacement: string): string {
@@ -178,13 +222,21 @@ describe('tensor-storage Rust trace parser', () => {
   });
 
   it('requires every locale-owned visible and accessible label leaf', () => {
-    expect(() => assertTensorStorageDiagramLabels(englishLabels)).not.toThrow();
-    const paths = stringLeafPaths(englishLabels);
-    expect(paths).toHaveLength(23);
-    for (const path of paths) {
-      expect(() => assertTensorStorageDiagramLabels(blankLabelAt(englishLabels, path))).toThrow(
-        path.join('.'),
-      );
+    for (const [labels, lesson] of [
+      [englishLabels, englishLesson],
+      [russianLabels, russianLesson],
+    ] as const) {
+      expect(() => assertTensorStorageDiagramLabels(labels)).not.toThrow();
+      const paths = stringLeafPaths(labels);
+      expect(paths).toHaveLength(23);
+      for (const path of paths) {
+        expect(() => assertTensorStorageDiagramLabels(blankLabelAt(labels, path))).toThrow(
+          path.join('.'),
+        );
+        let value: unknown = labels;
+        for (const part of path) value = (value as Record<string, unknown>)[part];
+        expect(lesson).toContain(String(value));
+      }
     }
 
     const missing = structuredClone(englishLabels) as unknown as Record<string, unknown>;
@@ -196,7 +248,7 @@ describe('tensor-storage Rust trace parser', () => {
 });
 
 describe('tensor-storage diagram component contract', () => {
-  it('stays Rust-backed, semantic, static, responsive, and non-color dependent', () => {
+  it('stays Rust-backed, semantic, static, shared-style owned, and non-color dependent', () => {
     const componentSource = readFileSync(
       resolve(process.cwd(), 'src/components/chapters/TensorStorageDiagram.astro'),
       'utf8',
@@ -209,8 +261,29 @@ describe('tensor-storage diagram component contract', () => {
     expect(componentSource).toContain('<figure');
     expect(componentSource).toContain('<figcaption class="course-diagram__caption">');
     expect(componentSource).toContain('<table data-diagram-table>');
+    expect(componentSource).toContain('<ol class="slice-list course-diagram__grid">');
     expect(componentSource).toContain('<ol class="term-list"');
-    expect(componentSource).toContain('<ol class="flat-buffer"');
+    expect(componentSource).toContain('<ol class="flat-buffer course-diagram__grid"');
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(12, minmax(6.5rem, 1fr));',
+    );
+    expect(componentSource).toContain('min-width: 78rem;');
+    expect(componentSource).toContain('.offset-label {');
+    expect(componentSource).toContain('overflow-wrap: normal;');
+    expect(componentSource).toContain('.tensor-storage-diagram:fullscreen {');
+    expect(componentSource).toContain('grid-template-columns: repeat(6, minmax(0, 1fr));');
+    expect(componentSource).toContain(
+      '.tensor-storage-diagram:fullscreen > .buffer-panel',
+    );
+    expect(componentSource).toContain('.tensor-storage-diagram:fullscreen > .bounds-panel');
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(6, minmax(6.5rem, 1fr));',
+    );
+    expect(componentSource).toContain('min-width: 39rem;');
+    expect(componentSource).toContain('.flat-buffer .selection-marker {');
+    expect(componentSource).toContain('position: absolute;');
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(6);
+    expect(componentSource.match(/data-diagram-card/g)).toHaveLength(2);
     expect(componentSource).toContain('data-slice-axis0={slice.axis0.lexeme}');
     expect(componentSource).toContain('data-term-axis={term.axis.lexeme}');
     expect(componentSource).toContain('data-buffer-offset={offset}');
@@ -225,7 +298,20 @@ describe('tensor-storage diagram component contract', () => {
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('<span class="selection-marker" aria-hidden="true">◆</span>');
     expect(componentSource).toContain('@container course-diagram (max-width: 48rem)');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toContain('--diagram-border');
+    expect(componentSource).not.toContain('.tensor-storage-diagram {');
+    expect(componentSource).not.toContain(':focus-visible');
+    expect(componentSource).not.toContain('border-radius');
+    expect(componentSource).not.toContain('background:');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
+    expect(sharedDiagramStyles).toContain(
+      "figure.course-diagram[data-diagram-style='course-v1']",
+    );
+    expect(sharedDiagramStyles).toContain(
+      '.course-diagram__scroll[data-diagram-scroll]',
+    );
+    expect(sharedDiagramStyles).toContain('table[data-diagram-table]');
+    expect(sharedDiagramStyles).toContain('@media (forced-colors: active)');
     expect(componentSource).toContain("readFileSync(fixtureUrl, 'utf8')");
     expect(componentSource).toContain('parseTensorStorageTrace');
     expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
@@ -243,5 +329,7 @@ describe('tensor-storage diagram component contract', () => {
     }
     expect(componentSource).not.toContain(englishLabels.title);
     expect(componentSource).not.toContain(englishLabels.sections.bounds);
+    expect(componentSource).not.toContain(russianLabels.title);
+    expect(componentSource).not.toContain(russianLabels.sections.bounds);
   });
 });
