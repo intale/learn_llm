@@ -9131,6 +9131,71 @@ path.
 **Affected step and run:** `activate-ch14-russian-localization`, run
 `20260729T083014Z-activate-ch14-russian-localization-01`.
 
+## 2026-07-29 - Repair Chapter 15 around operand-use VJPs before translation
+
+**Status:** Accepted during Chapter 15 preflight.
+
+**Context:** The revision-3 formula names one parent and child but does not name
+the distinct operand-use edge whose local derivative is applied. That makes the
+central repeated-operand example less precise than the corrected scalar model in
+Chapter 14. The prose also describes only shape/axis context even though multiply
+saves the other operand's primal, calls owned materializations “views,” and
+exposes fixture, trace, byte-exact, course-local, and presentation machinery to
+learners. Its registered figure synthesizes several English-only labels, owns a
+private frame skin, and leaves ordinary bounded boxes unmarked.
+
+**Decision:** Freeze English revision 4 before translating. State reverse mode per
+operand-use edge as
+`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)}` for `e\in E`, with a slot-local
+Jacobian action and one edge for every operand occurrence. Explain the non-scalar
+seed through the selected scalar objective, describe operation-specific saved
+context accurately, distinguish owned tensor materializations from structural
+shape transformations, and state copy/release semantics directly. Remove
+learner-facing delivery commentary and internal trace source excerpts. Migrate
+all useful evidence to the shared static diagram system, splitting distinct
+relationships only if rendered measurements show that one full-view surface is
+still too dense.
+
+**Consequences:** Russian is translated directly from corrected revision 4. The
+contract, both lessons, locale projection, label schema, figures, and exact tests
+advance together. Rust behavior and the product build remain unchanged; the
+existing locale-neutral trace may remain an internal data source for static HTML
+without becoming learner-facing implementation guidance.
+
+**Affected step and run:** `activate-ch15-russian-localization`, run
+`20260729T103859Z-activate-ch15-russian-localization-01`.
+
+## 2026-07-29 - Complete Chapter 15 semantic labels before publication
+
+**Status:** Accepted during the final independent localization audit.
+
+**Context:** The first rendered candidate contained the correct numeric evidence,
+but three labels changed its meaning: pass-local operation adjoints were called
+stored gradients, sampled flat coordinate indices were called values, and the
+reverse ledger displayed no saved context for multiply even though each operand
+edge stores the other operand's primal and shape context. The audit also found
+several Russian calques and an inherited objective that called owned shape
+transformations views.
+
+**Decision:** Name pass-local adjoints and stored parameter gradients separately,
+name sampled flat coordinates explicitly, and extend only the internal Chapter 15
+diagram trace with the multiply context already present in the unchanged tensor
+tape. Correct the current contract and both learner pages to say shape
+transformations, recorded edges, position-wise feed-forward networks, a cut
+gradient path for detach, and reverse traversal rather than mathematical
+inversion. Preserve the invalidated original implementation ledger and reviewed
+plan outcome as historical records.
+
+**Consequences:** The static diagram can display the other operand's exact primal
+and shape context without deriving tensor evidence in presentation code. The
+trace-only Rust output and its strict parser advance together; tensor arithmetic,
+public APIs, learner command output, dependencies, and product build definitions
+remain unchanged. Source, exact trace, Linux, Chromium, and Firefox validation
+must repeat before the checkpoint completes.
+
+**Affected step and run:** `activate-ch15-russian-localization`, run
+`20260729T103859Z-activate-ch15-russian-localization-01`.
+
 ## 2026-07-29 - Give Chapter 14 graph sections a Firefox-safe fullscreen rail
 
 **Status:** Accepted during dual-engine rendered validation.

@@ -345,7 +345,7 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "15": [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
     String.raw`\bar{\mathrm{bias}}=[16,16,34]`,
-    String.raw`\mathrel{+}=`,
+    String.raw`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`,
   ],
   "16": [
     String.raw`dE=`,

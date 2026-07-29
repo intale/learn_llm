@@ -54,10 +54,24 @@ const labels: TensorAutodiffCoreDiagramLabels = {
     rule: 'rule',
     savedContext: 'saved context',
     contribution: 'contribution',
+    adjoint: 'adjoint',
     gradient: 'gradient',
     pass: 'pass',
     status: 'status',
     axis: 'axis',
+    axes: 'axes',
+    keepDimension: 'keep dimension',
+    divisor: 'divisor',
+    inputShape: 'input shape',
+    outputShape: 'output shape',
+    expectedShape: 'expected shape',
+    actualShape: 'actual shape',
+    flatIndex: 'flat index',
+    value: 'value',
+    released: 'released',
+    gradientsUnchanged: 'gradients unchanged',
+    otherOperand: 'other operand',
+    sampledCoordinates: 'sampled flat coordinates',
     reducedAxes: 'reduced axes',
     scale: 'scale',
   },
@@ -79,6 +93,9 @@ const labels: TensorAutodiffCoreDiagramLabels = {
     detached: 'detached',
     checked: 'checked',
     rejected: 'rejected',
+    none: 'none',
+    no: 'no',
+    yes: 'yes',
   },
   notes: {
     graph: 'graph note',
@@ -182,6 +199,24 @@ describe('Chapter 15 Rust trace parser', () => {
       keepDim: 'no',
       divisor: { lexeme: '3' },
     });
+    expect(trace.edges[1]?.savedContext).toMatchObject({
+      kind: 'multiply',
+      otherShape: { lexeme: '2x3' },
+      inputShape: { lexeme: '2x3' },
+      outputShape: { lexeme: '2x3' },
+    });
+    expect(
+      trace.edges[1]?.savedContext?.kind === 'multiply'
+        ? trace.edges[1].savedContext.otherValues.map(({ lexeme }) => lexeme)
+        : [],
+    ).toEqual([
+      '2.000000000000',
+      '2.000000000000',
+      '5.000000000000',
+      '3.000000000000',
+      '3.000000000000',
+      '6.000000000000',
+    ]);
     expect(trace.edges[5]?.reducedAxes).toMatchObject([{ lexeme: '0' }]);
     expect(trace.edges[6]?.savedContext).toMatchObject({
       kind: 'transpose',
@@ -236,6 +271,7 @@ describe('Chapter 15 Rust trace parser', () => {
     ['repeated operand drift', fixture.replace('reverse=2 child=q child-id=6 operand=1', 'reverse=2 child=q child-id=6 operand=0'), /EDGE 2 differs/],
     ['mean axis drift', fixture.replace('axis=1 keep-dim=no divisor=3', 'axis=0 keep-dim=no divisor=3'), /EDGE 0 differs/],
     ['mean keep-dim drift', fixture.replace('axis=1 keep-dim=no divisor=3', 'axis=1 keep-dim=yes divisor=3'), /mean VJP saved context/],
+    ['multiply context drift', fixture.replace('other-shape=2x3 other-values=2.000000000000', 'other-shape=3x2 other-values=2.000000000000'), /EDGE 1 differs/],
     ['transpose axes drift', fixture.replace('first-axis=0 second-axis=1', 'first-axis=1 second-axis=0'), /EDGE 6 differs/],
     ['reshape context drift', fixture.replace('input-shape=2x3 output-shape=3x2', 'input-shape=3x2 output-shape=2x3'), /EDGE 7 differs/],
     ['broadcast axis drift', fixture.replace('target-shape=3 reduced-axes=0', 'target-shape=3 reduced-axes=1'), /EDGE 5 differs/],
@@ -283,7 +319,7 @@ describe('Chapter 15 static diagram component', () => {
   });
 
   it('renders semantic node order and exact Rust-authored VJP and lifecycle evidence', () => {
-    expect(component).toContain('<ol class="node-grid">');
+    expect(component).toContain('<ol class="node-grid course-diagram__grid">');
     expect(component).toContain('data-node-id=');
     expect(component).toContain('data-node-label=');
     expect(component).toContain('data-topology-order=');
@@ -299,6 +335,10 @@ describe('Chapter 15 static diagram component', () => {
     expect(component).toContain('data-evidence="detach"');
     expect(component).toContain('data-evidence="gradcheck"');
     expect(component).toContain('data-graph-unchanged=');
+    expect(component).toContain('data-diagram-card');
+    expect(component).toContain('data-diagram-box');
+    expect(component).toContain('course-diagram__card-stack');
+    expect(component).toContain('course-diagram__card-heading');
   });
 
   it('keeps wide evidence local and gives every card natural intrinsic height', () => {
@@ -309,7 +349,6 @@ describe('Chapter 15 static diagram component', () => {
     expect(component).toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
-    expect(component).toContain('align-items: start;');
     expect(component).toContain('.node-structural { border-style: dotted; }');
     expect(component).toContain('.node-broadcast { border-style: dashed; }');
     expect(component).toContain('.node-elementwise { border-style: double; }');
@@ -317,6 +356,7 @@ describe('Chapter 15 static diagram component', () => {
     expect(component).not.toMatch(
       /\.(?:node-card|gradient-card|lifecycle-card|check-card|error-card)[^{]*\{[^}]*(?:min-)?(?:height|block-size)\s*:/s,
     );
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).not.toContain('@media (forced-colors: active)');
+    expect(component).not.toMatch(/\.tensor-autodiff-core-diagram\s*\{[^}]*(?:border|background|box-shadow)\s*:/s);
   });
 });

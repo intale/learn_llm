@@ -20722,3 +20722,176 @@ builds:
                 status: passed
                 notes: "The final contract, English, Russian, graph, and lifecycle hashes are recorded above; generated preview caches were removed; valid YAML reports no active build, step, or run; and only declared Chapter 14 outputs plus the measured Chapter 5 fullscreen correction remain for the independent commit."
             notes: "Succeeded. English revision 4 and its natural Russian translation publish two focused shared-system figures, pass the exact source and dual-engine rendered contracts, and are ready for the independent Chapter 14 commit."
+  - build_id: activate-ch15-russian-localization
+    objective: "Repair the canonical Chapter 15 tensor reverse-mode explanation, translate its complete learner-facing surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "English Chapter 15 defines a vector-Jacobian product for one distinct operand-use edge, accurately describes operation-specific saved context and tensor ownership, and contains no learner-facing authoring, fixture, trace, byte-exact, or presentation-contract commentary."
+      - "Russian Chapter 15 preserves every formula, symbol, shape, value, code identifier, causal claim, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 16 handoff in natural technical language."
+      - "Every Chapter 15 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 15 is activated in this checkpoint, the locale policy advances through Chapter 15, and the completed step is committed independently before Chapter 16 starts."
+    steps:
+      - id: activate-ch15-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 15 tensor reverse-mode autodiff lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch14-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-29 to continue Russian translations through Chapters 15-17 without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
+          - "site/src/lib/tensor-autodiff-core-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/src/lib.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/src/main.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/expected.txt"
+          - "rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 86ecb208c1794458d37f4f8ea11fb9c103cd3b21."
+          - "Playwright 1.61.1 Chromium and Firefox revision 1532 runtimes already available in the user browser cache."
+        outputs:
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "curriculum/course-plan.md"
+          - "rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx"
+          - "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
+          - "site/src/lib/tensor-autodiff-core-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "scripts/check-site-content.mjs"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Canonical English uses the edge-exact formula \\bar{p(e)}\\mathrel{+}=J_e^\\top\\bar{c(e)} for each e in E, defines the parent, consumer, and slot-local derivative map, and explains the non-scalar seed as a cotangent for a selected scalar objective."
+          - "Canonical learner prose accurately states that multiply saves the other operand's primal as well as shape data, that value and gradient accessors return owned copies, and that release removes operation edges and saved context while preserving already returned evidence."
+          - "Canonical learner prose contains no build, fixture, internal trace, byte-exact, course-local, source-contract, or presentation-implementation commentary and keeps the history on the road to reusable tensor gradients for modern LLM training."
+          - "The Russian page is translated directly from frozen English revision 4 with natural established autodiff, tensor, graph, shape, and LLM terminology rather than literal sentence-shape transfer."
+          - "All formulas, symbols, shapes, values, code, identifiers, links, sources, exercises, answers, metadata, SEO, navigation, diagram evidence, and accessibility relationships have exact cross-locale semantic parity."
+          - "All Chapter 15 visualization evidence uses registered static shared-system figures with localized synthesized labels, marked bounded boxes, smallest meaningful named scrollers, useful fullscreen reflow, and no private frame skin, hydration, dialog, script, clipping, or chapter-specific full-view control."
+          - "The exact candidate passes source, contract, locale, parity, Rust, unit, static, link, SEO, sitemap, Analytics, Chromium, Firefox, formula, full-view, fallback, forced-color, direction, focus, and nearest-box containment checks."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/15-tensor-autodiff-core.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 15-tensor-autodiff-core"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 15-tensor-autodiff-core"
+          - "npm --prefix site run check:parity -- --chapter 15-tensor-autodiff-core"
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "cargo test --workspace --doc --locked"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:15-tensor-autodiff-core|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:15-tensor-autodiff-core|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One canonical semantic correction plus complete source-to-target chapter translation and shared-diagram migration, with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency, product build-definition, hosting, deployment, or Rust behavior change is planned."
+        runs:
+          - run_id: 20260729T103859Z-activate-ch15-russian-localization-01
+            started_at: "2026-07-29T10:38:59Z"
+            finished_at: "2026-07-29T11:57:25Z"
+            status: succeeded
+            input_fingerprint:
+              git: "86ecb208c1794458d37f4f8ea11fb9c103cd3b21"
+              manifest: ".build/runs/20260729T103859Z-activate-ch15-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:81d4e23a8a1708da0d1a27056942cb634e2b4aa845d499792fd2d95dba2b5d79"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1. Host Node 24.18.0/npm 11.16.0 are used only for compatible local checks."
+              external: "No external translation source or service; current English Chapter 15, immutable Rust behavior, and cited primary historical sources are authoritative after the recorded canonical semantic correction."
+            staging_dir: ".build/runs/20260729T103859Z-activate-ch15-russian-localization-01/"
+            commands:
+              - "Verify the clean committed Chapter 14 checkpoint 86ecb20; inspect the scheduler, latest decisions, environment, localization instructions, Chapter 15 contract, complete English lesson, figure, parser, tests, locale projection, and immutable Rust evidence."
+              - "Perform a read-only Chapter 15 audit and identify the aliasing-ambiguous formula, saved-context omissions, learner-facing delivery leakage, diagram-system violations, terminology map, and rendered layout risks before product edits."
+              - "Fingerprint the exact source, evidence, projection, workflow, environment, user request, and base commit before any product edit."
+              - "Freeze English revision 4; translate the complete lesson into Russian; migrate its figure to the shared diagram system; and advance the locale policy through Chapter 15."
+              - "Run an independent semantic and localization audit, then repair all ten reported correctness, terminology, evidence-label, and learner-prose blockers."
+              - "Regenerate and compare the exact Rust diagram trace, run source and unit gates, exercise the complete Chapter 15 and shared-diagram browser matrix in Chromium and Firefox, and run the pinned Linux course gate."
+            artifacts:
+              - path: ".build/runs/20260729T103859Z-activate-ch15-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:81d4e23a8a1708da0d1a27056942cb634e2b4aa845d499792fd2d95dba2b5d79"
+                notes: "Exact canonical, diagram, validation, Rust-evidence, workflow, environment, user-scope, and base-commit fingerprint before Chapter 15 product edits."
+              - path: "curriculum/chapters/15-tensor-autodiff-core.md"
+                checksum: "sha256:469b6ddc28ec56b73962144ec71e038d8b5e39054c6d481e31fd39903f8d7ed6"
+                notes: "Completed revision 4 contract with the operand-use VJP and corrected ownership and saved-context claims."
+              - path: "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+                checksum: "sha256:9384287454f5c40e8764e87ad5b22930158b53df093e56b3ce3efc3c983ba409"
+                notes: "Frozen canonical English lesson."
+              - path: "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx"
+                checksum: "sha256:69c6c609b186008f6978ba461045e840c66cc6b96256738892e39f3ad416de37"
+                notes: "Complete natural Russian translation from English revision 4."
+              - path: "site/src/components/chapters/TensorAutodiffCoreDiagram.astro"
+                checksum: "sha256:e3aaf83c9d739d6d18a7161aebf98d194cd0e5287246486d619dc18b34e14214"
+                notes: "Localized shared-system tensor autodiff figure."
+              - path: "site/src/lib/tensor-autodiff-core-diagram.ts"
+                checksum: "sha256:8241f60593e444199273b93a1a60675b1a76861e9df33ba41efc71b9661d21df"
+                notes: "Exact trace parser with corrected node, parameter, coordinate, detach, and saved-context semantics."
+              - path: "rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"
+                checksum: "sha256:1320db7de092149aebe82c233a64d5adde0af3b0ac323e9fa0d3fb88b0f54185"
+                notes: "Rust-generated diagram evidence including multiply's saved primal and shape context."
+              - path: "rust/demos/ch15-tensor-autodiff-core/diagram-trace.txt"
+                checksum: "sha256:f0c9e058c70429224ec138a41fb739cbe2aa556010d135c862fc96d54c21403c"
+                notes: "Exact generated trace consumed by the shared figure."
+              - path: "site/src/i18n/chapter-locales.json"
+                checksum: "sha256:1af2cc9c6a33f84a949db17514b4803b84afa04e3f24d916f86b7b33fc8b91fd"
+                notes: "Locale registry activating Russian Chapter 15 only at this checkpoint."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, overlap, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 14 is independently committed at 86ecb20 and the worktree was clean; no build was active; recorded host and repository versions match; Chapter 15 owns the disjoint next checkpoint, requires no paid or external service, and is within the unlimited recorded budget."
+              - command: "Pre-edit canonical English, formula, history, learner-prose, diagram-contract, translation-terminology, and rendered-risk audit"
+                status: passed
+                notes: "The audit identifies a node-level formula that does not name distinct repeated operand uses, an incomplete description of multiply's saved primal context, learner-facing fixture/trace/course/presentation language, overbroad source excerpts, synthesized English-only diagram strings, private diagram chrome, unmarked boxes, and a dense full-view surface. The Rust values and derivatives themselves are correct and require no behavior change."
+              - command: "Independent final semantic, terminology, anti-calque, monolingual, accessibility, source-scope, and learner-prose audit"
+                status: passed
+                notes: "All ten reported blockers were repaired. English and Russian now distinguish pass-local adjoints from stored parameter gradients, identify sampled flat coordinates accurately, state the detached path semantics, include multiply's saved primal and shape context, and use natural Russian shape-alignment language."
+              - command: "Chapter contract, English and Russian source checks, parity, course-plan, global content, Astro, UTF-8, formula, and Vitest gates"
+                status: passed
+                notes: "The 40-chapter plan and exact bilingual Chapter 15 sources pass; Astro reports zero errors, warnings, or hints; all 52 Vitest files and 842 tests pass; and git diff --check is clean."
+              - command: "Exact Rust learner stdout and generated diagram-trace comparison"
+                status: passed
+                notes: "Both the learner-facing executable output and the Rust-generated diagram trace match their committed evidence byte for byte; tensor behavior and public API remain unchanged."
+              - command: "Chromium and Firefox Chapter 15, shared diagram, fullscreen, formula, fallback, focus, forced-color, direction, and nearest-box containment suites"
+                status: passed
+                notes: "All 133 selected tests pass in each browser on the exact semantic candidate; after the final two Russian anti-calque edits, the 25 focused Chapter 15 and shared-diagram tests pass again in each browser."
+              - command: "Final pinned Linux/Docker ./course check"
+                status: passed
+                notes: "The immutable Linux workflow passes Rust formatting and tests, the 205-file Astro check, content and parity checks, a 61-route production build, and the complete 2043-reference link, SEO, sitemap, and Analytics audit."
+              - command: "Host build fixture and cleanup audit"
+                status: passed
+                notes: "Run-specific host preview configurations produced the browser fixtures and were removed afterward. Windows Defender intermittently locked Astro prerender chunks after rendering; the build definition was not changed, and the exact supported Linux build passed."
+            notes: "Succeeded. English revision 4 and its direct natural Russian translation publish corrected operand-use VJP semantics, complete saved-context evidence, and a localized shared-system figure; every declared source, Rust, Linux, Chromium, and Firefox gate passes."

@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 40,
+  "plan_revision": 41,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-14",
+    "policy_id": "selective-russian-through-chapter-15",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "14-scalar-autodiff",
+        "through_chapter": "15-tensor-autodiff-core",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-14."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-15."
       },
       {
-        "from_chapter": "15-tensor-autodiff-core",
+        "from_chapter": "16-model-autodiff-ops",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 14 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 15 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -244,6 +244,11 @@
         "step_id": "activate-ch14-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch14-russian-localization"
+      },
+      {
+        "step_id": "activate-ch15-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch15-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -813,9 +818,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–14 activate
-both, while Chapters 15–39 activate English only. Russian therefore keeps its index
-and Chapter 0–14 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–15 activate
+both, while Chapters 16–39 activate English only. Russian therefore keeps its index
+and Chapter 0–15 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1091,12 +1096,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `15-tensor-autodiff-core`
 - **Implementation step:** `implement-ch15-tensor-autodiff-core`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 clarifies distinct operand-use edges, operation-specific saved context, owned tensor access, and learner-facing boundaries before Russian activation; revision 3 remains recorded by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `14-scalar-autodiff`.
 - **Outcome:** Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.
 - **Scope boundary:** Teach operation tapes, saved context, leaf parameters, graph release, gradient accumulation, and VJPs for add, multiply, reshape, transpose, broadcast, sum, and mean; defer model-specific matmul, gather, nonlinear, and loss VJPs.
-- **Formula:** `\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}`.
-- **Historical contrast:** One graph node per scalar and one handwritten backward pass per whole layer become unwieldy for deep, repeated tensor blocks; connect scalar reverse mode to operation-level tensor tapes that support Transformer training.
+- **Formula:** `\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`.
+- **Historical contrast:** One graph node per scalar and one handwritten backward pass per whole layer become unwieldy for deep, repeated tensor blocks; connect scalar reverse mode to edge-local tensor VJPs that support Transformer training.
 - **Rust contribution:** Add the owned tensor tape and the structural/elementwise VJP set, reusing the cumulative tensor primitives and numerical checker.
 - **Visualization:** Useful — show a tensor-operation DAG labeled with forward shapes and the axes reduced while gradients reverse a broadcast.
 - **Practice:** Predict gradient shapes through transpose, mean, and a broadcast bias before computing their values.

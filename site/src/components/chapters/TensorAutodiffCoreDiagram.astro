@@ -61,6 +61,19 @@ const nodeClass = (
   return 'elementwise';
 };
 const contextText = (context: TensorSavedContext): string => {
+  if (context === null) return labels.states.none;
+  if (context.kind === 'mean') {
+    return `${labels.fields.axis}=${context.axis.lexeme}; ${labels.fields.keepDimension}=${labels.states.no}; ${labels.fields.divisor}=${context.divisor.lexeme}`;
+  }
+  if (context.kind === 'transpose') {
+    return `${labels.fields.axes}=${context.firstAxis.lexeme},${context.secondAxis.lexeme}`;
+  }
+  if (context.kind === 'multiply') {
+    return `${labels.fields.otherOperand} ${shapeText(context.otherShape)}=${valuesText(context.otherValues)}; ${labels.fields.inputShape}=${context.inputShape.lexeme}; ${labels.fields.outputShape}=${context.outputShape.lexeme}`;
+  }
+  return `${labels.fields.inputShape}=${context.inputShape.lexeme}; ${labels.fields.outputShape}=${context.outputShape.lexeme}`;
+};
+const contextData = (context: TensorSavedContext): string => {
   if (context === null) return 'none';
   if (context.kind === 'mean') {
     return `axis=${context.axis.lexeme}; keep-dim=${context.keepDim}; divisor=${context.divisor.lexeme}`;
@@ -68,9 +81,14 @@ const contextText = (context: TensorSavedContext): string => {
   if (context.kind === 'transpose') {
     return `axes=${context.firstAxis.lexeme},${context.secondAxis.lexeme}`;
   }
+  if (context.kind === 'multiply') {
+    return `other-shape=${context.otherShape.lexeme}; other-values=${context.otherValues.map(({ lexeme }) => lexeme).join(',')}; input=${context.inputShape.lexeme}; output=${context.outputShape.lexeme}`;
+  }
   return `input=${context.inputShape.lexeme}; output=${context.outputShape.lexeme}`;
 };
 const reducedAxesText = (axes: 'none' | readonly TraceNumber[]): string =>
+  axes === 'none' ? labels.states.none : axes.map(({ lexeme }) => lexeme).join(',');
+const reducedAxesData = (axes: 'none' | readonly TraceNumber[]): string =>
   axes === 'none' ? 'none' : axes.map(({ lexeme }) => lexeme).join(',');
 const parameter = (
   pass: ParameterGradientEvidence['pass'],
@@ -86,13 +104,13 @@ const restoredBias = parameter('after-zero-release', 'bias');
 const errorDetails = (error: TensorAutodiffTraceError): string => {
   switch (error.kind) {
     case 'seed-shape':
-      return `expected=${error.expected.lexeme}; actual=${error.actual.lexeme}`;
+      return `${labels.fields.expectedShape}=${error.expected.lexeme}; ${labels.fields.actualShape}=${error.actual.lexeme}`;
     case 'non-finite-seed':
-      return `flat=${error.flat.lexeme}; value=${error.value}`;
+      return `${labels.fields.flatIndex}=${error.flat.lexeme}; ${labels.fields.value}=${error.value}`;
     case 'graph-released':
-      return `operation=${error.operation}`;
+      return `${labels.fields.operation}=${error.operation}`;
     case 'non-finite-accumulated-gradient':
-      return `node=${error.node.lexeme}; flat=${error.flat.lexeme}`;
+      return `${labels.fields.node}=${error.node.lexeme}; ${labels.fields.flatIndex}=${error.flat.lexeme}`;
   }
 };
 ---
@@ -111,34 +129,36 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
   </figcaption>
 
   <dl class="summary-grid">
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.output}</dt>
       <dd><code dir="ltr">{shapeText(trace.fixture.outputShape)} {valuesText(trace.fixture.output)}</code></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.seed}</dt>
       <dd><code dir="ltr">{shapeText(trace.seed.shape)} {valuesText(trace.seed.values)}</code></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.uniqueNodes}</dt>
       <dd><bdi dir="ltr">{trace.fixture.nodes.lexeme}</bdi></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.operandEdges}</dt>
       <dd><bdi dir="ltr">{trace.fixture.edges.lexeme}</bdi></dd>
     </div>
   </dl>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-graph`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-graph`}>
     <h3 id={`${titleId}-graph`}>{labels.sections.graph}</h3>
     <p>{labels.notes.graph}</p>
-    <ol class="node-grid">
+    <ol class="node-grid course-diagram__grid">
       {trace.nodes.map((node) => {
         const kind = nodeClass(node);
         const incoming = trace.edges.filter((edge) => edge.child === node.label);
         return (
           <li
-            class={`node-card node-${kind}`}
+            data-diagram-card
+            data-diagram-box
+            class={`node-card node-${kind} course-diagram__card-stack`}
             data-node-id={node.id.lexeme}
             data-node-label={node.label}
             data-topology-order={node.topology.lexeme}
@@ -147,7 +167,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
             data-values={node.values.map(({ lexeme }) => lexeme).join(',')}
             data-adjoint={node.adjoint.map(({ lexeme }) => lexeme).join(',')}
           >
-            <p class="card-state">
+            <p class="card-state course-diagram__card-heading">
               <span class="state-symbol" aria-hidden="true">{labels.symbols[kind]}</span>
               <strong><code dir="ltr">{node.label}</code></strong>
             </p>
@@ -156,12 +176,12 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
               <div><dt>{labels.fields.operation}</dt><dd>{operationLabel(node.operation)}</dd></div>
               <div><dt>{labels.fields.shape}</dt><dd><code dir="ltr">{shapeText(node.shape)}</code></dd></div>
               <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{valuesText(node.values)}</code></dd></div>
-              <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(node.adjoint)}</code></dd></div>
+              <div><dt>{labels.fields.adjoint}</dt><dd><code dir="ltr">{valuesText(node.adjoint)}</code></dd></div>
             </dl>
             {incoming.length > 0 && (
-              <ul class="operand-list" aria-label={labels.fields.parent}>
+              <ul class="operand-list course-diagram__grid" aria-label={labels.fields.parent}>
                 {incoming.map((edge) => (
-                  <li>
+                  <li data-diagram-card data-diagram-box>
                     <span>{labels.fields.operand} <bdi dir="ltr">{edge.operand.lexeme}</bdi></span>
                     <strong><code dir="ltr">{edge.parent}</code></strong>
                   </li>
@@ -174,7 +194,7 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     </ol>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
     <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
     <p>{labels.notes.reverse}</p>
     <div class="trace-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`} data-diagram-scroll>
@@ -204,8 +224,8 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
               data-rule={edge.rule}
               data-source-shape={edge.sourceShape.lexeme}
               data-target-shape={edge.targetShape.lexeme}
-              data-reduced-axes={reducedAxesText(edge.reducedAxes)}
-              data-saved-context={contextText(edge.savedContext)}
+              data-reduced-axes={reducedAxesData(edge.reducedAxes)}
+              data-saved-context={contextData(edge.savedContext)}
               data-upstream-adjoint={trace.nodes
                 .find(({ id }) => id.lexeme === edge.childId.lexeme)!
                 .adjoint.map(({ lexeme }) => lexeme)
@@ -228,21 +248,21 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     </div>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-gradients`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-gradients`}>
     <h3 id={`${titleId}-gradients`}>{labels.sections.gradients}</h3>
     <p>{labels.notes.gradients}</p>
-    <div class="gradient-grid">
+    <div class="gradient-grid course-diagram__grid">
       {[firstX, firstBias].map((entry) => {
         const node = trace.nodes.find(({ label }) => label === entry.label)!;
         return (
           <article data-diagram-card data-diagram-box
-            class="gradient-card state-firstPass"
+            class="gradient-card state-firstPass course-diagram__card-stack"
             data-parameter-gradient={entry.label}
             data-backward-pass={entry.pass}
             data-gradient-shape={node.shape.lexeme}
             data-gradient-values={entry.gradient.map(({ lexeme }) => lexeme).join(',')}
           >
-            <p class="card-state">
+            <p class="card-state course-diagram__card-heading">
               <span class="state-symbol" aria-hidden="true">{labels.symbols.firstPass}</span>
               <strong>{labels.states.firstPass}</strong>
             </p>
@@ -257,72 +277,76 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
     </div>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-lifecycle`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-lifecycle`}>
     <h3 id={`${titleId}-lifecycle`}>{labels.sections.lifecycle}</h3>
     <p>{labels.notes.lifecycle}</p>
-    <div class="lifecycle-grid">
+    <div class="lifecycle-grid course-diagram__grid">
       <article data-diagram-card data-diagram-box
-        class="lifecycle-card state-secondPass"
+        class="lifecycle-card state-secondPass course-diagram__card-stack"
         data-lifecycle-state="second-pass"
         data-x-gradient={secondX.gradient.map(({ lexeme }) => lexeme).join(',')}
         data-bias-gradient={secondBias.gradient.map(({ lexeme }) => lexeme).join(',')}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.secondPass}</span><strong>{labels.states.secondPass}</strong></p>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.secondPass}</span><strong>{labels.states.secondPass}</strong></p>
         <dl>
           <div><dt><code dir="ltr">x</code></dt><dd><code dir="ltr">{valuesText(secondX.gradient)}</code></dd></div>
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(secondBias.gradient)}</code></dd></div>
         </dl>
       </article>
       <article data-diagram-card data-diagram-box
-        class="lifecycle-card state-zeroed"
+        class="lifecycle-card state-zeroed course-diagram__card-stack"
         data-lifecycle-state="zeroed"
         data-x-gradient={trace.zeroed.x.map(({ lexeme }) => lexeme).join(',')}
         data-bias-gradient={trace.zeroed.bias.map(({ lexeme }) => lexeme).join(',')}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.zeroed}</span><strong>{labels.states.zeroed}</strong></p>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.zeroed}</span><strong>{labels.states.zeroed}</strong></p>
         <dl>
           <div><dt><code dir="ltr">x</code></dt><dd><code dir="ltr">{valuesText(trace.zeroed.x)}</code></dd></div>
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(trace.zeroed.bias)}</code></dd></div>
         </dl>
       </article>
       <article data-diagram-card data-diagram-box
-        class="lifecycle-card state-restored"
+        class="lifecycle-card state-restored course-diagram__card-stack"
         data-lifecycle-state="after-zero-release"
         data-x-gradient={restoredX.gradient.map(({ lexeme }) => lexeme).join(',')}
         data-bias-gradient={restoredBias.gradient.map(({ lexeme }) => lexeme).join(',')}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.restored}</span><strong>{labels.states.restored}</strong></p>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.restored}</span><strong>{labels.states.restored}</strong></p>
         <dl>
           <div><dt><code dir="ltr">x</code></dt><dd><code dir="ltr">{valuesText(restoredX.gradient)}</code></dd></div>
           <div><dt><code dir="ltr">bias</code></dt><dd><code dir="ltr">{valuesText(restoredBias.gradient)}</code></dd></div>
         </dl>
       </article>
       <article data-diagram-card data-diagram-box
-        class="lifecycle-card state-released"
+        class="lifecycle-card state-released course-diagram__card-stack"
         data-lifecycle-state="released"
         data-operation={trace.release.operation}
         data-released={trace.release.released}
         data-gradients-unchanged={trace.release.gradientsUnchanged}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.released}</span><strong>{labels.states.released}</strong></p>
-        <code dir="ltr">operation={trace.release.operation}; released={trace.release.released}; gradients-unchanged={trace.release.gradientsUnchanged}</code>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.released}</span><strong>{labels.states.released}</strong></p>
+        <dl>
+          <div><dt>{labels.fields.operation}</dt><dd><code dir="ltr">{trace.release.operation}</code></dd></div>
+          <div><dt>{labels.fields.released}</dt><dd>{labels.states.yes}</dd></div>
+          <div><dt>{labels.fields.gradientsUnchanged}</dt><dd>{labels.states.yes}</dd></div>
+        </dl>
       </article>
     </div>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-checks`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-checks`}>
     <h3 id={`${titleId}-checks`}>{labels.sections.checks}</h3>
     <p>{labels.notes.checks}</p>
-    <div class="check-grid">
+    <div class="check-grid course-diagram__grid">
       <article data-diagram-card data-diagram-box
-        class="check-card state-detached"
+        class="check-card state-detached course-diagram__card-stack"
         data-evidence="detach"
         data-expression={trace.detach.expression}
         data-value={trace.detach.value.lexeme}
         data-parameter-gradient={trace.detach.parameterGradient.map(({ lexeme }) => lexeme).join(',')}
         data-detached-gradient={trace.detach.detachedGradient}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.detached}</span><strong>{labels.states.detached}</strong></p>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.detached}</span><strong>{labels.states.detached}</strong></p>
         <dl>
           <div><dt>{labels.fields.operation}</dt><dd><code dir="ltr">{trace.detach.expression}</code></dd></div>
           <div><dt>{labels.fields.values}</dt><dd><bdi dir="ltr">{trace.detach.value.lexeme}</bdi></dd></div>
@@ -330,36 +354,36 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
         </dl>
       </article>
       <article data-diagram-card data-diagram-box
-        class="check-card state-checked"
+        class="check-card state-checked course-diagram__card-stack"
         data-evidence="gradcheck"
         data-operations={trace.gradcheck.operations.join(',')}
         data-x-samples={trace.gradcheck.xSamples.map(({ lexeme }) => lexeme).join(',')}
         data-bias-samples={trace.gradcheck.biasSamples.map(({ lexeme }) => lexeme).join(',')}
         data-status={trace.gradcheck.status}
       >
-        <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.checked}</span><strong>{labels.states.checked}</strong></p>
+        <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.checked}</span><strong>{labels.states.checked}</strong></p>
         <dl>
           <div><dt>{labels.fields.operation}</dt><dd><code dir="ltr">{trace.gradcheck.operations.join(', ')}</code></dd></div>
-          <div><dt><code dir="ltr">x</code> {labels.fields.values}</dt><dd><code dir="ltr">{numberList(trace.gradcheck.xSamples)}</code></dd></div>
-          <div><dt><code dir="ltr">bias</code> {labels.fields.values}</dt><dd><code dir="ltr">{numberList(trace.gradcheck.biasSamples)}</code></dd></div>
-          <div><dt>{labels.fields.status}</dt><dd>{trace.gradcheck.status}</dd></div>
+          <div><dt><code dir="ltr">x</code>: {labels.fields.sampledCoordinates}</dt><dd><code dir="ltr">{numberList(trace.gradcheck.xSamples)}</code></dd></div>
+          <div><dt><code dir="ltr">bias</code>: {labels.fields.sampledCoordinates}</dt><dd><code dir="ltr">{numberList(trace.gradcheck.biasSamples)}</code></dd></div>
+          <div><dt>{labels.fields.status}</dt><dd>{labels.states.checked}</dd></div>
         </dl>
       </article>
     </div>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-errors`}>
+  <section data-diagram-box class="diagram-section" aria-labelledby={`${titleId}-errors`}>
     <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
     <p>{labels.notes.errors}</p>
-    <div class="error-grid">
+    <div class="error-grid course-diagram__grid">
       {trace.errors.map((error) => (
         <article data-diagram-card data-diagram-box
-          class="error-card state-rejected"
+          class="error-card state-rejected course-diagram__card-stack"
           data-error-kind={error.kind}
           data-gradients-unchanged={error.gradientsUnchanged}
           data-graph-unchanged={error.graphUnchanged}
         >
-          <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span><strong>{labels.errors[error.kind]}</strong></p>
+          <p class="card-state course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span><strong>{labels.errors[error.kind]}</strong></p>
           <code dir="ltr">{errorDetails(error)}</code>
         </article>
       ))}
@@ -369,91 +393,11 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
 
 <style>
   .tensor-autodiff-core-diagram {
-    margin-block: 2rem;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-
-  .tensor-autodiff-core-diagram:focus-visible,
-  .trace-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: -0.3rem;
-  }
-
-  figcaption {
-    padding: 1rem 1.2rem 0;
-    font-size: 1.15rem;
-    font-weight: 800;
-  }
-
-  .diagram-description,
-  .diagram-section,
-  .summary-grid {
-    margin-inline: 1.2rem;
-  }
-
-  .diagram-description {
-    margin-block: 0.45rem 1rem;
-    color: var(--muted);
-  }
-
-  .summary-grid,
-  .node-grid,
-  .gradient-grid,
-  .lifecycle-grid,
-  .check-grid,
-  .error-grid {
-    display: grid;
-    align-items: start;
-    gap: 0.85rem;
-  }
-
-  .summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-block: 0 1.2rem;
-  }
-
-  .summary-grid > div,
-  .node-card,
-  .gradient-card,
-  .lifecycle-card,
-  .check-card,
-  .error-card {
-    min-inline-size: 0;
-    padding: 0.8rem;
-    border: 2px solid var(--line);
-    border-radius: 0.75rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-
-  dd {
-    margin-inline: 0;
-    margin-block: 0.15rem 0;
-    overflow-wrap: anywhere;
-  }
-
-  .diagram-section {
-    min-inline-size: 0;
-    margin-block: 1.4rem;
-  }
-
-  .diagram-section h3 {
-    margin-block: 0 0.45rem;
+    --diagram-summary-min: 11rem;
   }
 
   .node-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-block: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .node-parameter { border-style: solid; }
@@ -472,41 +416,22 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
   }
 
   .operand-list {
-    display: grid;
-    gap: 0.35rem;
     margin-block: 0.75rem 0;
-    padding: 0;
-    list-style: none;
   }
 
   .operand-list li {
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.35rem 0.45rem;
-    border: 1px dashed currentColor;
-    border-radius: 0.45rem;
   }
 
   .trace-scroll {
-    max-inline-size: 100%;
-    border: 1px solid var(--line);
-    border-radius: 0.75rem;
+    --diagram-scroll-inline-size: 100%;
   }
 
   .vjp-table {
     inline-size: 100%;
     min-inline-size: 78rem;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-  }
-
-  .vjp-table th,
-  .vjp-table td {
-    padding: 0.55rem;
-    border-block-end: 1px solid var(--line);
-    text-align: start;
-    vertical-align: top;
   }
 
   .gradient-grid,
@@ -527,13 +452,6 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
   .state-released,
   .state-detached,
   .state-rejected { border-style: dashed; }
-
-  .card-state {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin-block: 0 0.55rem;
-  }
 
   .state-symbol {
     display: inline-grid;
@@ -565,40 +483,12 @@ const errorDetails = (error: TensorAutodiffTraceError): string => {
   }
 
   @container course-diagram (max-width: 47.5rem) {
-    .summary-grid,
     .node-grid,
     .gradient-grid,
     .lifecycle-grid,
     .check-grid,
     .error-grid {
       grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (forced-colors: active) {
-    .tensor-autodiff-core-diagram,
-    .summary-grid > div,
-    .node-card,
-    .gradient-card,
-    .lifecycle-card,
-    .check-card,
-    .error-card,
-    .trace-scroll {
-      border-color: CanvasText;
-      background: Canvas;
-      color: CanvasText;
-      forced-color-adjust: none;
-    }
-
-    .state-symbol,
-    .operand-list li {
-      color: CanvasText;
-      border-color: CanvasText;
-    }
-
-    .tensor-autodiff-core-diagram:focus-visible,
-    .trace-scroll:focus-visible {
-      outline-color: Highlight;
     }
   }
 </style>

@@ -54,6 +54,13 @@ export type TensorSavedContext =
       divisor: TraceNumber;
     }>
   | Readonly<{
+      kind: 'multiply';
+      otherShape: TraceShape;
+      otherValues: readonly TraceNumber[];
+      inputShape: TraceShape;
+      outputShape: TraceShape;
+    }>
+  | Readonly<{
       kind: 'transpose';
       firstAxis: TraceNumber;
       secondAxis: TraceNumber;
@@ -194,10 +201,24 @@ export interface TensorAutodiffCoreDiagramLabels {
     rule: string;
     savedContext: string;
     contribution: string;
+    adjoint: string;
     gradient: string;
     pass: string;
     status: string;
     axis: string;
+    axes: string;
+    keepDimension: string;
+    divisor: string;
+    inputShape: string;
+    outputShape: string;
+    expectedShape: string;
+    actualShape: string;
+    flatIndex: string;
+    value: string;
+    released: string;
+    gradientsUnchanged: string;
+    otherOperand: string;
+    sampledCoordinates: string;
     reducedAxes: string;
     scale: string;
   }>;
@@ -219,6 +240,9 @@ export interface TensorAutodiffCoreDiagramLabels {
     detached: string;
     checked: string;
     rejected: string;
+    none: string;
+    no: string;
+    yes: string;
   }>;
   readonly notes: Readonly<{
     graph: string;
@@ -339,6 +363,21 @@ function parseSavedContext(rule: TensorVjpRule, context: string): TensorSavedCon
       secondAxis: parseInteger(match[2]!, 'transpose second axis'),
     };
   }
+  if (rule === 'multiply') {
+    const match = context.match(
+      new RegExp(
+        `^other-shape=(${shapeLexeme}) other-values=(${fixedListLexeme}) input-shape=(${shapeLexeme}) output-shape=(${shapeLexeme})$`,
+      ),
+    );
+    if (!match) throw new Error('Tensor-autodiff multiply VJP saved context is invalid.');
+    return {
+      kind: 'multiply',
+      otherShape: parseShape(match[1]!, 'multiply other-operand shape'),
+      otherValues: parseFixedList(match[2]!, 'multiply other-operand values'),
+      inputShape: parseShape(match[3]!, 'multiply input shape'),
+      outputShape: parseShape(match[4]!, 'multiply output shape'),
+    };
+  }
   if (rule === 'reshape') {
     const match = context.match(
       new RegExp(`^input-shape=(${shapeLexeme}) output-shape=(${shapeLexeme})$`),
@@ -454,8 +493,8 @@ export function parseTensorAutodiffCoreTrace(stdout: string): TensorAutodiffCore
 
   const expectedEdges = [
     ['0', 'y', '7', '0', 'q', '6', 'mean', '2', '2x3', '1', 'axis=1 keep-dim=no divisor=3', '1.000000000000,1.000000000000,1.000000000000,2.000000000000,2.000000000000,2.000000000000'],
-    ['1', 'q', '6', '0', 'z', '5', 'multiply', '2x3', '2x3', 'none', '', '2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000'],
-    ['2', 'q', '6', '1', 'z', '5', 'multiply', '2x3', '2x3', 'none', '', '2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000'],
+    ['1', 'q', '6', '0', 'z', '5', 'multiply', '2x3', '2x3', 'none', 'other-shape=2x3 other-values=2.000000000000,2.000000000000,5.000000000000,3.000000000000,3.000000000000,6.000000000000 input-shape=2x3 output-shape=2x3', '2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000'],
+    ['2', 'q', '6', '1', 'z', '5', 'multiply', '2x3', '2x3', 'none', 'other-shape=2x3 other-values=2.000000000000,2.000000000000,5.000000000000,3.000000000000,3.000000000000,6.000000000000 input-shape=2x3 output-shape=2x3', '2.000000000000,2.000000000000,5.000000000000,6.000000000000,6.000000000000,12.000000000000'],
     ['3', 'z', '5', '0', 't', '2', 'add', '2x3', '2x3', 'none', '', '4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000'],
     ['4', 'z', '5', '1', 'bb', '4', 'add', '2x3', '2x3', 'none', '', '4.000000000000,4.000000000000,10.000000000000,12.000000000000,12.000000000000,24.000000000000'],
     ['5', 'bb', '4', '0', 'bias', '3', 'broadcast', '2x3', '3', '0', '', '16.000000000000,16.000000000000,34.000000000000'],
@@ -669,15 +708,29 @@ const requiredLabelShape: RequiredLabelShape = {
     rule: true,
     savedContext: true,
     contribution: true,
+    adjoint: true,
     gradient: true,
     pass: true,
     status: true,
     axis: true,
+    axes: true,
+    keepDimension: true,
+    divisor: true,
+    inputShape: true,
+    outputShape: true,
+    expectedShape: true,
+    actualShape: true,
+    flatIndex: true,
+    value: true,
+    released: true,
+    gradientsUnchanged: true,
+    otherOperand: true,
+    sampledCoordinates: true,
     reducedAxes: true,
     scale: true,
   },
   operations: { parameter: true, reshape: true, transpose: true, broadcast: true, add: true, multiply: true, mean: true },
-  states: { firstPass: true, secondPass: true, zeroed: true, restored: true, released: true, detached: true, checked: true, rejected: true },
+  states: { firstPass: true, secondPass: true, zeroed: true, restored: true, released: true, detached: true, checked: true, rejected: true, none: true, no: true, yes: true },
   notes: { graph: true, reverse: true, gradients: true, lifecycle: true, checks: true, errors: true },
   symbols: { parameter: true, structural: true, broadcast: true, elementwise: true, reduction: true, firstPass: true, secondPass: true, zeroed: true, restored: true, released: true, detached: true, checked: true, rejected: true },
   rules: { mean: true, multiply: true, add: true, broadcast: true, transpose: true, reshape: true },

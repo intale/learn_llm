@@ -2,39 +2,43 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
-  "title": "Reverse tensor shapes with operation-level VJPs",
-  "description": "Build a Rust tensor autodiff tape, reverse views, broadcasts, and reductions with shape-aware VJPs, and verify gradients for LLM training.",
-  "objective": "Differentiate structural and elementwise tensor expressions while reversing views, broadcasts, and reductions correctly.",
+  "title": "Reverse tensor operations with edge-local VJPs",
+  "description": "Build a Rust tensor autodiff tape, reverse shape transformations, broadcasts, and reductions with edge-local VJPs, and verify gradients for LLM training.",
+  "objective": "Differentiate structural and elementwise tensor expressions while reversing shape transformations, broadcasts, and reductions correctly.",
   "worked_inputs": "Set parameter x to shape [2,3] with values [1,2,3,4,5,6]. Reshape it to [3,2], transpose axes 0 and 1 back to [2,3], explicitly broadcast parameter bias=[1,-1,0] to [2,3], add, reuse that result as both operands of elementwise multiply, and mean axis 1. Predict output y=[11,18], then use seed [3,6] to obtain dx=[4,12,4,12,10,24] and dbias=[16,16,34] before running Rust.",
   "formula": {
-    "latex": "\\bar{x}\\mathrel{+}=J_y(x)^\\top\\bar{y}",
+    "latex": "\\bar{p(e)}\\mathrel{+}=J_e^\\top\\bar{c(e)},\\qquad e\\in E",
     "symbols": [
       {
-        "symbol": "x",
-        "meaning": "one parent tensor consumed by a recorded operation"
+        "symbol": "E",
+        "meaning": "the recorded operand-use edges reachable from the selected output"
       },
       {
-        "symbol": "y",
-        "meaning": "the child tensor produced by that recorded operation"
+        "symbol": "e",
+        "meaning": "one distinct operand occurrence at one consumer operation"
       },
       {
-        "symbol": "J_y(x)",
-        "meaning": "the conceptual Jacobian of every coordinate of y with respect to every coordinate of x"
+        "symbol": "p(e)",
+        "meaning": "the parent tensor supplied through operand-use edge e"
       },
       {
-        "symbol": "J_y(x)^\\top",
-        "meaning": "the transposed Jacobian map that pulls an output adjoint back to x without being materialized"
+        "symbol": "c(e)",
+        "meaning": "the consumer result produced by the operation that owns edge e"
       },
       {
-        "symbol": "\\bar{y}",
-        "meaning": "the upstream pass-local adjoint with exactly the shape of y"
+        "symbol": "J_e",
+        "meaning": "the conceptual Jacobian of c(e) with respect to this operand slot while the operation's other slots stay fixed"
       },
       {
-        "symbol": "\\bar{x}",
-        "meaning": "the pass-local adjoint accumulator with exactly the shape of x"
+        "symbol": "\\bar{c(e)}",
+        "meaning": "the upstream pass-local adjoint with exactly the shape of c(e)"
+      },
+      {
+        "symbol": "\\bar{p(e)}",
+        "meaning": "the pass-local adjoint accumulator with exactly the shape of p(e)"
       },
       {
         "symbol": "\\mathrel{+}=",
@@ -47,7 +51,7 @@
       "predecessor_kind": "training-practice",
       "limitation": "Bengio et al.'s neural language model has millions of parameters and an explicit forward phase followed by network-specific backward/update equations. Those equations make next-word gradient flow inspectable, but carrying one scalar graph node per value or a separately handwritten backward calculation for every whole tensor expression becomes unwieldy across deep, repeated blocks with shape changes.",
       "later_advance": "Abadi et al. represent computation as operation vertices joined by tensor-valued edges and describe automatic differentiation that finds every backward path from a loss to parameters and sums the paths' partial gradients. Vaswani et al. then train repeated Transformer attention and feed-forward tensor blocks, while Radford et al. scale autoregressive Transformer language models to deeper and wider stacks.",
-      "modern_llm_role": "This chapter records one local vector-Jacobian product per tensor operation, restores each contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean pullbacks, and checks the rules numerically before model-specific derivatives are added. Ordinary inference does not run this tape, and its owned values, saved context, retention, release, finite-value, API, trace, and error policies are course-local.",
+      "modern_llm_role": "This chapter records one local vector-Jacobian product for each operand use, restores every contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean rules, and checks those rules numerically before model-specific derivatives are added. Ordinary inference does not run the reverse tape; training uses it to carry loss sensitivity back through repeated tensor blocks.",
       "sources": [
         {
           "role": "earlier",
@@ -79,8 +83,8 @@
         }
       ]
     },
-    "approach": "From explicit next-word backward equations to reusable tensor-operation pullbacks for scaled Transformer training",
-    "summary": "Bengio et al. publish explicit forward and backward/update phases for a neural next-word model. Abadi et al. later describe tensor-valued operation graphs whose differentiation sums every backward path to a parameter. Transformer and GPT-2 work then repeat and scale tensor blocks during training. The Rust contrast replaces one fixed-shape handwritten backward calculation with composable shape-aware VJPs without attributing this course's tape or lifecycle policy to those sources.",
+    "approach": "From explicit next-word backward equations to reusable edge-local tensor VJPs for scaled Transformer training",
+    "summary": "Bengio et al. publish explicit forward and backward/update phases for a neural next-word model. Abadi et al. later describe tensor-valued operation graphs whose differentiation sums every backward path to a parameter. Transformer and GPT-2 work then repeat and scale tensor blocks during training. The Rust contrast replaces one fixed-shape handwritten backward calculation with composable shape-aware VJPs while keeping the implementation-specific lifecycle separate from the historical claims.",
     "rust_source": "rust/demos/ch15-tensor-autodiff-core/src/lib.rs"
   },
   "rust_sources": [
@@ -102,7 +106,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
       "region": "tensor-forward-operations",
-      "purpose": "Record checked elementwise and structural outputs with ordered operand edges and the minimum context their VJPs need."
+      "purpose": "Record checked elementwise and structural outputs with ordered operand edges and operation-specific context, including the other multiply operand's primal."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
@@ -123,11 +127,6 @@
       "path": "rust/demos/ch15-tensor-autodiff-core/src/main.rs",
       "region": "learner-tensor-autodiff-output",
       "purpose": "Prepare deterministic forward, reverse, lifecycle, detach, gradcheck, and typed-error evidence for learners."
-    },
-    {
-      "path": "rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs",
-      "region": "tensor-autodiff-core-trace",
-      "purpose": "Record the exact nodes, edges, VJP ledger, parameter states, focused checks, and rejected requests consumed by the static figure."
     }
   ],
   "visualization": {
@@ -173,10 +172,24 @@ export const diagramLabels = {
     rule: 'Local VJP',
     savedContext: 'Saved context',
     contribution: 'Parent contribution',
+    adjoint: 'Pass-local adjoint',
     gradient: 'Stored gradient',
     pass: 'Backward pass',
     status: 'Status',
     axis: 'Axis',
+    axes: 'Axes',
+    keepDimension: 'Keep dimension',
+    divisor: 'Divisor',
+    inputShape: 'Input shape',
+    outputShape: 'Output shape',
+    expectedShape: 'Expected shape',
+    actualShape: 'Actual shape',
+    flatIndex: 'Flat index',
+    value: 'Value',
+    released: 'Released',
+    gradientsUnchanged: 'Gradients unchanged',
+    otherOperand: 'Other operand',
+    sampledCoordinates: 'Sampled flat coordinates',
     reducedAxes: 'Reduced axes',
     scale: 'Scale',
   },
@@ -195,9 +208,12 @@ export const diagramLabels = {
     zeroed: 'parameter gradients zeroed',
     restored: 'releasing pass restored',
     released: 'operation graph released',
-    detached: 'detached branch stopped',
+    detached: 'detached branch gradient path cut',
     checked: 'sampled gradient checks passed',
     rejected: 'request rejected',
+    none: 'none',
+    no: 'no',
+    yes: 'yes',
   },
   notes: {
     graph:
@@ -209,7 +225,7 @@ export const diagramLabels = {
     lifecycle:
       'Retained calls recompute fresh pass-local adjoints and accumulate only parameter gradients. Successful release keeps values and committed gradients while discarding operation context.',
     checks:
-      'A focused sum-and-detach graph isolates those rules. Chapter 13 central differences probe every supported VJP without inspecting this tape.',
+      'A focused sum-and-detach graph isolates those rules. Chapter 13 central differences probe every supported VJP independently of the reverse tape.',
     errors:
       'The implementation validates every VJP, pass accumulator, prospective parameter sum, and release transition before mutation, so a failed request changes no gradient or graph state.',
   },
@@ -276,8 +292,10 @@ broadcast bias      add                multiply           mean axis 1
  [ 1,-1,0]]          [3,3,6]]           [9,9,36]]
 ```
 
-The output is not scalar, so predict with explicit seed `[3,6]`. Mean divides
-each row's seed by three, producing `[1,1,1,2,2,2]` at multiply. Both multiply
+The output is not scalar. Select the scalar objective
+$L=3y_0+6y_1$; its output cotangent is therefore
+$\bar{y}=[3,6]$. Mean divides each row's cotangent by three, producing
+`[1,1,1,2,2,2]` at multiply. Both multiply
 operands are the same node. Each edge contributes upstream times the other
 operand, so their sum is:
 
@@ -294,28 +312,32 @@ $\bar{x}=[4,12,4,12,10,24]$.
   path="rust/demos/ch15-tensor-autodiff-core/src/lib.rs"
   region="shared-tensor-vjp-fixture"
   caption="Contrast one fixed-shape backward calculation with the reusable eight-node tensor tape"
-  label="Rust source defining the Chapter 15 predict-first tensor VJP fixture and historical contrast"
+  label="Rust source defining the Chapter 15 predict-first tensor VJP example and historical contrast"
 />
 
 {/* chapter-section:formula */}
 
-## Apply one local pullback instead of building a Jacobian
+## Apply one edge-local VJP instead of building a Jacobian
 
-The chapter's only display formula is:
+The central reverse rule is:
 
 $$
-\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}
+\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E
 $$
 
-One recorded operation maps parent tensor $x$ to child tensor $y$. Reverse mode
-already has $\bar{y}$, the selected output's sensitivity with respect to each
-coordinate of $y$. Multiplying by the conceptual Jacobian transpose maps that
-information back to $x$.
+Each reachable operand-use edge $e\in E$ connects one parent tensor $p(e)$ to
+the consumer result $c(e)$. The local map $J_e$ differentiates $c(e)$ with
+respect to that one operand slot while the operation's other slots stay fixed.
+Reverse mode already has $\bar{c(e)}$, the selected objective's sensitivity to
+each coordinate of the consumer. Applying $J_e^\top$ maps that information back
+to the exact shape of $p(e)$.
 
-The VJP implements this action directly. It does not create a matrix with one
-row per output coordinate and one column per input coordinate. It must return a
-tensor shaped exactly like $x$, and $\mathrel{+}=$ must add it because another
-branch or operand edge may also reach the same parent.
+The VJP applies this map directly without creating a matrix with one row per
+consumer coordinate and one column per parent coordinate. The
+$\mathrel{+}=$ matters because another branch—or another operand slot of the
+same operation—may reach the same parent. Thus
+$\mathrm{add}\odot\mathrm{add}$ contributes through
+two distinct edges even though both edges refer to one node.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -323,15 +345,16 @@ branch or operand edge may also reach the same parent.
 
 | Symbol | Operational meaning |
 | :--- | :--- |
-| $x$ | One parent tensor consumed by a recorded operation. |
-| $y$ | The child tensor produced by that operation. |
-| $J_y(x)$ | The conceptual Jacobian of every coordinate of $y$ with respect to every coordinate of $x$. |
-| $J_y(x)^\top$ | The transposed derivative map used by the pullback; the pullback implementation never materializes it. |
-| $\bar{y}$ | The fresh upstream adjoint with exactly the shape of $y$. |
-| $\bar{x}$ | The fresh parent-adjoint accumulator with exactly the shape of $x$. |
+| $E$ | The reachable set of recorded operand-use edges. |
+| $e$ | One distinct operand occurrence at one consumer operation. |
+| $p(e)$ | The parent tensor supplied through edge $e$. |
+| $c(e)$ | The result of the operation that consumes edge $e$. |
+| $J_e$ | The conceptual Jacobian for that operand slot, with the operation's other slots fixed. |
+| $\bar{c(e)}$ | The fresh upstream adjoint with exactly the shape of $c(e)$. |
+| $\bar{p(e)}$ | The fresh parent-adjoint accumulator with exactly the shape of $p(e)$. |
 | $\mathrel{+}=$ | Add this edge's contribution instead of overwriting other paths. |
 
-The superscript transpose belongs to the conceptual Jacobian. The graph's
+The superscript transpose belongs to the conceptual slot-local Jacobian. The graph's
 forward `transpose(0,1)` is a separate tensor operation whose VJP happens to
 swap those saved axes again.
 
@@ -348,7 +371,7 @@ Bengio et al. describe a neural next-word model with millions of parameters and 
 The fixed-shape calculation in the worked example makes that boundary concrete.
 It can produce the right gradients for exactly one known expression, but its
 backward arithmetic is not reusable when a new shape-changing operation is
-inserted. It is a course baseline, not code attributed to Bengio et al.
+inserted. It is an illustrative contrast, not code attributed to Bengio et al.
 
 Abadi et al. represent computation as operation vertices joined by tensor-valued edges and describe automatic differentiation that finds every backward path from a loss to parameters and sums the paths' partial gradients. Vaswani et al. then train repeated Transformer attention and feed-forward tensor blocks, while Radford et al. scale autoregressive Transformer language models to deeper and wider stacks.
 
@@ -364,12 +387,12 @@ The scaled autoregressive-LM checkpoint is
 [Radford et al., *Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language-models.pdf).
 Radford et al. use Transformer-based autoregressive language models and report four sizes spanning 12 to 48 layers and 117 million to 1.542 billion parameters.
 
-This chapter records one local vector-Jacobian product per tensor operation, restores each contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean pullbacks, and checks the rules numerically before model-specific derivatives are added. Ordinary inference does not run this tape, and its owned values, saved context, retention, release, finite-value, API, trace, and error policies are course-local.
+This chapter records one local vector-Jacobian product for each operand use, restores every contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean rules, and checks those rules numerically before model-specific derivatives are added. Ordinary inference does not run the reverse tape; training uses it to carry loss sensitivity back through repeated tensor blocks.
 
 Abadi et al. support the operation-and-tensor graph and summed-path claims, but
-their symbolic graph is not evidence for this course's eager owned tape. The
-model papers establish repeated computation and training scale; they do not
-prescribe these VJP implementations or lifecycle choices.
+their symbolic graph does not prescribe this implementation's owned eager tape.
+The model papers establish repeated computation and training scale; they do not
+prescribe these VJP rules or lifecycle choices.
 
 {/* chapter-section:rust-implementation */}
 
@@ -378,7 +401,8 @@ prescribe these VJP implementations or lifecycle choices.
 `TensorValue::parameter` and `TensorValue::constant` accept finite contiguous
 tensors. Parameters can accumulate stored gradients; constants cannot. A clone
 keeps node identity, while `detach` copies the same primal into a new untracked
-leaf with no operand edge.
+leaf with no operand edge. Both `value()` and `gradient()` return owned tensor
+copies, so inspecting a result cannot mutate tape storage through an alias.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -387,16 +411,17 @@ leaf with no operand edge.
   label="Rust source defining the Chapter 15 tensor tape values"
 />
 
-Forward operations materialize finite contiguous results. Add and multiply save
-their two original shapes. Reshape saves its input shape, transpose saves its
-two axes, broadcast saves its source shape, and reductions save their axis,
-retained-dimension choice, and input extent. These are owned operation values,
-not zero-copy views whose borrow can outlive storage.
+Forward operations materialize finite contiguous results. Add saves the two
+operand shapes. Each multiply edge saves its parent shape and the other
+operand's primal because its local derivative needs that value. Reshape saves
+its input shape, transpose saves its two axes, broadcast saves its source shape,
+and reductions save their axis, retained-dimension choice, and input extent.
+These are owned operation values, not borrowed zero-copy views.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
   region="tensor-forward-operations"
-  caption="Record checked tensor operations with ordered edges and minimal saved VJP context"
+  caption="Record checked tensor operations with ordered edges and operation-specific VJP context"
   label="Rust source implementing the Chapter 15 tensor tape forward operations"
 />
 
@@ -409,11 +434,11 @@ broadcasts; mean also divides by the saved nonzero extent.
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
   region="tensor-structural-vjps"
-  caption="Reverse broadcasts, views, and reductions to every exact parent shape"
+  caption="Reverse broadcasts, shape transformations, and reductions to every exact parent shape"
   label="Rust source implementing the Chapter 15 shape-aware structural VJPs"
 />
 
-`backward()` is a convenience only for a tracked rank-zero output. The frozen
+`backward()` is a convenience only for a tracked rank-zero output. The worked
 rank-one output instead calls `backward_with_seed` with an exactly matching
 finite tensor and an explicit `GraphRetention` choice. Reverse traversal visits
 each node once but processes every ordered edge, including both multiply edges.
@@ -430,15 +455,15 @@ does the implementation commit any stored gradient.
 A retained second pass recomputes fresh intermediates and doubles the two stored
 parameter gradients. `zero_grad` writes positive zero through saved parameter
 handles. A successful releasing pass restores the first-pass values, then drops
-the reachable operation edges and saved context. Primal values and committed
-parameter gradients remain readable, but another backward call or differentiable
-reuse of a released operation fails without mutation.
+the reachable operation nodes' parent edges and saved context. Primal values,
+committed parameter gradients, and the evidence already returned by that pass
+remain readable, but another backward call or differentiable reuse of a released
+operation fails without mutation.
 
-The focused fixture sets parameter $p=[2,3]$ and adds $p\odot p$ to
+The short example sets parameter $p=[2,3]$ and adds $p\odot p$ to
 $10\operatorname{detach}(p)$ before summing. Both branches produce forward
 value $63$, but the detached branch has no edge to $p$, so its gradient is
-`[4,6]`. The same
-fixture compares every supported VJP with Chapter 13 sampled central
+`[4,6]`. The same example compares every supported VJP with Chapter 13 sampled central
 differences:
 
 <RustSource
@@ -460,14 +485,14 @@ unchanged.
   label="Rust source defining the Chapter 15 tensor autodiff errors"
 />
 
-The learner command prints the frozen graph, lifecycle, focused checks, and
-errors in deterministic order:
+The learner command prints the worked graph, lifecycle, focused checks, and
+errors in a stable order:
 
 <RustSource
   path="rust/demos/ch15-tensor-autodiff-core/src/main.rs"
   region="learner-tensor-autodiff-output"
   caption="Prepare the deterministic tensor autodiff evidence before printing"
-  label="Rust source running the Chapter 15 learner fixture"
+  label="Rust source running the Chapter 15 worked example"
 />
 
 ```bash
@@ -508,16 +533,8 @@ local rule, and resulting parent contribution.
 Lifecycle cards separate fresh pass-local adjoints from stored parameter
 gradients. Focused evidence shows sum, detach, numerical checks, and typed
 rejections without crowding those rules into the main graph. The visualization
-validates the trace structure and presents its recorded values and localized
-labels; it does not infer shapes, evaluate VJPs, accumulate gradients, or
-calculate numerical gradients.
-
-<RustSource
-  path="rust/demos/ch15-tensor-autodiff-core/src/diagram_trace.rs"
-  region="tensor-autodiff-core-trace"
-  caption="Record the exact tensor DAG, VJP ledger, lifecycle states, checks, and errors"
-  label="Rust source producing the strict locale-neutral Chapter 15 visualization trace"
-/>
+presents the recorded relationships; the Rust implementation computes every
+shape, VJP, accumulated gradient, numerical comparison, and rejection.
 
 <TensorAutodiffCoreDiagram labels={diagramLabels} instanceId="lesson" />
 
@@ -548,12 +565,8 @@ calculate numerical gradients.
 
 </details>
 
-Run both byte-exact commands after predicting:
-
-```bash
-./course run cargo run --quiet --locked -p ch15-tensor-autodiff-core
-./course run cargo run --quiet --locked -p ch15-tensor-autodiff-core --example ch15-tensor-autodiff-core-trace
-```
+After making the predictions, run the learner command shown above and compare
+its forward values and gradients with your calculations.
 
 {/* chapter-section:decoder-connection */}
 

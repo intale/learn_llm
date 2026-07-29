@@ -115,7 +115,19 @@ fn saved_context(saved: &TensorSavedContext) -> String {
             " axis={axis} keep-dim={} divisor={divisor}",
             yes_no(*keep_dim)
         ),
-        TensorSavedContext::Broadcast { .. } | TensorSavedContext::Multiply { .. } => String::new(),
+        TensorSavedContext::Multiply {
+            other,
+            input_shape,
+            output_shape,
+            ..
+        } => format!(
+            " other-shape={} other-values={} input-shape={} output-shape={}",
+            shape(other.shape()),
+            values(other),
+            shape(input_shape),
+            shape(output_shape)
+        ),
+        TensorSavedContext::Broadcast { .. } => String::new(),
         TensorSavedContext::Model(_) => {
             unreachable!("the frozen Chapter 15 graph has no model-operation context")
         }
@@ -327,6 +339,9 @@ mod tests {
         assert!(trace.contains("label=q operation=mul"));
         assert!(trace.contains("label=y operation=mean"));
         assert!(trace.contains("axis=1 keep-dim=no divisor=3"));
+        assert!(trace.contains(
+            "other-shape=2x3 other-values=2.000000000000,2.000000000000,5.000000000000,3.000000000000,3.000000000000,6.000000000000 input-shape=2x3 output-shape=2x3"
+        ));
         assert!(trace.contains("first-axis=0 second-axis=1"));
         assert!(trace.contains("input-shape=2x3 output-shape=3x2"));
     }

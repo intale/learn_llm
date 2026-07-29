@@ -463,7 +463,7 @@ const chapter14To39FormulaLatex: Record<
   ],
   "15-tensor-autodiff-core": [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
-    String.raw`\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}`,
+    String.raw`\bar{p(e)}\mathrel{+}=J_e^\top\bar{c(e)},\qquad e\in E`,
   ],
   "16-model-autodiff-ops": [
     String.raw`\frac{\partial L}{\partial E_{i,:}}=`,

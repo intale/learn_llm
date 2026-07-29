@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 40,
-  "policyId": "selective-russian-through-chapter-14",
+  "planRevision": 41,
+  "policyId": "selective-russian-through-chapter-15",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -20,7 +20,7 @@
     { "chapterId": "12-stable-softmax", "order": 12, "activeLocales": ["en", "ru"] },
     { "chapterId": "13-gradient-checking", "order": 13, "activeLocales": ["en", "ru"] },
     { "chapterId": "14-scalar-autodiff", "order": 14, "activeLocales": ["en", "ru"] },
-    { "chapterId": "15-tensor-autodiff-core", "order": 15, "activeLocales": ["en"] },
+    { "chapterId": "15-tensor-autodiff-core", "order": 15, "activeLocales": ["en", "ru"] },
     { "chapterId": "16-model-autodiff-ops", "order": 16, "activeLocales": ["en"] },
     { "chapterId": "17-parameter-initialization", "order": 17, "activeLocales": ["en"] },
     { "chapterId": "18-token-embeddings", "order": 18, "activeLocales": ["en"] },
