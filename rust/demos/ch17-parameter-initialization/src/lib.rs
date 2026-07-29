@@ -63,12 +63,12 @@ pub fn zero_symmetry_probe() -> Result<SymmetryProbe, Box<dyn Error>> {
 }
 // endregion:zero-symmetry-probe
 
-// region:fixed-seed-parameter
 fn projection_parameter(rng: &mut SplitMix64) -> Result<NamedParameter, InitializationError> {
     NamedParameter::xavier_uniform("decoder.block.0.attention.query.weight", 2, 2, rng)
 }
 
 pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
+    // region:fixed-seed-parameter
     let scale = xavier_scale(2, 2)?;
     let mut rng = SplitMix64::from_seed(FIXTURE_SEED);
     let projection = projection_parameter(&mut rng)?;

@@ -542,6 +542,33 @@ mod tests {
     }
 
     #[test]
+    fn parameter_name_grammar_accepts_declared_segments_and_rejects_every_gap() {
+        assert!(validate_name("block_0.attention2.query_weight").is_ok());
+        assert_eq!(
+            validate_name("valid..weight").unwrap_err(),
+            InitializationError::EmptyNameSegment { index: 6 }
+        );
+        assert_eq!(
+            validate_name("valid.").unwrap_err(),
+            InitializationError::EmptyNameSegment { index: 6 }
+        );
+        assert_eq!(
+            validate_name("bad-name").unwrap_err(),
+            InitializationError::InvalidNameCharacter {
+                index: 3,
+                byte: b'-',
+            }
+        );
+        assert_eq!(
+            validate_name("naïve").unwrap_err(),
+            InitializationError::InvalidNameCharacter {
+                index: 2,
+                byte: 0xc3,
+            }
+        );
+    }
+
+    #[test]
     fn deterministic_capacity_failure_preserves_rng_state() {
         let mut rng = SplitMix64::from_seed(31);
         let state = rng.state();

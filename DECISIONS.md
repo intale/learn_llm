@@ -9396,3 +9396,36 @@ focus, overflow, and nearest-box containment checks.
 
 **Affected step and run:** `activate-ch16-russian-localization`, run
 `20260729T115956Z-activate-ch16-russian-localization-01`.
+
+## 2026-07-29 - Scope Chapter 17 initialization claims before translating
+
+**Status:** Accepted during `activate-ch17-russian-localization` canonical
+audit.
+
+**Context:** The seed-17 samples, Xavier scale, histograms, and linear expected-
+variance rail are numerically correct. The lesson nevertheless titles the rule
+as applying to every trainable tensor, describes the generator as if distinct
+seeds generally guaranteed distinct tensors, and hands the same fan-based
+derivation to an embedding table even though row lookup does not perform the
+linear accumulation assumed by Xavier. Learner prose also discusses frozen
+output, trace parsing, and presentation responsibilities instead of the LLM
+concept.
+
+**Decision:** Freeze a corrected English revision before Russian translation.
+Teach Xavier-style sampling as the width-aware policy for learned matrices;
+state separately that zero biases, unit normalization gains, and the token table
+use deliberate policies; describe the table's use of the same sampler as an
+explicit shape-based convention rather than an embedding-lookup derivation;
+scope different-seed evidence to the tested seed-17/seed-18 request; describe
+SplitMix64 as compact and fully specified; and replace learner-facing delivery
+mechanics with the concrete evidence and its pedagogical meaning.
+
+**Consequences:** Rust numerical behavior and committed evidence remain stable
+unless an audit exposes a separate implementation defect. English and Russian
+must preserve the distinction between a theoretical distribution variance,
+finite samples, the linear independence calculation, and the nonlinear residual
+decoder. The Chapter 17 figure must move generic presentation to the shared
+diagram module before publication.
+
+**Affected step and run:** `activate-ch17-russian-localization`, run
+`20260729T131519Z-activate-ch17-russian-localization-01`.

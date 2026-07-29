@@ -17,7 +17,6 @@ fn shape(shape: &[usize]) -> String {
 fn main() -> Result<(), Box<dyn Error>> {
     // region:learner-parameter-initialization-output
     let report = learner_report()?;
-    // endregion:learner-parameter-initialization-output
 
     println!("seed: 17");
     println!("projection: shape=2x2 fan_in=2 fan_out=2");
@@ -70,5 +69,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         report.rng_unchanged
     );
     println!("chapter 18 handoff: initialize a trainable token table");
+    // endregion:learner-parameter-initialization-output
     Ok(())
 }

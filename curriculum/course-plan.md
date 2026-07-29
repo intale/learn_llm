@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 42,
+  "plan_revision": 43,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-16",
+    "policy_id": "selective-russian-through-chapter-17",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "16-model-autodiff-ops",
+        "through_chapter": "17-parameter-initialization",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-16."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-17."
       },
       {
-        "from_chapter": "17-parameter-initialization",
+        "from_chapter": "18-token-embeddings",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 16 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 17 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -254,6 +254,11 @@
         "step_id": "activate-ch16-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch16-russian-localization"
+      },
+      {
+        "step_id": "activate-ch17-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch17-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1133,16 +1138,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `17-parameter-initialization`
 - **Implementation step:** `implement-ch17-parameter-initialization`
-- **Revision status:** Content revision 2 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 1's diagram repair remains recorded by `repair-ch17-diagram-rendering`.
+- **Revision status:** Content revision 3 scopes Xavier to dense matrices, separates bias, gain, and token-table policies, fixes reproducibility and learner-facing evidence claims, adopts the shared diagram system, and activates the direct Russian localization; revision 2's formula rendering repair remains recorded by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `16-model-autodiff-ops`.
 - **Outcome:** Create reproducible non-symmetric parameters whose scale is appropriate for their input and output widths.
 - **Scope boundary:** Teach deterministic PRNG state, seeds, zero-symmetry failure, Xavier-style variance, and parameter identity; defer optimizer state.
 - **Formula:** `\operatorname{Var}(W_{ij})=\frac{2}{\operatorname{fan}_{in}+\operatorname{fan}_{out}}`.
 - **Historical contrast:** All-zero weights preserve symmetry, while arbitrary random scales can shrink or explode signals through depth; connect early neural-language-model random initialization to variance-aware parameter scales used to keep a deeper decoder trainable.
-- **Rust contribution:** Add a dependency-free deterministic PRNG, Xavier initialization, and stable named-parameter construction used by every later layer.
+- **Rust contribution:** Add a dependency-free deterministic PRNG, Xavier-style matrix initialization, and stable named-parameter construction reused by later layers under explicit parameter-kind policies.
 - **Visualization:** Useful — compare fixed-seed histograms and propagated variance for zero, oversized, and Xavier-initialized weights.
 - **Practice:** Predict why equal zero weights stay equal and how doubling fan-in changes the target standard deviation.
-- **Integration evidence:** Seed reproducibility, distinct seeds, shape/fan validation, rounded distribution statistics, and parameter enumeration pass.
+- **Integration evidence:** Same-request seed reproducibility, the selected seed-17/seed-18 difference, shape/fan validation, rounded distribution statistics, and parameter enumeration pass.
 - **Handoff:** Chapter 18 uses those parameters as a trainable token table.
 
 ## 18. Token embeddings

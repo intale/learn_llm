@@ -2,13 +2,13 @@
 {
   "chapter_id": "17-parameter-initialization",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 17,
   "concept_id": "parameter-initialization",
-  "title": "Initialize every trainable tensor reproducibly",
-  "description": "Initialize model parameters reproducibly in Rust, compare zero, oversized, and Xavier scales, and track expected variance through stacked linear layers.",
-  "objective": "Create named trainable tensors with reproducible, non-symmetric values and a width-aware starting scale.",
-  "worked_inputs": "Use seed 17 to initialize a [2,2] projection with fan-in 2 and fan-out 2. Predict a target variance of 1/2, a standard deviation of 1/sqrt(2), a uniform bound of sqrt(3/2), exact same-seed reproduction, different values for seed 18, and unequal initialized columns. Contrast that result with a zero 2-to-2 SiLU layer whose equal hidden units receive equal gradient columns.",
+  "title": "Initialize trainable weights reproducibly",
+  "description": "Initialize model weight matrices reproducibly, compare zero, oversized, and Xavier scales, and track expected variance through stacked linear layers.",
+  "objective": "Create named trainable weight matrices reproducibly at width-aware scales and distinguish the separate starting policies for biases, normalization gains, and token tables.",
+  "worked_inputs": "Use seed 17 to initialize a [2,2] projection with fan-in 2 and fan-out 2. Predict a target variance of 1/2, a standard deviation of 1/sqrt(2), a uniform bound of sqrt(3/2), exact same-request reproduction, the observed seed-18 difference, and unequal columns in this selected matrix. Contrast that result with a zero 2-to-2 SiLU layer whose equally treated hidden units receive equal gradient columns.",
   "formula": {
     "latex": "\\operatorname{Var}(W_{ij})=\\frac{2}{\\operatorname{fan}_{in}+\\operatorname{fan}_{out}}",
     "symbols": [
@@ -50,8 +50,8 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": "Bengio et al. jointly learn word features and neural matrices for next-word prediction and report random word-feature initialization similar to neural-network weight initialization. Their paper does not define a dimension-aware or reproducible initialization rule; arbitrary scales become more consequential when learned transformations are composed through depth.",
-      "later_advance": "Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later assemble learned embeddings, attention projections, output projections, and feed-forward matrices into repeated Transformer layers, making many width-dependent trainable tensors part of one language model.",
-      "modern_llm_role": "This chapter gives later decoder parameters distinct deterministic values, stable names, and a declared width-aware target variance. Applying Xavier-style uniform initialization to this small SiLU, RMSNorm, and residual decoder is a transparent course policy, not a claim that the original Transformer specified it or that every signal will preserve variance exactly.",
+      "later_advance": "Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later place learned embeddings at model boundaries and repeat attention projections, output projections, and feed-forward matrices through Transformer layers, making many width-dependent trainable matrices part of one language model.",
+      "modern_llm_role": "This chapter gives later decoder weight matrices reproducible sampled values, stable names, and declared width-aware target variances. The decoder built here uses Xavier-style uniform matrix weights, zero optional biases, unit RMSNorm gains, and a shape-based token-table convention; these are explicit implementation policies, not claims that the original Transformer prescribed them or that every signal preserves variance exactly.",
       "sources": [
         {
           "role": "earlier",
@@ -72,12 +72,12 @@
           "year": 2017,
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
-          "claim": "Vaswani et al. build repeated Transformer layers from learned embeddings, query/key/value and output projections, and two learned feed-forward transformations; the paper does not prescribe a parameter initializer."
+          "claim": "Vaswani et al. use learned embeddings at the model boundaries and repeat query/key/value, attention-output, and two feed-forward projections in Transformer layers; the paper does not prescribe a parameter initializer."
         }
       ]
     },
     "approach": "From randomly initialized neural-language-model features to width-aware starting scales for stacked learned transformations",
-    "summary": "Early neural next-word models made learned word vectors and neural matrices practical and initialized word features randomly. Variance-aware initialization later addressed multiplicative scale drift through depth, while Transformers placed many learned projections in repeated layers. The executable Rust contrast exposes zero-unit symmetry, exact seeded Xavier samples, and stable named enumeration without attributing the course's generator, names, errors, or decoder-wide policy to those papers.",
+    "summary": "Early neural next-word models made learned word vectors and neural matrices practical and initialized word features randomly. Variance-aware initialization later addressed multiplicative scale drift through depth, while Transformers placed many learned projections in repeated layers. The worked contrast exposes one zero-unit symmetry failure, the selected seed-17 samples, and stable named enumeration without attributing the generator, names, errors, or decoder-wide policy to those papers.",
     "rust_source": "rust/demos/ch17-parameter-initialization/src/lib.rs"
   },
   "rust_sources": [
@@ -99,7 +99,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
       "region": "xavier-initialization",
-      "purpose": "Validate both widths, calculate the Xavier scale, and construct one named trainable tensor transactionally."
+      "purpose": "Validate both widths, calculate the Xavier scale, and sample row-major values inside the requested bound."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/nn/init.rs",
@@ -124,33 +124,36 @@
     {
       "path": "rust/demos/ch17-parameter-initialization/src/main.rs",
       "region": "learner-parameter-initialization-output",
-      "purpose": "Prepare the frozen scale, samples, symmetry, identity, error, and handoff evidence for learner output."
+      "purpose": "Print the selected scale, samples, symmetry, identity, errors, and handoff evidence."
     },
     {
       "path": "rust/demos/ch17-parameter-initialization/src/diagram_trace.rs",
       "region": "parameter-initialization-trace",
-      "purpose": "Record exact Rust-authored histograms, finite-sample statistics, expected propagation, and reproducibility evidence."
+      "purpose": "Compute exact histograms, finite-sample statistics, theoretical propagation, and reproducibility evidence."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "parameter-initialization",
-    "rationale": "Side-by-side Rust-authored distributions and expected linear-variance records make zero collapse, oversized spread, and width-aware scale drift visible; final parameter values or a prose list alone hide those relationships."
+    "rationale": "Side-by-side fixed-seed distributions and expected linear-variance values make zero collapse, oversized spread, and width-aware propagation visible; final parameter values or a prose list alone hide those relationships."
   },
-  "decoder_connection": "The cumulative implementation can now create named trainable tables and matrices with reproducible, distinct values and a declared width-aware starting scale. Chapter 18 gives one such table embedding semantics: token IDs select rows, repeated IDs share one row, and their gradients scatter-add. Initialization chooses starting values; it does not implement lookup behavior."
+  "decoder_connection": "The cumulative implementation can now create named trainable matrices reproducibly at declared width-aware scales. Chapter 18 gives a token table embedding semantics: token IDs select rows, repeated IDs share one row, and their gradients scatter-add. Reusing the matrix sampler with vocabulary size and feature width as its two shape inputs is an explicit convention for that table, not a consequence of lookup variance."
 }
 ---
 
 import ParameterInitializationDiagram from '../../../components/chapters/ParameterInitializationDiagram.astro';
 
 export const diagramLabels = {
-  title: 'Compare one seed across three starting scales',
+  title: 'Compare zero weights with two paired scales',
   description:
-    'Inspect exact Rust-authored histograms for zero, oversized, and Xavier-style weights, then follow their assumption-bound expected variance through four linear layers.',
+    'Compare measured finite-sample histograms for zero, oversized, and Xavier-style weights, then follow theoretical variance through four independent linear layers under the stated assumptions.',
   summary: {
     seed: 'Shared seed',
     width: 'Matrix shape',
     samples: 'Weight samples',
+    fanIn: 'Fan-in',
+    fanOut: 'Fan-out',
+    inputVariance: 'Input variance',
     generator: 'Generator and mapping',
     statistic: 'Statistic',
     assumption: 'Population variance from a two-pass calculation',
@@ -164,6 +167,7 @@ export const diagramLabels = {
     range: 'Bin range',
     count: 'Count',
     share: 'Share of samples',
+    strategy: 'Starting rule',
     seed: 'Seed',
     limit: 'Uniform limit',
     minimum: 'Observed minimum',
@@ -171,6 +175,7 @@ export const diagramLabels = {
     mean: 'Observed mean',
     variance: 'Observed population variance',
     layer: 'Layer depth',
+    limitRatio: 'Oversized/Xavier bound ratio',
   },
   strategies: {
     zero: 'All-zero weights',
@@ -195,6 +200,16 @@ export const diagramLabels = {
   propagationAssumption:
     'These are expected variances for independent linear layers with unit input variance. They are not measured guarantees for the nonlinear residual decoder.',
   pairing: 'Controlled comparison',
+  accessibility: {
+    histogramTable: 'Measured finite-sample histograms for all three starting rules',
+    histograms: {
+      zero: 'Histogram row for all-zero weights',
+      oversized: 'Histogram row for weights with a doubled uniform bound',
+      xavier: 'Histogram row for Xavier-style uniform weights',
+    },
+    binTemplate: 'Range {range}; count {count}; share {share}',
+    propagationTable: 'Theoretical expected variance by linear-layer depth',
+  },
 };
 
 {/* chapter-section:worked-example */}
@@ -204,7 +219,7 @@ export const diagramLabels = {
 Initialize a projection of shape `[2,2]` with seed `17`, fan-in $2$, and
 fan-out $2$. Before running the example, predict a target variance of $1/2$, a
 standard deviation of $1/\sqrt{2}$, and a zero-centered uniform bound of
-$\sqrt{3/2}$. The frozen generator produces these row-major values after
+$\sqrt{3/2}$. The seeded generator produces these row-major values after
 twelve-decimal rounding:
 
 ```text
@@ -213,11 +228,11 @@ twelve-decimal rounding:
 ```
 
 The same seed, shape, fan values, and construction order must reproduce the
-same tensor bit for bit. The selected alternate seed `18` must produce a
-different tensor. Those relationships are predictable even though the learner
+same tensor bit for bit. For this selected request, alternate seed `18`
+produces a different tensor. Those relationships are testable even though the learner
 does not calculate the pseudorandom sequence by hand.
 
-Now contrast the distinct columns with a zero-initialized two-unit path. Let
+Now contrast the selected matrix's unequal columns with a zero-initialized two-unit path. Let
 $x=[1,-1]$, set a `[2,2]` input matrix to zero, apply SiLU, and use equal output
 weights `[1,1]`. The scalar output is zero. SiLU's derivative at zero is $1/2$,
 so both input-weight gradient columns are $[0.5,-0.5]^\top$. An equal update
@@ -254,6 +269,14 @@ that signals cannot shrink or grow: its derivation uses simplifying
 independence and near-linear assumptions, while the eventual decoder includes
 nonlinearities, normalization, residual paths, data, and optimization.
 
+More precisely, the balance assumes independent dense weights, input features
+with a common variance, and a symmetric activation near a linear unit-slope
+regime. SiLU does not exactly meet that activation assumption. In the decoder
+built here, learned matrices use the Xavier-style rule, optional biases start at
+zero, and RMSNorm gains start at one. The token table later reuses the matrix
+sampler with vocabulary size and feature width as its two shape inputs; that is
+an explicit convention, not a variance result derived from row lookup.
+
 {/* chapter-section:symbol-glossary */}
 
 ## Name the weight and both widths
@@ -286,10 +309,10 @@ The early neural-language-model checkpoint is
 Bengio et al. define a learned word-feature matrix and neural parameter matrices for next-word prediction, optimize them jointly, and report random initialization of the word features similarly to neural-network weights.
 
 That source supports random starting values for learned language-model features
-and matrices. It does not specify this course's dimension-aware scale, exact
-distribution, seed, generator, stable names, validation order, or trace.
+and matrices. It does not specify a dimension-aware scale, exact distribution,
+seed, generator, stable names, or validation order.
 
-Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later assemble learned embeddings, attention projections, output projections, and feed-forward matrices into repeated Transformer layers, making many width-dependent trainable tensors part of one language model.
+Glorot and Bengio derive a normalized variance compromise for deep feed-forward networks under explicit near-linear and independence assumptions. Vaswani et al. later place learned embeddings at model boundaries and repeat attention projections, output projections, and feed-forward matrices through Transformer layers, making many width-dependent trainable matrices part of one language model.
 
 The width-aware checkpoint is
 [Glorot and Bengio, *Understanding the difficulty of training deep feedforward neural networks*](https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf).
@@ -297,21 +320,19 @@ Glorot and Bengio balance fan-in and fan-out variance conditions under stated si
 
 The repeated learned-parameter checkpoint is
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
-Vaswani et al. build repeated Transformer layers from learned embeddings, query/key/value and output projections, and two learned feed-forward transformations; the paper does not prescribe a parameter initializer. Its attention-score and embedding scaling are forward computations, not evidence for Xavier initialization.
+Vaswani et al. use learned embeddings at the model boundaries and repeat query/key/value, attention-output, and two feed-forward projections in Transformer layers; the paper does not prescribe a parameter initializer. Its attention-score and embedding scaling are forward computations, not evidence for Xavier initialization.
 
-This chapter gives later decoder parameters distinct deterministic values, stable names, and a declared width-aware target variance. Applying Xavier-style uniform initialization to this small SiLU, RMSNorm, and residual decoder is a transparent course policy, not a claim that the original Transformer specified it or that every signal will preserve variance exactly.
+This chapter gives later decoder weight matrices reproducible sampled values, stable names, and declared width-aware target variances. The decoder built here uses Xavier-style uniform matrix weights, zero optional biases, unit RMSNorm gains, and a shape-based token-table convention; these are explicit implementation policies, not claims that the original Transformer prescribed them or that every signal preserves variance exactly.
 
-The progression is about trainable language models: learned neural word
-features, variance-aware deep transformations, then repeated Transformer
-parameters. It is not a history of programming languages or frontend
-frameworks.
+These choices connect learned neural word features to variance-aware deep
+transformations and then to repeated Transformer projections.
 
 {/* chapter-section:rust-implementation */}
 
 ## Generate and name parameters transactionally
 
-The implementation uses SplitMix64 so the exact sequence is small,
-dependency-free, and documented. The seed is the raw state before the first
+The implementation uses the compact, fully specified SplitMix64 algorithm
+without an external dependency. The seed is the raw state before the first
 increment; zero is valid. Each draw maps the high 53 mixed bits to binary64
 before the affine uniform transform. This is deterministic pseudorandom
 sampling, not cryptographic randomness.
@@ -333,8 +354,8 @@ sampling, not cryptographic randomness.
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/init.rs"
   region="xavier-initialization"
-  caption="Validate both widths and construct one Xavier-style named trainable tensor"
-  label="Rust source defining the Chapter 17 Xavier-style parameter constructor"
+  caption="Validate both widths, derive the Xavier-style scale, and sample row-major values"
+  label="Rust source defining the Chapter 17 Xavier scale and sampling rule"
 />
 
 <RustSource
@@ -359,8 +380,8 @@ or checkpoint format are introduced here.
 <RustSource
   path="rust/demos/ch17-parameter-initialization/src/lib.rs"
   region="fixed-seed-parameter"
-  caption="Construct the frozen projection and compare seed 17 with itself and seed 18"
-  label="Rust source defining the Chapter 17 fixed-seed parameter fixture"
+  caption="Construct the selected projection and compare seed 17 with itself and seed 18"
+  label="Rust source comparing the Chapter 17 seeded projection requests"
 />
 
 <RustSource
@@ -390,7 +411,9 @@ Run the complete example from the repository root:
 ./course run cargo run --quiet --locked -p ch17-parameter-initialization
 ```
 
-Its standard output is frozen byte for byte, including the final newline.
+The output exposes the theoretical scale, the selected sampled values, the
+symmetry contrast, stable parameter names, and errors that leave the generator
+state unchanged.
 
 {/* chapter-section:visualization */}
 
@@ -412,15 +435,16 @@ nonlinear residual decoder.
 <RustSource
   path="rust/demos/ch17-parameter-initialization/src/diagram_trace.rs"
   region="parameter-initialization-trace"
-  caption="Emit the exact distributions, histograms, expected propagation, and seed comparisons consumed below"
-  label="Rust source defining the Chapter 17 static parameter-initialization trace"
+  caption="Compute the paired distributions, histograms, theoretical propagation, and seed comparisons shown below"
+  label="Rust source computing the Chapter 17 parameter-initialization comparison"
 />
 
 <ParameterInitializationDiagram labels={diagramLabels} />
 
-The presentation validates and arranges the Rust trace. It does not resample
-weights, calculate bounds or statistics, bin values, normalize percentages,
-derive powers, classify outcomes, or recompute variance.
+The paired uniform samples reuse the same base draws, so their different bars
+and statistics come only from the doubled scale. The histogram variances are
+measurements from $4096$ values; the depth table instead follows the theoretical
+target-variance multipliers under the stated linear assumptions.
 
 {/* chapter-section:exercises */}
 
@@ -428,13 +452,13 @@ derive powers, classify outcomes, or recompute variance.
 
 1. For fan-in $2$ and fan-out $2$, calculate the target variance, standard deviation, and uniform bound.
 2. Recalculate those three quantities when fan-in becomes $4$ and fan-out remains $2$.
-3. Derive the two input-weight gradient columns for the zero-weight SiLU fixture.
+3. Derive the two input-weight gradient columns for the zero-weight SiLU example.
 4. Which values must match when seed, shape, fan values, and construction order all match?
-5. Why should the selected seed `18` fixture differ without proving that every pair of possible seeds differs?
+5. Why does the selected seed `18` request differ without proving that every pair of possible seeds differs?
 6. Why does one finite `[2,2]` tensor not need an empirical variance of exactly $1/2$?
 7. In which order are `decoder.block.0.attention.query.weight` and `token_embedding.weight` enumerated?
 8. Does a rejected invalid name or zero fan advance the generator, and which duplicate does a collection report?
-9. Does Vaswani et al. prescribe Xavier initialization for the Transformer?
+9. Do Vaswani et al. prescribe Xavier initialization for the Transformer?
 10. Does the formula guarantee exact realized variance or prevent every signal from shrinking or growing?
 
 <details>
@@ -444,7 +468,7 @@ derive powers, classify outcomes, or recompute variance.
   2. They become $1/3$, $0.577350269190$, and $1.000000000000$.
   3. Both columns are $[0.5,-0.5]^\top$: the equal output weights and SiLU derivative $1/2$ give each hidden unit the same upstream factor.
   4. The generator stream and resulting tensor bits match for this identical request.
-  5. The frozen seed-18 request is tested to differ. A pseudorandom generator is deterministic, but that selected test is not a mathematical uniqueness promise for every seed and request.
+  5. The selected seed-18 request produces a different tensor in this example. A pseudorandom generator is deterministic, but that observation is not a mathematical uniqueness promise for every seed and request.
   6. The formula describes a distribution. A small finite sample has sampling variation.
   7. Declaration order is preserved: the query projection appears first, followed by the token table.
   8. Neither rejection advances the generator. A collection reports the first repeated name together with its original and repeated indices.
@@ -461,7 +485,12 @@ not such a guarantee.
 
 ## Give initialization meaning as a token table
 
-The cumulative implementation can now create named trainable tables and matrices with reproducible, distinct values and a declared width-aware starting scale. Chapter 18 gives one such table embedding semantics: token IDs select rows, repeated IDs share one row, and their gradients scatter-add. Initialization chooses starting values; it does not implement lookup behavior.
+The cumulative implementation can now create named trainable matrices
+reproducibly at declared width-aware scales. Chapter 18 gives a token table
+embedding semantics: token IDs select rows, repeated IDs share one row, and
+their gradients scatter-add. Reusing the matrix sampler with vocabulary size
+and feature width as its two shape inputs is an explicit convention for that
+table, not a consequence of lookup variance.
 
 Construction order matters when several parameters share one generator stream:
 inserting an earlier parameter changes all later draws. Keep that order

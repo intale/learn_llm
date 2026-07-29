@@ -1117,7 +1117,7 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.initialization).toContain(
-      "String.raw`\\Delta=${trace.binning.width.lexeme}`",
+      "<InlineMath latex={'\\\\Delta=' + trace.binning.displayWidth} />",
     );
     expect(components.initialization).not.toContain(
       "[{bin.lower.lexeme}, {bin.upper.lexeme}",

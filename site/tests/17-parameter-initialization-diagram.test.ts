@@ -35,6 +35,9 @@ const labels: ParameterInitializationDiagramLabels = {
     seed: 'seed',
     width: 'width',
     samples: 'samples',
+    fanIn: 'fan-in',
+    fanOut: 'fan-out',
+    inputVariance: 'input variance',
     generator: 'generator',
     statistic: 'statistic',
     assumption: 'assumption',
@@ -48,6 +51,7 @@ const labels: ParameterInitializationDiagramLabels = {
     range: 'range',
     count: 'count',
     share: 'share',
+    strategy: 'strategy',
     seed: 'seed',
     limit: 'limit',
     minimum: 'minimum',
@@ -55,6 +59,7 @@ const labels: ParameterInitializationDiagramLabels = {
     mean: 'mean',
     variance: 'variance',
     layer: 'layer',
+    limitRatio: 'limit ratio',
   },
   strategies: {
     zero: 'zero',
@@ -77,6 +82,16 @@ const labels: ParameterInitializationDiagramLabels = {
   binClosure: 'closure',
   propagationAssumption: 'assumption',
   pairing: 'pairing',
+  accessibility: {
+    histogramTable: 'histogram table',
+    histograms: {
+      zero: 'zero histogram',
+      oversized: 'oversized histogram',
+      xavier: 'Xavier histogram',
+    },
+    binTemplate: 'range {range}; count {count}; share {share}',
+    propagationTable: 'propagation table',
+  },
 };
 
 describe('Chapter 17 Rust trace parser', () => {
@@ -94,6 +109,7 @@ describe('Chapter 17 Rust trace parser', () => {
     });
     expect(trace.fixture.seed.lexeme).toBe('17');
     expect(trace.fixture.samples.lexeme).toBe('4096');
+    expect(trace.fixture.displayInputVariance).toBe('1');
     expect(trace.fixture.layers.map(({ lexeme }) => lexeme)).toEqual(['0', '1', '2', '3', '4']);
     expect(trace.binning.edges.map(({ lexeme }) => lexeme)).toEqual([
       '-0.450000000000',
@@ -107,6 +123,19 @@ describe('Chapter 17 Rust trace parser', () => {
       '0.350000000000',
       '0.450000000000',
     ]);
+    expect(trace.binning.displayEdges).toEqual([
+      '-0.45',
+      '-0.35',
+      '-0.25',
+      '-0.15',
+      '-0.05',
+      '0.05',
+      '0.15',
+      '0.25',
+      '0.35',
+      '0.45',
+    ]);
+    expect(trace.binning.displayWidth).toBe('0.10');
 
     expect(
       trace.distributions.map(({ kind, seed, limit, mean, variance, bins }) => ({
@@ -152,14 +181,57 @@ describe('Chapter 17 Rust trace parser', () => {
     ]);
 
     expect(
-      trace.propagations.map(({ kind, variances }) => ({
+      trace.distributions.map(({ kind, display, bins }) => ({
         kind,
-        values: variances.map(({ lexeme }) => lexeme).join(','),
+        display,
+        displayPercent: bins.map(({ displayBarPercent }) => displayBarPercent),
       })),
     ).toEqual([
-      { kind: 'zero', values: '1.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000' },
-      { kind: 'oversized', values: '1.000000000000,4.000000000000,16.000000000000,64.000000000000,256.000000000000' },
-      { kind: 'xavier', values: '1.000000000000,1.000000000000,1.000000000000,1.000000000000,1.000000000000' },
+      {
+        kind: 'zero',
+        display: {
+          limit: '0.0000',
+          minimum: '0.0000',
+          maximum: '0.0000',
+          mean: '0.0000',
+          variance: '0.0000',
+        },
+        displayPercent: ['0.0', '0.0', '0.0', '0.0', '100.0', '0.0', '0.0', '0.0', '0.0'],
+      },
+      {
+        kind: 'oversized',
+        display: {
+          limit: '0.4330',
+          minimum: '-0.4330',
+          maximum: '0.4326',
+          mean: '-0.0067',
+          variance: '0.0632',
+        },
+        displayPercent: ['10.0', '12.2', '11.8', '11.5', '11.5', '10.9', '11.6', '10.8', '9.8'],
+      },
+      {
+        kind: 'xavier',
+        display: {
+          limit: '0.2165',
+          minimum: '-0.2165',
+          maximum: '0.2163',
+          mean: '-0.0034',
+          variance: '0.0158',
+        },
+        displayPercent: ['0.0', '0.0', '16.5', '23.5', '22.4', '22.7', '14.9', '0.0', '0.0'],
+      },
+    ]);
+
+    expect(
+      trace.propagations.map(({ kind, variances, displayVariances }) => ({
+        kind,
+        values: variances.map(({ lexeme }) => lexeme).join(','),
+        displayValues: displayVariances.join(','),
+      })),
+    ).toEqual([
+      { kind: 'zero', values: '1.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000', displayValues: '1,0,0,0,0' },
+      { kind: 'oversized', values: '1.000000000000,4.000000000000,16.000000000000,64.000000000000,256.000000000000', displayValues: '1,4,16,64,256' },
+      { kind: 'xavier', values: '1.000000000000,1.000000000000,1.000000000000,1.000000000000,1.000000000000', displayValues: '1,1,1,1,1' },
     ]);
     expect(trace.pairing).toMatchObject({ baseDrawsEqual: 'yes' });
     expect(trace.pairing.oversizedToXavierLimit.lexeme).toBe('2.000000000000');
@@ -174,7 +246,7 @@ describe('Chapter 17 Rust trace parser', () => {
     ['missing final LF', fixture.slice(0, -1), /exactly one final LF/],
     ['extra final LF', fixture + '\n', /exactly one final LF/],
     ['missing record', fixture.replace(/^PAIRING.*\n/m, ''), /exactly 15 lines/],
-    ['version drift', fixture.replace('parameter-initialization-v1', 'parameter-initialization-v2'), /line 1/],
+    ['version drift', fixture.replace('parameter-initialization-v2', 'parameter-initialization-v3'), /line 1/],
     ['fixture name drift', fixture.replace('name=fixed-seed-width64', 'name=fixed-seed-width32'), /FIXTURE name/],
     ['generator drift', fixture.replace('generator=splitmix64', 'generator=other'), /FIXTURE generator/],
     ['mapping drift', fixture.replace('mapping=top53-affine', 'mapping=other'), /FIXTURE mapping/],
@@ -188,16 +260,22 @@ describe('Chapter 17 Rust trace parser', () => {
     ['layer drift', fixture.replace('layers=0,1,2,3,4', 'layers=0,1,2,3,5'), /FIXTURE layer 4/],
     ['fixture propagation drift', fixture.replace('propagation=expected-linear-independent', 'propagation=measured'), /FIXTURE propagation/],
     ['input variance drift', fixture.replace('input-variance=1.000000000000', 'input-variance=2.000000000000'), /FIXTURE input variance/],
+    ['display input variance drift', fixture.replace('display-input-variance=1', 'display-input-variance=2'), /FIXTURE display input variance/],
     ['bin edge drift', fixture.replace('-0.350000000000', '-0.340000000000'), /BINNING edge 1/],
+    ['display edge drift', fixture.replace('display-edges=-0.45,-0.35', 'display-edges=-0.45,-0.34'), /BINNING display edge 1/],
     ['bin width drift', fixture.replace('width=0.100000000000', 'width=0.200000000000'), /BINNING width/],
+    ['display width drift', fixture.replace('display-width=0.10', 'display-width=0.20'), /BINNING display width/],
     ['bin closure drift', fixture.replace('closure=left-closed-right-open-last-closed', 'closure=closed'), /BINNING closure/],
     ['distribution seed drift', fixture.replace('DISTRIBUTION kind=oversized seed=17', 'DISTRIBUTION kind=oversized seed=18'), /DISTRIBUTION oversized seed/],
     ['limit drift', fixture.replace('limit=0.433012701892', 'limit=0.433012701891'), /DISTRIBUTION oversized limit/],
     ['minimum drift', fixture.replace('min=-0.432980910925', 'min=-0.432980910924'), /DISTRIBUTION oversized min/],
     ['maximum drift', fixture.replace('max=0.432647637102', 'max=0.432647637101'), /DISTRIBUTION oversized max/],
     ['mean drift', fixture.replace('mean=-0.006738057131', 'mean=-0.006738057130'), /DISTRIBUTION oversized mean/],
+    ['display mean drift', fixture.replace('display-mean=-0.0067', 'display-mean=-0.0068'), /DISTRIBUTION oversized display mean/],
+    ['display negative zero', fixture.replace('display-limit=0.0000', 'display-limit=-0.0000'), /canonical 4-decimal display/],
     ['count drift', fixture.replace('counts=0,0,0,0,4096', 'counts=0,0,0,1,4095'), /HISTOGRAM zero count 3/],
     ['bar-percent drift', fixture.replace('23.486328125000', '23.486328125001'), /HISTOGRAM xavier bar-percent 3/],
+    ['display-percent drift', fixture.replace('display-percent=0.0,0.0,16.5,23.5', 'display-percent=0.0,0.0,16.5,23.4'), /HISTOGRAM xavier display-percent 3/],
     ['histogram kind drift', fixture.replace('HISTOGRAM kind=zero', 'HISTOGRAM kind=xavier'), /HISTOGRAM zero kind/],
     ['underflow drift', fixture.replace('underflow=0 overflow=0', 'underflow=1 overflow=0'), /HISTOGRAM zero underflow/],
     ['overflow drift', fixture.replace('underflow=0 overflow=0', 'underflow=0 overflow=1'), /HISTOGRAM zero overflow/],
@@ -208,6 +286,7 @@ describe('Chapter 17 Rust trace parser', () => {
     ['pairing ratio drift', fixture.replace('oversized-to-xavier-limit=2.000000000000', 'oversized-to-xavier-limit=1.999999999999'), /PAIRING limit ratio/],
     ['propagation kind drift', fixture.replace('PROPAGATION kind=zero', 'PROPAGATION kind=xavier'), /PROPAGATION zero kind/],
     ['propagation drift', fixture.replace('256.000000000000', '255.000000000000'), /PROPAGATION oversized variance 4/],
+    ['display propagation drift', fixture.replace('display-variances=1,4,16,64,256', 'display-variances=1,4,16,64,255'), /PROPAGATION oversized display variance 4/],
     ['reproduction seed drift', fixture.replace('REPRODUCIBILITY seed=17', 'REPRODUCIBILITY seed=19'), /REPRODUCIBILITY seed/],
     ['same-seed result drift', fixture.replace('same-seed-equal=yes', 'same-seed-equal=no'), /REPRODUCIBILITY same seed/],
     ['alternate seed drift', fixture.replace('alternate-seed=18', 'alternate-seed=19'), /REPRODUCIBILITY alternate seed/],
@@ -248,6 +327,15 @@ describe('Chapter 17 labels and static component', () => {
         states: { ...labels.states, sameSeedEqual: '' },
       }),
     ).toThrow(/states\.sameSeedEqual/);
+    expect(() =>
+      validateParameterInitializationLabels({
+        ...labels,
+        accessibility: {
+          ...labels.accessibility,
+          binTemplate: 'range {range}; count {count}',
+        },
+      }),
+    ).toThrow(/\{share\}/);
   });
 
   it('keeps all taught arithmetic in Rust-authored evidence', () => {
@@ -256,66 +344,62 @@ describe('Chapter 17 labels and static component', () => {
     );
     expect(componentSource).toContain('parseParameterInitializationTrace');
     expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
-    expect(componentSource).toContain(
-      'String.raw`\\Delta=${trace.binning.width.lexeme}`',
-    );
-    expect(componentSource).toContain("bin.includesUpper ? '\\\\right]' : '\\\\right)'");
-    expect(componentSource).not.toContain('>Δ={trace.binning.width.lexeme}</span>');
-    expect(componentSource).not.toContain('[{bin.lower.lexeme}, {bin.upper.lexeme}');
+    expect(componentSource).toContain("'\\\\Delta=' + trace.binning.displayWidth");
+    expect(componentSource).toContain('trace.binning.displayEdges');
+    expect(componentSource).toContain('rangeLowerLatex');
+    expect(componentSource).toContain('rangeUpperLatex');
+    expect(componentSource).toContain('class="histogram-range"');
     expect(componentSource).not.toMatch(/(?:^|[^A-Za-z])Math\.|\b(?:Number|parseFloat|parseInt|random|reduce|sqrt|pow)\s*\(|\/\s*4096/);
     expect(parserSource).not.toMatch(/Math\.|random\(|reduce\(|\/\s*4096|sqrt\(|pow\(/);
     expect(componentSource).not.toMatch(/<script|client:/);
     expect(componentSource).toMatch(/\.distribution-grid\s*\{[^}]*align-items:\s*start;/s);
-    expect(componentSource).toContain('margin-inline: 0');
     expect(componentSource).toContain('border-style: dotted');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
-    expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(componentSource).toContain(
       'data-bar-percent={bin.barPercent.lexeme}',
     );
     expect(componentSource).toContain(
-      'style={`--bar-percent: ${bin.barPercent.lexeme}%`}',
+      "style={'--bar-percent: ' + bin.barPercent.lexeme + '%'}",
     );
     expect(componentSource).toContain(
-      '<bdi dir="ltr">{bin.barPercent.lexeme}%</bdi>',
+      '<bdi dir="ltr">{bin.displayBarPercent}%</bdi>',
     );
     expect(componentSource).toContain(
-      'data-variance={propagationByKind.get(kind)?.variances[layerIndex].lexeme}',
+      'data-variance={variance.lexeme}',
     );
     expect(componentSource).toContain(
-      '{propagationByKind.get(kind)?.variances[layerIndex].lexeme}',
+      '<InlineMath latex={propagationByKind.get(kind)!.displayVariances[layerIndex]!} />',
     );
-    expect(componentSource).not.toContain('propagation-data');
-    expect(componentSource).not.toMatch(/\.distribution-card\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
+    expect(componentSource).toContain('data-fan-in={trace.fixture.fanIn.lexeme}');
+    expect(componentSource).toContain('data-input-variance={trace.fixture.inputVariance.lexeme}');
   });
 
-  it('uses the shared frame contract and contains histogram evidence by component width', () => {
+  it('uses only shared presentation roles plus concept geometry and a compact fullscreen reflow', () => {
     expect(componentSource).toContain(
       'class="course-diagram parameter-initialization-diagram"',
     );
     expect(componentSource).toContain('data-diagram-style="course-v1"');
-    expect(componentSource).not.toMatch(
-      /\.parameter-initialization-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
-    );
-    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
-    expect(componentSource).toContain('color: var(--muted)');
-    expect(componentSource).toContain('background: var(--surface-raised, var(--surface))');
-    expect(componentSource).not.toMatch(/#101722|#182333|--surface-subtle|--text-muted|--focus-ring/);
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('course-diagram__card-heading');
+    expect(componentSource).toContain('class="state-symbol"');
+    expect(componentSource.match(/data-diagram-card/g)?.length).toBeGreaterThanOrEqual(4);
+    expect(componentSource.match(/data-diagram-box/g)?.length).toBeGreaterThanOrEqual(8);
+    expect(componentSource.match(/data-diagram-scroll/g)).toHaveLength(2);
+    expect(componentSource).toContain('data-diagram-table');
+    expect(componentSource).toContain('@container course-diagram');
+    expect(componentSource).toContain('.parameter-initialization-diagram:fullscreen');
+    expect(componentSource).toContain('grid-template-areas:');
 
-    expect(componentSource).toMatch(
-      /\.distribution-grid\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fit, minmax\(min\(100%, 16rem\), 1fr\)\);/s,
+    expect(componentSource).not.toMatch(/overflow\s*:\s*(?:hidden|clip)/);
+    expect(componentSource).not.toContain('overflow-y: hidden');
+    expect(componentSource).not.toContain('container-type:');
+    expect(componentSource).not.toContain(':focus-visible');
+    expect(componentSource).not.toContain('@media (forced-colors');
+    expect(componentSource).not.toMatch(
+      /\.parameter-initialization-diagram\s*\{[^}]*(?:margin|padding|border|background|box-shadow|container-type)\s*:/s,
     );
-    expect(componentSource).toContain('container-type: inline-size');
-    expect(componentSource).toMatch(
-      /@container \(min-width: 34rem\) and \(max-width: 55rem\)\s*\{[\s\S]*\.distribution-card:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1 \/ -1;/,
-    );
-    expect(componentSource).toMatch(
-      /\.histogram li\s*\{[^}]*min-inline-size:\s*0;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
-    );
-    expect(componentSource).toContain('class="bin-range course-diagram__scroll"');
-    expect(componentSource).toContain('data-diagram-scroll');
-    expect(componentSource).not.toContain('overflow-x: auto');
-    expect(componentSource).toContain('@container course-diagram (max-width: 32rem)');
+    expect(componentSource).not.toMatch(/(?:^|\n)\s*(?:table|th|td|figcaption)\s*\{/);
   });
 });

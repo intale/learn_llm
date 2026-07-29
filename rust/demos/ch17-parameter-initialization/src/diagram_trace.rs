@@ -10,6 +10,9 @@ const SAMPLE_COUNT: usize = WIDTH * WIDTH;
 const EDGES: [f64; 10] = [
     -0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45,
 ];
+const DISPLAY_EDGES: [&str; 10] = [
+    "-0.45", "-0.35", "-0.25", "-0.15", "-0.05", "0.05", "0.15", "0.25", "0.35", "0.45",
+];
 
 #[derive(Clone, Debug)]
 struct Statistics {
@@ -38,6 +41,26 @@ fn fixed_list(values: &[f64]) -> String {
     values
         .iter()
         .map(|value| fixed(*value))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+fn display_fixed(value: f64) -> String {
+    format!("{:.4}", normalized_zero(value))
+}
+
+fn display_percentage_list(values: &[f64]) -> String {
+    values
+        .iter()
+        .map(|value| format!("{:.1}", normalized_zero(*value)))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+fn display_integer_list(values: &[f64]) -> String {
+    values
+        .iter()
+        .map(|value| format!("{:.0}", normalized_zero(*value)))
         .collect::<Vec<_>>()
         .join(",")
 }
@@ -114,20 +137,27 @@ fn expected_variances(multiplier: f64) -> [f64; 5] {
 
 fn distribution_line(kind: &str, seed: &str, limit: f64, stats: &Statistics) -> String {
     format!(
-        "DISTRIBUTION kind={kind} seed={seed} limit={} min={} max={} mean={} variance={}",
+        "DISTRIBUTION kind={kind} seed={seed} limit={} min={} max={} mean={} variance={} display-limit={} display-min={} display-max={} display-mean={} display-variance={}",
         fixed(limit),
         fixed(stats.minimum),
         fixed(stats.maximum),
         fixed(stats.mean),
         fixed(stats.variance),
+        display_fixed(limit),
+        display_fixed(stats.minimum),
+        display_fixed(stats.maximum),
+        display_fixed(stats.mean),
+        display_fixed(stats.variance),
     )
 }
 
 fn histogram_line(kind: &str, histogram: &Histogram) -> String {
+    let percentages = percentages(&histogram.counts);
     format!(
-        "HISTOGRAM kind={kind} counts={} bar-percent={} underflow={} overflow={}",
+        "HISTOGRAM kind={kind} counts={} bar-percent={} display-percent={} underflow={} overflow={}",
         integer_list(&histogram.counts),
-        fixed_list(&percentages(&histogram.counts)),
+        fixed_list(&percentages),
+        display_percentage_list(&percentages),
         histogram.underflow,
         histogram.overflow,
     )
@@ -137,7 +167,7 @@ fn histogram_line(kind: &str, histogram: &Histogram) -> String {
 pub fn render_trace() -> Result<String, Box<dyn Error>> {
     let scale = xavier_scale(WIDTH, WIDTH)?;
     let mut rng = SplitMix64::from_seed(FIXTURE_SEED);
-    let xavier = NamedParameter::xavier_uniform("diagnostic.xavier", WIDTH, WIDTH, &mut rng)?
+    let xavier = NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut rng)?
         .tensor()
         .value()
         .into_vec();
@@ -153,27 +183,28 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
 
     let mut same_seed_rng = SplitMix64::from_seed(FIXTURE_SEED);
     let same_seed =
-        NamedParameter::xavier_uniform("diagnostic.same", WIDTH, WIDTH, &mut same_seed_rng)?
+        NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut same_seed_rng)?
             .tensor()
             .value()
             .into_vec();
     let mut alternate_rng = SplitMix64::from_seed(ALTERNATE_SEED);
     let alternate =
-        NamedParameter::xavier_uniform("diagnostic.alternate", WIDTH, WIDTH, &mut alternate_rng)?
+        NamedParameter::xavier_uniform("diagnostic.weight", WIDTH, WIDTH, &mut alternate_rng)?
             .tensor()
             .value()
             .into_vec();
 
     let mut trace = String::new();
-    writeln!(trace, "TRACE parameter-initialization-v1 BEGIN")?;
+    writeln!(trace, "TRACE parameter-initialization-v2 BEGIN")?;
     writeln!(
         trace,
-        "FIXTURE name=fixed-seed-width64 generator=splitmix64 mapping=top53-affine seed=17 shape=64x64 samples=4096 fan-in=64 fan-out=64 statistic=population-two-pass layers=0,1,2,3,4 propagation=expected-linear-independent input-variance=1.000000000000"
+        "FIXTURE name=fixed-seed-width64 generator=splitmix64 mapping=top53-affine seed=17 shape=64x64 samples=4096 fan-in=64 fan-out=64 statistic=population-two-pass layers=0,1,2,3,4 propagation=expected-linear-independent input-variance=1.000000000000 display-input-variance=1"
     )?;
     writeln!(
         trace,
-        "BINNING edges={} width=0.100000000000 closure=left-closed-right-open-last-closed",
-        fixed_list(&EDGES)
+        "BINNING edges={} display-edges={} width=0.100000000000 display-width=0.10 closure=left-closed-right-open-last-closed",
+        fixed_list(&EDGES),
+        DISPLAY_EDGES.join(",")
     )?;
     writeln!(
         trace,
@@ -208,18 +239,21 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     )?;
     writeln!(
         trace,
-        "PROPAGATION kind=zero variances={}",
-        fixed_list(&expected_variances(0.0))
+        "PROPAGATION kind=zero variances={} display-variances={}",
+        fixed_list(&expected_variances(0.0)),
+        display_integer_list(&expected_variances(0.0))
     )?;
     writeln!(
         trace,
-        "PROPAGATION kind=oversized variances={}",
-        fixed_list(&expected_variances(4.0))
+        "PROPAGATION kind=oversized variances={} display-variances={}",
+        fixed_list(&expected_variances(4.0)),
+        display_integer_list(&expected_variances(4.0))
     )?;
     writeln!(
         trace,
-        "PROPAGATION kind=xavier variances={}",
-        fixed_list(&expected_variances(1.0))
+        "PROPAGATION kind=xavier variances={} display-variances={}",
+        fixed_list(&expected_variances(1.0)),
+        display_integer_list(&expected_variances(1.0))
     )?;
     writeln!(
         trace,
@@ -227,7 +261,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
         if xavier == same_seed { "yes" } else { "no" },
         if xavier != alternate { "yes" } else { "no" },
     )?;
-    writeln!(trace, "TRACE parameter-initialization-v1 END")?;
+    writeln!(trace, "TRACE parameter-initialization-v2 END")?;
     Ok(trace)
 }
 // endregion:parameter-initialization-trace
@@ -240,14 +274,14 @@ mod tests {
     fn fixed_statistics_histograms_and_variance_rail_match() {
         let trace = render_trace().unwrap();
         assert!(trace.contains(
-            "DISTRIBUTION kind=xavier seed=17 limit=0.216506350946 min=-0.216490455462 max=0.216323818551 mean=-0.003369028566 variance=0.015801410985"
+            "DISTRIBUTION kind=xavier seed=17 limit=0.216506350946 min=-0.216490455462 max=0.216323818551 mean=-0.003369028566 variance=0.015801410985 display-limit=0.2165 display-min=-0.2165 display-max=0.2163 display-mean=-0.0034 display-variance=0.0158"
         ));
         assert!(trace.contains("HISTOGRAM kind=xavier counts=0,0,674,962,919,930,611,0,0"));
         assert!(
             trace.contains("HISTOGRAM kind=oversized counts=409,498,482,472,469,445,476,443,402")
         );
         assert!(trace.contains(
-            "PROPAGATION kind=oversized variances=1.000000000000,4.000000000000,16.000000000000,64.000000000000,256.000000000000"
+            "PROPAGATION kind=oversized variances=1.000000000000,4.000000000000,16.000000000000,64.000000000000,256.000000000000 display-variances=1,4,16,64,256"
         ));
     }
 }

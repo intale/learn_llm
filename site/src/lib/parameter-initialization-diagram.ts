@@ -17,6 +17,9 @@ export interface ParameterInitializationDiagramLabels {
     seed: string;
     width: string;
     samples: string;
+    fanIn: string;
+    fanOut: string;
+    inputVariance: string;
     generator: string;
     statistic: string;
     assumption: string;
@@ -30,6 +33,7 @@ export interface ParameterInitializationDiagramLabels {
     range: string;
     count: string;
     share: string;
+    strategy: string;
     seed: string;
     limit: string;
     minimum: string;
@@ -37,6 +41,7 @@ export interface ParameterInitializationDiagramLabels {
     mean: string;
     variance: string;
     layer: string;
+    limitRatio: string;
   };
   strategies: Record<InitializationKind, string>;
   states: {
@@ -55,6 +60,12 @@ export interface ParameterInitializationDiagramLabels {
   binClosure: string;
   propagationAssumption: string;
   pairing: string;
+  accessibility: {
+    histogramTable: string;
+    histograms: Record<InitializationKind, string>;
+    binTemplate: string;
+    propagationTable: string;
+  };
 }
 
 export interface InitializationBin {
@@ -62,6 +73,7 @@ export interface InitializationBin {
   upper: DecimalLexeme;
   count: IntegerLexeme;
   barPercent: DecimalLexeme;
+  displayBarPercent: string;
   includesUpper: boolean;
 }
 
@@ -73,6 +85,13 @@ export interface InitializationDistribution {
   maximum: DecimalLexeme;
   mean: DecimalLexeme;
   variance: DecimalLexeme;
+  display: {
+    limit: string;
+    minimum: string;
+    maximum: string;
+    mean: string;
+    variance: string;
+  };
   underflow: IntegerLexeme;
   overflow: IntegerLexeme;
   bins: InitializationBin[];
@@ -81,6 +100,7 @@ export interface InitializationDistribution {
 export interface InitializationPropagation {
   kind: InitializationKind;
   variances: DecimalLexeme[];
+  displayVariances: string[];
 }
 
 export interface ParameterInitializationTrace {
@@ -97,10 +117,13 @@ export interface ParameterInitializationTrace {
     layers: IntegerLexeme[];
     propagation: string;
     inputVariance: DecimalLexeme;
+    displayInputVariance: string;
   };
   binning: {
     edges: DecimalLexeme[];
+    displayEdges: string[];
     width: DecimalLexeme;
+    displayWidth: string;
     closure: string;
   };
   distributions: InitializationDistribution[];
@@ -136,6 +159,7 @@ const expected = {
     layers: ['0', '1', '2', '3', '4'],
     propagation: 'expected-linear-independent',
     inputVariance: '1.000000000000',
+    displayInputVariance: '1',
   },
   edges: [
     '-0.450000000000',
@@ -149,7 +173,20 @@ const expected = {
     '0.350000000000',
     '0.450000000000',
   ],
+  displayEdges: [
+    '-0.45',
+    '-0.35',
+    '-0.25',
+    '-0.15',
+    '-0.05',
+    '0.05',
+    '0.15',
+    '0.25',
+    '0.35',
+    '0.45',
+  ],
   width: '0.100000000000',
+  displayWidth: '0.10',
   closure: 'left-closed-right-open-last-closed',
   distributions: {
     zero: {
@@ -159,6 +196,13 @@ const expected = {
       maximum: '0.000000000000',
       mean: '0.000000000000',
       variance: '0.000000000000',
+      display: {
+        limit: '0.0000',
+        minimum: '0.0000',
+        maximum: '0.0000',
+        mean: '0.0000',
+        variance: '0.0000',
+      },
       counts: ['0', '0', '0', '0', '4096', '0', '0', '0', '0'],
       barPercent: [
         '0.000000000000',
@@ -171,6 +215,7 @@ const expected = {
         '0.000000000000',
         '0.000000000000',
       ],
+      displayPercent: ['0.0', '0.0', '0.0', '0.0', '100.0', '0.0', '0.0', '0.0', '0.0'],
     },
     oversized: {
       seed: '17',
@@ -179,6 +224,13 @@ const expected = {
       maximum: '0.432647637102',
       mean: '-0.006738057131',
       variance: '0.063205643939',
+      display: {
+        limit: '0.4330',
+        minimum: '-0.4330',
+        maximum: '0.4326',
+        mean: '-0.0067',
+        variance: '0.0632',
+      },
       counts: ['409', '498', '482', '472', '469', '445', '476', '443', '402'],
       barPercent: [
         '9.985351562500',
@@ -191,6 +243,7 @@ const expected = {
         '10.815429687500',
         '9.814453125000',
       ],
+      displayPercent: ['10.0', '12.2', '11.8', '11.5', '11.5', '10.9', '11.6', '10.8', '9.8'],
     },
     xavier: {
       seed: '17',
@@ -199,6 +252,13 @@ const expected = {
       maximum: '0.216323818551',
       mean: '-0.003369028566',
       variance: '0.015801410985',
+      display: {
+        limit: '0.2165',
+        minimum: '-0.2165',
+        maximum: '0.2163',
+        mean: '-0.0034',
+        variance: '0.0158',
+      },
       counts: ['0', '0', '674', '962', '919', '930', '611', '0', '0'],
       barPercent: [
         '0.000000000000',
@@ -211,6 +271,7 @@ const expected = {
         '0.000000000000',
         '0.000000000000',
       ],
+      displayPercent: ['0.0', '0.0', '16.5', '23.5', '22.4', '22.7', '14.9', '0.0', '0.0'],
     },
   },
   propagations: {
@@ -236,6 +297,11 @@ const expected = {
       '1.000000000000',
     ],
   },
+  displayPropagations: {
+    zero: ['1', '0', '0', '0', '0'],
+    oversized: ['1', '4', '16', '64', '256'],
+    xavier: ['1', '1', '1', '1', '1'],
+  },
 } as const;
 
 function fail(message: string): never {
@@ -255,6 +321,19 @@ function decimal(value: string, wanted: string, context: string): DecimalLexeme 
   }
   exact(value, wanted, context);
   return { lexeme: value };
+}
+
+function displayDecimal(
+  value: string,
+  wanted: string,
+  digits: 1 | 4,
+  context: string,
+): string {
+  const pattern = digits === 1 ? /^-?(?:0|[1-9]\d*)\.\d$/ : /^-?(?:0|[1-9]\d*)\.\d{4}$/;
+  if (!pattern.test(value) || /^-0\.0+$/.test(value)) {
+    fail(`${context} must be a canonical ${digits}-decimal display lexeme`);
+  }
+  return exact(value, wanted, context);
 }
 
 function integer(value: string, wanted: string, context: string): IntegerLexeme {
@@ -308,6 +387,7 @@ function parseFixture(line: string): ParameterInitializationTrace['fixture'] {
     'layers',
     'propagation',
     'input-variance',
+    'display-input-variance',
   ]);
   const layers = list(fields.layers, expected.fixture.layers.length, 'FIXTURE layers').map(
     (value, index) => integer(value, expected.fixture.layers[index], `FIXTURE layer ${index}`),
@@ -333,17 +413,35 @@ function parseFixture(line: string): ParameterInitializationTrace['fixture'] {
       expected.fixture.inputVariance,
       'FIXTURE input variance',
     ),
+    displayInputVariance: exact(
+      fields['display-input-variance'],
+      expected.fixture.displayInputVariance,
+      'FIXTURE display input variance',
+    ),
   };
 }
 
 function parseBinning(line: string): ParameterInitializationTrace['binning'] {
-  const fields = fieldRecord(line, 'BINNING', ['edges', 'width', 'closure']);
+  const fields = fieldRecord(line, 'BINNING', [
+    'edges',
+    'display-edges',
+    'width',
+    'display-width',
+    'closure',
+  ]);
   const edges = list(fields.edges, expected.edges.length, 'BINNING edges').map(
     (value, index) => decimal(value, expected.edges[index], `BINNING edge ${index}`),
   );
+  const displayEdges = list(
+    fields['display-edges'],
+    expected.displayEdges.length,
+    'BINNING display edges',
+  ).map((value, index) => exact(value, expected.displayEdges[index], `BINNING display edge ${index}`));
   return {
     edges,
+    displayEdges,
     width: decimal(fields.width, expected.width, 'BINNING width'),
+    displayWidth: exact(fields['display-width'], expected.displayWidth, 'BINNING display width'),
     closure: exact(fields.closure, expected.closure, 'BINNING closure'),
   };
 }
@@ -363,6 +461,11 @@ function parseDistribution(
     'max',
     'mean',
     'variance',
+    'display-limit',
+    'display-min',
+    'display-max',
+    'display-mean',
+    'display-variance',
   ]);
   exact(fields.kind, kind, `DISTRIBUTION ${kind} kind`);
   const seed =
@@ -374,6 +477,7 @@ function parseDistribution(
     'kind',
     'counts',
     'bar-percent',
+    'display-percent',
     'underflow',
     'overflow',
   ]);
@@ -393,6 +497,18 @@ function parseDistribution(
       `HISTOGRAM ${kind} bar-percent ${index}`,
     ),
   );
+  const displayPercent = list(
+    histogramFields['display-percent'],
+    9,
+    `HISTOGRAM ${kind} display-percent`,
+  ).map((value, index) =>
+    displayDecimal(
+      value,
+      expectedDistribution.displayPercent[index],
+      1,
+      `HISTOGRAM ${kind} display-percent ${index}`,
+    ),
+  );
   const underflow = integer(histogramFields.underflow, '0', `HISTOGRAM ${kind} underflow`);
   const overflow = integer(histogramFields.overflow, '0', `HISTOGRAM ${kind} overflow`);
   return {
@@ -407,6 +523,13 @@ function parseDistribution(
       expectedDistribution.variance,
       `DISTRIBUTION ${kind} variance`,
     ),
+    display: {
+      limit: displayDecimal(fields['display-limit'], expectedDistribution.display.limit, 4, `DISTRIBUTION ${kind} display limit`),
+      minimum: displayDecimal(fields['display-min'], expectedDistribution.display.minimum, 4, `DISTRIBUTION ${kind} display min`),
+      maximum: displayDecimal(fields['display-max'], expectedDistribution.display.maximum, 4, `DISTRIBUTION ${kind} display max`),
+      mean: displayDecimal(fields['display-mean'], expectedDistribution.display.mean, 4, `DISTRIBUTION ${kind} display mean`),
+      variance: displayDecimal(fields['display-variance'], expectedDistribution.display.variance, 4, `DISTRIBUTION ${kind} display variance`),
+    },
     underflow,
     overflow,
     bins: counts.map((count, index) => ({
@@ -414,16 +537,18 @@ function parseDistribution(
       upper: edges[index + 1],
       count,
       barPercent: barPercent[index],
+      displayBarPercent: displayPercent[index],
       includesUpper: index === counts.length - 1,
     })),
   };
 }
 
-function parsePropagation(
-  line: string,
-  kind: InitializationKind,
-): InitializationPropagation {
-  const fields = fieldRecord(line, 'PROPAGATION', ['kind', 'variances']);
+function parsePropagation(line: string, kind: InitializationKind): InitializationPropagation {
+  const fields = fieldRecord(line, 'PROPAGATION', [
+    'kind',
+    'variances',
+    'display-variances',
+  ]);
   exact(fields.kind, kind, `PROPAGATION ${kind} kind`);
   return {
     kind,
@@ -434,6 +559,17 @@ function parsePropagation(
           expected.propagations[kind][index],
           `PROPAGATION ${kind} variance ${index}`,
         ),
+    ),
+    displayVariances: list(
+      fields['display-variances'],
+      5,
+      `PROPAGATION ${kind} display variances`,
+    ).map((value, index) =>
+      exact(
+        value,
+        expected.displayPropagations[kind][index],
+        `PROPAGATION ${kind} display variance ${index}`,
+      ),
     ),
   };
 }
@@ -449,8 +585,8 @@ export function parseParameterInitializationTrace(source: string): ParameterInit
   if (lines.length !== 15) {
     fail(`source must contain exactly 15 lines, got ${lines.length}`);
   }
-  exact(lines[0], 'TRACE parameter-initialization-v1 BEGIN', 'line 1');
-  exact(lines[14], 'TRACE parameter-initialization-v1 END', 'line 15');
+  exact(lines[0], 'TRACE parameter-initialization-v2 BEGIN', 'line 1');
+  exact(lines[14], 'TRACE parameter-initialization-v2 END', 'line 15');
 
   const fixture = parseFixture(lines[1]);
   const binning = parseBinning(lines[2]);
@@ -524,7 +660,17 @@ export function validateParameterInitializationLabels(
 ): void {
   requireLabel(labels.title, 'title');
   requireLabel(labels.description, 'description');
-  for (const key of ['seed', 'width', 'samples', 'generator', 'statistic', 'assumption'] as const) {
+  for (const key of [
+    'seed',
+    'width',
+    'samples',
+    'fanIn',
+    'fanOut',
+    'inputVariance',
+    'generator',
+    'statistic',
+    'assumption',
+  ] as const) {
     requireLabel(labels.summary[key], `summary.${key}`);
   }
   for (const key of ['distributions', 'propagation', 'reproducibility'] as const) {
@@ -534,6 +680,7 @@ export function validateParameterInitializationLabels(
     'range',
     'count',
     'share',
+    'strategy',
     'seed',
     'limit',
     'minimum',
@@ -541,6 +688,7 @@ export function validateParameterInitializationLabels(
     'mean',
     'variance',
     'layer',
+    'limitRatio',
   ] as const) {
     requireLabel(labels.fields[key], `fields.${key}`);
   }
@@ -561,4 +709,15 @@ export function validateParameterInitializationLabels(
   requireLabel(labels.binClosure, 'binClosure');
   requireLabel(labels.propagationAssumption, 'propagationAssumption');
   requireLabel(labels.pairing, 'pairing');
+  requireLabel(labels.accessibility.histogramTable, 'accessibility.histogramTable');
+  for (const kind of kinds) {
+    requireLabel(labels.accessibility.histograms[kind], `accessibility.histograms.${kind}`);
+  }
+  requireLabel(labels.accessibility.binTemplate, 'accessibility.binTemplate');
+  for (const placeholder of ['{range}', '{count}', '{share}']) {
+    if (!labels.accessibility.binTemplate.includes(placeholder)) {
+      throw new Error(`ParameterInitializationDiagram label accessibility.binTemplate must include ${placeholder}`);
+    }
+  }
+  requireLabel(labels.accessibility.propagationTable, 'accessibility.propagationTable');
 }
