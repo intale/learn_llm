@@ -1400,7 +1400,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 38',
+      '"plan_revision": 39',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1708,8 +1708,8 @@ describe('curriculum and catalog contracts', () => {
 
     const uncoveredChapter = replaceOnce(
       deferredPlanSource,
+      '        "through_chapter": "13-gradient-checking",',
       '        "through_chapter": "12-stable-softmax",',
-      '        "through_chapter": "11-matrix-multiplication",',
     );
     expect(() =>
       validateCoursePlanText(

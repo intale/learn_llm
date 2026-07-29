@@ -32,6 +32,12 @@ const labels: GradientCheckingDiagramLabels = {
   title: 'title',
   description: 'description',
   summary: { quadratic: 'quadratic', scanPoint: 'scan point', tensorLoss: 'loss' },
+  display: {
+    summaryQuadratic: 'quadratic derivative',
+    numerical: 'numerical gradient',
+    analytic: 'analytic value',
+    scaledError: 'scaled error',
+  },
   sections: {
     quadratic: 'quadratic',
     scan: 'scan',
@@ -40,21 +46,14 @@ const labels: GradientCheckingDiagramLabels = {
     errors: 'errors',
   },
   fields: {
-    point: 'point',
-    step: 'step',
     minusProbe: 'minus',
     center: 'center',
     plusProbe: 'plus',
-    functionValue: 'function',
     numerical: 'numerical',
     analytic: 'analytic',
     scaledError: 'scaled error',
     tolerance: 'tolerance',
     phase: 'phase',
-    verdict: 'verdict',
-    flatIndex: 'flat',
-    coordinate: 'coordinate',
-    loss: 'loss',
     restored: 'restored',
   },
   phases: {
@@ -63,7 +62,8 @@ const labels: GradientCheckingDiagramLabels = {
     trusted: 'trusted',
     rounding: 'rounding',
   },
-  statuses: { pass: 'pass', fail: 'fail' },
+  statuses: { pass: 'pass', fail: 'fail', restored: 'restored exactly' },
+  sides: { minus: 'minus' },
   errors: {
     'invalid-step': 'invalid step',
     'collapsed-perturbation': 'collapsed',
@@ -71,9 +71,6 @@ const labels: GradientCheckingDiagramLabels = {
     'shape-mismatch': 'shape',
   },
   notes: {
-    schematic: 'schematic',
-    scan: 'scan note',
-    candidates: 'candidate note',
     tensor: 'tensor note',
     errors: 'error note',
   },
@@ -176,6 +173,22 @@ describe('Chapter 13 Rust trace parser', () => {
         missing as unknown as GradientCheckingDiagramLabels,
       ),
     ).toThrow(/labels\.notes\.tensor/);
+
+    const missingDisplay = structuredClone(labels) as unknown as Record<string, unknown>;
+    (missingDisplay.display as Record<string, unknown>).numerical = ' ';
+    expect(() =>
+      assertGradientCheckingDiagramLabels(
+        missingDisplay as unknown as GradientCheckingDiagramLabels,
+      ),
+    ).toThrow(/labels\.display\.numerical/);
+
+    const unexpected = structuredClone(labels) as unknown as Record<string, unknown>;
+    (unexpected.notes as Record<string, unknown>).schematic = 'obsolete bracket note';
+    expect(() =>
+      assertGradientCheckingDiagramLabels(
+        unexpected as unknown as GradientCheckingDiagramLabels,
+      ),
+    ).toThrow(/labels\.notes\.schematic is unexpected/);
   });
 
   it('does not recompute derivative, error, or sampling arithmetic in TypeScript', () => {
@@ -194,24 +207,50 @@ describe('Chapter 13 static diagram component', () => {
     );
     expect(component).toContain('parseGradientCheckingTrace');
     expect(component).toContain("import InlineMath from '../InlineMath.astro'");
-    expect(component).toContain('String.raw`\\theta-h=${trace.central.minusPoint.lexeme}`');
-    expect(component).toContain('String.raw`h=${record.step.lexeme}`');
+    expect(component).toContain('latex="\\theta-h=2.9"');
+    expect(component).toContain('latex="q=8.41"');
+    expect(component).toContain('latex="q=9.61"');
+    expect(component).toContain('data-minus-point={trace.central.minusPoint.lexeme}');
+    expect(component).toContain('data-plus-value={trace.central.plusValue.lexeme}');
+    expect(component).toContain('String.raw`h=${display.step}`');
     expect(component).not.toContain('>θ-h</span>');
     expect(component).not.toContain('return `h=${error.step.lexeme}`');
+    expect(component).not.toContain('`step ${error.step.lexeme}`');
+    expect(component).not.toContain('`side ${error.side}');
+    expect(component).not.toContain('{trace.restoration.exactBits}</strong>');
+    expect(component).toContain('{labels.statuses.restored}');
+    expect(component).toContain('{labels.display.summaryQuadratic}');
+    expect(component).toContain('{labels.display.numerical}');
+    expect(component).toContain('{labels.display.analytic}');
+    expect(component).toContain('{labels.display.scaledError}');
+    expect(component).not.toContain('course-diagram__visually-hidden');
+    expect(component.match(/data-diagram-display-label=/g)).toHaveLength(5);
+    expect(component.match(/data-diagram-accessible-label=/g)).toHaveLength(5);
+    expect(component.match(/role="group"/g)).toHaveLength(5);
+    expect(component.match(/role="group"\s+aria-label=\{labels\./g)).toHaveLength(5);
+    expect(component.match(/aria-hidden="true"/g)).toHaveLength(5);
+    expect(component).toContain('data-exact-parameter-shape=');
+    expect(component).toContain('data-exact-candidate-shape=');
+    expect(component).toContain('latex="[2]\\ne[1,2]"');
+    expect(component).toContain('{labels.sides.minus}');
     expect(component).not.toMatch(/client:(?:load|idle|visible|media|only)/);
     expect(component).not.toContain('<script');
   });
 
-  it('separates scalar fixtures and renders semantic Rust-derived evidence', () => {
+  it('separates scalar fixtures and renders semantic Rust-derived records', () => {
     expect(component).toContain('class="summary-grid"');
-    expect(component.match(/<table data-diagram-table class="scan-table"/g)).toHaveLength(1);
-    expect(component).toContain('scope="col"');
-    expect(component).toContain('scope="row"');
+    expect(component).not.toContain('<table');
+    expect(component).toContain('class="scan-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="candidate-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="coordinate-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="error-records evidence-list course-diagram__grid"');
+    expect(component).toContain('class="record-values"');
     expect(component).toContain('data-step-index=');
     expect(component).toContain('data-phase=');
     expect(component).toContain('data-step=');
     expect(component).toContain('data-numerical=');
     expect(component).toContain('data-scaled-error=');
+    expect(component).toContain('data-tolerance=');
     expect(component).toContain('data-comparison-name=');
     expect(component).toContain('data-sample-flat=');
     expect(component).toContain('data-coordinate=');
@@ -219,21 +258,28 @@ describe('Chapter 13 static diagram component', () => {
     expect(component).toContain('data-error-kind=');
   });
 
-  it('keeps phase separate from verdict and wide evidence locally scrollable', () => {
+  it('keeps phase separate from verdict and lets records reflow without private scroll regions', () => {
     expect(component).toContain('data-visualization-id={gradientCheckingDiagramId}');
-    expect(component).toContain('class="trace-scroll course-diagram__scroll"');
-    expect(component.match(/tabindex="0"/g)).toHaveLength(2);
-    expect(component.match(/role="region"/g)).toHaveLength(1);
-    expect(component).toContain('data-diagram-scroll');
+    expect(component).toContain('data-diagram-style="course-v1"');
+    expect(component.match(/<section data-diagram-box/g)).toHaveLength(5);
+    expect(component).toContain('class="quadratic-grid course-diagram__grid"');
+    expect(component).toContain('class="scan-layout"');
+    expect(component.match(/<h4 id=/g)).toHaveLength(5);
+    expect(component.match(/tabindex="0"/g)).toHaveLength(1);
+    expect(component).not.toContain('role="region"');
+    expect(component).not.toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
+    expect(component).not.toContain('overflow: hidden');
+    expect(component).not.toContain('overflow: clip');
     expect(component).toContain('align-items: start;');
-    expect(component).toContain('.phase-trusted { border-style: double; }');
-    expect(component).toContain('.phase-rounding { border-style: dotted; }');
-    expect(component).toContain('.status-fail { outline: 2px dashed currentColor; }');
-    expect(component).not.toMatch(
-      /\.(?:candidate-card|coordinate-card|error-card)[^{]*\{[^}]*(?:min-)?height\s*:/s,
-    );
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain(".step-record[data-phase='trusted'] .state-symbol.phase-trusted { --diagram-state-symbol-border-style: double; }");
+    expect(component).toContain(".step-record[data-phase='rounding'] .state-symbol.phase-rounding { --diagram-state-symbol-border-style: dotted; }");
+    expect(component).toContain("[data-status='fail'] .state-symbol.status-fail { --diagram-state-symbol-border-style: dashed; }");
+    expect(component).toContain('.gradient-checking-diagram:fullscreen .error-records');
+    expect(component).not.toMatch(/\.evidence-list[^{]*\{[^}]*(?:min-)?height\s*:/s);
+    expect(component).not.toContain('@media (forced-colors: active)');
+    expect(component).not.toMatch(/box-shadow|background:\s*var\(--surface\)|border-radius:\s*1rem/);
+    expect(component).toContain('.gradient-checking-diagram:fullscreen');
   });
 });

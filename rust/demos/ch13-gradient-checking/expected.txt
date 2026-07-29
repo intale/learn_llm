@@ -16,4 +16,4 @@ sampled coordinates: [[0, 0], [0, 1], [1, 0], [1, 2]]
   coordinate=[1, 2] analytic=-0.492061880012 numerical=-0.492061879998 scaled_error=1.425926043908e-11 pass=true
 tensor restored exactly: true
 collapsed-step error: minus perturbation from point 1.0 by step 1e-20 rounds back to the point
-chapter 14 handoff: prove reverse-mode derivatives against this oracle
+chapter 14 handoff: check reverse-mode derivatives against this oracle

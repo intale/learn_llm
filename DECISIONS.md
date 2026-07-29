@@ -8509,3 +8509,570 @@ hosting setting, or deployment target.
 run `20260728T161407Z-activate-ch12-russian-localization-01`; replacement
 `correct-ch12-russian-localization-final-review`, run
 `20260728T175142Z-correct-ch12-russian-localization-final-review-01`.
+
+## 2026-07-28 - Translate Chapter 13 from a repaired numerical-gradient source
+
+**Status:** Accepted before product edits.
+
+**Context:** Chapter 13 is the first English-only lesson after the complete
+Russian prefix. It teaches central finite differences as an independent check
+on analytical gradients before automatic differentiation is trusted in LLM
+training. Canonical preflight found learner-facing references to strict trace,
+semantic-table, and byte-exact authoring evidence, an internal trace serializer
+presented as instructional Rust, and a private diagram frame with hard-coded
+English status details. Translating that surface unchanged would preserve
+delivery machinery and prevent a safe localized layout.
+
+**Decision:** Repair and freeze English Chapter 13 before translation. Keep its
+central-difference formula, step-size tradeoff, relative-error rule, executable
+Rust evidence, LLM-training purpose, and historical progression, while removing
+authoring and fixture machinery from learner prose and using the existing
+step-size scan rather than internal trace serialization as the instructional
+Rust region. Migrate the one figure to the shared static diagram roles with a
+fully localized label surface, then translate every learner-facing field
+directly into natural technical Russian. Activate only Chapter 13, validate the
+complete bilingual rendered surface, and commit it independently before
+starting Chapter 14.
+
+**Consequences:** Russian remains complete through Chapter 12 until the exact
+candidate passes; on completion it will extend through Chapter 13 while
+Chapters 14-39 remain English-only. The medium build may use cached local CPU
+for Linux, unit, Chromium, and Firefox validation, but no paid service,
+external translation, dependency, product build definition, hosting setting,
+deployment target, or Rust behavior change is authorized or expected.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Let the shared diagram module own state-symbol borders
+
+**Status:** Accepted before the shared integration edit.
+
+**Context:** Candidate 01's component-local phase rules and the shared
+state-symbol rule have effectively equal class/attribute specificity, but the
+shared rule also contains a type selector and assigns the complete `border`
+shorthand. Its solid border therefore wins in Chromium, erasing the intended
+non-color dashed, double, and dotted phase cues. Increasing private component
+specificity would make shared chrome ownership brittle.
+
+**Decision:** Change the shared state-symbol declaration to read its border
+style from `--diagram-state-symbol-border-style`, defaulting to `solid`.
+Chapter components may set only that custom property for concept-specific
+redundant state; the shared module continues to own border width, color,
+radius, sizing, and forced-color behavior. Add the shared stylesheet to the
+declared Chapter 13 integration scope before editing it.
+
+**Consequences:** Existing diagrams remain solid by default. Chapter 13 can
+express truncation, convergence, trusted, rounding, pass, fail, and rejected
+states without a private skin or specificity contest, and both normal and
+forced-color modes resolve through the same shared border contract.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Expose Chapter 13 coordinate selection and avoid proof language
+
+**Status:** Accepted during canonical Chapter 13 review.
+
+**Context:** The lesson explains the deterministic sampled-coordinate rule but
+does not show the Rust helper that implements it; the function sits immediately
+before the already rendered sampled checker and has no source-region markers.
+The Chapter 14 handoff also says numerical samples “prove” reverse-mode
+derivatives, which overstates what finite-difference comparisons can establish.
+
+**Decision:** Add region markers around the existing coordinate-selection
+helper without changing its arithmetic or API, render that region in both
+locales, and use the existing `step-size-scan` region instead of the internal
+diagram serializer as learner-facing evidence. Change the deterministic Rust
+handoff output and its checked fixture from “prove” to “check,” and make the
+same semantic correction in the contract, lesson, and plan. Record the newly
+discovered Rust input before editing it.
+
+**Consequences:** Learners see Rust for every algorithm taught in prose, while
+the internal serializer remains implementation evidence rather than lesson
+content. The expected-output fixture changes by one word but derivative,
+sampling, restoration, error, and API behavior remain unchanged. The newly
+owned Rust paths are part of the same Chapter 13 activation commit and full
+locked-workspace validation.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`; discovered-input
+artifact `.build/runs/20260728T181148Z-activate-ch13-russian-localization-01/discovered-inputs.txt`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 01 and compact its rendered evidence
+
+**Status:** Accepted after exact Chromium measurement.
+
+**Context:** Candidate 01 passes the complete Linux source, Rust, content,
+parity, static-build, link, SEO, sitemap, Analytics, and 840-case unit gates,
+and 127 of 131 selected Chromium cases. The rendered failures are genuine:
+three 122-pixel probe columns cannot contain exact 170-205-pixel formula
+lexemes, the fullscreen root requires 2,306 pixels of content height inside an
+898-pixel viewport, and the Chapter-specific forced-color assertions lose
+their border-style cues to the shared state-symbol cascade. Clipping, hiding,
+shrinking text, or weakening containment tests is prohibited.
+
+**Decision:** Preserve Candidate 01 unchanged and reject it for publication.
+Keep the same numerical evidence, but present repeated candidate, coordinate,
+and error records through compact semantic shared tables instead of tall card
+stacks; let the quadratic probe reflow at its actual formula width; and arrange
+the scan table and secant explanation for the fullscreen container. Make the
+non-color state cues explicit on the intended shared elements with sufficient
+CSS specificity, then build a new immutable candidate and rerun both engines.
+
+**Consequences:** The learner still receives all formulas, values, comparisons,
+coordinates, restoration evidence, and typed rejection cases, with less visual
+duplication and substantially less full-view travel. No content may be hidden,
+clipped, truncated, or scaled down. Candidate 01's image digests and failure
+summary remain in the run ledger; Candidate 02 will be a distinct artifact.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 02 and balance its fullscreen evidence
+
+**Status:** Accepted after exact Chromium measurement.
+
+**Context:** Candidate 02 fixes every Candidate 01 formula-containment,
+forced-color, desktop, narrow, and no-JavaScript failure, and passes the complete
+Linux gate. Its only remaining failure is genuine fullscreen travel: the
+898-pixel root still requires 1,800 pixels. The wide scan section serializes a
+448-pixel table and a 241-pixel explanation, the scalar sections remain stacked
+in a narrow third, and the tensor/error row inherits a 636-pixel height from its
+narrow error table. The coordinate table also repeats analytic and numerical
+values already preserved in the executable Rust evidence and semantic record.
+
+**Decision:** Preserve and reject Candidate 02. For Candidate 03, use six
+fullscreen tracks: four for the scan and two for the scalar evidence, then an
+even three/three split for tensor and rejection evidence. Put the scan table and
+secant explanation in parallel lanes at fullscreen width. Use shorter natural
+English and Russian phase, status, and error labels. Keep the sampled tensor
+table focused on coordinate, scaled error, and verdict while retaining each
+exact analytic value, numerical value, and scaled error in semantic data
+attributes and in the learner-facing Rust output. Keep the quadratic probe's
+exact machine values in its record attributes while rendering its already
+explained function values as compact formulas. Extend browser assertions to
+lock those hidden semantic record values; do not clip, truncate, scale down, or
+remove evidence.
+
+**Consequences:** Candidate 03 changes information architecture, not numerical
+meaning. The visible page remains sufficient to understand the comparison, all
+machine-precision values remain inspectable and tested, and the executable
+example remains the detailed numerical source. Both locales must still pass
+nearest-box formula and text containment plus the 180-pixel fullscreen travel
+budget in Chromium and Firefox.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 03 and use reflowing evidence records
+
+**Status:** Accepted after exact Chromium measurement.
+
+**Context:** Candidate 03 preserves all numerical evidence and passes every
+declared Linux gate plus six of seven Chapter 13 Chromium cases, but still
+requires 1,539 pixels inside the 898-pixel fullscreen root. The measured cause
+is not excess prose alone: shared semantic-table spacing and narrow fixed
+columns force six scan rows to about 88 pixels each, make the secant explanation
+641 pixels tall, and leave the candidate, coordinate, and rejection tables 291,
+264, and 493 pixels tall. Squeezing those columns further would create more
+wrapping and would not teach the relationships more clearly.
+
+**Decision:** Preserve and reject Candidate 03. Represent the repeated scan,
+candidate, coordinate, and rejection evidence as ordered lists of shared
+semantic record cards. Each bounded record uses the shared card roles and is
+individually marked for containment. Cards may reflow into concept-appropriate
+grids in full view and a single column at narrow widths; they add no private
+skin or scroll implementation. Integrate the quadratic result with the center
+probe instead of repeating it in a separate card. Preserve every scan value
+visibly, preserve exact coordinate analytic and numerical values in tested
+record attributes and the learner-facing Rust output, and retain every typed
+error detail. Replace learner references to table rows with presentation-neutral
+record wording in both locales and the canonical contract.
+
+**Consequences:** The visualization remains one static semantic figure, gains
+no duplicate tree, hydration, clipping, or hidden overflow, and no longer needs
+local horizontal scroll regions because the records wrap naturally. Source and
+browser tests must lock the record counts, exact machine attributes, phase and
+verdict distinction, 23 bounded boxes, narrow containment, and both browser
+engines before Candidate 04 can publish.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 04 and separate teaching precision from records
+
+**Status:** Accepted after exact Chromium measurement.
+
+**Context:** Candidate 04 validates the semantic-record approach: all desktop,
+narrow, forced-color, no-JavaScript, source, and static gates pass, and
+fullscreen travel falls again. It still requires 1,367 pixels because the
+diagram repeats serializer-level decimal lexemes in every record, repeats the
+quadratic result already present in the summary, and lays four rejection cards
+in two rows. The exact lexemes are important executable evidence, but displaying
+all trailing digits is not necessary to compare error regimes or understand a
+pass/fail decision; the Rust output and record attributes already retain them.
+
+**Decision:** Preserve and reject Candidate 04. Candidate 05 will display each
+step, estimate, scaled error, comparison, and coordinate error with concise
+pedagogical precision through the math pipeline while preserving the exact
+source lexeme in semantic attributes and the learner-facing Rust output. Browser
+tests will assert the exact attributes. Remove the numerical derivative from
+the center probe because the localized summary already presents it. Shorten only
+diagram notes whose complete causal explanation exists in adjacent learner
+prose. Place the four rejection records in one fullscreen row while retaining
+every typed error name and detail. Keep one-to-one English/Russian meaning and
+do not change the numerical algorithms, fixtures, or acceptance thresholds.
+
+**Consequences:** The diagram teaches scale and trend instead of exposing
+serialization noise, while exact reproducibility remains available and tested.
+Formula markup becomes stricter because displayed steps and rounded scientific
+values use server-rendered math rather than ordinary numeric text. Candidate 05
+must pass formula containment and 23-box containment in both engines before it
+can replace any rejected candidate.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 05 and consolidate repeated evidence
+
+**Status:** Accepted after exact Chromium measurement.
+
+**Context:** Candidate 05 passes every source, static, desktop, narrow,
+forced-color, and no-JavaScript gate and reduces fullscreen height to 1,194
+pixels. The measured layout is now balanced rather than dominated by one locale
+or section. The remaining repeated geometry is informationally redundant: every
+scan record redraws the same three symbolic probe positions, while both scalar
+candidate cards repeat the same numerical derivative and tolerance.
+
+**Decision:** Preserve and reject Candidate 05. Remove the repeated bracket
+sketch from individual scan records; the ordered step values and phase labels
+already show the decrease and its error regimes more precisely. Remove the scan
+note from the figure because the adjacent learner prose explains truncation,
+rounding, and retained exact Rust values. In the candidate section, render the
+shared numerical derivative and tolerance once through the math pipeline, then
+let each record show only its analytic candidate, scaled error, and verdict.
+Keep all exact comparison fields in each tested semantic record attribute. Do
+not remove any phase, verdict, coordinate, rejection case, exact attribute, or
+executable value.
+
+**Consequences:** Candidate 06 reduces repetition rather than shrinking text or
+loosening the 180-pixel gate. The contract and learner prose will stop claiming
+that the removed bracket sketch appears in the figure. Both localized pages
+remain semantically equivalent and the source output remains the precision
+reference.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Reject Chapter 13 Candidate 06 and consolidate localized field labels
+
+**Status:** Accepted after exact bilingual Chromium measurement.
+
+**Context:** Candidate 06 brings English fullscreen travel to 171 pixels and
+therefore inside the 180-pixel budget. Russian remains at 295 pixels even though
+all desktop, narrow, forced-color, fallback, formula, and box checks pass. The
+Russian-only measurement isolates the cause: four 134-pixel coordinate cards
+repeat long field names and grow to 230 pixels, the restoration summary grows to
+83 pixels, and four rejection cards repeat field names and grow to 299 pixels.
+This is precisely the localized-layout risk that cannot be inferred from English.
+
+**Decision:** Preserve and reject Candidate 06. State the coordinate record
+mapping once in the section note, then render each record as a compact
+math-pipeline relation from flat offset to coordinate plus its scaled error and
+verdict. Keep exact analytic, numerical, coordinate, and error lexemes on the
+record attributes. Since the figure summary already displays the tensor loss,
+let the bounded tensor summary present exact restoration only. Render each typed
+rejection's details as one concise localized/mathematical evidence line—such as
+the probe side with point and step, a non-finite result, or two unequal shapes—
+while keeping the exact underlying values on tested attributes. Use shorter
+natural error names in both locales; do not abbreviate by calque, shrink text,
+or hide content.
+
+**Consequences:** Candidate 07 changes repeated label placement, not semantics.
+English and Russian still expose the same four coordinates, normalized errors,
+restoration guarantee, and four typed failures. The displayed relations use
+server-rendered math, and both engines must verify every bounded record before
+publication.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-28 - Preserve the image-less Candidate 07 Cargo race and retry unchanged
+
+**Status:** Accepted after the failed Linux sub-operation.
+
+**Context:** Candidate 07's host source, formula, localized content, contract,
+parity, course-plan, ledger, and whitespace checks pass. The Linux workspace
+build failed before image publication when parallel Cargo example targets with
+the repository's existing shared `diagram_trace` output name raced to remove the
+same path. Cargo already warns about this cross-package filename collision. No
+Chapter 13 assertion or compiler diagnostic failed.
+
+**Decision:** Preserve Candidate 07 as an image-less failed attempt and retain
+its exact failure summary. Retry the unchanged product inputs and unchanged
+Dockerfile as Candidate 08. Do not alter the product build, rename unrelated
+examples, change dependencies, or weaken validation inside this localization
+checkpoint.
+
+**Consequences:** Candidate 08 can reuse no claim from Candidate 07; it must pass
+the complete Linux gate itself. The failed attempt remains auditable without
+expanding Chapter 13 ownership into unrelated Rust packages.
+
+**Affected step and run:** `activate-ch13-russian-localization`, run
+`20260728T181148Z-activate-ch13-russian-localization-01`.
+
+## 2026-07-29 - Recover Chapter 13 and reject Candidate 08 for malformed notation
+
+**Status:** Accepted before the corrective product edit.
+
+**Context:** The Candidate 08 Linux image and all 131 selected Chromium cases
+pass, but the turn was interrupted after the restart-safe Firefox matrix began.
+Startup recovery found no surviving container and verified every recorded file
+artifact, both image digests, and byte identity between the current product
+outputs and Candidate 08. Reading the complete Russian lesson then exposed a
+semantic formula defect that containment tests could not catch: the exercise-6
+answer intended to show `\lfloor 5k/3\rfloor`, but both LaTeX backslashes were
+missing and a carriage-return byte separated the operands. The math pipeline
+still produced a math span, so generic rendered-math presence and containment
+checks passed even though the notation was wrong.
+
+**Decision:** Finalize run 01 as interrupted and preserve all of its candidates
+and successful evidence without publishing Candidate 08. Start recovery run 02
+from the verified exact product manifest. Correct the Russian answer to the same
+floor expression as canonical English, add an exact source regression that
+rejects control characters and missing floor operators, repeat the distinct
+meaning, terminology, anti-calque, monolingual, accessibility, and rendered
+reviews, then build and validate a new immutable candidate in both browser
+engines. Do not weaken the existing formula or geometry gates and do not add a
+human-approval pause before publication.
+
+**Consequences:** Candidate 08 remains useful reproducible Linux and Chromium
+evidence but cannot be the committed artifact. The correction changes no English
+meaning, Rust behavior, numerical value, dependency, product build definition,
+hosting setting, or deployment target. Chapter 14 remains blocked until the new
+Chapter 13 candidate passes and receives its dedicated commit.
+
+**Affected step and runs:** `activate-ch13-russian-localization`, interrupted
+run `20260728T181148Z-activate-ch13-russian-localization-01` and recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Finish the Chapter 13 semantic review before rebuilding
+
+**Status:** Accepted before the expanded corrective edit.
+
+**Context:** The complete English-source and Russian monolingual passes found
+four issues adjacent to the malformed floor expression. Both lessons still call
+a reflowing evidence record a table row, both point to exact scan values in an
+abbreviated output excerpt that does not contain them, and both describe the NLL
+derivative as subtracting one from a target logit rather than from the softmax
+probability at that gradient position. The label contract also retains fourteen
+unrendered keys, including a schematic note that claims removed brackets are
+visible. Russian additionally repeats the literal “candidate” construction even
+though the frozen terminology calls for an analytic value, and a few sentences
+retain avoidable English order.
+
+**Decision:** Clarify canonical English first: name a scan result rather than a
+row, attribute exact scan lexemes to the complete executable output, and state
+that one is subtracted from the probability at the target-logit position. Then
+refresh the corresponding Russian contract fields, lesson prose, labels,
+captions, exercises, and answers directly from that English revision using
+natural numerical-analysis language. Remove only label fields that the static
+figure does not render, and make the Chapter 13 label validator reject unexpected
+keys so obsolete localized claims cannot silently return. Preserve every visible
+formula, value, record, error, link, source, accessibility relationship, and Rust
+behavior.
+
+**Consequences:** Recovery Candidate 01 will differ from Candidate 08 in source
+semantics and therefore must pass the complete Linux and two-engine publication
+gate independently. The cleanup adds no script, client hydration, private
+diagram behavior, dependency, build-definition change, hosting change, or
+deployment action. Its exact pre-edit hashes and scope are recorded in the run.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Reject Chapter 13 recovery Candidate 01 and compact Russian labels
+
+**Status:** Accepted after exact bilingual Chromium measurement.
+
+**Context:** Recovery Candidate 01 passes the complete Linux gate and six of
+seven sequential Chapter 13 Chromium scenarios. Its only failure is Russian
+fullscreen travel: 234 pixels against a 180-pixel budget, with no inline or
+bounded-box overflow. Comparison with Candidate 08 accounts for all 69 added
+pixels. “Сопоставьте два конечных аналитических значения” wraps the candidate
+heading once, the expanded invalid-request note wraps once, and “левая сторона”
+adds one line to every equal-height error card at 134-pixel card width. English,
+desktop, narrow, forced-color, fallback, formulas, values, and record containment
+are unaffected.
+
+**Decision:** Preserve and reject Candidate 01. Use the shorter natural Russian
+forms “Сравните два аналитических значения”, “слева”, and “Недопустимые данные
+не позволяют принять результат за производную.” Keep the exact English meaning,
+all four typed failures, non-color state cues, mathematical evidence, accessible
+side distinction, text size, shared geometry, and the 180-pixel gate. Build a
+new immutable Candidate 02 rather than altering either preserved image.
+
+**Consequences:** The correction removes redundant words identified by measured
+wrapping; it does not abbreviate technical terminology, hide content, shrink
+text, or change a formula, Rust behavior, dependency, build definition, or route.
+Candidate 02 must independently pass Linux plus complete Chromium and Firefox
+validation before publication.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Reject Chapter 13 Candidate 02 and reflow through concise evidence labels
+
+**Status:** Accepted after complete two-engine measurement.
+
+**Context:** Recovery Candidate 02 passes the complete Linux gate, all seven
+focused Chromium cases, and all 131 selected Chromium cases. Firefox passes 130
+of the same 131 cases but exposes a smaller native fullscreen height of 768
+pixels. The first English figure requires 173 pixels of travel against the
+unchanged 154-pixel budget; an isolated measurement also finds 251 pixels for
+Russian. All bounded boxes remain contained. Run-local runtime-only experiments
+show that the exact proposed learner wording reduces those debts to 149 and 145
+pixels without changing typography, spacing, geometry, clipping, or thresholds.
+
+**Decision:** Preserve and reject Candidate 02. Shorten the English figure
+description to name its four evidence classes without repeating every record
+count. In Russian, retain the improve-then-deteriorate claim while using natural
+compact headings such as “Квадратичная проверка”, “Шесть шагов для кубической
+функции”, and “Четыре координаты NLL”. Use the conventional diagram abbreviation
+“Норм. погрешность” and paired labels “Численная” / “Аналитическая”, whose noun is
+supplied by their section context. Keep every numerical record, formula, phase,
+status, typed failure, exact-restoration claim, non-color cue, and accessibility
+relationship. Rebuild as immutable Candidate 03 and repeat all gates.
+
+**Consequences:** The correction uses the localization contract's approved
+concise-wording remedy and removes literal sentence shape rather than hiding,
+clipping, shrinking, or deleting evidence. It changes no Rust behavior,
+dependency, build definition, route, shared diagram presentation rule, or test
+budget. Candidate 03 is independently publishable only after both engines pass.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Reject Chapter 13 Candidate 03 after independent language review
+
+**Status:** Accepted before the corrective semantic edit; supersedes the
+Candidate 02 decision's claim that its compact Russian field labels preserve
+standalone meaning.
+
+**Context:** Candidate 03 passes the complete Linux gate, all 840 unit tests,
+Rust documentation tests, exact source/contract/parity commands, and all 131
+selected cases in each browser. The required distinct final localization review
+still finds publication blockers. One history sentence changes output-layer and
+hidden-layer parameters into modifiers of word representations. “Собственное
+значение” means eigenvalue rather than a value held in owned storage. Seed and
+error-order phrasing is ambiguous. The measured compact diagram copy turns step
+sizes into “cubic steps,” turns two candidate values into two derivatives, and
+leaves visible and assistive field labels without their nouns.
+
+**Decision:** Preserve and reject Candidate 03 even though every automated gate
+passes. Repair the Russian history, owned-storage, random-seed, differentiation,
+error-order, and failed-verdict wording directly against frozen English. Restore
+full localized semantic labels for the quadratic numerical derivative, cubic
+step sizes, analytic values, NLL-gradient coordinates, numerical gradient,
+analytic value, and normalized error. Where Firefox geometry requires concise
+visible labels, add a separately validated rendered-label group and keep the full
+field labels as assistive text through a shared visually-hidden diagram role.
+The displayed abbreviations must remain independently understandable. Do not
+weaken geometry budgets, shrink text, clip content, or discard evidence.
+
+**Consequences:** Candidate 04 changes localization and the shared diagram role
+contract but no mathematical value, formula, Rust behavior, dependency, build
+definition, route, or deployment setting. Tests must require both full accessible
+labels and explicit visible labels, and complete Linux plus two-engine rendered
+validation must run again. Automated success is not accepted as a substitute for
+the localization workflow's independent semantic review.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Reject Chapter 13 Candidate 04 and name concise labels directly
+
+**Status:** Accepted after the complete Chromium geometry audit; supersedes the
+Candidate 03 decision's visually-hidden-text implementation, but not its
+requirement to preserve full accessible meanings.
+
+**Context:** Candidate 04 passes the complete Linux gate and all seven focused
+Chapter 13 cases in both Chromium and Firefox. The broader Chromium matrix passes
+126 of 131 cases and correctly finds that each absolutely positioned
+`course-diagram__visually-hidden` copy paints outside its nearest bounded box.
+The clipping-based helper therefore violates the same containment rule it was
+intended to preserve, across desktop, narrow, fullscreen, and forced-color
+surfaces. This is a presentation defect even when the duplicate ink is not
+visually exposed.
+
+**Decision:** Preserve and reject Candidate 04. Use one rendered element for each
+concise visible field label. Mark that element as an ARIA `term`, attach the full
+localized meaning with `aria-label`, and retain both diagram label markers on the
+same element for deterministic review. Remove the duplicate hidden nodes and the
+shared clipping helper. Keep the concise text visible, the full text available to
+assistive technology, and the geometry audit unchanged.
+
+**Consequences:** Candidate 05 introduces no hidden or clipped label geometry and
+does not weaken layout budgets or remove meaning. Unit and browser tests must
+verify the visible text, full accessible name, one-node label contract, and exact
+bilingual count before the complete Linux and two-engine matrices are repeated.
+No formula, numerical evidence, Rust behavior, route, dependency, or deployment
+setting changes.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Reject Chapter 13 Candidate 05 and use a named label group
+
+**Status:** Accepted after browser accessibility-tree measurement; supersedes the
+Candidate 04 decision's choice of `role="term"`.
+
+**Context:** Candidate 05 removes all duplicate hidden text geometry and passes
+the complete Linux gate. Its focused Chromium run passes five of seven cases but
+correctly reports an empty accessible name for every nested `term`, in both
+locales, despite the full `aria-label` attribute being present. A runtime-only
+probe against the immutable page confirms that Chromium exposes the exact name
+for a neutral `group`; the other working roles carry image, status, note, or
+definition semantics that do not describe a concise field-label wrapper.
+
+**Decision:** Preserve and reject Candidate 05. Change only the five label
+wrappers from `role="term"` to `role="group"`. Keep the visible concise text and
+full localized `aria-label` on the same painted element, keep both deterministic
+diagram markers, and require browser-computed accessible names. Do not restore a
+hidden text node or change geometry.
+
+**Consequences:** Candidate 06 must repeat the full Linux, Chromium, and Firefox
+gates. The correction changes only accessibility semantics; formulas, prose,
+values, Rust behavior, routes, layout budgets, dependencies, and deployment remain
+unchanged.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Publish Chapter 13 Candidate 06 with natural Russian and named labels
+
+**Status:** Accepted after complete validation and independent final review.
+
+**Context:** Candidate 06 preserves the semantically corrected Chapter 13 sources,
+uses concise visible diagram labels with full browser-exposed localized names, and
+contains no duplicate hidden label geometry. It passes the complete Linux gate,
+all 840 unit tests, Rust documentation tests, exact plan/contract/bilingual checks,
+and all 131 selected cases in both Chromium and Firefox. All 20 declared product
+files match the immutable workspace image. The independent final reviewer checked
+the exact Russian and contract hashes and found no remaining semantic,
+terminology, anti-calque, monolingual, accessibility, or learner-prose blocker.
+
+**Decision:** Publish immutable Candidate 06 as the Chapter 13 Russian activation.
+Keep English revision 4 as the semantic source, advance the active locale range
+through Chapter 13 only, and retain the single visible `role="group"` label
+wrappers with full `aria-label` values. Preserve every rejected candidate and its
+recorded evidence; do not reinterpret an earlier automated pass as publication.
+
+**Consequences:** Chapter 13 is available at equivalent English and Russian routes
+with complete static fallback and shared full-view behavior. The shared diagram
+module no longer contains the rejected clipping helper. Chapter 14 may start only
+after this step is checkpointed and committed independently.
+
+**Affected step and run:** `activate-ch13-russian-localization`, recovery run
+`20260729T061955Z-activate-ch13-russian-localization-02`.

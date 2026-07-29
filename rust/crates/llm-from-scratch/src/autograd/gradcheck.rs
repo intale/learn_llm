@@ -381,6 +381,7 @@ fn coordinate_from_offset(
     Ok(coordinate)
 }
 
+// region:sample-tensor-coordinates
 /// Selects unique, ordered coordinates without randomness or hidden state.
 pub fn sample_tensor_coordinates(
     shape: &[usize],
@@ -416,6 +417,7 @@ pub fn sample_tensor_coordinates(
     }
     Ok(coordinates)
 }
+// endregion:sample-tensor-coordinates
 
 fn at_coordinate(coordinate: &[usize], source: GradCheckError) -> GradCheckError {
     GradCheckError::AtCoordinate {

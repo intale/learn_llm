@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 38,
+  "plan_revision": 39,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-12",
+    "policy_id": "selective-russian-through-chapter-13",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "12-stable-softmax",
+        "through_chapter": "13-gradient-checking",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-12."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-13."
       },
       {
-        "from_chapter": "13-gradient-checking",
+        "from_chapter": "14-scalar-autodiff",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 12 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 13 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -234,6 +234,11 @@
         "step_id": "activate-ch12-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch12-russian-localization"
+      },
+      {
+        "step_id": "activate-ch13-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch13-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -803,9 +808,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–12 activate
-both, while Chapters 13–39 activate English only. Russian therefore keeps its index
-and Chapter 0–12 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–13 activate
+both, while Chapters 14–39 activate English only. Russian therefore keeps its index
+and Chapter 0–13 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1049,7 +1054,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `13-gradient-checking`
 - **Implementation step:** `implement-ch13-gradient-checking`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch08-ch13`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 adds the complete Russian projection, precise truncation-order and indexed-NLL derivative formulas, concept-implementing Rust regions, learner-facing numerical evidence, and a shared-system diagram during `activate-ch13-russian-localization`; revision 3 and the formula rendering repair remain recorded by `repair-formula-rendering-ch08-ch13`.
 - **Depends on:** `12-stable-softmax`.
 - **Outcome:** Approximate derivatives with central differences and compare analytic candidates using scale-aware error.
 - **Scope boundary:** Teach step size, truncation/rounding trade-offs, central differences, relative error, and sampled tensor coordinates; defer automatic differentiation.
@@ -1059,7 +1064,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Visualization:** Useful — draw secants around a point for several `h` values and show convergence then floating-point deterioration.
 - **Practice:** Predict the numerical derivative of a quadratic and choose which of three step sizes is trustworthy.
 - **Integration evidence:** Polynomial and composed functions, wrong-gradient rejection, scale-aware tolerance, deterministic coordinates, and edge errors pass.
-- **Handoff:** Chapter 14 builds a scalar reverse-mode graph and proves it against this oracle.
+- **Handoff:** Chapter 14 builds a scalar reverse-mode graph and checks it against this numerical reference.
 
 ## 14. Scalar reverse-mode automatic differentiation
 

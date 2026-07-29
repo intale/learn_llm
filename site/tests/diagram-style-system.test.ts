@@ -72,12 +72,17 @@ describe("course diagram design system", () => {
     expect(module).toContain(".course-diagram__card-heading");
     expect(module).toContain(".course-diagram__link-list");
     expect(module).toContain(".course-diagram__link-separator");
+    expect(module).not.toContain(".course-diagram__visually-hidden");
+    expect(module).not.toContain("clip-path: inset(50%)");
     expect(module).toContain("table[data-diagram-table]");
     expect(module).toContain("--diagram-summary-min");
     expect(module).toContain("--diagram-cell-padding-inline");
     expect(module).toContain("--diagram-scroll-inline-size");
     expect(module).toMatch(/\.state-symbol[\s\S]*min-inline-size:\s*1\.7rem/);
     expect(module).toMatch(/\.state-symbol[\s\S]*white-space:\s*nowrap/);
+    expect(module).toContain(
+      "border: 1px var(--diagram-state-symbol-border-style, solid) currentColor",
+    );
     expect(module).toMatch(
       /\.course-diagram__scroll\[data-diagram-scroll\][\s\S]*position:\s*relative/,
     );

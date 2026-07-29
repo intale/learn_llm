@@ -71,6 +71,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     println!("tensor restored exactly: {}", nll.restored_exactly);
     println!("collapsed-step error: {collapsed}");
-    println!("chapter 14 handoff: prove reverse-mode derivatives against this oracle");
+    println!("chapter 14 handoff: check reverse-mode derivatives against this oracle");
     Ok(())
 }

@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 
 import {
+  chapterLocales,
+  chapterLocaleDefinitions,
   chapterPath,
   chapterTag,
   expectLocalizedChapterRoute,
@@ -13,50 +15,184 @@ import {
   expectOrderedChapterNavigation,
   expectSeoDescription,
   expectVisualizationDecision,
+  readMathAwareText,
   readOrderedCourseChapters,
+  type ChapterLocale,
   type CourseChapterLink,
 } from './chapter-helpers';
 
 declare const process: { cwd(): string };
 
 const chapterId = '13-gradient-checking';
-const contentRevision = 3;
-const chapterTitle = 'Check gradients before trusting backpropagation';
-const chapterDescription =
-  'Check derivatives used in LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.';
-const revisionLabel = 'Content revision';
+const contentRevision = 4;
 const formulaLatex = String.raw`f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}`;
 const repositoryRoot = resolve(process.cwd(), '..');
-const historyHeading = 'From next-word backpropagation to checked Transformer training';
-const historyLimitation =
-  "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.";
-const historyLater =
-  "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish finite-difference probes from reverse-mode automatic differentiation: central differences expose local derivative mistakes, while reverse mode efficiently produces a scalar objective's gradient over many parameters.";
-const historyModern =
-  'This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.';
-const historyClaims = [
-  'Bengio et al. maximize next-word log-likelihood and publish a backward/update phase that propagates gradients through output units, hidden weights, and learned word-feature vectors.',
-  'Vaswani et al. train Transformer base models for 100,000 steps and big models for 300,000 steps, using Adam with an explicit learning-rate schedule.',
-  "Baydin et al. describe centered finite differences, the truncation-versus-round-off step-size trade-off, poor scaling for full numerical gradients, and reverse mode's efficiency for a scalar objective with many parameters.",
-] as const;
 const historySources = [
   'https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf',
   'https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf',
   'https://arxiv.org/abs/1502.05767',
 ] as const;
 
-const diagramCopy = {
-  title: 'See a centered slope converge, then deteriorate',
-  description:
-    'Separate the quadratic sanity check from a six-step cubic scan, then inspect two candidate verdicts, four sampled token-loss coordinates, exact restoration, and four rejected requests.',
-  sections: [
-    'Check the quadratic at theta equals three',
-    'Scan six step sizes around theta equals one point five',
-    'Distinguish a wrong gradient from an invalid request',
-    'Probe four coordinates of the token loss',
-    'Reject unsafe numerical requests',
-  ],
-};
+interface LocalizedCopy {
+  revisionLabel: string;
+  chapterTitle: string;
+  chapterDescription: string;
+  headings: readonly string[];
+  historyHeading: string;
+  historyClaims: readonly string[];
+  rustCaptions: readonly string[];
+  rustLabels: readonly string[];
+  diagramTitle: string;
+  diagramDescription: string;
+  diagramSections: readonly string[];
+  diagramLabels: Record<
+    'summary-quadratic' | 'numerical' | 'analytic' | 'scaled-error',
+    { visible: string; accessible: string }
+  >;
+  restoredText: string;
+  exerciseSummary: string;
+}
+
+const copy = {
+  en: {
+    revisionLabel: 'Content revision',
+    chapterTitle: 'Check gradients before trusting backpropagation',
+    chapterDescription:
+      'Validate candidate derivatives for LLM training with central differences, scale-aware error, and deterministic tensor-coordinate sampling in dependency-free Rust.',
+    headings: [
+      'Predict one quadratic derivative',
+      'Center two probes around one point',
+      'Name the derivative-check quantities',
+      'From next-word backpropagation to checked Transformer training',
+      'Implement a sampled numerical oracle',
+      'Watch the step size help, then hurt',
+      'Predict before running Rust',
+      'Prepare reverse-mode differentiation',
+    ],
+    historyHeading: 'From next-word backpropagation to checked Transformer training',
+    historyClaims: [
+      "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.",
+      "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, the independent estimate can reveal a local mistake in a candidate derivative.",
+      'This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.',
+    ],
+    rustCaptions: [
+      'Define one quadratic prediction and both analytic candidates',
+      'Evaluate a checked minus probe and plus probe before forming the centered slope',
+      'Normalize finite gradient disagreement by the larger magnitude or one',
+      'Name invalid steps, probes, values, shapes, samples, views, and coordinates',
+      'Choose unique ordered tensor coordinates without randomness',
+      'Check deterministic tensor coordinates and restore every temporary perturbation',
+      'Construct the hand-derived candidate for the two-row indexed mean NLL',
+      'Compare four vocabulary-logit candidates with independent forward losses',
+      'Prepare the complete deterministic learner evidence before printing',
+      'Run one cubic derivative check across all six step sizes',
+    ],
+    rustLabels: [
+      'Rust source defining the Chapter 13 predict-first quadratic gradient checks',
+      'Rust source implementing the Chapter 13 scalar central difference',
+      'Rust source implementing the scale-aware Chapter 13 comparison rule',
+      'Rust source defining the Chapter 13 numerical gradient-check errors',
+      'Rust source implementing deterministic Chapter 13 tensor-coordinate selection',
+      'Rust source implementing the sampled tensor-coordinate gradient checker',
+      'Rust source deriving the Chapter 13 analytic token-loss gradient candidate',
+      'Rust source applying sampled gradient checking to Chapter 12 indexed mean NLL',
+      'Rust source running the Chapter 13 learner gradient-check example',
+      'Rust source implementing the Chapter 13 truncation-to-rounding step-size scan',
+    ],
+    diagramTitle: 'See a centered slope converge, then deteriorate',
+    diagramDescription:
+      'Compare scalar checks, token-loss gradients, exact restoration, and invalid inputs.',
+    diagramSections: [
+      'Check the quadratic at theta equals three',
+      'Scan six step sizes around theta equals one point five',
+      'Compare two finite gradient candidates',
+      'Probe four coordinates of the token loss',
+      'Reject unsafe numerical requests',
+    ],
+    diagramLabels: {
+      'summary-quadratic': {
+        visible: 'Quadratic numerical derivative',
+        accessible: 'Quadratic numerical derivative',
+      },
+      numerical: { visible: 'Numerical gradient', accessible: 'Numerical gradient' },
+      analytic: { visible: 'Analytic candidate', accessible: 'Analytic candidate' },
+      'scaled-error': { visible: 'Scaled error', accessible: 'Scaled error' },
+    },
+    restoredText: 'yes, exactly',
+    exerciseSummary: 'Check the predictions',
+  },
+  ru: {
+    revisionLabel: 'Версия материала',
+    chapterTitle: 'Проверяйте градиенты, прежде чем доверять обратному распространению',
+    chapterDescription:
+      'Проверяйте производные для обучения LLM с помощью центральных разностей, погрешности с учётом масштаба и детерминированно выбранных координат тензора; пример на Rust не требует сторонних зависимостей.',
+    headings: [
+      'Предскажите одну производную квадратичной функции',
+      'Вычислите функцию в двух симметричных точках',
+      'Назовите величины, используемые при проверке производной',
+      'От обратного распространения для следующего слова к проверке производных при обучении Transformer',
+      'Реализуйте выборочную численную проверку',
+      'Проследите, как уменьшение шага сначала помогает, а затем мешает',
+      'Сделайте предсказания до запуска Rust',
+      'Подготовьте автоматическое дифференцирование в обратном режиме',
+    ],
+    historyHeading:
+      'От обратного распространения для следующего слова к проверке производных при обучении Transformer',
+    historyClaims: [
+      'Нейронная языковая модель Бенжио и соавторов максимизирует логарифмическое правдоподобие следующего слова и явно выполняет этап обратного распространения и обновления параметров выходного и скрытого слоёв, а также обучаемых векторных представлений слов. Передаваемые назад производные позволяют многократно обновлять параметры, но вычисляющий их путь не может независимо проверить сам себя.',
+      'Transformer обучает градиентным методом повторяющиеся слои внимания и полносвязные блоки, выполняя 100 000 шагов Adam для базовой модели или 300 000 для большой. Байдин и соавторы различают численное дифференцирование и автоматическое дифференцирование в обратном режиме: конечные разности оценивают одну локальную производную по нескольким вычислениям функции, а обратный режим эффективно получает градиент скалярной цели по множеству параметров. Здесь такая независимая оценка помогает обнаружить локальную ошибку в проверяемой производной.',
+      'В этой главе центральные разности служат лишь медленным независимым численным эталоном для выборочной проверки аналитически вычисленных значений, в том числе производной среднего NLL по индексам из главы 12. В главе 14 появится обратный режим. Такая проверка не обучает и не запускает декодер; правила выбора шага, допуска и координат, восстановления значений, конечности входов, хранения и очерёдности проверок относятся к данной реализации курса.',
+    ],
+    rustCaptions: [
+      'Задать квадратичный пример и оба аналитических значения',
+      'Вычислить значения слева и справа, а затем наклон секущей',
+      'Нормировать расхождение конечных производных по большей величине или единице',
+      'Различать ошибки шагов, точек, значений, форм, координат и представлений',
+      'Выбрать уникальные упорядоченные координаты тензора без случайности',
+      'Проверить выбранные координаты тензора и восстановить каждое временное изменение',
+      'Построить вручную производную среднего NLL по двум строкам',
+      'Сравнить четыре производные по логитам словаря с независимыми прямыми вычислениями',
+      'Подготовить полный детерминированный результат перед печатью',
+      'Проверить производную кубической функции при всех шести величинах шага',
+    ],
+    rustLabels: [
+      'Исходный код Rust с предварительно рассчитанной проверкой производной квадратичной функции в главе 13',
+      'Исходный код Rust с реализацией скалярной центральной разности в главе 13',
+      'Исходный код Rust с правилом сравнения градиентов с учётом масштаба в главе 13',
+      'Исходный код Rust с типами ошибок численной проверки градиента в главе 13',
+      'Исходный код Rust с детерминированным выбором координат тензора в главе 13',
+      'Исходный код Rust с выборочной проверкой градиента по координатам тензора',
+      'Исходный код Rust с аналитически вычисленной производной функции потерь по токенам в главе 13',
+      'Исходный код Rust с выборочной проверкой производной среднего NLL из главы 12',
+      'Исходный код Rust с запуском учебного примера численной проверки градиента в главе 13',
+      'Исходный код Rust с перебором шагов от погрешности усечения к погрешности округления в главе 13',
+    ],
+    diagramTitle: 'Как шаг сначала улучшает, затем портит оценку производной',
+    diagramDescription:
+      'Сравните скалярные проверки, градиенты функции потерь по токенам, точное восстановление и недопустимые входные данные.',
+    diagramSections: [
+      'Квадратичная проверка',
+      'Шесть величин шага для кубической функции',
+      'Два аналитических значения',
+      'Четыре координаты градиента NLL',
+      'Недопустимые запросы',
+    ],
+    diagramLabels: {
+      'summary-quadratic': {
+        visible: 'Численная производная',
+        accessible: 'Численная производная квадратичной функции',
+      },
+      numerical: { visible: 'Числ. градиент', accessible: 'Численный градиент' },
+      analytic: { visible: 'Аналит. значение', accessible: 'Аналитическое значение' },
+      'scaled-error': {
+        visible: 'Норм. погрешность',
+        accessible: 'Нормированная погрешность',
+      },
+    },
+    restoredText: 'да, точно',
+    exerciseSummary: 'Проверьте предсказания',
+  },
+} satisfies Record<ChapterLocale, LocalizedCopy>;
 
 function readRustRegion(path: string, region: string): string {
   const lines = readFileSync(resolve(repositoryRoot, path), 'utf8').split(/\r?\n/);
@@ -73,60 +209,54 @@ const expectedRustRegions = [
   ['rust/crates/llm-from-scratch/src/autograd/gradcheck.rs', 'central-difference'],
   ['rust/crates/llm-from-scratch/src/autograd/gradcheck.rs', 'scale-aware-comparison'],
   ['rust/crates/llm-from-scratch/src/autograd/gradcheck.rs', 'gradcheck-errors'],
+  ['rust/crates/llm-from-scratch/src/autograd/gradcheck.rs', 'sample-tensor-coordinates'],
   ['rust/crates/llm-from-scratch/src/autograd/gradcheck.rs', 'sampled-tensor-gradient-check'],
   ['rust/demos/ch13-gradient-checking/src/lib.rs', 'hand-derived-nll-gradient'],
   ['rust/demos/ch13-gradient-checking/src/lib.rs', 'sampled-nll-gradient-check'],
   ['rust/demos/ch13-gradient-checking/src/main.rs', 'learner-gradient-check-output'],
-  ['rust/demos/ch13-gradient-checking/src/diagram_trace.rs', 'gradient-checking-trace'],
+  ['rust/demos/ch13-gradient-checking/src/lib.rs', 'step-size-scan'],
 ] as const;
 const expectedRustSources = expectedRustRegions.map(([path, region]) =>
   readRustRegion(path, region),
 );
 
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolveFrame) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame())),
+    );
+  });
+}
+
 async function expectChapterContent(
   page: Page,
+  locale: ChapterLocale,
   chapters: readonly CourseChapterLink[],
-  narrow: boolean,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: 'en',
+    locale,
     order: 13,
     revision: contentRevision,
-    revisionLabel,
-    title: chapterTitle,
-    equivalentLocales: ['en'],
-    fallbackRouteSuffix: '/course/',
+    revisionLabel: localized.revisionLabel,
+    title: localized.chapterTitle,
   });
-  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
-  await expectSeoDescription(page, chapterDescription);
-
-  await expect(page.locator('.lesson-body h2')).toHaveText([
-    'Predict one quadratic derivative',
-    'Center two probes around one point',
-    'Name the derivative-check quantities',
-    historyHeading,
-    'Implement a sampled numerical oracle',
-    'Watch the step size help, then hurt',
-    'Predict before running Rust',
-    'Prepare reverse-mode differentiation',
-  ]);
+  await expect(page.locator('.lesson-description')).toHaveText(localized.chapterDescription);
+  await expectSeoDescription(page, localized.chapterDescription);
+  await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
 
   const historyNodes = page
-    .getByRole('heading', { level: 2, name: historyHeading, exact: true })
+    .getByRole('heading', { level: 2, name: localized.historyHeading, exact: true })
     .locator(
-      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${historyHeading}"]]`,
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.historyHeading}"]]`,
     );
-  const historyText = (await historyNodes.allInnerTexts())
-    .join(' ')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
-  for (const expected of [historyLimitation, historyLater, historyModern, ...historyClaims]) {
-    expect(historyText).toContain(expected);
-  }
-  expect(historyText).toContain('Neither model paper claims to use this checker.');
-  expect(historyText).not.toMatch(/programming-language history|Rust history|Python history|array-library history/i);
+  const historyText = await readMathAwareText(historyNodes);
+  for (const claim of localized.historyClaims) expect(historyText).toContain(claim);
+  expect(historyText).not.toMatch(
+    /FORTRAN|Genie|NumPy|programming-language history|array-library history/i,
+  );
   const historyLinks = historyNodes.locator('a');
   await expect(historyLinks).toHaveCount(historySources.length);
   expect(
@@ -135,13 +265,21 @@ async function expectChapterContent(
 
   const formula = page
     .locator('.katex-display')
-    .filter({ has: page.locator('annotation[encoding="application/x-tex"]', { hasText: formulaLatex }) });
+    .filter({
+      has: page.locator('annotation[encoding="application/x-tex"]', {
+        hasText: formulaLatex,
+      }),
+    });
   await expect(formula).toHaveCount(1);
   await expect(formula).toHaveCSS('direction', 'ltr');
-  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(formulaLatex);
+  await expect(formula.locator('annotation[encoding="application/x-tex"]')).toHaveText(
+    formulaLatex,
+  );
+  await expect(page.locator('.lesson-body .katex-error')).toHaveCount(0);
 
   const rustSources = page.locator('figure.rust-source');
   await expect(rustSources).toHaveCount(expectedRustRegions.length);
+  await expect(rustSources.locator('figcaption > span')).toHaveText(localized.rustCaptions);
   const highlighted = rustSources.locator(
     'pre.rust-source-code.astro-code.github-dark-high-contrast[data-language="rust"]',
   );
@@ -156,10 +294,14 @@ async function expectChapterContent(
       sources.map((source) => source.getAttribute('data-source-region')),
     ),
   ).toEqual(expectedRustRegions.map(([, region]) => region));
+  expect(
+    await highlighted.evaluateAll((blocks) =>
+      blocks.map((block) => block.getAttribute('aria-label')),
+    ),
+  ).toEqual(localized.rustLabels);
   for (const evidence of await highlighted.evaluateAll((blocks) =>
     blocks.map((block) => ({
       tabIndex: block.getAttribute('tabindex'),
-      label: block.getAttribute('aria-label'),
       direction: block.getAttribute('dir'),
       colors: new Set(
         Array.from(block.querySelectorAll<HTMLElement>('code span[style*="color"]'))
@@ -169,31 +311,54 @@ async function expectChapterContent(
     })),
   )) {
     expect(evidence.tabIndex).toBe('0');
-    expect(evidence.label).toBeTruthy();
     expect(evidence.direction).toBe('ltr');
     expect(evidence.colors).toBeGreaterThan(1);
   }
 
   await expectVisualizationDecision(page, { decision: 'useful', id: 'gradient-checking' });
   const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
-  await expect(diagram).toHaveAccessibleName(diagramCopy.title);
-  await expect(diagram).toHaveAccessibleDescription(diagramCopy.description);
-  for (const heading of diagramCopy.sections) {
-    await expect(diagram.getByRole('heading', { name: heading })).toBeVisible();
+  await expect(diagram).toHaveAttribute('data-diagram-style', 'course-v1');
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
+  for (const heading of localized.diagramSections) {
+    await expect(diagram.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   }
+  for (const [key, label] of Object.entries(localized.diagramLabels)) {
+    const displayed = diagram.locator(`[data-diagram-display-label="${key}"]`);
+    const accessible = diagram.locator(`[data-diagram-accessible-label="${key}"]`);
+    expect(await displayed.count()).toBeGreaterThan(0);
+    await expect(displayed).toHaveText(
+      Array.from({ length: await displayed.count() }, () => label.visible),
+    );
+    expect(await accessible.count()).toBe(await displayed.count());
+    expect(await displayed.evaluateAll((nodes) => nodes.every((node) =>
+      node.hasAttribute('data-diagram-accessible-label')
+      && node.getAttribute('role') === 'group'
+      && !node.hasAttribute('aria-hidden'),
+    ))).toBe(true);
+    for (let index = 0; index < await accessible.count(); index += 1) {
+      await expect(accessible.nth(index)).toHaveAccessibleName(label.accessible);
+      await expect(accessible.nth(index)).toBeVisible();
+    }
+    expect(await accessible.evaluateAll((nodes) =>
+      nodes.every((node) => {
+        const style = window.getComputedStyle(node);
+        return style.position !== 'absolute' && style.clipPath === 'none';
+      }),
+    )).toBe(true);
+  }
+  await expect(diagram.locator('[data-diagram-box]')).toHaveCount(23);
 
   expect(
-    await diagram.locator('[data-step-index]').evaluateAll((rows) =>
-      rows
-        .filter((row) => row.matches('tr'))
-        .map((row) => ({
-          index: row.getAttribute('data-step-index'),
-          phase: row.getAttribute('data-phase'),
-          status: row.getAttribute('data-status'),
-          step: row.getAttribute('data-step'),
-          numerical: row.getAttribute('data-numerical'),
-          error: row.getAttribute('data-scaled-error'),
-        })),
+    await diagram.locator('.step-record[data-step-index]').evaluateAll((rows) =>
+      rows.map((row) => ({
+        index: row.getAttribute('data-step-index'),
+        phase: row.getAttribute('data-phase'),
+        status: row.getAttribute('data-status'),
+        step: row.getAttribute('data-step'),
+        numerical: row.getAttribute('data-numerical'),
+        error: row.getAttribute('data-scaled-error'),
+      })),
     ),
   ).toEqual([
     { index: '0', phase: 'truncation', status: 'fail', step: '1.000000000000e0', numerical: '5.750000000000', error: '1.739130434783e-1' },
@@ -207,180 +372,345 @@ async function expectChapterContent(
     await diagram.locator('[data-comparison-name]').evaluateAll((cards) =>
       cards.map((card) => ({
         name: card.getAttribute('data-comparison-name'),
+        analytic: card.getAttribute('data-analytic'),
+        numerical: card.getAttribute('data-numerical'),
+        error: card.getAttribute('data-scaled-error'),
+        tolerance: card.getAttribute('data-tolerance'),
         status: card.getAttribute('data-status'),
       })),
     ),
   ).toEqual([
-    { name: 'quadratic-correct', status: 'pass' },
-    { name: 'quadratic-wrong', status: 'fail' },
+    {
+      name: 'quadratic-correct',
+      analytic: '6.000000000000',
+      numerical: '6.000000000000',
+      error: '8.881784197001e-16',
+      tolerance: '1.000000000000e-6',
+      status: 'pass',
+    },
+    {
+      name: 'quadratic-wrong',
+      analytic: '5.500000000000',
+      numerical: '6.000000000000',
+      error: '8.333333333333e-2',
+      tolerance: '1.000000000000e-6',
+      status: 'fail',
+    },
   ]);
   expect(
     await diagram.locator('[data-sample-flat]').evaluateAll((cards) =>
       cards.map((card) => ({
         flat: card.getAttribute('data-sample-flat'),
         coordinate: card.getAttribute('data-coordinate'),
+        analytic: card.getAttribute('data-analytic'),
+        numerical: card.getAttribute('data-numerical'),
+        error: card.getAttribute('data-scaled-error'),
         status: card.getAttribute('data-status'),
       })),
     ),
   ).toEqual([
-    { flat: '0', coordinate: '0:0', status: 'pass' },
-    { flat: '1', coordinate: '0:1', status: 'pass' },
-    { flat: '3', coordinate: '1:0', status: 'pass' },
-    { flat: '5', coordinate: '1:2', status: 'pass' },
+    {
+      flat: '0',
+      coordinate: '0:0',
+      analytic: '-0.377635764473',
+      numerical: '-0.377635764481',
+      error: '8.753164859598e-12',
+      status: 'pass',
+    },
+    {
+      flat: '1',
+      coordinate: '0:1',
+      analytic: '0.332620477887',
+      numerical: '0.332620477894',
+      error: '6.763478666016e-12',
+      status: 'pass',
+    },
+    {
+      flat: '3',
+      coordinate: '1:0',
+      analytic: '0.433406666099',
+      numerical: '0.433406666089',
+      error: '9.292122626903e-12',
+      status: 'pass',
+    },
+    {
+      flat: '5',
+      coordinate: '1:2',
+      analytic: '-0.492061880012',
+      numerical: '-0.492061879998',
+      error: '1.425926043908e-11',
+      status: 'pass',
+    },
   ]);
   await expect(diagram.locator('[data-restored-exactly]')).toHaveAttribute(
     'data-restored-exactly',
     'yes',
   );
+  await expect(diagram.locator('[data-restored-exactly]')).toContainText(
+    localized.restoredText,
+  );
   expect(
     await diagram.locator('[data-error-kind]').evaluateAll((cards) =>
-      cards.map((card) => card.getAttribute('data-error-kind')),
+      cards.map((card) => ({
+        kind: card.getAttribute('data-error-kind'),
+        step: card.querySelector('[data-exact-step]')?.getAttribute('data-exact-step') ?? null,
+        point: card.querySelector('[data-exact-point]')?.getAttribute('data-exact-point') ?? null,
+        value: card.querySelector('[data-exact-value]')?.getAttribute('data-exact-value') ?? null,
+        parameterShape:
+          card.querySelector('[data-exact-parameter-shape]')?.getAttribute('data-exact-parameter-shape') ?? null,
+        candidateShape:
+          card.querySelector('[data-exact-candidate-shape]')?.getAttribute('data-exact-candidate-shape') ?? null,
+      })),
     ),
   ).toEqual([
-    'invalid-step',
-    'collapsed-perturbation',
-    'non-finite-evaluation',
-    'shape-mismatch',
+    {
+      kind: 'invalid-step',
+      step: '0.000000000000',
+      point: null,
+      value: null,
+      parameterShape: null,
+      candidateShape: null,
+    },
+    {
+      kind: 'collapsed-perturbation',
+      step: '1.000000000000e-20',
+      point: '1.000000000000',
+      value: null,
+      parameterShape: null,
+      candidateShape: null,
+    },
+    {
+      kind: 'non-finite-evaluation',
+      step: null,
+      point: null,
+      value: 'NaN',
+      parameterShape: null,
+      candidateShape: null,
+    },
+    {
+      kind: 'shape-mismatch',
+      step: null,
+      point: null,
+      value: null,
+      parameterShape: '2',
+      candidateShape: '1,2',
+    },
   ]);
 
+  if (locale === 'ru') {
+    const visibleDiagramText = await diagram.innerText();
+    expect(visibleDiagramText).not.toMatch(
+      /\b(?:Probe side|Parameter shape|Candidate shape|yes, exactly)\b/,
+    );
+  }
   expect(
     await diagram.locator('code, bdi').evaluateAll((nodes) =>
       nodes.every((node) => window.getComputedStyle(node).direction === 'ltr'),
     ),
   ).toBe(true);
-  const scroller = diagram.locator('.trace-scroll');
-  await scroller.focus();
-  await expect(scroller).toBeFocused();
-  if (narrow) {
-    const widths = await scroller.evaluate((node) => ({
-      client: node.clientWidth,
-      scroll: node.scrollWidth,
-    }));
-    expect(widths.scroll).toBeGreaterThan(widths.client);
-    for (const selector of ['.candidate-card', '.coordinate-card', '.error-card']) {
-      const positions = await diagram.locator(selector).evaluateAll((cards) =>
-        cards.slice(0, 2).map((card) => {
-          const rectangle = card.getBoundingClientRect();
-          return { left: rectangle.left, top: rectangle.top, bottom: rectangle.bottom };
-        }),
-      );
-      expect(positions).toHaveLength(2);
-      expect(Math.abs(positions[0]!.left - positions[1]!.left)).toBeLessThan(1);
-      expect(positions[1]!.top).toBeGreaterThan(positions[0]!.bottom);
-    }
-  }
+  const scrollers = diagram.locator('[data-diagram-scroll]');
+  await expect(scrollers).toHaveCount(0);
+  expect(
+    await diagram.locator('[data-diagram-box]').evaluateAll((boxes) =>
+      boxes
+        .map((box) => ({
+          inlineDebt: (box as HTMLElement).scrollWidth - (box as HTMLElement).clientWidth,
+          blockDebt: (box as HTMLElement).scrollHeight - (box as HTMLElement).clientHeight,
+        }))
+        .filter(({ inlineDebt, blockDebt }) => inlineDebt > 2 || blockDebt > 2),
+    ),
+  ).toEqual([]);
 
+  const exerciseQuestions = page.locator('.lesson-body > ol > li');
+  await expect(exerciseQuestions).toHaveCount(8);
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
+  await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
   await expect(exerciseDetails.locator('ol > li')).toHaveCount(8);
 
-  await expectOrderedChapterNavigation(page, 'en', chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }
 
-test.describe('chapter 13 gradient-checking vertical slice', {
+test.describe('chapter 13 localized gradient-checking vertical slice', {
   tag: chapterTag(chapterId),
 }, () => {
-  test('English publishes Chapter 13 while its Russian route remains deferred', async ({
+  test('chapter 13 is thirteenth on every course index with direct equivalent locale routes', async ({
     page,
   }) => {
-    const englishChapters = await readOrderedCourseChapters(page, 'en');
-    expect(englishChapters.length).toBeGreaterThanOrEqual(13);
-    expect(englishChapters[12]).toEqual(
-      expect.objectContaining({ chapterId, order: 13, title: chapterTitle }),
-    );
+    for (const locale of chapterLocales) {
+      const localized = copy[locale];
+      const localeDefinition = chapterLocaleDefinitions.find(({ code }) => code === locale);
+      expect(localeDefinition).toBeDefined();
+      const chapters = await readOrderedCourseChapters(page, locale);
+      expect(chapters.length).toBeGreaterThanOrEqual(13);
+      expect(chapters[12]).toEqual(
+        expect.objectContaining({ chapterId, order: 13, title: localized.chapterTitle }),
+      );
+      await expect(page.locator('html')).toHaveAttribute(
+        'lang',
+        localeDefinition?.languageTag ?? '',
+      );
+      await page.getByRole('link', { name: localized.chapterTitle, exact: true }).click();
+      await expectLocalizedChapterRoute(page, {
+        chapterId,
+        locale,
+        order: 13,
+        revision: contentRevision,
+        revisionLabel: localized.revisionLabel,
+        title: localized.chapterTitle,
+      });
+      await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
+      await expectNoOverflowOrClientScripts(page);
+    }
 
-    const russianChapters = await readOrderedCourseChapters(page, 'ru');
-    expect(russianChapters.length).toBeGreaterThan(0);
-    const lastRussianChapter = russianChapters[russianChapters.length - 1]!;
-    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
-    await expectOrderedChapterNavigation(
+    for (const source of chapterLocaleDefinitions) {
+      for (const target of chapterLocaleDefinitions.filter(({ code }) => code !== source.code)) {
+        await page.goto(chapterPath(source.code, chapterId));
+        const switchLink = page.locator(`.locale-switch a[data-locale="${target.code}"]`);
+        await expect(switchLink).not.toHaveAttribute('data-locale-fallback', 'course-index');
+        await switchLink.click();
+        await expect(page).toHaveURL(new RegExp(`${chapterPath(target.code, chapterId)}$`));
+        await expect(page.locator('html')).toHaveAttribute('lang', target.languageTag);
+        await expect(
+          page.getByRole('heading', {
+            level: 1,
+            name: copy[target.code].chapterTitle,
+            exact: true,
+          }),
+        ).toBeVisible();
+      }
+    }
+  });
+
+  for (const locale of chapterLocales) {
+    test(`chapter 13 ${locale} renders exact content at desktop and narrow widths`, async ({
       page,
-      'ru',
-      lastRussianChapter.chapterId,
-      russianChapters,
-    );
-    expect(russianChapters.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
+    }) => {
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      const chapters = await readOrderedCourseChapters(page, locale);
+      await page.goto(chapterPath(locale, chapterId));
+      await expectChapterContent(page, locale, chapters);
 
-    await page.goto(chapterPath('en', '12-stable-softmax'));
-    await expectOrderedChapterNavigation(page, 'en', '12-stable-softmax', englishChapters);
-
-    await page.goto(chapterPath('en', chapterId));
-    await expectLocalizedChapterRoute(page, {
-      chapterId,
-      locale: 'en',
-      order: 13,
-      revision: contentRevision,
-      revisionLabel,
-      title: chapterTitle,
-      equivalentLocales: ['en'],
-      fallbackRouteSuffix: '/course/',
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.reload();
+      await expectChapterContent(page, locale, chapters);
     });
-    const russianSwitch = page.locator('.locale-switch a[data-locale="ru"]');
-    await expect(russianSwitch).toHaveAttribute('href', '/ru/course/');
-    await expect(russianSwitch).toHaveAttribute('data-locale-fallback', 'course-index');
-    await expect(russianSwitch).toHaveAttribute('aria-label', /.+/);
+  }
 
-    const missing = await page.goto(chapterPath('ru', chapterId));
-    expect(missing?.status()).toBe(404);
+  test('chapter 13 full view fits both localized diagrams without substantial travel', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    for (const locale of chapterLocales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await settle(page);
+      const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
+      const toggle = diagram.locator('[data-diagram-full-view-toggle]');
+      await expect(toggle).toBeVisible();
+      await toggle.click();
+      await page.waitForFunction(
+        () =>
+          document.fullscreenElement?.getAttribute('data-visualization-id') ===
+          'gradient-checking',
+      );
+      await settle(page);
+      const geometry = await diagram.evaluate((node) => ({
+        blockDebt: node.scrollHeight - node.clientHeight,
+        blockBudget: Math.ceil(node.clientHeight * 0.2),
+        inlineDebt: node.scrollWidth - node.clientWidth,
+        regionInlineDebts: Array.from(
+          node.querySelectorAll<HTMLElement>('[data-diagram-scroll]'),
+        ).map((region) => region.scrollWidth - region.clientWidth),
+        boxDebts: Array.from(node.querySelectorAll<HTMLElement>('[data-diagram-box]')).map(
+          (box) => ({
+            inline: box.scrollWidth - box.clientWidth,
+            block: box.scrollHeight - box.clientHeight,
+          }),
+        ),
+      }));
+      expect(geometry.blockDebt).toBeLessThanOrEqual(geometry.blockBudget);
+      expect(geometry.inlineDebt).toBeLessThanOrEqual(2);
+      expect(geometry.regionInlineDebts.every((debt) => debt <= 2)).toBe(true);
+      expect(
+        geometry.boxDebts.every(({ inline, block }) => inline <= 2 && block <= 2),
+      ).toBe(true);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
+      await expect(toggle).toBeFocused();
+    }
   });
 
-  test('the complete Rust-backed lesson renders at desktop and narrow widths', async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    const chapters = await readOrderedCourseChapters(page, 'en');
-    await page.goto(chapterPath('en', chapterId));
-    await expectChapterContent(page, chapters, false);
+  for (const locale of chapterLocales) {
+    test(`chapter 13 ${locale} keeps phase, verdict, and rejection cues in forced colors`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ forcedColors: 'active' });
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
+      const truncation = diagram.locator('.state-symbol.phase-truncation').first();
+      const converging = diagram.locator('.state-symbol.phase-converging').first();
+      const trusted = diagram.locator('.state-symbol.phase-trusted').first();
+      const rounding = diagram.locator('.state-symbol.phase-rounding').first();
+      const passed = diagram.locator('[data-comparison-name="quadratic-correct"] .state-symbol');
+      const failed = diagram.locator('[data-comparison-name="quadratic-wrong"] .state-symbol');
+      const rejected = diagram.locator('[data-error-kind] .state-symbol').first();
+      await expect(truncation).toHaveText('△');
+      await expect(converging).toHaveText('→');
+      await expect(trusted).toHaveText('✓');
+      await expect(rounding).toHaveText('≈');
+      await expect(passed).toHaveText('✓');
+      await expect(failed).toHaveText('!');
+      await expect(rejected).toHaveText('×');
+      expect(await truncation.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('solid');
+      expect(await converging.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
+      expect(await trusted.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
+      expect(await rounding.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dotted');
+      expect(await passed.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
+      expect(await failed.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
+      expect(await rejected.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
+      await expectNoOverflowOrClientScripts(page);
+    });
+  }
 
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload();
-    await expectChapterContent(page, chapters, true);
-  });
-
-  test('phase, verdict, and rejection cues survive forced colors', async ({ page }) => {
-    await page.emulateMedia({ forcedColors: 'active' });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
-    const truncation = diagram.locator('.phase-chip.phase-truncation').first();
-    const converging = diagram.locator('.phase-chip.phase-converging').first();
-    const trusted = diagram.locator('.phase-chip.phase-trusted').first();
-    const rounding = diagram.locator('.phase-chip.phase-rounding').first();
-    const passed = diagram.locator('[data-comparison-name="quadratic-correct"]');
-    const failed = diagram.locator('[data-comparison-name="quadratic-wrong"]');
-    const rejected = diagram.locator('.error-card').first();
-    await expect(truncation).toContainText('T');
-    await expect(converging).toContainText('C');
-    await expect(trusted).toContainText('S');
-    await expect(rounding).toContainText('R');
-    await expect(passed.locator('.state-symbol')).toHaveText('OK');
-    await expect(failed.locator('.state-symbol')).toHaveText('!');
-    await expect(rejected.locator('.state-symbol')).toHaveText('X');
-    expect(await truncation.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('solid');
-    expect(await converging.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
-    expect(await trusted.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
-    expect(await rounding.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dotted');
-    expect(await passed.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('double');
-    expect(await failed.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
-    expect(await rejected.evaluate((node) => window.getComputedStyle(node).borderTopStyle)).toBe('dashed');
-    await expectNoOverflowOrClientScripts(page);
-  });
-
-  test('the full lesson and Rust-derived figure render with JavaScript disabled', async ({
+  test('both localized diagrams remain complete without JavaScript', async ({
     browser,
   }, testInfo) => {
     const context = await browser.newContext({
       javaScriptEnabled: false,
       baseURL: String(testInfo.project.use.baseURL),
+      viewport: { width: 1280, height: 900 },
     });
     const page = await context.newPage();
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.getByRole('heading', { level: 1, name: chapterTitle })).toBeVisible();
-    await expect(page.locator('tr[data-step-index]')).toHaveCount(6);
-    await expect(page.locator('[data-comparison-name]')).toHaveCount(2);
-    await expect(page.locator('[data-sample-flat]')).toHaveCount(4);
-    await expect(page.locator('[data-error-kind]')).toHaveCount(4);
-    await expectNoOverflowOrClientScripts(page);
-    await context.close();
+    try {
+      for (const locale of chapterLocales) {
+        const localized = copy[locale];
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole('heading', {
+            level: 1,
+            name: localized.chapterTitle,
+            exact: true,
+          }),
+        ).toBeVisible();
+        const diagram = page.locator('figure[data-visualization-id="gradient-checking"]');
+        await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+        await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
+        await expect(diagram.locator('.step-record[data-step-index]')).toHaveCount(6);
+        await expect(diagram.locator('[data-comparison-name]')).toHaveCount(2);
+        await expect(diagram.locator('[data-sample-flat]')).toHaveCount(4);
+        await expect(diagram.locator('[data-error-kind]')).toHaveCount(4);
+        await expect(diagram.locator('[data-diagram-box]')).toHaveCount(23);
+        await expect(diagram.locator('[data-restored-exactly]')).toContainText(
+          localized.restoredText,
+        );
+        await expect(diagram.locator('[data-diagram-full-view-controls]')).toHaveCount(0);
+        await expectNoOverflowOrClientScripts(page);
+      }
+    } finally {
+      await context.close();
+    }
   });
 });

@@ -239,7 +239,9 @@ const requiredChapter08To13Math: Record<string, readonly string[]> = {
   "13": [
     String.raw`q(\theta)=\theta^2`,
     String.raw`s=\max`,
+    String.raw`\max(1,5.5,6)`,
     String.raw`\left\lfloor k(N-1)/(S-1)\right\rfloor`,
+    String.raw`\lfloor 5k/3\rfloor`,
   ],
 };
 
@@ -870,6 +872,10 @@ describe("Chapter 8-13 formula-source contract", () => {
       const chapter = file.slice(0, 2);
       reviewed.push(`${locale}/${file}`);
 
+      expect(
+        source,
+        `${locale}/${file} contains a lone carriage return`,
+      ).not.toMatch(/\r(?!\n)/);
       expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(0);
       expect(inline.length, `${locale}/${file} inline math`).toBeGreaterThan(0);
       for (const fragment of requiredChapter08To13Math[chapter] ?? []) {
@@ -1415,9 +1421,16 @@ describe("build-time formula rendering in Chapter 8-13 diagrams", () => {
     expect(components.matmul).toContain('<InlineMath latex="\\times" />');
     expect(components.matmul).toContain("String.raw`k=${term.inner.lexeme}`");
     expect(components.matmul).not.toContain("{' × '}");
-    expect(components.gradcheck).toContain(
-      "String.raw`\\theta-h=${trace.central.minusPoint.lexeme}`",
-    );
+    for (const expression of [
+      '\\theta-h=2.9',
+      'q=8.41',
+      '\\theta=3',
+      'h=0.1',
+      '\\theta+h=3.1',
+      'q=9.61',
+    ]) {
+      expect(components.gradcheck).toContain(`latex="${expression}"`);
+    }
     expect(components.gradcheck).not.toContain(">θ-h</span>");
     expect(components.gradcheck).not.toContain(
       "return `h=${error.step.lexeme}`",

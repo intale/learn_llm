@@ -121,6 +121,12 @@ export interface GradientCheckingDiagramLabels {
     readonly scanPoint: string;
     readonly tensorLoss: string;
   };
+  readonly display: {
+    readonly summaryQuadratic: string;
+    readonly numerical: string;
+    readonly analytic: string;
+    readonly scaledError: string;
+  };
   readonly sections: {
     readonly quadratic: string;
     readonly scan: string;
@@ -129,30 +135,21 @@ export interface GradientCheckingDiagramLabels {
     readonly errors: string;
   };
   readonly fields: {
-    readonly point: string;
-    readonly step: string;
     readonly minusProbe: string;
     readonly center: string;
     readonly plusProbe: string;
-    readonly functionValue: string;
     readonly numerical: string;
     readonly analytic: string;
     readonly scaledError: string;
     readonly tolerance: string;
     readonly phase: string;
-    readonly verdict: string;
-    readonly flatIndex: string;
-    readonly coordinate: string;
-    readonly loss: string;
     readonly restored: string;
   };
   readonly phases: Record<ScanPhase, string>;
-  readonly statuses: Record<CheckStatus, string>;
+  readonly statuses: Record<CheckStatus, string> & { readonly restored: string };
+  readonly sides: { readonly minus: string };
   readonly errors: Record<GradientTraceError['kind'], string>;
   readonly notes: {
-    readonly schematic: string;
-    readonly scan: string;
-    readonly candidates: string;
     readonly tensor: string;
     readonly errors: string;
   };
@@ -530,34 +527,34 @@ const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
   summary: { quadratic: true, scanPoint: true, tensorLoss: true },
+  display: {
+    summaryQuadratic: true,
+    numerical: true,
+    analytic: true,
+    scaledError: true,
+  },
   sections: { quadratic: true, scan: true, candidates: true, tensor: true, errors: true },
   fields: {
-    point: true,
-    step: true,
     minusProbe: true,
     center: true,
     plusProbe: true,
-    functionValue: true,
     numerical: true,
     analytic: true,
     scaledError: true,
     tolerance: true,
     phase: true,
-    verdict: true,
-    flatIndex: true,
-    coordinate: true,
-    loss: true,
     restored: true,
   },
   phases: { truncation: true, converging: true, trusted: true, rounding: true },
-  statuses: { pass: true, fail: true },
+  statuses: { pass: true, fail: true, restored: true },
+  sides: { minus: true },
   errors: {
     'invalid-step': true,
     'collapsed-perturbation': true,
     'non-finite-evaluation': true,
     'shape-mismatch': true,
   },
-  notes: { schematic: true, scan: true, candidates: true, tensor: true, errors: true },
+  notes: { tensor: true, errors: true },
   symbols: {
     truncation: true,
     converging: true,
@@ -580,6 +577,11 @@ function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: strin
     throw new Error(`Diagram label group ${path} must be an object.`);
   }
   const actual = value as Record<string, unknown>;
+  for (const key of Object.keys(actual)) {
+    if (!Object.prototype.hasOwnProperty.call(shape, key)) {
+      throw new Error(`Diagram label ${path}.${key} is unexpected.`);
+    }
+  }
   for (const [key, childShape] of Object.entries(shape)) {
     if (!Object.prototype.hasOwnProperty.call(actual, key)) {
       throw new Error(`Diagram label ${path}.${key} is missing.`);
