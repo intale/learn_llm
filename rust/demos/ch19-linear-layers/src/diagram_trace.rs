@@ -155,13 +155,6 @@ mod tests {
     #[test]
     fn trace_freezes_feature_contributions_policy_and_gradients() {
         let trace = render_trace().unwrap();
-        assert!(trace.contains(
-            "CELL position=0 coordinate=0,0 output-feature=0 input=1.000000000000,2.000000000000 products=1.000000000000*1.000000000000|2.000000000000*2.000000000000 weighted-sum=5.000000000000 bias=0.500000000000 result=5.500000000000"
-        ));
-        assert!(trace.contains(
-            "POSITION-GRADIENT position=1 coordinate=0,1 upstream=0.500000000000,2.000000000000,1.000000000000 input-gradient=-0.500000000000,3.000000000000"
-        ));
-        assert!(trace.contains("POLICY affine-parameters=9 bias-free-parameters=6"));
-        assert_eq!(trace.lines().count(), 19);
+        assert_eq!(trace, include_str!("../diagram-trace.txt"));
     }
 }

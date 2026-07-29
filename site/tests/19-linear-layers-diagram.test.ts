@@ -72,6 +72,7 @@ const labels: LinearLayersDiagramLabels = {
     policy: 'policy',
     parameters: 'parameters',
     output: 'output',
+    value: 'value',
   },
   notes: {
     axes: 'axes note',
@@ -217,27 +218,36 @@ describe('Chapter 19 labels and static component', () => {
       "../../../../rust/demos/ch19-linear-layers/diagram-trace.txt",
     );
     expect(componentSource).toContain('parseLinearLayersTrace');
-    expect(componentSource).toContain('{vector(row.values)}');
-    expect(componentSource).toContain('{vector(cell.input)}');
-    expect(componentSource).toContain('{cell.result.lexeme}');
-    expect(componentSource).toContain('{vector(row.inputGradient)}');
-    expect(componentSource).toContain('{vector(trace.weightGradient.values)}');
-    expect(componentSource).toContain("import { renderToString } from 'katex'");
-    expect(componentSource).toContain('set:html={inlineMath(weightAccumulationLatex)}');
-    expect(componentSource).toContain('set:html={inlineMath(biasAccumulationLatex)}');
-    expect(componentSource).toContain(String.raw`dW=\sum_p X_p^\top G_p`);
-    expect(componentSource).toContain(String.raw`db=\sum_p G_p`);
-    expect(componentSource).toContain('shapeLatex(trace.axes.inputLeading)');
-    expect(componentSource).toContain('coordinateLatex(selectedCell.coordinate)');
+    expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
+    expect(componentSource).toContain('latex={weightMatrixLatex}');
+    expect(componentSource).toContain("value.lexeme.replace(/0+$/, '').replace(/\\.$/, '')");
+    expect(componentSource).toContain('latex={latexVector(row.input)}');
+    expect(componentSource).toContain('latex={latexVector(row.output)}');
+    expect(componentSource).toContain('latex={latexVector(row.inputGradient)}');
+    expect(componentSource).toContain('latex={weightGradientLatex}');
+    expect(componentSource).toContain('latex={latexVector(trace.biasGradient.values)}');
+    expect(componentSource).toContain('latex={weightAccumulationLatex}');
+    expect(componentSource).toContain('latex={biasAccumulationLatex}');
+    expect(componentSource).toContain(String.raw`\sum_p X_p^\top G_p`);
+    expect(componentSource).toContain(String.raw`\sum_p G_p`);
+    expect(componentSource).toContain('latexShape(trace.axes.inputLeading)');
+    expect(componentSource).toContain('latexCoordinate(selectedCell.coordinate)');
     expect(componentSource).toContain('String.raw`dX_{${row.position.lexeme}}`');
-    expect(componentSource).toContain("set:html={inlineMath('dW')}");
-    expect(componentSource).toContain("set:html={inlineMath('db')}");
-    expect(componentSource).toContain('set:html={inlineMath(selectedProductsLatex)}');
+    expect(componentSource).toContain('<InlineMath latex="dW" />');
+    expect(componentSource).toContain('<InlineMath latex="db" />');
+    expect(componentSource).toContain('selectedProducts');
+    expect(componentSource).toContain('.map((product)');
+    expect(componentSource).toContain('latexValue(product.input)');
+    expect(componentSource).toContain('latexValue(product.weight)');
+    expect(componentSource).toContain('latex={contributionLatex}');
+    expect(componentSource).toContain('policyRows.map');
+    expect(componentSource).toContain('latex={latexVector(row.affine)}');
+    expect(componentSource).toContain('latex={latexVector(row.biasFree!)}');
     expect(componentSource).not.toContain('y[{selectedCell.outputFeature.lexeme}]');
     expect(componentSource).not.toContain('dX[{row.position.lexeme}]');
     expect(componentSource).not.toContain('dW=sum_p X_p^T G_p');
     expect(componentSource).not.toContain('db=sum_p G_p');
-    expect(componentSource).not.toMatch(/Math\.|\b(?:parseFloat|parseInt|reduce)\s*\(/);
+    expect(componentSource).not.toMatch(/\bMath\.|\b(?:parseFloat|parseInt|reduce)\s*\(/);
     expect(parserSource).not.toMatch(/Math\.|random\(|reduce\(|sqrt\(|pow\(|parseFloat\(/);
     expect(componentSource).not.toMatch(/<script|client:/);
     expect(componentSource).not.toContain('<svg');
@@ -248,12 +258,16 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain(
       'grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr))',
     );
-    expect(componentSource).toContain('@container (max-width: 36rem)');
+    expect(componentSource).toContain('@container course-diagram (max-width: 44rem)');
     expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
     expect(componentSource).toContain('min-inline-size: 0');
     expect(componentSource).toContain('data-diagram-scroll');
     expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('data-diagram-style="course-v1"');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('data-diagram-card data-diagram-box');
+    expect(componentSource).toContain('@media (min-width: 64rem) and (min-height: 36rem)');
     expect(componentSource).not.toMatch(
       /\.linear-layers-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
     );
@@ -264,19 +278,20 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('border-inline-start-style: double');
     expect(componentSource).toContain('class="flow-arrow" aria-hidden="true">→</span>');
     expect(componentSource).not.toContain('{labels.symbols.preserved} →');
-    expect(componentSource).toContain('class="diagram-math"');
-    expect(componentSource).toMatch(/\.diagram-math\s*\{[^}]*unicode-bidi:\s*isolate;/s);
+    expect(componentSource).toContain('<h4 id={`${titleId}-axes`}');
+    expect(componentSource).not.toMatch(/<h3 id=\{`\$\{titleId\}-/);
     expect(componentSource).toContain('<caption>{labels.captions.positionGradients}</caption>');
     expect(componentSource).toContain('<caption>{labels.captions.parameterGradients}</caption>');
     expect(componentSource).not.toMatch(/\.diagram-stage\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
   });
 
-  it('uses only the shared palette and provides forced-color fallbacks', () => {
-    expect(componentSource).toContain('border: 1px solid var(--line)');
-    expect(componentSource).toContain('background: var(--surface)');
-    expect(componentSource).toContain('color: var(--ink)');
-    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+  it('delegates generic frame, card, table, focus, scroll, and forced-color styling', () => {
+    expect(componentSource).not.toContain('var(--line)');
+    expect(componentSource).not.toContain('var(--surface)');
+    expect(componentSource).not.toContain('var(--ink)');
+    expect(componentSource).not.toContain('var(--focus)');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toMatch(/\b(?:background|box-shadow|border-radius|outline)\s*:/);
     expect(componentSource).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
   });
 });

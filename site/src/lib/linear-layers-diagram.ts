@@ -48,6 +48,7 @@ export interface LinearLayersDiagramLabels {
     policy: string;
     parameters: string;
     output: string;
+    value: string;
   };
   notes: {
     axes: string;

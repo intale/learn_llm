@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-29T15:29:43Z"
+updated_at: "2026-07-29T18:42:38Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -21423,3 +21423,166 @@ builds:
                 status: passed
                 notes: "The independent audit confirmed all formulas, values, identifiers, sources, Rust regions, exercises, SEO, accessibility labels, and the Chapter 19 handoff, then identified one reverse-pass calque and one flattened-index label that lost precision. Both were corrected; the contract, Russian content, parity, 53 focused unit checks, TypeScript, 64-page static build, and all seven Chapter 18 tests pass again in Chromium and Firefox across desktop, narrow, full view, no JavaScript, forced colors, and direction-sensitive cases."
             notes: "Succeeded. Corrected English revision 5 and its direct natural Russian translation now teach token-row lookup, one-hot equivalence, and repeated-row gradient accumulation with Rust-authored evidence and one localized shared-system figure; every declared source, Linux, Chromium, and Firefox gate passes."
+  - build_id: activate-ch19-russian-localization
+    objective: "Audit the canonical Chapter 19 linear-layer lesson, correct any source inaccuracies, translate its complete learner-facing surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "English Chapter 19 accurately distinguishes affine and bias-free feature projections, preserves leading axes, derives exact reverse gradients, and contains no learner-facing authoring or delivery machinery."
+      - "Russian Chapter 19 preserves every formula, symbol, shape, value, code identifier, causal claim, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 20 handoff in natural technical language."
+      - "The Chapter 19 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 19 is activated in this checkpoint, the locale policy advances through Chapter 19, and the completed step is committed independently before Chapter 20 starts."
+    steps:
+      - id: activate-ch19-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 19 linear-layer lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch18-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-29 to continue Russian translations through Chapter 19 without another approval pause."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/19-linear-layers.md"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/lib/linear-layers-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/demos/ch19-linear-layers/src/lib.rs"
+          - "rust/demos/ch19-linear-layers/src/main.rs"
+          - "rust/demos/ch19-linear-layers/src/diagram_trace.rs"
+          - "rust/demos/ch19-linear-layers/expected.txt"
+          - "rust/demos/ch19-linear-layers/diagram-trace.txt"
+          - "site/src/i18n/chapter-locales.json"
+          - "Chapter 18 completion commit ea67ec17041bdc272fefdd8341bcdc8b6ef1f4d6."
+        outputs:
+          - "curriculum/chapters/19-linear-layers.md"
+          - "curriculum/course-plan.md"
+          - "rust/crates/llm-from-scratch/src/nn/linear.rs"
+          - "rust/demos/ch19-linear-layers/expected.txt"
+          - "rust/demos/ch19-linear-layers/src/lib.rs"
+          - "rust/demos/ch19-linear-layers/src/main.rs"
+          - "rust/demos/ch19-linear-layers/src/diagram_trace.rs"
+          - "rust/demos/ch19-linear-layers/diagram-trace.txt"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/content/chapters/ru/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/lib/linear-layers-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The corrected English source remains the sole canonical semantic source and passes its current contract, formula, history, Rust-evidence, and learner-prose audit."
+          - "The Russian lesson is translated directly from that frozen English revision, is natural rather than literal, and passes semantic, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff review."
+          - "Formula markup, code regions, source links, exact evidence, diagram semantics, and locale routing preserve parity without translated identifiers or invented claims."
+          - "Every bounded figure box contains Russian and English text and formula ink in inline and full view at desktop and narrow widths in Chromium and Firefox, including no-JavaScript, forced-color, and direction-sensitive cases."
+          - "Rust formatting, workspace tests, exact learner and diagram output, unit/static/content/parity/link/SEO/sitemap/Analytics checks, and the production build all pass."
+          - "The completed checkpoint is committed separately before Chapter 20 starts."
+        validate:
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch19-linear-layers | diff -u rust/demos/ch19-linear-layers/expected.txt -'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch19-linear-layers --example ch19-linear-layers-trace | diff -u rust/demos/ch19-linear-layers/diagram-trace.txt -'"
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-chapter-contract.mjs curriculum/chapters/19-linear-layers.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 19-linear-layers"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 19-linear-layers"
+          - "node scripts/check-site-content.mjs parity --chapter 19-linear-layers"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium Chapter 19, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "Firefox Chapter 19, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One bounded canonical audit and correction plus complete source-to-target chapter translation and shared-diagram localization, with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency, product build-definition, hosting, or deployment change is planned."
+        runs:
+          - run_id: 20260729T163058Z-activate-ch19-russian-localization-01
+            started_at: "2026-07-29T16:30:58Z"
+            finished_at: "2026-07-29T18:42:38Z"
+            status: succeeded
+            input_fingerprint:
+              git: "ea67ec17041bdc272fefdd8341bcdc8b6ef1f4d6"
+              manifest: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:319b788963dbfd2d80f6012cc1de86e5ca6f25e246ffc50c5be9eb7a34afc105"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 19, immutable Rust behavior, and cited primary historical sources are authoritative after any recorded canonical correction."
+            staging_dir: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/"
+            commands:
+              - "Verify independently committed Chapter 18 checkpoint ea67ec1; inspect the scheduler, environment, localization instructions, Chapter 19 contract, English lesson, shared figure/parser/tests, locale projection, and Rust evidence; fingerprint all material inputs before product edits."
+              - "Audit and freeze the canonical English lesson and contract; correct empty-tensor terminology, math-pipeline coverage, learner-facing delivery prose, historical scope, parameter/gradient naming, and exact Rust-authored trace evidence before direct Russian translation."
+              - "Translate the complete Chapter 19 surface directly from frozen English; refactor the bilingual figure onto the shared presentation system; add localized accessibility names, mathematical table structure, full-view reflow, and focused containment/formula coverage."
+              - "Run course-plan, contract, English/Russian content, locale-parity, focused and complete unit, Astro analysis, immutable production-build, static-link, Chromium, and Firefox validation; repeat after independent audit corrections."
+              - "Run C:\\Program Files\\Git\\bin\\bash.exe ./course check to rebuild and validate the pinned Linux workspace image, then replay Cargo documentation tests and byte-exact Chapter 19 learner and diagram output diffs."
+              - "Attempt the canonical host production build in fresh site/dist directories, preserve Dropbox-locked temporary outputs under the run directory, and apply the recorded immutable/Linux build-equivalence decision without changing build definitions."
+            artifacts:
+              - path: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:319b788963dbfd2d80f6012cc1de86e5ca6f25e246ffc50c5be9eb7a34afc105"
+                notes: "Exact canonical, diagram, validation, Rust-evidence, workflow, environment, user-scope, and base-commit fingerprint before Chapter 19 product edits."
+              - path: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/manual-review.md"
+                checksum: "sha256:2aaf2c43c6f90ac4143491ce12c4d89be255704f6fea02dd5ccefcc0d91d5d77"
+                notes: "Final semantic, terminology, anti-calque, mathematical, historical, accessibility, exercise, answer, handoff, and rendered-surface review, including the independent audit PASS and Russian-source checksum."
+              - path: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/validation-summary.md"
+                checksum: "sha256:19a521d6c0b7cf7eca2ecc2e222895a65bf8b4c61583de06f4371c4f57c90c35"
+                notes: "Concise source, unit, static, browser, Linux, exact-output, link, and host-cleanup validation record."
+              - path: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/publication-manifest.sha256"
+                checksum: "sha256:a1b01ceb76523306a1003edb10697b7a1f15ad47aff941fc8082e2ea16c0b3ea"
+                notes: "Checksums for the canonical contract, English/Russian lessons, figure, exact Rust evidence, locale projection, and immutable browser candidate."
+              - path: ".build/runs/20260729T163058Z-activate-ch19-russian-localization-01/site-dist-27/"
+                checksum: "sha256:8edebca06d6f4b26e12bf7ab169b9782efe2aafa0c327f1e0e9fd76221b43455"
+                notes: "Deterministic SHA-256 over the sorted 147-file immutable Candidate 27 tree used for final Chromium and Firefox validation."
+              - path: "docker://learn-llm-workspace@sha256:b878a455d01ed226f7ef1b032af1d02d0e14b72b0c5dcdfd668ceb31051b9de8"
+                checksum: "sha256:b878a455d01ed226f7ef1b032af1d02d0e14b72b0c5dcdfd668ceb31051b9de8"
+                notes: "Pinned Linux workspace manifest rebuilt from the final Chapter 19 source and used for the complete product pipeline and exact Rust replay."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, overlap, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 18 is independently committed at ea67ec1 and only generated root caches remain untracked; no build or pending step was active; recorded host and repository versions match; Chapter 19 owns the disjoint next checkpoint, requires no paid or external service, and is within the unlimited recorded budget."
+              - command: "Course plan, Chapter 19 contract, English content, Russian content, and English/Russian parity gates"
+                status: passed
+                notes: "The plan reports 40 chapters, 91 steps, and 40 contracts; both locale sources pass their complete chapter checks; parity reports two sources and one publishable localized set."
+              - command: "Focused Chapter 19 diagram, formula, locale, contract, and projection tests"
+                status: passed
+                notes: "All 98 focused tests pass after the final independent-audit corrections."
+              - command: "npm --prefix site test -- --run and npm --prefix site run check"
+                status: passed
+                notes: "All 52 test files and 849 tests pass; Astro analyzes 205 files with zero errors, warnings, or hints."
+              - command: "Immutable Candidate 27 production build and npm --prefix site run test:links"
+                status: passed
+                notes: "The final source builds 65 pages. The canonical link audit checks 65 HTML files, 2,117 local references, 65 SEO routes, 65 sitemap URLs, 65 Analytics routes, and 150 artifacts without failure."
+              - command: "Chromium Chapter 19, shared diagram-style, shared full-view, and formula-rendering gates"
+                status: passed
+                notes: "All seven bilingual Chapter 19 checks and all 136 shared diagram/formula checks pass against immutable Candidate 27 across desktop, narrow, no-JavaScript, full-view, forced-color, direction, focus, overflow, painted-ink, and nearest-box containment cases."
+              - command: "Firefox Chapter 19, shared diagram-style, shared full-view, and formula-rendering gates"
+                status: passed
+                notes: "All seven bilingual Chapter 19 checks and all 136 shared diagram/formula checks pass against the same immutable Candidate 27 matrix."
+              - command: "Pinned Linux ./course check, Cargo documentation tests, and exact Chapter 19 learner/diagram output replay"
+                status: passed
+                notes: "Workspace image sha256:b878a455d01ed226f7ef1b032af1d02d0e14b72b0c5dcdfd668ceb31051b9de8 passes Cargo formatting, all workspace and documentation tests, Astro analysis, course/content/parity checks, the 65-page production build, link/SEO/sitemap/Analytics audit, and byte-exact learner and trace diffs."
+              - command: "npm --prefix site run build in the Dropbox-managed canonical site/dist directory"
+                status: failed
+                notes: "Every attempt generated all 65 routes, then Dropbox reattached cloud-reparse state and locked .prerender during Astro's final cleanup, producing EBUSY or EPERM. Recoverable directories remain in run staging. The recorded decision accepts immutable Candidate 27 plus the exact pinned Linux production build and canonical link audit; no source or build definition changed."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical, and rendered-surface audit"
+                status: passed
+                notes: "The auditor's initial terminology, gradient-motion, history, clone-identity, title, caption, and accessibility findings were corrected in both source and expectations. The final audit returns PASS; Russian MDX SHA-256 is aec5190cd6a283ca5d448b116c744f4bf95759b01d235f47e90cc0e6542c87dd."
+              - command: "git diff --check, BUILD_STATE.yaml parse, output-ownership review, and publication-manifest verification"
+                status: passed
+                notes: "The diff has no whitespace errors; the complete ledger parses; every in-scope product change is declared; generated root caches remain untracked and excluded; all final publication checksums match."
+            notes: "Succeeded. Corrected English Chapter 19 and its direct natural Russian translation now teach affine and bias-free feature projections, exact reverse gradients, and shared-parameter accumulation with byte-authentic Rust evidence and one bilingual shared-system figure. Every declared source, static, Linux, Chromium, Firefox, link, and independent-review gate passes; the Dropbox-only post-generation host cleanup limitation is preserved and explicitly governed by the recorded equivalent-build decision."

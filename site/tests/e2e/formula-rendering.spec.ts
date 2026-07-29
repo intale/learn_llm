@@ -483,7 +483,7 @@ const chapter14To39FormulaLatex: Record<
   "19-linear-layers": [
     String.raw`Y=XW+b`,
     String.raw`dX_{0}`,
-    String.raw`1.000000000000\cdot1.000000000000`,
+    String.raw`1\cdot1+2\cdot2`,
   ],
   "20-swiglu-feed-forward": [
     String.raw`\operatorname{FFN}(X)=\left(\operatorname{SiLU}(XW_g)\odot(XW_u)\right)W_2`,

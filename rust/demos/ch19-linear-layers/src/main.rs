@@ -116,7 +116,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         report.clone_shares_weight, report.clone_shares_bias
     );
     println!(
-        "empty leading axis: shape=0x2 -> {} values={}",
+        "empty leading axis: shape=0x2 -> {} value-count={}",
         shape(report.empty_output.shape()),
         report.empty_output.len()
     );

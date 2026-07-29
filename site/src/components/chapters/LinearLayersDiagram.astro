@@ -1,7 +1,8 @@
 ---
 // @ts-ignore Node filesystem access is build-time only.
 import { readFileSync } from 'node:fs';
-import { renderToString } from 'katex';
+
+import InlineMath from '../InlineMath.astro';
 
 import {
   linearLayersDiagramId,
@@ -28,22 +29,22 @@ const fixtureUrl = new URL(
 const trace = parseLinearLayersTrace(readFileSync(fixtureUrl, 'utf8'));
 const titleId = `${linearLayersDiagramId}-${instanceId}-title`;
 const descriptionId = `${linearLayersDiagramId}-${instanceId}-description`;
-const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
-  `[${values.map((value) => value.lexeme).join(', ')}]`;
-const coordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
-  `(${values.map((value) => value.lexeme).join(', ')})`;
-const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
-const shapeLatex = (value: string) => String.raw`\left[${value.replaceAll('x', ',')}\right]`;
-const coordinateLatex = (values: ReadonlyArray<{ lexeme: string }>) =>
+
+const latexValue = (value: { lexeme: string }) =>
+  value.lexeme.includes('.')
+    ? value.lexeme.replace(/0+$/, '').replace(/\.$/, '')
+    : value.lexeme;
+const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  String.raw`\left[${values.map(latexValue).join(',')}\right]`;
+const latexShape = (value: string) =>
+  String.raw`\left[${value.replaceAll('x', ',')}\right]`;
+const latexCoordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
   String.raw`\left(${values.map((value) => value.lexeme).join(',')}\right)`;
-const inlineMath = (latex: string) => renderToString(latex, {
-  displayMode: false,
-  output: 'htmlAndMathml',
-  strict: 'error',
-  throwOnError: true,
-});
-const weightAccumulationLatex = String.raw`dW=\sum_p X_p^\top G_p`;
-const biasAccumulationLatex = String.raw`db=\sum_p G_p`;
+const weightAccumulationLatex = String.raw`\sum_p X_p^\top G_p`;
+const biasAccumulationLatex = String.raw`\sum_p G_p`;
+const weightMatrixLatex = String.raw`\begin{bmatrix}${trace.weightRows[0]!.values
+  .map(latexValue)
+  .join('&')}\\${trace.weightRows[1]!.values.map(latexValue).join('&')}\end{bmatrix}`;
 const biasFreeRows = [
   trace.policy.biasFreeOutput.slice(0, 3),
   trace.policy.biasFreeOutput.slice(3, 6),
@@ -52,10 +53,38 @@ const affineRows = [
   trace.cells.slice(0, 3).map((cell) => cell.result),
   trace.cells.slice(3, 6).map((cell) => cell.result),
 ];
+const positionRows = trace.positionGradients.map((gradient) => {
+  const cells = trace.cells.filter(
+    (cell) => cell.position.lexeme === gradient.position.lexeme,
+  );
+  if (cells.length !== 3 || !cells[0]) {
+    throw new Error(`Linear-layers position ${gradient.position.lexeme} is incomplete.`);
+  }
+  return {
+    position: gradient.position,
+    coordinate: gradient.coordinate,
+    input: cells[0].input,
+    output: cells.map((cell) => cell.result),
+  };
+});
+const policyRows = affineRows.map((affine, position) => ({
+  position: String.raw`\left(0,${position}\right)`,
+  affine,
+  biasFree: biasFreeRows[position],
+}));
+if (policyRows.some((row) => row.biasFree === undefined || row.biasFree.length !== 3)) {
+  throw new Error('Linear-layers policy rows are incomplete.');
+}
+const weightGradientLatex = String.raw`\begin{bmatrix}${trace.weightGradient.values
+  .slice(0, 3)
+  .map(latexValue)
+  .join('&')}\\${trace.weightGradient.values.slice(3, 6).map(latexValue).join('&')}\end{bmatrix}`;
 const selectedCell = trace.cells[0];
-const selectedProductsLatex = selectedCell.products
-  .map((product) => String.raw`${product.input.lexeme}\cdot${product.weight.lexeme}`)
+const selectedProducts = selectedCell.products;
+const productLatex = selectedProducts
+  .map((product) => `${latexValue(product.input)}\\cdot${latexValue(product.weight)}`)
   .join('+');
+const contributionLatex = String.raw`\begin{aligned}y_{${selectedCell.outputFeature.lexeme}}&=${productLatex}\\&=${latexValue(selectedCell.weightedSum)}+${latexValue(selectedCell.bias)}=${latexValue(selectedCell.result)}\end{aligned}`;
 ---
 
 <figure
@@ -72,96 +101,90 @@ const selectedProductsLatex = selectedCell.products
   </figcaption>
 
   <dl class="shape-summary">
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.parameter}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.parameterPrefix}.weight</bdi></dd>
+      <dd><code><bdi dir="ltr">{trace.fixture.parameterPrefix}.weight</bdi></code></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.inputWidth}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.inputWidth.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.inputWidth.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.outputWidth}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.outputWidth.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.outputWidth.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.bias}</dt>
       <dd>{labels.policies.enabled}</dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.parameterCount}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.parameterCount.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.parameterCount.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.inputShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.inputShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.outputShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.outputShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.upstreamShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.upstreamShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.upstreamShape)} /></dd>
     </div>
   </dl>
 
-  <section class="diagram-stage axes-stage" aria-labelledby={`${titleId}-axes`}>
-    <h3 id={`${titleId}-axes`}><span aria-hidden="true">1</span> {labels.stages.axes}</h3>
+  <section class="diagram-stage axes-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-axes`}>
+    <h4 id={`${titleId}-axes`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">1</span> {labels.stages.axes}</h4>
     <p>{labels.notes.axes}</p>
     <div class="axis-flow">
-      <div>
+      <div data-diagram-card data-diagram-box>
         <strong>{labels.fields.input}</strong>
-        <bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi>
+        <InlineMath latex={latexShape(trace.fixture.inputShape)} />
       </div>
       <p class="flow-rule">
         <span class="flow-arrow" aria-hidden="true">→</span>
         <span>{labels.symbols.preserved}</span>
       </p>
-      <div>
+      <div data-diagram-card data-diagram-box>
         <strong>{labels.fields.output}</strong>
-        <bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi>
+        <InlineMath latex={latexShape(trace.fixture.outputShape)} />
       </div>
     </div>
     <p class="axis-proof">
       <span>{labels.symbols.mixed}</span>
-      <bdi
-        class="diagram-math"
-        dir="ltr"
-        set:html={inlineMath(String.raw`${shapeLatex(trace.axes.inputLeading)}=${shapeLatex(trace.axes.outputLeading)}`)}
-      />
+      <InlineMath latex={String.raw`${latexShape(trace.axes.inputLeading)}=${latexShape(trace.axes.outputLeading)}`} />
     </p>
   </section>
 
-  <div class="stage-grid">
-    <section class="diagram-stage weights-stage" aria-labelledby={`${titleId}-weights`}>
-      <h3 id={`${titleId}-weights`}><span aria-hidden="true">2</span> {labels.stages.weights}</h3>
+  <div class="stage-grid course-diagram__grid">
+    <section class="diagram-stage weights-stage course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby={`${titleId}-weights`}>
+      <h4 id={`${titleId}-weights`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">2</span> {labels.stages.weights}</h4>
       <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.weights} data-diagram-scroll>
         <table data-diagram-table>
           <thead>
             <tr>
-              <th scope="col">{labels.fields.inputFeature}</th>
-              <th scope="col">{labels.fields.weights}</th>
+              <th scope="col">{labels.fields.parameter}</th>
+              <th scope="col">{labels.fields.value}</th>
             </tr>
           </thead>
           <tbody>
-            {trace.weightRows.map((row) => (
-              <tr>
-                <th scope="row"><bdi dir="ltr">{row.inputFeature.lexeme}</bdi></th>
-                <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
-              </tr>
-            ))}
+            <tr>
+              <th scope="row"><InlineMath latex="W" /></th>
+              <td><InlineMath latex={weightMatrixLatex} /></td>
+            </tr>
             <tr class="bias-row">
               <th scope="row">{labels.fields.bias}</th>
-              <td><bdi dir="ltr">{vector(trace.bias)}</bdi></td>
+              <td><InlineMath latex={latexVector(trace.bias)} /></td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <section class="diagram-stage positions-stage" aria-labelledby={`${titleId}-positions`}>
-      <h3 id={`${titleId}-positions`}><span aria-hidden="true">3</span> {labels.stages.positions}</h3>
+    <section class="diagram-stage positions-stage course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby={`${titleId}-positions`}>
+      <h4 id={`${titleId}-positions`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">3</span> {labels.stages.positions}</h4>
       <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.positions} data-diagram-scroll>
         <table data-diagram-table>
           <thead>
@@ -169,18 +192,16 @@ const selectedProductsLatex = selectedCell.products
               <th scope="col">{labels.fields.position}</th>
               <th scope="col">{labels.fields.coordinate}</th>
               <th scope="col">{labels.fields.input}</th>
-              <th scope="col">{labels.fields.outputFeature}</th>
-              <th scope="col">{labels.fields.result}</th>
+              <th scope="col">{labels.fields.output}</th>
             </tr>
           </thead>
           <tbody>
-            {trace.cells.map((cell) => (
+            {positionRows.map((row) => (
               <tr>
-                <th scope="row"><bdi dir="ltr">{cell.position.lexeme}</bdi></th>
-                <td><bdi dir="ltr">{coordinate(cell.coordinate)}</bdi></td>
-                <td><bdi dir="ltr">{vector(cell.input)}</bdi></td>
-                <td><bdi dir="ltr">{cell.outputFeature.lexeme}</bdi></td>
-                <td><bdi dir="ltr">{cell.result.lexeme}</bdi></td>
+                <th scope="row"><InlineMath latex={row.position.lexeme} /></th>
+                <td><InlineMath latex={latexCoordinate(row.coordinate)} /></td>
+                <td><InlineMath latex={latexVector(row.input)} /></td>
+                <td><InlineMath latex={latexVector(row.output)} /></td>
               </tr>
             ))}
           </tbody>
@@ -189,134 +210,128 @@ const selectedProductsLatex = selectedCell.products
     </section>
   </div>
 
-  <section class="diagram-stage contribution-stage" aria-labelledby={`${titleId}-contribution`}>
-    <h3 id={`${titleId}-contribution`}><span aria-hidden="true">4</span> {labels.stages.contribution}</h3>
+  <section class="diagram-stage contribution-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-contribution`}>
+    <h4 id={`${titleId}-contribution`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">4</span> {labels.stages.contribution}</h4>
     <p>{labels.notes.contribution}</p>
-    <dl class="contribution-grid">
-      <div>
+    <dl class="contribution-grid course-diagram__grid">
+      <div data-diagram-card data-diagram-box>
         <dt>{labels.fields.coordinate}</dt>
-        <dd>
-          <bdi
-            class="diagram-math"
-            dir="ltr"
-            set:html={inlineMath(String.raw`${coordinateLatex(selectedCell.coordinate)},\;y_{${selectedCell.outputFeature.lexeme}}`)}
-          />
-        </dd>
+        <dd><InlineMath latex={String.raw`${latexCoordinate(selectedCell.coordinate)},\;y_{${selectedCell.outputFeature.lexeme}}`} /></dd>
       </div>
       <div data-diagram-card data-diagram-box class="products-card">
-        <dt>{labels.fields.products}</dt>
-        <dd class="product-list">
-          <bdi
-            class="diagram-math"
-            dir="ltr"
-            set:html={inlineMath(selectedProductsLatex)}
-          />
-        </dd>
-      </div>
-      <div>
-        <dt>{labels.fields.weightedSum}</dt>
-        <dd>
-          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(selectedCell.weightedSum.lexeme)} />
-        </dd>
-      </div>
-      <div>
-        <dt>{labels.fields.bias}</dt>
-        <dd>
-          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`+${selectedCell.bias.lexeme}`)} />
-        </dd>
-      </div>
-      <div data-diagram-card data-diagram-box class="result-card">
         <dt>{labels.fields.result}</dt>
-        <dd>
-          <bdi class="diagram-math" dir="ltr" set:html={inlineMath(`=${selectedCell.result.lexeme}`)} />
-        </dd>
+        <dd><InlineMath latex={contributionLatex} /></dd>
       </div>
     </dl>
   </section>
 
-  <section class="diagram-stage policy-stage" aria-labelledby={`${titleId}-policy`}>
-    <h3 id={`${titleId}-policy`}><span aria-hidden="true">5</span> {labels.stages.policy}</h3>
+  <section class="diagram-stage policy-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-policy`}>
+    <h4 id={`${titleId}-policy`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">5</span> {labels.stages.policy}</h4>
     <p>{labels.notes.policy}</p>
-    <div class="policy-grid">
-      <article data-diagram-card data-diagram-box class="affine-policy">
-        <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.affine}</bdi> {labels.policies.affine}</h4>
-        <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.affineParameters.lexeme}</bdi></p>
-        <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{affineRows.map((row) => vector(row)).join('; ')}</bdi></p>
-      </article>
-      <article data-diagram-card data-diagram-box class="bias-free-policy">
-        <h4><bdi dir="ltr" aria-hidden="true">{labels.symbols.biasFree}</bdi> {labels.policies.biasFree}</h4>
-        <p><span>{labels.fields.parameters}:</span> <bdi dir="ltr">{trace.policy.biasFreeParameters.lexeme}</bdi></p>
-        <p><span>{labels.fields.output}:</span> <bdi dir="ltr">{biasFreeRows.map((row) => vector(row)).join('; ')}</bdi></p>
-      </article>
-    </div>
+    <table class="policy-comparison" data-diagram-table>
+      <colgroup>
+        <col class="policy-position-column" />
+        <col />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">{labels.fields.position}</th>
+          <th scope="col">{labels.fields.output}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {policyRows.map((row) => (
+          <tr>
+            <th scope="row"><InlineMath latex={row.position} /></th>
+            <td>
+              <div class="policy-paths">
+                <div class="policy-path affine-policy">
+                  <strong><span aria-hidden="true">{labels.symbols.affine}</span> {labels.policies.affine}</strong>
+                  <span>{labels.fields.parameters}: <InlineMath latex={trace.policy.affineParameters.lexeme} /></span>
+                  <InlineMath latex={latexVector(row.affine)} />
+                </div>
+                <div class="policy-path bias-free-policy">
+                  <strong><span aria-hidden="true">{labels.symbols.biasFree}</span> {labels.policies.biasFree}</strong>
+                  <span>{labels.fields.parameters}: <InlineMath latex={trace.policy.biasFreeParameters.lexeme} /></span>
+                  <InlineMath latex={latexVector(row.biasFree!)} />
+                </div>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </section>
 
-  <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
-    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">6</span> {labels.stages.gradients}</h3>
+  <section class="diagram-stage gradients-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-gradients`}>
+    <h4 id={`${titleId}-gradients`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">6</span> {labels.stages.gradients}</h4>
     <p>{labels.notes.gradients}</p>
-    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
+    <div class="table-scroll gradient-tables course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
       <table data-diagram-table class="position-gradient-table">
         <caption>{labels.captions.positionGradients}</caption>
+        <colgroup>
+          <col class="position-gradient-name" />
+          <col class="position-gradient-coordinate" />
+          <col class="position-gradient-upstream" />
+          <col class="position-gradient-input" />
+        </colgroup>
         <thead>
           <tr>
-            <th scope="col">{labels.fields.position}</th>
-            <th scope="col">{labels.fields.coordinate}</th>
-            <th scope="col">{labels.fields.upstream}</th>
-            <th scope="col">{labels.fields.inputGradient}</th>
+            <th scope="col" aria-label={labels.fields.position}><InlineMath latex="p" /></th>
+            <th scope="col" aria-label={labels.fields.coordinate}><InlineMath latex="(b,t)" /></th>
+            <th scope="col" aria-label={labels.fields.upstream}><InlineMath latex="G_p" /></th>
+            <th scope="col" aria-label={labels.fields.inputGradient}><InlineMath latex="dX_p" /></th>
           </tr>
         </thead>
         <tbody>
           {trace.positionGradients.map((row) => (
             <tr>
-              <th scope="row">
-                <bdi
-                  class="diagram-math"
-                  dir="ltr"
-                  set:html={inlineMath(String.raw`dX_{${row.position.lexeme}}`)}
-                />
-              </th>
-              <td><bdi dir="ltr">{coordinate(row.coordinate)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.inputGradient)}</bdi></td>
+              <th scope="row"><InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexCoordinate(row.coordinate)} /></td>
+              <td>
+                <InlineMath latex={latexVector(row.upstream)} />
+              </td>
+              <td>
+                <InlineMath latex={latexVector(row.inputGradient)} />
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
       <table data-diagram-table class="parameter-gradient-table">
         <caption>{labels.captions.parameterGradients}</caption>
+        <colgroup>
+          <col class="parameter-gradient-name" />
+          <col class="parameter-gradient-accumulation" />
+          <col class="parameter-gradient-value" />
+        </colgroup>
         <thead>
           <tr>
-            <th scope="col">{labels.fields.parameter}</th>
-            <th scope="col">{labels.fields.accumulation}</th>
-            <th scope="col">{labels.fields.gradient}</th>
+            <th scope="col" aria-label={labels.fields.parameter}><InlineMath latex="\theta" /></th>
+            <th scope="col" aria-label={labels.fields.accumulation}><InlineMath latex="\sum_p" /></th>
+            <th scope="col" aria-label={labels.fields.gradient}><InlineMath latex="d\theta" /></th>
           </tr>
         </thead>
         <tbody>
           <tr class="shared-gradient">
-            <th scope="row">
-              <bdi class="diagram-math" dir="ltr" set:html={inlineMath('dW')} />
-            </th>
+            <th scope="row"><InlineMath latex="dW" /></th>
+            <td><InlineMath latex={weightAccumulationLatex} /></td>
             <td>
-              <bdi
-                class="diagram-math"
-                dir="ltr"
-                set:html={inlineMath(weightAccumulationLatex)}
-              />
+              <span class="gradient-value">
+                <InlineMath latex={latexShape(trace.weightGradient.shape)} />
+                <InlineMath latex={weightGradientLatex} />
+              </span>
             </td>
-            <td><bdi dir="ltr">{shape(trace.weightGradient.shape)} {vector(trace.weightGradient.values)}</bdi></td>
           </tr>
           <tr class="shared-gradient">
-            <th scope="row">
-              <bdi class="diagram-math" dir="ltr" set:html={inlineMath('db')} />
-            </th>
+            <th scope="row"><InlineMath latex="db" /></th>
+            <td><InlineMath latex={biasAccumulationLatex} /></td>
             <td>
-              <bdi
-                class="diagram-math"
-                dir="ltr"
-                set:html={inlineMath(biasAccumulationLatex)}
-              />
+              <span class="gradient-value">
+                <InlineMath latex={latexShape(trace.biasGradient.shape)} />
+                <InlineMath latex={latexVector(trace.biasGradient.values)} />
+              </span>
             </td>
-            <td><bdi dir="ltr">{shape(trace.biasGradient.shape)} {vector(trace.biasGradient.values)}</bdi></td>
           </tr>
         </tbody>
       </table>
@@ -326,115 +341,48 @@ const selectedProductsLatex = selectedCell.products
 
 <style>
   .linear-layers-diagram {
-    display: grid;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    gap: 1.25rem;
-    margin: 1.5rem 0;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    container-type: inline-size;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    color: var(--ink);
-    box-shadow: var(--shadow);
-  }
-
-  .diagram-math {
-    display: inline-block;
-    max-inline-size: 100%;
-    direction: ltr;
-    unicode-bidi: isolate;
-  }
-
-  .linear-layers-diagram:focus-visible,
-  .table-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: -0.3rem;
-  }
-
-  figcaption {
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
-    font-weight: 750;
-  }
-
-  .diagram-description,
-  .diagram-stage > p {
-    max-inline-size: 76ch;
-    margin: 0;
-    color: var(--muted);
-  }
-
-  .shape-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
-    gap: 0.75rem;
-    margin: 0;
-  }
-
-  .shape-summary > div,
-  .contribution-grid > div,
-  .axis-flow > div,
-  .policy-grid > article {
-    min-inline-size: 0;
-    padding: 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0.25rem 0 0;
-    overflow-wrap: anywhere;
-  }
-
-  .stage-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
-    gap: 1rem;
-    align-items: start;
-    min-inline-size: 0;
+    --diagram-summary-min: 9.5rem;
   }
 
   .diagram-stage {
-    display: grid;
     min-inline-size: 0;
-    gap: 0.8rem;
-    align-content: start;
-    padding: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.8rem;
-    background: var(--surface-raised, var(--surface));
   }
 
-  .diagram-stage h3,
-  .policy-grid h4 {
-    margin: 0;
+  .stage-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    align-items: start;
   }
 
-  .diagram-stage h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-size: 1rem;
+  .table-scroll {
+    --diagram-scroll-inline-size: 100%;
   }
 
-  .diagram-stage h3 > span {
-    display: inline-grid;
-    place-items: center;
-    inline-size: 1.7rem;
-    block-size: 1.7rem;
-    flex: 0 0 auto;
-    border: 2px solid currentColor;
-    border-radius: 50%;
+  table {
+    inline-size: 100%;
+    min-inline-size: 28rem;
+  }
+
+  .positions-stage table {
+    min-inline-size: 42rem;
+  }
+
+  .position-gradient-table,
+  .parameter-gradient-table {
+    min-inline-size: 28rem;
+  }
+
+  .parameter-gradient-table {
+    margin-block-start: 1rem;
+  }
+
+  .bias-row > * {
+    border-block-start-style: dashed !important;
+    border-block-start-width: 2px !important;
+  }
+
+  .shared-gradient > * {
+    border-block-end-style: double !important;
+    border-block-end-width: 3px !important;
   }
 
   .axis-flow {
@@ -473,108 +421,51 @@ const selectedProductsLatex = selectedCell.products
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem;
-    padding-block-start: 0.25rem;
-  }
-
-  .table-scroll {
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    overscroll-behavior-inline: contain;
-    scrollbar-gutter: stable;
-  }
-
-  table {
-    inline-size: 100%;
-    min-inline-size: 28rem;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-  }
-
-  .positions-stage table,
-  .gradients-stage table {
-    min-inline-size: 48rem;
-  }
-
-  .parameter-gradient-table {
-    margin-block-start: 1rem;
-  }
-
-  th,
-  td {
-    padding: 0.55rem 0.65rem;
-    border-block-end: 1px solid var(--line);
-    text-align: start;
-    vertical-align: top;
-  }
-
-  thead th {
-    font-size: 0.76rem;
-    letter-spacing: 0.02em;
-  }
-
-  caption {
-    padding-block-end: 0.5rem;
-    color: var(--muted);
-    font-weight: 700;
-    text-align: start;
-  }
-
-  tbody tr:last-child > * {
-    border-block-end: 0;
-  }
-
-  .bias-row > * {
-    border-block-start: 2px dashed var(--line);
-  }
-
-  .shared-gradient > * {
-    border-block-end-style: double;
-    border-block-end-width: 3px;
   }
 
   .contribution-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-    gap: 0.75rem;
-    margin: 0;
-  }
-
-  .product-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   }
 
   .products-card {
     grid-column: 1 / -1;
   }
 
-  .result-card {
-    border-width: 2px !important;
+  .policy-comparison {
+    min-inline-size: 0;
+    table-layout: fixed;
   }
 
-  .policy-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-    gap: 0.75rem;
-    align-items: start;
-  }
-
-  .policy-grid article {
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  .policy-grid p {
-    margin: 0;
+  .policy-comparison th,
+  .policy-comparison td {
     overflow-wrap: anywhere;
   }
 
-  .policy-grid p > span {
-    font-weight: 700;
+  .policy-position-column {
+    inline-size: 24%;
+  }
+
+  .policy-paths,
+  .policy-path {
+    display: grid;
+  }
+
+  .policy-paths {
+    gap: 0.45rem;
+  }
+
+  .policy-path {
+    gap: 0.25rem;
+    padding-inline-start: 0.45rem;
+  }
+
+  .policy-path strong {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
   }
 
   .affine-policy {
+    border-inline-start-style: solid !important;
     border-inline-start-width: 4px !important;
   }
 
@@ -583,17 +474,43 @@ const selectedProductsLatex = selectedCell.products
     border-inline-start-width: 5px !important;
   }
 
-  bdi {
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-variant-numeric: tabular-nums;
+  .gradient-value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
+    align-items: baseline;
   }
 
-  table bdi,
-  .axis-flow bdi {
-    white-space: nowrap;
+  .position-gradient-name {
+    inline-size: 15%;
   }
 
-  @container (max-width: 36rem) {
+  .position-gradient-coordinate {
+    inline-size: 20%;
+  }
+
+  .position-gradient-upstream {
+    inline-size: 35%;
+  }
+
+  .position-gradient-input {
+    inline-size: 30%;
+  }
+
+  .parameter-gradient-name {
+    inline-size: 15%;
+  }
+
+  .parameter-gradient-accumulation {
+    inline-size: 38%;
+  }
+
+  .parameter-gradient-value {
+    inline-size: 47%;
+  }
+
+  @container course-diagram (max-width: 44rem) {
+    .stage-grid,
     .axis-flow {
       grid-template-columns: minmax(0, 1fr);
     }
@@ -604,30 +521,108 @@ const selectedProductsLatex = selectedCell.products
     }
   }
 
-  @container course-diagram (max-width: 44rem) {
-    .linear-layers-diagram {
-      padding: 0.85rem;
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .linear-layers-diagram:fullscreen {
+      grid-template-columns: repeat(16, minmax(0, 1fr));
+      grid-template-areas:
+        "caption caption caption caption caption caption caption caption caption caption caption caption caption caption actions actions"
+        "summary summary summary summary summary summary summary summary summary summary summary summary summary summary summary summary"
+        "axes axes axes axes axes axes stages stages stages stages stages stages stages stages stages stages"
+        "contribution contribution contribution policy policy policy policy policy policy policy gradients gradients gradients gradients gradients gradients";
+      align-content: start;
+      align-items: start;
     }
 
-    .stage-grid {
+    .linear-layers-diagram:fullscreen > figcaption {
+      grid-area: caption;
+      grid-template-columns: minmax(14rem, 0.7fr) minmax(0, 1.3fr);
+      align-items: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    .linear-layers-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-area: actions;
+      align-self: start;
+    }
+
+    .linear-layers-diagram:fullscreen > .shape-summary {
+      grid-area: summary;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+    }
+
+    .linear-layers-diagram:fullscreen > .shape-summary > :first-child {
+      grid-column: span 2;
+    }
+
+    .linear-layers-diagram:fullscreen > .shape-summary > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      align-items: baseline;
+      column-gap: 0.4rem;
+    }
+
+    .linear-layers-diagram:fullscreen > .shape-summary dd {
+      margin-block-start: 0;
+    }
+
+    .linear-layers-diagram:fullscreen > .axes-stage {
+      grid-area: axes;
+    }
+
+    .linear-layers-diagram:fullscreen > .stage-grid {
+      grid-area: stages;
+      grid-template-columns: minmax(15rem, 0.8fr) minmax(21rem, 1.2fr);
+    }
+
+    .linear-layers-diagram:fullscreen .weights-stage table {
+      min-inline-size: 13rem;
+      table-layout: fixed;
+    }
+
+    .linear-layers-diagram:fullscreen .positions-stage table {
+      min-inline-size: 21rem;
+      table-layout: fixed;
+    }
+
+    .linear-layers-diagram:fullscreen > .contribution-stage {
+      grid-area: contribution;
+    }
+
+    .linear-layers-diagram:fullscreen > .contribution-stage > .contribution-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: dense;
+    }
+
+    .linear-layers-diagram:fullscreen > .policy-stage {
+      grid-area: policy;
+    }
+
+    .linear-layers-diagram:fullscreen .policy-paths {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--diagram-gap);
+      align-items: start;
+    }
+
+    .linear-layers-diagram:fullscreen > .gradients-stage {
+      grid-area: gradients;
+    }
+
+    .linear-layers-diagram:fullscreen > .gradients-stage > .gradient-tables {
+      display: grid;
       grid-template-columns: minmax(0, 1fr);
+      gap: var(--diagram-gap);
+      align-items: start;
     }
 
-    .diagram-stage {
-      padding: 0.8rem;
+    .linear-layers-diagram:fullscreen :is(.position-gradient-table, .parameter-gradient-table) {
+      inline-size: 100%;
+      max-inline-size: 100%;
+      min-inline-size: 0;
+      table-layout: fixed;
     }
-  }
 
-  @media (forced-colors: active) {
-    .linear-layers-diagram,
-    .diagram-stage,
-    .shape-summary > div,
-    .contribution-grid > div,
-    .axis-flow > div,
-    .policy-grid > article {
-      border-color: CanvasText;
-      background: Canvas;
-      color: CanvasText;
+    .linear-layers-diagram:fullscreen .parameter-gradient-table {
+      margin-block-start: 0;
     }
   }
 </style>

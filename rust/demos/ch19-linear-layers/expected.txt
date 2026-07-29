@@ -14,6 +14,6 @@ parameter order: token_projection.weight,token_projection.bias
 bias policy: affine=9 bias-free=6
 initialized: seed=19 weights-reproducible=true bias-all-zero=true
 identity: clone-shares-weight=true clone-shares-bias=true
-empty leading axis: shape=0x2 -> 0x3 values=0
+empty leading axis: shape=0x2 -> 0x3 value-count=0
 errors: scalar=true width=true bias=true
 chapter 20 handoff: compose bias-free projections around a SwiGLU gate

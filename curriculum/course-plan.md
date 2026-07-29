@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 44,
+  "plan_revision": 45,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-18",
+    "policy_id": "selective-russian-through-chapter-19",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "18-token-embeddings",
+        "through_chapter": "19-linear-layers",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-18."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-19."
       },
       {
-        "from_chapter": "19-linear-layers",
+        "from_chapter": "20-swiglu-feed-forward",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 18 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 19 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -264,6 +264,11 @@
         "step_id": "activate-ch18-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch18-russian-localization"
+      },
+      {
+        "step_id": "activate-ch19-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch19-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1175,7 +1180,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `19-linear-layers`
 - **Implementation step:** `implement-ch19-linear-layers`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2's explanatory-math repair remains recorded by `repair-ch19-inline-math-rendering`.
+- **Revision status:** Content revision 4 corrects learner-facing formula and delivery language, migrates the figure to the shared presentation system, and publishes the direct meaning-first Russian translation through `activate-ch19-russian-localization`; earlier formula repairs remain in the build history.
 - **Depends on:** `18-token-embeddings`.
 - **Outcome:** Implement a trainable linear projection with an explicit optional-bias policy for vectors, sequences, and mini-batches.
 - **Scope boundary:** Teach weight orientation, leading-dimension preservation, optional bias, parameter discovery, forward pass, and gradients. The target decoder uses bias-free attention/SwiGLU/output projections; bias remains available for historical examples.

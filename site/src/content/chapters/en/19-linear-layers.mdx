@@ -2,7 +2,7 @@
 {
   "chapter_id": "19-linear-layers",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 19,
   "concept_id": "linear-layers",
   "title": "Mix each token's features with one learned projection",
@@ -165,19 +165,20 @@ export const diagramLabels = {
     result: 'Result',
     upstream: 'Upstream gradient',
     inputGradient: 'Input gradient',
-    parameter: 'Gradient target',
+    parameter: 'Parameter',
     gradient: 'Stored gradient',
     policy: 'Policy',
     parameters: 'Parameter scalars',
     output: 'Output',
+    value: 'Value',
   },
   notes: {
     axes:
-      'The batch and sequence coordinates remain 1 by 2. Only the final feature axis changes from width 2 to width 3.',
+      'The leading batch and sequence coordinates are unchanged. Only the final feature axis grows from two coordinates to three.',
     contribution:
-      'This first output coordinate uses both input features, then adds the matching bias coordinate. Every displayed value comes from the executable trace.',
+      'This first output coordinate uses both input features. Their products form the weighted sum, then the matching bias produces the result.',
     policy:
-      'The affine path adds one shared width-3 bias. The target decoder chooses the bias-free path for attention, SwiGLU, and vocabulary projections.',
+      'The affine path adds one shared bias coordinate per output feature. The target decoder chooses the bias-free path for attention, SwiGLU, and vocabulary projections.',
     gradients:
       'Each input position receives its own gradient. The shared weight and bias collect contributions from both positions.',
   },
@@ -193,8 +194,8 @@ export const diagramLabels = {
     enabled: 'Enabled',
   },
   captions: {
-    positionGradients: 'Gradients returned to individual positions',
-    parameterGradients: 'Gradients accumulated into shared parameters',
+    positionGradients: 'Per-position gradients',
+    parameterGradients: 'Shared-parameter gradients',
   },
   scrollers: {
     weights: 'Scrollable linear-layer weight and bias evidence',
@@ -208,20 +209,24 @@ export const diagramLabels = {
 ## Predict two outputs from one shared matrix
 
 Chapter 18 left one feature vector at each token position. Use the two vectors
-`[1,2]` and `[-1,3]` as $X$ with shape `[1,2,2]`, then share these parameters
+$[1,2]$ and $[-1,3]$ as $X$ with shape $[1,2,2]$, then share these parameters
 across both positions:
 
-```text
-W = [[ 1,   0,  -1],
-     [ 2, 0.5,   1]]
-b = [0.5, -0.5, 1]
-```
+$$
+W=
+\begin{bmatrix}
+1 & 0 & -1 \\
+2 & 0.5 & 1
+\end{bmatrix},
+\qquad
+b=\begin{bmatrix}0.5 & -0.5 & 1\end{bmatrix}.
+$$
 
-Before running the example, predict six outputs. For `[1,2]`, the three
-weighted sums are `[5,1,1]`; adding $b$ gives `[5.5,0.5,2]`. For `[-1,3]`, the
-weighted sums are `[5,1.5,4]`; adding that same $b$ gives `[5.5,1,5]`. The
-complete output therefore has shape `[1,2,3]` and values
-`[[[5.5,0.5,2],[5.5,1,5]]]`.
+Before running the example, predict six outputs. For $[1,2]$, the three
+weighted sums are $[5,1,1]$; adding $b$ gives $[5.5,0.5,2]$. For $[-1,3]$, the
+weighted sums are $[5,1.5,4]$; adding that same $b$ gives $[5.5,1,5]$. The
+complete output therefore has shape $[1,2,3]$ and values
+$[[[5.5,0.5,2],[5.5,1,5]]]$.
 
 One scalar weighted response is useful as a small algebraic contrast. It equals
 the first output coordinate, but it is not a separate implementation of the
@@ -240,7 +245,7 @@ policy through one shared layer:
 <RustSource
   path="rust/demos/ch19-linear-layers/src/lib.rs"
   region="known-linear-layer"
-  caption="Apply the frozen affine and bias-free projections"
+  caption="Apply the worked affine and bias-free projections"
   label="Rust source running the Chapter 19 known linear-layer fixture"
 />
 
@@ -335,8 +340,8 @@ A decoder applies the same learned feature projection independently at every bat
 
 The progression is the road from earlier neural computation to modern language
 models, not a history of programming languages. The papers do not define this
-course's row orientation, errors, names, fixed seed, optional-bias API, trace
-grammar, or target bias policy.
+course's row orientation, errors, names, fixed seed, optional-bias API, or target
+bias policy.
 
 {/* chapter-section:rust-implementation */}
 
@@ -369,7 +374,7 @@ The nonuniform reverse seed exposes all three gradient paths:
 <RustSource
   path="rust/demos/ch19-linear-layers/src/lib.rs"
   region="linear-gradients"
-  caption="Reverse through the frozen affine projection"
+  caption="Reverse through the worked affine projection"
   label="Rust source proving Chapter 19 input, weight, and bias gradients"
 />
 
@@ -394,19 +399,19 @@ error behavior:
   label="Rust source for the Chapter 19 learner output"
 />
 
-Run `cargo run --quiet --locked -p ch19-linear-layers`. Its output is frozen in
-`rust/demos/ch19-linear-layers/expected.txt`. Tests cover exact forward and
-reverse values, rank-one backward restoration, stable parameter order and
-identity, validation precedence, transaction-safe initialization, and sampled
-finite differences with step `1e-6` and tolerance `2e-6`.
+Run `cargo run --quiet --locked -p ch19-linear-layers` to inspect the complete
+report. It demonstrates exact forward and reverse values, rank-one shape
+restoration, stable parameter order and identity, safe initialization, and
+agreement with sampled finite differences at step $10^{-6}$ and absolute
+tolerance $2\times10^{-6}$.
 
 {/* chapter-section:visualization */}
 
 ## Trace positions, products, policy, and gradients
 
-The trace emitter records all values consumed by the diagram. The build-time
-parser validates an exact grammar and localized labels; it does not perform
-tensor arithmetic or make a modeling decision.
+The Rust example records the exact values shown below: the shared parameters,
+each position's products, the effect of omitting the bias, and all three reverse
+gradient paths.
 
 <RustSource
   path="rust/demos/ch19-linear-layers/src/diagram_trace.rs"
@@ -417,9 +422,9 @@ tensor arithmetic or make a modeling decision.
 
 <LinearLayersDiagram labels={diagramLabels} />
 
-Words, symbols, border styles, and explicit coordinates carry each distinction
-without relying on color. Wide tables remain inside named keyboard-focusable
-scrollers, while every stage keeps its natural content height.
+Read the position rows first to see that the projection never crosses a leading
+coordinate. Then compare the affine and bias-free outputs and finish with the
+local input gradients and the shared parameter sums.
 
 {/* chapter-section:exercises */}
 
@@ -444,7 +449,7 @@ scrollers, while every stage keeps its natural content height.
   5. The affine layer owns nine scalars; the bias-free layer owns six.
   6. Zero output width is invalid; $[0,2]$ has an empty leading axis and valid final width, so it becomes $[0,3]$.
   7. A nonzero additive bias means the map does not preserve the origin, so it is affine.
-  8. Bengio et al. support affine computation inside a neural language model. Orientation, errors, names, seed, API, trace, and target bias policy are course choices.
+  8. Bengio et al. support affine computation inside a neural language model. Orientation, errors, names, seed, API, and target bias policy are course choices.
 </details>
 
 {/* chapter-section:decoder-connection */}

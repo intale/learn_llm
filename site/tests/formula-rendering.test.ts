@@ -1143,14 +1143,13 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
     );
 
     expect(components.linear).toContain(
-      "import { renderToString } from 'katex'",
+      "import InlineMath from '../InlineMath.astro'",
     );
-    expect(components.linear).toContain("output: 'htmlAndMathml'");
-    expect(components.linear).toContain("strict: 'error'");
-    expect(components.linear).toContain("throwOnError: true");
-    expect(components.linear).toContain(
-      "set:html={inlineMath(selectedProductsLatex)}",
-    );
+    expect(components.linear).toContain('latexValue(product.input)');
+    expect(components.linear).toContain('latexValue(product.weight)');
+    expect(components.linear).toContain('<InlineMath latex={contributionLatex} />');
+    expect(components.linear).toContain('latex={latexVector(row.affine)}');
+    expect(components.linear).toContain('latex={latexVector(row.biasFree!)}');
     expect(components.linear).toContain(
       "String.raw`dX_{${row.position.lexeme}}`",
     );

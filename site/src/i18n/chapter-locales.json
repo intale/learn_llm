@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 44,
-  "policyId": "selective-russian-through-chapter-18",
+  "planRevision": 45,
+  "policyId": "selective-russian-through-chapter-19",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -24,7 +24,7 @@
     { "chapterId": "16-model-autodiff-ops", "order": 16, "activeLocales": ["en", "ru"] },
     { "chapterId": "17-parameter-initialization", "order": 17, "activeLocales": ["en", "ru"] },
     { "chapterId": "18-token-embeddings", "order": 18, "activeLocales": ["en", "ru"] },
-    { "chapterId": "19-linear-layers", "order": 19, "activeLocales": ["en"] },
+    { "chapterId": "19-linear-layers", "order": 19, "activeLocales": ["en", "ru"] },
     { "chapterId": "20-swiglu-feed-forward", "order": 20, "activeLocales": ["en"] },
     { "chapterId": "21-mini-batches", "order": 21, "activeLocales": ["en"] },
     { "chapterId": "22-adamw", "order": 22, "activeLocales": ["en"] },

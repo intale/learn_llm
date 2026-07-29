@@ -2,44 +2,53 @@
 {
   "chapter_id": "19-linear-layers",
   "concept_id": "linear-layers",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 19,
   "objective": {
-    "en": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy."
+    "en": "Project vectors, sequences, and mini-batches through one trainable feature matrix with an explicit optional-bias policy.",
+    "ru": "Спроецировать векторы, последовательности и мини-пакеты одной обучаемой матрицей преобразования признаков с явным выбором: использовать смещение или нет."
   },
   "worked_inputs": {
-    "en": "Use X with shape [1,2,2] and vectors [1,2] and [-1,3], W=[[1,0,-1],[2,0.5,1]], and b=[0.5,-0.5,1]. Predict the two width-3 outputs, then predict which axes survive and how a nonuniform reverse seed reaches X, W, and b."
+    "en": "Use X with shape [1,2,2] and vectors [1,2] and [-1,3], W=[[1,0,-1],[2,0.5,1]], and b=[0.5,-0.5,1]. Predict the two width-3 outputs, then predict which axes survive and how a nonuniform reverse seed reaches X, W, and b.",
+    "ru": "Используйте X формы [1,2,2] с векторами [1,2] и [-1,3], W=[[1,0,-1],[2,0.5,1]] и b=[0.5,-0.5,1]. Предскажите два выхода ширины 3, затем определите, какие оси сохранятся и как неравномерный начальный градиент обратного прохода преобразуется в градиенты по X, W и b."
   },
   "formula": {
     "latex": "Y=XW+b",
     "symbols": [
       {
         "symbol": "X",
-        "en": "the input tensor with shape [...,d_{in}] whose leading axes identify independent positions"
+        "en": "the input tensor with shape [...,d_{in}] whose leading axes identify independent positions",
+        "ru": "входной тензор формы [...,d_{in}], ведущие оси которого задают независимые позиции"
       },
       {
         "symbol": "W",
-        "en": "the trainable weight matrix with shape [d_{in},d_{out}]"
+        "en": "the trainable weight matrix with shape [d_{in},d_{out}]",
+        "ru": "обучаемая матрица весов формы [d_{in},d_{out}]"
       },
       {
         "symbol": "b",
-        "en": "the optional trainable bias vector with shape [d_{out}], broadcast over every leading position; when bias is disabled this term is absent"
+        "en": "the optional trainable bias vector with shape [d_{out}], broadcast over every leading position; when bias is disabled this term is absent",
+        "ru": "необязательный обучаемый вектор смещения формы [d_{out}], который применяется к каждой ведущей позиции; если смещение отключено, этого слагаемого нет"
       },
       {
         "symbol": "Y",
-        "en": "the projected output tensor with shape [...,d_{out}]"
+        "en": "the projected output tensor with shape [...,d_{out}]",
+        "ru": "выходной тензор проекции формы [...,d_{out}]"
       },
       {
         "symbol": "d_{in}",
-        "en": "the number of input features and the final extent required from X"
+        "en": "the number of input features and the final extent required from X",
+        "ru": "число входных признаков и требуемый последний размер X"
       },
       {
         "symbol": "d_{out}",
-        "en": "the number of output features and the final extent produced in Y"
+        "en": "the number of output features and the final extent produced in Y",
+        "ru": "число выходных признаков и последний размер Y"
       },
       {
         "symbol": "...",
-        "en": "zero or more leading axes, such as sequence and batch axes, preserved without mixing positions"
+        "en": "zero or more leading axes, such as sequence and batch axes, preserved without mixing positions",
+        "ru": "ноль или больше ведущих осей, например оси последовательности и пакета, которые сохраняются без смешивания позиций"
       }
     ]
   },
@@ -47,13 +56,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "One scalar weighted response is local arithmetic inside an adaptive system, but a language model needs vectors of hidden activations and vocabulary-wide scores at every context position; treating every output as a separate scalar unit hides the shared matrix computation."
+        "en": "One scalar weighted response is local arithmetic inside an adaptive system, but a language model needs vectors of hidden activations and vocabulary-wide scores at every context position; treating every output as a separate scalar unit hides the shared matrix computation.",
+        "ru": "Один скалярный взвешенный отклик — лишь локальная арифметика внутри адаптивной системы. Языковой модели нужны векторы скрытых активаций и оценки для всего словаря в каждой позиции контекста; если представлять каждый выход отдельным скалярным элементом, общий матричный расчёт остаётся неявным."
       },
       "later_advance": {
-        "en": "Bengio et al. express hidden and output computation in a neural language model with trainable matrices and additive biases. The Transformer then reuses learned projections for queries, keys, values, attention outputs, position-wise feed-forward transformations, and next-token scoring."
+        "en": "Bengio et al. express hidden and output computation in a neural language model with trainable matrices and additive biases. The Transformer then reuses learned projections for queries, keys, values, attention outputs, position-wise feed-forward transformations, and next-token scoring.",
+        "ru": "Бенжио и соавторы выражают вычисления скрытого слоя и выхода нейросетевой языковой модели через обучаемые матрицы и аддитивные смещения. Затем Transformer многократно использует обучаемые проекции для запросов, ключей, значений, выходов внимания, преобразований сети прямого распространения, одинаковых для каждой позиции, и оценок следующего токена."
       },
       "modern_llm_role": {
-        "en": "A decoder applies the same learned feature projection independently at every batch and sequence position. This course keeps bias available for the historical affine form, while its target attention, SwiGLU, and vocabulary projections deliberately use the bias-free form."
+        "en": "A decoder applies the same learned feature projection independently at every batch and sequence position. This course keeps bias available for the historical affine form, while its target attention, SwiGLU, and vocabulary projections deliberately use the bias-free form.",
+        "ru": "Декодер независимо применяет одну и ту же обучаемую проекцию признаков в каждой позиции пакета и последовательности. В курсе смещение доступно для исторической аффинной формы, но в целевой архитектуре проекции внимания, SwiGLU и словаря намеренно не используют смещение."
       },
       "sources": [
         {
@@ -62,7 +74,8 @@
           "name": "Rosenblatt, The Perceptron",
           "source_url": "https://doi.org/10.1037/h0042519",
           "claim": {
-            "en": "Rosenblatt describes an adaptive response architecture in which summed excitatory and inhibitory signals and reinforcement influence the selected response. This supports the early adaptive-response context, not this course's affine formula or API."
+            "en": "Rosenblatt describes an adaptive response architecture in which summed excitatory and inhibitory signals and reinforcement influence the selected response. This supports the early adaptive-response context, not this course's affine formula or API.",
+            "ru": "Розенблатт описывает архитектуру адаптивного отклика, в которой суммируются возбуждающие и тормозящие сигналы, а подкрепление влияет на выбранный отклик. Эта работа подтверждает лишь описание ранних адаптивных откликов; аффинную формулу и API курса она не задаёт."
           }
         },
         {
@@ -71,7 +84,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model."
+            "en": "Bengio et al. compute unnormalized next-word scores with y=b+Wx+U tanh(d+Hx), making trainable matrix products and additive biases explicit inside a neural language model.",
+            "ru": "Бенжио и соавторы вычисляют ненормализованные оценки следующего слова по формуле y=b+Wx+U tanh(d+Hx), явно вводя обучаемые матричные произведения и аддитивные смещения в нейросетевой языковой модели."
           }
         },
         {
@@ -80,16 +94,19 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection."
+            "en": "Vaswani et al. learn separate linear projections for queries, keys, and values, project concatenated heads again, apply two linear transformations identically at each feed-forward position, and use a learned pre-softmax projection.",
+            "ru": "Васвани и соавторы обучают отдельные линейные проекции запросов, ключей и значений, ещё раз проецируют объединённые головы, одинаково применяют к каждой позиции два линейных преобразования сети прямого распространения и используют обучаемую проекцию перед softmax."
           }
         }
       ]
     },
     "approach": {
-      "en": "From one trainable weighted response to shared affine computation in neural language models and repeated Transformer projections"
+      "en": "From one trainable weighted response to shared affine computation in neural language models and repeated Transformer projections",
+      "ru": "От одного обучаемого взвешенного отклика к общим аффинным вычислениям в нейросетевых языковых моделях и повторяющимся проекциям Transformer"
     },
     "summary": {
-      "en": "The scalar weighted unit supplies the local arithmetic; neural language models package many such outputs as trainable matrix operations; Transformers apply learned projections throughout every layer and across all token positions. This chapter exposes that continuity while keeping its orientation, names, errors, fixed seed, optional-bias API, and target bias policy as explicit course choices."
+      "en": "The scalar weighted unit supplies the local arithmetic; neural language models package many such outputs as trainable matrix operations; Transformers apply learned projections throughout every layer and across all token positions. This chapter exposes that continuity while keeping its orientation, names, errors, fixed seed, optional-bias API, and target bias policy as explicit course choices.",
+      "ru": "Скалярный взвешенный отклик задаёт локальную арифметику; нейросетевые языковые модели объединяют множество таких выходов в обучаемые матричные операции; Transformer применяет обучаемые проекции во всех слоях и позициях токенов. Глава показывает эту преемственность, но отдельно оговаривает, что ориентация матриц, имена, ошибки, фиксированное начальное значение генератора, API необязательного смещения и целевая политика смещений — решения, принятые в курсе."
     },
     "rust_contrast": "Compute one scalar weighted response directly, show that it equals the first coordinate of the multi-output affine projection, and then apply the same layer to vector, sequence, and batch-shaped inputs without independently reimplementing the matrix operation."
   },
@@ -101,54 +118,64 @@
       "rust/demos/ch19-linear-layers/src/main.rs",
       "rust/demos/ch19-linear-layers/src/diagram_trace.rs"
     ],
-    "expected_output": "layer: token_projection in=2 out=3 bias=true parameters=9\ninput: shape=1x2x2 values=1.000000000000,2.000000000000,-1.000000000000,3.000000000000\nweight: shape=2x3 values=1.000000000000,0.000000000000,-1.000000000000,2.000000000000,0.500000000000,1.000000000000\nbias: shape=3 values=0.500000000000,-0.500000000000,1.000000000000\noutput: shape=1x2x3 values=5.500000000000,0.500000000000,2.000000000000,5.500000000000,1.000000000000,5.000000000000\nrank variants: [2]->[3] [2,2]->[2,3] [1,2,2]->[1,2,3]\nhistorical unit: 1*1 + 2*2 + 0.5 = 5.500000000000 equals output[0]=true\nbias-free output: shape=1x2x3 values=5.000000000000,1.000000000000,1.000000000000,5.000000000000,1.500000000000,4.000000000000\nupstream: shape=1x2x3 values=1.000000000000,0.000000000000,-1.000000000000,0.500000000000,2.000000000000,1.000000000000\ninput gradient: shape=1x2x2 values=2.000000000000,1.000000000000,-0.500000000000,3.000000000000\nweight gradient: shape=2x3 values=0.500000000000,-2.000000000000,-2.000000000000,3.500000000000,6.000000000000,1.000000000000\nbias gradient: shape=3 values=1.500000000000,2.000000000000,0.000000000000\nparameter order: token_projection.weight,token_projection.bias\nbias policy: affine=9 bias-free=6\ninitialized: seed=19 weights-reproducible=true bias-all-zero=true\nidentity: clone-shares-weight=true clone-shares-bias=true\nempty leading axis: shape=0x2 -> 0x3 values=0\nerrors: scalar=true width=true bias=true\nchapter 20 handoff: compose bias-free projections around a SwiGLU gate\n"
+    "expected_output": "layer: token_projection in=2 out=3 bias=true parameters=9\ninput: shape=1x2x2 values=1.000000000000,2.000000000000,-1.000000000000,3.000000000000\nweight: shape=2x3 values=1.000000000000,0.000000000000,-1.000000000000,2.000000000000,0.500000000000,1.000000000000\nbias: shape=3 values=0.500000000000,-0.500000000000,1.000000000000\noutput: shape=1x2x3 values=5.500000000000,0.500000000000,2.000000000000,5.500000000000,1.000000000000,5.000000000000\nrank variants: [2]->[3] [2,2]->[2,3] [1,2,2]->[1,2,3]\nhistorical unit: 1*1 + 2*2 + 0.5 = 5.500000000000 equals output[0]=true\nbias-free output: shape=1x2x3 values=5.000000000000,1.000000000000,1.000000000000,5.000000000000,1.500000000000,4.000000000000\nupstream: shape=1x2x3 values=1.000000000000,0.000000000000,-1.000000000000,0.500000000000,2.000000000000,1.000000000000\ninput gradient: shape=1x2x2 values=2.000000000000,1.000000000000,-0.500000000000,3.000000000000\nweight gradient: shape=2x3 values=0.500000000000,-2.000000000000,-2.000000000000,3.500000000000,6.000000000000,1.000000000000\nbias gradient: shape=3 values=1.500000000000,2.000000000000,0.000000000000\nparameter order: token_projection.weight,token_projection.bias\nbias policy: affine=9 bias-free=6\ninitialized: seed=19 weights-reproducible=true bias-all-zero=true\nidentity: clone-shares-weight=true clone-shares-bias=true\nempty leading axis: shape=0x2 -> 0x3 value-count=0\nerrors: scalar=true width=true bias=true\nchapter 20 handoff: compose bias-free projections around a SwiGLU gate\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "linear-layers",
     "rationale": {
-      "en": "A position-by-position contribution map makes it clear that the final feature axis is mixed by W while batch and sequence coordinates remain separate, and paired affine/bias-free rails expose exactly what the optional bias changes."
+      "en": "A position-by-position contribution map makes it clear that the final feature axis is mixed by W while batch and sequence coordinates remain separate, and paired affine/bias-free rails expose exactly what the optional bias changes.",
+      "ru": "Карта вкладов по позициям показывает, что W смешивает только последнюю ось признаков, а координаты пакета и последовательности остаются раздельными; сопоставление аффинного варианта с вариантом без смещения точно показывает влияние необязательного смещения."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative model gains one named differentiable projection from [...,d_in] to [...,d_out]. Later chapters reuse the bias-free policy for SwiGLU, attention, and vocabulary projection while preserving this chapter's parameter discovery, gradients, and leading-axis behavior."
+    "en": "The cumulative model gains one named differentiable projection from [...,d_in] to [...,d_out]. Later chapters reuse the bias-free policy for SwiGLU, attention, and vocabulary projection while preserving this chapter's parameter discovery, gradients, and leading-axis behavior.",
+    "ru": "Совокупная модель получает одну именованную дифференцируемую проекцию из [...,d_in] в [...,d_out]. В следующих главах вариант без смещения будет применяться в SwiGLU, внимании и проекции в словарь с сохранением перечисления параметров, градиентов и поведения ведущих осей из этой главы."
   },
   "terminology": [
     {
       "concept_id": "linear-layer",
-      "en": "linear layer"
+      "en": "linear layer",
+      "ru": "линейный слой"
     },
     {
       "concept_id": "affine-projection",
-      "en": "affine projection"
+      "en": "affine projection",
+      "ru": "аффинная проекция"
     },
     {
       "concept_id": "input-width",
-      "en": "input width"
+      "en": "input width",
+      "ru": "ширина входа"
     },
     {
       "concept_id": "output-width",
-      "en": "output width"
+      "en": "output width",
+      "ru": "ширина выхода"
     },
     {
       "concept_id": "leading-axis",
-      "en": "leading axis"
+      "en": "leading axis",
+      "ru": "ведущая ось"
     },
     {
       "concept_id": "weight-matrix",
-      "en": "weight matrix"
+      "en": "weight matrix",
+      "ru": "матрица весов"
     },
     {
       "concept_id": "optional-bias",
-      "en": "optional bias"
+      "en": "optional bias",
+      "ru": "необязательное смещение"
     },
     {
       "concept_id": "feature-projection",
-      "en": "feature projection"
+      "en": "feature projection",
+      "ru": "проекция признаков"
     }
   ],
   "translation_notes": [
-    "Chapter 19 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
+    "Chapter 19 has the exact active locale set {en,ru}. English revision 4 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep X, W, b, Y, d_in, d_out, the ellipsis, shapes, numeric values, parameter names, trace keywords, formula, and source URLs unchanged when another locale is activated later.",
     "Use linear layer for the conventional module name, but explain that Y=XW+b is affine when b is present. Do not imply that the bias term is mathematically linear.",
     "Leading axes identify independent positions. The layer mixes only the final feature axis; it does not mix tokens, sequence positions, or batch items.",
@@ -285,7 +312,7 @@ at every batch and sequence position. This course keeps bias available for the
 historical affine form, while its target attention, SwiGLU, and vocabulary
 projections deliberately use the bias-free form. This is a history of neural
 language-model computation, not of a programming language; orientation, names,
-errors, fixed seed, optional-bias API, and trace grammar are local teaching
+errors, fixed seed, optional-bias API, and target bias policy are local teaching
 choices.
 
 <!-- contract-section:rust-behavior -->
@@ -351,7 +378,7 @@ After writing down your predictions, check the answers: `[4,7,3]`;
 nine versus six; zero output width is invalid while the empty leading axis is
 valid; a nonzero bias makes the map affine; and Bengio supports the
 language-model computation while orientation, errors, names, seed, API, and
-trace remain course choices.
+target bias policy remain course choices.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
@@ -370,11 +397,11 @@ no longer applies.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The active locale set is exactly English. Russian remains registered and
-deferred, so it receives no placeholder contract fields, lesson, or route.
-Future translation must keep formula symbols, shapes, values, parameter names,
-trace keywords, source roles, and URLs unchanged while explaining naturally
-that conventional “linear layer” terminology includes an optional affine bias.
+The active locale set is exactly English and Russian. English revision 4 is the
+canonical source; Russian is translated directly from it and keeps formula
+symbols, shapes, values, parameter names, trace keywords, source roles, and URLs
+unchanged while explaining naturally that conventional “linear layer”
+terminology includes an optional affine bias.
 
 Keep “leading axis” tied to preserved batch/sequence coordinates and “feature
 axis” tied to the final mixed coordinate. Do not translate the history as a
@@ -389,7 +416,7 @@ reverse gradients, parameter order/counts, initialization and identity rules,
 empty/error behavior, learner stdout, and diagram trace. Validation runs the
 course-plan and contract gates; full locked Rust formatting, lint, workspace
 tests, dependency and demo checks; byte-exact learner and trace commands; English
-lesson/parity/content checks; zero-diagnostic Astro analysis; complete unit,
+and Russian lesson/parity/content checks; zero-diagnostic Astro analysis; complete unit,
 static build, link, SEO, focused browser, and full browser suites.
 
 The complete staged slice publishes only after every declared gate and manual

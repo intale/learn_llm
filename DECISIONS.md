@@ -9493,3 +9493,100 @@ gates must pass before the locale activates.
 
 **Affected step and run:** `activate-ch18-russian-localization`, run
 `20260729T150818Z-activate-ch18-russian-localization-01`.
+
+## 2026-07-29 - Freeze corrected Chapter 19 semantics and presentation before translation
+
+**Status:** Accepted during `activate-ch19-russian-localization` canonical,
+formula, history, Rust-evidence, and diagram audits.
+
+**Context:** The affine forward and reverse arithmetic is correct, and the
+Bengio and Transformer claims match the cited primary papers. The English
+lesson nevertheless renders many explanatory vectors and shapes as program
+data, exposes frozen-output, test, parser, scroller, and presentation mechanics
+to learners, and labels an empty output with the ambiguous field `values=0`.
+The figure duplicates the shared frame, panel, card, table, focus, scroll,
+palette, and forced-color systems; leaves most mathematical evidence as plain
+text; omits bounded-box markers from ordinary bordered content; and has no
+layout designed for the shared full-view canvas.
+
+**Decision:** Freeze a corrected English revision before Russian translation.
+Preserve the exact row-vector convention and affine/reverse arithmetic; render
+every explanatory shape, vector, coordinate, scalar, and equation through the
+math pipeline; reserve code styling for real Rust and literal program data; and
+replace delivery commentary with what the numerical evidence teaches. Name an
+empty tensor by `value-count`, migrate generic diagram presentation to the
+shared module, mark every content-owning box, retain only concept geometry and
+redundant state borders locally, and provide a readable full-view reflow without
+shrinking text. Keep "linear layer" as the conventional module term while
+stating explicitly that a nonzero bias makes the map affine.
+
+**Consequences:** Russian must be translated directly from the corrected
+revision and preserve the distinction between leading positions and the final
+feature axis, local input gradients and accumulated shared-parameter gradients,
+and optional affine versus target bias-free policies. Exact learner output
+changes by one field name but projection arithmetic and trace bytes remain
+unchanged. Contract, Rust, formula, source, locale, Linux, Chromium, and Firefox
+gates must all be rerun before activation.
+
+**Affected step and run:** `activate-ch19-russian-localization`, run
+`20260729T163058Z-activate-ch19-russian-localization-01`.
+
+## 2026-07-29 - Present Chapter 19 evidence as mathematical structure, not trace syntax
+
+**Status:** Accepted during `activate-ch19-russian-localization` translation and
+rendered-surface review.
+
+**Context:** The exact Rust trace is useful byte-level evidence, but its repeated
+decimal lexemes and flat gradient records obscure the two relationships the
+figure must teach: one affine projection acts independently at every leading
+position, while shared parameter gradients sum across those positions. The
+initial English and Russian labels also reused “gradient target” for the weight
+parameter itself, and the first translation contained literal gradient-motion,
+historical, title, caption, and clone-identity phrasing.
+
+**Decision:** Keep the trace byte-for-byte authoritative while rendering its
+values as compact mathematical matrices and vectors in the figure. Label the
+weight as a parameter, give compact mathematical table headers localized
+accessible names, show occurrence contributions before their shared-parameter
+sums, and place the affine and bias-free policy branches side by side when the
+full-view canvas permits it. Retain shared-module spacing and presentation;
+component CSS may only organize the concept geometry. Apply every independent
+translation-audit correction to the frozen English/Russian pair and validate the
+result again rather than accepting literal sentence correspondence.
+
+**Consequences:** The figure preserves the exact executable evidence without
+making trace serialization the learner's mental model. Both locales distinguish
+parameters from their gradients, local pullbacks from accumulated gradients,
+and cloned values from shared trainable identity. Candidate 27 and both browser
+engines must pass the complete shared diagram and formula matrix.
+
+**Affected step and run:** `activate-ch19-russian-localization`, run
+`20260729T163058Z-activate-ch19-russian-localization-01`.
+
+## 2026-07-29 - Accept immutable and Linux Chapter 19 builds after Dropbox locks host cleanup
+
+**Status:** Accepted during `activate-ch19-russian-localization` final
+validation.
+
+**Context:** On Windows, the canonical Astro build generated every one of the 65
+routes, then Dropbox repeatedly attached cloud-reparse state and locked a file or
+directory inside `site/dist/.prerender` during Astro's final temporary-output
+cleanup. Fresh canonical directories failed with `EBUSY` or `EPERM` at that same
+post-generation boundary. Terminating Dropbox, changing the build, or weakening
+cleanup would alter user state or product behavior for an environment-only lock.
+
+**Decision:** Do not change the build. Preserve the recoverable locked outputs in
+the run staging directory and accept the immutable Candidate 27 production build
+plus the exact pinned Linux `./course check` build as the production-build proof.
+Require the canonical static-link command to pass against the generated 65-page
+tree, and record the host cleanup failure explicitly in the run evidence.
+
+**Consequences:** Chapter 19 is not blocked by a Dropbox race that occurs after
+route generation and is absent in the supported pinned Linux workflow. The build
+definition and deployment behavior remain unchanged. If a future checkpoint can
+run outside the Dropbox-managed tree, its canonical Windows build may be used as
+additional evidence; this decision does not waive any source, static, browser,
+Linux, or link gate.
+
+**Affected step and run:** `activate-ch19-russian-localization`, run
+`20260729T163058Z-activate-ch19-russian-localization-01`.
