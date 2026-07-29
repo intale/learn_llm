@@ -36,31 +36,29 @@ const labels: ModelAutodiffOpsDiagramLabels = {
     forward: 'forward',
     reverse: 'reverse',
     accumulation: 'accumulation',
-    checks: 'checks',
-    errors: 'errors',
   },
+  tables: { targetGradients: 'target gradients' },
   fields: {
     step: 'step',
     operation: 'operation',
     sources: 'sources',
-    inputShape: 'input shape',
+    tensorInputShape: 'tensor input shape',
     outputShape: 'output shape',
     values: 'values',
     position: 'position',
+    positions: 'positions',
     tokenId: 'token ID',
     target: 'target',
     gradient: 'gradient',
     targetSign: 'target sign',
     competitorSign: 'competitor sign',
+    classSum: 'class sum',
     operand: 'operand',
     parent: 'parent',
+    gradientShape: 'gradient shape',
     contribution: 'contribution',
     destinationRow: 'destination row',
     occurrences: 'occurrences',
-    sampledCoordinates: 'samples',
-    maximumError: 'maximum error',
-    tolerance: 'tolerance',
-    status: 'status',
   },
   operations: {
     gather_rows: 'gather',
@@ -80,6 +78,8 @@ const labels: ModelAutodiffOpsDiagramLabels = {
     silu: 'SiLU output',
     targets: 'targets',
   },
+  operands: { unary: 'unary', left: 'left', right: 'right' },
+  parents: { matmul: 'matmul', gathered: 'gathered', weights: 'weights' },
   states: {
     selectedTarget: 'selected',
     negative: 'negative',
@@ -88,8 +88,7 @@ const labels: ModelAutodiffOpsDiagramLabels = {
     singleOccurrence: 'single occurrence',
     unusedRow: 'unused row',
     accumulatedRow: 'accumulated row',
-    checked: 'checked',
-    rejected: 'rejected',
+    singleRow: 'single row',
   },
   symbols: {
     forward: '>',
@@ -97,20 +96,12 @@ const labels: ModelAutodiffOpsDiagramLabels = {
     repeated: 'S',
     single: '1',
     unused: '0',
-    checked: 'OK',
-    rejected: '!',
   },
   rules: {
     forwardFork: 'forward fork',
     target: 'target rule',
     matmul: 'matmul rule',
     scatter: 'scatter rule',
-  },
-  errors: {
-    'invalid-id': 'invalid ID',
-    'invalid-target': 'invalid target',
-    'empty-targets': 'empty targets',
-    'exp-overflow': 'overflow',
   },
 };
 
@@ -230,7 +221,7 @@ describe('Chapter 16 Rust trace parser', () => {
   it('requires every visible and accessible localized label', () => {
     expect(() => assertModelAutodiffOpsDiagramLabels(labels)).not.toThrow();
     const missing = structuredClone(labels) as unknown as Record<string, unknown>;
-    (missing.rules as Record<string, unknown>).scatter = ' ';
+    delete (missing.parents as Record<string, unknown>).weights;
     expect(() =>
       assertModelAutodiffOpsDiagramLabels(missing as unknown as ModelAutodiffOpsDiagramLabels),
     ).toThrow(/complete and nonempty/);
@@ -257,12 +248,14 @@ describe('Chapter 16 static diagram component', () => {
   });
 
   it('renders semantic order and exact Rust-authored target, matmul, and scatter evidence', () => {
-    expect(component).toContain('<ol class="forward-rail">');
-    expect(component).toContain('<ol class="occurrence-grid">');
-    expect(component.match(/<table data-diagram-table class=/g)).toHaveLength(2);
+    expect(component).toContain('<ol class="forward-rail course-diagram__grid">');
+    expect(component).toContain('<ol class="contribution-list course-diagram__grid">');
+    expect(component.match(/<table data-diagram-table class=/g)).toHaveLength(1);
     expect(component).toContain('scope="col"');
     expect(component).toContain('scope="row"');
+    expect(component).toContain('<caption id=');
     expect(component).toContain('data-target-gradient=');
+    expect(component).toContain('data-row-sum=');
     expect(component).toContain('data-sources=');
     expect(component).toContain('class="forward-fork-note"');
     expect(component).toContain('data-correct-sign=');
@@ -272,19 +265,25 @@ describe('Chapter 16 static diagram component', () => {
     expect(component).toContain('data-destination-row=');
     expect(component).toContain('data-contribution=');
     expect(component).toContain('data-embedding-row=');
-    expect(component).toContain('data-gradcheck-operation=');
-    expect(component).toContain('data-error-kind=');
+    expect(component).not.toContain('data-gradcheck-operation=');
+    expect(component).not.toContain('data-error-kind=');
+    expect(component).toContain('rowOccurrences = trace.occurrences.filter');
   });
 
-  it('keeps wide evidence local and gives every card natural intrinsic height', () => {
+  it('uses the shared diagram system and keeps only concept geometry locally', () => {
     expect(component).toContain('data-visualization-id={modelAutodiffOpsDiagramId}');
-    expect(component.match(/class="table-scroll course-diagram__scroll"/g)).toHaveLength(2);
-    expect(component.match(/tabindex="0"/g)).toHaveLength(3);
-    expect(component.match(/role="region"/g)).toHaveLength(2);
+    expect(component).toContain('class="course-diagram model-autodiff-ops-diagram"');
+    expect(component).toContain('data-diagram-style="course-v1"');
+    expect(component.match(/data-diagram-card/g)?.length).toBeGreaterThanOrEqual(4);
+    expect(component.match(/data-diagram-box/g)?.length).toBeGreaterThanOrEqual(8);
+    expect(component.match(/class="target-scroll course-diagram__scroll"/g)).toHaveLength(1);
+    expect(component.match(/tabindex="0"/g)).toHaveLength(2);
+    expect(component.match(/role="region"/g)).toHaveLength(1);
     expect(component).toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
-    expect(component).toContain('align-items: start;');
+    expect(component).not.toMatch(/\.model-autodiff-ops-diagram\s*\{[^}]*(?:border|background|box-shadow|padding|margin)\s*:/s);
+    expect(component).not.toContain('@media (forced-colors: active)');
     expect(component).toContain('.occurrence-yes,');
     expect(component).toContain('border-style: double;');
     expect(component).toContain('.embedding-unused');
@@ -292,6 +291,7 @@ describe('Chapter 16 static diagram component', () => {
     expect(component).not.toMatch(
       /\.(?:forward-card|pullback-card|occurrence-card|embedding-card|check-card|error-card)[^{]*\{[^}]*(?:min-)?(?:height|block-size)\s*:/s,
     );
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('.model-autodiff-ops-diagram:fullscreen');
+    expect(component).toContain("import InlineMath from '../InlineMath.astro'");
   });
 });

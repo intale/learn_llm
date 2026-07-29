@@ -468,6 +468,9 @@ const chapter14To39FormulaLatex: Record<
   "16-model-autodiff-ops": [
     String.raw`\frac{\partial L}{\partial E_{i,:}}=`,
     String.raw`\bar E_{i,:}\mathrel{+}=\bar X_{b,t,:}`,
+    String.raw`i=1,\;n=3`,
+    String.raw`[3,2]`,
+    String.raw`[]`,
   ],
   "17-parameter-initialization": [String.raw`1/\sqrt{2}`, String.raw`\Delta=`],
   "18-token-embeddings": [
@@ -916,6 +919,25 @@ test.describe("@formula-rendering:Chapter 14-39 active-locale rendered formula c
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,
           ).toBe(true);
+        }
+        if (chapterId === "16-model-autodiff-ops") {
+          const diagramLatex = await page
+            .locator(
+              'figure[data-visualization-id="model-autodiff-ops"] annotation[encoding="application/x-tex"]',
+            )
+            .allTextContents();
+          for (const expression of [
+            String.raw`i=1,\;n=3`,
+            "[3,2]",
+            "[4,2]",
+            "[2,2]",
+            "[]",
+          ]) {
+            expect(
+              diagramLatex.includes(expression),
+              `${locale}/${chapterId} diagram should render ${expression}`,
+            ).toBe(true);
+          }
         }
 
         const geometryProblems = await page

@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 41,
+  "plan_revision": 42,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-15",
+    "policy_id": "selective-russian-through-chapter-16",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "15-tensor-autodiff-core",
+        "through_chapter": "16-model-autodiff-ops",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-15."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-16."
       },
       {
-        "from_chapter": "16-model-autodiff-ops",
+        "from_chapter": "17-parameter-initialization",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 15 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 16 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -249,6 +249,11 @@
         "step_id": "activate-ch15-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch15-russian-localization"
+      },
+      {
+        "step_id": "activate-ch16-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch16-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1112,16 +1117,16 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `16-model-autodiff-ops`
 - **Implementation step:** `implement-ch16-model-autodiff-ops`
-- **Revision status:** Content revision 2 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`.
+- **Revision status:** Content revision 3 corrects the compact operation chain, sampled-check scope, saved evidence, error nonmutation, LLM history, shared visualization, and direct Russian localization; revision 2's formula rendering repair remains recorded by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `15-tensor-autodiff-core`.
 - **Outcome:** Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.
 - **Scope boundary:** Add matmul, gather/scatter-add, `exp`, `log`, SiLU, log-softmax, and indexed mean-NLL VJPs with explicit saved-state and stability choices; defer packaging them as neural layers.
 - **Formula:** `\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`.
-- **Historical contrast:** A structural tensor tape still cannot train a language model without correct embedding, matrix, activation, and token-loss derivatives; connect separately derived layer gradients to a small composable VJP vocabulary reused throughout the decoder.
+- **Historical contrast:** Model-specific next-word backward equations do not provide reusable operation rules, while a structural tensor tape still cannot differentiate embedding lookup, matrices, activations, normalization, and token loss; connect both limitations to a small composable VJP vocabulary reused throughout decoder training.
 - **Rust contribution:** Extend the tensor tape with the model-critical primitives, including duplicate-ID scatter-add and fused stable log-softmax/NLL behavior.
-- **Visualization:** Useful — trace forward tensor shapes and reverse contributions through matmul, row gather, repeated-ID accumulation, and target selection.
+- **Visualization:** Useful — trace the compact forward branch, target and matrix gradients, then group every occurrence contribution inside its destination embedding row.
 - **Practice:** Predict the embedding gradient when one token ID appears three times and identify the target-logit gradient signs.
-- **Integration evidence:** Every new VJP passes finite differences; repeated IDs, batched matmul, extreme logits, target bounds, empty target sets, branches, and numerical stability pass.
+- **Integration evidence:** Each new VJP passes sampled central differences; repeated IDs, batched matmul, extreme logits, target bounds, empty target sets, branches, and numerical stability pass.
 - **Handoff:** Chapter 17 creates reproducible trainable values before the first learned layer is assembled.
 
 ## 17. Parameters and deterministic initialization

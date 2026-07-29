@@ -85,13 +85,13 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
         "FORWARD step=1 operation=matmul sources=gather_rows,weights input-shapes={},{} output-shape={} values={}",
         shape(example.gathered.shape()),
         shape(example.weights.shape()),
-        shape(example.logits.shape()),
-        values(&example.logits),
+        shape(example.projection_preactivations.shape()),
+        values(&example.projection_preactivations),
     )?;
     writeln!(
         trace,
         "FORWARD step=2 operation=silu sources=matmul input-shapes={} output-shape={} values={}",
-        shape(example.logits.shape()),
+        shape(example.projection_preactivations.shape()),
         shape(example.activated.shape()),
         values(&example.activated),
     )?;
@@ -249,7 +249,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     writeln!(
         trace,
         "ERROR kind=invalid-id position={id_position} index={id_index} rows={id_rows} gradients-unchanged={}",
-        yes_no(errors.gradients_unchanged),
+        yes_no(errors.invalid_id_gradient_unchanged),
     )?;
     let (target_group, target_index, target_classes) = match errors.invalid_target {
         TensorAutodiffError::Probability(ProbabilityError::TargetOutOfBounds {
@@ -262,7 +262,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     writeln!(
         trace,
         "ERROR kind=invalid-target group={target_group} target={target_index} classes={target_classes} gradients-unchanged={}",
-        yes_no(errors.gradients_unchanged),
+        yes_no(errors.invalid_target_gradient_unchanged),
     )?;
     match errors.empty_targets {
         TensorAutodiffError::Probability(ProbabilityError::EmptyTargets) => {}
@@ -271,7 +271,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     writeln!(
         trace,
         "ERROR kind=empty-targets gradients-unchanged={}",
-        yes_no(errors.gradients_unchanged),
+        yes_no(errors.empty_targets_gradient_unchanged),
     )?;
     let (overflow_operation, overflow_index, overflow_value) = match errors.exp_overflow {
         TensorAutodiffError::NonFiniteForward {
@@ -285,7 +285,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     writeln!(
         trace,
         "ERROR kind=exp-overflow operation={overflow_operation} flat={overflow_index} value={overflow_value:?} gradients-unchanged={}",
-        yes_no(errors.gradients_unchanged),
+        yes_no(errors.exp_overflow_gradient_unchanged),
     )?;
     writeln!(trace, "TRACE model-autodiff-ops-v1 END")?;
     Ok(trace)

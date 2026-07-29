@@ -2,13 +2,13 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 16,
   "concept_id": "model-autodiff-ops",
   "title": "Reverse the operations that turn token IDs into loss",
-  "description": "Build Rust VJPs for matmul, repeated embedding gathers, SiLU, log-softmax, and mean token loss, then verify every gradient numerically.",
+  "description": "Implement VJPs for matrix products, repeated embedding lookups, SiLU, log-softmax, and mean token loss, then compare each new local rule with sampled central differences.",
   "objective": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.",
-  "worked_inputs": "Set embedding table E[3,2]=[[2,2],[1,-1],[-1,1]], token IDs z=[1,1,1,2], projection W[2,2]=[[1,-1],[1,-1]], and targets [0,0,0,1]. Predict four gathered rows, zero projection logits, SiLU outputs of zero, log-probabilities of -ln(2), mean loss ln(2), target-logit gradients of magnitude 1/8, and the three contributions accumulated into embedding row 1 before running Rust.",
+  "worked_inputs": "Set embedding table E[3,2]=[[2,2],[1,-1],[-1,1]], token IDs z=[1,1,1,2], projection W[2,2]=[[1,-1],[1,-1]], and targets [0,0,0,1]. Treat flat positions 0 through 3 as the row-major order of the formula's (b,t) occurrences. Predict four gathered rows, zero projection preactivations, SiLU outputs used as two-class loss logits, log-probabilities of -ln(2), mean loss ln(2), target-logit gradients of magnitude 1/8, and the three contributions accumulated into embedding row 1 before running Rust.",
   "formula": {
     "latex": "\\frac{\\partial L}{\\partial E_{i,:}}=\\sum_{(b,t):z_{b,t}=i}\\frac{\\partial L}{\\partial X_{b,t,:}}",
     "symbols": [
@@ -62,8 +62,8 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": "Bengio et al. train a neural next-word model with a learned word-feature table, matrix transforms, a tanh hidden layer, output probabilities, and explicit model-specific backward/update equations. That presentation makes the full learning path inspectable, but Chapter 15's structural tensor tape still cannot express the lookup, matrix, activation, normalization, and token-loss derivatives needed to train even this small language-model path.",
-      "later_advance": "Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. then repeat learned embeddings, matrix projections, softmax attention, and nonlinear feed-forward transformations throughout the Transformer. Shazeer later evaluates Swish and SwiGLU variants inside Transformer feed-forward sublayers, connecting SiLU's local derivative to a later decoder component.",
-      "modern_llm_role": "This chapter supplies reusable local pullbacks for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and fused indexed mean NLL. These operations form the derivative vocabulary later embedding, projection, SwiGLU, attention, and token-loss chapters need. Ordinary inference uses only their forward paths; saved tensors, fusion boundary, finite-value policy, API, trace, and error precedence remain course-local.",
+      "later_advance": "Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. place learned embeddings and the output projection at model boundaries while matrix projections, softmax attention, and nonlinear feed-forward sublayers repeat through the Transformer stack. Shazeer later evaluates Swish with beta one—the same function as SiLU—and SwiGLU variants inside Transformer feed-forward sublayers.",
+      "modern_llm_role": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need. Training retains operation-specific forward values and shape metadata for those rules; ordinary inference uses only the forward paths.",
       "sources": [
         {
           "role": "earlier",
@@ -91,12 +91,12 @@
           "year": 2020,
           "name": "Shazeer, GLU Variants Improve Transformer",
           "source_url": "https://arxiv.org/pdf/2002.05202",
-          "claim": "Shazeer defines Swish as x times sigmoid(beta x), uses Swish with beta one in SwiGLU Transformer feed-forward variants, and reports improved held-out log-perplexity for gated variants over the studied baseline."
+          "claim": "Shazeer defines Swish as its input multiplied by the sigmoid of beta times that input, so beta one gives the function also called SiLU; the paper uses it in SwiGLU Transformer feed-forward variants and reports improved held-out log-perplexity for gated variants over the studied baseline."
         }
       ]
     },
     "approach": "From model-specific next-word backward equations to composable operation VJPs reused throughout decoder training",
-    "summary": "Bengio et al. expose a complete learned-row-to-next-word training path with model-specific equations. Operation-graph differentiation then makes path accumulation reusable, and Transformer work repeats embeddings, projections, softmax, and nonlinear feed-forward computation at every layer. The Rust contrast computes one fixed graph by hand and through the shared tensor tape, without attributing the course's exact VJPs, fusion, storage, or error policy to those sources.",
+    "summary": "Bengio et al. expose a learned-row-to-next-word training path with model-specific equations. Operation-graph differentiation then makes path accumulation reusable. Transformer work places embeddings and vocabulary projection at the model boundaries and repeats projections, attention, and nonlinear feed-forward computation through the layer stack. The Rust contrast computes one compact operation chain by hand and through the shared tensor tape without attributing its implementation choices to those sources.",
     "rust_source": "rust/demos/ch16-model-autodiff-ops/src/lib.rs"
   },
   "rust_sources": [
@@ -107,65 +107,50 @@
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "region": "model-op-errors",
-      "purpose": "Reject invalid gather structure, selectors, and output allocation with stable typed errors."
+      "region": "model-row-gather-operation",
+      "purpose": "Materialize selected rows while recording integer selectors and exact parent/output shapes for reversal."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "region": "model-saved-context",
-      "purpose": "Save the exact finite primal evidence each model-operation parent pullback needs."
-    },
-    {
-      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "region": "model-autodiff-operations",
-      "purpose": "Expose checked matmul, gather, exp, log, SiLU, log-softmax, and fused indexed mean-NLL tape operations."
-    },
-    {
-      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "region": "model-vjps",
-      "purpose": "Return exact-parent-shape local pullbacks, including duplicate-ID scatter-add and both matmul operands."
+      "region": "model-row-gather-vjp",
+      "purpose": "Accumulate every occurrence adjoint into the table row named by its saved selector."
     },
     {
       "path": "rust/demos/ch16-model-autodiff-ops/src/lib.rs",
       "region": "shared-model-vjp-fixture",
-      "purpose": "Build the repeated-token predict-first graph on the shared tape and compare it with the fixed calculation."
+      "purpose": "Build the repeated-token operation chain on the shared tape and compare it with the fixed calculation."
     },
     {
       "path": "rust/demos/ch16-model-autodiff-ops/src/lib.rs",
       "region": "model-vjp-gradchecks",
-      "purpose": "Compare every new local pullback, including both matmul parents, with sampled central differences."
+      "purpose": "Compare every new local VJP, including both matmul parents, with sampled central differences."
     },
     {
       "path": "rust/demos/ch16-model-autodiff-ops/src/lib.rs",
       "region": "model-op-errors-example",
-      "purpose": "Demonstrate invalid IDs, invalid and empty targets, overflow, and unchanged gradients."
+      "purpose": "Demonstrate invalid IDs, invalid and empty targets, overflow, and per-operation preservation of previously recorded gradients."
     },
     {
       "path": "rust/demos/ch16-model-autodiff-ops/src/main.rs",
       "region": "learner-model-vjp-output",
-      "purpose": "Prepare deterministic forward, reverse, probe, gradcheck, and typed-error evidence."
-    },
-    {
-      "path": "rust/demos/ch16-model-autodiff-ops/src/diagram_trace.rs",
-      "region": "model-autodiff-ops-trace",
-      "purpose": "Record the exact forward rail, target signs, matrix pullbacks, occurrence contributions, row sums, checks, and errors consumed by the static figure."
+      "purpose": "Run the worked operation chain, scalar probes, sampled gradient checks, and typed errors and print their values."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "model-autodiff-ops",
-    "rationale": "A forward shape rail plus reverse target, matmul, occurrence, and embedding-row ledgers can show why three gathered occurrences make three distinct upstream contributions that sum into one shared parameter row; final dE alone hides that relationship."
+    "rationale": "A compact forward chain plus reverse target and matrix evidence can lead into three destination-row boxes that contain their own occurrence contributions. Grouping positions 0, 1, and 2 inside embedding row 1 makes the many-to-one accumulation visible; final dE alone hides that relationship."
   },
-  "decoder_connection": "The cumulative implementation can now train hand-specified embedding tables and projection matrices through a stable mean token loss, with nonlinear and normalization pullbacks available for later decoder blocks. Correct gradients still do not choose useful parameter values: Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP."
+  "decoder_connection": "The cumulative implementation can now differentiate a compact chain from selected embedding rows through a projection, nonlinearity, and stable mean token loss. This is an operation test, not the final decoder architecture: later feed-forward blocks use SiLU internally, and a separate vocabulary projection produces the decoder's loss logits. Correct gradients still do not choose useful parameter values, so Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP."
 }
 ---
 
 import ModelAutodiffOpsDiagram from '../../../components/chapters/ModelAutodiffOpsDiagram.astro';
 
 export const diagramLabels = {
-  title: 'Follow one repeated token from lookup to loss and back',
+  title: 'Follow a repeated token ID from lookup to loss and back',
   description:
-    'Inspect five forward operations, signed target gradients, both matrix pullbacks, four occurrence contributions, three embedding rows, exact scalar probes, finite-difference checks, and rejected unsafe requests.',
+    'Inspect the compact forward chain, signed target gradients with zero class sums, both matrix VJPs, and four occurrence contributions grouped inside three destination embedding rows.',
   summary: {
     ids: 'Token IDs',
     targets: 'Target classes',
@@ -173,34 +158,34 @@ export const diagramLabels = {
     repeatedToken: 'Repeated selector',
   },
   sections: {
-    forward: 'Trace the token path forward',
+    forward: 'Trace the compact operation chain forward',
     reverse: 'Reverse target selection and the projection',
-    accumulation: 'Scatter every occurrence into its shared row',
-    checks: 'Check each local derivative numerically',
-    errors: 'Reject invalid selectors and unsafe values',
+    accumulation: 'Add each occurrence to its destination row',
+  },
+  tables: {
+    targetGradients: 'Loss gradients for the four flat token positions',
   },
   fields: {
     step: 'Forward step',
     operation: 'Operation',
-    sources: 'Recorded sources',
-    inputShape: 'Input shape',
+    sources: 'Inputs',
+    tensorInputShape: 'Differentiable tensor shape',
     outputShape: 'Output shape',
-    values: 'Recorded values',
-    position: 'Position',
+    values: 'Values',
+    position: 'Flat position',
+    positions: 'Flat positions',
     tokenId: 'Token ID',
     target: 'Target class',
     gradient: 'Gradient',
     targetSign: 'Correct-target sign',
-    competitorSign: 'Competitor sign',
+    competitorSign: 'Other-class sign',
+    classSum: 'Class sum',
     operand: 'Operand',
-    parent: 'Parent',
+    parent: 'Parent tensor',
+    gradientShape: 'Parent-gradient shape',
     contribution: 'Occurrence contribution',
     destinationRow: 'Destination row',
     occurrences: 'Occurrences',
-    sampledCoordinates: 'Sampled flat coordinates',
-    maximumError: 'Maximum scaled error',
-    tolerance: 'Tolerance',
-    status: 'Status',
   },
   operations: {
     gather_rows: 'Row gather',
@@ -216,20 +201,29 @@ export const diagramLabels = {
     token_ids: 'token IDs',
     gather_rows: 'gathered feature rows',
     weights: 'projection weights',
-    matmul: 'matrix-product logits',
-    silu: 'SiLU logits',
+    matmul: 'projection preactivations',
+    silu: 'activated values used as loss logits',
     targets: 'target classes',
+  },
+  operands: {
+    unary: 'single input',
+    left: 'left matrix',
+    right: 'right matrix',
+  },
+  parents: {
+    matmul: 'projection preactivations',
+    gathered: 'gathered feature rows',
+    weights: 'projection weights',
   },
   states: {
     selectedTarget: 'selected target',
     negative: 'negative',
     positive: 'positive',
-    repeatedOccurrence: 'repeated-row occurrence',
-    singleOccurrence: 'single-row occurrence',
+    repeatedOccurrence: 'repeated-ID occurrence',
+    singleOccurrence: 'single-ID occurrence',
     unusedRow: 'unused row',
-    accumulatedRow: 'accumulated parameter row',
-    checked: 'checked',
-    rejected: 'rejected without mutation',
+    accumulatedRow: 'row with repeated contributions',
+    singleRow: 'row with one contribution',
   },
   symbols: {
     forward: '→',
@@ -237,20 +231,12 @@ export const diagramLabels = {
     repeated: 'Σ',
     single: '↦',
     unused: '∅',
-    checked: '✓',
-    rejected: '!',
   },
   rules: {
-    forwardFork: 'After SiLU, the graph forks: log-softmax displays log-probabilities, while fused mean NLL reads the same SiLU logits together with target classes.',
-    target: 'Subtract one at the selected target, then divide every class row by the four-token mean.',
+    forwardFork: 'After SiLU, the graph forks: log-softmax displays log-probabilities, while combined mean NLL reads the same activated values as loss logits together with target classes. This compact chain tests operations; it is not the final decoder layout.',
+    target: 'For every flat position, subtract one at the selected target, then divide every class component by the four-position mean.',
     matmul: 'Transpose the opposite matrix axes, multiply, and reduce broadcast batches to each parent shape.',
-    scatter: 'Each lookup occurrence keeps its own adjoint; gather reversal adds it to the row named by that occurrence’s token ID.',
-  },
-  errors: {
-    'invalid-id': 'token ID is outside the table',
-    'invalid-target': 'target is outside the class axis',
-    'empty-targets': 'mean loss has no target groups',
-    'exp-overflow': 'forward exponential is not finite',
+    scatter: 'Every gathered output row owns its values. In reverse, each occurrence keeps its own adjoint and the gather VJP adds it to the parent-table row named by that token ID.',
   },
 };
 
@@ -261,31 +247,43 @@ export const diagramLabels = {
 Start with a three-row embedding table, four token IDs, a two-class projection,
 and four target classes:
 
-```text
-E = [[ 2, 2],       z = [1,1,1,2]
-     [ 1,-1],       targets = [0,0,0,1]
-     [-1, 1]]
+$$
+E=\begin{bmatrix}2&2\\1&-1\\-1&1\end{bmatrix},\qquad
+z=\begin{bmatrix}1&1&1&2\end{bmatrix},\qquad
+\mathrm{targets}=\begin{bmatrix}0&0&0&1\end{bmatrix}
+$$
 
-W = [[1,-1],
-     [1,-1]]
-```
+$$
+W=\begin{bmatrix}1&-1\\1&-1\end{bmatrix}
+$$
 
-Row gather selects `[1,-1]` three times and `[-1,1]` once. Every selected row
-multiplied by $W$ yields `[0,0]`. SiLU keeps zero, and two equal logits produce
-$[-\ln 2,-\ln 2]$ after log-softmax. Every target therefore has loss $\ln 2$,
-so their mean is also $\ln 2$.
+The formula below names occurrences by batch and token coordinates $(b,t)$. This
+example stores them in row-major order as flat positions $p=bT+t$. With $B=1$
+and $T=4$, positions $0,1,2,3$ correspond to $(0,0),(0,1),(0,2),(0,3)$.
+
+Row gather materializes `[1,-1]` three times and `[-1,1]` once. Every selected
+row multiplied by $W$ yields projection preactivation `[0,0]`. SiLU keeps zero.
+For this compact exercise, those activated values are used directly as
+two-class loss logits, so log-softmax produces $[-\ln 2,-\ln 2]$. Every target
+therefore has loss $\ln 2$, and their mean is also $\ln 2$.
+
+This chain is deliberately an operation exercise, not a decoder architecture.
+In the later decoder, SiLU belongs inside a feed-forward block; a separate
+vocabulary projection produces the logits consumed by token loss.
 
 Predict the reverse signs before calculating values. The correct-target logit
 must move up to reduce loss, so its loss gradient is negative; the competing
 logit gradient is positive. With two equal classes and four mean groups, their
 magnitudes are $1/8$:
 
-```text
-positions 0,1,2 target 0: [-1/8, 1/8]
-position 3       target 1: [ 1/8,-1/8]
-```
+$$
+p\in\{0,1,2\},\ \mathrm{target}_p=0:
+\quad\begin{bmatrix}-\frac18&\frac18\end{bmatrix};\qquad
+p=3,\ \mathrm{target}_3=1:
+\quad\begin{bmatrix}\frac18&-\frac18\end{bmatrix}
+$$
 
-SiLU's derivative at zero is $1/2$. The projection pullback then gives three
+SiLU's derivative at zero is $1/2$. The projection VJP then gives three
 occurrence gradients $[-1/8,-1/8]$ for ID `1` and one $[1/8,1/8]$ for ID `2`.
 Do not average the three ID `1` contributions again: the $1/4$ loss mean is
 already inside each one.
@@ -305,8 +303,8 @@ dW=
 \end{bmatrix}
 $$
 
-The fixed Rust calculation makes this one graph explicit before the same work
-is expressed through reusable local operations:
+The fixed Rust calculation makes this compact chain explicit before the same
+work is expressed through reusable local operations:
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/lib.rs"
@@ -325,10 +323,11 @@ $$
 \frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}
 $$
 
-Gather is copy-like in the forward direction but add-like in reverse. Each
-position has a distinct consumed row $X$; positions that selected the same
-table row $E_{i,:}$ all reach the same parameter storage. That is why its VJP is
-scatter-add, not overwrite and not another mean.
+The forward gather result owns four row values. The tape retains the selector
+for each occurrence, so reverse mode routes each occurrence's adjoint back to
+its source row. Repeated selectors therefore accumulate into the same entry of
+$\bar E$; they do not overwrite one another and they do not introduce another
+mean.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -350,7 +349,9 @@ scatter-add, not overwrite and not another mean.
 
 Chapter 15 wrote a parent adjoint as $\bar{x}$. Here the same rule is
 $\bar E_{i,:}\mathrel{+}=\bar X_{b,t,:}$ for every matching selector. Token
-IDs do not receive gradients; they choose destinations.
+IDs do not receive gradients; they choose destinations. If occurrences are
+stored flat, $p=bT+t$ maps each flat position back to the same logical pair
+used in the conditioned sum.
 
 {/* chapter-section:history */}
 
@@ -358,127 +359,118 @@ IDs do not receive gradients; they choose destinations.
 
 Bengio et al. train a neural next-word model with a learned word-feature table, matrix transforms, a tanh hidden layer, output probabilities, and explicit model-specific backward/update equations. That presentation makes the full learning path inspectable, but Chapter 15's structural tensor tape still cannot express the lookup, matrix, activation, normalization, and token-loss derivatives needed to train even this small language-model path.
 
-The learned-row checkpoint is
+This earlier learned-row path is described by
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf).
 Bengio et al. build a neural next-word model from learned word-feature rows, matrix equations, a tanh hidden layer, normalized output probabilities, and an explicit backward/update phase for the model parameters.
 
-The fixed calculation above mirrors the inspectable, model-specific style. It
-is a course reference calculation, not code copied from or attributed to the
-paper. Adding a different operation would require editing its whole backward
-path.
+The fixed calculation above mirrors that inspectable, model-specific style. It
+is a new Rust example, not code copied from or attributed to the paper. Adding
+a different operation would require editing its whole backward path.
 
-Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. then repeat learned embeddings, matrix projections, softmax attention, and nonlinear feed-forward transformations throughout the Transformer. Shazeer later evaluates Swish and SwiGLU variants inside Transformer feed-forward sublayers, connecting SiLU's local derivative to a later decoder component.
+Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. place learned embeddings and the output projection at model boundaries while matrix projections, softmax attention, and nonlinear feed-forward sublayers repeat through the Transformer stack. Shazeer later evaluates Swish with beta one—the same function as SiLU—and SwiGLU variants inside Transformer feed-forward sublayers.
 
-The operation-graph and embedding checkpoint is
+The transition to reusable operation graphs is described by
 [Abadi et al., *TensorFlow: A System for Large-Scale Machine Learning*](https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf).
 Abadi et al. represent operations as graph vertices and tensors as edge values, describe automatic differentiation that sums every backward path to a parameter, and show Gather-based embedding graphs whose gradients update gathered rows.
 
-The repeated Transformer-operation checkpoint is
+The Transformer arrangement is described by
 [Vaswani et al., *Attention Is All You Need*](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf).
 Vaswani et al. construct the Transformer from learned embeddings, learned query/key/value projections, attention softmax, two-transform ReLU feed-forward sublayers, and a learned output transform followed by softmax.
 
-The later gated-feed-forward checkpoint is
+The later gated feed-forward step is described by
 [Shazeer, *GLU Variants Improve Transformer*](https://arxiv.org/pdf/2002.05202).
-Shazeer defines Swish as x times sigmoid(beta x), uses Swish with beta one in SwiGLU Transformer feed-forward variants, and reports improved held-out log-perplexity for gated variants over the studied baseline. The original
+Shazeer defines Swish as its input multiplied by the sigmoid of beta times that
+input, so beta one gives the function also called SiLU; the paper uses it in
+SwiGLU Transformer feed-forward variants and reports improved held-out
+log-perplexity for gated variants over the studied baseline. The original
 Transformer citation uses ReLU; it is not evidence that Vaswani et al. used
 SiLU.
 
-This chapter supplies reusable local pullbacks for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and fused indexed mean NLL. These operations form the derivative vocabulary later embedding, projection, SwiGLU, attention, and token-loss chapters need. Ordinary inference uses only their forward paths; saved tensors, fusion boundary, finite-value policy, API, trace, and error precedence remain course-local.
+This chapter supplies reusable local VJPs for batched matrix products, repeated
+row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL.
+These operations form the local reverse rules later embedding, projection,
+SwiGLU, attention, and token-loss components need. Training retains
+operation-specific forward values and shape metadata for those rules; ordinary
+inference uses only the forward paths.
 
 {/* chapter-section:rust-implementation */}
 
-## Save the evidence each local pullback needs
-
-The model-operation module adds only gather-specific structural failures. Matrix
-and probability failures retain the typed boundaries established in earlier
-chapters, and the tensor tape still rejects non-finite leaves, results, seeds,
-VJPs, and prospective gradient sums.
-
-<RustSource
-  path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
-  region="model-op-errors"
-  caption="Reject invalid gather tables, index shapes, IDs, and output allocation"
-  label="Rust source defining Chapter 16 model-operation errors"
-/>
-
-Each parent edge saves the opposite matrix, selected IDs, elementwise input or
-output, stable sigmoid, or stable probabilities required by exactly one local
-pullback. It does not save a full Jacobian.
-
-<RustSource
-  path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
-  region="model-saved-context"
-  caption="Keep the minimal finite forward evidence needed by each model-operation parent edge"
-  label="Rust source defining Chapter 16 model-operation saved context"
-/>
+## Save the forward data each local VJP needs
 
 The public methods extend the Chapter 15 tape instead of constructing a second
-graph. `gather_rows` takes integer selectors plus their logical shape because the
-course has not introduced integer tensors. `indexed_mean_nll` consumes logits,
-validates one target per class-axis group, and returns a rank-zero mean.
+graph. `gather_rows` receives integer selectors and their logical shape; the IDs
+choose rows but are not differentiable tensor operands. The forward operation
+materializes its selected values and stores the selectors plus enough shape
+metadata to route the reverse contribution. It does not store a full Jacobian.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
-  region="model-autodiff-operations"
-  caption="Add checked model-critical forward operations to the shared tensor tape"
-  label="Rust source implementing Chapter 16 model-operation forward methods"
+  region="model-row-gather-operation"
+  caption="Materialize selected table rows and save their selectors and shapes for reversal"
+  label="Rust source implementing Chapter 16 row gather"
 />
 
-Matrix pullbacks transpose only the final matrix axes and then reduce broadcast
-batches back to each parent. Gather allocates one table-shaped zero tensor and
-adds each occurrence in flat order. `exp` multiplies by its saved output; `log`
-divides by its saved positive input; SiLU uses its saved stable sigmoid.
-Log-softmax subtracts probability times the upstream class-axis sum. Fused NLL
-subtracts one at each target and applies the saved mean scale.
+Gather reversal allocates one zero tensor with the parent table's shape. For
+each flat occurrence, it adds the upstream feature row to the destination named
+by the saved selector. This is where repeated IDs meet: the forward output rows
+are separate values, but their reverse contributions can share a destination.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
-  region="model-vjps"
-  caption="Reverse matrix, lookup, elementwise, normalization, and token-loss operations to exact parent shapes"
-  label="Rust source implementing Chapter 16 model-operation VJPs"
+  region="model-row-gather-vjp"
+  caption="Add each occurrence adjoint into the embedding-table row selected in the forward pass"
+  label="Rust source implementing the Chapter 16 repeated-row VJP"
 />
 
-The cumulative fixture builds gather, matmul, SiLU, displayed log-softmax, and
-fused loss from the frozen values. It compares every forward and reverse tensor
-with the fixed calculation before returning learner evidence.
+The other rules follow the same local pattern. Matrix VJPs transpose the final
+matrix axes and sum expanded batch contributions back to each parent shape.
+`exp` multiplies by its saved output; `log` divides by its saved positive input;
+SiLU uses its saved input and stable sigmoid. Log-softmax subtracts probability
+times the upstream class-axis sum. Combined indexed mean NLL subtracts one at
+each target and applies the saved mean scale.
+
+The complete example builds gather, matmul, SiLU, displayed log-softmax, and
+combined loss from the values above, then compares its forward and reverse
+tensors with the fixed-array calculation.
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/lib.rs"
   region="shared-model-vjp-fixture"
-  caption="Build the repeated-token graph on the shared tape and compare it with the fixed backward calculation"
-  label="Rust source defining the Chapter 16 predict-first model VJP fixture"
+  caption="Build the repeated-token operation chain on the shared tape and compare it with the fixed calculation"
+  label="Rust source implementing the Chapter 16 repeated-token operation chain"
 />
 
-Eight named numerical checks cover both matrix parents, gather, exp, log, SiLU,
-log-softmax, and indexed mean NLL. Separate unit evidence covers batched
-broadcasting, arbitrary class axes, branches, repeated operands, extreme finite
-logits, retention, and release.
+Each new VJP is compared with sampled central differences. The two matrix
+parents are checked separately; gather, exp, log, SiLU, log-softmax, and indexed
+mean NLL each get their own selected coordinates.
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/lib.rs"
   region="model-vjp-gradchecks"
-  caption="Compare every new parent pullback with sampled central differences"
+  caption="Compare every new local VJP with sampled central differences"
   label="Rust source numerically checking every Chapter 16 model-operation VJP"
 />
 
 Invalid token IDs, invalid target classes, empty target sets, and exponential
-overflow fail before any parameter gradient changes:
+overflow are rejected without changing previously recorded gradients. The
+example snapshots the affected gradient immediately before and after each
+failure rather than relying only on an initially zero state:
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/lib.rs"
   region="model-op-errors-example"
-  caption="Exercise typed selector, target, empty-mean, and finite-forward failures without mutation"
+  caption="Reject invalid selectors, targets, empty means, and overflow while preserving recorded gradients"
   label="Rust source demonstrating Chapter 16 typed errors"
 />
 
-The learner command prepares the frozen path, scalar probes, numerical checks,
-and errors in deterministic order:
+The executable prints the worked values, the three scalar derivatives, the
+sampled central-difference result, and the aggregate error-preservation result:
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/main.rs"
   region="learner-model-vjp-output"
-  caption="Prepare deterministic Chapter 16 learner evidence before printing"
-  label="Rust source running the Chapter 16 model-operation fixture"
+  caption="Run the complete worked operation chain and print its forward, reverse, numerical, and error results"
+  label="Rust source running the Chapter 16 model-operation example"
 />
 
 ```bash
@@ -490,7 +482,7 @@ embeddings: shape=3x2 values=2.000000000000,2.000000000000,1.000000000000,-1.000
 token IDs: [1, 1, 1, 2]
 gather rows: shape=4x2 values=1.000000000000,-1.000000000000,1.000000000000,-1.000000000000,1.000000000000,-1.000000000000,-1.000000000000,1.000000000000
 projection weights: shape=2x2 values=1.000000000000,-1.000000000000,1.000000000000,-1.000000000000
-matmul logits: shape=4x2 values=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000
+projection preactivations: shape=4x2 values=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000
 SiLU: shape=4x2 values=0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000,0.000000000000
 log-softmax axis=1: shape=4x2 values=-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560,-0.693147180560
 targets: [0, 0, 0, 1]
@@ -510,26 +502,17 @@ chapter 17 handoff: initialize trainable values reproducibly
 
 ## Follow four occurrence gradients into three parameter rows
 
-The figure separates the forward graph from reverse accumulation. Its recorded
-sources make the fork explicit: displayed log-softmax and fused mean NLL both
-consume the SiLU logits, while the fused loss also consumes target classes.
-Target rows expose localized negative and positive labels as well as their
-symbols. Pullback cards show the exact parent shapes returned through SiLU and
-both matrix operands. Four
-occurrence cards then preserve the destination ID and contribution before three
-embedding cards show the accumulated parameter rows.
+The figure separates the compact forward chain from reverse accumulation. The
+fork after SiLU is explicit: log-softmax displays log-probabilities, while the
+combined mean NLL reads the same activated values as loss logits together with
+the target classes. Target rows expose the negative and positive derivatives,
+their zero class sum, and the exact parent-gradient shapes through SiLU and both
+matrix operands.
 
-The visualization validates and presents recorded Rust evidence. It does not
-calculate probabilities, choose a sign, multiply matrices, or sum repeated-row
-contributions. Exact scalar probes and finite-difference records keep the other
-local rules visible without obscuring the shared-row relationship.
-
-<RustSource
-  path="rust/demos/ch16-model-autodiff-ops/src/diagram_trace.rs"
-  region="model-autodiff-ops-trace"
-  caption="Record exact forward shapes, target signs, matrix pullbacks, scatter contributions, numerical checks, and errors"
-  label="Rust source producing the strict locale-neutral Chapter 16 visualization trace"
-/>
+The destination-row boxes contain their own occurrence contributions. Row `1`
+contains positions `0`, `1`, and `2` before their sum; row `2` contains position
+`3`; row `0` is visibly unused. That arrangement makes it possible to see why
+four materialized output rows produce only three parent-table gradient rows.
 
 <ModelAutodiffOpsDiagram labels={diagramLabels} instanceId="lesson" />
 
@@ -537,45 +520,51 @@ local rules visible without obscuring the shared-row relationship.
 
 ## Predict before running Rust
 
-1. Write all four gathered rows, logit rows, log-probability rows, and the scalar mean loss.
-2. Predict why the correct-target gradient is negative, the competing gradient is positive, and each two-class row sums to zero.
-3. Apply the SiLU derivative at zero. What is the gradient entering matmul at each position?
-4. Predict the shapes of both matmul parent gradients and calculate $dW$.
-5. List the three contributions to embedding row `1` before adding them. What reaches rows `0` and `2`?
-6. Predict both value and local derivative for $\exp(0)$, $\ln(1)$, and $\operatorname{SiLU}(0)$.
-7. Explain why logits near $\pm1000$ require max-shifted probability evidence.
-8. Which boundary rejects an invalid token ID, invalid target class, and empty target set?
-9. Misconception check: should row `1` be divided by three after its three occurrence gradients are added?
+1. Map flat positions `0` through `3` to $(b,t)$ for $B=1$ and $T=4$.
+2. Write all four gathered rows, projection-preactivation rows, loss-logit rows, log-probability rows, and the scalar mean loss.
+3. Predict why the correct-target gradient is negative, the competing gradient is positive, and each two-class row sums to zero.
+4. Apply the SiLU derivative at zero. What is the gradient entering matmul at each position?
+5. Predict the shapes of both matmul parent gradients and calculate $dW$.
+6. List the three contributions to embedding row `1` before adding them. What reaches rows `0` and `2`?
+7. Predict both value and local derivative for $\exp(0)$, $\ln(1)$, and $\operatorname{SiLU}(0)$.
+8. Explain why logits near $\pm1000$ require probabilities computed after subtracting the group maximum.
+9. At what stage is an invalid token ID, invalid target class, and empty target set detected?
+10. Misconception check: should row `1` be divided by three after its three occurrence gradients are added?
 
 <details>
-  <summary>Check the nine model-operation predictions</summary>
+  <summary>Check the ten model-operation predictions</summary>
 
-1. Gather gives `[1,-1]` three times and `[-1,1]` once. Every logit and SiLU row is `[0,0]`; every log-probability row is $[-\ln 2,-\ln 2]$; the mean loss is $\ln 2$.
-2. Increasing the selected target logit reduces NLL, so its derivative is negative. Increasing a competitor raises its probability at the target's expense, so its derivative is positive. Softmax probabilities sum to one and the one-hot target also sums to one, leaving class-row gradient sum zero.
-3. SiLU has derivative $1/2$ at zero. The first three rows become $[-1/16,1/16]$; the last becomes $[1/16,-1/16]$.
-4. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The recorded value is $dW=[[-1/4,1/4],[1/4,-1/4]]$.
-5. Positions `0`, `1`, and `2` each contribute $[-1/8,-1/8]$ to row `1`, so it gets $[-3/8,-3/8]$. Row `2` gets $[1/8,1/8]$; unused row `0` gets `[0,0]`.
-6. $\exp(0)=1$ with derivative $1$; $\ln(1)=0$ with derivative $1$; $\operatorname{SiLU}(0)=0$ with derivative $1/2$.
-7. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one while preserving normalized probabilities; saved finite probabilities then support both normalization pullbacks.
-8. Gather rejects an out-of-range token ID against table rows. Indexed loss rejects a target against its class axis and rejects an empty group set because a mean would be undefined.
-9. No. Every contribution already includes the loss's $1/4$ factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
+1. The map is $0\mapsto(0,0)$, $1\mapsto(0,1)$, $2\mapsto(0,2)$, and $3\mapsto(0,3)$.
+2. Gather gives `[1,-1]` three times and `[-1,1]` once. Every projection preactivation, SiLU output, and loss-logit row is `[0,0]`; every log-probability row is $[-\ln 2,-\ln 2]$; the mean loss is $\ln 2$.
+3. Increasing the selected target logit reduces NLL, so its derivative is negative. Increasing a competitor raises its probability at the target's expense, so its derivative is positive. Softmax probabilities sum to one and the one-hot target also sums to one, leaving class-row gradient sum zero.
+4. SiLU has derivative $1/2$ at zero. The first three rows become $[-1/16,1/16]$; the last becomes $[1/16,-1/16]$.
+5. The left-parent gradient has gathered shape `[4,2]`; the right-parent gradient has weight shape `[2,2]`. The value is $dW=[[-1/4,1/4],[1/4,-1/4]]$.
+6. Positions `0`, `1`, and `2` each contribute $[-1/8,-1/8]$ to row `1`, so it gets $[-3/8,-3/8]$. Row `2` gets $[1/8,1/8]$; unused row `0` gets `[0,0]`.
+7. $\exp(0)=1$ with derivative $1$; $\ln(1)=0$ with derivative $1$; $\operatorname{SiLU}(0)=0$ with derivative $1/2$.
+8. Exponentiating raw logits can overflow. Subtracting the group maximum keeps every exponential at most one while preserving normalized probabilities; the saved finite probabilities then support both normalization VJPs.
+9. Gather checks each ID against the table row count. Indexed loss checks every target against the class axis and rejects an empty group set because its mean would be undefined.
+10. No. Every contribution already includes the loss's $1/4$ factor. Gather reversal sums the three contributions exactly once and does not apply another mean.
 
 </details>
 
-Run both byte-exact commands after predicting:
+Run the example after predicting:
 
 ```bash
 ./course run cargo run --quiet --locked -p ch16-model-autodiff-ops
-./course run cargo run --quiet --locked -p ch16-model-autodiff-ops --example ch16-model-autodiff-ops-trace
 ```
 
 {/* chapter-section:decoder-connection */}
 
 ## Initialize the values these gradients will train
 
-The cumulative implementation can now train hand-specified embedding tables and projection matrices through a stable mean token loss, with nonlinear and normalization pullbacks available for later decoder blocks. Correct gradients still do not choose useful parameter values: Chapter 17 adds deterministic, non-symmetric, scale-aware initialization without adding a new VJP.
+The cumulative implementation can now differentiate a compact chain from
+selected embedding rows through a projection, nonlinearity, and stable mean
+token loss. This is an operation test, not the final decoder architecture:
+later feed-forward blocks use SiLU internally, and a separate vocabulary
+projection produces the decoder's loss logits.
 
-This is the course's first complete differentiable token-to-loss path. Later
-chapters will package these same operations into embedding, linear,
-normalization, SwiGLU, and attention layers. The next problem is choosing
-initial values that break symmetry without making signals vanish or explode.
+Later chapters will package these operations into embedding, linear,
+normalization, SwiGLU, and attention layers. Correct gradients still do not
+choose useful parameter values. The next problem is choosing initial values
+that break symmetry without making signals vanish or explode, so Chapter 17
+adds deterministic, scale-aware initialization without adding another VJP.

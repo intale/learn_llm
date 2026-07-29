@@ -1003,6 +1003,10 @@ describe("Chapter 14-39 formula-source contract", () => {
 describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
   it("renders every diagram-owned expression as strict HTML plus MathML", () => {
     const components = {
+      modelAutodiff: readFileSync(
+        resolve(componentRoot, "chapters/ModelAutodiffOpsDiagram.astro"),
+        "utf8",
+      ),
       initialization: readFileSync(
         resolve(componentRoot, "chapters/ParameterInitializationDiagram.astro"),
         "utf8",
@@ -1088,6 +1092,26 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
         "utf8",
       ),
     };
+
+    expect(components.modelAutodiff).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.modelAutodiff).toContain(
+      "shape.lexeme === 'scalar' ? '[]' : `[${shape.lexeme.replaceAll('x', ',')}]`",
+    );
+    expect(components.modelAutodiff).toContain(
+      "latex={`i=${trace.fixture.repeatedId.lexeme},\\\\;n=${trace.fixture.occurrences.lexeme}`}",
+    );
+    expect(components.modelAutodiff).toContain(
+      '<InlineMath latex={shapeLatex(step.outputShape)} />',
+    );
+    expect(components.modelAutodiff).toContain(
+      '<InlineMath latex={shapeLatex(pullback.shape)} />',
+    );
+    expect(components.modelAutodiff).not.toContain("join(' × ')");
+    expect(components.modelAutodiff).not.toContain(
+      '<code dir="ltr">id={trace.fixture.repeatedId.lexeme}',
+    );
 
     expect(components.initialization).toContain(
       "import InlineMath from '../InlineMath.astro'",

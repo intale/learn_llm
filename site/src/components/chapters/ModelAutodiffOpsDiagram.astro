@@ -2,13 +2,14 @@
 // @ts-ignore Node filesystem access is build-time only.
 import { readFileSync } from 'node:fs';
 
+import InlineMath from '../InlineMath.astro';
 import {
   assertModelAutodiffOpsDiagramLabels,
   modelAutodiffOpsDiagramId,
   parseModelAutodiffOpsTrace,
   type ModelAutodiffOpsDiagramLabels,
   type ModelOperation,
-  type ModelTraceError,
+  type ModelPullbackEvidence,
   type TraceNumber,
   type TraceShape,
 } from '../../lib/model-autodiff-ops-diagram';
@@ -37,23 +38,12 @@ const numberList = (values: readonly TraceNumber[]) =>
 const dataNumbers = (values: readonly TraceNumber[]) =>
   values.map(({ lexeme }) => lexeme).join(',');
 const valuesText = (values: readonly TraceNumber[]) => `[${numberList(values)}]`;
-const shapeText = (shape: TraceShape) =>
-  shape.lexeme === 'scalar' ? 'scalar' : `[${shape.lexeme.replaceAll('x', ', ')}]`;
+const shapeLatex = (shape: TraceShape) =>
+  shape.lexeme === 'scalar' ? '[]' : `[${shape.lexeme.replaceAll('x', ',')}]`;
 const operationLabel = (operation: ModelOperation) => labels.operations[operation];
-const positionsText = (positions: 'none' | readonly TraceNumber[]) =>
-  positions === 'none' ? labels.states.unusedRow : numberList(positions);
-const errorDetails = (error: ModelTraceError): string => {
-  switch (error.kind) {
-    case 'invalid-id':
-      return `position=${error.position.lexeme}; id=${error.index.lexeme}; rows=${error.rows.lexeme}`;
-    case 'invalid-target':
-      return `group=${error.group.lexeme}; target=${error.target.lexeme}; classes=${error.classes.lexeme}`;
-    case 'empty-targets':
-      return 'targets=empty';
-    case 'exp-overflow':
-      return `operation=${error.operation}; flat=${error.flat.lexeme}; value=${error.value}`;
-  }
-};
+const operandLabel = (operand: ModelPullbackEvidence['operand']) =>
+  operand === null ? labels.operands.unary : labels.operands[operand];
+const parentLabel = (parent: ModelPullbackEvidence['parent']) => labels.parents[parent];
 ---
 
 <figure
@@ -66,35 +56,37 @@ const errorDetails = (error: ModelTraceError): string => {
 >
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
-    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
+    <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
   </figcaption>
 
   <dl class="summary-grid">
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.ids}</dt>
       <dd><code dir="ltr">[{numberList(trace.fixture.ids)}]</code></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.targets}</dt>
       <dd><code dir="ltr">[{numberList(trace.fixture.targets)}]</code></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.loss}</dt>
       <dd><bdi dir="ltr">{trace.fixture.loss.lexeme}</bdi></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.repeatedToken}</dt>
-      <dd><code dir="ltr">id={trace.fixture.repeatedId.lexeme}; n={trace.fixture.occurrences.lexeme}</code></dd>
+      <dd><InlineMath latex={`i=${trace.fixture.repeatedId.lexeme},\\;n=${trace.fixture.occurrences.lexeme}`} /></dd>
     </div>
   </dl>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-forward`}>
-    <h3 id={`${titleId}-forward`}>{labels.sections.forward}</h3>
+  <section data-diagram-box class="diagram-section forward-section" aria-labelledby={`${titleId}-forward`}>
+    <h4 id={`${titleId}-forward`}>{labels.sections.forward}</h4>
     <p class="forward-fork-note">{labels.rules.forwardFork}</p>
-    <ol class="forward-rail">
+    <ol class="forward-rail course-diagram__grid">
       {trace.forward.map((step) => (
         <li
-          class={`forward-card operation-${step.operation}`}
+          data-diagram-card
+          data-diagram-box
+          class={`forward-card operation-${step.operation} course-diagram__card-stack`}
           data-forward-step={step.step.lexeme}
           data-operation={step.operation}
           data-sources={step.sources.join(',')}
@@ -102,15 +94,22 @@ const errorDetails = (error: ModelTraceError): string => {
           data-output-shape={step.outputShape.lexeme}
           data-values={dataNumbers(step.values)}
         >
-          <p class="card-state">
+          <p class="card-state course-diagram__card-heading">
             <span class="state-symbol" aria-hidden="true">{labels.symbols.forward}</span>
             <strong>{operationLabel(step.operation)}</strong>
           </p>
           <dl>
             <div><dt>{labels.fields.step}</dt><dd><bdi dir="ltr">{step.step.lexeme}</bdi></dd></div>
             <div><dt>{labels.fields.sources}</dt><dd>{step.sources.map((source) => labels.sources[source]).join(' + ')}</dd></div>
-            <div><dt>{labels.fields.inputShape}</dt><dd><code dir="ltr">{step.inputShapes.map(shapeText).join(' × ')}</code></dd></div>
-            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{shapeText(step.outputShape)}</code></dd></div>
+            <div>
+              <dt>{labels.fields.tensorInputShape}</dt>
+              <dd class="shape-list">
+                {step.inputShapes.map((shape, index) => (
+                  <span><InlineMath latex={shapeLatex(shape)} />{index + 1 < step.inputShapes.length && <span aria-hidden="true"> · </span>}</span>
+                ))}
+              </dd>
+            </div>
+            <div><dt>{labels.fields.outputShape}</dt><dd><InlineMath latex={shapeLatex(step.outputShape)} /></dd></div>
             <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{valuesText(step.values)}</code></dd></div>
           </dl>
         </li>
@@ -118,11 +117,12 @@ const errorDetails = (error: ModelTraceError): string => {
     </ol>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-reverse`}>
-    <h3 id={`${titleId}-reverse`}>{labels.sections.reverse}</h3>
+  <section data-diagram-box class="diagram-section reverse-section" aria-labelledby={`${titleId}-reverse`}>
+    <h4 id={`${titleId}-reverse`}>{labels.sections.reverse}</h4>
     <p>{labels.rules.target}</p>
-    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-reverse`} data-diagram-scroll>
+    <div class="target-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-target-table`} data-diagram-scroll>
       <table data-diagram-table class="target-table">
+        <caption id={`${titleId}-target-table`}>{labels.tables.targetGradients}</caption>
         <thead>
           <tr>
             <th scope="col">{labels.fields.position}</th>
@@ -131,6 +131,7 @@ const errorDetails = (error: ModelTraceError): string => {
             <th scope="col">{labels.fields.gradient}</th>
             <th scope="col">{labels.fields.targetSign}</th>
             <th scope="col">{labels.fields.competitorSign}</th>
+            <th scope="col">{labels.fields.classSum}</th>
           </tr>
         </thead>
         <tbody>
@@ -150,30 +151,33 @@ const errorDetails = (error: ModelTraceError): string => {
               <td><code dir="ltr">{valuesText(target.gradient)}</code></td>
               <td><span class="sign-cue" aria-hidden="true">−</span> {labels.states[target.correctSign]} — {labels.states.selectedTarget}</td>
               <td><span class="sign-cue" aria-hidden="true">+</span> {labels.states[target.competitorSign]}</td>
+              <td><bdi dir="ltr">{target.rowSum.lexeme}</bdi></td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
     <p>{labels.rules.matmul}</p>
-    <div class="pullback-grid">
+    <div class="pullback-grid course-diagram__grid">
       {trace.pullbacks.map((pullback) => (
-        <article data-diagram-card data-diagram-box
-          class="pullback-card"
+        <article
+          data-diagram-card
+          data-diagram-box
+          class="pullback-card course-diagram__card-stack"
           data-pullback-operation={pullback.operation}
           data-parent={pullback.parent}
           data-operand={pullback.operand ?? 'unary'}
           data-shape={pullback.shape.lexeme}
           data-gradient={dataNumbers(pullback.gradient)}
         >
-          <p class="card-state">
+          <p class="card-state course-diagram__card-heading">
             <span class="state-symbol" aria-hidden="true">{labels.symbols.reverse}</span>
             <strong>{operationLabel(pullback.operation)}</strong>
           </p>
           <dl>
-            <div><dt>{labels.fields.operand}</dt><dd>{pullback.operand ?? 'unary'}</dd></div>
-            <div><dt>{labels.fields.parent}</dt><dd><code dir="ltr">{pullback.parent}</code></dd></div>
-            <div><dt>{labels.fields.outputShape}</dt><dd><code dir="ltr">{shapeText(pullback.shape)}</code></dd></div>
+            <div><dt>{labels.fields.operand}</dt><dd>{operandLabel(pullback.operand)}</dd></div>
+            <div><dt>{labels.fields.parent}</dt><dd>{parentLabel(pullback.parent)}</dd></div>
+            <div><dt>{labels.fields.gradientShape}</dt><dd><InlineMath latex={shapeLatex(pullback.shape)} /></dd></div>
             <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(pullback.gradient)}</code></dd></div>
           </dl>
         </article>
@@ -181,227 +185,129 @@ const errorDetails = (error: ModelTraceError): string => {
     </div>
   </section>
 
-  <section class="diagram-section" aria-labelledby={`${titleId}-accumulation`}>
-    <h3 id={`${titleId}-accumulation`}>{labels.sections.accumulation}</h3>
+  <section data-diagram-box class="diagram-section accumulation-section" aria-labelledby={`${titleId}-accumulation`}>
+    <h4 id={`${titleId}-accumulation`}>{labels.sections.accumulation}</h4>
     <p>{labels.rules.scatter}</p>
-    <ol class="occurrence-grid">
-      {trace.occurrences.map((occurrence) => (
-        <li
-          class={`occurrence-card occurrence-${occurrence.repeated}`}
-          data-occurrence-position={occurrence.position.lexeme}
-          data-token-id={occurrence.tokenId.lexeme}
-          data-destination-row={occurrence.destinationRow.lexeme}
-          data-contribution={dataNumbers(occurrence.contribution)}
-          data-repeated={occurrence.repeated}
-        >
-          <p class="card-state">
-            <span class="state-symbol" aria-hidden="true">
-              {occurrence.repeated === 'yes' ? labels.symbols.repeated : labels.symbols.single}
-            </span>
-            <strong>{occurrence.repeated === 'yes' ? labels.states.repeatedOccurrence : labels.states.singleOccurrence}</strong>
-          </p>
-          <dl>
-            <div><dt>{labels.fields.position}</dt><dd><bdi dir="ltr">{occurrence.position.lexeme}</bdi></dd></div>
-            <div><dt>{labels.fields.tokenId}</dt><dd><bdi dir="ltr">{occurrence.tokenId.lexeme}</bdi></dd></div>
-            <div><dt>{labels.fields.destinationRow}</dt><dd><bdi dir="ltr">{occurrence.destinationRow.lexeme}</bdi></dd></div>
-            <div><dt>{labels.fields.contribution}</dt><dd><code dir="ltr">{valuesText(occurrence.contribution)}</code></dd></div>
-          </dl>
-        </li>
-      ))}
-    </ol>
-    <div class="embedding-grid">
-      {trace.embeddings.map((embedding) => (
-        <article data-diagram-card data-diagram-box
-          class={`embedding-card ${embedding.positions === 'none' ? 'embedding-unused' : 'embedding-accumulated'}`}
-          data-embedding-row={embedding.row.lexeme}
-          data-positions={embedding.positions === 'none' ? 'none' : dataNumbers(embedding.positions)}
-          data-occurrences={embedding.occurrences.lexeme}
-          data-gradient={dataNumbers(embedding.gradient)}
-        >
-          <p class="card-state">
-            <span class="state-symbol" aria-hidden="true">
-              {embedding.positions === 'none' ? labels.symbols.unused : labels.symbols.repeated}
-            </span>
-            <strong>{embedding.positions === 'none' ? labels.states.unusedRow : labels.states.accumulatedRow}</strong>
-          </p>
-          <dl>
-            <div><dt>{labels.fields.destinationRow}</dt><dd><bdi dir="ltr">{embedding.row.lexeme}</bdi></dd></div>
-            <div><dt>{labels.fields.position}</dt><dd><code dir="ltr">{positionsText(embedding.positions)}</code></dd></div>
-            <div><dt>{labels.fields.occurrences}</dt><dd><bdi dir="ltr">{embedding.occurrences.lexeme}</bdi></dd></div>
-            <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(embedding.gradient)}</code></dd></div>
-          </dl>
-        </article>
-      ))}
-    </div>
-  </section>
-
-  <section class="diagram-section" aria-labelledby={`${titleId}-checks`}>
-    <h3 id={`${titleId}-checks`}>{labels.sections.checks}</h3>
-    <div class="check-grid">
-      {trace.checks.map((check) => (
-        <article data-diagram-card data-diagram-box
-          class="check-card state-checked"
-          data-check-operation={check.operation}
-          data-input={check.input.lexeme}
-          data-output={check.output.lexeme}
-          data-gradient={check.gradient.lexeme}
-          data-status={check.status}
-        >
-          <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.checked}</span><strong>{labels.states.checked}</strong></p>
-          <dl>
-            <div><dt>{labels.fields.operation}</dt><dd>{operationLabel(check.operation)}</dd></div>
-            <div><dt>{labels.fields.values}</dt><dd><code dir="ltr">{check.input.lexeme} → {check.output.lexeme}</code></dd></div>
-            <div><dt>{labels.fields.gradient}</dt><dd><bdi dir="ltr">{check.gradient.lexeme}</bdi></dd></div>
-          </dl>
-        </article>
-      ))}
-    </div>
-    <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-labelledby={`${titleId}-checks`} data-diagram-scroll>
-      <table data-diagram-table class="gradcheck-table">
-        <thead>
-          <tr>
-            <th scope="col">{labels.fields.operation}</th>
-            <th scope="col">{labels.fields.sampledCoordinates}</th>
-            <th scope="col">{labels.fields.maximumError}</th>
-            <th scope="col">{labels.fields.tolerance}</th>
-            <th scope="col">{labels.fields.status}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trace.gradchecks.map((check) => (
-            <tr
-              data-gradcheck-operation={check.operation}
-              data-samples={dataNumbers(check.samples)}
-              data-maximum-error={check.maximumScaledError.lexeme}
-              data-tolerance={check.tolerance.lexeme}
-              data-status={check.status}
-            >
-              <th scope="row"><code dir="ltr">{check.operation}</code></th>
-              <td><code dir="ltr">{numberList(check.samples)}</code></td>
-              <td><bdi dir="ltr">{check.maximumScaledError.lexeme}</bdi></td>
-              <td><bdi dir="ltr">{check.tolerance.lexeme}</bdi></td>
-              <td>{labels.states.checked}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="diagram-section" aria-labelledby={`${titleId}-errors`}>
-    <h3 id={`${titleId}-errors`}>{labels.sections.errors}</h3>
-    <div class="error-grid">
-      {trace.errors.map((error) => (
-        <article data-diagram-card data-diagram-box
-          class="error-card state-rejected"
-          data-error-kind={error.kind}
-          data-gradients-unchanged={error.gradientsUnchanged}
-        >
-          <p class="card-state"><span class="state-symbol" aria-hidden="true">{labels.symbols.rejected}</span><strong>{labels.errors[error.kind]}</strong></p>
-          <code dir="ltr">{errorDetails(error)}</code>
-        </article>
-      ))}
+    <div class="embedding-grid course-diagram__grid">
+      {trace.embeddings.map((embedding) => {
+        const rowOccurrences = trace.occurrences.filter(
+          (occurrence) => occurrence.destinationRow.lexeme === embedding.row.lexeme,
+        );
+        const state = embedding.occurrences.value === 0
+          ? labels.states.unusedRow
+          : embedding.occurrences.value === 1
+            ? labels.states.singleRow
+            : labels.states.accumulatedRow;
+        const symbol = embedding.occurrences.value === 0
+          ? labels.symbols.unused
+          : embedding.occurrences.value === 1
+            ? labels.symbols.single
+            : labels.symbols.repeated;
+        const stateClass = embedding.occurrences.value === 0
+          ? 'embedding-unused'
+          : embedding.occurrences.value === 1
+            ? 'embedding-single'
+            : 'embedding-accumulated';
+        return (
+          <article
+            data-diagram-card
+            data-diagram-box
+            class={`embedding-card ${stateClass} course-diagram__card-stack`}
+            data-embedding-row={embedding.row.lexeme}
+            data-positions={embedding.positions === 'none' ? 'none' : dataNumbers(embedding.positions)}
+            data-occurrences={embedding.occurrences.lexeme}
+            data-gradient={dataNumbers(embedding.gradient)}
+          >
+            <p class="card-state course-diagram__card-heading">
+              <span class="state-symbol" aria-hidden="true">{symbol}</span>
+              <strong>{state}</strong>
+            </p>
+            <dl>
+              <div><dt>{labels.fields.destinationRow}</dt><dd><bdi dir="ltr">{embedding.row.lexeme}</bdi></dd></div>
+              <div>
+                <dt>{labels.fields.positions}</dt>
+                <dd>{embedding.positions === 'none' ? labels.states.unusedRow : <code dir="ltr">{numberList(embedding.positions)}</code>}</dd>
+              </div>
+              <div><dt>{labels.fields.occurrences}</dt><dd><bdi dir="ltr">{embedding.occurrences.lexeme}</bdi></dd></div>
+              <div><dt>{labels.fields.gradient}</dt><dd><code dir="ltr">{valuesText(embedding.gradient)}</code></dd></div>
+            </dl>
+            {rowOccurrences.length > 0 && (
+              <ol class="contribution-list course-diagram__grid">
+                {rowOccurrences.map((occurrence) => (
+                  <li
+                    data-diagram-card
+                    data-diagram-box
+                    class={`occurrence-card occurrence-${occurrence.repeated} course-diagram__card-stack`}
+                    data-occurrence-position={occurrence.position.lexeme}
+                    data-token-id={occurrence.tokenId.lexeme}
+                    data-destination-row={occurrence.destinationRow.lexeme}
+                    data-contribution={dataNumbers(occurrence.contribution)}
+                    data-repeated={occurrence.repeated}
+                  >
+                    <p class="card-state course-diagram__card-heading">
+                      <span class="state-symbol" aria-hidden="true">
+                        {occurrence.repeated === 'yes' ? labels.symbols.repeated : labels.symbols.single}
+                      </span>
+                      <strong>{occurrence.repeated === 'yes' ? labels.states.repeatedOccurrence : labels.states.singleOccurrence}</strong>
+                    </p>
+                    <dl>
+                      <div><dt>{labels.fields.position}</dt><dd><bdi dir="ltr">{occurrence.position.lexeme}</bdi></dd></div>
+                      <div><dt>{labels.fields.contribution}</dt><dd><code dir="ltr">{valuesText(occurrence.contribution)}</code></dd></div>
+                    </dl>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </article>
+        );
+      })}
     </div>
   </section>
 </figure>
 
 <style>
   .model-autodiff-ops-diagram {
-    margin-block: 2rem;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-
-  .model-autodiff-ops-diagram:focus-visible,
-  .table-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: -0.3rem;
-  }
-
-  figcaption {
-    padding: 1rem 1.2rem 0;
-    font-size: 1.15rem;
-    font-weight: 800;
-  }
-
-  .diagram-description,
-  .diagram-section,
-  .summary-grid {
-    margin-inline: 1.2rem;
-  }
-
-  .diagram-description {
-    margin-block: 0.45rem 1rem;
-    color: var(--muted);
-  }
-
-  .forward-fork-note {
-    margin-block: 0 0.75rem;
-    font-weight: 700;
-  }
-
-  .summary-grid,
-  .forward-rail,
-  .pullback-grid,
-  .occurrence-grid,
-  .embedding-grid,
-  .check-grid,
-  .error-grid {
-    display: grid;
-    align-items: start;
-    gap: 0.85rem;
-  }
-
-  .summary-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-block: 0 1.2rem;
-  }
-
-  .summary-grid > div,
-  .forward-card,
-  .pullback-card,
-  .occurrence-card,
-  .embedding-card,
-  .check-card,
-  .error-card {
-    min-inline-size: 0;
-    padding: 0.8rem;
-    border: 2px solid var(--line);
-    border-radius: 0.75rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .diagram-section {
-    min-inline-size: 0;
-    margin-block: 1.4rem;
-  }
-
-  .diagram-section h3 {
-    margin-block: 0 0.45rem;
-  }
-
-  .forward-rail,
-  .occurrence-grid {
-    margin-block: 0;
-    padding: 0;
-    list-style: none;
+    --diagram-summary-min: 11rem;
   }
 
   .forward-rail {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
   }
 
-  .pullback-grid,
-  .embedding-grid,
-  .check-grid {
+  .pullback-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .embedding-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .occurrence-grid,
-  .error-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .forward-card dl,
+  .pullback-card dl,
+  .embedding-card > dl,
+  .occurrence-card dl {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .shape-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+
+  .target-scroll {
+    --diagram-scroll-inline-size: 100%;
+  }
+
+  .target-table {
+    inline-size: 100%;
+    min-inline-size: 58rem;
+  }
+
+  .contribution-list {
+    margin-block-start: 0.35rem;
   }
 
   .occurrence-yes,
@@ -410,7 +316,8 @@ const errorDetails = (error: ModelTraceError): string => {
   }
 
   .occurrence-no,
-  .pullback-card {
+  .pullback-card,
+  .embedding-single {
     border-style: dashed;
   }
 
@@ -418,108 +325,34 @@ const errorDetails = (error: ModelTraceError): string => {
     border-style: dotted;
   }
 
-  .state-rejected {
-    border-style: ridge;
-  }
-
-  dl {
-    display: grid;
-    gap: 0.45rem;
-    margin: 0;
-  }
-
-  dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-
-  dd {
-    margin: 0.15rem 0 0;
-    overflow-wrap: anywhere;
-  }
-
-  code {
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .card-state {
-    display: flex;
-    align-items: baseline;
-    gap: 0.45rem;
-    margin-block: 0 0.65rem;
-  }
-
-  .state-symbol,
   .sign-cue {
     font-weight: 900;
   }
 
-  .table-scroll {
-    max-inline-size: 100%;
-    margin-block: 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: 0.75rem;
-  }
-
-  table {
-    inline-size: 100%;
-    min-inline-size: 48rem;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-
-  th,
-  td {
-    padding: 0.55rem;
-    border-block-end: 1px solid var(--line);
-    text-align: start;
-    vertical-align: top;
-  }
-
-  @container course-diagram (max-width: 72rem) {
-    .forward-rail {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .summary-grid,
-    .occurrence-grid,
-    .error-grid {
+  @container course-diagram (max-width: 64rem) {
+    .embedding-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
   @container course-diagram (max-width: 44rem) {
-    .diagram-description,
-    .diagram-section,
-    .summary-grid {
-      margin-inline: 0.8rem;
-    }
-
-    .summary-grid,
-    .forward-rail,
-    .pullback-grid,
-    .occurrence-grid,
-    .embedding-grid,
-    .check-grid,
-    .error-grid {
+    .embedding-grid {
       grid-template-columns: minmax(0, 1fr);
     }
   }
 
-  @media (forced-colors: active) {
-    .model-autodiff-ops-diagram,
-    .summary-grid > div,
-    .forward-card,
-    .pullback-card,
-    .occurrence-card,
-    .embedding-card,
-    .check-card,
-    .error-card,
-    .table-scroll {
-      border-color: CanvasText;
-      forced-color-adjust: auto;
+  @media (min-width: 64rem) {
+    .model-autodiff-ops-diagram:fullscreen {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .forward-rail {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .model-autodiff-ops-diagram:fullscreen .embedding-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

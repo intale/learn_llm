@@ -9334,3 +9334,65 @@ travel in Chromium or Firefox, with content order and typography unchanged.
 
 **Affected step and run:** `activate-ch14-russian-localization`, run
 `20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Correct Chapter 16 before deriving Russian
+
+**Status:** Accepted during `activate-ch16-russian-localization` pre-publication
+audit.
+
+**Context:** The canonical lesson's arithmetic is correct, but its prose calls a
+small independent-position VJP exercise a next-token model, names both the
+pre-SiLU matrix result and the post-SiLU loss input as logits, leaves the formula's
+`(b,t)` occurrences disconnected from the flat four-position example, implies
+that gathered outputs alias table storage, and overstates both saved-context
+minimality and numerical coverage. Its Transformer history also places embeddings
+among computations repeated per layer. Translating those claims would preserve
+semantic errors in the new locale.
+
+**Decision:** Freeze Chapter 16 as English revision 3 before translation. Name
+the example as a deliberately compact operation chain rather than decoder
+architecture; distinguish projection preactivations from activated values used
+as toy loss logits; define the row-major map from `(b,t)` to flat positions; state
+that gather materializes output values while its VJP routes contributions to a
+common parent row; describe saved context as sufficient rather than minimal;
+limit central-difference claims to sampled coordinates; and describe embeddings
+at model boundaries while projections, attention, and feed-forward sublayers
+repeat through the stack. State explicitly that Swish with beta one is SiLU.
+
+**Consequences:** Russian is translated only from the corrected revision. The
+Rust numerical behavior remains unchanged. Learner output labels and error
+evidence may be tightened to match the corrected concepts, and all exact-output,
+source, browser, and Linux gates must be rerun.
+
+**Affected step and run:** `activate-ch16-russian-localization`, run
+`20260729T115956Z-activate-ch16-russian-localization-01`.
+
+## 2026-07-29 - Focus the Chapter 16 figure on repeated-row accumulation
+
+**Status:** Accepted during `activate-ch16-russian-localization` diagram audit.
+
+**Context:** The existing figure combines the forward operation chain, target
+gradients, matrix pullbacks, occurrence-to-row accumulation, scalar probes, eight
+numerical reports, and four error records. Even in full view this remains a long
+multi-screen inventory, while private frame, card, focus, table, scroll, and
+forced-color styles duplicate the shared diagram system. Separate occurrence and
+embedding grids also fail to make their claimed many-to-one relationship visual.
+
+**Decision:** Keep one registered Chapter 16 figure focused on the relationship
+that benefits from visualization: the compact forward branch, loss-gradient and
+matrix VJPs, and occurrence contributions grouped inside their destination
+embedding-row boxes. Present scalar probes, sampled numerical checks, and typed
+errors in ordinary lesson prose and Rust examples. Migrate all generic
+presentation to the shared module, localize every synthesized label, expose row
+sums and parent-gradient shapes, and use component-local CSS only for the concept
+geometry, state border cues, and fullscreen reflow.
+
+**Consequences:** The figure becomes shorter, reveals the three-to-one
+accumulation directly, and can use the wider fullscreen canvas without shrinking
+text. No evidence needed to teach the central relationship is lost; validation
+and error behavior remain taught outside the figure. Both locales and both
+browsers must pass desktop, narrow, no-JavaScript, forced-color, fullscreen,
+focus, overflow, and nearest-box containment checks.
+
+**Affected step and run:** `activate-ch16-russian-localization`, run
+`20260729T115956Z-activate-ch16-russian-localization-01`.

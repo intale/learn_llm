@@ -40,13 +40,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let probes = scalar_probes()?;
     let gradchecks = model_vjp_gradchecks()?;
     let errors = model_error_example()?;
-    // endregion:learner-model-vjp-output
 
     println!("embeddings: {}", tensor_text(&example.embeddings));
     println!("token IDs: {:?}", example.token_ids);
     println!("gather rows: {}", tensor_text(&example.gathered));
     println!("projection weights: {}", tensor_text(&example.weights));
-    println!("matmul logits: {}", tensor_text(&example.logits));
+    println!(
+        "projection preactivations: {}",
+        tensor_text(&example.projection_preactivations)
+    );
     println!("SiLU: {}", tensor_text(&example.activated));
     println!(
         "log-softmax axis=1: {}",
@@ -98,5 +100,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         errors.gradients_unchanged
     );
     println!("chapter 17 handoff: initialize trainable values reproducibly");
+    // endregion:learner-model-vjp-output
     Ok(())
 }

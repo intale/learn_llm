@@ -166,34 +166,44 @@ export interface ModelAutodiffOpsDiagramLabels {
     forward: string;
     reverse: string;
     accumulation: string;
-    checks: string;
-    errors: string;
+  }>;
+  readonly tables: Readonly<{
+    targetGradients: string;
   }>;
   readonly fields: Readonly<{
     step: string;
     operation: string;
     sources: string;
-    inputShape: string;
+    tensorInputShape: string;
     outputShape: string;
     values: string;
     position: string;
+    positions: string;
     tokenId: string;
     target: string;
     gradient: string;
     targetSign: string;
     competitorSign: string;
+    classSum: string;
     operand: string;
     parent: string;
+    gradientShape: string;
     contribution: string;
     destinationRow: string;
     occurrences: string;
-    sampledCoordinates: string;
-    maximumError: string;
-    tolerance: string;
-    status: string;
   }>;
   readonly operations: Record<ModelOperation, string>;
   readonly sources: Record<ModelForwardSource, string>;
+  readonly operands: Readonly<{
+    unary: string;
+    left: string;
+    right: string;
+  }>;
+  readonly parents: Readonly<{
+    matmul: string;
+    gathered: string;
+    weights: string;
+  }>;
   readonly states: Readonly<{
     selectedTarget: string;
     negative: string;
@@ -202,8 +212,7 @@ export interface ModelAutodiffOpsDiagramLabels {
     singleOccurrence: string;
     unusedRow: string;
     accumulatedRow: string;
-    checked: string;
-    rejected: string;
+    singleRow: string;
   }>;
   readonly symbols: Readonly<{
     forward: string;
@@ -211,8 +220,6 @@ export interface ModelAutodiffOpsDiagramLabels {
     repeated: string;
     single: string;
     unused: string;
-    checked: string;
-    rejected: string;
   }>;
   readonly rules: Readonly<{
     forwardFork: string;
@@ -220,7 +227,6 @@ export interface ModelAutodiffOpsDiagramLabels {
     matmul: string;
     scatter: string;
   }>;
-  readonly errors: Record<ModelTraceError['kind'], string>;
 }
 
 const integerLexeme = '(?:0|[1-9]\\d*)';
@@ -680,17 +686,73 @@ export function assertModelAutodiffOpsDiagramLabels(
   const strings: string[] = [
     labels.title,
     labels.description,
-    ...Object.values(labels.summary),
-    ...Object.values(labels.sections),
-    ...Object.values(labels.fields),
-    ...Object.values(labels.operations),
-    ...Object.values(labels.sources),
-    ...Object.values(labels.states),
-    ...Object.values(labels.symbols),
-    ...Object.values(labels.rules),
-    ...Object.values(labels.errors),
+    labels.summary.ids,
+    labels.summary.targets,
+    labels.summary.loss,
+    labels.summary.repeatedToken,
+    labels.sections.forward,
+    labels.sections.reverse,
+    labels.sections.accumulation,
+    labels.tables.targetGradients,
+    labels.fields.step,
+    labels.fields.operation,
+    labels.fields.sources,
+    labels.fields.tensorInputShape,
+    labels.fields.outputShape,
+    labels.fields.values,
+    labels.fields.position,
+    labels.fields.positions,
+    labels.fields.tokenId,
+    labels.fields.target,
+    labels.fields.gradient,
+    labels.fields.targetSign,
+    labels.fields.competitorSign,
+    labels.fields.classSum,
+    labels.fields.operand,
+    labels.fields.parent,
+    labels.fields.gradientShape,
+    labels.fields.contribution,
+    labels.fields.destinationRow,
+    labels.fields.occurrences,
+    labels.operations.gather_rows,
+    labels.operations.matmul,
+    labels.operations.exp,
+    labels.operations.log,
+    labels.operations.silu,
+    labels.operations.log_softmax,
+    labels.operations.indexed_mean_nll,
+    labels.sources.embeddings,
+    labels.sources.token_ids,
+    labels.sources.gather_rows,
+    labels.sources.weights,
+    labels.sources.matmul,
+    labels.sources.silu,
+    labels.sources.targets,
+    labels.operands.unary,
+    labels.operands.left,
+    labels.operands.right,
+    labels.parents.matmul,
+    labels.parents.gathered,
+    labels.parents.weights,
+    labels.states.selectedTarget,
+    labels.states.negative,
+    labels.states.positive,
+    labels.states.repeatedOccurrence,
+    labels.states.singleOccurrence,
+    labels.states.unusedRow,
+    labels.states.accumulatedRow,
+    labels.states.singleRow,
+    labels.symbols.forward,
+    labels.symbols.reverse,
+    labels.symbols.repeated,
+    labels.symbols.single,
+    labels.symbols.unused,
+    labels.rules.forwardFork,
+    labels.rules.target,
+    labels.rules.matmul,
+    labels.rules.scatter,
   ];
-  if (strings.some((value) => value.trim().length === 0)) {
+  if (strings.some((value) => typeof value !== 'string' || value.trim().length === 0)) {
     throw new Error('Model-autodiff diagram labels must be complete and nonempty.');
   }
 }

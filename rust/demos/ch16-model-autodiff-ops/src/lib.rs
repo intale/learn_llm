@@ -1,4 +1,4 @@
-//! Frozen model-operation fixtures for Chapter 16.
+//! Worked model-operation examples for Chapter 16.
 
 pub mod diagram_trace;
 
@@ -28,7 +28,7 @@ pub const GRADCHECK_SAMPLES: usize = 4;
 
 fn tensor(shape: &[usize], values: &[f64]) -> Tensor {
     Tensor::from_vec(shape.to_vec(), values.to_vec())
-        .expect("the frozen shape and value count agree")
+        .expect("the worked shape and value count agree")
 }
 
 fn stable_sigmoid(value: f64) -> f64 {
@@ -54,7 +54,7 @@ fn assert_close(actual: &[f64], expected: &[f64], tolerance: f64) {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct HandwrittenModelBaseline {
     pub gathered: [f64; 8],
-    pub logits: [f64; 8],
+    pub projection_preactivations: [f64; 8],
     pub activated: [f64; 8],
     pub log_probabilities: [f64; 8],
     pub loss: f64,
@@ -66,7 +66,7 @@ pub struct HandwrittenModelBaseline {
 }
 
 // region:handwritten-model-backward
-/// Computes the tiny next-token graph with fixed arrays and handwritten rules.
+/// Computes the compact token-operation chain with fixed arrays and handwritten rules.
 ///
 /// This bounded reference calculation illustrates the model-specific backward
 /// style that preceded a reusable operation vocabulary; it is not attributed
@@ -80,11 +80,11 @@ pub fn handwritten_model_backward() -> HandwrittenModelBaseline {
         }
     }
 
-    let mut logits = [0.0; 8];
+    let mut projection_preactivations = [0.0; 8];
     for position in 0..TOKEN_IDS.len() {
         for class in 0..2 {
             for feature in 0..2 {
-                logits[position * 2 + class] +=
+                projection_preactivations[position * 2 + class] +=
                     gathered[position * 2 + feature] * WEIGHT_VALUES[feature * 2 + class];
             }
         }
@@ -98,7 +98,8 @@ pub fn handwritten_model_backward() -> HandwrittenModelBaseline {
     for position in 0..TOKEN_IDS.len() {
         for class in 0..2 {
             let offset = position * 2 + class;
-            activated[offset] = logits[offset] * stable_sigmoid(logits[offset]);
+            activated[offset] = projection_preactivations[offset]
+                * stable_sigmoid(projection_preactivations[offset]);
         }
         let maximum = activated[position * 2].max(activated[position * 2 + 1]);
         let denominator = (activated[position * 2] - maximum).exp()
@@ -109,8 +110,9 @@ pub fn handwritten_model_backward() -> HandwrittenModelBaseline {
             log_probabilities[offset] = probability.ln();
             let target_indicator = usize::from(TARGETS[position] == class) as f64;
             loss_input_gradient[offset] = (probability - target_indicator) / TOKEN_IDS.len() as f64;
-            let sigmoid = stable_sigmoid(logits[offset]);
-            let silu_derivative = sigmoid * (1.0 + logits[offset] * (1.0 - sigmoid));
+            let sigmoid = stable_sigmoid(projection_preactivations[offset]);
+            let silu_derivative =
+                sigmoid * (1.0 + projection_preactivations[offset] * (1.0 - sigmoid));
             matmul_output_gradient[offset] = loss_input_gradient[offset] * silu_derivative;
         }
         loss -= log_probabilities[position * 2 + TARGETS[position]] / TOKEN_IDS.len() as f64;
@@ -139,7 +141,7 @@ pub fn handwritten_model_backward() -> HandwrittenModelBaseline {
 
     HandwrittenModelBaseline {
         gathered,
-        logits,
+        projection_preactivations,
         activated,
         log_probabilities,
         loss,
@@ -160,7 +162,7 @@ pub struct FrozenModelExample {
     pub weights: Tensor,
     pub targets: Vec<usize>,
     pub gathered: Tensor,
-    pub logits: Tensor,
+    pub projection_preactivations: Tensor,
     pub activated: Tensor,
     pub log_probabilities: Tensor,
     pub loss: Tensor,
@@ -178,24 +180,28 @@ fn pass_adjoint(pass: &TensorBackwardPass, operation: TensorOperation) -> Tensor
         .iter()
         .find(|node| node.operation == operation)
         .and_then(|node| node.pass_adjoint.clone())
-        .expect("the frozen graph has one node with this operation")
+        .expect("the worked graph has one node with this operation")
 }
 
 // region:shared-model-vjp-fixture
-/// Runs gather, matmul, SiLU, stable log-softmax, and fused token loss on one
-/// repeated-token fixture, then checks the tape against the fixed reference.
+/// Runs gather, matmul, SiLU, stable log-softmax, and combined token loss on one
+/// repeated-token example, then checks the tape against the fixed reference.
 pub fn frozen_model_example() -> Result<FrozenModelExample, TensorAutodiffError> {
     let embeddings = TensorValue::parameter(tensor(&EMBEDDING_SHAPE, &EMBEDDING_VALUES))?;
     let gathered = embeddings.gather_rows(&TOKEN_IDS, &TOKEN_SHAPE)?;
     let weights = TensorValue::parameter(tensor(&WEIGHT_SHAPE, &WEIGHT_VALUES))?;
-    let logits = gathered.matmul(&weights)?;
-    let activated = logits.silu()?;
+    let projection_preactivations = gathered.matmul(&weights)?;
+    let activated = projection_preactivations.silu()?;
     let log_probabilities = activated.log_softmax(CLASS_AXIS)?;
     let loss = activated.indexed_mean_nll(CLASS_AXIS, &TARGETS)?;
     let baseline = handwritten_model_backward();
 
     assert_close(gathered.value().as_slice(), &baseline.gathered, 1e-12);
-    assert_close(logits.value().as_slice(), &baseline.logits, 1e-12);
+    assert_close(
+        projection_preactivations.value().as_slice(),
+        &baseline.projection_preactivations,
+        1e-12,
+    );
     assert_close(activated.value().as_slice(), &baseline.activated, 1e-12);
     assert_close(
         log_probabilities.value().as_slice(),
@@ -238,7 +244,7 @@ pub fn frozen_model_example() -> Result<FrozenModelExample, TensorAutodiffError>
         weights: weights.value(),
         targets: TARGETS.to_vec(),
         gathered: gathered.value(),
-        logits: logits.value(),
+        projection_preactivations: projection_preactivations.value(),
         activated: activated.value(),
         log_probabilities: log_probabilities.value(),
         loss: loss.value(),
@@ -260,7 +266,7 @@ pub struct NamedModelGradcheck {
     pub report: TensorGradientCheck,
 }
 
-/// All local pullbacks checked independently against central differences.
+/// All local VJPs checked independently against central differences.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ModelVjpGradchecks {
     pub checks: Vec<NamedModelGradcheck>,
@@ -326,7 +332,7 @@ pub fn model_vjp_gradchecks() -> Result<ModelVjpGradchecks, Box<dyn Error>> {
         },
         move |candidate| {
             tensor_matmul(&candidate.view(), &right_for_objective.view())
-                .expect("the frozen matmul shapes agree")
+                .expect("the worked matmul shapes agree")
                 .as_slice()
                 .iter()
                 .sum()
@@ -342,7 +348,7 @@ pub fn model_vjp_gradchecks() -> Result<ModelVjpGradchecks, Box<dyn Error>> {
         },
         move |candidate| {
             tensor_matmul(&left_for_objective.view(), &candidate.view())
-                .expect("the frozen matmul shapes agree")
+                .expect("the worked matmul shapes agree")
                 .as_slice()
                 .iter()
                 .sum()
@@ -389,7 +395,7 @@ pub fn model_vjp_gradchecks() -> Result<ModelVjpGradchecks, Box<dyn Error>> {
         },
         move |candidate| {
             let output = tensor_log_softmax(&candidate.view(), 1)
-                .expect("the frozen probability axis is valid");
+                .expect("the worked probability axis is valid");
             weighted_sum(output.as_slice(), weights_for_objective.as_slice())
         },
     )?;
@@ -398,7 +404,7 @@ pub fn model_vjp_gradchecks() -> Result<ModelVjpGradchecks, Box<dyn Error>> {
         |parameter| parameter.indexed_mean_nll(1, &[2, 0]),
         |candidate| {
             tensor_indexed_mean_nll(&candidate.view(), 1, &[2, 0])
-                .expect("the frozen targets are valid")
+                .expect("the worked targets are valid")
         },
     )?;
 
@@ -484,6 +490,10 @@ pub struct ModelErrorExample {
     pub invalid_target: TensorAutodiffError,
     pub empty_targets: TensorAutodiffError,
     pub exp_overflow: TensorAutodiffError,
+    pub invalid_id_gradient_unchanged: bool,
+    pub invalid_target_gradient_unchanged: bool,
+    pub empty_targets_gradient_unchanged: bool,
+    pub exp_overflow_gradient_unchanged: bool,
     pub gradients_unchanged: bool,
 }
 
@@ -495,38 +505,56 @@ fn tensor_bits(value: &Tensor) -> Vec<u64> {
 pub fn model_error_example() -> Result<ModelErrorExample, TensorAutodiffError> {
     let table = TensorValue::parameter(tensor(&[2, 2], &[1.0, 2.0, 3.0, 4.0]))?;
     let logits = TensorValue::parameter(tensor(&[2, 2], &[1.0, -1.0, 0.5, -0.5]))?;
+    let empty_logits = TensorValue::parameter(tensor(&[0, 2], &[]))?;
     let overflow = TensorValue::parameter(tensor(&[], &[f64::MAX]))?;
-    let before = [
-        tensor_bits(&table.gradient().expect("table gradient exists")),
-        tensor_bits(&logits.gradient().expect("logit gradient exists")),
-        tensor_bits(&overflow.gradient().expect("scalar gradient exists")),
-    ];
 
+    sum_to_scalar(table.clone())?.backward()?;
+    sum_to_scalar(logits.clone())?.backward()?;
+    overflow.backward()?;
+
+    let invalid_id_before = tensor_bits(&table.gradient().expect("table gradient exists"));
     let invalid_id = table
         .gather_rows(&[2], &[1])
         .expect_err("row two is outside a two-row table");
+    let invalid_id_gradient_unchanged =
+        invalid_id_before == tensor_bits(&table.gradient().expect("table gradient remains"));
+
+    let invalid_target_before = tensor_bits(&logits.gradient().expect("logit gradient exists"));
     let invalid_target = logits
         .indexed_mean_nll(1, &[0, 2])
         .expect_err("class two is outside a two-class row");
-    let empty_logits = TensorValue::parameter(tensor(&[0, 2], &[]))?;
+    let invalid_target_gradient_unchanged =
+        invalid_target_before == tensor_bits(&logits.gradient().expect("logit gradient remains"));
+
+    let empty_targets_before =
+        tensor_bits(&empty_logits.gradient().expect("empty gradient exists"));
     let empty_targets = empty_logits
         .indexed_mean_nll(1, &[])
         .expect_err("a mean over no targets is undefined");
+    let empty_targets_gradient_unchanged = empty_targets_before
+        == tensor_bits(&empty_logits.gradient().expect("empty gradient remains"));
+
+    let exp_overflow_before = tensor_bits(&overflow.gradient().expect("scalar gradient exists"));
     let exp_overflow = overflow
         .exp()
         .expect_err("the finite-forward invariant rejects positive infinity");
-    let after = [
-        tensor_bits(&table.gradient().expect("table gradient remains")),
-        tensor_bits(&logits.gradient().expect("logit gradient remains")),
-        tensor_bits(&overflow.gradient().expect("scalar gradient remains")),
-    ];
+    let exp_overflow_gradient_unchanged =
+        exp_overflow_before == tensor_bits(&overflow.gradient().expect("scalar gradient remains"));
+    let gradients_unchanged = invalid_id_gradient_unchanged
+        && invalid_target_gradient_unchanged
+        && empty_targets_gradient_unchanged
+        && exp_overflow_gradient_unchanged;
 
     Ok(ModelErrorExample {
         invalid_id,
         invalid_target,
         empty_targets,
         exp_overflow,
-        gradients_unchanged: before == after,
+        invalid_id_gradient_unchanged,
+        invalid_target_gradient_unchanged,
+        empty_targets_gradient_unchanged,
+        exp_overflow_gradient_unchanged,
+        gradients_unchanged,
     })
 }
 // endregion:model-op-errors-example

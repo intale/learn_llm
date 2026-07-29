@@ -163,6 +163,7 @@ impl TensorValue {
         })
     }
 
+    // region:model-row-gather-operation
     /// Selects rows from a rank-two table into `index_shape + [width]`.
     ///
     /// IDs are integer selectors and are deliberately not tape operands.
@@ -186,6 +187,7 @@ impl TensorValue {
             ))
         })
     }
+    // endregion:model-row-gather-operation
 
     /// Applies the elementwise exponential and saves its output for reversal.
     pub fn exp(&self) -> Result<Self, TensorAutodiffError> {
@@ -504,6 +506,7 @@ pub(crate) fn apply_model_vjp(
             let expanded = matmul_with_transpose(&left.view(), &upstream.view(), true, false)?;
             unbroadcast(&expanded, input_shape)
         }
+        // region:model-row-gather-vjp
         ModelSavedContext::GatherRows {
             indices,
             input_shape,
@@ -523,6 +526,7 @@ pub(crate) fn apply_model_vjp(
             }
             Ok(table_gradient)
         }
+        // endregion:model-row-gather-vjp
         ModelSavedContext::Exp { output } => {
             map_binary(&upstream.view(), &output.view(), |gradient, value| {
                 gradient * value

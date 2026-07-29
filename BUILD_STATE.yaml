@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
-active_build: activate-ch14-russian-localization
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -20895,3 +20895,175 @@ builds:
                 status: passed
                 notes: "Run-specific host preview configurations produced the browser fixtures and were removed afterward. Windows Defender intermittently locked Astro prerender chunks after rendering; the build definition was not changed, and the exact supported Linux build passed."
             notes: "Succeeded. English revision 4 and its direct natural Russian translation publish corrected operand-use VJP semantics, complete saved-context evidence, and a localized shared-system figure; every declared source, Rust, Linux, Chromium, and Firefox gate passes."
+  - build_id: activate-ch16-russian-localization
+    objective: "Repair the canonical Chapter 16 model-operation VJP explanation where needed, translate its complete learner-facing surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "English Chapter 16 accurately distinguishes the compact worked VJP graph from a full decoder, explains flat occurrences and repeated-row accumulation, scopes saved evidence and numerical checks exactly, and contains no learner-facing authoring, fixture, trace, byte-exact, or presentation-contract commentary."
+      - "Russian Chapter 16 preserves every formula, symbol, shape, value, code identifier, causal claim, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 17 handoff in natural technical language."
+      - "Every Chapter 16 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 16 is activated in this checkpoint, the locale policy advances through Chapter 16, and the completed step is committed independently before Chapter 17 starts."
+    steps:
+      - id: activate-ch16-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 16 model-operation VJP lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch15-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-29 to continue Russian translations through Chapters 16-17 without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/16-model-autodiff-ops.md"
+          - "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
+          - "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
+          - "site/src/lib/model-autodiff-ops-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/16-model-autodiff-ops-diagram.test.ts"
+          - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/lib.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/main.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/diagram_trace.rs"
+          - "rust/demos/ch16-model-autodiff-ops/expected.txt"
+          - "rust/demos/ch16-model-autodiff-ops/diagram-trace.txt"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit fb4011c6a1839e01d97ce06a3423410def5f4c4f."
+          - "Playwright 1.61.1 Chromium and Firefox revision 1532 runtimes already available in the user browser cache."
+        outputs:
+          - "curriculum/chapters/16-model-autodiff-ops.md"
+          - "curriculum/course-plan.md"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/demos/ch16-model-autodiff-ops/expected.txt"
+          - "rust/demos/ch16-model-autodiff-ops/src/lib.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/main.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/diagram_trace.rs"
+          - "rust/demos/ch16-model-autodiff-ops/diagram-trace.txt"
+          - "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
+          - "site/src/content/chapters/ru/16-model-autodiff-ops.mdx"
+          - "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
+          - "site/src/lib/model-autodiff-ops-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/16-model-autodiff-ops-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Canonical English makes the four flat occurrences explicit, states that gather returns independent values whose reverse contributions converge on shared parameter rows, and identifies the worked graph as a compact operation test rather than the architecture of the final decoder."
+          - "Canonical claims about per-operation saved context, central-difference coverage, error nonmutation, log-softmax, fused mean NLL, SiLU, history, and later decoder reuse match the exact Rust behavior and cited LLM evolution."
+          - "Canonical learner prose contains no build, fixture, internal trace, byte-exact, course-local, source-contract, or presentation-implementation commentary and uses the math pipeline for every mathematical expression."
+          - "The Russian page is translated directly from the frozen current English revision with natural established autodiff, matrix, embedding, probability, loss, and LLM terminology rather than literal sentence-shape transfer."
+          - "All formulas, symbols, shapes, values, code, identifiers, links, sources, exercises, answers, metadata, SEO, navigation, diagram evidence, and accessibility relationships have exact cross-locale semantic parity."
+          - "The Chapter 16 visualization uses one registered static shared-system figure with localized synthesized labels, marked bounded boxes, smallest meaningful named scrollers, useful fullscreen reflow, and no private frame skin, hydration, dialog, script, clipping, or chapter-specific full-view control."
+          - "The exact candidate passes source, contract, locale, parity, Rust, unit, static, link, SEO, sitemap, Analytics, Chromium, Firefox, formula, full-view, fallback, forced-color, direction, focus, and nearest-box containment checks."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/16-model-autodiff-ops.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 16-model-autodiff-ops"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 16-model-autodiff-ops"
+          - "npm --prefix site run check:parity -- --chapter 16-model-autodiff-ops"
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "cargo test --workspace --doc --locked"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:16-model-autodiff-ops|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:16-model-autodiff-ops|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One bounded canonical audit and correction plus complete source-to-target chapter translation and shared-diagram migration, with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency, product build-definition, hosting, deployment, or model-operation behavior change is planned."
+        runs:
+          - run_id: 20260729T115956Z-activate-ch16-russian-localization-01
+            started_at: "2026-07-29T11:59:56Z"
+            finished_at: "2026-07-29T13:13:39Z"
+            status: succeeded
+            input_fingerprint:
+              git: "fb4011c6a1839e01d97ce06a3423410def5f4c4f"
+              manifest: ".build/runs/20260729T115956Z-activate-ch16-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:3ea904ac0070e070c1492560e35468eb4d54ef608ca2d4008568ab7a37b07b0b"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1. Host Node 24.18.0/npm 11.16.0 are used only for compatible local checks."
+              external: "No external translation source or service; current English Chapter 16, immutable Rust behavior, and cited primary historical sources are authoritative after any recorded canonical correction."
+            staging_dir: ".build/runs/20260729T115956Z-activate-ch16-russian-localization-01/"
+            commands:
+              - "Verify the independently committed Chapter 15 checkpoint fb4011c; inspect the scheduler, latest decisions, environment, localization instructions, Chapter 16 contract, complete English lesson, figure, parser, tests, locale projection, and Rust evidence."
+              - "Fingerprint the exact source, evidence, projection, workflow, environment, user request, and base commit before any product edit."
+              - "Commission independent read-only mathematical/Rust, diagram/accessibility, and Russian-language audits before freezing the English source."
+              - "Freeze corrected English revision 3; translate the complete lesson directly into Russian; migrate the figure to the shared diagram system; tighten the Rust nonmutation evidence and operation naming; and advance the locale policy through Chapter 16."
+              - "Run independent semantic and Russian-language re-audits, repair every reported blocker, compare exact Rust stdout and generated trace, exercise the complete two-browser Chapter 16 and shared-diagram matrix, and run the pinned Linux course gate."
+            artifacts:
+              - path: ".build/runs/20260729T115956Z-activate-ch16-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:3ea904ac0070e070c1492560e35468eb4d54ef608ca2d4008568ab7a37b07b0b"
+                notes: "Exact canonical, diagram, validation, Rust-evidence, workflow, environment, user-scope, and base-commit fingerprint before Chapter 16 product edits."
+              - path: "curriculum/chapters/16-model-autodiff-ops.md"
+                checksum: "sha256:98bbf833e3e1553ded35b99f81cccbd542a3c663d0fd3874e925bab3e6ada7aa"
+                notes: "Completed revision 3 contract with corrected worked-graph, gather, SiLU, saved-context, and numerical-check claims."
+              - path: "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
+                checksum: "sha256:6a0b93c2c49e92d60f6aefa56b618f46af05ad70c9473e6a96b4609557d643c7"
+                notes: "Frozen canonical English lesson."
+              - path: "site/src/content/chapters/ru/16-model-autodiff-ops.mdx"
+                checksum: "sha256:af120f80d70849c3a539c7d601b518ec741ed662e732e1e02a09e1fc043f3860"
+                notes: "Complete natural Russian translation from English revision 3."
+              - path: "site/src/components/chapters/ModelAutodiffOpsDiagram.astro"
+                checksum: "sha256:87b1fa20fb1a891d383279b5e689519f3be8788d783b348eaebe2c4026da19d5"
+                notes: "Localized shared-system figure focused on repeated embedding-row accumulation."
+              - path: "site/src/lib/model-autodiff-ops-diagram.ts"
+                checksum: "sha256:8049141b7609c8acc1b414326ad28dd64f6077925d1bdf0b6b2d02e23fb62139"
+                notes: "Exact diagram parser using corrected preactivation and gradient semantics."
+              - path: "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+                checksum: "sha256:65791146e76057d1999f705c39b1d43cee611902a3b05f48ad039e7b9c7bca85"
+                notes: "Independently seeded per-error nonmutation checks for model operations."
+              - path: "rust/demos/ch16-model-autodiff-ops/expected.txt"
+                checksum: "sha256:edc12e714293c1e96dbfadbc0e00f49de2865de78560cf7b71f2600d135750be"
+                notes: "Exact learner-facing Rust output with corrected operation names."
+              - path: "rust/demos/ch16-model-autodiff-ops/diagram-trace.txt"
+                checksum: "sha256:fa436ad9500a0591c339d7489b6bf34daa54bcb7dae11a1cce3152147f8f5132"
+                notes: "Exact Rust-generated evidence consumed by the shared figure."
+              - path: "site/src/i18n/chapter-locales.json"
+                checksum: "sha256:1dd7ac142efb3395000d0902080befae292f4f82301d919496edcbf783d5917f"
+                notes: "Locale registry activating Russian Chapter 16 only at this checkpoint."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, overlap, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 15 is independently committed at fb4011c and the worktree was clean; no build was active; recorded host and repository versions match; Chapter 16 owns the disjoint next checkpoint, requires no paid or external service, and is within the unlimited recorded budget."
+              - command: "Independent final semantic, terminology, anti-calque, monolingual, accessibility, source-scope, and learner-prose audits"
+                status: passed
+                notes: "The semantic audit passes after all three blockers were repaired; the final Russian re-audit confirms all seven wording blockers are resolved in both the localized lesson and contract."
+              - command: "Chapter contract, English and Russian source checks, parity, course-plan, global content, Astro, UTF-8, formula, and Vitest gates"
+                status: passed
+                notes: "The 40-chapter plan and exact bilingual Chapter 16 sources pass; Astro reports zero diagnostics across 205 files; all 52 Vitest files and 842 tests pass; and git diff --check is clean."
+              - command: "Exact Rust learner stdout, generated diagram trace, workspace tests, documentation tests, and formatting checks"
+                status: passed
+                notes: "Learner output and diagram trace match their committed evidence byte for byte; all Rust tests and documentation tests pass; formatting is unchanged and clean."
+              - command: "Chromium and Firefox Chapter 16, shared diagram, fullscreen, formula, fallback, focus, forced-color, direction, and nearest-box containment suites"
+                status: passed
+                notes: "All 135 selected checks pass in each browser. The shared fullscreen reflow removes the initially detected scroll-debt increase without shrinking, clipping, or hiding content."
+              - command: "Run-specific isolated production build and static artifact audit"
+                status: passed
+                notes: "The isolated fixture builds 62 pages and audits 144 artifacts, 2018 local references, 62 SEO routes, 62 sitemap URLs, and 62 Analytics routes."
+              - command: "Final pinned Linux/Docker ./course check"
+                status: passed
+                notes: "The immutable Linux workflow passes Rust formatting and tests, the 205-file Astro check, content and parity checks, a 62-route production build, and the complete 2018-reference link, SEO, sitemap, and Analytics audit."
+            notes: "Succeeded. Corrected English revision 3 and its direct natural Russian translation publish precise model-operation VJP semantics and a localized shared-system repeated-row accumulation figure; every declared source, Rust, Linux, Chromium, and Firefox gate passes."
