@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 39,
+  "plan_revision": 40,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-13",
+    "policy_id": "selective-russian-through-chapter-14",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "13-gradient-checking",
+        "through_chapter": "14-scalar-autodiff",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-13."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-14."
       },
       {
-        "from_chapter": "14-scalar-autodiff",
+        "from_chapter": "15-tensor-autodiff-core",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 13 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 14 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -239,6 +239,11 @@
         "step_id": "activate-ch13-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch13-russian-localization"
+      },
+      {
+        "step_id": "activate-ch14-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch14-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -808,9 +813,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–13 activate
-both, while Chapters 14–39 activate English only. Russian therefore keeps its index
-and Chapter 0–13 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–14 activate
+both, while Chapters 15–39 activate English only. Russian therefore keeps its index
+and Chapter 0–14 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1070,17 +1075,17 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `14-scalar-autodiff`
 - **Implementation step:** `implement-ch14-scalar-autodiff`
-- **Revision status:** Content revision 3 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 2 remains recorded by `generalize-language-boundaries-ch08-ch15`.
+- **Revision status:** Content revision 4 corrects reverse accumulation to sum distinct operand-use edges, removes learner-facing delivery rationale, adopts the shared diagram presentation contract, and activates the reviewed Russian lesson through `activate-ch14-russian-localization`; revision 3 remains recorded by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `13-gradient-checking`.
 - **Outcome:** Build a scalar computation graph and accumulate reverse-mode adjoints through shared subexpressions.
 - **Scope boundary:** Teach graph nodes, local derivatives, topological order, chain rule, accumulation, zeroing, and detach; defer tensor operations.
-- **Formula:** `\bar v=\sum_{c\in\operatorname{children}(v)}\bar c\,\frac{\partial c}{\partial v}`.
+- **Formula:** `\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`.
 - **Historical contrast:** Symbolic expansion and forward-mode propagation scale poorly when one loss depends on many parameters; trace hand-derived neural-network gradients to reverse-mode backpropagation, whose direction matches modern language-model training.
 - **Rust contribution:** Add a tiny safe scalar graph supporting arithmetic and elementary functions, with gradients checked numerically.
 - **Visualization:** Useful — render a branched computation DAG with forward values, local derivatives, and reverse adjoint flow.
 - **Practice:** Predict why a reused scalar receives two gradient contributions and compute them before backpropagation.
 - **Integration evidence:** Chain, branch, repeated backward, zeroing, detach, nonlinear functions, and gradcheck agreement pass.
-- **Handoff:** Chapter 15 lifts reverse mode to tensor tape, shape, view, broadcast, and reduction fundamentals.
+- **Handoff:** Chapter 15 lifts reverse mode to a tensor tape with reshape, transpose, shape alignment, and reduction fundamentals.
 
 ## 15. Tensor reverse mode: tape, shapes, and structural VJPs
 

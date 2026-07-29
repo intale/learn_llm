@@ -94,7 +94,7 @@ describe('course-wide diagram full-view contract', () => {
     ).toThrow(/shared controller/);
   });
 
-  it('requires exactly one diagram in every ordinary lesson visualization section', () => {
+  it('requires diagram invocations to match each lesson visualization registration', () => {
     const chapterPath = 'site/src/content/chapters/en/30-multi-head-attention.mdx';
     const chapter = read(chapterPath);
     const invocation = '<MultiHeadAttentionDiagram labels={diagramLabels} />';
@@ -137,7 +137,7 @@ describe('course-wide diagram full-view contract', () => {
       )
       .flat();
 
-    expect(useful).toHaveLength(40);
+    expect(useful).toHaveLength(41);
     expect(new Set(useful.map(({ chapterId }) => chapterId)).size).toBe(39);
     expect(new Set(useful.map(({ visualizationId }) => visualizationId)).size).toBe(useful.length);
     expect(useful.every(({ invocation }) => invocation.endsWith('Diagram'))).toBe(true);

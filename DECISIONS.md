@@ -9076,3 +9076,196 @@ after this step is checkpointed and committed independently.
 
 **Affected step and run:** `activate-ch13-russian-localization`, recovery run
 `20260729T061955Z-activate-ch13-russian-localization-02`.
+
+## 2026-07-29 - Continue Russian localization through Chapter 17 without approval pauses
+
+**Status:** Accepted from the human instruction after Chapter 13 completion.
+
+**Context:** The human asked to finish the current Chapter 14 work and then
+continue with the next three chapters without requesting approval. Existing
+localization policy already requires English to remain the direct semantic source,
+complete target-locale review, two-engine rendered validation, and user review
+after delivery rather than a pre-publication pause.
+
+**Decision:** Process Chapters 14, 15, 16, and 17 in order. Give every chapter its
+own build checkpoint, immutable validation evidence, and Git commit. Do not combine
+future chapters into the current step, and do not relax semantic, formula,
+accessibility, or rendered-containment gates to maintain momentum.
+
+**Consequences:** Chapter 14 starts now from commit `4d9dc52`; Chapters 15–17 remain
+queued until their immediately preceding localization commit is complete. Cost
+alone does not create an approval pause, and no paid or external service is
+planned.
+
+**Affected builds:** `activate-ch14-russian-localization` and the subsequent
+Chapter 15, 16, and 17 localization builds.
+
+## 2026-07-29 - Repair Chapter 14 around operand-use edges before translation
+
+**Status:** Accepted during Chapter 14 preflight.
+
+**Context:** The revision-3 formula sums a normally total derivative once for
+each item described as a child use. When one result consumes the same value twice,
+as in `x*x`, that wording can count the result's total derivative twice. The
+English lesson also exposes fixture, trace, byte-exact, course-local, and
+presentation-implementation language, while its figure duplicates shared chrome,
+omits bounded-box markers, and gains little from full view.
+
+**Decision:** Freeze English revision 4 before translating. Define reverse
+accumulation over distinct operand-use edges as
+`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`, with one consuming result and one
+slot-local derivative per edge. Distinguish fresh pass adjoints from stored
+cross-call accumulation, correct the symmetric overwrite answer, and keep the
+history focused on the road from explicit neural-language-model gradients to
+reverse-mode training at Transformer scale. Remove learner-facing delivery
+commentary and the internal trace source from learner code regions. Migrate the
+existing static figure to shared roles and add concept-level fullscreen reflow;
+do not change the already correct Rust algorithm.
+
+**Consequences:** Russian is translated directly from the corrected revision,
+never from revision 3. The contract, both lessons, locale projection, figure,
+label schema, and exact tests advance together. Internal trace generation remains
+valid build evidence but is no longer presented as part of the learner's code
+path.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Give Chapter 14 graph sections a Firefox-safe fullscreen rail
+
+**Status:** Accepted during dual-engine rendered validation.
+
+**Context:** Chromium keeps the Russian graph figure within the configured
+full-view travel budget at 1280x900, but Playwright Firefox enters a 1366x768
+fullscreen surface. With both graph sections stacked, the complete static figure
+uses 1089 pixels and leaves 323 pixels of vertical travel, exceeding the 192-pixel
+budget even though every box remains contained.
+
+**Decision:** In graph-figure fullscreen only, place each section's explanatory
+heading and note in a readable left rail and its graph or reverse ledger in the
+wider right column. Keep the two semantic sections, every node, every operand
+edge, the complete table, normal font sizes, and the inline fallback unchanged.
+
+**Consequences:** Measured Firefox height falls to 916 pixels, or 150 pixels of
+travel, while the lifecycle figure remains separate and all overflow/box checks
+stay authoritative. Both browser engines must repeat the complete matrix.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Confirm the measured Chapter 5 fullscreen correction
+
+**Status:** Accepted; this final entry supersedes the earlier proposed
+document-lane reflow and confirms the measured tape-geometry decision above.
+
+**Context:** The diagnostic evidence records stable document-column widths and a
+fullscreen-only reduction in each aligned tape's client width caused by the
+shared maximum-size cap.
+
+**Decision:** Preserve Chapter 5's declared card-edge tape size in fullscreen;
+do not reorganize its document grid.
+
+**Consequences:** The course-wide gate must show no increase in sanctioned scroll
+travel in Chromium or Firefox, with content order and typography unchanged.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Preserve Chapter 5 tape geometry in full view
+
+**Status:** Accepted after measured diagnosis; supersedes the earlier proposed
+Chapter 5 document-lane reflow.
+
+**Context:** A focused geometry probe showed that the document grid does not
+become narrower in full view. Instead, the shared fullscreen cap
+`max-inline-size: 100%` overrides Chapter 5's existing card-edge tape extension,
+reducing each six-token scroller's client width from 241 to 217 pixels and
+creating 23 pixels of travel on each affected tape. Restoring the declared
+card-edge inline size removes that travel while leaving the two-column evidence
+layout and readable token cells unchanged.
+
+**Decision:** In Chapter 5's concept-geometry CSS, preserve the existing
+`--diagram-scroll-inline-size` maximum for aligned and incomplete-tail tapes when
+the registered figure is fullscreen. Keep overflow ownership, focus behavior,
+surfaces, typography, and the fullscreen controller in the shared module.
+
+**Consequences:** The correction is narrower than reorganizing the document
+grid: it changes no content and no evidence order, introduces no clipping or
+private scroller, and restores zero tape debt at the measured 1280x900 full view.
+Chromium and Firefox still must pass the complete course-wide gate.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Reflow Chapter 5 document lanes before fullscreen narrows their tapes
+
+**Status:** Accepted during the Chapter 14 course-wide browser gate.
+
+**Context:** The unchanged course-wide fullscreen test revealed that Chapter 5
+switches its two documents into equal columns at a figure width where each aligned
+token tape is still wider than its card. The sanctioned tape scroller therefore
+grows from 16 pixels of inline fallback travel to 175 pixels in full view. This is
+not a Chapter 14 content defect, but it prevents the required exact all-diagram
+candidate from passing and violates the rule that full view must improve rather
+than worsen access to a relationship.
+
+**Decision:** Keep the Chapter 5 evidence and shared scroll owners intact, but
+make its document grid content-aware: retain one document lane until two lanes can
+each accommodate the token relationship at readable size. Do not clip, shrink,
+hide, or exempt the overflow, and do not change the shared fullscreen controller.
+
+**Consequences:** Chapter 5 can use the wider fullscreen canvas without giving
+either document a narrower token lane than the inline fallback. The corrective
+component is an explicit necessary output of the active Chapter 14 validation run,
+and both Chromium and Firefox must repeat the course-wide fullscreen gate before
+the checkpoint completes.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Split Chapter 14 graph flow from gradient lifecycle evidence
+
+**Status:** Accepted during Chapter 14 rendered validation.
+
+**Context:** The corrected figure contains two distinct relationships: the
+node-and-operand-edge reverse flow, and the lifecycle of pass-local adjoints,
+stored gradients, detach, numerical checking, and rejected mutation. Keeping all
+of that evidence in one figure required substantially more than one viewport of
+vertical travel at 1280×900 even after a readable fullscreen reflow. The shared
+presentation contract requires reorganization rather than smaller text, clipping,
+or concealed evidence.
+
+**Decision:** Register two focused semantic figures for this ordinary lesson.
+`ScalarAutodiffDiagram` owns the graph summary, node identity, repeated operand
+edges, and reverse ledger. `ScalarAutodiffLifecycleDiagram` owns repeated commits,
+zeroing, detach, numerical agreement, and transactional rejection. Permit useful
+ordinary lessons to declare explicit supplementary visualization registrations,
+using the existing exact component-and-ID schema previously exercised by the
+orientation. Each component still emits exactly one static shared-system figure
+and receives the one layout-owned localized full-view control.
+
+**Consequences:** Chapter 14 gains one supplementary visualization ID without
+losing or shrinking evidence. Metadata parity, component invocation counts,
+diagram-system validation, no-JavaScript behavior, and fullscreen containment now
+cover both figures. Later chapters may use supplementary figures only when the
+content genuinely contains distinct visual relationships; this does not weaken
+the one-figure-per-component or shared-presentation rules.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.
+
+## 2026-07-29 - Finalize the Chapter 5 fullscreen diagnostic
+
+**Status:** Accepted; supersedes the earlier proposed document-lane reflow.
+
+**Context:** Measured widths prove the document grid is stable while the shared
+fullscreen maximum-size cap alone reduces the aligned tape's usable width.
+
+**Decision:** Preserve Chapter 5's declared card-edge tape size in fullscreen;
+do not reorganize its document grid.
+
+**Consequences:** The course-wide gate must show no increase in sanctioned scroll
+travel in Chromium or Firefox, with content order and typography unchanged.
+
+**Affected step and run:** `activate-ch14-russian-localization`, run
+`20260729T083014Z-activate-ch14-russian-localization-01`.

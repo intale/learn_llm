@@ -856,13 +856,6 @@ export function validateChapterMetadata(
           ': the orientation must register llm-system-map and supplementary llm-parts-map',
       );
     }
-  } else if (
-    data.visualization?.component !== undefined ||
-    data.visualization?.supplementary !== undefined
-  ) {
-    issues.push(
-      sourceName + ': supplementary visualizations are reserved for the orientation',
-    );
   }
 
   if (
@@ -925,6 +918,12 @@ export function validateChapterDocument(
   const parsed = parseJsonFrontmatter(source, sourceName);
   validateChapterMetadata(parsed.data, sourceName, supportedLocales);
   const issues = [];
+  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(source)) {
+    issues.push(
+      sourceName +
+        ': chapter source contains a prohibited control character; preserve formula backslashes as literal source text',
+    );
+  }
   const learnerProse = renderableMdxSource(parsed.body);
 
   for (const { label, pattern } of LEARNER_BUILD_META_PATTERNS) {

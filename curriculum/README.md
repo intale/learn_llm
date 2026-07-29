@@ -6,7 +6,7 @@ per-chapter learning boundary, cumulative Rust contribution, visualization
 decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
 chapter implementation step per chapter.
 
-Chapters 0–13 publish one exact English/Russian locale pair per chapter. The
+Chapters 0–14 publish one exact English/Russian locale pair per chapter. The
 current revisions of Chapters 1–13 are 5, 4, 4, 4, 4, 4, 3, 5, 5, 4, 4, 4, and 4 respectively
 after their meaning-first language, notation, accessibility, and
 rendered-containment work. Chapter 2 onward
@@ -209,7 +209,7 @@ inactive locale.
 Only a complete, same-revision chapter-active set is returned by the static course
 route. Every registered locale index always exists, even before the first lesson is
 publishable. The current checked projection activates English and Russian for
-Chapters 0–13 and English only for Chapters 14–39. Russian keeps its localized index
+Chapters 0–14 and English only for Chapters 15–39. Russian keeps its localized index
 and existing lessons, but a deferred Russian chapter has no lesson route; its
 language switch target falls back to the Russian course index.
 
@@ -232,14 +232,17 @@ applicable implemented chapter before publishing any new route. Pending chapter
 steps adopt the newly active locale in their concrete outputs and `check:chapter`
 commands. A partial backfill is not an active locale set and remains unpublished.
 
-For ordinary implementation chapters, useful diagram names are derived from the
-chapter slug: `NN-foo-bar` must use
+For ordinary implementation chapters, the primary useful diagram name is derived
+from the chapter slug: `NN-foo-bar` uses
 `site/src/components/chapters/FooBarDiagram.astro` in every active lesson. This
 keeps the plan, ledger output, import path, and rendered chapter-specific
-visualization on one deterministic identity. Chapter 0 is the orientation
-exception: its contract metadata registers one primary system schema and may
-register supplementary overview figures, each with an explicit component name and
-rationale.
+visualization on one deterministic identity. When one figure would overload a
+distinct second relationship, an ordinary lesson may register a supplementary
+figure with its own unique ID, explicit `*Diagram` component, and rationale.
+Every active locale must invoke the same ordered registration set, and each
+component still emits exactly one semantic figure. Chapter 0 uses the same
+registration mechanism for its fixed primary system schema and supplementary
+parts overview.
 
 ## Rust source inclusion
 

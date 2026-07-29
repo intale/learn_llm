@@ -1,4 +1,5 @@
 export const scalarAutodiffDiagramId = 'scalar-autodiff';
+export const scalarAutodiffLifecycleDiagramId = 'scalar-autodiff-lifecycle';
 
 export interface TraceNumber {
   readonly lexeme: string;
@@ -109,6 +110,8 @@ export interface ScalarAutodiffTrace {
 export interface ScalarAutodiffDiagramLabels {
   readonly title: string;
   readonly description: string;
+  readonly lifecycleTitle: string;
+  readonly lifecycleDescription: string;
   readonly summary: {
     readonly loss: string;
     readonly uniqueNodes: string;
@@ -122,21 +125,22 @@ export interface ScalarAutodiffDiagramLabels {
     readonly errors: string;
   };
   readonly fields: {
-    readonly node: string;
     readonly operation: string;
+    readonly seed: string;
+    readonly node: string;
     readonly value: string;
     readonly forwardOrder: string;
     readonly reverseOrder: string;
     readonly gradient: string;
-    readonly child: string;
-    readonly parent: string;
+    readonly passAdjoint: string;
+    readonly consumer: string;
+    readonly operandValue: string;
+    readonly parentEdges: string;
     readonly operand: string;
     readonly localDerivative: string;
     readonly upstream: string;
     readonly contribution: string;
-    readonly pass: string;
     readonly expression: string;
-    readonly input: string;
     readonly analytic: string;
     readonly numerical: string;
     readonly scaledError: string;
@@ -151,7 +155,6 @@ export interface ScalarAutodiffDiagramLabels {
     readonly detached: string;
     readonly nonlinear: string;
     readonly checked: string;
-    readonly rejected: string;
   };
   readonly notes: {
     readonly graph: string;
@@ -224,8 +227,8 @@ function requireRecord(actual: readonly string[], expected: readonly string[], l
 }
 
 /**
- * Parse and cross-check the frozen Rust evidence without differentiation,
- * topological sorting, or gradient arithmetic in TypeScript.
+ * Parse and cross-check the frozen Rust evidence without recomputing
+ * differentiation, topological sorting, or gradient arithmetic.
  */
 export function parseScalarAutodiffTrace(stdout: string): ScalarAutodiffTrace {
   if (stdout.includes('\r')) {
@@ -530,24 +533,27 @@ type RequiredLabelShape = true | RequiredLabelGroup;
 const requiredLabelShape: RequiredLabelShape = {
   title: true,
   description: true,
+  lifecycleTitle: true,
+  lifecycleDescription: true,
   summary: { loss: true, uniqueNodes: true, operandEdges: true },
   sections: { graph: true, reverse: true, accumulation: true, evidence: true, errors: true },
   fields: {
-    node: true,
     operation: true,
+    seed: true,
+    node: true,
     value: true,
     forwardOrder: true,
     reverseOrder: true,
     gradient: true,
-    child: true,
-    parent: true,
+    passAdjoint: true,
+    consumer: true,
+    operandValue: true,
+    parentEdges: true,
     operand: true,
     localDerivative: true,
     upstream: true,
     contribution: true,
-    pass: true,
     expression: true,
-    input: true,
     analytic: true,
     numerical: true,
     scaledError: true,
@@ -562,7 +568,6 @@ const requiredLabelShape: RequiredLabelShape = {
     detached: true,
     nonlinear: true,
     checked: true,
-    rejected: true,
   },
   notes: { graph: true, reverse: true, accumulation: true, evidence: true, errors: true },
   symbols: {
@@ -596,6 +601,10 @@ function assertLabelShape(value: unknown, shape: RequiredLabelShape, path: strin
     throw new Error(`Diagram label group ${path} must be an object.`);
   }
   const actual = value as Record<string, unknown>;
+  const extraKeys = Object.keys(actual).filter((key) => !Object.prototype.hasOwnProperty.call(shape, key));
+  if (extraKeys.length > 0) {
+    throw new Error(`Diagram label group ${path} has unexpected keys: ${extraKeys.join(', ')}.`);
+  }
   for (const [key, childShape] of Object.entries(shape)) {
     if (!Object.prototype.hasOwnProperty.call(actual, key)) {
       throw new Error(`Diagram label ${path}.${key} is missing.`);

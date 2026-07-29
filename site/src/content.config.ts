@@ -245,18 +245,6 @@ const chapters = defineCollection({
           message: 'Implementation lessons require formula and Rust evidence.',
         });
       }
-      if (
-        !isOrientation &&
-        chapter.visualization.decision === 'useful' &&
-        (chapter.visualization.component !== undefined ||
-          chapter.visualization.supplementary !== undefined)
-      ) {
-        context.addIssue({
-          code: 'custom',
-          path: ['visualization', 'supplementary'],
-          message: 'Supplementary visualizations are reserved for the Chapter 0 orientation.',
-        });
-      }
       if (chapter.visualization.decision === 'useful') {
         const visualizationIds = [
           chapter.visualization.id,

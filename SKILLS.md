@@ -17,7 +17,7 @@ One chapter is one owned, localized vertical slice:
   of every attempt;
 - one narrow learning objective and chapter contract;
 - one cumulative Rust capability plus a runnable historical contrast;
-- one useful visualization, or a reviewed explanation of why none helps;
+- one coherent useful visualization set, normally one figure, or a reviewed explanation of why none helps;
 - one naturally written lesson for every locale active for that chapter;
 - one staged and canonical validation record;
 - one atomic publication boundary; and
@@ -346,8 +346,8 @@ revision. When English changes in meaning or presentation, invalidate the
 affected target-locale review until it has been refreshed from English. Invoke
 `.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
 
-For the current approved policy, Chapters 0 through 13 use English and Russian,
-and Chapters 14 through 39 use English only until a later explicit activation. A
+For the current approved policy, Chapters 0 through 14 use English and Russian,
+and Chapters 15 through 39 use English only until a later explicit activation. A
 registered but deferred locale keeps its site chrome, existing lessons, and
 future activation path, but it does not require a new lesson or receive a
 chapter route. For each locale active for the selected chapter, create:

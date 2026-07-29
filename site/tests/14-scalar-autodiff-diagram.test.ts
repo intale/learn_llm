@@ -9,6 +9,7 @@ import {
   assertScalarAutodiffDiagramLabels,
   parseScalarAutodiffTrace,
   scalarAutodiffDiagramId,
+  scalarAutodiffLifecycleDiagramId,
   type ScalarAutodiffDiagramLabels,
 } from '../src/lib/scalar-autodiff-diagram';
 
@@ -23,14 +24,21 @@ const parser = readFileSync(
   resolve(repositoryRoot, 'site/src/lib/scalar-autodiff-diagram.ts'),
   'utf8',
 );
-const component = readFileSync(
+const graphComponent = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/ScalarAutodiffDiagram.astro'),
   'utf8',
 );
+const lifecycleComponent = readFileSync(
+  resolve(repositoryRoot, 'site/src/components/chapters/ScalarAutodiffLifecycleDiagram.astro'),
+  'utf8',
+);
+const component = `${graphComponent}\n${lifecycleComponent}`;
 
 const labels: ScalarAutodiffDiagramLabels = {
   title: 'title',
   description: 'description',
+  lifecycleTitle: 'lifecycle title',
+  lifecycleDescription: 'lifecycle description',
   summary: { loss: 'loss', uniqueNodes: 'nodes', operandEdges: 'edges' },
   sections: {
     graph: 'graph',
@@ -40,21 +48,22 @@ const labels: ScalarAutodiffDiagramLabels = {
     errors: 'errors',
   },
   fields: {
-    node: 'node',
     operation: 'operation',
+    seed: 'seed',
+    node: 'node',
     value: 'value',
     forwardOrder: 'forward order',
     reverseOrder: 'reverse order',
     gradient: 'gradient',
-    child: 'child',
-    parent: 'parent',
+    passAdjoint: 'pass adjoint',
+    consumer: 'consumer',
+    operandValue: 'operand value',
+    parentEdges: 'operand occurrences',
     operand: 'operand',
     localDerivative: 'local derivative',
     upstream: 'upstream',
     contribution: 'contribution',
-    pass: 'pass',
     expression: 'expression',
-    input: 'input',
     analytic: 'analytic',
     numerical: 'numerical',
     scaledError: 'scaled error',
@@ -69,7 +78,6 @@ const labels: ScalarAutodiffDiagramLabels = {
     detached: 'detached',
     nonlinear: 'nonlinear',
     checked: 'checked',
-    rejected: 'rejected',
   },
   notes: {
     graph: 'graph note',
@@ -103,6 +111,7 @@ describe('Chapter 14 Rust trace parser', () => {
     const trace = parseScalarAutodiffTrace(fixture);
 
     expect(scalarAutodiffDiagramId).toBe('scalar-autodiff');
+    expect(scalarAutodiffLifecycleDiagramId).toBe('scalar-autodiff-lifecycle');
     expect(trace.fixture).toMatchObject({
       name: 'reused-square',
       input: { lexeme: '2.000000000000' },
@@ -207,13 +216,21 @@ describe('Chapter 14 Rust trace parser', () => {
         missing as unknown as ScalarAutodiffDiagramLabels,
       ),
     ).toThrow(/labels\.notes\.reverse/);
+
+    const extra = structuredClone(labels) as unknown as Record<string, unknown>;
+    (extra.fields as Record<string, unknown>).unused = 'unused';
+    expect(() =>
+      assertScalarAutodiffDiagramLabels(
+        extra as unknown as ScalarAutodiffDiagramLabels,
+      ),
+    ).toThrow(/unexpected keys: unused/);
   });
 
-  it('does not differentiate, sort topology, or recompute gradient arithmetic in TypeScript', () => {
+  it('does not differentiate, sort topology, or recompute gradient arithmetic', () => {
     expect(parser).not.toMatch(/Math\.(?:abs|max|min|pow|exp|tanh|log)/);
     expect(parser).not.toMatch(/\.reduce\([^\n]*(?:\+|-|\*|\/)/);
     expect(parser).not.toMatch(/toFixed|toExponential/);
-    expect(parser).toContain('without differentiation');
+    expect(parser).toContain('without recomputing');
     expect(parser).toContain('topological sorting');
     expect(parser).toContain('gradient arithmetic');
   });
@@ -231,7 +248,7 @@ describe('Chapter 14 static diagram component', () => {
   });
 
   it('renders semantic node order and exact repeated-edge contribution evidence', () => {
-    expect(component).toContain('<ol class="graph-list">');
+    expect(component).toContain('<ol class="graph-list course-diagram__grid">');
     expect(component).toContain('data-node-id=');
     expect(component).toContain('data-topology-order=');
     expect(component.match(/<table data-diagram-table class="edge-table"/g)).toHaveLength(1);
@@ -252,13 +269,16 @@ describe('Chapter 14 static diagram component', () => {
 
   it('keeps wide evidence local and distinguishes states without fixed card heights', () => {
     expect(component).toContain('data-visualization-id={scalarAutodiffDiagramId}');
+    expect(component).toContain('data-visualization-id={scalarAutodiffLifecycleDiagramId}');
     expect(component).toContain('class="trace-scroll course-diagram__scroll"');
-    expect(component.match(/tabindex="0"/g)).toHaveLength(2);
+    expect(component.match(/tabindex="0"/g)).toHaveLength(3);
     expect(component.match(/role="region"/g)).toHaveLength(1);
     expect(component).toContain('data-diagram-scroll');
     expect(component).not.toContain('overflow-x: auto');
     expect(component).not.toContain('contain: paint');
-    expect(component).toContain('align-items: start;');
+    expect(component).toContain('course-diagram__card-stack');
+    expect(component).toContain('course-diagram__card-heading');
+    expect(component).toContain('data-diagram-box');
     expect(component).toContain('.node-shared { border-style: double; }');
     expect(component).toContain('.node-output { border-style: dashed; }');
     expect(component).toContain('.state-zeroed { border-style: dotted; }');
@@ -266,6 +286,10 @@ describe('Chapter 14 static diagram component', () => {
     expect(component).not.toMatch(
       /\.(?:node-card|snapshot-card|evidence-card|error-card)[^{]*\{[^}]*(?:min-)?height\s*:/s,
     );
-    expect(component).toContain('@media (forced-colors: active)');
+    expect(component).toContain('.scalar-autodiff-diagram:fullscreen');
+    expect(component).toContain('.scalar-autodiff-lifecycle-diagram:fullscreen');
+    expect(lifecycleComponent).not.toMatch(/`(?:operation|seed|node)=/);
+    expect(component).not.toContain('@media (forced-colors: active)');
+    expect(component).not.toMatch(/\.scalar-autodiff-diagram\s*\{[^}]*(?:background|box-shadow|border-radius)/s);
   });
 });

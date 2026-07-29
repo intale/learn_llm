@@ -636,13 +636,6 @@ export function validateChapterContractText(
           ': the orientation must register LlmSystemDiagram and supplementary LlmPartsDiagram',
       );
     }
-  } else if (
-    data.visualization?.component !== undefined ||
-    data.visualization?.supplementary !== undefined
-  ) {
-    issues.push(
-      sourceName + ': visualization component overrides are reserved for the orientation',
-    );
   }
   requireLocalizedText(
     issues,

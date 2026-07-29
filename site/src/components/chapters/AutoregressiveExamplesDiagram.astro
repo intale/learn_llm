@@ -431,6 +431,15 @@ const descriptionId = `${instanceId}-description`;
     margin-inline: calc(0px - var(--diagram-card-padding) - 1px);
   }
 
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .document
+    .aligned-tape.course-diagram__scroll,
+  figure.autoregressive-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen
+    .incomplete-tail
+    > .tail-tape.course-diagram__scroll {
+    max-inline-size: var(--diagram-scroll-inline-size);
+  }
+
   code[data-token-id],
   .empty-cell {
     display: inline-grid;

@@ -31,7 +31,7 @@ const chapter08To13Routes = chapter08To13Ids.flatMap((chapterId) => {
   }
   return chapter.activeLocales.map((locale) => ({ chapterId, locale }));
 });
-const englishOnlyFormulaChapterIds = [
+const chapter14To39Ids = [
   "14-scalar-autodiff",
   "15-tensor-autodiff-core",
   "16-model-autodiff-ops",
@@ -59,6 +59,15 @@ const englishOnlyFormulaChapterIds = [
   "38-cached-generation",
   "39-end-to-end-llm",
 ] as const;
+const chapter14To39Routes = chapter14To39Ids.flatMap((chapterId) => {
+  const chapter = chapterLocaleManifest.chapters.find(
+    (candidate) => candidate.chapterId === chapterId,
+  );
+  if (!chapter) {
+    throw new Error(`Chapter-locale configuration has no ${chapterId} entry.`);
+  }
+  return chapter.activeLocales.map((locale) => ({ chapterId, locale }));
+});
 const locales = ["en", "ru"] as const;
 const viewports = {
   desktop: { width: 1280, height: 900 },
@@ -443,11 +452,15 @@ const chapter08To13Latex: Record<
   "13-gradient-checking": [String.raw`q(\theta)=\theta^2`, String.raw`s=\max`],
 };
 
-const englishOnlyFormulaLatex: Record<
-  (typeof englishOnlyFormulaChapterIds)[number],
+const chapter14To39FormulaLatex: Record<
+  (typeof chapter14To39Ids)[number],
   readonly string[]
 > = {
-  "14-scalar-autodiff": [String.raw`\bar{\mathrm{loss}}=1`, String.raw`2x^2`],
+  "14-scalar-autodiff": [
+    String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`,
+    String.raw`\bar{\mathrm{loss}}=1`,
+    String.raw`2x^2`,
+  ],
   "15-tensor-autodiff-core": [
     String.raw`\bar{\mathrm{add}}=[4,4,10,12,12,24]`,
     String.raw`\bar{x}\mathrel{+}=J_y(x)^\top\bar{y}`,
@@ -857,14 +870,14 @@ test.describe("@formula-rendering:ch08-ch13 rendered formula contract", () => {
   }
 });
 
-test.describe("@formula-rendering:english-only rendered formula contract", () => {
+test.describe("@formula-rendering:Chapter 14-39 active-locale rendered formula contract", () => {
   for (const [viewportName, viewport] of Object.entries(viewports)) {
-    for (const chapterId of englishOnlyFormulaChapterIds) {
-      test(`${viewportName} en/${chapterId} exposes readable server-rendered math`, async ({
+    for (const { chapterId, locale } of chapter14To39Routes) {
+      test(`${viewportName} ${locale}/${chapterId} exposes readable server-rendered math`, async ({
         page,
       }) => {
         await page.setViewportSize(viewport);
-        const response = await page.goto(`/en/course/${chapterId}/`);
+        const response = await page.goto(`/${locale}/course/${chapterId}/`);
         expect(response?.ok()).toBe(true);
         await expect(page.locator("article.lesson")).toBeVisible();
         await expectCompatibleKatexLayout(page);
@@ -898,7 +911,7 @@ test.describe("@formula-rendering:english-only rendered formula contract", () =>
           latex.some((expression) => expression.includes(String.raw`\*`)),
           `${chapterId} must not render the malformed TeX control symbol \\*`,
         ).toBe(false);
-        for (const fragment of englishOnlyFormulaLatex[chapterId]) {
+        for (const fragment of chapter14To39FormulaLatex[chapterId]) {
           expect(
             latex.some((expression) => expression.includes(fragment)),
             `${chapterId} should render ${fragment}`,

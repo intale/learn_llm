@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-29T08:25:14Z"
+updated_at: "2026-07-29T08:30:14Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
-active_build: null
+active_build: activate-ch14-russian-localization
 
 builds:
   - build_id: bootstrap-course
@@ -1725,6 +1725,7 @@ builds:
           - "scripts/check-course-plan.mjs"
           - "scripts/check-chapter-contract.mjs"
           - "scripts/check-site-content.mjs"
+          - "scripts/check-chapter-contract.mjs"
           - "scripts/check-static-links.mjs"
           - "site/src/content.config.ts"
           - "site/src/pages/[locale]/course/index.astro"
@@ -20528,3 +20529,196 @@ builds:
                 status: passed
                 notes: "The ledger parses with 23 completed builds, 107 steps (84 completed and 23 invalidated), and 125 runs (107 succeeded, 14 interrupted, and 4 failed). IDs remain unique and no build remains active."
             notes: "Succeeded. Candidate 06 is the publishable Chapter 13 bilingual artifact; every rejected candidate remains immutable evidence, and the completed step is ready for its independent commit."
+  - build_id: activate-ch14-russian-localization
+    objective: "Repair the canonical Chapter 14 scalar reverse-mode explanation, translate its complete learner-facing surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "English Chapter 14 defines reverse accumulation over distinct operand-use edges without aliasing ambiguity and contains no learner-facing authoring, test, fixture, trace, or presentation-contract commentary."
+      - "Russian Chapter 14 preserves every formula, symbol, value, code identifier, causal claim, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 15 handoff in natural technical language."
+      - "The Chapter 14 graph and gradient-lifecycle figures use the shared static diagram contract and contain both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 14 is activated in this checkpoint, the locale policy advances through Chapter 14, and the completed step is committed independently before Chapter 15 starts."
+    steps:
+      - id: activate-ch14-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 14 scalar reverse-mode autodiff lesson and its localized shared diagram."
+        depends_on:
+          - activate-ch13-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-29 to continue Russian translations through Chapters 15-17 after the current Chapter 14 work, without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/14-scalar-autodiff.md"
+          - "scripts/check-chapter-contract.mjs"
+          - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+          - "site/src/components/chapters/ScalarAutodiffDiagram.astro"
+          - "site/src/components/chapters/ScalarAutodiffLifecycleDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/content.config.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/lib/scalar-autodiff-diagram.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/14-scalar-autodiff-diagram.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "rust/crates/llm-from-scratch/src/autograd/scalar.rs"
+          - "rust/demos/ch14-scalar-autodiff/src/lib.rs"
+          - "rust/demos/ch14-scalar-autodiff/src/main.rs"
+          - "rust/demos/ch14-scalar-autodiff/src/diagram_trace.rs"
+          - "rust/demos/ch14-scalar-autodiff/expected.txt"
+          - "rust/demos/ch14-scalar-autodiff/diagram-trace.txt"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "Base commit 4d9dc528ccdb02cad0781cea715959c9c0dbea96."
+          - "Playwright 1.61.1 Firefox runtime revision 1532, installed into the user browser cache after the initial dual-engine gate found it absent."
+        outputs:
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/14-scalar-autodiff.md"
+          - "curriculum/course-plan.md"
+          - "scripts/check-chapter-contract.mjs"
+          - "site/src/components/chapters/ScalarAutodiffDiagram.astro"
+          - "site/src/components/chapters/ScalarAutodiffLifecycleDiagram.astro"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/content.config.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+          - "site/src/content/chapters/ru/14-scalar-autodiff.mdx"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/src/lib/scalar-autodiff-diagram.ts"
+          - "site/tests/14-scalar-autodiff-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch14-scalar-autodiff.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "scripts/check-site-content.mjs"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "Canonical English uses the edge-exact formula \\bar v=\\sum_{e\\in E(v)}\\bar{c(e)}\\,d_e, defines each operand occurrence once, distinguishes pass-local adjoints from stored cross-call gradients, and corrects the symmetric overwrite exercise."
+          - "Canonical learner prose contains no build, fixture, trace, byte-exact, course-local, source-contract, or presentation-implementation commentary and keeps the history on the road to modern LLM training."
+          - "The Russian page is translated directly from frozen English revision 4 with natural established reverse-mode autodiff, graph, tensor, and LLM terminology rather than literal sentence-shape transfer."
+          - "All formulas, symbols, shapes, values, code, identifiers, links, sources, exercises, answers, metadata, SEO, navigation, diagram evidence, and accessibility relationships have exact cross-locale semantic parity."
+          - "The overloaded visualization is reorganized into two registered static semantic figures: one graph-and-edge view and one gradient-lifecycle view, each with localized labels, marked bounded boxes, useful fullscreen reflow, and no private frame skin, hydration, dialog, script, clipping, or chapter-specific full-view control; the graph figure alone owns the smallest meaningful named scroller."
+          - "The exact candidate passes source, contract, locale, parity, Rust, unit, static, link, SEO, sitemap, Analytics, Chromium, Firefox, formula, full-view, fallback, forced-color, direction, focus, and nearest-box containment checks."
+          - "The course-wide fullscreen gate no longer makes Chapter 5's aligned token tape narrower than its inline fallback; fullscreen preserves the tape's existing card-edge geometry without clipping, smaller text, or a private scroll implementation."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/14-scalar-autodiff.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 14-scalar-autodiff"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 14-scalar-autodiff"
+          - "npm --prefix site run check:parity -- --chapter 14-scalar-autodiff"
+          - "cargo fmt --all -- --check"
+          - "cargo test --workspace --locked"
+          - "cargo test --workspace --doc --locked"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check"
+          - "npm --prefix site run test -- --run"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium npm --prefix site run test:e2e -- --grep '@chapter:14-scalar-autodiff|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "Firefox npm --prefix site run test:e2e -- --browser firefox --grep '@chapter:14-scalar-autodiff|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One canonical semantic correction plus complete source-to-target chapter translation and shared-diagram migration, with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency, product build-definition, hosting, deployment, or Rust behavior change is planned."
+        runs:
+          - run_id: 20260729T083014Z-activate-ch14-russian-localization-01
+            started_at: "2026-07-29T08:30:14Z"
+            finished_at: "2026-07-29T10:35:08Z"
+            status: succeeded
+            input_fingerprint:
+              git: "4d9dc528ccdb02cad0781cea715959c9c0dbea96"
+              manifest: ".build/runs/20260729T083014Z-activate-ch14-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:5c81e28d80cf2b015f672af24fe4bcbeb751a68be20b27e81fda587cea7c54a3"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; current English Chapter 14, its immutable Rust behavior, and cited primary historical sources are authoritative after the recorded canonical semantic correction."
+            staging_dir: ".build/runs/20260729T083014Z-activate-ch14-russian-localization-01/"
+            commands:
+              - "Verify clean committed Chapter 13 checkpoint 4d9dc52; inspect the scheduler, environment, localization instructions, Chapter 14 contract, complete English lesson, figure, parser, tests, locale projection, and immutable Rust evidence."
+              - "Perform an independent read-only Chapter 14 audit and identify the aliasing-ambiguous formula, learner-facing delivery leakage, diagram-system violations, terminology map, and rendered layout risks before product edits."
+              - "Fingerprint the exact source, evidence, projection, workflow, environment, user request, and base commit before any product edit."
+              - "Freeze English revision 4, author the Russian lesson, migrate the shared diagram roles, activate Chapter 14, and update exact formula, content, locale, and browser tests."
+              - "Reorganize the overloaded Chapter 14 visualization into independently registered graph-flow and gradient-lifecycle figures after the single-figure fullscreen candidate exceeded the travel budget."
+              - "Recover the uncommitted Russian MDX from the last verified UTF-8 compiled artifact after a PowerShell output round-trip corrupted formula escapes and truncated/re-encoded the working copy; add a general prohibited-control-character publication check."
+              - "Run the pinned Linux gate and two-browser candidate; repair the stale Russian lifecycle accessible name and the independently surfaced Chapter 5 fullscreen lane breakpoint before repeating the complete matrix."
+              - "Install only the Playwright 1.61.1 pinned Firefox runtime after the host cache lacked revision 1532; do not alter package manifests or the product build."
+            artifacts:
+              - path: ".build/runs/20260729T083014Z-activate-ch14-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:5c81e28d80cf2b015f672af24fe4bcbeb751a68be20b27e81fda587cea7c54a3"
+                notes: "Exact canonical, diagram, validation, Rust-evidence, workflow, environment, user-scope, and base-commit fingerprint before Chapter 14 product edits."
+              - path: ".build/runs/20260729T083014Z-activate-ch14-russian-localization-01/site-dist/.prerender/chunks/14-scalar-autodiff_CtFxSDAa.mjs"
+                checksum: "sha256:22545ca3c925cfcc24b57ffdeb9a1fefe685e250db09db249b8895012fd51459"
+                notes: "Last verified compiled UTF-8 Russian Chapter 14 content retained as recovery evidence; canonical publication remains the reconstructed MDX after all gates pass."
+              - path: "curriculum/chapters/14-scalar-autodiff.md"
+                checksum: "sha256:18d395156cc05a38a260dc6a225a3d05bd1ca139c2eedb51a76f411eb03710a6"
+                notes: "Final canonical Chapter 14 contract and English semantic revision 4."
+              - path: "site/src/content/chapters/en/14-scalar-autodiff.mdx"
+                checksum: "sha256:0a7801646481cc7815ee9fd7de06fdabf62368dd68e7a9cc601cf18f03794104"
+                notes: "Final canonical English Chapter 14 learner source."
+              - path: "site/src/content/chapters/ru/14-scalar-autodiff.mdx"
+                checksum: "sha256:ca9a6b9a48af06eaf856e45a3ce6e734e00eb30532610049fbf1115e891d467d"
+                notes: "Final directly translated and rendered Russian Chapter 14 learner source."
+              - path: "site/src/components/chapters/ScalarAutodiffDiagram.astro"
+                checksum: "sha256:2eff74e598fa683be223729647c047fd9a0c05fba6f3395e681fdc8450b54772"
+                notes: "Final shared-system scalar graph and operand-edge figure."
+              - path: "site/src/components/chapters/ScalarAutodiffLifecycleDiagram.astro"
+                checksum: "sha256:ba1acc8433750c60bbac383760a9e6d760f4259c1605e2bb7ef50be0ac3048ed"
+                notes: "Final shared-system gradient lifecycle figure."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, overlap, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 13 is independently committed at 4d9dc52 and the worktree was clean; no build was active; recorded host and repository versions match; Chapter 14 owns a disjoint next checkpoint, requires no paid or external service, and is within the unlimited recorded budget."
+              - command: "Pre-edit canonical English, formula, history, learner-prose, diagram-contract, translation-terminology, and rendered-risk audit"
+                status: passed
+                notes: "The audit proves the child-node formula can double-count aliased operands conceptually, identifies exact learner-facing delivery leakage, inventories missing box/shared roles and fullscreen reflow, freezes a natural Russian terminology map, and confirms the Rust algorithm itself requires no change."
+              - command: "Focused Chapter 14 parser plus shared diagram-source and full-view unit tests"
+                status: passed
+                notes: "All 30 focused tests pass after splitting the semantic evidence into two one-figure components and registering the supplementary visualization."
+              - command: "Interim Chapter 14 contract check during source recovery"
+                status: failed
+                notes: "The gate correctly rejected the corrupted Russian MDX before publication. Recovery is using the checksummed last verified compiled UTF-8 artifact; no corrupted output is publishable."
+              - command: "Recovered Russian source, exact contract/parity, content, type, unit, and pinned Linux/Docker acceptance gates"
+                status: passed
+                notes: "The reconstructed UTF-8 lesson matches all 71 English math expressions and both diagram registrations; 841 site tests, 361 Rust tests plus doc tests, 60 production routes, 2009 local references, SEO, sitemap, and Analytics checks pass."
+              - command: "Chromium candidate 01 broad Chapter 14, diagram-system, full-view, and formula matrix"
+                status: failed
+                notes: "The gate found one stale Russian lifecycle accessible-title expectation and independently exposed a Chapter 5 aligned-tape scroll debt that grows from 16px inline to 175px when fullscreen selects two document columns. Chapter 14 formulas and geometry otherwise passed; neither failure is accepted as publishable."
+              - command: "Chromium candidate 02 focused Chapter 14 rendered matrix"
+                status: passed
+                notes: "All seven bilingual Chapter 14 desktop, narrow, no-JavaScript, forced-color, accessible-name, containment, and two-figure fullscreen tests pass after using the natural Russian lifecycle wording."
+              - command: "Initial Firefox candidate 03 matrix"
+                status: failed
+                notes: "The browser runner stopped before page execution because the pinned Playwright Firefox revision 1532 was absent from the host cache. This is an environment precondition failure, not a product result; the exact pinned runtime is being installed before repetition."
+              - command: "Firefox candidate 03 broad Chapter 14, diagram-system, full-view, and formula matrix"
+                status: failed
+                notes: "After the pinned runtime was installed, 132 of 133 tests passed. Firefox's 1366x768 fullscreen surface left 323px of vertical debt in the Russian graph figure against a 192px budget; measured side-rail reflow reduces the complete figure to 150px without smaller text, clipping, or box overflow."
+              - command: "Chromium candidate 05 complete Chapter 14, diagram-system, full-view, and formula matrix"
+                status: passed
+                notes: "All 133 selected tests pass across bilingual Chapter 14 desktop, narrow, no-JavaScript, forced-color, focus, formula, nearest-box containment, and every registered course diagram's full-view behavior."
+              - command: "Firefox candidate 05 complete Chapter 14, diagram-system, full-view, and formula matrix"
+                status: passed
+                notes: "All 133 selected tests pass with the pinned Firefox 151.0 runtime, including the 1366x768 graph rail, both Chapter 14 figures, Chapter 5 tape geometry, and course-wide formula/diagram containment."
+              - command: "Final host source, contract, parity, type, content, unit, whitespace, and UTF-8 semantic audits"
+                status: passed
+                notes: "The 40-chapter plan, exact Chapter 14 contract and bilingual sources, global content/parity gates, 205-file Astro check, all 52 Vitest files and 841 tests, and git diff --check pass. English and Russian retain 71 math expressions in exact order, four identical fenced samples, four identical link targets, eight matching sections, two figures, six Rust source regions, and no prohibited controls, replacement characters, or UTF-8 mojibake."
+              - command: "Final pinned Linux/Docker ./course check"
+                status: passed
+                notes: "The immutable Linux workflow passes formatting, 361 Rust tests plus documentation tests, the 205-file Astro check, content and parity checks, a 60-route production build, and 2066 local link, SEO, sitemap, and Analytics references."
+              - command: "Final completed-ledger, declared-scope, and artifact-checksum audit"
+                status: passed
+                notes: "The final contract, English, Russian, graph, and lifecycle hashes are recorded above; generated preview caches were removed; valid YAML reports no active build, step, or run; and only declared Chapter 14 outputs plus the measured Chapter 5 fullscreen correction remain for the independent commit."
+            notes: "Succeeded. English revision 4 and its natural Russian translation publish two focused shared-system figures, pass the exact source and dual-engine rendered contracts, and are ready for the independent Chapter 14 commit."

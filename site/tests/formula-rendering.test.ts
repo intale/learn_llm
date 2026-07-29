@@ -66,6 +66,12 @@ const chapter08To13ActiveLessons = chapter08To13Files.flatMap((file) =>
     locale,
   })),
 );
+const chapter14To39ActiveLessons = chapter14To39Files.flatMap((file) =>
+  activeLocalesForChapter(file.slice(0, -".mdx".length)).map((locale) => ({
+    file,
+    locale,
+  })),
+);
 const chapterRoot = resolve(process.cwd(), "src/content/chapters");
 const componentRoot = resolve(process.cwd(), "src/components");
 const packageManifestPath = resolve(process.cwd(), "package.json");
@@ -331,6 +337,7 @@ const documentedChapter08To13Code = [
 
 const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "14": [
+    String.raw`\bar v=\sum_{e\in E(v)}\bar{c(e)}\,d_e`,
     String.raw`\bar{\mathrm{loss}}=1`,
     String.raw`\mathrm{square}=x\cdot x`,
     String.raw`2x^2`,
@@ -928,41 +935,43 @@ describe("Chapter 8-13 formula-source contract", () => {
 describe("Chapter 14-39 formula-source contract", () => {
   it("completes the source audit for every published localized lesson", () => {
     const reviewed: string[] = [];
-    for (const file of chapter14To39Files) {
-      const source = readChapter("en", file);
+    for (const { file, locale } of chapter14To39ActiveLessons) {
+      const source = readChapter(locale, file);
       const { body, display, inline } = mathMarkup(source);
       const chapter = file.slice(0, 2);
-      reviewed.push(file);
+      reviewed.push(`${locale}/${file}`);
 
-      expect(display.length, `${file} display math`).toBeGreaterThan(0);
-      expect(inline.length, `${file} inline math`).toBeGreaterThan(0);
+      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(0);
+      expect(inline.length, `${locale}/${file} inline math`).toBeGreaterThan(0);
       for (const expression of [...display, ...inline]) {
         expect(
           expression,
-          `${file} uses the malformed TeX control symbol \\*`,
+          `${locale}/${file} uses the malformed TeX control symbol \\*`,
         ).not.toContain(String.raw`\*`);
       }
       for (const fragment of requiredChapter14To39Math[chapter] ?? []) {
-        expect(body, `${file} must retain ${fragment}`).toContain(fragment);
+        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(fragment);
       }
 
       const code = inlineCode(source);
       for (const oldExpression of formerChapter14To39MathCodeSpans) {
         expect(
           code,
-          `${file} still styles ${oldExpression} as code`,
+          `${locale}/${file} still styles ${oldExpression} as code`,
         ).not.toContain(oldExpression);
       }
 
       const prose = proseOutsideMathAndCode(source);
       for (const pattern of rawChapter14To39FormulaPatterns) {
-        expect(prose, `${file} contains raw formula ${pattern}`).not.toMatch(
+        expect(prose, `${locale}/${file} contains raw formula ${pattern}`).not.toMatch(
           pattern,
         );
       }
     }
 
-    expect(reviewed).toEqual(chapter14To39Files);
+    expect(reviewed).toEqual(
+      chapter14To39ActiveLessons.map(({ file, locale }) => `${locale}/${file}`),
+    );
     expect(
       chapter00Files.length * locales.length +
         chapterFiles.length * locales.length +
@@ -977,14 +986,14 @@ describe("Chapter 14-39 formula-source contract", () => {
   });
 
   it("keeps every remaining code span within a documented program-data category", () => {
-    for (const file of chapter14To39Files) {
-      for (const value of inlineCode(readChapter("en", file))) {
+    for (const { file, locale } of chapter14To39ActiveLessons) {
+      for (const value of inlineCode(readChapter(locale, file))) {
         const allowance = documentedChapter14To39Code.find(({ pattern }) =>
           pattern.test(value),
         );
         expect(
           allowance?.name,
-          `${file} has an undocumented code span after the formula audit: \`${value}\``,
+          `${locale}/${file} has an undocumented code span after the formula audit: \`${value}\``,
         ).toBeTruthy();
       }
     }
