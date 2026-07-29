@@ -25,7 +25,6 @@ fn fixed_list(values: &[f64]) -> String {
 fn main() -> Result<(), Box<dyn Error>> {
     // region:learner-token-embeddings-output
     let report = learner_report()?;
-    // endregion:learner-token-embeddings-output
 
     println!(
         "table: {} shape={}",
@@ -61,6 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         shape(report.table_gradient.shape()),
         fixed_list(report.table_gradient.as_slice())
     );
+    // endregion:learner-token-embeddings-output
     println!(
         "repeated row 2: [{},{}] + [{},{}] = [{},{}]",
         fixed(report.upstream.as_slice()[0]),
@@ -78,7 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     println!("identity: clone-same-node={}", report.clone_same_node);
     println!(
-        "empty ids: shape={} values={}",
+        "empty ids: shape={} value-count={}",
         shape(report.empty_output.shape()),
         report.empty_output.len()
     );

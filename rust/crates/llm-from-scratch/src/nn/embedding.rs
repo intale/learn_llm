@@ -116,7 +116,7 @@ impl Clone for Embedding {
 }
 
 impl Embedding {
-    /// Initializes one table transactionally with Chapter 17's Xavier policy.
+    /// Initializes one table transactionally with Chapter 17's shape-based policy.
     ///
     /// The complete parameter name is used as supplied. Validation checks the
     /// name before the vocabulary and width, and every error preserves `rng`.

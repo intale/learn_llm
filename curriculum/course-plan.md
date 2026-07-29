@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 43,
+  "plan_revision": 44,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-17",
+    "policy_id": "selective-russian-through-chapter-18",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "17-parameter-initialization",
+        "through_chapter": "18-token-embeddings",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-17."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-18."
       },
       {
-        "from_chapter": "18-token-embeddings",
+        "from_chapter": "19-linear-layers",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 17 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 18 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -259,6 +259,11 @@
         "step_id": "activate-ch17-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch17-russian-localization"
+      },
+      {
+        "step_id": "activate-ch18-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch18-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1154,14 +1159,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `18-token-embeddings`
 - **Implementation step:** `implement-ch18-token-embeddings`
-- **Revision status:** Content revision 4 and the complete learner-facing formula rendering repair are delivered by `repair-formula-rendering-ch14-ch19`; revision 3's Firefox inline-math repair remains recorded by `repair-ch18-firefox-inline-math-leading`.
+- **Revision status:** Content revision 5 corrects the RoPE handoff, shape-based initialization wording, empty-tensor evidence, mathematical markup, learner-facing scope, and shared diagram presentation, and activates the direct Russian localization; revision 4's formula repair remains recorded by `repair-formula-rendering-ch14-ch19`.
 - **Depends on:** `17-parameter-initialization`.
 - **Outcome:** Gather trainable embedding rows for token IDs and scatter-add gradients for repeated IDs.
-- **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer positional information.
+- **Scope boundary:** Teach lookup as one-hot multiplication, table/vocabulary dimensions, repeated-token gradient accumulation, and bounds; defer the separate position signal applied inside later attention.
 - **Formula:** `X_{b,t,:}=E_{z_{b,t},:},\quad \bar{E}_{i,:}=\sum_{(b,t):z_{b,t}=i}\bar{X}_{b,t,:}`.
 - **Historical contrast:** Contrast sparse one-hot representations with dense distributed embeddings and their compact lookup implementation.
-- **Rust contribution:** Add a differentiable embedding layer backed by the Chapter 16 gather VJP and initialized by Chapter 17.
-- **Visualization:** Useful — connect one-hot rows, selected table rows, and the resulting sequence matrix with labeled dimensions.
+- **Rust contribution:** Add a differentiable embedding layer backed by the Chapter 16 gather VJP and reuse Chapter 17's sampler under an explicit token-table shape convention.
+- **Visualization:** Useful — align token positions, one-hot identities, selected table rows, output vectors, and repeated-row gradient accumulation.
 - **Practice:** Predict output rows for repeated IDs and explain which table row an invalid ID would request.
 - **Integration evidence:** Forward lookup, repeated-ID scatter-add, bounds, empty shapes, stable parameter identity, and gradchecks pass.
 - **Handoff:** Chapter 19 packages learned matrix multiplication as a reusable optional-bias projection.

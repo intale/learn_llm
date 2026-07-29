@@ -75,6 +75,7 @@ const LANGUAGE_BOUNDARY_CHAPTERS = [
   '15-tensor-autodiff-core',
   '16-model-autodiff-ops',
   '17-parameter-initialization',
+  '18-token-embeddings',
 ] as const;
 
 const UNJUSTIFIED_LANGUAGE_ACTOR_PATTERNS = [
@@ -1412,7 +1413,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 43',
+      '"plan_revision": 44',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1720,7 +1721,7 @@ describe('curriculum and catalog contracts', () => {
 
     const uncoveredChapter = replaceOnce(
       deferredPlanSource,
-      '        "through_chapter": "17-parameter-initialization",',
+      '        "through_chapter": "18-token-embeddings",',
       '        "through_chapter": "13-gradient-checking",',
     );
     expect(() =>

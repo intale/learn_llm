@@ -53,12 +53,13 @@ const ruleLabel = (rule: GradientRule) =>
     'single-copy': labels.states.singleCopy,
     'repeated-sum': labels.states.repeatedSum,
   })[rule];
-const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
-  `[${values.map((value) => value.lexeme).join(', ')}]`;
-const integerVector = (values: ReadonlyArray<{ lexeme: string }>) =>
-  `[${values.map((value) => value.lexeme).join(', ')}]`;
 const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   String.raw`\left[${values.map((value) => value.lexeme).join(',')}\right]`;
+const latexShape = (shape: string) => String.raw`\left[${shape.replaceAll('x', ',')}\right]`;
+const latexCoordinate = (values: ReadonlyArray<{ lexeme: string }>) =>
+  String.raw`\left(${values.map((value) => value.lexeme).join(',')}\right)`;
+const latexPositions = (values: ReadonlyArray<{ lexeme: string }>) =>
+  values.map((value) => value.lexeme).join(',');
 ---
 
 <figure
@@ -75,39 +76,39 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
   </figcaption>
 
   <dl class="shape-summary">
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.parameter}</dt>
       <dd><bdi dir="ltr">{trace.fixture.parameter}</bdi></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.vocabulary}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.vocabulary.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.vocabulary.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.width}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.width.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.width.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.tableShape}</dt>
-      <dd><bdi dir="ltr">[{trace.fixture.tableShape.replaceAll('x', ', ')}]</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.tableShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.idShape}</dt>
-      <dd><bdi dir="ltr">[{trace.fixture.idShape.replaceAll('x', ', ')}]</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.idShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.outputShape}</dt>
-      <dd><bdi dir="ltr">[{trace.fixture.outputShape.replaceAll('x', ', ')}]</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.outputShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.gradientShape}</dt>
-      <dd><bdi dir="ltr">[{trace.fixture.gradientShape.replaceAll('x', ', ')}]</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.gradientShape)} /></dd>
     </div>
   </dl>
 
-  <div class="stage-grid">
-    <section class="diagram-stage ids-stage" aria-labelledby={`${titleId}-ids`}>
-      <h3 id={`${titleId}-ids`}><span aria-hidden="true">1</span> {labels.stages.ids}</h3>
+  <div class="stage-grid course-diagram__grid">
+    <section class="diagram-stage ids-stage course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby={`${titleId}-ids`}>
+      <h4 id={`${titleId}-ids`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">1</span> {labels.stages.ids}</h4>
       <p>{labels.notes.selectors}</p>
       <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.ids} data-diagram-scroll>
         <table data-diagram-table>
@@ -121,8 +122,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
           <tbody>
             {trace.lookups.map((lookup) => (
               <tr class:list={{ 'repeated-row': lookup.sharing === 'repeated-row' }}>
-                <th scope="row"><bdi dir="ltr">({lookup.coordinate.map((value) => value.lexeme).join(', ')})</bdi></th>
-                <td><bdi dir="ltr">{lookup.id.lexeme}</bdi></td>
+                <th scope="row"><InlineMath latex={latexCoordinate(lookup.coordinate)} /></th>
+                <td><InlineMath latex={lookup.id.lexeme} /></td>
                 <td>{sharingLabel(lookup.sharing)}</td>
               </tr>
             ))}
@@ -131,8 +132,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
       </div>
     </section>
 
-    <section class="diagram-stage table-stage" aria-labelledby={`${titleId}-table`}>
-      <h3 id={`${titleId}-table`}><span aria-hidden="true">2</span> {labels.stages.table}</h3>
+    <section class="diagram-stage table-stage course-diagram__card-stack" data-diagram-card data-diagram-box aria-labelledby={`${titleId}-table`}>
+      <h4 id={`${titleId}-table`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">2</span> {labels.stages.table}</h4>
       <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.table} data-diagram-scroll>
         <table data-diagram-table>
           <thead>
@@ -149,8 +150,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
                 <th scope="row">
                   <InlineMath latex={String.raw`E_{${row.row.lexeme},:}`} />
                 </th>
-                <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
-                <td><bdi dir="ltr">{row.uses.lexeme}</bdi></td>
+                <td><InlineMath latex={latexVector(row.values)} /></td>
+                <td><InlineMath latex={row.uses.lexeme} /></td>
                 <td class="row-state">
                   <span class="state-symbol" aria-hidden="true">{tableStateSymbol(row.state)}</span>
                   {tableStateLabel(row.state)}
@@ -163,8 +164,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     </section>
   </div>
 
-  <section class="diagram-stage lookup-stage" aria-labelledby={`${titleId}-lookup`}>
-    <h3 id={`${titleId}-lookup`}><span aria-hidden="true">3</span> {labels.stages.lookup}</h3>
+  <section class="diagram-stage lookup-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-lookup`}>
+    <h4 id={`${titleId}-lookup`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">3</span> {labels.stages.lookup}</h4>
     <p>{labels.notes.oneHot}</p>
     <div class="table-scroll lookup-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.lookup} data-diagram-scroll>
       <table data-diagram-table>
@@ -182,17 +183,17 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
         <tbody>
           {trace.lookups.map((lookup) => (
             <tr class:list={{ 'repeated-row': lookup.sharing === 'repeated-row' }}>
-              <th scope="row"><bdi dir="ltr">({lookup.coordinate.map((value) => value.lexeme).join(', ')})</bdi></th>
-              <td><bdi dir="ltr">{lookup.id.lexeme}</bdi></td>
-              <td><bdi dir="ltr">{integerVector(lookup.oneHot)}</bdi></td>
+              <th scope="row"><InlineMath latex={latexCoordinate(lookup.coordinate)} /></th>
+              <td><InlineMath latex={lookup.id.lexeme} /></td>
+              <td><InlineMath latex={latexVector(lookup.oneHot)} /></td>
               <td class="operation-cell">
                 <InlineMath latex={String.raw`e_{${lookup.id.lexeme}}E`} />
               </td>
               <td>
                 <InlineMath latex={String.raw`E_{${lookup.selectedRow.lexeme},:}`} />
               </td>
-              <td><bdi dir="ltr">{vector(lookup.output)}</bdi></td>
-              <td><bdi dir="ltr">{vector(lookup.upstream)}</bdi></td>
+              <td><InlineMath latex={latexVector(lookup.output)} /></td>
+              <td><InlineMath latex={latexVector(lookup.upstream)} /></td>
             </tr>
           ))}
         </tbody>
@@ -200,8 +201,8 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     </div>
   </section>
 
-  <section class="diagram-stage gradient-stage" aria-labelledby={`${titleId}-gradients`}>
-    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">4</span> {labels.stages.gradients}</h3>
+  <section class="diagram-stage gradient-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-gradients`}>
+    <h4 id={`${titleId}-gradients`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">4</span> {labels.stages.gradients}</h4>
     <p>{labels.notes.accumulation}</p>
     <div class="table-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
       <table data-diagram-table>
@@ -222,7 +223,7 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
               </th>
               <td>
                 {gradient.flatPositions ? (
-                  <bdi dir="ltr">{gradient.flatPositions.map((value) => value.lexeme).join(', ')}</bdi>
+                  <InlineMath latex={latexPositions(gradient.flatPositions)} />
                 ) : labels.states.none}
               </td>
               <td class="contribution-cell">
@@ -247,120 +248,25 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
 
 <style>
   .token-embeddings-diagram {
-    display: grid;
-    max-inline-size: 100%;
-    gap: 1.25rem;
-    margin: 1.5rem 0;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    min-inline-size: 0;
-    container-type: inline-size;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    color: var(--ink);
-    box-shadow: var(--shadow);
-  }
-
-  .token-embeddings-diagram:focus-visible,
-  .table-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: -0.3rem;
-  }
-
-  figcaption {
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
-    font-weight: 750;
-  }
-
-  .diagram-description,
-  .diagram-stage > p {
-    margin: 0;
-    max-inline-size: 72ch;
-    color: var(--muted);
-  }
-
-  .shape-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-    gap: 0.75rem;
-    margin: 0;
-  }
-
-  .shape-summary > div {
-    min-inline-size: 0;
-    padding: 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0.25rem 0 0;
-    overflow-wrap: anywhere;
-  }
-
-  .shape-summary > div:first-child bdi {
-    white-space: normal;
-    overflow-wrap: anywhere;
+    --diagram-summary-min: 9.5rem;
   }
 
   .stage-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
-    gap: 1rem;
     align-items: start;
-    min-inline-size: 0;
   }
 
   .diagram-stage {
-    display: grid;
-    gap: 0.75rem;
-    align-content: start;
     min-inline-size: 0;
-    padding: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 0.8rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .diagram-stage h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin: 0;
-    font-size: 1rem;
-  }
-
-  .diagram-stage h3 > span {
-    display: inline-grid;
-    place-items: center;
-    inline-size: 1.7rem;
-    block-size: 1.7rem;
-    flex: 0 0 auto;
-    border: 2px solid currentColor;
-    border-radius: 50%;
   }
 
   .table-scroll {
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    overscroll-behavior-inline: contain;
-    scrollbar-gutter: stable;
+    --diagram-scroll-inline-size: 100%;
   }
 
   table {
     inline-size: 100%;
     min-inline-size: 28rem;
-    border-collapse: collapse;
-    font-size: 0.88rem;
   }
 
   .ids-stage table {
@@ -375,38 +281,11 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     min-inline-size: 54rem;
   }
 
-  th,
-  td {
-    padding: 0.55rem 0.65rem;
-    border-block-end: 1px solid var(--line);
-    text-align: start;
-    vertical-align: top;
-  }
-
-  thead th {
-    font-size: 0.76rem;
-    letter-spacing: 0.02em;
-  }
-
-  tbody tr:last-child > * {
-    border-block-end: 0;
-  }
-
-  bdi {
-    white-space: nowrap;
-    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    font-variant-numeric: tabular-nums;
-  }
-
   .row-state {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.45rem;
     align-items: baseline;
-  }
-
-  .state-symbol {
-    flex: 0 0 auto;
-    font-weight: 800;
   }
 
   .state-unused > *,
@@ -426,54 +305,108 @@ const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
     border-block-end-width: 3px;
   }
 
-  .state-selected-repeated,
-  .repeated-row,
-  .rule-repeated-sum {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
-  }
-
-  .operation-cell {
-    font-weight: 700;
-  }
-
   .contribution-cell {
-    white-space: nowrap;
-  }
-
-  .plus {
-    font-weight: 800;
+    min-inline-size: 18rem;
   }
 
   @container course-diagram (max-width: 44rem) {
-    .token-embeddings-diagram {
-      padding: 0.85rem;
-    }
-
     .stage-grid {
       grid-template-columns: minmax(0, 1fr);
     }
-
-    .diagram-stage {
-      padding: 0.8rem;
-    }
   }
 
-  @media (forced-colors: active) {
-    .token-embeddings-diagram,
-    .diagram-stage,
-    .shape-summary > div {
-      border-color: CanvasText;
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .token-embeddings-diagram:fullscreen {
+      --diagram-cell-padding-block: 0.2rem !important;
+      grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+      grid-template-areas:
+        "caption actions"
+        "summary summary"
+        "stages stages"
+        "lookup lookup"
+        "gradients gradients";
+      align-content: start;
+      align-items: start;
     }
 
-    .token-embeddings-diagram {
-      color: CanvasText;
-      background: Canvas;
+    figure.token-embeddings-diagram.course-diagram[data-diagram-style='course-v1']:fullscreen {
+      row-gap: 0;
     }
 
-    .state-selected-repeated,
-    .repeated-row,
-    .rule-repeated-sum {
-      background: Canvas;
+    .token-embeddings-diagram:fullscreen > figcaption {
+      grid-area: caption;
+      grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.25fr);
+      align-items: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    .token-embeddings-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-area: actions;
+      align-self: start;
+    }
+
+    .token-embeddings-diagram:fullscreen > .shape-summary {
+      grid-area: summary;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+
+    .token-embeddings-diagram:fullscreen > .shape-summary > :first-child {
+      grid-column: span 2;
+    }
+
+    .token-embeddings-diagram:fullscreen > .shape-summary > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) max-content;
+      align-items: baseline;
+      column-gap: 0.45rem;
+    }
+
+    .token-embeddings-diagram:fullscreen > .shape-summary dd {
+      margin-block-start: 0;
+    }
+
+    .token-embeddings-diagram:fullscreen > .stage-grid {
+      grid-area: stages;
+      grid-template-columns: minmax(26rem, 0.55fr) minmax(0, 1.45fr);
+    }
+
+    .token-embeddings-diagram:fullscreen > .lookup-stage {
+      grid-area: lookup;
+    }
+
+    .token-embeddings-diagram:fullscreen > .gradient-stage {
+      grid-area: gradients;
+    }
+
+    .token-embeddings-diagram:fullscreen > :is(.lookup-stage, .gradient-stage) {
+      display: grid;
+      grid-template-columns: minmax(13rem, 0.25fr) minmax(0, 1.75fr);
+      grid-template-rows: auto 1fr;
+      align-items: start;
+      column-gap: var(--diagram-gap);
+    }
+
+    .token-embeddings-diagram:fullscreen > :is(.lookup-stage, .gradient-stage) > h4 {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .token-embeddings-diagram:fullscreen > :is(.lookup-stage, .gradient-stage) > p {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .token-embeddings-diagram:fullscreen
+      > :is(.lookup-stage, .gradient-stage)
+      > .table-scroll {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    .token-embeddings-diagram:fullscreen
+      > :is(.lookup-stage, .gradient-stage)
+      table {
+      min-inline-size: 100%;
     }
   }
 </style>

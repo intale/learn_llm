@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–17 and English only for Chapters 18–39',
+      'English and Russian for Chapters 0–18 and English only for Chapters 19–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–17 use English and Russian',
+      'Chapters 0–18 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 17 use English and Russian, and Chapters 18 through 39 use English only',
+      'Chapters 0 through 18 use English and Russian, and Chapters 19 through 39 use English only',
     );
   });
 
@@ -143,6 +143,11 @@ describe('chapter-locale manifest', () => {
       order: 17,
       activeLocales: ['en', 'ru'],
     });
+    expect(chapterLocaleConfiguration.chapters[18]).toMatchObject({
+      chapterId: '18-token-embeddings',
+      order: 18,
+      activeLocales: ['en', 'ru'],
+    });
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
@@ -150,7 +155,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 18)
+        .slice(0, 19)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -160,7 +165,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 18)
+        .filter((chapter) => chapter.order >= 19)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -195,6 +200,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('16-model-autodiff-ops', 'ru')).toBe(true);
     expect(activeLocalesForChapter('17-parameter-initialization')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('17-parameter-initialization', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('18-token-embeddings')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('18-token-embeddings', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 

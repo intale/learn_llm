@@ -9429,3 +9429,67 @@ diagram module before publication.
 
 **Affected step and run:** `activate-ch17-russian-localization`, run
 `20260729T131519Z-activate-ch17-russian-localization-01`.
+
+## 2026-07-29 - Freeze corrected Chapter 18 semantics before translation
+
+**Status:** Accepted during `activate-ch18-russian-localization` canonical and
+Rust-evidence audits.
+
+**Context:** The lookup and repeated-row VJP are correct, and the cited language-
+model papers support the historical path. The English lesson nevertheless calls
+the token table's two shape arguments fan-in and fan-out after Chapter 17 has
+correctly scoped that use as a convention, labels an empty tensor as
+`values=0`, and says later position information changes embedding vectors before
+attention even though this course applies RoPE to projected queries and keys.
+Learner prose also exposes exact-output, test, trace, page, scroller, and script
+machinery, while several explanatory matrices, vectors, IDs, shapes, and
+tolerances bypass the math pipeline.
+
+**Decision:** Freeze Chapter 18 as English revision 5 before Russian
+translation. Describe `V` and `d` as the shape inputs to an explicit table-
+initialization convention, print an empty tensor as `value-count=0`, and state
+that later RoPE rotates projected queries and keys while repeated occurrences
+retain one shared embedding row. Replace delivery commentary with the concept's
+evidence, render every explanatory mathematical value through the math
+pipeline, and keep programming-language references only where the concrete Rust
+type, command, or source is being taught.
+
+**Consequences:** Russian must be translated directly from revision 5 and
+preserve the corrected position, initialization, and empty-tensor distinctions.
+The exact learner output changes by one field name but no lookup or gradient
+arithmetic changes. Contract, Rust, formula, source, browser, and Linux gates
+must all be rerun.
+
+**Affected step and run:** `activate-ch18-russian-localization`, run
+`20260729T150818Z-activate-ch18-russian-localization-01`.
+
+## 2026-07-29 - Move Chapter 18 presentation and evidence ownership to shared systems
+
+**Status:** Accepted during `activate-ch18-russian-localization` diagram audit.
+
+**Context:** The existing figure carries private frame, caption, card, table,
+focus, scroll, palette, and forced-color styling; it renders mathematical shapes
+and vectors as plain text; and its localized labels repeat the trace-owned token
+ID. Its focused browser suite covers English only and treats the Russian route as
+a deliberate 404. The Rust trace's numeric output is correct, but several shape,
+ID, coordinate, and sharing metadata fields are hand-written beside the same
+runtime constants.
+
+**Decision:** Use the shared diagram module for every generic surface and keep
+only table topology, data-dependent widths, wrapping, state-border cues, and
+fullscreen reflow locally. Mark all bounded content, use nested `h4` stage
+headings, render numeric evidence with server-side math, and make localized state
+copy independent of the repeated ID's concrete value. Derive trace metadata from
+the runtime fixture and require the Rust renderer to equal the committed trace
+byte for byte. Replace the focused suite with bilingual desktop, narrow,
+no-JavaScript, forced-color, direction, fullscreen, and nearest-box containment
+checks in Chromium and Firefox.
+
+**Consequences:** Russian text is validated in the actual shared presentation
+rather than inferred from English geometry. The diagram remains complete static
+HTML, preserves exact Rust-authored arithmetic, and can evolve its fixture
+without silently drifting duplicated labels. All shared and focused browser
+gates must pass before the locale activates.
+
+**Affected step and run:** `activate-ch18-russian-localization`, run
+`20260729T150818Z-activate-ch18-russian-localization-01`.

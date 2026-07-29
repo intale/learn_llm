@@ -474,9 +474,11 @@ const chapter14To39FormulaLatex: Record<
   ],
   "17-parameter-initialization": [String.raw`1/\sqrt{2}`, String.raw`\Delta=`],
   "18-token-embeddings": [
+    String.raw`E=\begin{bmatrix}`,
     String.raw`X_{b,t,:}=E_{z_{b,t},:}`,
     String.raw`E_{2,:}`,
     String.raw`e_{2}E`,
+    String.raw`\left[30.000000000000,31.000000000000\right]`,
   ],
   "19-linear-layers": [
     String.raw`Y=XW+b`,

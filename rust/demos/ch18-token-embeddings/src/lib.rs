@@ -102,6 +102,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
         .is_same_node(initialized.clone().table().tensor());
     // endregion:initialized-token-embedding
 
+    // region:embedding-edge-cases
     let empty_output = embedding.forward(&[], &[0])?.value();
     let bounds_rejected = matches!(
         embedding.forward(&[4], &[1]),
@@ -111,6 +112,7 @@ pub fn learner_report() -> Result<LearnerReport, Box<dyn Error>> {
             vocabulary_size: 4,
         })
     );
+    // endregion:embedding-edge-cases
     let unused_rows_zero = [0, 1, 6, 7]
         .into_iter()
         .all(|index| table_gradient.as_slice()[index] == 0.0);

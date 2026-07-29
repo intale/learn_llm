@@ -8,6 +8,6 @@ repeated row 2: [1.000000000000,0.000000000000] + [3.000000000000,4.000000000000
 unused rows stay zero: true
 initialized: seed=18 shape=4x2 reproducible=true
 identity: clone-same-node=true
-empty ids: shape=0x2 values=0
+empty ids: shape=0x2 value-count=0
 bounds: id=4 rows=4 rejected=true
 chapter 19 handoff: preserve leading axes and project width 2

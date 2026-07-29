@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-29T15:06:30Z"
+updated_at: "2026-07-29T15:29:43Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -21243,3 +21243,183 @@ builds:
                 status: passed
                 notes: "BUILD_STATE.yaml parses, the complete course plan passes, git diff --check is clean, final hashes are recorded, and the product diff is limited to the declared Chapter 17 canonical/localized/evidence/integration/test surfaces plus their required shared policy records. Pre-existing root caches and generated untracked browser output are excluded from the checkpoint."
             notes: "Succeeded. Corrected English revision 4 and its direct natural Russian translation now teach precisely scoped initialization behavior with Rust-authored evidence and one localized shared-system figure; every declared source, Linux, Chromium, and Firefox gate passes."
+  - build_id: activate-ch18-russian-localization
+    objective: "Audit the canonical Chapter 18 token-embedding lesson, correct any source inaccuracies, translate its complete learner-facing surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This medium localization build uses local authored translation and cached exact Linux, Chromium, and Firefox validation without paid or external services."
+    completion_criteria:
+      - "English Chapter 18 accurately distinguishes integer token selectors from trainable embedding rows, proves direct lookup's one-hot equivalence, and explains repeated-row gradient accumulation without learner-facing authoring or delivery machinery."
+      - "Russian Chapter 18 preserves every formula, symbol, shape, value, code identifier, causal claim, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 19 handoff in natural technical language."
+      - "The Chapter 18 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 18 is activated in this checkpoint, the locale policy advances through Chapter 18, and the completed step is committed independently before Chapter 19 starts."
+    steps:
+      - id: activate-ch18-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 18 token-embedding lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch17-russian-localization
+        status: completed
+        inputs:
+          - "Human request on 2026-07-29 to continue Russian translations through Chapters 18-19 without further approval pauses."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/18-token-embeddings.md"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
+          - "site/src/lib/token-embeddings-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
+          - "rust/demos/ch18-token-embeddings/src/lib.rs"
+          - "rust/demos/ch18-token-embeddings/src/main.rs"
+          - "rust/demos/ch18-token-embeddings/src/diagram_trace.rs"
+          - "rust/demos/ch18-token-embeddings/expected.txt"
+          - "rust/demos/ch18-token-embeddings/diagram-trace.txt"
+          - "site/src/i18n/chapter-locales.json"
+          - "Chapter 17 completion commit d0ebffa926ad79f78c1a6dbbb69df55c085fc015."
+        outputs:
+          - "curriculum/chapters/18-token-embeddings.md"
+          - "curriculum/course-plan.md"
+          - "rust/crates/llm-from-scratch/src/nn/embedding.rs"
+          - "rust/demos/ch18-token-embeddings/expected.txt"
+          - "rust/demos/ch18-token-embeddings/src/lib.rs"
+          - "rust/demos/ch18-token-embeddings/src/main.rs"
+          - "rust/demos/ch18-token-embeddings/src/diagram_trace.rs"
+          - "rust/demos/ch18-token-embeddings/diagram-trace.txt"
+          - "site/src/content/chapters/en/18-token-embeddings.mdx"
+          - "site/src/content/chapters/ru/18-token-embeddings.mdx"
+          - "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
+          - "site/src/lib/token-embeddings-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/18-token-embeddings-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch18-token-embeddings.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The corrected English source remains the sole canonical semantic source and passes its current contract, formula, history, Rust-evidence, and learner-prose audit."
+          - "The Russian lesson is translated directly from that frozen English revision, is natural rather than literal, and passes semantic, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff review."
+          - "Formula markup, code regions, source links, exact evidence, diagram semantics, and locale routing preserve parity without translated identifiers or invented claims."
+          - "Every bounded figure box contains Russian and English text and formula ink in inline and full view at desktop and narrow widths in Chromium and Firefox, including no-JavaScript, forced-color, and direction-sensitive cases."
+          - "Rust formatting, workspace tests, exact learner and diagram output, unit/static/content/parity/link/SEO/sitemap/Analytics checks, and the production build all pass."
+          - "The completed checkpoint is committed separately before Chapter 19 starts."
+        validate:
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch18-token-embeddings | diff -u rust/demos/ch18-token-embeddings/expected.txt -'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch18-token-embeddings --example ch18-token-embeddings-trace | diff -u rust/demos/ch18-token-embeddings/diagram-trace.txt -'"
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-chapter-contract.mjs curriculum/chapters/18-token-embeddings.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 18-token-embeddings"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 18-token-embeddings"
+          - "node scripts/check-site-content.mjs parity --chapter 18-token-embeddings"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium Chapter 18, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "Firefox Chapter 18, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: medium
+          notes: "One bounded canonical audit and correction plus complete source-to-target chapter translation and shared-diagram localization, with cached local static, unit, and two-engine browser validation. No paid service, external translation, dependency, product build-definition, hosting, or deployment change is planned."
+        runs:
+          - run_id: 20260729T150818Z-activate-ch18-russian-localization-01
+            started_at: "2026-07-29T15:08:18Z"
+            finished_at: "2026-07-29T16:28:10Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d0ebffa926ad79f78c1a6dbbb69df55c085fc015"
+              manifest: ".build/runs/20260729T150818Z-activate-ch18-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:f928738628a60d5b2ba8daa314f5f2cd24d9631dea01b189a2d5450cb895a62c"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 18, immutable Rust behavior, and cited primary historical sources are authoritative after any recorded canonical correction."
+            staging_dir: ".build/runs/20260729T150818Z-activate-ch18-russian-localization-01/"
+            commands:
+              - "Verify the independently committed Chapter 17 checkpoint d0ebffa; inspect the scheduler, environment, localization instructions, Chapter 18 contract, English lesson, shared figure/parser/tests, locale projection, and Rust evidence; fingerprint all material inputs before product edits."
+              - "Audit and freeze corrected English revision 5; repair the RoPE handoff, shape-based initialization wording, empty-output evidence, formula rendering, learner-facing delivery leakage, shared diagram roles, and Rust-derived trace metadata."
+              - "Build pinned Linux workspace Candidate 01 and run the complete workspace/static pipeline plus focused Chapter 18 Rust tests and byte-exact learner/diagram output comparisons."
+              - "Translate the complete frozen English revision directly into Russian; integrate its contract projection, reconcile established terminology, and apply the independent semantic and anti-calque audit."
+              - "Activate only Chapter 18 in locale policy revision 44 and replace the deferred-route browser contract with exact bilingual desktop, narrow, no-JavaScript, forced-color, direction, fullscreen, painted-text, formula, and nearest-box containment coverage."
+              - "Build immutable run-scoped static candidates on dedicated loopback ports; iterate natural Russian labels and fullscreen geometry until Chapter 18 and every shared diagram/formula gate pass in Chromium and Firefox."
+              - "Run the complete host validation and pinned Linux Candidate 02 pipeline, then replay Chapter 18 documentation tests and byte-exact learner/diagram outputs."
+              - "Apply the independent final Russian audit's two exact corrections, rebuild immutable Candidate 16, and replay Chapter 18's complete bilingual rendered contract in Chromium and Firefox."
+            artifacts:
+              - path: ".build/runs/20260729T150818Z-activate-ch18-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:f928738628a60d5b2ba8daa314f5f2cd24d9631dea01b189a2d5450cb895a62c"
+                notes: "Exact canonical, diagram, validation, Rust-evidence, workflow, environment, user-scope, and base-commit fingerprint before Chapter 18 product edits."
+              - path: "docker-image://sha256:12779473c9af6777cbd56228fa3f5df97a8c69e947128ed407a7d352ff419cc7"
+                checksum: "sha256:12779473c9af6777cbd56228fa3f5df97a8c69e947128ed407a7d352ff419cc7"
+                notes: "Pinned Linux Candidate 01 containing frozen English revision 5 before Russian translation."
+              - path: "site/src/content/chapters/en/18-token-embeddings.mdx"
+                checksum: "sha256:e8aa64ab8111709155e36af7a421bf4c6c464632c5dd3ba928c8a2ca51a501d0"
+                notes: "Canonical English revision 5 frozen after independent semantic, formula, history, learner-prose, and diagram audits, including removal of the last unjustified language-as-actor phrase found by the full publication suite."
+              - path: "curriculum/chapters/18-token-embeddings.md"
+                checksum: "sha256:3dc07fc2b0c110723e6a71ec014b031e6d86b453b71b0ce532ac3b7b095da175"
+                notes: "Integrated revision-5 contract with the exact active {en,ru} projection and terminology aligned with the existing course ledger."
+              - path: "site/src/content/chapters/ru/18-token-embeddings.mdx"
+                checksum: "sha256:d611c0d93e3598963dde4ce98ee69ca66f49b715e3fd80e4d208dea6014f9c52"
+                notes: "Complete Russian lesson translated directly from the final canonical English revision 5."
+              - path: "site/src/components/chapters/TokenEmbeddingsDiagram.astro"
+                checksum: "sha256:ba8de214b25b2f5b42ae78f3e32e5a1c825c0bfe4d4c26ec920f4a4f70bbff0d"
+                notes: "Shared-system figure with math-rendered evidence, bounded boxes, and two-engine fullscreen reflow."
+              - path: "site/tests/e2e/ch18-token-embeddings.spec.ts"
+                checksum: "sha256:3c196fb1e7f0c585a706580b38dd35e33c1b2d9b2cfa3402d0d2ed3b5e21d3f9"
+                notes: "Bilingual revision-5 browser contract covering exact content, all nine Rust regions, accessibility modes, and painted containment."
+              - path: ".build/runs/20260729T150818Z-activate-ch18-russian-localization-01/site-dist-16/en/course/18-token-embeddings/index.html"
+                checksum: "sha256:fb5c67b17a4db88e695f07e80badbf52b573ff147f2f0336b3e12e452de8c574"
+                notes: "Final isolated English page used by the passing two-engine browser gates."
+              - path: ".build/runs/20260729T150818Z-activate-ch18-russian-localization-01/site-dist-16/ru/course/18-token-embeddings/index.html"
+                checksum: "sha256:67ab1361c954db30f6a6582d640c64bf80ef8e25293cd4263d4e05ebcb32eea1"
+                notes: "Final isolated Russian page used by the passing two-engine browser gates."
+              - path: "docker-image://sha256:0ee2283655d665d3ff0c003aa53fae6ee16257e5775ce4a983f80dc4c16133be"
+                checksum: "sha256:0ee2283655d665d3ff0c003aa53fae6ee16257e5775ce4a983f80dc4c16133be"
+                notes: "Pinned Linux Candidate 02 containing the final bilingual Chapter 18 checkpoint."
+              - path: "rust/demos/ch18-token-embeddings/expected.txt"
+                checksum: "sha256:d317909640d2602898b6f9ed2a0d5e434c53bee12d8310ef542ecd218743caaf"
+                notes: "Corrected exact learner output identifying the empty tensor by value count."
+              - path: "rust/demos/ch18-token-embeddings/diagram-trace.txt"
+                checksum: "sha256:f64694cb1bed1a6b902d86bdeb13269e4a8054cf0253396aaecc50e96fb9b3b9"
+                notes: "Unchanged exact diagram trace, now reproduced from runtime-derived metadata and asserted byte-for-byte in Rust."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, overlap, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 17 is independently committed at d0ebffa and only generated root caches remain untracked; no build was active; recorded host and repository versions match; Chapter 18 owns the disjoint next checkpoint, requires no paid or external service, and is within the unlimited recorded budget."
+              - command: "Independent canonical English, primary-source history, formula, Rust-evidence, learner-prose, handoff, and shared-diagram audit"
+                status: passed
+                notes: "Revision 5 corrects the RoPE handoff, treats V and d as explicit table-shape inputs rather than lookup-derived fan counts, names an empty tensor by value count, removes visible delivery machinery, renders explanatory mathematics through the math pipeline, migrates generic figure presentation to the shared module, and makes localized state labels data-independent. The Bengio and Transformer claims are supported by their primary papers."
+              - command: "Focused host contract, English content, diagram/formula/shared-style unit, Astro, and whitespace gates"
+                status: passed
+                notes: "The integrated revision-5 contract and English source pass; 61 focused unit checks pass; Astro reports zero diagnostics across 205 files; git diff --check is clean."
+              - command: "Pinned Linux Candidate 01 full workspace/static pipeline and exact Chapter 18 evidence replay"
+                status: passed
+                notes: "Image sha256:12779473c9af6777cbd56228fa3f5df97a8c69e947128ed407a7d352ff419cc7 passes formatting, all 362 library tests, all demos and documentation tests, zero-diagnostic Astro analysis, complete content/parity checks, a 63-page static build, 1,991 local references, all 63 SEO/sitemap/Analytics routes, three Chapter 18 demo tests, six focused embedding tests, and byte-exact learner and diagram outputs."
+              - command: "Direct English-to-Russian semantic, terminology, anti-calque, monolingual, formula, accessibility, exercise, answer, SEO, and handoff audit"
+                status: passed
+                notes: "The complete Russian projection preserves 77 ordered mathematical expressions and every source, value, identifier, claim, exercise, answer, and RoPE handoff. Independent review removed nine calques or ambiguous phrases; established course terminology remains consistent."
+              - command: "Final host unit, type, Astro, scheduler, contract, content, parity, and whitespace gates"
+                status: passed
+                notes: "All 849 unit tests pass; TypeScript emits no diagnostics; Astro reports zero diagnostics across 205 files; the 40-chapter/90-step course plan, integrated contract, English and Russian content, active parity set, and git diff whitespace checks pass."
+              - command: "Chromium Chapter 18, shared diagram-style, shared full-view, and formula-rendering gates"
+                status: passed
+                notes: "All seven bilingual Chapter 18 checks, ten shared-style checks, ten shared-fullscreen checks, and 114 desktop/narrow formula checks pass against run-scoped Candidate 15."
+              - command: "Firefox Chapter 18, shared diagram-style, shared full-view, and formula-rendering gates"
+                status: passed
+                notes: "All seven bilingual Chapter 18 checks, ten shared-style checks, ten shared-fullscreen checks, and 114 desktop/narrow formula checks pass against run-scoped Candidate 15."
+              - command: "Pinned Linux Candidate 02 complete workspace/static pipeline and exact Chapter 18 evidence replay"
+                status: passed
+                notes: "Image sha256:0ee2283655d665d3ff0c003aa53fae6ee16257e5775ce4a983f80dc4c16133be passes formatting, all workspace Rust and documentation tests, zero-diagnostic Astro analysis, complete content/parity checks, a 64-page build, 2,084 local references, all 64 SEO/sitemap/Analytics routes, three Chapter 18 demo tests, and byte-exact learner and diagram outputs."
+              - command: "Independent final Russian wording audit, exact correction replay, and immutable Candidate 16 browser validation"
+                status: passed
+                notes: "The independent audit confirmed all formulas, values, identifiers, sources, Rust regions, exercises, SEO, accessibility labels, and the Chapter 19 handoff, then identified one reverse-pass calque and one flattened-index label that lost precision. Both were corrected; the contract, Russian content, parity, 53 focused unit checks, TypeScript, 64-page static build, and all seven Chapter 18 tests pass again in Chromium and Firefox across desktop, narrow, full view, no JavaScript, forced colors, and direction-sensitive cases."
+            notes: "Succeeded. Corrected English revision 5 and its direct natural Russian translation now teach token-row lookup, one-hot equivalence, and repeated-row gradient accumulation with Rust-authored evidence and one localized shared-system figure; every declared source, Linux, Chromium, and Firefox gate passes."

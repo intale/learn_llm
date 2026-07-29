@@ -27,6 +27,10 @@ const componentSource = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/TokenEmbeddingsDiagram.astro'),
   'utf8',
 );
+const sharedDiagramSource = readFileSync(
+  resolve(repositoryRoot, 'site/src/styles/diagram.module.css'),
+  'utf8',
+);
 const contractSource = readFileSync(
   resolve(repositoryRoot, 'curriculum/chapters/18-token-embeddings.md'),
   'utf8',
@@ -256,10 +260,12 @@ describe('Chapter 18 labels and static component', () => {
     );
     expect(componentSource).toContain('parseTokenEmbeddingsTrace');
     expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
-    expect(componentSource).toContain('{vector(row.values)}');
-    expect(componentSource).toContain('{integerVector(lookup.oneHot)}');
-    expect(componentSource).toContain('{vector(lookup.output)}');
-    expect(componentSource).toContain('{vector(lookup.upstream)}');
+    expect(componentSource).toContain('<InlineMath latex={latexVector(row.values)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexVector(lookup.oneHot)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexVector(lookup.output)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexVector(lookup.upstream)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexShape(trace.fixture.tableShape)} />');
+    expect(componentSource).toContain('<InlineMath latex={latexCoordinate(lookup.coordinate)} />');
     expect(componentSource).toContain('<InlineMath latex={latexVector(contribution)} />');
     expect(componentSource).toContain('<InlineMath latex={latexVector(gradient.accumulated)} />');
     expect(componentSource).toContain('String.raw`E_{${row.row.lexeme},:}`');
@@ -286,9 +292,12 @@ describe('Chapter 18 labels and static component', () => {
     expect(componentSource).not.toMatch(
       /\.token-embeddings-diagram\s*\{[^}]*overflow:\s*(?:hidden|clip)/s,
     );
-    expect(componentSource).toMatch(
-      /\.shape-summary > div:first-child bdi\s*\{[^}]*overflow-wrap:\s*anywhere;/s,
-    );
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(11);
+    expect(componentSource.match(/data-diagram-card/g)).toHaveLength(2);
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('course-diagram__card-heading');
+    expect(componentSource.match(/<h4 /g)).toHaveLength(4);
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource.match(/role="region"/g)).toHaveLength(4);
     expect(componentSource).toContain('<bdi dir="ltr">');
@@ -297,17 +306,22 @@ describe('Chapter 18 labels and static component', () => {
     expect(componentSource).not.toMatch(/\.diagram-stage\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
   });
 
-  it('uses the site palette and renders the reverse-mode notation as mathematics', () => {
-    expect(componentSource).toContain('border: 1px solid var(--line)');
-    expect(componentSource).toContain('background: var(--surface)');
-    expect(componentSource).toContain('color: var(--ink)');
-    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
+  it('delegates presentation to the shared module and renders notation as mathematics', () => {
+    expect(sharedDiagramSource).toContain(
+      "figure.course-diagram[data-diagram-style='course-v1']",
+    );
+    expect(sharedDiagramSource).toContain('.course-diagram__scroll[data-diagram-scroll]');
+    expect(sharedDiagramSource).toContain('table[data-diagram-table]');
+    expect(componentSource).not.toContain('border: 1px solid var(--line)');
+    expect(componentSource).not.toContain('background: var(--surface)');
+    expect(componentSource).not.toContain('outline: 0.2rem solid var(--focus)');
+    expect(componentSource).not.toMatch(/@media\s*\(\s*forced-colors/);
     expect(componentSource).not.toMatch(
       /#111827|#182235|#4b5563|#7dd3fc|#38bdf8|var\(--border/,
     );
 
-    expect(contractSource).toContain('"content_revision": 4');
-    expect(lessonSource).toContain('"content_revision": 4');
+    expect(contractSource).toContain('"content_revision": 5');
+    expect(lessonSource).toContain('"content_revision": 5');
     expect(contractSource).toContain(
       '`\\bar{X}_{b,t,:} = \\partial L / \\partial X_{b,t,:}`',
     );

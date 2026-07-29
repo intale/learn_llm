@@ -354,9 +354,12 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
   ],
   "17": [String.raw`1/\sqrt{2}`, String.raw`[-a,a)`, String.raw`a=\sqrt{6/`],
   "18": [
+    String.raw`E=\begin{bmatrix}`,
     String.raw`X_{b,t,:}=E_{z_{b,t},:}`,
     String.raw`\bar{X}_{b,t,:}=\partial L/\partial X_{b,t,:}`,
     String.raw`[1,0]+[3,4]=[4,4]`,
+    String.raw`10^{-6}`,
+    String.raw`2\times10^{-6}`,
   ],
   "19": [
     String.raw`Y=XW+b`,
