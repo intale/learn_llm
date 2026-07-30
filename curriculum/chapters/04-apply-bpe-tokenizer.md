@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
@@ -44,7 +44,7 @@
     },
     "summary": {
       "en": "A closed word table loses the spelling of every unseen word behind <UNK>. Sennrich, Haddow, and Birch used learned subwords to address rare words, while the GPT-2 report described UTF-8 byte-level BPE with a 256-symbol base that can cover any Unicode string. Byte coverage removes the unknown-string hole but can spend several positions on one character; this course uses its own document-boundary policy and explicit BOS/EOS layout.",
-      "ru": "В закрытом словаре написание любого слова, которое не встречалось при обучении, теряется за маркером <UNK>. Сеннич, Хэддоу и Бёрч предложили обучать подсловные единицы для работы с редкими словами. Позднее в отчёте GPT-2 описали BPE на уровне байтов UTF-8 с базовым алфавитом из 256 значений, достаточным для представления любой строки Unicode. Байтовая основа устраняет необходимость заменять незнакомые строки на <UNK>, но для одного символа может потребоваться несколько позиций в последовательности токенов. В этом курсе отдельно определены правила обработки границ документов и схема ID для BOS и EOS."
+      "ru": "В закрытом словаре написание любого слова, которое не встречалось при обучении, теряется за маркером <UNK>. Сеннрих, Хэддоу и Бёрч предложили обучать подсловные единицы для работы с редкими словами. Позднее в отчёте GPT-2 описали BPE на уровне байтов UTF-8 с базовым алфавитом из 256 значений, достаточным для представления любой строки Unicode. Байтовая основа устраняет необходимость заменять незнакомые строки на <UNK>, но для одного символа может потребоваться несколько позиций в последовательности токенов. В этом курсе отдельно определены правила обработки границ документов и схема ID для BOS и EOS."
     },
     "rust_contrast": "Fit a closed whole-word table that maps unseen lowering to ID 0 and decodes only <UNK>, then show that the frozen byte tokenizer preserves every byte of unseen 🦀."
   },

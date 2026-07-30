@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 4,
   "concept_id": "reversible-byte-bpe-tokenizer",
   "title": "Applying and reversing a BPE tokenizer",
@@ -64,7 +64,7 @@
     {
       "path": "rust/demos/ch04-apply-bpe-tokenizer/src/main.rs",
       "region": "chapter-output",
-      "purpose": "Print the exact layout, canonicalization behavior, edge cases, and reversible diagram pipelines."
+      "purpose": "Print the exact ID layout, canonicalization behavior, edge cases, and two byte-exact round-trip examples."
     }
   ],
   "visualization": {
@@ -298,8 +298,8 @@ requires both endpoints and rejects BOS/EOS inside:
 
 The runnable chapter retrains the exact eight Chapter 3 ranks from the training
 partition, freezes them, demonstrates the lossy historical table, exercises
-unseen and malformed bytes, exposes canonicalization, and emits the strict diagram
-trace:
+unseen and malformed bytes, exposes canonicalization, and prints the tokenizer
+layout, edge-case results, and two byte-exact round-trip examples:
 
 <RustSource
   path="rust/demos/ch04-apply-bpe-tokenizer/src/main.rs"
@@ -326,7 +326,7 @@ and every invalid control placement.
 
 <ApplyBpeTokenizerDiagram labels={diagramLabels} />
 
-Both pipelines come from the exact Rust output fixture. In `bee `, rank 7 groups
+Both examples show results computed by the Rust program. In `bee `, rank 7 groups
 the last `e` and space as token `265`; the preceding `b` and `e` remain one-byte
 fallbacks. In ` а`, rank 0 groups a space with the first byte of `а`, leaving its
 continuation byte separate. That second case makes it impossible to pretend that
@@ -334,9 +334,9 @@ token boundaries are character boundaries.
 
 Read each pipeline downward to encode, then inspect each piece's stored bytes to
 decode. BOS and EOS are outside the content pieces. The check mark, border, text,
-and byte values all carry the equality cue, so color is never the only signal.
-The tapes are keyboard-focusable and horizontally scroll within the figure; the
-two examples stack on a narrow screen.
+and byte values all carry the equality cue, so color is never the only signal. In
+both examples, concatenating the decoded content bytes recovers the original byte
+sequence exactly.
 
 {/* chapter-section:exercises */}
 

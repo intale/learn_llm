@@ -22571,7 +22571,7 @@ builds:
       - id: audit-ch04-apply-bpe-tokenizer
         objective: "Audit and repair Chapter 4 tokenizer-application teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch03-learn-bpe-merges]
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md and localization/formula/diagram rules"
           - "curriculum/chapters/04-apply-bpe-tokenizer.md"
@@ -22581,6 +22581,7 @@ builds:
           - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
           - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
           - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md revision records"
           - "Declared Chapter 4 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/04-apply-bpe-tokenizer.md"
@@ -22590,6 +22591,7 @@ builds:
           - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
           - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
           - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md if the content revision advances"
           - "Chapter 4 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -22600,7 +22602,59 @@ builds:
           - "The audit is committed before Chapter 5 begins."
         validate: ["Chapter 4 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
         cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T130132Z-audit-ch04-apply-bpe-tokenizer-01
+            started_at: "2026-07-30T13:01:32Z"
+            finished_at: "2026-07-30T13:14:58Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6b9620b67624e11965f038d5a3961af855885dd9"
+              manifest: "C:/tmp/learn_llm/runs/20260730T130132Z-audit-ch04-apply-bpe-tokenizer-01/input-fingerprint.txt"
+              checksum: "sha256:9b63609f709538d1761a545ce53a77a26203175390dc55f028807dbce716edc2"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T130132Z-audit-ch04-apply-bpe-tokenizer-01/"
+            commands:
+              - "Verify dedicated Chapter 3 commit 6b9620b, clean worktree, active sequential build, completed dependency, Chapter 4 source paths, locale policy, rules, exact hashes, output ownership, and medium cost before product edits."
+              - "Independently audit English and direct Russian ranked-tokenizer teaching, byte/control ID layout, greedy application, reversible decoding, malformed-input boundaries, history, exercises, answers, SEO, diagram/accessibility copy, Chapter 5 handoff, and exact Rust behavior."
+              - "Replace trace/fixture and responsive-layout machinery with byte-exact round-trip evidence, correct Russian Sennrich and accessibility wording, and advance the exact locale pair plus revision records to revision 5 without changing tokenizer or Rust behavior."
+              - "Run focused contract, English, Russian, parity, Vitest diagram/formula, exact pinned Linux Rust-output, and ownership checks."
+              - "Freeze the corrected product files in candidate-01, run Astro check/build and link audit, then run the Chapter 4, formula, shared diagram-style, and full-view suites in pinned Chromium and Firefox."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T130132Z-audit-ch04-apply-bpe-tokenizer-01/input-fingerprint.txt"
+                checksum: "sha256:9b63609f709538d1761a545ce53a77a26203175390dc55f028807dbce716edc2"
+                notes: "Exact Chapter 4 contract, bilingual lessons, figure/library/tests, Rust evidence, revision records, workflow, environment, scope, and dependency fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T130132Z-audit-ch04-apply-bpe-tokenizer-01/audit-manifest.txt"
+                checksum: "sha256:0d34ce48e6005e68933a247ac01ce4f26c29653a97420216a4fbb07986e4dcbc"
+                notes: "Immutable final source hashes, correction summaries, and semantic, Rust, static, link, Chromium, and Firefox outcomes."
+            validation:
+              - command: "Dependency, worktree, locale, source, output, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 3 is independently committed; Chapter 4 is the first eligible pending step; the tree was clean; English/Russian are the exact active set; all declared files exist; no network, paid service, dependency, or build change is planned."
+              - command: "Independent bilingual semantic, mathematical, historical, terminology, accessibility, SEO, exercise, answer, and handoff audit plus correction re-audit"
+                status: passed
+                notes: "The audit found and the re-audit cleared trace/fixture and responsive-layout machinery, the Russian Sennrich spelling, an accessibility-label mistranslation, and ambiguous round-trip wording; ranked application, IDs, byte recovery, formulas, history, handoff, and exact Rust evidence remained correct."
+              - command: "Chapter 4 contract plus English, Russian, and configured-locale parity gates"
+                status: passed
+                notes: "All four focused content gates passed at revision 5."
+              - command: "Focused ApplyBpeTokenizerDiagram and formula-rendering Vitest suites"
+                status: passed
+                notes: "20 of 20 tests passed."
+              - command: "cargo run --quiet --locked -p ch04-apply-bpe-tokenizer | diff -u rust/demos/ch04-apply-bpe-tokenizer/expected.txt -"
+                status: passed
+                notes: "The pinned Linux Rust example reproduced the committed expected output exactly."
+              - command: "Candidate Astro check/build and link audit"
+                status: passed
+                notes: "Astro checked 206 files with zero diagnostics, generated 68 pages, and the link audit verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts."
+              - command: "Pinned Chromium Chapter 4, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+              - command: "Pinned Firefox Chapter 4, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+              - command: "Candidate-to-canonical hash comparison and declared-output ownership audit"
+                status: passed
+                notes: "Every corrected candidate product file matches the canonical working tree exactly; dirty paths remain within declared Chapter 4 outputs and necessary state/revision integration, with no Rust, component, dependency, build, deployment, or file-mode change."
+            notes: "Succeeded with learner-facing evidence and Russian terminology corrections in an exact revision-5 English/Russian pair. The in-app browser runtime exposed no browser instance after prescribed setup, so the repository's pinned Playwright engines supplied the rendered audit."
       - id: audit-ch05-autoregressive-examples
         objective: "Audit and repair Chapter 5 autoregressive-example teaching, including the reported bilingual diagram styling defect."
         depends_on: [audit-ch04-apply-bpe-tokenizer]
