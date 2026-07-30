@@ -1,0 +1,479 @@
+---
+import traceSource from '../../../../rust/demos/ch22-adamw/diagram-trace.txt?raw';
+import InlineMath from '../InlineMath.astro';
+import {
+  adamwEvidenceDiagramId,
+  assertAdamwDiagramLabels,
+  formatAdamwVectorLatex as vectorLatex,
+  parseAdamwTrace,
+  type AdamwDiagramLabels,
+} from '../../lib/adamw-diagram';
+
+interface Props {
+  labels: AdamwDiagramLabels;
+  instanceId?: string;
+}
+
+const { labels, instanceId = 'default' } = Astro.props;
+assertAdamwDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('AdamW evidence diagram instanceId must be a kebab-case identifier.');
+}
+
+const trace = parseAdamwTrace(traceSource);
+const parameter = trace.parameters[1]!;
+const titleId = `${adamwEvidenceDiagramId}-${instanceId}-title`;
+const descriptionId = `${adamwEvidenceDiagramId}-${instanceId}-description`;
+const parameterEvidence = [
+  {
+    key: 'before',
+    label: labels.fields.before,
+    latex: String.raw`\theta_{t-1}=${vectorLatex(parameter.before)}`,
+    vector: parameter.before.lexeme,
+  },
+  {
+    key: 'gradient',
+    label: labels.fields.gradient,
+    latex: String.raw`g_t=${vectorLatex(parameter.gradient)}`,
+    vector: parameter.gradient.lexeme,
+  },
+  {
+    key: 'corrected-first',
+    label: labels.fields.correctedFirst,
+    latex: String.raw`\hat m_t=${vectorLatex(parameter.correctedFirst)}`,
+    vector: parameter.correctedFirst.lexeme,
+  },
+  {
+    key: 'corrected-second',
+    label: labels.fields.correctedSecond,
+    latex: String.raw`\hat v_t=${vectorLatex(parameter.correctedSecond)}`,
+    vector: parameter.correctedSecond.lexeme,
+  },
+  {
+    key: 'adaptive',
+    label: labels.fields.adaptiveDelta,
+    latex: String.raw`\frac{\eta\hat m_t}{\sqrt{\hat v_t}+\varepsilon}=${vectorLatex(parameter.adaptive)}`,
+    vector: parameter.adaptive.lexeme,
+  },
+  {
+    key: 'decay',
+    label: labels.fields.decayDelta,
+    latex: String.raw`\eta\lambda\theta_{t-1}=${vectorLatex(parameter.decay)}`,
+    vector: parameter.decay.lexeme,
+  },
+  {
+    key: 'after',
+    label: labels.fields.after,
+    latex: String.raw`\theta_t=${vectorLatex(parameter.after)}`,
+    vector: parameter.after.lexeme,
+  },
+] as const;
+---
+
+<figure
+  class="course-diagram adamw-evidence-diagram"
+  data-diagram-style="course-v1"
+  data-visualization-id={adamwEvidenceDiagramId}
+  tabindex="0"
+  aria-labelledby={titleId}
+  aria-describedby={descriptionId}
+>
+  <figcaption class="course-diagram__caption">
+    <h3 id={titleId}>{labels.evidenceTitle}</h3>
+    <p id={descriptionId} class="diagram-description course-diagram__description">{labels.evidenceDescription}</p>
+  </figcaption>
+
+  <section
+    class="no-decay-stage course-diagram__card-stack"
+    data-diagram-box
+    aria-labelledby={`${titleId}-no-decay`}
+  >
+    <h4 id={`${titleId}-no-decay`} class="course-diagram__card-heading">
+      {labels.symbols.skipDecay}
+    </h4>
+    <header
+      class="parameter-identity no-decay-identity"
+      data-diagram-card
+      data-diagram-box
+      data-parameter-index={parameter.index}
+      data-parameter-group={parameter.group}
+    >
+      <div class="course-diagram__card-stack">
+        <span class="parameter-label">{labels.fields.parameter}</span>
+        <h5><bdi dir="ltr"><code>{parameter.name}</code></bdi></h5>
+      </div>
+      <dl class="parameter-meta">
+        <div>
+          <dt>{labels.fields.parameterGroup}</dt>
+          <dd>
+            <span>{labels.symbols.skipDecay}</span>{' '}
+            <bdi dir="ltr"><code>{parameter.group}</code></bdi>
+          </dd>
+        </div>
+        <div>
+          <dt>{labels.fields.shape}</dt>
+          <dd><bdi dir="ltr"><code>{parameter.shape.lexeme}</code></bdi></dd>
+        </div>
+      </dl>
+    </header>
+
+    <dl class="parameter-evidence course-diagram__grid" aria-label={labels.captions.parameterFlow}>
+      {parameterEvidence.map((item) => (
+        <div
+          class="evidence-cell"
+          data-diagram-card
+          data-diagram-box
+          data-evidence={item.key}
+          data-vector={item.vector}
+        >
+          <dt>{item.label}</dt>
+          <dd><InlineMath latex={item.latex} /></dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section
+    class="trajectory-stage course-diagram__card-stack"
+    data-diagram-box
+    aria-labelledby={`${titleId}-trajectory`}
+  >
+    <h4 id={`${titleId}-trajectory`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">3</span>
+      {labels.stages.trajectory}
+    </h4>
+    <p class="trajectory-note">{labels.notes.trajectory}</p>
+    <p class="trajectory-objective" data-diagram-card data-diagram-box>
+      <span>{labels.fields.curvature}</span>
+      <InlineMath latex={String.raw`q(x,y)=\frac12(x^2+4y^2)`} />
+      <span aria-hidden="true"> · </span>
+      <InlineMath latex={String.raw`\operatorname{diag}(H)=${vectorLatex(trace.trajectory.curvature)}`} />
+    </p>
+    <div
+      class="trajectory-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.scrollers.trajectory}
+      data-diagram-scroll
+    >
+      <div class="trajectory-grid course-diagram__grid" aria-label={labels.captions.trajectory}>
+        {([
+          ['sgd', labels.symbols.sgd],
+          ['adamw', labels.symbols.adamw],
+        ] as const).map(([optimizer, label]) => (
+          <article
+            class:list={['trajectory-lane', 'course-diagram__card-stack', optimizer]}
+            data-diagram-card
+            data-diagram-box
+            data-optimizer={optimizer}
+          >
+            <h5>{label}</h5>
+            <ol>
+              {trace.trajectory.points.map((point, index) => (
+                <li
+                  data-trajectory-step={point.step}
+                  data-trajectory-point={point[optimizer].lexeme}
+                >
+                  <span class="trajectory-point-label">
+                    {labels.fields.trajectoryPoint}{' '}
+                    <InlineMath latex={String.raw`t=${point.step}`} />
+                  </span>
+                  <strong><InlineMath latex={vectorLatex(point[optimizer])} /></strong>
+                  {index < trace.trajectory.points.length - 1 && (
+                    <span class="trajectory-arrow" aria-hidden="true">→</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <div class="closing-grid course-diagram__grid">
+    <section
+      class="replacement-stage course-diagram__card-stack"
+      data-diagram-card
+      data-diagram-box
+      aria-labelledby={`${titleId}-replacement`}
+    >
+      <h4 id={`${titleId}-replacement`} class="course-diagram__card-heading">
+        <span class="state-symbol" aria-hidden="true">4</span>
+        {labels.stages.replacement}
+      </h4>
+      <p>{labels.notes.replacement}</p>
+    </section>
+
+    <section
+      class="proof-stage course-diagram__card-stack"
+      data-diagram-card
+      data-diagram-box
+      aria-labelledby={`${titleId}-proof`}
+    >
+      <div class="proof-copy course-diagram__card-stack">
+        <h4 id={`${titleId}-proof`} class="course-diagram__card-heading">
+          <span class="state-symbol" aria-hidden="true">5</span>
+          {labels.stages.proof}
+        </h4>
+        <p>{labels.notes.proof}</p>
+      </div>
+      <dl class="proof-grid course-diagram__grid" aria-label={labels.captions.transactionProof}>
+        <div data-diagram-card data-diagram-box data-proof="state-names">
+          <dt>{labels.fields.stateNames}</dt>
+          <dd>
+            {trace.proof.stateNames.map((name) => (
+              <bdi dir="ltr"><code>{name}</code></bdi>
+            ))}
+          </dd>
+        </div>
+        <div data-diagram-card data-diagram-box data-proof="gradient-reset" data-proof-value={trace.proof.gradientReset}>
+          <dt>{labels.fields.freshGradient}</dt>
+          <dd>{labels.symbols.zero}</dd>
+        </div>
+        <div data-diagram-card data-diagram-box data-proof="leaf-identity" data-proof-value={trace.proof.leavesReplaced}>
+          <dt>{labels.fields.leafIdentity}</dt>
+          <dd>{labels.symbols.replaced}</dd>
+        </div>
+        <div data-diagram-card data-diagram-box data-proof="zero-gradient-decay" data-proof-value={trace.proof.zeroGradientDecay}>
+          <dt>{labels.fields.zeroGradientDecay}</dt>
+          <dd><InlineMath latex={String.raw`\eta\lambda\theta=${trace.proof.zeroGradientDecay}`} /></dd>
+        </div>
+        <div data-diagram-card data-diagram-box data-proof="rollback" data-proof-value={trace.proof.rollback}>
+          <dt>{labels.fields.failedTransaction}</dt>
+          <dd>{labels.symbols.unchanged}</dd>
+        </div>
+        <div data-diagram-card data-diagram-box data-proof="commit" data-proof-value={trace.proof.commit}>
+          <dt>{labels.fields.commit}</dt>
+          <dd>{labels.symbols.atomic}</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</figure>
+
+<style>
+  .parameter-identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem 1rem;
+  }
+
+  .parameter-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto));
+    gap: 0.5rem 1rem;
+    margin: 0;
+  }
+
+  .parameter-evidence {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .no-decay-identity {
+    border-style: dashed !important;
+  }
+
+  .evidence-cell dd,
+  .proof-grid dd {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .trajectory-objective {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.55rem;
+    margin: 0;
+  }
+
+  .trajectory-grid {
+    grid-template-columns: minmax(0, 1fr);
+    inline-size: max(100%, 64rem);
+  }
+
+  .trajectory-lane {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.65rem;
+    min-inline-size: 0;
+  }
+
+  .trajectory-lane ol {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(9.5rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .trajectory-lane li {
+    position: relative;
+    display: grid;
+    gap: 0.2rem;
+    min-inline-size: 0;
+  }
+
+  .trajectory-lane.adamw {
+    border-style: double !important;
+    border-width: 3px !important;
+  }
+
+  .trajectory-arrow {
+    position: absolute;
+    inset-inline-end: -0.65rem;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+  }
+
+  .closing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .proof-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .replacement-stage > .course-diagram__card-heading,
+  .proof-copy > .course-diagram__card-heading {
+    margin: 0;
+  }
+
+  @container course-diagram (max-width: 42rem) {
+    .parameter-identity,
+    .parameter-meta {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .proof-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container course-diagram (max-width: 28rem) {
+    .parameter-evidence,
+    .proof-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .adamw-evidence-diagram:fullscreen {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'caption actions'
+        'parameter parameter'
+        'trajectory trajectory'
+        'closing closing';
+      align-content: start;
+      align-items: start;
+    }
+
+    .adamw-evidence-diagram:fullscreen > figcaption {
+      grid-area: caption;
+      grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+      align-items: start;
+      gap: var(--diagram-gap);
+    }
+
+    .adamw-evidence-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-area: actions;
+      align-self: start;
+      justify-self: end;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .no-decay-stage {
+      grid-area: parameter;
+      display: grid;
+      grid-template-columns: minmax(15rem, 0.45fr) minmax(0, 1.55fr);
+      grid-template-areas:
+        'no-decay-heading no-decay-evidence'
+        'no-decay-identity no-decay-evidence';
+      align-items: start;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .no-decay-stage > h4 {
+      grid-area: no-decay-heading;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .no-decay-stage > .parameter-identity {
+      grid-area: no-decay-identity;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adamw-evidence-diagram:fullscreen > .no-decay-stage .parameter-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .adamw-evidence-diagram:fullscreen > .no-decay-stage > .parameter-evidence {
+      grid-area: no-decay-evidence;
+    }
+
+    .adamw-evidence-diagram:fullscreen .parameter-evidence {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .adamw-evidence-diagram:fullscreen > .trajectory-stage {
+      grid-area: trajectory;
+      display: grid;
+      grid-template-columns: minmax(18rem, 0.5fr) minmax(0, 1.5fr);
+      grid-template-areas:
+        'trajectory-heading trajectory-scroll'
+        'trajectory-note trajectory-scroll'
+        'trajectory-objective trajectory-scroll';
+      align-items: start;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .trajectory-stage > h4 {
+      grid-area: trajectory-heading;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .trajectory-stage > .trajectory-note {
+      grid-area: trajectory-note;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .trajectory-stage > .trajectory-objective {
+      grid-area: trajectory-objective;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .trajectory-stage > .trajectory-scroll {
+      grid-area: trajectory-scroll;
+    }
+
+    .adamw-evidence-diagram:fullscreen .trajectory-grid {
+      inline-size: 100%;
+      min-inline-size: 0;
+    }
+
+    .adamw-evidence-diagram:fullscreen .trajectory-lane {
+      grid-template-columns: 4rem minmax(0, 1fr);
+    }
+
+    .adamw-evidence-diagram:fullscreen .trajectory-lane ol {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+
+    .adamw-evidence-diagram:fullscreen > .closing-grid {
+      grid-area: closing;
+      grid-template-columns: minmax(18rem, 0.45fr) minmax(0, 1.55fr);
+    }
+
+    .adamw-evidence-diagram:fullscreen .proof-stage {
+      grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.3fr);
+      align-items: start;
+    }
+
+    .adamw-evidence-diagram:fullscreen .proof-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  :global([dir='rtl']) .trajectory-arrow {
+    transform: translateY(-50%) scaleX(-1);
+  }
+</style>

@@ -2,7 +2,7 @@
 {
   "chapter_id": "22-adamw",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 22,
   "concept_id": "adamw",
   "title": "Keep decay out of the gradient moments",
@@ -46,7 +46,7 @@
       },
       {
         "symbol": "\\lambda",
-        "meaning": "the non-negative decoupled weight-decay coefficient"
+        "meaning": "the effective non-negative decay coefficient for this named parameter: configured decay or zero"
       },
       {
         "symbol": "\\hat m_t",
@@ -65,8 +65,8 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "training-practice",
-      "limitation": "Bengio et al.'s neural language model performs a direct stochastic parameter update after presenting one training word and its context. One shared learning rate moves every coordinate from the current gradient, without memory of earlier gradient magnitudes.",
-      "later_advance": "Momentum first carries a decaying velocity across successive language-model gradients. Adam then keeps exponential first and second raw gradient moments and corrects their early zero-initialization bias; if an $L_2$ term is coupled into its gradient, that parameter-proportional term enters both moving estimates. AdamW instead moves the shrinkage term outside the gradient entering those adaptive moments.",
+      "limitation": "Bengio et al.'s neural language model performs a direct stochastic parameter update after presenting one training word and its context. At each update, one scalar learning rate scales the current example's gradient; there is no per-coordinate memory of earlier gradients.",
+      "later_advance": "Relative to this direct SGD rule, momentum adds a decaying memory of past directions. Adam later keeps exponential first and second raw gradient moments and corrects their early zero-initialization bias; if an $L_2$ term is coupled into its gradient, that parameter-proportional term enters both moving estimates. AdamW instead moves the shrinkage term outside the gradient entering those adaptive moments.",
       "modern_llm_role": "LLaMA documents AdamW in pretraining decoder language models from $7$B to $65$B parameters. The course's optimizer now converts token-mean autograd gradients into fresh named parameter leaves; schedules, clipping, mixed precision, and distributed state remain later pipeline concerns.",
       "sources": [
         {
@@ -107,7 +107,7 @@
     {
       "path": "rust/demos/ch22-adamw/src/lib.rs",
       "region": "historical-optimizer-road",
-      "purpose": "Compare two-step SGD, momentum, Adam with a coupled penalty, and AdamW, and generate frozen SGD and AdamW paths on unequal curvature, without turning history into a language comparison."
+      "purpose": "Compare two-step SGD, momentum, Adam with a coupled penalty, and AdamW, and generate fixed SGD and AdamW paths on unequal curvature, without turning history into a language comparison."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -121,8 +121,13 @@
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
+      "region": "adamw-moment-state",
+      "purpose": "Keep each pair of moment vectors attached to one stable parameter name and shape."
+    },
+    {
+      "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
       "region": "adamw-state-and-evidence",
-      "purpose": "Keep name-keyed moments and expose the exact prepared vectors for tests and teaching."
+      "purpose": "Expose the exact prepared moment, correction, delta, and replacement vectors."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/training/adamw.rs",
@@ -137,7 +142,7 @@
     {
       "path": "rust/demos/ch22-adamw/src/lib.rs",
       "region": "chapter-adamw-fixture",
-      "purpose": "Run the frozen named update, zero-gradient probe, fresh-leaf proof, and changed-set rollback."
+      "purpose": "Run the fixed named update, zero-gradient probe, fresh-leaf proof, and changed-set rollback."
     },
     {
       "path": "rust/demos/ch22-adamw/src/main.rs",
@@ -153,19 +158,31 @@
   "visualization": {
     "decision": "useful",
     "id": "adamw",
-    "rationale": "An anisotropic quadratic compares SGD and AdamW trajectories, while parallel moment and decay lanes show that the loss gradient enters the adaptive moments and only decay-group parameters receive the separate parameter-proportional arrow."
+    "component": "AdamwDiagram",
+    "rationale": "A detailed flow keeps the loss gradient inside the adaptive moments while a separate branch carries the old decay-group parameter directly to the decay subtraction.",
+    "supplementary": [
+      {
+        "id": "adamw-evidence",
+        "component": "AdamwEvidenceDiagram",
+        "rationale": "A compact no-decay record makes the group boundary explicit; separate trajectory and whole-set evidence compare fixed optimizer paths and transactional replacement without crowding the update flow."
+      }
+    ]
   },
-  "decoder_connection": "The cumulative training path can now consume each named parameter's accumulated token-mean gradient, preserve first and second moments across steps, and commit a fresh zero-gradient leaf. Chapter 23 uses this optimizer to train a fixed-context neural language model and verify that validation loss improves."
+  "decoder_connection": "The cumulative training path can now associate each accumulated token-mean gradient with its parameter's stable name, preserve first and second moments under that name across steps, and commit a fresh zero-gradient leaf. Chapter 23 uses this optimizer to train a fixed-context neural language model and verify that validation loss improves."
 }
 ---
 
 import RustSource from '../../../components/RustSource.astro';
 import AdamwDiagram from '../../../components/chapters/AdamwDiagram.astro';
+import AdamwEvidenceDiagram from '../../../components/chapters/AdamwEvidenceDiagram.astro';
 
 export const diagramLabels = {
-  title: 'Compare update paths and keep decay group-specific',
+  title: "Follow AdamW's separate adaptive and decay paths",
   description:
-    'Compare exact Rust-authored SGD and AdamW paths on unequal curvature, then follow named parameter vectors through moments, group-specific decay, and one atomic replacement.',
+    'Follow one named decay-group parameter through gradient moments, bias correction, separate adaptive and parameter-proportional deltas, and replacement.',
+  evidenceTitle: 'Compare the no-decay group, optimizer paths, and atomic commit',
+  evidenceDescription:
+    'Use the zero-gradient normalization scale to expose group-specific decay, then compare exact SGD and AdamW points and verify whole-set replacement invariants.',
   summary: {
     step: 'Committed step',
     learningRate: 'Learning rate',
@@ -205,15 +222,15 @@ export const diagramLabels = {
   },
   notes: {
     moments:
-      'Only the accumulated loss gradient enters these moving estimates. The first-step correction restores the frozen gradient moments exactly.',
+      'Only the accumulated loss gradient enters these moving estimates. On the first step, bias correction recovers the current gradient and its square exactly.',
     deltas:
       'The adaptive branch uses corrected moments. The decay branch reads the old parameter directly and never enters either moment.',
     trajectory:
-      'The same frozen quadratic supplies both paths. Each point is parsed from the Rust trace; the page performs no optimizer arithmetic.',
+      'The same fixed quadratic supplies both paths. Every point is exact Rust evidence; no point is inferred from drawing geometry.',
     replacement:
       'Rust prepares both named replacements first. A success installs fresh leaves only after all arithmetic and construction checks pass.',
     proof:
-      'Moment state follows stable names rather than display order. A changed name set leaves every old leaf and optimizer byte unchanged.',
+      'Moment state follows stable names rather than display order. A changed name set leaves every old leaf and optimizer state unchanged.',
   },
   symbols: {
     adaptive: 'Adaptive path',
@@ -243,8 +260,9 @@ export const diagramLabels = {
 
 ## Predict two subtractions
 
-Chapter 21 ends with equally normalized named-parameter gradients. Give the
-first parameter leaf this tiny state:
+Chapter 21 ends with token-mean gradient coordinates. Before AdamW updates them,
+associate each tensor-shaped gradient with the stable name of the parameter leaf
+it belongs to. Give the first named leaf this tiny state:
 
 $$
 \theta_0=[1,-2],
@@ -284,9 +302,10 @@ $$
 
 The first moment carries recent gradient direction forward, which is the
 momentum intuition: consistent directions reinforce one another while a sudden
-reversal is softened. The second raw moment tracks recent squared magnitude,
-so coordinates with persistently large gradients receive smaller adaptive
-steps.
+reversal is softened. The second raw moment tracks recent squared magnitude.
+Dividing the corrected first moment by its root-mean-square scale adapts each
+coordinate according to the ratio between recent direction and magnitude; it
+does not simply make every larger gradient produce a smaller absolute step.
 
 Their zero initialization suppresses early values. Correct that missing mass:
 
@@ -307,13 +326,16 @@ $\eta\lambda\theta_{t-1}$ as two explicit terms. Decoupling means the second
 term bypasses $g_t$, $m_t$, and $v_t$; it does not mean the final replacement
 ignores the adaptive branch.
 
+In this formula, $\lambda$ is the effective coefficient for the current named
+parameter: it equals the configured decay for a decay-group parameter and $0$
+for a no-decay parameter.
+
 The group map is an explicit partition of the stable parameter-name set: its
 decay and no-decay sets are disjoint, and their union contains every name. This
-fixture decays `decoder.output.weight` but excludes `decoder.norm.scale`.
-Decoder weight matrices are commonly shrinkage targets, while normalization
-scales and biases are commonly excluded so decay does not directly pull those
-calibration terms toward zero. A different model may choose another documented
-partition.
+worked example decays `decoder.output.weight` but excludes
+`decoder.norm.scale`, so both group behaviors are explicit. Production models
+choose and document their own grouping policy; excluding a normalization scale
+avoids directly shrinking that affine scale parameter.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -342,16 +364,16 @@ controls decay, not moment memory.
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provide the earlier language-model evidence. Bengio et al.'s neural language
 model performs a direct stochastic parameter update after presenting one
-training word and its context. One shared learning rate moves every coordinate
-from the current gradient, without memory of earlier gradient magnitudes. In
-loss-minimization notation, the core move is simply:
+training word and its context. At each update, one scalar learning rate scales
+the current example's gradient; there is no per-coordinate memory of earlier
+gradients. In loss-minimization notation, the core move is simply:
 
 $$
 \theta\leftarrow\theta-\eta g.
 $$
 
-Momentum first carries a decaying velocity across successive language-model
-gradients. Adam then keeps exponential first and second raw gradient moments
+Relative to this direct SGD rule, momentum adds a decaying memory of past
+directions. Adam later keeps exponential first and second raw gradient moments
 and corrects their early zero-initialization bias; if an $L_2$ term is coupled
 into its gradient, that parameter-proportional term enters both moving
 estimates. AdamW instead moves the shrinkage term outside the gradient entering
@@ -391,9 +413,9 @@ parameters. Their recipe uses $\beta_1=0.9$, $\beta_2=0.95$, weight decay
 $0.1$, gradient clipping, warmup, and cosine learning-rate decay. This chapter
 implements the optimizer mechanism, not that full large-scale recipe.
 
-The historical helper runs two-step plain SGD, momentum, Adam with coupled $L_2$,
-and AdamW for the same scalar gradient sequence, then supplies the frozen
-unequal-curvature trajectory. Rust is only the executable medium for this
+The historical example runs two-step plain SGD, momentum, Adam with coupled
+$L_2$, and AdamW for the same scalar loss-gradient sequence, then supplies the
+fixed unequal-curvature trajectory. Rust is only the executable medium for this
 language-independent comparison:
 
 <RustSource
@@ -428,14 +450,22 @@ rejected before commit; either one of the two groups may validly be empty:
   label="Rust source defining the Chapter 22 parameter groups"
 />
 
-Moment state is shaped like each parameter and keyed by its stable name. The
-step evidence retains exact input, moment, delta, and replacement vectors:
+Moment state is shaped like each parameter and keyed by its stable name:
+
+<RustSource
+  path="rust/crates/llm-from-scratch/src/training/adamw.rs"
+  region="adamw-moment-state"
+  caption="Keep each pair of moment vectors attached to one stable name"
+  label="Rust source defining Chapter 22 optimizer moment state"
+/>
+
+The step evidence retains exact input, moment, delta, and replacement vectors:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
   region="adamw-state-and-evidence"
-  caption="Keep optimizer memory attached to stable parameter names"
-  label="Rust source defining Chapter 22 optimizer state and evidence"
+  caption="Expose the exact vectors prepared for one complete AdamW step"
+  label="Rust source defining Chapter 22 prepared update evidence"
 />
 
 The main boundary clones prospective state, prepares every fresh leaf, and
@@ -459,14 +489,15 @@ and delegated tensor construction:
   label="Rust source defining Chapter 22 AdamW errors"
 />
 
-The frozen fixture updates two decoder-style names, proves fresh zero-gradient
-leaves, checks fresh-state pure decay, and attempts a changed-set rollback:
+The fixed worked example updates two decoder-style names, proves fresh
+zero-gradient leaves, checks fresh-state pure decay, and attempts a changed-set
+rollback:
 
 <RustSource
   path="rust/demos/ch22-adamw/src/lib.rs"
   region="chapter-adamw-fixture"
   caption="Build exact first-step and transaction evidence"
-  label="Rust source for the Chapter 22 AdamW fixture"
+  label="Rust source for the Chapter 22 AdamW worked example"
 />
 
 The learner executable prints every exact vector and invariant:
@@ -478,20 +509,24 @@ The learner executable prints every exact vector and invariant:
   label="Rust source for the Chapter 22 learner output"
 />
 
-Run `cargo run --quiet --locked -p ch22-adamw`. Its stdout is frozen in
-`rust/demos/ch22-adamw/expected.txt`. Tests cover both steps, reordering,
-gradient accumulation, fresh-state pure decay, retained moment motion after a
-later zero gradient, all domains and identities, finite arithmetic, leaf
-replacement, rollback, and bit-identical convergence below objective
-$10^{-12}$ on a 200-step anisotropic quadratic.
+Run `cargo run --quiet --locked -p ch22-adamw` to inspect the exact first step,
+name-keyed state, fresh-leaf replacement, and changed-set rollback. The same
+implementation supports reordered parameter presentation, accumulated
+gradients, pure decay from fresh zero moments, and retained-moment motion after
+a later zero gradient. Invalid domains, identities, shapes, arithmetic, or
+parameter sets return without replacing a leaf or optimizer state. Repeating
+the deterministic 200-step anisotropic-quadratic run is bit-identical and ends
+below objective $10^{-12}$.
 
 {/* chapter-section:visualization */}
 
 ## Watch decay bypass the moment lane
 
 The fourteen-line trace contains two group-aware parameter records, five SGD
-and AdamW trajectory points, and one whole-set proof. Rust authors every
-displayed number:
+and AdamW trajectory points, and one whole-set proof. The first figure follows
+the decay-group weight through every moment and delta. The second keeps the
+no-decay scale, both trajectories, and the transaction proof together. Rust
+authors every displayed number:
 
 <RustSource
   path="rust/demos/ch22-adamw/src/diagram_trace.rs"
@@ -500,22 +535,24 @@ displayed number:
   label="Rust source producing the Chapter 22 AdamW diagram trace"
 />
 
-<AdamwDiagram labels={diagramLabels} />
+<AdamwDiagram labels={diagramLabels} instanceId="chapter-22" />
 
-The build-time parser checks exact line order, field order, names, shapes,
-vector widths, scalar lexemes, correction factors, and proof tokens. It does no
-optimizer arithmetic. Solid adaptive lanes and dashed decay bypasses repeat
-their distinction in labels and borders; the no-decay group marks the bypass
-as skipped. The trajectory compares both optimizers on
-$q(x,y)=\frac12(x^2+4y^2)$ without recomputing any point in the page. Each
-wide region has a named local scroller, and stacked narrow layouts keep all
-rendered math inside the page.
+<AdamwEvidenceDiagram labels={diagramLabels} instanceId="chapter-22" />
+
+The trace records the exact names, shapes, vectors, correction denominators, and
+transaction evidence. In the focused update, solid adaptive lanes and the
+dashed decay branch repeat their distinction in words and borders. The compact
+group record then shows that the no-decay parameter receives a zero decay delta.
+Both optimizer paths use the same fixed points on
+$q(x,y)=\frac12(x^2+4y^2)$. Follow the loss gradient through the moments,
+compare the separate parameter-proportional decay, and join both contributions
+at the final subtraction.
 
 {/* chapter-section:exercises */}
 
 ## Predict before running the optimizer
 
-1. Derive $m_1$, $v_1$, $\hat m_1$, and $\hat v_1$ for the frozen vector.
+1. Derive $m_1$, $v_1$, $\hat m_1$, and $\hat v_1$ for the fixed vector.
 2. Predict the two deltas and $\theta_1$ before rounding to six decimals.
 3. Start a fresh optimizer for decay-group value $3$ with $g_1=0$ and predict
    the new value. Then explain why a later zero gradient can still have an
@@ -525,7 +562,7 @@ rendered math inside the page.
 6. Predict the stored gradient and tape identity after a successful replacement.
 7. Order plain SGD, momentum, Adam with coupled $L_2$, and AdamW, and state which terms enter optimizer memory.
 8. Explain why the output weight receives decay while the normalization scale does not.
-9. Compare the frozen SGD and AdamW paths on the unequal-curvature quadratic.
+9. Compare the fixed SGD and AdamW paths on the unequal-curvature quadratic.
 
 <details>
   <summary>Check the predictions</summary>
@@ -537,7 +574,7 @@ rendered math inside the page.
   5. Nothing commits: both old leaves and all optimizer state remain unchanged.
   6. The new leaf has an exact zero gradient and a new tape identity.
   7. Plain SGD uses only the current gradient; momentum remembers a decaying direction; coupled $L_2$ feeds parameter-proportional shrinkage into Adam's moments; AdamW keeps that shrinkage outside the moments. Bengio supplies the neural-language-model starting point, and Touvron et al. document AdamW in LLaMA pretraining.
-  8. The fixture puts `decoder.output.weight` in decay and `decoder.norm.scale` in no-decay, making the exclusion explicit and testable.
+  8. The worked example puts `decoder.output.weight` in decay and `decoder.norm.scale` in no-decay, making the exclusion explicit.
   9. SGD reduces the high-curvature coordinate much faster; AdamW scales coordinates through their moment history and also applies a separate decay contribution.
 </details>
 
@@ -545,11 +582,11 @@ rendered math inside the page.
 
 ## Train the first cumulative neural language model next
 
-The cumulative training path can now consume each named parameter's
-accumulated token-mean gradient, preserve first and second moments across
-steps, and commit a fresh zero-gradient leaf. Chapter 23 uses this optimizer to
-train a fixed-context embedding-plus-SwiGLU language model and verifies that
-its validation loss improves.
+The cumulative training path can now associate each accumulated token-mean
+gradient with its parameter's stable name, preserve first and second moments
+under that name across steps, and commit a fresh zero-gradient leaf. Chapter 23
+uses this optimizer to train a fixed-context neural language model and verify
+that validation loss improves.
 
 AdamW changes parameters; it does not yet define the model whose gradients it
 consumes. The next chapter closes that loop while keeping data partitions,

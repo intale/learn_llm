@@ -1043,6 +1043,10 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
         resolve(componentRoot, "chapters/AdamwDiagram.astro"),
         "utf8",
       ),
+      adamwEvidence: readFileSync(
+        resolve(componentRoot, "chapters/AdamwEvidenceDiagram.astro"),
+        "utf8",
+      ),
       neuralNgram: readFileSync(
         resolve(componentRoot, "chapters/NeuralNgramDiagram.astro"),
         "utf8",
@@ -1204,8 +1208,14 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.adamw).toContain("vectorLatex(parameter.correctedFirst)");
-    expect(components.adamw).toContain(
+    expect(components.adamwEvidence).toContain(
+      "import InlineMath from '../InlineMath.astro'",
+    );
+    expect(components.adamwEvidence).toContain(
       "String.raw`\\eta\\lambda\\theta=${trace.proof.zeroGradientDecay}`",
+    );
+    expect(components.adamwEvidence).toContain(
+      "String.raw`q(x,y)=\\frac12(x^2+4y^2)`",
     );
 
     expect(components.neuralNgram).toContain(

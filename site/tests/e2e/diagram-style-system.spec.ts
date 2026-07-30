@@ -1012,7 +1012,7 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
     const focused = referenceRoutes.filter(
       ({ order }) => order === 22 || order === 23,
     );
-    expect(focused).toHaveLength(2);
+    expect(focused).toHaveLength(3);
     await auditRoutes(page, medium, focused);
   });
 
@@ -1029,7 +1029,7 @@ test.describe("course diagram style system", { tag: "@diagram-style" }, () => {
       .locator(".bypass-origin")
       .first()
       .evaluate((box) => {
-        (box as HTMLElement).style.inlineSize = "8rem";
+        (box as HTMLElement).style.inlineSize = "2rem";
       });
     const audit = await auditFigure(page, chapter22);
     expect(

@@ -21993,3 +21993,205 @@ builds:
                 status: passed
                 notes: "The product diff has no whitespace errors; the ledger parses; every in-scope change is declared; canonical site/src and site/tests match Candidate 08; and all 17 publication-manifest checksums match."
             notes: "Succeeded. Corrected English Chapter 21 and its direct natural Russian translation now teach deterministic window shuffling, variable-width mini-batches, actual-target-token normalization, and piecewise gradient accumulation with exact Rust evidence and one shared-system bilingual figure. Every declared source, exact Rust, static, Linux, Chromium, Firefox, link, formula, containment, and independent-review gate passes; the Dropbox-only host cleanup limitation is preserved and governed by the recorded equivalent-build decision."
+  - build_id: activate-ch22-russian-localization
+    objective: "Audit the canonical Chapter 22 AdamW lesson, correct any source inaccuracies or learner-facing delivery language, translate its complete surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation, primary-source verification, and cached Rust, static, Chromium, and Firefox validation without a paid service; the resource and external-staging decision is recorded in DECISIONS.md."
+    completion_criteria:
+      - "English Chapter 22 accurately teaches named-parameter AdamW state, bias correction, adaptive updates, and decoupled weight decay, keeps its history on the road to modern LLM optimization, and contains no learner-facing authoring or delivery machinery."
+      - "Russian Chapter 22 preserves every formula, symbol, parameter name, state transition, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 23 handoff in natural technical language."
+      - "The Chapter 22 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 22 is activated in this checkpoint, the locale policy advances through Chapter 22, and the completed step is committed independently before any later chapter starts."
+    steps:
+      - id: activate-ch22-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 22 AdamW lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch21-russian-localization
+        status: completed
+        inputs:
+          - "Human requests to continue Russian localization without another approval pause, reaffirmed on 2026-07-30."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/22-adamw.md"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/lib/adamw-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/demos/ch22-adamw/Cargo.toml"
+          - "rust/demos/ch22-adamw/src/lib.rs"
+          - "rust/demos/ch22-adamw/src/main.rs"
+          - "rust/demos/ch22-adamw/src/diagram_trace.rs"
+          - "rust/demos/ch22-adamw/expected.txt"
+          - "rust/demos/ch22-adamw/diagram-trace.txt"
+          - "Primary optimizer papers at the URLs recorded in the Chapter 22 contract."
+          - "Chapter 21 completion commit 7f7cf80ec2bd1f54d4708e24b6f330e11629a998."
+        outputs:
+          - "curriculum/chapters/22-adamw.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "rust/demos/ch22-adamw/expected.txt"
+          - "rust/demos/ch22-adamw/src/lib.rs"
+          - "rust/demos/ch22-adamw/src/main.rs"
+          - "rust/demos/ch22-adamw/src/diagram_trace.rs"
+          - "rust/demos/ch22-adamw/diagram-trace.txt"
+          - "site/src/content/chapters/en/22-adamw.mdx"
+          - "site/src/content/chapters/ru/22-adamw.mdx"
+          - "site/src/components/chapters/AdamwDiagram.astro"
+          - "site/src/components/chapters/AdamwEvidenceDiagram.astro"
+          - "site/src/lib/adamw-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/22-adamw-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/diagram-full-view.test.ts"
+          - "site/tests/diagram-style-system.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch22-adamw.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The corrected English source remains the sole canonical semantic source and passes its contract, formula, history, Rust-evidence, and learner-prose audit before Russian is drafted."
+          - "The Russian lesson is translated directly from that frozen English revision, is natural rather than literal, and passes semantic, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff review."
+          - "Formula markup, code regions, source links, exact optimizer evidence, diagram semantics, and locale routing preserve parity without translated identifiers or invented claims."
+          - "The focused update figure and supplementary group, trajectory, and transaction-evidence figure each contain Russian and English text and formula ink in inline and full view at desktop and narrow widths in Chromium and Firefox, including no-JavaScript, forced-color, focus, and direction-sensitive cases."
+          - "Rust formatting, lint, workspace and documentation tests, exact learner and diagram output, unit/static/content/parity/link/SEO/sitemap/Analytics checks, and the production build all pass."
+          - "The completed checkpoint is committed separately before any later chapter starts."
+        validate:
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch22-adamw | diff -u rust/demos/ch22-adamw/expected.txt -'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch22-adamw --example ch22-adamw-trace | diff -u rust/demos/ch22-adamw/diagram-trace.txt -'"
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-chapter-contract.mjs curriculum/chapters/22-adamw.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 22-adamw"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 22-adamw"
+          - "node scripts/check-site-content.mjs parity --chapter 22-adamw"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium Chapter 22, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "Firefox Chapter 22, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: large
+          notes: "Canonical audit and correction, complete source-to-target chapter translation, shared-diagram review, primary-source verification, independent language review, complete Rust/static validation, and two-engine rendered containment/full-view coverage. The unlimited recorded budget covers cached local execution and free primary-source access; no paid service, dependency, build-definition, hosting, or deployment change is planned."
+        runs:
+          - run_id: 20260730T092700Z-activate-ch22-russian-localization-01
+            started_at: "2026-07-30T09:27:00Z"
+            finished_at: "2026-07-30T11:58:22Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7f7cf80ec2bd1f54d4708e24b6f330e11629a998"
+              manifest: "C:/tmp/learn_llm/runs/20260730T092700Z-activate-ch22-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:f338db216679fda84031edf5387bb5facb3e3d730284c1b70d2efd15b68f23a5"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 22, immutable Rust behavior, and cited primary optimizer sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T092700Z-activate-ch22-russian-localization-01/"
+            commands:
+              - "Verify clean Chapter 21 completion commit 7f7cf80; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 22 source paths, and material checksums; record the cost and external-staging decision before product edits."
+              - "Audit the canonical AdamW prose against the Chapter 21 handoff and primary sources; correct revision 2; narrow RustSource regions around the fixed-rate Chapter 22 boundary; make the zero-gradient probe's decay assignment explicit; and run the focused pinned-Linux Rust checks."
+              - "Translate the complete corrected English revision directly into Russian; align all 25 localized contract fields; activate Chapter 22 in locale policy revision 48; and pass the plan, contract, per-locale, parity, and complete content gates."
+              - "Materialize checksum-tracked Candidate 01 outside Dropbox, apply only a staging-local Vite cache directory, and run Astro check, production build, link audit, Chapter 22 Playwright compilation, and the initial Chromium Chapter 22 suite."
+              - "Split unrelated optimizer-update and evidence questions into two registered shared-system figures; derive concise mathematical display values from unchanged trace lexemes; reflow desktop, narrow, and full-view geometry; and update focused and global static/browser contracts for 42 figures."
+              - "Apply two independent Russian reviews, correct normalization-scale, bias-correction, decay-delta, operation-tape, tensor-construction, and data-partition wording, and rerun exact content and rendered layout checks after every material wording change."
+              - "Run the complete canonical unit/content/static/link gates, exact Chapter 22 Rust diffs, warning-denied pinned-Linux Rust gate, focused and course-wide Chromium and Firefox suites, canonical Windows production build, and unchanged pinned Linux ./course check."
+              - "Verify canonical site/src and site/tests byte-match Candidate 01, write the final publication manifest, audit output ownership and append-only decisions independently, parse the ledger, and check the product diff before publication."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T092700Z-activate-ch22-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:f338db216679fda84031edf5387bb5facb3e3d730284c1b70d2efd15b68f23a5"
+                notes: "Exact workflow, policy, canonical lesson, case-correct AdamwDiagram path, validation, Rust-evidence, environment, user-scope, and base-commit fingerprint before Chapter 22 product edits."
+              - path: "site/src/content/chapters/en/22-adamw.mdx"
+                checksum: "sha256:935770ac32f58f46679aa8a4ea9b658099a553da3ced209ff7830e367a6a8c25"
+                notes: "Frozen corrected English content revision 2 and sole Russian semantic source."
+              - path: "site/src/content/chapters/ru/22-adamw.mdx"
+                checksum: "sha256:4ef8c10f79863061480b10f2cfe39818d1e65781a8e7396033f3346fe0b726a0"
+                notes: "Final direct Russian projection after independent semantic, terminology, anti-calque, accessibility, and rendered-surface review."
+              - path: "site/src/components/chapters/AdamwDiagram.astro"
+                checksum: "sha256:a7e9a8f37a1c32be78c8b0d6bd4f3d6df80a1f411949c0041167cc08629a42d2"
+                notes: "Primary decayed-parameter update figure."
+              - path: "site/src/components/chapters/AdamwEvidenceDiagram.astro"
+                checksum: "sha256:5317bb6f9486d87a68d1b7fa11fd16efd4ebcc925abeeee6fc64b1fcdbd0c1e4"
+                notes: "Supplementary no-decay, trajectory, and whole-set transaction evidence figure."
+              - path: "C:/tmp/learn_llm/runs/20260730T092700Z-activate-ch22-russian-localization-01/publication-manifest-final.txt"
+                checksum: "sha256:6a85c30a523da428f4475b490c0cd55efbb43bdd834424778f4902afb737b078"
+                notes: "Final 22-file source/test checksums, canonical-candidate identity, 68-page and 150-artifact counts, image identity, and validation summary."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 21 is independently committed at 7f7cf80; the worktree was clean; active_build was null with no pending or running record; host and repository pins match; Chapter 22 owns the next checkpoint, uses no paid translation or external generation service, and is within the unlimited recorded budget. External staging is checksum-recorded in DECISIONS.md."
+              - command: "docker run --rm -v ${PWD}:/workspace -w /workspace learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo test --locked -p ch22-adamw && cargo run --quiet --locked -p ch22-adamw | diff -u rust/demos/ch22-adamw/expected.txt - && cargo run --quiet --locked -p ch22-adamw --example ch22-adamw-trace | diff -u rust/demos/ch22-adamw/diagram-trace.txt -'"
+                status: passed
+                notes: "Canonical correction preserves all exact learner and diagram bytes; all six Chapter 22 tests pass. The probe now uses an explicit decay group, and the displayed core regions exclude later schedule and persistence APIs without changing optimizer behavior."
+              - command: "node scripts/check-course-plan.mjs && node scripts/check-chapter-contract.mjs curriculum/chapters/22-adamw.md && npm --prefix site run check:chapter -- --locale en --chapter 22-adamw && npm --prefix site run check:chapter -- --locale ru --chapter 22-adamw && node scripts/check-site-content.mjs parity --chapter 22-adamw && npm --prefix site run check:content"
+                status: passed
+                notes: "Plan revision 48 validates 40 chapters and 94 steps; the Chapter 22 contract integrates; English and Russian each pass; all 25 locale-bearing fields match; bilingual parity passes; and the global checker publishes 63 localized sources as 40 complete chapter sets."
+              - command: "Candidate 01: npm.cmd --prefix site run check && npm.cmd --prefix site run build && npm.cmd --prefix site run test:links && npm.cmd --prefix site run test:e2e -- tests/e2e/ch22-adamw.spec.ts --browser=chromium --list"
+                status: passed
+                notes: "The immutable external candidate reports 205 Astro files with zero errors, warnings, or hints; builds all 68 pages; audits 68 HTML files, 2,216 local references, 68 SEO pages, 68 sitemap URLs, 68 Analytics tags, and 150 artifacts; and compiles all seven Chapter 22 browser cases. The only candidate-only change is the governed Vite cache path."
+              - command: "Candidate 01: npm.cmd --prefix site run test:e2e -- tests/e2e/ch22-adamw.spec.ts --browser=chromium --workers=4"
+                status: failed
+                notes: "One of seven cases passed. The first measured browser pass found two assertion defects (apostrophe normalization and a group-code selector) plus genuine containment debt: the five-point trajectory tracks sized wider than their bounded lane cards in inline, no-JavaScript, forced-color, and synthetic-RTL states; fullscreen also allocated too little width to parameter vectors and placed the trajectory beside the proof column. Preserve these diagnostics and correct the component geometry before rerunning."
+              - command: "Initial npm.cmd --prefix site test -- --run after registering AdamwEvidenceDiagram"
+                status: failed
+                notes: "847 of 849 assertions passed. Two global inventory expectations still named 41 figures; update only those exact semantic component and useful-registration counts to 42, preserve the failure, and rerun the complete suite."
+              - command: "Post-audit Candidate 01 Firefox Chapter 22 suite with the first exact transaction-note repair"
+                status: failed
+                notes: "Six of seven cases passed. The grammatically complete Russian construction added one fullscreen line and exceeded the strict block-travel budget by 22 pixels. Replace it with the shorter exact phrase 'после успешных арифметических проверок и создания всех тензоров'; do not relax the budget."
+              - command: "Final course-plan, Chapter 22 contract, English/Russian chapter, bilingual parity, and global content checks"
+                status: passed
+                notes: "Plan revision 48 validates 40 chapters and 94 steps; both Chapter 22 sources and all 25 localized contract fields pass; 63 localized sources form 40 complete publishable chapter sets; and all 42 registered shared-full-view components validate."
+              - command: "npm.cmd --prefix site test -- --run"
+                status: passed
+                notes: "All 52 test files and 849 assertions pass, including 24 focused Chapter 22 assertions, formula rendering, locale policy, two-figure registration, and the 42-component global inventories."
+              - command: "Exact Chapter 22 learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Both Rust executables match their committed expected artifacts byte for byte."
+              - command: "Pinned Linux cargo fmt, warning-denied workspace Clippy, workspace tests, and documentation tests"
+                status: passed
+                notes: "The complete Rust workspace passes formatting, Clippy with -D warnings, all locked tests, and documentation tests; later changes were site-only."
+              - command: "Canonical and Candidate 01 npm check, production build, and static link audit"
+                status: passed
+                notes: "Both source trees report 206 Astro files with zero errors, warnings, or hints and build 68 pages. The canonical and candidate link audits each cover 68 HTML files, 2,216 local references, 68 SEO routes, 68 sitemap URLs, 68 Analytics routes, and 150 artifacts. No product build configuration changed."
+              - command: "Final Candidate 01 Chapter 22 Chromium and Firefox suites"
+                status: passed
+                notes: "Each engine passes all seven bilingual cases: route/index parity, complete desktop and narrow lessons, two-figure full view with focus restoration, forced colors, synthetic RTL, no-JavaScript fallback, exact trace evidence, formulas, and nearest-box containment."
+              - command: "Final Candidate 01 shared diagram-style, full-view, and formula-rendering suites in Chromium and Firefox"
+                status: passed
+                notes: "Each engine passes all 142 cases across the complete active route inventory, including desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, focus, formula-ink, named-scroll-region, and bounded-box contracts."
+              - command: "C:/Program Files/Git/bin/bash.exe ./course check"
+                status: passed
+                notes: "The unchanged supported Linux workflow passes locked Rust tests, Astro diagnostics, global content and parity checks, the 68-page production build, and the complete static-link/SEO/sitemap/Analytics audit. Final image identity is sha256:b5f590d93332077153c1daf51ed42dbbfb0092796c323880cae3667e3a586a44."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, history, exercise, answer, handoff, and final wording audit"
+                status: passed
+                notes: "The final current-snapshot reviewer returns PASS. English MDX SHA-256 is 935770ac32f58f46679aa8a4ea9b658099a553da3ced209ff7830e367a6a8c25 and Russian MDX SHA-256 is 4ef8c10f79863061480b10f2cfe39818d1e65781a8e7396033f3346fe0b726a0."
+              - command: "git diff --check, BUILD_STATE.yaml parse, output-ownership review, canonical-candidate comparison, and publication-manifest verification"
+                status: passed
+                notes: "The product diff has no whitespace errors; the ledger parses; every dirty path is in scope and declared; all Chapter 21 decisions precede the append-only Chapter 22 block; canonical site/src and site/tests byte-match Candidate 01 across 169 and 101 files; and the final manifest records every publication checksum."
+            notes: "Succeeded. Corrected English Chapter 22 and its direct natural Russian translation now teach stable named AdamW state, bias-corrected first and second raw gradient moments, explicit per-parameter decay groups, adaptive and decoupled decay deltas, fixed optimizer trajectories, and atomic fresh-leaf replacement with exact Rust evidence. Two shared-system semantic figures preserve the complete evidence without clipping or excessive full-view travel. Every declared content, exact Rust, unit, static, link, Linux, Chromium, Firefox, formula, accessibility, containment, checksum, and independent-review gate passes."

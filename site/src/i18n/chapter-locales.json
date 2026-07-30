@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 47,
-  "policyId": "selective-russian-through-chapter-21",
+  "planRevision": 48,
+  "policyId": "selective-russian-through-chapter-22",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -27,7 +27,7 @@
     { "chapterId": "19-linear-layers", "order": 19, "activeLocales": ["en", "ru"] },
     { "chapterId": "20-swiglu-feed-forward", "order": 20, "activeLocales": ["en", "ru"] },
     { "chapterId": "21-mini-batches", "order": 21, "activeLocales": ["en", "ru"] },
-    { "chapterId": "22-adamw", "order": 22, "activeLocales": ["en"] },
+    { "chapterId": "22-adamw", "order": 22, "activeLocales": ["en", "ru"] },
     { "chapterId": "23-neural-ngram", "order": 23, "activeLocales": ["en"] },
     { "chapterId": "24-residual-connections", "order": 24, "activeLocales": ["en"] },
     { "chapterId": "25-rmsnorm", "order": 25, "activeLocales": ["en"] },

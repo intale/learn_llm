@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 47,
+  "plan_revision": 48,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-21",
+    "policy_id": "selective-russian-through-chapter-22",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "21-mini-batches",
+        "through_chapter": "22-adamw",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-21."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-22."
       },
       {
-        "from_chapter": "22-adamw",
+        "from_chapter": "23-neural-ngram",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 21 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 22 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -279,6 +279,11 @@
         "step_id": "activate-ch21-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch21-russian-localization"
+      },
+      {
+        "step_id": "activate-ch22-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch22-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -848,9 +853,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–15 activate
-both, while Chapters 16–39 activate English only. Russian therefore keeps its index
-and Chapter 0–15 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–22 activate
+both, while Chapters 23–39 activate English only. Russian therefore keeps its index
+and Chapter 0–22 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1238,6 +1243,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `22-adamw`
 - **Implementation step:** `implement-ch22-adamw`
+- **Revision status:** Content revision 2 corrects the anonymous-gradient handoff, adaptive-scale explanation, group-specific decay coefficient, parameter-group API scope, and learner-facing evidence; narrows the rendered Rust excerpts to this chapter's fixed-rate optimizer boundary; migrates the figure to the shared presentation system; and publishes the direct meaning-first Russian translation through `activate-ch22-russian-localization`.
 - **Depends on:** `21-mini-batches`.
 - **Outcome:** Update named parameters with bias-corrected Adam moments and decoupled weight decay.
 - **Scope boundary:** Teach SGD, momentum intuition, first/second moments, bias correction, epsilon, parameter groups, zero-grad, and decay exclusions; defer schedules.

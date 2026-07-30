@@ -4,22 +4,25 @@ import InlineMath from '../InlineMath.astro';
 import {
   adamwDiagramId,
   assertAdamwDiagramLabels,
+  formatAdamwVectorLatex as vectorLatex,
   parseAdamwTrace,
   type AdamwDiagramLabels,
-  type AdamwTraceVector,
 } from '../../lib/adamw-diagram';
 
 interface Props {
   labels: AdamwDiagramLabels;
+  instanceId?: string;
 }
 
-const { labels } = Astro.props;
+const { labels, instanceId = 'default' } = Astro.props;
 assertAdamwDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('AdamW diagram instanceId must be a kebab-case identifier.');
+}
 const trace = parseAdamwTrace(traceSource);
-const titleId = 'adamw-title';
-const descriptionId = 'adamw-description';
-const vectorLatex = (vector: AdamwTraceVector) =>
-  String.raw`\left[${vector.items.join(',')}\right]`;
+const parameter = trace.parameters[0];
+const titleId = `${adamwDiagramId}-${instanceId}-title`;
+const descriptionId = `${adamwDiagramId}-${instanceId}-description`;
 ---
 
 <figure
@@ -36,15 +39,15 @@ const vectorLatex = (vector: AdamwTraceVector) =>
   </figcaption>
 
   <dl class="config-summary" aria-label={labels.stages.inputs}>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.step}</dt>
       <dd><InlineMath latex={String.raw`t=${trace.meta.step}`} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.learningRate}</dt>
       <dd><InlineMath latex={String.raw`\eta=${trace.meta.learningRate}`} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.momentRates}</dt>
       <dd>
         <InlineMath latex={String.raw`\beta_1=${trace.meta.beta1}`} />
@@ -52,19 +55,21 @@ const vectorLatex = (vector: AdamwTraceVector) =>
         <InlineMath latex={String.raw`\beta_2=${trace.meta.beta2}`} />
       </dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.stabilizer}</dt>
       <dd><InlineMath latex={String.raw`\varepsilon=${trace.meta.epsilon}`} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.decay}</dt>
       <dd><InlineMath latex={String.raw`\lambda=${trace.meta.weightDecay}`} /></dd>
     </div>
   </dl>
 
-  <section class="stage-intro" aria-labelledby="adamw-moments-heading">
-    <p class="stage-number">1 · {labels.stages.moments}</p>
-    <h4 id="adamw-moments-heading">{labels.stages.moments}</h4>
+  <section class="stage-intro course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-moments`}>
+    <h4 id={`${titleId}-moments`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">1</span>
+      {labels.stages.moments}
+    </h4>
     <p>{labels.notes.moments}</p>
     <p class="corrections">
       <InlineMath
@@ -77,11 +82,10 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     </p>
   </section>
 
-  <div class="parameter-list">
-    {trace.parameters.map((parameter) => (
-      <article data-diagram-card data-diagram-box class="parameter-card" data-parameter-index={parameter.index}>
-        <header>
-          <div>
+  <div class="parameter-list course-diagram__grid">
+    <article data-diagram-card data-diagram-box class="parameter-card course-diagram__card-stack" data-parameter-index={parameter.index}>
+        <header data-diagram-card data-diagram-box>
+          <div class="course-diagram__card-stack">
             <span class="parameter-label">{labels.fields.parameter}</span>
             <h5><bdi dir="ltr"><code>{parameter.name}</code></bdi></h5>
           </div>
@@ -92,6 +96,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
                 <span
                   class:list={['group-badge', { 'no-decay': parameter.group === 'no_decay' }]}
                   data-parameter-group={parameter.group}
+                  data-diagram-box
                 >
                   {parameter.group === 'decay' ? labels.symbols.applyDecay : labels.symbols.skipDecay}
                 </span>
@@ -111,8 +116,8 @@ const vectorLatex = (vector: AdamwTraceVector) =>
           tabindex="0"
           aria-label={`${labels.scrollers.parameterFlow} ${parameter.name}`}
          data-diagram-scroll>
-          <div class="flow" aria-label={labels.captions.parameterFlow}>
-            <section data-diagram-box class="input-node" aria-label={labels.stages.inputs}>
+          <div class="flow course-diagram__grid" aria-label={labels.captions.parameterFlow}>
+            <section data-diagram-card data-diagram-box class="input-node" aria-label={labels.stages.inputs}>
               <dl>
                 <div>
                   <dt>{labels.fields.before} <InlineMath latex={String.raw`\theta_{t-1}`} /></dt>
@@ -127,7 +132,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow adaptive-arrow input-to-moments" aria-hidden="true">→</span>
 
-            <section data-diagram-box class="moment-node" aria-label={labels.stages.moments}>
+            <section data-diagram-card data-diagram-box class="moment-node" aria-label={labels.stages.moments}>
               <span class="lane-label">{labels.symbols.adaptive}</span>
               <dl>
                 <div>
@@ -151,7 +156,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow adaptive-arrow moments-to-adaptive" aria-hidden="true">→</span>
 
-            <section data-diagram-box class="adaptive-delta" aria-label={labels.symbols.adaptive}>
+            <section data-diagram-card data-diagram-box class="adaptive-delta" aria-label={labels.symbols.adaptive}>
               <span class="lane-label">{labels.symbols.adaptive}</span>
               <p>{labels.fields.adaptiveDelta}</p>
               <strong><InlineMath latex={vectorLatex(parameter.adaptive)} /></strong>
@@ -162,7 +167,7 @@ const vectorLatex = (vector: AdamwTraceVector) =>
               data-decay-bypass="direct-from-parameter"
               aria-label={`${labels.symbols.decay}: ${parameter.group === 'decay' ? labels.symbols.applyDecay : labels.symbols.skipDecay}`}
             >
-              <div data-diagram-box class="bypass-origin">
+              <div data-diagram-card data-diagram-box class="bypass-origin">
                 <span class="lane-label">
                   {labels.fields.before} <InlineMath latex={String.raw`\theta_{t-1}`} />
                 </span>
@@ -172,8 +177,13 @@ const vectorLatex = (vector: AdamwTraceVector) =>
                 {parameter.group === 'decay' ? '┄┄┄→' : '┄┄┄×'}
               </span>
               <div
-                class:list={['decay-delta', { skipped: parameter.group === 'no_decay' }]}
+                class:list={[
+                  'decay-delta',
+                  'course-diagram__card-stack',
+                  { skipped: parameter.group === 'no_decay' },
+                ]}
                 data-decay-action={parameter.group === 'decay' ? 'apply' : 'skip'}
+                data-diagram-card
                 data-diagram-box
               >
                 <span class="lane-label">
@@ -186,205 +196,36 @@ const vectorLatex = (vector: AdamwTraceVector) =>
 
             <span class="flow-arrow merge-arrow" aria-label={labels.symbols.subtract}>−</span>
 
-            <section data-diagram-box class="output-node" aria-label={labels.stages.replacement}>
+            <section data-diagram-card data-diagram-box class="output-node" aria-label={labels.stages.replacement}>
               <span class="lane-label">{labels.symbols.subtract}</span>
               <p>{labels.fields.after} <InlineMath latex={String.raw`\theta_t`} /></p>
               <strong><InlineMath latex={vectorLatex(parameter.after)} /></strong>
             </section>
           </div>
         </div>
-      </article>
-    ))}
+    </article>
   </div>
 
-  <aside class="decay-note" aria-labelledby="adamw-decay-heading">
-    <p class="stage-number">2 · {labels.stages.deltas}</p>
-    <h4 id="adamw-decay-heading">{labels.stages.deltas}</h4>
+  <section class="decay-note course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-decay`}>
+    <h4 id={`${titleId}-decay`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">2</span>
+      {labels.stages.deltas}
+    </h4>
     <p>{labels.notes.deltas}</p>
-    <div class="bypass-formula">
+    <div class="bypass-formula" data-diagram-card data-diagram-box>
       <span>{labels.symbols.adaptive}</span>
       <InlineMath latex={String.raw`\eta\hat m_t/(\sqrt{\hat v_t}+\varepsilon)`} />
       <span class="plus" aria-label={labels.symbols.subtract}>−</span>
       <span>{labels.symbols.decay}</span>
       <InlineMath latex={String.raw`\eta\lambda\theta_{t-1}`} />
     </div>
-  </aside>
-
-  <section class="trajectory-stage" aria-labelledby="adamw-trajectory-heading">
-    <p class="stage-number">3 · {labels.stages.trajectory}</p>
-    <h4 id="adamw-trajectory-heading">{labels.stages.trajectory}</h4>
-    <p>{labels.notes.trajectory}</p>
-    <p class="trajectory-objective">
-      <span>{labels.fields.curvature}</span>
-      <InlineMath latex={String.raw`q(x,y)=\frac12(x^2+4y^2)`} />
-      <span aria-hidden="true"> · </span>
-      <InlineMath latex={String.raw`\operatorname{diag}(H)=${vectorLatex(trace.trajectory.curvature)}`} />
-      <span aria-hidden="true"> · </span>
-      <InlineMath latex={String.raw`0\leq t\leq ${trace.trajectory.steps}`} />
-    </p>
-    <div
-      class="trajectory-scroll course-diagram__scroll"
-      role="region"
-      tabindex="0"
-      aria-label={labels.scrollers.trajectory}
-     data-diagram-scroll>
-      <div class="trajectory-grid" aria-label={labels.captions.trajectory}>
-        {([
-          ['sgd', labels.symbols.sgd],
-          ['adamw', labels.symbols.adamw],
-        ] as const).map(([optimizer, label]) => (
-          <article data-diagram-card data-diagram-box class={`trajectory-lane ${optimizer}`} data-optimizer={optimizer}>
-            <h5>{label}</h5>
-            <ol>
-              {trace.trajectory.points.map((point, index) => (
-                <li data-trajectory-step={point.step}>
-                  <span class="trajectory-point-label">
-                    {labels.fields.trajectoryPoint}{' '}
-                    <InlineMath latex={String.raw`t=${point.step}`} />
-                  </span>
-                  <strong>
-                    <InlineMath latex={vectorLatex(point[optimizer])} />
-                  </strong>
-                  {index < trace.trajectory.points.length - 1 && (
-                    <span class="trajectory-arrow" aria-hidden="true">→</span>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </article>
-        ))}
-      </div>
-    </div>
   </section>
 
-  <section class="commit-stage" aria-labelledby="adamw-commit-heading">
-    <p class="stage-number">4 · {labels.stages.replacement}</p>
-    <h4 id="adamw-commit-heading">{labels.stages.replacement}</h4>
-    <p>{labels.notes.replacement}</p>
-  </section>
-
-  <section class="proof-stage" aria-labelledby="adamw-proof-heading">
-    <div>
-      <p class="stage-number">5 · {labels.stages.proof}</p>
-      <h4 id="adamw-proof-heading">{labels.stages.proof}</h4>
-      <p>{labels.notes.proof}</p>
-    </div>
-    <dl aria-label={labels.captions.transactionProof}>
-      <div>
-        <dt>{labels.fields.stateNames}</dt>
-        <dd>
-          {trace.proof.stateNames.map((name) => (
-            <bdi dir="ltr"><code>{name}</code></bdi>
-          ))}
-        </dd>
-      </div>
-      <div>
-        <dt>{labels.fields.freshGradient}</dt>
-        <dd>{labels.symbols.zero}</dd>
-      </div>
-      <div>
-        <dt>{labels.fields.leafIdentity}</dt>
-        <dd>{labels.symbols.replaced}</dd>
-      </div>
-      <div>
-        <dt>{labels.fields.zeroGradientDecay}</dt>
-        <dd><InlineMath latex={String.raw`\eta\lambda\theta=${trace.proof.zeroGradientDecay}`} /></dd>
-      </div>
-      <div>
-        <dt>{labels.fields.failedTransaction}</dt>
-        <dd>{labels.symbols.unchanged}</dd>
-      </div>
-      <div>
-        <dt>{labels.fields.commit}</dt>
-        <dd>{labels.symbols.atomic}</dd>
-      </div>
-    </dl>
-  </section>
 </figure>
 
 <style>
-  .adamw-diagram {
-    container-type: inline-size;
-    display: grid;
-    gap: 1rem;
-    margin: 1.5rem 0;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    color: var(--ink);
-    min-inline-size: 0;
-  }
-
-  .adamw-diagram:focus-visible,
-  .parameter-scroll:focus-visible,
-  .trajectory-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.15rem;
-  }
-
-  figcaption h3,
-  h4,
-  h5,
-  p,
-  dl {
-    margin-block: 0;
-  }
-
-  .diagram-description,
-  .stage-intro > p,
-  .decay-note > p,
-  .trajectory-stage > p,
-  .commit-stage > p,
-  .proof-stage > div > p {
-    color: var(--muted);
-  }
-
   .config-summary {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0.65rem;
-    margin-block: 0.1rem 0.35rem;
-  }
-
-  .config-summary > div,
-  .proof-stage dl > div {
-    min-width: 0;
-    padding: 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  dt,
-  .parameter-label,
-  .lane-label,
-  .stage-number {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 750;
-    letter-spacing: 0.025em;
-  }
-
-  dd {
-    margin: 0.25rem 0 0;
-    overflow-wrap: anywhere;
-  }
-
-  .stage-intro,
-  .decay-note,
-  .commit-stage {
-    padding: 0.9rem 1rem;
-    border-inline-start: 0.3rem solid var(--accent-dark);
-    border-radius: 0.5rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .stage-intro h4,
-  .decay-note h4,
-  .commit-stage h4,
-  .proof-stage h4 {
-    margin-block: 0.15rem 0.35rem;
+    --diagram-summary-min: 8.5rem;
   }
 
   .corrections {
@@ -395,17 +236,11 @@ const vectorLatex = (vector: AdamwTraceVector) =>
   }
 
   .parameter-list {
-    display: grid;
-    gap: 1rem;
     align-items: start;
   }
 
   .parameter-card {
     min-width: 0;
-    overflow: hidden;
-    border: 2px solid var(--line);
-    border-radius: 0.8rem;
-    background: var(--surface-raised, var(--surface));
   }
 
   .parameter-card > header {
@@ -413,14 +248,6 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     align-items: start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.8rem 0.9rem;
-    border-block-end: 1px solid var(--line);
-    background: var(--surface);
-  }
-
-  .parameter-card h5 {
-    margin-block-start: 0.15rem;
-    font-size: 0.98rem;
   }
 
   .parameter-card > header dl {
@@ -436,28 +263,23 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     padding: 0.12rem 0.4rem;
     border: 1px solid currentColor;
     border-radius: 999px;
-    color: var(--accent-dark);
-    font-size: 0.72rem;
     font-weight: 800;
   }
 
   .group-badge.no-decay {
     border-style: dashed;
-    color: var(--muted);
   }
 
   .parameter-scroll {
-    max-width: 100%;
-    padding: 0.9rem;
-    scrollbar-gutter: stable;
+    --diagram-scroll-inline-size: 100%;
   }
 
   .flow {
     display: grid;
     grid-template-columns: minmax(13rem, 0.85fr) auto minmax(27rem, 1.35fr) auto minmax(16rem, 0.95fr) auto minmax(15rem, 0.85fr);
     align-items: center;
-    gap: 0.75rem 0.55rem;
-    min-width: 78rem;
+    inline-size: 78rem;
+    min-inline-size: 78rem;
   }
 
   .input-node,
@@ -466,15 +288,6 @@ const vectorLatex = (vector: AdamwTraceVector) =>
   .output-node {
     align-self: start;
     min-width: 0;
-    padding: 0.7rem;
-    border-radius: 0.65rem;
-    background: var(--surface);
-  }
-
-  .input-node,
-  .moment-node,
-  .output-node {
-    border: 2px solid var(--line);
   }
 
   .input-node {
@@ -507,15 +320,9 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .moment-node dl > div {
-    padding-block-start: 0.45rem;
-    border-block-start: 1px solid var(--line);
-  }
-
   .adaptive-delta {
     grid-column: 5;
     grid-row: 1;
-    border: 2px solid var(--line);
   }
 
   .decay-bypass {
@@ -526,67 +333,37 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     align-items: center;
     gap: 0.65rem;
     min-width: 0;
-    padding-block-start: 0.65rem;
-    border-block-start: 2px dashed var(--line);
+    border-block-start: 2px dashed currentColor;
   }
 
   .bypass-origin,
   .decay-delta {
-    padding: 0.7rem;
-    border-radius: 0.65rem;
-    background: var(--surface);
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
   .bypass-origin {
     display: grid;
     gap: 0.25rem;
     min-width: 0;
-    border: 2px dashed var(--line);
   }
 
   .bypass-arrow {
-    color: var(--accent-dark);
-    font-size: 1.1rem;
-    font-weight: 850;
-    letter-spacing: 0.16em;
     text-align: center;
   }
 
   .decay-delta.skipped {
     opacity: 0.78;
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0,
-      transparent 0.45rem,
-      color-mix(in srgb, var(--line) 22%, transparent) 0.45rem,
-      color-mix(in srgb, var(--line) 22%, transparent) 0.55rem
-    );
-  }
-
-  .decay-delta {
-    border: 2px dashed var(--line);
-    background: var(--surface);
-  }
-
-  .adaptive-delta p,
-  .decay-delta p,
-  .output-node p {
-    margin-block: 0.3rem;
-    color: var(--muted);
-    font-size: 0.84rem;
   }
 
   .flow-arrow {
-    color: var(--accent-dark);
-    font-size: 1.4rem;
-    font-weight: 800;
+    justify-self: center;
   }
 
   .merge-arrow {
     grid-column: 6;
     grid-row: 1 / 3;
     align-self: center;
-    color: var(--ink);
   }
 
   .output-node {
@@ -596,9 +373,8 @@ const vectorLatex = (vector: AdamwTraceVector) =>
   }
 
   .decay-note {
-    border-inline-start-style: dashed;
-    border-inline-start-color: var(--line);
-    background: var(--surface-raised, var(--surface));
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
   .bypass-formula {
@@ -607,171 +383,18 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     align-items: center;
     gap: 0.45rem 0.65rem;
     margin-block-start: 0.75rem;
-    padding: 0.7rem;
-    border: 2px dashed var(--line);
-    border-radius: 0.55rem;
-    background: var(--surface);
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
-  .bypass-formula > span:not(.plus) {
-    font-size: 0.78rem;
-    font-weight: 750;
-  }
-
-  .plus {
-    font-weight: 800;
-  }
-
-  .trajectory-stage {
-    min-width: 0;
-    padding: 1rem;
-    border: 2px solid var(--line);
-    border-radius: 0.75rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .trajectory-stage h4 {
-    margin-block: 0.15rem 0.35rem;
-  }
-
-  .trajectory-objective {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem 0.55rem;
-    margin-block-start: 0.65rem;
-    padding: 0.65rem;
-    border: 1px solid var(--line);
-    border-radius: 0.55rem;
-    background: var(--surface);
-  }
-
-  .trajectory-objective > span:first-child {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 750;
-  }
-
-  .trajectory-scroll {
-    max-width: 100%;
-    margin-block-start: 0.75rem;
-    padding-block-end: 0.35rem;
-    scrollbar-gutter: stable;
-  }
-
-  .trajectory-grid {
-    display: grid;
-    gap: 0.7rem;
-    min-width: 72rem;
-  }
-
-  .trajectory-lane {
-    display: grid;
-    grid-template-columns: 8rem minmax(0, 1fr);
-    align-items: center;
-    gap: 0.65rem;
-    min-width: 0;
-    padding: 0.75rem;
-    border: 2px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface);
-  }
-
-  .trajectory-lane.adamw {
-    border-style: double;
-    border-width: 3px;
-  }
-
-  .trajectory-lane ol {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(10.75rem, 1fr));
-    gap: 1.2rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .trajectory-lane li {
-    position: relative;
-    display: grid;
-    gap: 0.25rem;
-    min-width: 0;
-    padding: 0.5rem;
-    border-block-start: 0.25rem solid var(--accent-dark);
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .trajectory-lane.adamw li {
-    border-block-start-style: double;
-  }
-
-  .trajectory-point-label {
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  .trajectory-arrow {
-    position: absolute;
-    inset-inline-end: -0.75rem;
-    inset-block-start: 50%;
-    color: var(--accent-dark);
-    font-size: 1.1rem;
-    font-weight: 850;
-    transform: translateY(-50%);
-  }
-
-  .commit-stage {
-    margin-block-start: 1rem;
-  }
-
-  .proof-stage {
-    display: grid;
-    grid-template-columns: minmax(12rem, 0.8fr) minmax(0, 1.7fr);
-    gap: 1rem;
-    margin-block-start: 1rem;
-    padding: 1rem;
-    border: 3px double var(--line);
-    border-radius: 0.75rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .proof-stage dl {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.6rem;
-  }
-
-  .proof-stage dd {
-    display: grid;
-    gap: 0.15rem;
-  }
-
-  code {
-    font-size: 0.85em;
-  }
-
-  @container (max-width: 52rem) {
+  @container course-diagram (max-width: 52rem) {
     .config-summary {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .proof-stage {
-      grid-template-columns: 1fr;
-    }
-
-    .proof-stage dl {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
-  @container (max-width: 32rem) {
-    .adamw-diagram {
-      padding: 0.8rem;
-    }
-
-    .config-summary,
-    .proof-stage dl {
+  @container course-diagram (max-width: 32rem) {
+    .config-summary {
       grid-template-columns: 1fr;
     }
 
@@ -788,33 +411,74 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     }
   }
 
-  @media (forced-colors: active) {
-    .adamw-diagram,
-    .parameter-card,
-    .input-node,
-    .moment-node,
-    .adaptive-delta,
-    .bypass-origin,
-    .decay-delta,
-    .output-node,
-    .proof-stage,
-    .trajectory-stage,
-    .trajectory-lane,
-    .config-summary > div,
-    .proof-stage dl > div {
-      border-color: CanvasText;
-      background: Canvas;
-      color: CanvasText;
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .adamw-diagram:fullscreen {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      grid-template-areas:
+        'caption caption actions'
+        'summary summary summary'
+        'moments decay decay'
+        'parameters parameters parameters';
+      align-items: start;
     }
 
-    .stage-intro,
-    .decay-note,
-    .decay-bypass,
-    .commit-stage,
-    .trajectory-stage {
-      border-color: CanvasText;
-      background: Canvas;
+    .adamw-diagram:fullscreen > figcaption {
+      grid-area: caption;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto;
+      align-items: start;
+      gap: var(--diagram-gap);
     }
+
+    .adamw-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-area: actions;
+      align-self: start;
+      justify-self: end;
+    }
+
+    .adamw-diagram:fullscreen > .config-summary {
+      grid-area: summary;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .adamw-diagram:fullscreen > .stage-intro {
+      grid-area: moments;
+    }
+
+    .adamw-diagram:fullscreen > .decay-note {
+      grid-area: decay;
+    }
+
+    .adamw-diagram:fullscreen > .parameter-list {
+      grid-area: parameters;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adamw-diagram:fullscreen .parameter-card > header > div,
+    .adamw-diagram:fullscreen .parameter-card > header dl > div {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.25rem 0.5rem;
+    }
+
+    .adamw-diagram:fullscreen .flow {
+      grid-template-columns:
+        minmax(12.25rem, 0.8fr)
+        auto
+        minmax(23rem, 1.55fr)
+        auto
+        minmax(9.75rem, 0.9fr)
+        auto
+        minmax(9.25rem, 0.85fr);
+      inline-size: 100%;
+      min-inline-size: 0;
+    }
+
+    .adamw-diagram:fullscreen .decay-bypass {
+      grid-template-columns: minmax(14rem, 0.9fr) minmax(5rem, 1fr) minmax(20rem, 1.25fr);
+    }
+
   }
 
   :global([dir='rtl']) .flow-arrow {
@@ -825,7 +489,4 @@ const vectorLatex = (vector: AdamwTraceVector) =>
     transform: scaleX(-1);
   }
 
-  :global([dir='rtl']) .trajectory-arrow {
-    transform: translateY(-50%) scaleX(-1);
-  }
 </style>

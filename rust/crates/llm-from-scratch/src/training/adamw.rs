@@ -19,7 +19,7 @@ pub struct AdamWConfig {
 }
 
 impl AdamWConfig {
-    /// Validates a dependency-free AdamW configuration.
+    /// Validates the scalar controls for one AdamW configuration.
     pub fn new(
         learning_rate: f64,
         beta1: f64,
@@ -74,7 +74,10 @@ impl AdamWConfig {
     pub const fn weight_decay(self) -> f64 {
         self.weight_decay
     }
+}
+// endregion:adamw-configuration
 
+impl AdamWConfig {
     /// Revalidates only the scheduled learning rate while preserving AdamW's
     /// moment and decay controls.
     pub fn with_learning_rate(self, learning_rate: f64) -> Result<Self, AdamWError> {
@@ -87,7 +90,6 @@ impl AdamWConfig {
         )
     }
 }
-// endregion:adamw-configuration
 
 // region:adamw-parameter-groups
 /// The two explicit parameter groups used by the course's decay policy.
@@ -302,7 +304,7 @@ impl fmt::Display for AdamWError {
             ),
             Self::ParameterInMultipleGroups { name } => write!(
                 formatter,
-                "parameter name {name:?} appears in both decay groups"
+                "parameter name {name:?} appears in both the decay and no-decay groups"
             ),
             Self::EmptyParameterSet => {
                 formatter.write_str("AdamW needs at least one named parameter")
@@ -377,7 +379,7 @@ impl From<InitializationError> for AdamWError {
 }
 // endregion:adamw-errors
 
-// region:adamw-state-and-evidence
+// region:adamw-moment-state
 /// Name-keyed optimizer memory for one parameter tensor.
 #[derive(Clone, Debug, PartialEq)]
 pub struct AdamWMomentState {
@@ -407,6 +409,7 @@ impl AdamWMomentState {
         &self.second
     }
 }
+// endregion:adamw-moment-state
 
 // region:adamw-persistence-state
 /// One validated name-keyed moment pair prepared for persistence.
@@ -677,6 +680,7 @@ impl fmt::Display for AdamWStateError {
 impl Error for AdamWStateError {}
 // endregion:adamw-persistence-state
 
+// region:adamw-state-and-evidence
 /// Exact elementwise evidence prepared for one named parameter in a step.
 #[derive(Clone, Debug, PartialEq)]
 pub struct AdamWParameterUpdate {
@@ -862,7 +866,6 @@ impl AdamW {
         }
     }
 
-    // region:transactional-adamw-step
     /// Consumes the accumulated gradients and atomically replaces every leaf.
     ///
     /// All arithmetic, tensor construction, and optimizer-state changes are
@@ -870,7 +873,7 @@ impl AdamW {
     /// optimizer bit-identical. A successful replacement creates fresh
     /// trainable leaves, so the consumed gradients restart at exact zero.
     pub fn step(&mut self, parameters: &mut [NamedParameter]) -> Result<AdamWStep, AdamWError> {
-        self.step_with_learning_rate(parameters, self.config.learning_rate)
+        self.step_with_config(parameters, self.config)
     }
 
     /// Applies one validated scheduled learning rate without resetting moments.
@@ -884,6 +887,15 @@ impl AdamW {
         learning_rate: f64,
     ) -> Result<AdamWStep, AdamWError> {
         let step_config = self.config.with_learning_rate(learning_rate)?;
+        self.step_with_config(parameters, step_config)
+    }
+
+    // region:transactional-adamw-step
+    fn step_with_config(
+        &mut self,
+        parameters: &mut [NamedParameter],
+        step_config: AdamWConfig,
+    ) -> Result<AdamWStep, AdamWError> {
         let actual_names = validate_parameter_names(parameters)?;
         if let Some(groups) = &self.groups {
             let expected_names = groups.parameter_names();
@@ -982,7 +994,7 @@ impl AdamW {
 
         Ok(AdamWStep {
             step: next_step,
-            learning_rate,
+            learning_rate: step_config.learning_rate,
             first_correction,
             second_correction,
             updates,

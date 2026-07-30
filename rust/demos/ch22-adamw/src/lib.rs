@@ -100,7 +100,9 @@ pub fn learner_evidence() -> LearnerEvidence {
 
 fn fresh_zero_moment_probe(config: AdamWConfig) -> AdamWParameterUpdate {
     let mut parameters = vec![parameter("probe.weight", &[1], &[3.0])];
-    AdamW::new(config)
+    let groups = AdamWParameterGroups::new(["probe.weight"], std::iter::empty::<&str>())
+        .expect("the probe weight belongs to the decay group");
+    AdamW::with_parameter_groups(config, groups)
         .step(&mut parameters)
         .expect("zero is the fresh leaf's exact gradient")
         .updates()[0]
@@ -131,7 +133,7 @@ fn rejected_set_probe(
 // endregion:chapter-adamw-fixture
 
 // region:historical-optimizer-road
-/// Four optimizer endpoints for one gradient sequence, not four languages.
+/// Four optimizer endpoints for one loss-gradient sequence.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct HistoricalUpdates {
     pub sgd: f64,

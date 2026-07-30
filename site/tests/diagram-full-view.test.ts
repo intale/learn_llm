@@ -137,7 +137,7 @@ describe('course-wide diagram full-view contract', () => {
       )
       .flat();
 
-    expect(useful).toHaveLength(41);
+    expect(useful).toHaveLength(42);
     expect(new Set(useful.map(({ chapterId }) => chapterId)).size).toBe(39);
     expect(new Set(useful.map(({ visualizationId }) => visualizationId)).size).toBe(useful.length);
     expect(useful.every(({ invocation }) => invocation.endsWith('Diagram'))).toBe(true);

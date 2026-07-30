@@ -504,7 +504,7 @@ const chapter14To39FormulaLatex: Record<
     String.raw`1-\beta_1^t=0.500000`,
     String.raw`\eta\lambda\theta=0.030000`,
     String.raw`q(x,y)=\frac12(x^2+4y^2)`,
-    String.raw`\operatorname{diag}(H)=\left[1.000000,4.000000\right]`,
+    String.raw`\operatorname{diag}(H)=\left[1,4\right]`,
   ],
   "23-neural-ngram": [
     String.raw`[1,2]\to[1,2,4]\to[1,8]\to[1,8]\to[1,266]`,

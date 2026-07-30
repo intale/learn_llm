@@ -1,6 +1,8 @@
 export interface AdamwDiagramLabels {
   title: string;
   description: string;
+  evidenceTitle: string;
+  evidenceDescription: string;
   summary: {
     step: string;
     learningRate: string;
@@ -70,10 +72,24 @@ export interface AdamwDiagramLabels {
 }
 
 export const adamwDiagramId = 'adamw' as const;
+export const adamwEvidenceDiagramId = 'adamw-evidence' as const;
 
 export interface AdamwTraceVector {
   lexeme: string;
   items: readonly string[];
+}
+
+function compactFixedDecimal(value: string): string {
+  const separator = value.indexOf('.');
+  if (separator < 0) return value;
+  const integer = value.slice(0, separator);
+  const fraction = value.slice(separator + 1).replace(/0+$/, '');
+  if (fraction.length > 0) return `${integer}.${fraction}`;
+  return integer === '-0' ? '0' : integer;
+}
+
+export function formatAdamwVectorLatex(vector: AdamwTraceVector): string {
+  return String.raw`\left[${vector.items.map(compactFixedDecimal).join(',')}\right]`;
 }
 
 export interface AdamwParameterTrace {
@@ -484,9 +500,17 @@ export function assertAdamwDiagramLabels(
     captions: ['parameterFlow', 'trajectory', 'transactionProof'],
     scrollers: ['parameterFlow', 'trajectory'],
   } as const;
-  assertKeys(labels, 'labels', ['title', 'description', ...Object.keys(schema)]);
+  assertKeys(labels, 'labels', [
+    'title',
+    'description',
+    'evidenceTitle',
+    'evidenceDescription',
+    ...Object.keys(schema),
+  ]);
   assertText(labels.title, 'labels.title');
   assertText(labels.description, 'labels.description');
+  assertText(labels.evidenceTitle, 'labels.evidenceTitle');
+  assertText(labels.evidenceDescription, 'labels.evidenceDescription');
   for (const [group, keys] of Object.entries(schema)) {
     const values: unknown = labels[group as keyof AdamwDiagramLabels];
     assertKeys(values, `labels.${group}`, keys);

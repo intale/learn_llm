@@ -9845,3 +9845,131 @@ of the source, locale, Rust, browser, accessibility, formula, or containment gat
 
 **Affected step and run:** `activate-ch21-russian-localization`, run
 `20260730T064448Z-activate-ch21-russian-localization-01`.
+
+## 2026-07-30 - Stage and fund Chapter 22 localization without changing the product build
+
+**Status:** Accepted during `activate-ch22-russian-localization` preflight.
+
+**Context:** The user requested uninterrupted continuation of the current Russian
+localization batch. Chapter 22 requires a canonical AdamW and Rust-evidence audit,
+direct technical translation, independent language review, and complete two-engine
+rendered validation. The Dropbox-managed workspace retains the documented risk of
+locking or removing disposable build paths, while the repository's pinned Linux
+workflow remains the supported reproducible build.
+
+**Decision:** Classify the work as large but proceed within the unlimited recorded
+budget, with no paid translation or generation service. Keep run intermediates in
+`C:/tmp/learn_llm/runs/20260730T092700Z-activate-ch22-russian-localization-01/`,
+record their checksums, and use immutable staging plus the pinned Linux workflow if
+Dropbox prevents canonical host cleanup. Do not change the product build,
+dependencies, deployment, hosting, or user environment.
+
+**Consequences:** Resource cost causes no approval pause. Publication still
+requires the exact English/Russian source, Rust, content, static, link, Chromium,
+Firefox, accessibility, formula, and bounded-box gates. Any host-only cleanup
+exception must be preserved in the run record and paired with a passing immutable
+and Linux build before the step can complete.
+
+**Affected step and run:** `activate-ch22-russian-localization`, run
+`20260730T092700Z-activate-ch22-russian-localization-01`.
+
+## 2026-07-30 - Freeze corrected Chapter 22 meaning before Russian translation
+
+**Status:** Accepted during `activate-ch22-russian-localization` canonical and
+localized source review.
+
+**Context:** English revision 1 had the right AdamW equations and numerical
+evidence, but its handoff treated Chapter 21's anonymous gradient coordinates as
+already named, its decay symbol did not explicitly cover no-decay parameter
+groups, and several historical and learner-facing claims needed tighter scope.
+The displayed Rust regions also extended beyond the concept boundary, while the
+single figure mixed the optimizer update with three independent evidence
+questions. These weaknesses would have been reproduced by a direct translation.
+
+**Decision:** Freeze English content revision 2 with SHA-256
+`935770ac32f58f46679aa8a4ea9b658099a553da3ced209ff7830e367a6a8c25`
+as the sole Russian semantic source. Make stable names an explicit Chapter 22
+association, define effective `\lambda` as configured decay or zero for each
+named parameter, keep the history on the LLM path from direct neural-language-
+model SGD through Adam to AdamW in decoder pretraining, and narrow the displayed
+Rust regions to this boundary. Translate that source directly into natural
+technical Russian with SHA-256
+`4ef8c10f79863061480b10f2cfe39818d1e65781a8e7396033f3346fe0b726a0`.
+Preserve formulas, code, values, identifiers, URLs, exercises, answers, SEO,
+accessibility descriptions, and the Chapter 23 data-partition handoff exactly in
+meaning.
+
+**Consequences:** Russian Chapter 22 uses established terms for first and second
+raw gradient moments, bias correction, adaptive and decay deltas, parameter
+leaves, and operation-tape nodes rather than literal calques. The final independent
+review passes every learner-facing surface. Any later semantic or presentation
+change to English revision 2 invalidates the recorded Russian review and source
+hash until Russian is refreshed from English.
+
+**Affected step and run:** `activate-ch22-russian-localization`, run
+`20260730T092700Z-activate-ch22-russian-localization-01`.
+
+## 2026-07-30 - Split Chapter 22's unrelated visual questions after measured full-view failure
+
+**Status:** Accepted during `activate-ch22-russian-localization` rendered-surface
+validation.
+
+**Context:** The first Chapter 22 figure correctly contained all inline evidence
+after its wide trajectory track received an explicit owned width, but the measured
+fullscreen surface remained 2.6 viewports tall. It combined a detailed decayed
+parameter update, a no-decay group contrast, two optimizer trajectories, and
+whole-set transaction invariants. Reallocating columns removed individual
+formula overflow but could not make those independent visual questions readable
+without substantial vertical travel.
+
+**Decision:** Keep every exact Rust-authored value and split the presentation into
+two registered semantic figures. `AdamwDiagram` owns one complete decayed-parameter
+update through moments and separate adaptive and decay branches.
+`AdamwEvidenceDiagram` owns the compact no-decay-group contrast, the fixed SGD and
+AdamW trajectory, and whole-set replacement evidence. Register the second figure
+as supplementary metadata in both canonical English and direct Russian
+projections. Both figures continue to use the shared static presentation module,
+one localized global fullscreen control each, and only their smallest meaningful
+named scroll regions.
+
+**Consequences:** Full view reorganizes evidence instead of shrinking, clipping,
+hiding, or duplicating it. The Chapter 22 contract, localized metadata, component
+tests, and bilingual browser tests cover both unique visualization IDs and
+preserve source parity. The shared semantic figure/component inventory advances
+from 41 to 42; no product build, dependency, runtime, or deployment change follows.
+
+**Affected step and run:** `activate-ch22-russian-localization`, run
+`20260730T092700Z-activate-ch22-russian-localization-01`.
+
+## 2026-07-30 - Preserve complete Chapter 22 evidence through concise math and reflow
+
+**Status:** Accepted during `activate-ch22-russian-localization` bilingual and
+rendered-surface review.
+
+**Context:** Initial browser measurements found trajectory lanes wider than their
+bounded cards, implicit columns created by localized fullscreen controls,
+parameter and delta formulas with insufficient reading width, and excessive
+vertical travel when transaction proof sat beside trajectory evidence. Literal or
+over-short Russian labels also weakened normalization-scale, bias-correction,
+decay-delta, operation-tape, tensor-construction, and data-partition meanings.
+
+**Decision:** Keep the complete natural meanings and exact trace evidence. Give
+fullscreen actions an explicit grid column, allocate concept-specific widths to
+the update branches, transpose the no-decay metadata, place the trajectory
+explanation beside its tracks, and arrange transaction proof in bounded columns.
+Render trace values as concise mathematics by removing only trailing decimal
+zeros while retaining byte-identical six-decimal Rust trace lexemes. Correct the
+Russian terminology through independent review and use wrapping or reflow rather
+than clipping, truncation, hidden overflow, smaller text, or relaxed geometry
+assertions.
+
+**Consequences:** The canonical Windows build, checksum-identical external
+candidate, and unchanged pinned Linux `./course check` all pass with 68 pages and
+150 artifacts. Both figures pass Chapter-specific and course-wide Chromium and
+Firefox checks at desktop, narrow, no-JavaScript, fullscreen, forced-color, focus,
+and synthetic direction surfaces. Formula ink and text remain inside every
+nearest bounded box, and full view avoids a multi-viewport journey in Firefox's
+shorter desktop viewport.
+
+**Affected step and run:** `activate-ch22-russian-localization`, run
+`20260730T092700Z-activate-ch22-russian-localization-01`.
