@@ -10005,3 +10005,109 @@ corrections.
 
 **Affected build:** `audit-ch01-ch07-and-correct-ch19`, beginning with run
 `20260730T121034Z-correct-ch19-affine-result-notation-01`.
+
+## 2026-07-30 - Stage Chapter 23 localization as its own sequential checkpoint
+
+**Status:** Accepted during `activate-ch23-russian-localization` preflight.
+
+**Context:** The user requested the next two Russian translations one by one. The
+published locale boundary currently ends at Chapter 22, so Chapter 23 must be
+audited against its exact Rust evidence, translated directly from the repaired
+English source, rendered in two engines, and committed before Chapter 24 begins.
+The Dropbox-managed workspace retains the documented risk of disposable build
+paths being locked, while the repository's pinned Linux workflow remains the
+supported reproducible build. Host Node and npm are newer than the recorded
+orchestration snapshot but are not product-validation inputs.
+
+**Decision:** Run Chapter 23 as the large standalone checkpoint
+`activate-ch23-russian-localization`, with no paid translation or generation
+service and no approval pause for resource cost. Keep run intermediates in
+`C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/`,
+record their checksums, and use the unchanged pinned Linux and browser workflows.
+Do not start, stage, or publish Chapter 24 until the Chapter 23 validation,
+checkpoint, and independent commit are complete. Do not change the product build,
+dependencies, deployment, hosting, or user environment.
+
+**Consequences:** The Chapter 23 activation may advance only the exact locale
+boundary through Chapter 23. Publication still requires semantic, mathematical,
+historical, Rust, SEO, accessibility, formula, static, link, Chromium, Firefox,
+fullscreen, and nearest-box containment gates for English and Russian. A harmless
+host tool-version difference does not alter the recorded product pins.
+
+**Affected step and run:** `activate-ch23-russian-localization`, run
+`20260730T162950Z-activate-ch23-russian-localization-01`.
+
+## 2026-07-30 - Freeze corrected Chapter 23 evidence before Russian publication
+
+**Status:** Accepted during `activate-ch23-russian-localization` canonical and
+localized review.
+
+**Context:** English revision 1 taught the intended neural n-gram model, but its
+visible prose leaked page-validation and pinned-container details, called the
+test partition wholly untouched despite constructing its document IDs, and
+described five positive aggregate matrix-gradient norms as though every gradient
+element were nonzero. Its diagram also retained private frame and card styling
+instead of the shared semantic roles. Translating that revision would have
+preserved claims stronger than the Rust evidence and an obsolete presentation
+contract.
+
+**Decision:** Freeze English revision 2 with SHA-256
+`65be3f5fc2f8e6596970bd75e6e8c9f753c853a8c06d495df2b7d2f714eec944`
+as the sole semantic source. State the exact test-text boundary—test text is not
+encoded, fitted, selected, scored, or displayed—and expose the five positive,
+finite aggregate gradient L1 norms without claiming elementwise nonzero
+gradients. Remove learner-facing delivery mechanics and page-side arithmetic,
+retain the exact deterministic Rust trace, and migrate the figure to the shared
+diagram roles. Translate the frozen source directly into natural technical
+Russian with SHA-256
+`9b45ffeb21ba858c820df64b9d09bf0902dc420b130ace1400310f46eb6890d6`.
+Preserve formulas such as `\operatorname{argmax}` through the math pipeline and
+use established Russian terms for likelihood, initialization seed, non-finite
+values, parameter branches, and shared operation-tape leaves.
+
+**Consequences:** Both locales publish revision 2 with matching formulas,
+identifiers, values, paths, links, exercises, answers, SEO, accessibility text,
+historical claims, and Chapter 24 handoff. The locale policy advances only
+through Chapter 23. Any later semantic or presentation change to the frozen
+English source invalidates the Russian review and recorded source hash until the
+translation is refreshed from English.
+
+**Affected step and run:** `activate-ch23-russian-localization`, run
+`20260730T162950Z-activate-ch23-russian-localization-01`.
+
+## 2026-07-30 - Reflow Chapter 23 from measured bilingual formula containment
+
+**Status:** Accepted during `activate-ch23-russian-localization` rendered-surface
+validation.
+
+**Context:** Initial Chromium measurements found the fixed-model summary formula
+wider than its card. The stricter course-wide bounded-box audit then found long
+negative decimal formulas crossing their nested value-cell borders even though
+the enclosing pipeline correctly owned horizontal travel. Host builds in the
+Dropbox workspace also encountered transient Defender/Dropbox locks while
+renaming disposable `dist` and Vite-cache paths.
+
+**Decision:** Increase the Chapter 23 summary and pipeline reading widths and
+tighten only the value-list gap, preserving normal text size and the smallest
+meaningful named scroll regions. Do not clip, hide, truncate, scale, weaken the
+geometry assertions, or change the build. Materialize a checksum-identical
+candidate outside Dropbox for browser and static validation, while retaining the
+unchanged pinned Linux `./course check` as the authoritative product gate. Record
+the 18-file product manifest at
+`C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/publish-product.sha256`
+with SHA-256
+`5d9bcba024f94061f3f4858c33490f7f7dabc42099c021c585394d9e2e90b760`.
+
+**Consequences:** Every measured Chapter 23 page has zero viewport overflow in
+Chromium and Firefox at desktop, narrow, and native full-view sizes; summary,
+value, checkpoint, and proof boxes have zero internal content overflow. Full
+view reduces the widest sanctioned horizontal journey to 32 CSS pixels in
+Chromium and 60 in Firefox without shrinking text. The final candidate builds 69
+pages and passes 2,183 local references, 69 SEO routes, 69 sitemap URLs, 69
+Analytics routes, and 150 artifacts. The final source passes 849 unit tests, 149
+rendered tests per browser, exact Rust evidence, and the complete pinned Linux
+gate. No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and run:** `activate-ch23-russian-localization`, run
+`20260730T162950Z-activate-ch23-russian-localization-01`.

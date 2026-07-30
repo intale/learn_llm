@@ -1,5 +1,5 @@
 CONFIG|vocabulary=266|merges=8|context=2|embedding=4|concatenated=8|swiglu_inner=8|hidden=8|parameters=3384|batch=64|evaluation_batch=512|init_seed=23|shuffle_seed=23|max_steps=15|lr=0.010000|beta1=0.900000|beta2=0.999000|epsilon=0.000000010|weight_decay=0.010000
-SPLIT|train_documents=8|validation_documents=2|test_used=no|train_contexts=1836|validation_contexts=467|train_batches=29|train_evaluation_batches=4|validation_evaluation_batches=1
+SPLIT|train_documents=8|validation_documents=2|test_text_used=no|train_contexts=1836|validation_contexts=467|train_batches=29|train_evaluation_batches=4|validation_evaluation_batches=1
 STAGE|index=0|name=context_ids|shape=[1, 2]|ids=[67, 118]
 STAGE|index=1|name=embeddings|shape=[1, 2, 4]|values=[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]
 STAGE|index=2|name=concatenated|shape=[1, 8]|values=[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]
@@ -10,4 +10,4 @@ LOSS|step=8|train=5.580106|validation=5.580365
 LOSS|step=15|train=5.555850|validation=5.557362
 RESULT|step=15|initial_validation=5.583482|final_validation=5.557362|improvement=0.026120
 GENERATE|prompt=At|prompt_ids=[67, 118]|ids=[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211]|stop=limit
-PROOF|replay=bitwise|test=untouched|target=final_shifted|gradients=all_nonzero|leaves=replaced|generation=deterministic|site_arithmetic=none
+PROOF|replay=bitwise|test_text=not_encoded_or_scored|target=final_shifted|gradient_l1=five_positive_finite|leaves=replaced|generation=deterministic

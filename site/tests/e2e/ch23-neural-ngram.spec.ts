@@ -13,21 +13,83 @@ import {
 } from './chapter-helpers';
 
 const chapterId = '23-neural-ngram';
-const chapterTitle = 'Train a fixed-context neural language model';
-const chapterDescription =
-  'Assemble embeddings, a SwiGLU hidden layer, indexed next-token loss, mini-batches, and AdamW into a deterministic neural n-gram whose held-out loss improves.';
-const diagramDescription =
-  'Follow exact Rust-authored token IDs through embeddings, concatenation, a hidden state, and vocabulary logits, then compare complete training and validation losses.';
-const chapterHeadings = [
-  'Predict one token from the complete context',
-  'Concatenate embeddings before the hidden layer',
-  'Keep context, feature, and vocabulary axes distinct',
-  'From sparse counts to learned contexts and attention',
-  'Own one parameter set across every update',
-  'Follow one context and the held-out loss',
-  'Predict before training',
-  'Replace fixed context with causal sequence mixing next',
-] as const;
+type ChapterLocale = 'en' | 'ru';
+
+const locales = ['en', 'ru'] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: 'Content revision',
+    title: 'Train a fixed-context neural language model',
+    description:
+      'Assemble embeddings, a SwiGLU hidden layer, indexed next-token loss, mini-batches, and AdamW into a deterministic neural n-gram whose held-out loss improves.',
+    headings: [
+      'Predict one token from the complete context',
+      'Concatenate embeddings before the hidden layer',
+      'Keep context, feature, and vocabulary axes distinct',
+      'From sparse counts to learned contexts and attention',
+      'Own one parameter set across every update',
+      'Follow one context and the held-out loss',
+      'Predict before training',
+      'Replace fixed context with causal information mixing next',
+    ],
+    historyFragments: [
+      'Classical count n-grams estimate each short context separately',
+      'bigram keyed only by final token',
+      'mixes two followers',
+      'learned distributed word features and a feed-forward network',
+      'replace recurrence and convolution with attention',
+      'road to modern LLMs',
+    ],
+    diagramTitle: 'Follow one context through training',
+    diagramDescription:
+      'Follow exact Rust-authored token IDs through embeddings, concatenation, a hidden state, and vocabulary logits, then compare complete training and validation losses.',
+    stageNames: [
+      'Context IDs',
+      'Embedding rows',
+      'Concatenated features',
+      'SwiGLU hidden state',
+      'Vocabulary logits',
+    ],
+    pipelineScroller: 'Scrollable fixed-context model pipeline',
+    generationScroller: 'Scrollable generated token ID sequence',
+  },
+  ru: {
+    revisionLabel: 'Версия материала',
+    title: 'Обучите нейронную языковую модель с фиксированным контекстом',
+    description:
+      'Объедините эмбеддинги, скрытый слой SwiGLU, функцию потерь следующего токена с выбором по индексу, мини-пакеты и AdamW в детерминированной нейронной n-граммной модели со снижением валидационных потерь.',
+    headings: [
+      'Предскажите один токен по полному контексту',
+      'Перед скрытым слоем конкатенируйте эмбеддинги',
+      'Не смешивайте оси контекста, признаков и словаря',
+      'От разреженных счётчиков к обучаемым контекстам и вниманию',
+      'Храните единый набор параметров на всех шагах',
+      'Проследите один контекст и функцию потерь на отложенных данных',
+      'Сначала сделайте предсказания',
+      'Далее замените фиксированный контекст каузальным обменом информацией',
+    ],
+    historyFragments: [
+      'Классические счётные n-граммные модели оценивают каждый короткий контекст отдельно',
+      'ключом которой служит только последний токен',
+      'объединяет статистику по двум возможным следующим токенам',
+      'обучаемых распределённых представлений слов и сети прямого распространения',
+      'заменяют рекуррентные и свёрточные слои механизмом внимания',
+      'на пути к современным LLM',
+    ],
+    diagramTitle: 'Проследите путь одного контекста через обучение',
+    diagramDescription:
+      'Проследите, как точные ID токенов из вывода Rust проходят через эмбеддинги, конкатенацию, скрытое состояние и логиты словаря, а затем сравните функции потерь на полных обучающей и валидационной выборках.',
+    stageNames: [
+      'ID токенов контекста',
+      'Строки эмбеддингов',
+      'Конкатенированные признаки',
+      'Скрытое состояние SwiGLU',
+      'Логиты словаря',
+    ],
+    pipelineScroller: 'Прокручиваемая схема модели с фиксированным контекстом',
+    generationScroller: 'Прокручиваемая последовательность ID сгенерированных токенов',
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, '');
 
@@ -136,20 +198,22 @@ async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
   narrow: boolean,
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: 'en',
+    locale,
     order: 23,
-    revision: 1,
-    revisionLabel: 'Content revision',
-    title: chapterTitle,
-    equivalentLocales: ['en'],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: locales,
     fallbackRouteSuffix: '/course/',
   });
-  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator('.lesson-body h2')).toHaveText(chapterHeadings);
+  await expect(page.locator('.lesson-description')).toHaveText(localized.description);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -192,28 +256,22 @@ async function expectChapterContent(
   const history = page
     .getByRole('heading', {
       level: 2,
-      name: 'From sparse counts to learned contexts and attention',
+      name: localized.headings[3],
       exact: true,
     })
     .locator(
-      'xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="From sparse counts to learned contexts and attention"]]',
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[3]}"]]`,
     );
   const historyText = (await history.allInnerTexts()).join(' ').replace(/\s+/g, ' ');
-  expect(historyText).toContain('Classical count n-grams estimate each short context separately');
-  expect(historyText).toContain('bigram keyed only by final token');
-  expect(historyText).toContain('mixes two followers');
-  expect(historyText).toContain('learned distributed word features and a feed-forward network');
-  expect(historyText).toContain('replace recurrence and convolution with attention');
-  expect(historyText).toContain('road to modern LLMs');
-  expect(historyText).toContain('programming-language history is not the subject');
+  for (const fragment of localized.historyFragments) expect(historyText).toContain(fragment);
   expect(historyText).not.toMatch(/TypeScript|Python history|Rust history/i);
   await expect(history.locator('a')).toHaveCount(2);
 
   await expect(page.locator('figure.rust-source')).toHaveCount(7);
   await expectVisualizationDecision(page, { decision: 'useful', id: 'neural-ngram' });
   const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
-  await expect(diagram).toHaveAccessibleName('Follow one context through training');
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
 
   const cards = diagram.locator('.pipeline-card');
   await expect(cards).toHaveCount(5);
@@ -224,13 +282,7 @@ async function expectChapterContent(
     'hidden',
     'logits',
   ]);
-  await expect(cards.locator('h5')).toHaveText([
-    'Context IDs',
-    'Embedding rows',
-    'Concatenated features',
-    'SwiGLU hidden state',
-    'Vocabulary logits',
-  ]);
+  await expect(cards.locator('h5')).toHaveText(localized.stageNames);
   const shapes = await cards.evaluateAll((nodes) =>
     nodes.map(
       (node) =>
@@ -292,26 +344,23 @@ async function expectChapterContent(
   const proof = diagram.locator('.proof-grid');
   for (const token of [
     'bitwise',
-    'untouched',
+    'not_encoded_or_scored',
     'final_shifted',
-    'all_nonzero',
+    'five_positive_finite',
     'replaced',
     'deterministic',
-    'none',
   ]) {
     await expect(proof).toContainText(token);
   }
 
   const pipelineScroller = diagram.locator('.pipeline-scroll');
   await expect(pipelineScroller).toHaveAttribute('role', 'region');
-  await expect(pipelineScroller).toHaveAccessibleName('Scrollable fixed-context model pipeline');
+  await expect(pipelineScroller).toHaveAccessibleName(localized.pipelineScroller);
   await pipelineScroller.focus();
   await expect(pipelineScroller).toBeFocused();
   const generationScroller = diagram.locator('.generation-scroll');
   await expect(generationScroller).toHaveAttribute('role', 'region');
-  await expect(generationScroller).toHaveAccessibleName(
-    'Scrollable generated token ID sequence',
-  );
+  await expect(generationScroller).toHaveAccessibleName(localized.generationScroller);
   await generationScroller.focus();
   await expect(generationScroller).toBeFocused();
 
@@ -338,10 +387,10 @@ async function expectChapterContent(
         .flatMap((formula, index) => {
           const issues: string[] = [];
           if (formula.left < cardRect.left - 1 || formula.right > cardRect.right + 1) {
-            issues.push(`Frozen model formula ${index} crosses its card horizontally`);
+            issues.push(`Model-configuration formula ${index} crosses its card horizontally`);
           }
           if (formula.top < cardRect.top - 1 || formula.bottom > cardRect.bottom + 1) {
-            issues.push(`Frozen model formula ${index} crosses its card vertically`);
+            issues.push(`Model-configuration formula ${index} crosses its card vertically`);
           }
           return issues;
         });
@@ -368,102 +417,95 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator('summary').click();
   await expect(details.locator('ol > li')).toHaveCount(8);
-  await expectOrderedChapterNavigation(page, 'en', chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }
 
 test.describe('chapter 23 neural n-gram vertical slice', {
   tag: chapterTag(chapterId),
 }, () => {
-  test('English publishes Chapter 23 while its Russian route remains deferred', async ({
-    page,
-  }) => {
-    const english = await readOrderedCourseChapters(page, 'en');
-    expect(english.length).toBeGreaterThanOrEqual(23);
-    expect(english[22]).toEqual(
-      expect.objectContaining({ chapterId, order: 23, title: chapterTitle }),
-    );
-    const russian = await readOrderedCourseChapters(page, 'ru');
-    expect(russian.length).toBeGreaterThan(0);
-    const lastRussianChapter = russian[russian.length - 1]!;
-    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
-    await expectOrderedChapterNavigation(
-      page,
-      'ru',
-      lastRussianChapter.chapterId,
-      russian,
-    );
-    expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
-
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.locator('.locale-switch a[data-locale="ru"]')).toHaveAttribute(
-      'href',
-      '/ru/course/',
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang="ru"]')).toHaveCount(0);
-    const missing = await page.goto(chapterPath('ru', chapterId));
-    expect(missing?.status()).toBe(404);
+  test('English and Russian publish reciprocal Chapter 23 routes', async ({ page }) => {
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      expect(chapters.find((chapter) => chapter.chapterId === chapterId)).toEqual(
+        expect.objectContaining({ chapterId, order: 23, title: copy[locale].title }),
+      );
+      await page.goto(chapterPath(locale, chapterId));
+      const other: ChapterLocale = locale === 'en' ? 'ru' : 'en';
+      await expect(page.locator(`.locale-switch a[data-locale="${other}"]`)).toHaveAttribute(
+        'href',
+        chapterPath(other, chapterId),
+      );
+      await expect(page.locator(`link[rel="alternate"][hreflang="${other}"]`)).toHaveCount(1);
+      await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
+    }
   });
 
-  test('the complete Rust-backed lesson renders at desktop and narrow widths', async ({ page }) => {
-    const chapters = await readOrderedCourseChapters(page, 'en');
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(chapterPath('en', chapterId));
-    await expectChapterContent(page, chapters, false);
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload();
-    await expectChapterContent(page, chapters, true);
+  test('both complete Rust-backed lessons render at desktop and narrow widths', async ({ page }) => {
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      await page.goto(chapterPath(locale, chapterId));
+      await expectChapterContent(page, chapters, false, locale);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.reload();
+      await expectChapterContent(page, chapters, true, locale);
+    }
   });
 
   test('input, learned, output, checkpoint, and proof structures remain distinct in forced colors', async ({
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
-    await expect(diagram.locator('.input-card')).toHaveCSS('border-top-style', 'solid');
-    await expect(diagram.locator('.learned-card').first()).toHaveCSS(
-      'border-top-style',
-      'dashed',
-    );
-    await expect(diagram.locator('.output-card')).toHaveCSS('border-top-style', 'double');
-    await expect(diagram.locator('.checkpoint-card').first()).toHaveCSS(
-      'border-top-style',
-      'dashed',
-    );
-    await expect(diagram.locator('.final-checkpoint')).toHaveCSS('border-top-style', 'double');
-    await expect(diagram.locator('.improvement-result')).toHaveCSS(
-      'border-top-style',
-      'double',
-    );
-    await expect(diagram.locator('.proof-stage')).toHaveCSS('border-top-style', 'double');
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
+      await expect(diagram.locator('.input-card')).toHaveCSS('border-top-style', 'solid');
+      await expect(diagram.locator('.learned-card').first()).toHaveCSS(
+        'border-top-style',
+        'dashed',
+      );
+      await expect(diagram.locator('.output-card')).toHaveCSS('border-top-style', 'double');
+      await expect(diagram.locator('.checkpoint-card').first()).toHaveCSS(
+        'border-top-style',
+        'dashed',
+      );
+      await expect(diagram.locator('.final-checkpoint')).toHaveCSS('border-top-style', 'double');
+      await expect(diagram.locator('.improvement-result')).toHaveCSS(
+        'border-top-style',
+        'double',
+      );
+      await expect(diagram.locator('.proof-stage')).toHaveCSS('border-top-style', 'solid');
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('RTL prose keeps arrows mirrored while program identities and formulas stay left-to-right', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
-    await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
-    await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
-    const arrowTransform = await diagram
-      .locator('.pipeline-card')
-      .first()
-      .evaluate((node) => getComputedStyle(node, '::after').transform);
-    expect(arrowTransform).not.toBe('none');
-    expect(
-      await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    expect(
-      await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="neural-ngram"]');
+      await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
+      await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
+      const arrowTransform = await diagram
+        .locator('.pipeline-card')
+        .first()
+        .evaluate((node) => getComputedStyle(node, '::after').transform);
+      expect(arrowTransform).not.toBe('none');
+      expect(
+        await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      expect(
+        await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
@@ -472,14 +514,17 @@ test.describe('chapter 23 neural n-gram vertical slice', {
       baseURL: String(testInfo.project.use.baseURL),
     });
     const page = await context.newPage();
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.getByRole('heading', { level: 1, name: chapterTitle })).toBeVisible();
-    await expect(page.locator('.pipeline-card')).toHaveCount(5);
-    await expect(page.locator('.checkpoint-card')).toHaveCount(3);
-    await expect(page.locator('.token-list li')).toHaveCount(12);
-    await expect(page.locator('.result-stage')).toContainText('0.026120');
-    await expect(page.locator('.proof-stage')).toContainText('bitwise');
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
+      await expect(page.locator('.pipeline-card')).toHaveCount(5);
+      await expect(page.locator('.checkpoint-card')).toHaveCount(3);
+      await expect(page.locator('.token-list li')).toHaveCount(12);
+      await expect(page.locator('.result-stage')).toContainText('0.026120');
+      await expect(page.locator('.proof-stage')).toContainText('bitwise');
+      await expect(page.locator('.proof-stage')).toContainText('five_positive_finite');
+      await expectNoOverflowOrClientScripts(page);
+    }
     await context.close();
   });
 });

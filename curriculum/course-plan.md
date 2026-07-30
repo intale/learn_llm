@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 48,
+  "plan_revision": 49,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-22",
+    "policy_id": "selective-russian-through-chapter-23",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "22-adamw",
+        "through_chapter": "23-neural-ngram",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-22."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-23."
       },
       {
-        "from_chapter": "23-neural-ngram",
+        "from_chapter": "24-residual-connections",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 22 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 23 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -284,6 +284,11 @@
         "step_id": "activate-ch22-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch22-russian-localization"
+      },
+      {
+        "step_id": "activate-ch23-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch23-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -853,9 +858,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–22 activate
-both, while Chapters 23–39 activate English only. Russian therefore keeps its index
-and Chapter 0–22 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–23 activate
+both, while Chapters 24–39 activate English only. Russian therefore keeps its index
+and Chapter 0–23 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1259,7 +1264,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `23-neural-ngram`
 - **Implementation step:** `implement-ch23-neural-ngram`
-- **Revision status:** The displayed-loss and Frozen model containment repair is delivered by `repair-ch23-indexed-loss-and-model-summary`; the mathematical and Rust evidence remain unchanged.
+- **Revision status:** Content revision 2 removes learner-facing delivery machinery, narrows the test-text and matrix-gradient evidence to what the executable proves, migrates the figure to the shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch23-russian-localization`.
 - **Depends on:** `22-adamw`.
 - **Outcome:** Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.
 - **Scope boundary:** Integrate tokenizer, windows, tensors, model-critical VJPs, layers, indexed NLL, batches, and AdamW in a deterministic checkpoint model; defer attention.
@@ -1268,7 +1273,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Rust contribution:** Add a small neural n-gram model and bounded training demo; this is the go/no-go integration test for the from-scratch engine.
 - **Visualization:** Useful — follow context IDs through embeddings, concatenation, hidden layer, logits, and a short train/validation loss trace.
 - **Practice:** Predict which examples a two-token context can separate that the bigram cannot.
-- **Integration evidence:** Fixed-seed logits, embedding and loss gradients, decreasing train loss, improved validation loss over initialization, deterministic generation, and runtime ceiling pass.
+- **Integration evidence:** Fixed-seed logits, positive finite matrix-level gradient $L_1$ norms, decreasing train loss, improved validation loss over initialization, test text excluded from encoding and scoring, deterministic generation, and bitwise replay pass.
 - **Handoff:** Chapters 24–32 replace fixed-context mixing with a complete modern causal decoder.
 
 ## 24. Residual connections

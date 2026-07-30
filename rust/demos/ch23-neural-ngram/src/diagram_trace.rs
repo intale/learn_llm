@@ -22,7 +22,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             CONTEXT_LENGTH * EMBEDDING_WIDTH,
         ),
         format!(
-            "SPLIT|train_documents=8|validation_documents=2|test_used=no|train_contexts={TRAIN_CONTEXTS}|validation_contexts={VALIDATION_CONTEXTS}|train_batches={TRAIN_BATCHES}|train_evaluation_batches={TRAIN_EVALUATION_BATCHES}|validation_evaluation_batches={VALIDATION_EVALUATION_BATCHES}"
+            "SPLIT|train_documents=8|validation_documents=2|test_text_used=no|train_contexts={TRAIN_CONTEXTS}|validation_contexts={VALIDATION_CONTEXTS}|train_batches={TRAIN_BATCHES}|train_evaluation_batches={TRAIN_EVALUATION_BATCHES}|validation_evaluation_batches={VALIDATION_EVALUATION_BATCHES}"
         ),
         format!(
             "STAGE|index=0|name=context_ids|shape=[1, 2]|ids={}",
@@ -68,13 +68,21 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             evidence.generation.stop.label(),
         ),
         format!(
-            "PROOF|replay={}|test={}|target=final_shifted|gradients={}|leaves={}|generation=deterministic|site_arithmetic=none",
+            "PROOF|replay={}|test_text={}|target=final_shifted|gradient_l1={}|leaves={}|generation=deterministic",
             if evidence.replay_bitwise { "bitwise" } else { "changed" },
-            if evidence.test_partition_used { "used" } else { "untouched" },
-            if evidence.gradient_l1.iter().all(|value| *value > 0.0) {
-                "all_nonzero"
+            if evidence.test_text_encoded_or_scored {
+                "encoded_or_scored"
             } else {
-                "missing"
+                "not_encoded_or_scored"
+            },
+            if evidence
+                .gradient_l1
+                .iter()
+                .all(|value| value.is_finite() && *value > 0.0)
+            {
+                "five_positive_finite"
+            } else {
+                "invalid"
             },
             if evidence.leaves_replaced { "replaced" } else { "retained" },
         ),
@@ -95,6 +103,10 @@ mod tests {
         assert!(!trace.ends_with("\n\n"));
         assert_eq!(trace.matches("STAGE|").count(), 5);
         assert_eq!(trace.matches("LOSS|").count(), 3);
-        assert!(trace.contains("PROOF|replay=bitwise|test=untouched|target=final_shifted"));
+        assert!(
+            trace.contains(
+                "PROOF|replay=bitwise|test_text=not_encoded_or_scored|target=final_shifted"
+            )
+        );
     }
 }

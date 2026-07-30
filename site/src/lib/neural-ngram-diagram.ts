@@ -36,12 +36,11 @@ export interface NeuralNgramDiagramLabels {
     generatedIds: string;
     stop: string;
     replay: string;
-    test: string;
+    testText: string;
     target: string;
-    gradients: string;
+    gradientL1: string;
     leaves: string;
     generationPolicy: string;
-    siteArithmetic: string;
   };
   cues: {
     input: string;
@@ -119,7 +118,7 @@ export interface NeuralNgramTrace {
   split: {
     trainDocuments: string;
     validationDocuments: string;
-    testUsed: 'no';
+    testTextUsed: 'no';
     trainContexts: string;
     validationContexts: string;
     trainBatches: string;
@@ -142,12 +141,11 @@ export interface NeuralNgramTrace {
   };
   proof: {
     replay: 'bitwise';
-    test: 'untouched';
+    testText: 'not_encoded_or_scored';
     target: 'final_shifted';
-    gradients: 'all_nonzero';
+    gradientL1: 'five_positive_finite';
     leaves: 'replaced';
     generation: 'deterministic';
-    siteArithmetic: 'none';
   };
 }
 
@@ -308,7 +306,7 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
   const split = parseFields(lines[1], 'SPLIT', [
     'train_documents',
     'validation_documents',
-    'test_used',
+    'test_text_used',
     'train_contexts',
     'validation_contexts',
     'train_batches',
@@ -394,12 +392,11 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
   ]);
   const proof = parseFields(lines[12], 'PROOF', [
     'replay',
-    'test',
+    'test_text',
     'target',
-    'gradients',
+    'gradient_l1',
     'leaves',
     'generation',
-    'site_arithmetic',
   ]);
 
   [
@@ -459,7 +456,7 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
         '2',
         'SPLIT.validation_documents',
       ),
-      testUsed: exact(split.test_used, 'no', 'SPLIT.test_used') as 'no',
+      testTextUsed: exact(split.test_text_used, 'no', 'SPLIT.test_text_used') as 'no',
       trainContexts: exact(split.train_contexts, '1836', 'SPLIT.train_contexts'),
       validationContexts: exact(
         split.validation_contexts,
@@ -516,24 +513,23 @@ export function parseNeuralNgramTrace(source: string): NeuralNgramTrace {
     }),
     proof: Object.freeze({
       replay: exact(proof.replay, 'bitwise', 'PROOF.replay') as 'bitwise',
-      test: exact(proof.test, 'untouched', 'PROOF.test') as 'untouched',
+      testText: exact(
+        proof.test_text,
+        'not_encoded_or_scored',
+        'PROOF.test_text',
+      ) as 'not_encoded_or_scored',
       target: exact(proof.target, 'final_shifted', 'PROOF.target') as 'final_shifted',
-      gradients: exact(
-        proof.gradients,
-        'all_nonzero',
-        'PROOF.gradients',
-      ) as 'all_nonzero',
+      gradientL1: exact(
+        proof.gradient_l1,
+        'five_positive_finite',
+        'PROOF.gradient_l1',
+      ) as 'five_positive_finite',
       leaves: exact(proof.leaves, 'replaced', 'PROOF.leaves') as 'replaced',
       generation: exact(
         proof.generation,
         'deterministic',
         'PROOF.generation',
       ) as 'deterministic',
-      siteArithmetic: exact(
-        proof.site_arithmetic,
-        'none',
-        'PROOF.site_arithmetic',
-      ) as 'none',
     }),
   });
 }
@@ -584,12 +580,11 @@ export function assertNeuralNgramDiagramLabels(
       'generatedIds',
       'stop',
       'replay',
-      'test',
+      'testText',
       'target',
-      'gradients',
+      'gradientL1',
       'leaves',
       'generationPolicy',
-      'siteArithmetic',
     ],
     cues: ['input', 'learned', 'output', 'checkpoint', 'final'],
     notes: ['pipeline', 'checkpoints', 'generation'],

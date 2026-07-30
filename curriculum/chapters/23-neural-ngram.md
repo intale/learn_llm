@@ -2,52 +2,63 @@
 {
   "chapter_id": "23-neural-ngram",
   "concept_id": "neural-ngram",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 23,
   "objective": {
-    "en": "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization."
+    "en": "Train an embedding-plus-SwiGLU fixed-context language model whose validation loss improves from initialization.",
+    "ru": "Обучить языковую модель с фиксированным контекстом, использующую эмбеддинги и SwiGLU, так чтобы её функция потерь на валидационной выборке снизилась относительно начального значения."
   },
   "worked_inputs": {
-    "en": "Take one complete two-token context $[z_{t-2},z_{t-1}]$ and its single following target $z_t$. With $D=4$, $H=8$, and $V=266$, predict the shapes after lookup, concatenation, SwiGLU, and vocabulary projection before inspecting any numeric output."
+    "en": "Take one complete two-token context $[z_{t-2},z_{t-1}]$ and its single following target $z_t$. With $D=4$, $H=8$, and $V=266$, predict the shapes after lookup, concatenation, SwiGLU, and vocabulary projection before inspecting any numeric output.",
+    "ru": "Возьмите один полный двухтокенный контекст $[z_{t-2},z_{t-1}]$ и единственный следующий за ним целевой токен $z_t$. При $D=4$, $H=8$ и $V=266$ заранее определите формы тензоров после поиска эмбеддингов, конкатенации, SwiGLU и проекции в пространство словаря, прежде чем смотреть на числовые результаты."
   },
   "formula": {
     "latex": "h=\\operatorname{SwiGLU}([E_{z_{t-C}},\\ldots,E_{z_{t-1}}]),\\quad \\ell=hW_o",
     "symbols": [
       {
         "symbol": "h",
-        "en": "the hidden vector computed from one complete fixed context"
+        "en": "the hidden vector computed from one complete fixed context",
+        "ru": "скрытый вектор, вычисленный по одному полному фиксированному контексту"
       },
       {
         "symbol": "\\operatorname{SwiGLU}",
-        "en": "the gated feed-forward transformation from concatenated context features to the hidden vector"
+        "en": "the gated feed-forward transformation from concatenated context features to the hidden vector",
+        "ru": "вентильное преобразование сети прямого распространения, переводящее конкатенированные признаки контекста в скрытый вектор"
       },
       {
         "symbol": "E",
-        "en": "the trainable vocabulary-by-feature token embedding table"
+        "en": "the trainable vocabulary-by-feature token embedding table",
+        "ru": "обучаемая таблица эмбеддингов токенов с осями словаря и признаков"
       },
       {
         "symbol": "z_i",
-        "en": "the integer token ID at sequence position i"
+        "en": "the integer token ID at sequence position i",
+        "ru": "целочисленный ID токена в позиции i последовательности"
       },
       {
         "symbol": "t",
-        "en": "the sequence position whose token the model is predicting"
+        "en": "the sequence position whose token the model is predicting",
+        "ru": "позиция последовательности, токен в которой предсказывает модель"
       },
       {
         "symbol": "C",
-        "en": "the positive fixed number of preceding token IDs used for one prediction"
+        "en": "the positive fixed number of preceding token IDs used for one prediction",
+        "ru": "фиксированное положительное число предшествующих ID токенов, используемых для одного предсказания"
       },
       {
         "symbol": "[\\,\\cdot\\,]",
-        "en": "concatenation of the C embedding vectors along one feature axis"
+        "en": "concatenation of the C embedding vectors along one feature axis",
+        "ru": "конкатенация C векторов эмбеддингов вдоль одной оси признаков"
       },
       {
         "symbol": "W_o",
-        "en": "the hidden-to-vocabulary output matrix"
+        "en": "the hidden-to-vocabulary output matrix",
+        "ru": "выходная матрица проекции из скрытого пространства в пространство словаря"
       },
       {
         "symbol": "\\ell",
-        "en": "the vector of V next-token logits"
+        "en": "the vector of V next-token logits",
+        "ru": "вектор из V логитов следующего токена"
       }
     ]
   },
@@ -55,13 +66,16 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "Classical count n-grams estimate each short context separately, so rare or unseen combinations receive little usable evidence as the number of possible sequences grows."
+        "en": "Classical count n-grams estimate each short context separately, so rare or unseen combinations receive little usable evidence as the number of possible sequences grows.",
+        "ru": "Классические счётные n-граммные модели оценивают каждый короткий контекст отдельно, поэтому по мере роста числа возможных последовательностей для редких и невстречавшихся сочетаний остаётся мало полезной статистики."
       },
       "later_advance": {
-        "en": "Bengio et al. jointly learn distributed token vectors and a feed-forward function over concatenated fixed contexts, allowing related tokens to share statistical strength."
+        "en": "Bengio et al. jointly learn distributed word vectors and a feed-forward function over a concatenated fixed context, so evidence about one word sequence can inform sequences made from nearby word representations.",
+        "ru": "Бенжио и соавторы совместно обучают распределённые векторы слов и функцию сети прямого распространения, применяемую к конкатенированному фиксированному контексту. Благодаря этому сведения об одной последовательности помогают оценивать последовательности, составленные из слов с близкими векторными представлениями."
       },
       "modern_llm_role": {
-        "en": "Transformers later replace fixed-context mixing with masked self-attention while retaining learned embeddings, position-wise feed-forward transformations, and a vocabulary projection for next-token prediction."
+        "en": "Transformers later replace fixed-context mixing with masked self-attention while retaining learned embeddings, position-wise feed-forward transformations, and a vocabulary projection for next-token prediction.",
+        "ru": "Позднее модели Transformer заменяют смешивание фиксированного контекста маскированным механизмом самовнимания, сохраняя обучаемые эмбеддинги, преобразования сети прямого распространения, одинаково применяемые к каждой позиции, и проекцию в пространство словаря для предсказания следующего токена."
       },
       "sources": [
         {
@@ -70,7 +84,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. map a fixed context through learned distributed word features and a feed-forward network to a next-word probability distribution."
+            "en": "Bengio et al. map a fixed context through learned distributed word features and a feed-forward network to a next-word probability distribution.",
+            "ru": "Бенжио и соавторы преобразуют фиксированный контекст с помощью обучаемых распределённых представлений слов и сети прямого распространения в распределение вероятностей следующего слова."
           }
         },
         {
@@ -79,18 +94,21 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/pdf/1706.03762",
           "claim": {
-            "en": "Vaswani et al. replace recurrence and convolution with attention, and mask decoder self-attention so a position cannot use later positions during autoregressive prediction."
+            "en": "Vaswani et al. replace recurrence and convolution with attention, and mask decoder self-attention so a position cannot use later positions during autoregressive prediction.",
+            "ru": "Васвани и соавторы заменяют рекуррентные и свёрточные слои механизмом внимания и маскируют самовнимание декодера, чтобы при авторегрессионном предсказании позиция не могла использовать последующие позиции."
           }
         }
       ]
     },
     "approach": {
-      "en": "From separately counted short contexts, through learned distributed features in a feed-forward language model, toward masked attention over decoder sequences"
+      "en": "From separately counted short contexts, through learned distributed features in a feed-forward language model, toward masked attention over decoder sequences",
+      "ru": "От раздельного подсчёта коротких контекстов — через обучаемые распределённые признаки в языковой модели на основе сети прямого распространения — к маскированному вниманию по последовательностям декодера"
     },
     "summary": {
-      "en": "The neural n-gram is an important integration point on the road to modern LLMs: embeddings share information across token identities, a learned nonlinear map combines the complete context, and next-token loss trains every matrix together. Attention later removes this fixed-context concatenation bottleneck."
+      "en": "The neural n-gram is an important integration point on the road to modern LLMs: embeddings share information across token identities, a learned nonlinear map combines the complete context, and next-token loss trains every matrix together. Attention later removes this fixed-context concatenation bottleneck.",
+      "ru": "Нейронная n-граммная модель — важный связующий этап на пути к современным LLM: эмбеддинги позволяют разным токенам использовать общие признаки, обучаемое нелинейное преобразование объединяет полный контекст, а функция потерь следующего токена совместно обучает все матрицы. Позднее механизм внимания устраняет ограничение, связанное с конкатенацией фиксированного контекста."
     },
-    "rust_contrast": "Count exact context-to-follower frequencies, then run the same fixed token IDs through one owned embedding-plus-SwiGLU parameter set; the executable language supplies evidence for the model calculation but is not the historical subject."
+    "rust_contrast": "Count exact context-to-follower frequencies, then run the same fixed token IDs through one owned embedding-plus-SwiGLU parameter set to expose the transition from exact count n-grams to shared learned language-model representations."
   },
   "rust": {
     "package": "ch23-neural-ngram",
@@ -100,51 +118,63 @@
       "rust/demos/ch23-neural-ngram/src/main.rs",
       "rust/demos/ch23-neural-ngram/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=23-neural-ngram\nprediction=[1, 2] -> [1, 2, 4] -> [1, 8] -> [1, 8] -> [1, 266]\nconfig=vocabulary:266 context:2 embedding:4 hidden:8 parameters:3384 batch:64 evaluation_batch:512 steps:15\nsplit=train_documents:8 validation_documents:2 train_contexts:1836 validation_contexts:467 test_used:false\nprobe_context=[67, 118]\nprobe_embeddings=shape:[1, 2, 4] values:[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]\nprobe_hidden=shape:[1, 8] values:[-0.002448, -0.000051, 0.003220, 0.003477, 0.002033, 0.004016, 0.003727, 0.003874]\nprobe_logits=shape:[1, 266] preview:[0.000075, -0.000037, 0.000496, -0.001047, -0.000055, -0.001032] argmax:44 value:0.002350\nfirst_gradient_l1=[0.020983, 0.002079, 0.002420, 0.002044, 0.019548]\ncheckpoint[0]=train:5.583505 validation:5.583482\ncheckpoint[8]=train:5.580106 validation:5.580365\ncheckpoint[15]=train:5.555850 validation:5.557362\nvalidation_improvement=0.026120\ngeneration=prompt:At prompt_ids:[67, 118] ids:[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211] stop:limit bytes_hex:d0b0d1d1d1d1d1d1d1d1d1d1d1\nhistorical=bigram_followers:2 fixed_context_followers:[1, 1] neural_context_width:8\nall_parameter_gradients_nonzero=true\nall_named_leaves_replaced=true\nsame_seed_replays_bitwise=true\ntest_partition_used=false\nnext=replace fixed concatenation with causal sequence mixing\n"
+    "expected_output": "chapter=23-neural-ngram\nprediction=[1, 2] -> [1, 2, 4] -> [1, 8] -> [1, 8] -> [1, 266]\nconfig=vocabulary:266 context:2 embedding:4 hidden:8 parameters:3384 batch:64 evaluation_batch:512 steps:15\nsplit=train_documents:8 validation_documents:2 train_contexts:1836 validation_contexts:467 test_text_used:false\nprobe_context=[67, 118]\nprobe_embeddings=shape:[1, 2, 4] values:[0.064154, 0.021328, 0.083333, -0.012260, 0.057176, 0.111494, -0.126703, -0.068284]\nprobe_hidden=shape:[1, 8] values:[-0.002448, -0.000051, 0.003220, 0.003477, 0.002033, 0.004016, 0.003727, 0.003874]\nprobe_logits=shape:[1, 266] preview:[0.000075, -0.000037, 0.000496, -0.001047, -0.000055, -0.001032] argmax:44 value:0.002350\nfirst_gradient_l1=[0.020983, 0.002079, 0.002420, 0.002044, 0.019548]\ncheckpoint[0]=train:5.583505 validation:5.583482\ncheckpoint[8]=train:5.580106 validation:5.580365\ncheckpoint[15]=train:5.555850 validation:5.557362\nvalidation_improvement=0.026120\ngeneration=prompt:At prompt_ids:[67, 118] ids:[259, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211, 211] stop:limit bytes_hex:d0b0d1d1d1d1d1d1d1d1d1d1d1\nhistorical=bigram_followers:2 fixed_context_followers:[1, 1] neural_context_width:8\nall_parameter_gradient_l1_positive_finite=true\nall_named_leaves_replaced=true\nsame_seed_replays_bitwise=true\ntest_text_encoded_or_scored=false\nnext=replace fixed concatenation with causal sequence mixing\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "neural-ngram",
     "rationale": {
-      "en": "A five-stage pipeline keeps context, embedding, concatenated-feature, hidden, and vocabulary axes distinct while the adjacent loss trace makes the held-out improvement visible."
+      "en": "A five-stage pipeline keeps context, embedding, concatenated-feature, hidden, and vocabulary axes distinct while the adjacent loss trace makes the held-out improvement visible.",
+      "ru": "Пятиэтапная схема не смешивает оси контекста, эмбеддингов, конкатенированных признаков, скрытого пространства и словаря, а расположенная рядом последовательность значений функции потерь показывает улучшение на отложенных данных."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative stack now trains a complete fixed-context next-token model from frozen partitions through AdamW and produces deterministic greedy tokens. Chapters 24–32 replace fixed-context concatenation with residual, normalized, attention-based causal sequence mixing."
+    "en": "The components built so far now train a complete fixed-context next-token model with frozen data partitions and AdamW, then produce deterministic greedy tokens. Chapters 24–32 replace fixed-context concatenation with residual, normalized, attention-based causal information mixing between sequence positions.",
+    "ru": "Теперь собранные компоненты обучают полную модель следующего токена с фиксированным контекстом, используя зафиксированное разбиение данных и AdamW, а затем детерминированно генерируют токены жадным алгоритмом. В главах 24–32 конкатенацию фиксированного контекста заменит каузальное смешивание информации между позициями последовательности на основе остаточных связей, нормализации и механизма внимания."
   },
   "terminology": [
     {
       "concept_id": "neural-ngram",
-      "en": "neural n-gram language model"
+      "en": "neural n-gram language model",
+      "ru": "нейронная n-граммная языковая модель"
     },
     {
       "concept_id": "fixed-context",
-      "en": "fixed context"
+      "en": "fixed context",
+      "ru": "фиксированный контекст"
     },
     {
       "concept_id": "context-concatenation",
-      "en": "context embedding concatenation"
+      "en": "context embedding concatenation",
+      "ru": "конкатенация эмбеддингов контекста"
     },
     {
       "concept_id": "held-out-loss",
-      "en": "held-out validation loss"
+      "en": "held-out validation loss",
+      "ru": "функция потерь на отложенной валидационной выборке"
     },
     {
       "concept_id": "greedy-generation",
-      "en": "greedy generation"
+      "en": "greedy generation",
+      "ru": "жадная генерация"
     },
     {
       "concept_id": "parameter-owner",
-      "en": "parameter owner"
+      "en": "parameter owner",
+      "ru": "владелец параметров"
     }
   ],
   "translation_notes": [
-    "Chapter 23 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep V, C, D, H, E, h, W_o, ell, z with its indices, shapes, token IDs, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
-    "Neural n-gram names a fixed-context feed-forward language model, not a count table and not a Transformer.",
+    "Chapter 23 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 2 with SHA-256 65be3f5fc2f8e6596970bd75e6e8c9f753c853a8c06d495df2b7d2f714eec944 and becomes stale whenever that source changes.",
+    "Keep V, C, D, H, E, h, W_o, ell, z with its indices, shapes, token IDs, parameter names, trace keywords, source roles, and source URLs unchanged across both locales.",
+    "Translate neural n-gram as «нейронная n-граммная языковая модель»: a fixed-context feed-forward language model, not a count table and not a Transformer.",
+    "Translate held-out validation loss as «функция потерь на отложенной валидационной выборке» when the distinction matters; do not use a calque that implies data are physically outside the model.",
+    "The gradient proof concerns one positive finite matrix-level L1 norm for each of five parameter matrices; it does not claim that every gradient element is nonzero.",
+    "The test boundary proves that test text is not encoded or scored. Reading test document IDs from the frozen split manifest is not the same as using test text.",
     "Bengio et al. support the distributed fixed-context language-model architecture, and Vaswani et al. support the later attention-only and masked-decoder claims. Neither paper defines this course's BPE, SwiGLU, dimensions, AdamW constants, seeds, target extraction, stopping rule, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The language-model architecture and history remain language-independent.",
-    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data."
+    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
+    "Validate Russian diagram labels in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces; use natural concise wording or reflow rather than clipping, truncation, overlap, or reduced text size."
   ],
   "acceptance_examples": [
     {
@@ -157,7 +187,7 @@
     },
     {
       "input": "Inspect the first reverse pass",
-      "expected": "All five gradient L1 values are finite and nonzero, including the embedding and output matrices."
+      "expected": "All five matrix-level gradient L1 values are finite and positive, including the embedding and output matrices."
     },
     {
       "input": "Commit one successful AdamW update",
@@ -177,7 +207,7 @@
     },
     {
       "input": "Audit split access",
-      "expected": "BPE learns from training documents, train and validation text are encoded separately, and test text is never requested or scored."
+      "expected": "BPE learns from training documents, train and validation text are encoded separately, and test text is not encoded or scored."
     },
     {
       "input": "Generate after training from content IDs [67,118]",
@@ -227,7 +257,7 @@ $$
 $$
 
 The frozen prompt `At` encodes to the literal program IDs `[67, 118]`. Its
-initial feature vectors, hidden state, logit preview, and argmax all come from
+  initial feature vectors, hidden state, logit preview, and maximum-scoring token all come from
 the deterministic Rust fixture. The objective trace then compares the complete
 training and validation partitions at steps $0$, $8$, and $15$.
 
@@ -275,9 +305,9 @@ $[10,11]$ and $[20,11]$ each retain one distinct follower.
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provide the neural step. Bengio et al. map a fixed context through learned
 distributed word features and a feed-forward network to a next-word probability
-distribution. Bengio et al. jointly learn distributed token vectors and a
-feed-forward function over concatenated fixed contexts, allowing related tokens
-to share statistical strength.
+distribution. Bengio et al. jointly learn distributed word vectors and a
+feed-forward function over a concatenated fixed context, so evidence about one
+word sequence can inform sequences made from nearby word representations.
 
 [Vaswani et al., *Attention Is All You Need*](https://arxiv.org/pdf/1706.03762)
 provide the later sequence-model step. Vaswani et al. replace recurrence and
@@ -292,11 +322,9 @@ embeddings share information across token identities, a learned nonlinear map
 combines the complete context, and next-token loss trains every matrix together.
 Attention later removes this fixed-context concatenation bottleneck. The papers
 do not specify this course's byte-pair vocabulary, SwiGLU activation, dimensions,
-AdamW constants, seeds, final-target policy, trace grammar, stopping rule, or
-accessibility projection.
-
-Rust supplies the exact count and trained-model evidence only. The history is
-about language models, not programming languages.
+AdamW constants, seeds, final-target policy, trace grammar, or stopping rule. The
+executable contrast isolates the model transition from exact count tables to
+shared learned features and then to masked sequence mixing.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -317,10 +345,10 @@ the next forward cannot accidentally reuse stale layer objects.
 
 The frozen data path trains eight BPE ranks only on the eight training documents,
 encodes training and validation documents separately, and never requests test
-text. It materializes a 64-row shuffled training order with seed $23$, consumes
+text. It materializes a 64-row shuffled training order with seed `23`, consumes
 the first $15$ batches, and evaluates complete objectives in 512-row groups.
-Batch means are weighted by their actual row counts. Two independent seed-$23$
-runs must match bit for bit. The learner report performs that replay under a
+Batch means are weighted by their actual row counts. Two independent runs with seed `23`
+must match bit for bit. The learner report performs that replay under a
 conservative 60-second debug-profile ceiling; the measured pinned-container run
 took 27.161 seconds.
 
@@ -331,7 +359,7 @@ valid UTF-8. Sampling remains outside scope.
 
 Run `cargo run --quiet --locked -p ch23-neural-ngram`. Its stdout must equal
 `rust/demos/ch23-neural-ngram/expected.txt`, including the final newline. The
-named example `ch23-neural-ngram-trace` must likewise equal the strict 13-line
+named example `ch23-neural-ngram-trace` must likewise equal the exact 13-line
 diagram trace.
 
 <!-- contract-section:visualization -->
@@ -356,7 +384,8 @@ needed.
 
 1. Predict every shape for a batch width of $64$ before running the fixture.
 2. Decide which target is used from a shifted row of width $C$.
-3. Predict which parameter groups should receive a gradient after one loss.
+3. Predict which parameter matrices should have a positive finite gradient
+   $L_1$ norm after one loss.
 4. Decide how the final mini-batch contributes to a complete-partition mean.
 5. Predict whether step-$15$ validation loss must be below every intermediate
    value or only below initialization.
@@ -366,33 +395,38 @@ needed.
 8. Identify which test-partition operation would invalidate the held-out proof.
 
 Checks: the shape chain ends at $[64,266]$; only index $C-1$ of each target row
-is scored; all five matrices receive nonzero first-step gradients; evaluation
+is scored; all five matrices have positive finite first-step gradient $L_1$
+norms; evaluation
 weights by the actual number of rows; only final improvement from initialization
 is required; parameter clones share tape leaves and are not an independent
-replay; BOS is masked before argmax; and reading, encoding, fitting, selecting,
+replay; BOS is masked before $\operatorname{argmax}$; and reading, encoding, fitting, selecting,
 or scoring test text would violate the fixture boundary.
 
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The cumulative stack now trains a complete fixed-context next-token model from
-frozen partitions through AdamW and produces deterministic greedy tokens.
+The components built so far now train a complete fixed-context next-token model
+with frozen data partitions and AdamW, then produce deterministic greedy tokens.
 Chapters 24–32 replace fixed-context concatenation with residual, normalized,
-attention-based causal sequence mixing.
+attention-based causal information mixing between sequence positions.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active Chapter 23 locale. Russian remains a registered but
-inactive locale, so it receives no contract keys, placeholder lesson, alternate
-link, or chapter route. A later activation must translate the complete lesson,
-diagram labels, accessible descriptions, exercises, and terminology together.
+English and Russian are the exact active Chapter 23 locales. English content
+revision 2 is the sole semantic source; the Russian lesson translates that exact
+revision directly and becomes stale whenever the English meaning or presentation
+changes. The contract, route, alternate links, lesson, diagram labels, accessible
+descriptions, exercises, answers, SEO, and terminology publish together.
 
 Keep $V$, $C$, $D$, $H$, $E$, $h$, $W_o$, $\ell$, indexed $z$, shapes,
 token IDs, parameter names, trace keywords, source roles, and URLs unchanged.
-Do not translate “neural n-gram” as though it were only a count table or a
-Transformer. Name Rust only when referring to executable source, APIs, commands,
-paths, trace tokens, or literal program data.
+Translate “neural n-gram” as «нейронная n-граммная языковая модель», not as
+though it were only a count table or a Transformer. The gradient proof states
+that all five matrix-level $L_1$ norms are finite and positive; it does not claim
+that every gradient element is nonzero. The test boundary covers text that is
+not encoded or scored, not frozen manifest IDs. Name Rust only when referring to
+executable source, APIs, commands, paths, trace tokens, or literal program data.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -400,11 +434,12 @@ paths, trace tokens, or literal program data.
 - `node scripts/check-course-plan.mjs` preserves the exact Chapter 23 outcome,
   formula, history contrast, visualization, and evidence requirements.
 - `npm --prefix site run check:contract -- ../curriculum/chapters/23-neural-ngram.md`
-  validates this English-only contract and its exact Rust output.
+  validates the bilingual contract and its exact Rust output.
 - Formatting, clippy, all workspace tests, dependency policy, demo policy, and
   both exact Chapter 23 stdout diffs pass without a concept-implementing crate.
 - Chapter, parity, content, Astro, unit, production-build, link, SEO, and focused
   plus full browser gates pass.
-- Browser checks cover desktop and 390-pixel widths, formula annotations and
-  spacing, natural-height containment, local scrolling, forced colors, RTL/LTR
-  isolation, no-JavaScript rendering, navigation, and the absent Russian route.
+- Browser checks cover both locales at desktop and 390-pixel widths, formula
+  annotations and spacing, natural-height containment, local scrolling, native
+  full view, forced colors, RTL/LTR isolation, no-JavaScript rendering,
+  navigation, reciprocal alternates, and localized labels.

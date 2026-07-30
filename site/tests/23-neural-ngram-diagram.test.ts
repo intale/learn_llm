@@ -23,6 +23,8 @@ const componentSource = read('site/src/components/chapters/NeuralNgramDiagram.as
 const contractSource = read('curriculum/chapters/23-neural-ngram.md');
 const lessonSource = read('site/src/content/chapters/en/23-neural-ngram.mdx');
 const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const russianLessonSource = read('site/src/content/chapters/ru/23-neural-ngram.mdx');
+const russianLessonBody = russianLessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 const rustTraceSource = read('rust/demos/ch23-neural-ngram/src/diagram_trace.rs');
 
 function frontmatter(source: string) {
@@ -77,12 +79,11 @@ const labels: NeuralNgramDiagramLabels = {
     generatedIds: 'generated IDs',
     stop: 'stop',
     replay: 'replay',
-    test: 'test',
+    testText: 'test text',
     target: 'target',
-    gradients: 'gradients',
+    gradientL1: 'gradient L1',
     leaves: 'leaves',
     generationPolicy: 'generation policy',
-    siteArithmetic: 'site arithmetic',
   },
   cues: {
     input: 'input',
@@ -135,7 +136,7 @@ describe('Chapter 23 Rust trace parser', () => {
     expect(trace.split).toEqual({
       trainDocuments: '8',
       validationDocuments: '2',
-      testUsed: 'no',
+      testTextUsed: 'no',
       trainContexts: '1836',
       validationContexts: '467',
       trainBatches: '29',
@@ -178,12 +179,11 @@ describe('Chapter 23 Rust trace parser', () => {
     });
     expect(trace.proof).toEqual({
       replay: 'bitwise',
-      test: 'untouched',
+      testText: 'not_encoded_or_scored',
       target: 'final_shifted',
-      gradients: 'all_nonzero',
+      gradientL1: 'five_positive_finite',
       leaves: 'replaced',
       generation: 'deterministic',
-      siteArithmetic: 'none',
     });
   });
 
@@ -201,7 +201,7 @@ describe('Chapter 23 Rust trace parser', () => {
     ['wrong frozen vocabulary', fixture.replace('vocabulary=266', 'vocabulary=267')],
     ['malformed integer', fixture.replace('batch=64', 'batch=064')],
     ['malformed epsilon', fixture.replace('epsilon=0.000000010', 'epsilon=0.00000001')],
-    ['test partition access', fixture.replace('test_used=no', 'test_used=yes')],
+    ['test text access', fixture.replace('test_text_used=no', 'test_text_used=yes')],
     ['wrong stage index', fixture.replace('STAGE|index=2', 'STAGE|index=1')],
     ['wrong stage name', fixture.replace('name=hidden', 'name=output')],
     ['wrong stage shape', fixture.replace('shape=[1, 2, 4]', 'shape=[1, 8]')],
@@ -222,12 +222,17 @@ describe('Chapter 23 Rust trace parser', () => {
     ['short generated vector', fixture.replace(', 211]|stop=limit', ']|stop=limit')],
     ['wrong stop token', fixture.replace('stop=limit', 'stop=eos')],
     ['nondeterministic replay', fixture.replace('replay=bitwise', 'replay=changed')],
-    ['test leakage proof', fixture.replace('test=untouched', 'test=used')],
+    [
+      'test leakage proof',
+      fixture.replace('test_text=not_encoded_or_scored', 'test_text=encoded'),
+    ],
     ['wrong target policy', fixture.replace('target=final_shifted', 'target=all_shifted')],
-    ['missing gradient proof', fixture.replace('gradients=all_nonzero', 'gradients=missing')],
+    [
+      'missing gradient proof',
+      fixture.replace('gradient_l1=five_positive_finite', 'gradient_l1=invalid'),
+    ],
     ['retained leaves', fixture.replace('leaves=replaced', 'leaves=retained')],
     ['nondeterministic generation', fixture.replace('generation=deterministic', 'generation=random')],
-    ['site arithmetic', fixture.replace('site_arithmetic=none', 'site_arithmetic=loss')],
   ])('rejects %s', (_name, source) => {
     expect(() => parseNeuralNgramTrace(source)).toThrow(/invalid neural n-gram trace/);
   });
@@ -273,12 +278,13 @@ describe('Chapter 23 static diagram boundary', () => {
   it('uses natural heights, local scrollers, containment, bidirectional isolation, and non-color cues', () => {
     expect(componentSource).toMatch(/\.pipeline-list\s*\{[^}]*align-items:\s*start;/s);
     expect(componentSource).toMatch(/\.checkpoint-list\s*\{[^}]*align-items:\s*start;/s);
-    expect(componentSource).toContain('container-type: inline-size');
-    expect(componentSource).toContain('@container (max-width: 42rem)');
+    expect(componentSource).toContain('@container course-diagram (max-width: 42rem)');
     expect(componentSource).toContain('class="pipeline-scroll course-diagram__scroll"');
-    expect(componentSource).toContain('<li data-diagram-box><InlineMath latex={value} /></li>');
     expect(componentSource).toContain(
-      'grid-template-columns: repeat(5, minmax(12.125rem, 1fr))',
+      '<li data-diagram-card data-diagram-box><InlineMath latex={value} /></li>',
+    );
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(5, minmax(16.5rem, 1fr))',
     );
     expect(componentSource).toContain('class="generation-scroll course-diagram__scroll"');
     expect(componentSource).toContain('role="region"');
@@ -292,12 +298,15 @@ describe('Chapter 23 static diagram boundary', () => {
     );
   });
 
-  it('uses the shared site palette and forced-color fallbacks', () => {
-    expect(componentSource).toContain('border: 1px solid var(--line)');
-    expect(componentSource).toContain('background: var(--surface)');
-    expect(componentSource).toContain('color: var(--ink)');
-    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+  it('delegates frame, cards, focus, palette, scrolling, and forced colors to the shared module', () => {
+    expect(componentSource).toContain('data-diagram-card');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).not.toMatch(/background\s*:/);
+    expect(componentSource).not.toMatch(/border-radius\s*:/);
+    expect(componentSource).not.toMatch(/outline\s*:/);
+    expect(componentSource).not.toMatch(/overflow-x\s*:/);
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
     expect(componentSource).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
   });
 });
@@ -305,6 +314,7 @@ describe('Chapter 23 static diagram boundary', () => {
 describe('Chapter 23 contract and lesson projection', () => {
   const contract = frontmatter(contractSource);
   const lesson = frontmatter(lessonSource);
+  const russianLesson = frontmatter(russianLessonSource);
 
   it('keeps metadata, formula, LLM history, visualization, handoff, sources, and output aligned', () => {
     expect(lesson).toMatchObject({
@@ -356,6 +366,81 @@ describe('Chapter 23 contract and lesson projection', () => {
     }
   });
 
+  it('projects the exact corrected revision directly into natural Russian', () => {
+    expect(russianLesson).toMatchObject({
+      chapter_id: contract.chapter_id,
+      locale: 'ru',
+      concept_id: contract.concept_id,
+      content_revision: contract.content_revision,
+      order: contract.order,
+      objective: contract.objective.ru,
+      worked_inputs: contract.worked_inputs.ru,
+      formula: {
+        latex: contract.formula.latex,
+        symbols: contract.formula.symbols.map((symbol: { symbol: string; ru: string }) => ({
+          symbol: symbol.symbol,
+          meaning: symbol.ru,
+        })),
+      },
+      visualization: {
+        decision: contract.visualization.decision,
+        id: contract.visualization.id,
+        rationale: contract.visualization.rationale.ru,
+      },
+      decoder_connection: contract.decoder_connection.ru,
+    });
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map((source: {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+        claim: { ru: string };
+      }) => ({ ...source, claim: source.claim.ru })),
+    });
+    expect(russianLesson.rust_sources).toHaveLength(lesson.rust_sources.length);
+    expect(
+      russianLesson.rust_sources.map((source: { path: string; region: string }) => [
+        source.path,
+        source.region,
+      ]),
+    ).toEqual(
+      lesson.rust_sources.map((source: { path: string; region: string }) => [
+        source.path,
+        source.region,
+      ]),
+    );
+    expect(russianLessonBody.match(/<RustSource\b/g)).toHaveLength(7);
+    expect(russianLessonBody.match(/\/\*\s*chapter-section:/g)).toHaveLength(8);
+    const compactMath = russianLessonBody.replace(/\s+/g, '');
+    for (const formula of [
+      contract.formula.latex,
+      String.raw`[1,2]\to[1,2,4]\to[1,8]\to[1,8]\to[1,266]`,
+      String.raw`L=-\frac{1}{B}\sum_{b=1}^{B}\log`,
+      String.raw`y_b=\operatorname{target\_row}(b)_{C-1}`,
+      String.raw`\operatorname{argmax}`,
+      String.raw`[B,H][H,V]=[B,V]`,
+    ]) {
+      expect(compactMath).toContain(formula.replace(/\s+/g, ''));
+    }
+    const normalizedBody = normalize(russianLessonBody);
+    for (const field of [
+      contract.history.llm_evolution.limitation.ru,
+      contract.history.llm_evolution.later_advance.ru,
+      contract.history.llm_evolution.modern_llm_role.ru,
+      ...contract.history.llm_evolution.sources.map(
+        (source: { claim: { ru: string } }) => source.claim.ru,
+      ),
+    ]) {
+      expect(normalizedBody).toContain(normalize(field));
+    }
+    expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history/i);
+  });
+
   it('orders pedagogy, renders declared history claims and formulas, and keeps model history language-neutral', () => {
     const sections = [
       'worked-example',
@@ -380,6 +465,7 @@ describe('Chapter 23 contract and lesson projection', () => {
       String.raw`[1,2]\to[1,2,4]\to[1,8]\to[1,8]\to[1,266]`,
       String.raw`L=-\frac{1}{B}\sum_{b=1}^{B}\log`,
       String.raw`y_b=\operatorname{target\_row}(b)_{C-1}`,
+      String.raw`\operatorname{argmax}`,
       String.raw`[B,H][H,V]=[B,V]`,
     ]) {
       expect(compactMath).toContain(formula.replace(/\s+/g, ''));
@@ -412,7 +498,7 @@ describe('Chapter 23 contract and lesson projection', () => {
       expect(lessonBody).toContain(`](${source.source_url})`);
     }
     expect(normalizedBody).toContain('road to modern LLM');
-    expect(normalizedBody).toContain('programming-language history is not the subject');
+    expect(normalizedBody).toContain('exact count tables give way to shared learned features');
     expect(lessonBody).not.toMatch(/TypeScript|Python history|Rust history/i);
   });
 });

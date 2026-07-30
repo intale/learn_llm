@@ -2,7 +2,7 @@
 {
   "chapter_id": "23-neural-ngram",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 23,
   "concept_id": "neural-ngram",
   "title": "Train a fixed-context neural language model",
@@ -54,7 +54,7 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": "Classical count n-grams estimate each short context separately, so rare or unseen combinations receive little usable evidence as the number of possible sequences grows.",
-      "later_advance": "Bengio et al. jointly learn distributed token vectors and a feed-forward function over concatenated fixed contexts, allowing related tokens to share statistical strength.",
+      "later_advance": "Bengio et al. jointly learn distributed word vectors and a feed-forward function over a concatenated fixed context, so evidence about one word sequence can inform sequences made from nearby word representations.",
       "modern_llm_role": "Transformers later replace fixed-context mixing with masked self-attention while retaining learned embeddings, position-wise feed-forward transformations, and a vocabulary projection for next-token prediction.",
       "sources": [
         {
@@ -81,7 +81,7 @@
     {
       "path": "rust/demos/ch23-neural-ngram/src/lib.rs",
       "region": "historical-context-road",
-      "purpose": "Contrast separately counted exact contexts with the shared learned feature width without turning model history into a language comparison."
+      "purpose": "Contrast separately counted exact contexts with shared learned features to expose the transition from count n-grams to learned language-model representations."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/models/neural_ngram.rs",
@@ -119,7 +119,7 @@
     "id": "neural-ngram",
     "rationale": "A five-stage pipeline keeps context, embedding, concatenated-feature, hidden, and vocabulary axes distinct while the adjacent loss trace makes the held-out improvement visible."
   },
-  "decoder_connection": "The cumulative stack now trains a complete fixed-context next-token model from frozen partitions through AdamW and produces deterministic greedy tokens. Chapters 24–32 replace fixed-context concatenation with residual, normalized, attention-based causal sequence mixing."
+  "decoder_connection": "The components built so far now train a complete fixed-context next-token model with frozen data partitions and AdamW, then produce deterministic greedy tokens. Chapters 24–32 replace fixed-context concatenation with residual, normalized, attention-based causal information mixing between sequence positions."
 }
 ---
 
@@ -131,9 +131,9 @@ export const diagramLabels = {
   description:
     'Follow exact Rust-authored token IDs through embeddings, concatenation, a hidden state, and vocabulary logits, then compare complete training and validation losses.',
   summary: {
-    model: 'Frozen model',
-    data: 'Frozen data',
-    optimizer: 'Fixed optimizer',
+    model: 'Fixed model configuration',
+    data: 'Fixed data split',
+    optimizer: 'Fixed optimizer settings',
   },
   stages: {
     pipeline: 'Project one complete context',
@@ -152,7 +152,7 @@ export const diagramLabels = {
   fields: {
     shape: 'Shape',
     values: 'Rust values',
-    argmax: 'Initial argmax token',
+    argmax: 'Initial maximum-score token',
     argmaxLogit: 'Initial maximum logit',
     step: 'Optimizer step',
     trainLoss: 'Training loss',
@@ -165,12 +165,11 @@ export const diagramLabels = {
     generatedIds: 'Generated token IDs',
     stop: 'Stop reason',
     replay: 'Independent replay',
-    test: 'Test partition',
+    testText: 'Test-text boundary',
     target: 'Target policy',
-    gradients: 'First-step gradients',
+    gradientL1: 'First-step matrix-gradient check',
     leaves: 'AdamW leaves',
     generationPolicy: 'Generation policy',
-    siteArithmetic: 'Site arithmetic',
   },
   cues: {
     input: 'Integer selectors',
@@ -207,7 +206,7 @@ following target $z_t$. With $D=4$, $H=8$, and $V=266$, predict the shapes
 after lookup, concatenation, SwiGLU, and vocabulary projection before
 inspecting any numeric output.
 
-For batch width $B=1$, the answer is:
+For batch size $B=1$, the answer is:
 
 $$
 [1,2]\to[1,2,4]\to[1,8]\to[1,8]\to[1,266].
@@ -215,7 +214,8 @@ $$
 
 The frozen prompt `At` encodes to the literal program IDs `[67, 118]`. Look up
 both rows before deciding what the model predicts. The initial logits are nearly
-equal because the matrices are freshly initialized; the exact seeded argmax is
+equal because the matrices are freshly initialized; the exact seeded
+$\operatorname{argmax}$ is
 token ID `44`, not a learned linguistic conclusion.
 
 {/* chapter-section:formula */}
@@ -278,9 +278,9 @@ $[20,11]$ each retain one distinct follower.
 [Bengio et al., *A Neural Probabilistic Language Model*](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provide the neural step. Bengio et al. map a fixed context through learned
 distributed word features and a feed-forward network to a next-word probability
-distribution. Bengio et al. jointly learn distributed token vectors and a
-feed-forward function over concatenated fixed contexts, allowing related tokens
-to share statistical strength.
+distribution. Bengio et al. jointly learn distributed word vectors and a
+feed-forward function over a concatenated fixed context, so evidence about one
+word sequence can inform sequences made from nearby word representations.
 
 [Vaswani et al., *Attention Is All You Need*](https://arxiv.org/pdf/1706.03762)
 provide the later sequence-model step. Vaswani et al. replace recurrence and
@@ -296,9 +296,10 @@ combines the complete context, and next-token loss trains every matrix together.
 Attention later removes this fixed-context concatenation bottleneck.
 
 The papers do not define this course's byte-pair vocabulary, SwiGLU, dimensions,
-optimizer constants, seeds, final-target policy, or generation limit. Rust
-supplies executable evidence for the model comparison; programming-language
-history is not the subject.
+optimizer constants, seeds, final-target policy, or generation limit. The
+executable contrast isolates the language-model transition: exact count tables
+give way to shared learned features, and masked attention later removes the
+fixed concatenation window.
 
 <RustSource
   path="rust/demos/ch23-neural-ngram/src/lib.rs"
@@ -341,12 +342,12 @@ generation a stable lower-ID tie break:
 <RustSource
   path="rust/crates/llm-from-scratch/src/models/neural_ngram.rs"
   region="neural-ngram-forward"
-  caption="Run fixed-context prediction, loss, and deterministic argmax"
+  caption="Run fixed-context prediction, loss, and deterministic maximum selection"
   label="Rust source implementing the Chapter 23 forward and loss"
 />
 
 The fixture learns eight BPE ranks only from training documents, never requests
-test text, materializes one seed-$23$ batch order, and consumes its first
+test text, materializes one batch order with seed `23`, and consumes its first
 $15$ batches. Complete train and validation objectives are evaluated at steps
 $0$, $8$, and $15$ with actual row-count weighting. Two independently
 initialized runs must match every checked value bit for bit:
@@ -368,18 +369,17 @@ The executable prints the exact learner report:
 />
 
 Run `cargo run --quiet --locked -p ch23-neural-ngram`. Its stdout is frozen in
-`rust/demos/ch23-neural-ngram/expected.txt`. The complete replay report took
-$27.161$ seconds in the pinned debug container and has a conservative $60$-second
-test ceiling.
+`rust/demos/ch23-neural-ngram/expected.txt`, so the shapes, losses, generated IDs,
+and replay evidence can be compared exactly with the values explained here.
 
 {/* chapter-section:visualization */}
 
 ## Follow one context and the held-out loss
 
-The strict trace carries all five initial forward stages, three complete-objective
+The exact trace records all five initial forward stages, three complete-objective
 checkpoints, the fixed final comparison, generated token IDs, and proof tokens.
-The page validates and projects it without reimplementing model, loss, optimizer,
-comparison, or generation arithmetic:
+Reading these records together connects one forward pass to the measured
+held-out improvement without mixing in a second set of hand-computed values:
 
 <RustSource
   path="rust/demos/ch23-neural-ngram/src/diagram_trace.rs"
@@ -409,7 +409,8 @@ model rather than presenting invented readable text.
 
 1. Predict every shape for $B=64$, $C=2$, $D=4$, $H=8$, and $V=266$.
 2. Pick the target used from a shifted row of width $C$.
-3. Predict which of the five matrices should receive a first-step gradient.
+3. Predict which of the five matrices should have a positive finite first-step
+   gradient $L_1$ norm.
 4. Explain how a $300$-row final evaluation batch enters the complete train mean.
 5. Decide whether validation loss must fall at every checkpoint.
 6. Decide whether cloning the named parameters creates an independent replay.
@@ -421,22 +422,22 @@ model rather than presenting invented readable text.
 
   1. The chain is $[64,2]\to[64,2,4]\to[64,8]\to[64,8]\to[64,266]$.
   2. Use only index $C-1$ of the target row: the token following the complete context.
-  3. The embedding, gate, up, down, and output matrices all receive finite nonzero gradient evidence.
+  3. The embedding, gate, up, down, and output matrices all have positive finite gradient $L_1$ norms.
   4. Multiply its batch mean by $300$, add the other weighted sums, then divide by all $1836$ contexts.
   5. No. This fixture requires the fixed final validation loss to beat initialization by more than $0.01$ nat; it does not impose monotonicity.
   6. No. `NamedParameter::clone` shares a tape leaf. Independent replay constructs a fresh seeded model.
-  7. BOS is masked, so argmax selects the greatest remaining finite logit with the lower ID winning an exact tie.
+  7. BOS is masked, so $\operatorname{argmax}$ selects the greatest remaining finite logit with the lower ID winning an exact tie.
   8. Reading test document text for fitting, encoding, selection, early stopping, scoring, or display would invalidate the boundary.
 </details>
 
 {/* chapter-section:decoder-connection */}
 
-## Replace fixed context with causal sequence mixing next
+## Replace fixed context with causal information mixing next
 
-The cumulative stack now trains a complete fixed-context next-token model from
-frozen partitions through AdamW and produces deterministic greedy tokens.
+The components built so far now train a complete fixed-context next-token model
+with frozen data partitions and AdamW, then produce deterministic greedy tokens.
 Chapters 24–32 replace fixed-context concatenation with residual, normalized,
-attention-based causal sequence mixing.
+attention-based causal information mixing between sequence positions.
 
 This model is functional but deliberately narrow: every prediction sees exactly
 $C$ preceding IDs, regardless of how much earlier context exists. Residual paths

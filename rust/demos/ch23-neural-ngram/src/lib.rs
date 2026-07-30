@@ -167,6 +167,7 @@ struct PreparedData {
     train: MiniBatchEpoch,
     train_evaluation: MiniBatchEpoch,
     validation: MiniBatchEpoch,
+    test_text_encoded_or_scored: bool,
 }
 
 fn ids_match(actual: &[String], expected: &[&str]) -> bool {
@@ -275,6 +276,20 @@ fn prepare_data() -> Result<PreparedData, FixtureError> {
         BatchOrder::Sequential,
         EVALUATION_BATCH_SIZE,
     )?;
+    let test_text_encoded_or_scored = train_inputs
+        .iter()
+        .chain(&validation_inputs)
+        .any(|document| document.partition == Partition::Test)
+        || [
+            train.partition(),
+            train_evaluation.partition(),
+            validation.partition(),
+        ]
+        .contains(&Partition::Test);
+    require(
+        !test_text_encoded_or_scored,
+        "test text entered an encoded or scored epoch",
+    )?;
     require(
         train.window_count() == TRAIN_CONTEXTS,
         "train context count changed",
@@ -307,6 +322,7 @@ fn prepare_data() -> Result<PreparedData, FixtureError> {
         train,
         train_evaluation,
         validation,
+        test_text_encoded_or_scored,
     })
 }
 
@@ -400,6 +416,7 @@ struct SingleRunEvidence {
     generation: GenerationEvidence,
     leaves_replaced: bool,
     final_parameter_bits: Vec<u64>,
+    test_text_encoded_or_scored: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -410,7 +427,7 @@ pub struct LearnerEvidence {
     pub generation: GenerationEvidence,
     pub leaves_replaced: bool,
     pub replay_bitwise: bool,
-    pub test_partition_used: bool,
+    pub test_text_encoded_or_scored: bool,
 }
 
 fn model_config() -> Result<NeuralNgramConfig, FixtureError> {
@@ -615,6 +632,7 @@ fn run_once() -> Result<SingleRunEvidence, FixtureError> {
         generation,
         leaves_replaced,
         final_parameter_bits,
+        test_text_encoded_or_scored: prepared.test_text_encoded_or_scored,
     })
 }
 
@@ -647,6 +665,7 @@ fn replay_equal(left: &SingleRunEvidence, right: &SingleRunEvidence) -> bool {
         && f64_bits_equal(&left.gradient_l1, &right.gradient_l1)
         && left.generation == right.generation
         && left.leaves_replaced == right.leaves_replaced
+        && left.test_text_encoded_or_scored == right.test_text_encoded_or_scored
         && left.final_parameter_bits == right.final_parameter_bits
 }
 
@@ -687,7 +706,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         generation: first.generation,
         leaves_replaced: first.leaves_replaced,
         replay_bitwise,
-        test_partition_used: false,
+        test_text_encoded_or_scored: first.test_text_encoded_or_scored,
     })
 }
 // endregion:chapter-neural-ngram-fixture
@@ -736,7 +755,7 @@ pub fn learner_report() -> Result<String, FixtureError> {
             "config=vocabulary:{VOCABULARY_SIZE} context:{CONTEXT_LENGTH} embedding:{EMBEDDING_WIDTH} hidden:{HIDDEN_WIDTH} parameters:3384 batch:{BATCH_SIZE} evaluation_batch:{EVALUATION_BATCH_SIZE} steps:{MAX_STEPS}"
         ),
         format!(
-            "split=train_documents:8 validation_documents:2 train_contexts:{TRAIN_CONTEXTS} validation_contexts:{VALIDATION_CONTEXTS} test_used:false"
+            "split=train_documents:8 validation_documents:2 train_contexts:{TRAIN_CONTEXTS} validation_contexts:{VALIDATION_CONTEXTS} test_text_used:false"
         ),
         format!("probe_context={}", format_ids(&evidence.probe.context_ids)),
         format!(
@@ -784,12 +803,18 @@ pub fn learner_report() -> Result<String, FixtureError> {
             history.neural_context_width
         ),
         format!(
-            "all_parameter_gradients_nonzero={}",
-            evidence.gradient_l1.iter().all(|value| *value > 0.0)
+            "all_parameter_gradient_l1_positive_finite={}",
+            evidence
+                .gradient_l1
+                .iter()
+                .all(|value| value.is_finite() && *value > 0.0)
         ),
         format!("all_named_leaves_replaced={}", evidence.leaves_replaced),
         format!("same_seed_replays_bitwise={}", evidence.replay_bitwise),
-        format!("test_partition_used={}", evidence.test_partition_used),
+        format!(
+            "test_text_encoded_or_scored={}",
+            evidence.test_text_encoded_or_scored
+        ),
         "next=replace fixed concatenation with causal sequence mixing".to_owned(),
     ]);
     Ok(lines.join("\n") + "\n")
@@ -851,10 +876,15 @@ mod tests {
         let final_checkpoint = evidence.checkpoints.last().unwrap();
         assert!(final_checkpoint.train_loss < initial.train_loss);
         assert!(final_checkpoint.validation_loss + 0.01 < initial.validation_loss);
-        assert!(evidence.gradient_l1.iter().all(|value| *value > 0.0));
+        assert!(
+            evidence
+                .gradient_l1
+                .iter()
+                .all(|value| value.is_finite() && *value > 0.0)
+        );
         assert!(evidence.leaves_replaced);
         assert!(evidence.replay_bitwise);
-        assert!(!evidence.test_partition_used);
+        assert!(!evidence.test_text_encoded_or_scored);
         assert_eq!(evidence.probe.context_ids, PROMPT_IDS);
         assert_eq!(evidence.probe.embedding_shape, [1, 2, 4]);
         assert_eq!(evidence.probe.concatenated_shape, [1, 8]);

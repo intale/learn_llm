@@ -22503,7 +22503,7 @@ builds:
           - "site/src/lib/learn-bpe-merges-diagram.ts"
           - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
-          - "curriculum/README.md if the content revision advances"
+          - "curriculum/README.md"
           - "curriculum/course-plan.md if the content revision advances"
           - "Chapter 3 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
@@ -22952,3 +22952,148 @@ builds:
                 status: passed
                 notes: "All seven published files exactly match the validated candidate; dirty product paths are declared Chapter 7 outputs; no Rust, shared-style, dependency, build, deployment, or file-mode change occurred; git diff --check passed."
             notes: "Succeeded at revision 4. The English and Russian metric lesson, formulas, exact Rust behavior, LLM history, scorer boundary, exercises, SEO, accessibility, and handoffs remain correct. The audit repaired the only detected defect: Russian causal connector text now stays intact in inline, narrow, and full-view layouts. The complete Chapters 1-7 and supported Linux regressions pass. Repository-pinned Playwright supplied the rendered audit because the in-app browser runtime exposed no browser instance."
+  - build_id: activate-ch23-russian-localization
+    objective: "Audit the canonical Chapter 23 neural n-gram lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; the resource and external-staging decision is recorded in DECISIONS.md."
+    completion_criteria:
+      - "English Chapter 23 accurately teaches the fixed-context neural language model as an LLM milestone, with correct formulas, axes, training evidence, history, Rust evidence, exercises, and Chapter 24 handoff."
+      - "Russian Chapter 23 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 23 is activated in this checkpoint, the locale policy advances through Chapter 23, and the completed step is committed independently before Chapter 24 starts."
+    steps:
+      - id: activate-ch23-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 23 neural n-gram lesson and its localized shared visualization evidence."
+        depends_on:
+          - audit-ch07-language-model-metrics
+        status: completed
+        inputs:
+          - "User request on 2026-07-30 to translate the next two chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 48 and locale policy selective-russian-through-chapter-22"
+          - "curriculum/chapters/23-neural-ngram.md"
+          - "site/src/content/chapters/en/23-neural-ngram.mdx"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/23-neural-ngram-diagram.test.ts"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 23 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit 6aba048"
+        outputs:
+          - "curriculum/chapters/23-neural-ngram.md"
+          - "site/src/content/chapters/en/23-neural-ngram.mdx"
+          - "site/src/content/chapters/ru/23-neural-ngram.mdx"
+          - "site/src/components/chapters/NeuralNgramDiagram.astro if rendered bilingual evidence requires concept-geometry correction"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md if the content revision advances"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/23-neural-ngram-diagram.test.ts"
+          - "site/tests/e2e/ch23-neural-ngram.spec.ts"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "Chapter 23 declared Rust sources and exact artifacts only if the canonical evidence audit finds a defect"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 23 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 23 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 23 checkpoint is committed independently before Chapter 24 begins."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/23-neural-ngram.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 23-neural-ngram"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 23-neural-ngram"
+          - "npm --prefix site run check:parity -- 23-neural-ngram en ru"
+          - "npm --prefix site test -- --run tests/23-neural-ngram-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch23-neural-ngram && cargo run --quiet --locked -p ch23-neural-ngram | diff -u rust/demos/ch23-neural-ngram/expected.txt - && cargo run --quiet --locked -p ch23-neural-ngram --example ch23-neural-ngram-trace | diff -u rust/demos/ch23-neural-ngram/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 23, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, or deployment change."
+        runs:
+          - run_id: 20260730T162950Z-activate-ch23-russian-localization-01
+            started_at: "2026-07-30T16:29:50Z"
+            finished_at: "2026-07-30T17:35:44Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6aba0488d01fb2cad1be6d4519ac74a61e469434"
+              manifest: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:fb20dae4a006c781c3c4daf4df4d0cc3397f6e8f63c15fb8b0a87cbcfbc5324d"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; newer host Node/npm remain unused for product validation."
+              external: "No external translation source or service; the current English Chapter 23, exact Rust behavior, and cited primary language-model sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 6aba048; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 23 source paths, and material checksums; record the cost and external-staging decision before product edits."
+              - "Audit English revision 1 against the contract, exact Rust implementation and trace, LLM-history sources, learner-prose boundary, shared diagram contract, and Chapter 23 tests; freeze corrected English revision 2."
+              - "Translate every Chapter 23 learner-facing field directly from frozen English into natural technical Russian; independently review semantic parity, terminology, anti-calques, formulas, SEO, accessibility, exercises, answers, and handoff."
+              - "Correct exact Rust evidence for the test-text boundary and five positive finite aggregate matrix-gradient L1 norms; update the exact learner and diagram traces and their parsers/tests."
+              - "Migrate NeuralNgramDiagram to shared semantic roles and reflow measured summary and value formulas without clipping, hiding, truncating, font reduction, or a build change."
+              - "Materialize candidate-01 outside Dropbox after transient canonical dist/Vite locks; copy the cached dependency tree; verify all 18 changed product, test, and policy files are checksum-identical to canonical."
+              - "Build and link-check the final candidate; run Chapter 23 plus course-wide formula, shared diagram-style, and full-view Playwright suites in pinned Chromium and Firefox."
+              - "Run the unchanged supported Linux ./course check on the final post-audit source tree."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:fb20dae4a006c781c3c4daf4df4d0cc3397f6e8f63c15fb8b0a87cbcfbc5324d"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and base-commit fingerprint before Chapter 23 product edits."
+              - path: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:5d9bcba024f94061f3f4858c33490f7f7dabc42099c021c585394d9e2e90b760"
+                notes: "Verified SHA-256 manifest for all 18 final changed product, test, and policy files; English source is 65be3f5f and Russian source is 9b45ffeb."
+              - path: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/candidate-01/site/dist/"
+                checksum: "source-manifest:sha256:5d9bcba024f94061f3f4858c33490f7f7dabc42099c021c585394d9e2e90b760"
+                notes: "Final external static candidate: 69 HTML pages, 2,183 local references, 69 SEO routes, 69 sitemap URLs, 69 Analytics routes, and 150 artifacts."
+              - path: "C:/tmp/learn_llm/runs/20260730T162950Z-activate-ch23-russian-localization-01/rendered-screenshots/"
+                checksum: "manifest-sha256:c5197bdcc145266b4247b7c51a05ba23271f6ec6e3706cf398eba09bd78bb056"
+                notes: "Twelve visually reviewed PNGs and twelve computed-geometry JSON records for English/Russian desktop, narrow, and native full-view surfaces in Chromium and Firefox."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The Chapter 1-7 audit is independently committed at 6aba048; the worktree was clean; active_build was null with no pending or running record; host orchestration and repository pins are usable; Chapter 23 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, or deployment change is planned."
+              - command: "Canonical English and independent Russian semantic, terminology, anti-calque, monolingual, formula, historical, accessibility, SEO, exercise, answer, and handoff audit"
+                status: passed
+                notes: "English revision 2 removes delivery-language leakage and narrows test/gradient claims to exact evidence. Russian revision 2 directly preserves meaning with established technical language; the final audit's argmax, non-finite-value, shared-tape-leaf, and contract-typo findings were corrected and rechecked."
+              - command: "node scripts/check-course-plan.mjs; Chapter 23 contract, English, Russian, parity, and full content checks"
+                status: passed
+                notes: "The 40-chapter plan and revision-49 locale policy pass; 64 localized sources, 40 publishable locale sets, 32 catalog keys, and 42 shared-full-view components pass."
+              - command: "npm --prefix site test -- --run; focused Chapter 23, locale, contract, formula, shared-style, and full-view unit tests after final audit"
+                status: passed
+                notes: "All 849 tests in 52 files passed; the final focused matrix passed 114 of 114, including explicit argmax math-pipeline coverage in both locales."
+              - command: "cargo fmt --all -- --check; cargo test --locked -p ch23-neural-ngram; exact learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Formatting, all five Chapter 23 Rust tests, and both exact textual artifacts passed with the corrected boundary and aggregate-gradient evidence."
+              - command: "Final external npm --prefix site run build and npm --prefix site run test:links"
+                status: passed
+                notes: "The checksum-identical candidate built 69 pages and passed 2,183 local references, 69 SEO routes, 69 sitemap URLs, 69 Analytics routes, and 150 total artifacts."
+              - command: "Final pinned Chromium Chapter 23, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 149 rendered cases passed on the final candidate, including both Chapter 23 locales, desktop/narrow, no-JavaScript, forced colors, synthetic RTL, native fullscreen, focus restoration, formula ink, and nearest-box containment."
+              - command: "Final pinned Firefox Chapter 23, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 149 equivalent rendered cases passed on the final candidate."
+              - command: "English/Russian desktop, narrow, and native-full-view screenshots plus computed geometry in Chromium and Firefox"
+                status: passed
+                notes: "All twelve screenshots were visually reviewed. Every page reports zero viewport overflow; all summary, value, checkpoint, and proof boxes report zero content overflow; full-view horizontal travel is at most 32px in Chromium and 60px in Firefox."
+              - command: "Unchanged supported Linux ./course check on the final source tree"
+                status: passed
+                notes: "Docker manifest list sha256:d9058864733ce37cd3ed583897014ec2eeae03e1faa6bcf4653c67eda5032922 passed Cargo formatting/workspace/doc tests, Astro with zero diagnostics, content/parity, 69-page static build, and link/SEO/sitemap/Analytics gates."
+              - command: "Candidate-to-canonical checksums, publication and screenshot manifests, declared-output ownership, diff whitespace, file-mode, and BUILD_STATE.yaml syntax audit"
+                status: passed
+                notes: "All 18 changed product/test/policy files exactly match the final browser candidate; both artifact manifests verify; dirty paths are declared Chapter 23 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
+            notes: "Succeeded at revision 2. The corrected canonical lesson, exact Rust evidence, direct Russian localization, route activation, shared semantic diagram, and localized full-view presentation pass all acceptance gates. Transient Dropbox/Defender EPERM and Vite EBUSY locks affected only disposable host build/cache paths; an exact external candidate and the unchanged pinned Linux workflow passed. The first Docker invocation was interrupted only by its orchestration wrapper's two-minute bound and was rerun successfully with matching final inputs. Chapter 24 did not start before this checkpoint completed."
