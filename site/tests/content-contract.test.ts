@@ -1413,7 +1413,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 49',
+      '"plan_revision": 50',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1721,7 +1721,7 @@ describe('curriculum and catalog contracts', () => {
 
     const uncoveredChapter = replaceOnce(
       deferredPlanSource,
-      '        "through_chapter": "23-neural-ngram",',
+      '        "through_chapter": "24-residual-connections",',
       '        "through_chapter": "13-gradient-checking",',
     );
     expect(() =>

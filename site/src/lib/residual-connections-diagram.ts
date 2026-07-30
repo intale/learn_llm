@@ -57,7 +57,6 @@ export interface ResidualConnectionsTrace {
     readonly gradient: string;
     readonly parameters: string;
     readonly broadcast: string;
-    readonly siteArithmetic: string;
   };
 }
 
@@ -82,6 +81,7 @@ export interface ResidualConnectionsDiagramLabels {
     readonly inputGradient: string;
   };
   readonly fields: {
+    readonly fixture: string;
     readonly parameter: string;
     readonly parameterGradient: string;
     readonly zeroBranch: string;
@@ -131,7 +131,7 @@ const expectedLines = [
   'STACK depth=4 plain=[0.007812,-0.003906] residual=[0.632812,-0.316406]',
   'STACK-GRADIENT plain=[0.003906,0.003906] residual=[0.316406,0.316406] parameters=residual.stack.0.branch.weight,residual.stack.1.branch.weight,residual.stack.2.branch.weight,residual.stack.3.branch.weight',
   'GRADCHECK input-checks=2 weight-checks=4 tolerance=0.000002 passed=true',
-  'PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden site-arithmetic=none',
+  'PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden',
   'TRACE residual-connections-v1 END',
 ] as const;
 
@@ -209,6 +209,7 @@ export function validateResidualConnectionsLabels(
     'inputGradient',
   ], 'paths');
   exactStringKeys(labels.fields as unknown as Record<string, unknown>, [
+    'fixture',
     'parameter',
     'parameterGradient',
     'zeroBranch',
@@ -305,7 +306,7 @@ export function parseResidualConnectionsTrace(source: string): ResidualConnectio
   );
   const proof = exactMatch(
     lines[14],
-    /^PROOF identity=([^ ]+) gradient=([^ ]+) parameters=([^ ]+) broadcast=([^ ]+) site-arithmetic=([^ ]+)$/,
+    /^PROOF identity=([^ ]+) gradient=([^ ]+) parameters=([^ ]+) broadcast=([^ ]+)$/,
     'PROOF',
   );
 
@@ -356,7 +357,6 @@ export function parseResidualConnectionsTrace(source: string): ResidualConnectio
       gradient: proof[2],
       parameters: proof[3],
       broadcast: proof[4],
-      siteArithmetic: proof[5],
     }),
   });
 }

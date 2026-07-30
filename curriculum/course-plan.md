@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 49,
+  "plan_revision": 50,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-23",
+    "policy_id": "selective-russian-through-chapter-24",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "23-neural-ngram",
+        "through_chapter": "24-residual-connections",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-23."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-24."
       },
       {
-        "from_chapter": "24-residual-connections",
+        "from_chapter": "25-rmsnorm",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 23 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 24 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -289,6 +289,11 @@
         "step_id": "activate-ch23-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch23-russian-localization"
+      },
+      {
+        "step_id": "activate-ch24-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch24-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -858,9 +863,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–23 activate
-both, while Chapters 24–39 activate English only. Russian therefore keeps its index
-and Chapter 0–23 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–24 activate
+both, while Chapters 25–39 activate English only. Russian therefore keeps its index
+and Chapter 0–24 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1280,6 +1285,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `24-residual-connections`
 - **Implementation step:** `implement-ch24-residual-connections`
+- **Revision status:** Content revision 2 corrects learner-facing architecture and evidence prose, removes a presentation-specific trace token, migrates the figure to the shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch24-russian-localization`.
 - **Depends on:** `23-neural-ngram`.
 - **Outcome:** Add a shape-preserving residual branch and verify identity/gradient paths through stacked transformations.
 - **Scope boundary:** Teach `x + F(x)`, shape invariants, identity behavior, gradient addition, and residual scaling intuition; defer normalization.

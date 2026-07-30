@@ -13,21 +13,66 @@ import {
 } from './chapter-helpers';
 
 const chapterId = '24-residual-connections';
-const chapterTitle = 'Keep an identity path around each learned update';
-const chapterDescription =
-  'Trace exact-shape residual addition, its identity and learned gradient paths, zero-branch learning, and repeated plain versus residual transformations.';
-const diagramDescription =
-  'Trace exact Rust-authored values through the forward merge and both reverse contributions, then compare zero-branch, shape-error, and four-layer stack evidence.';
-const chapterHeadings = [
-  'Predict what the identity path preserves',
-  'Add a learned update to the unchanged stream',
-  'Keep the stream and update roles separate',
-  'From deep plain transformations to the Transformer residual stream',
-  'Reject broadcasting before adding the paths',
-  'Follow both paths without hiding the merge',
-  'Predict before following the trace',
-  'Normalize the branch input next',
-] as const;
+type ChapterLocale = 'en' | 'ru';
+const locales = ['en', 'ru'] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: 'Content revision',
+    title: 'Keep an identity path around each learned update',
+    description:
+      'Trace exact-shape residual addition, its identity and learned gradient paths, zero-branch learning, and repeated plain versus residual transformations.',
+    headings: [
+      'Predict what the identity path preserves',
+      'Add a learned update to the unchanged stream',
+      'Keep the stream and update roles separate',
+      'From deep plain transformations to the Transformer residual stream',
+      'Reject broadcasting before adding the paths',
+      'Follow both paths without hiding the merge',
+      'Predict before following the trace',
+      'Normalize the branch input next',
+    ],
+    historyFragments: [
+      'deeper plain networks could have higher training error',
+      'parameter-free identity shortcut',
+      'every encoder and decoder sublayer',
+      'decoder-only Transformer maintains a residual stream',
+      'Transformer architectures then reused that mechanism',
+    ],
+    diagramTitle: 'Follow the identity path and learned update',
+    diagramDescription:
+      'Trace exact fixture values through the forward merge and both reverse contributions, then compare zero-branch, shape-error, and four-layer stack evidence.',
+    zeroBranchNote: 'total input gradient equal to the upstream gradient',
+    rejected: 'Rejected',
+  },
+  ru: {
+    revisionLabel: 'Версия материала',
+    title: 'Для каждого обучаемого обновления сохраняйте тождественный путь',
+    description:
+      'Проследите остаточное сложение при точном совпадении форм, тождественный путь градиента и путь через обучаемую ветвь, обучение ветви с нулевыми весами и повторные преобразования с остаточными связями и без них.',
+    headings: [
+      'Предскажите, что сохраняет тождественный путь',
+      'Добавьте обучаемое обновление к неизменённому потоку',
+      'Не смешивайте роли потока и обновления',
+      'От глубоких преобразований без остаточных связей к остаточному потоку Transformer',
+      'Перед сложением отклоните несовпадающие формы',
+      'Проследите оба пути и не потеряйте место сложения',
+      'Сначала сделайте предсказания',
+      'Далее нормализуйте вход ветви',
+    ],
+    historyFragments: [
+      'сети без остаточных связей могли иметь большую ошибку',
+      'тождественной обходной связи без параметров',
+      'каждого подслоя энкодера и декодера',
+      'Transformer только с декодером сохраняет остаточный поток',
+      'архитектуры Transformer применили тот же механизм',
+    ],
+    diagramTitle: 'Проследите тождественный путь и обучаемое обновление',
+    diagramDescription:
+      'Проследите точные значения примера через прямое слияние и оба вклада обратного прохода, затем сопоставьте ветвь с нулевыми весами, ошибку формы и две четырёхслойные цепочки.',
+    zeroBranchNote: 'полный градиент по входу равен входящему градиенту',
+    rejected: 'Отклонено',
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, '');
 
@@ -187,24 +232,91 @@ async function expectFormulaScrollerOwnership(page: Page) {
   expect(problems).toEqual([]);
 }
 
+async function expectBoundedBoxContainment(page: Page) {
+  const problems = await page
+    .locator('figure[data-visualization-id="residual-connections"]')
+    .evaluate((root) => {
+      const issues: string[] = [];
+      const allowedError = 2;
+      const describe = (node: HTMLElement, index: number) =>
+        `${node.tagName.toLowerCase()}${node.className ? `.${String(node.className).split(/\s+/).slice(0, 2).join('.')}` : ''} ${index}`;
+      const hasCompleteBorder = (node: HTMLElement) => {
+        const style = getComputedStyle(node);
+        const widths = [
+          style.borderTopWidth,
+          style.borderRightWidth,
+          style.borderBottomWidth,
+          style.borderLeftWidth,
+        ].map(Number.parseFloat);
+        const styles = [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ];
+        return widths.every((width) => width > 0) && styles.every((value) => !['none', 'hidden'].includes(value));
+      };
+      const all = Array.from(root.querySelectorAll<HTMLElement>('*')).filter((node) => {
+        const style = getComputedStyle(node);
+        return node.getClientRects().length > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+      });
+      for (const [index, node] of all.entries()) {
+        if (node.closest('[data-diagram-full-view-controls]')) continue;
+        // KaTeX's renderer uses internal clipping for its accessibility copy,
+        // struts, and narrow inline fallback. Formula geometry is audited above.
+        if (node.closest('.katex')) continue;
+        const style = getComputedStyle(node);
+        if (['hidden', 'clip'].includes(style.overflowX) || ['hidden', 'clip'].includes(style.overflowY)) {
+          issues.push(`${describe(node, index)} conceals overflow`);
+        }
+        if (
+          hasCompleteBorder(node) &&
+          !node.hasAttribute('data-diagram-box') &&
+          !['TH', 'TD'].includes(node.tagName) &&
+          node !== root
+        ) {
+          issues.push(`${describe(node, index)} has an unmarked complete border`);
+        }
+      }
+      const boxes = all.filter(
+        (node) =>
+          !node.closest('[data-diagram-full-view-controls]') &&
+          (node.hasAttribute('data-diagram-box') || ['TH', 'TD'].includes(node.tagName)),
+      );
+      for (const [index, box] of boxes.entries()) {
+        if (!hasCompleteBorder(box)) issues.push(`${describe(box, index)} lacks a complete border`);
+        if (box.scrollWidth > box.clientWidth + allowedError) {
+          issues.push(`${describe(box, index)} has ${box.scrollWidth - box.clientWidth}px horizontal content debt`);
+        }
+        if (box.scrollHeight > box.clientHeight + allowedError) {
+          issues.push(`${describe(box, index)} has ${box.scrollHeight - box.clientHeight}px vertical content debt`);
+        }
+      }
+      return issues;
+    });
+  expect(problems).toEqual([]);
+}
+
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
   narrow: boolean,
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: 'en',
+    locale,
     order: 24,
-    revision: 1,
-    revisionLabel: 'Content revision',
-    title: chapterTitle,
-    equivalentLocales: ['en'],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: locales,
     fallbackRouteSuffix: '/course/',
   });
-  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator('.lesson-body h2')).toHaveText(chapterHeadings);
+  await expect(page.locator('.lesson-description')).toHaveText(localized.description);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -214,6 +326,7 @@ async function expectChapterContent(
     String.raw`\operatorname{shape}(F(x))=\operatorname{shape}(x)=\operatorname{shape}(y)`,
     String.raw`\bar{x}=\bar{y}+J_F(x)^\top\bar{y}`,
     String.raw`y=x+\alpha F(x)`,
+    String.raw`\operatorname{shape}(x)=[2]`,
     String.raw`J_F(x)^\top\bar y=[-0.500000,2.250000]`,
     String.raw`\bar W=[2.000000,2.000000,-1.000000,-1.000000]\ne0`,
   ]) {
@@ -228,42 +341,38 @@ async function expectChapterContent(
   const history = page
     .getByRole('heading', {
       level: 2,
-      name: 'From deep plain transformations to the Transformer residual stream',
+      name: localized.headings[3],
       exact: true,
     })
     .locator(
-      'xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="From deep plain transformations to the Transformer residual stream"]]',
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[3]}"]]`,
     );
   const historyText = (await history.allInnerTexts()).join(' ').replace(/\s+/g, ' ');
-  expect(historyText).toContain('deeper plain networks could have higher training error');
-  expect(historyText).toContain('parameter-free identity shortcut');
-  expect(historyText).toContain('every encoder and decoder sublayer');
-  expect(historyText).toContain('decoder-only Transformer maintains a residual stream');
-  expect(historyText).toContain('The history is about neural architectures');
+  for (const fragment of localized.historyFragments) expect(historyText).toContain(fragment);
   expect(historyText).not.toMatch(/TypeScript|Python history|Rust history/i);
   await expect(history.locator('a')).toHaveCount(2);
 
   await expect(page.locator('figure.rust-source')).toHaveCount(7);
   await expectVisualizationDecision(page, { decision: 'useful', id: 'residual-connections' });
   const diagram = page.locator('figure[data-visualization-id="residual-connections"]');
-  await expect(diagram).toHaveAccessibleName('Follow the identity path and learned update');
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
   await expect(diagram.locator('[data-flow="forward"]')).toContainText('1.000000');
   await expect(diagram.locator('[data-flow="forward"]')).toContainText('-3.250000');
   await expect(diagram.locator('[data-flow="backward"]')).toContainText('-0.500000');
   await expect(diagram.locator('[data-flow="backward"]')).toContainText('3.250000');
   await expect(diagram.locator('[data-evidence="zero-branch"]')).toContainText('2.000000');
   await expect(diagram.locator('[data-evidence="zero-branch"]')).toContainText(
-    'total input gradient equal to the upstream gradient',
+    localized.zeroBranchNote,
   );
-  await expect(diagram.locator('[data-evidence="shape-error"]')).toContainText('Rejected');
+  await expect(diagram.locator('[data-evidence="shape-error"]')).toContainText(localized.rejected);
   await expect(diagram.locator('[data-evidence="shape-error"]')).toContainText(
     'broadcastable=true',
   );
   await expect(diagram.locator('[data-evidence="shape-error"]')).toContainText('rejected=true');
   await expect(diagram.locator('.proof-row')).toContainText('passed=true');
-  await expect(diagram.locator('.proof-row')).toContainText('config=known-residual-linear');
-  await expect(diagram.locator('.proof-row')).toContainText('site-arithmetic=none');
+  await expect(diagram.locator('.proof-row')).toContainText('known-residual-linear');
+  await expect(diagram.locator('.proof-row')).toContainText('broadcast=forbidden');
   await expect(diagram.locator('tbody tr')).toHaveCount(5);
   await expect(diagram.locator('.parameter-list li')).toHaveCount(4);
 
@@ -274,6 +383,7 @@ async function expectChapterContent(
     await expect(scroller).toBeFocused();
   }
   await expectFormulaScrollerOwnership(page);
+  await expectBoundedBoxContainment(page);
 
   const containment = await diagram.evaluate((node) => ({
     clientWidth: node.clientWidth,
@@ -318,90 +428,83 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator('summary').click();
   await expect(details.locator('ol > li')).toHaveCount(8);
-  await expectOrderedChapterNavigation(page, 'en', chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }
 
 test.describe('chapter 24 residual connections vertical slice', {
   tag: chapterTag(chapterId),
 }, () => {
-  test('English publishes Chapter 24 while its Russian route remains deferred', async ({
-    page,
-  }) => {
-    const english = await readOrderedCourseChapters(page, 'en');
-    expect(english.length).toBeGreaterThanOrEqual(24);
-    expect(english[23]).toEqual(
-      expect.objectContaining({ chapterId, order: 24, title: chapterTitle }),
-    );
-    const russian = await readOrderedCourseChapters(page, 'ru');
-    expect(russian.length).toBeGreaterThan(0);
-    const lastRussianChapter = russian[russian.length - 1]!;
-    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
-    await expectOrderedChapterNavigation(
-      page,
-      'ru',
-      lastRussianChapter.chapterId,
-      russian,
-    );
-    expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
-
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.locator('.locale-switch a[data-locale="ru"]')).toHaveAttribute(
-      'href',
-      '/ru/course/',
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang="ru"]')).toHaveCount(0);
-    const missing = await page.goto(chapterPath('ru', chapterId));
-    expect(missing?.status()).toBe(404);
+  test('English and Russian publish reciprocal Chapter 24 routes', async ({ page }) => {
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      expect(chapters.find((chapter) => chapter.chapterId === chapterId)).toEqual(
+        expect.objectContaining({ chapterId, order: 24, title: copy[locale].title }),
+      );
+      await page.goto(chapterPath(locale, chapterId));
+      const other: ChapterLocale = locale === 'en' ? 'ru' : 'en';
+      await expect(page.locator(`.locale-switch a[data-locale="${other}"]`)).toHaveAttribute(
+        'href',
+        chapterPath(other, chapterId),
+      );
+      await expect(page.locator(`link[rel="alternate"][hreflang="${other}"]`)).toHaveCount(1);
+      await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
+    }
   });
 
-  test('the Rust-backed lesson and natural-height flows render at desktop and narrow widths', async ({
+  test('both Rust-backed lessons and natural-height flows render at desktop and narrow widths', async ({
     page,
   }) => {
-    const chapters = await readOrderedCourseChapters(page, 'en');
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(chapterPath('en', chapterId));
-    await expectChapterContent(page, chapters, false);
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload();
-    await expectChapterContent(page, chapters, true);
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      await page.goto(chapterPath(locale, chapterId));
+      await expectChapterContent(page, chapters, false, locale);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.reload();
+      await expectChapterContent(page, chapters, true, locale);
+    }
   });
 
   test('solid identity, dashed branch, and double merge cues survive forced colors', async ({
     page,
   }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="residual-connections"]');
-    await expect(diagram.locator('[data-path="identity"]')).toHaveCSS('border-top-style', 'solid');
-    await expect(diagram.locator('[data-path="branch"]')).toHaveCSS('border-top-style', 'dashed');
-    await expect(diagram.locator('[data-node="forward-merge"]')).toHaveCSS(
-      'border-top-style',
-      'double',
-    );
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="residual-connections"]');
+      await expect(diagram.locator('[data-path="identity"]')).toHaveCSS('border-top-style', 'solid');
+      await expect(diagram.locator('[data-path="branch"]')).toHaveCSS('border-top-style', 'dashed');
+      await expect(diagram.locator('[data-node="forward-merge"]')).toHaveCSS(
+        'border-top-style',
+        'double',
+      );
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('RTL prose mirrors arrows while formulas and program identities remain left-to-right', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="residual-connections"]');
-    await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
-    await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
-    await expect(diagram.locator('.flow-arrow').first()).not.toHaveCSS('transform', 'none');
-    expect(
-      await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    expect(
-      await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="residual-connections"]');
+      await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
+      await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
+      await expect(diagram.locator('.flow-arrow').first()).not.toHaveCSS('transform', 'none');
+      expect(
+        await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      expect(
+        await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
@@ -410,13 +513,15 @@ test.describe('chapter 24 residual connections vertical slice', {
       baseURL: String(testInfo.project.use.baseURL),
     });
     const page = await context.newPage();
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.getByRole('heading', { level: 1, name: chapterTitle })).toBeVisible();
-    await expect(page.locator('[data-flow="forward"]')).toContainText('-3.250000');
-    await expect(page.locator('[data-flow="backward"]')).toContainText('3.250000');
-    await expect(page.locator('tbody tr')).toHaveCount(5);
-    await expect(page.locator('[data-evidence="shape-error"]')).toContainText('Rejected');
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
+      await expect(page.locator('[data-flow="forward"]')).toContainText('-3.250000');
+      await expect(page.locator('[data-flow="backward"]')).toContainText('3.250000');
+      await expect(page.locator('tbody tr')).toHaveCount(5);
+      await expect(page.locator('[data-evidence="shape-error"]')).toContainText(copy[locale].rejected);
+      await expectNoOverflowOrClientScripts(page);
+    }
     await context.close();
   });
 });

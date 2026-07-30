@@ -82,7 +82,7 @@ pub fn render_trace() -> Result<String, Box<dyn Error>> {
     )?;
     writeln!(
         trace,
-        "PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden site-arithmetic=none"
+        "PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden"
     )?;
     writeln!(trace, "TRACE residual-connections-v1 END")?;
     Ok(trace)

@@ -2,32 +2,38 @@
 {
   "chapter_id": "24-residual-connections",
   "concept_id": "residual-connections",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 24,
   "objective": {
-    "en": "Add a shape-preserving residual branch and verify identity and gradient paths through stacked transformations."
+    "en": "Add a shape-preserving residual branch and verify identity and gradient paths through stacked transformations.",
+    "ru": "Добавить остаточную ветвь без изменения формы и проверить тождественный путь и прохождение градиента через цепочку преобразований."
   },
   "worked_inputs": {
-    "en": "Start with $x=[2,-1]$ and a bias-free square linear branch whose output is $F(x)=[-1,-2.25]$. Predict $y=x+F(x)$, then predict what survives in the forward and reverse passes when the branch weights are all zero."
+    "en": "Start with $x=[2,-1]$ and a bias-free square linear branch whose output is $F(x)=[-1,-2.25]$. Predict $y=x+F(x)$, then predict what survives in the forward and reverse passes when the branch weights are all zero.",
+    "ru": "Возьмите $x=[2,-1]$ и квадратную линейную ветвь без смещения, для которой $F(x)=[-1,-2.25]$. Сначала предскажите $y=x+F(x)$, а затем — что сохранится в прямом и обратном проходах, если все веса ветви равны нулю."
   },
   "formula": {
     "latex": "y=x+F(x)",
     "symbols": [
       {
         "symbol": "x",
-        "en": "the input tensor carried by the identity path"
+        "en": "the input tensor carried by the identity path",
+        "ru": "входной тензор, который переносится по тождественному пути"
       },
       {
         "symbol": "F",
-        "en": "the learned residual-branch mapping"
+        "en": "the learned residual-branch mapping",
+        "ru": "обучаемое отображение остаточной ветви"
       },
       {
         "symbol": "F(x)",
-        "en": "the branch update, with exactly the same shape as x"
+        "en": "the branch update, with exactly the same shape as x",
+        "ru": "обновление ветви, имеющее в точности ту же форму, что и x"
       },
       {
         "symbol": "y",
-        "en": "the elementwise sum, with the same shape as x"
+        "en": "the elementwise sum, with the same shape as x",
+        "ru": "поэлементная сумма той же формы, что и x"
       }
     ]
   },
@@ -35,13 +41,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "He et al. observed a degradation problem in which deeper plain networks could have higher training error even after the added layers should in principle be able to represent identity mappings."
+        "en": "He et al. observed a degradation problem in which deeper plain networks could have higher training error even though the added layers should in principle be able to represent identity mappings.",
+        "ru": "Хэ и соавторы обнаружили эффект деградации: более глубокие сети без остаточных связей могли иметь большую ошибку на обучающей выборке, хотя добавленные слои в принципе должны были уметь реализовать тождественное отображение."
       },
       "later_advance": {
-        "en": "Residual learning made the identity route explicit, and the Transformer later placed residual additions around every attention and feed-forward sublayer at one common model width."
+        "en": "Residual learning made the identity route explicit, and the Transformer later placed residual additions around every attention and feed-forward sublayer at one common model width.",
+        "ru": "Остаточное обучение явно выделило тождественный путь, а позднее в Transformer остаточное сложение стало охватывать каждый подслой внимания и сети прямого распространения при общей ширине модели."
       },
       "modern_llm_role": {
-        "en": "A decoder-only Transformer maintains a residual stream across its stack while learned attention and feed-forward branches contribute same-shaped updates; later chapters add normalization and assemble those branches."
+        "en": "A decoder-only Transformer maintains a residual stream across its stack while learned attention and feed-forward branches contribute same-shaped updates; later chapters add normalization and assemble those branches.",
+        "ru": "Transformer только с декодером сохраняет остаточный поток через всю цепочку блоков, а обучаемые ветви внимания и сети прямого распространения вносят обновления той же формы; в следующих главах добавятся нормализация и сборка этих ветвей."
       },
       "sources": [
         {
@@ -50,7 +59,8 @@
           "name": "He et al., Deep Residual Learning for Image Recognition",
           "source_url": "https://arxiv.org/pdf/1512.03385",
           "claim": {
-            "en": "He et al. report the deep-plain-network degradation problem and reformulate a same-dimensional block as a learned residual function plus a parameter-free identity shortcut."
+            "en": "He et al. report the deep-plain-network degradation problem and reformulate a same-dimensional block as a learned residual function plus a parameter-free identity shortcut.",
+            "ru": "Хэ и соавторы описывают деградацию глубоких сетей без остаточных связей и представляют блок неизменной размерности как сумму обучаемой остаточной функции и тождественной обходной связи без параметров."
           }
         },
         {
@@ -59,18 +69,21 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/pdf/1706.03762",
           "claim": {
-            "en": "Vaswani et al. place a residual connection around every encoder and decoder sublayer and keep sublayer outputs at a common model width required by the addition."
+            "en": "Vaswani et al. place a residual connection around every encoder and decoder sublayer and keep sublayer outputs at a common model width required by the addition.",
+            "ru": "Васвани и соавторы помещают остаточную связь вокруг каждого подслоя энкодера и декодера и сохраняют общую ширину выходов подслоёв, необходимую для сложения."
           }
         }
       ]
     },
     "approach": {
-      "en": "From difficult-to-optimize deep plain transformations, through explicit identity shortcuts, to the residual stream around Transformer sublayers"
+      "en": "From difficult-to-optimize deep plain transformations, through explicit identity shortcuts, to the residual stream around Transformer sublayers",
+      "ru": "От глубоких преобразований без остаточных связей, которые трудно оптимизировать, — через явные тождественные обходные связи — к остаточному потоку вокруг подслоёв Transformer"
     },
     "summary": {
-      "en": "Residual addition gives every same-width Transformer sublayer an explicit identity route alongside its learned update. The route preserves a direct forward contribution and adds a direct reverse-mode gradient contribution, without guaranteeing that every deep model will train successfully."
+      "en": "Residual addition gives every same-width Transformer sublayer an explicit identity route alongside its learned update. The route preserves a direct forward contribution and adds a direct reverse-mode gradient contribution, without guaranteeing that every deep model will train successfully.",
+      "ru": "Остаточное сложение даёт каждому подслою Transformer, сохраняющему ширину модели, явный тождественный путь наряду с обучаемым обновлением. Этот путь сохраняет непосредственный вклад в прямой проход и добавляет непосредственный вклад в градиент при обратном проходе, но не гарантирует успешного обучения любой глубокой модели."
     },
-    "rust_contrast": "Run the same four frozen square transformations as a plain stack and as a residual stack, then expose exact forward values, reverse gradients, branch-owned parameters, and the shape invariant; the executable language supplies evidence but is not the historical subject."
+    "rust_contrast": "Run the same four fixed-value square transformations as a plain stack and as a residual stack to expose exact forward values, reverse gradients, branch-owned parameters, and the shape invariant."
   },
   "rust": {
     "package": "ch24-residual-connections",
@@ -86,45 +99,55 @@
     "decision": "useful",
     "id": "residual-connections",
     "rationale": {
-      "en": "Two explicit forward paths and two reverse contributions are easier to distinguish in a split-and-rejoin flow, while a depth table makes repeated plain and residual transformations directly comparable."
+      "en": "Two explicit forward paths and two reverse contributions are easier to distinguish in a split-and-rejoin flow, while a depth table makes repeated plain and residual transformations directly comparable.",
+      "ru": "На схеме с разветвлением и последующим слиянием проще различить два пути прямого прохода и два вклада обратного, а таблица по глубине позволяет напрямую сопоставить повторные преобразования с остаточными связями и без них."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has an exact-shape merge that will carry one residual stream around learned sublayers. Chapter 25 normalizes the values entering each branch while the identity path bypasses that normalization operation."
+    "en": "The cumulative decoder now has an exact-shape merge that will carry one residual stream around learned sublayers. Chapter 25 normalizes the values entering each branch while the identity path bypasses that normalization operation.",
+    "ru": "Теперь в собираемом декодере есть операция слияния, требующая точного совпадения форм; благодаря ей единый остаточный поток пройдёт в обход обучаемых подслоёв. В главе 25 значения на входе каждой ветви будут нормализованы, а тождественный путь минует эту нормализацию."
   },
   "terminology": [
     {
       "concept_id": "residual-connection",
-      "en": "residual connection"
+      "en": "residual connection",
+      "ru": "остаточная связь"
     },
     {
       "concept_id": "identity-path",
-      "en": "identity path"
+      "en": "identity path",
+      "ru": "тождественный путь"
     },
     {
       "concept_id": "residual-branch",
-      "en": "residual branch"
+      "en": "residual branch",
+      "ru": "остаточная ветвь"
     },
     {
       "concept_id": "residual-stream",
-      "en": "residual stream"
+      "en": "residual stream",
+      "ru": "остаточный поток"
     },
     {
       "concept_id": "gradient-addition",
-      "en": "gradient addition"
+      "en": "gradient addition",
+      "ru": "сложение вкладов в градиент"
     },
     {
       "concept_id": "shape-invariant",
-      "en": "exact-shape invariant"
+      "en": "exact-shape invariant",
+      "ru": "инвариант точного совпадения форм"
     }
   ],
   "translation_notes": [
-    "Chapter 24 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep x, F, F(x), y, overbar notation, J_F, alpha, mathematical vectors, parameter names, shapes, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
-    "Residual means that the branch learns an update relative to the identity path; do not translate it as a statistical error or imply that addition concatenates features.",
+    "Chapter 24 has the exact active locale set {en, ru}. Russian is translated directly from canonical English content revision 2 with SHA-256 9bf275b51c3d3c995af1b6f8115c06046b2f384065329fe430aade5bb8445b6a and becomes stale whenever that source changes.",
+    "Keep x, F, F(x), y, overbar notation, J_F, alpha, mathematical vectors, parameter names, shapes, trace keywords, source roles, and source URLs unchanged across both locales.",
+    "Translate residual connection as «остаточная связь», residual branch as «остаточная ветвь», residual stream as «остаточный поток», and identity path as «тождественный путь». Residual denotes an update relative to the identity path, not a statistical error, and addition does not concatenate features.",
+    "Translate plain stack as «цепочка без остаточных связей» or concise «обычная цепочка», not a phrase implying simplicity of the model; introduce broadcasting as «согласование форм (broadcasting)» and then use «согласование форм», never «трансляция»; translate upstream gradient as «входящий градиент», input gradient as «градиент по входу», and branch contribution as «вклад ветви».",
     "He et al. support the degradation and identity-shortcut claims, while Vaswani et al. support Transformer residual sublayers and their common width. Neither paper defines this course's pre-RMSNorm order, Rust API, fixture values, exact error, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The neural architecture and history remain language-independent.",
-    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data."
+    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
+    "Validate Russian diagram labels in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces; use natural concise wording or reflow rather than clipping, truncation, overlap, or reduced text size."
   ],
   "acceptance_examples": [
     {
@@ -132,12 +155,12 @@
       "expected": "The exact-shape residual output is [1,-3.25]."
     },
     {
-      "input": "Backpropagate y-bar=[1,1] through the frozen linear branch",
+      "input": "Backpropagate y-bar=[1,1] through the fixed-value linear fixture",
       "expected": "The identity contribution is [1,1], the branch contribution is [-0.5,2.25], and the accumulated input gradient is [0.5,3.25]."
     },
     {
       "input": "Set every branch weight to zero",
-      "expected": "The output equals x and the input gradient equals y-bar, while the branch weight gradient remains nonzero for the frozen x and y-bar."
+      "expected": "The output equals x and the input gradient equals y-bar, while the branch weight gradient remains nonzero for the given x and y-bar."
     },
     {
       "input": "Attempt a residual merge between shapes [2,2] and [2]",
@@ -248,10 +271,10 @@ identity route supplies a direct forward term and a direct reverse contribution,
 but it does not guarantee optimization success or remove every source of
 vanishing, exploding, or unstable gradients.
 
-The executable contrast runs the same four square transformations as a plain
-stack and a residual stack. It exposes one local path consequence, not a claim
-that the toy is an LLM. The history is about neural architectures on the road to
-LLMs, not programming languages.
+Residual learning made the identity shortcut explicit in deep vision
+networks. Transformer architectures then reused that mechanism around attention
+and feed-forward sublayers, where each learned transformation contributes an
+update to the model's continuing residual stream.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -262,7 +285,7 @@ addition because that lower-level operation intentionally supports broadcasting.
 On success it preserves both tape edges without detaching either operand. On a
 mismatch it reports both shapes and commits no gradient change.
 
-The merge owns no parameters. The frozen `Linear` branch owns
+The merge owns no parameters. The fixed-value `Linear` fixture owns
 `residual.branch.weight`, and the four stack branches own their indexed names.
 The primary fixture proves forward values, identity and branch input-gradient
 contributions, accumulated input gradient, and branch weight gradient. A
@@ -282,23 +305,20 @@ newline. The named trace example must equal the strict 16-line diagram fixture.
 <!-- contract-section:visualization -->
 ## Visualization
 
-The Rust-authored trace supplies the exact forward split and rejoin, reverse
-contributions, branch parameter gradient, zero-branch proof, shape rejection,
-five stack depths, numeric-check result, and proof tokens. The static parser
-validates and projects these values without tensor or gradient arithmetic.
+The trace supplies every vector, shape decision, stack row, gradient check, and
+verified residual property shown below. Read the two rows as simultaneous routes:
+the identity value passes unchanged, the learned branch produces an update, and
+the merge adds them coordinate by coordinate.
 
-One focusable figure contains separate focusable local scrollers for the forward
-and reverse flows, plus natural-height zero-branch and depth evidence. Solid and
-dashed path borders, a double merge border, arrows, and explicit labels carry
-meaning without color. At narrow widths the internal grid remains intact inside
-its local scroller; formulas and cards cannot overlap the section delimiter.
-Program identities and math stay left-to-right inside right-to-left prose. No
-SVG, client script, fixed card height, or hydration is needed.
+The solid upper route carries the identity value, the dashed lower route carries
+the learned update, and both meet at the double-bordered addition. The backward
+flow uses the same split to show why the two gradient contributions accumulate.
+The zero-branch and depth evidence then isolate what the identity route preserves.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
 
-1. Predict $y$ for the frozen $x$ and $F(x)$.
+1. Predict $y$ for the given $x$ and $F(x)$.
 2. Split $\bar x$ into its identity and branch contributions.
 3. Predict the zero-weight branch's output, input gradient, and weight gradient.
 4. Decide whether shapes $[2,2]$ and $[2]$ form a valid residual connection.
@@ -325,16 +345,19 @@ normalization operation.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active Chapter 24 locale. Russian remains registered but
-inactive, so it receives no contract keys, placeholder lesson, alternate link,
-or chapter route. A later activation must translate all labels, descriptions,
-exercises, and terminology together.
+English and Russian are the exact active Chapter 24 locales. English content
+revision 2 is the sole semantic source; the Russian lesson translates that exact
+revision directly and becomes stale whenever the English meaning or presentation
+changes. The contract, route, alternate links, lesson, diagram labels, accessible
+descriptions, exercises, answers, SEO, and terminology publish together.
 
 Keep $x$, $F$, $F(x)$, $y$, overbars, $J_F$, $α$, mathematical vectors,
-shapes, parameter names, trace keywords, source roles, and URLs unchanged. Use
-"residual" for an update relative to the identity stream, not for a statistical
-error. Name Rust only for executable source, APIs, commands, paths, trace tokens,
-or literal program data.
+shapes, parameter names, trace keywords, source roles, and URLs unchanged.
+Translate “residual connection” as «остаточная связь», “residual branch” as
+«остаточная ветвь», “residual stream” as «остаточный поток», and “identity path”
+as «тождественный путь». Here “residual” denotes an update relative to the
+identity stream, not a statistical error. Name Rust only for executable source,
+APIs, commands, paths, trace tokens, or literal program data.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -342,11 +365,12 @@ or literal program data.
 - `node scripts/check-course-plan.mjs` preserves the exact Chapter 24 outcome,
   formula, historical contrast, visualization, and evidence requirements.
 - `npm --prefix site run check:contract -- ../curriculum/chapters/24-residual-connections.md`
-  validates this English-only contract and its exact Rust output.
+  validates the bilingual contract and its exact Rust output.
 - Formatting, clippy, all workspace tests, dependency policy, demo policy, and
   both byte-exact Chapter 24 stdout diffs pass without a concept-implementing crate.
 - Chapter, parity, content, Astro, unit, production-build, link, SEO, and focused
   plus full browser gates pass.
-- Browser checks cover desktop and 390-pixel widths, math annotations and spacing,
-  natural-height containment, local scrolling, forced colors, RTL/LTR isolation,
-  no-JavaScript rendering, navigation, and the absent Russian route.
+- Browser checks cover both locales at desktop and 390-pixel widths, math
+  annotations and spacing, natural-height containment, local scrolling, native
+  full view, forced colors, RTL/LTR isolation, no-JavaScript rendering,
+  navigation, reciprocal alternates, and localized labels.

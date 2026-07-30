@@ -12,5 +12,5 @@ STACK depth=3 plain=[-0.031250,0.015625] residual=[0.843750,-0.421875]
 STACK depth=4 plain=[0.007812,-0.003906] residual=[0.632812,-0.316406]
 STACK-GRADIENT plain=[0.003906,0.003906] residual=[0.316406,0.316406] parameters=residual.stack.0.branch.weight,residual.stack.1.branch.weight,residual.stack.2.branch.weight,residual.stack.3.branch.weight
 GRADCHECK input-checks=2 weight-checks=4 tolerance=0.000002 passed=true
-PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden site-arithmetic=none
+PROOF identity=exact gradient=added parameters=branch-owned broadcast=forbidden
 TRACE residual-connections-v1 END

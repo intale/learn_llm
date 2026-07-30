@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-30T07:09:56Z"
+updated_at: "2026-07-30T18:44:44Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -23097,3 +23097,148 @@ builds:
                 status: passed
                 notes: "All 18 changed product/test/policy files exactly match the final browser candidate; both artifact manifests verify; dirty paths are declared Chapter 23 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
             notes: "Succeeded at revision 2. The corrected canonical lesson, exact Rust evidence, direct Russian localization, route activation, shared semantic diagram, and localized full-view presentation pass all acceptance gates. Transient Dropbox/Defender EPERM and Vite EBUSY locks affected only disposable host build/cache paths; an exact external candidate and the unchanged pinned Linux workflow passed. The first Docker invocation was interrupted only by its orchestration wrapper's two-minute bound and was rerun successfully with matching final inputs. Chapter 24 did not start before this checkpoint completed."
+  - build_id: activate-ch24-russian-localization
+    objective: "Audit the canonical Chapter 24 residual-connections lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; the resource and external-staging decision is recorded in DECISIONS.md."
+    completion_criteria:
+      - "English Chapter 24 accurately teaches residual addition and gradient flow as an LLM architecture milestone, with correct formulas, axes, Rust evidence, history, exercises, and Chapter 25 handoff."
+      - "Russian Chapter 24 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 24 is activated in this checkpoint, the locale policy advances through Chapter 24, and the completed step is committed independently."
+    steps:
+      - id: activate-ch24-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 24 residual-connections lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch23-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-30 to translate the next two chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 49 and locale policy selective-russian-through-chapter-23"
+          - "curriculum/chapters/24-residual-connections.md"
+          - "site/src/content/chapters/en/24-residual-connections.mdx"
+          - "site/src/components/chapters/ResidualConnectionsDiagram.astro"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/24-residual-connections-diagram.test.ts"
+          - "site/tests/e2e/ch24-residual-connections.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 24 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit a4a91eb"
+        outputs:
+          - "curriculum/chapters/24-residual-connections.md"
+          - "site/src/content/chapters/en/24-residual-connections.mdx"
+          - "site/src/content/chapters/ru/24-residual-connections.mdx"
+          - "site/src/components/chapters/ResidualConnectionsDiagram.astro if rendered bilingual evidence requires concept-geometry or shared-role correction"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md if the content revision advances"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/24-residual-connections-diagram.test.ts"
+          - "site/tests/e2e/ch24-residual-connections.spec.ts"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "Chapter 24 declared Rust sources and exact artifacts only if the canonical evidence audit finds a defect"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 24 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 24 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 24 checkpoint is committed independently after Chapter 23."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/24-residual-connections.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 24-residual-connections"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 24-residual-connections"
+          - "npm --prefix site run check:parity -- 24-residual-connections en ru"
+          - "npm --prefix site test -- --run tests/24-residual-connections-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch24-residual-connections && cargo run --quiet --locked -p ch24-residual-connections | diff -u rust/demos/ch24-residual-connections/expected.txt - && cargo run --quiet --locked -p ch24-residual-connections --example ch24-residual-connections-trace | diff -u rust/demos/ch24-residual-connections/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 24, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, or deployment change."
+        runs:
+          - run_id: 20260730T173806Z-activate-ch24-russian-localization-01
+            started_at: "2026-07-30T17:38:06Z"
+            finished_at: "2026-07-30T18:44:44Z"
+            status: succeeded
+            input_fingerprint:
+              git: "a4a91ebc6e31acc5ac400d6353ecfb882c60ece2"
+              manifest: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:055f861ebdb0913af10ade0a01044669a0fbd2dd1368723d1cddbcdca87b8ee0"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; newer host Node/npm remain unused for product validation."
+              external: "No external translation source or service; the current English Chapter 24, exact Rust behavior, and cited primary residual-network/Transformer sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit a4a91eb; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 24 source paths, and material checksums; record the cost and external-staging decision before product edits."
+              - "Audit English revision 1 against the contract, exact Rust implementation and trace, primary residual-network and Transformer history, learner-prose boundary, formula pipeline, shared diagram contract, and Chapter 24 tests; freeze corrected English revision 2."
+              - "Translate every Chapter 24 learner-facing field directly from frozen English into natural technical Russian; independently review semantic parity, terminology, anti-calques, formulas, SEO, accessibility, exercises, answers, and Chapter 25 handoff."
+              - "Remove the non-pedagogical site-arithmetic trace field without changing the 16-line residual evidence; strengthen zero-branch, stacked-gradient, and exact ordered formula-parity assertions."
+              - "Migrate ResidualConnectionsDiagram to shared semantic roles and reflow both locales without clipping, hiding, truncating, font reduction, or a build change."
+              - "Materialize candidate-01 outside Dropbox; verify all 16 changed product, test, and policy files are checksum-identical to canonical; build, link-check, and render the final candidate."
+              - "Run Chapter 24 plus course-wide formula, shared diagram-style, and full-view Playwright suites in pinned Chromium and Firefox; capture and inspect English/Russian desktop, narrow, and native-full-view surfaces."
+              - "Run the unchanged supported Linux ./course check on the final post-audit source tree."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:055f861ebdb0913af10ade0a01044669a0fbd2dd1368723d1cddbcdca87b8ee0"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and base-commit fingerprint before Chapter 24 product edits."
+              - path: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:a3320a11f82ef8496fe473a2b4a60ca88058de7ad3e5f052ff231103b3167668"
+                notes: "Verified SHA-256 manifest for all 16 final changed product, test, and policy files; English source is 9bf275b5 and Russian source is 223590ce."
+              - path: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/candidate-01/site/dist/"
+                checksum: "source-manifest:sha256:a3320a11f82ef8496fe473a2b4a60ca88058de7ad3e5f052ff231103b3167668"
+                notes: "Final external static candidate: 70 HTML pages, 2,148 local references, 70 SEO routes, 70 sitemap URLs, 70 Analytics routes, and 150 artifacts."
+              - path: "C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/rendered-screenshots/"
+                checksum: "manifest-sha256:f3560215f1327a1888743744b3767282b5a9038a864aab7666ec6fd70ad7dfab"
+                notes: "Twelve visually reviewed PNGs and twelve computed-geometry JSON records for English/Russian desktop, narrow, and native full-view surfaces in Chromium and Firefox."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 23 is independently committed at a4a91eb; the worktree was clean; active_build was null with no pending or running record; host orchestration and repository pins are usable; Chapter 24 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, or deployment change is planned."
+              - command: "Canonical English and independent Russian semantic, terminology, anti-calque, monolingual, formula, historical, accessibility, SEO, exercise, answer, and handoff audit"
+                status: passed
+                notes: "English revision 2 removes delivery-language leakage, unsupported priority wording, and the learner-visible site-arithmetic field. Russian revision 2 directly preserves meaning with established residual-network language; the final title, zero-branch label, gradient disjunction, scaling scope, shortcut terminology, plain-layer explanation, weight-gradient wording, and both-count findings were corrected and rechecked."
+              - command: "node scripts/check-course-plan.mjs; Chapter 24 contract, English, Russian, parity, and full content checks"
+                status: passed
+                notes: "The 40-chapter, 96-step plan and revision-50 locale policy pass; 65 localized sources, 40 publishable locale sets, 32 catalog keys, and 42 shared-full-view components pass."
+              - command: "npm --prefix site test -- --run; focused Chapter 24, locale, contract, formula, shared-style, and full-view unit tests after final audit"
+                status: passed
+                notes: "All 849 tests in 52 files passed; the final focused matrix passed 93 of 93, including exact ordered parity for all 53 learner-facing formulas in English and Russian."
+              - command: "cargo fmt --all -- --check; cargo test --locked -p ch24-residual-connections; exact learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Formatting, all five Chapter 24 Rust tests, and both exact textual artifacts passed; the strict trace remains 16 lines and ends with the exact residual proof."
+              - command: "Final external Astro check, npm --prefix site run build, and npm --prefix site run test:links"
+                status: passed
+                notes: "Astro checked 206 files with zero errors, warnings, or hints. The checksum-identical candidate built 70 pages and passed 2,148 local references, 70 SEO routes, 70 sitemap URLs, 70 Analytics routes, and 150 total artifacts."
+              - command: "Final pinned Chromium Chapter 24, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 151 rendered cases passed on the final candidate, including both Chapter 24 locales, desktop/narrow, no-JavaScript, forced colors, synthetic RTL, native fullscreen, focus restoration, formula ink, and nearest-box containment."
+              - command: "Final pinned Firefox Chapter 24, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 151 equivalent rendered cases passed on the final candidate."
+              - command: "English/Russian desktop, narrow, and native-full-view screenshots plus computed geometry in Chromium and Firefox"
+                status: passed
+                notes: "All twelve screenshots were visually reviewed. Every page reports zero viewport overflow; every marked or table box reports zero width and height debt; full-view horizontal travel is at most 94px in Chromium and 41px in Firefox."
+              - command: "Unchanged supported Linux ./course check on the final source tree"
+                status: passed
+                notes: "Docker manifest list sha256:6a8f7297cd40a55fdafe47ac424d19be4247ab6b592fd608fe8a06fd7fe43be9 passed Cargo formatting/workspace/doc tests, Astro with zero diagnostics, content/parity, 70-page static build, and link/SEO/sitemap/Analytics gates."
+              - command: "Candidate-to-canonical checksums, publication and screenshot manifests, declared-output ownership, diff whitespace, file-mode, and BUILD_STATE.yaml syntax audit"
+                status: passed
+                notes: "All 16 changed product/test/policy files exactly match the final browser candidate; both artifact manifests verify; dirty paths are declared Chapter 24 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
+            notes: "Succeeded at revision 2. The corrected canonical lesson, exact Rust evidence, direct Russian localization, route activation, shared semantic diagram, and localized full-view presentation pass all acceptance gates. Chapter 23 remained independently committed and its completed output declaration was left unchanged."

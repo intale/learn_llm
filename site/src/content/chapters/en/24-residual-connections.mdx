@@ -2,7 +2,7 @@
 {
   "chapter_id": "24-residual-connections",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 24,
   "concept_id": "residual-connections",
   "title": "Keep an identity path around each learned update",
@@ -33,7 +33,7 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
-      "limitation": "He et al. observed a degradation problem in which deeper plain networks could have higher training error even after the added layers should in principle be able to represent identity mappings.",
+      "limitation": "He et al. observed a degradation problem in which deeper plain networks could have higher training error even though the added layers should in principle be able to represent identity mappings.",
       "later_advance": "Residual learning made the identity route explicit, and the Transformer later placed residual additions around every attention and feed-forward sublayer at one common model width.",
       "modern_llm_role": "A decoder-only Transformer maintains a residual stream across its stack while learned attention and feed-forward branches contribute same-shaped updates; later chapters add normalization and assemble those branches.",
       "sources": [
@@ -61,7 +61,7 @@
     {
       "path": "rust/demos/ch24-residual-connections/src/lib.rs",
       "region": "residual-stack",
-      "purpose": "Run the same frozen transformations as plain and residual stacks for the LLM-centered architecture contrast."
+      "purpose": "Run the same fixed-value transformations as plain and residual stacks for the architecture contrast."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/nn/residual.rs",
@@ -85,12 +85,12 @@
     },
     {
       "path": "rust/demos/ch24-residual-connections/src/main.rs",
-      "purpose": "Print the frozen learner report without recomputing its values in the presentation layer."
+      "purpose": "Print the deterministic fixture report."
     },
     {
       "path": "rust/demos/ch24-residual-connections/src/diagram_trace.rs",
       "region": "residual-connections-trace",
-      "purpose": "Emit the strict locale-neutral forward, reverse, stack, and proof records for the static diagram."
+      "purpose": "Emit the exact forward, reverse, stack, and verified-property records."
     }
   ],
   "visualization": {
@@ -108,7 +108,7 @@ import ResidualConnectionsDiagram from '../../../components/chapters/ResidualCon
 export const diagramLabels = {
   title: 'Follow the identity path and learned update',
   description:
-    'Trace exact Rust-authored values through the forward merge and both reverse contributions, then compare zero-branch, shape-error, and four-layer stack evidence.',
+    'Trace exact fixture values through the forward merge and both reverse contributions, then compare zero-branch, shape-error, and four-layer stack evidence.',
   sections: {
     forward: 'Split and rejoin in the forward pass',
     backward: 'Add both reverse-mode contributions',
@@ -127,6 +127,7 @@ export const diagramLabels = {
     inputGradient: 'Input gradient',
   },
   fields: {
+    fixture: 'Fixed-value fixture',
     parameter: 'Branch-owned parameters',
     parameterGradient: 'Weight gradient',
     zeroBranch: 'Zero-weight branch',
@@ -140,7 +141,7 @@ export const diagramLabels = {
     residual: 'Residual stack',
     inputGradient: 'Input gradient',
     numericCheck: 'Sampled gradient check',
-    proof: 'Rust-authored proof tokens',
+    proof: 'Verified residual properties',
   },
   cues: {
     identity: 'Solid identity path',
@@ -152,7 +153,7 @@ export const diagramLabels = {
   captions: {
     forward: 'Exact same-shaped forward values',
     backward: 'The identity term and branch vector-Jacobian product add',
-    stack: 'Rust-authored values at every depth',
+    stack: 'Exact values at every depth',
   },
   scrollers: {
     forward: 'Scrollable residual forward-path diagram',
@@ -235,11 +236,8 @@ normalization: no mean, variance, or root-mean-square is computed.
 
 ## From deep plain transformations to the Transformer residual stream
 
-The history is about neural architectures on the road to LLMs, not programming
-languages.
-
 He et al. observed a degradation problem in which deeper plain networks could
-have higher training error even after the added layers should in principle be
+have higher training error even though the added layers should in principle be
 able to represent identity mappings.
 
 The earlier primary source is [He et al., *Deep Residual Learning for Image Recognition*](https://arxiv.org/pdf/1512.03385). He et al. report the
@@ -264,10 +262,11 @@ identity route alongside its learned update. The route preserves a direct
 forward contribution and adds a direct reverse-mode gradient contribution,
 without guaranteeing that every deep model will train successfully.
 
-The executable comparison applies the same four diagonal transformations as a
-plain stack and as a residual stack. It exposes the local path consequence; it
-does not turn the toy into a language model or make the implementation language
-the subject of the history:
+Residual learning made the identity shortcut explicit in deep vision
+networks. Transformer architectures then reused that mechanism around attention
+and feed-forward sublayers. The four-layer comparison isolates one architectural
+consequence: each ordinary layer keeps only the learned transformation, whereas
+each residual layer adds that transformation to an explicit identity path:
 
 <RustSource
   path="rust/demos/ch24-residual-connections/src/lib.rs"
@@ -291,7 +290,7 @@ keeps both operand edges and therefore both reverse contributions:
   label="Rust source implementing the Chapter 24 residual merge"
 />
 
-The frozen square `Linear` branch owns `residual.branch.weight`. Its known
+The fixed-value square `Linear` fixture owns `residual.branch.weight`. Its known
 forward pass produces $F(x)=[-1,-2.25]$. For $\bar y=[1,1]$, the identity
 contribution is $[1,1]$, the branch contribution is $[-0.5,2.25]$, and their
 sum is $\bar x=[0.5,3.25]$. The branch's matrix gradient is
@@ -342,9 +341,10 @@ frozen in `rust/demos/ch24-residual-connections/expected.txt`.
 
 ## Follow both paths without hiding the merge
 
-The trace records every visible vector, shape decision, stack row, gradient
-check, and proof token. The page validates and projects those records without
-performing tensor or gradient arithmetic:
+The trace supplies every vector, shape decision, stack row, gradient check, and
+verified residual property shown below. Read the two rows as simultaneous routes:
+the identity value passes unchanged, the learned branch produces an update, and
+the merge adds them coordinate by coordinate:
 
 <RustSource
   path="rust/demos/ch24-residual-connections/src/diagram_trace.rs"
@@ -355,10 +355,9 @@ performing tensor or gradient arithmetic:
 
 <ResidualConnectionsDiagram labels={diagramLabels} />
 
-Solid and dashed borders distinguish the identity and learned paths, while the
-double border marks their merge. Each flow stays a real two-row grid inside its
-own keyboard-focusable scroller, so a narrow viewport preserves the topology
-without stretching cards or adding unexplained empty space beneath them.
+The solid upper route carries the identity value, the dashed lower route carries
+the learned update, and both meet at the double-bordered addition. The backward
+flow uses the same split to show why the two gradient contributions accumulate.
 
 The four diagonal branch matrices each multiply their input by $-0.25$. The
 plain depth-four input gradient retains a factor of $0.00390625$; the residual
@@ -370,7 +369,7 @@ bound.
 
 ## Predict before following the trace
 
-1. Compute $y$ from the frozen $x$ and $F(x)$.
+1. Compute $y$ from the given $x$ and $F(x)$.
 2. Split $\bar x$ into its identity and branch contributions.
 3. Predict the zero-weight branch's output, input gradient, and weight gradient.
 4. Decide whether shapes $[2,2]$ and $[2]$ form a valid residual connection.

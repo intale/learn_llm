@@ -10111,3 +10111,99 @@ introduced.
 
 **Affected step and run:** `activate-ch23-russian-localization`, run
 `20260730T162950Z-activate-ch23-russian-localization-01`.
+
+## 2026-07-30 - Stage Chapter 24 localization after the Chapter 23 commit
+
+**Status:** Accepted during `activate-ch24-russian-localization` preflight.
+
+**Context:** The user requested the next two Russian translations one by one.
+Chapter 23 is complete and independently committed at `a4a91eb`, and the
+published locale boundary now ends there. Chapter 24 must therefore be audited
+against its exact residual-addition Rust evidence, translated directly from the
+repaired English source, rendered in two engines, and committed as a separate
+checkpoint. The Dropbox-managed workspace retains the documented risk of locks
+on disposable build and cache paths; the repository's pinned Linux workflow
+remains the supported reproducible build.
+
+**Decision:** Run Chapter 24 as the large standalone checkpoint
+`activate-ch24-russian-localization`, with no paid translation or generation
+service and no approval pause for resource cost. Keep run intermediates in
+`C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/`,
+record their checksums, and use the unchanged pinned Linux and browser workflows.
+Audit and freeze English meaning before translating; advance only the Chapter 24
+locale boundary. Do not change the product build, dependencies, deployment,
+hosting, or user environment.
+
+**Consequences:** Publication requires semantic, mathematical, historical, Rust,
+SEO, accessibility, formula, static, link, Chromium, Firefox, fullscreen, and
+nearest-box containment gates for both locales. Chapter 24 will receive its own
+completion checkpoint and commit, preserving the requested one-by-one sequence.
+
+**Affected step and run:** `activate-ch24-russian-localization`, run
+`20260730T173806Z-activate-ch24-russian-localization-01`.
+
+## 2026-07-30 - Freeze corrected English Chapter 24 revision 2 before translation
+
+**Status:** Accepted during `activate-ch24-russian-localization` execution.
+
+**Context:** The canonical audit found learner-facing delivery commentary, an
+unsupported historical-priority word, obsolete private diagram presentation
+styles, and a non-pedagogical `site-arithmetic` trace token. The residual formula,
+forward and reverse values, zero-weight behavior, exact-shape rejection, repeated
+stack evidence, gradient check, and primary-source history were otherwise sound.
+
+**Decision:** Advance English Chapter 24 to content revision 2, express the
+historical and diagram evidence directly at the learner's level, remove the
+presentation-only trace token without changing any numerical behavior, and move
+the figure onto the shared diagram roles while retaining only residual-path
+geometry and non-color solid/dashed/double cues locally. Freeze
+`site/src/content/chapters/en/24-residual-connections.mdx` at SHA-256
+`9bf275b51c3d3c995af1b6f8115c06046b2f384065329fe430aade5bb8445b6a` as the
+sole semantic source for the Russian projection.
+
+**Consequences:** Russian must translate this exact English revision directly and
+be reviewed again whenever its meaning or presentation changes. The strict trace
+remains 16 lines and keeps every model-relevant invariant, while focused tests now
+assert every zero-branch and stack-gradient vector. Publication still requires
+the complete bilingual contract, route, static, and two-engine rendered gates.
+
+**Affected step and run:** `activate-ch24-russian-localization`, run
+`20260730T173806Z-activate-ch24-russian-localization-01`.
+
+## 2026-07-30 - Publish bilingual Chapter 24 after semantic and rendered review
+
+**Status:** Accepted during `activate-ch24-russian-localization` completion.
+
+**Context:** The corrected English residual-connections lesson had to remain the
+sole source for Russian, preserve exact Rust behavior, and fit both localized
+pages and every diagram surface. Independent review found several Russian
+precision and anti-calque issues, and the formula-parity check did not yet prove
+the complete ordered body-formula sequence.
+
+**Decision:** Publish English revision 2 at SHA-256
+`9bf275b51c3d3c995af1b6f8115c06046b2f384065329fe430aade5bb8445b6a`
+and its direct Russian projection at SHA-256
+`223590ce00ce73f862a1445c8753a434e7bc258f617b04a5027052f049643336`.
+Use natural established Russian residual-network terminology, correct the title,
+zero-branch label, gradient relationship, scaling scope, shortcut terminology,
+plain-layer explanation, weight-gradient wording, and count agreement, and
+require exact ordered parity for all 53 learner-facing formulas. Advance the
+published Russian boundary only through Chapter 24. Record the final 16-file
+product manifest at
+`C:/tmp/learn_llm/runs/20260730T173806Z-activate-ch24-russian-localization-01/publish-product.sha256`
+with SHA-256
+`a3320a11f82ef8496fe473a2b4a60ca88058de7ad3e5f052ff231103b3167668`.
+
+**Consequences:** Both locales publish matching formulas, identifiers, values,
+links, exercises, answers, SEO, accessibility text, historical evidence, and the
+Chapter 25 handoff. The shared figure passes every measured bounded-box check at
+desktop, narrow, and native full view in Chromium and Firefox; page overflow and
+box debt are zero, with at most 94 CSS pixels of full-view horizontal travel in
+Chromium and 41 in Firefox. The final candidate builds 70 pages and passes 2,148
+local references, 70 SEO routes, 70 sitemap URLs, 70 Analytics routes, 849 unit
+tests, 151 rendered tests per browser, exact Rust evidence, and the complete
+pinned Linux gate. No dependency, build, hosting, deployment, or user-environment
+change is introduced.
+
+**Affected step and run:** `activate-ch24-russian-localization`, run
+`20260730T173806Z-activate-ch24-russian-localization-01`.

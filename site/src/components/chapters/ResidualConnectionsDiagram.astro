@@ -39,96 +39,100 @@ const zeroWeightRelation =
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
   </figcaption>
 
-  <section class="flow-section" aria-labelledby="residual-forward-title">
-    <header>
-      <h4 id="residual-forward-title">{labels.sections.forward}</h4>
-      <p><span class="cue identity-cue">{labels.cues.identity}</span><span class="cue branch-cue">{labels.cues.branch}</span><span class="cue merge-cue">{labels.cues.merge}</span></p>
-    </header>
+  <section class="flow-section course-diagram__card-stack" data-diagram-box aria-labelledby="residual-forward-title">
+    <h4 id="residual-forward-title">{labels.sections.forward}</h4>
+    <ul class="cue-list" aria-label={labels.sections.forward}>
+      <li class="identity-cue" data-diagram-box>{labels.cues.identity}</li>
+      <li class="branch-cue" data-diagram-box>{labels.cues.branch}</li>
+      <li class="merge-cue" data-diagram-box>{labels.cues.merge}</li>
+    </ul>
     <div
       class="flow-scroller course-diagram__scroll"
       data-flow="forward"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.forward}
-     data-diagram-scroll>
-      <div class="path-grid">
-        <article data-diagram-card data-diagram-box class="flow-node input-node" data-node="forward-input">
+      data-diagram-scroll>
+      <div class="path-grid course-diagram__grid">
+        <article data-diagram-card data-diagram-box class="flow-node input-node course-diagram__card-stack" data-node="forward-input">
           <strong>{labels.paths.input}</strong>
           <InlineMath latex={String.raw`x=${trace.forward.input.latex}`} />
         </article>
         <span class="flow-arrow first identity-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row" data-path="identity">
+        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row course-diagram__card-stack" data-path="identity">
           <strong>{labels.paths.identity}</strong>
           <InlineMath latex={String.raw`x=${trace.forward.input.latex}`} />
         </article>
         <span class="flow-arrow second identity-row" aria-hidden="true">→</span>
         <span class="flow-arrow first branch-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row" data-path="branch">
+        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row course-diagram__card-stack" data-path="branch">
           <strong>{labels.paths.branch}</strong>
           <InlineMath latex={String.raw`F(x)=${trace.forward.branch.latex}`} />
         </article>
         <span class="flow-arrow second branch-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node merge-node" data-node="forward-merge">
+        <article data-diagram-card data-diagram-box class="flow-node merge-node course-diagram__card-stack" data-node="forward-merge">
           <strong>{labels.paths.merge}</strong>
           <InlineMath latex="+" />
         </article>
         <span class="flow-arrow final" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node output-node" data-node="forward-output">
+        <article data-diagram-card data-diagram-box class="flow-node output-node course-diagram__card-stack" data-node="forward-output">
           <strong>{labels.paths.output}</strong>
           <InlineMath latex={String.raw`y=${trace.forward.output.latex}`} />
         </article>
       </div>
     </div>
-    <p class="caption">{labels.captions.forward}</p>
+    <p class="caption course-diagram__description">{labels.captions.forward}</p>
   </section>
 
-  <section class="flow-section" aria-labelledby="residual-backward-title">
-    <header>
-      <h4 id="residual-backward-title">{labels.sections.backward}</h4>
-      <p><span class="cue identity-cue">{labels.cues.identity}</span><span class="cue branch-cue">{labels.cues.branch}</span><span class="cue merge-cue">{labels.cues.merge}</span></p>
-    </header>
+  <section class="flow-section course-diagram__card-stack" data-diagram-box aria-labelledby="residual-backward-title">
+    <h4 id="residual-backward-title">{labels.sections.backward}</h4>
+    <ul class="cue-list" aria-label={labels.sections.backward}>
+      <li class="identity-cue" data-diagram-box>{labels.cues.identity}</li>
+      <li class="branch-cue" data-diagram-box>{labels.cues.branch}</li>
+      <li class="merge-cue" data-diagram-box>{labels.cues.merge}</li>
+    </ul>
     <div
       class="flow-scroller course-diagram__scroll"
       data-flow="backward"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.backward}
-     data-diagram-scroll>
-      <div class="path-grid">
-        <article data-diagram-card data-diagram-box class="flow-node input-node" data-node="backward-upstream">
+      data-diagram-scroll>
+      <div class="path-grid course-diagram__grid">
+        <article data-diagram-card data-diagram-box class="flow-node input-node course-diagram__card-stack" data-node="backward-upstream">
           <strong>{labels.paths.upstream}</strong>
           <InlineMath latex={String.raw`\bar y=${trace.backward.upstream.latex}`} />
         </article>
         <span class="flow-arrow first identity-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row" data-path="identity-gradient">
+        <article data-diagram-card data-diagram-box class="flow-node path-node identity-row course-diagram__card-stack" data-path="identity-gradient">
           <strong>{labels.paths.identityGradient}</strong>
           <InlineMath latex={String.raw`\bar y=${trace.backward.identity.latex}`} />
         </article>
         <span class="flow-arrow second identity-row" aria-hidden="true">→</span>
         <span class="flow-arrow first branch-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row" data-path="branch-gradient">
+        <article data-diagram-card data-diagram-box class="flow-node path-node branch-row course-diagram__card-stack" data-path="branch-gradient">
           <strong>{labels.paths.branchGradient}</strong>
           <InlineMath latex={String.raw`J_F(x)^\top\bar y=${trace.backward.branch.latex}`} />
         </article>
         <span class="flow-arrow second branch-row" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node merge-node" data-node="backward-merge">
+        <article data-diagram-card data-diagram-box class="flow-node merge-node course-diagram__card-stack" data-node="backward-merge">
           <strong>{labels.paths.merge}</strong>
           <InlineMath latex="+" />
         </article>
         <span class="flow-arrow final" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-node output-node" data-node="backward-input">
+        <article data-diagram-card data-diagram-box class="flow-node output-node course-diagram__card-stack" data-node="backward-input">
           <strong>{labels.paths.inputGradient}</strong>
           <InlineMath latex={String.raw`\bar x=${trace.backward.input.latex}`} />
         </article>
       </div>
     </div>
-    <p class="caption">{labels.captions.backward}</p>
+    <p class="caption course-diagram__description">{labels.captions.backward}</p>
   </section>
 
-  <section class="evidence-section" aria-labelledby="residual-evidence-title">
+  <section class="evidence-section course-diagram__card-stack" data-diagram-box aria-labelledby="residual-evidence-title">
     <h4 id="residual-evidence-title">{labels.sections.evidence}</h4>
-    <div class="evidence-grid">
-      <article data-diagram-card data-diagram-box class="evidence-card parameter-card">
+    <div class="evidence-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="evidence-card parameter-card course-diagram__card-stack">
         <h5>{labels.fields.parameter}</h5>
         <p><code><bdi dir="ltr">{trace.parameter.name}</bdi></code></p>
         <p><InlineMath latex={String.raw`W\in\mathbb{R}^{${trace.parameter.shapeLatex}}`} /></p>
@@ -138,9 +142,9 @@ const zeroWeightRelation =
         </p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card zero-card" data-evidence="zero-branch">
+      <article data-diagram-card data-diagram-box class="evidence-card zero-card course-diagram__card-stack" data-evidence="zero-branch">
         <h5>{labels.fields.zeroBranch}</h5>
-        <div class="formula-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.fields.zeroBranch} data-diagram-scroll>
+        <div class="formula-scroller course-diagram__scroll course-diagram__card-stack" tabindex="0" role="region" aria-label={labels.fields.zeroBranch} data-diagram-scroll>
           <p><InlineMath latex={String.raw`F(x)=0,\quad y=x=${trace.zeroBranch.output.latex}`} /></p>
           <p><InlineMath latex={String.raw`\bar x=\bar y=${trace.zeroBranch.inputGradient.latex}`} /></p>
           <p><InlineMath latex={String.raw`\bar W=${trace.zeroBranch.weightGradient.latex}${zeroWeightRelation}`} /></p>
@@ -148,29 +152,33 @@ const zeroWeightRelation =
         <p class="evidence-note">{labels.fields.zeroBranchNote}</p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card error-card" data-evidence="shape-error">
+      <article data-diagram-card data-diagram-box class="evidence-card error-card course-diagram__card-stack" data-evidence="shape-error">
         <h5>{labels.fields.shapeError}</h5>
         <p><strong>{labels.fields.shapeInvariant}</strong></p>
         <p><InlineMath latex={String.raw`${trace.shapeError.identity}\ne${trace.shapeError.branch}`} /></p>
         <dl>
           <div>
             <dt>{labels.fields.genericAdd}</dt>
-            <dd class={`status ${statusClass(trace.shapeError.broadcastable, 'accepted')}`}>
-              {acceptedWhenTrue(trace.shapeError.broadcastable)} <code><bdi dir="ltr">broadcastable={trace.shapeError.broadcastable}</bdi></code>
+            <dd>
+              <span data-diagram-box class={`state-symbol status ${statusClass(trace.shapeError.broadcastable, 'accepted')}`}>
+                {acceptedWhenTrue(trace.shapeError.broadcastable)}
+              </span>{' '}<code><bdi dir="ltr">broadcastable={trace.shapeError.broadcastable}</bdi></code>
             </dd>
           </div>
           <div>
             <dt>{labels.fields.residualMerge}</dt>
-            <dd class={`status ${statusClass(trace.shapeError.rejected, 'rejected')}`}>
-              {rejectedWhenTrue(trace.shapeError.rejected)} <code><bdi dir="ltr">rejected={trace.shapeError.rejected}</bdi></code>
+            <dd>
+              <span data-diagram-box class={`state-symbol status ${statusClass(trace.shapeError.rejected, 'rejected')}`}>
+                {rejectedWhenTrue(trace.shapeError.rejected)}
+              </span>{' '}<code><bdi dir="ltr">rejected={trace.shapeError.rejected}</bdi></code>
             </dd>
           </div>
         </dl>
       </article>
     </div>
 
-    <div class="proof-row">
-      <article data-diagram-card data-diagram-box>
+    <div class="proof-row course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="course-diagram__card-stack">
         <h5>{labels.fields.numericCheck}</h5>
         <p class="formula-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.fields.numericCheck} data-diagram-scroll>
           <InlineMath latex={String.raw`n_x=${trace.gradcheck.inputChecks}`} />
@@ -179,25 +187,26 @@ const zeroWeightRelation =
           <span aria-hidden="true"> · </span>
           <InlineMath latex={String.raw`\tau=${trace.gradcheck.toleranceLatex}`} />
         </p>
-        <p class={`status ${statusClass(trace.gradcheck.passed, 'accepted')}`}>
-          {acceptedWhenTrue(trace.gradcheck.passed)} <code><bdi dir="ltr">passed={trace.gradcheck.passed}</bdi></code>
+        <p>
+          <span data-diagram-box class={`state-symbol status ${statusClass(trace.gradcheck.passed, 'accepted')}`}>
+            {acceptedWhenTrue(trace.gradcheck.passed)}
+          </span>{' '}<code><bdi dir="ltr">passed={trace.gradcheck.passed}</bdi></code>
         </p>
       </article>
-      <article data-diagram-card data-diagram-box>
+      <article data-diagram-card data-diagram-box class="course-diagram__card-stack">
         <h5>{labels.fields.proof}</h5>
-        <p><code><bdi dir="ltr">config={trace.config.name}</bdi></code></p>
-        <p><code><bdi dir="ltr">shape={trace.config.shapeLatex}</bdi></code></p>
-        <p><code><bdi dir="ltr">branch-parameter={trace.config.branchParameter}</bdi></code></p>
+        <p><strong>{labels.fields.fixture}</strong>{' '}<code><bdi dir="ltr">{trace.config.name}</bdi></code></p>
+        <p><InlineMath latex={String.raw`\operatorname{shape}(x)=[${trace.config.shapeLatex}]`} /></p>
+        <p><strong>{labels.fields.parameter}</strong>{' '}<code><bdi dir="ltr">{trace.config.branchParameter}</bdi></code></p>
         <p><code><bdi dir="ltr">identity={trace.proof.identity}</bdi></code></p>
         <p><code><bdi dir="ltr">gradient={trace.proof.gradient}</bdi></code></p>
         <p><code><bdi dir="ltr">parameters={trace.proof.parameters}</bdi></code></p>
         <p><code><bdi dir="ltr">broadcast={trace.proof.broadcast}</bdi></code></p>
-        <p><code><bdi dir="ltr">site-arithmetic={trace.proof.siteArithmetic}</bdi></code></p>
       </article>
     </div>
   </section>
 
-  <section class="stack-section" aria-labelledby="residual-stack-title">
+  <section class="stack-section course-diagram__card-stack" data-diagram-box aria-labelledby="residual-stack-title">
     <h4 id="residual-stack-title">{labels.sections.stack}</h4>
     <div class="table-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.stack} data-diagram-scroll>
       <table data-diagram-table>
@@ -227,115 +236,29 @@ const zeroWeightRelation =
         </tfoot>
       </table>
     </div>
-    <ul class="parameter-list" aria-label={labels.fields.parameter}>
-      {trace.stackGradient.parameters.map((parameter) => <li><code><bdi dir="ltr">{parameter}</bdi></code></li>)}
+    <ul class="parameter-list course-diagram__grid" aria-label={labels.fields.parameter}>
+      {trace.stackGradient.parameters.map((parameter) => <li data-diagram-card data-diagram-box><code><bdi dir="ltr">{parameter}</bdi></code></li>)}
     </ul>
   </section>
 </figure>
 
 <style>
-  .residual-diagram {
-    container-type: inline-size;
-    display: grid;
-    gap: 1rem;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    color: var(--ink);
-  }
-
-  .residual-diagram:focus-visible,
-  .flow-scroller:focus-visible,
-  .table-scroller:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.15rem;
-  }
-
-  figcaption h3,
-  h4,
-  h5,
-  p {
-    margin: 0;
-  }
-
-  figcaption,
   .flow-section,
   .evidence-section,
   .stack-section {
     min-inline-size: 0;
-  }
-
-  .diagram-description,
-  .caption,
-  .evidence-note {
-    color: var(--muted);
-  }
-
-  .diagram-description {
-    margin-block-start: 0.35rem;
-  }
-
-  .flow-section,
-  .evidence-section,
-  .stack-section {
-    display: grid;
-    gap: 0.75rem;
-    align-items: start;
-    padding: 0.85rem;
-    border: 1px solid var(--line);
-    border-radius: 0.8rem;
-    background: var(--surface-raised, var(--surface));
-  }
-
-  .flow-section > header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-    align-items: baseline;
-    justify-content: space-between;
-  }
-
-  .flow-section > header p {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .cue,
-  .status {
-    display: inline-block;
-    padding: 0.15rem 0.45rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 800;
-  }
-
-  .identity-cue {
-    border: 2px solid var(--accent-dark);
   }
 
   .branch-cue {
-    border: 2px dashed var(--line);
+    border-style: dashed;
   }
 
   .merge-cue {
-    border: 3px double var(--accent-dark);
-  }
-
-  .flow-scroller,
-  .table-scroller {
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    padding: 0.35rem;
-    scrollbar-gutter: stable;
+    border-style: double;
+    border-width: 3px;
   }
 
   .path-grid {
-    display: grid;
     grid-template-columns:
       minmax(15rem, max-content) 2rem minmax(18rem, max-content) 2rem
       minmax(5rem, max-content) 2rem minmax(15rem, max-content);
@@ -347,24 +270,12 @@ const zeroWeightRelation =
   }
 
   .flow-node {
-    display: grid;
-    gap: 0.45rem;
     min-inline-size: 0;
-    padding: 0.7rem;
-    border: 2px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface);
     text-align: center;
   }
 
   .flow-node :global([data-inline-math]) {
     max-inline-size: none;
-  }
-
-  .flow-node strong {
-    color: var(--muted);
-    font-size: 0.78rem;
-    letter-spacing: 0.025em;
   }
 
   .input-node {
@@ -383,7 +294,6 @@ const zeroWeightRelation =
 
   .path-node.identity-row {
     border-style: solid;
-    border-color: var(--accent-dark);
   }
 
   .branch-row {
@@ -399,8 +309,7 @@ const zeroWeightRelation =
     grid-row: 1 / 3;
     align-self: center;
     border-style: double;
-    border-width: 4px;
-    border-color: var(--accent-dark);
+    border-width: 3px;
   }
 
   .output-node {
@@ -411,9 +320,8 @@ const zeroWeightRelation =
 
   .flow-arrow {
     align-self: center;
-    color: var(--accent-dark);
     font-size: 1.25rem;
-    font-weight: 850;
+    font-weight: 800;
     text-align: center;
   }
 
@@ -430,46 +338,14 @@ const zeroWeightRelation =
     grid-row: 1 / 3;
   }
 
-  .caption {
-    font-size: 0.84rem;
-  }
-
   .evidence-grid,
   .proof-row {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     align-items: start;
   }
 
   .proof-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .evidence-card,
-  .proof-row article {
-    display: grid;
-    gap: 0.5rem;
-    min-inline-size: 0;
-    padding: 0.75rem;
-    border: 2px solid var(--line);
-    border-radius: 0.65rem;
-    background: var(--surface);
-  }
-
-  .formula-scroller {
-    display: grid;
-    gap: 0.35rem;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    overflow-y: visible;
-    padding-block: 0.2rem;
-    scrollbar-gutter: stable;
-  }
-
-  .formula-scroller:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   }
 
   .zero-card {
@@ -478,7 +354,7 @@ const zeroWeightRelation =
 
   .error-card {
     border-style: double;
-    border-width: 4px;
+    border-width: 3px;
   }
 
   .error-card dl,
@@ -489,109 +365,29 @@ const zeroWeightRelation =
   }
 
   .error-card dl {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   }
 
-  .error-card dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-    font-weight: 750;
-  }
-
-  .accepted {
-    border: 2px solid var(--accent-dark);
-  }
-
-  .rejected {
-    border: 2px dashed var(--line);
-  }
-
-  code {
-    overflow-wrap: anywhere;
+  .status.rejected {
+    --diagram-state-symbol-border-style: dashed;
   }
 
   table {
-    width: 100%;
-    min-inline-size: 34rem;
-    border-collapse: collapse;
-    background: var(--surface);
-  }
-
-  caption {
-    padding-block-end: 0.5rem;
-    color: var(--muted);
-    text-align: start;
-  }
-
-  th,
-  td {
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--line);
-    text-align: start;
-    vertical-align: middle;
-  }
-
-  thead th,
-  tfoot th {
-    background: var(--surface-raised, var(--surface));
+    inline-size: 100%;
+    min-inline-size: 38rem;
   }
 
   .parameter-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.4rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .parameter-list li {
-    min-inline-size: 0;
-    padding: 0.45rem;
-    border-inline-start: 0.25rem solid var(--accent-dark);
-    background: var(--surface);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
   }
 
   :global([dir='rtl']) .flow-arrow {
     transform: scaleX(-1);
   }
 
-  @container (max-width: 48rem) {
-    .evidence-grid,
-    .proof-row,
-    .parameter-list {
+  @container course-diagram (max-width: 48rem) {
+    .error-card dl {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .identity-cue,
-    .path-node.identity-row,
-    .accepted,
-    .parameter-list li {
-      border-color: CanvasText;
-      forced-color-adjust: auto;
-    }
-
-    .branch-cue,
-    .path-node.branch-row,
-    .zero-card,
-    .rejected {
-      border-color: CanvasText;
-      border-style: dashed;
-      forced-color-adjust: auto;
-    }
-
-    .merge-cue,
-    .merge-node,
-    .error-card {
-      border-color: CanvasText;
-      border-style: double;
-      forced-color-adjust: auto;
-    }
-
-    .flow-arrow {
-      color: CanvasText;
     }
   }
 </style>
