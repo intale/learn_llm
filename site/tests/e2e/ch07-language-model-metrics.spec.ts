@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '07-language-model-metrics';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex = String.raw`\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -484,6 +484,40 @@ test.describe('chapter 7 localized vertical slice', { tag: chapterTag(chapterId)
       await expectChapterContent(page, locale, chapters, true);
     });
   }
+
+  test('localized causal connector words stay intact at desktop and narrow widths', async ({
+    page,
+  }) => {
+    for (const locale of chapterLocales) {
+      for (const viewport of [
+        { width: 1440, height: 1000 },
+        { width: 390, height: 844 },
+      ]) {
+        await page.setViewportSize(viewport);
+        await page.goto(chapterPath(locale, chapterId));
+        const labels = page.locator(
+          'figure[data-visualization-id="language-model-metrics"] .stage-connector > span:last-child',
+        );
+        await expect(labels).toHaveCount(3);
+        const evidence = await labels.evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            return {
+              lineCount: range.getClientRects().length,
+              whiteSpace: window.getComputedStyle(node).whiteSpace,
+            };
+          }),
+        );
+        expect(evidence).toEqual(
+          Array(3).fill({
+            lineCount: 1,
+            whiteSpace: 'nowrap',
+          }),
+        );
+      }
+    }
+  });
 
   test('the causal chain follows inherited direction and mirrors its arrows in RTL', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });

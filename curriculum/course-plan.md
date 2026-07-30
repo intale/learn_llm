@@ -1003,7 +1003,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `07-language-model-metrics`
 - **Implementation step:** `implement-ch07-language-model-metrics`
-- **Revision status:** Content revision 3 restores evaluated-split SEO scope and exact historical source locators, uses notation-only formulas, and aligns Russian accessibility and evidence prose with the current English source.
+- **Revision status:** Content revision 4 preserves the corrected metric teaching and exact Rust evidence while keeping localized single-word causal connectors intact in inline, narrow, and full-view diagram layouts; revision 3's SEO, source-locator, formula, accessibility, and evidence repairs remain in force.
 - **Depends on:** `06-bigram-baseline`.
 - **Outcome:** Compute average negative log-likelihood and perplexity for predicted token distributions.
 - **Scope boundary:** Teach sequence likelihood in log space, mean cross-entropy, zero-probability handling, and separate train/validation reporting; defer logits, gradients, and every test-set score.

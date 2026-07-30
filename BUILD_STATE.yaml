@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
-active_build: audit-ch01-ch07-and-correct-ch19
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -22197,7 +22197,7 @@ builds:
             notes: "Succeeded. Corrected English Chapter 22 and its direct natural Russian translation now teach stable named AdamW state, bias-corrected first and second raw gradient moments, explicit per-parameter decay groups, adaptive and decoupled decay deltas, fixed optimizer trajectories, and atomic fresh-leaf replacement with exact Rust evidence. Two shared-system semantic figures preserve the complete evidence without clipping or excessive full-view travel. Every declared content, exact Rust, unit, static, link, Linux, Chromium, Firefox, formula, accessibility, containment, checksum, and independent-review gate passes."
   - build_id: audit-ch01-ch07-and-correct-ch19
     objective: "Correct Chapter 19's affine-result notation, then audit and repair Chapters 1 through 7 one chapter at a time across canonical English, natural Russian, formulas, Rust evidence, accessibility, and rendered diagram geometry."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -22848,7 +22848,7 @@ builds:
       - id: audit-ch07-language-model-metrics
         objective: "Audit and repair Chapter 7 language-model-metric teaching, then prove the complete Chapters 1-7 regression."
         depends_on: [audit-ch06-bigram-baseline]
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md and localization/formula/diagram rules"
           - "curriculum/chapters/07-language-model-metrics.md"
@@ -22856,8 +22856,12 @@ builds:
           - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
           - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
           - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/src/styles/diagram.module.css as the shared presentation input"
           - "site/tests/07-language-model-metrics-diagram.test.ts"
           - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md revision records"
+          - "Dedicated completed Chapter 1-6 audit commits d2d669d, cc4c874, 6b9620b, b870f30, 26dcf46, and 6234e84"
           - "Declared Chapter 7 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/07-language-model-metrics.md"
@@ -22865,8 +22869,10 @@ builds:
           - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
           - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
           - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/src/styles/diagram.module.css only if computed geometry proves a shared-system cause"
           - "site/tests/07-language-model-metrics-diagram.test.ts"
           - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md if the content revision advances"
           - "Chapter 7 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -22877,4 +22883,72 @@ builds:
           - "The final combined Chapters 1-7 content, formula, diagram-style, fullscreen, Chromium, Firefox, static, link, and supported Linux regression passes before the build completes."
         validate: ["Chapter 7 focused gates plus complete Chapters 1-7 content/formula/diagram/browser/static/Linux regression"]
         cost: {class: large, notes: "Bilingual Chapter 7 audit plus final seven-chapter two-engine regression; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T155422Z-audit-ch07-language-model-metrics-01
+            started_at: "2026-07-30T15:54:22Z"
+            finished_at: "2026-07-30T16:23:44Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6234e84ae236e7e77279e48ddc754a8894bae5ff"
+              manifest: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/input-fingerprint.txt"
+              checksum: "sha256:ac6c8742d15dc21260f76c56e5485aa7f94734b3d1eb11e79ad1852b2efacd51"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/"
+            commands:
+              - "Verify dedicated Chapter 6 commit 6234e84, clean worktree, active sequential build, completed dependency, Chapter 7 source/style paths, exact scorer/direction/Rust-excerpt decisions, locale policy, exact hashes, output ownership, completed Chapter 1-6 commit inputs, and large no-paid-service cost before product edits."
+              - "Audit the complete canonical English and direct Russian lessons, contract, formulas, historical claims, exact Rust regions/output/trace, SEO, accessibility, exercises, answers, scorer boundary, and handoff."
+              - "Freeze the base commit in candidate, run focused source/unit/Rust/static gates, and capture English/Russian desktop, narrow, and native-fullscreen baseline figures in pinned Chromium and Firefox."
+              - "Correct the localized single-word causal connector geometry, advance the exact bilingual pair to revision 4, and add a two-locale desktop/narrow rendered-line regression."
+              - "Run corrected focused and complete unit/content/static/link gates, shared formula/diagram/full-view matrices, all Chapter 1-7 locale slices, twelve rendered views, and the unchanged supported Linux ./course check."
+              - "Publish the seven validated candidate files, compare exact candidate/canonical hashes, replay canonical source/unit/Astro/static/link checks, and preserve the transient first host-build EPERM plus successful unchanged retry."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/input-fingerprint.txt"
+                checksum: "sha256:ac6c8742d15dc21260f76c56e5485aa7f94734b3d1eb11e79ad1852b2efacd51"
+                notes: "Exact Chapter 7 contract, bilingual lessons, figure/library/shared-style/tests, Rust evidence and traces, revision records, workflow, environment, scope, dependency, completed Chapter 1-6 commits, and relevant decision fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/baseline-screenshots/chromium-ru-desktop.png"
+                checksum: "sha256:a80239fa9e0b1b4271f06541bce44647bace530ed78f545cdb0f8ee17c0a44bb"
+                notes: "Representative baseline from the complete 24-file bilingual Chromium/Firefox desktop/narrow/full-view PNG/geometry set; the Russian connector visibly breaks between letters."
+              - path: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/rendered-screenshots/chromium-ru-desktop.png"
+                checksum: "sha256:6c2a0696056d8deaf76b95dc0e7a57027da45702f990046d85bdc10e5b378943"
+                notes: "Representative correction from the complete 24-file bilingual two-engine rendered set; every connector is one line and every case has zero page and bounded-box overflow."
+              - path: "C:/tmp/learn_llm/runs/20260730T155422Z-audit-ch07-language-model-metrics-01/audit-manifest.txt"
+                checksum: "sha256:b79d0a8de6c97bc241333091ca75182998764c96fd82c817c73346ad91ad0df8"
+                notes: "Exact publication hashes, finding/correction summary, rendered evidence, validation counts, Linux image identity, transient host-lock replay, and ownership result."
+            validation:
+              - command: "Dependency, worktree, locale, decisions, source, output, cost, completed-commit inputs, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 6 is independently committed; Chapter 7 is the first eligible pending step; the tree was clean; English/Russian are the exact active set; all declared files exist; the scorer boundary, inherited-direction, and bounded-excerpt decisions remain authoritative; the large deterministic final regression is within recorded scope and needs no approval pause; no network, paid service, dependency, or build change is planned."
+              - command: "Independent English/Russian semantic, mathematical, historical, terminology, SEO, accessibility, exercise, answer, handoff, and exact-Rust audit"
+                status: passed
+                notes: "The assigned-probability formula, geometric-mean interpretation, target weighting, zero and invalid-input behavior, BOS/EOS boundaries, train/validation scorer scope, LLM history, Rust regions, exact outputs, exercises/answers, natural Russian, and Chapter 8/34 handoffs are correct. The rendered audit found one Russian single-word connector breaking between letters."
+              - command: "Base-commit bilingual Chromium/Firefox screenshots and computed geometry"
+                status: passed
+                notes: "Twelve baseline renders reproduced the defect in both engines: the inline Russian causal label then/zatem broke after its fourth letter; all other diagram boxes and sanctioned scrollers remained contained."
+              - command: "Revision-4 Chapter 7 contract, English, Russian, parity, diagram/formula unit, exact learner-output, and exact trace gates"
+                status: passed
+                notes: "All content gates, all 66 focused unit/formula tests, and both pinned Linux byte-exact Rust comparisons passed."
+              - command: "Candidate and canonical Astro diagnostics, static build, and link audit"
+                status: passed
+                notes: "Candidate and canonical Astro checks reported zero diagnostics; each built 68 pages and verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts. The first canonical host build met a transient Defender/Dropbox EPERM lock and the unchanged immediate retry passed."
+              - command: "Corrected pinned Chromium Chapter 7, Chapters 1-7 formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "53 of 53 localized desktop, narrow, formula, no-JavaScript, fullscreen, focus, forced-color, RTL, scrolling, and nearest-box containment cases passed."
+              - command: "Corrected pinned Firefox Chapter 7, Chapters 1-7 formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "53 of 53 equivalent localized and shared cases passed."
+              - command: "Combined Chapter 1-7 localized vertical slices in pinned Chromium and Firefox"
+                status: passed
+                notes: "All 23 chapter-specific cases passed in Chromium and all 23 passed in Firefox after the correction."
+              - command: "Complete unit, content, parity, and course-plan regression"
+                status: passed
+                notes: "All seven contracts and the 40-chapter plan passed; full content/parity reported 63 localized sources and 40 publishable locale sets; all 849 Vitest cases passed."
+              - command: "Corrected English/Russian desktop, narrow, and native-fullscreen screenshots plus computed geometry"
+                status: passed
+                notes: "All twelve corrected renders were visually reviewed. Each English connector is one 34.2x24px line and each Russian connector one 44.4x24px line in every mode; page overflow and bounded-box overflow are zero."
+              - command: "Unchanged supported Linux ./course check"
+                status: passed
+                notes: "Workspace image sha256:5bf6a0eb9c22db0eed140ffe9a61b9800923bb2bddc18458f4cafa0892288a30 passed Cargo formatting/workspace and documentation tests plus Astro/content/parity/static/link gates."
+              - command: "Candidate-to-canonical hashes, declared-output ownership, diff whitespace, file-mode, and state syntax audit"
+                status: passed
+                notes: "All seven published files exactly match the validated candidate; dirty product paths are declared Chapter 7 outputs; no Rust, shared-style, dependency, build, deployment, or file-mode change occurred; git diff --check passed."
+            notes: "Succeeded at revision 4. The English and Russian metric lesson, formulas, exact Rust behavior, LLM history, scorer boundary, exercises, SEO, accessibility, and handoffs remain correct. The audit repaired the only detected defect: Russian causal connector text now stays intact in inline, narrow, and full-view layouts. The complete Chapters 1-7 and supported Linux regressions pass. Repository-pinned Playwright supplied the rendered audit because the in-app browser runtime exposed no browser instance."

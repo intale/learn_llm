@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "concept_id": "language-model-metrics",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 7,
   "objective": {
     "en": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",
@@ -395,7 +395,8 @@ numeric values in addition to color; forced colors must retain the distinctions.
 The chain remains in semantic DOM order, becomes keyboard reachable when narrow
 layout requires horizontal scrolling, uses logical CSS, and isolates formulas,
 trace terms, numbers, and code as LTR technical islands without changing the
-surrounding document direction.
+surrounding document direction. Each localized single-word causal connector stays
+on one line rather than breaking between letters.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
