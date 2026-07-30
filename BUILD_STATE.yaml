@@ -22313,7 +22313,7 @@ builds:
       - id: audit-ch01-text-units
         objective: "Audit and repair Chapter 1 text-unit teaching and its complete bilingual rendered surface."
         depends_on: [correct-ch19-affine-result-notation]
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md and localization/formula/diagram rules"
           - "curriculum/chapters/01-text-units.md"
@@ -22343,7 +22343,55 @@ builds:
         validate:
           - "Chapter 1 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"
         cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T122325Z-audit-ch01-text-units-01
+            started_at: "2026-07-30T12:23:25Z"
+            finished_at: "2026-07-30T12:31:37Z"
+            status: succeeded
+            input_fingerprint:
+              git: "896e1dbe55e693ec7819314466ad2883c7575328"
+              manifest: "C:/tmp/learn_llm/runs/20260730T122325Z-audit-ch01-text-units-01/input-fingerprint.txt"
+              checksum: "sha256:de08b8cc185833bd883b8d9a4478e97e880ca6c0258b180ffaf39c1ed5989e9f"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T122325Z-audit-ch01-text-units-01/"
+            commands:
+              - "Verify the dedicated Chapter 19 commit 896e1db, clean worktree, active sequential build, completed dependency, Chapter 1 source paths, locale policy, rules, exact hashes, output ownership, and medium cost before product edits."
+              - "Audit the current English contract and lesson against the Russian lesson, diagram labels, SEO, exercises, answers, history, Chapter 2 handoff, and exact Rust evidence; independently confirm semantic and terminology parity."
+              - "Run focused contract, English, Russian, parity, Vitest formula/diagram, and exact locked Linux Rust-output checks."
+              - "Freeze commit 896e1db in candidate-01, run Astro check/build and link audit, then run the Chapter 1, formula, shared diagram-style, and full-view suites in pinned Chromium and Firefox."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T122325Z-audit-ch01-text-units-01/input-fingerprint.txt"
+                checksum: "sha256:de08b8cc185833bd883b8d9a4478e97e880ca6c0258b180ffaf39c1ed5989e9f"
+                notes: "Exact Chapter 1 contract, bilingual lessons, figure/library/tests, Rust evidence, workflow, environment, scope, and dependency fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T122325Z-audit-ch01-text-units-01/audit-manifest.txt"
+                checksum: "sha256:2fe50c9af5f4ef2749c61e1d5cd27ff8986157622906371f9e1f77a1a8aaec92"
+                notes: "Immutable source hashes and concise semantic, Rust, static, link, Chromium, and Firefox outcomes for the audited snapshot."
+            validation:
+              - command: "Dependency, worktree, locale, source, output, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 19 is independently committed; Chapter 1 is the first eligible pending step; the tree is clean; English/Russian are the exact active set; all declared files exist; no network, paid service, dependency, or build change is planned."
+              - command: "Independent bilingual semantic, mathematical, historical, terminology, accessibility, SEO, exercise, answer, and handoff audit"
+                status: passed
+                notes: "No source defect found: Russian is natural and semantically complete, formulas and exact evidence agree, the whole-word to scalar-level to subword history is accurate, and the Chapter 2 handoff is sound."
+              - command: "Chapter 1 contract plus English, Russian, and configured-locale parity gates"
+                status: passed
+                notes: "All four focused content gates passed on the exact audited files."
+              - command: "Focused TextUnitsDiagram and formula-rendering Vitest suites"
+                status: passed
+                notes: "15 of 15 tests passed."
+              - command: "cargo run --quiet --locked -p ch01-text-units | diff -u rust/demos/ch01-text-units/expected.txt -"
+                status: passed
+                notes: "The pinned Linux Rust example reproduced the committed expected output exactly."
+              - command: "Candidate Astro check/build and link audit"
+                status: passed
+                notes: "Astro checked 206 files with zero diagnostics, generated 68 pages, and the link audit verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts."
+              - command: "Pinned Chromium Chapter 1, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+              - command: "Pinned Firefox Chapter 1, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+            notes: "Succeeded without product changes. The in-app browser runtime exposed no browser instance after its prescribed setup check, so the repository's pinned Playwright Chromium and Firefox workflow supplied the complete rendered audit."
       - id: audit-ch02-corpus-partitions
         objective: "Audit and repair Chapter 2 corpus-partition teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch01-text-units]
