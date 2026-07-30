@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
 
-active_build: null
+active_build: audit-ch01-ch07-and-correct-ch19
 
 builds:
   - build_id: bootstrap-course
@@ -22195,3 +22195,351 @@ builds:
                 status: passed
                 notes: "The product diff has no whitespace errors; the ledger parses; every dirty path is in scope and declared; all Chapter 21 decisions precede the append-only Chapter 22 block; canonical site/src and site/tests byte-match Candidate 01 across 169 and 101 files; and the final manifest records every publication checksum."
             notes: "Succeeded. Corrected English Chapter 22 and its direct natural Russian translation now teach stable named AdamW state, bias-corrected first and second raw gradient moments, explicit per-parameter decay groups, adaptive and decoupled decay deltas, fixed optimizer trajectories, and atomic fresh-leaf replacement with exact Rust evidence. Two shared-system semantic figures preserve the complete evidence without clipping or excessive full-view travel. Every declared content, exact Rust, unit, static, link, Linux, Chromium, Firefox, formula, accessibility, containment, checksum, and independent-review gate passes."
+  - build_id: audit-ch01-ch07-and-correct-ch19
+    objective: "Correct Chapter 19's affine-result notation, then audit and repair Chapters 1 through 7 one chapter at a time across canonical English, natural Russian, formulas, Rust evidence, accessibility, and rendered diagram geometry."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. The large sequential audit uses local source review, cached Rust/static builds, and Chromium/Firefox validation without paid services or dependency changes."
+    completion_criteria:
+      - "Chapter 19 explicitly includes the bias in the affine result equation and passes bilingual formula/rendering checks."
+      - "Chapters 1 through 7 each receive a separate current-snapshot English, Russian, formula, history, Rust, accessibility, and rendered-layout audit in numeric order."
+      - "Every discovered defect is repaired without clipping, hiding, truncating, overlapping, shrinking text, weakening evidence, or changing the product build."
+      - "Each completed checkpoint is committed independently before its successor starts, and the final cross-chapter Chromium/Firefox regression passes."
+    steps:
+      - id: correct-ch19-affine-result-notation
+        objective: "Make the Chapter 19 worked affine coordinate a valid equality by including its bias term explicitly."
+        depends_on:
+          - activate-ch22-russian-localization
+        status: completed
+        inputs:
+          - "User-reported Chapter 19 result-notation defect on 2026-07-30."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/19-linear-layers.md"
+          - "site/src/content/chapters/en/19-linear-layers.mdx"
+          - "site/src/content/chapters/ru/19-linear-layers.mdx"
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/src/lib/linear-layers-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "rust/demos/ch19-linear-layers/diagram-trace.txt"
+          - "Completion commit 7c63ab614b13c5c528b44dd803fbf8ab3c9b33d8."
+        outputs:
+          - "site/src/components/chapters/LinearLayersDiagram.astro"
+          - "site/tests/19-linear-layers-diagram.test.ts"
+          - "site/tests/e2e/ch19-linear-layers.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The displayed equation is mathematically valid and shows that the dot product is 5 before the 0.5 bias produces 5.5."
+          - "The same shared formula remains correct and contained in English and Russian at desktop, narrow, and full view in Chromium and Firefox."
+          - "Chapter 19 content/parity, focused unit, formula, static, and link checks pass without changing trace bytes or the build."
+          - "The completed correction is committed independently before Chapter 1 audit begins."
+        validate:
+          - "npm --prefix site test -- --run site/tests/19-linear-layers-diagram.test.ts site/tests/formula-rendering.test.ts"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 19-linear-layers"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 19-linear-layers"
+          - "npm --prefix site run check:parity -- --chapter 19-linear-layers"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium and Firefox Chapter 19 and formula-rendering browser gates"
+          - "git diff --check"
+        cost:
+          class: medium
+          notes: "Small formula/test edit plus bilingual two-engine rendered validation; no network, paid service, dependency, build, or Rust behavior change."
+        runs:
+          - run_id: 20260730T121034Z-correct-ch19-affine-result-notation-01
+            started_at: "2026-07-30T12:10:34Z"
+            finished_at: "2026-07-30T12:22:07Z"
+            status: succeeded
+            input_fingerprint:
+              git: "7c63ab614b13c5c528b44dd803fbf8ab3c9b33d8"
+              manifest: "C:/tmp/learn_llm/runs/20260730T121034Z-correct-ch19-affine-result-notation-01/input-fingerprint.txt"
+              checksum: "sha256:63b55d893a0b2ebb7728c8141de74ca329521a243dc55ce290785f74cd71a6fa"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1. Host Node/npm 24.18.0/11.16.0 are not product inputs."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T121034Z-correct-ch19-affine-result-notation-01/"
+            commands:
+              - "Run startup protocol; verify clean commit 7c63ab6, no active build, complete prior checkpoint, current tool versions, localization policy, user scope, and exact Chapter 19 input hashes."
+              - "Add the trace-derived 0.5 bias to the first line of the shared affine-coordinate formula, update the exact browser expectation, and add a static regression assertion for the bias-bearing expression."
+              - "Run focused and complete unit/content/parity gates; preserve the canonical Dropbox build failure; materialize Candidate 01 at commit 7c63ab6 with only a staging-local Vite cache path; and run static and two-engine browser validation there."
+              - "Attempt the in-app browser after reading its complete skill and troubleshooting documentation; record that no interactive browser binding is available; use the repository's pinned Playwright Chromium/Firefox fallback."
+              - "Run the unchanged pinned Linux ./course check, verify the exact three product/test hashes and output ownership, and write the publication manifest."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T121034Z-correct-ch19-affine-result-notation-01/input-fingerprint.txt"
+                checksum: "sha256:63b55d893a0b2ebb7728c8141de74ca329521a243dc55ce290785f74cd71a6fa"
+                notes: "Exact Chapter 19 formula/component/test, localization policy, workflow, trace, environment, scope, and base-commit fingerprint."
+              - path: "site/src/components/chapters/LinearLayersDiagram.astro"
+                checksum: "sha256:6897221a547001659eae598c3d98ba7155e4e509aed4218082b285c941468611"
+                notes: "Shared bilingual Chapter 19 figure with the bias included in the affine equality."
+              - path: "C:/tmp/learn_llm/runs/20260730T121034Z-correct-ch19-affine-result-notation-01/publication-manifest.txt"
+                checksum: "sha256:7bfe5748cd113a8219f7e5a8c42e43199bcc87b7006b28a530fc60a155c3e554"
+                notes: "Exact three-file publication hashes, candidate/build/link counts, browser totals, and Linux image identity."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, worktree, ownership, cost, and fingerprint preflight"
+                status: passed
+                notes: "The Chapter 22 step is complete and committed; no run is stale or active; the tree is clean; English remains the reference locale; Chapter 19 owns one shared bilingual component and focused tests; the medium correction fits the unlimited build budget."
+              - command: "Focused Chapter 19 diagram and formula unit tests"
+                status: passed
+                notes: "Both test files and all 45 focused assertions pass; the component source is locked to a first line containing product terms plus the selected bias."
+              - command: "English/Russian Chapter 19, bilingual parity, and global content checks"
+                status: passed
+                notes: "Both localized lessons, their exact active pair, all 63 localized sources, 40 publishable chapter sets, and 42 shared-full-view components pass."
+              - command: "Canonical npm.cmd --prefix site run check && npm.cmd --prefix site run build"
+                status: failed
+                notes: "Astro diagnostics passed 206 files with zero errors, warnings, or hints. The subsequent Windows build encountered the known Dropbox EPERM while removing site/dist/en before generation; no product file or build definition changed."
+              - command: "Candidate 01 Astro check, production build, and static link audit"
+                status: passed
+                notes: "The exact correction with only a staging-local cache path reports zero Astro diagnostics, builds 68 pages, and audits 68 HTML files, 2,216 references, 68 SEO routes, 68 sitemap URLs, 68 Analytics routes, and 150 artifacts."
+              - command: "Candidate 01 Chapter 19 Chromium and Firefox suites"
+                status: passed
+                notes: "Each engine passes all seven bilingual cases, including the exact corrected formula, desktop and narrow containment, full view, forced colors, directionality, focus, and no-JavaScript rendering."
+              - command: "npm.cmd --prefix site test -- --run"
+                status: passed
+                notes: "All 52 unit files and 849 assertions pass."
+              - command: "C:/Program Files/Git/bin/bash.exe ./course check"
+                status: passed
+                notes: "The unchanged pinned Linux workflow passes locked Rust tests, Astro diagnostics, global content/parity, the 68-page build, and the complete link/SEO/sitemap/Analytics audit. Image identity is sha256:4dc5ad891db1b378380a9539aaa141b40160a61ddc56a3097805cc474d1baa7e."
+              - command: "git diff --check, BUILD_STATE.yaml parse, exact canonical/candidate hashes, and output-ownership review"
+                status: passed
+                notes: "The three in-scope product/test files match Candidate 01 exactly, the ledger parses, and no dependency, build, Rust, content, locale, trace, or unrelated file changed."
+            notes: "Succeeded. The Chapter 19 affine coordinate now reads y_0=1·1+2·2+0.5 before exposing 5+0.5=5.5, so every equality is valid and the bias is explicit. Exact source, unit, content, static, link, Linux, Chromium, Firefox, formula, accessibility, direction, and containment gates pass; the canonical host-only Dropbox cleanup failure is preserved without changing the build."
+      - id: audit-ch01-text-units
+        objective: "Audit and repair Chapter 1 text-unit teaching and its complete bilingual rendered surface."
+        depends_on: [correct-ch19-affine-result-notation]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/01-text-units.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/components/chapters/TextUnitsDiagram.astro"
+          - "site/src/lib/text-units-diagram.ts"
+          - "site/tests/text-units-diagram.test.ts"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "Declared Chapter 1 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/01-text-units.md"
+          - "site/src/content/chapters/en/01-text-units.mdx"
+          - "site/src/content/chapters/ru/01-text-units.mdx"
+          - "site/src/components/chapters/TextUnitsDiagram.astro"
+          - "site/src/lib/text-units-diagram.ts"
+          - "site/tests/text-units-diagram.test.ts"
+          - "site/tests/e2e/ch01-text-units.spec.ts"
+          - "Chapter 1 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The audit is committed before Chapter 2 begins."
+        validate:
+          - "Chapter 1 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"
+        cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch02-corpus-partitions
+        objective: "Audit and repair Chapter 2 corpus-partition teaching and its complete bilingual rendered surface."
+        depends_on: [audit-ch01-text-units]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/lib/corpus-partitions-diagram.ts"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "Declared Chapter 2 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/lib/corpus-partitions-diagram.ts"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "Chapter 2 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The audit is committed before Chapter 3 begins."
+        validate: ["Chapter 2 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
+        cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch03-learn-bpe-merges
+        objective: "Audit and repair Chapter 3 BPE-merge teaching and its complete bilingual rendered surface."
+        depends_on: [audit-ch02-corpus-partitions]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/lib/learn-bpe-merges-diagram.ts"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "Declared Chapter 3 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/components/chapters/LearnBpeMergesDiagram.astro"
+          - "site/src/lib/learn-bpe-merges-diagram.ts"
+          - "site/tests/03-learn-bpe-merges-diagram.test.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "Chapter 3 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The audit is committed before Chapter 4 begins."
+        validate: ["Chapter 3 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
+        cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch04-apply-bpe-tokenizer
+        objective: "Audit and repair Chapter 4 tokenizer-application teaching and its complete bilingual rendered surface."
+        depends_on: [audit-ch03-learn-bpe-merges]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "Declared Chapter 4 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/components/chapters/ApplyBpeTokenizerDiagram.astro"
+          - "site/src/lib/apply-bpe-tokenizer-diagram.ts"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "Chapter 4 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The audit is committed before Chapter 5 begins."
+        validate: ["Chapter 4 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
+        cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch05-autoregressive-examples
+        objective: "Audit and repair Chapter 5 autoregressive-example teaching, including the reported bilingual diagram styling defect."
+        depends_on: [audit-ch04-apply-bpe-tokenizer]
+        status: pending
+        inputs:
+          - "User-reported Chapter 5 diagram styling defect in both locales."
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/lib/autoregressive-examples-diagram.ts"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "Declared Chapter 5 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
+          - "site/src/lib/autoregressive-examples-diagram.ts"
+          - "site/tests/05-autoregressive-examples-diagram.test.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "Chapter 5 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The reported styling problem is reproduced, diagnosed from computed geometry, and corrected for both locales without masking overflow."
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, full-view, no-JavaScript, and nearest-box containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass before Chapter 6 begins."
+        validate: ["Chapter 5 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, Firefox, and strict geometry gates"]
+        cost: {class: large, notes: "Known bilingual visual defect plus complete source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch06-bigram-baseline
+        objective: "Audit and repair Chapter 6 bigram-baseline teaching and its complete bilingual rendered surface."
+        depends_on: [audit-ch05-autoregressive-examples]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "site/src/content/chapters/en/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/components/chapters/BigramBaselineDiagram.astro"
+          - "site/src/lib/bigram-baseline-diagram.ts"
+          - "site/tests/06-bigram-baseline-diagram.test.ts"
+          - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "Declared Chapter 6 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/06-bigram-baseline.md"
+          - "site/src/content/chapters/en/06-bigram-baseline.mdx"
+          - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
+          - "site/src/components/chapters/BigramBaselineDiagram.astro"
+          - "site/src/lib/bigram-baseline-diagram.ts"
+          - "site/tests/06-bigram-baseline-diagram.test.ts"
+          - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "Chapter 6 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The audit is committed before Chapter 7 begins."
+        validate: ["Chapter 6 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
+        cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
+        runs: []
+      - id: audit-ch07-language-model-metrics
+        objective: "Audit and repair Chapter 7 language-model-metric teaching, then prove the complete Chapters 1-7 regression."
+        depends_on: [audit-ch06-bigram-baseline]
+        status: pending
+        inputs:
+          - "AGENTS.md and localization/formula/diagram rules"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "Declared Chapter 7 Rust sources and exact artifacts"
+        outputs:
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/components/chapters/LanguageModelMetricsDiagram.astro"
+          - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "Chapter 7 declared Rust sources and exact artifacts if corrected"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "English meaning, Russian translation, formulas, history, Rust evidence, exercises, SEO, accessibility, and handoff are accurate and natural."
+          - "Both locales and the figure pass desktop, narrow, and full-view containment in Chromium and Firefox."
+          - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass."
+          - "The final combined Chapters 1-7 content, formula, diagram-style, fullscreen, Chromium, Firefox, static, link, and supported Linux regression passes before the build completes."
+        validate: ["Chapter 7 focused gates plus complete Chapters 1-7 content/formula/diagram/browser/static/Linux regression"]
+        cost: {class: large, notes: "Bilingual Chapter 7 audit plus final seven-chapter two-engine regression; no paid service."}
+        runs: []

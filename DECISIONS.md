@@ -9973,3 +9973,35 @@ shorter desktop viewport.
 
 **Affected step and run:** `activate-ch22-russian-localization`, run
 `20260730T092700Z-activate-ch22-russian-localization-01`.
+
+## 2026-07-30 - Correct Chapter 19 before auditing Chapters 1 through 7 sequentially
+
+**Status:** Accepted during `correct-ch19-affine-result-notation` preflight.
+
+**Context:** The user identified a mathematically invalid equality chain in
+Chapter 19: the first line named the post-bias output but contained only the dot
+product, while the next line silently added the bias. The user then requested a
+complete English/Russian audit of Chapters 1 through 7 one chapter at a time and
+reported broken Chapter 5 diagram styling in both locales. The prior Chapter 22
+checkpoint is complete at `7c63ab6`, the worktree is clean, and no build is active.
+
+**Decision:** Correct Chapter 19 as its own small checkpoint and commit. Then audit
+Chapters 1 through 7 in numeric order, each as an independently validated and
+committed checkpoint before the next chapter starts. For every chapter, treat
+English as the canonical semantic source, apply the meaning-first Russian review,
+and inspect the complete bilingual page and registered figure in Chromium and
+Firefox at desktop, narrow, and desktop full-view surfaces. Keep the product build,
+dependencies, deployment, hosting, and shared diagram contract unchanged unless a
+measured defect proves a scoped correction is necessary.
+
+**Consequences:** The overall build is large because it repeats source, Rust,
+formula, content, accessibility, layout, and two-engine checks for eight
+checkpoints, but the recorded budget is unlimited and no paid service is used.
+Resource cost causes no approval pause. Run artifacts may use checksum-tracked
+staging below `C:/tmp/learn_llm/runs/` to avoid Dropbox build-cache locks. A
+chapter with no product defect still receives an auditable state-only checkpoint;
+a chapter with a defect owns only its necessary source, component, Rust, or test
+corrections.
+
+**Affected build:** `audit-ch01-ch07-and-correct-ch19`, beginning with run
+`20260730T121034Z-correct-ch19-affine-result-notation-01`.

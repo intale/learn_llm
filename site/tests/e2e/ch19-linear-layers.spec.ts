@@ -727,7 +727,7 @@ async function expectChapterContent(
       .allTextContents(),
   ).toEqual([
     String.raw`\left(0,0\right),\;y_{0}`,
-    String.raw`\begin{aligned}y_{0}&=1\cdot1+2\cdot2\\&=5+0.5=5.5\end{aligned}`,
+    String.raw`\begin{aligned}y_{0}&=1\cdot1+2\cdot2+0.5\\&=5+0.5=5.5\end{aligned}`,
   ]);
   const affineHeading = diagram.locator('.policy-path.affine-policy').first();
   await expect(affineHeading).toContainText(localized.affineSymbol);

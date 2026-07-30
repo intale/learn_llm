@@ -239,6 +239,9 @@ describe('Chapter 19 labels and static component', () => {
     expect(componentSource).toContain('.map((product)');
     expect(componentSource).toContain('latexValue(product.input)');
     expect(componentSource).toContain('latexValue(product.weight)');
+    expect(componentSource).toContain(
+      'y_{${selectedCell.outputFeature.lexeme}}&=${productLatex}+${latexValue(selectedCell.bias)}',
+    );
     expect(componentSource).toContain('latex={contributionLatex}');
     expect(componentSource).toContain('policyRows.map');
     expect(componentSource).toContain('latex={latexVector(row.affine)}');

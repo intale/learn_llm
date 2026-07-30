@@ -84,7 +84,7 @@ const selectedProducts = selectedCell.products;
 const productLatex = selectedProducts
   .map((product) => `${latexValue(product.input)}\\cdot${latexValue(product.weight)}`)
   .join('+');
-const contributionLatex = String.raw`\begin{aligned}y_{${selectedCell.outputFeature.lexeme}}&=${productLatex}\\&=${latexValue(selectedCell.weightedSum)}+${latexValue(selectedCell.bias)}=${latexValue(selectedCell.result)}\end{aligned}`;
+const contributionLatex = String.raw`\begin{aligned}y_{${selectedCell.outputFeature.lexeme}}&=${productLatex}+${latexValue(selectedCell.bias)}\\&=${latexValue(selectedCell.weightedSum)}+${latexValue(selectedCell.bias)}=${latexValue(selectedCell.result)}\end{aligned}`;
 ---
 
 <figure
