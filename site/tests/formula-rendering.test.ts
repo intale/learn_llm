@@ -1194,10 +1194,10 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "String.raw`|B|_{\\mathrm{max}}=${trace.meta.capacity}`",
     );
     expect(components.batches).toContain(
-      "String.raw`\\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`",
+      "String.raw`\\mathcal{L}_{B_{${batch.index}}}=\\frac{${compactDecimal(batch.lossSum)}}{${batch.tokens}}=${compactDecimal(batch.meanLoss)}`",
     );
     expect(components.batches).toContain(
-      "String.raw`\\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`",
+      "String.raw`\\bar g_{B_{${batch.index}}}=${latexVector(batch.meanGradient.items)}`",
     );
 
     expect(components.adamw).toContain(

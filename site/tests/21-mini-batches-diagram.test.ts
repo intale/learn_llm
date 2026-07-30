@@ -179,40 +179,69 @@ describe('Chapter 21 static diagram boundary', () => {
     expect(componentSource).toContain("import InlineMath from '../InlineMath.astro'");
     expect(componentSource).toContain('String.raw`|B|_{\\mathrm{max}}=${trace.meta.capacity}`');
     expect(componentSource).toContain(
-      'String.raw`\\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`',
+      'String.raw`\\mathcal{L}_{B_{${batch.index}}}=\\frac{${compactDecimal(batch.lossSum)}}{${batch.tokens}}=${compactDecimal(batch.meanLoss)}`',
     );
     expect(componentSource).toContain(
-      'String.raw`\\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`',
+      'String.raw`\\bar g_{B_{${batch.index}}}=${latexVector(batch.meanGradient.items)}`',
     );
+    expect(componentSource).toContain(
+      'String.raw`\\operatorname{shape}(B_{${batch.index}})=${latexVector(batch.shape.items)}`',
+    );
+    expect(componentSource).toContain(
+      'String.raw`B_{${batch.index}}:\\;${compactDecimal(batch.lossSum)}`',
+    );
+    expect(componentSource).toContain(
+      'String.raw`B_{${batch.index}}:\\;=`',
+    );
+    expect(componentSource).toContain('<InlineMath latex={trace.proof.coverage} />');
     expect(componentSource).not.toMatch(/<script|client:/);
     expect(componentSource).not.toContain('<svg');
     expect(parserSource).not.toMatch(/Math\.|parseFloat\(|reduce\(|random\(/);
   });
 
-  it('keeps natural heights, local scrollers, narrow stacking, and non-color structure', () => {
-    expect(componentSource).toMatch(/\.batch-grid\s*\{[^}]*align-items:\s*start;/s);
+  it('uses the shared diagram contract and keeps only concept geometry locally', () => {
+    const localStyles = componentSource.slice(componentSource.indexOf('<style>'));
+    expect(componentSource).toContain('class="course-diagram mini-batches-diagram"');
+    expect(componentSource).toContain('data-diagram-style="course-v1"');
+    expect(componentSource).toContain('course-diagram__caption');
+    expect(componentSource).toContain('course-diagram__description');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('course-diagram__card-heading');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__scroll');
+    expect(componentSource.match(/data-diagram-box/g)?.length ?? 0).toBe(13);
+    expect(componentSource.match(/data-diagram-scroll/g)?.length ?? 0).toBe(1);
+    expect(componentSource).toContain('data-diagram-table class="batch-table"');
+    expect(componentSource).toContain('min-inline-size: 34rem');
+    expect(componentSource).toContain("aria-label={`${labels.fields.slot} ${window.slot}`}");
     expect(componentSource).toContain(
-      'grid-template-columns: repeat(auto-fit, minmax(min(100%, 39rem), 1fr))',
+      "aria-label={`${labels.symbols.batch} B ${window.batch}`}",
     );
-    expect(componentSource).toContain('@container (max-width: 36rem)');
-    expect(componentSource).toContain('grid-template-columns: minmax(0, 1fr)');
-    expect(componentSource).toContain('data-diagram-scroll');
-    expect(componentSource).not.toContain('overflow-x: auto');
+    expect(componentSource).toContain(
+      'repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr))',
+    );
+    expect(componentSource).toContain('@container course-diagram (max-width: 36rem)');
+    expect(componentSource).toContain('.mini-batches-diagram:fullscreen');
+    expect(componentSource).toContain("'batches batches batches'");
+    expect(componentSource).toContain("'shuffle final proof'");
+    expect(componentSource).toContain(
+      'grid-template-columns: repeat(2, minmax(0, 1fr))',
+    );
+    expect(componentSource).toContain(':global(.diagram-full-view-actions)');
+    expect(componentSource).toContain("instanceId = 'default'");
+    expect(componentSource).toContain('aria-labelledby={`${titleId}-batch-${batch.index}`}');
     expect(componentSource).toContain('tabindex="0"');
     expect(componentSource).toContain('role="region"');
     expect(componentSource).toContain('<bdi dir="ltr">');
-    expect(componentSource).toContain('border: 2px dashed var(--line)');
-    expect(componentSource).toContain('border: 3px double var(--line)');
-    expect(componentSource).not.toMatch(/\.batch-card\s*\{[^}]*(?:height|min-height|block-size)\s*:/s);
-  });
-
-  it('uses only the shared palette and forced-color fallbacks', () => {
-    expect(componentSource).toContain('border: 1px solid var(--line)');
-    expect(componentSource).toContain('background: var(--surface)');
-    expect(componentSource).toContain('color: var(--ink)');
-    expect(componentSource).toContain('outline: 0.2rem solid var(--focus)');
-    expect(componentSource).toContain('@media (forced-colors: active)');
-    expect(componentSource).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
+    expect(componentSource).toContain('border-style: dashed !important');
+    expect(componentSource).toContain('border-style: double !important');
+    expect(localStyles).not.toMatch(
+      /(?:background|color|padding|border-radius|outline|font-size)\s*:/,
+    );
+    expect(localStyles).not.toContain('@media (forced-colors: active)');
+    expect(localStyles).not.toMatch(/overflow(?:-x|-y)?\s*:/);
+    expect(localStyles).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
+    expect(componentSource).not.toMatch(/<dialog|data-diagram-full-view-toggle/);
   });
 });
 

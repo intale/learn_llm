@@ -53,9 +53,12 @@ pub fn diagram_trace() -> String {
         final_batch.token_count(),
     ));
     lines.push(format!(
-        "PROOF|coverage={}/{}|duplicates=0|padding=0|cross_partition=0|replay={}|different_seed={}|accumulation={}",
-        epoch.window_count(),
-        epoch.window_count(),
+        "PROOF|coverage={}/{}|duplicates={}|padding={}|cross_partition={}|replay={}|different_seed={}|accumulation={}",
+        evidence.covered_windows,
+        evidence.expected_windows,
+        evidence.duplicate_windows,
+        evidence.padding_ids_added,
+        evidence.cross_partition_windows,
         if evidence.replay_matches { "same" } else { "different" },
         if evidence.different_seed_changes_order { "changed" } else { "same" },
         if evidence.batches.iter().all(|batch| batch.accumulation_matches) {

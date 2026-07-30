@@ -493,9 +493,9 @@ const chapter14To39FormulaLatex: Record<
   ],
   "21-mini-batches": [
     String.raw`\mathcal{L}_B=\frac{1}{|B|T}\sum_{b\in B}\sum_{t=1}^{T}\mathcal{L}_{b,t}`,
-    String.raw`\mathcal{L}_{B_1}=\frac{1.75}{2\cdot2}=0.4375`,
+    String.raw`\mathcal{L}_{B_{1}}=\frac{1.75}{4}=0.4375`,
     String.raw`|B|_{\mathrm{max}}=3`,
-    String.raw`\bar g_{B_1}=[0.875000, 1.562500]`,
+    String.raw`\bar g_{B_{1}}=\left[0.875000,1.562500\right]`,
   ],
   "22-adamw": [
     String.raw`m_t=\beta_1m_{t-1}+(1-\beta_1)g_t`,

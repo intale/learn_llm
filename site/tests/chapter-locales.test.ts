@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–20 and English only for Chapters 21–39',
+      'English and Russian for Chapters 0–21 and English only for Chapters 22–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–20 use English and Russian',
+      'Chapters 0–21 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 20 use English and Russian, and Chapters 21 through 39 use English only',
+      'Chapters 0 through 21 use English and Russian, and Chapters 22 through 39 use English only',
     );
   });
 
@@ -158,6 +158,11 @@ describe('chapter-locale manifest', () => {
       order: 20,
       activeLocales: ['en', 'ru'],
     });
+    expect(chapterLocaleConfiguration.chapters[21]).toMatchObject({
+      chapterId: '21-mini-batches',
+      order: 21,
+      activeLocales: ['en', 'ru'],
+    });
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
@@ -165,7 +170,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 21)
+        .slice(0, 22)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -175,7 +180,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 21)
+        .filter((chapter) => chapter.order >= 22)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -216,6 +221,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('19-linear-layers', 'ru')).toBe(true);
     expect(activeLocalesForChapter('20-swiglu-feed-forward')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('20-swiglu-feed-forward', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('21-mini-batches')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('21-mini-batches', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 

@@ -10,14 +10,22 @@ import {
 
 interface Props {
   labels: MiniBatchesDiagramLabels;
+  instanceId?: string;
 }
 
-const { labels } = Astro.props;
+const { labels, instanceId = 'default' } = Astro.props;
 assertMiniBatchesDiagramLabels(labels);
+if (!/^[a-z][a-z0-9-]*$/.test(instanceId)) {
+  throw new Error('Mini-batches diagram instanceId must be a kebab-case identifier.');
+}
 const trace = parseMiniBatchesTrace(traceSource);
-const titleId = 'mini-batches-title';
-const descriptionId = 'mini-batches-description';
+const titleId = `${miniBatchesDiagramId}-${instanceId}-title`;
+const descriptionId = `${miniBatchesDiagramId}-${instanceId}-description`;
 const tokenPosition = ['1', '2'] as const;
+const latexVector = (items: readonly string[]) =>
+  String.raw`\left[${items.join(',')}\right]`;
+const compactDecimal = (value: string) =>
+  value.includes('.') ? value.replace(/0+$/, '').replace(/\.$/, '') : value;
 ---
 
 <figure
@@ -34,183 +42,181 @@ const tokenPosition = ['1', '2'] as const;
   </figcaption>
 
   <dl class="shape-summary" aria-label={labels.stages.shuffle}>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.contextLength}</dt>
       <dd><InlineMath latex={String.raw`T=${trace.meta.context}`} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.requestedCapacity}</dt>
       <dd><InlineMath latex={String.raw`|B|_{\mathrm{max}}=${trace.meta.capacity}`} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.shuffleSeed}</dt>
       <dd><bdi dir="ltr"><code>{trace.meta.seed}</code></bdi></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.completeWindows}</dt>
       <dd><InlineMath latex={trace.meta.windows} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.batchCount}</dt>
       <dd><InlineMath latex={trace.meta.batches} /></dd>
     </div>
   </dl>
 
-  <section class="shuffle-stage" aria-labelledby="mini-batches-shuffle-heading">
-    <div class="stage-heading">
-      <p class="stage-number">1 · {labels.stages.shuffle}</p>
-      <h4 id="mini-batches-shuffle-heading">{labels.stages.shuffle}</h4>
-      <p>{labels.notes.shuffle}</p>
-    </div>
-    <ol class="shuffle-list">
+  <section class="shuffle-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-shuffle`}>
+    <h4 id={`${titleId}-shuffle`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">1</span>
+      {labels.stages.shuffle}
+    </h4>
+    <p>{labels.notes.shuffle}</p>
+    <ol class="shuffle-list course-diagram__grid">
       {trace.windows.map((window) => (
         <li data-slot={window.slot} data-batch={window.batch}>
-          <span class="ordinal">{labels.fields.slot} {window.slot}</span>
+          <span class="ordinal" aria-label={`${labels.fields.slot} ${window.slot}`}>#{window.slot}</span>
           <strong><bdi dir="ltr">{window.document}@{window.start}</bdi></strong>
-          <span>{labels.symbols.batch} <bdi dir="ltr">B{window.batch}</bdi></span>
+          <span aria-label={`${labels.symbols.batch} B ${window.batch}`}>
+            <InlineMath latex={String.raw`B_{${window.batch}}`} />
+          </span>
         </li>
       ))}
     </ol>
   </section>
 
-  <section class="batches-stage" aria-labelledby="mini-batches-groups-heading">
-    <div class="stage-heading">
-      <p class="stage-number">2 · {labels.stages.batches}</p>
-      <h4 id="mini-batches-groups-heading">{labels.stages.batches}</h4>
-      <p>{labels.notes.tokenMean}</p>
-    </div>
+  <section class="batches-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-batches`}>
+    <h4 id={`${titleId}-batches`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">2</span>
+      {labels.stages.batches}
+    </h4>
+    <p>{labels.notes.tokenMean}</p>
 
-    <div class="batch-grid">
+    <div class="batch-grid course-diagram__grid">
       {trace.batches.map((batch) => (
-        <article data-diagram-card data-diagram-box class:list={['batch-card', batch.index === '1' && 'final-card']} data-batch={batch.index}>
-          <header>
-            <div>
-              <p class="batch-label">{labels.symbols.batch} <bdi dir="ltr">B{batch.index}</bdi></p>
-              <h5>
-                <InlineMath latex={String.raw`|B_${batch.index}|=${batch.width}`} />
-              </h5>
-            </div>
-            <dl class="batch-facts">
-              <div>
-                <dt>{labels.fields.shape}</dt>
-                <dd><bdi dir="ltr"><code>{batch.shape.lexeme}</code></bdi></dd>
-              </div>
-              <div>
-                <dt>{labels.fields.targetTokens}</dt>
-                <dd><InlineMath latex={String.raw`N_{B_${batch.index}}=${batch.tokens}`} /></dd>
-              </div>
-            </dl>
-          </header>
-
+        <article
+          data-diagram-card
+          data-diagram-box
+          class:list={['batch-card', 'course-diagram__card-stack', batch.index === '1' && 'final-card']}
+          data-batch={batch.index}
+          aria-labelledby={`${titleId}-batch-${batch.index}`}
+        >
           <div
             class="batch-scroll course-diagram__scroll"
             role="region"
             tabindex="0"
             aria-label={`${labels.scrollers.batchRows} ${batch.index}`}
            data-diagram-scroll>
-            <ol class="window-list" aria-label={labels.captions.batchRows}>
-              {batch.windows.map((window) => (
-                <li class="window-row" data-slot={window.slot}>
-                  <div class="window-origin">
-                    <span>{labels.fields.origin}: {labels.symbols.window} {window.slot}</span>
-                    <strong><bdi dir="ltr">{window.document}@{window.start}</bdi></strong>
-                  </div>
-                  <dl class="window-values">
-                    <div>
-                      <dt>{labels.fields.input}</dt>
-                      <dd><bdi dir="ltr"><code>{window.input.lexeme}</code></bdi></dd>
-                    </div>
-                    <div>
-                      <dt>{labels.fields.target}</dt>
-                      <dd><bdi dir="ltr"><code>{window.target.lexeme}</code></bdi></dd>
-                    </div>
-                  </dl>
-                  <ol class="loss-list" aria-label={labels.fields.tokenLosses}>
-                    {window.losses.items.map((loss, index) => (
-                      <li>
-                        <InlineMath
-                          latex={String.raw`\mathcal{L}_{${window.slot},${tokenPosition[index]}}=${loss}`}
-                        />
-                      </li>
-                    ))}
-                  </ol>
-                </li>
-              ))}
-              {batch.index === '1' && (
-                <li class="unused-slot" aria-label={labels.symbols.unused}>
-                  <span>{labels.fields.capacitySlot}</span>
-                  <strong>{labels.symbols.unused}</strong>
-                </li>
-              )}
-            </ol>
+            <table data-diagram-table class="batch-table" data-batch-table={batch.index}>
+              <caption id={`${titleId}-batch-${batch.index}`}>
+                {labels.captions.batchRows}: {labels.symbols.batch}{' '}
+                <InlineMath latex={String.raw`B_{${batch.index}}`} />
+                <span aria-hidden="true"> · </span>
+                <InlineMath latex={String.raw`|B_${batch.index}|=${batch.width}`} />
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{labels.fields.origin}</th>
+                  <th scope="col">{labels.fields.input}</th>
+                  <th scope="col">{labels.fields.target}</th>
+                  <th scope="col">{labels.fields.tokenLosses}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {batch.windows.map((window) => (
+                  <tr data-slot={window.slot}>
+                    <th scope="row">
+                      <span>{labels.symbols.window} {window.slot}</span>
+                      <bdi dir="ltr"><code>{window.document}@{window.start}</code></bdi>
+                    </th>
+                    <td data-evidence-cell="input"><bdi dir="ltr"><code>{window.input.lexeme}</code></bdi></td>
+                    <td data-evidence-cell="target"><bdi dir="ltr"><code>{window.target.lexeme}</code></bdi></td>
+                    <td data-evidence-cell="losses">
+                      <span class="loss-pair">
+                        {window.losses.items.map((loss, index) => (
+                          <InlineMath
+                            latex={String.raw`\mathcal{L}_{${window.slot},${tokenPosition[index]}}=${loss}`}
+                          />
+                        ))}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          <dl class="mean-summary">
-            <div>
-              <dt id={`${titleId}-batch-${batch.index}-loss-sum`}>{labels.fields.lossSum}</dt>
-              <dd class="course-diagram__scroll"
-                role="region"
-                tabindex="0"
-                aria-labelledby={`${titleId}-batch-${batch.index}-loss-sum`}
-               data-diagram-scroll>
-                <InlineMath latex={String.raw`\sum\mathcal{L}_{b,t}=${batch.lossSum}`} />
-              </dd>
+          {batch.index === '1' && (
+            <div data-diagram-card data-diagram-box class="unused-slot">
+              <span>{labels.fields.capacitySlot}</span>
+              <strong>{labels.symbols.unused}</strong>
             </div>
-            <div>
-              <dt id={`${titleId}-batch-${batch.index}-denominator`}>
-                {labels.fields.denominator}
-              </dt>
-              <dd class="course-diagram__scroll"
-                role="region"
-                tabindex="0"
-                aria-labelledby={`${titleId}-batch-${batch.index}-denominator`}
-               data-diagram-scroll>
-                <InlineMath latex={String.raw`|B_${batch.index}|T=${batch.tokens}`} />
-              </dd>
-            </div>
-            <div>
-              <dt id={`${titleId}-batch-${batch.index}-mean-loss`}>{labels.fields.meanLoss}</dt>
-              <dd class="course-diagram__scroll"
-                role="region"
-                tabindex="0"
-                aria-labelledby={`${titleId}-batch-${batch.index}-mean-loss`}
-               data-diagram-scroll>
-                <InlineMath
-                  latex={String.raw`\mathcal{L}_{B_${batch.index}}=${batch.lossSum}/${batch.tokens}=${batch.meanLoss}`}
-                />
-              </dd>
-            </div>
-            <div>
-              <dt id={`${titleId}-batch-${batch.index}-mean-gradient`}>
-                {labels.fields.meanGradient}
-              </dt>
-              <dd class="course-diagram__scroll"
-                role="region"
-                tabindex="0"
-                aria-labelledby={`${titleId}-batch-${batch.index}-mean-gradient`}
-               data-diagram-scroll>
-                <InlineMath
-                  latex={String.raw`\bar g_{B_${batch.index}}=${batch.meanGradient.lexeme}`}
-                />
-              </dd>
-            </div>
-          </dl>
-          <p class="accumulation-result">
-            <span aria-hidden="true">=</span>
-            {labels.fields.meanGradient}: {labels.symbols.equal}
-          </p>
+          )}
         </article>
       ))}
     </div>
+
+    <dl class="batch-comparison course-diagram__grid" aria-label={labels.stages.batches}>
+      <div data-evidence-metric="shape">
+        <dt>{labels.fields.shape}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}>
+            <InlineMath latex={String.raw`\operatorname{shape}(B_{${batch.index}})=${latexVector(batch.shape.items)}`} />
+          </dd>
+        ))}
+      </div>
+      <div data-evidence-metric="target-count">
+        <dt>{labels.fields.targetTokens}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}><InlineMath latex={String.raw`N_{B_{${batch.index}}}=${batch.tokens}`} /></dd>
+        ))}
+      </div>
+      <div data-evidence-metric="loss-sum">
+        <dt>{labels.fields.lossSum}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}>
+            <InlineMath latex={String.raw`B_{${batch.index}}:\;${compactDecimal(batch.lossSum)}`} />
+          </dd>
+        ))}
+      </div>
+      <div data-evidence-metric="denominator">
+        <dt>{labels.fields.denominator}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}><InlineMath latex={String.raw`|B_{${batch.index}}|T=${batch.tokens}`} /></dd>
+        ))}
+      </div>
+      <div data-evidence-metric="mean-loss">
+        <dt>{labels.fields.meanLoss}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}>
+            <InlineMath latex={String.raw`\mathcal{L}_{B_{${batch.index}}}=\frac{${compactDecimal(batch.lossSum)}}{${batch.tokens}}=${compactDecimal(batch.meanLoss)}`} />
+          </dd>
+        ))}
+      </div>
+      <div data-evidence-metric="mean-gradient">
+        <dt>{labels.fields.meanGradient}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}>
+            <InlineMath latex={String.raw`\bar g_{B_{${batch.index}}}=${latexVector(batch.meanGradient.items)}`} />
+          </dd>
+        ))}
+      </div>
+      <div data-evidence-metric="accumulation">
+        <dt>{labels.fields.rawAccumulation}</dt>
+        {trace.batches.map((batch) => (
+          <dd data-batch={batch.index}>
+            <InlineMath latex={String.raw`B_{${batch.index}}:\;=`} /> {labels.symbols.equal}
+          </dd>
+        ))}
+      </div>
+    </dl>
   </section>
 
-  <section class="final-stage" aria-labelledby="mini-batches-final-heading">
-    <div class="stage-heading">
-      <p class="stage-number">3 · {labels.stages.finalBatch}</p>
-      <h4 id="mini-batches-final-heading">{labels.stages.finalBatch}</h4>
-      <p>{labels.notes.finalBatch}</p>
-    </div>
-    <div class="denominator-contrast">
+  <section class="final-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-final`}>
+    <h4 id={`${titleId}-final`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">3</span>
+      {labels.stages.finalBatch}
+    </h4>
+    <p>{labels.notes.finalBatch}</p>
+    <div class="denominator-contrast course-diagram__grid">
       <article data-diagram-card data-diagram-box class="capacity-denominator">
         <p>{labels.summary.requestedCapacity}</p>
         <InlineMath
@@ -229,28 +235,28 @@ const tokenPosition = ['1', '2'] as const;
     </div>
   </section>
 
-  <section class="proof-stage" aria-labelledby="mini-batches-proof-heading">
-    <div class="stage-heading">
-      <p class="stage-number">4 · {labels.stages.proof}</p>
-      <h4 id="mini-batches-proof-heading">{labels.stages.proof}</h4>
-      <p>{labels.notes.proof}</p>
-    </div>
-    <dl class="proof-grid" aria-label={labels.captions.proof}>
+  <section class="proof-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-proof`}>
+    <h4 id={`${titleId}-proof`} class="course-diagram__card-heading">
+      <span class="state-symbol" aria-hidden="true">4</span>
+      {labels.stages.proof}
+    </h4>
+    <p>{labels.notes.proof}</p>
+    <dl class="proof-grid course-diagram__grid" aria-label={labels.captions.proof}>
       <div>
         <dt>{labels.summary.completeWindows}</dt>
-        <dd><bdi dir="ltr"><code>{trace.proof.coverage}</code></bdi></dd>
+        <dd><InlineMath latex={trace.proof.coverage} /></dd>
       </div>
       <div>
         <dt>{labels.fields.duplicates}</dt>
-        <dd><bdi dir="ltr"><code>{trace.proof.duplicates}</code></bdi></dd>
+        <dd><InlineMath latex={trace.proof.duplicates} /></dd>
       </div>
       <div>
         <dt>{labels.fields.padding}</dt>
-        <dd><bdi dir="ltr"><code>{trace.proof.padding}</code></bdi></dd>
+        <dd><InlineMath latex={trace.proof.padding} /></dd>
       </div>
       <div>
         <dt>{labels.fields.crossPartition}</dt>
-        <dd><bdi dir="ltr"><code>{trace.proof.crossPartition}</code></bdi></dd>
+        <dd><InlineMath latex={trace.proof.crossPartition} /></dd>
       </div>
       <div>
         <dt>{labels.fields.sameSeed}</dt>
@@ -269,305 +275,160 @@ const tokenPosition = ['1', '2'] as const;
 </figure>
 
 <style>
-  .mini-batches-diagram {
-    container-type: inline-size;
-    display: grid;
-    gap: 1.25rem;
-    margin: 1.5rem 0;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border: 1px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-    color: var(--ink);
-    min-inline-size: 0;
-  }
-
-  figcaption,
-  .stage-heading {
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  h3,
-  h4,
-  h5,
-  p,
-  dl,
-  ol {
-    margin: 0;
-  }
-
-  .diagram-description,
-  .stage-heading p,
-  .batch-label,
-  .ordinal {
-    color: var(--muted);
-  }
-
-  .stage-number,
-  .batch-label,
-  .ordinal {
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .shape-summary,
-  .batch-facts,
-  .mean-summary,
-  .proof-grid,
-  .window-values {
-    display: grid;
-    gap: 0.65rem;
-  }
-
   .shape-summary {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
-  }
-
-  .shape-summary > div,
-  .batch-facts > div,
-  .mean-summary > div,
-  .proof-grid > div,
-  .window-values > div {
-    min-inline-size: 0;
-  }
-
-  dt {
-    color: var(--muted);
-    font-size: 0.78rem;
-  }
-
-  dd {
-    margin: 0.15rem 0 0;
-    font-weight: 700;
-    min-inline-size: 0;
-  }
-
-  code,
-  bdi {
-    direction: ltr;
-    unicode-bidi: isolate;
-  }
-
-  .shuffle-stage,
-  .batches-stage,
-  .final-stage,
-  .proof-stage {
-    display: grid;
-    gap: 0.9rem;
-    min-inline-size: 0;
+    --diagram-summary-min: 8.5rem;
   }
 
   .shuffle-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
-    gap: 0.6rem;
-    padding: 0;
-    list-style: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+    align-items: stretch;
   }
 
-  .shuffle-list li {
+  .shuffle-list > li {
     display: grid;
+    align-content: start;
     gap: 0.2rem;
-    padding: 0.7rem;
-    border: 1px solid var(--line);
-    border-block-start-width: 0.3rem;
-    border-radius: 0.65rem;
-    background: var(--surface-raised, var(--surface));
-    min-inline-size: 0;
-  }
-
-  .shuffle-list li[data-batch='1'] {
-    border-block-start-style: double;
-    border-block-start-width: 0.35rem;
   }
 
   .batch-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 39rem), 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 35rem), 1fr));
     align-items: start;
-    min-inline-size: 0;
   }
 
   .batch-card {
-    display: grid;
-    gap: 0.9rem;
-    padding: 0.9rem;
-    border: 2px solid var(--line);
-    border-radius: 0.8rem;
-    background: var(--surface-raised, var(--surface));
     min-inline-size: 0;
   }
 
   .batch-card.final-card {
-    border-style: double;
-    border-width: 0.3rem;
+    border-style: double !important;
+    border-width: 3px !important;
   }
 
-  .batch-card > header {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .batch-facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .batch-scroll {
-    min-inline-size: 0;
-    padding-block-end: 0.25rem;
-  }
-
-  .batch-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.15rem;
-  }
-
-  .mean-summary dd:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.15rem;
-  }
-
-  .window-list {
-    display: grid;
-    gap: 0.55rem;
+  .batch-table {
+    inline-size: 100%;
     min-inline-size: 34rem;
-    padding: 0;
-    list-style: none;
+    table-layout: fixed;
   }
 
-  .window-row {
+  .batch-table th:first-child {
+    inline-size: 7rem;
+  }
+
+  .batch-table :is(th, td):is(:nth-child(2), :nth-child(3)) {
+    inline-size: 6rem;
+  }
+
+  .batch-table tbody th > :is(span, bdi) {
+    display: block;
+  }
+
+  .loss-pair {
     display: grid;
-    grid-template-columns: minmax(8rem, 0.8fr) minmax(14rem, 1.2fr) minmax(10rem, 1fr);
-    gap: 0.65rem;
-    align-items: start;
-    padding: 0.7rem;
-    border: 1px solid var(--line);
-    border-inline-start-width: 0.3rem;
-    border-radius: 0.6rem;
-    background: var(--surface);
+    gap: 0.15rem;
   }
 
-  .window-origin {
-    display: grid;
-    gap: 0.2rem;
-  }
-
-  .window-origin span {
-    color: var(--muted);
-    font-size: 0.78rem;
-  }
-
-  .window-values {
+  .batch-comparison {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'shape target'
+      'sum sum'
+      'denominator accumulation'
+      'mean mean'
+      'gradient gradient';
   }
 
-  .loss-list {
-    display: grid;
-    gap: 0.35rem;
-    padding: 0;
-    list-style: none;
+  .batch-comparison > [data-evidence-metric='shape'] {
+    grid-area: shape;
   }
 
-  .loss-list li {
-    padding: 0.25rem 0.4rem;
-    border-block-end: 1px solid var(--line);
+  .batch-comparison > [data-evidence-metric='target-count'] {
+    grid-area: target;
+  }
+
+  .batch-comparison > [data-evidence-metric='loss-sum'] {
+    grid-area: sum;
+  }
+
+  .batch-comparison > [data-evidence-metric='denominator'] {
+    grid-area: denominator;
+  }
+
+  .batch-comparison > [data-evidence-metric='mean-loss'] {
+    grid-area: mean;
+  }
+
+  .batch-comparison > [data-evidence-metric='mean-gradient'] {
+    grid-area: gradient;
+  }
+
+  .batch-comparison > [data-evidence-metric='accumulation'] {
+    grid-area: accumulation;
   }
 
   .unused-slot {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 0.7rem;
-    border: 2px dashed var(--line);
-    border-radius: 0.6rem;
-    color: var(--muted);
-    background: var(--surface);
-  }
-
-  .mean-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-block-start: 0.8rem;
-    border-block-start: 3px double var(--line);
-  }
-
-  .mean-summary dd {
-    padding-block: 0.15rem;
-  }
-
-  .accumulation-result {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    font-weight: 700;
-  }
-
-  .accumulation-result span {
-    display: inline-grid;
-    place-items: center;
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
-    border: 2px double var(--line);
-    border-radius: 50%;
+    gap: 0.5rem 1rem;
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
   .denominator-contrast {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: 0.75rem;
     align-items: stretch;
+    gap: 0.75rem;
   }
 
   .denominator-contrast article {
     display: grid;
-    gap: 0.45rem;
     align-content: start;
-    padding: 0.9rem;
-    border-radius: 0.7rem;
-    background: var(--surface-raised, var(--surface));
-    min-inline-size: 0;
+    gap: 0.45rem;
   }
 
   .capacity-denominator {
-    border: 2px dashed var(--line);
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
   .actual-denominator {
-    border: 3px double var(--line);
+    border-style: double !important;
+    border-width: 3px !important;
   }
 
   .contrast-arrow {
     align-self: center;
-    font-size: 1.5rem;
   }
 
   .proof-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
   }
 
-  .proof-grid > div {
-    padding: 0.65rem;
-    border-block-end: 2px solid var(--line);
-    background: var(--surface-raised, var(--surface));
-  }
+  @container course-diagram (max-width: 36rem) {
+    .shuffle-list,
+    .batch-grid,
+    .batch-comparison,
+    .proof-grid,
+    .denominator-contrast {
+      grid-template-columns: minmax(0, 1fr);
+    }
 
-  @container (max-width: 36rem) {
-    .batch-card > header,
+    .batch-comparison {
+      grid-template-areas:
+        'shape'
+        'target'
+        'sum'
+        'denominator'
+        'mean'
+        'gradient'
+        'accumulation';
+    }
+
     .unused-slot {
       align-items: start;
       flex-direction: column;
-    }
-
-    .mean-summary,
-    .batch-facts,
-    .denominator-contrast {
-      grid-template-columns: minmax(0, 1fr);
     }
 
     .contrast-arrow {
@@ -576,17 +437,160 @@ const tokenPosition = ['1', '2'] as const;
     }
   }
 
-  @media (forced-colors: active) {
-    .shuffle-list li[data-batch='1'],
-    .batch-card.final-card,
-    .actual-denominator,
-    .mean-summary {
-      border-color: CanvasText;
+  @media (min-width: 64rem) and (min-height: 36rem) {
+    .mini-batches-diagram:fullscreen {
+      grid-template-columns: minmax(17rem, 0.85fr) minmax(21rem, 1.05fr) minmax(20rem, 1.1fr);
+      grid-template-areas:
+        'caption caption caption'
+        'summary summary summary'
+        'batches batches batches'
+        'shuffle final proof';
+      align-items: start;
     }
 
-    .unused-slot,
-    .capacity-denominator {
-      border-color: GrayText;
+    figure.mini-batches-diagram.mini-batches-diagram:fullscreen {
+      row-gap: 0.25rem;
+    }
+
+    .mini-batches-diagram:fullscreen > figcaption {
+      grid-area: caption;
+      display: grid;
+      grid-template-columns: minmax(22rem, 1.1fr) minmax(0, 0.9fr) 8rem;
+      align-items: start;
+      gap: 0.65rem;
+    }
+
+    .mini-batches-diagram:fullscreen > .shape-summary {
+      grid-area: summary;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .mini-batches-diagram:fullscreen > :global(.diagram-full-view-actions) {
+      grid-column: 3;
+      grid-row: 1;
+      align-self: start;
+      justify-self: end;
+    }
+
+    .mini-batches-diagram:fullscreen > .shuffle-stage {
+      grid-area: shuffle;
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage {
+      grid-area: batches;
+    }
+
+    .mini-batches-diagram:fullscreen > .final-stage {
+      grid-area: final;
+    }
+
+    .mini-batches-diagram:fullscreen > .proof-stage {
+      grid-area: proof;
+      gap: 0.25rem;
+      grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr);
+      grid-template-areas:
+        'heading note'
+        'evidence evidence';
+      align-items: start;
+    }
+
+    .mini-batches-diagram:fullscreen > .proof-stage > h4 {
+      grid-area: heading;
+    }
+
+    .mini-batches-diagram:fullscreen > .proof-stage > p {
+      grid-area: note;
+    }
+
+    .mini-batches-diagram:fullscreen > .proof-stage > .proof-grid {
+      grid-area: evidence;
+    }
+
+    .mini-batches-diagram:fullscreen .batch-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage {
+      grid-template-columns: minmax(32rem, 0.7fr) minmax(0, 1fr);
+      grid-template-areas:
+        'heading note'
+        'grid grid'
+        'comparison comparison';
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage > h4 {
+      grid-area: heading;
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage > p {
+      grid-area: note;
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage > .batch-grid {
+      grid-area: grid;
+    }
+
+    .mini-batches-diagram:fullscreen > .batches-stage > .batch-comparison {
+      grid-area: comparison;
+    }
+
+    .mini-batches-diagram:fullscreen .batch-table {
+      min-inline-size: 0;
+    }
+
+    .mini-batches-diagram:fullscreen .loss-pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-batches-diagram:fullscreen .batch-comparison {
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      grid-template-areas:
+        'shape shape target sum denominator mean mean gradient gradient accumulation';
+      gap: 0.25rem var(--diagram-gap);
+    }
+
+    .mini-batches-diagram:fullscreen .batch-comparison > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: 0.2rem 0.5rem;
+    }
+
+    .mini-batches-diagram:fullscreen .batch-comparison > div > dt {
+      grid-column: 1 / -1;
+    }
+
+    .mini-batches-diagram:fullscreen .proof-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .mini-batches-diagram:fullscreen .proof-grid > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 0.25rem;
+    }
+
+    .mini-batches-diagram:fullscreen .denominator-contrast article {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+
+    .mini-batches-diagram:fullscreen .denominator-contrast article > p {
+      grid-column: 1 / -1;
+    }
+
+    .mini-batches-diagram:fullscreen .shuffle-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-batches-diagram:fullscreen .shuffle-list > li {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .mini-batches-diagram:fullscreen .shuffle-list > li > .ordinal {
+      grid-column: auto;
     }
   }
 </style>

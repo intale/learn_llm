@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 46,
+  "plan_revision": 47,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-20",
+    "policy_id": "selective-russian-through-chapter-21",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "20-swiglu-feed-forward",
+        "through_chapter": "21-mini-batches",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-20."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-21."
       },
       {
-        "from_chapter": "21-mini-batches",
+        "from_chapter": "22-adamw",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 20 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 21 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -274,6 +274,11 @@
         "step_id": "activate-ch20-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch20-russian-localization"
+      },
+      {
+        "step_id": "activate-ch21-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch21-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1217,6 +1222,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `21-mini-batches`
 - **Implementation step:** `implement-ch21-mini-batches`
+- **Revision status:** Content revision 2 corrects normalization, evidence, history, handoff, and learner-facing language, migrates the figure to the shared presentation system, and publishes the direct meaning-first Russian translation through `activate-ch21-russian-localization`.
 - **Depends on:** `20-swiglu-feed-forward`.
 - **Outcome:** Build deterministic shuffled mini-batches of fixed-length windows and average per-token loss and gradients correctly.
 - **Scope boundary:** Teach deterministic window shuffling, batch/sequence axes, a possibly smaller final batch, token-loss averaging, and gradient scale. Every admitted window has length `T`; no padding or variable valid length exists.

@@ -58,6 +58,11 @@ pub struct LearnerEvidence {
     pub replay_matches: bool,
     pub different_seed_changes_order: bool,
     pub complete_coverage: bool,
+    pub covered_windows: usize,
+    pub expected_windows: usize,
+    pub duplicate_windows: usize,
+    pub padding_ids_added: usize,
+    pub cross_partition_windows: usize,
 }
 
 // region:chapter-fixture
@@ -72,12 +77,40 @@ pub fn learner_evidence() -> LearnerEvidence {
         .map(|(index, batch)| batch_evidence(index, batch))
         .collect();
 
-    let mut origins = origins(&epoch);
-    origins.sort_unstable();
+    let ordered_origins = origins(&epoch);
+    let mut unique_origins = ordered_origins.clone();
+    unique_origins.sort_unstable();
+    unique_origins.dedup();
+    let expected_origins = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1)];
+    let covered_windows = unique_origins
+        .iter()
+        .filter(|origin| expected_origins.contains(origin))
+        .count();
+    let duplicate_windows = ordered_origins.len() - unique_origins.len();
+    let padding_ids_added = epoch
+        .batches()
+        .iter()
+        .map(|batch| {
+            let expected_stack_len = batch.batch_width() * batch.context_length();
+            batch.inputs().len().saturating_sub(expected_stack_len)
+                + batch.targets().len().saturating_sub(expected_stack_len)
+        })
+        .sum();
+    let cross_partition_windows = epoch
+        .batches()
+        .iter()
+        .flat_map(MiniBatch::provenance)
+        .filter(|origin| origin.partition() != Partition::Train)
+        .count();
     LearnerEvidence {
         replay_matches: epoch == replay,
         different_seed_changes_order: origins_in_order(&epoch) != origins_in_order(&changed),
-        complete_coverage: origins == [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1)],
+        complete_coverage: unique_origins == expected_origins && duplicate_windows == 0,
+        covered_windows,
+        expected_windows: expected_origins.len(),
+        duplicate_windows,
+        padding_ids_added,
+        cross_partition_windows,
         epoch,
         batches,
     }
@@ -251,8 +284,11 @@ pub fn learner_report() -> String {
             evidence.different_seed_changes_order
         ),
         format!("complete_coverage={}", evidence.complete_coverage),
-        "padding_ids_added=0".to_owned(),
-        "cross_partition_windows=0".to_owned(),
+        format!("padding_ids_added={}", evidence.padding_ids_added),
+        format!(
+            "cross_partition_windows={}",
+            evidence.cross_partition_windows
+        ),
         "next=use these token-mean gradients in AdamW".to_owned(),
     ]);
     lines.join("\n") + "\n"
@@ -278,6 +314,11 @@ mod tests {
         assert!(evidence.replay_matches);
         assert!(evidence.different_seed_changes_order);
         assert!(evidence.complete_coverage);
+        assert_eq!(evidence.covered_windows, 5);
+        assert_eq!(evidence.expected_windows, 5);
+        assert_eq!(evidence.duplicate_windows, 0);
+        assert_eq!(evidence.padding_ids_added, 0);
+        assert_eq!(evidence.cross_partition_windows, 0);
         assert!(
             evidence
                 .batches

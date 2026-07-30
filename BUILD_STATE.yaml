@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-30T06:42:36Z"
+updated_at: "2026-07-30T07:09:56Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -21780,3 +21780,216 @@ builds:
                 status: passed
                 notes: "The product diff had no whitespace errors; the complete ledger parses; every in-scope product change is declared; and every canonical file checksum in the final publication manifest matches."
             notes: "Succeeded. Corrected English Chapter 20 and its direct natural Russian translation now teach bias-free position-wise SwiGLU forward and reverse behavior with exact Rust evidence and one shared-system bilingual figure. Every declared source, exact Rust, static, Linux, Chromium, Firefox, link, and independent-review gate passes; the Dropbox-only post-generation host cleanup limitation is preserved and explicitly governed by the recorded equivalent-build decision."
+  - build_id: activate-ch21-russian-localization
+    objective: "Audit the canonical Chapter 21 mini-batches lesson, correct any source inaccuracies or learner-facing delivery language, translate its complete surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation, primary-source verification, and cached Rust, static, Chromium, and Firefox validation without a paid service; the resource and external-staging decision is recorded in DECISIONS.md."
+    completion_criteria:
+      - "English Chapter 21 accurately teaches deterministic mini-batches and actual-target-token normalization, keeps its history on the road to modern LLM training, and contains no learner-facing authoring or delivery machinery."
+      - "Russian Chapter 21 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 22 handoff in natural technical language."
+      - "The Chapter 21 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 21 is activated in this checkpoint, the locale policy advances through Chapter 21, and the completed step is committed independently before Chapter 22 starts."
+    steps:
+      - id: activate-ch21-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 21 mini-batches lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch20-russian-localization
+        status: completed
+        inputs:
+          - "Human requests to continue the next three Russian chapter translations without another approval pause, reaffirmed on 2026-07-30."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapter-template.md"
+          - "curriculum/chapters/21-mini-batches.md"
+          - "site/src/content/chapters/en/21-mini-batches.mdx"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/lib/mini-batches-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/diagram-style-system.spec.ts"
+          - "site/tests/e2e/diagram-full-view.spec.ts"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/demos/ch21-mini-batches/Cargo.toml"
+          - "rust/demos/ch21-mini-batches/src/lib.rs"
+          - "rust/demos/ch21-mini-batches/src/main.rs"
+          - "rust/demos/ch21-mini-batches/src/diagram_trace.rs"
+          - "rust/demos/ch21-mini-batches/expected.txt"
+          - "rust/demos/ch21-mini-batches/diagram-trace.txt"
+          - "Bengio et al. (2003), Vaswani et al. (2017), and Brown et al. (2020) primary papers at the URLs recorded in the contract."
+          - "Chapter 20 completion commit 5a64bece2a24b9a93e30958f363a3fc9f949e481."
+        outputs:
+          - "curriculum/chapters/21-mini-batches.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "rust/crates/llm-from-scratch/src/training/batch.rs"
+          - "rust/demos/ch21-mini-batches/expected.txt"
+          - "rust/demos/ch21-mini-batches/src/lib.rs"
+          - "rust/demos/ch21-mini-batches/src/main.rs"
+          - "rust/demos/ch21-mini-batches/src/diagram_trace.rs"
+          - "rust/demos/ch21-mini-batches/diagram-trace.txt"
+          - "site/src/content/chapters/en/21-mini-batches.mdx"
+          - "site/src/content/chapters/ru/21-mini-batches.mdx"
+          - "site/src/components/chapters/MiniBatchesDiagram.astro"
+          - "site/src/lib/mini-batches-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/21-mini-batches-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch21-mini-batches.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The corrected English source remains the sole canonical semantic source and passes its contract, formula, history, Rust-evidence, and learner-prose audit before Russian is drafted."
+          - "The Russian lesson is translated directly from that frozen English revision, is natural rather than literal, and passes semantic, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff review."
+          - "Formula markup, code regions, source links, exact evidence, diagram semantics, and locale routing preserve parity without translated identifiers or invented claims."
+          - "Every bounded figure box contains Russian and English text and formula ink in inline and full view at desktop and narrow widths in Chromium and Firefox, including no-JavaScript, forced-color, focus, and direction-sensitive cases."
+          - "Rust formatting, lint, workspace and documentation tests, exact learner and diagram output, unit/static/content/parity/link/SEO/sitemap/Analytics checks, and the production build all pass."
+          - "The completed checkpoint is committed separately before Chapter 22 starts."
+        validate:
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch21-mini-batches | diff -u rust/demos/ch21-mini-batches/expected.txt -'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch21-mini-batches --example ch21-mini-batches-trace | diff -u rust/demos/ch21-mini-batches/diagram-trace.txt -'"
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-chapter-contract.mjs curriculum/chapters/21-mini-batches.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 21-mini-batches"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 21-mini-batches"
+          - "node scripts/check-site-content.mjs parity --chapter 21-mini-batches"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium Chapter 21, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "Firefox Chapter 21, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: large
+          notes: "Canonical audit and correction, complete source-to-target chapter translation, shared-diagram migration, primary-source verification, independent language review, complete Rust/static validation, and two-engine rendered containment/full-view coverage. The unlimited recorded budget covers cached local execution and free primary-source access; no paid service, dependency, build-definition, hosting, or deployment change is planned."
+        runs:
+          - run_id: 20260730T064448Z-activate-ch21-russian-localization-01
+            started_at: "2026-07-30T06:44:48Z"
+            finished_at: "2026-07-30T09:24:49Z"
+            status: succeeded
+            input_fingerprint:
+              git: "5a64bece2a24b9a93e30958f363a3fc9f949e481"
+              manifest: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:54255e2a179e7af9e631e0ac043e647af3976a3a7ef857181d52b162fdb1808a"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 21, immutable Rust behavior, and cited primary historical sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/"
+            commands:
+              - "Verify the clean Chapter 20 completion commit 5a64bec; parse the complete ledger; inspect current decisions, environment, localization instructions, locale policy, Chapter 21 contract, English lesson, shared figure/parser/tests, and Rust evidence; fingerprint every material input before product edits."
+              - "Use checksum-recorded external staging because the Dropbox-managed workspace removes or locks disposable build directories; retain the Linux product workflow and build definition unchanged."
+              - "Verify the Bengio one-example and K-example discussion, Vaswani approximate-length 25,000-source/25,000-target-token batches, and Brown GPT-3 token-batch/context claims against their primary papers."
+              - "Audit and freeze corrected English content revision 2: distinguish fixed-length rows from batch width, scope the normalization invariant to the course, identify deterministic averaging stand-ins, bind piecewise gradients as g_{j,i}, remove learner-facing delivery machinery, and correct the Chapter 22 handoff."
+              - "Replace hard-coded Chapter 21 proof fields with coverage, duplicate, padding, and partition counts derived from the constructed epoch while preserving the exact learner report and diagram trace."
+              - "Migrate the Chapter 21 figure to two transposed semantic batch tables, two named scroll regions, instance-safe IDs, server-rendered mathematical shapes and quantities, shared cards/tables/boxes, and concept-only local geometry."
+              - "Translate every Chapter 21 contract field, metadata value, lesson section, source claim, exercise, answer, diagram label, caption, and accessibility string directly from frozen English revision 2; resolve every independent terminology and semantic-audit finding."
+              - "Reflow full view without clipping or shrinking: compact trace decimal spelling only at the formula surface, use one horizontal metric strip, two-column shuffle rows, and a side-by-side proof heading and note while retaining complete standalone Russian meanings."
+              - "Build immutable source-candidate-08 with a staging-only Vite cache directory, verify zero canonical src/tests drift, and run Chapter 21, shared diagram-style, shared full-view, and formula-rendering E2E suites in Chromium and Firefox."
+              - "Run the complete canonical unit, course-plan, contract, content, parity, staged Astro diagnostics/build/link, pinned Docker ./course check, warning-denied Rust, exact-output, diff/YAML/manifest, and independent-language review gates."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:54255e2a179e7af9e631e0ac043e647af3976a3a7ef857181d52b162fdb1808a"
+                notes: "Exact workflow, policy, canonical lesson, diagram, validation, Rust-evidence, primary-source URLs, environment, user-scope, and base-commit fingerprint before Chapter 21 product edits."
+              - path: "site/src/content/chapters/en/21-mini-batches.mdx"
+                checksum: "sha256:25a7f142eaf99950d5dcd2d4a72b748ce3e523ecf8fe7100aadeaefe955d006a"
+                notes: "Frozen canonical English content revision 2 after formula, evidence-scope, history-source, handoff, learner-prose, and presentation audit."
+              - path: "rust/demos/ch21-mini-batches/src/lib.rs"
+                checksum: "sha256:97ee13dd9b0de4d5ca6d25d7769c762589b5cadb77fe2cd798dfed8a7bba642b"
+                notes: "Worked-epoch evidence now derives coverage, duplicate, padding, and partition counts from the built batches."
+              - path: "rust/demos/ch21-mini-batches/src/diagram_trace.rs"
+                checksum: "sha256:7f99fcaaa486fc0da1755934e0ad43c942b5f18097b3463527dd344b56e43cf4"
+                notes: "The unchanged trace grammar and bytes now project derived invariant values instead of hard-coded zeros."
+              - path: "site/src/content/chapters/ru/21-mini-batches.mdx"
+                checksum: "sha256:44551ea02754b758e212e39f5e7fd4ca9736baaa9dbee0759be763b10ae7197c"
+                notes: "Complete direct Russian translation after semantic, terminology, anti-calque, monolingual, formula, source, exercise, diagram-copy, accessibility, and invariant review."
+              - path: "curriculum/chapters/21-mini-batches.md"
+                checksum: "sha256:93ca207d62d7d8650bd54cf9a9fb9f562c41530088f9962c5e0fee42ccafd4fc"
+                notes: "Bilingual revision-2 contract with the exact active locale set and terminology decisions."
+              - path: "site/src/components/chapters/MiniBatchesDiagram.astro"
+                checksum: "sha256:936e97f98e5d588f1f04b9b0661d03768cd5c420684c4bb846118e18dd117e56"
+                notes: "One shared-system semantic figure with trace-derived tables, formulas, proof evidence, two named scroll regions, and locale-safe full-view geometry."
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/source-candidate-08/site"
+                checksum: "sha256:1cc3145116e243086d8f4a403fd21e2201117a6c3a87c42b426ebe59098f0105"
+                notes: "Selected immutable source/configuration tree: 275 root/source/test files; canonical src/tests mismatch count zero. Its staging-only Astro configuration redirects only the disposable Vite cache and hashes to sha256:4effc5a7ea179404a1bf760b96a14831bc8373a0b5d84ab2acb28b08588e100b."
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/source-candidate-08/site/dist"
+                checksum: "sha256:79d819891b24b7ade309885467bde01b6e0e185e084117d0f1d437724f2aaa28"
+                notes: "Selected production output: 149 files and 67 HTML routes."
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/manual-review.md"
+                checksum: "sha256:28c8e77abad0db50e76543a82ccde6bc74c13ed569974c5154ef9bad47b67dd6"
+                notes: "Recorded bilingual semantic, terminology, accessibility, and rendered-surface review."
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/validation-summary.md"
+                checksum: "sha256:efff85720a4d2e5b67343e4b74241a12b9a683553cb8862c03f3ef76aa1ff1af"
+                notes: "Concise final validation and Dropbox-host exception summary."
+              - path: "C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/publication-manifest.sha256"
+                checksum: "sha256:5d6b67c5e1c491a6c5d3de86c196e69107b737009ce4076cf0b015cafdf90c97"
+                notes: "Verified SHA-256 manifest for all 17 changed canonical product and test files."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 20 is independently committed at 5a64bec; the worktree was clean; active_build was null with no pending or running record; host and repository pins match; Chapter 21 owns the next checkpoint, uses no paid translation or external generation service, and is within the unlimited recorded budget. External staging is checksum-recorded in DECISIONS.md."
+              - command: "Primary-paper verification and independent English/Rust evidence audit"
+                status: passed
+                notes: "The Bengio, Vaswani, and Brown batching facts match their primary papers; all shuffle, shape, sum, denominator, gradient, replay, and grouping values recompute exactly. Every audit finding was resolved in English revision 2 or in derived Rust proof evidence before translation."
+              - command: "node scripts/check-chapter-contract.mjs curriculum/chapters/21-mini-batches.md && npm --prefix site run check:chapter -- --locale en --chapter 21-mini-batches && node scripts/check-site-content.mjs parity --chapter 21-mini-batches"
+                status: passed
+                notes: "The frozen English revision and current one-locale contract pass integrated structure, source, formula, history, and semantic-parity checks before Russian keys are added."
+              - command: "Read-only pinned Linux cargo fmt, Chapter 21 tests, learner-output diff, and diagram-trace diff with external CARGO_TARGET_DIR"
+                status: passed
+                notes: "Three package tests pass, formatting is clean, and both derived executables remain byte-identical to their committed expected artifacts. The first writable target attempt on the Dropbox mount failed only while renaming a build archive; the read-only source plus external target rerun passes."
+              - command: "node scripts/check-course-plan.mjs && node scripts/check-chapter-contract.mjs curriculum/chapters/21-mini-batches.md"
+                status: passed
+                notes: "The final plan contains 40 chapters, 93 scheduled steps, and 40 contracts; the bilingual revision-2 Chapter 21 contract passes its integrated gate."
+              - command: "English/Russian Chapter 21 content gates, bilingual parity, and complete npm --prefix site run check:content"
+                status: passed
+                notes: "Both Chapter 21 sources pass individually and form one publishable locale set; the complete audit passes 62 localized sources, 40 publishable sets, 32 catalog keys, and 41 shared-full-view diagram components."
+              - command: "npm --prefix site test -- --run"
+                status: passed
+                notes: "The complete canonical suite passes 52 test files and 847 tests."
+              - command: "Immutable Candidate 08 Astro check/build and npm --prefix site run test:links"
+                status: passed
+                notes: "The staged source matches canonical src/tests exactly; Astro checks 205 files with zero diagnostics, builds 67 routes and 149 artifacts, and verifies 2,183 local references plus SEO, sitemap, and Analytics coverage on every route."
+              - command: "Chapter 21 E2E on Candidate 08 in Chromium and Firefox"
+                status: passed
+                notes: "All 7 tests pass in each engine across English/Russian desktop, narrow, full view, no-JavaScript, forced colors, synthetic RTL, focus restoration, named scroll regions, four-sided boxes, and painted text/formula containment."
+              - command: "Shared diagram-style, diagram-full-view, and formula-rendering E2E in Chromium and Firefox"
+                status: passed
+                notes: "Each engine passes 10 shared style/containment tests, 10 shared full-view tests, and all 120 formula-rendering cases."
+              - command: "bash ./course check"
+                status: passed
+                notes: "The unchanged supported Docker workflow passes Rust workspace and documentation tests, Astro diagnostics/content/parity checks, the 67-page production build, and the complete link/SEO/sitemap/Analytics audit. Docker image manifest list: sha256:1244895887729decb1420c2566d461dc43604c8a1e1941acd072ef3defe3003d."
+              - command: "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+                status: passed
+                notes: "Exact pinned Linux formatting, warning-denied Clippy, workspace tests, and documentation tests pass."
+              - command: "Exact Chapter 21 learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Both Rust executables match their committed expected artifacts byte for byte."
+              - command: "Canonical npm --prefix site run build on the Dropbox-managed Windows path"
+                status: failed
+                notes: "The host path encountered the previously recorded Dropbox/Vite cleanup lock. The product build remains unchanged; byte-matched immutable Candidate 08 and the supported pinned Linux production build pass under the recorded decision."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical, and rendered-surface audit"
+                status: passed
+                notes: "The final auditor returns PASS after every shortened label was restored or naturally rephrased and the layout was reflowed. English MDX SHA-256 is 25a7f142eaf99950d5dcd2d4a72b748ce3e523ecf8fe7100aadeaefe955d006a and Russian MDX SHA-256 is 44551ea02754b758e212e39f5e7fd4ca9736baaa9dbee0759be763b10ae7197c."
+              - command: "git diff --check, BUILD_STATE.yaml parse, output-ownership review, canonical-candidate comparison, and publication-manifest verification"
+                status: passed
+                notes: "The product diff has no whitespace errors; the ledger parses; every in-scope change is declared; canonical site/src and site/tests match Candidate 08; and all 17 publication-manifest checksums match."
+            notes: "Succeeded. Corrected English Chapter 21 and its direct natural Russian translation now teach deterministic window shuffling, variable-width mini-batches, actual-target-token normalization, and piecewise gradient accumulation with exact Rust evidence and one shared-system bilingual figure. Every declared source, exact Rust, static, Linux, Chromium, Firefox, link, formula, containment, and independent-review gate passes; the Dropbox-only host cleanup limitation is preserved and governed by the recorded equivalent-build decision."

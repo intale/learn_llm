@@ -9717,3 +9717,131 @@ and waives none of the source, route, link, localization, browser, or Rust gates
 
 **Affected step and run:** `activate-ch20-russian-localization`, run
 `20260730T041420Z-activate-ch20-russian-localization-01`.
+
+## 2026-07-30 - Stage and fund Chapter 21 localization without changing the product build
+
+**Status:** Accepted during `activate-ch21-russian-localization` preflight.
+
+**Context:** The user explicitly requested continued Russian localization without
+another approval pause and removed the earlier cost-confirmation rule. Chapter 21
+requires a complete canonical-language audit, direct technical translation,
+shared-diagram conformance, primary-source verification, and two-engine rendered
+validation. The Dropbox-managed workspace has repeatedly removed or locked
+disposable `.build`, Astro cache, and prerender paths, while the repository's
+pinned Linux workflow remains reproducible.
+
+**Decision:** Classify the work as large but proceed within the unlimited recorded
+budget, with no paid translation or generation service. Keep run intermediates in
+`C:/tmp/learn_llm/runs/20260730T064448Z-activate-ch21-russian-localization-01/`,
+record their checksums, and use immutable staging plus the pinned Linux workflow
+for build validation when Dropbox prevents canonical host cleanup. Do not change
+the product build, dependencies, deployment, hosting, or user environment.
+
+**Consequences:** Resource cost alone causes no approval pause. Publication still
+requires the exact English/Russian source, Rust, content, static, link, Chromium,
+Firefox, accessibility, formula, and bounded-box gates. Any host-only cleanup
+exception must be preserved in the run record and paired with a passing immutable
+and Linux build before the step can complete.
+
+**Affected step and run:** `activate-ch21-russian-localization`, run
+`20260730T064448Z-activate-ch21-russian-localization-01`.
+
+## 2026-07-30 - Freeze corrected Chapter 21 meaning before Russian translation
+
+**Status:** Accepted during `activate-ch21-russian-localization` canonical
+source review.
+
+**Context:** The arithmetic, shuffle order, and cited language-model batching
+history were sound, but English revision 1 called variable-width mini-batches
+fixed-shape, exposed authoring and presentation machinery, described synthetic
+averaging contributions as though the example recomputed negative
+log-likelihood, overgeneralized the course's token-normalization rule to all
+modern decoder training, underspecified piecewise gradient notation, and handed
+anonymous gradient coordinates to Chapter 22 as though they were already named.
+The diagram also hard-coded several proof values, rendered shapes and batch
+symbols outside the math pipeline, duplicated stage headings, used private
+presentation chrome, exposed ten focus stops, and had no compact full-view
+geometry.
+
+**Decision:** Freeze English content revision 2 with SHA-256
+`25a7f142eaf99950d5dcd2d4a72b748ce3e523ecf8fe7100aadeaefe955d006a`
+as the sole Russian semantic source. Describe the worked losses and gradients as
+deterministic finite stand-ins for isolating token averaging; bind each gradient
+to piece and token indices with `g_{j,i}`; scope the normalization invariant to
+this course; and let Chapter 22 map averaged coordinates to stable parameter
+names. Derive coverage, duplicate, padding, and partition counts from the
+constructed epoch while preserving byte-identical learner output and diagram
+trace. Rebuild the figure around two transposed semantic batch tables, one named
+scroll region per batch, shared cards and tables, instance-safe IDs, and
+concept-only local geometry.
+
+**Consequences:** Russian must translate this exact corrected meaning directly,
+including the distinction between requested capacity and actual width, the
+stand-in evidence boundary, and the source-supported history. Publication still
+requires exact Rust output, source parity, independent language review, and
+Chromium/Firefox containment in inline and full view. Any later English change
+invalidates this source hash and the target-language review.
+
+**Affected step and run:** `activate-ch21-russian-localization`, run
+`20260730T064448Z-activate-ch21-russian-localization-01`.
+
+## 2026-07-30 - Preserve complete Chapter 21 evidence while reflowing full view
+
+**Status:** Accepted during `activate-ch21-russian-localization` bilingual and
+rendered-surface review.
+
+**Context:** The first compact full-view draft fit English but gave the Russian
+proof panel too little reading width. Shortening labels enough to fit erased
+important standalone meanings: target tokens, actual token denominators, padding
+IDs, corpus-partition provenance, same-seed order replay, and changed-seed order.
+Restoring those meanings exposed excessive vertical travel in Firefox's shorter
+fullscreen viewport. The trace also retained six-decimal storage spelling where
+the shared formula contract requires the same exact values in concise mathematical
+notation.
+
+**Decision:** Keep the complete natural Russian meanings and compact only trailing
+decimal zeros when trace values are rendered as mathematics. Use two transposed
+semantic batch tables inline. In full view, allocate more width to the Russian
+proof panel, arrange batch metrics in one horizontal strip with each batch value
+stacked inside its metric, render shuffle records as compact two-column rows, and
+place the proof heading beside its explanatory note. Retain full-sized text, two
+named table scroll regions, all trace-derived values, and the existing semantic
+figure; do not clip, truncate, hide, scale, or duplicate content.
+
+**Consequences:** The final independent language audit passes with precise
+standalone labels, including `происхождение окна`, `фактический знаменатель по
+токенам`, padding-token IDs, corpus-partition evidence, and explicit order replay
+or change. Both locales pass Chromium and Firefox inline, narrow, fullscreen,
+no-JavaScript, forced-color, direction, focus, formula-ink, named-region, and
+nearest-box containment checks. The rendered mean-loss formulas use concise exact
+values such as `1.75/4=0.4375` without changing Rust trace bytes.
+
+**Affected step and run:** `activate-ch21-russian-localization`, run
+`20260730T064448Z-activate-ch21-russian-localization-01`.
+
+## 2026-07-30 - Accept immutable and Linux Chapter 21 builds after Dropbox locks host cleanup
+
+**Status:** Accepted during `activate-ch21-russian-localization` final validation.
+
+**Context:** The canonical Windows Astro build encountered the previously recorded
+Dropbox/Vite cleanup lock. The same canonical source and tests were copied into an
+immutable staging tree, where the only configuration difference redirects the
+disposable Vite cache. The repository's supported pinned Linux workflow also built
+the complete site normally. Changing the product build or the user's Dropbox
+configuration would be an unrelated workaround for a host-only cleanup race.
+
+**Decision:** Do not change the product build, dependencies, deployment, or user
+environment. Accept immutable `source-candidate-08`, whose `site/src` and
+`site/tests` match canonical files exactly, together with the passing pinned
+`./course check` Linux build. Require the candidate's Astro diagnostics, production
+build, link audit, complete unit/content/parity gates, exact Rust comparisons, and
+all Chapter 21/shared Chromium and Firefox suites to pass.
+
+**Consequences:** Chapter 21 remains reproducible and deployable through the
+unchanged Linux workflow. The selected candidate contains 67 routes and 149
+artifacts; all 67 routes have SEO, sitemap, and Analytics coverage. The staging
+cache redirect is not published, and the host-only cleanup exception waives none
+of the source, locale, Rust, browser, accessibility, formula, or containment gates.
+
+**Affected step and run:** `activate-ch21-russian-localization`, run
+`20260730T064448Z-activate-ch21-russian-localization-01`.
