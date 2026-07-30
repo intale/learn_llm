@@ -939,7 +939,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `03-learn-bpe-merges`
 - **Implementation step:** `implement-ch03-learn-bpe-merges`
-- **Revision status:** Content revision 4 preserves the learned ranks and Rust behavior while distinguishing tokenizer decoding from the LLM decoder, rendering explanatory tuples as mathematics, and tightening the Russian BPE terminology.
+- **Revision status:** Content revision 5 preserves the learned ranks and Rust behavior while removing page/fixture machinery from learner prose, using a faithful Russian spelling of Sennrich, distinguishing tokenizer decoding from the LLM decoder, rendering explanatory tuples as mathematics, and retaining precise Russian BPE terminology.
 - **Depends on:** `02-corpus-partitions`.
 - **Outcome:** Learn one deterministic sequence of byte-pair merges from training documents only.
 - **Scope boundary:** Teach overlapping adjacent-pair counting, numeric lexicographic tie-breaking, and left-to-right non-overlapping replacement within each document. Boundary markers are barriers; validation/test documents and arbitrary-input encoding are deferred.

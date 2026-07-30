@@ -2,7 +2,7 @@
 {
   "chapter_id": "03-learn-bpe-merges",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 3,
   "concept_id": "deterministic-bpe-merge-learning",
   "title": "Learning deterministic BPE merges",
@@ -299,8 +299,9 @@ records both candidate and replacement counts. Tests cover overlap, ties,
 document barriers, zero rounds, token-ID overflow, exact provenance, vocabulary
 growth, rule uniqueness, and repeatability.
 
-The executable then audits eight real ranks and emits the small strict trace used
-by the page:
+The executable then prints the eight ranks learned from the real corpus and a
+compact two-round trace whose counts, selections, replacements, and stopping
+condition can be inspected directly:
 
 <RustSource
   path="rust/demos/ch03-learn-bpe-merges/src/main.rs"
@@ -330,7 +331,7 @@ string**. Preserve and display it as bytes or hex.
 
 <LearnBpeMergesDiagram labels={diagramLabels} />
 
-The figure reproduces the exact Rust expected-output fixture. Each stage keeps both
+The figure follows the same deterministic two-round trace. Each stage keeps both
 documents visible; each candidate table distinguishes the overlapping count from
 the non-overlapping replacement count. The selected row has text, a star, weight,
 and a border, so color is not required. Numeric and hex lanes remain left-to-right

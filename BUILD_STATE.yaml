@@ -22406,6 +22406,7 @@ builds:
           - "site/tests/02-corpus-partitions-diagram.test.ts"
           - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
           - "curriculum/README.md revision inventory"
+          - "curriculum/course-plan.md Chapter 3 revision status"
           - "Declared Chapter 2 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/02-corpus-partitions.md"
@@ -22482,7 +22483,7 @@ builds:
       - id: audit-ch03-learn-bpe-merges
         objective: "Audit and repair Chapter 3 BPE-merge teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch02-corpus-partitions]
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md and localization/formula/diagram rules"
           - "curriculum/chapters/03-learn-bpe-merges.md"
@@ -22492,6 +22493,7 @@ builds:
           - "site/src/lib/learn-bpe-merges-diagram.ts"
           - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "curriculum/README.md revision inventory"
           - "Declared Chapter 3 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/03-learn-bpe-merges.md"
@@ -22501,6 +22503,8 @@ builds:
           - "site/src/lib/learn-bpe-merges-diagram.ts"
           - "site/tests/03-learn-bpe-merges-diagram.test.ts"
           - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "curriculum/README.md if the content revision advances"
+          - "curriculum/course-plan.md if the content revision advances"
           - "Chapter 3 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -22511,7 +22515,59 @@ builds:
           - "The audit is committed before Chapter 4 begins."
         validate: ["Chapter 3 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
         cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T124753Z-audit-ch03-learn-bpe-merges-01
+            started_at: "2026-07-30T12:47:53Z"
+            finished_at: "2026-07-30T13:00:19Z"
+            status: succeeded
+            input_fingerprint:
+              git: "cc4c8747a07636dca35d1c90761bda37e38d5a41"
+              manifest: "C:/tmp/learn_llm/runs/20260730T124753Z-audit-ch03-learn-bpe-merges-01/input-fingerprint.txt"
+              checksum: "sha256:db4aa5f4d2397849444d3d2a01a0fb0f6d896890aa4abeb22d50d781a1fb12b6"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T124753Z-audit-ch03-learn-bpe-merges-01/"
+            commands:
+              - "Verify dedicated Chapter 2 commit cc4c874, clean worktree, active sequential build, completed dependency, Chapter 3 source paths, locale policy, rules, exact hashes, output ownership, and medium cost before product edits."
+              - "Independently audit English and direct Russian BPE teaching, formulas, byte/pair semantics, tie-breaking, non-overlapping replacement, history, exercises, answers, SEO, diagram/accessibility copy, Chapter 4 handoff, and exact Rust behavior."
+              - "Remove page/fixture implementation language from both lessons, correct the Russian spelling of Sennrich, and advance the exact locale pair plus revision inventories to revision 5 without changing algorithm or Rust behavior."
+              - "Run focused contract, English, Russian, parity, Vitest diagram/formula, exact pinned Linux Rust-output, and ownership checks."
+              - "Freeze the corrected product files in candidate-01, run Astro check/build and link audit, then run the Chapter 3, formula, shared diagram-style, and full-view suites in pinned Chromium and Firefox."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T124753Z-audit-ch03-learn-bpe-merges-01/input-fingerprint.txt"
+                checksum: "sha256:db4aa5f4d2397849444d3d2a01a0fb0f6d896890aa4abeb22d50d781a1fb12b6"
+                notes: "Exact Chapter 3 contract, bilingual lessons, figure/library/tests, Rust evidence, revision inventory, workflow, environment, scope, and dependency fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T124753Z-audit-ch03-learn-bpe-merges-01/audit-manifest.txt"
+                checksum: "sha256:490a538796d318fc331b75359343e18b6e8d75d3125b610f82e90dfa4552cf5f"
+                notes: "Immutable final source hashes, correction summaries, and semantic, Rust, static, link, Chromium, and Firefox outcomes."
+            validation:
+              - command: "Dependency, worktree, locale, source, output, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 2 is independently committed; Chapter 3 is the first eligible pending step; the tree was clean; English/Russian are the exact active set; all declared files exist; no network, paid service, dependency, or build change is planned."
+              - command: "Independent bilingual semantic, mathematical, historical, terminology, accessibility, SEO, exercise, answer, and handoff audit plus correction re-audit"
+                status: passed
+                notes: "The audit found and the re-audit cleared learner-facing page/fixture machinery and the misspelled Russian Sennrich surname; pair counts, tie policy, ranks, replacements, history, formulas, diagram semantics, handoff, and exact Rust evidence remained correct."
+              - command: "Chapter 3 contract plus English, Russian, and configured-locale parity gates"
+                status: passed
+                notes: "All four focused content gates passed at revision 5."
+              - command: "Focused LearnBpeMergesDiagram and formula-rendering Vitest suites"
+                status: passed
+                notes: "19 of 19 tests passed."
+              - command: "cargo run --quiet --locked -p ch03-learn-bpe-merges | diff -u rust/demos/ch03-learn-bpe-merges/expected.txt -"
+                status: passed
+                notes: "The pinned Linux Rust example reproduced the committed expected output exactly."
+              - command: "Candidate Astro check/build and link audit"
+                status: passed
+                notes: "Astro checked 206 files with zero diagnostics, generated 68 pages, and the link audit verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts."
+              - command: "Pinned Chromium Chapter 3, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+              - command: "Pinned Firefox Chapter 3, formula, shared diagram-style, and full-view rendered suites"
+                status: passed
+                notes: "27 of 27 desktop, narrow, localized, no-JavaScript, fullscreen, focus, forced-color, and containment cases passed."
+              - command: "Candidate-to-canonical hash comparison and declared-output ownership audit"
+                status: passed
+                notes: "Every corrected candidate product file matches the canonical working tree exactly; dirty paths remain within declared Chapter 3 outputs and necessary state/revision integration, with no Rust, component, dependency, build, deployment, or file-mode change."
+            notes: "Succeeded with learner-facing prose and name corrections in an exact revision-5 English/Russian pair. The in-app browser runtime exposed no browser instance after prescribed setup, so the repository's pinned Playwright engines supplied the rendered audit."
       - id: audit-ch04-apply-bpe-tokenizer
         objective: "Audit and repair Chapter 4 tokenizer-application teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch03-learn-bpe-merges]
