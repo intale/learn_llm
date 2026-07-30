@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-29T18:42:38Z"
+updated_at: "2026-07-30T06:42:36Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -21586,3 +21586,197 @@ builds:
                 status: passed
                 notes: "The diff has no whitespace errors; the complete ledger parses; every in-scope product change is declared; generated root caches remain untracked and excluded; all final publication checksums match."
             notes: "Succeeded. Corrected English Chapter 19 and its direct natural Russian translation now teach affine and bias-free feature projections, exact reverse gradients, and shared-parameter accumulation with byte-authentic Rust evidence and one bilingual shared-system figure. Every declared source, static, Linux, Chromium, Firefox, link, and independent-review gate passes; the Dropbox-only post-generation host cleanup limitation is preserved and explicitly governed by the recorded equivalent-build decision."
+  - build_id: activate-ch20-russian-localization
+    objective: "Audit the canonical Chapter 20 SwiGLU lesson, correct any source inaccuracies or learner-facing delivery language, translate its complete surface into natural technical Russian, and activate the exact locale route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses local authored translation and cached Rust, static, Chromium, and Firefox validation without paid or external services; the resource and external-staging decision is recorded in DECISIONS.md."
+    completion_criteria:
+      - "English Chapter 20 accurately derives bias-free position-wise SwiGLU forward and reverse behavior, keeps its history on the road to modern LLM feed-forward blocks, and contains no learner-facing authoring or delivery machinery."
+      - "Russian Chapter 20 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and Chapter 21 handoff in natural technical language."
+      - "The Chapter 20 figure uses the shared static diagram contract and contains both locales at desktop, narrow, no-JavaScript, fullscreen, forced-color, and direction-sensitive surfaces in Chromium and Firefox."
+      - "Only Chapter 20 is activated in this checkpoint, the locale policy advances through Chapter 20, and the completed step is committed independently before Chapter 21 starts."
+    steps:
+      - id: activate-ch20-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 20 SwiGLU feed-forward lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch19-russian-localization
+        status: completed
+        inputs:
+          - "Human requests to continue the next three Russian chapter translations without another approval pause, reaffirmed on 2026-07-30."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "curriculum/chapters/20-swiglu-feed-forward.md"
+          - "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/lib/swiglu-feed-forward-diagram.ts"
+          - "site/src/styles/diagram.module.css"
+          - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/main.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/expected.txt"
+          - "rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "Chapter 19 completion commit da878e47af46dcebb141fdf0521a04cc206573fc and subsequent user-owned .gitignore commit 2b2bd46ece08f52ef2e308bfe2a93d1b3e399ba8."
+        outputs:
+          - "curriculum/chapters/20-swiglu-feed-forward.md"
+          - "curriculum/course-plan.md"
+          - "rust/crates/llm-from-scratch/src/nn/swiglu.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/expected.txt"
+          - "rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/main.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs"
+          - "rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt"
+          - "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
+          - "site/src/content/chapters/ru/20-swiglu-feed-forward.mdx"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro"
+          - "site/src/lib/swiglu-feed-forward-diagram.ts"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/20-swiglu-feed-forward-diagram.test.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The corrected English source remains the sole canonical semantic source and passes its contract, formula, history, Rust-evidence, and learner-prose audit before Russian is drafted."
+          - "The Russian lesson is translated directly from that frozen English revision, is natural rather than literal, and passes semantic, terminology, anti-calque, monolingual, SEO, accessibility, exercise, answer, and handoff review."
+          - "Formula markup, code regions, source links, exact evidence, diagram semantics, and locale routing preserve parity without translated identifiers or invented claims."
+          - "Every bounded figure box contains Russian and English text and formula ink in inline and full view at desktop and narrow widths in Chromium and Firefox, including no-JavaScript, forced-color, focus, and direction-sensitive cases."
+          - "Rust formatting, lint, workspace and documentation tests, exact learner and diagram output, unit/static/content/parity/link/SEO/sitemap/Analytics checks, and the production build all pass."
+          - "The completed checkpoint is committed separately before Chapter 21 starts."
+        validate:
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch20-swiglu-feed-forward | diff -u rust/demos/ch20-swiglu-feed-forward/expected.txt -'"
+          - "docker run --rm learn-llm-workspace:local bash -lc 'cargo run --quiet --locked -p ch20-swiglu-feed-forward --example ch20-swiglu-feed-forward-trace | diff -u rust/demos/ch20-swiglu-feed-forward/diagram-trace.txt -'"
+          - "node scripts/check-course-plan.mjs"
+          - "node scripts/check-chapter-contract.mjs curriculum/chapters/20-swiglu-feed-forward.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 20-swiglu-feed-forward"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 20-swiglu-feed-forward"
+          - "node scripts/check-site-content.mjs parity --chapter 20-swiglu-feed-forward"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "Chromium Chapter 20, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "Firefox Chapter 20, shared diagram-style, shared fullscreen, and formula-rendering E2E gates"
+          - "git diff --check"
+          - "Exact English-source meaning lock, Russian critical-claim, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical-ledger, and rendered-surface audit"
+        cost:
+          class: large
+          notes: "Canonical audit and correction, complete source-to-target chapter translation, shared-diagram migration, independent language review, complete Rust/static validation, and two-engine rendered containment/full-view coverage. The unlimited recorded budget covers cached local execution; no paid service, external translation, dependency, build-definition, hosting, or deployment change is planned."
+        runs:
+          - run_id: 20260730T041420Z-activate-ch20-russian-localization-01
+            started_at: "2026-07-30T04:14:20Z"
+            finished_at: "2026-07-30T06:42:36Z"
+            status: succeeded
+            input_fingerprint:
+              git: "2b2bd46ece08f52ef2e308bfe2a93d1b3e399ba8"
+              manifest: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:a99e349fa7366cce70f716d99e28188719fa028996e296220544c0f76b988584"
+              tools: "Windows Git 2.55.0.windows.3, Docker 29.6.2, and Docker Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external translation source or service; the current English Chapter 20, immutable Rust behavior, and cited primary historical sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/"
+            commands:
+              - "Verify the clean user-owned commit 2b2bd46 over completed Chapter 19; parse the complete ledger; inspect current decisions, environment, localization instructions, locale policy, Chapter 20 contract, English lesson, shared figure/parser/tests, and Rust evidence; fingerprint every material input before product edits."
+              - "Attempt normal .build run staging, observe immediate removal of the ignored directory in the Dropbox-managed workspace, preserve the fingerprint under C:/tmp instead, and record the path/cost decision before execution."
+              - "Audit the English contract, lesson, cited primary papers, formulas, learner prose, Rust report, exact trace, and legacy figure; freeze corrected content revision 2 before translating."
+              - "Translate every Chapter 20 contract field, metadata field, lesson section, source claim, exercise, answer, diagram label, caption, and accessibility string directly from frozen English revision 2; complete terminology and anti-calque review."
+              - "Migrate the Chapter 20 figure to the shared course-diagram presentation system and render its vectors, matrices, shapes, local gradients, and accumulated parameter-gradient sums through the strict server math pipeline."
+              - "Reorganize the forward evidence as one transposed semantic table with one generic operation equation, exact per-position values, named keyboard-reachable scroll regions, localized row labels, and a compact full-view grid that preserves readable text and bounded-box containment."
+              - "Run the focused contract, English/Russian content, bilingual parity, diagram parser/component, locale-policy, content-contract, and formula-source gates."
+              - "Build immutable source-candidate-34 with a staging-only Vite cache directory, verify zero source/test drift, run the Chapter 20 suite in Chromium and Firefox, and run shared diagram-style, full-view, and formula-rendering gates in both engines."
+              - "Run the complete canonical unit suite, course-plan and source checks, staged Astro diagnostics/build/link audit, supported Docker ./course check, exact pinned Linux Rust gates, exact learner-output and diagram-trace comparisons, diff/YAML/manifest checks, and independent Russian audit."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:a99e349fa7366cce70f716d99e28188719fa028996e296220544c0f76b988584"
+                notes: "Exact workflow, policy, canonical lesson, diagram, validation, Rust-evidence, environment, user-scope, and base-commit fingerprint before Chapter 20 product edits."
+              - path: "site/src/content/chapters/en/20-swiglu-feed-forward.mdx"
+                checksum: "sha256:d30929d6a14b272511ab83d58fc5a15e9096a931682ffd5606d0bcf1be1159f7"
+                notes: "Frozen canonical English content revision 2 after formula, history-source, learner-prose, and evidence audit."
+              - path: "site/src/content/chapters/ru/20-swiglu-feed-forward.mdx"
+                checksum: "sha256:28a5ef8175eb75f5e6d0e2f389f983d2a25134656c52d94dd6d00bee4e8a7332"
+                notes: "Complete direct Russian translation after semantic, terminology, anti-calque, monolingual, formula, source, exercise, diagram-copy, and invariant review."
+              - path: "curriculum/chapters/20-swiglu-feed-forward.md"
+                checksum: "sha256:f19dd20738b1656be6d5e198e55138698e59b4a6177082777345e2665feb5ad1"
+                notes: "Bilingual revision-2 chapter contract with exact active locale set and terminology decisions."
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/source-candidate-34/site"
+                checksum: "sha256:fd93a4dc398ac632552f720e6062ad03bbc756a52f7b9a8f1af934019096db46"
+                notes: "Immutable selected source/configuration tree: 273 files; canonical src/tests mismatch count zero. Its staging-only Astro configuration redirects only the disposable Vite cache and hashes to sha256:4effc5a7ea179404a1bf760b96a14831bc8373a0b5d84ab2acb28b08588e100b."
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/source-candidate-34/site/dist"
+                checksum: "sha256:849d67806066b08a6e5dd2614b5cccb913ffe209635be6d1b6f9ea3fe8fc8cff"
+                notes: "Selected production output: 148 files and 66 HTML routes."
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/manual-review.md"
+                checksum: "sha256:2f549d54b8a50b13e756265235732ff801c89a6171a998abd006e45428dd189c"
+                notes: "Recorded bilingual semantic, terminology, accessibility, and rendered-surface review."
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/validation-summary.md"
+                checksum: "sha256:101c7c4be3b3fd824721989090169a5457709a245758f8ad78d7cfc292965fd6"
+                notes: "Concise final validation and Dropbox-host exception summary."
+              - path: "C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/publication-manifest.sha256"
+                checksum: "sha256:b7017f1b2979979939c05931c554a412b77905f564796660cf0d88901d7f6569"
+                notes: "Verified SHA-256 manifest for every changed canonical product/test file and selected staged tree."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 19 is independently committed at da878e4; user commit 2b2bd46 only adds generated root-cache ignores; the worktree was clean; active_build was null with no pending or running record; host and repository pins match; Chapter 20 owns the next checkpoint, uses no paid/external service, and is within the unlimited recorded budget. The external staging deviation is checksum-recorded in DECISIONS.md."
+              - command: "node scripts/check-course-plan.mjs"
+                status: passed
+                notes: "40 chapters, 92 scheduled steps, and 40 implemented contracts."
+              - command: "node scripts/check-chapter-contract.mjs curriculum/chapters/20-swiglu-feed-forward.md"
+                status: passed
+                notes: "One bilingual revision-2 contract passed integrated structure, locale, history, terminology, and lesson checks."
+              - command: "npm --prefix site run check:chapter -- --locale en --chapter 20-swiglu-feed-forward && npm --prefix site run check:chapter -- --locale ru --chapter 20-swiglu-feed-forward"
+                status: passed
+                notes: "Both frozen English and direct Russian sources pass the complete per-locale content gate."
+              - command: "node scripts/check-site-content.mjs parity --chapter 20-swiglu-feed-forward"
+                status: passed
+                notes: "Two sources form one publishable semantic-parity set."
+              - command: "npm --prefix site test -- --run tests/20-swiglu-feed-forward-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts"
+                status: passed
+                notes: "After updating the formula-source lock for the now value-bearing gated-vector expression, all 94 focused unit and source-contract tests pass."
+              - command: "npm --prefix site test -- --run"
+                status: passed
+                notes: "The final canonical source passes 52 test files and 848 tests."
+              - command: "Immutable Candidate 34 Astro check/build and npm --prefix site run test:links"
+                status: passed
+                notes: "The staged source matches canonical src/tests exactly; Astro checked 204 files with zero diagnostics, generated 66 HTML routes and 148 artifacts, and the link audit verified 2,150 local references plus SEO, sitemap, and Analytics coverage on every route."
+              - command: "Chapter 20 E2E on Candidate 34 in Chromium and Firefox"
+                status: passed
+                notes: "All 7 tests pass in each engine across English/Russian desktop, narrow, full view, no-JavaScript, forced colors, RTL, focus restoration, scroll ownership, four-sided boxes, and painted-text/formula containment."
+              - command: "Shared diagram-style, diagram-full-view, and formula-rendering E2E in Chromium and Firefox"
+                status: passed
+                notes: "Candidate 33 passed 10 diagram-style, 10 full-view, and 118 formula cases per engine. Candidate 34 changed only the caption selector required by the shared source contract; its focused two-engine suite and complete canonical unit gate reconfirm the final source."
+              - command: "bash ./course check"
+                status: passed
+                notes: "The supported Docker workflow passes Rust workspace checks, Astro diagnostics/content/parity checks, the 66-page production build, links, SEO, sitemap, Analytics, and artifact audit. Docker image manifest list: sha256:7f50c8a81fa9a3c203b6e510dcb7fe955672231210c7f90e8d6ad50dbb98b4a9."
+              - command: "docker run --rm learn-llm-workspace:local bash -lc 'cargo fmt --all -- --check && cargo clippy --workspace --all-targets --locked -- -D warnings && cargo test --workspace --locked && cargo test --workspace --doc --locked'"
+                status: passed
+                notes: "Exact pinned Linux formatting, warning-denied Clippy, workspace tests, and documentation tests pass."
+              - command: "Exact Chapter 20 learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Both Rust executables match their committed expected artifacts byte for byte."
+              - command: "Canonical npm --prefix site run build on the Dropbox-managed Windows path"
+                status: failed
+                notes: "All routes were generated, then Dropbox locked site/dist/.prerender during Astro final cleanup. The product build remains unchanged; immutable Candidate 34 and the supported pinned Linux production build pass under the recorded decision."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, checksum, scope, historical, and rendered-surface audit"
+                status: passed
+                notes: "The final auditor returns PASS after localized before/after labels and concise table wording were corrected. English MDX SHA-256 is d30929d6a14b272511ab83d58fc5a15e9096a931682ffd5606d0bcf1be1159f7 and Russian MDX SHA-256 is 28a5ef8175eb75f5e6d0e2f389f983d2a25134656c52d94dd6d00bee4e8a7332."
+              - command: "git diff --check, BUILD_STATE.yaml parse, output-ownership review, and publication-manifest verification"
+                status: passed
+                notes: "The product diff had no whitespace errors; the complete ledger parses; every in-scope product change is declared; and every canonical file checksum in the final publication manifest matches."
+            notes: "Succeeded. Corrected English Chapter 20 and its direct natural Russian translation now teach bias-free position-wise SwiGLU forward and reverse behavior with exact Rust evidence and one shared-system bilingual figure. Every declared source, exact Rust, static, Linux, Chromium, Firefox, link, and independent-review gate passes; the Dropbox-only post-generation host cleanup limitation is preserved and explicitly governed by the recorded equivalent-build decision."

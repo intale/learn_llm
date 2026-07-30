@@ -123,7 +123,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         report.position_independent
     );
     println!(
-        "empty leading axis: shape=0x2 -> {} values={}",
+        "empty leading axis: shape=0x2 -> {} value-count={}",
         shape(report.empty_output.shape()),
         report.empty_output.len()
     );

@@ -2,7 +2,7 @@
 {
   "chapter_id": "20-swiglu-feed-forward",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 20,
   "concept_id": "swiglu-feed-forward",
   "title": "Let one learned branch gate another",
@@ -85,7 +85,7 @@
       ]
     },
     "approach": "From a tanh hidden layer in a neural language model, through the Transformer's position-wise ReLU feed-forward block, to multiplicative GLU variants and SwiGLU",
-    "summary": "Nonlinear hidden layers made early neural language models more expressive than one affine map; Transformers standardized a widened position-wise ReLU block; SwiGLU adds a second projected branch and an elementwise interaction. This chapter derives that interaction directly while keeping its dimensions, bias policy, names, seed, errors, and trace as explicit course choices.",
+    "summary": "Nonlinear hidden layers made early neural language models more expressive than one affine map; Transformers standardized a widened position-wise ReLU block; SwiGLU adds a second projected branch and an elementwise interaction. This chapter derives that interaction while keeping the cited architecture claims separate from the implementation's dimensions, bias policy, naming, and deterministic evidence.",
     "rust_source": "rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
   },
   "rust_sources": [
@@ -150,7 +150,7 @@ import SwigluFeedForwardDiagram from '../../../components/chapters/SwigluFeedFor
 export const diagramLabels = {
   title: 'Follow two projected branches through one position-wise SwiGLU layer',
   description:
-    'Read exact Rust-authored forward values, branch gradients, shared-parameter gradients, and a position-independence probe for the frozen two-position fixture.',
+    'Follow Rust-authored forward values, branch gradients, shared-parameter sums, and a position-independence probe for one two-position fixture.',
   summary: {
     inputWidth: 'Input width',
     hiddenWidth: 'Branch width',
@@ -171,10 +171,13 @@ export const diagramLabels = {
     gradients: 'Split local gradients; accumulate shared weights',
   },
   fields: {
+    computation: 'Computation',
     position: 'Position',
     input: 'Input',
+    gateProjection: 'Gate projection',
     preActivation: 'Before SiLU',
     activatedGate: 'After SiLU',
+    upProjection: 'Up projection',
     upBranch: 'Projected values',
     gated: 'Gated features',
     output: 'Output',
@@ -185,6 +188,7 @@ export const diagramLabels = {
     inputGradient: 'Returned input gradient',
     parameter: 'Shared parameter',
     shape: 'Shape',
+    accumulation: 'Sum across positions',
     gradient: 'Accumulated gradient',
     changedPosition: 'Changed position',
     replacement: 'Replacement input',
@@ -195,13 +199,15 @@ export const diagramLabels = {
   },
   notes: {
     positionWise:
-      'The same three weights act on both rows. No forward edge crosses between positions.',
+      'The same three weight matrices serve both rows; positions never connect.',
     gate:
-      'SiLU can return a small negative value, exact zero, or a positive value. It is not a probability mask.',
+      'SiLU can be negative, zero, or positive; it is not a probability mask.',
     gradients:
       'Each input receives a local gradient. The three shared weights collect contributions from both positions.',
     independence:
       'Rust replaces position zero with an all-zero input and recomputes the layer. Position one is byte-for-byte unchanged.',
+    precision:
+      'The diagram rounds to six decimals; the report keeps twelve.',
   },
   symbols: {
     biasFree: 'Bias-free',
@@ -212,7 +218,8 @@ export const diagramLabels = {
     parameterGradients: 'Gradients accumulated into the three shared weights',
   },
   scrollers: {
-    gradients: 'Scrollable SwiGLU gradient evidence',
+    forward: 'Scrollable per-position forward computation table',
+    parameters: 'Scrollable shared-parameter gradient table',
   },
 };
 
@@ -223,20 +230,14 @@ export const diagramLabels = {
 Chapter 19 supplied reusable bias-free projections. This fixture sends two
 position rows through three shared weights:
 
-```text
-X  = [[1, 0],
-      [0, 1]]
-
-Wg = [[-1, 0,  1],
-      [ 0, 1, -1]]
-
-Wu = [[1, 2, 3],
-      [3, 2, 1]]
-
-W2 = [[1,  0],
-      [0,  1],
-      [1, -1]]
-```
+$$
+\begin{aligned}
+X &= \begin{bmatrix}1&0\\0&1\end{bmatrix}, \\
+W_g &= \begin{bmatrix}-1&0&1\\0&1&-1\end{bmatrix}, \\
+W_u &= \begin{bmatrix}1&2&3\\3&2&1\end{bmatrix}, \\
+W_2 &= \begin{bmatrix}1&0\\0&1\\1&-1\end{bmatrix}.
+\end{aligned}
+$$
 
 The first row of $XW_g$ is $[-1,0,1]$. Before looking ahead, predict
 $\operatorname{SiLU}([-1,0,1])$, multiply it coordinate by coordinate with
@@ -265,7 +266,7 @@ intermediates for the trace:
 <RustSource
   path="rust/demos/ch20-swiglu-feed-forward/src/lib.rs"
   region="known-swiglu-forward"
-  caption="Run the frozen two-position SwiGLU fixture"
+  caption="Evaluate the fixed two-position SwiGLU example"
   label="Rust source for the Chapter 20 known SwiGLU forward pass"
 />
 
@@ -376,9 +377,10 @@ A modern decoder can use a bias-free SwiGLU sublayer to expand each token repres
 
 This is the road from nonlinear neural-language-model computation to modern LLM
 feed-forward blocks, not a programming-language history. The paper reports
-bounded results for tested configurations and does not prove why SwiGLU works.
-Dimensions, bias policy, names, seed, errors, and trace grammar remain course
-choices.
+results for specific tested configurations; those experiments do not by
+themselves establish why SwiGLU works.
+The papers establish the architecture, not the exact dimensions, bias policy,
+parameter names, seed, or error behavior used by this implementation.
 
 The historical Rust sample evaluates tanh and ReLU on the same three inputs; the
 comparison is about activations, while Rust is only the executable medium:
@@ -456,11 +458,11 @@ parameters, initialization, identity, independence, empty input, and errors:
   label="Rust source for the Chapter 20 learner output"
 />
 
-Run `cargo run --quiet --locked -p ch20-swiglu-feed-forward`. Its stdout is
-frozen in `rust/demos/ch20-swiglu-feed-forward/expected.txt`. Tests also check
-stable SiLU limits, exact parameter order and count, validation precedence,
-sequential random draws, all rank variants, and sampled finite differences with
-step `1e-6` and tolerance `3e-6`.
+Run `cargo run --quiet --locked -p ch20-swiglu-feed-forward` to inspect the
+deterministic report. The implementation also covers stable SiLU limits, exact
+parameter order and count, validation precedence, sequential random draws, all
+rank variants, and sampled finite differences with step $10^{-6}$ and tolerance
+$3\times10^{-6}$.
 
 {/* chapter-section:visualization */}
 
@@ -478,11 +480,10 @@ weight gradients, and one position-independence probe:
 
 <SwigluFeedForwardDiagram labels={diagramLabels} />
 
-The build-time parser checks grammar, ordering, shapes, names, and exact numeric
-lexemes; it performs no tensor arithmetic. Text labels and distinct border
-styles identify the branches without color. The figure keeps natural heights,
-stacks branches at narrow widths, and confines wide gradient evidence to one
-named keyboard-focusable scroller.
+The figure keeps each position's two forward branches together, then separates
+local reverse gradients from the sums accumulated into shared weights. The
+independence probe changes only position zero, so the unchanged output at
+position one is direct evidence that SwiGLU transforms positions independently.
 
 {/* chapter-section:exercises */}
 
@@ -491,7 +492,7 @@ named keyboard-focusable scroller.
 1. Predict $\operatorname{SiLU}(-1)$, $\operatorname{SiLU}(0)$, and $\operatorname{SiLU}(1)$.
 2. Predict $h_0$ after multiplying the first activated gate by $u_0=[1,2,3]$.
 3. Predict the three parameter shapes and total scalar count.
-4. Decide which output rows change when only position zero becomes `[0,0]`.
+4. Decide which output rows change when only position zero becomes $[0,0]$.
 5. Decide whether $dW_g$, $dW_u$, and $dW_2$ use one position or both.
 6. Predict output shapes for inputs $[2]$, $[2,2]$, and $[1,2,2]$.
 7. Explain why two gated projections cannot generally collapse into one fixed matrix.

@@ -142,13 +142,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn trace_is_lf_terminated_and_contains_every_declared_record() {
+    fn trace_matches_the_committed_fixture_byte_for_byte() {
         let trace = render_trace().unwrap();
-        assert!(trace.ends_with('\n'));
-        assert!(!trace.contains('\r'));
-        assert_eq!(trace.lines().count(), 11);
-        assert_eq!(trace.matches("POSITION-FORWARD position=").count(), 2);
-        assert_eq!(trace.matches("POSITION-BACKWARD position=").count(), 2);
-        assert_eq!(trace.matches("PARAMETER-GRADIENT name=").count(), 3);
+        assert_eq!(trace, include_str!("../diagram-trace.txt"));
     }
 }

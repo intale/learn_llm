@@ -2,56 +2,68 @@
 {
   "chapter_id": "20-swiglu-feed-forward",
   "concept_id": "swiglu-feed-forward",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 20,
   "objective": {
-    "en": "Compose three bias-free projections with a differentiable SiLU gate, preserve every leading position, and verify the exact forward and reverse values."
+    "en": "Compose three bias-free projections with a differentiable SiLU gate, preserve every leading position, and verify the exact forward and reverse values.",
+    "ru": "Скомпонуйте три проекции без смещения и дифференцируемый вентиль SiLU, не смешивая ведущие позиции, и проверьте точные значения прямого и обратного проходов."
   },
   "worked_inputs": {
-    "en": "Use X=[[1,0],[0,1]], gate and up weights with shape [2,3], and a down weight with shape [3,2]. Predict the gate values -1, 0, and 1, the two width-3 elementwise products, and which output row can change when only input row 0 is replaced by [0,0]."
+    "en": "Use X=[[1,0],[0,1]], gate and up weights with shape [2,3], and a down weight with shape [3,2]. Predict the gate values -1, 0, and 1, the two width-3 elementwise products, and which output row can change when only input row 0 is replaced by [0,0].",
+    "ru": "Возьмите X=[[1,0],[0,1]], матрицы весов вентильной ветви и ветви расширения формы [2,3] и матрицу весов проекции сжатия формы [3,2]. Предскажите значения на входе вентиля -1, 0 и 1, два поэлементных произведения ширины 3 и определите, какая строка выхода может измениться, если заменить только строку 0 входа на [0,0]."
   },
   "formula": {
     "latex": "\\operatorname{FFN}(X)=\\left(\\operatorname{SiLU}(XW_g)\\odot(XW_u)\\right)W_2",
     "symbols": [
       {
         "symbol": "X",
-        "en": "the input tensor with shape [...,d_{in}], where each leading coordinate is one independent position"
+        "en": "the input tensor with shape [...,d_{in}], where each leading coordinate is one independent position",
+        "ru": "входной тензор формы [...,d_{in}], в котором каждая ведущая координата задаёт отдельную позицию"
       },
       {
         "symbol": "W_g",
-        "en": "the bias-free gate weight with shape [d_{in},d_{ff}]"
+        "en": "the bias-free gate weight with shape [d_{in},d_{ff}]",
+        "ru": "матрица весов вентильной ветви без смещения формы [d_{in},d_{ff}]"
       },
       {
         "symbol": "W_u",
-        "en": "the bias-free up-branch weight with shape [d_{in},d_{ff}]"
+        "en": "the bias-free up-branch weight with shape [d_{in},d_{ff}]",
+        "ru": "матрица весов ветви расширения без смещения формы [d_{in},d_{ff}]"
       },
       {
         "symbol": "W_2",
-        "en": "the bias-free down weight with shape [d_{ff},d_{out}]"
+        "en": "the bias-free down weight with shape [d_{ff},d_{out}]",
+        "ru": "матрица весов проекции сжатия без смещения формы [d_{ff},d_{out}]"
       },
       {
         "symbol": "\\operatorname{SiLU}(z)",
-        "en": "the elementwise activation z times sigmoid(z); it may be negative and is not itself a probability gate"
+        "en": "the elementwise activation z times sigmoid(z); it may be negative and is not itself a probability gate",
+        "ru": "поэлементная активация, равная произведению входного значения на его сигмоиду; она может быть отрицательной и сама по себе не является вероятностным вентилем"
       },
       {
         "symbol": "\\odot",
-        "en": "elementwise multiplication of the equal-shape gate and up branches"
+        "en": "elementwise multiplication of the equal-shape gate and up branches",
+        "ru": "поэлементное умножение одинаковых по форме вентильной ветви и ветви расширения"
       },
       {
         "symbol": "d_{in}",
-        "en": "the input feature width"
+        "en": "the input feature width",
+        "ru": "ширина входных признаков"
       },
       {
         "symbol": "d_{ff}",
-        "en": "the expanded feed-forward branch width"
+        "en": "the expanded feed-forward branch width",
+        "ru": "ширина ветвей в расширенном пространстве признаков"
       },
       {
         "symbol": "d_{out}",
-        "en": "the contracted output feature width; the decoder later chooses it equal to its model width"
+        "en": "the contracted output feature width; the decoder later chooses it equal to its model width",
+        "ru": "ширина выходных признаков после сжатия; позже декодер выбирает её равной ширине модели"
       },
       {
         "symbol": "...",
-        "en": "zero or more leading axes preserved without mixing positions"
+        "en": "zero or more leading axes preserved without mixing positions",
+        "ru": "ноль или больше ведущих осей, которые сохраняются без смешивания позиций"
       }
     ]
   },
@@ -59,13 +71,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "An early feed-forward neural language model used one elementwise tanh hidden transformation over a fixed context. The original Transformer made the feed-forward computation position-wise and wider, but its single activated branch still lacked an input-dependent multiplicative interaction between two learned projections."
+        "en": "An early feed-forward neural language model used one elementwise tanh hidden transformation over a fixed context. The original Transformer made the feed-forward computation position-wise and wider, but its single activated branch still lacked an input-dependent multiplicative interaction between two learned projections.",
+        "ru": "В ранней нейросетевой модели языка с прямым распространением использовалось одно поэлементное преобразование скрытого слоя tanh над контекстом фиксированной длины. В исходной архитектуре Transformer сеть прямого распространения стала применяться отдельно к каждой позиции и получила более широкое внутреннее представление, однако единственная ветвь с активацией всё ещё не создавала зависящего от входа мультипликативного взаимодействия между двумя обучаемыми проекциями."
       },
       "later_advance": {
-        "en": "The Transformer applies two learned transformations with ReLU separately and identically at every position. Shazeer then tests GLU-family replacements whose two projected branches meet through elementwise multiplication; the SwiGLU variant activates one branch with Swish at beta one before the product."
+        "en": "The Transformer applies two learned transformations with ReLU separately and identically at every position. Shazeer then tests GLU-family replacements whose two projected branches meet through elementwise multiplication; the SwiGLU variant activates one branch with Swish at beta one before the product.",
+        "ru": "Transformer применяет два обучаемых преобразования с ReLU отдельно и одинаково в каждой позиции. Затем Shazeer исследует замены из семейства GLU, в которых две спроецированные ветви соединяются поэлементным умножением; в варианте SwiGLU одна ветвь перед произведением активируется функцией Swish при $\\beta=1$."
       },
       "modern_llm_role": {
-        "en": "A modern decoder can use a bias-free SwiGLU sublayer to expand each token representation, modulate one learned branch with another, and contract to the width needed by the next residual path, while attention remains responsible for mixing positions."
+        "en": "A modern decoder can use a bias-free SwiGLU sublayer to expand each token representation, modulate one learned branch with another, and contract to the width needed by the next residual path, while attention remains responsible for mixing positions.",
+        "ru": "Современный декодер может использовать подслой SwiGLU без смещений: расширять представление каждого токена, модулировать одну обучаемую ветвь другой, а затем возвращать результат к ширине модели, необходимой для остаточного пути. Смешивание позиций при этом остаётся задачей внимания."
       },
       "sources": [
         {
@@ -74,7 +89,8 @@
           "name": "Bengio et al., A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio et al. place an elementwise hyperbolic-tangent hidden layer between learned context word features and next-word scores in a feed-forward neural language model."
+            "en": "Bengio et al. place an elementwise hyperbolic-tangent hidden layer between learned context word features and next-word scores in a feed-forward neural language model.",
+            "ru": "Бенжио и соавторы помещают скрытый слой с поэлементным гиперболическим тангенсом между обучаемыми признаками слов контекста и оценками следующего слова в нейросетевой модели языка с прямым распространением."
           }
         },
         {
@@ -83,7 +99,8 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
           "claim": {
-            "en": "Vaswani et al. apply the same two-transformation ReLU feed-forward network separately at every sequence position and expand from model width 512 to inner width 2048 in the published configuration."
+            "en": "Vaswani et al. apply the same two-transformation ReLU feed-forward network separately at every sequence position and expand from model width 512 to inner width 2048 in the published configuration.",
+            "ru": "Васвани и соавторы применяют одну и ту же сеть прямого распространения с двумя преобразованиями и ReLU отдельно к каждой позиции последовательности; в опубликованной конфигурации ширина модели 512 расширяется до внутренней ширины 2048."
           }
         },
         {
@@ -92,16 +109,19 @@
           "name": "Shazeer, GLU Variants Improve Transformer",
           "source_url": "https://arxiv.org/pdf/2002.05202",
           "claim": {
-            "en": "Shazeer defines bias-free Transformer GLU variants with three weight matrices and writes SwiGLU as a Swish-activated projection multiplied elementwise by a second projection before the output projection."
+            "en": "Shazeer defines bias-free Transformer GLU variants with three weight matrices and writes SwiGLU as a Swish-activated projection multiplied elementwise by a second projection before the output projection.",
+            "ru": "Shazeer определяет варианты GLU для Transformer без смещений с тремя матрицами весов и записывает SwiGLU как проекцию с активацией Swish, поэлементно умноженную на вторую проекцию перед выходной проекцией."
           }
         }
       ]
     },
     "approach": {
-      "en": "From a tanh hidden layer in a neural language model, through the Transformer's position-wise ReLU feed-forward block, to multiplicative GLU variants and SwiGLU"
+      "en": "From a tanh hidden layer in a neural language model, through the Transformer's position-wise ReLU feed-forward block, to multiplicative GLU variants and SwiGLU",
+      "ru": "От скрытого слоя tanh в нейросетевой модели языка — через применяемый отдельно к каждой позиции блок прямого распространения Transformer с ReLU — к мультипликативным вариантам GLU и SwiGLU"
     },
     "summary": {
-      "en": "Nonlinear hidden layers made early neural language models more expressive than one affine map; Transformers standardized a widened position-wise ReLU block; SwiGLU adds a second projected branch and an elementwise interaction. This chapter derives that interaction directly while keeping its dimensions, bias policy, names, seed, errors, and trace as explicit course choices."
+      "en": "Nonlinear hidden layers made early neural language models more expressive than one affine map; Transformers standardized a widened position-wise ReLU block; SwiGLU adds a second projected branch and an elementwise interaction. This chapter derives that interaction while keeping the cited architecture claims separate from the implementation's dimensions, bias policy, naming, and deterministic evidence.",
+      "ru": "Нелинейные скрытые слои сделали ранние нейросетевые модели языка выразительнее одного аффинного преобразования; Transformer закрепил расширенный блок с ReLU, применяемый отдельно к каждой позиции; SwiGLU добавляет вторую спроецированную ветвь и поэлементное взаимодействие. В этой главе это взаимодействие выводится напрямую, а архитектурные утверждения из источников не смешиваются с локальными свойствами реализации: размерами, вариантом без смещений, именами и детерминированными результатами."
     },
     "rust_contrast": "Evaluate tanh and ReLU on the same three scalar inputs, then compose the cumulative differentiable SiLU and Linear operations into one bias-free SwiGLU layer; do not reimplement tensor multiplication or a second gradient engine."
   },
@@ -113,56 +133,67 @@
       "rust/demos/ch20-swiglu-feed-forward/src/main.rs",
       "rust/demos/ch20-swiglu-feed-forward/src/diagram_trace.rs"
     ],
-    "expected_output": "layer: ffn model=2 hidden=3 bias=false parameters=18\ninput: shape=2x2 values=1.000000000000,0.000000000000,0.000000000000,1.000000000000\ngate pre-activation: shape=2x3 values=-1.000000000000,0.000000000000,1.000000000000,0.000000000000,1.000000000000,-1.000000000000\ngate SiLU: shape=2x3 values=-0.268941421370,0.000000000000,0.731058578630,0.000000000000,0.731058578630,-0.268941421370\nup branch: shape=2x3 values=1.000000000000,2.000000000000,3.000000000000,3.000000000000,2.000000000000,1.000000000000\nelementwise product: shape=2x3 values=-0.268941421370,0.000000000000,2.193175735890,0.000000000000,1.462117157260,-0.268941421370\noutput: shape=2x2 values=1.924234314520,-2.193175735890,-0.268941421370,1.731058578630\nactivation contrast: input=-1.000000000000,0.000000000000,1.000000000000 tanh=-0.761594155956,0.000000000000,0.761594155956 ReLU=0.000000000000,0.000000000000,1.000000000000 SiLU=-0.268941421370,0.000000000000,0.731058578630\nupstream: shape=2x2 values=1.000000000000,0.000000000000,0.000000000000,1.000000000000\ninput gradient: shape=2x2 values=4.634916362006,-2.858777221094,2.196611933241,3.658729090501\ngate weight gradient: shape=2x3 values=0.072329488129,0.000000000000,2.783011535614,0.000000000000,1.855341023743,-0.072329488129\nup weight gradient: shape=2x3 values=-0.268941421370,0.000000000000,0.731058578630,0.000000000000,0.731058578630,0.268941421370\ndown weight gradient: shape=3x2 values=-0.268941421370,0.000000000000,0.000000000000,1.462117157260,2.193175735890,-0.268941421370\nparameter order: ffn.gate.weight,ffn.up.weight,ffn.down.weight\nrank variants: [2]->[2] [2,2]->[2,2] [1,2,2]->[1,2,2]\ninitialized: seed=20 weights-reproducible=true\nidentity: clone-shares-all-parameters=true\nposition independence: changed=0 observed=1 before=-0.268941421370,1.731058578630 after=-0.268941421370,1.731058578630 unchanged=true\nempty leading axis: shape=0x2 -> 0x2 values=0\nerrors: scalar=true width=true hidden=true\nchapter 21 handoff: combine position-wise token losses in deterministic batches\n"
+    "expected_output": "layer: ffn model=2 hidden=3 bias=false parameters=18\ninput: shape=2x2 values=1.000000000000,0.000000000000,0.000000000000,1.000000000000\ngate pre-activation: shape=2x3 values=-1.000000000000,0.000000000000,1.000000000000,0.000000000000,1.000000000000,-1.000000000000\ngate SiLU: shape=2x3 values=-0.268941421370,0.000000000000,0.731058578630,0.000000000000,0.731058578630,-0.268941421370\nup branch: shape=2x3 values=1.000000000000,2.000000000000,3.000000000000,3.000000000000,2.000000000000,1.000000000000\nelementwise product: shape=2x3 values=-0.268941421370,0.000000000000,2.193175735890,0.000000000000,1.462117157260,-0.268941421370\noutput: shape=2x2 values=1.924234314520,-2.193175735890,-0.268941421370,1.731058578630\nactivation contrast: input=-1.000000000000,0.000000000000,1.000000000000 tanh=-0.761594155956,0.000000000000,0.761594155956 ReLU=0.000000000000,0.000000000000,1.000000000000 SiLU=-0.268941421370,0.000000000000,0.731058578630\nupstream: shape=2x2 values=1.000000000000,0.000000000000,0.000000000000,1.000000000000\ninput gradient: shape=2x2 values=4.634916362006,-2.858777221094,2.196611933241,3.658729090501\ngate weight gradient: shape=2x3 values=0.072329488129,0.000000000000,2.783011535614,0.000000000000,1.855341023743,-0.072329488129\nup weight gradient: shape=2x3 values=-0.268941421370,0.000000000000,0.731058578630,0.000000000000,0.731058578630,0.268941421370\ndown weight gradient: shape=3x2 values=-0.268941421370,0.000000000000,0.000000000000,1.462117157260,2.193175735890,-0.268941421370\nparameter order: ffn.gate.weight,ffn.up.weight,ffn.down.weight\nrank variants: [2]->[2] [2,2]->[2,2] [1,2,2]->[1,2,2]\ninitialized: seed=20 weights-reproducible=true\nidentity: clone-shares-all-parameters=true\nposition independence: changed=0 observed=1 before=-0.268941421370,1.731058578630 after=-0.268941421370,1.731058578630 unchanged=true\nempty leading axis: shape=0x2 -> 0x2 value-count=0\nerrors: scalar=true width=true hidden=true\nchapter 21 handoff: combine position-wise token losses in deterministic batches\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "swiglu-feed-forward",
     "rationale": {
-      "en": "Two parallel projection rails make the SiLU activation, elementwise gate, expanded width, contraction, position independence, and split reverse gradients easier to follow than prose or one final vector alone."
+      "en": "Two parallel projection rails make the SiLU activation, elementwise gate, expanded width, contraction, position independence, and split reverse gradients easier to follow than prose or one final vector alone.",
+      "ru": "Две параллельные цепочки проекций позволяют наглядно проследить активацию SiLU, поэлементный вентиль, расширение и сжатие признаков, независимость позиций и разветвление градиентов при обратном проходе; по одному текстовому объяснению или конечному вектору эти связи увидеть сложнее."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative model gains a named differentiable position-wise SwiGLU module with stable bias-free parameters. Later decoder blocks will choose equal input and output widths so this sublayer can sit inside a residual path; Chapter 21 first defines how losses and gradients from multiple token examples combine."
+    "en": "The cumulative model gains a named differentiable position-wise SwiGLU module with stable bias-free parameters. Later decoder blocks will choose equal input and output widths so this sublayer can sit inside a residual path; Chapter 21 first defines how losses and gradients from multiple token examples combine.",
+    "ru": "Совокупная модель получает именованный дифференцируемый модуль SwiGLU без смещений, который отдельно обрабатывает каждую позицию и предоставляет стабильный набор параметров. В последующих блоках декодера ширины входа и выхода будут одинаковыми, чтобы этот подслой можно было поместить в остаточный путь; сначала глава 21 определит, как объединяются функции потерь и градиенты нескольких примеров токенов."
   },
   "terminology": [
     {
       "concept_id": "swiglu",
-      "en": "SwiGLU"
+      "en": "SwiGLU",
+      "ru": "SwiGLU"
     },
     {
       "concept_id": "silu",
-      "en": "SiLU"
+      "en": "SiLU",
+      "ru": "SiLU"
     },
     {
       "concept_id": "gate-branch",
-      "en": "gate branch"
+      "en": "gate branch",
+      "ru": "вентильная ветвь"
     },
     {
       "concept_id": "up-branch",
-      "en": "up branch"
+      "en": "up branch",
+      "ru": "ветвь расширения"
     },
     {
       "concept_id": "down-projection",
-      "en": "down projection"
+      "en": "down projection",
+      "ru": "проекция сжатия"
     },
     {
       "concept_id": "position-wise",
-      "en": "position-wise"
+      "en": "position-wise",
+      "ru": "отдельно для каждой позиции"
     },
     {
       "concept_id": "elementwise-product",
-      "en": "elementwise product"
+      "en": "elementwise product",
+      "ru": "поэлементное произведение"
     },
     {
       "concept_id": "feed-forward-width",
-      "en": "feed-forward width"
+      "en": "feed-forward width",
+      "ru": "внутренняя ширина сети прямого распространения"
     }
   ],
   "translation_notes": [
-    "Chapter 20 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
+    "Chapter 20 has the exact active locale set {en,ru}. English revision 2 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep X, W_g, W_u, W_2, SiLU, FFN, the elementwise-product symbol, dimension symbols, shapes, numeric values, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
     "Translate gate as an input-dependent multiplicative branch, not as a probability. SiLU can be negative and is not bounded to the unit interval.",
+    "Keep the overview term «вентильная обработка» for the broad mechanism. Within this chapter distinguish «вентильная ветвь» (gate branch), «ветвь расширения» (up branch), and «проекция сжатия» (down projection).",
     "Position-wise means the same parameters transform each leading position independently; gradients for shared weights still accumulate across all positions.",
     "Bengio supports the tanh neural-language-model predecessor, Vaswani the position-wise ReLU Transformer FFN, and Shazeer the GLU/SwiGLU advance. None defines this implementation's dimensions, names, seed, errors, trace, or accessibility projection.",
     "Name Rust only for executable source, concrete APIs, and trace provenance. Activations, gating, dimensions, gradients, and position independence are language-independent.",
@@ -221,13 +252,13 @@ optimizer updates remain for later chapters.
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
-Use the two position rows `[[1,0],[0,1]]`. The frozen gate projection produces
-`[[-1,0,1],[0,1,-1]]`, so one tiny fixture contains negative, zero, and positive
-gate inputs. The up projection produces `[[1,2,3],[3,2,1]]`. Predict the two
-elementwise products before applying the `[3,2]` down weight.
+Use the two position rows $X=[[1,0],[0,1]]$. The fixed gate projection produces
+$[[-1,0,1],[0,1,-1]]$, so one small example contains negative, zero, and positive
+gate inputs. The up projection produces $[[1,2,3],[3,2,1]]$. Predict the two
+elementwise products before applying the $[3,2]$ down weight.
 
-Then replace only the first input row with `[0,0]`. The first output should
-become `[0,0]`; the second output must remain unchanged because this sublayer
+Then replace only the first input row with $[0,0]$. The first output should
+become $[0,0]$; the second output must remain unchanged because this sublayer
 does not mix positions.
 
 <!-- contract-section:formula -->
@@ -283,10 +314,10 @@ $$
 replaces the first activated projection with two branches joined by an
 elementwise product. Its bias-free SwiGLU form is equivalent to this chapter's
 formula after renaming the three matrices and applying the same map at every
-preserved leading position. The paper reports bounded experimental gains but
-explicitly does not establish a causal explanation; the dimensions, names,
-seed, errors, trace, and course-wide bias policy here remain local design
-choices.
+preserved leading position. The paper reports results for specific tested
+configurations; those experiments do not by themselves establish why SwiGLU
+works. The papers establish the architecture, not the exact dimensions, bias
+policy, parameter names, seed, or error behavior used by this implementation.
 
 The Rust contrast evaluates tanh and ReLU on the same scalar inputs, then builds
 SwiGLU only by composing the cumulative differentiable SiLU, projection, and
@@ -307,32 +338,26 @@ trace; it does not define another computation. Parameter order is
 `ffn.gate.weight`, `ffn.up.weight`, then `ffn.down.weight`, with
 $2d_{in}d_{ff}+d_{ff}d_{out}$ scalars and no biases.
 
-The frozen fixture checks every forward stage, $dX$, $dW_g$, $dW_u$, and
-$dW_2$. Sampled finite differences independently check the input and all three
-weights. Vector, sequence, batch, empty-leading, initialization, identity,
-position-independence, activation-limit, and error-precedence tests complete the
-boundary. The historical scalar functions use the standard library; no library
-implements SwiGLU.
+The fixed example exposes every forward stage, $dX$, $dW_g$, $dW_u$, and
+$dW_2$. Sampled finite differences independently verify the input and all three
+weights. The implementation also covers vector, sequence, batch, empty-leading,
+initialization, identity, position-independence, activation-limit, and error-
+precedence behavior. The historical scalar functions use the standard library;
+no library implements SwiGLU.
 
-Run `cargo run --quiet --locked -p ch20-swiglu-feed-forward`. Its output must
-match `rust/demos/ch20-swiglu-feed-forward/expected.txt` byte for byte. Run the
-`ch20-swiglu-feed-forward-trace` example for the separate checked diagram trace.
+Run `cargo run --quiet --locked -p ch20-swiglu-feed-forward` to inspect the
+deterministic report. The `ch20-swiglu-feed-forward-trace` example exposes the
+same forward, reverse, and independence evidence in a compact record.
 
 <!-- contract-section:visualization -->
 ## Visualization
 
-The static figure reads the exact eleven-line Rust trace. For each position it
-shows a gate rail through SiLU beside an up rail, their $\odot$ merge, and the
-down-projected output. A separate proof replaces position zero and shows that
-position one is unchanged. Forward values, local reverse values, and accumulated
-shared-parameter gradients remain distinct.
-
-Localized headings and notes stay in the lesson. Numeric vectors, parameter
-names, and formulas are isolated left-to-right. Text labels plus solid, double,
-and dashed borders carry meaning without color. The figure follows DOM reading
-order, stacks its rails at narrow widths, and confines wide gradient tables to
-one named keyboard-focusable scroller. It has no client script or duplicated
-tensor arithmetic.
+For each position, the figure shows a gate rail through SiLU beside an up rail,
+their $\odot$ merge, and the down-projected output. A separate proof replaces
+position zero and shows that position one is unchanged. The reverse section keeps
+local position gradients separate from the three sums accumulated into shared
+weights, so the learner can see both independence and parameter sharing without
+conflating them.
 
 <!-- contract-section:exercises -->
 ## Prediction checks
@@ -368,17 +393,20 @@ averaging of token losses and gradients.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The active locale set is exactly English. Russian remains registered and
-deferred, so it receives no placeholder contract fields, lesson, or route.
-Future translation must preserve symbols, dimensions, numeric values, parameter
-names, trace keywords, source roles, and URLs.
+The active locale set is exactly English and Russian. English revision 2 is the
+canonical source, and Russian is translated directly from it. The translation
+preserves symbols, dimensions, numeric values, parameter names, trace keywords,
+source roles, and URLs.
 
-Translate “gate” as a multiplicative branch, not a probability; SiLU may be
-negative. Keep “position-wise” tied to independent leading coordinates and
-explain separately that shared-parameter gradients accumulate across positions.
-Do not rewrite the history as a progression of Rust or another programming
-language. Every learner-facing expression uses the math pipeline; code styling
-is reserved for concrete APIs, commands, paths, trace tokens, and program data.
+Use «вентильная обработка» for the broad course concept, but distinguish the
+formula's «вентильная ветвь», «ветвь расширения», and «проекция сжатия». The
+gate is an input-dependent multiplicative branch, not a probability, and SiLU
+may be negative. “Position-wise” stays tied to independent leading coordinates;
+shared-parameter gradients are explained separately as sums across positions.
+The history remains a progression of LLM feed-forward computation rather than a
+programming-language chronology. Every learner-facing expression uses the math
+pipeline; code styling is reserved for concrete APIs, commands, paths, trace
+tokens, and program data.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

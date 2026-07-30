@@ -16,6 +16,6 @@ rank variants: [2]->[2] [2,2]->[2,2] [1,2,2]->[1,2,2]
 initialized: seed=20 weights-reproducible=true
 identity: clone-shares-all-parameters=true
 position independence: changed=0 observed=1 before=-0.268941421370,1.731058578630 after=-0.268941421370,1.731058578630 unchanged=true
-empty leading axis: shape=0x2 -> 0x2 values=0
+empty leading axis: shape=0x2 -> 0x2 value-count=0
 errors: scalar=true width=true hidden=true
 chapter 21 handoff: combine position-wise token losses in deterministic batches

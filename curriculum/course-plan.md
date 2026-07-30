@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 45,
+  "plan_revision": 46,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-19",
+    "policy_id": "selective-russian-through-chapter-20",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "19-linear-layers",
+        "through_chapter": "20-swiglu-feed-forward",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-19."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-20."
       },
       {
-        "from_chapter": "20-swiglu-feed-forward",
+        "from_chapter": "21-mini-batches",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 19 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 20 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -269,6 +269,11 @@
         "step_id": "activate-ch19-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch19-russian-localization"
+      },
+      {
+        "step_id": "activate-ch20-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch20-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1196,6 +1201,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `20-swiglu-feed-forward`
 - **Implementation step:** `implement-ch20-swiglu-feed-forward`
+- **Revision status:** Content revision 2 corrects learner-facing formula and delivery language, migrates the figure to the shared presentation system, and publishes the direct meaning-first Russian translation through `activate-ch20-russian-localization`.
 - **Depends on:** `19-linear-layers`.
 - **Outcome:** Implement a position-wise SwiGLU feed-forward network and observe why nonlinear gating adds capacity.
 - **Scope boundary:** Teach sigmoid/tanh/ReLU history, SiLU, elementwise gates, expansion/contraction dimensions, gradients, and the target decoder's bias-free projection policy; defer residual wrapping.

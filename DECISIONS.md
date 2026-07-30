@@ -9590,3 +9590,130 @@ Linux, or link gate.
 
 **Affected step and run:** `activate-ch19-russian-localization`, run
 `20260729T163058Z-activate-ch19-russian-localization-01`.
+
+## 2026-07-30 - Stage Chapter 20 outside the Dropbox tree and budget its full presentation audit
+
+**Status:** Accepted during `activate-ch20-russian-localization` preflight.
+
+**Context:** After commit `2b2bd46` updated ignored root-cache paths, newly
+created ignored `.build/` run directories vanished immediately from the
+Dropbox-managed workspace, including a moved fingerprint file. No Chapter 20
+run had yet entered the ledger and no Chapter 20 product file had changed. The
+canonical lesson also needs more than prose translation: its current figure
+duplicates shared frame, panel, card, focus, table, scroll, palette, and forced-
+color behavior, and the English visualization prose exposes parser and layout
+machinery to learners.
+
+**Decision:** Create a fresh run from commit `2b2bd46` and keep its immutable
+staging evidence under
+`C:/tmp/learn_llm/runs/20260730T041420Z-activate-ch20-russian-localization-01/`.
+Do not modify `.gitignore`, Dropbox, or the product build. Classify the checkpoint
+as large because it combines a canonical meaning/formula audit, shared-diagram
+migration, direct Russian translation, independent language review, and two-
+engine rendered validation. Use only local authored work and cached repository
+tooling; no paid service or external translation is required, and the build's
+recorded resource limit remains unlimited.
+
+**Consequences:** The staging path is outside the repository but remains on the
+same Windows host and is checksum-addressed from `BUILD_STATE.yaml`. Canonical
+outputs and commits remain inside the repository. Chapter 20 cannot publish
+until the exact English/Russian pair, Rust evidence, static output, and complete
+Chromium/Firefox figure matrix pass; cost alone causes no approval pause.
+
+**Affected step and run:** `activate-ch20-russian-localization`, run
+`20260730T041420Z-activate-ch20-russian-localization-01`.
+
+## 2026-07-30 - Freeze corrected Chapter 20 semantics and shared diagram before Russian activation
+
+**Status:** Accepted during `activate-ch20-russian-localization` canonical and
+source-to-target review.
+
+**Context:** The Chapter 20 arithmetic and executable trace agree, and the
+Bengio, Transformer, and SwiGLU claims match their cited primary papers. The
+English revision nevertheless styled fixed tensors as program text, described
+tests, parser output, frozen bytes, and scrolling mechanics to learners, and
+overstated what the SwiGLU experiments establish. Its figure duplicated generic
+frame, palette, card, table, focus, overflow, and forced-color presentation,
+rendered most formulas as text, and did not expose all content-owning boxes to
+the shared containment audit. The empty-tensor report also used the ambiguous
+field `values=0`.
+
+**Decision:** Freeze English content revision 2 before translation. Preserve the
+three bias-free projection formula and exact twelve-decimal Rust evidence, but
+render explanatory tensors through the math pipeline, describe experimental
+claims at their supported scope, and keep build and presentation mechanics out
+of learner prose. Rename the empty-output field to `value-count=0`. Rebuild the
+single semantic figure on `diagram.module.css`, mark every bounded content box,
+keep only SwiGLU geometry and redundant branch-border cues locally, and present
+compact mathematical vectors, matrices, and parameter-gradient sums. Translate
+Russian directly from that frozen revision using `вентильная ветвь`, `ветвь
+расширения`, `проекция сжатия`, and natural position-wise phrasing.
+
+**Consequences:** Both locales teach that SwiGLU transforms positions
+independently while its shared weights accumulate gradient contributions across
+positions. The exact diagram trace remains unchanged; only one learner-report
+field and its exact expected output change. Publication requires independent
+semantic review plus complete Chromium and Firefox inline, narrow, full-view,
+no-JavaScript, forced-color, direction, formula, and nearest-box containment
+validation.
+
+**Affected step and run:** `activate-ch20-russian-localization`, run
+`20260730T041420Z-activate-ch20-russian-localization-01`.
+
+## 2026-07-30 - Present Chapter 20 forward evidence once per operation
+
+**Status:** Accepted during `activate-ch20-russian-localization` rendered-
+surface validation.
+
+**Context:** The first shared-system draft repeated the gate, merge, and down
+equations inside both position cards. That duplication made the relationship
+between one shared operation and two independent positions harder to scan and
+left Firefox full view with substantial vertical travel. A compact layout still
+had to preserve every trace-derived value, formula semantics, accessible branch
+name, bounded-box guarantee, and the three-stage reading order.
+
+**Decision:** Render the position-wise forward pass as one transposed semantic
+table. Each operation appears once as its mathematical row heading, while the
+two position columns retain every exact input, preactivation, activated-gate,
+up-branch, gated-product, and output value. Put that table and the parameter-
+gradient table in separate localized, keyboard-reachable named regions. In full
+view, keep the forward and independence stages in the first lane and the reverse
+evidence in the second, reflow the parameter table without scaling text, and
+reject more than one third of a viewport of vertical travel apart from a two-
+pixel geometry tolerance.
+
+**Consequences:** Repeated equations are removed without removing mathematical
+or executable evidence. Screen readers encounter one accessible operation name
+per row and the actual rendered mathematics in each data cell. English and
+Russian pass the same Chromium and Firefox desktop, narrow, no-JavaScript,
+fullscreen, forced-color, direction, formula-ink, nested-box, and focus checks.
+
+**Affected step and run:** `activate-ch20-russian-localization`, run
+`20260730T041420Z-activate-ch20-russian-localization-01`.
+
+## 2026-07-30 - Accept immutable and Linux Chapter 20 builds after Dropbox locks host cleanup
+
+**Status:** Accepted during `activate-ch20-russian-localization` final
+validation.
+
+**Context:** Canonical Windows Astro builds generated every Chapter 20 route,
+then the Dropbox-managed `site/dist/.prerender` tree again acquired cloud-
+reparse locks during Astro's final cleanup. The same sources build normally in
+an immutable staging tree and in the supported pinned Linux container. Changing
+the build, Dropbox, or cleanup behavior would alter product or user state to
+work around an environment-only post-generation race.
+
+**Decision:** Do not change the product build. Accept immutable staged source
+Candidate 34, whose only staging-only configuration is a local Vite cache path,
+together with the exact pinned `./course check` Linux build. Require the staged
+66-page build, static-link audit, complete Chromium and Firefox gates, canonical
+unit/content/parity checks, and byte-exact Rust output and trace comparisons to
+pass. Preserve the Windows cleanup failure in the run record.
+
+**Consequences:** Chapter 20 remains reproducible under the repository's Linux
+workflow and deploys with an unchanged build definition. The staged workaround
+is not published. This exception covers only the verified Dropbox cleanup race
+and waives none of the source, route, link, localization, browser, or Rust gates.
+
+**Affected step and run:** `activate-ch20-russian-localization`, run
+`20260730T041420Z-activate-ch20-russian-localization-01`.

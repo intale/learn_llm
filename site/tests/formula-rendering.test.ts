@@ -886,10 +886,14 @@ describe("Chapter 8-13 formula-source contract", () => {
         source,
         `${locale}/${file} contains a lone carriage return`,
       ).not.toMatch(/\r(?!\n)/);
-      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(0);
+      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(
+        0,
+      );
       expect(inline.length, `${locale}/${file} inline math`).toBeGreaterThan(0);
       for (const fragment of requiredChapter08To13Math[chapter] ?? []) {
-        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(fragment);
+        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(
+          fragment,
+        );
       }
 
       const code = inlineCode(source);
@@ -944,7 +948,9 @@ describe("Chapter 14-39 formula-source contract", () => {
       const chapter = file.slice(0, 2);
       reviewed.push(`${locale}/${file}`);
 
-      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(0);
+      expect(display.length, `${locale}/${file} display math`).toBeGreaterThan(
+        0,
+      );
       expect(inline.length, `${locale}/${file} inline math`).toBeGreaterThan(0);
       for (const expression of [...display, ...inline]) {
         expect(
@@ -953,7 +959,9 @@ describe("Chapter 14-39 formula-source contract", () => {
         ).not.toContain(String.raw`\*`);
       }
       for (const fragment of requiredChapter14To39Math[chapter] ?? []) {
-        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(fragment);
+        expect(body, `${locale}/${file} must retain ${fragment}`).toContain(
+          fragment,
+        );
       }
 
       const code = inlineCode(source);
@@ -966,9 +974,10 @@ describe("Chapter 14-39 formula-source contract", () => {
 
       const prose = proseOutsideMathAndCode(source);
       for (const pattern of rawChapter14To39FormulaPatterns) {
-        expect(prose, `${locale}/${file} contains raw formula ${pattern}`).not.toMatch(
-          pattern,
-        );
+        expect(
+          prose,
+          `${locale}/${file} contains raw formula ${pattern}`,
+        ).not.toMatch(pattern);
       }
     }
 
@@ -1106,10 +1115,10 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "latex={`i=${trace.fixture.repeatedId.lexeme},\\\\;n=${trace.fixture.occurrences.lexeme}`}",
     );
     expect(components.modelAutodiff).toContain(
-      '<InlineMath latex={shapeLatex(step.outputShape)} />',
+      "<InlineMath latex={shapeLatex(step.outputShape)} />",
     );
     expect(components.modelAutodiff).toContain(
-      '<InlineMath latex={shapeLatex(pullback.shape)} />',
+      "<InlineMath latex={shapeLatex(pullback.shape)} />",
     );
     expect(components.modelAutodiff).not.toContain("join(' × ')");
     expect(components.modelAutodiff).not.toContain(
@@ -1145,11 +1154,13 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
     expect(components.linear).toContain(
       "import InlineMath from '../InlineMath.astro'",
     );
-    expect(components.linear).toContain('latexValue(product.input)');
-    expect(components.linear).toContain('latexValue(product.weight)');
-    expect(components.linear).toContain('<InlineMath latex={contributionLatex} />');
-    expect(components.linear).toContain('latex={latexVector(row.affine)}');
-    expect(components.linear).toContain('latex={latexVector(row.biasFree!)}');
+    expect(components.linear).toContain("latexValue(product.input)");
+    expect(components.linear).toContain("latexValue(product.weight)");
+    expect(components.linear).toContain(
+      "<InlineMath latex={contributionLatex} />",
+    );
+    expect(components.linear).toContain("latex={latexVector(row.affine)}");
+    expect(components.linear).toContain("latex={latexVector(row.biasFree!)}");
     expect(components.linear).toContain(
       "String.raw`dX_{${row.position.lexeme}}`",
     );
@@ -1161,13 +1172,16 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.swiglu).toContain(
-      "String.raw`g_{${position}}=X_{${position}}W_g`",
+      "String.raw`g_{${row.position.lexeme}}=X_{${row.position.lexeme}}W_g`",
     );
     expect(components.swiglu).toContain(
-      "String.raw`s_{${position}}=\\operatorname{SiLU}(g_{${position}})`",
+      'latex="s=\\operatorname{SiLU}(g)"',
     );
     expect(components.swiglu).toContain(
-      "String.raw`h_{${position}}=s_{${position}}\\odot u_{${position}}`",
+      'latex="h=s\\odot u"',
+    );
+    expect(components.swiglu).toContain(
+      "String.raw`h_{${row.position.lexeme}}=${latexVector(row.gated)}`",
     );
     expect(components.swiglu).toContain(
       "String.raw`dX_{${row.position.lexeme}}`",
@@ -1457,12 +1471,12 @@ describe("build-time formula rendering in Chapter 8-13 diagrams", () => {
     expect(components.matmul).toContain("String.raw`k=${term.inner.lexeme}`");
     expect(components.matmul).not.toContain("{' × '}");
     for (const expression of [
-      '\\theta-h=2.9',
-      'q=8.41',
-      '\\theta=3',
-      'h=0.1',
-      '\\theta+h=3.1',
-      'q=9.61',
+      "\\theta-h=2.9",
+      "q=8.41",
+      "\\theta=3",
+      "h=0.1",
+      "\\theta+h=3.1",
+      "q=9.61",
     ]) {
       expect(components.gradcheck).toContain(`latex="${expression}"`);
     }

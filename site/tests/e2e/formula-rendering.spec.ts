@@ -488,7 +488,7 @@ const chapter14To39FormulaLatex: Record<
   "20-swiglu-feed-forward": [
     String.raw`\operatorname{FFN}(X)=\left(\operatorname{SiLU}(XW_g)\odot(XW_u)\right)W_2`,
     String.raw`dA &= dS\odot\operatorname{SiLU}'(A)`,
-    String.raw`h_{0}=s_{0}\odot u_{0}`,
+    String.raw`h=s\odot u`,
     String.raw`dX_{0}`,
   ],
   "21-mini-batches": [

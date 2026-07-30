@@ -28,9 +28,58 @@ const fixtureUrl = new URL(
 const trace = parseSwigluFeedForwardTrace(readFileSync(fixtureUrl, 'utf8'));
 const titleId = `${swigluFeedForwardDiagramId}-${instanceId}-title`;
 const descriptionId = `${swigluFeedForwardDiagramId}-${instanceId}-description`;
-const vector = (values: ReadonlyArray<{ lexeme: string }>) =>
-  `[${values.map((value) => value.lexeme).join(', ')}]`;
-const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
+
+const latexValue = (value: { lexeme: string }) => {
+  const compact = Number.parseFloat(value.lexeme)
+    .toFixed(6)
+    .replace(/0+$/, '')
+    .replace(/\.$/, '');
+  return compact === '-0' ? '0' : compact;
+};
+const latexVector = (values: ReadonlyArray<{ lexeme: string }>) =>
+  String.raw`\left[${values.map(latexValue).join(',')}\right]`;
+const latexShape = (value: string) =>
+  String.raw`\left[${value.replaceAll('x', ',')}\right]`;
+const latexMatrix = (
+  values: ReadonlyArray<{ lexeme: string }>,
+  rows: number,
+  columns: number,
+) => {
+  if (values.length !== rows * columns) {
+    throw new Error(`SwiGLU matrix requires ${rows * columns} values.`);
+  }
+  return String.raw`\begin{bmatrix}${Array.from({ length: rows }, (_, row) =>
+    values
+      .slice(row * columns, (row + 1) * columns)
+      .map(latexValue)
+      .join('&'),
+  ).join('\\\\')}\end{bmatrix}`;
+};
+
+const parameterRows = trace.parameterGradients.map((row) => {
+  if (row.name === 'ffn.gate.weight') {
+    return {
+      ...row,
+      symbol: String.raw`W_g`,
+      accumulation: String.raw`\sum_p X_p^\top dA_p`,
+      value: latexMatrix(row.values, 2, 3),
+    };
+  }
+  if (row.name === 'ffn.up.weight') {
+    return {
+      ...row,
+      symbol: String.raw`W_u`,
+      accumulation: String.raw`\sum_p X_p^\top dU_p`,
+      value: latexMatrix(row.values, 2, 3),
+    };
+  }
+  return {
+    ...row,
+    symbol: String.raw`W_2`,
+    accumulation: String.raw`\sum_p H_p^\top G_p`,
+    value: latexMatrix(row.values, 3, 2),
+  };
+});
 ---
 
 <figure
@@ -47,193 +96,231 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
   </figcaption>
 
   <dl class="shape-summary">
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.inputWidth}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.modelWidth.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.modelWidth.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.hiddenWidth}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.hiddenWidth.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.hiddenWidth.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.outputWidth}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.outputWidth.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.outputWidth.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.bias}</dt>
       <dd>{labels.symbols.biasFree}</dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.parameterCount}</dt>
-      <dd><bdi dir="ltr">{trace.fixture.parameterCount.lexeme}</bdi></dd>
+      <dd><InlineMath latex={trace.fixture.parameterCount.lexeme} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.inputShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.inputShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.inputShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.branchShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.branchShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.branchShape)} /></dd>
     </div>
-    <div>
+    <div data-diagram-box>
       <dt>{labels.summary.outputShape}</dt>
-      <dd><bdi dir="ltr">{shape(trace.fixture.outputShape)}</bdi></dd>
+      <dd><InlineMath latex={latexShape(trace.fixture.outputShape)} /></dd>
     </div>
   </dl>
 
-  <section class="diagram-stage positions-stage" aria-labelledby={`${titleId}-positions`}>
-    <h3 id={`${titleId}-positions`}><span aria-hidden="true">1</span> {labels.stages.positions}</h3>
-    <p>{labels.notes.positionWise}</p>
-    <ol class="position-list">
-      {trace.forward.map((row) => {
-        const position = row.position.lexeme;
-        const gateProjection = String.raw`g_{${position}}=X_{${position}}W_g`;
-        const gateActivation = String.raw`s_{${position}}=\operatorname{SiLU}(g_{${position}})`;
-        const upProjection = String.raw`u_{${position}}=X_{${position}}W_u`;
-        const merge = String.raw`h_{${position}}=s_{${position}}\odot u_{${position}}`;
-        const downProjection = String.raw`Y_{${position}}=h_{${position}}W_2`;
-        return (
-          <li>
-            <article data-diagram-card data-diagram-box class="position-card" data-position={position}>
-              <h4>{labels.fields.position} <bdi dir="ltr">{position}</bdi></h4>
-              <p class="input-row">
-                <strong>{labels.fields.input}</strong>
-                <bdi dir="ltr">{vector(row.input)}</bdi>
-              </p>
-
-              <div class="branch-grid">
-                <article data-diagram-card data-diagram-box class="branch gate-branch">
-                  <h5>{labels.stages.gate}</h5>
-                  <p><InlineMath latex={gateProjection} /></p>
-                  <dl>
-                    <div>
-                      <dt>{labels.fields.preActivation}</dt>
-                      <dd><bdi dir="ltr">{vector(row.gatePre)}</bdi></dd>
-                    </div>
-                    <div>
-                      <dt>{labels.fields.activatedGate}</dt>
-                      <dd><bdi dir="ltr">{vector(row.gateSilu)}</bdi></dd>
-                    </div>
-                  </dl>
-                  <p><InlineMath latex={gateActivation} /></p>
-                </article>
-
-                <article data-diagram-card data-diagram-box class="branch up-branch">
-                  <h5>{labels.stages.up}</h5>
-                  <p><InlineMath latex={upProjection} /></p>
-                  <dl>
-                    <div>
-                      <dt>{labels.fields.upBranch}</dt>
-                      <dd><bdi dir="ltr">{vector(row.up)}</bdi></dd>
-                    </div>
-                  </dl>
-                </article>
-              </div>
-
-              <div class="merge-stage">
-                <strong>{labels.stages.merge}</strong>
-                <InlineMath latex={merge} />
-                <bdi dir="ltr">{vector(row.gated)}</bdi>
-              </div>
-              <div class="down-stage">
-                <strong>{labels.stages.down}</strong>
-                <InlineMath latex={downProjection} />
-                <bdi dir="ltr">{vector(row.output)}</bdi>
-              </div>
-            </article>
-          </li>
-        );
-      })}
-    </ol>
-    <p class="stage-note">{labels.notes.gate}</p>
+  <section class="diagram-stage positions-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-positions`}>
+    <h4 id={`${titleId}-positions`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">1</span> {labels.stages.positions}</h4>
+    <div
+      class="forward-scroll course-diagram__scroll"
+      role="region"
+      tabindex="0"
+      aria-label={labels.scrollers.forward}
+      data-diagram-scroll
+    >
+      <table data-diagram-table class="forward-table">
+        <caption>{labels.stages.positions}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{labels.fields.computation}</th>
+            {trace.forward.map((row) => (
+              <th scope="col" data-forward-position={row.position.lexeme}>
+                {labels.fields.position} <InlineMath latex={row.position.lexeme} />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-forward-stage="input">
+            <th scope="row" aria-label={labels.fields.input}><InlineMath latex="X" /></th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`X_{${row.position.lexeme}}=${latexVector(row.input)}`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="gate-projection">
+            <th scope="row" aria-label={labels.fields.gateProjection}><InlineMath latex="g=XW_g" /></th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`g_{${row.position.lexeme}}=X_{${row.position.lexeme}}W_g`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="gate-pre-activation">
+            <th scope="row" aria-label={labels.fields.preActivation}><InlineMath latex="g" /></th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`g_{${row.position.lexeme}}=${latexVector(row.gatePre)}`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="gate-activation">
+            <th scope="row" class="gate-branch" aria-label={labels.stages.gate}>
+              <InlineMath latex="s=\operatorname{SiLU}(g)" />
+            </th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`s_{${row.position.lexeme}}=${latexVector(row.gateSilu)}`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="up-projection">
+            <th scope="row" aria-label={labels.fields.upProjection}><InlineMath latex="u=XW_u" /></th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`u_{${row.position.lexeme}}=X_{${row.position.lexeme}}W_u`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="up-values">
+            <th scope="row" class="up-branch" aria-label={labels.stages.up}>
+              <InlineMath latex="u" />
+            </th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`u_{${row.position.lexeme}}=${latexVector(row.up)}`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="merge">
+            <th scope="row" class="merge-stage" aria-label={labels.stages.merge}>
+              <InlineMath latex="h=s\odot u" />
+            </th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`h_{${row.position.lexeme}}=${latexVector(row.gated)}`} />
+              </td>
+            ))}
+          </tr>
+          <tr data-forward-stage="down">
+            <th scope="row" class="down-stage" aria-label={labels.stages.down}>
+              <InlineMath latex="Y=hW_2" />
+            </th>
+            {trace.forward.map((row) => (
+              <td data-forward-position={row.position.lexeme}>
+                <InlineMath latex={String.raw`Y_{${row.position.lexeme}}=${latexVector(row.output)}`} />
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="forward-notes course-diagram__grid">
+      <p>{labels.notes.positionWise}</p>
+      <p class="stage-note">{labels.notes.gate}</p>
+      <p class="precision-note">{labels.notes.precision}</p>
+    </div>
   </section>
 
-  <section class="diagram-stage independence-stage" aria-labelledby={`${titleId}-independence`}>
-    <h3 id={`${titleId}-independence`}><span aria-hidden="true">2</span> {labels.stages.independence}</h3>
+  <section class="diagram-stage independence-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-independence`}>
+    <h4 id={`${titleId}-independence`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">2</span> {labels.stages.independence}</h4>
     <p>{labels.notes.independence}</p>
-    <dl class="independence-proof">
-      <div>
+    <dl class="independence-proof course-diagram__grid">
+      <div data-diagram-card data-diagram-box class="proof-changed">
         <dt>{labels.fields.changedPosition}</dt>
-        <dd><bdi dir="ltr">{trace.independence.changedPosition.lexeme}</bdi></dd>
+        <dd><InlineMath latex={trace.independence.changedPosition.lexeme} /></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box class="proof-replacement">
         <dt>{labels.fields.replacement}</dt>
-        <dd><bdi dir="ltr">{vector(trace.independence.replacementInput)}</bdi></dd>
+        <dd><InlineMath latex={latexVector(trace.independence.replacementInput)} /></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box class="proof-observed">
         <dt>{labels.fields.observedPosition}</dt>
-        <dd><bdi dir="ltr">{trace.independence.observedPosition.lexeme}</bdi></dd>
+        <dd><InlineMath latex={trace.independence.observedPosition.lexeme} /></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box class="proof-before">
         <dt>{labels.fields.before}</dt>
-        <dd><bdi dir="ltr">{vector(trace.independence.before)}</bdi></dd>
+        <dd><InlineMath latex={latexVector(trace.independence.before)} /></dd>
       </div>
-      <div>
+      <div data-diagram-card data-diagram-box class="proof-after">
         <dt>{labels.fields.after}</dt>
-        <dd><bdi dir="ltr">{vector(trace.independence.after)}</bdi></dd>
+        <dd><InlineMath latex={latexVector(trace.independence.after)} /></dd>
       </div>
-      <div class="proof-result">
+      <div data-diagram-card data-diagram-box class="proof-result" data-state="trusted">
         <dt>{labels.fields.result}</dt>
         <dd>{labels.symbols.unchanged}</dd>
       </div>
     </dl>
   </section>
 
-  <section class="diagram-stage gradients-stage" aria-labelledby={`${titleId}-gradients`}>
-    <h3 id={`${titleId}-gradients`}><span aria-hidden="true">3</span> {labels.stages.gradients}</h3>
+  <section class="diagram-stage gradients-stage course-diagram__card-stack" data-diagram-box aria-labelledby={`${titleId}-gradients`}>
+    <h4 id={`${titleId}-gradients`} class="course-diagram__card-heading"><span class="state-symbol" aria-hidden="true">3</span> {labels.stages.gradients}</h4>
     <p>{labels.notes.gradients}</p>
-    <div class="gradient-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.gradients} data-diagram-scroll>
-      <div class="position-gradient-grid">
-        {trace.backward.map((row) => (
-          <table data-diagram-table class="position-gradient-table" data-gradient-position={row.position.lexeme}>
-            <caption>
-              {labels.captions.positionGradients}: {labels.fields.position}{' '}
-              <bdi dir="ltr">{row.position.lexeme}</bdi>
-            </caption>
-            <tbody>
-              <tr data-gradient-kind="upstream">
-                <th scope="row">{labels.fields.upstream}</th>
-                <td><bdi dir="ltr">{vector(row.upstream)}</bdi></td>
-              </tr>
-              <tr data-gradient-kind="gated">
-                <th scope="row">{labels.fields.gatedGradient}</th>
-                <td><bdi dir="ltr">{vector(row.gatedGradient)}</bdi></td>
-              </tr>
-              <tr data-gradient-kind="gate">
-                <th scope="row">{labels.fields.gateGradient}</th>
-                <td><bdi dir="ltr">{vector(row.gateGradient)}</bdi></td>
-              </tr>
-              <tr data-gradient-kind="up">
-                <th scope="row">{labels.fields.upGradient}</th>
-                <td><bdi dir="ltr">{vector(row.upGradient)}</bdi></td>
-              </tr>
-              <tr data-gradient-kind="input">
-                <th scope="row">{labels.fields.inputGradient}</th>
-                <td class="input-gradient">
-                  <InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} />
-                  <bdi dir="ltr">{vector(row.inputGradient)}</bdi>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        ))}
-      </div>
+    <div class="position-gradient-grid course-diagram__grid">
+      {trace.backward.map((row) => (
+        <table data-diagram-table class="position-gradient-table" data-gradient-position={row.position.lexeme}>
+          <caption>
+            {labels.captions.positionGradients}: {labels.fields.position}{' '}
+            <InlineMath latex={row.position.lexeme} />
+          </caption>
+          <tbody>
+            <tr data-gradient-kind="upstream">
+              <th scope="row" aria-label={labels.fields.upstream}><InlineMath latex={String.raw`G_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexVector(row.upstream)} /></td>
+            </tr>
+            <tr data-gradient-kind="gated">
+              <th scope="row" aria-label={labels.fields.gatedGradient}><InlineMath latex={String.raw`dH_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexVector(row.gatedGradient)} /></td>
+            </tr>
+            <tr data-gradient-kind="gate">
+              <th scope="row" aria-label={labels.fields.gateGradient}><InlineMath latex={String.raw`dA_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexVector(row.gateGradient)} /></td>
+            </tr>
+            <tr data-gradient-kind="up">
+              <th scope="row" aria-label={labels.fields.upGradient}><InlineMath latex={String.raw`dU_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexVector(row.upGradient)} /></td>
+            </tr>
+            <tr data-gradient-kind="input">
+              <th scope="row" aria-label={labels.fields.inputGradient}><InlineMath latex={String.raw`dX_{${row.position.lexeme}}`} /></th>
+              <td><InlineMath latex={latexVector(row.inputGradient)} /></td>
+            </tr>
+          </tbody>
+        </table>
+      ))}
+    </div>
 
+    <div class="parameter-scroll course-diagram__scroll" role="region" tabindex="0" aria-label={labels.scrollers.parameters} data-diagram-scroll>
       <table data-diagram-table class="parameter-gradient-table">
         <caption>{labels.captions.parameterGradients}</caption>
         <thead>
           <tr>
-            <th scope="col">{labels.fields.parameter}</th>
-            <th scope="col">{labels.fields.shape}</th>
-            <th scope="col">{labels.fields.gradient}</th>
+            <th scope="col" aria-label={labels.fields.parameter}><InlineMath latex="\theta" /></th>
+            <th scope="col" aria-label={labels.fields.accumulation}><InlineMath latex="\sum_p" /></th>
+            <th scope="col" aria-label={labels.fields.shape}><InlineMath latex="\dim(\theta)" /></th>
+            <th scope="col" aria-label={labels.fields.gradient}><InlineMath latex="d\theta" /></th>
           </tr>
         </thead>
         <tbody>
-          {trace.parameterGradients.map((row) => (
+          {parameterRows.map((row) => (
             <tr data-parameter-gradient={row.name}>
-              <th scope="row"><bdi dir="ltr">{row.name}</bdi></th>
-              <td><bdi dir="ltr">{shape(row.shape)}</bdi></td>
-              <td><bdi dir="ltr">{vector(row.values)}</bdi></td>
+              <th scope="row">
+                <span class="parameter-name"><InlineMath latex={row.symbol} /><code><bdi dir="ltr">{row.name}</bdi></code></span>
+              </th>
+              <td><InlineMath latex={row.accumulation} /></td>
+              <td><InlineMath latex={latexShape(row.shape)} /></td>
+              <td><InlineMath latex={row.value} /></td>
             </tr>
           ))}
         </tbody>
@@ -244,287 +331,243 @@ const shape = (value: string) => `[${value.replaceAll('x', ', ')}]`;
 
 <style>
   .swiglu-diagram {
-    container-type: inline-size;
-    display: grid;
-    gap: 1rem;
-    max-inline-size: 100%;
-    margin: 1.5rem 0;
-    padding: clamp(0.8rem, 2.5vw, 1.25rem);
-    color: var(--ink);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 0.75rem;
-  }
-
-  .swiglu-diagram:focus-visible,
-  .gradient-scroll:focus-visible {
-    outline: 0.2rem solid var(--focus);
-    outline-offset: 0.18rem;
-  }
-
-  figcaption {
-    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-    font-weight: 750;
-  }
-
-  .diagram-description,
-  .diagram-stage > p,
-  .stage-note {
-    margin: 0;
-    line-height: 1.55;
-  }
-
-  .shape-summary,
-  .independence-proof {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
-    gap: 0.65rem;
-    margin: 0;
-  }
-
-  .shape-summary > div,
-  .independence-proof > div {
-    min-inline-size: 0;
-    padding: 0.65rem;
-    border: 1px solid var(--line);
-    border-radius: 0.45rem;
-  }
-
-  dt {
-    font-size: 0.82rem;
-    font-weight: 700;
-  }
-
-  dd {
-    min-inline-size: 0;
-    margin: 0.25rem 0 0;
-    overflow-wrap: anywhere;
+    --diagram-summary-min: 8.75rem;
   }
 
   .diagram-stage {
-    display: grid;
-    align-content: start;
-    gap: 0.8rem;
     min-inline-size: 0;
-    padding: clamp(0.7rem, 2vw, 1rem);
-    border: 1px solid var(--line);
-    border-radius: 0.6rem;
   }
 
-  h3,
-  h4,
-  h5,
-  p {
-    margin: 0;
+  .forward-scroll {
+    --diagram-scroll-inline-size: 100%;
   }
 
-  h3 > span {
-    display: inline-grid;
-    place-items: center;
-    min-inline-size: 1.6rem;
-    min-block-size: 1.6rem;
-    margin-inline-end: 0.35rem;
-    border: 1px solid var(--line);
-    border-radius: 50%;
+  .forward-table {
+    inline-size: 100%;
+    min-inline-size: 36.25rem;
+    table-layout: fixed;
   }
 
-  .position-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  .forward-table th:first-child {
+    inline-size: 7rem;
+  }
+
+  .forward-notes {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     align-items: start;
-    gap: 0.9rem;
+  }
+
+  .forward-notes > p {
     margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
-  .position-card {
-    display: grid;
-    align-content: start;
-    gap: 0.75rem;
-    min-inline-size: 0;
-    padding: 0.75rem;
-    border: 2px solid var(--line);
-    border-block-end-style: double;
-    border-radius: 0.5rem;
-  }
-
-  .input-row,
-  .merge-stage,
-  .down-stage {
+  .equation-row,
+  .parameter-name {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.45rem 0.7rem;
+    gap: 0.4rem 0.65rem;
     min-inline-size: 0;
   }
 
-  .branch-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: 0.7rem;
+  .parameter-name code {
     min-inline-size: 0;
-  }
-
-  .branch {
-    display: grid;
-    align-content: start;
-    gap: 0.5rem;
-    min-inline-size: 0;
-    padding: 0.65rem;
-    border: 2px solid var(--line);
-    border-radius: 0.45rem;
+    overflow-wrap: anywhere;
   }
 
   .gate-branch {
-    border-style: solid;
+    border-inline-start-style: solid !important;
+    border-inline-start-width: 3px !important;
   }
 
   .up-branch {
-    border-style: double;
-  }
-
-  .branch dl {
-    display: grid;
-    gap: 0.45rem;
-    margin: 0;
-  }
-
-  .branch dl > div {
-    min-inline-size: 0;
-    padding-block-start: 0.4rem;
-    border-block-start: 1px dashed var(--line);
+    border-inline-start-style: double !important;
+    border-inline-start-width: 4px !important;
   }
 
   .merge-stage {
-    padding: 0.65rem;
-    border: 2px dashed var(--line);
-    border-radius: 0.45rem;
+    border-style: dashed !important;
+    border-width: 2px !important;
   }
 
   .down-stage {
-    padding: 0.65rem;
-    border: 3px double var(--line);
-    border-radius: 0.45rem;
+    border-style: double !important;
+    border-width: 3px !important;
+  }
+
+  .independence-proof {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   }
 
   .proof-result {
-    border-style: double !important;
-  }
-
-  .gradient-scroll {
-    max-inline-size: 100%;
-    padding: 0.25rem;
-    scrollbar-gutter: stable;
+    align-content: center;
   }
 
   .position-gradient-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(36rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
     align-items: start;
-    gap: 0.75rem;
-    min-inline-size: calc(72rem + 0.75rem);
-    margin-block-end: 1rem;
   }
 
-  table {
+  .position-gradient-table,
+  .parameter-gradient-table {
     inline-size: 100%;
-    margin-block: 0 1rem;
-    border-collapse: collapse;
-    font-size: 0.84rem;
   }
 
   .position-gradient-table {
-    min-inline-size: 0;
     table-layout: fixed;
   }
 
   .position-gradient-table th {
-    inline-size: 11rem;
+    inline-size: 4.5rem;
+  }
+
+  .parameter-scroll {
+    --diagram-scroll-inline-size: 100%;
   }
 
   .parameter-gradient-table {
-    min-inline-size: 52rem;
-    table-layout: fixed;
+    min-inline-size: 44rem;
   }
 
   .parameter-gradient-table th:first-child {
-    inline-size: 14rem;
+    inline-size: 13rem;
   }
 
   .parameter-gradient-table th:nth-child(2) {
-    inline-size: 7rem;
+    inline-size: 12rem;
   }
 
-  .parameter-gradient-table bdi {
-    white-space: normal;
+  .parameter-gradient-table th:nth-child(3) {
+    inline-size: 5rem;
   }
 
-  table:last-child {
-    margin-block-end: 0;
-  }
-
-  caption {
-    padding-block-end: 0.45rem;
-    font-weight: 750;
-    text-align: start;
-  }
-
-  th,
-  td {
-    padding: 0.5rem;
-    text-align: start;
-    vertical-align: top;
-    border: 1px solid var(--line);
-  }
-
-  thead th {
-    border-block-end-width: 0.16rem;
-  }
-
-  .input-gradient {
-    white-space: nowrap;
-  }
-
-  .input-gradient :global([data-inline-math]) {
-    margin-inline-end: 0.4rem;
-  }
-
-  bdi {
-    unicode-bidi: isolate;
-  }
-
-  @container (max-width: 36rem) {
-    .branch-grid {
+  @container course-diagram (max-width: 36rem) {
+    .forward-notes,
+    .position-gradient-grid,
+    .independence-proof {
       grid-template-columns: minmax(0, 1fr);
     }
-
-    .shape-summary,
-    .independence-proof,
-    .position-list {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .position-gradient-grid {
-      grid-template-columns: minmax(36rem, 1fr);
-      min-inline-size: 36rem;
-    }
   }
 
-  @media (forced-colors: active) {
-    .swiglu-diagram,
-    .diagram-stage,
-    .position-card,
-    .branch,
-    .merge-stage,
-    .down-stage,
-    .shape-summary > div,
-    .independence-proof > div,
-    th,
-    td {
-      forced-color-adjust: auto;
-      border-color: CanvasText;
-    }
+  .swiglu-diagram:fullscreen {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) 10rem;
+    grid-template-areas:
+      'caption caption actions'
+      'summary summary summary'
+      'positions gradients gradients'
+      'independence gradients gradients';
+    align-items: start;
+  }
+
+  .swiglu-diagram:fullscreen > figcaption {
+    grid-area: caption;
+    display: grid;
+    grid-template-columns: minmax(22rem, 1.15fr) minmax(0, 0.85fr);
+    align-items: start;
+    gap: 0.65rem;
+  }
+
+  .swiglu-diagram:fullscreen > figcaption > :is(h3, p) {
+    margin: 0;
+  }
+
+  .swiglu-diagram:fullscreen > .shape-summary {
+    grid-area: summary;
+  }
+
+  .swiglu-diagram:fullscreen > :global(.diagram-full-view-actions) {
+    grid-area: actions;
+    align-self: start;
+    justify-self: end;
+  }
+
+  .swiglu-diagram:fullscreen > .positions-stage {
+    grid-area: positions;
+  }
+
+  .swiglu-diagram:fullscreen > .independence-stage {
+    grid-area: independence;
+  }
+
+  .swiglu-diagram:fullscreen > .gradients-stage {
+    grid-area: gradients;
+  }
+
+  .swiglu-diagram:fullscreen > .shape-summary {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .swiglu-diagram:fullscreen .forward-notes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .swiglu-diagram:fullscreen > .independence-stage {
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    align-items: start;
+  }
+
+  .swiglu-diagram:fullscreen > .independence-stage > p {
+    margin: 0;
+  }
+
+  .swiglu-diagram:fullscreen .independence-proof {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      'changed replacement observed result'
+      'before before after after';
+  }
+
+  .swiglu-diagram:fullscreen .proof-changed {
+    grid-area: changed;
+  }
+
+  .swiglu-diagram:fullscreen .proof-replacement {
+    grid-area: replacement;
+  }
+
+  .swiglu-diagram:fullscreen .proof-observed {
+    grid-area: observed;
+  }
+
+  .swiglu-diagram:fullscreen .proof-before {
+    grid-area: before;
+  }
+
+  .swiglu-diagram:fullscreen .proof-after {
+    grid-area: after;
+  }
+
+  .swiglu-diagram:fullscreen .proof-result {
+    grid-area: result;
+  }
+
+  .swiglu-diagram:fullscreen .position-gradient-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table {
+    min-inline-size: 0;
+    table-layout: fixed;
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table :is(th, td) {
+    inline-size: auto;
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table tr > :nth-child(1) {
+    inline-size: 18%;
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table tr > :nth-child(2) {
+    inline-size: 20%;
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table tr > :nth-child(3) {
+    inline-size: 12%;
+  }
+
+  .swiglu-diagram:fullscreen .parameter-gradient-table tr > :nth-child(4) {
+    inline-size: 50%;
   }
 </style>
