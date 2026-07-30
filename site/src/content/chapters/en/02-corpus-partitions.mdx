@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -256,8 +256,9 @@ The test partition, by contrast, is reserved for final evidence in this course.
 `Corpus::from_utf8` accepts bytes rather than a prevalidated string, so invalid
 UTF-8 remains observable. Explicit `%% document` and `%% end` markers preserve the
 unit that will be partitioned. The loader rejects missing boundaries, blank bodies,
-duplicate IDs, and byte-identical duplicate bodies while retaining source order,
-language, and provenance metadata:
+duplicate IDs, and duplicate parsed bodies while retaining source order, language,
+and provenance metadata. Because line endings are normalized during parsing, this
+body comparison is not a claim about original byte identity:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/corpus.rs"
@@ -321,10 +322,10 @@ region.
 
 <CorpusPartitionsDiagram labels={diagramLabels} />
 
-The diagram uses the same corpus and `splits.json` as the executable. Its data
-validation rejects duplicate, missing, unknown, reordered, or cross-provenance
-assignments. On a narrow screen the regions stack, but membership and source order
-remain unchanged.
+The diagram shows the same accepted corpus and `splits.json` assignment as the
+executable. Every corpus ID appears exactly once in source order, and every
+provenance group remains within one role. On a narrow screen the regions stack,
+but membership and source order remain unchanged.
 
 {/* chapter-section:exercises */}
 
@@ -335,8 +336,9 @@ remain unchanged.
 2. Decide which role may count BPE pairs, which may choose a checkpoint, and which
    may supply the final reported loss.
 3. Explain why two separately named overlapping excerpts can still leak context.
-4. Predict the error after adding `doc-07` to the corpus without changing the
-   manifest.
+4. Predict the first error after adding `doc-07` to the corpus without changing
+   the manifest. What error would remain if you refreshed only its recorded
+   checksum?
 5. Explain why reversing a role's IDs preserves set membership but breaks the
    reproducible ordering contract.
 6. State what a matching FNV value reports and why it is not proof of byte identity.
@@ -351,7 +353,9 @@ remain unchanged.
   2. Training counts BPE pairs, validation may choose a checkpoint, and test is
      used once for final evidence.
   3. New IDs do not erase shared source words or surrounding context.
-  4. Validation reports that the manifest does not cover `doc-07`.
+  4. The changed corpus bytes cause a checksum mismatch first. If only the
+     recorded checksum were refreshed, coverage validation would then report that
+     the manifest omits `doc-07`.
   5. Sets ignore order, but deterministic downstream iteration and audit output do
      not; the validator therefore preserves corpus source order.
   6. It reports that recomputation produced the recorded 64-bit checksum. A

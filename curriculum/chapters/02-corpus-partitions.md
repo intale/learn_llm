@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
@@ -316,7 +316,9 @@ IDs, counts, and split manifest.
 3. Explain why separately named overlapping excerpts still leak source context.
 4. Assign each future operation to a role: BPE pair counting, choosing a checkpoint,
    and reporting the final loss.
-5. Predict the loader result after adding `doc-07` without updating the manifest.
+5. Predict the first validation error after adding `doc-07` without updating the
+   manifest, then explain what coverage error would remain if the recorded
+   checksum alone were refreshed.
 6. Explain why reordering IDs can preserve the set formula but harm reproducibility.
 7. State one guarantee a deterministic valid split still does not provide.
 

@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '02-corpus-partitions';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const manifest = JSON.parse(
@@ -97,7 +97,8 @@ const copy = {
       'Paired provenance stays in one partition',
     ],
     exerciseSummary: 'Check your predictions',
-    exerciseAnswer: 'Validation reports that the manifest does not cover doc-07.',
+    exerciseAnswer:
+      'The changed corpus bytes cause a checksum mismatch first. If only the recorded checksum were refreshed, coverage validation would then report that the manifest omits doc-07.',
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
@@ -134,7 +135,8 @@ const copy = {
       'Документы из одной группы происхождения остаются в одной выборке',
     ],
     exerciseSummary: 'Проверьте ответы',
-    exerciseAnswer: 'Проверка сообщит, что манифест не покрывает doc-07.',
+    exerciseAnswer:
+      'Сначала будет обнаружено несовпадение контрольной суммы, поскольку байты корпуса изменились. Если обновить только записанную контрольную сумму, проверка полноты затем сообщит, что в манифесте нет doc-07.',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
