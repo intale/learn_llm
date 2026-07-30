@@ -22752,7 +22752,7 @@ builds:
       - id: audit-ch06-bigram-baseline
         objective: "Audit and repair Chapter 6 bigram-baseline teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch05-autoregressive-examples]
-        status: pending
+        status: completed
         inputs:
           - "AGENTS.md and localization/formula/diagram rules"
           - "curriculum/chapters/06-bigram-baseline.md"
@@ -22760,8 +22760,10 @@ builds:
           - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
           - "site/src/components/chapters/BigramBaselineDiagram.astro"
           - "site/src/lib/bigram-baseline-diagram.ts"
+          - "site/src/styles/diagram.module.css as the shared presentation input"
           - "site/tests/06-bigram-baseline-diagram.test.ts"
           - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md revision records"
           - "Declared Chapter 6 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/06-bigram-baseline.md"
@@ -22769,8 +22771,10 @@ builds:
           - "site/src/content/chapters/ru/06-bigram-baseline.mdx"
           - "site/src/components/chapters/BigramBaselineDiagram.astro"
           - "site/src/lib/bigram-baseline-diagram.ts"
+          - "site/src/styles/diagram.module.css only if computed geometry proves a shared-system cause"
           - "site/tests/06-bigram-baseline-diagram.test.ts"
           - "site/tests/e2e/ch06-bigram-baseline.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md if the content revision advances"
           - "Chapter 6 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -22781,7 +22785,66 @@ builds:
           - "The audit is committed before Chapter 7 begins."
         validate: ["Chapter 6 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, and Firefox gates"]
         cost: {class: medium, notes: "Bilingual source and two-engine rendered audit; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T153731Z-audit-ch06-bigram-baseline-01
+            started_at: "2026-07-30T15:37:31Z"
+            finished_at: "2026-07-30T15:52:13Z"
+            status: succeeded
+            input_fingerprint:
+              git: "26dcf46e0bfa131186f0becd364cb5641bdbc90f"
+              manifest: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/input-fingerprint.txt"
+              checksum: "sha256:dbbe63a77636c3da3e49e0b020bacbd8d35afd5c402b0ce1e19e9a9f64c2c3d7"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/"
+            commands:
+              - "Verify dedicated Chapter 5 commit 26dcf46, clean worktree, active sequential build, completed dependency, Chapter 6 source/style paths, locale policy, scorer-boundary decision, exact hashes, output ownership, and medium cost before product edits."
+              - "Independently audit English and direct Russian count-model teaching, formulas, exact Rust and trace behavior, LLM history, exercises, answers, SEO, accessibility, and Chapter 7 scorer-boundary handoff."
+              - "Capture the exact base commit in candidate-baseline and reproduce Chapter 6 in English/Russian at desktop, narrow, and native full view in pinned Chromium and Firefox with screenshots and computed list-item geometry."
+              - "Correct the English transition-count SEO scope, reset Chapter 6 structural document/legend list sizing, advance the exact locale pair to revision 5, and add inline/full-view/narrow computed-width regression coverage."
+              - "Run focused contract, English, Russian, parity, Vitest diagram/formula, exact pinned Linux Rust-output, and independent correction re-audit checks."
+              - "Freeze the corrected product files in candidate-01, run Astro check/build and link audit, run all focused Chromium/Firefox suites, capture and visually inspect twelve corrected renders, and compare exact candidate hashes and output ownership."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/input-fingerprint.txt"
+                checksum: "sha256:dbbe63a77636c3da3e49e0b020bacbd8d35afd5c402b0ce1e19e9a9f64c2c3d7"
+                notes: "Exact Chapter 6 contract, bilingual lessons, figure/library/shared-style/tests, Rust evidence and traces, revision records, workflow, environment, scope, dependency, and scorer-boundary-decision fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/baseline-screenshots/chromium-en-full-view.json"
+                checksum: "sha256:32517c91fb57100ad9ad2dfc6677b75c0090bb2e3629661dc7a5b82b8ae6af37"
+                notes: "Representative baseline geometry; the complete 24-file EN/RU Chromium/Firefox desktop/full-view/narrow evidence set is in baseline-screenshots/."
+              - path: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/baseline-screenshots/firefox-ru-full-view.png"
+                checksum: "sha256:83ca07c19d1f2a975437c155fbeae5e1cce15f17b436935445580d194484d770"
+                notes: "Representative baseline rendered figure from the complete bilingual two-engine screenshot set."
+              - path: "C:/tmp/learn_llm/runs/20260730T153731Z-audit-ch06-bigram-baseline-01/audit-manifest.txt"
+                checksum: "sha256:4bd71d93c4a92979639959a2bd3610e16c7ad62be1d747132d3bbd9d033f5456"
+                notes: "Immutable corrected-source hashes, captured before/after geometry and screenshot locations, correction summaries, and semantic, Rust, static, link, Chromium, Firefox, visual, and ownership outcomes."
+            validation:
+              - command: "Dependency, worktree, locale, decision, source, output, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 5 is independently committed; Chapter 6 is the first eligible pending step; the tree was clean; English/Russian are the exact active set; all declared files exist; the Chapter 7 scorer-boundary decision remains authoritative; no network, paid service, dependency, or build change is planned."
+              - command: "Independent bilingual semantic, mathematical, historical, terminology, accessibility, SEO, exercise, answer, handoff, and exact-Rust audit"
+                status: passed
+                notes: "Counts, seven-transition total, MLE zero-versus-undefined distinction, add-alpha smoothing, training-only fit, document boundaries, trace/parser, LLM history, exercises/answers, natural Russian, and the Chapter 7 scorer boundary pass. The audit found one English SEO phrase that counts tokens instead of transitions and inherited prose-list sizing on structural diagram rows."
+              - command: "Base-commit bilingual Chromium/Firefox screenshots and computed geometry"
+                status: passed
+                notes: "The styling defect reproduced in both locales and engines: document rows compute to about 604px because of the global prose-list cap, leaving about 151px unused inline and 697-741px unused in native full view; narrow fallback remains contained. Token-legend items inherit the same inappropriate maximum even when current grid columns are narrower."
+              - command: "Chapter 6 contract plus English, Russian, parity, focused diagram/formula Vitest, exact Linux Rust gates, and independent correction re-audit"
+                status: passed
+                notes: "All four content gates, all 20 unit/formula tests, both committed Rust output comparisons, and the focused bilingual correction re-audit passed at revision 5."
+              - command: "Candidate Astro check/build and link audit"
+                status: passed
+                notes: "Astro checked 206 files with zero diagnostics, generated 68 pages, and the link audit verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts."
+              - command: "Pinned Chromium Chapter 6, formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "27 of 27 localized desktop, narrow, formula, no-JavaScript, fullscreen, focus, forced-color, scrolling-table, and nearest-box containment cases passed."
+              - command: "Pinned Firefox Chapter 6, formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "27 of 27 localized desktop, narrow, formula, no-JavaScript, fullscreen, focus, forced-color, scrolling-table, and nearest-box containment cases passed."
+              - command: "Corrected EN/RU desktop, narrow, and native-fullscreen screenshots plus before/after computed geometry"
+                status: passed
+                notes: "All twelve corrected engine/locale/mode renders were visually reviewed with no clipping, overlap, or escaped content. Document rows now exactly fill their 754.9px inline or 1,301-1,345px full-view lists, while the 302px narrow fallback stays contained; both structural list-item kinds compute max-inline-size:none."
+              - command: "Candidate-to-canonical hash comparison, declared-output ownership, diff whitespace, file-mode, and state syntax audit"
+                status: passed
+                notes: "All seven corrected candidate product files exactly match the canonical tree; every dirty path belongs to Chapter 6's declared outputs and state/revision integration; no Rust, shared-style, dependency, build, deployment, or file-mode change occurred; git diff --check and BUILD_STATE parsing passed."
+            notes: "Succeeded at revision 5. The semantic audit corrected the English SEO count unit, and two-engine geometry proved and cleared the inherited structural-list width cap without clipping or shared-style changes. The Chapter 7 scorer boundary, exact Rust behavior, formulas, LLM history, and natural Russian remain unchanged and correct. The in-app browser runtime exposed no browser instance after prescribed setup, so repository-pinned Playwright Chromium and Firefox supplied the rendered audit."
       - id: audit-ch07-language-model-metrics
         objective: "Audit and repair Chapter 7 language-model-metric teaching, then prove the complete Chapters 1-7 regression."
         depends_on: [audit-ch06-bigram-baseline]

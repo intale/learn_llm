@@ -204,6 +204,12 @@ const rowSections: ReadonlyArray<{
     list-style: none;
   }
 
+  .document-list > li,
+  .token-legend > li {
+    min-inline-size: 0;
+    max-inline-size: none;
+  }
+
   .document-list li { display: grid; gap: 0.45rem; }
 
   .token-sequence {

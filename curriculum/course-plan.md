@@ -987,7 +987,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `06-bigram-baseline`
 - **Implementation step:** `implement-ch06-bigram-baseline`
-- **Revision status:** Content revision 4 retains the rewritten LLM-focused bigram lesson while naturalizing Russian probability language and replacing delivery machinery with implementation behavior and mathematical evidence; earlier revisions remain historical provenance in `BUILD_STATE.yaml`.
+- **Revision status:** Content revision 5 preserves the LLM-focused count-model lesson and exact Rust behavior, makes the English SEO description count transitions rather than tokens, and removes inherited prose sizing from structural document and legend rows in every localized presentation mode.
 - **Depends on:** `05-autoregressive-examples`.
 - **Outcome:** Estimate and query a smoothed next-token distribution by counting each adjacent training-document transition once.
 - **Scope boundary:** Teach a one-token context, one count per transition in each original wrapped training document, maximum-likelihood row normalization, and add-alpha smoothing. Include BOS/EOS transitions, exclude padding, keep documents separate, fit only on the training partition, and distinguish an unobserved successor in a defined row from a context whose whole MLE row is undefined. Defer scoring to chapter 7.

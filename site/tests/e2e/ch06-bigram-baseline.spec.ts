@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '06-bigram-baseline';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`C_{ij}=\sum_{d\in\mathcal{D}_{tr}}\sum_{t=0}^{|d|-2}\mathbf{1}[z_t^{(d)}=i\land z_{t+1}^{(d)}=j],\quad N_i=\sum_{k\in V}C_{ik},\quad \widehat P_{\mathrm{MLE}}(j\mid i)=\frac{C_{ij}}{N_i}\;(N_i>0),\quad \widehat P_{\alpha}(j\mid i)=\frac{C_{ij}+\alpha}{N_i+\alpha|V|}\;(\alpha>0)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -277,6 +277,32 @@ async function expectChapterContent(
   await expectNoOverflowOrClientScripts(page);
 }
 
+async function expectStructuralListsUseAvailableWidth(page: Page) {
+  const geometry = await page
+    .locator('figure[data-visualization-id="bigram-baseline"]')
+    .evaluate((figure) => {
+      const documentList = figure.querySelector<HTMLElement>('.document-list');
+      const documents = [...figure.querySelectorAll<HTMLElement>('.document-list > li')];
+      const legendItems = [...figure.querySelectorAll<HTMLElement>('.token-legend > li')];
+      if (!documentList || documents.length === 0 || legendItems.length === 0) {
+        throw new Error('Chapter 6 figure is missing structural list evidence.');
+      }
+      return {
+        documentListWidth: documentList.getBoundingClientRect().width,
+        documents: documents.map((document) => ({
+          width: document.getBoundingClientRect().width,
+          maxInlineSize: getComputedStyle(document).maxInlineSize,
+        })),
+        legendMaxInlineSizes: legendItems.map((item) => getComputedStyle(item).maxInlineSize),
+      };
+    });
+  for (const document of geometry.documents) {
+    expect(document.maxInlineSize).toBe('none');
+    expect(Math.abs(geometry.documentListWidth - document.width)).toBeLessThanOrEqual(1);
+  }
+  expect(geometry.legendMaxInlineSizes.every((value) => value === 'none')).toBe(true);
+}
+
 test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId) }, () => {
   test('chapter 6 is sixth on every course index and preserves locale switching', async ({ page }) => {
     for (const locale of chapterLocales) {
@@ -320,10 +346,21 @@ test.describe('chapter 6 localized vertical slice', { tag: chapterTag(chapterId)
       const chapters = await readOrderedCourseChapters(page, locale);
       await page.goto(chapterPath(locale, chapterId));
       await expectChapterContent(page, locale, 1, false, chapters);
+      await expectStructuralListsUseAvailableWidth(page);
+
+      const diagram = page.locator('figure[data-visualization-id="bigram-baseline"]');
+      await diagram.locator('[data-diagram-full-view-toggle]').click();
+      await page.waitForFunction(
+        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'bigram-baseline',
+      );
+      await expectStructuralListsUseAvailableWidth(page);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.reload();
       await expectChapterContent(page, locale, 1, true, chapters);
+      await expectStructuralListsUseAvailableWidth(page);
     });
   }
 });
