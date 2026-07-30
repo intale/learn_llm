@@ -2,7 +2,7 @@
 {
   "chapter_id": "05-autoregressive-examples",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 5,
   "concept_id": "boundary-safe-causal-windows",
   "title": "Building autoregressive input–target pairs",
@@ -391,7 +391,7 @@ the six-token source. Then temporarily change only the stride in
 change only the context length from `3` to `2`. The full-corpus pair totals will
 also change, but you are not expected to calculate those by hand. Compare the
 worked example's pairs and suffix with your prediction, then restore
-`CausalWindowConfig::new(3, 1)` so later examples use the original configuration.
+`CausalWindowConfig::new(3, 1)` to return the demo to its baseline configuration.
 
 **Misconception check:** “A suffix that is too short to begin another pair is
 discarded from the dataset.” False. No new pair begins there, but its tokens may

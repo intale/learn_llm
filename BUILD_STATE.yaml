@@ -22658,7 +22658,7 @@ builds:
       - id: audit-ch05-autoregressive-examples
         objective: "Audit and repair Chapter 5 autoregressive-example teaching, including the reported bilingual diagram styling defect."
         depends_on: [audit-ch04-apply-bpe-tokenizer]
-        status: pending
+        status: completed
         inputs:
           - "User-reported Chapter 5 diagram styling defect in both locales."
           - "AGENTS.md and localization/formula/diagram rules"
@@ -22667,8 +22667,10 @@ builds:
           - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
           - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
           - "site/src/lib/autoregressive-examples-diagram.ts"
+          - "site/src/styles/diagram.module.css as the shared presentation input"
           - "site/tests/05-autoregressive-examples-diagram.test.ts"
           - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md revision records"
           - "Declared Chapter 5 Rust sources and exact artifacts"
         outputs:
           - "curriculum/chapters/05-autoregressive-examples.md"
@@ -22676,8 +22678,10 @@ builds:
           - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
           - "site/src/components/chapters/AutoregressiveExamplesDiagram.astro"
           - "site/src/lib/autoregressive-examples-diagram.ts"
+          - "site/src/styles/diagram.module.css only if computed geometry proves a shared-system cause"
           - "site/tests/05-autoregressive-examples-diagram.test.ts"
           - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "curriculum/README.md and curriculum/course-plan.md if the content revision advances"
           - "Chapter 5 declared Rust sources and exact artifacts if corrected"
           - "BUILD_STATE.yaml"
           - "DECISIONS.md"
@@ -22688,7 +22692,63 @@ builds:
           - "Focused content, parity, unit, exact Rust, static, link, and browser gates pass before Chapter 6 begins."
         validate: ["Chapter 5 contract, en/ru content, parity, unit, exact Rust, static, link, Chromium, Firefox, and strict geometry gates"]
         cost: {class: large, notes: "Known bilingual visual defect plus complete source and two-engine rendered audit; no paid service."}
-        runs: []
+        runs:
+          - run_id: 20260730T131628Z-audit-ch05-autoregressive-examples-01
+            started_at: "2026-07-30T13:16:28Z"
+            finished_at: "2026-07-30T15:35:30Z"
+            status: succeeded
+            input_fingerprint:
+              git: "b870f300a0abc704340251f3c8b82790b0b43814"
+              manifest: "C:/tmp/learn_llm/runs/20260730T131628Z-audit-ch05-autoregressive-examples-01/input-fingerprint.txt"
+              checksum: "sha256:eb60b0ddef21cc8bc23ef38d5d71b3ba8b2322f459c53094d37e0f47f12c2236"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+            staging_dir: "C:/tmp/learn_llm/runs/20260730T131628Z-audit-ch05-autoregressive-examples-01/"
+            commands:
+              - "Verify dedicated Chapter 4 commit b870f30, clean worktree, active sequential build, completed dependency, Chapter 5 source/style paths, locale policy, rules, exact hashes, output ownership, large cost, and the user-reported bilingual visual defect before product edits."
+              - "Capture the exact base commit in candidate-baseline and reproduce Chapter 5 in English/Russian at desktop, narrow, and native full view in pinned Chromium and Firefox with screenshots and computed geometry."
+              - "Remove the inherited prose-list width cap from Chapter 5 structural rows, remove curriculum mechanics from the bilingual experiment, advance the exact locale pair to revision 5, and add an EN/RU inline/full-view/narrow width regression."
+              - "Run focused contract, English, Russian, parity, Vitest diagram/formula, and exact pinned Linux Rust-output checks; freeze the corrected files in candidate-01; then run Astro check/build and the link audit."
+              - "Run the first focused Chromium matrix; preserve its 25 passed cases and recalibrate the new width assertion from 36px to the measured 46.8px legitimate frame inset while retaining thresholds far below the 228px baseline defect."
+              - "Rerun all 27 focused cases in Chromium and Firefox, capture and visually inspect the corrected EN/RU desktop, narrow, and native-fullscreen figures, compare exact geometry, and verify candidate hashes and output ownership."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260730T131628Z-audit-ch05-autoregressive-examples-01/input-fingerprint.txt"
+                checksum: "sha256:eb60b0ddef21cc8bc23ef38d5d71b3ba8b2322f459c53094d37e0f47f12c2236"
+                notes: "Exact Chapter 5 contract, bilingual lessons, figure/library/shared-style/tests, Rust evidence and traces, revision records, workflow, environment, scope, and dependency fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260730T131628Z-audit-ch05-autoregressive-examples-01/audit-manifest.txt"
+                checksum: "sha256:7a4ac5ab9cd93faa17ecba04ccfaabae468a9c039d9ca9b879bcd9c4c6c65766"
+                notes: "Immutable corrected-source hashes, captured before/after geometry and screenshot locations, correction summaries, and semantic, Rust, static, link, Chromium, Firefox, visual, and ownership outcomes."
+            validation:
+              - command: "Dependency, worktree, locale, source, output, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 4 is independently committed; Chapter 5 is the first eligible pending step; the tree was clean; English/Russian are the exact active set; all declared files exist; the reported visual defect requires screenshot and computed-geometry reproduction; no network, paid service, dependency, or build change is planned."
+              - command: "Base-commit bilingual Chromium/Firefox screenshots and computed geometry"
+                status: passed
+                notes: "The defect reproduced in both locales and engines: a global prose-list max width held each desktop/full-view partition near 604px, leaving about 228px unused in the 832px inline figure and more than 760px unused in native full view; narrow fallback remained contained."
+              - command: "Independent bilingual semantic, mathematical, historical, terminology, accessibility, SEO, exercise, answer, diagram, handoff, and exact-Rust audit"
+                status: passed
+                notes: "All concept and localization checks passed after replacing the exercise's later-chapter delivery dependency with restoration of the demo baseline; the CSS cause and component-scoped correction were independently confirmed."
+              - command: "Chapter 5 contract plus English, Russian, parity, focused diagram/formula Vitest, and exact Linux Rust gates"
+                status: passed
+                notes: "All four content gates, all 19 unit/formula tests, and both committed Rust output comparisons passed at revision 5."
+              - command: "Candidate Astro check/build and link audit"
+                status: passed
+                notes: "Astro checked 206 files with zero diagnostics, generated 68 pages, and the link audit verified 68 HTML files, 2,216 references, 68 SEO pages, 68 sitemap pages, 68 Analytics pages, and 150 artifacts."
+              - command: "Initial pinned Chromium Chapter 5, formula, shared diagram-style, and full-view matrix"
+                status: failed
+                notes: "25 of 27 cases passed. Both locale slices correctly measured max-inline-size:none and a 46.8px frame inset, but the newly added 36px test limit was tighter than the legitimate shared-frame padding; it was recalibrated to 64px inline/narrow and 96px in full view, still well below the captured 228px and 760px-plus failures."
+              - command: "Calibrated pinned Chromium Chapter 5, formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "27 of 27 localized desktop, narrow, formula, no-JavaScript, fullscreen, focus, forced-color, and nearest-box containment cases passed."
+              - command: "Pinned Firefox Chapter 5, formula, shared diagram-style, and full-view matrix"
+                status: passed
+                notes: "27 of 27 localized desktop, narrow, formula, no-JavaScript, fullscreen, focus, forced-color, and nearest-box containment cases passed."
+              - command: "Corrected EN/RU desktop, narrow, and native-fullscreen screenshots plus before/after computed geometry"
+                status: passed
+                notes: "All twelve corrected engine/locale/mode renders were visually reviewed with no clipping, overlap, or escaped content. Desktop partitions now use about 785/832px and full-view partitions 1,368/1,440px in Chromium or 1,324/1,366px in Firefox; the narrow fallback remains contained at 328/358px."
+              - command: "Candidate-to-canonical hash comparison, declared-output ownership, diff whitespace, file-mode, and state syntax audit"
+                status: passed
+                notes: "All seven corrected candidate product files exactly match the canonical tree; every dirty path belongs to Chapter 5's declared outputs and state/revision integration; no Rust, shared-style, dependency, build, deployment, or file-mode change occurred; git diff --check and BUILD_STATE parsing passed."
+            notes: "Succeeded at revision 5. The reported bilingual diagram defect was an inherited prose-list max width on structural rows and is fixed without clipping or shared-style changes; the independent audit also removed one later-chapter delivery dependency from learner prose. The in-app browser runtime exposed no browser instance after prescribed setup, so repository-pinned Playwright Chromium and Firefox supplied the rendered audit."
       - id: audit-ch06-bigram-baseline
         objective: "Audit and repair Chapter 6 bigram-baseline teaching and its complete bilingual rendered surface."
         depends_on: [audit-ch05-autoregressive-examples]

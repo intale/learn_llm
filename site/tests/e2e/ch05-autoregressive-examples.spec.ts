@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '05-autoregressive-examples';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`x^{(s)}=z_{s:s+T}, \quad y^{(s)}=z_{s+1:s+T+1}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -356,6 +356,24 @@ async function expectChapterContent(
   await expectNoOverflowOrClientScripts(page);
 }
 
+async function expectPartitionsUseFigureWidth(page: Page, maximumInset: number) {
+  const geometry = await page
+    .locator('figure[data-visualization-id="autoregressive-examples"]')
+    .evaluate((figure) => {
+      const figureRect = figure.getBoundingClientRect();
+      const partition = figure.querySelector<HTMLElement>('[data-partition].partition');
+      if (!partition) throw new Error('Chapter 5 figure has no partition card.');
+      const partitionRect = partition.getBoundingClientRect();
+      return {
+        figureWidth: figureRect.width,
+        partitionWidth: partitionRect.width,
+        structuralItemMaxInlineSize: getComputedStyle(partition.parentElement!).maxInlineSize,
+      };
+    });
+  expect(geometry.structuralItemMaxInlineSize).toBe('none');
+  expect(geometry.figureWidth - geometry.partitionWidth).toBeLessThanOrEqual(maximumInset);
+}
+
 test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId) }, () => {
   test('chapter 5 is fifth on every course index and preserves locale switching', async ({ page }) => {
     for (const locale of chapterLocales) {
@@ -399,10 +417,21 @@ test.describe('chapter 5 localized vertical slice', { tag: chapterTag(chapterId)
       const chapters = await readOrderedCourseChapters(page, locale);
       await page.goto(chapterPath(locale, chapterId));
       await expectChapterContent(page, locale, 2, chapters);
+      await expectPartitionsUseFigureWidth(page, 64);
+
+      const diagram = page.locator('figure[data-visualization-id="autoregressive-examples"]');
+      await diagram.locator('[data-diagram-full-view-toggle]').click();
+      await page.waitForFunction(
+        () => document.fullscreenElement?.getAttribute('data-visualization-id') === 'autoregressive-examples',
+      );
+      await expectPartitionsUseFigureWidth(page, 96);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.fullscreenElement === null);
 
       await page.setViewportSize({ width: 390, height: 844 });
       await page.reload();
       await expectChapterContent(page, locale, 1, chapters);
+      await expectPartitionsUseFigureWidth(page, 64);
     });
   }
 });

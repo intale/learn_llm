@@ -971,7 +971,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `05-autoregressive-examples`
 - **Implementation step:** `implement-ch05-autoregressive-examples`
-- **Revision status:** Content revision 4 preserves the approved meaning-first Russian rewrite, restores exact code-literal formatting, and aligns the tokenizer handoff with the byte-exact guarantee; earlier revisions and their then-required approval remain historical provenance in `BUILD_STATE.yaml`.
+- **Revision status:** Content revision 5 preserves the autoregressive-window and exact Rust behavior, removes curriculum mechanics from the experiment, fixes structural diagram rows constrained by prose-list sizing, and validates the complete English/Russian figure inline, narrow, and in full view.
 - **Depends on:** `04-apply-bpe-tokenizer`.
 - **Outcome:** Turn each encoded document into shifted input–target pairs for next-token prediction while preserving document and partition boundaries.
 - **Scope boundary:** Teach context length, stride, shifted targets, and the policy for documents or suffixes that are too short to form a pair; consume the already frozen splits and tokenizer. Defer probability estimation and neural mini-batch sampling.
