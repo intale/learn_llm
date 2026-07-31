@@ -18,15 +18,18 @@ const titleId = 'final-evaluation-diagram-title';
 const descriptionId = 'final-evaluation-diagram-description';
 const stages = [
   { key: 'train', label: labels.stages.train, cue: labels.cues.fits, state: 'available' },
-  { key: 'validation', label: labels.stages.validation, cue: labels.cues.selects, state: 'trusted' },
+  { key: 'validation', label: labels.stages.validation, cue: labels.cues.selects, state: 'available' },
   { key: 'frozen', label: labels.stages.frozen, cue: labels.cues.sealed, state: 'trusted' },
-  { key: 'test', label: labels.stages.test, cue: labels.cues.evaluatesOnce, state: 'trusted' },
-  { key: 'report', label: labels.stages.report, cue: labels.cues.verified, state: 'trusted' },
+  { key: 'test', label: labels.stages.test, cue: labels.cues.evaluatesOnce, state: 'available' },
+  { key: 'report', label: labels.stages.report, cue: labels.cues.verified, state: 'available' },
 ] as const;
 const scores = trace.scores.map((score) => ({
   model: score.model,
   fit_partition: score.fit_partition,
   selected_by: score.selected_by,
+  fitLabel: labels.roles.train,
+  selectedLabel:
+    score.selected_by === 'validation' ? labels.roles.validation : labels.roles.none,
   targets: score.targets,
   total_nll: score.total_nll,
   mean_nll: score.mean_nll,
@@ -46,21 +49,21 @@ const scores = trace.scores.map((score) => ({
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.comparison}>
-      <li><span aria-hidden="true">≡</span> {labels.cues.sameTargets}</li>
-      <li><span aria-hidden="true">║</span> {labels.cues.lowerLoss}</li>
-      <li><span aria-hidden="true">×</span> {labels.cues.rejectedBeforeFreeze}</li>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.sections.comparison}>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box><span aria-hidden="true">≡</span> {labels.cues.sameTargets}</li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box><span aria-hidden="true">║</span> {labels.cues.lowerLoss}</li>
+      <li class="course-diagram__card-stack" data-diagram-card data-diagram-box><span aria-hidden="true">×</span> {labels.cues.rejectedBeforeFreeze}</li>
     </ul>
   </figcaption>
 
-  <section aria-labelledby="final-evaluation-boundary-title">
+  <section class="course-diagram__card-stack" data-diagram-box aria-labelledby="final-evaluation-boundary-title">
     <h4 id="final-evaluation-boundary-title">{labels.sections.boundary}</h4>
     <p>{labels.captions.boundary}</p>
-    <ol class="stage-list">
+    <ol class="stage-list course-diagram__grid">
       {stages.map((stage, index) => (
         <li>
           <article
-            class="stage-card"
+            class="stage-card course-diagram__card-stack"
             data-diagram-card
             data-diagram-box
             data-stage={stage.key}
@@ -75,7 +78,7 @@ const scores = trace.scores.map((score) => ({
     </ol>
   </section>
 
-  <section aria-labelledby="final-evaluation-comparison-title">
+  <section class="course-diagram__card-stack" data-diagram-box aria-labelledby="final-evaluation-comparison-title">
     <h4 id="final-evaluation-comparison-title">{labels.sections.comparison}</h4>
     <p>{labels.captions.comparison}</p>
     <div
@@ -104,10 +107,10 @@ const scores = trace.scores.map((score) => ({
                 {score.label}
                 {score.lower && <strong class="lower-loss-cue">{labels.cues.lowerLoss}</strong>}
               </th>
-              <td><code>{score.fit_partition}</code></td>
-              <td><code>{score.selected_by}</code></td>
+              <td data-fit-partition={score.fit_partition}>{score.fitLabel}</td>
+              <td data-selected-by={score.selected_by}>{score.selectedLabel}</td>
               <td><InlineMath latex={`N_{te}=${score.targets}`} /></td>
-              <td><InlineMath latex={String.raw`\sum_n-\log p_n=${score.total_nll}`} /></td>
+              <td><InlineMath latex={String.raw`\sum_n(-\log p_n)=${score.total_nll}`} /></td>
               <td><InlineMath latex={String.raw`\mathcal{L}_{te}=${score.mean_nll}`} /></td>
             </tr>
           ))}
@@ -116,36 +119,37 @@ const scores = trace.scores.map((score) => ({
     </div>
   </section>
 
-  <section aria-labelledby="final-evaluation-proof-title">
+  <section class="course-diagram__card-stack" data-diagram-box aria-labelledby="final-evaluation-proof-title">
     <h4 id="final-evaluation-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
-    <div class="proof-grid">
-      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+    <div class="proof-grid course-diagram__grid">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.provenance}</h5>
-        <p><InlineMath latex={`V=${trace.provenance.vocabulary},\;T=${trace.provenance.context}`} /></p>
+        <p><InlineMath latex={String.raw`V=${trace.provenance.vocabulary},\;T=${trace.provenance.context}`} /></p>
         <code><bdi dir="ltr">corpus={trace.provenance.corpus}</bdi></code>
         <code><bdi dir="ltr">split={trace.provenance.split}</bdi></code>
         <code><bdi dir="ltr">tokenizer={trace.provenance.tokenizer}</bdi></code>
         <code><bdi dir="ltr">{trace.provenance.target_fingerprint}</bdi></code>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.selectionClosed}</h5>
         <p><InlineMath latex={`s^*=${trace.report.selected_step}`} /></p>
-        <code><bdi dir="ltr">selection_test_reads={trace.boundary.selection_test_reads}</bdi></code>
-        <code><bdi dir="ltr">test_selectable={trace.boundary.test_selectable}</bdi></code>
+        <p><span aria-hidden="true">×</span> <code><bdi dir="ltr">selection_test_partition</bdi></code></p>
+        <code><bdi dir="ltr">selection_test_partition_rejected={trace.gate.selection_test_partition_rejected}</bdi></code>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.noGrad}</h5>
-        <p><InlineMath latex="0\to0" /> {labels.cues.verified}</p>
+        <p><InlineMath latex={String.raw`\#\mathrm{graphs}=0`} /> {labels.cues.verified}</p>
+        <code><bdi dir="ltr">graph_nodes={trace.proof.graph_nodes}</bdi></code>
         <code><bdi dir="ltr">parameters_unchanged={trace.proof.parameters_unchanged}</bdi></code>
         <code><bdi dir="ltr">gradients_unchanged={trace.proof.gradients_unchanged}</bdi></code>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-status="pass">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-status="pass">
         <h5>{labels.proofs.immutableState}</h5>
         <p><InlineMath latex={`N_{te}=${trace.provenance.targets}`} /></p>
-        <code><bdi dir="ltr">test_accesses={trace.report.test_accesses}</bdi></code>
+        <code><bdi dir="ltr">gate_openings_before={trace.report.gate_openings_before}</bdi></code>
+        <code><bdi dir="ltr">gate_openings_after={trace.report.gate_openings_after}</bdi></code>
         <code><bdi dir="ltr">report_version={trace.report.version}</bdi></code>
-        <code><bdi dir="ltr">report_immutable={trace.proof.report_immutable}</bdi></code>
       </article>
     </div>
   </section>
@@ -161,26 +165,11 @@ const scores = trace.scores.map((score) => ({
   }
 
   .stage-list {
-    display: grid;
     grid-template-columns: repeat(5, minmax(7.5rem, 1fr));
-    gap: 0.6rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .stage-card {
-    display: grid;
     block-size: 100%;
-    align-content: start;
-    gap: 0.4rem;
-  }
-
-  .stage-card h5,
-  .stage-card p,
-  .proof-card h5,
-  .proof-card p {
-    margin: 0;
   }
 
   .score-table {
@@ -198,15 +187,7 @@ const scores = trace.scores.map((score) => ({
   }
 
   .proof-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-    gap: 0.65rem;
-  }
-
-  .proof-card {
-    display: grid;
-    align-content: start;
-    gap: 0.45rem;
   }
 
   @container course-diagram (max-width: 52rem) {

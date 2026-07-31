@@ -472,6 +472,7 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "34": [
     String.raw`\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}`,
     String.raw`\sum_{n=1}^{N_{te}}\log p_{\theta_{s^*}}(y_n\mid x_n)`,
+    String.raw`\mathcal{L}_{te}^{\mathrm{decoder}}=1.607679,\qquad`,
     String.raw`\frac{\sum_d N_d\mathcal{L}^{(d)}_{te}}{\sum_d N_d}`,
     String.raw`N_{te}=24`,
     String.raw`\Delta_{te}=0.629055`,
@@ -1374,13 +1375,16 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "import InlineMath from '../InlineMath.astro'",
     );
     expect(components.finalEvaluation).toContain(
-      "String.raw`\\sum_n-\\log p_n=${score.total_nll}`",
+      "String.raw`\\sum_n(-\\log p_n)=${score.total_nll}`",
     );
     expect(components.finalEvaluation).toContain(
       "String.raw`\\mathcal{L}_{te}=${score.mean_nll}`",
     );
     expect(components.finalEvaluation).toContain(
       "latex={`N_{te}=${trace.provenance.targets}`}",
+    );
+    expect(components.finalEvaluation).toContain(
+      "String.raw`V=${trace.provenance.vocabulary},\\;T=${trace.provenance.context}`",
     );
 
     expect(components.temperatureTopK).toContain(

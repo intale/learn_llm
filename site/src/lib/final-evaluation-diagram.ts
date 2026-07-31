@@ -1,11 +1,10 @@
 export interface FinalEvaluationTrace {
   readonly report: Readonly<Record<string, string>>;
-  readonly boundary: Readonly<Record<string, string>>;
+  readonly gate: Readonly<Record<string, string>>;
   readonly provenance: Readonly<Record<string, string>>;
   readonly scores: readonly Readonly<Record<string, string>>[];
   readonly comparison: Readonly<Record<string, string>>;
   readonly proof: Readonly<Record<string, string>>;
-  readonly history: Readonly<Record<string, string>>;
 }
 
 export interface FinalEvaluationDiagramLabels {
@@ -26,6 +25,11 @@ export interface FinalEvaluationDiagramLabels {
   readonly models: {
     readonly decoder: string;
     readonly bigram: string;
+  };
+  readonly roles: {
+    readonly train: string;
+    readonly validation: string;
+    readonly none: string;
   };
   readonly fields: {
     readonly model: string;
@@ -63,14 +67,13 @@ export interface FinalEvaluationDiagramLabels {
 
 const expectedLines = [
   "FINAL_EVALUATION_TRACE_V1",
-  "REPORT|version=1|partition=test|selected_step=8|selection_criterion=validation-only|test_accesses=1",
-  "BOUNDARY|train_role=fit|validation_role=select|test_role=evaluate-once|selection_test_reads=0|evaluation_test_reads=1|test_selectable=false",
+  "REPORT|version=1|partition=test|selected_step=8|selection_criterion=validation-only|gate_openings_before=0|gate_openings_after=1",
+  "GATE|selection_test_partition_rejected=true",
   "PROVENANCE|corpus=ch33-34-synthetic-v1|split=fixed-role-split-v1|tokenizer=literal-u32-v1|vocabulary=5|context=2|documents=test-a,test-b|windows=12|batches=3|targets=24|target_fingerprint=fnv1a64:dac4bb4d76beeb59",
   "SCORE|model=selected-decoder|fit_partition=train|selected_by=validation|targets=24|total_nll=38.584306|mean_nll=1.607679|perplexity=4.991215",
   "SCORE|model=frozen-bigram|fit_partition=train|selected_by=none|targets=24|total_nll=53.681634|mean_nll=2.236735|perplexity=9.362710",
-  "COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true|fixture_specific=true",
-  "PROOF|token_weighted=true|provenance_match=true|graph_nodes_before=0|graph_nodes_after=0|parameters_unchanged=true|gradients_unchanged=true|report_immutable=true|selection_closed=true",
-  "HISTORY|training_score_only=true|repeated_holdout_inspection=true|three_way_protocol=true|contamination_checks=true",
+  "COMPARE|lower_loss=selected-decoder|loss_gap=0.629055|same_targets=true|decoder_beats_bigram=true",
+  "PROOF|token_weighted=true|provenance_match=true|graph_nodes=0|parameters_unchanged=true|gradients_unchanged=true|selection_closed=true",
   "END_FINAL_EVALUATION_TRACE",
 ] as const;
 
@@ -116,6 +119,7 @@ export function validateFinalEvaluationDiagramLabels(
       "sections",
       "stages",
       "models",
+      "roles",
       "fields",
       "cues",
       "proofs",
@@ -141,6 +145,11 @@ export function validateFinalEvaluationDiagramLabels(
     labels.models as unknown as Record<string, unknown>,
     ["decoder", "bigram"],
     "models",
+  );
+  exactStringKeys(
+    labels.roles as unknown as Record<string, unknown>,
+    ["train", "validation", "none"],
+    "roles",
   );
   exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
@@ -216,49 +225,43 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     invalid("trace must end with exactly one LF");
   const lines = source.slice(0, -1).split("\n");
   if (lines.length !== expectedLines.length)
-    invalid("trace must contain exactly ten lines");
-  if (lines[0] !== expectedLines[0] || lines[9] !== expectedLines[9])
+    invalid("trace must contain exactly nine lines");
+  if (lines[0] !== expectedLines[0] || lines[8] !== expectedLines[8])
     invalid("trace sentinels changed");
 
   const report = record(lines[1], "REPORT");
   exactKeys(
     report,
-    ["version", "partition", "selected_step", "selection_criterion", "test_accesses"],
+    [
+      "version",
+      "partition",
+      "selected_step",
+      "selection_criterion",
+      "gate_openings_before",
+      "gate_openings_after",
+    ],
     "REPORT",
   );
-  canonicalInteger(required(report, "version"), "report version");
-  canonicalInteger(required(report, "selected_step"), "selected step");
-  canonicalInteger(required(report, "test_accesses"), "test accesses");
+  for (const key of [
+    "version",
+    "selected_step",
+    "gate_openings_before",
+    "gate_openings_after",
+  ])
+    canonicalInteger(required(report, key), "report " + key);
   if (
     required(report, "version") !== "1" ||
     required(report, "partition") !== "test" ||
     required(report, "selection_criterion") !== "validation-only" ||
-    required(report, "test_accesses") !== "1"
+    required(report, "gate_openings_before") !== "0" ||
+    required(report, "gate_openings_after") !== "1"
   )
     invalid("REPORT does not preserve the final-evaluation boundary");
 
-  const boundary = record(lines[2], "BOUNDARY");
-  exactKeys(
-    boundary,
-    [
-      "train_role",
-      "validation_role",
-      "test_role",
-      "selection_test_reads",
-      "evaluation_test_reads",
-      "test_selectable",
-    ],
-    "BOUNDARY",
-  );
-  if (
-    required(boundary, "train_role") !== "fit" ||
-    required(boundary, "validation_role") !== "select" ||
-    required(boundary, "test_role") !== "evaluate-once" ||
-    required(boundary, "selection_test_reads") !== "0" ||
-    required(boundary, "evaluation_test_reads") !== "1" ||
-    required(boundary, "test_selectable") !== "false"
-  )
-    invalid("BOUNDARY roles or access counts changed");
+  const gate = record(lines[2], "GATE");
+  exactKeys(gate, ["selection_test_partition_rejected"], "GATE");
+  if (required(gate, "selection_test_partition_rejected") !== "true")
+    invalid("GATE no longer proves selection rejected the test partition");
 
   const provenance = record(lines[3], "PROVENANCE");
   exactKeys(
@@ -281,7 +284,7 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     canonicalInteger(required(provenance, key), "provenance " + key);
   if (!fingerprintPattern.test(required(provenance, "target_fingerprint")))
     invalid("target fingerprint is not canonical FNV-1a evidence");
-  if (required(provenance, "documents").split(",").join(",") !== "test-a,test-b")
+  if (required(provenance, "documents") !== "test-a,test-b")
     invalid("test document identity or order changed");
 
   const scores = Object.freeze(
@@ -322,15 +325,14 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
   const comparison = record(lines[6], "COMPARE");
   exactKeys(
     comparison,
-    ["lower_loss", "loss_gap", "same_targets", "decoder_beats_bigram", "fixture_specific"],
+    ["lower_loss", "loss_gap", "same_targets", "decoder_beats_bigram"],
     "COMPARE",
   );
   canonicalDecimal(required(comparison, "loss_gap"), "loss gap");
   if (
     required(comparison, "lower_loss") !== "selected-decoder" ||
     required(comparison, "same_targets") !== "true" ||
-    required(comparison, "decoder_beats_bigram") !== "true" ||
-    required(comparison, "fixture_specific") !== "true"
+    required(comparison, "decoder_beats_bigram") !== "true"
   )
     invalid("COMPARE changed the bounded fixture conclusion");
 
@@ -340,54 +342,36 @@ export function parseFinalEvaluationTrace(source: string): FinalEvaluationTrace 
     [
       "token_weighted",
       "provenance_match",
-      "graph_nodes_before",
-      "graph_nodes_after",
+      "graph_nodes",
       "parameters_unchanged",
       "gradients_unchanged",
-      "report_immutable",
       "selection_closed",
     ],
     "PROOF",
   );
   if (
-    required(proof, "graph_nodes_before") !== "0" ||
-    required(proof, "graph_nodes_after") !== "0" ||
+    required(proof, "graph_nodes") !== "0" ||
     [
       "token_weighted",
       "provenance_match",
       "parameters_unchanged",
       "gradients_unchanged",
-      "report_immutable",
       "selection_closed",
     ].some((key) => required(proof, key) !== "true")
   )
     invalid("PROOF flags changed");
 
-  const history = record(lines[8], "HISTORY");
-  exactKeys(
-    history,
-    [
-      "training_score_only",
-      "repeated_holdout_inspection",
-      "three_way_protocol",
-      "contamination_checks",
-    ],
-    "HISTORY",
-  );
-  if (Object.values(history).some((value) => value !== "true"))
-    invalid("every HISTORY flag must be true");
-
   for (const [index, expected] of expectedLines.entries()) {
-    if (lines[index] !== expected) invalid("line " + (index + 1) + " differs from Rust");
+    if (lines[index] !== expected)
+      invalid("line " + (index + 1) + " differs from Rust");
   }
 
   return Object.freeze({
     report,
-    boundary,
+    gate,
     provenance,
     scores,
     comparison,
     proof,
-    history,
   });
 }

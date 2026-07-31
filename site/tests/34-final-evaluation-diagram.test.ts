@@ -26,6 +26,9 @@ const contractSource = read("curriculum/chapters/34-final-evaluation.md");
 const lessonSource = read(
   "site/src/content/chapters/en/34-final-evaluation.mdx",
 );
+const russianLessonSource = read(
+  "site/src/content/chapters/ru/34-final-evaluation.mdx",
+);
 const coursePlanSource = read("curriculum/course-plan.md");
 const evaluationSource = read(
   "rust/crates/llm-from-scratch/src/evaluation.rs",
@@ -42,6 +45,16 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error("missing JSON frontmatter");
   return JSON.parse(match[1]);
+}
+
+function diagramLabelsFromLesson(
+  source: string,
+): FinalEvaluationDiagramLabels {
+  const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
+  if (!match) throw new Error("missing diagramLabels object");
+  return Function(
+    `"use strict"; return (${match[1]});`,
+  )() as FinalEvaluationDiagramLabels;
 }
 
 const labels: FinalEvaluationDiagramLabels = {
@@ -62,6 +75,11 @@ const labels: FinalEvaluationDiagramLabels = {
   models: {
     decoder: "decoder",
     bigram: "bigram",
+  },
+  roles: {
+    train: "training",
+    validation: "validation",
+    none: "not selected",
   },
   fields: {
     model: "model",
@@ -105,15 +123,11 @@ describe("Chapter 34 Rust trace parser", () => {
       partition: "test",
       selected_step: "8",
       selection_criterion: "validation-only",
-      test_accesses: "1",
+      gate_openings_before: "0",
+      gate_openings_after: "1",
     });
-    expect(trace.boundary).toEqual({
-      train_role: "fit",
-      validation_role: "select",
-      test_role: "evaluate-once",
-      selection_test_reads: "0",
-      evaluation_test_reads: "1",
-      test_selectable: "false",
+    expect(trace.gate).toEqual({
+      selection_test_partition_rejected: "true",
     });
     expect(trace.provenance).toMatchObject({
       corpus: "ch33-34-synthetic-v1",
@@ -152,31 +166,28 @@ describe("Chapter 34 Rust trace parser", () => {
       loss_gap: "0.629055",
       same_targets: "true",
       decoder_beats_bigram: "true",
-      fixture_specific: "true",
     });
     expect(trace.proof).toMatchObject({
       token_weighted: "true",
       provenance_match: "true",
-      graph_nodes_before: "0",
-      graph_nodes_after: "0",
+      graph_nodes: "0",
       parameters_unchanged: "true",
       gradients_unchanged: "true",
-      report_immutable: "true",
       selection_closed: "true",
     });
-    expect(Object.values(trace.history).every((value) => value === "true")).toBe(
-      true,
-    );
   });
 
   it("rejects every structural or semantic mutation before frozen fixture equality", () => {
     for (const changed of [
-      fixture.replace("test_accesses=1", "test_accesses=2"),
-      fixture.replace("selection_test_reads=0", "selection_test_reads=1"),
+      fixture.replace("gate_openings_after=1", "gate_openings_after=2"),
+      fixture.replace(
+        "selection_test_partition_rejected=true",
+        "selection_test_partition_rejected=false",
+      ),
       fixture.replace("targets=24", "targets=23"),
       fixture.replace("selected_by=validation", "selected_by=test"),
       fixture.replace("same_targets=true", "same_targets=false"),
-      fixture.replace("fixture_specific=true", "fixture_specific=false"),
+      fixture.replace("graph_nodes=0", "graph_nodes=1"),
       fixture.slice(0, -1),
       fixture + "\n",
       fixture.replace(/\n/g, "\r\n"),
@@ -241,7 +252,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(2);
     expect(componentSource).toContain("stages.map");
     expect(componentSource.match(/<article\b/g)).toHaveLength(5);
-    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(5);
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(11);
+    expect(componentSource).toContain("course-diagram__card-stack");
+    expect(componentSource).toContain("course-diagram__grid");
     expect(componentSource.match(/data-diagram-table/g)).toHaveLength(1);
     expect(componentSource.match(/<caption>/g)).toHaveLength(1);
     expect(componentSource).toContain('scope="row"');
@@ -257,6 +270,9 @@ describe("Chapter 34 static diagram and content boundary", () => {
   it("keeps the contract, lesson, formula, source evidence, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
+    const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
+    const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -292,14 +308,80 @@ describe("Chapter 34 static diagram and content boundary", () => {
       id: contract.visualization.id,
       rationale: contract.visualization.rationale.en,
     });
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
     expect([
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
+    expect(
+      russianLesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    ).toEqual(
+      lesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    );
+    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+      expect(() =>
+        validateFinalEvaluationDiagramLabels(localizedLabels),
+      ).not.toThrow();
+      expect(Object.keys(localizedLabels).sort()).toEqual(
+        Object.keys(englishDiagramLabels).sort(),
+      );
+      for (const namespace of [
+        "sections",
+        "stages",
+        "models",
+        "roles",
+        "fields",
+        "cues",
+        "proofs",
+        "captions",
+        "scrollers",
+      ] as const) {
+        expect(Object.keys(localizedLabels[namespace]).sort()).toEqual(
+          Object.keys(englishDiagramLabels[namespace]).sort(),
+        );
+      }
+    }
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\mathcal{L}_{te}(\\theta_{s^*})=-\\frac{1}{N_{te}}\\sum_{n=1}^{N_{te}}\\log p_{\\theta_{s^*}}(y_n\\mid x_n)",
     );
-    expect(contract.content_revision).toBe(1);
-    expect(lesson.content_revision).toBe(1);
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
     expect(contractSource).not.toContain("s^\\*");
     expect(lessonSource).not.toContain("s^\\*");
 
@@ -309,13 +391,11 @@ describe("Chapter 34 static diagram and content boundary", () => {
       expect(normalizedLesson).toContain(source.claim);
     }
     expect(lessonSource.match(/chapter-section:/g)).toHaveLength(8);
-    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(6);
+    expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(5);
     expect(lessonSource).toContain(
       "<FinalEvaluationDiagram labels={diagramLabels} />",
     );
-    expect(normalizedLesson).toContain(
-      "This is a history of LLM evaluation practice, not a history of programming languages",
-    );
+    expect(normalizedLesson).not.toContain("history of programming languages");
     expect(normalizedLesson).toContain(
       "does not claim that decoders always beat bigrams",
     );
@@ -324,14 +404,19 @@ describe("Chapter 34 static diagram and content boundary", () => {
       existsSync(
         resolve(repositoryRoot, "site/src/content/chapters/ru/34-final-evaluation.mdx"),
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(5);
+    expect(russianLessonSource).toContain(
+      "<FinalEvaluationDiagram labels={diagramLabels} />",
+    );
 
     expect(evaluationSource).toContain("region:evaluation-provenance");
     expect(evaluationSource).toContain("region:once-only-final-evaluation");
     expect(evaluationSource).toContain("AlreadyEvaluated");
     expect(evaluationSource).toContain("Partition::Test");
     expect(selectionSource).toContain("fixture_training_documents");
-    expect(demoSource).toContain("region:historical-evaluation-contrast");
+    expect(demoSource).not.toContain("region:historical-evaluation-contrast");
     expect(demoSource).toContain("region:learner-evidence");
     expect(traceRustSource).toContain("FINAL_EVALUATION_TRACE_V1");
   });

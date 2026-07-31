@@ -114,43 +114,25 @@ fn test_epoch() -> Result<MiniBatchEpoch, FixtureError> {
     MiniBatchEpoch::build(Partition::Test, &documents, windows, batches).map_err(Into::into)
 }
 
-// region:historical-evaluation-contrast
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct HistoricalEvaluationContrast {
-    pub training_score_only: bool,
-    pub repeated_holdout_inspections: usize,
-    pub three_way_protocol: bool,
-    pub contamination_checks: bool,
-}
-
-/// Records the responsibilities added on the road to governed final evidence.
-pub const fn historical_evaluation_contrast() -> HistoricalEvaluationContrast {
-    HistoricalEvaluationContrast {
-        training_score_only: true,
-        repeated_holdout_inspections: 3,
-        three_way_protocol: true,
-        contamination_checks: true,
-    }
-}
-// endregion:historical-evaluation-contrast
-
 // region:learner-evidence
 #[derive(Clone, Debug, PartialEq)]
 pub struct LearnerEvidence {
     pub report: FinalEvaluationReport,
-    pub selection_test_reads_before: usize,
+    pub selection_test_partition_rejected: bool,
+    pub gate_openings_before: u8,
     pub baseline_alpha: f64,
     pub baseline_documents: usize,
     pub baseline_transitions: u64,
-    pub history: HistoricalEvaluationContrast,
+    pub token_weighted: bool,
+    pub provenance_match: bool,
 }
 
 /// Builds both frozen candidates before opening one owned test evaluator.
 pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let selected = selection_evidence()?;
     require(
-        selected.test_reads == 0,
-        "selection unexpectedly read test data",
+        selected.test_partition_rejected,
+        "selection no longer rejects the test partition",
     )?;
     let provenance = fixture_provenance()?;
     let training_documents = fixture_training_documents();
@@ -177,14 +159,15 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     )?;
     let bigram = FrozenBigram::new(&baseline, Partition::Train, &provenance)?;
     let mut evaluator = FinalEvaluator::new(test_epoch()?, provenance.clone())?;
-    require(
-        evaluator.access_count() == 0,
-        "test gate opened before scoring",
-    )?;
+    let gate_openings_before = evaluator.access_count();
+    require(gate_openings_before == 0, "test gate opened before scoring")?;
     let report = evaluator.evaluate_once(decoder, bigram)?;
 
     require(report.version() == 1, "report version changed")?;
-    require(report.access_count() == 1, "test access count changed")?;
+    require(
+        report.access_count() == 1,
+        "test gate-opening count changed",
+    )?;
     require(report.target_count() == 24, "test target count changed")?;
     require(report.window_count() == 12, "test window count changed")?;
     require(report.batch_count() == 3, "test batch count changed")?;
@@ -210,14 +193,27 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         report.decoder_has_lower_loss(),
         "selected decoder no longer beats the fixture baseline",
     )?;
+    let token_weighted = [report.decoder(), report.bigram()]
+        .into_iter()
+        .all(|score| {
+            (score.total_nll() / score.target_count() as f64 - score.mean_nll()).abs() <= 1e-12
+        });
+    require(token_weighted, "model scores are no longer token weighted")?;
+    let provenance_match = report.provenance() == &provenance;
+    require(
+        provenance_match,
+        "report provenance no longer matches the frozen fixture",
+    )?;
 
     Ok(LearnerEvidence {
         report,
-        selection_test_reads_before: selected.test_reads,
+        selection_test_partition_rejected: selected.test_partition_rejected,
+        gate_openings_before,
         baseline_alpha: baseline.alpha(),
         baseline_documents: baseline.fitted_documents(),
         baseline_transitions: baseline.fitted_transitions(),
-        history: historical_evaluation_contrast(),
+        token_weighted,
+        provenance_match,
     })
 }
 // endregion:learner-evidence
@@ -228,19 +224,18 @@ pub fn learner_report() -> Result<String, FixtureError> {
     let report = &evidence.report;
     Ok(format!(
         "chapter=34-final-evaluation\n\
-selection=step:{} validation_loss:{:.6} criterion:validation-only test_reads_before:{}\n\
+selection=step:{} validation_loss:{:.6} criterion:validation-only test_partition_rejected:{}\n\
 provenance=corpus:{} split:{} tokenizer:{} vocabulary:{} context:{}\n\
 baseline=alpha:{:.6} fitted_partition:train documents:{} transitions:{} frozen:true\n\
-test=documents:{} windows:{} batches:{} targets:{} access_count:{} selectable:false fingerprint:{}\n\
+test=documents:{} windows:{} batches:{} targets:{} gate_openings_before:{} gate_openings_after:{} fingerprint:{}\n\
 decoder=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6} graphs:{} parameters_unchanged:{} gradients_unchanged:{}\n\
 bigram=mean_nll:{:.6} perplexity:{:.6} total_nll:{:.6}\n\
-comparison=lower_loss:selected-decoder gap:{:.6} same_targets:true fixture_specific:true\n\
-proof=token_weighted:true provenance_match:true selection_closed:true report_version:{} immutable:true\n\
-history=training_score_only:{} repeated_holdout_inspection:true three_way_protocol:{} contamination_checks:{}\n\
+comparison=lower_loss:selected-decoder gap:{:.6} same_targets:true\n\
+proof=token_weighted:{} provenance_match:{} selection_closed:{} report_version:{}\n\
 next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.selected_step(),
         report.selected_validation_loss(),
-        evidence.selection_test_reads_before,
+        evidence.selection_test_partition_rejected,
         report.provenance().corpus_fingerprint(),
         report.provenance().split_fingerprint(),
         report.provenance().tokenizer_fingerprint(),
@@ -253,6 +248,7 @@ next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.window_count(),
         report.batch_count(),
         report.target_count(),
+        evidence.gate_openings_before,
         report.access_count(),
         report.target_fingerprint(),
         report.decoder().mean_nll(),
@@ -265,10 +261,10 @@ next=serialize the selected evaluated state in a versioned checkpoint\n",
         report.bigram().perplexity(),
         report.bigram().total_nll(),
         report.loss_gap(),
+        evidence.token_weighted,
+        evidence.provenance_match,
+        evidence.selection_test_partition_rejected,
         report.version(),
-        evidence.history.training_score_only,
-        evidence.history.three_way_protocol,
-        evidence.history.contamination_checks,
     ))
 }
 // endregion:learner-report
@@ -291,7 +287,8 @@ mod tests {
     fn fixture_opens_test_once_scores_unequal_documents_and_preserves_state() {
         let evidence = learner_evidence().unwrap();
         let report = &evidence.report;
-        assert_eq!(evidence.selection_test_reads_before, 0);
+        assert!(evidence.selection_test_partition_rejected);
+        assert_eq!(evidence.gate_openings_before, 0);
         assert_eq!(report.access_count(), 1);
         assert_eq!(report.test_document_ids(), ["test-a", "test-b"]);
         assert_eq!(report.window_count(), 12);
@@ -304,6 +301,8 @@ mod tests {
         assert_eq!(evidence.baseline_documents, 2);
         assert_eq!(evidence.baseline_transitions, 22);
         assert_close(evidence.baseline_alpha, 1.0);
+        assert!(evidence.token_weighted);
+        assert!(evidence.provenance_match);
     }
 
     #[test]
@@ -324,19 +323,6 @@ mod tests {
         let left = learner_evidence().unwrap();
         let right = learner_evidence().unwrap();
         assert_eq!(left, right);
-    }
-
-    #[test]
-    fn history_keeps_course_policy_separate_from_source_claims() {
-        assert_eq!(
-            historical_evaluation_contrast(),
-            HistoricalEvaluationContrast {
-                training_score_only: true,
-                repeated_holdout_inspections: 3,
-                three_way_protocol: true,
-                contamination_checks: true,
-            }
-        );
     }
 
     #[test]

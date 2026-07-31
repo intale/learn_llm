@@ -11286,3 +11286,126 @@ independently.
 
 **Affected step and run:** `activate-ch33-russian-localization`, run
 `20260731T141035Z-activate-ch33-russian-localization-01`.
+
+## 2026-07-31 - Stage direct Russian Chapter 34 localization
+
+**Status:** Accepted before `activate-ch34-russian-localization` product edits.
+
+**Context:** Chapter 33 is independently committed at `2c632d1`. Chapter 34 is
+the last deferred Russian route in the user-authorized four-chapter sequence.
+Its canonical final-evaluation lesson, exact Rust fixture, integrated contract,
+figure, parser, and regression tests are the audit inputs; English must be
+corrected and frozen before any Russian surface is derived.
+
+**Decision:** Run the mandatory localization workflow under separately
+fingerprinted run `20260731T152356Z-activate-ch34-russian-localization-01`.
+Audit English semantics, formulas, LLM-centered evaluation history, partition
+boundaries, graph-free and immutable execution evidence, Rust provenance,
+learner-facing delivery-language leakage, and shared diagram presentation
+first. Translate the resulting frozen English revision directly into natural
+technical Russian, advance the locale boundary only through Chapter 34, and
+publish only after exact Rust/static and complete Chromium/Firefox containment
+validation. Use no external translation or paid service and do not pause for
+cost approval.
+
+**Consequences:** The checkpoint may correct canonical learner meaning, trace
+provenance fields, and shared-role integration when the audit establishes a
+defect, but it must not change dependencies, build definitions, hosting,
+deployment, or the user environment. Chapter 34 receives its own completion
+checkpoint and commit.
+
+**Affected step and run:** `activate-ch34-russian-localization`, run
+`20260731T152356Z-activate-ch34-russian-localization-01`.
+
+## 2026-07-31 - Revise Chapter 34 before deriving its Russian locale
+
+**Status:** Accepted during `activate-ch34-russian-localization` run 01 before
+learner-facing product edits.
+
+**Context:** Canonical revision 1 loses the `\qquad` command in one displayed
+formula and loses `\;` and `\to` in component-authored formulas because ordinary
+JavaScript strings consume the backslashes. Its executable report and trace
+serialize hardcoded historical propositions, call a derived Chapter 33
+compatibility field a physical test-data read count, and call a local consumed
+gate count a test read. Visible prose discusses programming-language history,
+the build-time parser, browser arithmetic, and acceptance machinery instead of
+only the evaluation evidence. The figure also describes arrows it does not
+render, exposes untranslated role tokens, leaves bordered shared sections and
+cues outside the bounded-box contract, and displays cue meanings that are not
+consistently present in the evidence.
+
+**Decision:** Freeze an English revision 2 before translation. Render every
+formula through intact TeX, replace read claims with the derived rejected
+test-partition probe plus measured local gate openings, and remove the
+hardcoded history record from executable output and trace while retaining
+source-scoped LLM evaluation history in prose. Express the strict trace as nine
+derived boundary/score/proof lines and the learner report as ten lines without
+history flags. Rewrite learner prose around the concrete evaluation boundary.
+Migrate all bordered sections and cues to shared roles, localize visible role
+values, make the numbered sequence and redundant cues match the actual figure,
+and keep only concept geometry in local CSS.
+
+**Consequences:** Russian Chapter 34 will derive directly from corrected
+English revision 2. The selected checkpoint, all 24 target slots, exact loss and
+perplexity values, evidence fingerprint, cited primary papers, dependencies,
+build definitions, hosting, deployment, and user environment remain unchanged.
+
+**Affected step and run:** `activate-ch34-russian-localization`, run
+`20260731T152356Z-activate-ch34-russian-localization-01`.
+
+## 2026-07-31 - Clarify the Chapter 34 formula and measured-evidence repair
+
+**Status:** Supersedes only the escape-detail wording in the preceding Chapter
+34 revision decision; its scope and revision choice remain accepted.
+
+**Context:** Inspection of Astro's compiled string behavior established that the
+literal `0\to0` expression retained its backslash. The actual component escape
+defect was the interpolated `V=...,\;T=...` template. Independently, `0\to0`
+claimed an unmeasured before/after graph count even though the evaluator records
+only the graph count produced by final scoring.
+
+**Decision:** Preserve `\;` with `String.raw`, render the recorded graph count as
+`\#\mathrm{graphs}=0`, and do not claim an unmeasured transition. Keep the
+corrected `\qquad` display formula and the unambiguous total-NLL expression
+`\sum_n(-\log p_n)`.
+
+**Consequences:** The learner sees only measured evidence, and every expression
+still goes through the shared math pipeline. No numerical fixture, dependency,
+build definition, hosting, deployment, or user-environment choice changes.
+
+**Affected step and run:** `activate-ch34-russian-localization`, run
+`20260731T152356Z-activate-ch34-russian-localization-01`.
+
+## 2026-07-31 - Publish direct Russian Chapter 34 localization
+
+**Status:** Accepted and completed in `activate-ch34-russian-localization` run
+01.
+
+**Context:** Corrected English revision 2 freezes validation-selected state
+before one local test-gate opening, scores the same 24 target positions for the
+decoder and training-only bigram, and records only measured graph/state facts.
+The Russian projection must preserve those boundaries while remaining natural
+in formula explanations, LLM-evaluation history, diagram labels, accessibility
+copy, exercises, and answers. Independent review also found that the selected
+partition was mislabeled as a criterion, the rendered `≡` cue was named as an
+equality sign, and several Russian phrases overstated checks as formal proofs.
+
+**Decision:** Publish Russian Chapter 34 directly from final English revision 2
+and activate exactly its route. Use coordinated “fitted on” and “selected by”
+table labels, name `≡` as equivalence in both locales, describe measured facts
+as checks rather than proofs, and validate every explicit box plus every table
+cell inside the one sanctioned scroller. Advance plan revision 60 and locale
+policy `selective-russian-through-chapter-34`; leave Chapters 35-39 English-only.
+
+**Consequences:** English and Russian Chapter 34 routes, reciprocal alternates,
+SEO, formulas, Rust evidence, shared figure, and navigation publish together.
+Both Chromium and Firefox pass all 172 focused/shared cases from exact workspace
+image `sha256:0c838f172fe48c51885eaefddac9d19ab14f20aa1089b4f124d97a97f916d483`.
+The 19-file product manifest is
+`sha256:223fafbbc001a9d6389c40d81eaf7d5a8629afb4813e54577570fb1fde54b504`.
+No dependency, package, build-definition, hosting, deployment, or user
+environment change was made. Later English meaning or presentation changes make
+the Russian review stale until it is refreshed directly from English.
+
+**Affected step and run:** `activate-ch34-russian-localization`, run
+`20260731T152356Z-activate-ch34-russian-localization-01`.

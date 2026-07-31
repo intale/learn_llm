@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–33 and English only for Chapters 34–39',
+      'English and Russian for Chapters 0–34 and English only for Chapters 35–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–33 use English and Russian',
+      'Chapters 0–34 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 33 use English and Russian, and Chapters 34 through 39 use English only',
+      'Chapters 0 through 34 use English and Russian, and Chapters 35 through 39 use English only',
     );
   });
 
@@ -225,7 +225,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 34)
+        .slice(0, 35)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -235,7 +235,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 34)
+        .filter((chapter) => chapter.order >= 35)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -302,6 +302,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('32-decoder-model', 'ru')).toBe(true);
     expect(activeLocalesForChapter('33-training-selection')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('33-training-selection', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('34-final-evaluation')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('34-final-evaluation', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 
