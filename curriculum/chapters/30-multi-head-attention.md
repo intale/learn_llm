@@ -2,52 +2,143 @@
 {
   "chapter_id": "30-multi-head-attention",
   "concept_id": "multi-head-causal-self-attention",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 30,
   "objective": {
-    "en": "Split projected features into independent causal attention heads, concatenate their outputs, and learn how to mix them with an output projection."
+    "en": "Split projected features into independent causal attention heads, concatenate their outputs, and learn how to mix them with an output projection.",
+    "ru": "Разделите спроецированные признаки на головы каузального внимания, отдельно вычислите выход каждой головы, конкатенируйте результаты и смешайте их обучаемой выходной проекцией."
   },
   "worked_inputs": {
-    "en": "Use one three-token input with $d_{\\mathrm{model}}=4$ and $h=2$. Identity query/key/value matrices make two feature blocks observable: the first counter-rotates RoPE and gives uniform causal rows, while the second gives nonuniform rows. Then $W_O$ swaps the two head blocks. Predict every intermediate shape and where cross-head mixing first becomes possible."
+    "en": "Use one three-token input with $d_{\\mathrm{model}}=4$ and $h=2$. Identity query/key/value matrices make two feature blocks observable: the first counter-rotates RoPE and gives uniform causal rows, while the second gives nonuniform rows. Then $W_O$ swaps the two head blocks. Predict every intermediate shape and where cross-head mixing first becomes possible.",
+    "ru": "Возьмите один вход из трёх токенов при $d_{\\mathrm{model}}=4$ и $h=2$. Единичные матрицы запросов, ключей и значений позволяют явно увидеть две группы признаков: первая компенсирует поворот RoPE и даёт равномерные каузальные строки, а вторая — неравномерные. Затем $W_O$ меняет местами два блока выходных признаков голов. Сначала предскажите все промежуточные формы и укажите, на каком этапе впервые могут смешаться признаки, полученные разными головами."
   },
   "formula": {
     "latex": "\\operatorname{MHA}(X)=\\operatorname{Concat}(H_1,\\ldots,H_h)W_O",
     "symbols": [
       {
         "symbol": "\\operatorname{MHA}",
-        "en": "the complete multi-head causal self-attention layer"
+        "en": "the complete multi-head causal self-attention layer",
+        "ru": "полный слой многоголового каузального самовнимания"
       },
       {
         "symbol": "X",
-        "en": "the input hidden states with batch, token, and model-width axes"
+        "en": "the input hidden states with batch, token, and model-width axes",
+        "ru": "входные скрытые состояния с осями батча, токенов и ширины модели"
       },
       {
-        "symbol": "\\operatorname{Concat}",
-        "en": "concatenation of the independent head outputs along their final feature axis"
+        "symbol": "B",
+        "en": "the batch size",
+        "ru": "размер батча"
       },
       {
-        "symbol": "H_i",
-        "en": "the causally weighted value mixture produced by head i after query/key rotation"
-      },
-      {
-        "symbol": "i",
-        "en": "one head index from one through h"
-      },
-      {
-        "symbol": "h",
-        "en": "the nonzero number of attention heads"
-      },
-      {
-        "symbol": "W_O",
-        "en": "the learned bias-free output matrix that mixes the concatenated head features"
+        "symbol": "T",
+        "en": "the number of token positions in each sequence",
+        "ru": "число позиций токенов в каждой последовательности"
       },
       {
         "symbol": "d_{\\mathrm{model}}",
-        "en": "the input and output feature width of the complete layer"
+        "en": "the input and output feature width of the complete layer",
+        "ru": "ширина входных и выходных признаков полного слоя"
+      },
+      {
+        "symbol": "h",
+        "en": "the nonzero number of attention heads",
+        "ru": "ненулевое число голов внимания"
+      },
+      {
+        "symbol": "i",
+        "en": "one head index from one through h",
+        "ru": "индекс головы от единицы до h"
       },
       {
         "symbol": "d_h",
-        "en": "the feature width of one head, equal here to model width divided by head count"
+        "en": "the feature width of one head, equal here to model width divided by head count",
+        "ru": "ширина одной головы, равная отношению ширины модели к числу голов"
+      },
+      {
+        "symbol": "W_Q,W_K,W_V",
+        "en": "the learned bias-free packed query, key, and value projection matrices",
+        "ru": "обучаемые упакованные матрицы проекций запросов, ключей и значений без смещений"
+      },
+      {
+        "symbol": "Q,K,V",
+        "en": "the full-width projected query, key, and value tensors before they are split into heads",
+        "ru": "полноразмерные тензоры спроецированных запросов, ключей и значений до разделения на головы"
+      },
+      {
+        "symbol": "W_i^Q,W_i^K,W_i^V",
+        "en": "the projection columns assigned to head i",
+        "ru": "столбцы матриц проекций, относящиеся к голове i"
+      },
+      {
+        "symbol": "Q_i,K_i,V_i",
+        "en": "head i's projected query, key, and value rows",
+        "ru": "строки спроецированных запросов, ключей и значений головы i"
+      },
+      {
+        "symbol": "R(t)",
+        "en": "the two-dimensional rotation by t radians used by the first fixture head",
+        "ru": "двумерный поворот на t радиан, используемый первой головой в примере"
+      },
+      {
+        "symbol": "t",
+        "en": "one zero-based token position in the worked example",
+        "ru": "позиция токена в примере с индексацией от нуля"
+      },
+      {
+        "symbol": "\\widetilde Q_i,\\widetilde K_i",
+        "en": "head i's query and key rows after rotary position encoding",
+        "ru": "строки запросов и ключей головы i после ротационного позиционного кодирования"
+      },
+      {
+        "symbol": "M",
+        "en": "the inclusive causal mask that blocks future key positions",
+        "ru": "каузальная маска с разрешённой диагональю, закрывающая будущие позиции ключей"
+      },
+      {
+        "symbol": "j",
+        "en": "the key-position index over which each attention row is normalized",
+        "ru": "индекс позиции ключа, по которому нормализуется каждая строка внимания"
+      },
+      {
+        "symbol": "A_i",
+        "en": "head i's row-normalized causal attention table",
+        "ru": "построчно нормализованная каузальная таблица внимания головы i"
+      },
+      {
+        "symbol": "H_i",
+        "en": "the causally weighted value mixture produced by head i",
+        "ru": "взвешенная с учётом каузальности смесь значений, вычисленная головой i"
+      },
+      {
+        "symbol": "\\operatorname{Concat}",
+        "en": "concatenation of the head outputs along their final feature axis",
+        "ru": "конкатенация выходов голов вдоль последней оси признаков"
+      },
+      {
+        "symbol": "W_O",
+        "en": "the learned bias-free output matrix that mixes the concatenated head features",
+        "ru": "обучаемая матрица выходной проекции без смещения, смешивающая конкатенированные признаки голов"
+      },
+      {
+        "symbol": "N_\\theta",
+        "en": "the number of learned scalar parameters in the layer",
+        "ru": "число обучаемых скалярных параметров слоя"
+      },
+      {
+        "symbol": "\\delta",
+        "en": "the central-difference perturbation used by the gradient check",
+        "ru": "шаг центральной разностной формулы при проверке градиента"
+      },
+      {
+        "symbol": "\\varepsilon_g",
+        "en": "the maximum accepted central-difference error",
+        "ru": "максимально допустимая погрешность центральной разности"
+      },
+      {
+        "symbol": "\\varepsilon",
+        "en": "the tolerance used for the exact assembly and invariance checks",
+        "ru": "допуск для проверок правильности объединения этапов и инвариантов"
       }
     ]
   },
@@ -55,13 +146,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector: a weighted sum of encoder annotations whose scores depend on the previous decoder state."
+        "en": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector, but the recurrent decoder still forms one alignment distribution and context at a time rather than several parallel projected self-attention heads.",
+        "ru": "Бахданау и соавторы заменяют один фиксированный вектор исходного предложения контекстным вектором, зависящим от шага декодирования, однако рекуррентный декодер по-прежнему за один шаг строит одно распределение выравнивания и один контекстный вектор, а не несколько параллельных спроецированных голов самовнимания."
       },
       "later_advance": {
-        "en": "Vaswani et al. project queries, keys, and values several times, perform the projected attention functions in parallel, concatenate their outputs, and project the concatenation."
+        "en": "Vaswani et al. project queries, keys, and values several times, perform the projected attention functions in parallel, concatenate their outputs, and project the concatenation.",
+        "ru": "Васвани и соавторы несколько раз проецируют запросы, ключи и значения, параллельно вычисляют внимание для этих проекций, конкатенируют выходы и проецируют полученный результат."
       },
       "modern_llm_role": {
-        "en": "Touvron et al. document a Transformer-based model with multiple attention heads, RoPE at every layer, and an optimized causal multi-head attention implementation."
+        "en": "Touvron et al. document a Transformer-based model with multiple attention heads, RoPE at every layer, and an optimized causal multi-head attention implementation.",
+        "ru": "Туврон и соавторы описывают модель на основе Transformer с несколькими головами внимания, RoPE в каждом слое и оптимизированной реализацией каузального многоголового внимания."
       },
       "sources": [
         {
@@ -70,7 +164,8 @@
           "name": "Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate",
           "source_url": "https://arxiv.org/abs/1409.0473",
           "claim": {
-            "en": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector: a weighted sum of encoder annotations whose scores depend on the previous decoder state."
+            "en": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector, but the recurrent decoder still forms one alignment distribution and context at a time rather than several parallel projected self-attention heads.",
+            "ru": "Бахданау и соавторы заменяют один фиксированный вектор исходного предложения контекстным вектором, зависящим от шага декодирования, однако рекуррентный декодер по-прежнему за один шаг строит одно распределение выравнивания и один контекстный вектор, а не несколько параллельных спроецированных голов самовнимания."
           }
         },
         {
@@ -79,7 +174,8 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
           "claim": {
-            "en": "Vaswani et al. project queries, keys, and values several times, perform the projected attention functions in parallel, concatenate their outputs, and project the concatenation."
+            "en": "Vaswani et al. project queries, keys, and values several times, perform the projected attention functions in parallel, concatenate their outputs, and project the concatenation.",
+            "ru": "Васвани и соавторы несколько раз проецируют запросы, ключи и значения, параллельно вычисляют внимание для этих проекций, конкатенируют выходы и проецируют полученный результат."
           }
         },
         {
@@ -88,18 +184,21 @@
           "name": "Touvron et al., LLaMA: Open and Efficient Foundation Language Models",
           "source_url": "https://arxiv.org/abs/2302.13971",
           "claim": {
-            "en": "Touvron et al. document a Transformer-based model with multiple attention heads, RoPE at every layer, and an optimized causal multi-head attention implementation."
+            "en": "Touvron et al. document a Transformer-based model with multiple attention heads, RoPE at every layer, and an optimized causal multi-head attention implementation.",
+            "ru": "Туврон и соавторы описывают модель на основе Transformer с несколькими головами внимания, RoPE в каждом слое и оптимизированной реализацией каузального многоголового внимания."
           }
         }
       ]
     },
     "approach": {
-      "en": "From one target-dependent attention distribution to several independently projected causal attention subspaces followed by learned output mixing"
+      "en": "From one target-dependent attention distribution to several independently projected causal attention subspaces followed by learned output mixing",
+      "ru": "От одного зависящего от шага распределения внимания к нескольким независимо спроецированным подпространствам каузального внимания и обучаемому смешиванию их выходов"
     },
     "summary": {
-      "en": "Multiple heads do not repeat one full-width calculation. Learned query/key/value matrices create several lower-width views, each head computes its own causal probability rows and value mixtures, concatenation restores model width, and the output matrix learns how to recombine the head features."
+      "en": "Multiple heads do not repeat one full-width calculation. Learned query/key/value matrices create several lower-width views, each head computes its own causal probability rows and value mixtures, concatenation restores model width, and the output matrix learns how to recombine the head features.",
+      "ru": "Несколько голов не повторяют одно полноразмерное вычисление. Обучаемые матрицы запросов, ключей и значений создают несколько представлений меньшей ширины; каждая голова вычисляет собственные каузальные строки вероятностей и смеси значений; конкатенация восстанавливает ширину модели, а выходная матрица учится смешивать признаки голов."
     },
-    "rust_contrast": "Emit every split, rotated-head, causal-weight, head-output, concatenation, and output-projection value for one tiny fixture. This exposes the assembly invariant without attributing course-local layouts, parameter names, bias policy, values, or trace grammar to the papers."
+    "rust_contrast": "Compute one recurrent weighted-context example, one single-head causal table, and one multi-head causal layer, then expose the exact split, rotation, probability, head-output, concatenation, and output-projection values without attributing fixture-specific choices to the papers."
   },
   "rust": {
     "package": "ch30-multi-head-attention",
@@ -115,48 +214,59 @@
     "decision": "useful",
     "id": "multi-head-attention-flow",
     "rationale": {
-      "en": "Two visible feature partitions, two distinct lower-triangular attention tables, a concatenated row, and the output-projected row reveal exactly where heads stay independent and where their features can finally mix."
+      "en": "Two visible feature partitions, two independently normalized lower-triangular attention tables, a concatenated row, and the output-projected row reveal exactly where heads stay separate and where their features can finally mix.",
+      "ru": "Две видимые группы признаков, две независимо нормализованные нижнетреугольные таблицы внимания, конкатенированная строка и строка после выходной проекции показывают, где головы остаются раздельными и где их признаки наконец могут смешаться."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has a complete bias-free, position-aware, causal multi-head attention sublayer. Chapter 31 will normalize its input, place it on a residual branch, and pair it with the feed-forward residual branch."
+    "en": "The cumulative decoder now has a complete bias-free, position-aware, causal multi-head attention sublayer. Chapter 31 will normalize its input, place it on a residual branch, and pair it with the feed-forward residual branch.",
+    "ru": "Теперь в собираемом декодере есть полный слой многоголового каузального внимания без смещений и с учётом позиций. В главе 31 его вход будет нормализован, сам слой окажется в остаточной ветви, а рядом появится остаточная ветвь сети прямого распространения."
   },
   "terminology": [
     {
       "concept_id": "attention-head",
-      "en": "attention head"
+      "en": "attention head",
+      "ru": "голова внимания"
     },
     {
       "concept_id": "head-width",
-      "en": "head width"
+      "en": "head width",
+      "ru": "ширина головы"
     },
     {
       "concept_id": "head-split",
-      "en": "head split"
+      "en": "head split",
+      "ru": "разделение на головы"
     },
     {
       "concept_id": "head-concatenation",
-      "en": "head concatenation"
+      "en": "head concatenation",
+      "ru": "конкатенация выходов голов"
     },
     {
       "concept_id": "output-projection",
-      "en": "output projection"
+      "en": "output projection",
+      "ru": "выходная проекция"
     },
     {
       "concept_id": "head-isolation",
-      "en": "head isolation"
+      "en": "head isolation",
+      "ru": "раздельность выходов голов до выходной проекции"
     }
   ],
   "translation_notes": [
-    "Chapter 30 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep MHA, X, Q, K, V, A, H, W_Q, W_K, W_V, W_O, B, T, h, i, d_model, d_h, tensor shapes, parameter names, source roles, URLs, trace tokens, and numeric values unchanged when another locale is activated later.",
-    "A head is one independently projected attention lane. Do not translate it as a person, header, controller, or sequential processing stage.",
+    "Chapter 30 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "The canonical English source SHA-256 is 84ad52176ad1a0c7d66b46e83e0765d4b434bc44b25017ab551f080e2d2b0fca; Russian was translated directly from those exact bytes.",
+    "Keep MHA, X, Q, K, V, A, H, W_Q, W_K, W_V, W_O, B, T, h, i, j, d_model, d_h, tensor shapes, parameter names, source roles, URLs, trace tokens, and numeric values unchanged across locales.",
+    "Translate attention head as голова внимания, head width as ширина головы, head split as разделение на головы, head concatenation as конкатенация выходов голов, and output projection as выходная проекция.",
+    "A head is one separately normalized projected attention computation. Do not translate it as a person, header, controller, sequential stage, lane, or strip.",
     "Splitting does not create learned differences and concatenation does not mix heads. Query/key/value projections create the learned views; W_O is the first learned operation after attention that can mix their features.",
     "The fixture proves that two chosen heads can behave differently and remain isolated before W_O. It does not claim that every trained head has a stable, named, human-interpretable role.",
     "Bahdanau attention is the historical predecessor, not Transformer self-attention and not multi-head attention. Avoid retroactive query/key/value terminology for that paper.",
     "RoPE changes Q and K, the causal mask controls visibility, and V supplies the mixed content. Keep those three roles separate.",
-    "Name Rust only for executable source, concrete APIs, commands, paths, trace provenance, and literal program data. The neural-model history and mathematics remain language-independent.",
-    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data."
+    "Name Rust only for executable source, concrete APIs, commands, paths, and literal program data. The neural-model history and mathematics remain language-independent.",
+    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
+    "Validate Russian independently at desktop and narrow widths and in the full-view figure; do not infer containment from English."
   ],
   "acceptance_examples": [
     {
@@ -310,7 +420,7 @@ $$
 $$
 
 $$
-A_i=\operatorname{softmax}\!\left(
+A_i=\operatorname{softmax}_{j}\!\left(
 \frac{\widetilde Q_i\widetilde K_i^\top}{\sqrt{d_h}}+M
 \right),\qquad
 H_i=A_iV_i.
@@ -332,7 +442,7 @@ is the fourth learned matrix and can combine coordinates from different heads.
 This target layer owns four matrices and no biases, so its parameter count is
 
 $$
-3d_{\mathrm{model}}^2+d_{\mathrm{model}}^2
+N_\theta=3d_{\mathrm{model}}^2+d_{\mathrm{model}}^2
 =4d_{\mathrm{model}}^2.
 $$
 
@@ -361,7 +471,7 @@ attend to information from different representation subspaces and positions.
 This is an architectural opportunity, not a promise that every trained head will
 acquire one permanent, human-readable job.
 
-[Touvron et al.](https://arxiv.org/abs/2302.13971) provide a bounded modern
+[Touvron et al.](https://arxiv.org/abs/2302.13971) provide a concrete modern
 causal Transformer language-model example: the original LLaMA models use multiple
 attention heads, apply RoPE at every layer, and describe an optimized causal
 multi-head attention implementation. This course keeps the same conceptual
@@ -470,22 +580,23 @@ residual path. Cache ownership remains deferred until Chapter 37.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active locale for this chapter. Russian remains registered
-for future localization, but Chapter 30 publishes no Russian lesson or
-placeholder route. Future translations must preserve the exact mathematical
-symbols, tensor axis order, source boundaries, parameter suffixes, numeric
-fixture, and Rust trace tokens while rewriting the explanatory prose naturally
-for the target language.
+English and Russian are the exact active Chapter 30 locales. English revision 2
+is canonical, and Russian is translated directly from it with natural technical
+and mathematical language. Both locales preserve the exact symbols, tensor axis
+order, source boundaries, parameter suffixes, numerical fixture, formulas, and
+program identifiers. Any later English semantic change makes the Russian review
+stale until it is refreshed and rendered again.
 
 <!-- contract-section:acceptance -->
 ## Acceptance
 
-The chapter is accepted when the contract and English lesson agree on the frozen
-fixture and source boundaries; split and merge are exact taped inverses; the two
-heads expose distinct causal tables; head isolation and suffix perturbations
-hold; four bias-free matrices have stable names, count, and deterministic
-values; all input and weight coordinates pass central differences; learner and
-diagram stdout match checked-in fixtures byte for byte; the site parser performs
-no model arithmetic; all learner-facing mathematics is server-rendered; and the
-static English page passes content, link, accessibility, formula, narrow-layout,
-forced-color, JavaScript-disabled, Chromium, and Firefox checks.
+The chapter is accepted when the contract and both localized lessons agree on
+the frozen fixture and source boundaries; split and merge are exact taped
+inverses; the two fixture heads expose different causal tables; head separation
+and prefix invariance under a suffix change hold; four bias-free matrices have
+stable names, count, and deterministic values; all input and weight coordinates
+pass central differences; learner and diagram stdout match checked-in fixtures
+byte for byte; the site parser performs no model arithmetic; all learner-facing
+mathematics is server-rendered; and both pages pass semantic, monolingual, link,
+accessibility, formula, desktop, narrow, full-view, forced-color,
+JavaScript-disabled, Chromium, and Firefox checks.

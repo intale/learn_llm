@@ -62,6 +62,16 @@ export interface MultiHeadAttentionDiagramLabels {
     readonly concatenation: string;
     readonly outputProjection: string;
   };
+  readonly shapeStages: {
+    readonly input: string;
+    readonly split: string;
+    readonly rotated: string;
+    readonly weights: string;
+    readonly headOutput: string;
+    readonly merged: string;
+    readonly outputWeight: string;
+    readonly output: string;
+  };
   readonly fields: {
     readonly shape: string;
     readonly features: string;
@@ -80,9 +90,14 @@ export interface MultiHeadAttentionDiagramLabels {
   readonly cues: {
     readonly headZero: string;
     readonly headOne: string;
+    readonly headZeroCue: string;
+    readonly headOneCue: string;
     readonly allowed: string;
     readonly blocked: string;
     readonly diagonal: string;
+    readonly allowedCue: string;
+    readonly blockedCue: string;
+    readonly diagonalCue: string;
     readonly concatenated: string;
     readonly projected: string;
     readonly unchanged: string;
@@ -95,16 +110,31 @@ export interface MultiHeadAttentionDiagramLabels {
     readonly merge: string;
     readonly proof: string;
   };
+  readonly proofChecks: {
+    readonly splitMerge: string;
+    readonly splitMergeResult: string;
+    readonly headIsolation: string;
+    readonly headIsolationResult: string;
+    readonly futureProbabilities: string;
+    readonly futureProbabilitiesResult: string;
+    readonly commonOffset: string;
+    readonly commonOffsetResult: string;
+    readonly parameters: string;
+    readonly gradients: string;
+  };
   readonly scrollers: {
-    readonly formula: string;
+    readonly splitFormula: string;
+    readonly headFormula: string;
+    readonly mergeFormula: string;
     readonly partitions: string;
     readonly heads: string;
     readonly concatenation: string;
-    readonly projection: string;
+    readonly outputMap: string;
+    readonly finalOutput: string;
   };
 }
 
-const expectedTrace = `CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|offset=0|max_positions=6|rope_base=100.000000|bias=false|parameter_order=[query.weight,key.weight,value.weight,output.weight]|layout=reshape-transpose|site_arithmetic=none
+const expectedTrace = `CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|offset=0|max_positions=6|rope_base=100.000000|bias=false|parameter_order=[query.weight,key.weight,value.weight,output.weight]|layout=reshape-transpose
 SHAPE|stage=input|value=[1,3,4]
 SHAPE|stage=split|value=[1,2,3,2]
 SHAPE|stage=rotated|value=[1,2,3,2]
@@ -137,7 +167,7 @@ OUTPUT_MAP|row=3|values=[0.000000,1.000000,0.000000,0.000000]
 OUTPUT|token=0|merged=[1.000000,0.000000,1.000000,0.000000]|projected=[1.000000,0.000000,1.000000,0.000000]
 OUTPUT|token=1|merged=[0.770151,-0.420735,0.213809,0.786191]|projected=[0.213809,0.786191,0.770151,-0.420735]
 OUTPUT|token=2|merged=[0.374718,-0.583589,0.629044,0.945304]|projected=[0.629044,0.945304,0.374718,-0.583589]
-PREFIX_PROOF|position_0=bitwise-unchanged|position_1=bitwise-unchanged|position_2=changed|split_merge=bitwise|head_isolation=before-output|future_probabilities=exact-zero|common_offset=preserved|tolerance=0.000000000001|parameters=64|gradchecks=76|trace=rust-authored|site_arithmetic=none
+PREFIX_PROOF|position_0=bitwise-unchanged|position_1=bitwise-unchanged|position_2=changed|split_merge=bitwise|head_isolation=before-output|future_probabilities=exact-zero|common_offset=preserved|tolerance=0.000000000001|parameters=64|gradchecks=76
 `;
 
 const decimalPattern = /^-?(?:0|[1-9]\d*)\.\d{6}$/;
@@ -171,7 +201,10 @@ export function validateMultiHeadAttentionDiagramLabels(
 ): MultiHeadAttentionDiagramLabels {
   exactKeys(
     labels as unknown as Record<string, unknown>,
-    ['title', 'description', 'sections', 'stages', 'fields', 'cues', 'captions', 'scrollers'],
+    [
+      'title', 'description', 'sections', 'stages', 'shapeStages', 'fields', 'cues',
+      'captions', 'proofChecks', 'scrollers',
+    ],
     'labels',
   );
   if (labels.title.trim() === '') invalid('labels.title must be a nonblank string');
@@ -187,6 +220,11 @@ export function validateMultiHeadAttentionDiagramLabels(
     'stages',
   );
   exactStringKeys(
+    labels.shapeStages as unknown as Record<string, unknown>,
+    ['input', 'split', 'rotated', 'weights', 'headOutput', 'merged', 'outputWeight', 'output'],
+    'shapeStages',
+  );
+  exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
     [
       'shape', 'features', 'tokenPosition', 'queryPosition', 'keyPosition', 'visibility',
@@ -198,7 +236,8 @@ export function validateMultiHeadAttentionDiagramLabels(
   exactStringKeys(
     labels.cues as unknown as Record<string, unknown>,
     [
-      'headZero', 'headOne', 'allowed', 'blocked', 'diagonal', 'concatenated',
+      'headZero', 'headOne', 'headZeroCue', 'headOneCue', 'allowed', 'blocked',
+      'diagonal', 'allowedCue', 'blockedCue', 'diagonalCue', 'concatenated',
       'projected', 'unchanged', 'changed', 'verified',
     ],
     'cues',
@@ -209,8 +248,20 @@ export function validateMultiHeadAttentionDiagramLabels(
     'captions',
   );
   exactStringKeys(
+    labels.proofChecks as unknown as Record<string, unknown>,
+    [
+      'splitMerge', 'splitMergeResult', 'headIsolation', 'headIsolationResult',
+      'futureProbabilities', 'futureProbabilitiesResult', 'commonOffset',
+      'commonOffsetResult', 'parameters', 'gradients',
+    ],
+    'proofChecks',
+  );
+  exactStringKeys(
     labels.scrollers as unknown as Record<string, unknown>,
-    ['formula', 'partitions', 'heads', 'concatenation', 'projection'],
+    [
+      'splitFormula', 'headFormula', 'mergeFormula', 'partitions', 'heads',
+      'concatenation', 'outputMap', 'finalOutput',
+    ],
     'scrollers',
   );
   return labels;
@@ -347,7 +398,7 @@ export function parseMultiHeadAttentionTrace(source: string): MultiHeadAttention
     config,
     [
       'batch', 'tokens', 'model_width', 'heads', 'head_width', 'offset', 'max_positions',
-      'rope_base', 'bias', 'parameter_order', 'layout', 'site_arithmetic',
+      'rope_base', 'bias', 'parameter_order', 'layout',
     ],
     'config',
   );
@@ -361,6 +412,16 @@ export function parseMultiHeadAttentionTrace(source: string): MultiHeadAttention
     shapes[stage] = required(record, 'value');
   }
 
+  const proof = fields(lines[33]);
+  exactKeys(
+    proof,
+    [
+      'position_0', 'position_1', 'position_2', 'split_merge', 'head_isolation',
+      'future_probabilities', 'common_offset', 'tolerance', 'parameters', 'gradchecks',
+    ],
+    'proof',
+  );
+
   return Object.freeze({
     config,
     shapes: Object.freeze(shapes),
@@ -370,6 +431,6 @@ export function parseMultiHeadAttentionTrace(source: string): MultiHeadAttention
     merged: Object.freeze(lines.slice(23, 26).map(mergedRecord)),
     outputMap: Object.freeze(lines.slice(26, 30).map(outputMapRecord)),
     outputs: Object.freeze(lines.slice(30, 33).map(outputRecord)),
-    proof: fields(lines[33]),
+    proof,
   });
 }

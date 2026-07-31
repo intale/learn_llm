@@ -575,7 +575,7 @@ const chapter14To39FormulaLatex: Record<
     String.raw`\operatorname{MHA}(X)=\operatorname{Concat}(H_1,\ldots,H_h)W_O`,
     String.raw`d_h=\frac{d_{\mathrm{model}}}{h}=2`,
     String.raw`[B,T,d_{\mathrm{model}}]\to[B,h,T,d_h]`,
-    String.raw`A_i=\operatorname{softmax}_{\mathrm{keys}}`,
+    String.raw`A_i=\operatorname{softmax}_{j}`,
     String.raw`H_i=A_iV_i`,
     String.raw`W_O\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`,
   ],

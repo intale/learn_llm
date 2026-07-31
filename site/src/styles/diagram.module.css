@@ -421,6 +421,16 @@
 .host
   :global(
     figure.course-diagram[data-diagram-style='course-v1']
+      table[data-diagram-table]
+      small
+  ) {
+  display: block;
+  margin-block-start: 0.25rem;
+}
+
+.host
+  :global(
+    figure.course-diagram[data-diagram-style='course-v1']
       :is(code, bdi, [dir='ltr'])
   ) {
   direction: ltr;

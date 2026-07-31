@@ -10872,3 +10872,104 @@ is introduced.
 
 **Affected step and run:** `activate-ch29-russian-localization`, run
 `20260731T083927Z-activate-ch29-russian-localization-01`.
+
+## 2026-07-31 - Stage direct Russian Chapter 30 localization
+
+**Status:** Accepted before `activate-ch30-russian-localization` product edits.
+
+**Context:** Chapter 29 is independently committed at `7318032`. Chapter 30 is
+the final deferred Russian route in the user-authorized six-chapter batch. Its
+English multi-head causal self-attention lesson, exact Rust fixture, integrated
+contract, diagram, parser, and regression tests are the canonical audit inputs;
+English must be corrected before any Russian surface is derived.
+
+**Decision:** Run the mandatory localization workflow under separately
+fingerprinted run `20260731T094010Z-activate-ch30-russian-localization-01`.
+Audit English semantics, formula coverage, LLM-centered history, Rust evidence,
+learner-facing delivery-language leakage, and shared diagram presentation first.
+Translate the resulting frozen English revision directly into natural technical
+Russian, advance the locale boundary only through Chapter 30, and publish only
+after exact Rust/static and complete Chromium/Firefox containment validation.
+Use no external translation or paid service and do not pause for cost approval.
+
+**Consequences:** The checkpoint may correct canonical learner meaning, trace
+provenance fields, and shared-role integration when the audit establishes a
+defect, but it must not change dependencies, build definitions, hosting,
+deployment, or the user environment. Chapter 30 receives its own completion
+checkpoint and commit after Chapter 29.
+
+**Affected step and run:** `activate-ch30-russian-localization`, run
+`20260731T094010Z-activate-ch30-russian-localization-01`.
+
+## 2026-07-31 - Revise Chapter 30 before deriving its Russian locale
+
+**Status:** Accepted during `activate-ch30-russian-localization` run 01
+canonical review.
+
+**Context:** The revision-1 lesson teaches the correct multi-head assembly, but
+its learner surface also names the page parser and trace provenance, exposes
+presentation-only trace fields, leaves raw trace stage tokens visible, and
+duplicates frame, card, table, focus, scrolling, and forced-color presentation
+inside the chapter component. Those defects conflict with the established
+learner-prose, localization, and shared-diagram contracts even though the
+numerical fixture itself remains sound.
+
+**Decision:** Freeze a revision-2 English source before translation. Preserve
+the exact tensor calculation and 34-record fixture while removing only
+presentation-provenance fields from the trace grammar. Replace authoring and
+parser explanations with model-level evidence, localize every visible shape
+stage and proof statement, and migrate the figure to the shared `course-v1`
+roles while retaining only multi-head geometry and redundant non-color cues in
+component CSS. Strengthen tests so no learner-facing programming-language or
+delivery rationale can return.
+
+**Consequences:** Russian Chapter 30 will be translated directly from the
+corrected English revision 2. Rust arithmetic, public APIs, dependencies, build
+definitions, hosting, deployment, and the user environment remain unchanged;
+the exact trace loses only fields that described how the site was authored.
+
+**Affected step and run:** `activate-ch30-russian-localization`, run
+`20260731T094010Z-activate-ch30-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 30 after semantic and rendered audits
+
+**Status:** Accepted after `activate-ch30-russian-localization` run 01
+validation.
+
+**Context:** Canonical review established that revision 1 mixed learner evidence
+with parser, trace-provenance, and page-delivery rationale; described separate
+head tables as necessarily distinct; overstated gradient and RoPE invariants;
+and left several symbols and output-mixing boundaries implicit. Independent
+English, Russian, accessibility, and source reviews also found literal-calque
+risks, stale trace-only fields, and private diagram presentation. Rendered
+validation then exposed excessive full-view travel and local table debt,
+especially for the longer Russian labels.
+
+**Decision:** Freeze English revision 2 at SHA-256
+`84ad52176ad1a0c7d66b46e83e0765d4b434bc44b25017ab551f080e2d2b0fca`
+and publish its direct Russian projection at SHA-256
+`90c2ebd07889cb7cd3226ba5ed5e8193a71c1a37bf83f0be52879a1f40bf22ab`.
+The integrated contract is SHA-256
+`89db239037a8953c8b3213d5d3d246718566f03d6dad93110cb0c0cea0610738`.
+Keep the exact numerical fixture while deriving the 76 gradient-check count
+from its recorded parameter groups and removing only presentation-provenance
+trace fields. Publish one shared-role semantic figure whose projected token rows
+wrap as complete mathematical pairs, whose full-view grid allocates evidence by
+its natural width, and whose Russian output tables use a safe localized reflow.
+Freeze the ordinal path-sorted 20-file product manifest at
+`.build/runs/20260731T094010Z-activate-ch30-russian-localization-01/publish-product.sha256`
+with SHA-256
+`6cd625c781f399996fb18b2af6c52ff1832c0ad9b3e1adf12be9f410c6563d33`.
+
+**Consequences:** Russian availability advances only through Chapter 30. The
+final exact candidate builds 76 pages and passes 2,115 local references, 76 SEO
+routes, 76 sitemap URLs, 76 Analytics routes, all 848 site tests, three Chapter
+30 Rust tests, workspace clippy, byte-exact learner output and diagram trace,
+and all 165 Chapter 30/formula/shared-style/shared-full-view cases in each of
+Chromium and Firefox. Its pinned Linux Docker manifest-list SHA-256 is
+`a139e563eb068bc34ef234a41eb97679d738ace79fa99a12ee10d754dff78526`.
+No dependency, build-definition, hosting, deployment, or user-environment
+change is introduced.
+
+**Affected step and run:** `activate-ch30-russian-localization`, run
+`20260731T094010Z-activate-ch30-russian-localization-01`.

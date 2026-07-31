@@ -443,7 +443,7 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
   "30": [
     String.raw`\operatorname{MHA}(X)=\operatorname{Concat}(H_1,\ldots,H_h)W_O`,
     String.raw`d_h=\frac{d_{\mathrm{model}}}{h}=2`,
-    String.raw`A_i=\operatorname{softmax}_{\mathrm{keys}}`,
+    String.raw`A_i=\operatorname{softmax}_{j}`,
     String.raw`H_i=A_iV_i`,
     String.raw`W_O\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`,
   ],
@@ -1339,7 +1339,7 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "String.raw`[B,T,d_{\\mathrm{model}}]\\to[B,h,T,d_h]`",
     );
     expect(components.multiHeadAttention).toContain(
-      "String.raw`A_i=\\operatorname{softmax}_{\\mathrm{keys}}",
+      "String.raw`A_i=\\operatorname{softmax}_{j}",
     );
     expect(components.multiHeadAttention).toContain(
       "String.raw`\\operatorname{MHA}(X)=\\operatorname{Concat}(H_1,\\ldots,H_h)W_O`",

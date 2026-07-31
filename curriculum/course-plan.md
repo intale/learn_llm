@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 55,
+  "plan_revision": 56,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-29",
+    "policy_id": "selective-russian-through-chapter-30",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "29-rope",
+        "through_chapter": "30-multi-head-attention",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-29."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-30."
       },
       {
-        "from_chapter": "30-multi-head-attention",
+        "from_chapter": "31-decoder-block",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 29 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 30 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -319,6 +319,11 @@
         "step_id": "activate-ch29-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch29-russian-localization"
+      },
+      {
+        "step_id": "activate-ch30-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch30-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -888,9 +893,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–27 activate
-both, while Chapters 28–39 activate English only. Russian therefore keeps its index
-and Chapter 0–27 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–30 activate
+both, while Chapters 31–39 activate English only. Russian therefore keeps its index
+and Chapter 0–30 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1406,13 +1411,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `30-multi-head-attention`
 - **Implementation step:** `implement-ch30-multi-head-attention`
+- **Revision status:** Content revision 2 qualifies independently normalized head tables, corrects gradient evidence, completes symbol definitions, removes learner-facing delivery mechanics, localizes every diagram label, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch30-russian-localization`.
 - **Depends on:** `29-rope`.
 - **Outcome:** Split Q/K/V across heads, apply RoPE and causal attention per head, concatenate, and project the result.
 - **Scope boundary:** Teach head split/merge, independent attention subspaces, output projection, divisibility, and the target model's bias-free attention projections; defer residual wrapping and caching.
 - **Formula:** `\operatorname{MHA}(X)=\operatorname{Concat}(H_1,\ldots,H_h)W_O`.
 - **Historical contrast:** Contrast a single attention distribution with multiple learned representation subspaces.
 - **Rust contribution:** Add bias-free multi-head causal attention with stable parameter names and explicit reshape/transpose steps.
-- **Visualization:** Useful — partition features into heads, show distinct attention matrices, and reassemble output dimensions.
+- **Visualization:** Useful — partition features into heads, show separately normalized attention matrices that differ in the fixture, and reassemble output dimensions.
 - **Practice:** Predict valid head counts and all intermediate shapes for a small model width.
 - **Integration evidence:** Split/merge inverses, head isolation, causal outputs, bias-free parameter counts, deterministic values, shape errors, and gradchecks pass.
 - **Handoff:** Chapter 31 combines multi-head attention and feed-forward sublayers with pre-norm residual paths.

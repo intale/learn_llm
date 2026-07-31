@@ -2,7 +2,7 @@
 {
   "chapter_id": "30-multi-head-attention",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 30,
   "concept_id": "multi-head-causal-self-attention",
   "title": "Run causal attention in several heads, then mix",
@@ -14,19 +14,35 @@
     "symbols": [
       { "symbol": "\\operatorname{MHA}", "meaning": "the complete multi-head causal self-attention layer" },
       { "symbol": "X", "meaning": "the input hidden states with batch, token, and model-width axes" },
-      { "symbol": "\\operatorname{Concat}", "meaning": "concatenation of the independent head outputs along their final feature axis" },
-      { "symbol": "H_i", "meaning": "the causally weighted value mixture produced by head i after query/key rotation" },
-      { "symbol": "i", "meaning": "one head index from one through h" },
-      { "symbol": "h", "meaning": "the nonzero number of attention heads" },
-      { "symbol": "W_O", "meaning": "the learned bias-free output matrix that mixes the concatenated head features" },
+      { "symbol": "B", "meaning": "the batch size" },
+      { "symbol": "T", "meaning": "the number of token positions in each sequence" },
       { "symbol": "d_{\\mathrm{model}}", "meaning": "the input and output feature width of the complete layer" },
-      { "symbol": "d_h", "meaning": "the feature width of one head, equal here to model width divided by head count" }
+      { "symbol": "h", "meaning": "the nonzero number of attention heads" },
+      { "symbol": "i", "meaning": "one head index from one through h" },
+      { "symbol": "d_h", "meaning": "the feature width of one head, equal here to model width divided by head count" },
+      { "symbol": "W_Q,W_K,W_V", "meaning": "the learned bias-free packed query, key, and value projection matrices" },
+      { "symbol": "Q,K,V", "meaning": "the full-width projected query, key, and value tensors before they are split into heads" },
+      { "symbol": "W_i^Q,W_i^K,W_i^V", "meaning": "the projection columns assigned to head i" },
+      { "symbol": "Q_i,K_i,V_i", "meaning": "head i's projected query, key, and value rows" },
+      { "symbol": "R(t)", "meaning": "the two-dimensional rotation by t radians used by the first fixture head" },
+      { "symbol": "t", "meaning": "one zero-based token position in the worked example" },
+      { "symbol": "\\widetilde Q_i,\\widetilde K_i", "meaning": "head i's query and key rows after rotary position encoding" },
+      { "symbol": "M", "meaning": "the inclusive causal mask that blocks future key positions" },
+      { "symbol": "j", "meaning": "the key-position index over which each attention row is normalized" },
+      { "symbol": "A_i", "meaning": "head i's row-normalized causal attention table" },
+      { "symbol": "H_i", "meaning": "the causally weighted value mixture produced by head i" },
+      { "symbol": "\\operatorname{Concat}", "meaning": "concatenation of the head outputs along their final feature axis" },
+      { "symbol": "W_O", "meaning": "the learned bias-free output matrix that mixes the concatenated head features" },
+      { "symbol": "N_\\theta", "meaning": "the number of learned scalar parameters in the layer" },
+      { "symbol": "\\delta", "meaning": "the central-difference perturbation used by the gradient check" },
+      { "symbol": "\\varepsilon_g", "meaning": "the maximum accepted central-difference error" },
+      { "symbol": "\\varepsilon", "meaning": "the tolerance used for the exact assembly and invariance checks" }
     ]
   },
   "history": {
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
-      "limitation": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector: a weighted sum of encoder annotations whose scores depend on the previous decoder state.",
+      "limitation": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector, but the recurrent decoder still forms one alignment distribution and context at a time rather than several parallel projected self-attention heads.",
       "later_advance": "Vaswani et al. project queries, keys, and values several times, perform the projected attention functions in parallel, concatenate their outputs, and project the concatenation.",
       "modern_llm_role": "Touvron et al. document a Transformer-based model with multiple attention heads, RoPE at every layer, and an optimized causal multi-head attention implementation.",
       "sources": [
@@ -35,7 +51,7 @@
           "year": 2014,
           "name": "Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate",
           "source_url": "https://arxiv.org/abs/1409.0473",
-          "claim": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector: a weighted sum of encoder annotations whose scores depend on the previous decoder state."
+          "claim": "Bahdanau et al. replace one fixed source-sentence vector with a target-dependent context vector, but the recurrent decoder still forms one alignment distribution and context at a time rather than several parallel projected self-attention heads."
         },
         {
           "role": "later",
@@ -81,22 +97,22 @@
     {
       "path": "rust/demos/ch30-multi-head-attention/src/lib.rs",
       "region": "learner-report",
-      "purpose": "Render the exact fixture, invariants, gradients, boundaries, and handoff."
+      "purpose": "Expose the exact fixture, invariants, gradients, boundaries, and handoff."
     },
     {
       "path": "rust/demos/ch30-multi-head-attention/src/main.rs",
-      "purpose": "Print the frozen Chapter 30 learner report."
+      "purpose": "Run the complete Chapter 30 example."
     },
     {
       "path": "rust/demos/ch30-multi-head-attention/src/diagram_trace.rs",
       "region": "multi-head-trace",
-      "purpose": "Emit the strict locale-neutral thirty-four-line trace consumed by the static visualization."
+      "purpose": "Serialize the exact fixture values and invariants used by the visualization."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "multi-head-attention-flow",
-    "rationale": "Two visible feature partitions, two distinct lower-triangular attention tables, a concatenated row, and the output-projected row reveal exactly where heads stay independent and where their features can finally mix."
+    "rationale": "Two visible feature partitions, two independently normalized lower-triangular attention tables, a concatenated row, and the output-projected row reveal exactly where heads stay separate and where their features can finally mix."
   },
   "decoder_connection": "The cumulative decoder now has a complete bias-free, position-aware, causal multi-head attention sublayer. Chapter 31 will normalize its input, place it on a residual branch, and pair it with the feed-forward residual branch."
 }
@@ -108,12 +124,12 @@ import MultiHeadAttentionDiagram from '../../../components/chapters/MultiHeadAtt
 export const diagramLabels = {
   title: 'Keep two causal attention lanes separate until the output projection',
   description:
-    'Follow exact Rust-authored projected rows, rotary query/key rows, causal probabilities, head outputs, concatenated rows, and output-projected rows without recomputing the model in the page.',
+    'Follow projected features through the head split, RoPE, two causal probability tables, value mixtures, concatenation, and the output projection.',
   sections: {
     split: 'Project first, then split the feature axis into heads',
     heads: 'Normalize one causal probability table inside each head',
     merge: 'Concatenate head outputs, then apply the learned output map',
-    proof: 'Check prefix invariance and exact Rust provenance',
+    proof: 'Check prefix invariance and assembly invariants',
   },
   stages: {
     projected: 'Projected',
@@ -122,6 +138,16 @@ export const diagramLabels = {
     headOutputs: 'Per-head value mixtures',
     concatenation: 'Concatenated head outputs',
     outputProjection: 'Rows before and after the output projection',
+  },
+  shapeStages: {
+    input: 'Input',
+    split: 'After the head split',
+    rotated: 'After RoPE',
+    weights: 'Attention probabilities',
+    headOutput: 'Head outputs',
+    merged: 'After concatenation',
+    outputWeight: 'Output matrix',
+    output: 'Layer output',
   },
   fields: {
     shape: 'Tensor shape',
@@ -139,16 +165,21 @@ export const diagramLabels = {
     prefixProof: 'Suffix perturbation result',
   },
   cues: {
-    headZero: 'Head 0: solid border cue',
-    headOne: 'Head 1: dashed border cue',
-    allowed: 'Allowed key: solid underline',
-    blocked: 'Blocked key: dashed underline',
-    diagonal: 'Inclusive diagonal: double border',
+    headZero: 'Head 0',
+    headOne: 'Head 1',
+    headZeroCue: 'Solid border marks Head 0',
+    headOneCue: 'Dashed border marks Head 1',
+    allowed: 'Allowed key',
+    blocked: 'Blocked key',
+    diagonal: 'Allowed diagonal',
+    allowedCue: 'Allowed key: solid underline',
+    blockedCue: 'Blocked key: dashed underline',
+    diagonalCue: 'Allowed diagonal: double border',
     concatenated: 'Before projection',
     projected: 'After projection',
     unchanged: 'Unchanged',
     changed: 'Changed',
-    verified: 'Verified from the Rust fixture',
+    verified: 'Checked',
   },
   captions: {
     split: 'The packed matrices can read every input feature; identity weights are used here only to expose two visible blocks.',
@@ -156,12 +187,27 @@ export const diagramLabels = {
     merge: 'Concatenation preserves both feature blocks; the chosen output matrix then swaps them so the two operations cannot be confused.',
     proof: 'Changing only the last input row leaves output rows zero and one bitwise unchanged in both heads and after output projection.',
   },
+  proofChecks: {
+    splitMerge: 'Split followed by merge',
+    splitMergeResult: 'Restores the tensor exactly',
+    headIsolation: 'Influence between head outputs',
+    headIsolationResult: 'None before the output projection',
+    futureProbabilities: 'Future-key probabilities',
+    futureProbabilitiesResult: 'Exactly zero',
+    commonOffset: 'Common position shift with unchanged content',
+    commonOffsetResult: 'Preserves attention probabilities',
+    parameters: 'Learned scalar parameters',
+    gradients: 'Coordinates checked by central differences',
+  },
   scrollers: {
-    formula: 'Scrollable per-head causal attention formula',
+    splitFormula: 'Head-split shape formula',
+    headFormula: 'Per-head causal attention formulas',
+    mergeFormula: 'Concatenation and output-projection formula',
     partitions: 'Scrollable projected and rotary head-partition table',
     heads: 'Scrollable causal attention-head table',
     concatenation: 'Scrollable head-concatenation table',
-    projection: 'Scrollable output-projection evidence table',
+    outputMap: 'Scrollable output-matrix table',
+    finalOutput: 'Scrollable before-and-after output-projection table',
   },
 };
 
@@ -259,9 +305,11 @@ $[0.770151,-0.420735,0.213809,0.786191]$.
 Finally, predict where features from the two heads can first influence the same
 learned output coordinate. Splitting and both attention operations keep the
 lanes separate; concatenation merely places their coordinates side by side.
-Only multiplication by $W_O$ permits cross-head mixing. The frozen $W_O$ swaps
-the blocks, which demonstrates learned routing; exercise 5 adds an off-block
-entry to demonstrate an actual sum across heads.
+After the separate attention calculations, only multiplication by $W_O$ permits
+learned cross-head mixing. The frozen $W_O$ swaps the blocks, which demonstrates
+learned routing; exercise 5 adds an off-block entry to demonstrate an actual sum
+across heads. The earlier dense query/key/value projections may already use
+every coordinate of the shared input row.
 
 {/* chapter-section:formula */}
 
@@ -299,7 +347,7 @@ $$
 Then reuse the causal attention operation from Chapter 28:
 
 $$
-A_i=\operatorname{softmax}_{\mathrm{keys}}\!\left(
+A_i=\operatorname{softmax}_{j}\!\left(
 \frac{\widetilde Q_i\widetilde K_i^\top}{\sqrt{d_h}}+M
 \right),
 \qquad
@@ -309,8 +357,8 @@ $$
 $M$ blocks future keys, and the softmax runs separately over each head's key
 positions. A single full-width attention calculation would produce one
 normalized $[T,T]$ table shared by every value feature. Multi-head attention
-instead produces $h$ distinct $[T,T]$ tables, each normalized over its own key
-row.
+instead produces $h$ separately normalized $[T,T]$ tables, which may differ
+because their projected queries and keys may differ.
 
 Each $A_i$ has shape $[B,T,T]$. Each $H_i$ has shape $[B,T,d_h]$. Restore the
 model width by concatenating on the final feature axis, then apply one learned
@@ -331,7 +379,7 @@ swap, add, or otherwise recombine coordinates produced by different heads. The
 target implementation has four bias-free model-width matrices, so
 
 $$
-N_{\mathrm{parameters}}=4d_{\mathrm{model}}^2.
+N_\theta=4d_{\mathrm{model}}^2.
 $$
 
 For $d_{\mathrm{model}}=4$, that is $64$ scalar parameters.
@@ -350,16 +398,22 @@ For $d_{\mathrm{model}}=4$, that is $64$ scalar parameters.
 - $h$ is the number of independently normalized attention heads.
 - $d_h=d_{\mathrm{model}}/h$ is the width of one head; it is even here because
   RoPE rotates adjacent coordinate pairs.
+- $t$ is a zero-based token position in the worked example, and $R(t)$ is the
+  two-dimensional rotation by $t$ radians used by its first head.
 - $W_Q$, $W_K$, and $W_V$ are packed model-width projection matrices. The
   columns belonging to head $i$ form $W_i^Q$, $W_i^K$, and $W_i^V$.
 - $Q_i$, $K_i$, and $V_i$ are head $i$'s projected query, key, and value rows.
 - $\widetilde Q_i$ and $\widetilde K_i$ are those query and key rows after
   RoPE; values are not rotated.
 - $M$ is the causal mask that blocks keys to the right of a query position.
+- $j$ indexes key positions and is the axis normalized by each row softmax.
 - $A_i$ is head $i$'s row-normalized causal attention table.
 - $H_i=A_iV_i$ is head $i$'s weighted value mixture.
 - $W_O$ is the learned output matrix applied after all $H_i$ rows have been
   concatenated.
+- $N_\theta$ is the number of learned scalar parameters. $\delta$ is the
+  central-difference perturbation, $\varepsilon_g$ is its accepted error, and
+  $\varepsilon$ is the tolerance for the assembly and invariance checks.
 
 The equations follow the paper-style convention $i\in\{1,\ldots,h\}$. Rust and
 the frozen trace use zero-based head IDs $0,\ldots,h-1$, so trace heads $0$ and
@@ -376,11 +430,12 @@ heads.
 
 In their [neural machine translation paper](https://arxiv.org/abs/1409.0473),
 Bahdanau et al. replace one fixed source-sentence vector with a target-dependent
-context vector: a weighted sum of encoder annotations whose scores depend on the
-previous decoder state. The recurrent decoder forms one such context for each
-target step. This is an important learned-attention predecessor, but it is not
-Transformer self-attention: the paper does not define queries, keys, values,
-causal masks, or several parallel heads.
+context vector, but the recurrent decoder still forms one alignment distribution
+and context at a time rather than several parallel projected self-attention
+heads. Each context is a weighted sum of encoder annotations whose scores depend
+on the previous decoder state. This is an important learned-attention predecessor,
+but it is not Transformer self-attention: the paper does not define queries,
+keys, values, causal masks, or several parallel heads.
 
 One scaled dot-product head, as built in Chapter 27, gives each query row one
 learned comparison space, one probability distribution over key positions, and
@@ -397,12 +452,12 @@ repeated, mixed, or difficult-to-interpret head behavior. This fixture proves
 only that one valid parameter setting produces two different causal tables and
 keeps their lanes separate through concatenation and until $W_O$.
 
-[The LLaMA paper](https://arxiv.org/abs/2302.13971) gives a bounded modern causal
+[The LLaMA paper](https://arxiv.org/abs/2302.13971) provides a concrete modern causal
 language-model example. Touvron et al. document a Transformer-based model with
 multiple attention heads, RoPE at every layer, and an optimized causal
 multi-head attention implementation. That optimized implementation avoids
-storing attention weights. This course deliberately returns dense weights as
-teaching evidence; it does not reproduce that optimized kernel.
+storing attention weights. The dense calculation below keeps those weights
+visible for inspection; it does not reproduce that optimized kernel.
 
 The executable comparison does not pretend to reproduce an entire recurrent
 decoder. It computes the defining weighted source-context sum for one fixed
@@ -410,8 +465,8 @@ alignment distribution, runs the existing single-head causal operation on the
 same three-token input, and compares its one $[1,3,3]$ probability tensor with
 the multi-head fixture's $[1,2,3,3]$ tensor. Both have normalized rows, but the
 latter contains two independently normalized tables. The comparison does not
-attribute the course's packed matrices, even-width rule, bias policy, names,
-values, or trace grammar to the papers:
+attribute the fixture's packed-matrix layout, even-width rule, bias policy,
+names, or values to the papers:
 
 <RustSource
   path="rust/demos/ch30-multi-head-attention/src/lib.rs"
@@ -474,9 +529,9 @@ the final output stays shaped $[B,T,d_{\mathrm{model}}]$.
   label="Rust source implementing the Chapter 30 multi-head layer"
 />
 
-The frozen nonuniform output seed reaches all $12$ input coordinates and all
-$16$ coordinates of each of the four matrices. Central differences check all
-$76$ coordinates with
+The nonuniform output seed produces finite gradient tensors for the input and
+all four matrices. Central differences probe all $12+4\cdot16=76$ coordinates
+with
 
 $$
 \delta=10^{-6},\qquad \varepsilon_g=8\times10^{-6}.
@@ -484,26 +539,27 @@ $$
 
 Tests also prove bitwise split/merge inversion, one uniform and one nonuniform
 causal table, exact future zeros, head isolation before output projection,
-bitwise prefix invariance under a final-token perturbation, shared-offset RoPE
-weight preservation, empty-batch differentiation, a single-token boundary,
+bitwise prefix invariance under a final-token perturbation, RoPE attention-weight
+preservation when unchanged query/key content receives one shared position
+offset, empty-batch differentiation, a single-token boundary,
 stable parameter names and identity, typed configuration and shape errors,
 finite saved tape context, and bitwise replay.
 
-The report formatter turns those checks into the frozen learner evidence:
+The example collects those values and checks in one reproducible report:
 
 <RustSource
   path="rust/demos/ch30-multi-head-attention/src/lib.rs"
   region="learner-report"
-  caption="Format the exact fixture, invariants, gradients, boundaries, and handoff"
-  label="Rust source formatting the Chapter 30 learner report"
+  caption="Collect the exact fixture, invariants, gradients, boundaries, and handoff"
+  label="Rust source assembling the Chapter 30 example output"
 />
 
-The learner entry point prints that report without adding another calculation:
+The executable prints the report:
 
 <RustSource
   path="rust/demos/ch30-multi-head-attention/src/main.rs"
-  caption="Print the frozen multi-head attention learner report"
-  label="Rust entry point for the Chapter 30 learner report"
+  caption="Run the complete multi-head attention example"
+  label="Rust entry point for the Chapter 30 example"
 />
 
 Run `cargo run --quiet --locked -p ch30-multi-head-attention`. Its standard
@@ -514,27 +570,24 @@ including the final newline.
 
 ## See exactly where separate heads become one model-width row
 
-The diagram trace is produced by the same fixture. Rust emits both projected and
-rotated rows, all six causal probability rows, every head output, all three
-concatenated rows, the four output-matrix rows, the three final rows, and the
-prefix proof.
+The diagram uses values from the same fixture: projected and rotated rows, all
+six causal probability rows, every head output, all three concatenated rows, the
+four output-matrix rows, the three final rows, and the prefix check.
 
 <RustSource
   path="rust/demos/ch30-multi-head-attention/src/diagram_trace.rs"
   region="multi-head-trace"
-  caption="Emit the strict thirty-four-line multi-head attention trace"
-  label="Rust source producing the Chapter 30 static diagram trace"
+  caption="Produce the multi-head attention values used in the diagram"
+  label="Rust source for the Chapter 30 diagram values"
 />
 
 <MultiHeadAttentionDiagram labels={diagramLabels} />
 
-The TypeScript parser accepts only that exact trace and preserves all numeric
-lexemes as strings. It performs no projection, rotation, score calculation,
-softmax, value mixture, concatenation, matrix multiplication, or gradient
-arithmetic. Solid and dashed head borders, allowed and blocked underlines, and a
-double diagonal cue make the table readable without color. Every dense table has
-a named keyboard-focusable local scroller, and all evidence remains in static
-HTML when JavaScript is disabled.
+Solid and dashed borders distinguish the two heads. Solid and dashed underlines
+separate visible keys from causally blocked keys, and the double border marks the
+allowed diagonal. The two probability tables are normalized independently, and
+the shape and prefix checks show that their outputs remain separate until the
+output projection.
 
 Read token position $1$ closely. Before $W_O$, the concatenated row is
 
@@ -583,8 +636,9 @@ as two distinct stages.
   3. Each head keeps one, then two, then three keys. The two visibility
      triangles match even though their allowed probabilities may differ.
   4. A single full-width calculation produces one normalized $[5,5]$ score
-     table shared by all value features. Two heads produce two distinct
-     $[5,5]$ tables, each with its own denominator for every query row.
+     table shared by all value features. Two heads produce two separately
+     normalized $[5,5]$ tables, each with its own denominator for every query
+     row; their numerical values can coincide for some parameter settings.
   5. Concatenation gives $[a,b,c,d]$; the frozen output matrix gives
      $[c,d,a,b]$. Starting from identity and adding $(W_O)_{0,2}=1$ makes the
      third output coordinate $y_2=a+c$, so it receives contributions from both

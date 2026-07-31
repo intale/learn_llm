@@ -14,6 +14,16 @@ interface Props {
 const { labels } = Astro.props;
 validateMultiHeadAttentionDiagramLabels(labels);
 const trace = parseMultiHeadAttentionTrace(traceSource);
+const shapeStageLabels: Record<string, string> = {
+  input: labels.shapeStages.input,
+  split: labels.shapeStages.split,
+  rotated: labels.shapeStages.rotated,
+  weights: labels.shapeStages.weights,
+  'head-output': labels.shapeStages.headOutput,
+  merged: labels.shapeStages.merged,
+  'output-weight': labels.shapeStages.outputWeight,
+  output: labels.shapeStages.output,
+};
 const shapeStages = Object.entries(trace.shapes);
 const titleId = 'multi-head-attention-diagram-title';
 const descriptionId = 'multi-head-attention-diagram-description';
@@ -36,6 +46,36 @@ const heads = [
 ];
 const proofStatus = (value: string) =>
   value === 'changed' ? labels.cues.changed : labels.cues.unchanged;
+const headRowPairs = (values: readonly string[]) => {
+  if (values.length !== 6) {
+    throw new Error('a Chapter 30 head partition must contain three rows of width two');
+  }
+  return [0, 2, 4].map(
+    (offset, index) => `[${values[offset]},${values[offset + 1]}]${index < 2 ? ',' : ''}`,
+  );
+};
+const expectedProof = {
+  position_0: 'bitwise-unchanged',
+  position_1: 'bitwise-unchanged',
+  position_2: 'changed',
+  split_merge: 'bitwise',
+  head_isolation: 'before-output',
+  future_probabilities: 'exact-zero',
+  common_offset: 'preserved',
+  parameters: '64',
+  gradchecks: '76',
+};
+for (const [key, expected] of Object.entries(expectedProof)) {
+  if (trace.proof[key] !== expected) {
+    throw new Error(`unexpected multi-head proof value for ${key}`);
+  }
+}
+const proofChecks = [
+  { key: 'split-merge', label: labels.proofChecks.splitMerge, result: labels.proofChecks.splitMergeResult, value: trace.proof.split_merge },
+  { key: 'head-isolation', label: labels.proofChecks.headIsolation, result: labels.proofChecks.headIsolationResult, value: trace.proof.head_isolation },
+  { key: 'future-probabilities', label: labels.proofChecks.futureProbabilities, result: labels.proofChecks.futureProbabilitiesResult, value: trace.proof.future_probabilities },
+  { key: 'common-offset', label: labels.proofChecks.commonOffset, result: labels.proofChecks.commonOffsetResult, value: trace.proof.common_offset },
+];
 ---
 
 <figure
@@ -50,30 +90,31 @@ const proofStatus = (value: string) =>
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.heads}>
-      <li class="head-zero-cue">{labels.cues.headZero}</li>
-      <li class="head-one-cue">{labels.cues.headOne}</li>
-      <li class="allowed-cue">{labels.cues.allowed}</li>
-      <li class="blocked-cue">{labels.cues.blocked}</li>
+      <li data-diagram-box class="head-zero-cue">{labels.cues.headZeroCue}</li>
+      <li data-diagram-box class="head-one-cue">{labels.cues.headOneCue}</li>
+      <li data-diagram-box class="allowed-cue">{labels.cues.allowedCue}</li>
+      <li data-diagram-box class="blocked-cue">{labels.cues.blockedCue}</li>
+      <li data-diagram-box class="diagonal-cue">{labels.cues.diagonalCue}</li>
     </ul>
   </figcaption>
 
-  <section class="diagram-section split-section" data-stage="split" aria-labelledby="multi-head-split-title">
+  <section class="diagram-section split-section course-diagram__card-stack" data-diagram-box data-stage="split" aria-labelledby="multi-head-split-title">
     <h4 id="multi-head-split-title">{labels.sections.split}</h4>
     <p>{labels.captions.split}</p>
     <div
       class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
-      aria-label={labels.scrollers.formula}
+      aria-label={labels.scrollers.splitFormula}
      data-diagram-scroll>
       <p class="formula-line technical">
         <InlineMath latex={String.raw`[B,T,d_{\mathrm{model}}]\to[B,h,T,d_h]`} />
       </p>
     </div>
-    <dl class="shape-flow" aria-label={labels.fields.shape}>
+    <dl class="shape-flow course-diagram__grid" aria-label={labels.fields.shape}>
       {shapeStages.map(([stage, shape]) => (
-        <div data-shape-stage={stage}>
-          <dt class="technical">{stage}</dt>
+        <div data-diagram-card data-diagram-box data-shape-stage={stage}>
+          <dt>{shapeStageLabels[stage]}</dt>
           <dd><InlineMath latex={shape} /></dd>
         </div>
       ))}
@@ -106,7 +147,9 @@ const proofStatus = (value: string) =>
             <th scope="row">{labels.stages.projected} <InlineMath latex="Q" /></th>
             {heads.map((head) => (
               <td class={head.className}>
-                <InlineMath latex={head.partition.projectedQuery.latex} />
+                <span class="head-rows">
+                  {headRowPairs(head.partition.projectedQuery.values).map((row) => <InlineMath latex={row} />)}
+                </span>
               </td>
             ))}
           </tr>
@@ -114,7 +157,9 @@ const proofStatus = (value: string) =>
             <th scope="row">{labels.stages.projected} <InlineMath latex="K" /></th>
             {heads.map((head) => (
               <td class={head.className}>
-                <InlineMath latex={head.partition.projectedKey.latex} />
+                <span class="head-rows">
+                  {headRowPairs(head.partition.projectedKey.values).map((row) => <InlineMath latex={row} />)}
+                </span>
               </td>
             ))}
           </tr>
@@ -122,7 +167,9 @@ const proofStatus = (value: string) =>
             <th scope="row">{labels.stages.projected} <InlineMath latex="V" /></th>
             {heads.map((head) => (
               <td class={head.className}>
-                <InlineMath latex={head.partition.projectedValue.latex} />
+                <span class="head-rows">
+                  {headRowPairs(head.partition.projectedValue.values).map((row) => <InlineMath latex={row} />)}
+                </span>
               </td>
             ))}
           </tr>
@@ -130,7 +177,9 @@ const proofStatus = (value: string) =>
             <th scope="row">{labels.stages.rotary} <InlineMath latex="Q" /></th>
             {heads.map((head) => (
               <td class={head.className}>
-                <InlineMath latex={head.partition.rotatedQuery.latex} />
+                <span class="head-rows">
+                  {headRowPairs(head.partition.rotatedQuery.values).map((row) => <InlineMath latex={row} />)}
+                </span>
               </td>
             ))}
           </tr>
@@ -138,7 +187,9 @@ const proofStatus = (value: string) =>
             <th scope="row">{labels.stages.rotary} <InlineMath latex="K" /></th>
             {heads.map((head) => (
               <td class={head.className}>
-                <InlineMath latex={head.partition.rotatedKey.latex} />
+                <span class="head-rows">
+                  {headRowPairs(head.partition.rotatedKey.values).map((row) => <InlineMath latex={row} />)}
+                </span>
               </td>
             ))}
           </tr>
@@ -147,23 +198,23 @@ const proofStatus = (value: string) =>
     </div>
   </section>
 
-  <section class="diagram-section heads-section" data-stage="heads" aria-labelledby="multi-head-weights-title">
+  <section class="diagram-section heads-section course-diagram__card-stack" data-diagram-box data-stage="heads" aria-labelledby="multi-head-weights-title">
     <h4 id="multi-head-weights-title">{labels.sections.heads}</h4>
     <p>{labels.captions.heads}</p>
     <div
       class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
-      aria-label={labels.scrollers.formula}
+      aria-label={labels.scrollers.headFormula}
      data-diagram-scroll>
       <p class="formula-line technical">
-        <InlineMath latex={String.raw`A_i=\operatorname{softmax}_{\mathrm{keys}}\!\left(\widetilde Q_i\widetilde K_i^\top/\sqrt{d_h}+M\right)`} />
+        <InlineMath latex={String.raw`A_i=\operatorname{softmax}_{j}\!\left(\widetilde Q_i\widetilde K_i^\top/\sqrt{d_h}+M\right)`} />
         <InlineMath latex={String.raw`H_i=A_iV_i`} />
       </p>
     </div>
-    <div class="head-grid">
+    <div class="head-grid course-diagram__grid">
       {heads.map((head) => (
-        <article data-diagram-card data-diagram-box class:list={['head-card', head.className]} data-attention-head={head.partition.head}>
+        <article data-diagram-card data-diagram-box class:list={['head-card', 'course-diagram__card-stack', head.className]} data-attention-head={head.partition.head}>
           <h5>{head.cue}</h5>
           <div
             class="table-scroller course-diagram__scroll"
@@ -183,8 +234,7 @@ const proofStatus = (value: string) =>
                 <tr>
                   <th scope="col">{labels.fields.queryPosition}</th>
                   {keyPositions.map((key) => (
-                    <th scope="col">
-                      <span class="visually-hidden">{labels.fields.keyPosition}: </span>
+                    <th scope="col" aria-label={`${labels.fields.keyPosition} ${key}`}>
                       <InlineMath latex={'k=' + key} />
                     </th>
                   ))}
@@ -209,11 +259,10 @@ const proofStatus = (value: string) =>
                           class:list={[visibility, { diagonal: isDiagonal }]}
                           data-visibility={visibility}
                           data-diagonal={String(isDiagonal)}
+                          aria-label={`${labels.fields.probability} ${probability}; ${labels.fields.visibility}: ${visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}${isDiagonal ? `; ${labels.cues.diagonal}` : ''}`}
                         >
-                          <span class="visually-hidden">{labels.fields.probability}: </span>
                           <InlineMath latex={probability} />
                           <small>
-                            <span class="visually-hidden">{labels.fields.visibility}: </span>
                             {visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}
                             {isDiagonal ? ` · ${labels.cues.diagonal}` : ''}
                           </small>
@@ -234,14 +283,14 @@ const proofStatus = (value: string) =>
     </div>
   </section>
 
-  <section class="diagram-section merge-section" data-stage="merge" aria-labelledby="multi-head-merge-title">
+  <section class="diagram-section merge-section course-diagram__card-stack" data-diagram-box data-stage="merge" aria-labelledby="multi-head-merge-title">
     <h4 id="multi-head-merge-title">{labels.sections.merge}</h4>
     <p>{labels.captions.merge}</p>
     <div
       class="formula-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
-      aria-label={labels.scrollers.formula}
+      aria-label={labels.scrollers.mergeFormula}
      data-diagram-scroll>
       <p class="formula-line technical">
         <InlineMath latex={String.raw`\operatorname{MHA}(X)=\operatorname{Concat}(H_1,\ldots,H_h)W_O`} />
@@ -276,12 +325,12 @@ const proofStatus = (value: string) =>
       </table>
     </div>
 
-    <div class="projection-grid">
+    <div class="projection-grid course-diagram__grid">
       <div
         class="table-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
-        aria-label={labels.scrollers.projection}
+        aria-label={labels.scrollers.outputMap}
        data-diagram-scroll>
         <table data-diagram-table class="evidence-table output-map-table">
           <caption>{labels.fields.outputWeight}</caption>
@@ -305,7 +354,7 @@ const proofStatus = (value: string) =>
         class="table-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
-        aria-label={`${labels.scrollers.projection}: ${labels.fields.finalOutput}`}
+        aria-label={labels.scrollers.finalOutput}
        data-diagram-scroll>
         <table data-diagram-table class="evidence-table final-output-table">
           <caption>{labels.stages.outputProjection}</caption>
@@ -334,74 +383,51 @@ const proofStatus = (value: string) =>
     </div>
   </section>
 
-  <section class="diagram-section proof-section" data-stage="proof" aria-labelledby="multi-head-proof-title">
+  <section class="diagram-section proof-section course-diagram__card-stack" data-diagram-box data-stage="proof" aria-labelledby="multi-head-proof-title">
     <h4 id="multi-head-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
-    <dl class="proof-grid" data-prefix-proof>
-      <div data-prefix-position="0" data-prefix-status={trace.proof.position_0}>
+    <dl class="proof-grid course-diagram__grid" data-prefix-proof>
+      <div data-diagram-card data-diagram-box data-status="pass" data-prefix-position="0" data-prefix-status={trace.proof.position_0}>
         <dt><InlineMath latex="t=0" /></dt>
         <dd>{proofStatus(trace.proof.position_0)} · {labels.cues.verified}</dd>
       </div>
-      <div data-prefix-position="1" data-prefix-status={trace.proof.position_1}>
+      <div data-diagram-card data-diagram-box data-status="pass" data-prefix-position="1" data-prefix-status={trace.proof.position_1}>
         <dt><InlineMath latex="t=1" /></dt>
         <dd>{proofStatus(trace.proof.position_1)} · {labels.cues.verified}</dd>
       </div>
-      <div data-prefix-position="2" data-prefix-status={trace.proof.position_2}>
+      <div data-diagram-card data-diagram-box data-status="pass" data-prefix-position="2" data-prefix-status={trace.proof.position_2}>
         <dt><InlineMath latex="t=2" /></dt>
         <dd>{proofStatus(trace.proof.position_2)} · {labels.cues.verified}</dd>
       </div>
     </dl>
+    <ul class="invariant-grid course-diagram__grid">
+      {proofChecks.map((check) => (
+        <li data-diagram-card data-diagram-box data-status="pass" data-proof-check={check.key} data-proof-value={check.value}>
+          <span>{check.label}</span>
+          <strong>{check.result}</strong>
+        </li>
+      ))}
+      <li data-diagram-card data-diagram-box data-status="pass" data-proof-check="parameters" data-proof-value={trace.proof.parameters}>
+        <span>{labels.proofChecks.parameters}</span>
+        <InlineMath latex={trace.proof.parameters} />
+      </li>
+      <li data-diagram-card data-diagram-box data-status="pass" data-proof-check="gradients" data-proof-value={trace.proof.gradchecks}>
+        <span>{labels.proofChecks.gradients}</span>
+        <InlineMath latex={trace.proof.gradchecks} />
+      </li>
+    </ul>
     <p class="trace-proof">
       <span>{labels.fields.prefixProof}</span>
       <InlineMath latex={String.raw`\varepsilon=${trace.proof.tolerance}`} />
-      <span class="technical trace-token">{trace.proof.trace}</span>
     </p>
   </section>
 </figure>
 
 <style>
-  .multi-head-diagram {
-    display: grid;
-    gap: 1.25rem;
-    min-inline-size: 0;
-    margin-block: 1.5rem;
-    padding: clamp(0.9rem, 2vw, 1.4rem);
-    border: 2px solid var(--line);
-    border-radius: 1rem;
-    background: var(--surface);
-  }
-
-  figcaption,
-  .diagram-section,
-  .head-card,
-  .projection-grid > * {
-    min-inline-size: 0;
-  }
-
-  figcaption h3,
-  .diagram-section h4,
-  .head-card h5 {
-    margin-block-start: 0;
-  }
-
-  .cue-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem 1rem;
-    padding-inline-start: 1.2rem;
-  }
-
-  .cue-list li,
-  .head-card,
-  .proof-grid > div {
-    border-inline-start: 0.35rem solid currentColor;
-    padding-inline-start: 0.65rem;
-  }
-
   .head-one-cue,
   .head-one,
   .head-card.head-one {
-    border-inline-start-style: dashed;
+    border-style: dashed;
   }
 
   .allowed-cue,
@@ -414,13 +440,10 @@ const proofStatus = (value: string) =>
     border-block-end: 2px dashed currentColor;
   }
 
+  .diagonal-cue,
   td.diagonal {
-    border: 3px double currentColor;
-  }
-
-  .diagram-section {
-    padding-block-start: 1rem;
-    border-block-start: 1px solid var(--line);
+    border-style: double;
+    border-width: 3px;
   }
 
   .formula-line {
@@ -430,58 +453,18 @@ const proofStatus = (value: string) =>
     max-inline-size: 100%;
   }
 
-  .technical {
+  .head-rows {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .technical,
+  .evidence-table,
+  .formula-line {
     direction: ltr;
     unicode-bidi: isolate;
-  }
-
-  .table-scroller,
-  .formula-scroller {
-    max-inline-size: 100%;
-    overscroll-behavior-inline: contain;
-    padding-block-end: 0.25rem;
-  }
-
-  .table-scroller:focus-visible,
-  .formula-scroller:focus-visible,
-  .multi-head-diagram:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
-  }
-
-  .evidence-table {
-    inline-size: max-content;
-    min-inline-size: 100%;
-    border-collapse: collapse;
-  }
-
-  caption {
-    padding-block-end: 0.6rem;
-    text-align: start;
-    font-weight: 700;
-  }
-
-  th,
-  td {
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--line);
-    vertical-align: top;
-    text-align: start;
-  }
-
-  th small,
-  td small {
-    display: block;
-    margin-block-start: 0.25rem;
-    font-size: 0.75rem;
-  }
-
-  .head-grid,
-  .projection-grid,
-  .proof-grid {
-    display: grid;
-    align-items: start;
-    gap: 1rem;
   }
 
   .head-grid,
@@ -489,16 +472,9 @@ const proofStatus = (value: string) =>
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .head-card {
-    padding: 0.8rem;
-    border-block: 1px solid var(--line);
-    border-inline-end: 1px solid var(--line);
-    border-radius: 0.6rem;
-  }
-
-  .proof-grid {
+  .proof-grid,
+  .invariant-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 0;
   }
 
   .partition-table,
@@ -523,18 +499,6 @@ const proofStatus = (value: string) =>
   .attention-table .sum-column { inline-size: 7rem; }
   .attention-table .output-column { inline-size: 12.5rem; }
 
-  .proof-grid > div {
-    padding-block: 0.45rem;
-  }
-
-  .proof-grid dt {
-    font-weight: 700;
-  }
-
-  .proof-grid dd {
-    margin-inline-start: 0;
-  }
-
   .trace-proof {
     display: flex;
     flex-wrap: wrap;
@@ -542,85 +506,78 @@ const proofStatus = (value: string) =>
   }
 
   .shape-flow {
-    display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.6rem;
-    margin-block: 0.75rem 1rem;
-  }
-
-  .shape-flow > div {
-    min-inline-size: 0;
-    padding: 0.45rem 0.55rem;
-    border: 1px solid var(--line);
-    border-radius: 0.4rem;
-  }
-
-  .shape-flow dt {
-    font-weight: 700;
-  }
-
-  .shape-flow dd {
-    margin-inline-start: 0;
-  }
-
-  .visually-hidden {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    inline-size: 1px;
-    block-size: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
   }
 
   @container course-diagram (max-width: 48rem) {
     .head-grid,
     .projection-grid,
     .proof-grid,
+    .invariant-grid,
     .shape-flow {
       grid-template-columns: minmax(0, 1fr);
     }
-
-    .multi-head-diagram {
-      padding-inline: 0.65rem;
-    }
   }
 
-  @media (forced-colors: active) {
-    .multi-head-diagram,
-    .head-card,
-    th,
-    td {
-      border-color: CanvasText;
-    }
+  .multi-head-diagram:fullscreen {
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    align-content: start;
+  }
 
-    .head-zero-cue,
-    .head-zero,
-    .head-card.head-zero {
-      border-inline-start: 4px solid CanvasText;
-    }
+  .multi-head-diagram:fullscreen > :not(section) {
+    grid-column: 1 / -1;
+  }
 
-    .head-one-cue,
-    .head-one,
-    .head-card.head-one {
-      border-inline-start: 4px dashed CanvasText;
-    }
+  .multi-head-diagram:fullscreen .split-section {
+    grid-column: span 10;
+  }
 
-    td.allowed {
-      border-block-end: 3px solid CanvasText;
-    }
+  .multi-head-diagram:fullscreen .heads-section {
+    grid-column: span 14;
+  }
 
-    td.blocked {
-      border-block-end: 3px dashed CanvasText;
-    }
+  .multi-head-diagram:fullscreen .merge-section {
+    grid-column: span 16;
+  }
 
-    td.diagonal {
-      border: 4px double CanvasText;
-    }
+  .multi-head-diagram:fullscreen .proof-section {
+    grid-column: span 8;
+  }
+
+  .multi-head-diagram:fullscreen .head-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .multi-head-diagram:fullscreen .shape-flow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .multi-head-diagram:fullscreen .projection-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .multi-head-diagram:fullscreen:lang(ru) .projection-grid {
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  }
+
+  .multi-head-diagram:fullscreen .partition-table {
+    min-inline-size: 48.5rem;
+  }
+
+  .multi-head-diagram:fullscreen .partition-table th:first-child {
+    inline-size: 8rem;
+  }
+
+  .multi-head-diagram:fullscreen .attention-table {
+    min-inline-size: 38rem;
+  }
+
+  .multi-head-diagram:fullscreen .attention-table .query-column { inline-size: 5.5rem; }
+  .multi-head-diagram:fullscreen .attention-table .sum-column { inline-size: 5rem; }
+  .multi-head-diagram:fullscreen .attention-table .output-column { inline-size: 12rem; }
+
+  .multi-head-diagram:dir(rtl) .evidence-table :is(caption, th, small) {
+    direction: rtl;
+    unicode-bidi: plaintext;
   }
 </style>

@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–29 and English only for Chapters 30–39',
+      'English and Russian for Chapters 0–30 and English only for Chapters 31–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–29 use English and Russian',
+      'Chapters 0–30 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 29 use English and Russian, and Chapters 30 through 39 use English only',
+      'Chapters 0 through 30 use English and Russian, and Chapters 31 through 39 use English only',
     );
   });
 
@@ -210,7 +210,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 30)
+        .slice(0, 31)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -220,7 +220,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 30)
+        .filter((chapter) => chapter.order >= 31)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -279,6 +279,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('28-causal-masking', 'ru')).toBe(true);
     expect(activeLocalesForChapter('29-rope')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('29-rope', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('30-multi-head-attention')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('30-multi-head-attention', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 

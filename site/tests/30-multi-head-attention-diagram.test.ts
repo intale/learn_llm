@@ -24,6 +24,7 @@ const componentSource = read(
 );
 const contractSource = read('curriculum/chapters/30-multi-head-attention.md');
 const lessonSource = read('site/src/content/chapters/en/30-multi-head-attention.mdx');
+const russianLessonSource = read('site/src/content/chapters/ru/30-multi-head-attention.mdx');
 const coursePlanSource = read('curriculum/course-plan.md');
 const multiHeadSource = read(
   'rust/crates/llm-from-scratch/src/attention/multi_head.rs',
@@ -56,6 +57,16 @@ const labels: MultiHeadAttentionDiagramLabels = {
     concatenation: 'concatenation',
     outputProjection: 'output projection',
   },
+  shapeStages: {
+    input: 'input',
+    split: 'split',
+    rotated: 'rotated',
+    weights: 'weights',
+    headOutput: 'head output',
+    merged: 'merged',
+    outputWeight: 'output weight',
+    output: 'output',
+  },
   fields: {
     shape: 'shape',
     features: 'features',
@@ -74,9 +85,14 @@ const labels: MultiHeadAttentionDiagramLabels = {
   cues: {
     headZero: 'head zero',
     headOne: 'head one',
+    headZeroCue: 'head zero cue',
+    headOneCue: 'head one cue',
     allowed: 'allowed',
     blocked: 'blocked',
     diagonal: 'diagonal',
+    allowedCue: 'allowed cue',
+    blockedCue: 'blocked cue',
+    diagonalCue: 'diagonal cue',
     concatenated: 'concatenated',
     projected: 'projected',
     unchanged: 'unchanged',
@@ -89,12 +105,27 @@ const labels: MultiHeadAttentionDiagramLabels = {
     merge: 'merge caption',
     proof: 'proof caption',
   },
+  proofChecks: {
+    splitMerge: 'split merge',
+    splitMergeResult: 'split merge result',
+    headIsolation: 'head isolation',
+    headIsolationResult: 'head isolation result',
+    futureProbabilities: 'future probabilities',
+    futureProbabilitiesResult: 'future probabilities result',
+    commonOffset: 'common offset',
+    commonOffsetResult: 'common offset result',
+    parameters: 'parameters',
+    gradients: 'gradients',
+  },
   scrollers: {
-    formula: 'formula scroller',
+    splitFormula: 'split formula scroller',
+    headFormula: 'head formula scroller',
+    mergeFormula: 'merge formula scroller',
     partitions: 'partition scroller',
     heads: 'head scroller',
     concatenation: 'concatenation scroller',
-    projection: 'projection scroller',
+    outputMap: 'output map scroller',
+    finalOutput: 'final output scroller',
   },
 };
 
@@ -110,7 +141,6 @@ describe('Chapter 30 Rust trace parser', () => {
       head_width: '2',
       bias: 'false',
       layout: 'reshape-transpose',
-      site_arithmetic: 'none',
     });
     expect(trace.shapes).toEqual({
       input: '[1,3,4]',
@@ -171,8 +201,6 @@ describe('Chapter 30 Rust trace parser', () => {
       common_offset: 'preserved',
       parameters: '64',
       gradchecks: '76',
-      trace: 'rust-authored',
-      site_arithmetic: 'none',
     });
   });
 
@@ -200,7 +228,7 @@ describe('Chapter 30 Rust trace parser', () => {
       fixture.replace('OUTPUT_MAP|row=0', 'OUTPUT_MAP|row=1'),
       fixture.replace('projected=[0.213809', 'projected=[0.213808'),
       fixture.replace('position_0=bitwise-unchanged', 'position_0=changed'),
-      fixture.replace('site_arithmetic=none', 'site_arithmetic=softmax'),
+      fixture.replace('layout=reshape-transpose', 'layout=reshape-copy'),
     ]) expect(() => parseMultiHeadAttentionTrace(changed)).toThrow();
   });
 
@@ -247,9 +275,17 @@ describe('Chapter 30 static diagram and content boundary', () => {
       'trace.outputs',
       'trace.proof',
     ]) expect(componentSource).toContain(field);
+    for (const countField of [
+      'gradients.input_checks',
+      'gradients.query_checks',
+      'gradients.key_checks',
+      'gradients.value_checks',
+      'gradients.output_checks',
+    ]) expect(traceRustSource).toContain(countField);
+    expect(traceRustSource).not.toContain('if evidence.gradients.passed { 76 } else { 0 }');
   });
 
-  it('uses semantic tables, local scrollers, natural height, and non-color cues', () => {
+  it('uses the shared diagram roles, semantic tables, local scrollers, and non-color cues', () => {
     expect(componentSource).toContain('data-head-partition');
     expect(componentSource).toContain('data-attention-row');
     expect(componentSource).toContain('data-visibility={visibility}');
@@ -264,28 +300,35 @@ describe('Chapter 30 static diagram and content boundary', () => {
     expect(componentSource).toContain('<caption>');
     expect(componentSource).toContain('scope="row"');
     expect(componentSource).toContain('scope="col"');
-    expect(componentSource).toContain('align-items: start');
     expect(componentSource).toContain('data-diagram-scroll');
+    expect(componentSource).toContain('data-diagram-box');
+    expect(componentSource).toContain('data-diagram-card');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('shapeStageLabels[stage]');
+    expect(componentSource).not.toContain('>{stage}</dt>');
     expect(componentSource).not.toContain('overflow-x: auto');
-    expect(componentSource).toContain('border-inline-start-style: dashed');
-    expect(componentSource).toContain('border: 3px double');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toMatch(/\b(?:th|td)\s+small\s*\{/);
+    expect(componentSource).toContain('border-style: dashed');
+    expect(componentSource).toContain('border-style: double');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
     expect(componentSource).toContain('direction: ltr');
     expect(componentSource).toContain('unicode-bidi: isolate');
-    expect(componentSource).toContain('var(--line)');
-    expect(componentSource).toContain('var(--surface)');
-    expect(componentSource).toContain('var(--focus)');
+    expect(componentSource).not.toContain('var(--line)');
+    expect(componentSource).not.toContain('var(--surface)');
+    expect(componentSource).not.toContain('var(--focus)');
     expect(componentSource).not.toContain('--border-color');
     expect(componentSource).not.toContain('--surface-color');
     expect(componentSource).not.toMatch(
-      /\.(?:multi-head-diagram|diagram-section|head-card|table-scroller|formula-scroller)\s*\{[^}]*(?:block-size|height)\s*:/s,
+      /\.(?:multi-head-diagram|diagram-section|head-card|table-scroller|formula-scroller)\s*\{[^}]*(?:margin|padding|background|border-radius|outline|overflow|block-size|height)\s*:/s,
     );
-    expect(componentSource).not.toMatch(/\.multi-head-diagram\s*\{[^}]*overflow:\s*hidden/s);
+    expect(componentSource).not.toMatch(/\b(?:site_arithmetic|rust-authored)\b/);
   });
 
   it('keeps plan, contract, lesson, Rust, history, formula, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -293,23 +336,35 @@ describe('Chapter 30 static diagram and content boundary', () => {
         ({ symbol, en }: { symbol: string; en: string }) => ({ symbol, meaning: en }),
       ),
     });
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({ symbol, meaning: ru }),
+      ),
+    });
+    expect(lesson.content_revision).toBe(2);
+    expect(russianLesson.content_revision).toBe(2);
     expect(coursePlanSource).toContain(
       '\\operatorname{MHA}(X)=\\operatorname{Concat}(H_1,\\ldots,H_h)W_O',
     );
     expect(lesson.description).toMatch(/query, key, and value.*rotary causal attention heads/i);
     expect(lessonSource).toContain('W_Q=[W_1^Q\\;W_2^Q');
-    expect(lessonSource).toContain('A_i=\\operatorname{softmax}_{\\mathrm{keys}}');
+    expect(lessonSource).toContain('A_i=\\operatorname{softmax}_{j}');
     expect(lessonSource).toContain('https://arxiv.org/abs/1409.0473');
     expect(lessonSource).toContain('https://arxiv.org/abs/1706.03762');
     expect(lessonSource).toContain('https://arxiv.org/abs/2302.13971');
     expect(lessonSource).toContain('not a specialization guarantee');
     expect(lessonSource).toContain('does not reproduce that optimized kernel');
-    expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.translation_notes.join(' ')).toContain('Russian is registered but inactive');
+    expect(lessonSource).not.toMatch(/TypeScript|static HTML|JavaScript|trace grammar|Rust-authored|Rust provenance/i);
+    expect(russianLessonSource).not.toMatch(/TypeScript|static HTML|JavaScript|trace grammar|Rust-authored|Rust provenance/i);
+    expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
+    expect(contract.translation_notes.join(' ')).toContain(
+      '84ad52176ad1a0c7d66b46e83e0765d4b434bc44b25017ab551f080e2d2b0fca',
+    );
     expect(existsSync(resolve(
       repositoryRoot,
       'site/src/content/chapters/ru/30-multi-head-attention.mdx',
-    ))).toBe(false);
+    ))).toBe(true);
     for (const region of ['head-layout', 'multi-head-errors', 'multi-head-layer']) {
       expect(multiHeadSource).toContain(`region:${region}`);
     }

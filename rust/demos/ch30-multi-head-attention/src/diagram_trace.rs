@@ -96,9 +96,16 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     let primary = &evidence.primary;
     let shapes = &evidence.shapes;
     let parameters = &evidence.parameters;
+    let gradients = &evidence.gradients;
+    let gradient_checks = gradients.input_checks
+        + gradients.query_checks
+        + gradients.key_checks
+        + gradients.value_checks
+        + gradients.output_checks;
+    debug_assert_eq!(gradient_checks, 76);
     let mut lines = vec![
         String::from(
-            "CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|offset=0|max_positions=6|rope_base=100.000000|bias=false|parameter_order=[query.weight,key.weight,value.weight,output.weight]|layout=reshape-transpose|site_arithmetic=none",
+            "CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|offset=0|max_positions=6|rope_base=100.000000|bias=false|parameter_order=[query.weight,key.weight,value.weight,output.weight]|layout=reshape-transpose",
         ),
         format!("SHAPE|stage=input|value={}", format_shape(&shapes.input)),
         format!("SHAPE|stage=split|value={}", format_shape(&shapes.split)),
@@ -136,7 +143,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     lines.extend((0..MODEL_WIDTH).map(|row| output_map_record(evidence, row)));
     lines.extend((0..TOKENS).map(|token| output_record(evidence, token)));
     lines.push(format!(
-        "PREFIX_PROOF|position_0={}|position_1={}|position_2={}|split_merge={}|head_isolation={}|future_probabilities={}|common_offset={}|tolerance={INVARIANT_TOLERANCE:.12}|parameters={}|gradchecks={}|trace=rust-authored|site_arithmetic=none",
+        "PREFIX_PROOF|position_0={}|position_1={}|position_2={}|split_merge={}|head_isolation={}|future_probabilities={}|common_offset={}|tolerance={INVARIANT_TOLERANCE:.12}|parameters={}|gradchecks={}",
         if primary.prefix_zero_unchanged {
             "bitwise-unchanged"
         } else {
@@ -173,7 +180,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             "changed"
         },
         parameters.count,
-        if evidence.gradients.passed { 76 } else { 0 },
+        gradient_checks,
     ));
     debug_assert_eq!(lines.len(), 34);
     lines.join("\n") + "\n"
@@ -186,7 +193,7 @@ mod tests {
     use crate::learner_evidence;
 
     #[test]
-    fn trace_has_frozen_order_values_and_rust_provenance() {
+    fn trace_has_frozen_order_values_and_invariants() {
         let trace = render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 34);
         assert!(trace.starts_with("CONFIG|batch=1|tokens=3|model_width=4|heads=2"));
@@ -198,7 +205,9 @@ mod tests {
         assert_eq!(trace.matches("\nOUTPUT|").count(), 3);
         assert!(trace.contains("values=[0.500000,0.500000,0.000000]"));
         assert!(trace.contains("future_probabilities=exact-zero"));
-        assert!(trace.ends_with("|trace=rust-authored|site_arithmetic=none\n"));
+        assert!(trace.ends_with("|parameters=64|gradchecks=76\n"));
+        assert!(!trace.contains("site_arithmetic"));
+        assert!(!trace.contains("rust-authored"));
         assert!(!trace.contains("-0.000000"));
     }
 }

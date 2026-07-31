@@ -70,6 +70,7 @@ describe("course diagram design system", () => {
     expect(module).toContain(".course-diagram__grid");
     expect(module).toContain(".course-diagram__card-stack");
     expect(module).toContain(".course-diagram__card-heading");
+    expect(module).toMatch(/table\[data-diagram-table\][\s\S]*small/);
     expect(module).toContain(".course-diagram__link-list");
     expect(module).toContain(".course-diagram__link-separator");
     expect(module).not.toContain(".course-diagram__visually-hidden");
