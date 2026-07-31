@@ -28,7 +28,13 @@ const cueLabels: Record<QkvRole, string> = {
   key: labels.cues.key,
   value: labels.cues.value,
 };
-const status = (value: string) => value === 'true' ? labels.cues.accepted : labels.cues.rejected;
+const localizedErrorReasons: Record<string, string> = {
+  'rank-two': labels.errorReasons.rankTwo,
+  'input-width': labels.errorReasons.inputWidth,
+  'branch-mismatch': labels.errorReasons.branchMismatch,
+};
+const changedStatus = (value: string) => value === 'true' ? labels.cues.changed : labels.cues.unchanged;
+const unchangedStatus = (value: string) => value === 'bitwise-unchanged' ? labels.cues.unchanged : labels.cues.changed;
 const inputGradientRows = [
   trace.backward.inputGradient.values.slice(0, 3),
   trace.backward.inputGradient.values.slice(3, 6),
@@ -50,23 +56,23 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.captions.projections}>
-      <li class="shared-cue">{labels.cues.shared}</li>
-      <li class="query-cue">{labels.cues.query}</li>
-      <li class="key-cue">{labels.cues.key}</li>
-      <li class="value-cue">{labels.cues.value}</li>
+      <li data-diagram-box class="shared-cue">{labels.cues.shared}</li>
+      <li data-diagram-box class="query-cue">{labels.cues.query}</li>
+      <li data-diagram-box class="key-cue">{labels.cues.key}</li>
+      <li data-diagram-box class="value-cue">{labels.cues.value}</li>
     </ul>
   </figcaption>
 
-  <section class="diagram-section projection-section" aria-labelledby="qkv-projection-title">
+  <section class="diagram-section projection-section course-diagram__card-stack" data-diagram-box aria-labelledby="qkv-projection-title">
     <h4 id="qkv-projection-title">{labels.sections.projections}</h4>
-    <article data-diagram-card data-diagram-box class="source-card" data-stage="input">
+    <article data-diagram-card data-diagram-box class="source-card course-diagram__card-stack" data-stage="input">
       <h5>{labels.stages.input}</h5>
       <div
         class="source-values math-row input-values-scroller course-diagram__scroll"
         tabindex="0"
         role="region"
         aria-label={labels.stages.input}
-       data-diagram-scroll>
+        data-diagram-scroll>
         <InlineMath latex={String.raw`X=${trace.input.latex}`} />
       </div>
       <dl>
@@ -81,26 +87,27 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
       </dl>
     </article>
 
-    <div class="split-marker" aria-hidden="true">↓</div>
+    <div class="split-marker" aria-hidden="true">&darr;</div>
 
     <div
       class="branches-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.branches}
-     data-diagram-scroll>
-      <ol class="branch-grid">
+      data-diagram-scroll>
+      <ol class="branch-grid course-diagram__grid">
         {trace.projections.map((projection) => (
           <li>
             <article data-diagram-card data-diagram-box
-              class:list={['branch-card', `${projection.role}-branch`]}
+              class:list={['branch-card', 'course-diagram__card-stack', `${projection.role}-branch`]}
               data-qkv-role={projection.role}
             >
               <header>
-                <span class:list={['branch-cue', `${projection.role}-cue`]}>
+                <span data-diagram-box class:list={['branch-cue', 'state-symbol', `${projection.role}-cue`]}>
                   {cueLabels[projection.role]}
                 </span>
-                <h5>{roleLabels[projection.role]}</h5>
+                <h5>{labels.stages[projection.role]}</h5>
+                <p class="course-diagram__description">{roleLabels[projection.role]}</p>
                 <p class="branch-formula">
                   <InlineMath
                     latex={String.raw`${roleSymbols[projection.role].output}=X${roleSymbols[projection.role].weight}`}
@@ -186,17 +193,17 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         ))}
       </ol>
     </div>
-    <p class="section-caption">{labels.captions.projections}</p>
+    <p class="section-caption course-diagram__description">{labels.captions.projections}</p>
   </section>
 
-  <section class="diagram-section history-section" aria-labelledby="qkv-history-title">
+  <section class="diagram-section history-section course-diagram__card-stack" data-diagram-box aria-labelledby="qkv-history-title">
     <h4 id="qkv-history-title">{labels.sections.history}</h4>
     <div
       class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-     data-diagram-scroll>
+      data-diagram-scroll>
       <table data-diagram-table class="history-table">
         <caption>{labels.captions.history}</caption>
         <thead>
@@ -212,34 +219,31 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
             <th scope="row">{labels.fields.earlierAttention}</th>
             <td><code><bdi dir="ltr">{trace.history.earlierLeft}</bdi></code></td>
             <td><code><bdi dir="ltr">{trace.history.earlierRight}</bdi></code></td>
-            <td aria-label={labels.cues.rejected}>—</td>
+            <td aria-label={labels.cues.notUsed}>&mdash;</td>
           </tr>
           <tr data-history-kind="self-attention">
             <th scope="row">{labels.fields.selfAttention}</th>
-            <td aria-label={labels.cues.rejected}>—</td>
-            <td aria-label={labels.cues.rejected}>—</td>
+            <td aria-label={labels.cues.notUsed}>&mdash;</td>
+            <td aria-label={labels.cues.notUsed}>&mdash;</td>
             <td><code><bdi dir="ltr">{trace.history.transformerSource}</bdi></code></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p class="retrospective-note">
-      <span class="status accepted">{labels.cues.accepted}</span>
-      <code><bdi dir="ltr">mapping={trace.history.mapping}</bdi></code>
-    </p>
+    <p class="course-diagram__description">{labels.captions.history}</p>
   </section>
 
-  <section class="diagram-section evidence-section" aria-labelledby="qkv-evidence-title">
+  <section class="diagram-section evidence-section course-diagram__card-stack" data-diagram-box aria-labelledby="qkv-evidence-title">
     <h4 id="qkv-evidence-title">{labels.sections.evidence}</h4>
-    <div class="evidence-grid">
-      <article data-diagram-card data-diagram-box class="evidence-card input-gradient-card">
+    <div class="evidence-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="evidence-card input-gradient-card course-diagram__card-stack">
         <h5>{labels.fields.inputGradient}</h5>
         <p
           class="math-row input-gradient-scroller course-diagram__scroll"
           tabindex="0"
           role="region"
           aria-label={labels.fields.inputGradient}
-         data-diagram-scroll>
+          data-diagram-scroll>
           <span class="input-gradient-matrix">
             <InlineMath latex={String.raw`\bar X=${inputGradientMatrix}`} />
           </span>
@@ -247,14 +251,14 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         <p><InlineMath latex={String.raw`\operatorname{shape}(\bar X)=${trace.backward.inputGradientShape}`} /></p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card gradient-card">
+      <article data-diagram-card data-diagram-box class="evidence-card gradient-card course-diagram__card-stack">
         <h5>{labels.fields.weightGradient}</h5>
         <div
           class="gradients-scroller course-diagram__scroll"
           tabindex="0"
           role="region"
           aria-label={labels.scrollers.gradients}
-         data-diagram-scroll>
+          data-diagram-scroll>
           <table data-diagram-table class="gradient-table">
             <tbody>
               {trace.weightGradients.map((gradient) => (
@@ -272,45 +276,45 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
         </div>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card independence-card">
+      <article data-diagram-card data-diagram-box class="evidence-card independence-card course-diagram__card-stack">
         <h5>{labels.fields.independence}</h5>
         <dl>
           <div>
             <dt>{labels.roles.query}</dt>
-            <dd><span class="status accepted">{status(trace.independence.queryChanged)}</span></dd>
+            <dd><span data-diagram-box class:list={['state-symbol', trace.independence.queryChanged === 'true' ? 'accepted' : 'rejected']}>{changedStatus(trace.independence.queryChanged)}</span></dd>
           </div>
           <div>
             <dt>{labels.roles.key}</dt>
-            <dd><code><bdi dir="ltr">{trace.independence.keyOutput}</bdi></code></dd>
+            <dd><span data-diagram-box class:list={['state-symbol', trace.independence.keyOutput === 'bitwise-unchanged' ? 'accepted' : 'rejected']}>{unchangedStatus(trace.independence.keyOutput)}</span></dd>
           </div>
           <div>
             <dt>{labels.roles.value}</dt>
-            <dd><code><bdi dir="ltr">{trace.independence.valueOutput}</bdi></code></dd>
+            <dd><span data-diagram-box class:list={['state-symbol', trace.independence.valueOutput === 'bitwise-unchanged' ? 'accepted' : 'rejected']}>{unchangedStatus(trace.independence.valueOutput)}</span></dd>
           </div>
         </dl>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card empty-card">
+      <article data-diagram-card data-diagram-box class="evidence-card empty-card course-diagram__card-stack">
         <h5>{labels.fields.emptyBatch}</h5>
         <p><InlineMath latex={String.raw`${trace.emptyShapes.batchInput}\to ${trace.emptyShapes.batchQuery},${trace.emptyShapes.batchKey},${trace.emptyShapes.batchValue}`} /></p>
         <h5>{labels.fields.emptyTokens}</h5>
         <p><InlineMath latex={String.raw`${trace.emptyShapes.tokenInput}\to ${trace.emptyShapes.tokenQuery},${trace.emptyShapes.tokenKey},${trace.emptyShapes.tokenValue}`} /></p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card errors-card">
+      <article data-diagram-card data-diagram-box class="evidence-card errors-card course-diagram__card-stack">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
             <li data-error-case={error.case}>
-              <span class="status rejected">{labels.cues.rejected}</span>
+              <span data-diagram-box class="state-symbol rejected">{labels.cues.rejected}</span>
               <code><bdi dir="ltr">{error.case}</bdi></code>
-              <code><bdi dir="ltr">{error.message}</bdi></code>
+              <span>{localizedErrorReasons[error.case]}</span>
             </li>
           ))}
         </ul>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card proof-card">
+      <article data-diagram-card data-diagram-box class="evidence-card proof-card course-diagram__card-stack">
         <h5>{labels.fields.proof}</h5>
         <p><InlineMath latex={String.raw`n_X=${trace.proof.inputChecks}, n_Q=${trace.proof.queryWeightChecks}, n_K=${trace.proof.keyWeightChecks}, n_V=${trace.proof.valueWeightChecks}`} /></p>
         <p><InlineMath latex={String.raw`\tau=${trace.proof.tolerance}`} /></p>
@@ -319,80 +323,14 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
           <code><bdi dir="ltr">replay={trace.proof.replay}</bdi></code>
           <code><bdi dir="ltr">names={trace.proof.names}</bdi></code>
           <code><bdi dir="ltr">initialization={trace.proof.initialization}</bdi></code>
-          <code><bdi dir="ltr">trace={trace.proof.trace}</bdi></code>
-          <code><bdi dir="ltr">site_arithmetic={trace.meta.siteArithmetic}</bdi></code>
         </p>
       </article>
     </div>
-    <p class="section-caption">{labels.captions.evidence}</p>
+    <p class="section-caption course-diagram__description">{labels.captions.evidence}</p>
   </section>
 </figure>
 
 <style>
-  .qkv-diagram {
-    --qkv-ink: #1c2430;
-    --qkv-paper: #f8fbff;
-    --qkv-accent: #2857a4;
-    --qkv-ok: #17633a;
-    box-sizing: border-box;
-    inline-size: 100%;
-    max-inline-size: 100%;
-    margin: 1.5rem 0;
-    padding: 1.1rem;
-    border: 2px solid var(--qkv-ink);
-    border-radius: 1rem;
-    background: var(--qkv-paper);
-    color: var(--qkv-ink);
-  }
-
-  .qkv-diagram:focus,
-  .input-values-scroller:focus,
-  .branches-scroller:focus,
-  .history-scroller:focus,
-  .gradients-scroller:focus,
-  .input-gradient-scroller:focus {
-    outline: 3px solid var(--qkv-accent);
-    outline-offset: 3px;
-  }
-
-  h3,
-  h4,
-  h5,
-  p {
-    overflow-wrap: anywhere;
-  }
-
-  h3,
-  h4,
-  h5 {
-    margin: 0;
-  }
-
-  .diagram-description,
-  .section-caption,
-  .retrospective-note {
-    margin: 0.65rem 0 0;
-  }
-
-  .cue-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin: 0.8rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cue-list li,
-  .branch-cue,
-  .status {
-    display: inline-block;
-    padding: 0.18rem 0.5rem;
-    border: 2px solid currentColor;
-    border-radius: 999px;
-    font-weight: 700;
-  }
-
   .key-cue {
     border-style: dashed;
   }
@@ -402,29 +340,7 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     border-width: 4px;
   }
 
-  .diagram-section {
-    box-sizing: border-box;
-    min-inline-size: 0;
-    margin-block-start: 1.15rem;
-    padding-block-start: 1rem;
-    border-block-start: 1px solid #8794a6;
-  }
-
-  .source-card,
-  .branch-card,
-  .evidence-card {
-    box-sizing: border-box;
-    inline-size: 100%;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    padding: 0.85rem;
-    border: 2px solid var(--qkv-ink);
-    border-radius: 0.8rem;
-    background: #ffffff;
-  }
-
   .source-card {
-    margin-block-start: 0.75rem;
     border-block-start-width: 4px;
   }
 
@@ -434,49 +350,20 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
     gap: 0.65rem;
-    margin: 0.75rem 0 0;
+    margin: 0;
   }
 
-  dl div,
-  dd {
+  .source-card dl div,
+  .branch-facts div,
+  .independence-card dl div {
     min-inline-size: 0;
-  }
-
-  dt {
-    font-weight: 700;
-  }
-
-  dd {
-    margin: 0.25rem 0 0;
-  }
-
-  code {
-    overflow-wrap: anywhere;
   }
 
   .split-marker {
-    margin-block: 0.45rem;
-    color: var(--qkv-accent);
+    color: var(--diagram-accent-dark);
     text-align: center;
     font-size: 1.5rem;
     font-weight: 800;
-  }
-
-  .input-values-scroller,
-  .branches-scroller,
-  .history-scroller,
-  .gradients-scroller,
-  .input-gradient-scroller {
-    box-sizing: border-box;
-    inline-size: 100%;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    padding-block: 0.25rem 0.55rem;
-    scrollbar-gutter: stable;
-  }
-
-  .input-gradient-scroller {
-    padding-inline: 0.1rem;
   }
 
   .input-values-scroller {
@@ -484,14 +371,9 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
   }
 
   .branch-grid {
-    display: grid;
     grid-template-columns: repeat(3, minmax(18.5rem, 1fr));
     align-items: start;
-    gap: 0.8rem;
     min-inline-size: 57rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .branch-grid > li {
@@ -530,19 +412,12 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
   .math-row {
     min-inline-size: 0;
     margin: 0;
-    padding-block: 0.14rem;
-  }
-
-  .coordinate-table,
-  .history-table,
-  .gradient-table {
-    inline-size: 100%;
-    border-collapse: collapse;
-    background: #ffffff;
   }
 
   .coordinate-table {
-    margin-block-start: 0.8rem;
+    direction: ltr;
+    inline-size: 100%;
+    margin-block-start: 0.25rem;
   }
 
   .coordinate-table caption,
@@ -552,53 +427,25 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     font-weight: 700;
   }
 
-  th,
-  td {
-    padding: 0.45rem;
-    border: 1px solid var(--qkv-ink);
-    text-align: start;
-    vertical-align: top;
-  }
-
   .history-table {
+    inline-size: 100%;
     min-inline-size: 48rem;
-    margin-block-start: 0.65rem;
   }
 
   .history-table tbody tr:last-child {
-    border-block: 4px double var(--qkv-ink);
-  }
-
-  .retrospective-note {
-    display: flex;
-    align-items: start;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .accepted {
-    color: var(--qkv-ok);
-  }
-
-  .rejected {
-    border-style: double;
+    border-block-style: double;
+    border-block-width: 4px;
   }
 
   .evidence-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     align-items: start;
-    gap: 0.8rem;
-    margin-block-start: 0.75rem;
   }
 
+  .input-gradient-card,
   .gradient-card,
   .errors-card,
   .proof-card {
-    grid-column: 1 / -1;
-  }
-
-  .input-gradient-card {
     grid-column: 1 / -1;
   }
 
@@ -615,20 +462,10 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     grid-template-columns: 1fr;
   }
 
-  .empty-card h5:not(:first-child) {
-    margin-block-start: 0.8rem;
-  }
-
-  .empty-card p,
-  .proof-card p {
-    margin: 0.5rem 0 0;
-    padding-block: 0.12rem;
-  }
-
   .errors-card ul {
     display: grid;
     gap: 0.65rem;
-    margin: 0.75rem 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
@@ -647,48 +484,18 @@ const inputGradientMatrix = String.raw`\begin{bmatrix}${inputGradientRows
     gap: 0.55rem;
   }
 
-  bdi,
-  code,
+  .rejected {
+    --diagram-state-symbol-border-style: double;
+  }
+
   :global([data-inline-math]) {
     direction: ltr;
     unicode-bidi: isolate;
   }
 
-  :global([data-inline-math]) {
-    padding-block: 0.12em;
-  }
-
   @container course-diagram (max-width: 42rem) {
-    .qkv-diagram {
-      padding: 0.85rem;
-    }
-
     .errors-card li {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .qkv-diagram,
-    .source-card,
-    .branch-card,
-    .evidence-card,
-    .coordinate-table,
-    .history-table,
-    .gradient-table,
-    th,
-    td,
-    .cue-list li,
-    .branch-cue,
-    .status {
-      background: Canvas;
-      color: CanvasText;
-      forced-color-adjust: auto;
-    }
-
-    .split-marker,
-    .accepted {
-      color: CanvasText;
     }
   }
 </style>

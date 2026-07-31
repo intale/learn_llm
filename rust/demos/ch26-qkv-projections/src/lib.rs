@@ -716,7 +716,8 @@ mod tests {
         let trace = diagram_trace::render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 17);
         assert!(trace.starts_with("META|input_shape=[1,2,3]|"));
-        assert!(trace.contains("|site_arithmetic=none\n"));
+        assert!(!trace.contains("site_arithmetic"));
+        assert!(!trace.contains("trace=rust-authored"));
         assert!(trace.contains("HISTORY|earlier_left=decoder-state|"));
         assert!(trace.ends_with("NEXT|chapter=27-self-attention\n"));
     }

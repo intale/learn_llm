@@ -23,7 +23,6 @@ export interface QkvTrace {
     readonly bias: string;
     readonly parameterCount: string;
     readonly branchOrder: string;
-    readonly siteArithmetic: string;
   };
   readonly input: QkvTraceVector;
   readonly projections: readonly QkvProjectionRecord[];
@@ -74,7 +73,6 @@ export interface QkvTrace {
     readonly tolerance: string;
     readonly gradcheck: string;
     readonly replay: string;
-    readonly trace: string;
     readonly names: string;
     readonly initialization: string;
   };
@@ -126,6 +124,14 @@ export interface QkvProjectionsDiagramLabels {
     readonly value: string;
     readonly accepted: string;
     readonly rejected: string;
+    readonly changed: string;
+    readonly unchanged: string;
+    readonly notUsed: string;
+  };
+  readonly errorReasons: {
+    readonly rankTwo: string;
+    readonly inputWidth: string;
+    readonly branchMismatch: string;
   };
   readonly captions: {
     readonly projections: string;
@@ -140,7 +146,7 @@ export interface QkvProjectionsDiagramLabels {
 }
 
 const expectedLines = [
-  'META|input_shape=[1,2,3]|model_width=3|head_width=2|bias=false|parameter_count=18|branch_order=query,key,value|site_arithmetic=none',
+  'META|input_shape=[1,2,3]|model_width=3|head_width=2|bias=false|parameter_count=18|branch_order=query,key,value',
   'INPUT|values=[1.000000,2.000000,-1.000000,0.000000,1.000000,2.000000]',
   'PROJECTION|role=query|tensor=Q|parameter=decoder.block.0.attention.query.weight|weight_shape=[3,2]|weights=[1.000000,0.000000,0.000000,1.000000,1.000000,-1.000000]|output_shape=[1,2,2]|output=[0.000000,3.000000,2.000000,-1.000000]',
   'PROJECTION|role=key|tensor=K|parameter=decoder.block.0.attention.key.weight|weight_shape=[3,2]|weights=[0.000000,1.000000,1.000000,0.000000,-1.000000,1.000000]|output_shape=[1,2,2]|output=[3.000000,0.000000,-1.000000,2.000000]',
@@ -155,7 +161,7 @@ const expectedLines = [
   'ERROR|case=input-width|rejected=true|message=Q/K/V input final width must equal model width 3, got 4',
   'ERROR|case=branch-mismatch|rejected=true|message=Q/K/V model widths must match, got query 3, key 4, value 3',
   'HISTORY|earlier_left=decoder-state|earlier_right=encoder-annotations|transformer_source=one-sequence|mapping=retrospective',
-  'PROOF|input_checks=6|query_weight_checks=6|key_weight_checks=6|value_weight_checks=6|tolerance=0.000002|gradcheck=true|replay=bitwise|trace=rust-authored|names=unique|initialization=transactional',
+  'PROOF|input_checks=6|query_weight_checks=6|key_weight_checks=6|value_weight_checks=6|tolerance=0.000002|gradcheck=true|replay=bitwise|names=unique|initialization=transactional',
   'NEXT|chapter=27-self-attention',
 ] as const;
 
@@ -205,7 +211,7 @@ export function validateQkvProjectionsLabels(
 ): QkvProjectionsDiagramLabels {
   exactKeys(
     labels as unknown as Record<string, unknown>,
-    ['title', 'description', 'sections', 'stages', 'fields', 'roles', 'cues', 'captions', 'scrollers'],
+    ['title', 'description', 'sections', 'stages', 'fields', 'roles', 'cues', 'errorReasons', 'captions', 'scrollers'],
     'root',
   );
   if (labels.title.trim() === '') invalid('root.title must be a nonblank string');
@@ -236,8 +242,13 @@ export function validateQkvProjectionsLabels(
   );
   exactStringKeys(
     labels.cues as unknown as Record<string, unknown>,
-    ['shared', 'query', 'key', 'value', 'accepted', 'rejected'],
+    ['shared', 'query', 'key', 'value', 'accepted', 'rejected', 'changed', 'unchanged', 'notUsed'],
     'cues',
+  );
+  exactStringKeys(
+    labels.errorReasons as unknown as Record<string, unknown>,
+    ['rankTwo', 'inputWidth', 'branchMismatch'],
+    'errorReasons',
   );
   exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
@@ -285,7 +296,7 @@ export function parseQkvProjectionsTrace(source: string): QkvTrace {
   const meta = exactMatch(
     lines[0],
     new RegExp(
-      `^META\\|input_shape=(${shapePattern})\\|model_width=(${unsignedIntegerPattern})\\|head_width=(${unsignedIntegerPattern})\\|bias=(true|false)\\|parameter_count=(${unsignedIntegerPattern})\\|branch_order=([^|]+)\\|site_arithmetic=([^|]+)$`,
+      `^META\\|input_shape=(${shapePattern})\\|model_width=(${unsignedIntegerPattern})\\|head_width=(${unsignedIntegerPattern})\\|bias=(true|false)\\|parameter_count=(${unsignedIntegerPattern})\\|branch_order=([^|]+)$`,
     ),
     'META',
   );
@@ -344,7 +355,7 @@ export function parseQkvProjectionsTrace(source: string): QkvTrace {
   const proof = exactMatch(
     lines[15],
     new RegExp(
-      `^PROOF\\|input_checks=(${unsignedIntegerPattern})\\|query_weight_checks=(${unsignedIntegerPattern})\\|key_weight_checks=(${unsignedIntegerPattern})\\|value_weight_checks=(${unsignedIntegerPattern})\\|tolerance=(${decimalPattern})\\|gradcheck=(true|false)\\|replay=([^|]+)\\|trace=([^|]+)\\|names=([^|]+)\\|initialization=([^|]+)$`,
+      `^PROOF\\|input_checks=(${unsignedIntegerPattern})\\|query_weight_checks=(${unsignedIntegerPattern})\\|key_weight_checks=(${unsignedIntegerPattern})\\|value_weight_checks=(${unsignedIntegerPattern})\\|tolerance=(${decimalPattern})\\|gradcheck=(true|false)\\|replay=([^|]+)\\|names=([^|]+)\\|initialization=([^|]+)$`,
     ),
     'PROOF',
   );
@@ -358,7 +369,6 @@ export function parseQkvProjectionsTrace(source: string): QkvTrace {
       bias: meta[4],
       parameterCount: meta[5],
       branchOrder: meta[6],
-      siteArithmetic: meta[7],
     }),
     input: vector(input[1], 6),
     projections,
@@ -401,9 +411,8 @@ export function parseQkvProjectionsTrace(source: string): QkvTrace {
       tolerance: proof[5],
       gradcheck: proof[6],
       replay: proof[7],
-      trace: proof[8],
-      names: proof[9],
-      initialization: proof[10],
+      names: proof[8],
+      initialization: proof[9],
     }),
     nextChapter: next[1],
   });

@@ -10332,3 +10332,108 @@ introduced.
 
 **Affected step and run:** `activate-ch25-russian-localization`, run
 `20260731T014914Z-activate-ch25-russian-localization-01`.
+
+## 2026-07-31 - Stage Chapter 26 localization after the Chapter 25 commit
+
+**Status:** Accepted during `activate-ch26-russian-localization` preflight.
+
+**Context:** The user requested Chapters 25 through 30 in Russian, one chapter at
+a time. Chapter 25 is complete and independently committed at `9243cee`, and the
+published locale boundary ends there. Chapter 26 must first be audited against
+its exact bias-free Q/K/V projection evidence, translated directly from the
+frozen English source, rendered in two engines, and committed before Chapter 27
+begins.
+
+**Decision:** Run Chapter 26 as the large standalone checkpoint
+`activate-ch26-russian-localization`, without a paid translation or generation
+service and without a cost-approval pause. Keep disposable candidate and rendered
+artifacts in
+`C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/`,
+record their checksums, and use the unchanged pinned Linux and browser workflows.
+Audit and freeze English meaning before translating; advance only the Chapter 26
+locale boundary. Do not change product dependencies, build definitions, hosting,
+deployment, or the user environment.
+
+**Consequences:** Publication requires semantic, mathematical, historical, Rust,
+SEO, accessibility, formula, static, link, Chromium, Firefox, fullscreen, and
+nearest-box containment gates for both locales. Chapter 26 receives its own
+completion checkpoint and commit before the already-authorized Chapter 27 work.
+
+**Affected step and run:** `activate-ch26-russian-localization`, run
+`20260731T030628Z-activate-ch26-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 26 after corrective language review
+
+**Status:** Accepted after final Chapter 26 validation; this supersedes the
+initial revision-2 source hash recorded above.
+
+**Context:** The first Chapter 26 candidate passed its automated and rendered
+gates, but independent final review found stale English-only activation prose,
+inconsistent Russian terminology for causal attention, an altered explanation
+of the value representation, repeated historical claims, and several Russian
+calques and ambiguous accessibility labels. Publication was withheld, run 01
+was retained as failed, and a separately fingerprinted correction run repaired
+the canonical consolidation and the direct Russian projection before repeating
+all affected gates.
+
+**Decision:** Publish English revision 2 at SHA-256
+`d9a9088ae700d0a0e370a426fadafb153710e4d9437d42a1a80955f8cc4736fc` and its
+direct Russian projection at SHA-256
+`e4db527a0f0a2708be9f645971ba68be2248cd71f2bba7b6feb6ee10cea3b64c`.
+Use established Russian `каузальное внимание`, state that values are weighted
+and mixed according to attention weights, consolidate each historical advance
+without duplicating its claim, and use natural Russian descriptions for the
+shared input, projection roles, branch checks, and accessibility surfaces.
+Advance the published Russian boundary only through Chapter 26. Record the
+final 19-file product manifest at
+`C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/publish-product.sha256`
+with SHA-256
+`723dc34a034766f82825c8fd9f1083102abe0733b92e1553c2fdf59611d782dd`.
+
+**Consequences:** Both locales preserve the exact projection formulas, shapes,
+forward values, reverse equations, identifiers, sources, exercises, answers,
+SEO, accessibility labels, and Chapter 27 handoff. The final candidate builds
+72 pages and passes 2,141 local references, 72 SEO routes, 72 sitemap URLs, 72
+Analytics routes, 849 unit tests, 156 rendered tests per browser, exact Chapter
+26 Rust output and trace, independent semantic and anti-calque review, and the
+complete pinned Linux gate at Docker manifest-list SHA-256
+`a6b224063eee01400097b5a311edd401939e2849c1cb64ced191c9b577fe243a`.
+No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and runs:** `activate-ch26-russian-localization`, failed run
+`20260731T030628Z-activate-ch26-russian-localization-01` and successful corrective
+run `20260731T040048Z-activate-ch26-russian-localization-02`.
+
+## 2026-07-31 - Freeze corrected Chapter 26 English semantics before translation
+
+**Status:** Accepted during `activate-ch26-russian-localization` execution.
+
+**Context:** The pre-translation audit found that the Chapter 26 lesson described
+the later multi-head constraint imprecisely, claimed to teach reverse gradients
+without stating their equations, repeated historical claims, exposed page and
+trace authoring mechanics to learners, rendered English error messages in every
+locale, and used a private diagram skin instead of the shared presentation roles.
+The exact forward values, gradients, Rust projection implementation, and cited
+attention history were otherwise correct.
+
+**Decision:** Advance the canonical contract and English lesson to content
+revision 2. State the multi-head relation as $d_{model}=h\,d_{head}$, add the
+shared-input and branch-weight reverse equations, consolidate the LLM-centered
+history, remove report/trace serialization snippets and delivery explanations
+from visible prose, remove `site_arithmetic` and `trace=rust-authored` from the
+Chapter 26 diagram trace, render stable localized error reasons, and migrate the
+figure to the shared semantic roles. Freeze the resulting English lesson at
+SHA-256 `24737cfcb806d1b467612ee66d3bd47db396f7bcf460abb84d4adeeec953512a`
+as the sole Russian translation source.
+
+**Consequences:** The Russian lesson must preserve the revised equations,
+qualified historical analogy, shape semantics, exact values, source links,
+exercises, answers, and Chapter 27 handoff while using natural established
+technical Russian. The trace remains strict and Rust-authored internally, but
+learner-facing text discusses the projection boundary rather than presentation
+machinery. These canonical corrections and their tests belong to the Chapter 26
+checkpoint and do not change dependencies or build definitions.
+
+**Affected step and run:** `activate-ch26-russian-localization`, run
+`20260731T030628Z-activate-ch26-russian-localization-01`.

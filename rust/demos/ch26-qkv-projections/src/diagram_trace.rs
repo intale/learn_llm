@@ -31,7 +31,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
 
     [
         format!(
-            "META|input_shape={}|model_width=3|head_width=2|bias=false|parameter_count={}|branch_order=query,key,value|site_arithmetic=none",
+            "META|input_shape={}|model_width=3|head_width=2|bias=false|parameter_count={}|branch_order=query,key,value",
             format_shape(primary.input.shape()),
             primary.parameter_count
         ),
@@ -113,7 +113,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             history.mapping,
         ),
         format!(
-            "PROOF|input_checks={}|query_weight_checks={}|key_weight_checks={}|value_weight_checks={}|tolerance={TOLERANCE:.6}|gradcheck={}|replay={}|trace=rust-authored|names={}|initialization={}",
+            "PROOF|input_checks={}|query_weight_checks={}|key_weight_checks={}|value_weight_checks={}|tolerance={TOLERANCE:.6}|gradcheck={}|replay={}|names={}|initialization={}",
             evidence.input_checks,
             evidence.query_weight_checks,
             evidence.key_weight_checks,

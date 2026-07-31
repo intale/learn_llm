@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 51,
+  "plan_revision": 52,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-25",
+    "policy_id": "selective-russian-through-chapter-26",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "25-rmsnorm",
+        "through_chapter": "26-qkv-projections",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-25."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-26."
       },
       {
-        "from_chapter": "26-qkv-projections",
+        "from_chapter": "27-self-attention",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 25 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 26 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -299,6 +299,11 @@
         "step_id": "activate-ch25-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch25-russian-localization"
+      },
+      {
+        "step_id": "activate-ch26-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch26-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -868,9 +873,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–25 activate
-both, while Chapters 26–39 activate English only. Russian therefore keeps its index
-and Chapter 0–25 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–26 activate
+both, while Chapters 27–39 activate English only. Russian therefore keeps its index
+and Chapter 0–26 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1322,6 +1327,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `26-qkv-projections`
 - **Implementation step:** `implement-ch26-qkv-projections`
+- **Revision status:** Content revision 2 corrects the multi-head dimension boundary, adds the reverse equations, removes learner-facing presentation mechanics, localizes rejected-input explanations, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch26-russian-localization`.
 - **Depends on:** `25-rmsnorm`.
 - **Outcome:** Project one hidden-state sequence into query, key, and value tensors with explicit attention dimensions.
 - **Scope boundary:** Teach the distinct query/key/value roles, weight and output shapes, one self-attention source, and the target model's bias-free Q/K/V policy; defer scores, masking, and positions.

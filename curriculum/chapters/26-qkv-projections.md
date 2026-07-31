@@ -2,44 +2,53 @@
 {
   "chapter_id": "26-qkv-projections",
   "concept_id": "qkv-projections",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 26,
   "objective": {
-    "en": "Project one hidden-state sequence into separate query, key, and value tensors while preserving its batch and token axes."
+    "en": "Project one hidden-state sequence into separate query, key, and value tensors while preserving its batch and token axes.",
+    "ru": "Спроецируйте одну последовательность скрытых состояний в отдельные тензоры запросов, ключей и значений, сохранив оси пакета и токенов."
   },
   "worked_inputs": {
-    "en": "Start with one batch containing two hidden states, $X=[[[1,2,-1],[0,1,2]]]$, and three distinct $[3,2]$ weight matrices. Predict the three $[1,2,2]$ outputs before running the fixture."
+    "en": "Start with one batch containing two hidden states, $X=[[[1,2,-1],[0,1,2]]]$, and three distinct $[3,2]$ weight matrices. Predict the three $[1,2,2]$ outputs before running the fixture.",
+    "ru": "Возьмите пакет из двух скрытых состояний, $X=[[[1,2,-1],[0,1,2]]]$, и три разные матрицы весов формы $[3,2]$. До запуска примера предскажите три выхода формы $[1,2,2]$."
   },
   "formula": {
     "latex": "Q=XW_Q,\\quad K=XW_K,\\quad V=XW_V",
     "symbols": [
       {
         "symbol": "X",
-        "en": "the hidden-state tensor with one feature vector at every batch and token position"
+        "en": "the hidden-state tensor with one feature vector at every batch and token position",
+        "ru": "тензор скрытых состояний с одним вектором признаков для каждой позиции пакета и токена"
       },
       {
         "symbol": "W_Q",
-        "en": "the learned query weight that maps model features into one query subspace"
+        "en": "the learned query weight that produces one query representation",
+        "ru": "обучаемая матрица весов, формирующая представление запросов"
       },
       {
         "symbol": "W_K",
-        "en": "the learned key weight that maps model features into one key subspace"
+        "en": "the learned key weight that produces one key representation",
+        "ru": "обучаемая матрица весов, формирующая представление ключей"
       },
       {
         "symbol": "W_V",
-        "en": "the learned value weight that maps model features into one value subspace"
+        "en": "the learned value weight that produces one value representation",
+        "ru": "обучаемая матрица весов, формирующая представление значений"
       },
       {
         "symbol": "Q",
-        "en": "the query tensor used later to ask what each token position should retrieve"
+        "en": "the query tensor used later to ask what each token position should retrieve",
+        "ru": "тензор запросов, который далее задаёт, какое содержимое следует учитывать для каждой позиции токена"
       },
       {
         "symbol": "K",
-        "en": "the key tensor used later to describe how each token position can be matched"
+        "en": "the key tensor used later to describe how each token position can be matched",
+        "ru": "тензор ключей, который далее описывает признаки, по которым позиции сопоставляются с запросами"
       },
       {
         "symbol": "V",
-        "en": "the value tensor carrying the content that later attention weights will mix"
+        "en": "the value tensor carrying the content that later attention weights will mix",
+        "ru": "тензор значений с содержимым, которое затем взвешивается и смешивается в соответствии с весами внимания"
       }
     ]
   },
@@ -47,13 +56,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "Additive encoder-decoder attention learns compatibility between a decoder state and encoder annotations, relieving a fixed-context bottleneck but retaining two distinct source streams rather than forming three views of one sequence."
+        "en": "The query-side state and annotation-side content still come from two different parts of the encoder-decoder model.",
+        "ru": "Состояние, играющее роль запроса, и содержимое аннотаций по-прежнему поступают из двух разных частей модели энкодера–декодера."
       },
       "later_advance": {
-        "en": "The Transformer formalizes attention with queries, keys, and values; self-attention obtains all three from the same sequence and applies separate learned projections before compatibility scores and value mixing."
+        "en": "Self-attention replaces two-source alignment with one previous-layer sequence feeding all three roles before scores are computed.",
+        "ru": "В самовнимании вместо выравнивания двух источников одна последовательность предыдущего слоя служит входом для всех трёх ролей до вычисления оценок."
       },
       "modern_llm_role": {
-        "en": "A decoder-only Transformer projects every normalized token state into separate query, key, and value feature spaces before computing causal self-attention."
+        "en": "The decoder built in this course uses the same sequence-to-three-projections pattern before causal attention.",
+        "ru": "Декодер из этого курса перед каузальным вниманием преобразует одну последовательность с помощью трёх отдельных проекций."
       },
       "sources": [
         {
@@ -62,7 +74,8 @@
           "name": "Bahdanau, Cho, and Bengio, Neural Machine Translation by Jointly Learning to Align and Translate",
           "source_url": "https://arxiv.org/abs/1409.0473",
           "claim": {
-            "en": "Bahdanau, Cho, and Bengio compute each translation context as a weighted sum of encoder annotations, with alignment scores produced from the previous decoder state and each annotation."
+            "en": "At each target step, Bahdanau, Cho, and Bengio score every encoder annotation with the previous decoder state and use the resulting weights to form a context vector.",
+            "ru": "На каждом шаге декодирования Бахданау, Чо и Бенжио сопоставляют каждую аннотацию энкодера с предыдущим состоянием декодера и по полученным весам формируют вектор контекста."
           }
         },
         {
@@ -71,16 +84,19 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
           "claim": {
-            "en": "Vaswani et al. define attention over queries and key-value pairs, linearly project queries, keys, and values, and describe self-attention as relating positions within one sequence."
+            "en": "Vaswani et al. use separate learned linear projections for queries, keys, and values and define self-attention over one sequence.",
+            "ru": "Васвани и соавторы используют отдельные обучаемые линейные проекции для запросов, ключей и значений и определяют самовнимание внутри одной последовательности."
           }
         }
       ]
     },
     "approach": {
-      "en": "From decoder-to-encoder content alignment to three learned views of one sequence for Transformer self-attention"
+      "en": "From decoder-to-encoder content alignment to three learned views of one sequence for Transformer self-attention",
+      "ru": "От сопоставления состояния декодера с содержимым энкодера к трём обучаемым представлениям одной последовательности для самовнимания Transformer"
     },
     "summary": {
-      "en": "Additive attention showed that learned compatibility can retrieve source context for a decoder state. Self-attention makes the source shared and separates lookup, matching, and carried content into query, key, and value projections. This chapter implements only those projections; scores and mixtures remain Chapter 27."
+      "en": "Additive attention showed that learned compatibility can retrieve source context for a decoder state. Self-attention makes the source shared and separates lookup, matching, and carried content into query, key, and value projections. This chapter implements only those projections; scores and mixtures remain Chapter 27.",
+      "ru": "Аддитивное внимание показало, что обучаемая функция соответствия позволяет выбирать контекст источника для состояния декодера. В самовнимании источник общий, а запросы, признаки сопоставления и смешиваемое содержимое формируются отдельными проекциями запросов, ключей и значений. В этой главе реализуются только проекции; вычисление оценок и смешивание остаются для главы 27."
     },
     "rust_contrast": "Expose that additive attention draws its query-side state and key/value-side annotations from different sequence sources, while self-attention sends one hidden-state sequence through three independent projections; compare only sources and shapes, without implementing either attention score."
   },
@@ -89,8 +105,7 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/attention/qkv.rs",
       "rust/demos/ch26-qkv-projections/src/lib.rs",
-      "rust/demos/ch26-qkv-projections/src/main.rs",
-      "rust/demos/ch26-qkv-projections/src/diagram_trace.rs"
+      "rust/demos/ch26-qkv-projections/src/main.rs"
     ],
     "expected_output": "chapter=26-qkv-projections\nprediction=three independent bias-free projections preserve batch and token axes\nconfig=batch:1 tokens:2 d_model:3 d_head:2 bias:false\ninput=shape:[1,2,3] values:[1.000000,2.000000,-1.000000,0.000000,1.000000,2.000000]\nquery_weight=shape:[3,2] values:[1.000000,0.000000,0.000000,1.000000,1.000000,-1.000000]\nkey_weight=shape:[3,2] values:[0.000000,1.000000,1.000000,0.000000,-1.000000,1.000000]\nvalue_weight=shape:[3,2] values:[1.000000,1.000000,1.000000,-1.000000,0.000000,2.000000]\nquery=shape:[1,2,2] values:[0.000000,3.000000,2.000000,-1.000000]\nkey=shape:[1,2,2] values:[3.000000,0.000000,-1.000000,2.000000]\nvalue=shape:[1,2,2] values:[3.000000,-3.000000,1.000000,3.000000]\nparameter_names=[decoder.block.0.attention.query.weight,decoder.block.0.attention.key.weight,decoder.block.0.attention.value.weight]\nparameter_count=18 independent:true\nshape_rule=[1,2,3]->three*[1,2,2]\nbatch_probe=[2,2,3]->three*[2,2,2]\nempty_tokens=[1,0,3]->three*[1,0,2]\nhistory=additive_query:decoder_state additive_key_value:encoder_annotations self_attention_qkv:hidden_sequence\nupstream_query=[1.000000,0.000000,-1.000000,2.000000]\nupstream_key=[0.500000,-1.000000,1.000000,0.000000]\nupstream_value=[2.000000,1.000000,0.000000,-0.500000]\ninput_gradient=[3.000000,1.500000,1.500000,-1.500000,3.500000,-5.000000]\nquery_weight_gradient=[1.000000,0.000000,1.000000,2.000000,-3.000000,4.000000]\nkey_weight_gradient=[0.500000,-1.000000,2.000000,-2.000000,1.500000,1.000000]\nvalue_weight_gradient=[2.000000,1.000000,4.000000,1.500000,-2.000000,-2.000000]\ngradcheck=input_checks:6 query_checks:6 key_checks:6 value_checks:6 tolerance:0.000002 passed:true\ninitialization=seed:26 transactional:true independent:true\nerrors=rank:true width:true model_mismatch:true head_mismatch:true duplicate_name:true\nsame_fixture_replays_bitwise=true\nnext=compare queries with keys and mix values\n"
   },
@@ -98,49 +113,59 @@
     "decision": "useful",
     "id": "qkv-projections",
     "rationale": {
-      "en": "A three-way split makes it easier to see that one hidden-state sequence keeps the same batch and token coordinates while three independent weights create different query, key, and value features."
+      "en": "A three-way split makes it easier to see that one hidden-state sequence keeps the same batch and token coordinates while three independent weights create different query, key, and value features.",
+      "ru": "Разветвление на три проекции наглядно показывает, что последовательность скрытых состояний сохраняет координаты пакета и токенов, а три независимые матрицы весов формируют разные признаки запросов, ключей и значений."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now converts each normalized hidden-state sequence into one query tensor, one key tensor, and one value tensor. Chapter 27 will compare queries with keys and use the resulting weights to mix values."
+    "en": "The cumulative decoder now converts each normalized hidden-state sequence into one query tensor, one key tensor, and one value tensor. Chapter 27 will compare queries with keys and use the resulting weights to mix values.",
+    "ru": "Накопительный декодер теперь преобразует каждую нормализованную последовательность скрытых состояний в тензоры запросов, ключей и значений. В главе 27 запросы будут сопоставлены с ключами, а полученные веса будут использованы для смешивания значений."
   },
   "terminology": [
     {
       "concept_id": "query",
-      "en": "query"
+      "en": "query",
+      "ru": "запрос"
     },
     {
       "concept_id": "key",
-      "en": "key"
+      "en": "key",
+      "ru": "ключ"
     },
     {
       "concept_id": "value",
-      "en": "value"
+      "en": "value",
+      "ru": "значение"
     },
     {
       "concept_id": "hidden-state-sequence",
-      "en": "hidden-state sequence"
+      "en": "hidden-state sequence",
+      "ru": "последовательность скрытых состояний"
     },
     {
       "concept_id": "model-width",
-      "en": "model width"
+      "en": "model width",
+      "ru": "ширина модели"
     },
     {
       "concept_id": "head-width",
-      "en": "head width"
+      "en": "head width",
+      "ru": "ширина головы"
     },
     {
       "concept_id": "self-attention",
-      "en": "self-attention"
+      "en": "self-attention",
+      "ru": "самовнимание"
     },
     {
       "concept_id": "bias-free-projection",
-      "en": "bias-free projection"
+      "en": "bias-free projection",
+      "ru": "проекция без смещения"
     }
   ],
   "translation_notes": [
-    "Chapter 26 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep X, Q, K, V, W_Q, W_K, W_V, B, T, d_model, d_head, shapes, numeric values, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
+    "Chapter 26 has the exact active locale set {en, ru}. The Russian lesson was translated directly from the current English revision 2 frozen at SHA-256 d9a9088ae700d0a0e370a426fadafb153710e4d9437d42a1a80955f8cc4736fc and passed semantic, terminology, anti-calque, monolingual, accessibility, and rendered-surface review before publication.",
+    "Keep X, Q, K, V, W_Q, W_K, W_V, B, T, h, d_model, d_head, shapes, numeric values, parameter names, trace keywords, source roles, and source URLs unchanged across locales.",
     "Query, key, and value describe three learned roles, not three copies with interchangeable names. They do not by themselves compute similarity, probabilities, masks, or a weighted mixture.",
     "Calling Bahdanau's decoder state a query and encoder annotations keys/values is a retrospective conceptual bridge. Do not attribute Q/K/V terminology or this course's three matrix layout to that paper.",
     "The bias-free policy, one-head output width, stable names, weight orientation, errors, fixed fixture, trace, and accessible presentation are course-local choices. Chapter 30 owns divisibility and multi-head split/merge rules.",
@@ -203,8 +228,8 @@ shapes, stable parameter order, independence, reverse gradients, and invalid
 dimension boundaries. It deliberately does not compute query-key scores,
 softmax probabilities, causal masks, positional rotations, multiple heads, an
 attention output projection, or value mixtures. Chapter 27 owns the first score
-and mixture. Chapter 30 owns head splitting and the divisibility rule used by a
-multi-head implementation.
+and mixture. Chapter 30 introduces a head count $h$, head splitting, and the
+usual relation $d_{model}=h\,d_{head}$.
 
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
@@ -240,8 +265,8 @@ $$
 
 $X$ contains one model-width feature vector at every batch and token position.
 $W_Q$, $W_K$, and $W_V$ are independent learned weights. Their products are
-$Q$, $K$, and $V$: the lookup, matching, and carried-content views used by the
-next attention calculation.
+$Q$, $K$, and $V$: representations used respectively to issue queries, match
+positions, and carry content into the next attention calculation.
 
 The complete shape contract is
 
@@ -303,7 +328,21 @@ branch-construction, model-width, head-width, and duplicate-name failures use
 typed errors. No bias can be added through this API.
 
 The reverse fixture forms one scalar loss from three nonuniform upstream
-tensors, so the input gradient accumulates all three paths while each weight
+tensors. Its reverse rules are
+
+$$
+\bar X=\bar QW_Q^{\mathsf T}+\bar KW_K^{\mathsf T}+\bar VW_V^{\mathsf T},
+$$
+
+and, after flattening the batch and token axes into $(BT)$ rows,
+
+$$
+\bar W_Q=X_{(BT)}^{\mathsf T}\bar Q_{(BT)},\quad
+\bar W_K=X_{(BT)}^{\mathsf T}\bar K_{(BT)},\quad
+\bar W_V=X_{(BT)}^{\mathsf T}\bar V_{(BT)}.
+$$
+
+The input gradient therefore accumulates all three paths while each weight
 gradient remains branch-local. Sampled central differences check all six input
 coordinates and all six coordinates of each weight with step $10^{-6}$ and
 tolerance $2\times10^{-6}$. Repeated reports match outputs and gradients by
@@ -372,10 +411,11 @@ projection, and residual wrapping remain later chapters.
 <!-- contract-section:localization -->
 ## Localization notes
 
-The active locale set is exactly English. Russian remains registered and
-deferred, so it receives no placeholder contract fields, lesson, or route.
-Future translation must keep formula symbols, dimensions, shapes, numeric
-fixtures, parameter names, trace tokens, roles, and source URLs unchanged.
+The active locale set is exactly English and Russian. The Russian contract
+fields and lesson are translated directly from the current English revision,
+and both localized routes are published. Formula symbols, dimensions, shapes,
+numeric fixtures, parameter names, trace tokens, roles, and source URLs remain
+unchanged across the two locales.
 
 Translate query, key, and value as attention roles, not generic database or map
 operations. Preserve the distinction between the two historical source streams

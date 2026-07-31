@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T03:02:09Z"
+updated_at: "2026-07-31T04:24:36Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -23386,3 +23386,208 @@ builds:
                 status: passed
                 notes: "All 18 changed product/test/policy files exactly match the final browser candidate; the artifact manifest verifies; dirty paths are declared Chapter 25 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
             notes: "Succeeded at revision 3. The corrected canonical lesson, exact Rust evidence, direct Russian localization, route activation, shared semantic diagram, and localized full-view presentation pass all acceptance gates. Transient Docker metadata timing and Dropbox/Vite locking affected only earlier validation attempts; the final external candidate and unchanged pinned Linux workflow passed. Chapter 26 did not start before this checkpoint completed."
+  - build_id: activate-ch26-russian-localization
+    objective: "Audit the canonical Chapter 26 Q/K/V projections lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; cost alone does not require an approval pause."
+    completion_criteria:
+      - "English Chapter 26 accurately teaches bias-free query, key, and value projections as an LLM attention milestone, with correct formulas, shapes, gradients, Rust evidence, history, exercises, and Chapter 27 handoff."
+      - "Russian Chapter 26 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 26 is activated in this checkpoint, the locale policy advances through Chapter 26, and the completed step is committed independently before Chapter 27 starts."
+    steps:
+      - id: activate-ch26-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 26 Q/K/V projections lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch25-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-31 to translate Chapters 25-30 one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 51 and locale policy selective-russian-through-chapter-25"
+          - "curriculum/chapters/26-qkv-projections.md"
+          - "site/src/content/chapters/en/26-qkv-projections.mdx"
+          - "site/src/components/chapters/QkvProjectionsDiagram.astro"
+          - "site/src/lib/qkv-projections-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/26-qkv-projections-diagram.test.ts"
+          - "site/tests/e2e/ch26-qkv-projections.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 26 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit 9243cee"
+        outputs:
+          - "curriculum/chapters/26-qkv-projections.md"
+          - "site/src/content/chapters/en/26-qkv-projections.mdx"
+          - "site/src/content/chapters/ru/26-qkv-projections.mdx"
+          - "site/src/components/chapters/QkvProjectionsDiagram.astro if canonical or rendered bilingual evidence requires shared-role or concept-geometry correction"
+          - "site/src/lib/qkv-projections-diagram.ts if the canonical evidence audit changes the strict trace projection"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md if the content revision or locale boundary advances"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/26-qkv-projections-diagram.test.ts"
+          - "site/tests/e2e/ch26-qkv-projections.spec.ts"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "Chapter 26 declared Rust sources and exact artifacts only if the canonical evidence audit finds a defect"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 26 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 26 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 26 checkpoint is committed independently after Chapter 25 and before Chapter 27."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/26-qkv-projections.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 26-qkv-projections"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 26-qkv-projections"
+          - "npm --prefix site run check:parity -- 26-qkv-projections en ru"
+          - "npm --prefix site test -- --run tests/26-qkv-projections-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch26-qkv-projections && cargo run --quiet --locked -p ch26-qkv-projections | diff -u rust/demos/ch26-qkv-projections/expected.txt - && cargo run --quiet --locked -p ch26-qkv-projections --example ch26-qkv-projections-trace | diff -u rust/demos/ch26-qkv-projections/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 26, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, or deployment change."
+        runs:
+          - run_id: 20260731T030628Z-activate-ch26-russian-localization-01
+            started_at: "2026-07-31T03:06:28Z"
+            finished_at: "2026-07-31T03:58:11Z"
+            status: failed
+            input_fingerprint:
+              git: "9243ceecf008666c1357532162b351eaee2ee5f2"
+              manifest: "C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:9f9f3327d0f7ac4ead8262fec7bc86b68293732743261e277927f48e67bfbc55"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation source or service; the current English Chapter 26, exact Rust behavior, and cited primary attention/Transformer sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 9243cee; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, original Chapter 26 run, source paths, and material checksums; record the cost and external-staging decision before product edits."
+              - "Audit English Chapter 26 against its contract, exact Q/K/V implementation and trace, primary attention history, formula pipeline, learner-prose boundary, and shared diagram contract; freeze corrected revision 2 before translation."
+              - "Translate every Chapter 26 surface directly from the frozen English revision into natural technical Russian; independently review semantics, terminology, anti-calques, formulas, SEO, accessibility, exercises, answers, error reasons, and the Chapter 27 handoff."
+              - "Correct the multi-head relation, add reverse equations, consolidate LLM-centered history, remove learner-facing delivery mechanics, localize stable errors, and migrate the Q/K/V figure to the shared semantic presentation roles."
+              - "Materialize candidate-01 outside Dropbox, replace its incomplete copied dependency tree with an offline lockfile install, verify all 19 changed product/test/policy files against canonical checksums, and build the final static candidate."
+              - "Run Chapter 26 plus course-wide formula, shared diagram-style, and full-view Playwright suites in Chromium and Firefox, including both locales at desktop, narrow, no-JavaScript, forced-color, synthetic RTL, and native-fullscreen surfaces."
+              - "Run all 849 site unit tests, exact Chapter 26 Rust tests and textual artifacts, and the unchanged supported Linux ./course check on the final post-audit source tree."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:9f9f3327d0f7ac4ead8262fec7bc86b68293732743261e277927f48e67bfbc55"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and base-commit fingerprint before Chapter 26 product edits."
+              - path: "C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:9eabb6b51dbe047e4b4b5a2193a76c8d66bb3b803ebf7217aa942e32136c278f"
+                notes: "Verified pre-correction SHA-256 manifest for 19 changed product, test, and policy files; superseded when the final independent language audit found publication blockers."
+              - path: "C:/tmp/learn_llm/runs/20260731T030628Z-activate-ch26-russian-localization-01/candidate-01/site/dist/"
+                checksum: "source-manifest:sha256:9eabb6b51dbe047e4b4b5a2193a76c8d66bb3b803ebf7217aa942e32136c278f"
+                notes: "Pre-correction external static candidate: 72 HTML pages, 2,141 local references, 72 SEO routes, 72 sitemap URLs, 72 Analytics routes, and 151 artifacts; not published."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, prior-run, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 25 is independently committed at 9243cee; the worktree was clean; active_build was null with no pending or running record; host orchestration and repository pins are usable; the original Chapter 26 implementation run and exact artifacts remain recorded; Chapter 26 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, or deployment change is planned."
+              - command: "Initial Docker validation and external-candidate dependency copy"
+                status: failed
+                notes: "The first Docker invocation exceeded the host command timeout while refreshing its cached image, and the first external Astro check scanned a partially materialized copied node_modules tree. No product failure occurred; the candidate dependency tree was rebuilt offline from the unchanged lockfile and the authoritative commands were rerun successfully."
+              - command: "Initial pinned Firefox Chapter 26 direction check"
+                status: failed
+                notes: "Firefox synthetic RTL inflated scrollHeight for KaTeX's visually hidden MathML although every visible formula rectangle remained inside its cell. Independent reproduction confirmed the browser metric artifact; the focused assertion now gates raw scroll debt on painted text, visible KaTeX, and nested-box geometry while preserving the course-wide containment gate."
+              - command: "Canonical English and independent Russian semantic, terminology, anti-calque, monolingual, formula, historical, accessibility, SEO, exercise, answer, and handoff audit"
+                status: failed
+                notes: "The final independent pass found stale English-only activation prose, inconsistent Russian causal-attention terminology, changed value-weighting meaning, several Russian calques and ambiguous accessibility labels, and repeated English/Russian historical claims. Automated formula/code/value parity otherwise passed; publication was withheld for a new correction run."
+              - command: "node scripts/check-course-plan.mjs; Chapter 26 contract, English, Russian, parity, and full content checks"
+                status: passed
+                notes: "The 40-chapter, 98-step plan and revision-52 locale policy pass; 67 localized sources, 40 publishable locale sets, 32 catalog keys, and 42 shared-full-view components pass."
+              - command: "npm --prefix site test -- --run; focused Chapter 26, locale, contract, formula, shared-style, and full-view unit tests after final audit"
+                status: passed
+                notes: "All 849 tests in 52 files passed, including exact ordered English/Russian formula parity and localized diagram/error evidence."
+              - command: "cargo fmt --all -- --check; cargo test --locked -p ch26-qkv-projections; exact learner-output and diagram-trace diffs"
+                status: passed
+                notes: "Formatting passed in the complete Linux gate; all three Chapter 26 Rust tests and both byte-exact textual artifacts passed in the final pinned image."
+              - command: "Final external Astro check, npm --prefix site run build, and npm --prefix site run test:links"
+                status: passed
+                notes: "Astro checked 206 files with zero errors, warnings, or hints. The checksum-identical candidate built 72 pages and passed 2,141 local references, 72 SEO routes, 72 sitemap URLs, 72 Analytics routes, and 151 total artifacts."
+              - command: "Final Chromium Chapter 26, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 156 rendered cases passed on the final candidate; the six Chapter 26 cases also passed after the painted-geometry assertion hardening. Coverage includes both locales, desktop/narrow, no-JavaScript, forced colors, synthetic RTL, native fullscreen, focus restoration, formula ink, localized errors, and nearest-box containment."
+              - command: "Final Firefox Chapter 26, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 156 equivalent rendered cases passed; the final six Chapter 26 cases passed after independent confirmation and painted-geometry hardening for Firefox's hidden-MathML scroll metric."
+              - command: "Unchanged supported Linux ./course check on the final source tree"
+                status: passed
+                notes: "Docker manifest list sha256:9c808a2c603ba7e96b3fc18a2b2389448a310f86e5350b1daf32a2af27ed0c6e passed Cargo formatting/workspace/doc tests, Astro with zero diagnostics, content/parity, 72-page static build, and link/SEO/sitemap/Analytics gates."
+              - command: "Candidate-to-canonical checksums, publication manifest, declared-output ownership, diff whitespace, file-mode, and BUILD_STATE.yaml syntax audit"
+                status: passed
+                notes: "All 19 changed product/test/policy files exactly match the final browser candidate; the artifact manifest verifies; dirty paths are declared Chapter 26 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
+            notes: "Failed at final independent language review after automated and rendered gates passed. The pre-correction candidate and manifest are retained for provenance; no publication or commit occurred, and Chapter 27 did not start."
+          - run_id: 20260731T040048Z-activate-ch26-russian-localization-02
+            started_at: "2026-07-31T04:00:48Z"
+            finished_at: "2026-07-31T04:24:36Z"
+            status: succeeded
+            input_fingerprint:
+              git: "9243ceecf008666c1357532162b351eaee2ee5f2"
+              manifest: "C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/input-fingerprint.txt"
+              checksum: "sha256:d45acd234d67e094811efc1677780af85a9dc554cc3284901b67b0d1a0e0a64e"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation source or service; correction inputs are the frozen English Chapter 26 revision, direct Russian projection, pre-correction manifest, and concrete final independent audit findings."
+            staging_dir: "C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/"
+            commands:
+              - "Preserve failed run 01 and its pre-correction candidate; fingerprint the five semantic/terminology/history blockers plus three accessibility/anti-calque findings before source edits."
+              - "Correct activation prose, value-role meaning, causal-attention terminology, duplicated historical claims, Russian calques, grammar, agency, and accessibility descriptions while retaining English revision 2 and exact semantic parity."
+              - "Overlay the corrected source into external candidate-01, rebuild 72 static pages, and rerun the focused Firefox failure before both complete rendered matrices."
+              - "Run the final independent language audit, all 849 site unit tests, exact Chapter 26 Rust checks and textual diffs, and the unchanged supported Linux ./course check."
+              - "Seal and verify the final 19-file product manifest against both candidate-01 and the canonical working tree."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/input-fingerprint.txt"
+                checksum: "sha256:d45acd234d67e094811efc1677780af85a9dc554cc3284901b67b0d1a0e0a64e"
+                notes: "Base commit, pre-correction product manifest, final audit findings, toolchain, and no-external-service correction fingerprint."
+              - path: "C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/publish-product.sha256"
+                checksum: "sha256:723dc34a034766f82825c8fd9f1083102abe0733b92e1553c2fdf59611d782dd"
+                notes: "Verified SHA-256 manifest for all 19 final changed product, test, and policy files; English source is d9a9088a and Russian source is e4db527a."
+              - path: "C:/tmp/learn_llm/runs/20260731T040048Z-activate-ch26-russian-localization-02/candidate-01/site/dist/"
+                checksum: "source-manifest:sha256:723dc34a034766f82825c8fd9f1083102abe0733b92e1553c2fdf59611d782dd"
+                notes: "Final external static candidate: 72 HTML pages, 2,141 local references, 72 SEO routes, 72 sitemap URLs, 72 Analytics routes, and 151 artifacts."
+            validation:
+              - command: "Correction ownership, source-of-truth, audit-finding, pre-correction artifact, and input-fingerprint preflight"
+                status: passed
+                notes: "Run 01 is preserved as failed with its candidate and manifest; run 02 owns the same declared Chapter 26 outputs and will not publish until every independent audit finding and all affected automated/rendered gates pass."
+              - command: "Final independent exact-meaning, terminology, anti-calque, monolingual, formula, historical, accessibility, SEO, exercise, answer, and handoff audit"
+                status: passed
+                notes: "All run-01 blockers and the follow-up limitation, role-agency, branch-order, and accessibility findings are resolved. Contract, English, Russian, parity, and diff checks pass; English SHA-256 d9a9088a matches the contract and test."
+              - command: "Initial corrected Firefox rendered check"
+                status: failed
+                notes: "The first complete matrix and focused rerun exposed two stale Russian exact-text fragments in the Chapter 26 E2E copy after the approved historical consolidation; no layout or product defect was present. The expectations were aligned to current learner prose and the focused test passed before both final matrices."
+              - command: "npm --prefix site test -- --run"
+                status: passed
+                notes: "All 849 tests in 52 files passed on the final candidate, including ordered English/Russian formula parity, localized diagram evidence, policy, contract, SEO, sitemap, Analytics, MathML, and shared presentation tests."
+              - command: "Final external Astro build and static link/SEO/sitemap/Analytics checks"
+                status: passed
+                notes: "The corrected candidate builds 72 static pages and the unchanged Linux gate passes 2,141 local references, 72 SEO routes, 72 sitemap URLs, 72 Analytics routes, and 151 artifacts."
+              - command: "Final Firefox Chapter 26, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 156 rendered cases passed, including both Chapter 26 locales at desktop and narrow widths plus no-JavaScript, forced-color, synthetic-RTL, native-fullscreen, focus-restoration, formula-ink, and nearest-box containment coverage."
+              - command: "Final Chromium Chapter 26, formula-rendering, shared diagram-style, and full-view E2E matrix"
+                status: passed
+                notes: "All 156 equivalent rendered cases passed on the checksum-identical final candidate."
+              - command: "cargo fmt --all -- --check; cargo test --locked -p ch26-qkv-projections; exact learner-output and diagram-trace diffs"
+                status: passed
+                notes: "All three Chapter 26 Rust tests passed, and both learner output and the strict seventeen-line diagram trace match byte-for-byte in the pinned Linux workspace image."
+              - command: "Unchanged supported Linux ./course check on the final source tree"
+                status: passed
+                notes: "Docker manifest list sha256:a6b224063eee01400097b5a311edd401939e2849c1cb64ced191c9b577fe243a passed Cargo formatting/workspace/doc tests, Astro with zero diagnostics, content/parity, the 72-page static build, and link/SEO/sitemap/Analytics gates."
+              - command: "Candidate-to-canonical checksums, publication manifest, declared-output ownership, diff whitespace, file-mode, and BUILD_STATE.yaml syntax audit"
+                status: passed
+                notes: "All 19 changed product/test/policy files exactly match candidate-01 and the LF-terminated manifest verifies; dirty paths are declared Chapter 26 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
+            notes: "Succeeded at corrected revision 2. The direct Russian localization, repaired canonical history, exact Rust evidence, shared semantic figure, and localized full-view presentation pass every acceptance gate. Failed run 01 remains immutable for provenance; Chapter 27 did not start before this checkpoint completed."

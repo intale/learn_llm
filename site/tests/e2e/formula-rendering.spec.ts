@@ -536,6 +536,8 @@ const chapter14To39FormulaLatex: Record<
     String.raw`W_Q,W_K,W_V\in\mathbb{R}^{d_{model}\times d_{head}}`,
     String.raw`Q,K,V\in\mathbb{R}^{B\times T\times d_{head}}`,
     String.raw`L=\langle Q,U_Q\rangle+\langle K,U_K\rangle+\langle V,U_V\rangle`,
+    String.raw`\bar X=\bar QW_Q^{\mathsf T}+\bar KW_K^{\mathsf T}+\bar VW_V^{\mathsf T}`,
+    String.raw`\bar W_Q=X_{(BT)}^{\mathsf T}\bar Q_{(BT)}`,
     String.raw`\bar X=\begin{bmatrix}3&1.5&1.5\\-1.5&3.5&-5\end{bmatrix}`,
     String.raw`\operatorname{shape}(Q)=[1,2,2]`,
   ],

@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–25 and English only for Chapters 26–39',
+      'English and Russian for Chapters 0–26 and English only for Chapters 27–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–25 use English and Russian',
+      'Chapters 0–26 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 25 use English and Russian, and Chapters 26 through 39 use English only',
+      'Chapters 0 through 26 use English and Russian, and Chapters 27 through 39 use English only',
     );
   });
 
@@ -183,6 +183,11 @@ describe('chapter-locale manifest', () => {
       order: 25,
       activeLocales: ['en', 'ru'],
     });
+    expect(chapterLocaleConfiguration.chapters[26]).toMatchObject({
+      chapterId: '26-qkv-projections',
+      order: 26,
+      activeLocales: ['en', 'ru'],
+    });
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
@@ -190,7 +195,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 26)
+        .slice(0, 27)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -200,7 +205,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 26)
+        .filter((chapter) => chapter.order >= 27)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -251,6 +256,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('24-residual-connections', 'ru')).toBe(true);
     expect(activeLocalesForChapter('25-rmsnorm')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('25-rmsnorm', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('26-qkv-projections')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('26-qkv-projections', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 
