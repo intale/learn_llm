@@ -24749,3 +24749,107 @@ builds:
                 status: passed
                 notes: "The ordinal 19-file product manifest is sha256:223fafbbc001a9d6389c40d81eaf7d5a8629afb4813e54577570fb1fde54b504 and matches canonical bytes; BUILD_STATE.yaml parses; git diff --check passes; every changed product path is declared; all product modes remain 100644; the named Chapter 34 browser volume and temporary source image were removed."
             notes: "Succeeded. Published corrected canonical Chapter 34 revision 2 and its direct natural Russian projection, measured final-evaluation evidence, shared-role localized diagram, complete semantic/math/accessibility coverage, and the locale boundary through Chapter 34 without changing dependencies, build definitions, hosting, deployment, or the user environment."
+  - build_id: correct-ch32-russian-lookup-terminology
+    objective: "Replace the remaining Russian search metaphors for Chapter 32's direct embedding-row indexing with technically exact selection language."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This medium corrective localization build uses cached local static and browser validation without a paid service, network generation, dependency change, or build-definition change."
+    completion_criteria:
+      - "Every learner-facing Russian description of token-ID indexing in Chapter 32 uses selection or indexing terminology rather than search terminology."
+      - "English meaning, formulas, symbols, values, code, diagram evidence, locale activation, and course progression remain unchanged."
+      - "The complete Russian Chapter 32 page and its registered figure remain readable and contained in Chromium and Firefox at desktop, narrow, and full-view surfaces."
+      - "The corrective checkpoint is committed independently after validation."
+    steps:
+      - id: correct-ch32-russian-lookup-terminology
+        objective: "Correct three remaining Russian search metaphors for direct embedding-row selection in Chapter 32."
+        depends_on:
+          - activate-ch34-russian-localization
+        status: completed
+        inputs:
+          - "Late independent Russian Chapter 32 review on 2026-07-31"
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/chapters/32-decoder-model.md terminology and translation notes"
+          - "site/src/content/chapters/en/32-decoder-model.mdx"
+          - "site/src/content/chapters/ru/32-decoder-model.mdx"
+          - "site/tests/e2e/ch32-decoder-model.spec.ts"
+          - "Completed dependency commit 9132c59"
+        outputs:
+          - "site/src/content/chapters/ru/32-decoder-model.mdx"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The three remaining direct-indexing explanations use natural Russian selection or indexing language and do not describe the operation as a search."
+          - "The Russian lesson remains semantically aligned with the current English Chapter 32 revision and preserves all formulas, identifiers, values, code references, links, exercises, and answers."
+          - "Focused Chapter 32 contract, bilingual chapter, parity, formula, locale, static-build, link, and two-engine rendered checks pass."
+          - "No dependency, build definition, hosting, deployment, locale-boundary, or user-environment change is made."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/32-decoder-model.md"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 32-decoder-model"
+          - "npm --prefix site run check:parity -- 32-decoder-model en ru"
+          - "npm --prefix site test -- --run tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/32-decoder-model-diagram.test.ts"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 32 rendered and full-view E2E gates"
+          - "Negative terminology scan for remaining learner-facing Russian search metaphors in Chapter 32"
+          - "git diff --check and BUILD_STATE.yaml parse"
+        cost:
+          class: medium
+          notes: "Three prose corrections plus complete localized-page validation in cached Chromium and Firefox use moderate local CPU; no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change is involved."
+        runs:
+          - run_id: 20260731T163657Z-correct-ch32-russian-lookup-terminology-01
+            started_at: "2026-07-31T16:36:57Z"
+            finished_at: "2026-07-31T16:48:06Z"
+            status: succeeded
+            input_fingerprint:
+              git: "9132c59b6721176765581f5af632ad349d814a92"
+              manifest: ".build/runs/20260731T163657Z-correct-ch32-russian-lookup-terminology-01/input-fingerprint.txt"
+              checksum: "sha256:73a353d848d6ef2323e913ca2ebbc99d1e88d9095a82ad845d1bf4385858cc3d"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2 orchestrate repository-pinned Linux and browser validation; host language toolchains are not authoritative."
+              external: "No external translation service; current English Chapter 32 and the recorded Russian terminology rule are authoritative."
+            staging_dir: ".build/runs/20260731T163657Z-correct-ch32-russian-lookup-terminology-01/"
+            commands:
+              - "Verify clean HEAD 9132c59, inspect the late independent findings against current Chapter 32 and Chapter 33 files, and record the exact narrow corrective scope before product edits."
+              - "Build the exact pinned Linux workspace image; its complete validation succeeded, then the requested follow-up shell command failed to start because the orchestration wrapper contained an unterminated quote."
+              - "Replace exactly three learner-facing Russian search metaphors with direct row-selection or embedding-selection language; preserve every other Chapter 32 byte and independently recheck the revised sentences."
+              - "Run focused contract, Russian chapter, bilingual parity, course-plan, formula, locale, content, and decoder-diagram checks directly from the exact validated workspace image."
+              - "Snapshot the exact workspace image into one disposable volume and run the 172-case Chapter 32, formula, shared diagram-style, and shared full-view matrix sequentially in Chromium and Firefox with networking disabled."
+              - "Freeze the one-file product manifest and localization review, verify the canonical checksum, and remove the explicitly named disposable browser volume."
+            artifacts:
+              - path: ".build/runs/20260731T163657Z-correct-ch32-russian-lookup-terminology-01/input-fingerprint.txt"
+                checksum: "sha256:73a353d848d6ef2323e913ca2ebbc99d1e88d9095a82ad845d1bf4385858cc3d"
+                notes: "Exact committed lesson, contract, ledger, tool, dependency, and scope fingerprint before the terminology edit."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:fba7efe4522e875e235a6f7f7268dabd252d96a18f82cef9a2e9328f229ce2f1"
+                notes: "Exact corrected-source workspace manifest list; its Docker build completed all configured Rust, Astro, content, parity, static-build, and link gates."
+              - path: ".build/runs/20260731T163657Z-correct-ch32-russian-lookup-terminology-01/localization-review.md"
+                checksum: "sha256:244c54b2baa43a5b32a1077784ff278cab75d8aa95104455f9bb59342f41f4ab"
+                notes: "Final semantic, terminology, unchanged-surface, checksum, static, and two-engine rendered review."
+              - path: ".build/runs/20260731T163657Z-correct-ch32-russian-lookup-terminology-01/publish-product.sha256"
+                checksum: "sha256:28fd201b4c20784268f52433144589b84d2444cf012c291a8a864f80966ec948"
+                notes: "Exact checksum manifest for the sole learner-facing product file changed by this correction."
+            validation:
+              - command: "Scheduler, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The four requested translations are independently committed through Chapter 34; the worktree was clean; active_build was null; Chapter 33's late findings are already incorporated; only three Chapter 32 Russian search metaphors remain; no dependency, build, hosting, deployment, locale-policy, or environment change is planned."
+              - command: "Exact pinned Linux workspace image build and configured full validation"
+                status: passed
+                notes: "All workspace Rust and documentation tests, Astro diagnostics, complete content/parity, production build, and static links passed; the build emitted 80 pages and verified 2,227 links, 80 SEO routes, 80 sitemap URLs, 80 Analytics routes, and 157 artifacts."
+              - command: "Post-build combined focused-command wrapper"
+                status: failed
+                notes: "The image had already completed successfully, but an unterminated quote in the outer orchestration command prevented the additional focused command from starting. No product validation failed and no source or image bytes changed; focused commands will be rerun directly from the recorded image."
+              - command: "Exact final-image Chapter 32 contract, Russian chapter, bilingual parity, course-plan, and focused unit gates"
+                status: passed
+                notes: "The integrated contract, Russian lesson, English/Russian parity, 40-chapter/106-step course plan, and 71 locale/content/formula/decoder-diagram tests pass directly from manifest-list sha256:fba7efe4522e875e235a6f7f7268dabd252d96a18f82cef9a2e9328f229ce2f1."
+              - command: "Independent terminology and unchanged-surface review"
+                status: passed
+                notes: "All three corrected sentences are natural and technically exact; no learner-facing Russian search metaphor remains. English, formulas, symbols, values, code, diagram labels, accessibility copy, SEO, exercises, answers, and locale policy are unchanged."
+              - command: "Exact final-image Chromium and Firefox Chapter 32, formula-rendering, shared diagram-style, and shared full-view E2E gates"
+                status: passed
+                notes: "Both engines pass all 172 cases sequentially with networking disabled, covering the complete English and Russian pages at desktop and narrow widths, no-JavaScript fallback, native fullscreen, forced colors, synthetic RTL, focus restoration, bounded-box containment, localized labels, and formulas."
+              - command: "Frozen product checksum, ledger, whitespace, ownership, Git-mode, and disposable-resource cleanup audit"
+                status: passed
+                notes: "The sole learner-facing product file matches sha256:975c20b79f108b64b34152ba6596db6c031404bc798fcff5a96e98a9459dd6b0; BUILD_STATE.yaml parses through the course-plan gate; git diff --check passes; every changed canonical path is declared; file modes remain 100644; and the exact disposable Chapter 32 browser volume was removed."
+            notes: "Succeeded. Replaced the final three Russian search metaphors for direct embedding-row indexing with precise selection language, preserved all other Chapter 32 meaning and evidence, and passed the complete pinned Linux plus two-engine rendered surface without changing dependencies, build definitions, hosting, deployment, locale activation, or the user environment."

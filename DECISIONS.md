@@ -11409,3 +11409,55 @@ the Russian review stale until it is refreshed directly from English.
 
 **Affected step and run:** `activate-ch34-russian-localization`, run
 `20260731T152356Z-activate-ch34-russian-localization-01`.
+
+## 2026-07-31 - Correct remaining Chapter 32 indexing terminology after publication
+
+**Status:** Accepted during `correct-ch32-russian-lookup-terminology` run 01
+before learner-facing edits.
+
+**Context:** A late independent review of the committed Russian Chapter 32 found
+three prose sentences that still call direct selection of embedding rows by token
+ID a search. The contract already requires «выбор строк таблицы по ID токенов»
+or «выбор эмбеддингов по ID токенов», because no search procedure is performed.
+All other Chapter 32 findings and every late Chapter 33 finding are already
+incorporated in their completed localization checkpoints.
+
+**Decision:** Create a new narrow corrective checkpoint rather than changing the
+completed Chapter 32 run. Replace only those three search metaphors with natural
+selection or indexing language, preserve the current English meaning and all
+technical evidence, and rerun the complete localized Chapter 32 browser surface
+in Chromium and Firefox.
+
+**Consequences:** The correction improves technical precision without changing
+formulas, code, diagrams, locale activation, dependencies, build definitions,
+hosting, deployment, or the user environment. The result will be committed
+separately after validation.
+
+**Affected step and run:** `correct-ch32-russian-lookup-terminology`, run
+`20260731T163657Z-correct-ch32-russian-lookup-terminology-01`.
+
+## 2026-07-31 - Complete the Chapter 32 indexing terminology correction
+
+**Status:** Accepted and completed in
+`correct-ch32-russian-lookup-terminology` run 01.
+
+**Context:** The three remaining sentences described direct embedding-row
+indexing as search even though the token IDs select rows directly. The rest of
+the late Chapter 32 findings and all late Chapter 33 findings were already
+present in their committed localization revisions.
+
+**Decision:** Publish only the three Russian wording corrections: «Выбор строк
+из таблицы», «Сначала выбирается строка» and «Выбор эмбеддингов напрямую
+затрагивает строки, заданные входными ID». Keep all English content, formulas,
+code, diagrams, metadata, accessibility copy, and locale policy unchanged.
+
+**Consequences:** The final Russian lesson is
+`sha256:975c20b79f108b64b34152ba6596db6c031404bc798fcff5a96e98a9459dd6b0`.
+The complete corrected workspace and static site pass, and Chromium and Firefox
+each pass all 172 focused/shared rendered cases from exact image
+`sha256:fba7efe4522e875e235a6f7f7268dabd252d96a18f82cef9a2e9328f229ce2f1`.
+No dependency, build-definition, hosting, deployment, locale-activation, or
+user-environment change was made.
+
+**Affected step and run:** `correct-ch32-russian-lookup-terminology`, run
+`20260731T163657Z-correct-ch32-russian-lookup-terminology-01`.
