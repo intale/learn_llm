@@ -117,23 +117,60 @@ fn require(condition: bool, message: &'static str) -> Result<(), FixtureError> {
 }
 
 // region:historical-checkpoint-contrast
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HistoricalCheckpointContrast {
-    pub isolated_weight_blob_loses_context: bool,
-    pub coordinated_model_artifacts: bool,
-    pub optimizer_state_scales_with_parameters: bool,
-    pub self_describing_tensor_metadata: bool,
-    pub complete_resume_schema: bool,
+    pub isolated_parameter_bytes: Vec<u8>,
+    pub isolated_parameter_tensors: usize,
+    pub isolated_parameter_scalars: usize,
+    pub checkpoint_records: usize,
+    pub tokenizer_records: usize,
+    pub optimizer_moment_records: usize,
+    pub checkpoint_file_bytes: usize,
+    pub checkpoint_rng_state: u64,
 }
 
-/// Contrasts an intentionally context-free local byte blob with later LLM state bundles.
-pub fn historical_checkpoint_contrast() -> HistoricalCheckpointContrast {
+/// Contrasts model-derived value bytes with the complete local LLM checkpoint.
+pub fn historical_checkpoint_contrast(
+    checkpoint: &Checkpoint,
+    encoded: &llm_from_scratch::checkpoint::EncodedCheckpoint,
+) -> HistoricalCheckpointContrast {
+    let isolated_parameter_bytes = checkpoint
+        .model_state()
+        .bit_pattern()
+        .into_iter()
+        .flat_map(u64::to_le_bytes)
+        .collect();
+    let tokenizer_records = encoded
+        .tensors()
+        .iter()
+        .filter(|descriptor| {
+            matches!(
+                descriptor.role(),
+                CheckpointTensorRole::LiteralToken | CheckpointTensorRole::BpePairs
+            )
+        })
+        .count();
+    let optimizer_moment_records = encoded
+        .tensors()
+        .iter()
+        .filter(|descriptor| {
+            matches!(
+                descriptor.role(),
+                CheckpointTensorRole::OptimizerFirstMoment
+                    | CheckpointTensorRole::OptimizerSecondMoment
+            )
+        })
+        .count();
+
     HistoricalCheckpointContrast {
-        isolated_weight_blob_loses_context: true,
-        coordinated_model_artifacts: true,
-        optimizer_state_scales_with_parameters: true,
-        self_describing_tensor_metadata: true,
-        complete_resume_schema: true,
+        isolated_parameter_bytes,
+        isolated_parameter_tensors: checkpoint.model_state().parameter_names().len(),
+        isolated_parameter_scalars: checkpoint.model_state().scalar_count(),
+        checkpoint_records: encoded.tensors().len(),
+        tokenizer_records,
+        optimizer_moment_records,
+        checkpoint_file_bytes: encoded.bytes().len(),
+        checkpoint_rng_state: checkpoint.rng_state(),
     }
 }
 // endregion:historical-checkpoint-contrast
@@ -380,6 +417,19 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         atomic.replaced_complete_file && atomic.temporary_files == 0,
         "atomic replacement evidence changed",
     )?;
+    let history = historical_checkpoint_contrast(&checkpoint, &encoded);
+    require(
+        history.isolated_parameter_bytes.len()
+            == history.isolated_parameter_scalars * std::mem::size_of::<f64>(),
+        "isolated parameter byte length changed",
+    )?;
+    require(
+        history.tokenizer_records
+            + history.isolated_parameter_tensors
+            + history.optimizer_moment_records
+            == history.checkpoint_records,
+        "checkpoint record-family counts changed",
+    )?;
 
     Ok(LearnerEvidence {
         checkpoint,
@@ -395,7 +445,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         rng_next: loaded_rng_next,
         corruption,
         atomic,
-        history: historical_checkpoint_contrast(),
+        history,
         encoded,
     })
 }
@@ -447,7 +497,7 @@ roundtrip=bytes_deterministic:{} loaded_bytes_identical:{} logits_bits_identical
 resume=learning_rate:{:.6} next_step:{} parameter_bits_identical:{} optimizer_state_identical:{} logits_bits_identical:{} logits_fingerprint:{}\n\
 reject=version:{} vocabulary_mismatch:{} truncation:{} checksum:{}\n\
 atomic=replaced_complete_file:{} loaded_rng_state:0x{:016x} temporary_files:{} unix_same_directory:true\n\
-history=isolated_blob_loses_context:{} coordinated_model_artifacts:{} optimizer_state_scales:{} self_describing_offsets:{} complete_resume_schema:{}\n\
+contrast=isolated_parameter_tensors:{} isolated_parameter_scalars:{} isolated_parameter_bytes:{} checkpoint_records:{} tokenizer_records:{} optimizer_moment_records:{} checkpoint_file_bytes:{} rng_state:0x{:016x}\n\
 next=load this checkpoint for temperature and top-k sampling\n",
         CHECKPOINT_VERSION,
         encoded.header_bytes(),
@@ -486,11 +536,14 @@ next=load this checkpoint for temperature and top-k sampling\n",
         evidence.atomic.replaced_complete_file,
         evidence.atomic.loaded_rng_state,
         evidence.atomic.temporary_files,
-        evidence.history.isolated_weight_blob_loses_context,
-        evidence.history.coordinated_model_artifacts,
-        evidence.history.optimizer_state_scales_with_parameters,
-        evidence.history.self_describing_tensor_metadata,
-        evidence.history.complete_resume_schema,
+        evidence.history.isolated_parameter_tensors,
+        evidence.history.isolated_parameter_scalars,
+        evidence.history.isolated_parameter_bytes.len(),
+        evidence.history.checkpoint_records,
+        evidence.history.tokenizer_records,
+        evidence.history.optimizer_moment_records,
+        evidence.history.checkpoint_file_bytes,
+        evidence.history.checkpoint_rng_state,
     ))
 }
 
@@ -512,6 +565,29 @@ mod tests {
         assert_eq!(evidence.encoded.tensors().len(), 38);
         assert_eq!(evidence.checkpoint.selected_step(), 8);
         assert_eq!(evidence.checkpoint.optimizer_state().step_count(), 8);
+        assert_eq!(evidence.history.isolated_parameter_tensors, 11);
+        assert_eq!(evidence.history.isolated_parameter_scalars, 144);
+        assert_eq!(evidence.history.isolated_parameter_bytes.len(), 1_152);
+        assert_eq!(evidence.history.checkpoint_records, 38);
+        assert_eq!(evidence.history.tokenizer_records, 5);
+        assert_eq!(evidence.history.optimizer_moment_records, 22);
+        assert_eq!(evidence.history.checkpoint_file_bytes, 6_330);
+        assert_eq!(evidence.history.checkpoint_rng_state, 0x9e37_79b9_7f4a_7c38);
+        let encoded_parameter_bytes = evidence
+            .encoded
+            .tensors()
+            .iter()
+            .filter(|descriptor| descriptor.role() == CheckpointTensorRole::ModelParameter)
+            .flat_map(|descriptor| {
+                let start = usize::try_from(descriptor.offset()).unwrap();
+                let end = usize::try_from(descriptor.end_offset().unwrap()).unwrap();
+                evidence.encoded.bytes()[start..end].iter().copied()
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            evidence.history.isolated_parameter_bytes,
+            encoded_parameter_bytes
+        );
         assert_eq!(ch33_training_selection::LEARNING_RATES[7], 0.008);
         assert_ne!(
             NEXT_LEARNING_RATE,

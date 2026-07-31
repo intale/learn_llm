@@ -13,19 +13,91 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "35-checkpoints";
-const chapterTitle = "Save every state, resume exactly";
-const chapterDescription =
-  "Learn how a versioned LLM checkpoint stores tokenizer and decoder configuration, parameters, optimizer moments, and RNG state, rejects corrupted bytes, and resumes with identical logits and one identical update.";
-const chapterHeadings = [
-  "Freeze the whole state, not only weights",
-  "Advance each offset by shape times byte width",
-  "Separate record order, shape, and representation",
-  "From artifact bundles to validated LLM checkpoints",
-  "Encode, validate, and replace atomically",
-  "Audit the byte layout before trusting the payload",
-  "Predict offsets before loading corruptions",
-  "Load the same state before choosing a token",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Save every state, resume exactly",
+    description:
+      "Learn how a versioned LLM checkpoint stores tokenizer and decoder configuration, parameters, optimizer moments, and RNG state, rejects corrupted bytes, and resumes with identical logits and one identical update.",
+    headings: [
+      "Freeze the whole state, not only weights",
+      "Advance each offset by shape times byte width",
+      "Separate record order, shape, and representation",
+      "From artifact bundles to validated LLM checkpoints",
+      "Encode, validate, and replace atomically",
+      "Audit the byte layout before trusting the payload",
+      "Predict offsets before loading corruptions",
+      "Load the same state before choosing a token",
+    ],
+    tableCaption: "Contiguous grouped byte spans in the Chapter 35 checkpoint",
+    tableHeaders: [
+      "Record or group",
+      "Role",
+      "Dtype",
+      "Shape or count",
+      "Bytes per element",
+      "Half-open byte range",
+    ],
+    historyFragments: [
+      "This progression follows the state needed to preserve a language model’s meaning",
+      "The script does not establish a single self-contained file, exact training resumption",
+      "does not by itself define tokenizer, decoder configuration, optimizer, RNG",
+      "does not describe GPT-2 or safetensors as a raw-memory dump",
+    ],
+    checksumFragment:
+      "FNV-1a detects accidental corruption; it does not authenticate",
+    atomicFragment: "supported Unix same-filesystem rename semantics",
+    adjacencyFragment:
+      "Each row must begin exactly where the previous row ends",
+    evidenceFragment: "Together with the exact round trip and resumed update",
+    answerFragment:
+      "FNV-1a detects accidental corruption but provides no authentication",
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Сохраните всё состояние и продолжите без расхождений",
+    description:
+      "Разберитесь, как контрольная точка LLM с версией формата сохраняет токенизатор и конфигурацию декодера, параметры, моменты AdamW и состояние генератора псевдослучайных чисел, отклоняет повреждённые данные, а после загрузки воспроизводит логиты и следующее обновление без расхождений.",
+    headings: [
+      "Зафиксируйте всё состояние, а не только веса",
+      "Вычисляйте следующее смещение по форме и размеру элемента",
+      "Не смешивайте порядок записей, форму и представление значений",
+      "От комплектов файлов модели к проверяемым контрольным точкам LLM",
+      "Кодируйте и проверяйте данные, затем заменяйте файл атомарно",
+      "Проверьте расположение байтов, прежде чем доверять данным",
+      "Предскажите смещения, затем проверьте повреждённые файлы",
+      "Перед выбором токена загрузите то же состояние",
+    ],
+    tableCaption:
+      "Сгруппированные смежные диапазоны байтов в контрольной точке главы 35",
+    tableHeaders: [
+      "Запись или группа",
+      "Назначение",
+      "Тип данных",
+      "Форма или число элементов",
+      "Размер элемента, байт",
+      "Полуоткрытый диапазон байтов",
+    ],
+    historyFragments: [
+      "Эта последовательность показывает, как сохранялись смысл языковой модели",
+      "Этот скрипт не задаёт единый автономный файл, точное продолжение обучения",
+      "Сам по себе он не задаёт токенизатор, конфигурацию декодера, оптимизатор",
+      "не описывает GPT-2 или safetensors как дамп памяти",
+    ],
+    checksumFragment:
+      "FNV-1a обнаруживает случайные повреждения, но не подтверждает подлинность",
+    atomicFragment:
+      "атомарная замена в пределах одной файловой системы",
+    adjacencyFragment:
+      "Каждая строка должна начинаться точно там, где заканчивается предыдущая",
+    evidenceFragment:
+      "Вместе с точным циклом сохранения-загрузки и одинаковым следующим обновлением",
+    answerFragment:
+      "FNV-1a обнаруживает случайные повреждения, но не подтверждает подлинность",
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
@@ -106,22 +178,24 @@ async function expectFormulaGeometry(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const expected = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 35,
-    revision: 1,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 2,
+    revisionLabel: expected.revisionLabel,
+    title: expected.title,
+    equivalentLocales: ["en", "ru"],
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    expected.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, expected.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(expected.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -168,21 +242,18 @@ async function expectChapterContent(
     expect(inlineCode).not.toContain(formerMath);
   }
 
-  const table = page
-    .getByRole("table")
-    .filter({ hasText: "Half-open byte range" });
+  const table = page.getByRole("table", { name: expected.tableCaption });
   await expect(table).toHaveCount(1);
-  await expect(table.getByRole("columnheader")).toHaveText([
-    "Record",
-    "Role",
-    "Dtype",
-    "Shape or count",
-    "Bytes per element",
-    "Half-open byte range",
-  ]);
-  await expect(table.locator("tbody tr")).toHaveCount(4);
+  await expect(table).toHaveAccessibleName(expected.tableCaption);
+  await expect(table).toHaveAttribute("tabindex", "0");
+  await expect(table.getByRole("columnheader")).toHaveText(
+    expected.tableHeaders,
+  );
+  await expect(table.locator("tbody tr")).toHaveCount(5);
   await expect(table).toContainText("token_embedding.weight");
   await expect(table).toContainText("[2874,3034)");
+  await expect(table).toContainText("[3034,6330)");
+  await expect(table).toContainText("412");
 
   const evidenceBlocks = page.locator(
     ".lesson-body > pre.astro-code:not(.rust-source-code)",
@@ -222,30 +293,13 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain(
-    "not about the history of programming languages or serialization syntax",
-  );
-  expect(lessonText).toContain(
-    "The script does not establish a single self-contained file, exact training resumption",
-  );
-  expect(lessonText).toContain(
-    "does not by itself define tokenizer, decoder configuration, optimizer, RNG",
-  );
-  expect(lessonText).toContain(
-    "does not describe GPT-2 or safetensors as a raw-memory dump",
-  );
-  expect(lessonText).toContain(
-    "FNV-1a detects accidental corruption; it does not authenticate",
-  );
-  expect(lessonText).toContain(
-    "supported Unix same-filesystem rename semantics",
-  );
-  expect(lessonText).toContain(
-    "Each row must begin exactly where the previous row ends",
-  );
-  expect(lessonText).toContain(
-    "Together with the exact round trip and resumed update",
-  );
+  for (const fragment of expected.historyFragments) {
+    expect(lessonText).toContain(fragment);
+  }
+  expect(lessonText).toContain(expected.checksumFragment);
+  expect(lessonText).toContain(expected.atomicFragment);
+  expect(lessonText).toContain(expected.adjacencyFragment);
+  expect(lessonText).toContain(expected.evidenceFragment);
   for (const buildMeta of [
     "build instructions",
     "authoring contract",
@@ -286,19 +340,25 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(8);
-  await expect(details).toContainText(
-    "FNV-1a detects accidental corruption but provides no authentication",
-  );
+  await expect(details).toContainText(expected.answerFragment);
 
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "34-final-evaluation");
-  await expect(
-    page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]'),
-  ).toHaveAttribute("data-chapter-id", "36-temperature-top-k");
+  const nextChapter = page.locator(
+    'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+  );
+  if (locale === "en") {
+    await expect(nextChapter).toHaveAttribute(
+      "data-chapter-id",
+      "36-temperature-top-k",
+    );
+  } else {
+    await expect(nextChapter).toHaveCount(0);
+  }
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -306,60 +366,45 @@ test.describe(
   "chapter 35 exact checkpoint and resume vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 35 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 35 routes", async ({
       page,
     }) => {
-      const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(39);
-      expect(english[34]).toEqual(
-        expect.objectContaining({
-          chapterId,
-          order: 35,
-          title: chapterTitle,
-        }),
-      );
-      const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        expect(chapters[34]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 35,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+      }
     });
 
-    test("the Rust-backed checkpoint lesson renders at desktop and narrow widths", async ({
+    test("both Rust-backed checkpoint lessons render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
-      await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
 
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
-      const evidenceBlocks = page.locator(
-        ".lesson-body > pre.astro-code:not(.rust-source-code)",
-      );
-      for (const [index, block] of (
-        await evidenceBlocks.all()
-      ).entries()) {
-        const overflow = await block.evaluate((element) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+        const table = page.getByRole("table", {
+          name: copy[locale].tableCaption,
+        });
+        const tableOverflow = await table.evaluate((element) => {
           const node = element as HTMLElement;
           return {
             clientWidth: node.clientWidth,
@@ -367,19 +412,41 @@ test.describe(
             scrollWidth: node.scrollWidth,
           };
         });
-        expect(["auto", "scroll"]).toContain(overflow.overflowX);
-        expect(overflow.scrollWidth).toBeGreaterThanOrEqual(
-          overflow.clientWidth,
+        expect(["auto", "scroll"]).toContain(tableOverflow.overflowX);
+        expect(tableOverflow.scrollWidth).toBeGreaterThan(
+          tableOverflow.clientWidth,
         );
-        if (index === 1) {
-          expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth);
+        await table.focus();
+        await expect(table).toBeFocused();
+
+        const evidenceBlocks = page.locator(
+          ".lesson-body > pre.astro-code:not(.rust-source-code)",
+        );
+        for (const [index, block] of (
+          await evidenceBlocks.all()
+        ).entries()) {
+          const overflow = await block.evaluate((element) => {
+            const node = element as HTMLElement;
+            return {
+              clientWidth: node.clientWidth,
+              overflowX: getComputedStyle(node).overflowX,
+              scrollWidth: node.scrollWidth,
+            };
+          });
+          expect(["auto", "scroll"]).toContain(overflow.overflowX);
+          expect(overflow.scrollWidth).toBeGreaterThanOrEqual(
+            overflow.clientWidth,
+          );
+          if (index === 1) {
+            expect(overflow.scrollWidth).toBeGreaterThan(overflow.clientWidth);
+          }
+          await block.focus();
+          await expect(block).toBeFocused();
         }
-        await block.focus();
-        await expect(block).toBeFocused();
       }
     });
 
-    test("the complete table, formulas, and proof remain static without JavaScript", async ({
+    test("both complete tables, formulas, and evidence remain static without JavaScript", async ({
       browser,
     }, testInfo) => {
       const context = await browser.newContext({
@@ -388,25 +455,29 @@ test.describe(
       });
       const page = await context.newPage();
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.getByRole("table")).toHaveCount(1);
-      await expect(
-        page.locator(
-          '.lesson-body annotation[encoding="application/x-tex"]',
-        ),
-      ).not.toHaveCount(0);
-      await expect(page.locator("figure.rust-source")).toHaveCount(7);
-      await expect(page.locator("figure[data-visualization-id]")).toHaveCount(0);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-        0,
-      );
-      await expect(page.locator(".lesson-body")).toContainText(
-        "logits_fingerprint:fnv1a64:0b875a0c9f380d8f",
-      );
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("table", { name: copy[locale].tableCaption }),
+        ).toHaveCount(1);
+        await expect(
+          page.locator(
+            '.lesson-body annotation[encoding="application/x-tex"]',
+          ),
+        ).not.toHaveCount(0);
+        await expect(page.locator("figure.rust-source")).toHaveCount(7);
+        await expect(page.locator("figure[data-visualization-id]")).toHaveCount(0);
+        await expect(
+          page.locator("[data-diagram-full-view-toggle]"),
+        ).toHaveCount(0);
+        await expect(page.locator(".lesson-body")).toContainText(
+          "logits_fingerprint:fnv1a64:0b875a0c9f380d8f",
+        );
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T16:28:24Z"
+updated_at: "2026-07-31T17:43:09Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -24853,3 +24853,155 @@ builds:
                 status: passed
                 notes: "The sole learner-facing product file matches sha256:975c20b79f108b64b34152ba6596db6c031404bc798fcff5a96e98a9459dd6b0; BUILD_STATE.yaml parses through the course-plan gate; git diff --check passes; every changed canonical path is declared; file modes remain 100644; and the exact disposable Chapter 32 browser volume was removed."
             notes: "Succeeded. Replaced the final three Russian search metaphors for direct embedding-row indexing with precise selection language, preserved all other Chapter 32 meaning and evidence, and passed the complete pinned Linux plus two-engine rendered surface without changing dependencies, build definitions, hosting, deployment, locale activation, or the user environment."
+  - build_id: activate-ch35-russian-localization
+    objective: "Correct the canonical Chapter 35 checkpoint lesson where necessary, translate that frozen revision directly into natural technical Russian, and activate both locales."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "Canonical English Chapter 35 contains truthful executable evidence, a contiguous accessible byte-layout audit, exact formulas, and learner-facing prose free of authoring or delivery mechanics."
+      - "Russian Chapter 35 is translated directly from that frozen English revision with exact semantic, mathematical, historical, code, accessibility, SEO, exercise, and navigation parity."
+      - "Chapter 35 publishes in English and Russian, and the documented selective-localization boundary advances through Chapter 35."
+      - "Focused Rust, content, parity, static-site, link, Chromium, and Firefox validation passes, and the completed checkpoint is committed independently."
+    steps:
+      - id: activate-ch35-russian-localization
+        objective: "Publish corrected English and direct natural-Russian Chapter 35 checkpoint instruction with truthful executable and rendered evidence."
+        depends_on:
+          - correct-ch32-russian-lookup-terminology
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 60 and locale policy selective-russian-through-chapter-34"
+          - "curriculum/chapters/35-checkpoints.md"
+          - "site/src/content/chapters/en/35-checkpoints.mdx"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts and shared locale/content/formula tests"
+          - "Chapter 35 declared Rust sources and exact output"
+          - "Primary GPT-2 downloader, ZeRO, and safetensors sources already cited by the English lesson"
+          - "Independent English audit and Russian terminology/anti-calque plan completed on 2026-07-31"
+          - "Completed dependency commit e3e2462"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "curriculum/chapters/35-checkpoints.md"
+          - "site/src/content/chapters/en/35-checkpoints.mdx"
+          - "site/src/content/chapters/ru/35-checkpoints.mdx"
+          - "rust/demos/ch35-checkpoints/src/lib.rs"
+          - "rust/demos/ch35-checkpoints/expected.txt"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts if revision or locale expectations require an update"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then content revision 2 is the sole Russian semantic source."
+          - "The historical Rust contrast derives an isolated parameter-value byte array from the selected model and reports measured limits rather than hard-coded historical assertions."
+          - "The byte-layout table presents contiguous grouped ranges, renders all mathematics through the math pipeline, has an accessible name and keyboard-reachable narrow fallback, and does not become a diagram."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 35 route, navigation, locale alternates, SEO, source captions, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both complete pages remain contained and readable in Chromium and Firefox at desktop and narrow widths, including no-JavaScript and formula/table overflow surfaces."
+          - "Focused content, contract, parity, exact Rust, Astro, static-link, formula, and supported Linux gates pass."
+          - "The completed Chapter 35 checkpoint is committed independently."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/35-checkpoints.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 35-checkpoints"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 35-checkpoints"
+          - "npm --prefix site run check:parity -- 35-checkpoints en ru"
+          - "npm --prefix site test -- --run tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch35-checkpoints && cargo run --quiet --locked -p ch35-checkpoints | diff -u rust/demos/ch35-checkpoints/expected.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 35 and formula-rendering E2E gates at desktop, narrow, and no-JavaScript surfaces"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical evidence repair, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial cached local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260731T170130Z-activate-ch35-russian-localization-01
+            started_at: "2026-07-31T17:01:30Z"
+            finished_at: "2026-07-31T17:43:09Z"
+            status: succeeded
+            input_fingerprint:
+              git: "e3e24625d398a4324869c7c1681f0a71eb394d0e"
+              manifest: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:0dde57c725e5ad6576c4c5ab14e92e55bb18ce626f1875331923ae39a8d2146d"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; corrected current English Chapter 35, exact Rust evidence, cited primary LLM/checkpoint sources, and the recorded terminology audit are authoritative."
+            staging_dir: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit e3e2462; parse the complete ledger; recheck decisions, environment, localization instructions, locale policy, Chapter 35 source paths, exact implementation evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 35 formulas, LLM-checkpoint history, executable evidence, learner-facing prose, accessibility, and the no-diagram decision; freeze corrected English revision 2 before direct Russian translation."
+              - "Replace the hard-coded historical booleans with model-derived parameter bytes and measured checkpoint counts; prove byte-for-byte correspondence with the encoded model-parameter payload and update the exact report."
+              - "Publish corrected English revision 2, translate all Chapter 35 learner, metadata, history, source-caption, accessibility, SEO, exercise, and answer surfaces directly into Russian, and advance the locale boundary through Chapter 35."
+              - "Run focused contract, bilingual chapter/parity, exact Rust, course-plan, formula, locale-policy, Astro, and E2E-discovery checks from the pinned Linux image with current source overlays."
+              - "Build the exact corrected-source pinned Linux image, rerun the complete workspace gate, and replay the focused Chapter 35 contract, parity, formula, warning-denied Clippy, Rust-test, and byte-exact report checks from that immutable image."
+              - "Correct two rendered-test assumptions exposed by Chromium, rebuild the exact final image, snapshot it into a disposable volume, and run the complete 151-case Chapter 35 plus formula matrix sequentially in Chromium and Firefox with networking disabled."
+              - "Freeze the 13-file product manifest and localization review, verify their hashes, and remove the two explicitly named disposable Chapter 35 browser volumes."
+            artifacts:
+              - path: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:0dde57c725e5ad6576c4c5ab14e92e55bb18ce626f1875331923ae39a8d2146d"
+                notes: "Exact workflow, policy, canonical lesson, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 35 product edits."
+              - path: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:a9e9e3bb790d29b497fb31846c81d4ccd82dc1dd06c18c9e641373639118654c"
+                notes: "Frozen English revision-2 semantic, numerical, historical, loader-scope, presentation, and Russian terminology commitments."
+              - path: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/localization-review.md"
+                checksum: "sha256:24cb6c8f31b64ed9ad281a13ca71c94e3de05dd04fa9cc50bde9f707e4a0e153"
+                notes: "Final semantic, mathematical, terminology, anti-calque, monolingual, historical, accessibility, SEO, evidence, and two-engine rendered review."
+              - path: ".build/runs/20260731T170130Z-activate-ch35-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:3750e6caf2728dad1fb39ed7192532da37080f72ca039d720a7831f93d33717e"
+                notes: "Ordinal path-sorted checksums for the exact 13-file Chapter 35 product publication; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:3cfdb7aacde14c023bcb4487181bdb62fd6a5d73fdd434683273ed4e2afb8d3a"
+                notes: "Exact final corrected-source pinned Linux manifest list used for accepted static, focused, Chromium, and Firefox validation."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "All requested translations through Chapter 34 and the late Chapter 32 terminology correction are independently committed at e3e2462; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins are usable; Chapter 35 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "Focused Chapter 35 Rust formatting, tests, and byte-exact learner report in pinned Linux"
+                status: passed
+                notes: "Both demo tests pass; the selected model's 144 values produce the exact 1,152-byte parameter payload; all measured record-family counts pass; stdout matches the revised expected file byte for byte."
+              - command: "Initial bind-mounted complete Astro check"
+                status: failed
+                notes: "Contract and English chapter checks passed, but mounting the whole Windows workspace exposed Windows optional Node bindings inside Linux, so Astro could not load the Linux rolldown binding. No source validation failed; the same current site/src and curriculum overlays passed Astro with the image's pinned Linux node_modules."
+              - command: "Corrected English revision-2 independent audit and Astro diagnostics"
+                status: passed
+                notes: "The final English source resolves every audit finding, the 38 descriptors form five contiguous auditable groups including 412 scalar values in the final span, the table is captioned and focusable, formulas use the math pipeline, and Astro reports zero errors, warnings, or hints."
+              - command: "Focused bilingual contract, chapter, parity, course-plan, locale, content, and formula gates"
+                status: passed
+                notes: "The integrated contract, both localized sources, direct parity, 40-chapter/107-step course plan, and 65 selected tests pass from current source overlays. A preliminary course-plan invocation without the current ledger/locale mounts correctly reported stale image inputs; the complete current overlay passes."
+              - command: "Chapter 35 E2E test discovery"
+                status: passed
+                notes: "Playwright parses and discovers three bilingual cases covering reciprocal routes, both complete desktop/narrow pages with a focusable table, and both no-JavaScript fallbacks."
+              - command: "Pre-final Chromium Chapter 35 and formula-rendering E2E candidates"
+                status: failed
+                notes: "The first candidate exposed Markdown's typographic apostrophe in rendered English; the second exposed that the Russian boundary route correctly has no next link while Chapter 36 remains English-only. Both were stale test expectations, not page defects; the assertions were corrected and focused Chapter 35 then passed in both Chromium and Firefox before the final image rebuild."
+              - command: "./course check on the exact final pinned Linux candidate"
+                status: passed
+                notes: "All workspace Rust tests pass; Astro reports zero diagnostics; complete content and locale parity pass; 81 static pages pass 2,255 local links, 81 SEO routes, 81 sitemap URLs, 81 Analytics routes, and 158 artifacts at manifest-list sha256:3cfdb7aacde14c023bcb4487181bdb62fd6a5d73fdd434683273ed4e2afb8d3a."
+              - command: "Exact final-image Chapter 35 contract, bilingual chapter/parity, course-plan, selected site tests, warning-denied Clippy, and byte-exact Rust gates"
+                status: passed
+                notes: "The 40-chapter/107-step plan, integrated contract, both chapter sources, 76-source parity set, all 65 selected locale/content/formula assertions, both Chapter 35 Rust tests, Clippy with warnings denied, and exact learner output pass directly from the final image."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and evidence review"
+                status: passed
+                notes: "English revision 2 is frozen at sha256:5cc4fb290db13c2162fa62bc825e2ffc2aee5004e1ddf60beff39bb3f92c8d78; Russian sha256:eec6369b589a174538d11b06643f3e4611399aa5a2844884e65707dba179916b preserves every formula, value, qualifier, identifier, source, exercise, answer, SEO field, and accessibility meaning in natural technical language."
+              - command: "Exact final-image Chromium and Firefox Chapter 35 plus formula-rendering E2E gates"
+                status: passed
+                notes: "Both engines pass all 151 selected cases with networking disabled, covering reciprocal routes, both complete Chapter 35 pages at desktop and narrow widths, no-JavaScript fallback, all active formulas, table and code scrolling, focus, and containment."
+              - command: "Frozen publication identity, ledger, whitespace, ownership, Git-mode, and disposable-resource cleanup audit"
+                status: passed
+                notes: "The ordinal 13-file product manifest is sha256:3750e6caf2728dad1fb39ed7192532da37080f72ca039d720a7831f93d33717e and matches canonical bytes; BUILD_STATE.yaml parses through the 40-chapter/107-step course-plan gate; git diff --check passes; all 15 working-tree paths are declared; and both exact disposable Chapter 35 browser volumes were removed. An initial staged-mode audit predicate incorrectly treated a new file's expected 000000 source mode as a defect; the corrected audit verifies target mode 100644 for all 15 files."
+            notes: "Succeeded. Published corrected canonical Chapter 35 revision 2 and its direct natural Russian projection, model-derived historical contrast, contiguous accessible byte-layout evidence, complete math/SEO/accessibility coverage, and the locale boundary through Chapter 35 without changing dependencies, build definitions, hosting, deployment, the checkpoint wire format, or the user environment."

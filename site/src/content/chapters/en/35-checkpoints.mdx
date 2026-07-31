@@ -2,7 +2,7 @@
 {
   "chapter_id": "35-checkpoints",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 35,
   "concept_id": "checkpoints",
   "title": "Save every state, resume exactly",
@@ -100,7 +100,7 @@
     {
       "path": "rust/demos/ch35-checkpoints/src/lib.rs",
       "region": "historical-checkpoint-contrast",
-      "purpose": "Distinguish a deliberately isolated local value blob from coordinated model artifacts and a complete resumable checkpoint."
+      "purpose": "Derive a parameter-only byte array from the selected model and compare its measured contents with the complete resumable checkpoint."
     },
     {
       "path": "rust/demos/ch35-checkpoints/src/lib.rs",
@@ -109,7 +109,7 @@
     },
     {
       "path": "rust/demos/ch35-checkpoints/src/main.rs",
-      "purpose": "Print the exact schema, layout, replay, rejection, atomic-publication, and history evidence."
+      "purpose": "Print the exact schema, layout, replay, rejection, atomic-replacement, and parameter-array contrast evidence."
     }
   ],
   "visualization": {
@@ -121,6 +121,7 @@
 }
 ---
 
+import InlineMath from "../../../components/InlineMath.astro";
 import RustSource from "../../../components/RustSource.astro";
 
 {/* chapter-section:worked-example */}
@@ -152,8 +153,8 @@ $5+11+22=38$ ordered payload records. Encoding the same state twice produces
 the same $6330$ bytes and the same checksum label
 `fnv1a64:2b8b6097eaed6a91`.
 
-The promise is deliberately narrow: in the controlled course implementation
-and toolchain, loading reproduces exact bits. Changing hardware or arithmetic
+The promise is deliberately narrow: under the same arithmetic environment,
+loading reproduces exact bits. Changing hardware or arithmetic
 kernels can change floating-point behavior even when a checkpoint is valid.
 FNV-1a detects accidental corruption; it does not authenticate a file against
 an attacker.
@@ -206,17 +207,67 @@ says how many bytes represent each value; canonical order says which component
 owns the values. A matching file length cannot compensate for a changed name or
 shape.
 
-The fixed run exposes representative rows from the exact Rust descriptor table:
+The five grouped spans below cover all $38$ descriptors without gaps. Aggregated
+rows summarize adjacent descriptors; the loader still validates every descriptor
+individually.
 
-| Record | Role | Dtype | Shape or count | Bytes per element | Half-open byte range |
-| --- | --- | --- | ---: | ---: | --- |
-| `literal-token-0` | literal token | `u8` | $1$ | $1$ | $[2869,2870)$ |
-| `literal-token-4` | literal token | `u8` | $1$ | $1$ | $[2873,2874)$ |
-| `token_embedding.weight` | model parameter | `f64` | $[5,4]$ | $8$ | $[2874,3034)$ |
-| remaining parameters and moments | model and AdamW state | `f64` | declared per tensor | $8$ | contiguous through $6330$ |
+<table tabindex="0">
+  <caption>Contiguous grouped byte spans in the Chapter 35 checkpoint</caption>
+  <thead>
+    <tr>
+      <th scope="col">Record or group</th>
+      <th scope="col">Role</th>
+      <th scope="col">Dtype</th>
+      <th scope="col">Shape or count</th>
+      <th scope="col">Bytes per element</th>
+      <th scope="col">Half-open byte range</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>literal-token-0</code></td>
+      <td>literal token</td>
+      <td><code>u8</code></td>
+      <td><InlineMath latex="1" /></td>
+      <td><InlineMath latex="1" /></td>
+      <td><InlineMath latex="[2869,2870)" /></td>
+    </tr>
+    <tr>
+      <td><code>literal-token-1</code> through <code>literal-token-3</code></td>
+      <td>literal tokens</td>
+      <td><code>u8</code></td>
+      <td><InlineMath latex="3" /> one-byte records</td>
+      <td><InlineMath latex="1" /></td>
+      <td><InlineMath latex="[2870,2873)" /></td>
+    </tr>
+    <tr>
+      <td><code>literal-token-4</code></td>
+      <td>literal token</td>
+      <td><code>u8</code></td>
+      <td><InlineMath latex="1" /></td>
+      <td><InlineMath latex="1" /></td>
+      <td><InlineMath latex="[2873,2874)" /></td>
+    </tr>
+    <tr>
+      <td><code>token_embedding.weight</code></td>
+      <td>model parameter</td>
+      <td><code>f64</code></td>
+      <td><InlineMath latex="[5,4]" /></td>
+      <td><InlineMath latex="8" /></td>
+      <td><InlineMath latex="[2874,3034)" /></td>
+    </tr>
+    <tr>
+      <td>remaining parameters and moments</td>
+      <td>model and AdamW state</td>
+      <td><code>f64</code></td>
+      <td><InlineMath latex="32" /> tensor records / <InlineMath latex="412" /> scalar values</td>
+      <td><InlineMath latex="8" /></td>
+      <td><InlineMath latex="[3034,6330)" /></td>
+    </tr>
+  </tbody>
+</table>
 
-The first $16$ bytes are short enough to inspect without a diagram or a wide
-mobile line:
+The first $16$ bytes are short enough to inspect byte by byte:
 
 ```text
 4c 4c 4d 43 50 33 35 00 01 00 04 03 02 01 35 0b
@@ -230,8 +281,8 @@ not machine alignment, determines where every payload record lives.
 
 ## From artifact bundles to validated LLM checkpoints
 
-This progression is about preserving language-model meaning and continuation,
-not about the history of programming languages or serialization syntax.
+This progression follows the state needed to preserve a language model's
+meaning and continue its computation.
 
 An isolated parameter blob does not say which tokenizer, model configuration,
 tensor shapes, optimizer moments, or random stream gives those bytes their
@@ -274,16 +325,18 @@ application schema for tokenizer, decoder configuration, optimizer
 continuation, RNG state, validation, and publication.
 
 The road to reproducible modern LLMs joins coordinated model artifacts,
-first-class optimizer state, and inspectable tensor metadata with an
-application-level schema. The local contrast below deliberately flattens only
-values to demonstrate what isolated bytes omit. It does not describe GPT-2 or
-safetensors as a raw-memory dump, and the course format is not
-safetensors-compatible or a proposed universal standard.
+optimizer state, and inspectable tensor metadata with an application-level
+schema. The local Rust contrast derives $1152$ bytes from the selected model's
+$144$ `f64` parameter values. It then records that the complete $6330$-byte file
+also has five tokenizer records, $11$ named parameter records, $22$ optimizer
+moment records, and the continuation RNG state. This measured comparison does
+not describe GPT-2 or safetensors as a raw-memory dump, and the course format is
+not safetensors-compatible or a proposed universal standard.
 
 <RustSource
   path="rust/demos/ch35-checkpoints/src/lib.rs"
   region="historical-checkpoint-contrast"
-  caption="Contrast an intentionally context-free local value blob with coordinated model artifacts and complete resume state"
+  caption="Derive a parameter-only value array and measure it next to the complete checkpoint state"
   label="Rust source for the Chapter 35 LLM-checkpoint history contrast"
 />
 
@@ -325,15 +378,15 @@ field itself is treated as zero.
   label="Rust source implementing Chapter 35 versioned checkpoint encoding"
 />
 
-The reader validates magic, schema, endian marker, complete extent, checksum,
-known roles and dtypes, canonical descriptor order, contiguous ranges, component
-invariants, and exact canonical re-encoding before it exposes a `Checkpoint`.
-It constructs neither tokenizer nor model when preflight fails.
+The reader checks the fixed header, complete extent, checksum, known roles and
+dtypes, and descriptor ranges before constructing components. It then validates
+the restored tokenizer, model, and optimizer invariants plus exact canonical
+re-encoding. A failure at either stage returns no `Checkpoint`.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/checkpoint.rs"
   region="validated-checkpoint-loading"
-  caption="Reject corrupt or semantically inconsistent bytes before restoring any decoder component"
+  caption="Validate corrupt or semantically inconsistent bytes before exposing a decoder checkpoint"
   label="Rust source implementing Chapter 35 validated checkpoint loading"
 />
 
@@ -359,12 +412,11 @@ SplitMix64 draw.
 <RustSource
   path="rust/demos/ch35-checkpoints/src/lib.rs"
   region="learner-evidence"
-  caption="Prove deterministic bytes, exact reload, corruption rejection, one equal resumed update, and atomic replacement"
+  caption="Measure deterministic bytes, exact reload, corruption rejection, one equal resumed update, and atomic replacement"
   label="Rust source assembling the Chapter 35 learner evidence"
 />
 
-Run `cargo run --quiet --locked -p ch35-checkpoints`. The key proof lines are
-exact program output:
+The executable report records these four measured results:
 
 ```text
 roundtrip=bytes_deterministic:true loaded_bytes_identical:true logits_bits_identical:true logits_fingerprint:fnv1a64:6029064fe7cd162d rng_next_identical:true rng_next:0x9a8c505971939232
@@ -373,11 +425,9 @@ reject=version:true vocabulary_mismatch:true truncation:true checksum:true
 atomic=replaced_complete_file:true loaded_rng_state:0x9e3779b97f4a7c39 temporary_files:0 unix_same_directory:true
 ```
 
-The complete stdout matches `rust/demos/ch35-checkpoints/expected.txt` byte for
-byte, including its final newline. Tests additionally cover the byte-BPE variant,
-mixed element widths, version and endian drift, metadata corruption, trailing
-bytes, tokenizer and model mismatches, negative second moments, and deterministic
-re-encoding.
+The complete executable example also checks the byte-BPE variant, mixed element
+widths, version and endian drift, metadata corruption, trailing bytes, tokenizer
+and model mismatches, negative second moments, and deterministic re-encoding.
 
 <RustSource
   path="rust/demos/ch35-checkpoints/src/main.rs"
@@ -404,7 +454,7 @@ an incompatible vocabulary, a truncated range, and a changed checked byte.
 Together with the exact round trip and resumed update, they show both what was
 stored and which inconsistencies are refused.
 
-Read the proof conservatively. `logits_bits_identical:true` establishes exact
+Read the evidence conservatively. `logits_bits_identical:true` establishes exact
 replay for this fixture. `checksum:true` shows that one modified checked byte is
 rejected; it does not turn FNV-1a into a cryptographic signature.
 

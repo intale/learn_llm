@@ -11461,3 +11461,72 @@ user-environment change was made.
 
 **Affected step and run:** `correct-ch32-russian-lookup-terminology`, run
 `20260731T163657Z-correct-ch32-russian-lookup-terminology-01`.
+
+## 2026-07-31 - Repair canonical Chapter 35 evidence before Russian activation
+
+**Status:** Accepted during `activate-ch35-russian-localization` run 01 before
+learner-facing edits.
+
+**Context:** The user requested the next direct Russian translation. The required
+canonical-source audit found that Chapter 35's local historical Rust contrast
+returns hard-coded booleans instead of deriving evidence from the selected model,
+and that its four displayed byte-layout rows skip token records while the prose
+asks learners to audit row-to-row adjacency. The lesson also overstates when
+component construction occurs during loading and contains empirical-proof and
+delivery-mechanics wording. English is the semantic source, so translating that
+revision unchanged would reproduce these defects.
+
+**Decision:** Treat Russian activation as one standalone Chapter 35 checkpoint.
+First publish English content revision 2 with a real model-derived isolated
+parameter-value byte array, measured contrast fields, a contiguous grouped and
+accessible byte-layout table, precise loader wording, and learner-facing evidence
+language. Then translate that exact frozen revision directly into natural Russian,
+activate `{en, ru}`, and advance the documented selective-localization boundary
+through Chapter 35. Retain the no-diagram decision because exact record ranges,
+bytes, and rejection observations are the relevant evidence.
+
+**Consequences:** The Rust report and its exact expected output change, but the
+checkpoint wire format, serialized bytes, formulas, dependencies, build
+definitions, hosting, deployment, and user environment do not. Both locales and
+the keyboard-reachable table overflow surface require complete Chromium and
+Firefox validation at desktop and narrow widths before publication.
+
+**Affected step and run:** `activate-ch35-russian-localization`, run
+`20260731T170130Z-activate-ch35-russian-localization-01`.
+
+## 2026-07-31 - Complete corrected bilingual Chapter 35 checkpoint instruction
+
+**Status:** Accepted and completed in `activate-ch35-russian-localization` run
+01.
+
+**Context:** The canonical audit required real parameter-byte evidence, a
+contiguous byte-layout audit, precise loader scope, and removal of learner-facing
+delivery language before Russian translation. The resulting English revision 2
+was frozen before the complete Russian lesson was authored and independently
+reviewed.
+
+**Decision:** Publish English revision 2 and its direct natural Russian
+projection. Activate exactly `{en, ru}` for Chapter 35 and advance the selective
+Russian boundary through Chapter 35. Keep the descriptor evidence as one
+captioned, keyboard-reachable table rather than registering a diagram: exact
+shapes, byte widths, half-open ranges, and adjacency are the relationship the
+learner must inspect. Preserve Chapter 36 as English-only until its own
+localization checkpoint.
+
+**Consequences:** English is
+`sha256:5cc4fb290db13c2162fa62bc825e2ffc2aee5004e1ddf60beff39bb3f92c8d78`,
+Russian is
+`sha256:eec6369b589a174538d11b06643f3e4611399aa5a2844884e65707dba179916b`,
+and the 13-file publication manifest is
+`sha256:3750e6caf2728dad1fb39ed7192532da37080f72ca039d720a7831f93d33717e`.
+The complete pinned Linux gate builds 81 pages and passes 2,255 local links, 81
+SEO routes, 81 sitemap URLs, and 81 Analytics routes. Chromium and Firefox each
+pass all 151 selected Chapter 35/formula cases from exact image
+`sha256:3cfdb7aacde14c023bcb4487181bdb62fd6a5d73fdd434683273ed4e2afb8d3a`.
+No dependency, package, build-definition, hosting, deployment, checkpoint-wire,
+or user-environment change was made. A later English meaning or presentation
+change makes this Russian review stale until it is refreshed directly from
+English.
+
+**Affected step and run:** `activate-ch35-russian-localization`, run
+`20260731T170130Z-activate-ch35-russian-localization-01`.
