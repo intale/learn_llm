@@ -11073,3 +11073,121 @@ change is introduced.
 
 **Affected step and run:** `activate-ch31-russian-localization`, run
 `20260731T114345Z-activate-ch31-russian-localization-01`.
+
+## 2026-07-31 - Stage direct Russian Chapter 32 localization
+
+**Status:** Accepted before `activate-ch32-russian-localization` product edits.
+
+**Context:** Chapter 31 is independently committed at `a2bf9ad`. Chapter 32 is
+the next deferred Russian route in the user-authorized four-chapter sequence.
+Its English tied decoder-model lesson, exact Rust fixture, integrated contract,
+figure, parser, and regression tests are the canonical audit inputs; English
+must be corrected and frozen before any Russian surface is derived.
+
+**Decision:** Run the mandatory localization workflow under separately
+fingerprinted run `20260731T131004Z-activate-ch32-russian-localization-01`.
+Audit English semantics, formulas, LLM-centered history, weight-tying claims,
+Rust evidence, learner-facing delivery-language leakage, and shared diagram
+presentation first. Translate the resulting frozen English revision directly
+into natural technical Russian, advance the locale boundary only through
+Chapter 32, and publish only after exact Rust/static and complete
+Chromium/Firefox containment validation. Use no external translation or paid
+service and do not pause for cost approval.
+
+**Consequences:** The checkpoint may correct canonical learner meaning, trace
+provenance fields, and shared-role integration when the audit establishes a
+defect, but it must not change dependencies, build definitions, hosting,
+deployment, or the user environment. Chapter 32 receives its own completion
+checkpoint and commit before Chapter 33 starts.
+
+**Affected step and run:** `activate-ch32-russian-localization`, run
+`20260731T131004Z-activate-ch32-russian-localization-01`.
+
+## 2026-07-31 - Revise Chapter 32 before deriving its Russian locale
+
+**Status:** Accepted during `activate-ch32-russian-localization` run 01 before
+learner-facing product edits.
+
+**Context:** Revision 1 gives sound two-block numerical evidence, but its main
+composition formula is left unqualified even though zero decoder blocks are a
+valid configuration, and the follow-up loss and parameter formulas introduce
+symbols not covered by the glossary. Learner prose describes the site parser
+and page arithmetic boundary instead of the model evidence. The figure renders
+raw trace stage tokens as headings, leaves bounded section and cue surfaces
+unmarked, and repeats shared section/card/grid spacing and typography locally.
+
+**Decision:** Freeze an English revision 2 before translation. State the
+positive-depth formula scope and the identity composition at depth zero; define
+the batch, token, vocabulary, feature, feed-forward, target, and scalar-loss
+symbols used by the complete explanation. Replace page/parser rationale with
+the concrete relationship among the recorded stage rows, logits, predictions,
+loss, and gradient evidence. Localize every visible stage label and migrate the
+figure to shared `course-v1` section, card-stack, grid, table, cue, and bounded-
+box roles while keeping only tied-parameter geometry and redundant non-color
+cues in component CSS.
+
+**Consequences:** Russian Chapter 32 will be translated directly from corrected
+English revision 2. Exact model arithmetic, learner report, Rust public API,
+the twenty-nine-line trace, dependencies, build definitions, hosting,
+deployment, and user environment remain unchanged.
+
+**Affected step and run:** `activate-ch32-russian-localization`, run
+`20260731T131004Z-activate-ch32-russian-localization-01`.
+
+## 2026-07-31 - Replace Chapter 32 assertions with derived model evidence
+
+**Status:** Accepted during `activate-ch32-russian-localization` run 01 before
+freezing canonical English revision 2.
+
+**Context:** The source audit found that the learner report and diagram record
+declared five historical propositions as literal `true` fields even though the
+fixture did not derive those propositions. The same run already computes a
+configuration-failure probe but omitted it from the learner-visible record.
+The earlier revision decision also described the old twenty-nine-line record as
+unchanged, which no longer matches the corrected evidence boundary.
+
+**Decision:** Remove the hardcoded history record from both Rust renderings and
+the exact parser. Keep historical claims in sourced prose and use the measured
+tied-versus-untied parameter counts plus gradient decomposition as their runnable
+contrast. Surface the existing configuration-failure probe alongside the depth,
+context, vocabulary, and target boundaries. The strict evidence record is now
+twenty-eight lines, and the visible stage-row names are localized while their
+locale-neutral trace tokens remain data attributes.
+
+**Consequences:** Exact numerical logits, loss, parameter counts, causality,
+gradient checks, public model API, dependencies, build definitions, hosting,
+deployment, and the user environment do not change. Report and trace bytes,
+their parser, component projection, tests, contract, and both localized lessons
+advance together under canonical English revision 2.
+
+**Affected step and run:** `activate-ch32-russian-localization`, run
+`20260731T131004Z-activate-ch32-russian-localization-01`.
+
+## 2026-07-31 - Publish direct Russian Chapter 32 localization
+
+**Status:** Accepted after complete validation of
+`activate-ch32-russian-localization` run 01.
+
+**Context:** Canonical English revision 2 now scopes decoder composition at
+positive and zero depth, defines every formula symbol, replaces hardcoded
+historical booleans with derived tied-parameter and configuration evidence, and
+keeps learner prose about the model rather than the authoring pipeline. The
+Russian projection was reviewed directly against English and corrected to use
+the established token-lookup, feature-row, indexed-loss, vocabulary-axis,
+SwiGLU-branch, gradient-contribution, and leaf-node terminology.
+
+**Decision:** Publish both Chapter 32 locales and advance the selective Russian
+boundary through Chapter 32. Freeze the exact 20-file product manifest at
+`sha256:bf33a5cff8c7b26daddfe218c14f3c00e8a1de9c8e8be674dbcb0d954b095ff4`
+and the accepted Linux image at
+`sha256:a79b8753c8953011ff0c5ff4d4a2b0e2ee434e84cbe0e3b6e3e9bb4c79e40984`.
+
+**Consequences:** All 848 site tests, workspace clippy, exact Chapter 32 Rust
+evidence, static output, and 168 Chromium plus 168 Firefox browser cases pass.
+The published figure uses the shared presentation system and remains contained
+across both languages and all required modes. No dependency, build-definition,
+hosting, deployment, or user-environment change was made. Chapter 33 may begin
+only after this checkpoint is committed independently.
+
+**Affected step and run:** `activate-ch32-russian-localization`, run
+`20260731T131004Z-activate-ch32-russian-localization-01`.

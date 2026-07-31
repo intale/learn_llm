@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 57,
-  "policyId": "selective-russian-through-chapter-31",
+  "planRevision": 58,
+  "policyId": "selective-russian-through-chapter-32",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -37,7 +37,7 @@
     { "chapterId": "29-rope", "order": 29, "activeLocales": ["en", "ru"] },
     { "chapterId": "30-multi-head-attention", "order": 30, "activeLocales": ["en", "ru"] },
     { "chapterId": "31-decoder-block", "order": 31, "activeLocales": ["en", "ru"] },
-    { "chapterId": "32-decoder-model", "order": 32, "activeLocales": ["en"] },
+    { "chapterId": "32-decoder-model", "order": 32, "activeLocales": ["en", "ru"] },
     { "chapterId": "33-training-selection", "order": 33, "activeLocales": ["en"] },
     { "chapterId": "34-final-evaluation", "order": 34, "activeLocales": ["en"] },
     { "chapterId": "35-checkpoints", "order": 35, "activeLocales": ["en"] },

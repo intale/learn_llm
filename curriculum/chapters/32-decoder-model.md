@@ -2,48 +2,93 @@
 {
   "chapter_id": "32-decoder-model",
   "concept_id": "decoder-model",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 32,
   "objective": {
-    "en": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits."
+    "en": "Assemble token lookup, repeated pre-normalized decoder blocks, final RMSNorm, and one genuinely tied vocabulary projection into differentiable logits.",
+    "ru": "Собрать из выбора эмбеддингов по ID токенов, повторяющихся блоков декодера с предварительной нормализацией, итогового RMSNorm и одной действительно общей проекции на словарь дифференцируемые логиты."
   },
   "worked_inputs": {
-    "en": "Send token IDs [0,1,2] through a deterministic two-block decoder with vocabulary size five and model width four, then inspect every stage, tied-head logits, indexed loss, causality, parameter ownership, and gradients."
+    "en": "Send token IDs [0,1,2] through a deterministic two-block decoder with vocabulary size five and model width four, then inspect every stage, tied-head logits, indexed loss, causality, parameter ownership, and gradients.",
+    "ru": "Пропустить ID токенов [0,1,2] через детерминированный декодер из двух блоков со словарём из пяти элементов и шириной модели четыре, затем проверить каждый этап, логиты общей выходной проекции, индексированную функцию потерь, каузальность, принадлежность параметров и градиенты."
   },
   "formula": {
     "latex": "\\ell=\\operatorname{RMSNorm}(B_N(\\cdots B_1(E[z])\\cdots))E^\\top",
     "symbols": [
       {
         "symbol": "\\ell",
-        "en": "the vocabulary-logit tensor, not the scalar training loss"
+        "en": "the vocabulary-logit tensor, not the scalar training loss",
+        "ru": "тензор логитов словаря, а не скалярное значение функции потерь"
       },
       {
         "symbol": "z",
-        "en": "the rank-two batch of integer token IDs"
+        "en": "the rank-two batch of integer token IDs",
+        "ru": "тензор ранга два с пакетами целочисленных ID токенов"
       },
       {
         "symbol": "E",
-        "en": "the single trainable vocabulary-by-feature table used for both token lookup and output projection"
+        "en": "the single trainable vocabulary-by-feature table used for both token lookup and output projection",
+        "ru": "единственная обучаемая таблица «словарь на признаки», которая используется и для выбора эмбеддингов по ID токенов, и для выходной проекции"
       },
       {
         "symbol": "E[z]",
-        "en": "the token embeddings gathered from rows of the tied table"
+        "en": "the token embeddings gathered from rows of the tied table",
+        "ru": "эмбеддинги токенов, выбранные из строк общей таблицы"
       },
       {
         "symbol": "B_i",
-        "en": "the i-th pre-normalized causal decoder block from Chapter 31, with parameters distinct from every other block"
+        "en": "the i-th pre-normalized causal decoder block from Chapter 31, with parameters distinct from every other block",
+        "ru": "i-й каузальный блок декодера с предварительной нормализацией из главы 31; его параметры не принадлежат другим блокам"
       },
       {
         "symbol": "N",
-        "en": "the configured number of repeated decoder blocks; zero, one, and larger depths are valid"
+        "en": "the configured number of repeated decoder blocks; zero, one, and larger depths are valid",
+        "ru": "заданное число последовательных блоков декодера; допустимы ноль, один и большее число блоков"
       },
       {
         "symbol": "\\operatorname{RMSNorm}",
-        "en": "the learned-gain final normalization applied after the complete block stack"
+        "en": "the learned-gain final normalization applied after the complete block stack",
+        "ru": "итоговая нормализация с обучаемым коэффициентом, применяемая после всего стека блоков"
       },
       {
         "symbol": "E^\\top",
-        "en": "the transpose view of the same embedding parameter, producing one score per vocabulary item"
+        "en": "the transpose view of the same embedding parameter, producing one score per vocabulary item",
+        "ru": "транспонированное представление того же параметра эмбеддингов, которое даёт по одной оценке каждому элементу словаря"
+      },
+      {
+        "symbol": "B",
+        "en": "the batch size",
+        "ru": "размер пакета"
+      },
+      {
+        "symbol": "T",
+        "en": "the number of token positions in each sequence",
+        "ru": "число позиций токенов в каждой последовательности"
+      },
+      {
+        "symbol": "V",
+        "en": "the vocabulary size",
+        "ru": "размер словаря"
+      },
+      {
+        "symbol": "d_{\\mathrm{model}}",
+        "en": "the residual-stream feature width",
+        "ru": "ширина признаков остаточного потока"
+      },
+      {
+        "symbol": "d_{\\mathrm{ff}}",
+        "en": "the hidden width inside each SwiGLU feed-forward branch",
+        "ru": "скрытая ширина каждой ветви SwiGLU"
+      },
+      {
+        "symbol": "y",
+        "en": "the rank-two batch of target vocabulary IDs, one per token position",
+        "ru": "тензор ранга два с целевыми ID словаря, по одному для каждой позиции токена"
+      },
+      {
+        "symbol": "\\mathcal{L}",
+        "en": "the scalar mean indexed negative log likelihood",
+        "ru": "скалярное среднее индексированное отрицательное логарифмическое правдоподобие"
       }
     ]
   },
@@ -51,13 +96,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "Earlier recurrent neural language models commonly separated an input embedding, stepwise recurrent computation, and a distinct vocabulary classifier, so input and output word tables could own independent parameters and updates."
+        "en": "Earlier recurrent neural language models commonly separated an input embedding, stepwise recurrent computation, and a distinct vocabulary classifier, so input and output word tables could own independent parameters and updates.",
+        "ru": "В ранних рекуррентных нейронных языковых моделях входные эмбеддинги, пошаговое рекуррентное вычисление и отдельный классификатор по словарю обычно были разными компонентами. Поэтому входная и выходная таблицы слов могли иметь независимые параметры и обновления."
       },
       "later_advance": {
-        "en": "Weight tying made one vocabulary-feature matrix serve both roles, the Transformer organized causally masked layers into a stack, and GPT-style pre-normalized decoders added a final normalization before the vocabulary head."
+        "en": "Weight tying made one vocabulary-feature matrix serve both roles, the Transformer organized causally masked layers into a stack, and GPT-2 placed normalization at each sub-block input plus one final normalization before the vocabulary head.",
+        "ru": "Связывание весов позволило одной матрице «словарь на признаки» выполнять обе роли, Transformer объединил слои с каузальной маской в стек, а в GPT-2 нормализация расположена на входе каждого подблока и ещё раз перед проекцией на словарь."
       },
       "modern_llm_role": {
-        "en": "A decoder-only LLM maps token IDs through a repeated causal residual stack into vocabulary logits; this course uses the already-taught RMSNorm, RoPE, attention, and SwiGLU pieces while making its tied-head choice explicit rather than universal."
+        "en": "A decoder-only LLM maps token IDs through a repeated causal residual stack into vocabulary logits; this course uses the already-taught RMSNorm, RoPE, attention, and SwiGLU pieces while making its tied-head choice explicit rather than universal.",
+        "ru": "LLM только с декодером преобразует ID токенов в логиты словаря с помощью стека повторяющихся каузальных остаточных блоков. В этом курсе используются уже изученные RMSNorm, RoPE, внимание и SwiGLU, а общие веса эмбеддингов и выходной проекции выбраны явно и не объявляются обязательными для всех моделей."
       },
       "sources": [
         {
@@ -66,7 +114,8 @@
           "name": "Using the Output Embedding to Improve Language Models",
           "source_url": "https://arxiv.org/abs/1608.05859",
           "claim": {
-            "en": "Press and Wolf describe the input-embedding, intervening-computation, and output-score-matrix roles in recurrent neural language models, recommend tying the two embeddings, and analyze the tied update as contributions from both roles."
+            "en": "Press and Wolf describe the input-embedding, intervening-computation, and output-score-matrix roles in recurrent neural language models, recommend tying the two embeddings, and analyze the tied update as contributions from both roles.",
+            "ru": "Пресс и Вольф выделяют в рекуррентных нейронных языковых моделях входные эмбеддинги, промежуточное вычисление и матрицу выходных оценок, рекомендуют связать веса двух таблиц и рассматривают обновление общей матрицы как сумму вкладов от обеих ролей."
           }
         },
         {
@@ -75,7 +124,8 @@
           "name": "Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
           "claim": {
-            "en": "Vaswani and colleagues define a stacked causally masked Transformer decoder and report sharing one matrix between embeddings and the pre-softmax linear transformation."
+            "en": "Vaswani and colleagues define a stacked causally masked Transformer decoder and report sharing one matrix between embeddings and the pre-softmax linear transformation.",
+            "ru": "Васвани и соавторы описывают стек декодера Transformer с каузальной маской и сообщают, что эмбеддинги и линейное преобразование перед softmax используют одну матрицу."
           }
         },
         {
@@ -84,7 +134,8 @@
           "name": "Language Models are Unsupervised Multitask Learners",
           "source_url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf",
           "claim": {
-            "en": "Radford and colleagues describe GPT-2 as a multi-layer Transformer language model with normalization at each sub-block input and an additional normalization after the final block."
+            "en": "Radford and colleagues describe GPT-2 as a multi-layer Transformer language model with normalization at each sub-block input and an additional normalization after the final block.",
+            "ru": "Рэдфорд и соавторы описывают GPT-2 как многослойную языковую модель Transformer, где нормализация стоит на входе каждого подблока, а после последнего блока применяется дополнительная нормализация."
           }
         },
         {
@@ -93,16 +144,19 @@
           "name": "LLaMA: Open and Efficient Foundation Language Models",
           "source_url": "https://arxiv.org/abs/2302.13971",
           "claim": {
-            "en": "Touvron and colleagues place pre-normalization with RMSNorm, SwiGLU, RoPE, and causal attention in a modern Transformer language-model family with model depth as an explicit architecture dimension."
+            "en": "Touvron and colleagues place pre-normalization with RMSNorm, SwiGLU, RoPE, and causal attention in a modern Transformer language-model family with model depth as an explicit architecture dimension.",
+            "ru": "Туврон и соавторы используют в современном семействе языковых моделей Transformer предварительную нормализацию RMSNorm, SwiGLU, RoPE и каузальное внимание, а глубину задают как отдельный параметр архитектуры."
           }
         }
       ]
     },
     "approach": {
-      "en": "Recurrent language models with separate input and output tables, followed by the transition to tied vocabulary weights and repeated causal Transformer layers."
+      "en": "Recurrent language models with separate input and output tables, followed by the transition to tied vocabulary weights and repeated causal Transformer layers.",
+      "ru": "Переход от рекуррентных языковых моделей с раздельными входной и выходной таблицами к общим весам словарных преобразований и повторяющимся каузальным слоям Transformer."
     },
     "summary": {
-      "en": "The model boundary evolved from a token embedding feeding stepwise recurrent state and a separate classifier toward repeated causally masked blocks whose final hidden states are normalized and projected to vocabulary logits. Weight tying lets one table own lookup and classifier roles, reducing parameters while requiring both gradient contributions to accumulate on one leaf."
+      "en": "The model boundary evolved from a token embedding feeding stepwise recurrent state and a separate classifier toward repeated causally masked blocks whose final hidden states are normalized and projected to vocabulary logits. Weight tying lets one table own lookup and classifier roles, reducing parameters while requiring both gradient contributions to accumulate on one leaf.",
+      "ru": "Раньше эмбеддинг токена поступал в пошагово обновляемое рекуррентное состояние, а отдельный классификатор выдавал оценки словаря. Современная граница модели строится из повторяющихся блоков с каузальной маской: их итоговые скрытые состояния нормализуются и проецируются в логиты словаря. При связывании весов одна таблица выполняет роли выбора строк по ID и классификации, поэтому параметров становится меньше, а градиентные вклады от двух применений складываются в одном листовом узле графа."
     },
     "rust_contrast": "Use the exact fixture to compare the tied model's 264 scalars with an otherwise identical untied count of 284, then detach each role in turn and verify that the full embedding gradient equals the lookup-role contribution plus the output-role contribution."
   },
@@ -114,44 +168,58 @@
       "rust/demos/ch32-decoder-model/src/main.rs",
       "rust/demos/ch32-decoder-model/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=32-decoder-model\nconfig=batch:1 tokens:3 vocabulary:5 model_width:4 layers:2 heads:2 head_width:2 feed_forward_width:4 context:4\nshape=embedding:[1, 3, 4] block_0:[1, 3, 4] block_1:[1, 3, 4] final_norm:[1, 3, 4] logits:[1, 3, 5]\ntoken_1_logits=[-0.862249,0.967613,-0.991545,-0.446363,1.234533]\ntargets=[1,2,3] mean_loss:2.045535\nprediction=token_0:0 token_1:4 token_2:1\ntying=name:token_embedding.weight lookup_and_head:true gradient_roles:lookup+output decomposition_error:0.000000000000\nparameters=tensors:20 scalars:264 untied_scalars:284 saved:20 bias_free:true stable_order:true\ndepths=zero_one_two:true context_limit:true vocabulary_errors:true target_errors:true\ncausality=prefix_0_bitwise:true prefix_1_bitwise:true suffix_changed:true\ngradcheck=tied_table:20 final_norm:4 total:24 tolerance:0.000020 passed:true stack_gradients:20/20\nhistory=recurrent_components:true tied_embeddings:true transformer_stack:true final_norm:true rmsnorm_decoder:true\nreplay=bitwise:true\nnext=train this decoder and select a state with validation loss only\n"
+    "expected_output": "chapter=32-decoder-model\nconfig=batch:1 tokens:3 vocabulary:5 model_width:4 layers:2 heads:2 head_width:2 feed_forward_width:4 context:4\nshape=embedding:[1, 3, 4] block_0:[1, 3, 4] block_1:[1, 3, 4] final_norm:[1, 3, 4] logits:[1, 3, 5]\ntoken_1_logits=[-0.862249,0.967613,-0.991545,-0.446363,1.234533]\ntargets=[1,2,3] mean_loss:2.045535\nprediction=token_0:0 token_1:4 token_2:1\ntying=name:token_embedding.weight lookup_and_head:true gradient_roles:lookup+output decomposition_error:0.000000000000\nparameters=tensors:20 scalars:264 untied_scalars:284 saved:20 bias_free:true stable_order:true\ndepths=zero_one_two:true configuration_errors:true context_limit:true vocabulary_errors:true target_errors:true\ncausality=prefix_0_bitwise:true prefix_1_bitwise:true suffix_changed:true\ngradcheck=tied_table:20 final_norm:4 total:24 tolerance:0.000020 passed:true stack_gradients:20/20\nreplay=bitwise:true\nnext=train this decoder and select a state with validation loss only\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "tied-decoder-model-flow",
     "rationale": {
-      "en": "A single pipeline makes the repeated same-shaped block stack and the one embedding table's two distant roles visible together, while exact per-stage vectors and logits prove that the diagram is evidence rather than decorative architecture art."
+      "en": "A single pipeline makes the repeated same-shaped block stack and the one embedding table's two distant roles visible together, while exact per-stage vectors and logits prove that the diagram is evidence rather than decorative architecture art.",
+      "ru": "Единая схема одновременно показывает стек повторяющихся блоков одной формы и две удалённые друг от друга роли одной таблицы эмбеддингов. Точные векторы после каждого этапа и логиты превращают схему в проверяемое свидетельство, а не в условный рисунок архитектуры."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative implementation now produces differentiable next-token logits and mean indexed loss from token IDs; Chapter 33 will train this exact model with a bounded deterministic loop and choose one state using validation loss only."
+    "en": "The cumulative implementation now produces differentiable next-token logits and mean indexed loss from token IDs; Chapter 33 will train this exact model with a bounded deterministic loop and choose one state using validation loss only.",
+    "ru": "Теперь совокупная реализация получает из ID токенов дифференцируемые логиты следующего токена и среднее значение индексированной функции потерь. В главе 33 эта же модель будет обучаться в ограниченном детерминированном цикле, а одно состояние будет выбрано только по функции потерь на валидационной выборке."
   },
   "terminology": [
     {
       "concept_id": "decoder-model",
-      "en": "decoder model"
+      "en": "decoder model",
+      "ru": "модель-декодер"
     },
     {
       "concept_id": "weight-tying",
-      "en": "weight tying"
+      "en": "weight tying",
+      "ru": "связывание весов"
     },
     {
       "concept_id": "vocabulary-logits",
-      "en": "vocabulary logits"
+      "en": "vocabulary logits",
+      "ru": "логиты словаря"
     },
     {
       "concept_id": "final-normalization",
-      "en": "final normalization"
+      "en": "final normalization",
+      "ru": "итоговая нормализация"
     },
     {
       "concept_id": "layer-stack",
-      "en": "layer stack"
+      "en": "layer stack",
+      "ru": "стек слоёв"
+    },
+    {
+      "concept_id": "token-lookup",
+      "en": "token lookup",
+      "ru": "выбор строк таблицы по ID токенов"
     }
   ],
   "translation_notes": [
-    "Russian is registered but inactive for Chapter 32, so no Russian lesson or placeholder route is published.",
-    "Preserve the distinction between one tied parameter and two uses of that parameter; do not translate weight tying as copying or synchronizing two tables.",
-    "Preserve z, E, E[z], E^top, B_i, N, ell, axis order, exact parameter names, trace tokens, and the distinction between logits and scalar loss.",
+    "Chapter 32 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 317367f552a6e9de39fc0e3173c6c5319d9a2cb2d53a490d50bc024e06323d08",
+    "Translate weight tying as «связывание весов» and immediately ground it as one shared parameter with two differentiable uses, never as copying, mirroring, or synchronizing two tables. Use «выходная проекция на словарь» in ordinary prose rather than a literal UI-like rendering of output head.",
+    "Translate token lookup as «выбор строк таблицы по ID токенов» or the concise contextual phrase «выбор эмбеддингов по ID токенов», never as «поиск токенов».",
+    "Preserve z, E, E[z], E^top, B_i, N, B, T, V, d_model, d_ff, y, ell, L, axis order, exact parameter names, trace tokens, and the distinction between logits and scalar loss.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM architecture."
   ],
   "acceptance_examples": [
@@ -246,6 +314,13 @@ $$
 \ell=\operatorname{RMSNorm}(B_N(\cdots B_1(E[z])\cdots))E^\top.
 $$
 
+This form applies when $N\geq 1$. At the valid zero-block boundary, the empty
+block composition is the identity and the model uses
+
+$$
+\ell=\operatorname{RMSNorm}(E[z])E^\top.
+$$
+
 $z\in\{0,\ldots,V-1\}^{B\times T}$ contains integer selectors. The single
 table $E\in\mathbb{R}^{V\times d_{\mathrm{model}}}$ maps each selector to one
 feature row. Each $B_i$ is a separately parameterized decoder block, while $N$
@@ -264,6 +339,11 @@ $$
 \mathcal{L}=-\frac{1}{BT}\sum_{b=1}^{B}\sum_{t=1}^{T}
 \log\operatorname{softmax}(\ell_{b,t,:})_{y_{b,t}}.
 $$
+
+$B$ is batch size, $T$ is sequence length, $V$ is vocabulary size,
+$d_{\mathrm{model}}$ is residual-stream width, and $d_{\mathrm{ff}}$ is the
+hidden width inside each SwiGLU branch. $y$ supplies one target ID for each
+pair $(b,t)$, while $\mathcal{L}$ is the scalar mean loss.
 
 One block owns $4d_{\mathrm{model}}^2+3d_{\mathrm{model}}d_{\mathrm{ff}}
 +2d_{\mathrm{model}}$ scalars. The complete tied model therefore owns
@@ -343,9 +423,9 @@ zero/one/two-block shapes, exact parameter order/count, deterministic replay,
 causality, transactional construction, component drift, context, vocabulary,
 target, and tape failures.
 
-The learner report and diagram trace are generated from the same evidence. Site
-code parses and labels those strings but performs no lookup, block, RMSNorm,
-projection, softmax, loss, parameter-count, or gradient arithmetic.
+The learner report and diagram record come from the same forward and backward
+run. Stage rows, logits, predictions, loss, parameter ownership, boundary
+checks, and gradient decomposition therefore describe one coherent fixture.
 
 <!-- contract-section:visualization -->
 ## Visualization decision
@@ -410,22 +490,24 @@ validation evidence without consulting the test partition.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active locale for Chapter 32. Russian remains registered for
-future localization, but no Russian lesson or placeholder route is published.
-A future translation must preserve formula symbols, tensor axes, exact fixture
-values, parameter names, trace tokens, source boundaries, and the distinction
-between logits and loss while rewriting prose naturally.
+English is the canonical semantic source and Russian is an active direct
+translation of the same revision. Both locales publish complete lessons and
+reciprocal routes. Any later English change makes the Russian review stale until
+formula symbols, zero-depth identity, tensor axes, exact fixture values,
+parameter names, trace tokens, source boundaries, diagram labels, and
+accessibility labels have been refreshed from English and reviewed again.
 
-Translate “weight tying” as one shared parameter, never as copying, mirroring, or
+Translate “weight tying” as «связывание весов» and explain that it means one
+shared parameter with two differentiable uses, never copying, mirroring, or
 periodic synchronization. Keep “layer stack” distinct from a runtime call stack,
-and keep “output head” as a model projection rather than a UI heading. Technical
-source provenance may mention Rust; historical explanation must stay focused on
-the evolution of language-model architecture.
+and render “output head” in ordinary prose as the model's output projection on
+the vocabulary. Technical source provenance may mention Rust; historical
+explanation must stay focused on language-model architecture.
 
 <!-- contract-section:acceptance -->
 ## Acceptance
 
-The chapter is accepted when the contract and English lesson agree on the exact
+The chapter is accepted when the contract and both localized lessons agree on the exact
 formula, fixture, source-scoped LLM history, tied/non-universal boundary, and
 deferred optimization scope; the reusable model validates config and components,
 preserves zero/one/two-depth shapes and causality, owns the stable 20-tensor
@@ -438,6 +520,6 @@ every declared source excerpt through `RustSource`. The one useful static figure
 must consume only the frozen trace, follow shared roles, contain every card and
 formula, remain readable inline and in full view, and pass desktop, narrow,
 no-JavaScript, forced-color, direction-sensitive, Chromium, and Firefox checks.
-The complete English active-locale set, deferred Russian route, navigation, SEO,
+The complete bilingual active-locale set, reciprocal routes, navigation, SEO,
 sitemap, links, static build, unit tests, focused browser gates, and full
 regression suite must pass before publication.

@@ -588,6 +588,7 @@ const chapter14To39FormulaLatex: Record<
   ],
   "32-decoder-model": [
     String.raw`\ell=\operatorname{RMSNorm}(B_N(\cdots B_1(E[z])\cdots))E^\top`,
+    String.raw`\ell=\operatorname{RMSNorm}(E[z])E^\top`,
     String.raw`\ell\in\mathbb{R}^{B\times T\times V}`,
     String.raw`\mathcal{L}=-\frac{1}{BT}`,
     String.raw`\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}`,

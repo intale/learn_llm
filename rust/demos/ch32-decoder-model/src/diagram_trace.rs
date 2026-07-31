@@ -101,8 +101,9 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     .unwrap();
     writeln!(
         output,
-        "depths zero_one_two={} context_limit={} vocabulary_errors={} target_errors={}",
+        "depths zero_one_two={} configuration_errors={} context_limit={} vocabulary_errors={} target_errors={}",
         evidence.depths_valid,
+        evidence.errors.configuration,
         evidence.errors.context,
         evidence.errors.vocabulary,
         evidence.errors.target
@@ -126,11 +127,6 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
         evidence.gradients.passed,
         evidence.gradients.stack_gradient_tensors,
         evidence.gradients.stack_parameter_tensors
-    )
-    .unwrap();
-    writeln!(
-        output,
-        "history recurrent_components=true tied_embeddings=true transformer_stack=true final_norm=true rmsnorm_decoder=true"
     )
     .unwrap();
     writeln!(output, "replay bitwise={}", evidence.replay_bitwise).unwrap();

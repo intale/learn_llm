@@ -24,6 +24,12 @@ const blockZero = stage('block-0');
 const blockOne = stage('block-1');
 const finalNorm = stage('final-norm');
 const representativeStages = [embedding, blockZero, blockOne, finalNorm];
+const stageRowLabels: Readonly<Record<string, string>> = {
+  embedding: labels.stageRows.embedding,
+  'block-0': labels.stageRows.blockZero,
+  'block-1': labels.stageRows.blockOne,
+  'final-norm': labels.stageRows.finalNorm,
+};
 const titleId = 'decoder-model-diagram-title';
 const descriptionId = 'decoder-model-diagram-description';
 const vectorParts = (name: string, values: readonly string[]) =>
@@ -46,14 +52,14 @@ const vectorParts = (name: string, values: readonly string[]) =>
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.pipeline}>
-      <li class="repeated-cue">{labels.cues.repeated}</li>
-      <li class="tied-cue">{labels.cues.tied}</li>
-      <li class="verified-cue">{labels.cues.verified}</li>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.sections.pipeline}>
+      <li data-diagram-card data-diagram-box class="repeated-cue course-diagram__card-stack">{labels.cues.repeated}</li>
+      <li data-diagram-card data-diagram-box class="tied-cue course-diagram__card-stack">{labels.cues.tied}</li>
+      <li data-diagram-card data-diagram-box class="verified-cue course-diagram__card-stack">{labels.cues.verified}</li>
     </ul>
   </figcaption>
 
-  <section class="pipeline-section" aria-labelledby="decoder-model-pipeline-title">
+  <section data-diagram-box class="pipeline-section course-diagram__card-stack" aria-labelledby="decoder-model-pipeline-title">
     <h4 id="decoder-model-pipeline-title">{labels.sections.pipeline}</h4>
     <p>{labels.captions.pipeline}</p>
     <div
@@ -64,26 +70,26 @@ const vectorParts = (name: string, values: readonly string[]) =>
       data-diagram-scroll
     >
       <div class="pipeline-layout">
-        <article data-diagram-card data-diagram-box class="flow-card ids-card" data-model-stage="ids">
+        <article data-diagram-card data-diagram-box class="flow-card ids-card course-diagram__card-stack" data-model-stage="ids">
           <h5>{labels.stages.ids}</h5>
           <InlineMath latex={'z=' + trace.tokens.values.latex} />
           <InlineMath latex={trace.tokens.shape} />
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="flow-card lookup-card" data-model-stage="lookup">
+        <article data-diagram-card data-diagram-box class="flow-card lookup-card course-diagram__card-stack" data-model-stage="lookup">
           <h5>{labels.stages.lookup}</h5>
           <InlineMath latex="E[z]" />
           <InlineMath latex={embedding.shape} />
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="flow-card block-stack" data-model-stage="blocks" data-repeat-count={trace.config.layers}>
+        <article data-diagram-card data-diagram-box class="flow-card block-stack course-diagram__card-stack" data-model-stage="blocks" data-repeat-count={trace.config.layers}>
           <h5>{labels.stages.blocks}</h5>
           <p><InlineMath latex="B_1" /> <span aria-hidden="true">&rarr;</span> <InlineMath latex="B_2" /></p>
           <code><bdi dir="ltr">blocks.0, blocks.1</bdi></code>
           <InlineMath latex={blockOne.shape} />
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="flow-card norm-card" data-model-stage="final-norm">
+        <article data-diagram-card data-diagram-box class="flow-card norm-card course-diagram__card-stack" data-model-stage="final-norm">
           <h5>{labels.stages.finalNorm}</h5>
           <InlineMath latex={String.raw`\operatorname{RMSNorm}`} />
           <InlineMath latex={finalNorm.shape} />
@@ -93,7 +99,7 @@ const vectorParts = (name: string, values: readonly string[]) =>
           <InlineMath latex={String.raw`E^\top`} />
           <span class="flow-arrow" aria-hidden="true">&rarr;</span>
         </span>
-        <article data-diagram-card data-diagram-box class="flow-card logits-card" data-model-stage="logits">
+        <article data-diagram-card data-diagram-box class="flow-card logits-card course-diagram__card-stack" data-model-stage="logits">
           <h5>{labels.stages.logits}</h5>
           <InlineMath latex={String.raw`\ell`} />
           <InlineMath latex="[1,3,5]" />
@@ -102,7 +108,7 @@ const vectorParts = (name: string, values: readonly string[]) =>
         <article
           data-diagram-card
           data-diagram-box
-          class="shared-table-card"
+          class="shared-table-card course-diagram__card-stack"
           data-shared-parameter={trace.tying.name}
           data-tied-roles={trace.tying.gradient_roles}
         >
@@ -117,7 +123,7 @@ const vectorParts = (name: string, values: readonly string[]) =>
     </div>
   </section>
 
-  <section class="evidence-section" aria-labelledby="decoder-model-evidence-title">
+  <section data-diagram-box class="evidence-section course-diagram__card-stack" aria-labelledby="decoder-model-evidence-title">
     <h4 id="decoder-model-evidence-title">{labels.sections.evidence}</h4>
     <p>{labels.captions.evidence}</p>
     <div
@@ -140,7 +146,7 @@ const vectorParts = (name: string, values: readonly string[]) =>
         <tbody>
           {representativeStages.map((item) => (
             <tr data-stage-evidence={item.name}>
-              <th scope="row"><code><bdi dir="ltr">{item.name}</bdi></code></th>
+              <th scope="row">{stageRowLabels[item.name]}</th>
               <td><InlineMath latex="t=1" /></td>
               <td><InlineMath latex={item.shape} /></td>
               <td>
@@ -192,23 +198,23 @@ const vectorParts = (name: string, values: readonly string[]) =>
     </p>
   </section>
 
-  <section class="proof-section" aria-labelledby="decoder-model-proof-title">
+  <section data-diagram-box class="proof-section course-diagram__card-stack" aria-labelledby="decoder-model-proof-title">
     <h4 id="decoder-model-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card parameter-card">
+    <div class="proof-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card parameter-card course-diagram__card-stack">
         <h5>{labels.fields.parameterCount}</h5>
         <p><InlineMath latex={String.raw`N_\theta=${trace.parameters.scalars}`} /></p>
         <p>{labels.fields.parameterSaving}: <InlineMath latex={trace.parameters.untied_scalars + '-' + trace.parameters.scalars + '=' + trace.parameters.saved} /></p>
         <code><bdi dir="ltr">tensors={trace.parameters.tensors}, bias_free={trace.parameters.bias_free}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card gradient-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card gradient-card course-diagram__card-stack">
         <h5>{labels.fields.gradientProof}</h5>
         <p><InlineMath latex={String.raw`\bar E=\bar E_{\mathrm{lookup}}+\bar E_{\mathrm{output}}`} /></p>
         <p><InlineMath latex={String.raw`\Delta=${trace.tying.decomposition_error}`} /></p>
         <code><bdi dir="ltr">checked={trace.gradcheck.total}, stack={trace.gradcheck.stack_gradients}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card causal-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card causal-card course-diagram__card-stack">
         <h5>{labels.fields.causalProof}</h5>
         <p data-prefix-position="0" data-prefix-status={trace.causality.prefix_0_bitwise}>
           <InlineMath latex="t=0" />: {labels.cues.unchanged}
@@ -220,9 +226,10 @@ const vectorParts = (name: string, values: readonly string[]) =>
           <InlineMath latex="t=2" />: {labels.cues.changed}
         </p>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card depth-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card depth-card course-diagram__card-stack">
         <h5>{labels.fields.depthProof}</h5>
         <p><InlineMath latex={String.raw`N\in\{0,1,2\}`} />: {labels.cues.verified}</p>
+        <code><bdi dir="ltr">configuration={trace.depths.configuration_errors}</bdi></code>
         <code><bdi dir="ltr">context={trace.depths.context_limit}</bdi></code>
         <code><bdi dir="ltr">vocabulary={trace.depths.vocabulary_errors}</bdi></code>
         <code><bdi dir="ltr">targets={trace.depths.target_errors}</bdi></code>
@@ -260,24 +267,8 @@ const vectorParts = (name: string, values: readonly string[]) =>
     align-items: stretch;
   }
 
-  .flow-card,
-  .shared-table-card,
-  .proof-card {
-    display: grid;
-    gap: 0.4rem;
-    align-content: center;
-  }
-
   .flow-card {
     text-align: center;
-  }
-
-  .flow-card h5,
-  .shared-table-card h5,
-  .shared-table-card p,
-  .proof-card h5,
-  .proof-card p {
-    margin: 0;
   }
 
   .flow-arrow {
@@ -318,15 +309,15 @@ const vectorParts = (name: string, values: readonly string[]) =>
     border-style: dashed;
   }
 
-  .role-cues,
-  .cue-list {
+  .role-cues {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem 1rem;
+    justify-content: center;
   }
 
-  .role-cues {
-    justify-content: center;
+  .cue-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .tied-cue {
@@ -369,12 +360,11 @@ const vectorParts = (name: string, values: readonly string[]) =>
   }
 
   .proof-grid {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem;
   }
 
   @container course-diagram (max-width: 48rem) {
+    .cue-list,
     .proof-grid {
       grid-template-columns: minmax(0, 1fr);
     }

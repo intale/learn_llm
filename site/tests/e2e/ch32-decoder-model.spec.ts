@@ -13,23 +13,85 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "32-decoder-model";
-const chapterTitle = "Stack a decoder and tie its vocabulary head";
-const chapterDescription =
-  "Learn how token embeddings, repeated causal blocks, final RMSNorm, and one tied vocabulary table produce differentiable next-token logits.";
-const diagramTitle =
-  "Follow one tied vocabulary table through a complete decoder";
-const diagramDescription =
-  "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.";
-const chapterHeadings = [
-  "Predict the axes before tracing the decoder",
-  "Reuse the embedding table at the far end of the stack",
-  "Distinguish one parameter from its two uses",
-  "From separate recurrent components to one decoder stack",
-  "Make the complete model boundary explicit in Rust",
-  "Inspect one table at both ends of the forward path",
-  "Test axes, ownership, causality, and failures",
-  "Train this exact model at the next boundary",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Stack a decoder and tie its vocabulary head",
+    description:
+      "Learn how token embeddings, repeated causal blocks, final RMSNorm, and one tied vocabulary table produce differentiable next-token logits.",
+    headings: [
+      "Predict the axes before tracing the decoder",
+      "Reuse the embedding table at the far end of the stack",
+      "Distinguish one parameter from its two uses",
+      "From separate recurrent components to one decoder stack",
+      "Make the complete model boundary explicit in Rust",
+      "Inspect one table at both ends of the forward path",
+      "Test axes, ownership, causality, and failures",
+      "Train this exact model at the next boundary",
+    ],
+    diagramTitle:
+      "Follow one tied vocabulary table through a complete decoder",
+    diagramDescription:
+      "Read exact Rust-authored token rows through lookup, two distinct causal blocks, final RMSNorm, and the transpose projection back to five vocabulary logits.",
+    cues: [
+      "Double edge: repeated blocks with distinct weights",
+      "Dashed edge: two uses of one parameter",
+      "Double underline: verified Rust evidence",
+    ],
+    unchanged: "Bitwise unchanged",
+    changed: "Numerically changed",
+    stageRows: [
+      "Embedding lookup",
+      "After decoder block 1",
+      "After decoder block 2",
+      "After final RMSNorm",
+    ],
+    detailsFragment: "The output role can contribute to every vocabulary row",
+    historyFragments: [
+      "making its tied-head choice explicit rather than universal",
+      "without claiming that the tiny fixture reproduces",
+    ],
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Соберите декодер и свяжите веса проекции на словарь",
+    description:
+      "Разберитесь, как эмбеддинги токенов, повторяющиеся каузальные блоки, итоговый RMSNorm и одна общая таблица словаря создают дифференцируемые логиты следующего токена.",
+    headings: [
+      "Предскажите оси до трассировки декодера",
+      "Повторно используйте таблицу эмбеддингов в конце стека",
+      "Различайте один параметр и два его применения",
+      "От раздельных рекуррентных компонентов к единому стеку декодера",
+      "Явно задайте полную границу модели на Rust",
+      "Проследите одну таблицу в начале и конце прямого прохода",
+      "Проверьте оси, владение, каузальность и ошибки",
+      "На следующем шаге обучите именно эту модель",
+    ],
+    diagramTitle: "Проследите общую таблицу словаря через весь декодер",
+    diagramDescription:
+      "Проследите точные строки признаков для токенов из вычислений Rust через выбор эмбеддингов, два разных каузальных блока, итоговый RMSNorm и транспонированную проекцию обратно в пять логитов словаря.",
+    cues: [
+      "Двойная граница: разные веса повторяющихся блоков",
+      "Пунктирная граница: две роли одного параметра",
+      "Двойное подчёркивание: проверено вычислениями Rust",
+    ],
+    unchanged: "Побитово без изменений",
+    changed: "Численно изменилось",
+    stageRows: [
+      "Выбор эмбеддинга",
+      "После блока декодера 1",
+      "После блока декодера 2",
+      "После итогового RMSNorm",
+    ],
+    detailsFragment: "Выходная роль может внести вклад в каждую строку словаря",
+    historyFragments: [
+      "не объявляются обязательными для всех моделей",
+      "не выдаёт маленький пример",
+    ],
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
@@ -205,22 +267,24 @@ async function expectDiagramContainment(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 32,
-    revision: 1,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: locales,
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    localized.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -247,10 +311,14 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain(
-    "making its tied-head choice explicit rather than universal",
+  for (const fragment of localized.historyFragments) {
+    expect(lessonText.toLocaleLowerCase(locale)).toContain(
+      fragment.toLocaleLowerCase(locale),
+    );
+  }
+  expect(lessonText).not.toMatch(
+    /TypeScript|static HTML|JavaScript|trace grammar|site parser|page labels|programming languages/i,
   );
-  expect(lessonText).toContain("does not recreate a historical model");
   await expect(
     page.locator('.lesson-body a[href^="https://arxiv.org/abs/"]'),
   ).toHaveCount(3);
@@ -266,12 +334,15 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="tied-decoder-model-flow"]',
   );
-  await expect(diagram).toHaveAccessibleName(diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-model-stage]")).toHaveCount(6);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(10);
+  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(16);
   await expect(diagram.locator("[data-stage-evidence]")).toHaveCount(4);
+  await expect(diagram.locator("[data-stage-evidence] th")).toHaveText(
+    localized.stageRows,
+  );
   await expect(diagram.locator("[data-logit-token]")).toHaveCount(3);
   await expect(diagram.locator("table")).toHaveCount(2);
   await expect(diagram.locator("table caption")).toHaveCount(2);
@@ -302,13 +373,13 @@ async function expectChapterContent(
     ],
   );
   await expect(diagram.locator('[data-prefix-position="0"]')).toContainText(
-    "Bitwise unchanged",
+    localized.unchanged,
   );
   await expect(diagram.locator('[data-prefix-position="1"]')).toContainText(
-    "Bitwise unchanged",
+    localized.unchanged,
   );
   await expect(diagram.locator('[data-prefix-position="2"]')).toContainText(
-    "Numerically changed",
+    localized.changed,
   );
   await expectDiagramContainment(page);
 
@@ -316,15 +387,26 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(6);
-  await expect(details).toContainText(
-    "The output role can contribute to every vocabulary row",
-  );
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expect(details).toContainText(localized.detailsFragment);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "31-decoder-block");
+  if (locale === "en") {
+    await expect(
+      page.locator(
+        'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+      ),
+    ).toHaveAttribute("data-chapter-id", "33-training-selection");
+  } else {
+    await expect(
+      page.locator(
+        'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+      ),
+    ).toHaveCount(0);
+  }
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -332,111 +414,171 @@ test.describe(
   "chapter 32 complete tied decoder model vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 32 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 32 routes", async ({
       page,
     }) => {
-      const english = await readOrderedCourseChapters(page, "en");
-      expect(english.length).toBeGreaterThanOrEqual(32);
-      expect(english[31]).toEqual(
-        expect.objectContaining({
-          chapterId,
-          order: 32,
-          title: chapterTitle,
-        }),
-      );
-      const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        expect(chapters[31]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 32,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+      }
     });
 
-    test("the Rust-backed lesson and contained diagram render at desktop and narrow widths", async ({
+    test("both complete lessons and contained diagrams render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+      }
+    });
+
+    test("full view reuses the localized semantic figure and restores focus", async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
+      const controlNames: string[] = [];
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="tied-decoder-model-flow"]',
+        );
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
+        const before = await diagram.evaluate((node) => ({
+          boxes: node.querySelectorAll("[data-diagram-box]").length,
+          figures: document.querySelectorAll(
+            'figure[data-visualization-id="tied-decoder-model-flow"]',
+          ).length,
+          scrollers: node.querySelectorAll("[data-diagram-scroll]").length,
+          tables: node.querySelectorAll("table").length,
+        }));
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute("data-visualization-id") ===
+            "tied-decoder-model-flow",
+        );
+        await page.evaluate(() => document.fonts.ready);
+        const after = await diagram.evaluate((node) => ({
+          boxes: node.querySelectorAll("[data-diagram-box]").length,
+          debt: node.scrollWidth - node.clientWidth,
+          figures: document.querySelectorAll(
+            'figure[data-visualization-id="tied-decoder-model-flow"]',
+          ).length,
+          regions: Array.from(
+            node.querySelectorAll<HTMLElement>("[data-diagram-scroll]"),
+          ).map((region) => ({
+            debt: region.scrollWidth - region.clientWidth,
+            name: region.getAttribute("aria-label"),
+          })),
+          scrollers: node.querySelectorAll("[data-diagram-scroll]").length,
+          tables: node.querySelectorAll("table").length,
+          verticalViewports: node.scrollHeight / node.clientHeight,
+        }));
+        expect({
+          boxes: after.boxes,
+          figures: after.figures,
+          scrollers: after.scrollers,
+          tables: after.tables,
+        }).toEqual(before);
+        expect(after.debt).toBeLessThanOrEqual(2);
+        expect(after.regions.filter(({ debt }) => debt > 320)).toEqual([]);
+        expect(
+          after.verticalViewports,
+          `${locale} full-view regions: ${JSON.stringify(after.regions)}`,
+        ).toBeLessThanOrEqual(3);
+        await expectDiagramContainment(page);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+      expect(new Set(controlNames).size).toBe(locales.length);
     });
 
     test("repeated, tied, and verified cues survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="tied-decoder-model-flow"]',
-      );
-      await expect(diagram.locator(".cue-list li")).toHaveText([
-        "Double edge: repeated blocks with distinct weights",
-        "Dashed edge: two uses of one parameter",
-        "Double underline: verified Rust evidence",
-      ]);
-      await expect(diagram.locator(".block-stack")).toHaveCSS(
-        "border-left-style",
-        "double",
-      );
-      await expect(diagram.locator(".shared-table-card")).toHaveCSS(
-        "border-left-style",
-        "dashed",
-      );
-      await expect(diagram.locator(".tied-cue")).toHaveCSS(
-        "border-bottom-style",
-        "dashed",
-      );
-      await expect(diagram.locator(".verified-cue")).toHaveCSS(
-        "border-bottom-style",
-        "double",
-      );
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="tied-decoder-model-flow"]',
+        );
+        await expect(diagram.locator(".cue-list li")).toHaveText(
+          copy[locale].cues,
+        );
+        await expect(diagram.locator(".block-stack")).toHaveCSS(
+          "border-left-style",
+          "double",
+        );
+        await expect(diagram.locator(".shared-table-card")).toHaveCSS(
+          "border-left-style",
+          "dashed",
+        );
+        await expect(diagram.locator(".tied-cue")).toHaveCSS(
+          "border-bottom-style",
+          "dashed",
+        );
+        await expect(diagram.locator(".verified-cue")).toHaveCSS(
+          "border-bottom-style",
+          "double",
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("RTL prose keeps formulas, trace values, and vocabulary order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="tied-decoder-model-flow"]',
-      );
-      await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-      await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      expect(
-        await diagram
-          .locator(".technical, [data-inline-math]")
-          .evaluateAll((nodes) =>
-            nodes.every((node) => getComputedStyle(node).direction === "ltr"),
-          ),
-      ).toBe(true);
-      expect(
-        await diagram
-          .locator("[data-logit-token]")
-          .evaluateAll((rows) =>
-            rows.map((row) => row.getAttribute("data-logit-token")),
-          ),
-      ).toEqual(["0", "1", "2"]);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="tied-decoder-model-flow"]',
+        );
+        await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
+        await expect(diagram.locator("h4").first()).toHaveCSS(
+          "direction",
+          "rtl",
+        );
+        expect(
+          await diagram
+            .locator(".technical, [data-inline-math]")
+            .evaluateAll((nodes) =>
+              nodes.every((node) => getComputedStyle(node).direction === "ltr"),
+            ),
+        ).toBe(true);
+        expect(
+          await diagram
+            .locator("[data-logit-token]")
+            .evaluateAll((rows) =>
+              rows.map((row) => row.getAttribute("data-logit-token")),
+            ),
+        ).toEqual(["0", "1", "2"]);
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("the lesson and exact decoder-model trace render without JavaScript", async ({
@@ -447,23 +589,29 @@ test.describe(
         baseURL: String(testInfo.project.use.baseURL),
       });
       const page = await context.newPage();
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator("[data-model-stage]")).toHaveCount(6);
-      await expect(page.locator("[data-stage-evidence]")).toHaveCount(4);
-      await expect(page.locator("[data-logit-token]")).toHaveCount(3);
-      await expect(page.locator("[data-shared-parameter]")).toContainText(
-        "token_embedding.weight",
-      );
-      await expect(page.locator('[data-prefix-position="0"]')).toContainText(
-        "Bitwise unchanged",
-      );
-      await expect(page.locator('[data-prefix-position="2"]')).toContainText(
-        "Numerically changed",
-      );
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(page.locator("[data-model-stage]")).toHaveCount(6);
+        await expect(page.locator("[data-stage-evidence]")).toHaveCount(4);
+        await expect(page.locator("[data-logit-token]")).toHaveCount(3);
+        await expect(page.locator("[data-shared-parameter]")).toContainText(
+          "token_embedding.weight",
+        );
+        await expect(page.locator('[data-prefix-position="0"]')).toContainText(
+          copy[locale].unchanged,
+        );
+        await expect(page.locator('[data-prefix-position="2"]')).toContainText(
+          copy[locale].changed,
+        );
+        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
+          0,
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

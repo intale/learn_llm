@@ -29,7 +29,6 @@ export interface DecoderModelTrace {
   readonly depths: Readonly<Record<string, string>>;
   readonly causality: Readonly<Record<string, string>>;
   readonly gradcheck: Readonly<Record<string, string>>;
-  readonly history: Readonly<Record<string, string>>;
   readonly replay: Readonly<Record<string, string>>;
 }
 
@@ -48,6 +47,12 @@ export interface DecoderModelDiagramLabels {
     readonly finalNorm: string;
     readonly projection: string;
     readonly logits: string;
+  };
+  readonly stageRows: {
+    readonly embedding: string;
+    readonly blockZero: string;
+    readonly blockOne: string;
+    readonly finalNorm: string;
   };
   readonly fields: {
     readonly shape: string;
@@ -109,10 +114,9 @@ const expectedLines = [
   "loss mean=2.045535",
   "tying name=token_embedding.weight lookup_and_head=true gradient_roles=lookup+output decomposition_error=0.000000000000",
   "parameters tensors=20 scalars=264 untied_scalars=284 saved=20 bias_free=true stable_order=true",
-  "depths zero_one_two=true context_limit=true vocabulary_errors=true target_errors=true",
+  "depths zero_one_two=true configuration_errors=true context_limit=true vocabulary_errors=true target_errors=true",
   "causality prefix_0_bitwise=true prefix_1_bitwise=true suffix_changed=true",
   "gradcheck tied_table=20 final_norm=4 total=24 tolerance=0.000020 passed=true stack_gradients=20/20",
-  "history recurrent_components=true tied_embeddings=true transformer_stack=true final_norm=true rmsnorm_decoder=true",
   "replay bitwise=true",
   "END_DECODER_MODEL_TRACE",
 ] as const;
@@ -162,6 +166,7 @@ export function validateDecoderModelDiagramLabels(
       "description",
       "sections",
       "stages",
+      "stageRows",
       "fields",
       "cues",
       "captions",
@@ -182,6 +187,11 @@ export function validateDecoderModelDiagramLabels(
     labels.stages as unknown as Record<string, unknown>,
     ["ids", "lookup", "blocks", "finalNorm", "projection", "logits"],
     "stages",
+  );
+  exactStringKeys(
+    labels.stageRows as unknown as Record<string, unknown>,
+    ["embedding", "blockZero", "blockOne", "finalNorm"],
+    "stageRows",
   );
   exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
@@ -282,7 +292,7 @@ export function parseDecoderModelTrace(source: string): DecoderModelTrace {
   }
   const lines = source.slice(0, -1).split("\n");
   if (lines.length !== expectedLines.length)
-    invalid("trace must contain exactly 29 lines");
+    invalid("trace must contain exactly 28 lines");
   for (const [index, expected] of expectedLines.entries()) {
     if (lines[index] !== expected)
       invalid("line " + (index + 1) + " differs from Rust");
@@ -378,7 +388,13 @@ export function parseDecoderModelTrace(source: string): DecoderModelTrace {
   const depths = fields(lines[23], "depths");
   exactKeys(
     depths,
-    ["zero_one_two", "context_limit", "vocabulary_errors", "target_errors"],
+    [
+      "zero_one_two",
+      "configuration_errors",
+      "context_limit",
+      "vocabulary_errors",
+      "target_errors",
+    ],
     "depths",
   );
   const causality = fields(lines[24], "causality");
@@ -400,19 +416,7 @@ export function parseDecoderModelTrace(source: string): DecoderModelTrace {
     ],
     "gradcheck",
   );
-  const history = fields(lines[26], "history");
-  exactKeys(
-    history,
-    [
-      "recurrent_components",
-      "tied_embeddings",
-      "transformer_stack",
-      "final_norm",
-      "rmsnorm_decoder",
-    ],
-    "history",
-  );
-  const replay = fields(lines[27], "replay");
+  const replay = fields(lines[26], "replay");
   exactKeys(replay, ["bitwise"], "replay");
 
   return Object.freeze({
@@ -435,7 +439,6 @@ export function parseDecoderModelTrace(source: string): DecoderModelTrace {
     depths,
     causality,
     gradcheck,
-    history,
     replay,
   });
 }

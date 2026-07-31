@@ -429,10 +429,9 @@ pub fn render_report(evidence: &LearnerEvidence) -> String {
             "prediction=token_0:{prediction_0} token_1:{prediction_1} token_2:{prediction_2}\n",
             "tying=name:{tied_name} lookup_and_head:{tied} gradient_roles:lookup+output decomposition_error:{decomposition_error:.12}\n",
             "parameters=tensors:{parameter_tensors} scalars:{parameter_scalars} untied_scalars:{untied_scalars} saved:{saved} bias_free:{bias_free} stable_order:{stable_order}\n",
-            "depths=zero_one_two:{depths} context_limit:{context} vocabulary_errors:{vocabulary_error} target_errors:{target}\n",
+            "depths=zero_one_two:{depths} configuration_errors:{configuration} context_limit:{context} vocabulary_errors:{vocabulary_error} target_errors:{target}\n",
             "causality=prefix_0_bitwise:{prefix_0} prefix_1_bitwise:{prefix_1} suffix_changed:{suffix}\n",
             "gradcheck=tied_table:{table_checks} final_norm:{gain_checks} total:{total_checks} tolerance:{tolerance:.6} passed:{passed} stack_gradients:{stack_gradients}/{stack_parameters}\n",
-            "history=recurrent_components:true tied_embeddings:true transformer_stack:true final_norm:true rmsnorm_decoder:true\n",
             "replay=bitwise:{replay}\n",
             "next=train this decoder and select a state with validation loss only\n",
         ),
@@ -465,6 +464,7 @@ pub fn render_report(evidence: &LearnerEvidence) -> String {
         bias_free = evidence.bias_free,
         stable_order = evidence.stable_order,
         depths = evidence.depths_valid,
+        configuration = evidence.errors.configuration,
         context = evidence.errors.context,
         vocabulary_error = evidence.errors.vocabulary,
         target = evidence.errors.target,
@@ -516,7 +516,8 @@ mod tests {
         assert_eq!(first, second);
         assert!(first.ends_with('\n'));
         assert!(!first.ends_with("\n\n"));
-        assert_eq!(first.lines().count(), 14);
+        assert_eq!(first.lines().count(), 13);
+        assert!(!first.lines().any(|line| line.starts_with("history=")));
     }
 
     #[test]
@@ -527,6 +528,7 @@ mod tests {
         assert_eq!(first, second);
         assert!(first.starts_with("DECODER_MODEL_TRACE_V1\n"));
         assert!(first.ends_with("END_DECODER_MODEL_TRACE\n"));
-        assert_eq!(first.lines().count(), 29);
+        assert_eq!(first.lines().count(), 28);
+        assert!(!first.lines().any(|line| line.starts_with("history ")));
     }
 }

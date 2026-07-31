@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 57,
+  "plan_revision": 58,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-31",
+    "policy_id": "selective-russian-through-chapter-32",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "31-decoder-block",
+        "through_chapter": "32-decoder-model",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-31."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-32."
       },
       {
-        "from_chapter": "32-decoder-model",
+        "from_chapter": "33-training-selection",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 31 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 32 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -329,6 +329,11 @@
         "step_id": "activate-ch31-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch31-russian-localization"
+      },
+      {
+        "step_id": "activate-ch32-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch32-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -898,9 +903,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–31 activate
-both, while Chapters 32–39 activate English only. Russian therefore keeps its index
-and Chapter 0–31 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–32 activate
+both, while Chapters 33–39 activate English only. Russian therefore keeps its index
+and Chapter 0–32 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1448,6 +1453,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `32-decoder-model`
 - **Implementation step:** `implement-ch32-decoder-model`
+- **Revision status:** Content revision 2 defines the zero-block identity, replaces hardcoded history flags with derived model evidence, localizes stage labels, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch32-russian-localization`.
 - **Depends on:** `31-decoder-block`.
 - **Outcome:** Assemble token embeddings, repeated decoder blocks, final RMSNorm, and a tied vocabulary projection into logits.
 - **Scope boundary:** Teach model configuration, layer stacks, stable parameter names, bias policy, weight tying, context limits, forward logits/loss, and parameter counts; defer optimization.

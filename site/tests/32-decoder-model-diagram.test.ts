@@ -1,5 +1,5 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
 
@@ -24,6 +24,9 @@ const componentSource = read(
 );
 const contractSource = read("curriculum/chapters/32-decoder-model.md");
 const lessonSource = read("site/src/content/chapters/en/32-decoder-model.mdx");
+const russianLessonSource = read(
+  "site/src/content/chapters/ru/32-decoder-model.mdx",
+);
 const coursePlanSource = read("curriculum/course-plan.md");
 const modelSource = read("rust/crates/llm-from-scratch/src/models/decoder.rs");
 const demoSource = read("rust/demos/ch32-decoder-model/src/lib.rs");
@@ -35,6 +38,12 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error("missing JSON frontmatter");
   return JSON.parse(match[1]);
+}
+
+function diagramLabelsFromLesson(source: string): DecoderModelDiagramLabels {
+  const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
+  if (!match) throw new Error("missing diagramLabels object");
+  return Function(`"use strict"; return (${match[1]});`)() as DecoderModelDiagramLabels;
 }
 
 const labels: DecoderModelDiagramLabels = {
@@ -52,6 +61,12 @@ const labels: DecoderModelDiagramLabels = {
     finalNorm: "final norm",
     projection: "projection",
     logits: "logits",
+  },
+  stageRows: {
+    embedding: "embedding row",
+    blockZero: "block zero row",
+    blockOne: "block one row",
+    finalNorm: "final norm row",
   },
   fields: {
     shape: "shape",
@@ -168,18 +183,15 @@ describe("Chapter 32 Rust trace parser", () => {
     });
     expect(trace.depths).toEqual({
       zero_one_two: "true",
+      configuration_errors: "true",
       context_limit: "true",
       vocabulary_errors: "true",
       target_errors: "true",
     });
-    expect(trace.history).toEqual({
-      recurrent_components: "true",
-      tied_embeddings: "true",
-      transformer_stack: "true",
-      final_norm: "true",
-      rmsnorm_decoder: "true",
-    });
     expect(trace.replay).toEqual({ bitwise: "true" });
+    expect(fixture.slice(0, -1).split("\n")).toHaveLength(28);
+    expect(fixture).not.toMatch(/^history\b/m);
+    expect(expectedOutput).not.toMatch(/^history=/m);
   });
 
   it("rejects every changed line, ordering drift, numeric drift, and line-ending drift", () => {
@@ -283,7 +295,9 @@ describe("Chapter 32 static diagram and content boundary", () => {
     expect(componentSource.match(/role="region"/g)).toHaveLength(3);
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(4);
     expect(componentSource.match(/<article\b/g)).toHaveLength(10);
-    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(10);
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(16);
+    expect(componentSource.match(/course-diagram__card-stack/g)).toHaveLength(16);
+    expect(componentSource.match(/course-diagram__grid/g)).toHaveLength(2);
     expect(componentSource.match(/data-diagram-table/g)).toHaveLength(2);
     expect(componentSource.match(/<caption>/g)).toHaveLength(2);
     expect(componentSource).toContain('scope="row"');
@@ -300,11 +314,19 @@ describe("Chapter 32 static diagram and content boundary", () => {
     expect(componentSource).not.toMatch(
       /(?:background|border-color|border-radius|outline)\s*:/,
     );
+    expect(componentSource).not.toMatch(
+      /\.(?:flow-card|shared-table-card|proof-card)\s*\{[^}]*\b(?:display|gap|align-content)\s*:/s,
+    );
   });
 
   it("keeps contract, lesson, Rust, history, formula, source evidence, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
+    const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
+    const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -340,9 +362,76 @@ describe("Chapter 32 static diagram and content boundary", () => {
       id: contract.visualization.id,
       rationale: contract.visualization.rationale.en,
     });
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
     expect([
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
+    expect(
+      russianLesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    ).toEqual(
+      lesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    );
+    expect([
+      ...new Set(
+        russianLesson.rust_sources.map(({ path }: { path: string }) => path),
+      ),
+    ]).toEqual(contract.rust.sources);
+    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+      expect(() => validateDecoderModelDiagramLabels(localizedLabels)).not.toThrow();
+      expect(Object.keys(localizedLabels).sort()).toEqual(
+        Object.keys(englishDiagramLabels).sort(),
+      );
+      for (const namespace of [
+        "sections",
+        "stages",
+        "stageRows",
+        "fields",
+        "cues",
+        "captions",
+        "scrollers",
+      ] as const) {
+        expect(Object.keys(localizedLabels[namespace]).sort()).toEqual(
+          Object.keys(englishDiagramLabels[namespace]).sort(),
+        );
+      }
+    }
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "\\ell=\\operatorname{RMSNorm}(B_N(\\cdots B_1(E[z])\\cdots))E^\\top",
     );
@@ -360,14 +449,12 @@ describe("Chapter 32 static diagram and content boundary", () => {
     expect(lessonSource).not.toMatch(
       /TypeScript (?:validates|performs|computes)/,
     );
-    expect(
-      existsSync(
-        resolve(
-          repositoryRoot,
-          "site/src/content/chapters/ru/32-decoder-model.mdx",
-        ),
-      ),
-    ).toBe(false);
+    expect(lessonSource).toContain(
+      "\\ell=\\operatorname{RMSNorm}(E[z])E^\\top",
+    );
+    expect(lessonSource).not.toMatch(
+      /site parser|page labels|trace executable|fixed grammar|static diagram|programming languages/i,
+    );
 
     expect(modelSource).toContain("region:decoder-model-errors");
     expect(modelSource).toContain("region:decoder-model-config");

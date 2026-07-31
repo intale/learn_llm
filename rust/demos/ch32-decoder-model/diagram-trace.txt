@@ -21,9 +21,8 @@ predictions values=[0,4,1]
 loss mean=2.045535
 tying name=token_embedding.weight lookup_and_head=true gradient_roles=lookup+output decomposition_error=0.000000000000
 parameters tensors=20 scalars=264 untied_scalars=284 saved=20 bias_free=true stable_order=true
-depths zero_one_two=true context_limit=true vocabulary_errors=true target_errors=true
+depths zero_one_two=true configuration_errors=true context_limit=true vocabulary_errors=true target_errors=true
 causality prefix_0_bitwise=true prefix_1_bitwise=true suffix_changed=true
 gradcheck tied_table=20 final_norm=4 total=24 tolerance=0.000020 passed=true stack_gradients=20/20
-history recurrent_components=true tied_embeddings=true transformer_stack=true final_norm=true rmsnorm_decoder=true
 replay bitwise=true
 END_DECODER_MODEL_TRACE
