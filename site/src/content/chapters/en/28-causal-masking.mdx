@@ -2,11 +2,11 @@
 {
   "chapter_id": "28-causal-masking",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 28,
   "concept_id": "causal-attention-mask",
   "title": "Block future keys with a causal mask",
-  "description": "Learn how a lower-triangular causal mask blocks future Transformer keys, makes future probabilities exactly zero, and preserves earlier outputs in Rust.",
+  "description": "Learn how an inclusive lower-triangular causal mask blocks future Transformer keys, assigns them exactly zero attention probability, and preserves earlier outputs.",
   "objective": "Apply an inclusive lower-triangular mask so each query attends only to its available prefix.",
   "worked_inputs": "Extend Chapter 27 to three positions with $Q=[[[0,3],[2,-1],[1,1]]]$, $K=[[[3,0],[-1,2],[2,1]]]$, and $V=[[[3,-3],[1,3],[-2,4]]]$. Predict the six allowed and three blocked query-key cells before running the fixture.",
   "formula": {
@@ -22,29 +22,29 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
-      "limitation": "A recurrent next-step text generator receives one sequence element and recurrent state at a time, so only its generated prefix is available during generation; that prefix boundary is structural, but the state must advance sequentially.",
-      "later_advance": "The Transformer packs known target positions into matrix attention during training and makes the old prefix boundary explicit by combining shifted decoder inputs with a future-position mask.",
-      "modern_llm_role": "A decoder-only LLM uses the causal mask in every self-attention layer so a representation cannot leak information from a target token that lies to its right.",
+      "limitation": "This prefix boundary comes from sequential recurrence, whose state must advance one step at a time.",
+      "later_advance": "This lets the masked attention rows for known target positions be evaluated together during training, while ordinary autoregressive decoding still appends one token at a time.",
+      "modern_llm_role": "A decoder-only Transformer applies this causal boundary in each self-attention layer.",
       "sources": [
         {
           "role": "earlier",
           "year": 2013,
           "name": "Graves, Generating Sequences With Recurrent Neural Networks",
           "source_url": "https://arxiv.org/abs/1308.0850",
-          "claim": "Graves processes real sequences one step at a time for next-element prediction and generates by feeding each sampled element into the following recurrent step, whose predictive distribution depends on previous inputs."
+          "claim": "During generation, each sampled element becomes the next recurrent input, so future elements do not yet exist."
         },
         {
           "role": "later",
           "year": 2017,
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
-          "claim": "Vaswani et al. compute packed query matrices, prevent decoder positions from attending to subsequent positions, set illegal pre-softmax connections to negative infinity, and combine that mask with one-position-shifted decoder inputs."
+          "claim": "Illegal pre-softmax scores are set to $-\\infty$; together with output embeddings shifted by one position, row $i$ depends only on known outputs before $i$."
         }
       ]
     },
     "approach": "From a recurrently available prefix to an explicit Transformer decoder visibility mask",
     "summary": "Recurrent next-step generation obtained prefix-only inputs from sequential execution. Transformer training exposes known target positions together, so decoder self-attention restores the same information boundary explicitly: each query keeps keys through its diagonal and blocks every later key before normalization. Generation itself remains sequential.",
-    "rust_source": "rust/demos/ch28-causal-masking/src/lib.rs"
+    "rust_source": "rust/crates/llm-from-scratch/src/attention/causal_mask.rs"
   },
   "rust_sources": [
     {
@@ -63,24 +63,14 @@
       "purpose": "Compose scaled score construction, causal normalization, and value mixing into one checked attention result."
     },
     {
-      "path": "rust/demos/ch28-causal-masking/src/lib.rs",
-      "region": "historical-causal-contrast",
-      "purpose": "Record the bounded transition from recurrent prefix availability to an explicit Transformer decoder mask."
-    },
-    {
       "path": "rust/demos/ch28-causal-masking/src/main.rs",
-      "purpose": "Print the frozen Chapter 28 learner report."
-    },
-    {
-      "path": "rust/demos/ch28-causal-masking/src/diagram_trace.rs",
-      "region": "causal-masking-trace",
-      "purpose": "Emit the strict locale-neutral twenty-six-line trace consumed by the static visualization."
+      "purpose": "Run the complete Chapter 28 causal-masking example."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "causal-masking",
-    "rationale": "A lower triangle makes the allowed, blocked, and diagonal score cells immediately visible, while a suffix perturbation proves that earlier output rows do not depend on future keys or values."
+    "rationale": "A lower triangle makes the allowed, blocked, and diagonal score cells immediately visible, while a suffix change demonstrates in this example that earlier output rows do not depend on future keys or values."
   },
   "decoder_connection": "The cumulative decoder now has one self-attention head whose output at position $i$ depends only on keys and values through position $i$. Chapter 29 adds relative position information without widening that visibility boundary."
 }
@@ -92,7 +82,7 @@ import CausalMaskingDiagram from '../../../components/chapters/CausalMaskingDiag
 export const diagramLabels = {
   title: 'See the causal boundary in every attention row',
   description:
-    'Read the exact Rust-authored inputs, triangular visibility rule, masked scores, probabilities, outputs, perturbation, gradients, errors, and history without recomputing attention in the page.',
+    'Follow the query, key, and value rows through the lower-triangular visibility rule, then compare the original and suffix-replaced outputs and inspect the gradients.',
   sections: {
     calculation: 'Trace the lower triangle through one attention calculation',
     prefix: 'Change the suffix and test earlier outputs',
@@ -123,9 +113,11 @@ export const diagramLabels = {
     singleToken: 'One-token boundary',
     emptyBatch: 'Empty-batch shape preservation',
     errors: 'Rejected boundaries',
-    proof: 'Rust-authored proof',
+    proof: 'Checked causal properties',
     earlier: 'Recurrent prefix availability',
     transformer: 'Explicit Transformer decoder mask',
+    before: 'Before',
+    after: 'After',
   },
   roles: {
     query: 'Query rows: which prefix may this position retrieve?',
@@ -141,11 +133,29 @@ export const diagramLabels = {
     verified: 'Verified',
     rejected: 'Rejected',
   },
+  cellCues: {
+    allowed: 'Allowed',
+    blocked: 'Blocked',
+    diagonal: 'Diagonal',
+  },
   captions: {
-    calculation: 'Rows and columns preserve the Rust fixture exactly; borders and text carry every distinction without color.',
+    legend: 'Meaning of the border and text cues',
+    calculation: 'Each row keeps its diagonal and all earlier key columns; borders and text carry every distinction without color.',
     prefix: 'Only the final key and value change; the first two output rows remain bitwise identical.',
-    evidence: 'The page projects checked trace strings and performs no score, softmax, output, or gradient arithmetic.',
-    history: 'The comparison follows neural language-model structure, not programming-language history or a hardware benchmark.',
+    evidence: 'Full-output and prefix-only reverse seeds show where gradients can and cannot flow.',
+    history: 'Sequential recurrence provides a prefix-only state implicitly; Transformer decoder self-attention makes the boundary explicit.',
+  },
+  evidence: {
+    finiteTape: 'Recorded autodiff values remain finite',
+    futureProbabilities: 'Future-key probabilities',
+    prefixOutputs: 'Earlier outputs after the suffix change',
+    suffixGradient: 'The changed suffix receives zero gradient from a prefix-only loss.',
+    exactZero: 'Exactly zero',
+    bitwise: 'Bitwise unchanged',
+  },
+  historyDetails: {
+    earlier: 'During recurrent generation, only the already generated prefix exists, and the recurrent state advances one position at a time.',
+    transformer: 'During training, shifted decoder inputs and a causal mask let known target positions be evaluated together without exposing later targets; generation remains sequential.',
   },
   scrollers: {
     inputs: 'Scrollable query, key, and value inputs',
@@ -217,7 +227,7 @@ $$
 A=\operatorname{softmax}(S+M),\qquad O=AV.
 $$
 
-For the frozen fixture,
+For this example,
 
 $$
 A\approx
@@ -270,7 +280,7 @@ $$
 Q,K\in\mathbb{R}^{B\times T\times d_k},\quad
 V\in\mathbb{R}^{B\times T\times d_v},\quad
 M\in\left(\mathbb{R}\cup\{-\infty\}\right)^{T\times T},\quad
-A\in\mathbb{R}^{B\times T\times T},\quad
+S,A\in\mathbb{R}^{B\times T\times T},\quad
 O\in\mathbb{R}^{B\times T\times d_v}.
 $$
 
@@ -278,14 +288,14 @@ For an allowed cell, the row normalization is
 
 $$
 A_{bij}=
-\frac{\exp(S_{bij})}{\sum_{r=0}^{i}\exp(S_{bir})}
-\quad\text{when }j\le i,
+\frac{\exp(S_{bij})}{\sum_{r=0}^{i}\exp(S_{bir})},
+\qquad j\le i,
 $$
 
 and for a blocked cell,
 
 $$
-A_{bij}=0\quad\text{when }j>i.
+A_{bij}=0,\qquad j>i.
 $$
 
 This rule supplies visibility, not position. Rows still need a separate
@@ -297,64 +307,29 @@ also separate concerns.
 
 ## From recurrent prefix state to an explicit decoder mask
 
-This is language-model history on the road to modern LLMs, not the history of
-Rust or any other programming language.
-
 [Graves, *Generating Sequences With Recurrent Neural Networks*](https://arxiv.org/abs/1308.0850)
-processes real sequences one element at a time for next-element prediction.
-During generation, each sampled element is fed into the following recurrent
-step, so that step's predictive distribution depends on previous inputs. In
-the paper's text-generation path, future generated elements do not exist yet.
-
-Graves processes real sequences one step at a time for next-element prediction
-and generates by feeding each sampled element into the following recurrent
-step, whose predictive distribution depends on previous inputs.
-
-A recurrent next-step text generator receives one sequence element and
-recurrent state at a time, so only its generated prefix is available during
-generation; that prefix boundary is structural, but the state must advance
-sequentially. This bounded claim does not describe the paper's separate
-handwriting-synthesis conditioning input.
+trains next-element prediction one sequence element at a time. During
+generation, each sampled element becomes the next recurrent input, so future
+elements do not yet exist. This prefix boundary comes from sequential
+recurrence, whose state must advance one step at a time. The claim concerns the
+paper's text-generation path, not its separately conditioned
+handwriting-synthesis model.
 
 [Vaswani et al., *Attention Is All You Need*](https://arxiv.org/abs/1706.03762)
-pack query positions into matrices and modify decoder self-attention so a
-position cannot attend to subsequent positions. They set illegal pre-softmax
-connections to $-\infty$ and combine that mask with decoder inputs shifted by
-one position.
+pack queries into matrices and mask decoder self-attention so a row cannot
+attend to subsequent positions. Illegal pre-softmax scores are set to
+$-\infty$; together with output embeddings shifted by one position, row $i$
+depends only on known outputs before $i$.
 
-Vaswani et al. compute packed query matrices, prevent decoder positions from
-attending to subsequent positions, set illegal pre-softmax connections to
-negative infinity, and combine that mask with one-position-shifted decoder
-inputs.
-
-The Transformer packs known target positions into matrix attention during
-training and makes the old prefix boundary explicit by combining shifted
-decoder inputs with a future-position mask.
-
-Known target positions can therefore be evaluated together during training
-without leaking a later target into an earlier row. Autoregressive generation
-still emits one new token at a time; the mask does not make generation
-parallel. A decoder-only LLM repeats this causal boundary in every
-self-attention layer.
-
-A decoder-only LLM uses the causal mask in every self-attention layer so a
-representation cannot leak information from a target token that lies to its
-right.
-
-The executable contrast records that structural transition without claiming
-that either paper specifies this course's API, exact zeros, finite tape, error
-types, or rounding policy:
-
-<RustSource
-  path="rust/demos/ch28-causal-masking/src/lib.rs"
-  region="historical-causal-contrast"
-  caption="Contrast recurrent prefix availability with an explicit Transformer decoder mask"
-  label="Rust source for the Chapter 28 LLM-centered causal-history contrast"
-/>
+This lets the masked attention rows for known target positions be evaluated
+together during training, while ordinary autoregressive decoding still appends
+one token at a time. A decoder-only Transformer applies this causal boundary in
+each self-attention layer. The mask controls visibility; it does not encode
+position.
 
 {/* chapter-section:rust-implementation */}
 
-## Keep the mask inspectable and the tape finite
+## Keep the mask inspectable and recorded values finite
 
 `causal_additive_mask` constructs a plain $[T,T]$ tensor. Allowed cells contain
 $0$ and future cells contain $-\infty$:
@@ -369,13 +344,13 @@ $0$ and future cells contain $-\infty$:
 A differentiable `TensorValue` rejects nonfinite leaf data. Its
 `causal_softmax` operation implements the same mathematical boundary without
 storing $-\infty$: it reads only $j\le i$, subtracts the maximum of that
-allowed prefix, normalizes the allowed cells, and writes exact positive zero to
-every blocked cell.
+allowed prefix, normalizes the allowed cells, and writes the exact
+floating-point value $+0.0$ to every blocked cell.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
   region="causal-softmax-forward"
-  caption="Normalize allowed prefixes while keeping the autodiff tape finite"
+  caption="Normalize allowed prefixes while keeping recorded autodiff values finite"
   label="Rust source implementing stable differentiable causal softmax"
 />
 
@@ -399,54 +374,42 @@ For an allowed score, reverse mode follows
 $$
 \bar S_{bij}=A_{bij}
 \left(\bar A_{bij}-\sum_{r=0}^{i}\bar A_{bir}A_{bir}\right)
-\quad\text{when }j\le i,
+,\qquad j\le i,
 $$
 
 while a blocked score receives
 
 $$
-\bar S_{bij}=0\quad\text{when }j>i.
+\bar S_{bij}=0,\qquad j>i.
 $$
 
-All six coordinates of each of $Q$, $K$, and $V$ pass central differences
-with step $10^{-6}$ and tolerance $4\times10^{-6}$. Tests also cover a single
-token, empty batches, rank-two and rank-four score grids, independent leading
-axes, extreme blocked scores, typed failures, released tape values, and
-bitwise replay.
+All six coordinates of each of $Q$, $K$, and $V$ agree with central differences
+using step $10^{-6}$ and tolerance $4\times10^{-6}$. The checked boundary also
+includes a single token, empty batches, rank-two and rank-four score grids,
+independent leading axes, extreme blocked scores, typed failures, released tape
+values, and bitwise replay.
 
-The frozen learner report assembles those checked values:
+The executable prints the checked mask, probabilities, outputs,
+prefix-invariance result, gradients, and boundary cases:
 
 <RustSource
   path="rust/demos/ch28-causal-masking/src/main.rs"
-  caption="Print the frozen causal-masking learner report"
-  label="Rust entry point for the Chapter 28 learner report"
+  caption="Print the causal-masking example and its checked boundary cases"
+  label="Rust entry point for the Chapter 28 worked example"
 />
 
-Run `cargo run --quiet --locked -p ch28-causal-masking`. Its standard output
-matches `rust/demos/ch28-causal-masking/expected.txt` byte for byte, including
-the final newline.
+Run `cargo run --quiet --locked -p ch28-causal-masking` to inspect the complete
+worked result.
 
 {/* chapter-section:visualization */}
 
-## Read the Rust trace as a lower triangle
-
-The separate Rust example emits every input, mask cell, masked score,
-probability, weighted term, output, perturbation result, gradient, error,
-history token, and proof field consumed below:
-
-<RustSource
-  path="rust/demos/ch28-causal-masking/src/diagram_trace.rs"
-  region="causal-masking-trace"
-  caption="Emit the strict twenty-six-line causal-masking trace"
-  label="Rust source producing the Chapter 28 static diagram trace"
-/>
+## Follow the lower triangle through attention
 
 <CausalMaskingDiagram labels={diagramLabels} />
 
-The page keeps numeric lexemes as strings and performs no tensor arithmetic.
-Solid, dashed, and double borders distinguish allowed, blocked, and diagonal
-cells without relying on color. Every dense group owns a named
-keyboard-focusable local scroller.
+The triangular tables show which scores survive before normalization. Solid,
+dashed, and double borders distinguish allowed, blocked, and diagonal cells
+without relying on color.
 
 Changing only
 
@@ -468,7 +431,7 @@ $$
 2. Predict whether changing only $k_2$ and $v_2$ can change $o_0$ or $o_1$.
 3. Explain why all three diagonal cells are allowed without letting a prediction
    read its own target.
-4. Predict the query and key gradients for a one-token causal softmax.
+4. Predict the query and key gradients for a one-token causal self-attention head.
 5. Explain why setting future probabilities to zero after an ordinary softmax
    does not preserve a unit row sum.
 6. Decide whether the mask makes known-target training, autoregressive

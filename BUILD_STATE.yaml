@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T06:40:52Z"
+updated_at: "2026-07-31T08:35:32Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -11,7 +11,7 @@ environment:
   node: "22.12.0"
   npm: "10.9.0"
   git: "2.55.0.windows.3"
-  notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Rust/Node/npm remain unused."
+  notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
 active_build: null
 
@@ -23735,3 +23735,187 @@ builds:
                 status: passed
                 notes: "The 24-file product manifest is sha256:11534cde6ed8d969be258c92cc46727a9bb74b657c53149c2aa333a4af7faf55; English is sha256:2706d801ad9857cb93ce8a57441e1da53278118919851e8d6b0e985725370a94 and Russian is sha256:cd9380b5277d06b31bcda6eb89424af77e7b817335a49e1c0b3bce5890d5f856. YAML, diff whitespace, output ownership, file modes, and the clean removal of the disposable candidate volume are verified."
             notes: "Succeeded. Published English revision 2 and its direct Russian Chapter 27 projection, advanced Russian availability only through Chapter 27, repaired the narrowly discovered Chapter 20 and Chapter 0 containment integrations, and preserved the unchanged dependency, build, hosting, deployment, and user-environment boundaries."
+  - build_id: activate-ch28-russian-localization
+    objective: "Audit the canonical Chapter 28 causal-masking lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; cost alone does not require an approval pause."
+    completion_criteria:
+      - "English Chapter 28 accurately teaches inclusive lower-triangular causal masking as the decoder-only LLM visibility boundary, with correct formulas, shapes, gradients, Rust evidence, history, exercises, and Chapter 29 handoff."
+      - "Russian Chapter 28 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 28 is activated in this checkpoint, the locale policy advances through Chapter 28, and the completed step is committed independently before Chapter 29 starts."
+    steps:
+      - id: activate-ch28-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 28 causal-masking lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch27-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-31 to translate Chapters 25-30 one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 53 and locale policy selective-russian-through-chapter-27"
+          - "curriculum/chapters/28-causal-masking.md"
+          - "site/src/content/chapters/en/28-causal-masking.mdx"
+          - "site/src/components/chapters/CausalMaskingDiagram.astro"
+          - "site/src/lib/causal-masking-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/28-causal-masking-diagram.test.ts"
+          - "site/tests/e2e/ch28-causal-masking.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 28 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit f3915d2"
+          - "Cached official mcr.microsoft.com/playwright:v1.61.1-noble image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Cached final pinned Linux image at immutable digest sha256:c9b415928c26872d0e9eacc5522d2975f024df193b779ad42d5dd11ad2da4ef9"
+        outputs:
+          - "curriculum/chapters/28-causal-masking.md"
+          - "site/src/content/chapters/en/28-causal-masking.mdx"
+          - "site/src/content/chapters/ru/28-causal-masking.mdx"
+          - "site/src/components/chapters/CausalMaskingDiagram.astro if canonical or rendered bilingual evidence requires shared-role or concept-geometry correction"
+          - "site/src/lib/causal-masking-diagram.ts if the canonical evidence audit changes the strict trace projection"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md if the content revision or locale boundary advances"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/28-causal-masking-diagram.test.ts"
+          - "site/tests/e2e/ch28-causal-masking.spec.ts"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "Chapter 28 declared Rust sources and exact artifacts only if the canonical evidence audit finds a defect"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 28 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 28 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 28 checkpoint is committed independently after Chapter 27 and before Chapter 29."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/28-causal-masking.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 28-causal-masking"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 28-causal-masking"
+          - "npm --prefix site run check:parity -- 28-causal-masking en ru"
+          - "npm --prefix site test -- --run tests/28-causal-masking-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch28-causal-masking && cargo run --quiet --locked -p ch28-causal-masking | diff -u rust/demos/ch28-causal-masking/expected.txt - && cargo run --quiet --locked -p ch28-causal-masking --example diagram_trace | diff -u rust/demos/ch28-causal-masking/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 28, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, or deployment change."
+        runs:
+          - run_id: 20260731T064521Z-activate-ch28-russian-localization-01
+            started_at: "2026-07-31T06:45:21Z"
+            finished_at: "2026-07-31T07:48:32Z"
+            status: succeeded
+            input_fingerprint:
+              git: "f3915d2259cfa577c83a877ee7d55d4f7fb87a52"
+              manifest: "C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:4d75c653d823c3d15c9005b1994bab0ddb44c04cc6c22887ba44e22f3b669851"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation source or service; the current English Chapter 28, exact Rust behavior, and cited primary causal-language-model/Transformer sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit f3915d2; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 28 source paths, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 28 semantics, formulas, history, Rust evidence, diagram presentation, accessibility, and Russian terminology; record the revision-2 correction boundary before product edits."
+              - "Correct and freeze English revision 2, update the exact causal trace and parser, translate every Chapter 28 learner-facing surface directly into Russian, migrate the figure to shared roles, and advance only the Chapter 28 locale boundary."
+              - "Replace the English-only browser contract with reciprocal bilingual desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula-parity, and nearest-box checks."
+              - "Build the canonical pinned Linux workspace, run all 848 unit tests, and replay the exact Chapter 28 Rust learner output and diagram trace."
+              - "Materialize the exact static candidate in disposable Docker volume learn_llm_ch28_e2e_01 and run the complete 161-case Chapter 28/formula/shared-style/shared-full-view matrix in Chromium and Firefox."
+              - "Repair the rendered masked-score and gradient-track containment findings, update the aggregate formula expectation, rebuild, and repeat both complete browser matrices."
+              - "Apply the independent final-review correction from the stale curriculum README boundary 0-27 to 0-28 and refresh the exact publication manifest."
+              - "Run the final complete pinned Linux course check, verify the 18-file publication manifest, and remove the disposable browser-candidate volume."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:4d75c653d823c3d15c9005b1994bab0ddb44c04cc6c22887ba44e22f3b669851"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and base-commit fingerprint before Chapter 28 product edits."
+              - path: "C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:093cc3ae1051ec18c679cab57c7d9d5c0c98404ab9eb2d96c7db73da2fae70e4"
+                notes: "Recovered exact 18-entry SHA-256 manifest for the earlier run-01 candidate; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:afd8c8396f2307f204fcb947ef4da0a256c9f11cae76ee035895dcbcfa078004"
+                notes: "Final canonical pinned Linux manifest list produced by ./course check and reused for the exact unit and Chapter 28 Rust gates."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 27 is independently committed at f3915d2; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins are usable; Chapter 28 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, or deployment change is planned."
+              - command: "Host Node 24.18.0 Astro diagnostic"
+                status: failed
+                notes: "A non-authoritative host npm check encountered the known Astro/Vite logger incompatibility while cleaning dependency-cache directories. No product output was accepted from the host; the repository-pinned Node 22.12.0 Linux checks subsequently passed twice."
+              - command: "Independent English-source and direct-Russian localization review"
+                status: passed
+                notes: "The final review corrected one stale curriculum README summary from Chapters 0-27 to 0-28. English revision 2 is mathematically consistent with the exact Rust causal-attention fixture and LLM-centered history, and Russian preserves every ordered formula, symbol, shape, value, identifier, causal qualifier, source, exercise, answer, SEO field, accessibility label, and Chapter 29 handoff in natural monolingual technical language."
+              - command: "Focused contract, content, parity, Astro, unit, static-link, and exact Rust gates"
+                status: passed
+                notes: "The 40-chapter/100-step plan, integrated contract, both localized sources, 69-source parity set, zero-diagnostic 206-file Astro analysis, all 848 site tests, 74-page build, 2,130 links, 74 SEO/sitemap/Analytics routes, three Chapter 28 Rust tests, and exact learner output plus diagram trace pass."
+              - command: "Final Chromium and Firefox rendered validation"
+                status: passed
+                notes: "Both engines pass all seven bilingual Chapter 28 cases and the complete 161-case Chapter 28/formula/shared-style/shared-full-view matrix. Desktop, narrow, no-JavaScript, native fullscreen, forced-color, direction, focus, nearest-box, painted-text, and page-containment checks pass without clipping or hidden overflow."
+              - command: "./course check and exact final-image replay"
+                status: passed
+                notes: "The canonical pinned Linux gate passes Rust formatting, all workspace tests, content/parity, Astro, the 74-page production build, and static artifacts at image manifest-list sha256:afd8c8396f2307f204fcb947ef4da0a256c9f11cae76ee035895dcbcfa078004; that exact image also passes all 848 site tests and exact Chapter 28 output/trace replay."
+              - command: "Frozen publication identity, ledger, ownership, whitespace, and cleanup audit"
+                status: passed
+                notes: "The recovered earlier-candidate 18-file product manifest is sha256:093cc3ae1051ec18c679cab57c7d9d5c0c98404ab9eb2d96c7db73da2fae70e4; English is sha256:98037e4538b88c7801c382712120ff6334a20f5980d5bf94f4c2557adc7e97f9, Russian is sha256:4d0d04f02d2415e2882dfba3174394bccbfddd192f9ee51df81339f83c9c6995, and the contract is sha256:049cf13fd992ba2cbf42577aa83dcd47aa0a39769096c70b3ae1b49a5ddbd1dc. Later post-review changes are owned by run 02."
+            notes: "Succeeded for the earlier candidate. Independent post-run publication review subsequently made the source stale and required corrective run 02; no later evidence belongs to this immutable run."
+          - run_id: 20260731T080033Z-activate-ch28-russian-localization-02
+            started_at: "2026-07-31T08:00:33Z"
+            finished_at: "2026-07-31T08:35:32Z"
+            status: succeeded
+            input_fingerprint:
+              git: "f3915d2259cfa577c83a877ee7d55d4f7fb87a52"
+              manifest: ".build/runs/20260731T080033Z-activate-ch28-russian-localization-02/input-fingerprint.txt"
+              checksum: "sha256:edcc46dd99d795e9ef0614d7b233f8a20dbe7d490298497298f7c68a5963f081"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external service; the corrected English revision, exact Rust behavior, and independent direct-Russian semantic and anti-calque review are authoritative."
+            staging_dir: ".build/runs/20260731T080033Z-activate-ch28-russian-localization-02/"
+            commands:
+              - "Recover the prematurely finalized Chapter 28 checkpoint, preserve run 01 as historical evidence for its earlier candidate, fingerprint the post-review correction boundary, and set corrective run 02 running before further product edits."
+              - "Apply independent exact-meaning and anti-calque corrections across the integrated contract, Russian frontmatter, body, diagram labels, accessibility labels, exercises, and English worked-example label; remove the component-local shared cell-padding override."
+              - "Freeze canonical English at sha256:c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63 after clarifying the diagram evidence, then complete two independent direct-Russian reviews at sha256:3d03a73bc01b0c1a3c8025f97e91923f6156a87df541cfba876c6613727e59e4."
+              - "Run superseded pinned candidate builds while review remained open; reject their image identities as final when source bytes changed."
+              - "Build the exact final pinned Linux image, run all 848 site tests, and replay all three Chapter 28 Rust tests plus byte-exact learner output and diagram trace."
+              - "Materialize the exact candidate in disposable browser volumes, detect a roughly four-pixel masked-score cell overflow after restoring shared spacing, widen only the concept-specific triangle tracks from 24/74 rem to 26/80 rem, and rebuild."
+              - "Run all 161 Chapter 28/formula/shared-style/shared-full-view cases in Chromium and Firefox from the final image, verify the ordinal-sorted 18-file publication manifest, and remove the disposable browser volumes."
+            artifacts:
+              - path: ".build/runs/20260731T080033Z-activate-ch28-russian-localization-02/input-fingerprint.txt"
+                checksum: "sha256:edcc46dd99d795e9ef0614d7b233f8a20dbe7d490298497298f7c68a5963f081"
+                notes: "Exact base commit, pre-correction source identities, review findings, environment, and scope for the corrective publication run."
+              - path: ".build/runs/20260731T080033Z-activate-ch28-russian-localization-02/publish-product.sha256"
+                checksum: "sha256:7adb7eb753b2638b354ab43dff77333cd7341231131cac581ad288e463bdbdc9"
+                notes: "Ordinal path-sorted SHA-256 manifest for the 18 exact final product, curriculum, Rust, locale-policy, and regression-test files; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:b33a8b41452b54a05b4db8a5e369117409a52f11b1855cb8d44849fb5c505721"
+                notes: "Exact final canonical pinned Linux manifest list produced after the shared-spacing geometry correction and reused for unit, Rust, Chromium, and Firefox gates."
+            validation:
+              - command: "Independent English-source and direct-Russian exact-meaning, terminology, anti-calque, monolingual, formula, source, exercise, diagram-label, and accessibility reviews"
+                status: passed
+                notes: "Two independent final reviews find no remaining blocker. All 73 ordered formulas, four Rust source projections, two history sources, seven exercises and answers, symbols, shapes, values, identifiers, causal qualifiers, SEO fields, accessibility labels, and the Chapter 29 handoff remain aligned; the contract freezes English sha256:c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63."
+              - command: "Focused contract, English/Russian content, parity, and affected unit gates"
+                status: passed
+                notes: "The integrated contract, both localized sources, 69-source parity set, and all 85 final focused assertions pass after the accessibility wording corrections."
+              - command: "Initial exact-image Chromium containment replay after removing the private shared-padding override"
+                status: failed
+                notes: "The strict painted-text audit found one long masked score crossing its cell border by about four pixels. No clipping or overflow hiding was introduced; the component-owned triangle track was widened from 24 to 26 rem and the three-card relationship from 74 to 80 rem before rebuilding."
+              - command: "./course check and exact final-image unit/Rust replay"
+                status: passed
+                notes: "The canonical pinned Linux gate passes Rust formatting and all workspace tests, content/parity, zero-diagnostic 206-file Astro analysis, the 74-page production build, 2,130 local references, 74 SEO routes, 74 sitemap URLs, and 74 Analytics routes at image manifest-list sha256:b33a8b41452b54a05b4db8a5e369117409a52f11b1855cb8d44849fb5c505721. That exact image also passes all 848 site tests, three Chapter 28 Rust tests, and byte-exact learner output plus diagram trace."
+              - command: "Final exact-image Chromium and Firefox rendered matrix"
+                status: passed
+                notes: "Both engines pass all 161 Chapter 28/formula/shared-style/shared-full-view cases. Reciprocal routes, formulas, desktop, narrow, no-JavaScript, native fullscreen, forced colors, synthetic RTL, focus restoration, nearest bounded boxes, painted text, page containment, and course-wide diagram integration pass without clipping or hidden overflow."
+              - command: "Frozen publication identity, YAML, whitespace, modes, ownership, and cleanup audit"
+                status: passed
+                notes: "The ordinal-sorted 18-file product manifest is sha256:7adb7eb753b2638b354ab43dff77333cd7341231131cac581ad288e463bdbdc9; English is sha256:c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63, Russian is sha256:3d03a73bc01b0c1a3c8025f97e91923f6156a87df541cfba876c6613727e59e4, the contract is sha256:fcf2d8c8603565043a361fc3ef30756a483643670e99d3e18caa2fbe90bef443, and the component is sha256:c2797f9ca7f56733bd1fb95955e8f45b68b895b2ebbcc4c44be6cf995e9919e6. Both disposable exact-candidate volumes were verified by name and permanently removed."
+            notes: "Succeeded. Corrected the post-run-01 publication findings in a separately fingerprinted run, preserved the recovered earlier run identity, published the natural direct Russian projection and exact bilingual accessibility surface, restored shared diagram spacing with sufficient concept geometry, and changed no dependency, build definition, hosting, deployment, or user environment."

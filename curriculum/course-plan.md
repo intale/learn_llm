@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 53,
+  "plan_revision": 54,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-27",
+    "policy_id": "selective-russian-through-chapter-28",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "27-self-attention",
+        "through_chapter": "28-causal-masking",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-27."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-28."
       },
       {
-        "from_chapter": "28-causal-masking",
+        "from_chapter": "29-rope",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 27 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 28 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -309,6 +309,11 @@
         "step_id": "activate-ch27-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch27-russian-localization"
+      },
+      {
+        "step_id": "activate-ch28-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch28-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1364,13 +1369,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `28-causal-masking`
 - **Implementation step:** `implement-ch28-causal-masking`
+- **Revision status:** Content revision 2 corrects the complete shape rule and released-operand evidence, consolidates the LLM-centered history, removes learner-facing delivery mechanics, localizes diagram explanations, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch28-russian-localization`.
 - **Depends on:** `27-self-attention`.
 - **Outcome:** Apply a lower-triangular mask so position `t` attends only to positions `≤t`.
 - **Scope boundary:** Teach future leakage, the inclusive diagonal, additive causal masks, stable masked softmax, and prefix invariance for fixed-length sequences; defer padding masks, variable lengths, and caching.
 - **Formula:** `M_{ij}=\begin{cases}0&j\le i\\-\infty&j>i\end{cases},\quad A=\operatorname{softmax}(S+M)`.
 - **Historical contrast:** Contrast the inherent left-to-right state of autoregressive RNNs with parallel Transformer training that requires an explicit mask.
 - **Rust contribution:** Add fixed-length causal-mask construction and stable masked softmax, then integrate them into single-head attention.
-- **Visualization:** Useful — show the triangular allowed/blocked matrix with text symbols and prove one future-token perturbation cannot affect earlier outputs.
+- **Visualization:** Useful — show the triangular allowed/blocked matrix with text symbols and demonstrate that one future-token change leaves earlier outputs unchanged in the worked example.
 - **Practice:** Mark allowed cells for length four and predict which outputs stay invariant after changing the final token.
 - **Integration evidence:** Exact square masks, visible diagonal, zero future probability, prefix invariance, invalid ranks/shapes, finite rows, and gradients pass.
 - **Handoff:** Chapter 29 adds relative position information to queries and keys without breaking causality.

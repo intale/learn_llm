@@ -51,7 +51,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
 
     [
         format!(
-            "META|input_shape={}|score_shape={}|mask_shape={}|output_shape={}|tokens=3|key_width=2|value_width=2|scale={:.6}|softmax_axis=key|mask=lower-triangular-inclusive|site_arithmetic=none",
+            "META|input_shape={}|score_shape={}|mask_shape={}|output_shape={}|tokens=3|key_width=2|value_width=2|scale={:.6}|softmax_axis=key|mask=lower-triangular-inclusive",
             format_shape(primary.query.shape()),
             format_shape(primary.raw_scores.shape()),
             format_shape(primary.mask.shape()),
@@ -175,7 +175,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             errors.token_mismatch_rejected
         ),
         format!(
-            "ERROR|case=released-score|kind=autodiff-stage|stage=causal-probabilities|rejected={}",
+            "ERROR|case=released-score|kind=released-operand|operation=causal-softmax|operand=0|rejected={}",
             errors.released_score_rejected
         ),
         format!(
@@ -187,7 +187,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             history.generation
         ),
         format!(
-            "PROOF|mask_future=negative-infinity|tape_finite={}|future_probabilities=exact-zero|row_sum_tolerance={ROW_SUM_TOLERANCE:.12}|query_checks={}|key_checks={}|value_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|prefix_outputs=bitwise|replay={}|trace=rust-authored|site_arithmetic=none",
+            "PROOF|mask_future=negative-infinity|tape_finite={}|future_probabilities=exact-zero|row_sum_tolerance={ROW_SUM_TOLERANCE:.12}|query_checks={}|key_checks={}|value_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|prefix_outputs=bitwise|replay={}",
             primary.tape_finite,
             evidence.query_checks,
             evidence.key_checks,
@@ -212,11 +212,10 @@ mod tests {
     use crate::learner_evidence;
 
     #[test]
-    fn trace_has_the_frozen_grammar_and_provenance() {
+    fn trace_has_the_frozen_grammar_and_evidence() {
         let trace = render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 26);
         assert!(trace.starts_with("META|input_shape=[1,3,2]"));
-        assert!(trace.contains("|site_arithmetic=none\n"));
         assert!(trace.contains(
             "MASK|shape=[3,3]|values=[0.000000,-inf,-inf,0.000000,0.000000,-inf,0.000000,0.000000,0.000000]"
         ));

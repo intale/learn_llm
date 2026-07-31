@@ -105,6 +105,8 @@ export interface CausalMaskingDiagramLabels {
     readonly proof: string;
     readonly earlier: string;
     readonly transformer: string;
+    readonly before: string;
+    readonly after: string;
   };
   readonly roles: {
     readonly query: string;
@@ -120,11 +122,29 @@ export interface CausalMaskingDiagramLabels {
     readonly verified: string;
     readonly rejected: string;
   };
+  readonly cellCues: {
+    readonly allowed: string;
+    readonly blocked: string;
+    readonly diagonal: string;
+  };
   readonly captions: {
+    readonly legend: string;
     readonly calculation: string;
     readonly prefix: string;
     readonly evidence: string;
     readonly history: string;
+  };
+  readonly evidence: {
+    readonly finiteTape: string;
+    readonly futureProbabilities: string;
+    readonly prefixOutputs: string;
+    readonly suffixGradient: string;
+    readonly exactZero: string;
+    readonly bitwise: string;
+  };
+  readonly historyDetails: {
+    readonly earlier: string;
+    readonly transformer: string;
   };
   readonly scrollers: {
     readonly inputs: string;
@@ -145,7 +165,7 @@ export interface CausalMaskingDiagramLabels {
 }
 
 const expectedLines = [
-  'META|input_shape=[1,3,2]|score_shape=[1,3,3]|mask_shape=[3,3]|output_shape=[1,3,2]|tokens=3|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|mask=lower-triangular-inclusive|site_arithmetic=none',
+  'META|input_shape=[1,3,2]|score_shape=[1,3,3]|mask_shape=[3,3]|output_shape=[1,3,2]|tokens=3|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|mask=lower-triangular-inclusive',
   'QUERY|shape=[1,3,2]|values=[0.000000,3.000000,2.000000,-1.000000,1.000000,1.000000]',
   'KEY|shape=[1,3,2]|values=[3.000000,0.000000,-1.000000,2.000000,2.000000,1.000000]',
   'VALUE|shape=[1,3,2]|values=[3.000000,-3.000000,1.000000,3.000000,-2.000000,4.000000]',
@@ -167,9 +187,9 @@ const expectedLines = [
   'ERROR|case=softmax-shape|kind=causal-softmax-non-square|queries=2|keys=3|rejected=true',
   'ERROR|case=query-rank|kind=score-input-rank|input=query|rank=2|rejected=true',
   'ERROR|case=token-mismatch|kind=score-token-mismatch|query=3|key=2|value=3|rejected=true',
-  'ERROR|case=released-score|kind=autodiff-stage|stage=causal-probabilities|rejected=true',
+  'ERROR|case=released-score|kind=released-operand|operation=causal-softmax|operand=0|rejected=true',
   'HISTORY|earlier=recurrent-autoregressive-state|earlier_visibility=available-prefix|transformer=parallel-known-targets|decoder_rule=no-subsequent-positions|generation=sequential',
-  'PROOF|mask_future=negative-infinity|tape_finite=true|future_probabilities=exact-zero|row_sum_tolerance=0.000000000001|query_checks=6|key_checks=6|value_checks=6|gradient_tolerance=0.000004|gradcheck=true|prefix_outputs=bitwise|replay=bitwise|trace=rust-authored|site_arithmetic=none',
+  'PROOF|mask_future=negative-infinity|tape_finite=true|future_probabilities=exact-zero|row_sum_tolerance=0.000000000001|query_checks=6|key_checks=6|value_checks=6|gradient_tolerance=0.000004|gradcheck=true|prefix_outputs=bitwise|replay=bitwise',
   'NEXT|chapter=29-rope',
 ] as const;
 
@@ -206,7 +226,8 @@ export function validateCausalMaskingLabels(
     labels as unknown as Record<string, unknown>,
     [
       'title', 'description', 'sections', 'stages', 'fields', 'roles',
-      'cues', 'captions', 'scrollers', 'errorCases',
+      'cues', 'cellCues', 'captions', 'evidence', 'historyDetails',
+      'scrollers', 'errorCases',
     ],
     'root',
   );
@@ -229,6 +250,7 @@ export function validateCausalMaskingLabels(
       'weightedTerms', 'output', 'originalOutput', 'perturbedOutput',
       'status', 'backward', 'prefixGradient', 'singleToken', 'emptyBatch',
       'errors', 'proof', 'earlier', 'transformer',
+      'before', 'after',
     ],
     'fields',
   );
@@ -243,9 +265,24 @@ export function validateCausalMaskingLabels(
     'cues',
   );
   exactStringKeys(
+    labels.cellCues as unknown as Record<string, unknown>,
+    ['allowed', 'blocked', 'diagonal'],
+    'cellCues',
+  );
+  exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
-    ['calculation', 'prefix', 'evidence', 'history'],
+    ['legend', 'calculation', 'prefix', 'evidence', 'history'],
     'captions',
+  );
+  exactStringKeys(
+    labels.evidence as unknown as Record<string, unknown>,
+    ['finiteTape', 'futureProbabilities', 'prefixOutputs', 'suffixGradient', 'exactZero', 'bitwise'],
+    'evidence',
+  );
+  exactStringKeys(
+    labels.historyDetails as unknown as Record<string, unknown>,
+    ['earlier', 'transformer'],
+    'historyDetails',
   );
   exactStringKeys(
     labels.scrollers as unknown as Record<string, unknown>,

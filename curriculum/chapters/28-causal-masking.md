@@ -2,36 +2,43 @@
 {
   "chapter_id": "28-causal-masking",
   "concept_id": "causal-attention-mask",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 28,
   "objective": {
-    "en": "Apply an inclusive lower-triangular mask so each query attends only to its available prefix."
+    "en": "Apply an inclusive lower-triangular mask so each query attends only to its available prefix.",
+    "ru": "Примените нижнетреугольную маску с разрешённой диагональю, чтобы каждый запрос мог учитывать только доступный ему префикс."
   },
   "worked_inputs": {
-    "en": "Extend Chapter 27 to three positions with $Q=[[[0,3],[2,-1],[1,1]]]$, $K=[[[3,0],[-1,2],[2,1]]]$, and $V=[[[3,-3],[1,3],[-2,4]]]$. Predict the six allowed and three blocked query-key cells before running the fixture."
+    "en": "Extend Chapter 27 to three positions with $Q=[[[0,3],[2,-1],[1,1]]]$, $K=[[[3,0],[-1,2],[2,1]]]$, and $V=[[[3,-3],[1,3],[-2,4]]]$. Predict the six allowed and three blocked query-key cells before running the fixture.",
+    "ru": "Добавьте к примеру из главы 27 третью позицию: $Q=[[[0,3],[2,-1],[1,1]]]$, $K=[[[3,0],[-1,2],[2,1]]]$ и $V=[[[3,-3],[1,3],[-2,4]]]$. До запуска примера определите шесть доступных и три закрытые ячейки запрос–ключ."
   },
   "formula": {
     "latex": "M_{ij}=\\begin{cases}0&j\\le i\\\\-\\infty&j>i\\end{cases},\\quad A=\\operatorname{softmax}(S+M)",
     "symbols": [
       {
         "symbol": "S",
-        "en": "the scaled query-key score tensor before the visibility restriction"
+        "en": "the scaled query-key score tensor before the visibility restriction",
+        "ru": "тензор масштабированных оценок соответствия запросов и ключей до ограничения видимости"
       },
       {
         "symbol": "M",
-        "en": "the additive causal mask with one query row and key column per token position"
+        "en": "the additive causal mask with one query row and key column per token position",
+        "ru": "аддитивная каузальная маска с одной строкой для каждой позиции запроса и одним столбцом для каждой позиции ключа"
       },
       {
         "symbol": "i",
-        "en": "the zero-based query-position index"
+        "en": "the zero-based query-position index",
+        "ru": "индекс позиции запроса, отсчитываемый от нуля"
       },
       {
         "symbol": "j",
-        "en": "the zero-based key-position index"
+        "en": "the zero-based key-position index",
+        "ru": "индекс позиции ключа, отсчитываемый от нуля"
       },
       {
         "symbol": "A",
-        "en": "the row-normalized attention probabilities after future keys have been excluded"
+        "en": "the row-normalized attention probabilities after future keys have been excluded",
+        "ru": "нормированные по строкам вероятности внимания после исключения будущих ключей"
       }
     ]
   },
@@ -39,13 +46,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "A recurrent next-step text generator receives one sequence element and recurrent state at a time, so only its generated prefix is available during generation; that prefix boundary is structural, but the state must advance sequentially."
+        "en": "This prefix boundary comes from sequential recurrence, whose state must advance one step at a time.",
+        "ru": "Граница префикса возникает из последовательной рекуррентной обработки, где состояние приходится обновлять шаг за шагом."
       },
       "later_advance": {
-        "en": "The Transformer packs known target positions into matrix attention during training and makes the old prefix boundary explicit by combining shifted decoder inputs with a future-position mask."
+        "en": "This lets the masked attention rows for known target positions be evaluated together during training, while ordinary autoregressive decoding still appends one token at a time.",
+        "ru": "Поэтому при обучении строки внимания для известных целевых позиций можно вычислять вместе, не позволяя более ранней строке использовать более позднюю цель. При этом обычная авторегрессионная генерация по-прежнему добавляет по одному токену."
       },
       "modern_llm_role": {
-        "en": "A decoder-only LLM uses the causal mask in every self-attention layer so a representation cannot leak information from a target token that lies to its right."
+        "en": "A decoder-only Transformer applies this causal boundary in each self-attention layer.",
+        "ru": "Декодерный Transformer применяет эту каузальную границу в каждом слое самовнимания."
       },
       "sources": [
         {
@@ -54,7 +64,8 @@
           "name": "Graves, Generating Sequences With Recurrent Neural Networks",
           "source_url": "https://arxiv.org/abs/1308.0850",
           "claim": {
-            "en": "Graves processes real sequences one step at a time for next-element prediction and generates by feeding each sampled element into the following recurrent step, whose predictive distribution depends on previous inputs."
+            "en": "During generation, each sampled element becomes the next recurrent input, so future elements do not yet exist.",
+            "ru": "При генерации каждый выбранный элемент становится следующим рекуррентным входом, поэтому будущих элементов ещё не существует."
           }
         },
         {
@@ -63,16 +74,19 @@
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
           "claim": {
-            "en": "Vaswani et al. compute packed query matrices, prevent decoder positions from attending to subsequent positions, set illegal pre-softmax connections to negative infinity, and combine that mask with one-position-shifted decoder inputs."
+            "en": "Illegal pre-softmax scores are set to $-\\infty$; together with output embeddings shifted by one position, row $i$ depends only on known outputs before $i$.",
+            "ru": "Недопустимым оценкам до softmax присваивается $-\\infty$; вместе с эмбеддингами выходной последовательности, сдвинутыми на одну позицию, это означает, что строка $i$ зависит только от известных выходов до позиции $i$."
           }
         }
       ]
     },
     "approach": {
-      "en": "From a recurrently available prefix to an explicit Transformer decoder visibility mask"
+      "en": "From a recurrently available prefix to an explicit Transformer decoder visibility mask",
+      "ru": "От префикса при рекуррентной генерации к явной маске видимости декодера Transformer"
     },
     "summary": {
-      "en": "Recurrent next-step generation obtained prefix-only inputs from sequential execution. Transformer training exposes known target positions together, so decoder self-attention restores the same information boundary explicitly: each query keeps keys through its diagonal and blocks every later key before normalization. Generation itself remains sequential."
+      "en": "Recurrent next-step generation obtained prefix-only inputs from sequential execution. Transformer training exposes known target positions together, so decoder self-attention restores the same information boundary explicitly: each query keeps keys through its diagonal and blocks every later key before normalization. Generation itself remains sequential.",
+      "ru": "При рекуррентном предсказании следующего элемента из-за последовательных вычислений модели доступен только уже созданный префикс. Во время обучения Transformer известные целевые позиции доступны одновременно, поэтому самовнимание декодера явно восстанавливает ту же информационную границу: каждому запросу доступны ключи до его позиции включительно, а все последующие ключи исключаются до нормировки. Сама генерация остаётся последовательной."
     },
     "rust_contrast": "Emit the complete three-by-three mask, probability grid, suffix-perturbation result, and prefix-only gradients. This exposes the causal invariant without attributing the implementation's finite tape, exact zeros, or API to either paper."
   },
@@ -81,9 +95,7 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/attention/causal_mask.rs",
       "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "rust/demos/ch28-causal-masking/src/lib.rs",
-      "rust/demos/ch28-causal-masking/src/main.rs",
-      "rust/demos/ch28-causal-masking/src/diagram_trace.rs"
+      "rust/demos/ch28-causal-masking/src/main.rs"
     ],
     "expected_output": "chapter=28-causal-masking\nprediction=each query keeps its diagonal and earlier keys, while future keys receive zero probability\nconfig=batch:1 tokens:3 d_k:2 d_v:2 scale:0.707107 mask:lower-triangular-inclusive\nquery=shape:[1,3,2] values:[0.000000,3.000000,2.000000,-1.000000,1.000000,1.000000]\nkey=shape:[1,3,2] values:[3.000000,0.000000,-1.000000,2.000000,2.000000,1.000000]\nvalue=shape:[1,3,2] values:[3.000000,-3.000000,1.000000,3.000000,-2.000000,4.000000]\nmask=shape:[3,3] values:[0.000000,-inf,-inf,0.000000,0.000000,-inf,0.000000,0.000000,0.000000]\nraw_scores=shape:[1,3,3] values:[0.000000,6.000000,3.000000,6.000000,-4.000000,3.000000,3.000000,1.000000,3.000000]\nscaled_scores=shape:[1,3,3] values:[0.000000,4.242641,2.121320,4.242641,-2.828427,2.121320,2.121320,0.707107,2.121320]\nprobabilities=shape:[1,3,3] values:[1.000000,0.000000,0.000000,0.999151,0.000849,0.000000,0.445808,0.108383,0.445808]\nrow_sums=[1.000000,1.000000,1.000000]\noutput=shape:[1,3,2] values:[3.000000,-3.000000,2.998303,-2.994908,0.554192,0.770959]\nsuffix_perturbation=key:[2.000000,1.000000]->[-2.000000,4.000000] value:[-2.000000,4.000000]->[5.000000,-1.000000]\nperturbed_output=[3.000000,-3.000000,2.998303,-2.994908,3.287932,-1.591834]\nprefix_invariance=position_0:true position_1:true position_2_changed:true\nupstream=[1.000000,-0.500000,0.250000,2.000000,-1.000000,0.750000] loss=-0.716214\nquery_gradient=[0.000000,0.000000,-0.027579,0.013790,-1.944424,1.756510]\nkey_gradient=[-1.676343,-1.655658,0.107746,0.087062,1.568596,1.568596]\nvalue_gradient=[0.803980,1.832659,-0.108171,0.082985,-0.445808,0.334356]\nprefix_seed=[1.000000,-1.000000,0.500000,2.000000,0.000000,0.000000] suffix_gradient_zero=true\nsingle_token=probabilities:[1.000000] output:[5.000000,-2.000000] query_gradient_zero:true key_gradient_zero:true\nempty_batch=probabilities:[0,3,3] output:[0,3,2] valid:true\nerrors=empty_tokens:true softmax_rank:true softmax_shape:true query_rank:true token_mismatch:true released_score:true\ngradcheck=query_checks:6 key_checks:6 value_checks:6 tolerance:0.000004 passed:true\nhistory=earlier:recurrent-autoregressive-state visibility:available-prefix transformer:parallel-known-targets decoder_rule:no-subsequent-positions generation:sequential\nproof=tape_finite:true future_probabilities:exact-zero prefix_outputs:bitwise replay:bitwise\nnext=add relative position information without changing the causal boundary\n"
   },
@@ -91,42 +103,50 @@
     "decision": "useful",
     "id": "causal-masking",
     "rationale": {
-      "en": "A lower triangle makes the allowed, blocked, and diagonal score cells immediately visible, while a suffix perturbation proves that earlier output rows do not depend on future keys or values."
+      "en": "A lower triangle makes the allowed, blocked, and diagonal score cells immediately visible, while a suffix change demonstrates in this example that earlier output rows do not depend on future keys or values.",
+      "ru": "Нижний треугольник наглядно разделяет доступные, закрытые и диагональные ячейки оценок, а замена суффикса показывает на этом примере, что более ранние строки выхода не зависят от будущих ключей и значений."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has one self-attention head whose output at position $i$ depends only on keys and values through position $i$. Chapter 29 adds relative position information without widening that visibility boundary."
+    "en": "The cumulative decoder now has one self-attention head whose output at position $i$ depends only on keys and values through position $i$. Chapter 29 adds relative position information without widening that visibility boundary.",
+    "ru": "Теперь в накопительном декодере есть одна голова самовнимания, выход которой в позиции $i$ зависит только от ключей и значений до позиции $i$ включительно. В главе 29 появится относительная информация о позициях, но граница видимости не расширится."
   },
   "terminology": [
     {
       "concept_id": "causal-mask",
-      "en": "causal mask"
+      "en": "causal mask",
+      "ru": "каузальная маска"
     },
     {
       "concept_id": "future-key",
-      "en": "future key position"
+      "en": "future key position",
+      "ru": "будущая позиция ключа"
     },
     {
       "concept_id": "inclusive-diagonal",
-      "en": "inclusive diagonal"
+      "en": "inclusive diagonal",
+      "ru": "разрешённая диагональ"
     },
     {
       "concept_id": "prefix-invariance",
-      "en": "prefix invariance"
+      "en": "prefix invariance",
+      "ru": "неизменность выходов префикса"
     },
     {
       "concept_id": "masked-softmax",
-      "en": "causal softmax"
+      "en": "causal softmax",
+      "ru": "softmax с каузальной маской"
     }
   ],
   "translation_notes": [
-    "Chapter 28 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
-    "Keep S, M, A, Q, K, V, O, i, j, B, T, d_k, d_v, shapes, numeric values, error kinds, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
+    "Chapter 28 has the exact active locale set {en, ru}. The Russian lesson was translated directly from the current English revision 2 frozen at SHA-256 c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63 and must pass semantic, terminology, anti-calque, monolingual, accessibility, and rendered-surface review before publication.",
+    "Keep S, M, A, Q, K, V, O, i, j, B, T, d_k, d_v, shapes, numeric values, error kinds, trace keywords, source roles, and source URLs unchanged across locales.",
     "The row index is the query position and the column index is the key position. The diagonal is allowed because a shifted decoder input at that cell contains the preceding target token; never imply that a prediction reads its own target.",
     "The mask and one-position target shift jointly preserve autoregressive conditioning. Masking alone does not explain the complete training input arrangement.",
     "Known target positions can be evaluated together during training, but autoregressive generation still emits one new token at a time.",
-    "The additive negative-infinity mask is mathematical and inspectable plain-tensor evidence. The finite autodiff tape implements the same boundary by skipping blocked cells rather than recording non-finite values.",
+    "The additive negative-infinity mask is mathematical and inspectable plain-tensor evidence. The autodiff implementation keeps recorded numeric values finite by skipping blocked cells rather than recording non-finite values.",
     "Causal masking supplies visibility, not absolute or relative position. Padding, variable lengths, multiple heads, and key/value caching remain deferred.",
+    "Use natural Russian terms каузальная маска, нижнетреугольная маска, разрешённая диагональ, граница видимости, and softmax с каузальной маской. Avoid literal forms such as инклюзивная диагональ, конечная лента, or суффиксное возмущение.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace provenance, and literal program data. The neural-model history and mathematics remain language-independent.",
     "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data."
   ],
@@ -244,9 +264,9 @@ probabilities. For each batch $b$ and allowed row $i$,
 $$
 A_{bij}
 =\frac{\exp(S_{bij})}{\sum_{r=0}^{i}\exp(S_{bir})}
-\quad\text{for }j\le i,
+\qquad j\le i,
 \qquad
-A_{bij}=0\quad\text{for }j>i.
+A_{bij}=0,\qquad j>i.
 $$
 
 Therefore every allowed prefix remains normalized:
@@ -294,17 +314,20 @@ separate signal.
 ## Rust behavior
 
 The cumulative implementation exposes `causal_additive_mask` as a plain
-$[T,T]$ tensor containing $0$ and $-\infty$. A taped `TensorValue` must remain
-finite, so `causal_softmax` applies the same rule by reading only $j\le i$,
-subtracting the maximum of that allowed prefix, normalizing it, and emitting
-exact positive zero for every blocked cell. Neither the tape nor its saved
-probabilities contain $-\infty$.
+$[T,T]$ tensor containing $0$ and $-\infty$. `TensorValue` requires finite leaf
+data and recorded numeric values, so `causal_softmax` applies the same rule by
+reading only $j\le i$, subtracting the maximum of that allowed prefix,
+normalizing it, and emitting the exact floating-point value $+0.0$ for every
+blocked cell. Neither the tape nor its saved probabilities contain $-\infty$.
 
 `causal_softmax` accepts rank-two or higher square score grids so later
 $[B,H,T,T]$ multi-head scores can reuse it. The attention wrapper still accepts
 $Q,K\in\mathbb{R}^{B\times T\times d_k}$ and
 $V\in\mathbb{R}^{B\times T\times d_v}$, preserves empty batches, and rejects
 empty token axes, mismatched ranks or dimensions, and released tape operands.
+The score and probability tensors satisfy
+$S,A\in\mathbb{R}^{B\times T\times T}$, while
+$O\in\mathbb{R}^{B\times T\times d_v}$.
 
 For a loss through an allowed row, its score gradient is
 
@@ -312,14 +335,14 @@ $$
 \bar S_{bij}
 =A_{bij}\left(\bar A_{bij}
 -\sum_{r=0}^{i}\bar A_{bir}A_{bir}\right)
-\quad\text{for }j\le i,
+\qquad j\le i,
 \qquad
-\bar S_{bij}=0\quad\text{for }j>i.
+\bar S_{bij}=0,\qquad j>i.
 $$
 
-The frozen example checks all query, key, and value coordinates by central
-differences with step $10^{-6}$ and tolerance $4\times10^{-6}$. It also changes
-only the last key and value and proves
+The example compares all query, key, and value coordinates with central
+differences using step $10^{-6}$ and tolerance $4\times10^{-6}$. It also changes
+only the last key and value and demonstrates
 
 $$
 O'_0=O_0,\qquad O'_1=O_1,\qquad O'_2\ne O_2.
@@ -349,7 +372,7 @@ the attention arithmetic.
 1. Before running the example, write the allowed key indices for rows $0$, $1$,
    and $2$.
 2. Predict whether changing only $k_2$ and $v_2$ can change $o_0$ or $o_1$.
-3. Predict the query/key gradients of a one-token causal softmax.
+3. Predict the query/key gradients of a one-token causal self-attention example.
 4. Explain why setting future probabilities to zero after an ordinary softmax
    fails to preserve a unit row sum.
 
@@ -379,11 +402,11 @@ same lower-triangular visibility.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active locale for Chapter 28. Russian remains registered
-but inactive and publishes no placeholder route. Future translations must keep
-query rows, key columns, the inclusive diagonal, shifted-input explanation,
-source boundaries, formulas, numeric trace tokens, and the distinction between
-parallel known-target training and sequential generation aligned.
+English and Russian are the active locales for Chapter 28. The Russian lesson
+is translated directly from the frozen English revision 2 and keeps query rows,
+key columns, the allowed diagonal, shifted-input explanation, source boundaries,
+formulas, numeric program data, and the distinction between parallel
+known-target training and sequential generation aligned.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -392,5 +415,6 @@ The contract passes when the deterministic report and 26-line trace match their
 fixtures byte for byte; all future probabilities and suffix gradients are exact
 zero; every allowed row is finite and sums to $1$; all eighteen query/key/value
 gradient coordinates pass; source, content, locale, static-build, link, SEO,
-formula, Chromium, Firefox, desktop, and narrow-width gates pass; and no Russian
-Chapter 28 route is published.
+formula, Chromium, Firefox, desktop, narrow-width, no-JavaScript, and full-view
+gates pass for both locales; and the Russian Chapter 28 route, alternates,
+navigation, SEO description, diagram labels, and accessibility labels publish.

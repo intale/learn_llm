@@ -40,7 +40,7 @@ const perturbedRows = [
 const mathValue = (value: string) => value === '-inf' ? '-\\infty' : value;
 const verified = (value: string) => value === 'true' ? labels.cues.verified : labels.cues.rejected;
 const errorEvidence = (kind: string, evidence: string) =>
-  evidence === '' ? kind : `${kind} · ${evidence}`;
+  evidence === '' ? kind : `${kind}: ${evidence}`;
 const prefixStatus = [
   trace.prefix.position_0,
   trace.prefix.position_1,
@@ -67,16 +67,16 @@ const errorLabels: Record<string, string> = {
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.captions.calculation}>
-      <li class="allowed-cue">{labels.cues.allowed}</li>
-      <li class="blocked-cue">{labels.cues.blocked}</li>
-      <li class="diagonal-cue">{labels.cues.diagonal}</li>
-      <li class="unchanged-cue">{labels.cues.unchanged}</li>
-      <li class="changed-cue">{labels.cues.changed}</li>
+    <ul class="cue-list" aria-label={labels.captions.legend}>
+      <li data-diagram-box class="allowed-cue">{labels.cues.allowed}</li>
+      <li data-diagram-box class="blocked-cue">{labels.cues.blocked}</li>
+      <li data-diagram-box class="diagonal-cue">{labels.cues.diagonal}</li>
+      <li data-diagram-box class="unchanged-cue">{labels.cues.unchanged}</li>
+      <li data-diagram-box class="changed-cue">{labels.cues.changed}</li>
     </ul>
   </figcaption>
 
-  <section class="diagram-section calculation-section" aria-labelledby="causal-calculation-title">
+  <section class="diagram-section calculation-section course-diagram__card-stack" data-diagram-box aria-labelledby="causal-calculation-title">
     <h4 id="causal-calculation-title">{labels.sections.calculation}</h4>
     <p class="section-caption">{labels.captions.calculation}</p>
 
@@ -87,13 +87,13 @@ const errorLabels: Record<string, string> = {
       role="region"
       aria-label={labels.scrollers.inputs}
      data-diagram-scroll>
-      <ol class="input-grid">
+      <ol class="input-grid course-diagram__grid">
         {trace.inputs.map((input) => (
           <li>
-            <article data-diagram-card data-diagram-box class:list={['input-card', input.role + '-card']} data-input-role={input.role}>
-              <h6>{roleLabels[input.role]}</h6>
+            <article data-diagram-card data-diagram-box class:list={['input-card', 'course-diagram__card-stack', input.role + '-card']} data-input-role={input.role}>
+              <p class="input-role"><strong>{roleLabels[input.role]}</strong></p>
               <p class="formula-line"><InlineMath latex={input.symbol} /></p>
-              <table data-diagram-table class="matrix-table input-table">
+              <table data-diagram-table class="matrix-table input-table" aria-label={roleLabels[input.role]}>
                 <tbody>
                   {inputRows(input.values).map((row, rowIndex) => (
                     <tr>
@@ -120,8 +120,8 @@ const errorLabels: Record<string, string> = {
       role="region"
       aria-label={labels.scrollers.triangles}
      data-diagram-scroll>
-      <div class="triangle-grid">
-        <article data-diagram-card data-diagram-box class="triangle-card mask-card" data-causal-stage="mask">
+      <div class="triangle-grid course-diagram__grid">
+        <article data-diagram-card data-diagram-box class="triangle-card mask-card course-diagram__card-stack" data-causal-stage="mask">
           <h5>{labels.stages.mask}</h5>
           <p class="formula-line"><InlineMath latex="M" /></p>
           <table data-diagram-table class="matrix-table causal-table">
@@ -148,7 +148,7 @@ const errorLabels: Record<string, string> = {
                         data-diagonal={String(diagonal)}
                       >
                         <InlineMath latex={mathValue(value)} />
-                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                        <span class="cell-cue">{diagonal ? labels.cellCues.diagonal : visibility === 'allowed' ? labels.cellCues.allowed : labels.cellCues.blocked}</span>
                       </td>
                     );
                   })}
@@ -158,7 +158,7 @@ const errorLabels: Record<string, string> = {
           </table>
         </article>
 
-        <article data-diagram-card data-diagram-box class="triangle-card masked-card" data-causal-stage="masked-scores">
+        <article data-diagram-card data-diagram-box class="triangle-card masked-card course-diagram__card-stack" data-causal-stage="masked-scores">
           <h5>{labels.stages.maskedScores}</h5>
           <p class="formula-line"><InlineMath latex="S+M" /></p>
           <table data-diagram-table class="matrix-table causal-table">
@@ -185,7 +185,7 @@ const errorLabels: Record<string, string> = {
                         data-diagonal={String(diagonal)}
                       >
                         <InlineMath latex={mathValue(value)} />
-                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                        <span class="cell-cue">{diagonal ? labels.cellCues.diagonal : visibility === 'allowed' ? labels.cellCues.allowed : labels.cellCues.blocked}</span>
                       </td>
                     );
                   })}
@@ -195,7 +195,7 @@ const errorLabels: Record<string, string> = {
           </table>
         </article>
 
-        <article data-diagram-card data-diagram-box class="triangle-card probability-card" data-causal-stage="probabilities">
+        <article data-diagram-card data-diagram-box class="triangle-card probability-card course-diagram__card-stack" data-causal-stage="probabilities">
           <h5>{labels.stages.probabilities}</h5>
           <p class="formula-line"><InlineMath latex="A=\operatorname{softmax}(S+M)" /></p>
           <table data-diagram-table class="matrix-table causal-table">
@@ -222,7 +222,7 @@ const errorLabels: Record<string, string> = {
                         data-diagonal={String(diagonal)}
                       >
                         <InlineMath latex={value} />
-                        <small>{diagonal ? labels.cues.diagonal : visibility === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                        <span class="cell-cue">{diagonal ? labels.cellCues.diagonal : visibility === 'allowed' ? labels.cellCues.allowed : labels.cellCues.blocked}</span>
                       </td>
                     );
                   })}
@@ -230,7 +230,7 @@ const errorLabels: Record<string, string> = {
               ))}
             </tbody>
           </table>
-          <ul class="row-sums">
+          <ul class="row-sums course-diagram__grid">
             {trace.rows.map((row) => (
               <li><InlineMath latex={'q_' + row.query} />: <InlineMath latex={row.sum} /></li>
             ))}
@@ -241,7 +241,7 @@ const errorLabels: Record<string, string> = {
 
     <h5>{labels.stages.outputs}</h5>
     <div class="output-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.outputs} data-diagram-scroll>
-      <table data-diagram-table class="evidence-table output-table">
+      <table data-diagram-table class="evidence-table output-table" aria-label={labels.scrollers.outputs}>
         <thead>
           <tr>
             <th scope="col"><InlineMath latex="q_i" /></th>
@@ -262,30 +262,30 @@ const errorLabels: Record<string, string> = {
     </div>
   </section>
 
-  <section class="diagram-section prefix-section" aria-labelledby="causal-prefix-title">
+  <section class="diagram-section prefix-section course-diagram__card-stack" data-diagram-box aria-labelledby="causal-prefix-title">
     <h4 id="causal-prefix-title">{labels.sections.prefix}</h4>
     <p class="section-caption">{labels.captions.prefix}</p>
     <h5>{labels.stages.perturbation}</h5>
-    <div class="perturbation-grid">
-      <article data-diagram-card data-diagram-box class="compact-card">
-        <h6><InlineMath latex="k_2" /></h6>
-        <p data-diagram-box class="perturbation-values">
-          <span><InlineMath latex={trace.perturbation.key_before} /></span>
+    <div class="perturbation-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="compact-card course-diagram__card-stack">
+        <p><strong><InlineMath latex="k_2" /></strong></p>
+        <p class="perturbation-values">
+          <span>{labels.fields.before}: <InlineMath latex={trace.perturbation.key_before} /></span>
           <span aria-hidden="true">→</span>
-          <span><InlineMath latex={trace.perturbation.key_after} /></span>
+          <span>{labels.fields.after}: <InlineMath latex={trace.perturbation.key_after} /></span>
         </p>
       </article>
-      <article data-diagram-card data-diagram-box class="compact-card">
-        <h6><InlineMath latex="v_2" /></h6>
-        <p data-diagram-box class="perturbation-values">
-          <span><InlineMath latex={trace.perturbation.value_before} /></span>
+      <article data-diagram-card data-diagram-box class="compact-card course-diagram__card-stack">
+        <p><strong><InlineMath latex="v_2" /></strong></p>
+        <p class="perturbation-values">
+          <span>{labels.fields.before}: <InlineMath latex={trace.perturbation.value_before} /></span>
           <span aria-hidden="true">→</span>
-          <span><InlineMath latex={trace.perturbation.value_after} /></span>
+          <span>{labels.fields.after}: <InlineMath latex={trace.perturbation.value_after} /></span>
         </p>
       </article>
     </div>
     <div class="prefix-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.prefix} data-diagram-scroll>
-      <table data-diagram-table class="evidence-table prefix-table">
+      <table data-diagram-table class="evidence-table prefix-table" aria-label={labels.scrollers.prefix}>
         <thead>
           <tr>
             <th scope="col"><InlineMath latex="i" /></th>
@@ -301,8 +301,7 @@ const errorLabels: Record<string, string> = {
               <td><InlineMath latex={row.output.latex} /></td>
               <td><InlineMath latex={'[' + perturbedRows[index].join(',') + ']'} /></td>
               <td>
-                <code><bdi dir="ltr">{prefixStatus[index]}</bdi></code>
-                <span class:list={['status-cue', prefixStatus[index] === 'changed' ? 'changed' : 'unchanged']}>
+                <span data-diagram-box class:list={['status-cue', 'state-symbol', prefixStatus[index] === 'changed' ? 'changed' : 'unchanged']}>
                   {prefixStatus[index] === 'changed' ? labels.cues.changed : labels.cues.unchanged}
                 </span>
               </td>
@@ -313,11 +312,11 @@ const errorLabels: Record<string, string> = {
     </div>
   </section>
 
-  <section class="diagram-section evidence-section" aria-labelledby="causal-evidence-title">
+  <section class="diagram-section evidence-section course-diagram__card-stack" data-diagram-box aria-labelledby="causal-evidence-title">
     <h4 id="causal-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
     <div class="gradients-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.gradients} data-diagram-scroll>
-      <div class="gradient-pass-list">
+      <div class="gradient-pass-list course-diagram__grid">
         <table data-diagram-table class="evidence-table gradient-table" data-gradient-pass="full">
           <caption>
             {labels.fields.backward}: <InlineMath latex={tokenMatrix(trace.backward.seed)} />
@@ -364,34 +363,42 @@ const errorLabels: Record<string, string> = {
       </div>
     </div>
 
-    <div class="evidence-grid">
-      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="prefix-zero">
+    <div class="evidence-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="evidence-card course-diagram__card-stack" data-evidence-kind="prefix-zero" data-suffix-zero={trace.prefixGradient.suffixZero}>
         <h5>{labels.fields.prefixGradient}</h5>
-        <p><code><bdi dir="ltr">suffix_zero={trace.prefixGradient.suffixZero}</bdi></code></p>
+        <p>{labels.evidence.suffixGradient}</p>
         <strong>{verified(trace.prefixGradient.suffixZero)}</strong>
       </article>
-      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="single-token">
+      <article data-diagram-card data-diagram-box class="evidence-card course-diagram__card-stack" data-evidence-kind="single-token">
         <h5>{labels.fields.singleToken}</h5>
         <p><InlineMath latex={'A=' + trace.singleToken.probabilities} /></p>
         <p><InlineMath latex={'O=' + trace.singleToken.output} /></p>
       </article>
-      <article data-diagram-card data-diagram-box class="evidence-card" data-evidence-kind="empty-batch">
+      <article data-diagram-card data-diagram-box class="evidence-card course-diagram__card-stack" data-evidence-kind="empty-batch">
         <h5>{labels.fields.emptyBatch}</h5>
         <p><InlineMath latex={trace.emptyBatch.probability_shape} /> → <InlineMath latex={trace.emptyBatch.output_shape} /></p>
         <strong>{verified(trace.emptyBatch.valid)}</strong>
       </article>
-      <article data-diagram-card data-diagram-box class="evidence-card proof-card" data-evidence-kind="proof">
+      <article
+        data-diagram-card
+        data-diagram-box
+        class="evidence-card proof-card course-diagram__card-stack"
+        data-evidence-kind="proof"
+        data-tape-finite={trace.proof.tape_finite}
+        data-future-probabilities={trace.proof.future_probabilities}
+        data-prefix-outputs={trace.proof.prefix_outputs}
+      >
         <h5>{labels.fields.proof}</h5>
-        <p><code><bdi dir="ltr">tape_finite={trace.proof.tape_finite}</bdi></code></p>
-        <p><code><bdi dir="ltr">future_probabilities={trace.proof.future_probabilities}</bdi></code></p>
-        <p><code><bdi dir="ltr">prefix_outputs={trace.proof.prefix_outputs}</bdi></code></p>
+        <p>{labels.evidence.finiteTape}: <strong>{verified(trace.proof.tape_finite)}</strong></p>
+        <p>{labels.evidence.futureProbabilities}: <strong>{labels.evidence.exactZero}</strong></p>
+        <p>{labels.evidence.prefixOutputs}: <strong>{labels.evidence.bitwise}</strong></p>
       </article>
     </div>
 
     <h5>{labels.fields.errors}</h5>
-    <ul class="error-list">
+    <ul class="error-list course-diagram__grid">
       {trace.errors.map((error) => (
-        <li>
+        <li data-diagram-card data-diagram-box data-state="rejected" class="course-diagram__card-stack">
           <span>{errorLabels[error.case]}</span>
           <code><bdi dir="ltr">{errorEvidence(error.kind, error.evidence)}</bdi></code>
           <strong>{error.rejected === 'true' ? labels.cues.rejected : labels.cues.verified}</strong>
@@ -400,24 +407,34 @@ const errorLabels: Record<string, string> = {
     </ul>
   </section>
 
-  <section class="diagram-section history-section" aria-labelledby="causal-history-title">
+  <section class="diagram-section history-section course-diagram__card-stack" data-diagram-box aria-labelledby="causal-history-title">
     <h4 id="causal-history-title">{labels.sections.history}</h4>
     <p class="section-caption">{labels.captions.history}</p>
     <div class="history-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.history} data-diagram-scroll>
-      <ol class="history-grid">
+      <ol class="history-grid course-diagram__grid">
         <li>
-          <article data-diagram-card data-diagram-box class="history-card earlier-card">
+          <article
+            data-diagram-card
+            data-diagram-box
+            class="history-card earlier-card course-diagram__card-stack"
+            data-history-kind={trace.history.earlier}
+            data-history-visibility={trace.history.earlier_visibility}
+          >
             <h5>{labels.fields.earlier}</h5>
-            <code><bdi dir="ltr">{trace.history.earlier}</bdi></code>
-            <code><bdi dir="ltr">{trace.history.earlier_visibility}</bdi></code>
+            <p>{labels.historyDetails.earlier}</p>
           </article>
         </li>
         <li>
-          <article data-diagram-card data-diagram-box class="history-card transformer-card">
+          <article
+            data-diagram-card
+            data-diagram-box
+            class="history-card transformer-card course-diagram__card-stack"
+            data-history-kind={trace.history.transformer}
+            data-history-rule={trace.history.decoder_rule}
+            data-generation={trace.history.generation}
+          >
             <h5>{labels.fields.transformer}</h5>
-            <code><bdi dir="ltr">{trace.history.transformer}</bdi></code>
-            <code><bdi dir="ltr">{trace.history.decoder_rule}</bdi></code>
-            <code><bdi dir="ltr">generation={trace.history.generation}</bdi></code>
+            <p>{labels.historyDetails.transformer}</p>
           </article>
         </li>
       </ol>
@@ -426,37 +443,11 @@ const errorLabels: Record<string, string> = {
 </figure>
 
 <style>
-  .causal-masking-diagram,
-  .causal-masking-diagram *,
-  .causal-masking-diagram *::before,
-  .causal-masking-diagram *::after {
-    box-sizing: border-box;
-  }
-
-  .causal-masking-diagram {
-    inline-size: 100%;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    margin: 1.75rem 0;
-    padding: clamp(0.8rem, 2vw, 1.25rem);
-    border: 2px solid var(--color-border, #62708c);
-    border-radius: 0.9rem;
-    background: var(--color-surface, #101726);
-    color: var(--color-text, #eef2ff);
-  }
-
-  .causal-masking-diagram:focus-visible,
-  [role='region']:focus-visible {
-    outline: 3px solid var(--color-accent, #7dd3fc);
-    outline-offset: 3px;
-  }
-
   .diagram-description,
   .section-caption {
     max-inline-size: 76ch;
   }
 
-  .diagram-section,
   .input-card,
   .triangle-card,
   .compact-card,
@@ -466,28 +457,9 @@ const errorLabels: Record<string, string> = {
     max-inline-size: 100%;
   }
 
-  .diagram-section {
-    margin-block-start: 1.4rem;
-    padding-block-start: 1rem;
-    border-block-start: 1px solid var(--color-border, #62708c);
-  }
-
-  .cue-list,
-  .row-sums,
-  .error-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin: 0.75rem 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cue-list li,
-  .status-cue {
-    padding: 0.2rem 0.5rem;
-    border: 2px solid currentColor;
-    border-radius: 0.35rem;
+  .row-sums {
+    grid-template-columns: repeat(3, max-content);
+    gap: 0.45rem 1rem;
   }
 
   .allowed-cue,
@@ -516,28 +488,10 @@ const errorLabels: Record<string, string> = {
     font-weight: 800;
   }
 
-  .inputs-scroller,
-  .triangles-scroller,
-  .output-scroller,
-  .prefix-scroller,
-  .gradients-scroller,
-  .history-scroller {
-    inline-size: 100%;
-    max-inline-size: 100%;
-    min-inline-size: 0;
-    padding-block: 0.8rem 1.3rem;
-    scrollbar-gutter: stable;
-  }
-
   .input-grid,
   .triangle-grid,
   .history-grid {
-    display: grid;
     align-items: start;
-    gap: 0.8rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .input-grid,
@@ -550,7 +504,7 @@ const errorLabels: Record<string, string> = {
 
   .causal-masking-diagram:dir(rtl) .input-card,
   .causal-masking-diagram:dir(rtl) .triangle-card,
-  .causal-masking-diagram:dir(rtl) :is(caption, th, small, .status-cue) {
+  .causal-masking-diagram:dir(rtl) :is(caption, th, .cell-cue, .status-cue) {
     direction: rtl;
     unicode-bidi: plaintext;
   }
@@ -561,8 +515,8 @@ const errorLabels: Record<string, string> = {
   }
 
   .triangle-grid {
-    grid-template-columns: repeat(3, minmax(23rem, 1fr));
-    min-inline-size: 71rem;
+    grid-template-columns: repeat(3, minmax(26rem, 1fr));
+    min-inline-size: 80rem;
   }
 
   .history-grid {
@@ -576,10 +530,6 @@ const errorLabels: Record<string, string> = {
   .evidence-card,
   .history-card {
     align-self: start;
-    padding: 0.75rem;
-    border: 2px solid var(--color-border, #62708c);
-    border-radius: 0.65rem;
-    background: var(--color-surface-raised, #172033);
   }
 
   .query-card {
@@ -598,19 +548,10 @@ const errorLabels: Record<string, string> = {
   .formula-line,
   .formula-block {
     max-inline-size: 100%;
-    padding-block: 0.45rem;
-    overflow: visible;
   }
 
   .formula-block {
     margin-block: 1rem;
-    padding: 0.8rem;
-    border-inline-start: 4px double var(--color-accent, #7dd3fc);
-  }
-
-  table {
-    border-collapse: separate;
-    border-spacing: 0.2rem;
   }
 
   .matrix-table,
@@ -619,41 +560,21 @@ const errorLabels: Record<string, string> = {
     max-inline-size: none;
   }
 
-  th,
-  td {
-    padding: 0.45rem;
-    border: 1px solid var(--color-border, #62708c);
-    text-align: center;
-    vertical-align: top;
-  }
-
   .causal-table td {
     min-inline-size: 0;
     overflow-wrap: anywhere;
   }
 
   .causal-table {
-    --diagram-cell-padding-inline: 0.3rem;
-
     inline-size: 100%;
     min-inline-size: 100%;
     max-inline-size: 100%;
     table-layout: fixed;
   }
 
-  .causal-table td small {
+  .causal-table td .cell-cue {
     display: block;
     margin-block-start: 0.2rem;
-    font-size: 0.72rem;
-  }
-
-  caption {
-    padding-block-end: 0.45rem;
-    text-align: start;
-  }
-
-  .row-sums {
-    gap: 0.45rem 1rem;
   }
 
   .row-sums li {
@@ -668,8 +589,8 @@ const errorLabels: Record<string, string> = {
 
   .gradient-pass-list {
     display: grid;
+    grid-template-columns: minmax(44rem, 1fr);
     gap: 0.9rem;
-    min-inline-size: 44rem;
   }
 
   .gradient-table {
@@ -691,10 +612,8 @@ const errorLabels: Record<string, string> = {
 
   .perturbation-grid,
   .evidence-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     align-items: start;
-    gap: 0.8rem;
   }
 
   .perturbation-values {
@@ -704,21 +623,8 @@ const errorLabels: Record<string, string> = {
     gap: 0.25rem 0.4rem;
   }
 
-  .compact-card p,
-  .evidence-card p,
-  .history-card code {
-    max-inline-size: 100%;
-    overflow-wrap: anywhere;
-  }
-
   .status-cue {
     display: inline-block;
-    margin-inline-start: 0.4rem;
-  }
-
-  .error-list {
-    display: grid;
-    align-items: start;
   }
 
   .error-list li {
@@ -726,14 +632,6 @@ const errorLabels: Record<string, string> = {
     grid-template-columns: minmax(10rem, 1fr) minmax(14rem, 2fr) auto;
     align-items: start;
     gap: 0.65rem;
-    padding: 0.65rem;
-    border: 1px dashed var(--color-border, #62708c);
-  }
-
-  .history-card {
-    display: grid;
-    align-items: start;
-    gap: 0.45rem;
   }
 
   .earlier-card {
@@ -745,39 +643,17 @@ const errorLabels: Record<string, string> = {
     border-width: 3px;
   }
 
-  code,
-  bdi {
-    unicode-bidi: isolate;
-  }
-
   @container course-diagram (max-width: 40rem) {
-    .causal-masking-diagram {
-      padding: 0.65rem;
-    }
-
     .error-list li {
       grid-template-columns: 1fr;
     }
   }
 
-  @media (forced-colors: active) {
-    .causal-masking-diagram,
-    .input-card,
-    .triangle-card,
-    .compact-card,
-    .evidence-card,
-    .history-card {
-      background: Canvas;
-      color: CanvasText;
-      border-color: CanvasText;
-    }
+  .causal-masking-diagram:fullscreen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-    .allowed,
-    .blocked,
-    .diagonal,
-    th,
-    td {
-      border-color: CanvasText;
-    }
+  .causal-masking-diagram:fullscreen :is(figcaption, .calculation-section, .history-section) {
+    grid-column: 1 / -1;
   }
 </style>

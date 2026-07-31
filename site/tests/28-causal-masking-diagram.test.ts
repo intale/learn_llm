@@ -19,8 +19,12 @@ const fixture = read('rust/demos/ch28-causal-masking/diagram-trace.txt');
 const expectedOutput = read('rust/demos/ch28-causal-masking/expected.txt');
 const parserSource = read('site/src/lib/causal-masking-diagram.ts');
 const componentSource = read('site/src/components/chapters/CausalMaskingDiagram.astro');
+const sharedDiagramSource = read('site/src/styles/diagram.module.css');
 const contractSource = read('curriculum/chapters/28-causal-masking.md');
 const lessonSource = read('site/src/content/chapters/en/28-causal-masking.mdx');
+const russianLessonSource = read('site/src/content/chapters/ru/28-causal-masking.mdx');
+const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const russianLessonBody = russianLessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 const attentionSource = read('rust/crates/llm-from-scratch/src/attention/causal_mask.rs');
 const modelOpsSource = read('rust/crates/llm-from-scratch/src/autograd/model_ops.rs');
 const rustDemoSource = read('rust/demos/ch28-causal-masking/src/lib.rs');
@@ -30,6 +34,17 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error('missing JSON frontmatter');
   return JSON.parse(match[1]);
+}
+
+const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
+
+function markdownMathTokens(source: string): string[] {
+  const tokens: string[] = [];
+  const pattern = /\$\$([\s\S]*?)\$\$|(?<!\\)\$(?!\$)([^$\r\n]+?)(?<!\\)\$/g;
+  for (const match of source.matchAll(pattern)) {
+    tokens.push((match[1] ?? match[2]).replace(/\s+/g, ''));
+  }
+  return tokens;
 }
 
 const labels: CausalMaskingDiagramLabels = {
@@ -68,6 +83,8 @@ const labels: CausalMaskingDiagramLabels = {
     proof: 'proof',
     earlier: 'earlier',
     transformer: 'transformer',
+    before: 'before',
+    after: 'after',
   },
   roles: { query: 'query', key: 'key', value: 'value' },
   cues: {
@@ -79,11 +96,29 @@ const labels: CausalMaskingDiagramLabels = {
     verified: 'verified',
     rejected: 'rejected',
   },
+  cellCues: {
+    allowed: 'allowed',
+    blocked: 'blocked',
+    diagonal: 'diagonal',
+  },
   captions: {
+    legend: 'legend',
     calculation: 'calculation caption',
     prefix: 'prefix caption',
     evidence: 'evidence caption',
     history: 'history caption',
+  },
+  evidence: {
+    finiteTape: 'finite tape',
+    futureProbabilities: 'future probabilities',
+    prefixOutputs: 'prefix outputs',
+    suffixGradient: 'suffix gradient',
+    exactZero: 'exact zero',
+    bitwise: 'bitwise',
+  },
+  historyDetails: {
+    earlier: 'earlier details',
+    transformer: 'transformer details',
   },
   scrollers: {
     inputs: 'input scroller',
@@ -166,7 +201,6 @@ describe('Chapter 28 Rust trace parser', () => {
       tape_finite: 'true',
       future_probabilities: 'exact-zero',
       prefix_outputs: 'bitwise',
-      site_arithmetic: 'none',
     });
     expect(trace.history).toMatchObject({
       earlier: 'recurrent-autoregressive-state',
@@ -174,6 +208,10 @@ describe('Chapter 28 Rust trace parser', () => {
       generation: 'sequential',
     });
     expect(trace.errors[0].evidence).toBe('');
+    expect(trace.errors.at(-1)).toMatchObject({
+      kind: 'released-operand',
+      evidence: 'operation=causal-softmax|operand=0',
+    });
     expect(trace.nextChapter).toBe('29-rope');
   });
 
@@ -242,7 +280,7 @@ describe('Chapter 28 static diagram boundary', () => {
     ]) expect(componentSource).toContain(field);
   });
 
-  it('uses semantic tables, named local scrollers, natural cards, and non-color cues', () => {
+  it('uses shared presentation roles, named local scrollers, and non-color cues', () => {
     for (const scroller of [
       'inputs-scroller',
       'triangles-scroller',
@@ -258,25 +296,35 @@ describe('Chapter 28 static diagram boundary', () => {
     expect(componentSource).toContain('scope="col"');
     expect(componentSource).toContain('data-visibility={visibility}');
     expect(componentSource).toContain('data-diagonal={String(diagonal)}');
-    expect(componentSource).toContain('border-collapse: separate');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
     expect(componentSource).toContain('align-items: start');
     expect(componentSource).toContain('align-self: start');
     expect(componentSource).toContain('data-diagram-scroll');
     expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
+    expect(sharedDiagramSource).toContain('@media (forced-colors: active)');
     expect(componentSource).toContain('aria-label={labels.scrollers.outputs}');
-    expect(componentSource).toContain("evidence === '' ? kind : `${kind} · ${evidence}`");
+    expect(componentSource).toContain("evidence === '' ? kind : `${kind}: ${evidence}`");
     expect(componentSource).toContain('direction: ltr');
     expect(componentSource).toContain('unicode-bidi: isolate');
     expect(componentSource).not.toMatch(/(?:^|\n)\s*(?:min-)?(?:block-size|height)\s*:/);
     expect(componentSource).not.toContain('overflow: hidden');
+    expect(componentSource).not.toContain('scrollbar-gutter');
+    expect(componentSource).not.toMatch(/(?:background|color|padding|border-radius|outline|font-size)\s*:/);
+    expect(componentSource).not.toMatch(/(?:^|\n)\s*(?:th|td|table)[^{]*\{[\s\S]*?border(?:-collapse)?\s*:/);
+    expect(componentSource).toContain('labels.historyDetails.earlier');
+    expect(componentSource).toContain('labels.historyDetails.transformer');
+    expect(componentSource).toContain('labels.cellCues.diagonal');
+    expect(componentSource).not.toContain('<small>');
   });
 
   it('keeps contract, lesson, Rust evidence, formula, history, SEO, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -290,11 +338,69 @@ describe('Chapter 28 static diagram boundary', () => {
     expect(lessonSource).toContain('A=\\operatorname{softmax}(S+M)');
     expect(lessonSource).toContain('https://arxiv.org/abs/1308.0850');
     expect(lessonSource).toContain('https://arxiv.org/abs/1706.03762');
-    expect(lessonSource).toContain('road to modern LLMs');
     expect(lessonSource).toContain('shift and mask work together');
-    expect(lessonSource).toMatch(/generation\s+still emits one new token at a time/);
+    expect(lessonSource).toMatch(/autoregressive decoding still appends\s+one token at a time/);
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.translation_notes.join(' ')).toContain('Russian is registered but inactive');
+    expect(lessonSource).not.toMatch(/Rust-authored|page keeps|performs no tensor arithmetic|byte for byte|final newline/i);
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
+    expect(russianLesson).toMatchObject({
+      chapter_id: contract.chapter_id,
+      locale: 'ru',
+      concept_id: contract.concept_id,
+      content_revision: contract.content_revision,
+      order: contract.order,
+      objective: contract.objective.ru,
+      worked_inputs: contract.worked_inputs.ru,
+      formula: {
+        latex: contract.formula.latex,
+        symbols: contract.formula.symbols.map(({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        })),
+      },
+      visualization: {
+        decision: contract.visualization.decision,
+        id: contract.visualization.id,
+        rationale: contract.visualization.rationale.ru,
+      },
+      decoder_connection: contract.decoder_connection.ru,
+    });
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map((source: {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+        claim: { ru: string };
+      }) => ({ ...source, claim: source.claim.ru })),
+    });
+    expect(
+      russianLesson.rust_sources.map((source: { path: string; region?: string }) => [source.path, source.region]),
+    ).toEqual(
+      lesson.rust_sources.map((source: { path: string; region?: string }) => [source.path, source.region]),
+    );
+    expect(russianLessonBody.match(/<RustSource\b/g)).toHaveLength(4);
+    expect(russianLessonBody.match(/\/\*\s*chapter-section:/g)).toHaveLength(8);
+    const normalizedRussianBody = normalize(russianLessonBody);
+    for (const field of [
+      contract.history.llm_evolution.limitation.ru,
+      contract.history.llm_evolution.later_advance.ru,
+      contract.history.llm_evolution.modern_llm_role.ru,
+      ...contract.history.llm_evolution.sources.map((source: { claim: { ru: string } }) => source.claim.ru),
+    ]) expect(normalizedRussianBody).toContain(normalize(field));
+    expect(markdownMathTokens(russianLessonBody)).toEqual(markdownMathTokens(lessonBody));
+    expect(contract.translation_notes.join(' ')).toContain(
+      'SHA-256 c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63',
+    );
+    expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
+    expect(normalizedRussianBody).toContain('каузальная маска');
+    expect(normalizedRussianBody).toContain('границу видимости');
+    expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history|браузер/i);
     for (const region of ['causal-mask-construction', 'causal-self-attention-forward']) {
       expect(attentionSource).toContain(`region:${region}`);
     }

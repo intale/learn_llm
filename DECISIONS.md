@@ -10362,6 +10362,72 @@ completion checkpoint and commit before the already-authorized Chapter 27 work.
 **Affected step and run:** `activate-ch26-russian-localization`, run
 `20260731T030628Z-activate-ch26-russian-localization-01`.
 
+## 2026-07-31 - Freeze corrected Chapter 28 English semantics before translation
+
+**Status:** Accepted during `activate-ch28-russian-localization` execution.
+
+**Context:** The pre-translation audit found duplicated Graves and Transformer
+history, learner-visible trace and page-delivery commentary, an omitted score
+tensor in the complete shape statement, a category error about one-token
+softmax gradients, and a Chapter 28 diagram that still owned private frame,
+card, table, focus, scroller, and forced-color presentation. The exact trace
+also described the released causal-softmax operand as an unrelated autodiff
+stage even though the Rust error is `ReleasedOperand` for `CausalSoftmax`
+operand zero. The numerical forward values, gradients, causal ordering, cited
+history, and Chapter 29 handoff are otherwise consistent.
+
+**Decision:** Advance the canonical contract and English lesson to content
+revision 2 before creating Russian. Consolidate the LLM-centered history,
+remove delivery and serialization explanations from learner prose, include
+$S$ in the attention shape rule, use equality for the prefix-gradient
+invariant, describe the one-token result as causal self-attention, and state
+that the worked perturbation demonstrates rather than proves the invariant.
+Correct the exact released-operand trace, remove presentation-provenance fields
+from that trace, add localized history explanations and accessibility labels,
+and migrate the figure to the shared diagram roles while retaining only causal
+geometry and redundant non-color state cues locally. Freeze the corrected
+English file by checksum as the sole source of the direct Russian translation.
+
+**Consequences:** Both locales must preserve the exact causal formulas,
+symbols, shapes, values, qualifiers, primary sources, Rust APIs, exercises,
+answers, SEO, accessibility semantics, and Chapter 29 handoff. Russian uses
+established terms such as `каузальная маска`, `нижнетреугольная маска`,
+`граница видимости`, and `softmax с каузальной маской`, with concise cell cues
+and natural explanatory history. The trace remains strict internal evidence
+without teaching page machinery. No dependency, build, hosting, deployment,
+or user-environment change is introduced.
+
+**Affected step and run:** `activate-ch28-russian-localization`, run
+`20260731T064521Z-activate-ch28-russian-localization-01`.
+
+## 2026-07-31 - Stage Chapter 28 localization after the Chapter 27 commit
+
+**Status:** Accepted during `activate-ch28-russian-localization` preflight.
+
+**Context:** The user requested Chapters 25 through 30 in Russian, one chapter at
+a time. Chapter 27 is complete and independently committed at `f3915d2`, and the
+published locale boundary ends there. Chapter 28 must first be audited against
+its exact inclusive causal-mask evidence, translated directly from the frozen
+English source, rendered in two engines, and committed before Chapter 29 begins.
+
+**Decision:** Run Chapter 28 as the large standalone checkpoint
+`activate-ch28-russian-localization`, without a paid translation or generation
+service and without a cost-approval pause. Keep disposable candidate and rendered
+artifacts in
+`C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/`,
+record their checksums, and reuse the unchanged pinned Linux and browser images.
+Audit and freeze English meaning before translating; advance only the Chapter 28
+locale boundary. Do not change product dependencies, build definitions, hosting,
+deployment, or the user environment.
+
+**Consequences:** Publication requires semantic, mathematical, historical, Rust,
+SEO, accessibility, formula, static, link, Chromium, Firefox, fullscreen, and
+nearest-box containment gates for both locales. Chapter 28 receives its own
+completion checkpoint and commit before the already-authorized Chapter 29 work.
+
+**Affected step and run:** `activate-ch28-russian-localization`, run
+`20260731T064521Z-activate-ch28-russian-localization-01`.
+
 ## 2026-07-31 - Repair locale-boundary regressions exposed by Chapter 27
 
 **Status:** Accepted during `activate-ch27-russian-localization` validation.
@@ -10595,3 +10661,113 @@ checkpoint and do not change dependencies or build definitions.
 
 **Affected step and run:** `activate-ch26-russian-localization`, run
 `20260731T030628Z-activate-ch26-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 28 after causal and rendered audits
+
+**Status:** Accepted after final `activate-ch28-russian-localization`
+validation.
+
+**Context:** The canonical pre-translation review corrected duplicated history,
+an omitted score-tensor shape, a one-token gradient category error, learner-visible
+trace and delivery language, and the released-operand trace classification. The
+shared browser audit then found that one masked-score cell exceeded its border in
+forced colors and that the gradient matrices could collapse inside their narrow
+scroll region. The English and Russian semantics, exact Rust arithmetic, and
+causal invariants otherwise remained aligned.
+
+**Decision:** Publish English revision 2 at SHA-256
+`98037e4538b88c7801c382712120ff6334a20f5980d5bf94f4c2557adc7e97f9` and its
+direct Russian projection at SHA-256
+`583f40dcd3149e8969ebcca2421b96efc4c7c64ef998a6aea6223712ba6a65ce`.
+Use established Russian causal-attention terminology, keep formulas and code
+identifiers exact, and advance the Russian publication boundary only through
+Chapter 28. Migrate the figure to shared presentation roles, widen only its
+concept-specific triangular table tracks, and give the gradient comparison an
+explicit 44-rem scroll track so painted formula ink remains within every cell.
+Record the final 18-file product manifest at
+`C:/tmp/learn_llm/runs/20260731T064521Z-activate-ch28-russian-localization-01/publish-product.sha256`
+with SHA-256
+`d2eb43888b225cbda24a68eae93f1a1fdb39a0211f4b712be22aefcdb3ad7b95`.
+
+**Consequences:** Both locales preserve the exact inclusive lower-triangular
+mask, shifted-input qualification, shapes, probabilities, outputs, reverse-mode
+boundary, sources, exercises, answers, SEO, accessibility labels, and Chapter 29
+handoff. The final candidate builds 74 pages and passes 2,130 local references,
+74 SEO routes, 74 sitemap URLs, 74 Analytics routes, all 848 unit tests, all 161
+Chapter 28/formula/shared-style/shared-full-view cases in each of Chromium and
+Firefox, exact Chapter 28 Rust output and trace, and the complete pinned Linux
+gate at Docker manifest-list SHA-256
+`afd8c8396f2307f204fcb947ef4da0a256c9f11cae76ee035895dcbcfa078004`.
+No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and run:** `activate-ch28-russian-localization`, run
+`20260731T064521Z-activate-ch28-russian-localization-01`.
+
+## 2026-07-31 - Reopen Chapter 28 in an immutable corrective run
+
+**Status:** Accepted before corrective run
+`20260731T080033Z-activate-ch28-russian-localization-02` product edits.
+
+**Context:** Independent publication review after run 01 found several natural-
+language precision defects in the Russian projection, one English accessibility
+label that retained removed report-delivery framing, and a component-local cell-
+padding override owned by the shared diagram module. It also established that
+post-run-01 source bytes and a publication manifest had been changed after the
+run was marked succeeded, so the recorded image was not an exact final-source
+candidate.
+
+**Decision:** Preserve run 01 as historical evidence for its earlier candidate.
+Reopen the existing uncommitted Chapter 28 checkpoint under separately
+fingerprinted corrective run 02. That run alone owns the remaining language,
+accessibility, shared-role, manifest-ordering, exact-image, and browser replay
+corrections. Freeze a new source identity and publication decision only after
+the complete corrected candidate passes the pinned Linux and dual-engine gates.
+
+**Consequences:** No result produced before the run-02 corrections may be called
+the exact final candidate. The new publication manifest is written under run
+02 in deterministic ordinal path order; run 01 artifacts are not mutated again.
+No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and run:** `activate-ch28-russian-localization`, corrective run
+`20260731T080033Z-activate-ch28-russian-localization-02`.
+
+## 2026-07-31 - Supersede the premature Chapter 28 publication identity
+
+**Status:** Accepted after corrective run
+`20260731T080033Z-activate-ch28-russian-localization-02` validation.
+
+**Context:** The earlier Chapter 28 publication entry described run 01 before an
+independent final review found additional Russian anti-calques, imprecise diagram
+and accessibility labels, a stale curriculum boundary, and a component-local
+shared-spacing override. Restoring the shared cell padding then exposed one long
+masked score crossing its cell border by roughly four pixels. Run 01 remains
+valid evidence for its earlier candidate but is not the publication identity.
+
+**Decision:** Supersede that earlier publication entry with English revision 2
+at SHA-256 `c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63`
+and its direct Russian projection at SHA-256
+`3d03a73bc01b0c1a3c8025f97e91923f6156a87df541cfba876c6613727e59e4`.
+The integrated contract is SHA-256
+`fcf2d8c8603565043a361fc3ef30756a483643670e99d3e18caa2fbe90bef443`.
+Keep shared module spacing, widen only the Chapter 28 triangular relationship to
+three 26-rem tracks with an 80-rem minimum, and retain the 44-rem gradient track.
+Freeze the ordinal path-sorted 18-file product manifest at
+`.build/runs/20260731T080033Z-activate-ch28-russian-localization-02/publish-product.sha256`
+with SHA-256
+`7adb7eb753b2638b354ab43dff77333cd7341231131cac581ad288e463bdbdc9`.
+
+**Consequences:** The final exact candidate builds 74 pages and passes 2,130
+local references, 74 SEO routes, 74 sitemap URLs, 74 Analytics routes, all 848
+site tests, exact Chapter 28 Rust output and trace, and all 161 Chapter
+28/formula/shared-style/shared-full-view cases in each of Chromium and Firefox.
+Its pinned Linux Docker manifest-list SHA-256 is
+`b33a8b41452b54a05b4db8a5e369117409a52f11b1855cb8d44849fb5c505721`.
+Russian availability advances only through Chapter 28. No dependency, build,
+hosting, deployment, or user-environment change is introduced.
+
+**Affected step and run:** `activate-ch28-russian-localization`, corrective run
+`20260731T080033Z-activate-ch28-russian-localization-02`. This entry supersedes
+the earlier `Publish bilingual Chapter 28 after causal and rendered audits`
+publication identity without rewriting its historical record.

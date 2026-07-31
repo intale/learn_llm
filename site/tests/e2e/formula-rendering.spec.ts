@@ -560,8 +560,8 @@ const chapter14To39FormulaLatex: Record<
     String.raw`M_{ij}=\begin{cases}0&j\le i\\-\infty&j>i\end{cases},\quad A=\operatorname{softmax}(S+M)`,
     String.raw`A=\operatorname{softmax}(S+M),\qquad O=AV`,
     String.raw`\sum_{j=0}^{i}A_{bij}=1`,
-    String.raw`A_{bij}=0\quad\text{when }j>i`,
-    String.raw`\bar S_{bij}=0\quad\text{when }j>i`,
+    String.raw`A_{bij}=0,\qquad j>i`,
+    String.raw`\bar S_{bij}=0,\qquad j>i`,
     String.raw`\frac{\partial L_{\le1}}{\partial q_2}`,
   ],
   "29-rope": [
