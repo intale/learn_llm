@@ -23,6 +23,11 @@ const scaleLabels = {
 } as const;
 const acceptedWhenTrue = (value: string) =>
   value === 'true' ? labels.cues.accepted : labels.cues.rejected;
+const localizedErrorReasons: Record<string, string> = {
+  'rank-zero': labels.errorReasons.rankZero,
+  'width-mismatch': labels.errorReasons.widthMismatch,
+  'zero-energy-epsilon-zero': labels.errorReasons.zeroEnergy,
+};
 const batchRowZero = `[${trace.batch.output.values[0]},${trace.batch.output.values[1]}]`;
 const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.values[3]}]`;
 ---
@@ -38,23 +43,23 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.captions.primary}>
-      <li class="input-cue">{labels.cues.input}</li>
-      <li class="normalized-cue">{labels.cues.normalized}</li>
-      <li class="scaled-cue">{labels.cues.scaled}</li>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.captions.primary}>
+      <li data-diagram-box class="input-cue">{labels.cues.input}</li>
+      <li data-diagram-box class="normalized-cue">{labels.cues.normalized}</li>
+      <li data-diagram-box class="scaled-cue">{labels.cues.scaled}</li>
     </ul>
   </figcaption>
 
-  <section class="diagram-section primary-section" aria-labelledby="rmsnorm-primary-title">
+  <section class="diagram-section primary-section course-diagram__card-stack" data-diagram-box aria-labelledby="rmsnorm-primary-title">
     <h4 id="rmsnorm-primary-title">{labels.sections.primary}</h4>
     <div
       class="primary-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.primary}
-     data-diagram-scroll>
-      <div class="primary-flow">
-        <article data-diagram-card data-diagram-box class="stage-card input-stage" data-stage="input">
+      data-diagram-scroll>
+      <div class="primary-flow course-diagram__grid">
+        <article data-diagram-card data-diagram-box class="stage-card input-stage course-diagram__card-stack" data-stage="input">
           <h5>{labels.stages.input}</h5>
           <ol class="feature-bars" aria-label={labels.stages.input}>
             {trace.primary.input.values.map((value, index) => (
@@ -63,7 +68,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="stage-card statistic-stage" data-stage="statistic">
+        <article data-diagram-card data-diagram-box class="stage-card statistic-stage course-diagram__card-stack" data-stage="statistic">
           <h5>{labels.stages.meanSquare}</h5>
           <p><InlineMath latex={String.raw`m_2=${trace.primary.meanSquare.latex}`} /></p>
           <p><strong>{labels.stages.inverseRms}</strong></p>
@@ -71,7 +76,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           <p><InlineMath latex={String.raw`\varepsilon=${trace.meta.epsilon}`} /></p>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="stage-card normalized-stage" data-stage="normalized">
+        <article data-diagram-card data-diagram-box class="stage-card normalized-stage course-diagram__card-stack" data-stage="normalized">
           <h5>{labels.stages.normalized}</h5>
           <ol class="feature-bars" aria-label={labels.stages.normalized}>
             {trace.primary.normalized.values.map((value, index) => (
@@ -80,7 +85,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="stage-card gain-stage" data-stage="gain">
+        <article data-diagram-card data-diagram-box class="stage-card gain-stage course-diagram__card-stack" data-stage="gain">
           <h5>{labels.stages.gain}</h5>
           <ol class="feature-bars" aria-label={labels.stages.gain}>
             {trace.primary.gain.values.map((value, index) => (
@@ -89,7 +94,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
           </ol>
         </article>
         <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-        <article data-diagram-card data-diagram-box class="stage-card output-stage" data-stage="output">
+        <article data-diagram-card data-diagram-box class="stage-card output-stage course-diagram__card-stack" data-stage="output">
           <h5>{labels.stages.output}</h5>
           <ol class="feature-bars" aria-label={labels.stages.output}>
             {trace.primary.output.values.map((value, index) => (
@@ -99,20 +104,20 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         </article>
       </div>
     </div>
-    <p class="section-caption">{labels.captions.primary}</p>
+    <p class="section-caption course-diagram__description">{labels.captions.primary}</p>
   </section>
 
-  <section class="diagram-section" aria-labelledby="rmsnorm-scale-title">
+  <section class="diagram-section course-diagram__card-stack" data-diagram-box aria-labelledby="rmsnorm-scale-title">
     <h4 id="rmsnorm-scale-title">{labels.sections.scaling}</h4>
     <div
       class="scale-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.scales}
-     data-diagram-scroll>
-      <div class="scale-grid">
+      data-diagram-scroll>
+      <div class="scale-grid course-diagram__grid">
         {trace.scales.map((scale) => (
-          <article data-diagram-card data-diagram-box class:list={['scale-card', `${scale.mode}-scale`]} data-scale-mode={scale.mode}>
+          <article data-diagram-card data-diagram-box class:list={['scale-card', 'course-diagram__card-stack', `${scale.mode}-scale`]} data-scale-mode={scale.mode}>
             <h5>{scaleLabels[scale.mode]}</h5>
             <div>
               <p><InlineMath latex={String.raw`\varepsilon=${scale.epsilon},\quad a=${scale.factor}`} /></p>
@@ -135,17 +140,17 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         ))}
       </div>
     </div>
-    <p class="section-caption">{labels.captions.scaling}</p>
+    <p class="section-caption course-diagram__description">{labels.captions.scaling}</p>
   </section>
 
-  <section class="diagram-section" aria-labelledby="rmsnorm-history-title">
+  <section class="diagram-section course-diagram__card-stack" data-diagram-box aria-labelledby="rmsnorm-history-title">
     <h4 id="rmsnorm-history-title">{labels.sections.history}</h4>
     <div
       class="history-scroller course-diagram__scroll"
       tabindex="0"
       role="region"
       aria-label={labels.scrollers.history}
-     data-diagram-scroll>
+      data-diagram-scroll>
       <table data-diagram-table>
         <caption>{labels.captions.history}</caption>
         <thead>
@@ -174,13 +179,13 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         </tbody>
       </table>
     </div>
-    <p class="history-mean"><strong>{labels.fields.outputMean}:</strong> <InlineMath latex={String.raw`\operatorname{mean}(\hat x)=${trace.history.rmsMean}`} /></p>
+    <p class="history-mean course-diagram__description"><strong>{labels.fields.outputMean}:</strong> <InlineMath latex={String.raw`\operatorname{mean}(\hat x)=${trace.history.rmsMean}`} /></p>
   </section>
 
-  <section class="diagram-section" aria-labelledby="rmsnorm-safeguards-title">
+  <section class="diagram-section course-diagram__card-stack" data-diagram-box aria-labelledby="rmsnorm-safeguards-title">
     <h4 id="rmsnorm-safeguards-title">{labels.sections.safeguards}</h4>
-    <div class="evidence-grid">
-      <article data-diagram-card data-diagram-box class="evidence-card backward-card" data-evidence="backward">
+    <div class="evidence-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="evidence-card backward-card course-diagram__card-stack" data-evidence="backward">
         <h5>{labels.fields.backward}</h5>
         <p><InlineMath latex={String.raw`\bar y=${trace.backward.upstream.latex}`} /></p>
         <dl>
@@ -189,24 +194,27 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         </dl>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card parameter-card" data-evidence="parameter">
+      <article data-diagram-card data-diagram-box class="evidence-card parameter-card course-diagram__card-stack" data-evidence="parameter">
         <h5>{labels.fields.parameter}</h5>
         <p><code><bdi dir="ltr">{trace.meta.gainName}</bdi></code></p>
         <p><InlineMath latex={String.raw`g\in\mathbb{R}^{${trace.meta.featureWidth}}`} /></p>
         <p><strong>{labels.fields.optimizerPolicy}:</strong> <bdi dir="ltr">no_decay={trace.meta.noDecay}</bdi></p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card zero-card" data-evidence="zero-input">
+      <article data-diagram-card data-diagram-box class="evidence-card zero-card course-diagram__card-stack" data-evidence="zero-input">
         <h5>{labels.fields.zeroInput}</h5>
         <p><InlineMath latex={String.raw`x=${trace.zero.input.latex}`} /></p>
         <p class="vertical-arrow" aria-hidden="true">&darr;</p>
         <p><InlineMath latex={String.raw`y=${trace.zero.output.latex}`} /></p>
-        <p class:list={['status', trace.zero.finite === 'true' ? 'accepted' : 'rejected']}>
-          {acceptedWhenTrue(trace.zero.finite)} · <bdi dir="ltr">finite={trace.zero.finite}</bdi>
+        <p>
+          <span data-diagram-box class:list={['state-symbol', 'status', trace.zero.finite === 'true' ? 'accepted' : 'rejected']}>
+            {acceptedWhenTrue(trace.zero.finite)}
+          </span>
+          · <bdi dir="ltr">finite={trace.zero.finite}</bdi>
         </p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card batch-card" data-evidence="batch-axis">
+      <article data-diagram-card data-diagram-box class="evidence-card batch-card course-diagram__card-stack" data-evidence="batch-axis">
         <h5>{labels.fields.batchAxis}</h5>
         <p><InlineMath latex={String.raw`\operatorname{shape}(y)=${trace.batch.shape}`} /></p>
         <p><InlineMath latex={String.raw`y_{0,:}=${batchRowZero}`} /></p>
@@ -214,103 +222,43 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
         <p><bdi dir="ltr">axis={trace.batch.axis}</bdi></p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card errors-card" data-evidence="errors">
+      <article data-diagram-card data-diagram-box class="evidence-card errors-card course-diagram__card-stack" data-evidence="errors">
         <h5>{labels.fields.errors}</h5>
         <ul>
           {trace.errors.map((error) => (
             <li>
-              <span class:list={['status', error.rejected === 'true' ? 'rejected' : 'accepted']}>
+              <span data-diagram-box class:list={['state-symbol', 'status', error.rejected === 'true' ? 'rejected' : 'accepted']}>
                 {error.rejected === 'true' ? labels.cues.rejected : labels.cues.accepted}
               </span>
               <code><bdi dir="ltr">{error.case}</bdi></code>
-              <span>{error.message}</span>
+              <span>{localizedErrorReasons[error.case]}</span>
             </li>
           ))}
         </ul>
       </article>
     </div>
 
-    <div class="proof-row" data-evidence="proof">
-      <article data-diagram-card data-diagram-box>
+    <div class="proof-row course-diagram__grid" data-evidence="proof">
+      <article data-diagram-card data-diagram-box class="course-diagram__card-stack">
         <h5>{labels.fields.proof}</h5>
         <p><InlineMath latex={String.raw`\operatorname{mean}(\hat x^2)=${trace.proof.normalizedMeanSquare}`} /></p>
       </article>
-      <article data-diagram-card data-diagram-box>
+      <article data-diagram-card data-diagram-box class="course-diagram__card-stack">
         <h5>{labels.fields.backward}</h5>
         <p><bdi dir="ltr">input_checks={trace.proof.inputChecks}</bdi></p>
         <p><bdi dir="ltr">gain_checks={trace.proof.gainChecks}</bdi></p>
         <p><InlineMath latex={String.raw`\tau=${trace.proof.tolerance}`} /></p>
       </article>
-      <article data-diagram-card data-diagram-box>
+      <article data-diagram-card data-diagram-box class="course-diagram__card-stack">
         <h5>{labels.cues.accepted}</h5>
         <p><bdi dir="ltr">gradcheck={trace.proof.gradcheck}</bdi></p>
         <p><bdi dir="ltr">replay={trace.proof.replay}</bdi></p>
-        <p><bdi dir="ltr">trace={trace.proof.trace}</bdi></p>
-        <p><bdi dir="ltr">site_arithmetic={trace.meta.siteArithmetic}</bdi></p>
-        <p><bdi dir="ltr">next={trace.nextChapter}</bdi></p>
       </article>
     </div>
   </section>
 </figure>
 
 <style>
-  .rmsnorm-diagram {
-    --norm-ink: #1d3557;
-    --norm-soft: #eef5ff;
-    --norm-accent: #2563eb;
-    --norm-green: #176b47;
-    --norm-amber: #8a4b08;
-    --norm-red: #9f2d2d;
-    margin: 2rem 0;
-    box-sizing: border-box;
-    inline-size: 100%;
-    max-inline-size: 100%;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 2px solid var(--norm-ink);
-    border-radius: 1rem;
-    background: linear-gradient(145deg, #ffffff 0%, var(--norm-soft) 100%);
-    color: #172033;
-  }
-
-  .rmsnorm-diagram:focus-visible,
-  .primary-scroller:focus-visible,
-  .scale-scroller:focus-visible,
-  .history-scroller:focus-visible,
-  .formula-scroller:focus-visible {
-    outline: 3px solid var(--norm-accent);
-    outline-offset: 3px;
-  }
-
-  figcaption h3,
-  .diagram-section h4,
-  .stage-card h5,
-  .scale-card h5,
-  .evidence-card h5,
-  .proof-row h5 {
-    margin-block: 0;
-  }
-
-  .diagram-description,
-  .section-caption,
-  .history-mean {
-    margin-block-end: 0;
-  }
-
-  .cue-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem 1rem;
-    margin: 1rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cue-list li {
-    padding: 0.25rem 0.55rem;
-    border: 2px solid var(--norm-ink);
-    border-radius: 999px;
-  }
-
   .cue-list .normalized-cue {
     border-style: dashed;
   }
@@ -320,55 +268,10 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     border-width: 4px;
   }
 
-  .diagram-section {
-    margin-block-start: 1.5rem;
-    min-inline-size: 0;
-  }
-
-  .primary-scroller,
-  .scale-scroller,
-  .history-scroller,
-  .formula-scroller {
-    max-inline-size: 100%;
-    overflow-y: visible;
-    scrollbar-gutter: stable;
-  }
-
-  .formula-scroller {
-    padding-block: 0.15rem;
-  }
-
-  .primary-scroller,
-  .scale-scroller,
-  .history-scroller {
-    margin-block-start: 0.75rem;
-    padding: 0.3rem 0.2rem 0.65rem;
-  }
-
   .primary-flow {
-    display: grid;
     grid-template-columns: minmax(13rem, 1fr) auto minmax(12rem, 1fr) auto minmax(14rem, 1fr) auto minmax(13rem, 1fr) auto minmax(14rem, 1fr);
     align-items: stretch;
-    gap: 0.55rem;
     min-inline-size: 76rem;
-  }
-
-  .stage-card,
-  .scale-card,
-  .evidence-card,
-  .proof-row article {
-    min-inline-size: 0;
-    padding: 0.85rem;
-    border: 2px solid var(--norm-ink);
-    border-radius: 0.75rem;
-    background: #ffffff;
-  }
-
-  .stage-card p,
-  .scale-card p,
-  .evidence-card p,
-  .proof-row p {
-    margin: 0.55rem 0 0;
   }
 
   .input-stage {
@@ -384,17 +287,8 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     border-width: 4px;
   }
 
-  .statistic-stage {
-    background: #fff8e7;
-  }
-
-  .gain-stage {
-    background: #f2fff8;
-  }
-
   .flow-arrow {
     align-self: center;
-    color: var(--norm-accent);
     font-size: 1.4rem;
     font-weight: 800;
   }
@@ -417,18 +311,18 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   .bar-track {
     display: block;
     padding-block: 0.18rem;
-    border: 1px solid currentColor;
+    border: 1px solid var(--diagram-line-strong);
     border-radius: 999px;
-    background: #edf1f7;
+    background: var(--diagram-surface);
   }
 
   .bar-fill {
     display: block;
     inline-size: 50%;
     padding-block: 0.18rem;
-    border-inline-start: 3px solid var(--norm-ink);
+    border-inline-start: 3px solid var(--diagram-line-strong);
     border-radius: 999px;
-    background: var(--norm-accent);
+    background: var(--diagram-accent);
   }
 
   [data-stage='input'] li:first-child .bar-fill { inline-size: 60%; }
@@ -441,9 +335,7 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   [data-stage='output'] li:last-child .bar-fill { inline-size: 14%; }
 
   .scale-grid {
-    display: grid;
     grid-template-columns: repeat(3, minmax(19rem, 1fr));
-    gap: 0.8rem;
     min-inline-size: 59rem;
   }
 
@@ -459,16 +351,6 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     min-inline-size: 0;
   }
 
-  .scale-card dt,
-  .evidence-card dt {
-    font-weight: 700;
-  }
-
-  .scale-card dd,
-  .evidence-card dd {
-    margin: 0.25rem 0 0;
-  }
-
   .production-scale {
     border-style: dashed;
   }
@@ -476,48 +358,22 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   .near-zero-scale {
     border-style: double;
     border-width: 4px;
-    background: #fff8e7;
   }
 
   table {
-    inline-size: 100%;
     min-inline-size: 44rem;
-    border-collapse: collapse;
-    background: #ffffff;
-  }
-
-  caption {
-    padding-block-end: 0.6rem;
-    text-align: start;
-    font-weight: 700;
-  }
-
-  th,
-  td {
-    padding: 0.75rem;
-    border: 1px solid var(--norm-ink);
-    text-align: start;
-    vertical-align: top;
   }
 
   tbody tr:last-child {
-    border-block: 4px double var(--norm-ink);
+    border-block-style: double;
+    border-block-width: 4px;
   }
 
   .evidence-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-    gap: 0.8rem;
-    margin-block-start: 0.75rem;
-  }
-
-  .parameter-card code,
-  .errors-card code {
-    overflow-wrap: anywhere;
   }
 
   .vertical-arrow {
-    color: var(--norm-accent);
     font-weight: 800;
   }
 
@@ -540,39 +396,17 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
     gap: 0.6rem;
   }
 
-  .status {
-    display: inline-block;
-    padding: 0.12rem 0.45rem;
-    border: 2px solid currentColor;
-    border-radius: 999px;
-    font-weight: 700;
-  }
-
-  .accepted {
-    color: var(--norm-green);
-  }
-
   .rejected {
-    color: var(--norm-red);
-    border-style: double;
+    --diagram-state-symbol-border-style: double;
   }
 
   .proof-row {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-    gap: 0.8rem;
-    margin-block-start: 0.8rem;
   }
 
   .proof-row article {
-    border-block-start: 4px double var(--norm-green);
-  }
-
-  bdi,
-  code,
-  :global([data-inline-math]) {
-    direction: ltr;
-    unicode-bidi: isolate;
+    border-block-start-style: double;
+    border-block-start-width: 4px;
   }
 
   :global([dir='rtl']) .flow-arrow {
@@ -580,40 +414,8 @@ const batchRowOne = `[${trace.batch.output.values[2]},${trace.batch.output.value
   }
 
   @container course-diagram (max-width: 42rem) {
-    .rmsnorm-diagram {
-      padding: 0.9rem;
-    }
-
     .errors-card li {
       grid-template-columns: 1fr;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .rmsnorm-diagram,
-    .stage-card,
-    .scale-card,
-    .evidence-card,
-    .proof-row article,
-    .cue-list li,
-    .bar-track,
-    table,
-    th,
-    td {
-      background: Canvas;
-      color: CanvasText;
-      forced-color-adjust: auto;
-    }
-
-    .bar-fill {
-      background: Highlight;
-      border-color: CanvasText;
-    }
-
-    .flow-arrow,
-    .accepted,
-    .rejected {
-      color: CanvasText;
     }
   }
 </style>

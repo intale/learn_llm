@@ -2,7 +2,7 @@
 {
   "chapter_id": "25-rmsnorm",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 3,
   "order": 25,
   "concept_id": "rmsnorm",
   "title": "Normalize scale without subtracting the mean",
@@ -26,7 +26,7 @@
     "llm_evolution": {
       "predecessor_kind": "training-practice",
       "limitation": "BatchNorm couples a training example to mini-batch statistics, while LayerNorm removes that cross-example dependency but still computes and subtracts a per-example feature mean before rescaling.",
-      "later_advance": "RMSNorm removes mean subtraction and keeps feature-wise RMS rescaling; LLaMA later used RMSNorm before each Transformer sublayer.",
+      "later_advance": "RMSNorm removes mean subtraction and keeps RMS rescaling over the feature vector; LLaMA later used RMSNorm before each Transformer sublayer.",
       "modern_llm_role": "A pre-normalized decoder feeds a controlled-scale residual-stream vector into each attention or feed-forward branch while leaving the identity path outside that normalization operation.",
       "sources": [
         {
@@ -90,24 +90,14 @@
       "purpose": "Check every input and gain coordinate against central differences."
     },
     {
-      "path": "rust/demos/ch25-rmsnorm/src/lib.rs",
-      "region": "learner-rmsnorm-report",
-      "purpose": "Render the complete deterministic learner report from Rust-owned evidence."
-    },
-    {
       "path": "rust/demos/ch25-rmsnorm/src/main.rs",
-      "purpose": "Print the frozen learner report without presentation-layer arithmetic."
-    },
-    {
-      "path": "rust/demos/ch25-rmsnorm/src/diagram_trace.rs",
-      "region": "rmsnorm-trace",
-      "purpose": "Emit the strict locale-neutral trace consumed by the static visualization."
+      "purpose": "Run the checked RMSNorm fixture and print its numerical evidence."
     }
   ],
   "visualization": {
     "decision": "useful",
     "id": "rmsnorm",
-    "rationale": "Aligned feature bars and evidence rows make it easier to see that RMSNorm rescales without shifting the mean, and that epsilon barely changes an ordinary vector but strongly changes a near-zero one."
+    "rationale": "Aligned feature bars and evidence rows make it easier to see that RMSNorm rescales without subtracting the mean, and that epsilon barely changes an ordinary vector but strongly changes a near-zero one."
   },
   "decoder_connection": "The cumulative decoder now has a differentiable last-axis normalizer for the input of each learned residual branch. Chapter 26 will turn those normalized features into separate query, key, and value projections."
 }
@@ -157,6 +147,11 @@ export const diagramLabels = {
     errors: 'Rejected boundaries',
     proof: 'Rust-authored checks',
   },
+  errorReasons: {
+    rankZero: 'The input needs at least one axis.',
+    widthMismatch: 'The final feature width must match the gain width.',
+    zeroEnergy: 'Zero epsilon cannot normalize a row whose mean square is zero.',
+  },
   cues: {
     input: 'Solid input border',
     normalized: 'Dashed RMS-rescaled border',
@@ -165,7 +160,7 @@ export const diagramLabels = {
     rejected: 'Rejected',
   },
   captions: {
-    primary: 'Bar lengths share one visual scale; exact values remain the authority.',
+    primary: 'Bar lengths are local visual guides; exact values remain the authority.',
     scaling: 'The ordinary difference is tiny; the near-zero difference is visible.',
     history: 'The fixed anchor is paired with two different batch companions.',
   },
@@ -235,7 +230,7 @@ scale-invariant away from zero, not exactly invariant everywhere.
 
 - $x$ is one feature vector taken from the input's final axis.
 - $d$ is that axis's nonzero width and $i$ selects one coordinate.
-- $x_i$ is coordinate $i$ and $\sum_i x_i^2/d$ is its vector's mean square.
+- $x_i$ is coordinate $i$ and $\sum_i x_i^2/d$ is the mean square of the coordinates in vector $x$.
 - $\varepsilon\ge0$ stabilizes the reciprocal square root.
 - $\hat{x}$ is the RMS-rescaled vector before learned featurewise scaling.
 - $g\in\mathbb{R}^{d}$ is the learned gain and $\odot$ is elementwise multiplication.
@@ -249,9 +244,6 @@ clip values, or mix examples across a mini-batch.
 
 ## From batch statistics to pre-RMSNorm language models
 
-The history is about normalization choices on the road to modern LLMs, not the
-history of any programming language.
-
 BatchNorm couples a training example to mini-batch statistics, while LayerNorm
 removes that cross-example dependency but still computes and subtracts a
 per-example feature mean before rescaling.
@@ -264,14 +256,15 @@ The second earlier source is [Ba, Kiros, and Hinton, *Layer Normalization*](http
 Ba, Kiros, and Hinton compute mean and variance across the summed inputs of one
 layer for one training case, avoiding dependencies between training cases.
 
-RMSNorm removes mean subtraction and keeps feature-wise RMS rescaling; LLaMA
+RMSNorm removes mean subtraction and keeps RMS rescaling over the feature vector; LLaMA
 later used RMSNorm before each Transformer sublayer.
 
 The first later source is [Zhang and Sennrich, *Root Mean Square Layer Normalization*](https://arxiv.org/abs/1910.07467).
 Zhang and Sennrich remove the mean statistic, normalize by RMS, and retain the
 epsilon-free formulation's positive rescaling invariance while giving up
-recentering invariance. The production epsilon and near-zero boundary here are
-explicit course policies, not claims attributed to the paper.
+recentering invariance. The paper's displayed formula has no epsilon. This
+implementation adds positive epsilon so zero and tiny vectors remain finite; the
+resulting near-zero behavior follows from that modified denominator.
 
 The second later source is [Touvron et al., *LLaMA*](https://arxiv.org/pdf/2302.13971).
 Touvron et al. normalize the input of each Transformer sublayer and identify
@@ -322,7 +315,7 @@ boundary visible:
   label="Rust source defining Chapter 25 RMSNorm errors"
 />
 
-The frozen fixture runs the primary reverse pass with $\bar y=[1,-2]$. It finds
+The worked fixture runs the primary reverse pass with $\bar y=[1,-2]$. It finds
 $\bar x\approx[0.407293,-0.305470]$ and
 $\bar g\approx[0.848528,-2.262741]$, verifies independent rows for input shape
 $[2,2]$, and checks a zero-sized outer batch. The stable parameter name
@@ -337,7 +330,7 @@ part of the RMSNorm formula:
   label="Rust source for the complete Chapter 25 learner fixture"
 />
 
-Central differences check all two input and two gain coordinates with step
+Central differences check both input coordinates and both gain coordinates with step
 $10^{-6}$ and tolerance $2\times10^{-6}$:
 
 <RustSource
@@ -347,45 +340,30 @@ $10^{-6}$ and tolerance $2\times10^{-6}$:
   label="Rust source for the Chapter 25 input and gain gradient checks"
 />
 
-The report is rendered from that checked evidence:
-
-<RustSource
-  path="rust/demos/ch25-rmsnorm/src/lib.rs"
-  region="learner-rmsnorm-report"
-  caption="Render the deterministic RMSNorm learner report"
-  label="Rust source rendering Chapter 25 expected output"
-/>
-
 <RustSource
   path="rust/demos/ch25-rmsnorm/src/main.rs"
-  caption="Print the frozen learner report"
-  label="Rust entry point for the Chapter 25 learner report"
+  caption="Run the checked RMSNorm fixture"
+  label="Rust entry point that runs the Chapter 25 RMSNorm fixture"
 />
 
-Run `cargo run --quiet --locked -p ch25-rmsnorm`. Its stdout is frozen in
-`rust/demos/ch25-rmsnorm/expected.txt`, including the final newline.
+Run `cargo run --quiet --locked -p ch25-rmsnorm` to print the same checked
+forward, backward, scale, and boundary values.
 
 {/* chapter-section:visualization */}
 
-## Follow rescaling without inventing browser arithmetic
+## Compare rescaling across the epsilon boundary
 
-The trace emits exact primary values, gradients, scale comparisons, zero and
-batch behavior, historical outputs, rejected requests, and proof tokens:
-
-<RustSource
-  path="rust/demos/ch25-rmsnorm/src/diagram_trace.rs"
-  region="rmsnorm-trace"
-  caption="Emit the strict fourteen-line RMSNorm trace"
-  label="Rust source producing the Chapter 25 static diagram trace"
-/>
+The diagram brings the checked primary values, gradients, scale comparisons,
+zero and batch behavior, historical outputs, and rejected requests into one view:
 
 <RmsnormDiagram labels={diagramLabels} />
 
-The page validates and projects those records without recomputing normalization,
-gradients, or scale differences. Solid, dashed, and double borders distinguish
-the input, RMS-rescaled vector, and gain-scaled output without relying on color.
-Dense rows own keyboard-focusable scrollers at narrow widths, and all exact
-technical values stay left-to-right inside right-to-left prose.
+Read the exact values from left to right: first the input, then the shared RMS
+factor, the RMS-rescaled vector, the learned gain, and the final output. Solid,
+dashed, and double borders distinguish those three vector states without relying
+on color. The scale cards then show why multiplying an ordinary vector by ten
+barely changes the finite-epsilon result, while the same operation moves a tiny
+vector far out of the epsilon-dominated regime.
 
 {/* chapter-section:exercises */}
 

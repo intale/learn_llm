@@ -19,8 +19,12 @@ const fixture = read('rust/demos/ch25-rmsnorm/diagram-trace.txt');
 const expectedOutput = read('rust/demos/ch25-rmsnorm/expected.txt');
 const parserSource = read('site/src/lib/rmsnorm-diagram.ts');
 const componentSource = read('site/src/components/chapters/RmsnormDiagram.astro');
+const sharedDiagramSource = read('site/src/styles/diagram.module.css');
 const contractSource = read('curriculum/chapters/25-rmsnorm.md');
 const lessonSource = read('site/src/content/chapters/en/25-rmsnorm.mdx');
+const russianLessonSource = read('site/src/content/chapters/ru/25-rmsnorm.mdx');
+const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const russianLessonBody = russianLessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 const rustLayerSource = read('rust/crates/llm-from-scratch/src/nn/rmsnorm.rs');
 const rustDemoSource = read('rust/demos/ch25-rmsnorm/src/lib.rs');
 const rustTraceSource = read('rust/demos/ch25-rmsnorm/src/diagram_trace.rs');
@@ -29,6 +33,17 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error('missing JSON frontmatter');
   return JSON.parse(match[1]);
+}
+
+const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
+
+function markdownMathTokens(source: string): string[] {
+  const tokens: string[] = [];
+  const pattern = /\$\$([\s\S]*?)\$\$|(?<!\\)\$(?!\$)([^$\r\n]+?)(?<!\\)\$/g;
+  for (const match of source.matchAll(pattern)) {
+    tokens.push((match[1] ?? match[2]).replace(/\s+/g, ''));
+  }
+  return tokens;
 }
 
 const labels: RmsNormDiagramLabels = {
@@ -71,6 +86,11 @@ const labels: RmsNormDiagramLabels = {
     errors: 'errors',
     proof: 'proof',
   },
+  errorReasons: {
+    rankZero: 'rank zero',
+    widthMismatch: 'width mismatch',
+    zeroEnergy: 'zero energy',
+  },
   cues: {
     input: 'input cue',
     normalized: 'normalized cue',
@@ -98,7 +118,6 @@ describe('Chapter 25 Rust trace parser', () => {
       featureWidth: '2',
       gainName: 'decoder.block.0.attention_norm.gain',
       noDecay: 'true',
-      siteArithmetic: 'none',
     });
     expect(trace.primary).toEqual({
       input: { latex: '[3.000000,4.000000]', values: ['3.000000', '4.000000'] },
@@ -114,7 +133,7 @@ describe('Chapter 25 Rust trace parser', () => {
       gainGradient: { latex: '[0.848528,-2.262741]', values: ['0.848528', '-2.262741'] },
     });
     expect(trace.scales.map(({ mode, epsilon, maxAbsDiff }) => [mode, epsilon, maxAbsDiff])).toEqual([
-      ['ideal', '0.000000', '0.000000000'],
+      ['ideal', '0.000000', '0.000000000000000222'],
       ['production', '0.000010', '0.000000448'],
       ['near-zero', '0.000010', '0.717566'],
     ]);
@@ -162,7 +181,7 @@ describe('Chapter 25 Rust trace parser', () => {
     ['field order', fixture.replace('|feature_width=2|gain_name=', '|gain_name=')],
     ['wrong scale mode', fixture.replace('mode=production', 'mode=ordinary')],
     ['accepted error', fixture.replace('case=rank-zero|rejected=true', 'case=rank-zero|rejected=false')],
-    ['site arithmetic', fixture.replace('site_arithmetic=none', 'site_arithmetic=normalization')],
+    ['unknown metadata', fixture.replace('|no_decay=true', '|no_decay=true|extra=1')],
     ['wrong next chapter', fixture.replace('chapter=26-qkv-projections', 'chapter=27-attention-heads')],
   ])('rejects %s', (_name, source) => {
     expect(() => parseRmsNormTrace(source)).toThrow(/invalid rmsnorm trace/);
@@ -196,7 +215,7 @@ describe('Chapter 25 static diagram boundary', () => {
     expect(componentSource).not.toContain('client:');
     expect(parserSource).not.toMatch(/\b(?:Number|parseFloat|parseInt|Math)\s*[.(]/);
     expect(parserSource).not.toContain('.reduce(');
-    expect(rustTraceSource).toContain('site_arithmetic=none');
+    expect(rustTraceSource).not.toContain('site_arithmetic');
     for (const rustOwnedField of [
       'trace.meta.epsilon',
       'trace.meta.featureWidth',
@@ -211,25 +230,27 @@ describe('Chapter 25 static diagram boundary', () => {
       'trace.history.rmsMean',
       'trace.proof.gradcheck',
       'trace.proof.replay',
-      'trace.meta.siteArithmetic',
-      'trace.nextChapter',
     ]) {
       expect(componentSource).toContain(rustOwnedField);
     }
+    expect(componentSource).not.toContain('{error.message}');
   });
 
-  it('uses semantic local scrollers, natural cards, and non-color cues', () => {
-    expect(componentSource).toContain('class="primary-flow"');
+  it('uses shared semantic roles, local scrollers, natural cards, and non-color cues', () => {
+    expect(componentSource).toContain('class="primary-flow course-diagram__grid"');
     expect(componentSource).toContain('data-stage="input"');
     expect(componentSource).toContain('data-stage="normalized"');
     expect(componentSource).toContain('data-stage="output"');
     expect(componentSource).toContain('<table data-diagram-table>');
     expect(componentSource).toContain('data-diagram-scroll');
     expect(componentSource).not.toContain('overflow-x: auto');
-    expect(componentSource).toContain('scrollbar-gutter: stable');
+    expect(sharedDiagramSource).toContain('scrollbar-gutter: stable');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(sharedDiagramSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toMatch(/--norm-(?:ink|soft|accent|green|amber|red)\s*:/);
+    expect(componentSource).not.toMatch(/\.rmsnorm-diagram\s*\{[^}]*\b(?:background|border|padding)\s*:/s);
     expect(componentSource).not.toMatch(/(?:^|\n)\s*(?:min-)?(?:block-size|height)\s*:/);
     expect(componentSource).not.toContain('overflow: hidden');
     expect(componentSource).not.toContain('<svg');
@@ -238,6 +259,7 @@ describe('Chapter 25 static diagram boundary', () => {
   it('keeps metadata, exact output, formulas, history, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -254,10 +276,88 @@ describe('Chapter 25 static diagram boundary', () => {
     expect(lessonSource).toContain('https://arxiv.org/abs/1607.06450');
     expect(lessonSource).toContain('https://arxiv.org/abs/1910.07467');
     expect(lessonSource).toContain('https://arxiv.org/pdf/2302.13971');
-    expect(lessonSource).toContain('The history is about normalization choices');
     expect(lessonSource).toContain('whose squares underflow');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.translation_notes.join(' ')).toContain('Russian is registered but inactive');
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
+    expect(russianLesson).toMatchObject({
+      chapter_id: contract.chapter_id,
+      locale: 'ru',
+      concept_id: contract.concept_id,
+      content_revision: contract.content_revision,
+      order: contract.order,
+      objective: contract.objective.ru,
+      worked_inputs: contract.worked_inputs.ru,
+      formula: {
+        latex: contract.formula.latex,
+        symbols: contract.formula.symbols.map(({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        })),
+      },
+      visualization: {
+        decision: contract.visualization.decision,
+        id: contract.visualization.id,
+        rationale: contract.visualization.rationale.ru,
+      },
+      decoder_connection: contract.decoder_connection.ru,
+    });
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map((source: {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+        claim: { ru: string };
+      }) => ({ ...source, claim: source.claim.ru })),
+    });
+    expect(
+      russianLesson.rust_sources.map((source: { path: string; region?: string }) => [
+        source.path,
+        source.region,
+      ]),
+    ).toEqual(
+      lesson.rust_sources.map((source: { path: string; region?: string }) => [
+        source.path,
+        source.region,
+      ]),
+    );
+    expect(russianLessonBody.match(/<RustSource\b/g)).toHaveLength(6);
+    expect(russianLessonBody.match(/\/\*\s*chapter-section:/g)).toHaveLength(8);
+    const normalizedRussianBody = normalize(russianLessonBody);
+    for (const field of [
+      contract.history.llm_evolution.limitation.ru,
+      contract.history.llm_evolution.later_advance.ru,
+      contract.history.llm_evolution.modern_llm_role.ru,
+      ...contract.history.llm_evolution.sources.map(
+        (source: { claim: { ru: string } }) => source.claim.ru,
+      ),
+    ]) {
+      expect(normalizedRussianBody).toContain(normalize(field));
+    }
+    const englishMath = markdownMathTokens(lessonBody);
+    const russianMath = markdownMathTokens(russianLessonBody);
+    expect(russianMath).toEqual(englishMath);
+    expect(contract.translation_notes.join(' ')).toContain(
+      'SHA-256 2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0',
+    );
+    expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
+    expect(russianLessonBody).toContain('среднеквадратичн');
+    expect(russianLessonBody).toContain('обучаемый коэффициент масштаба');
+    expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history|трансляц/i);
+    expect(russianLessonBody).not.toContain('The input needs at least one axis.');
+    expect(russianLessonBody).not.toContain('The final feature width must match the gain width.');
+    expect(russianLessonBody).not.toContain(
+      'Zero epsilon cannot normalize a row whose mean square is zero.',
+    );
+    expect(lessonSource).toContain(
+      'Bar lengths are local visual guides; exact values remain the authority.',
+    );
+    expect(lessonSource).not.toContain('share one visual scale');
     expect(rustLayerSource).toContain('f64::MIN_POSITIVE');
     for (const region of [
       'historical-normalization-contrast',

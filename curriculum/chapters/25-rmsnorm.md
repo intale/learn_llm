@@ -2,48 +2,58 @@
 {
   "chapter_id": "25-rmsnorm",
   "concept_id": "rmsnorm",
-  "content_revision": 1,
+  "content_revision": 3,
   "order": 25,
   "objective": {
-    "en": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero."
+    "en": "Implement differentiable last-axis RMSNorm and distinguish ideal positive-scale invariance from epsilon-dominated behavior near zero.",
+    "ru": "Реализовать дифференцируемую RMSNorm по последней оси и отличать идеальную инвариантность к положительному масштабированию от поведения вблизи нуля, где результат определяет эпсилон."
   },
   "worked_inputs": {
-    "en": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, normalized vector, and scaled output; then predict what happens when both an ordinary vector and a near-zero vector are multiplied by ten."
+    "en": "Start with $x=[3,4]$, learned gain $g=[1.5,0.5]$, and $\\varepsilon=10^{-5}$. Predict the mean square, normalized vector, and scaled output; then predict what happens when both an ordinary vector and a near-zero vector are multiplied by ten.",
+    "ru": "Возьмите $x=[3,4]$, обучаемый коэффициент масштаба $g=[1.5,0.5]$ и $\\varepsilon=10^{-5}$. Предскажите среднее квадратов, нормализованный вектор и выход после масштабирования, а затем — что произойдёт, если обычный и близкий к нулю векторы умножить на десять."
   },
   "formula": {
     "latex": "\\operatorname{RMSNorm}(x)=g\\odot\\frac{x}{\\sqrt{\\frac{1}{d}\\sum_i x_i^2+\\varepsilon}}",
     "symbols": [
       {
         "symbol": "x",
-        "en": "one input feature vector on the final tensor axis"
+        "en": "one input feature vector on the final tensor axis",
+        "ru": "один входной вектор признаков на последней оси тензора"
       },
       {
         "symbol": "g",
-        "en": "the learned gain vector with one value per feature"
+        "en": "the learned gain vector with one value per feature",
+        "ru": "обучаемый вектор коэффициентов масштаба, по одному значению на признак"
       },
       {
         "symbol": "\\odot",
-        "en": "elementwise multiplication"
+        "en": "elementwise multiplication",
+        "ru": "покоординатное умножение"
       },
       {
         "symbol": "d",
-        "en": "the nonzero width of the final feature axis"
+        "en": "the nonzero width of the final feature axis",
+        "ru": "ненулевая ширина последней оси признаков"
       },
       {
         "symbol": "i",
-        "en": "a feature coordinate included in the root-mean-square statistic"
+        "en": "a feature coordinate included in the root-mean-square statistic",
+        "ru": "координата признака, входящая в вычисление среднеквадратичного значения"
       },
       {
         "symbol": "x_i",
-        "en": "feature i of the input vector"
+        "en": "feature i of the input vector",
+        "ru": "признак с индексом i во входном векторе"
       },
       {
         "symbol": "\\varepsilon",
-        "en": "a nonnegative stabilizer added before the reciprocal square root"
+        "en": "a nonnegative stabilizer added before the reciprocal square root",
+        "ru": "неотрицательная стабилизирующая добавка перед вычислением обратного квадратного корня"
       },
       {
         "symbol": "\\operatorname{RMSNorm}(x)",
-        "en": "the gain-scaled output with the same shape as x"
+        "en": "the gain-scaled output with the same shape as x",
+        "ru": "выход после применения коэффициента масштаба, имеющий ту же форму, что и x"
       }
     ]
   },
@@ -51,13 +61,16 @@
     "llm_evolution": {
       "predecessor_kind": "training-practice",
       "limitation": {
-        "en": "BatchNorm couples a training example to mini-batch statistics, while LayerNorm removes that cross-example dependency but still computes and subtracts a per-example feature mean before rescaling."
+        "en": "BatchNorm couples a training example to mini-batch statistics, while LayerNorm removes that cross-example dependency but still computes and subtracts a per-example feature mean before rescaling.",
+        "ru": "В BatchNorm результат для обучающего примера зависит от статистик мини-батча. LayerNorm устраняет зависимость между примерами, но перед масштабированием по-прежнему вычисляет и вычитает среднее по признакам отдельного примера."
       },
       "later_advance": {
-        "en": "RMSNorm removes mean subtraction and keeps feature-wise RMS rescaling; LLaMA later used RMSNorm before each Transformer sublayer."
+        "en": "RMSNorm removes mean subtraction and keeps RMS rescaling over the feature vector; LLaMA later used RMSNorm before each Transformer sublayer.",
+        "ru": "RMSNorm отказывается от вычитания среднего и сохраняет масштабирование вектора признаков по его среднеквадратичному значению; позднее в LLaMA RMSNorm применили перед каждым подслоем Transformer."
       },
       "modern_llm_role": {
-        "en": "A pre-normalized decoder feeds a controlled-scale residual-stream vector into each attention or feed-forward branch while leaving the identity path outside that normalization operation."
+        "en": "A pre-normalized decoder feeds a controlled-scale residual-stream vector into each attention or feed-forward branch while leaving the identity path outside that normalization operation.",
+        "ru": "В декодере с предварительной нормализацией в каждую ветвь внимания или сети прямого распространения поступает остаточный поток с контролируемым масштабом, а тождественный путь проходит в обход нормализации."
       },
       "sources": [
         {
@@ -66,7 +79,8 @@
           "name": "Ioffe and Szegedy, Batch Normalization",
           "source_url": "https://arxiv.org/abs/1502.03167",
           "claim": {
-            "en": "Ioffe and Szegedy make normalization part of the architecture and compute its training statistics for each mini-batch."
+            "en": "Ioffe and Szegedy make normalization part of the architecture and compute its training statistics for each mini-batch.",
+            "ru": "Иоффе и Сегеди включают нормализацию в архитектуру и вычисляют её статистики отдельно для каждого мини-батча при обучении."
           }
         },
         {
@@ -75,7 +89,8 @@
           "name": "Ba, Kiros, and Hinton, Layer Normalization",
           "source_url": "https://arxiv.org/abs/1607.06450",
           "claim": {
-            "en": "Ba, Kiros, and Hinton compute mean and variance across the summed inputs of one layer for one training case, avoiding dependencies between training cases."
+            "en": "Ba, Kiros, and Hinton compute mean and variance across the summed inputs of one layer for one training case, avoiding dependencies between training cases.",
+            "ru": "Ба, Кирос и Хинтон вычисляют среднее и дисперсию по суммарным входным сигналам нейронов слоя для одного обучающего примера, устраняя зависимость между примерами."
           }
         },
         {
@@ -84,7 +99,8 @@
           "name": "Zhang and Sennrich, Root Mean Square Layer Normalization",
           "source_url": "https://arxiv.org/abs/1910.07467",
           "claim": {
-            "en": "Zhang and Sennrich remove the mean statistic, normalize by RMS, and retain the epsilon-free formulation's positive rescaling invariance while giving up recentering invariance."
+            "en": "Zhang and Sennrich remove the mean statistic, normalize by RMS, and retain the epsilon-free formulation's positive rescaling invariance while giving up recentering invariance.",
+            "ru": "Чжан и Зеннрих исключают среднее из статистик, нормализуют по среднеквадратичному значению и сохраняют инвариантность формулы без эпсилона к положительному масштабированию, отказавшись от инвариантности к центрированию."
           }
         },
         {
@@ -93,16 +109,19 @@
           "name": "Touvron et al., LLaMA",
           "source_url": "https://arxiv.org/pdf/2302.13971",
           "claim": {
-            "en": "Touvron et al. normalize the input of each Transformer sublayer and identify RMSNorm as the normalization function."
+            "en": "Touvron et al. normalize the input of each Transformer sublayer and identify RMSNorm as the normalization function.",
+            "ru": "Туврон и соавторы нормализуют вход каждого подслоя Transformer и используют для этого RMSNorm."
           }
         }
       ]
     },
     "approach": {
-      "en": "From mini-batch statistics, through per-example centered LayerNorm, to uncentered RMS rescaling before modern Transformer sublayers"
+      "en": "From mini-batch statistics, through per-example centered LayerNorm, to uncentered RMS rescaling before modern Transformer sublayers",
+      "ru": "От статистик мини-батча через центрированную LayerNorm для отдельного примера к масштабированию по RMS без центрирования перед подслоями современных Transformer"
     },
     "summary": {
-      "en": "RMSNorm controls the feature-vector scale without subtracting its mean. The ideal epsilon-zero formula cancels positive rescaling, while a production epsilon deliberately dominates zero and tiny vectors, making that invariance approximate away from zero rather than exact everywhere."
+      "en": "RMSNorm controls the feature-vector scale without subtracting its mean. The ideal epsilon-zero formula cancels positive rescaling, while a production epsilon deliberately dominates zero and tiny vectors, making that invariance approximate away from zero rather than exact everywhere.",
+      "ru": "RMSNorm управляет масштабом вектора признаков, не вычитая его среднее. В идеальной формуле при нулевом эпсилоне положительное масштабирование сокращается, а рабочее ненулевое значение эпсилона определяет поведение нулевых и очень малых векторов. Поэтому вдали от нуля инвариантность лишь приближённая, а не точная для всех входов."
     },
     "rust_contrast": "Run one anchor vector beside two different batch companions, then compare BatchNorm, LayerNorm, and RMSNorm statistics and outputs; use the same executable fixture to expose last-axis behavior, epsilon boundaries, gradients, and gain decay exclusion without making the implementation language the historical subject."
   },
@@ -111,58 +130,67 @@
     "sources": [
       "rust/crates/llm-from-scratch/src/nn/rmsnorm.rs",
       "rust/demos/ch25-rmsnorm/src/lib.rs",
-      "rust/demos/ch25-rmsnorm/src/main.rs",
-      "rust/demos/ch25-rmsnorm/src/diagram_trace.rs"
+      "rust/demos/ch25-rmsnorm/src/main.rs"
     ],
-    "expected_output": "chapter=25-rmsnorm\nprediction=positive scaling cancels only in the epsilon-zero ideal; epsilon changes tiny inputs\nconfig=epsilon:0.000010 feature_width:2 gain_name:decoder.block.0.attention_norm.gain no_decay:true\ninput=shape:[2] values:[3.000000,4.000000]\nmean_square=shape:[1] values:[12.500000]\ninverse_rms=shape:[1] values:[0.282843]\nnormalized=shape:[2] values:[0.848528,1.131370]\ngain=shape:[2] values:[1.500000,0.500000]\noutput=shape:[2] values:[1.272792,0.565685]\nupstream=shape:[2] values:[1.000000,-2.000000]\ninput_gradient=[0.407293,-0.305470]\ngain_gradient=[0.848528,-2.262741]\nrms_target=normalized_mean_square:0.999999\nideal_scale=epsilon:0.000000 factor:10.000000 base:[0.848528,1.131371] scaled:[0.848528,1.131371] max_abs_diff:0.000000000\nproduction_scale=epsilon:0.000010 factor:10.000000 base:[0.848528,1.131370] scaled:[0.848528,1.131371] max_abs_diff:0.000000448\nnear_zero_scale=epsilon:0.000010 factor:10.000000 base:[0.094281,0.125708] scaled:[0.632456,0.843274] max_abs_diff:0.717566\nzero_input=output:[0.000000,0.000000] finite:true\nbatch_output=shape:[2,2] values:[1.272792,0.565685,0.000000,0.707106]\nhistory=batch_anchor_a:[-0.999999,-0.999999] batch_anchor_b:[0.000000,0.000000] layer_norm:[-0.999995,0.999995] rms_norm:[0.447214,1.341641] rms_mean:0.894427\ngradcheck=input_checks:2 gain_checks:2 tolerance:0.000002 passed:true\nsame_fixture_replays_bitwise=true\nnext=project normalized features into Q K V\n"
+    "expected_output": "chapter=25-rmsnorm\nprediction=positive scaling cancels only in the epsilon-zero ideal; epsilon changes tiny inputs\nconfig=epsilon:0.000010 feature_width:2 gain_name:decoder.block.0.attention_norm.gain no_decay:true\ninput=shape:[2] values:[3.000000,4.000000]\nmean_square=shape:[1] values:[12.500000]\ninverse_rms=shape:[1] values:[0.282843]\nnormalized=shape:[2] values:[0.848528,1.131370]\ngain=shape:[2] values:[1.500000,0.500000]\noutput=shape:[2] values:[1.272792,0.565685]\nupstream=shape:[2] values:[1.000000,-2.000000]\ninput_gradient=[0.407293,-0.305470]\ngain_gradient=[0.848528,-2.262741]\nrms_target=normalized_mean_square:0.999999\nideal_scale=epsilon:0.000000 factor:10.000000 base:[0.848528,1.131371] scaled:[0.848528,1.131371] max_abs_diff:0.000000000000000222\nproduction_scale=epsilon:0.000010 factor:10.000000 base:[0.848528,1.131370] scaled:[0.848528,1.131371] max_abs_diff:0.000000448\nnear_zero_scale=epsilon:0.000010 factor:10.000000 base:[0.094281,0.125708] scaled:[0.632456,0.843274] max_abs_diff:0.717566\nzero_input=output:[0.000000,0.000000] finite:true\nbatch_output=shape:[2,2] values:[1.272792,0.565685,0.000000,0.707106]\nhistory=batch_anchor_a:[-0.999999,-0.999999] batch_anchor_b:[0.000000,0.000000] layer_norm:[-0.999995,0.999995] rms_norm:[0.447214,1.341641] rms_mean:0.894427\ngradcheck=input_checks:2 gain_checks:2 tolerance:0.000002 passed:true\nsame_fixture_replays_bitwise=true\nnext=project normalized features into Q K V\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "rmsnorm",
     "rationale": {
-      "en": "Aligned feature bars and evidence rows make it easier to see that RMSNorm rescales without shifting the mean, and that epsilon barely changes an ordinary vector but strongly changes a near-zero one."
+      "en": "Aligned feature bars and evidence rows make it easier to see that RMSNorm rescales without subtracting the mean, and that epsilon barely changes an ordinary vector but strongly changes a near-zero one.",
+      "ru": "Сопоставленные полосы признаков и строки с результатами наглядно показывают, что RMSNorm изменяет масштаб без вычитания среднего, а эпсилон почти не влияет на обычный вектор, но заметно меняет вектор вблизи нуля."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder now has a differentiable last-axis normalizer for the input of each learned residual branch. Chapter 26 will turn those normalized features into separate query, key, and value projections."
+    "en": "The cumulative decoder now has a differentiable last-axis normalizer for the input of each learned residual branch. Chapter 26 will turn those normalized features into separate query, key, and value projections.",
+    "ru": "В накопительном декодере появился дифференцируемый нормализатор по последней оси для входа каждой обучаемой остаточной ветви. В главе 26 нормализованные признаки будут преобразованы в отдельные проекции запросов, ключей и значений."
   },
   "terminology": [
     {
       "concept_id": "root-mean-square",
-      "en": "root mean square"
+      "en": "root mean square",
+      "ru": "среднеквадратичное значение"
     },
     {
       "concept_id": "rmsnorm",
-      "en": "RMSNorm"
+      "en": "RMSNorm",
+      "ru": "RMSNorm"
     },
     {
       "concept_id": "learned-gain",
-      "en": "learned gain"
+      "en": "learned gain",
+      "ru": "обучаемый коэффициент масштаба"
     },
     {
       "concept_id": "feature-axis",
-      "en": "feature axis"
+      "en": "feature axis",
+      "ru": "ось признаков"
     },
     {
       "concept_id": "pre-normalization",
-      "en": "pre-normalization"
+      "en": "pre-normalization",
+      "ru": "предварительная нормализация"
     },
     {
       "concept_id": "epsilon-dominated",
-      "en": "epsilon-dominated"
+      "en": "epsilon-dominated",
+      "ru": "режим, в котором преобладает эпсилон"
     },
     {
       "concept_id": "recentring",
-      "en": "recentering"
+      "en": "recentering",
+      "ru": "центрирование"
     }
   ],
   "translation_notes": [
-    "Chapter 25 has the exact active locale set {en}. Russian is registered but inactive, so this contract intentionally has no ru keys and no Russian lesson or placeholder route.",
+    "Chapter 25 has the exact active locale set {en, ru}. Russian revision 3 is translated directly from English revision 3 with source SHA-256 2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0.",
     "Keep x, g, d, i, x_i, epsilon, the Hadamard product, vectors, shapes, parameter names, trace keywords, source roles, and source URLs unchanged when another locale is activated later.",
     "RMSNorm rescales the final feature axis and does not subtract the feature mean. Do not describe it as centering, standardization, batch normalization, clipping, or a guarantee that every coordinate has unit magnitude.",
     "The RMSNorm paper supports its epsilon-free rescaling property. Epsilon 1e-5, its near-zero behavior, the exact gain name, no-decay assignment, typed errors, trace, and accessible presentation are course-local policies.",
     "Name Rust only for executable source, concrete APIs, commands, paths, trace tokens, and literal program data. The neural-model history remains language-independent.",
-    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data."
+    "Render every learner-facing mathematical expression through inline or display math delimiters. Reserve code spans for actual code, APIs, commands, paths, trace tokens, and literal program data.",
+    "Use среднеквадратичное значение for root mean square, обучаемый коэффициент масштаба for learned gain, ось признаков for feature axis, and центрирование for recentering. Keep RMSNorm, BatchNorm, LayerNorm, x, g, d, i, x_i, epsilon, identifiers, shapes, and trace cases unchanged. Raw English Rust error messages remain parser evidence; the Russian figure renders localized reasons keyed by stable error cases."
   ],
   "acceptance_examples": [
     {
@@ -171,7 +199,7 @@
     },
     {
       "input": "Multiply nonzero x=[3,4] by positive factor 10 with epsilon zero",
-      "expected": "The normalized vectors are equal to displayed precision and their measured maximum absolute difference is zero for the frozen values."
+      "expected": "The formula is algebraically invariant; the displayed vectors agree to six decimals, while the floating implementation measures a maximum absolute difference of 0.000000000000000222."
     },
     {
       "input": "Repeat the factor-10 comparison with epsilon 0.00001",
@@ -307,8 +335,8 @@ The block itself is assembled only after the attention chapters.
 The executable contrast keeps anchor vector $[1,3]$ fixed while changing its
 batch companion, then reports BatchNorm, LayerNorm, and RMSNorm outputs.
 BatchNorm's anchor changes, LayerNorm centers it, and RMSNorm leaves a nonzero
-mean. This is evidence about normalization axes on the road to LLMs, not a
-history of programming languages.
+mean. Together, those outputs show the progression from batch-dependent
+statistics to the per-example, uncentered rescaling used in the decoder.
 
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
@@ -324,11 +352,11 @@ logarithm, exponential, broadcast, and multiply tape operations. It does not add
 a second normalization implementation to the tape. `forward_with_intermediates`
 exposes mean square, reciprocal RMS, normalized values, and output for evidence.
 Production epsilon maps an all-zero row to finite zeros. Epsilon zero rejects a
-zero-energy row before the logarithm, and invalid requests leave parameters and
-gradients unchanged.
+zero-energy row before the logarithm, and invalid requests return typed errors
+before producing an output.
 
 The primary reverse pass uses upstream $[1,-2]$. Sampled central differences
-check all two input and two gain coordinates with step $10^{-6}$ and tolerance
+check both input coordinates and both gain coordinates with step $10^{-6}$ and tolerance
 $2\times10^{-6}$. A batched fixture proves independent last-axis statistics; a
 zero-sized outer batch proves shape preservation. Two independent fixture runs
 must match outputs and gradients by exact floating-point bit pattern.
@@ -392,16 +420,20 @@ the three bias-free query, key, and value projections required by attention.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active Chapter 25 locale. Russian remains registered but
-inactive, so it receives no contract keys, lesson, alternate link, or placeholder
-route. A later activation must translate the full lesson and diagram labels
-together.
+English revision 3 is the canonical semantic source, and Russian revision 3 is
+its direct meaning-first translation. Both locales publish the complete lesson,
+diagram labels, accessible descriptions, exercises, answers, SEO description,
+and reciprocal alternate route together.
 
 Keep $x$, $g$, $d$, $i$, $x_i$, $\varepsilon$, $\odot$, formula names,
 vectors, shapes, parameter names, trace keywords, source roles, and URLs
 unchanged. "Root mean square" names the statistic; do not translate RMSNorm as
 mean subtraction or imply that it normalizes across the batch. Name Rust only
-for executable evidence, APIs, commands, paths, and literal trace data.
+for executable evidence, APIs, commands, paths, and literal trace data. Russian
+uses «среднеквадратичное значение», «обучаемый коэффициент масштаба», «ось
+признаков» and «центрирование» consistently. Raw English error messages remain
+internal trace evidence; the visible Russian figure explains each stable error
+case in Russian.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples
@@ -409,12 +441,12 @@ for executable evidence, APIs, commands, paths, and literal trace data.
 - `node scripts/check-course-plan.mjs` preserves the exact Chapter 25 outcome,
   formula, historical contrast, visualization, and evidence requirements.
 - `npm --prefix site run check:contract -- ../curriculum/chapters/25-rmsnorm.md`
-  validates this English-only contract and its exact Rust output.
+  validates the complete bilingual contract and its exact Rust output.
 - Formatting, clippy, all workspace tests, dependency policy, demo policy, and
   both byte-exact Chapter 25 stdout diffs pass without a concept-implementing crate.
 - Chapter, parity, content, Astro, unit, production-build, link, SEO, and focused
   plus full browser gates pass.
 - Browser checks cover desktop and 390-pixel widths in Chromium and Firefox,
   math annotations and spacing, inner KaTeX and card containment, local scrolling,
-  forced colors, RTL/LTR isolation, no-JavaScript rendering, navigation, and the
-  absent Russian route.
+  forced colors, RTL/LTR isolation, no-JavaScript rendering, navigation, and both
+  reciprocal localized routes.

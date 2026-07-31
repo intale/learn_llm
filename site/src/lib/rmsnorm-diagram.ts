@@ -18,7 +18,6 @@ export interface RmsNormTrace {
     readonly featureWidth: string;
     readonly gainName: string;
     readonly noDecay: string;
-    readonly siteArithmetic: string;
   };
   readonly primary: {
     readonly input: RmsNormTraceVector;
@@ -108,6 +107,11 @@ export interface RmsNormDiagramLabels {
     readonly errors: string;
     readonly proof: string;
   };
+  readonly errorReasons: {
+    readonly rankZero: string;
+    readonly widthMismatch: string;
+    readonly zeroEnergy: string;
+  };
   readonly cues: {
     readonly input: string;
     readonly normalized: string;
@@ -128,10 +132,10 @@ export interface RmsNormDiagramLabels {
 }
 
 const expectedLines = [
-  'META|epsilon=0.000010|feature_width=2|gain_name=decoder.block.0.attention_norm.gain|no_decay=true|site_arithmetic=none',
+  'META|epsilon=0.000010|feature_width=2|gain_name=decoder.block.0.attention_norm.gain|no_decay=true',
   'PRIMARY|input=[3.000000,4.000000]|mean_square=[12.500000]|inverse_rms=[0.282843]|normalized=[0.848528,1.131370]|gain=[1.500000,0.500000]|output=[1.272792,0.565685]',
   'BACKWARD|upstream=[1.000000,-2.000000]|input_gradient=[0.407293,-0.305470]|gain_gradient=[0.848528,-2.262741]',
-  'SCALE|mode=ideal|epsilon=0.000000|factor=10.000000|base=[0.848528,1.131371]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000000',
+  'SCALE|mode=ideal|epsilon=0.000000|factor=10.000000|base=[0.848528,1.131371]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000000000000222',
   'SCALE|mode=production|epsilon=0.000010|factor=10.000000|base=[0.848528,1.131370]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000448',
   'SCALE|mode=near-zero|epsilon=0.000010|factor=10.000000|base=[0.094281,0.125708]|scaled=[0.632456,0.843274]|max_abs_diff=0.717566',
   'ZERO|input=[0.000000,0.000000]|output=[0.000000,0.000000]|finite=true',
@@ -192,6 +196,7 @@ export function validateRmsNormLabels(labels: RmsNormDiagramLabels): RmsNormDiag
     'sections',
     'stages',
     'fields',
+    'errorReasons',
     'cues',
     'captions',
     'scrollers',
@@ -235,6 +240,11 @@ export function validateRmsNormLabels(labels: RmsNormDiagramLabels): RmsNormDiag
     'errors',
     'proof',
   ], 'fields');
+  exactStringKeys(labels.errorReasons as unknown as Record<string, unknown>, [
+    'rankZero',
+    'widthMismatch',
+    'zeroEnergy',
+  ], 'errorReasons');
   exactStringKeys(labels.cues as unknown as Record<string, unknown>, [
     'input',
     'normalized',
@@ -268,7 +278,7 @@ export function parseRmsNormTrace(source: string): RmsNormTrace {
 
   const meta = exactMatch(
     lines[0],
-    new RegExp(`^META\\|epsilon=(${decimalPattern})\\|feature_width=(\\d+)\\|gain_name=([^|]+)\\|no_decay=(true|false)\\|site_arithmetic=([^|]+)$`),
+    new RegExp(`^META\\|epsilon=(${decimalPattern})\\|feature_width=(\\d+)\\|gain_name=([^|]+)\\|no_decay=(true|false)$`),
     'META',
   );
   const primary = exactMatch(
@@ -284,7 +294,7 @@ export function parseRmsNormTrace(source: string): RmsNormTrace {
   const scales = lines.slice(3, 6).map((line) => {
     const match = exactMatch(
       line,
-      new RegExp(`^SCALE\\|mode=(ideal|production|near-zero)\\|epsilon=(${decimalPattern})\\|factor=(${decimalPattern})\\|base=(${vectorPattern})\\|scaled=(${vectorPattern})\\|max_abs_diff=(${decimalPattern}|0\\.\\d{9})$`),
+      new RegExp(`^SCALE\\|mode=(ideal|production|near-zero)\\|epsilon=(${decimalPattern})\\|factor=(${decimalPattern})\\|base=(${vectorPattern})\\|scaled=(${vectorPattern})\\|max_abs_diff=(0\\.\\d{6,18})$`),
       'SCALE',
     );
     return Object.freeze({
@@ -332,7 +342,6 @@ export function parseRmsNormTrace(source: string): RmsNormTrace {
       featureWidth: meta[2],
       gainName: meta[3],
       noDecay: meta[4],
-      siteArithmetic: meta[5],
     }),
     primary: Object.freeze({
       input: vector(primary[1]),

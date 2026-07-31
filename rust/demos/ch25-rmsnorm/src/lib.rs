@@ -513,7 +513,7 @@ pub fn render_report(evidence: &LearnerEvidence) -> String {
             "rms_target=normalized_mean_square:{:.6}",
             primary.normalized_mean_square
         ),
-        format_scale("ideal_scale", &evidence.ideal_scale, 9),
+        format_scale("ideal_scale", &evidence.ideal_scale, 18),
         format_scale("production_scale", &evidence.production_scale, 9),
         format_scale("near_zero_scale", &evidence.near_zero_scale, 6),
         format!(
@@ -619,7 +619,7 @@ mod tests {
         let trace = diagram_trace::render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 14);
         assert!(trace.starts_with("META|epsilon=0.000010|"));
-        assert!(trace.contains("site_arithmetic=none"));
+        assert!(!trace.contains("site_arithmetic"));
         assert!(trace.contains("ERROR|case=zero-energy-epsilon-zero|rejected=true|"));
         assert!(trace.ends_with("NEXT|chapter=26-qkv-projections\n"));
     }

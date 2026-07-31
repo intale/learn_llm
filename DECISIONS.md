@@ -10207,3 +10207,128 @@ change is introduced.
 
 **Affected step and run:** `activate-ch24-russian-localization`, run
 `20260730T173806Z-activate-ch24-russian-localization-01`.
+
+## 2026-07-31 - Stage Chapter 25 localization after the Chapter 24 commit
+
+**Status:** Accepted during `activate-ch25-russian-localization` preflight.
+
+**Context:** The user requested Chapters 25 through 30 in Russian, one chapter at
+a time. Chapter 24 is complete and independently committed at `88cd7ba`, and the
+published locale boundary ends there. Chapter 25 must first be audited against
+its exact RMSNorm evidence, translated directly from the repaired English source,
+rendered in two engines, and committed before Chapter 26 begins.
+
+**Decision:** Run Chapter 25 as the large standalone checkpoint
+`activate-ch25-russian-localization`, without a paid translation or generation
+service and without a cost-approval pause. Keep disposable candidate and rendered
+artifacts in
+`C:/tmp/learn_llm/runs/20260731T014914Z-activate-ch25-russian-localization-01/`,
+record their checksums, and use the unchanged pinned Linux and browser workflows.
+Audit and freeze English meaning before translating; advance only the Chapter 25
+locale boundary. Do not change product dependencies, build definitions, hosting,
+deployment, or the user environment.
+
+**Consequences:** Publication requires semantic, mathematical, historical, Rust,
+SEO, accessibility, formula, static, link, Chromium, Firefox, fullscreen, and
+nearest-box containment gates for both locales. Chapter 25 receives its own
+completion checkpoint and commit before the already-authorized Chapter 26 work.
+
+**Affected step and run:** `activate-ch25-russian-localization`, run
+`20260731T014914Z-activate-ch25-russian-localization-01`.
+
+## 2026-07-31 - Repair and freeze the Chapter 25 English source before localization
+
+**Status:** Accepted during `activate-ch25-russian-localization` execution.
+
+**Context:** The canonical audit found learner-facing delivery commentary,
+obsolete private diagram presentation styles, untranslated raw error text, a
+non-pedagogical `site_arithmetic` token, and an inaccurate claim that all scale
+comparison bars shared one visual scale. It also found that the epsilon-zero
+floating implementation measures a residual difference of about
+$2.22\times10^{-16}$ even though the formula is algebraically invariant. The
+RMSNorm formula, axes, gradients, boundary behavior, historical progression, and
+primary-source claims were otherwise sound.
+
+**Decision:** Advance English Chapter 25 to content revision 2, distinguish the
+algebraic epsilon-zero property from measured floating residue, remove delivery
+and trace-format commentary from learner prose, localize errors through stable
+case keys, and move the figure onto shared diagram roles while retaining only
+RMSNorm geometry and redundant solid/dashed/double cues locally. Freeze
+`site/src/content/chapters/en/25-rmsnorm.mdx` at SHA-256
+`05ab75861d4173a9e2dc37bb09229531ec5c3b1e4c1bfe303c4dcaba9694a7a5` as the
+sole semantic source for the Russian projection.
+
+**Consequences:** Russian must translate this exact revision directly and use
+localized boundary reasons rather than raw Rust error messages. The strict trace
+remains 14 lines, exact outputs expose the 18-decimal ideal-case residue, and
+publication requires ordered formula parity plus complete bilingual rendered
+containment review.
+
+**Affected step and run:** `activate-ch25-russian-localization`, run
+`20260731T014914Z-activate-ch25-russian-localization-01`.
+
+## 2026-07-31 - Correct the Chapter 25 normalization claim before publication
+
+**Status:** Accepted during independent localization review; this supersedes the
+revision-2 freeze for Chapter 25.
+
+**Context:** Independent Russian review exposed a semantic defect inherited from
+the canonical English visualization rationale: RMSNorm was said to rescale a
+vector "without shifting the mean." Rescaling can change the numerical mean; the
+actual distinction is that RMSNorm does not subtract the feature mean. The same
+review found several Russian calques and ambiguous labels in the RMS statistic,
+historical claims, batch companions, and implementation explanation.
+
+**Decision:** Advance both Chapter 25 locales and the contract to content revision
+3. Freeze the corrected English source at SHA-256
+`2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0`, translate
+that meaning directly as "без вычитания среднего," and use natural Russian terms
+for the reciprocal RMS, per-mini-batch training statistics, layer input signals,
+other examples in the same batch, and shape broadcasting. Extend rendered tests
+to cover all three localized error reasons and representative diagram labels.
+
+**Consequences:** The canonical and Russian explanations now distinguish omitted
+centering from the mean-changing effect of rescaling. The revision-2 hash remains
+in the preceding historical decision but is no longer the publication source;
+all Chapter 25 publication gates must be rerun against revision 3.
+
+**Affected step and run:** `activate-ch25-russian-localization`, run
+`20260731T014914Z-activate-ch25-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 25 after semantic and rendered review
+
+**Status:** Accepted after final Chapter 25 validation.
+
+**Context:** The corrected RMSNorm lesson had to preserve exact Rust evidence,
+formula order, historical scope, and accessible diagram semantics while the
+direct Russian projection remained natural and contained. Independent audits
+found and resolved the inherited mean-shift claim, floating-residue wording,
+diagram scale claim, delivery-language leakage, untranslated error reasons,
+batch-comparison phrasing, and remaining Russian calques before publication.
+
+**Decision:** Publish English revision 3 at SHA-256
+`2605a3f5290985f470243be2e4186b17565f20173943fa963affba3eb12e0be0` and its
+direct Russian projection at SHA-256
+`67cd6cd43852184069cf13a1e8db7b2b684e15e1b2712aefc45a32c75b9a254a`.
+Require exact ordered parity for all 50 learner-facing formulas, localized
+reasons for all three rejected boundary cases, and the shared diagram roles for
+the complete RMSNorm figure. Advance the published Russian boundary only
+through Chapter 25. Record the final 18-file product manifest at
+`C:/tmp/learn_llm/runs/20260731T014914Z-activate-ch25-russian-localization-01/publish-product.sha256`
+with SHA-256
+`4ee82e2cd2015fc705f6039efcdacb82fb4fa46ec0bcc092ea3f111c14103c28`.
+
+**Consequences:** Both locales now distinguish omitted mean subtraction from a
+rescaling operation that can change the numerical mean, distinguish algebraic
+epsilon-zero invariance from floating-point residue, and preserve exact axes,
+gradients, values, sources, exercises, answers, SEO, accessibility labels, and
+the Chapter 26 handoff. The final candidate builds 71 pages and passes 2,179
+local references, 71 SEO routes, 71 sitemap URLs, 71 Analytics routes, 849 unit
+tests, 153 rendered tests per browser, exact Chapter 25 Rust output and trace,
+and the complete pinned Linux gate at Docker manifest-list SHA-256
+`5116f414b26956f97c88267bfb9b626174c19e534b24efa91bc3676ae0d389a3`.
+No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and run:** `activate-ch25-russian-localization`, run
+`20260731T014914Z-activate-ch25-russian-localization-01`.

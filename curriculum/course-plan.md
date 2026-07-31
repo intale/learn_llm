@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 50,
+  "plan_revision": 51,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-24",
+    "policy_id": "selective-russian-through-chapter-25",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "24-residual-connections",
+        "through_chapter": "25-rmsnorm",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-24."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-25."
       },
       {
-        "from_chapter": "25-rmsnorm",
+        "from_chapter": "26-qkv-projections",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 24 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 25 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -294,6 +294,11 @@
         "step_id": "activate-ch24-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch24-russian-localization"
+      },
+      {
+        "step_id": "activate-ch25-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch25-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -863,9 +868,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–24 activate
-both, while Chapters 25–39 activate English only. Russian therefore keeps its index
-and Chapter 0–24 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–25 activate
+both, while Chapters 26–39 activate English only. Russian therefore keeps its index
+and Chapter 0–25 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1301,6 +1306,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `25-rmsnorm`
 - **Implementation step:** `implement-ch25-rmsnorm`
+- **Revision status:** Content revision 2 corrects the floating-point scale evidence, removes learner-facing presentation mechanics, localizes rejected-boundary explanations, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch25-russian-localization`.
 - **Depends on:** `24-residual-connections`.
 - **Outcome:** Implement differentiable RMSNorm and distinguish its ideal scale behavior from epsilon-dominated behavior near zero.
 - **Scope boundary:** Teach feature-axis RMS, epsilon, learned gain, pre-normalization placement, and gradients. Exact positive scale invariance holds only when epsilon is zero; production epsilon makes it approximate away from zero.

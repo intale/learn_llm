@@ -13,21 +13,80 @@ import {
 } from './chapter-helpers';
 
 const chapterId = '25-rmsnorm';
-const chapterTitle = 'Normalize scale without subtracting the mean';
-const chapterDescription =
-  'Implement last-axis RMSNorm, trace its input and gain gradients, and separate ideal scale invariance from epsilon-dominated behavior near zero.';
-const diagramDescription =
-  'Read exact Rust-authored values from input through RMS rescaling and learned gain, then compare scale, history, gradient, and rejected-boundary evidence.';
-const chapterHeadings = [
-  'Predict RMS, then test the epsilon boundary',
-  'Normalize the final feature axis',
-  'Keep scale, gain, and axes distinct',
-  'From batch statistics to pre-RMSNorm language models',
-  'Compose RMSNorm from cumulative tape operations',
-  'Follow rescaling without inventing browser arithmetic',
-  'Predict before reading the evidence',
-  'Project normalized features into query, key, and value tensors next',
-] as const;
+type ChapterLocale = 'en' | 'ru';
+const locales = ['en', 'ru'] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: 'Content revision',
+    title: 'Normalize scale without subtracting the mean',
+    description:
+      'Implement last-axis RMSNorm, trace its input and gain gradients, and separate ideal scale invariance from epsilon-dominated behavior near zero.',
+    headings: [
+      'Predict RMS, then test the epsilon boundary',
+      'Normalize the final feature axis',
+      'Keep scale, gain, and axes distinct',
+      'From batch statistics to pre-RMSNorm language models',
+      'Compose RMSNorm from cumulative tape operations',
+      'Compare rescaling across the epsilon boundary',
+      'Predict before reading the evidence',
+      'Project normalized features into query, key, and value tensors next',
+    ],
+    historyFragments: [
+      'BatchNorm couples a training example to mini-batch statistics',
+      'avoiding dependencies between training cases',
+      'remove the mean statistic, normalize by RMS',
+      'normalize the input of each Transformer sublayer',
+    ],
+    diagramTitle: 'Follow one feature vector through RMSNorm',
+    diagramDescription:
+      'Read exact Rust-authored values from input through RMS rescaling and learned gain, then compare scale, history, gradient, and rejected-boundary evidence.',
+    zeroEnergy: 'Zero epsilon cannot normalize a row whose mean square is zero.',
+  },
+  ru: {
+    revisionLabel: 'Версия материала',
+    title: 'Нормализуйте масштаб, не вычитая среднее',
+    description:
+      'Реализуйте RMSNorm по последней оси, проследите градиенты по входу и коэффициенту масштаба и отделите идеальную инвариантность от поведения вблизи нуля, где преобладает эпсилон.',
+    headings: [
+      'Предскажите RMS, затем проверьте границу влияния эпсилона',
+      'Нормализуйте последнюю ось признаков',
+      'Не смешивайте масштаб, коэффициент и оси',
+      'От статистик батча к языковым моделям с предварительной RMSNorm',
+      'Соберите RMSNorm из уже реализованных операций ленты',
+      'Сравните масштабирование по обе стороны границы влияния эпсилона',
+      'Сначала сделайте предсказания',
+      'Далее спроецируйте нормализованные признаки в тензоры запросов, ключей и значений',
+    ],
+    historyFragments: [
+      'В BatchNorm результат для обучающего примера зависит от статистик мини-батча',
+      'устраняя зависимость между примерами',
+      'исключают среднее из статистик',
+      'нормализуют вход каждого подслоя Transformer',
+    ],
+    diagramTitle: 'Проследите один вектор признаков через RMSNorm',
+    diagramDescription:
+      'Проследите точные значения из примера на Rust: от входа через масштабирование по RMS и обучаемый коэффициент до результатов сравнения масштабов, исторических методов, градиентов и отклонённых граничных случаев.',
+    zeroEnergy:
+      'При нулевом эпсилоне нельзя нормализовать строку с нулевым средним квадратов.',
+    rankZero: 'У входа должна быть хотя бы одна ось.',
+    widthMismatch:
+      'Ширина последней оси признаков должна совпадать с шириной коэффициента масштаба.',
+    diagramFragments: [
+      'Сравните случаи с нулевым и конечным эпсилоном',
+      'Величина, обратная RMS',
+      'Первый дополнительный пример',
+      'Второй дополнительный пример',
+      'Опорный вектор сравнивается в двух отдельных батчах',
+      'Градиент по входу',
+      'Градиент коэффициента масштаба',
+      'Группировка параметров оптимизатора',
+      'Отклонённые граничные случаи',
+      'Сплошная рамка — вход',
+      'Пунктирная рамка — масштабирование по RMS',
+      'Двойная рамка — применение коэффициента',
+    ],
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, '');
 
@@ -138,24 +197,107 @@ async function expectDiagramContainment(page: Page) {
   expect(scrollerProblems).toEqual([]);
 }
 
+async function expectBoundedBoxContainment(page: Page) {
+  const problems = await page
+    .locator('figure[data-visualization-id="rmsnorm"]')
+    .evaluate((root) => {
+      const issues: string[] = [];
+      const allowedError = 2;
+      const describe = (node: HTMLElement, index: number) =>
+        `${node.tagName.toLowerCase()}${
+          node.className
+            ? `.${String(node.className).split(/\s+/).slice(0, 2).join('.')}`
+            : ''
+        } ${index}`;
+      const hasCompleteBorder = (node: HTMLElement) => {
+        const style = getComputedStyle(node);
+        const widths = [
+          style.borderTopWidth,
+          style.borderRightWidth,
+          style.borderBottomWidth,
+          style.borderLeftWidth,
+        ].map(Number.parseFloat);
+        const styles = [
+          style.borderTopStyle,
+          style.borderRightStyle,
+          style.borderBottomStyle,
+          style.borderLeftStyle,
+        ];
+        return (
+          widths.every((width) => width > 0) &&
+          styles.every((value) => !['none', 'hidden'].includes(value))
+        );
+      };
+      const all = Array.from(root.querySelectorAll<HTMLElement>('*')).filter((node) => {
+        const style = getComputedStyle(node);
+        return (
+          node.getClientRects().length > 0 &&
+          style.display !== 'none' &&
+          style.visibility !== 'hidden'
+        );
+      });
+      for (const [index, node] of all.entries()) {
+        if (node.closest('[data-diagram-full-view-controls]') || node.closest('.katex')) continue;
+        const style = getComputedStyle(node);
+        if (
+          ['hidden', 'clip'].includes(style.overflowX) ||
+          ['hidden', 'clip'].includes(style.overflowY)
+        ) {
+          issues.push(`${describe(node, index)} conceals overflow`);
+        }
+        if (
+          hasCompleteBorder(node) &&
+          !node.hasAttribute('data-diagram-box') &&
+          !node.classList.contains('bar-track') &&
+          !['TH', 'TD'].includes(node.tagName) &&
+          node !== root
+        ) {
+          issues.push(`${describe(node, index)} has an unmarked complete border`);
+        }
+      }
+      const boxes = all.filter(
+        (node) =>
+          !node.closest('[data-diagram-full-view-controls]') &&
+          (node.hasAttribute('data-diagram-box') || ['TH', 'TD'].includes(node.tagName)),
+      );
+      for (const [index, box] of boxes.entries()) {
+        if (!hasCompleteBorder(box)) issues.push(`${describe(box, index)} lacks a complete border`);
+        if (box.scrollWidth > box.clientWidth + allowedError) {
+          issues.push(
+            `${describe(box, index)} has ${box.scrollWidth - box.clientWidth}px horizontal content debt`,
+          );
+        }
+        if (box.scrollHeight > box.clientHeight + allowedError) {
+          issues.push(
+            `${describe(box, index)} has ${box.scrollHeight - box.clientHeight}px vertical content debt`,
+          );
+        }
+      }
+      return issues;
+    });
+  expect(problems).toEqual([]);
+}
+
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
   narrow: boolean,
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: 'en',
+    locale,
     order: 25,
-    revision: 1,
-    revisionLabel: 'Content revision',
-    title: chapterTitle,
-    equivalentLocales: ['en'],
+    revision: 3,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: locales,
     fallbackRouteSuffix: '/course/',
   });
-  await expect(page.locator('.lesson-description')).toHaveText(chapterDescription);
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator('.lesson-body h2')).toHaveText(chapterHeadings);
+  await expect(page.locator('.lesson-description')).toHaveText(localized.description);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator('.lesson-body h2')).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -179,44 +321,46 @@ async function expectChapterContent(
   const history = page
     .getByRole('heading', {
       level: 2,
-      name: 'From batch statistics to pre-RMSNorm language models',
+      name: localized.headings[3],
       exact: true,
     })
     .locator(
-      'xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="From batch statistics to pre-RMSNorm language models"]]',
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.headings[3]}"]]`,
     );
   const historyText = (await history.allInnerTexts()).join(' ').replace(/\s+/g, ' ');
-  expect(historyText).toContain('BatchNorm couples a training example to mini-batch statistics');
-  expect(historyText).toContain('avoiding dependencies between training cases');
-  expect(historyText).toContain('remove the mean statistic, normalize by RMS');
-  expect(historyText).toContain('normalize the input of each Transformer sublayer');
-  expect(historyText).toContain('The history is about normalization choices');
+  for (const fragment of localized.historyFragments) expect(historyText).toContain(fragment);
   expect(historyText).not.toMatch(/TypeScript|Python history|Rust history/i);
   await expect(history.locator('a')).toHaveCount(4);
 
-  await expect(page.locator('figure.rust-source')).toHaveCount(8);
+  await expect(page.locator('figure.rust-source')).toHaveCount(6);
   await expectVisualizationDecision(page, { decision: 'useful', id: 'rmsnorm' });
   const diagram = page.locator('figure[data-visualization-id="rmsnorm"]');
-  await expect(diagram).toHaveAccessibleName('Follow one feature vector through RMSNorm');
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(localized.diagramDescription);
   await expect(diagram.locator('[data-stage="input"]')).toContainText('3.000000');
   await expect(diagram.locator('[data-stage="statistic"]')).toContainText('12.500000');
   await expect(diagram.locator('[data-stage="normalized"]')).toContainText('1.131370');
   await expect(diagram.locator('[data-stage="output"]')).toContainText('1.272792');
-  await expect(diagram.locator('[data-scale-mode="ideal"]')).toContainText('0.000000000');
+  await expect(diagram.locator('[data-scale-mode="ideal"]')).toContainText(
+    '0.000000000000000222',
+  );
   await expect(diagram.locator('[data-scale-mode="production"]')).toContainText('0.000000448');
   await expect(diagram.locator('[data-scale-mode="near-zero"]')).toContainText('0.717566');
   await expect(diagram.locator('[data-history-method]')).toHaveCount(3);
   await expect(diagram.locator('[data-history-method="batchnorm"]')).toContainText('-0.999999');
   await expect(diagram.locator('[data-history-method="batchnorm"]')).toContainText('0.000000');
   await expect(diagram.locator('[data-evidence="errors"] li')).toHaveCount(3);
-  await expect(diagram.locator('[data-evidence="errors"]')).toContainText(
-    'zero mean square',
-  );
+  await expect(diagram.locator('[data-evidence="errors"]')).toContainText(localized.zeroEnergy);
+  if (locale === 'ru') {
+    await expect(diagram.locator('[data-evidence="errors"]')).toContainText(copy.ru.rankZero);
+    await expect(diagram.locator('[data-evidence="errors"]')).toContainText(
+      copy.ru.widthMismatch,
+    );
+    for (const fragment of copy.ru.diagramFragments) await expect(diagram).toContainText(fragment);
+  }
   await expect(diagram.locator('[data-evidence="parameter"]')).toContainText('no_decay=true');
   await expect(diagram.locator('[data-evidence="proof"]')).toContainText('gradcheck=true');
   await expect(diagram.locator('[data-evidence="proof"]')).toContainText('replay=bitwise');
-  await expect(diagram.locator('[data-evidence="proof"]')).toContainText('site_arithmetic=none');
 
   for (const scroller of await diagram
     .locator('.primary-scroller, .scale-scroller, .history-scroller, .formula-scroller')
@@ -225,6 +369,7 @@ async function expectChapterContent(
     await expect(scroller).toBeFocused();
   }
   await expectDiagramContainment(page);
+  await expectBoundedBoxContainment(page);
 
   const flow = await diagram.locator('.primary-flow').evaluate((node) => {
     const rect = (selector: string) =>
@@ -254,89 +399,82 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator('summary').click();
   await expect(details.locator('ol > li')).toHaveCount(9);
-  await expectOrderedChapterNavigation(page, 'en', chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);
 }
 
 test.describe('chapter 25 RMSNorm vertical slice', { tag: chapterTag(chapterId) }, () => {
-  test('English publishes Chapter 25 while its Russian route remains deferred', async ({
-    page,
-  }) => {
-    const english = await readOrderedCourseChapters(page, 'en');
-    expect(english.length).toBeGreaterThanOrEqual(25);
-    expect(english[24]).toEqual(
-      expect.objectContaining({ chapterId, order: 25, title: chapterTitle }),
-    );
-    const russian = await readOrderedCourseChapters(page, 'ru');
-    expect(russian.length).toBeGreaterThan(0);
-    const lastRussianChapter = russian[russian.length - 1]!;
-    await page.goto(chapterPath('ru', lastRussianChapter.chapterId));
-    await expectOrderedChapterNavigation(
-      page,
-      'ru',
-      lastRussianChapter.chapterId,
-      russian,
-    );
-    expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(false);
-
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.locator('.locale-switch a[data-locale="ru"]')).toHaveAttribute(
-      'href',
-      '/ru/course/',
-    );
-    await expect(page.locator('link[rel="alternate"][hreflang="ru"]')).toHaveCount(0);
-    const missing = await page.goto(chapterPath('ru', chapterId));
-    expect(missing?.status()).toBe(404);
+  test('English and Russian publish reciprocal Chapter 25 routes', async ({ page }) => {
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      expect(chapters.find((chapter) => chapter.chapterId === chapterId)).toEqual(
+        expect.objectContaining({ chapterId, order: 25, title: copy[locale].title }),
+      );
+      await page.goto(chapterPath(locale, chapterId));
+      const other: ChapterLocale = locale === 'en' ? 'ru' : 'en';
+      await expect(page.locator(`.locale-switch a[data-locale="${other}"]`)).toHaveAttribute(
+        'href',
+        chapterPath(other, chapterId),
+      );
+      await expect(page.locator(`link[rel="alternate"][hreflang="${other}"]`)).toHaveCount(1);
+      await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
+    }
   });
 
-  test('the Rust-backed lesson and natural-height evidence render at desktop and narrow widths', async ({
+  test('both Rust-backed lessons and natural-height evidence render at desktop and narrow widths', async ({
     page,
   }) => {
-    const chapters = await readOrderedCourseChapters(page, 'en');
-    await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(chapterPath('en', chapterId));
-    await expectChapterContent(page, chapters, false);
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.reload();
-    await expectChapterContent(page, chapters, true);
+    for (const locale of locales) {
+      const chapters = await readOrderedCourseChapters(page, locale);
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      await page.goto(chapterPath(locale, chapterId));
+      await expectChapterContent(page, chapters, false, locale);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.reload();
+      await expectChapterContent(page, chapters, true, locale);
+    }
   });
 
   test('solid, dashed, and double cues survive forced colors', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="rmsnorm"]');
-    await expect(diagram.locator('[data-stage="input"]')).toHaveCSS('border-top-style', 'solid');
-    await expect(diagram.locator('[data-stage="normalized"]')).toHaveCSS(
-      'border-top-style',
-      'dashed',
-    );
-    await expect(diagram.locator('[data-stage="output"]')).toHaveCSS(
-      'border-top-style',
-      'double',
-    );
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="rmsnorm"]');
+      await expect(diagram.locator('[data-stage="input"]')).toHaveCSS('border-top-style', 'solid');
+      await expect(diagram.locator('[data-stage="normalized"]')).toHaveCSS(
+        'border-top-style',
+        'dashed',
+      );
+      await expect(diagram.locator('[data-stage="output"]')).toHaveCSS(
+        'border-top-style',
+        'double',
+      );
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('RTL prose mirrors arrows while formulas and technical values remain left-to-right', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(chapterPath('en', chapterId));
-    const diagram = page.locator('figure[data-visualization-id="rmsnorm"]');
-    await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
-    await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
-    await expect(diagram.locator('.flow-arrow').first()).not.toHaveCSS('transform', 'none');
-    expect(
-      await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    expect(
-      await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
-        nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
-      ),
-    ).toBe(true);
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      const diagram = page.locator('figure[data-visualization-id="rmsnorm"]');
+      await diagram.evaluate((node) => node.setAttribute('dir', 'rtl'));
+      await expect(diagram.locator('.diagram-description')).toHaveCSS('direction', 'rtl');
+      await expect(diagram.locator('.flow-arrow').first()).not.toHaveCSS('transform', 'none');
+      expect(
+        await diagram.locator('bdi[dir="ltr"]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      expect(
+        await diagram.locator('[data-inline-math]').evaluateAll((nodes) =>
+          nodes.every((node) => getComputedStyle(node).direction === 'ltr'),
+        ),
+      ).toBe(true);
+      await expectNoOverflowOrClientScripts(page);
+    }
   });
 
   test('the lesson and exact trace render without JavaScript', async ({ browser }, testInfo) => {
@@ -345,13 +483,16 @@ test.describe('chapter 25 RMSNorm vertical slice', { tag: chapterTag(chapterId) 
       baseURL: String(testInfo.project.use.baseURL),
     });
     const page = await context.newPage();
-    await page.goto(chapterPath('en', chapterId));
-    await expect(page.getByRole('heading', { level: 1, name: chapterTitle })).toBeVisible();
-    await expect(page.locator('[data-stage="output"]')).toContainText('1.272792');
-    await expect(page.locator('[data-scale-mode="near-zero"]')).toContainText('0.717566');
-    await expect(page.locator('[data-history-method]')).toHaveCount(3);
-    await expect(page.locator('[data-evidence="errors"] li')).toHaveCount(3);
-    await expectNoOverflowOrClientScripts(page);
+    for (const locale of locales) {
+      await page.goto(chapterPath(locale, chapterId));
+      await expect(page.getByRole('heading', { level: 1, name: copy[locale].title })).toBeVisible();
+      await expect(page.locator('[data-stage="output"]')).toContainText('1.272792');
+      await expect(page.locator('[data-scale-mode="near-zero"]')).toContainText('0.717566');
+      await expect(page.locator('[data-history-method]')).toHaveCount(3);
+      await expect(page.locator('[data-evidence="errors"] li')).toHaveCount(3);
+      await expect(page.locator('[data-evidence="errors"]')).toContainText(copy[locale].zeroEnergy);
+      await expectNoOverflowOrClientScripts(page);
+    }
     await context.close();
   });
 });

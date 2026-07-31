@@ -17,7 +17,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     };
     [
         format!(
-            "META|epsilon={EPSILON:.6}|feature_width={}|gain_name={GAIN_NAME}|no_decay={}|site_arithmetic=none",
+            "META|epsilon={EPSILON:.6}|feature_width={}|gain_name={GAIN_NAME}|no_decay={}",
             primary.gain.len(), evidence.no_decay
         ),
         format!(
@@ -35,7 +35,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             format_vector(primary.input_gradient.as_slice()),
             format_vector(primary.gain_gradient.as_slice()),
         ),
-        scale("ideal", 9, &evidence.ideal_scale),
+        scale("ideal", 18, &evidence.ideal_scale),
         scale("production", 9, &evidence.production_scale),
         scale("near-zero", 6, &evidence.near_zero_scale),
         format!(

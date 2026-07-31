@@ -1,7 +1,7 @@
-META|epsilon=0.000010|feature_width=2|gain_name=decoder.block.0.attention_norm.gain|no_decay=true|site_arithmetic=none
+META|epsilon=0.000010|feature_width=2|gain_name=decoder.block.0.attention_norm.gain|no_decay=true
 PRIMARY|input=[3.000000,4.000000]|mean_square=[12.500000]|inverse_rms=[0.282843]|normalized=[0.848528,1.131370]|gain=[1.500000,0.500000]|output=[1.272792,0.565685]
 BACKWARD|upstream=[1.000000,-2.000000]|input_gradient=[0.407293,-0.305470]|gain_gradient=[0.848528,-2.262741]
-SCALE|mode=ideal|epsilon=0.000000|factor=10.000000|base=[0.848528,1.131371]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000000
+SCALE|mode=ideal|epsilon=0.000000|factor=10.000000|base=[0.848528,1.131371]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000000000000222
 SCALE|mode=production|epsilon=0.000010|factor=10.000000|base=[0.848528,1.131370]|scaled=[0.848528,1.131371]|max_abs_diff=0.000000448
 SCALE|mode=near-zero|epsilon=0.000010|factor=10.000000|base=[0.094281,0.125708]|scaled=[0.632456,0.843274]|max_abs_diff=0.717566
 ZERO|input=[0.000000,0.000000]|output=[0.000000,0.000000]|finite=true
