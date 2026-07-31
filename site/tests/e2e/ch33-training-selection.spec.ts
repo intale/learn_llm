@@ -13,22 +13,72 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "33-training-selection";
-const chapterTitle = "Train every step, select with validation";
-const chapterDescription =
-  "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.";
-const diagramTitle = "Separate updates from validation-based selection";
-const diagramDescription =
-  "Follow six ordered operations through eight Rust-authored updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.";
-const chapterHeadings = [
-  "Plan every update before you train",
-  "Update on train, choose on validation",
-  "Keep steps, gradients, and partitions distinct",
-  "From training-only reports to validation-selected LLM checkpoints",
-  "Make the cumulative training boundary explicit in Rust",
-  "Read measured checkpoints without inventing a curve",
-  "Test the information boundary and state ownership",
-  "Freeze the selected decoder for one test pass",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Train every step, select with validation",
+    description:
+      "Learn how a decoder training loop orders backpropagation, gradient clipping, scheduled AdamW updates, graph-free validation, and checkpoint selection without using test data.",
+    headings: [
+      "Plan every update before you train",
+      "Update on train, choose on validation",
+      "Keep steps, gradients, and partitions distinct",
+      "From training-only reports to validation-selected LLM checkpoints",
+      "Make the cumulative training boundary explicit in Rust",
+      "Read measured checkpoints without inventing a curve",
+      "Test the information boundary and state ownership",
+      "Freeze the selected decoder for one test pass",
+    ],
+    diagramTitle: "Separate updates from validation-based selection",
+    diagramDescription:
+      "Follow six ordered operations through eight measured updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
+    selectedCell: "Selected",
+    cues: [
+      "● Circle: measured training loss",
+      "◆ Diamond: measured validation loss",
+      "◎ Double underline: selected validation state",
+      "↔ Gaps contain no measured values or interpolated line",
+    ],
+    detailsFragment: "The first loss equal to the minimum wins",
+    historyFragments: [
+      "These training practices form part of the road to modern LLMs",
+      "local teaching choices, not universal properties of LLM training",
+    ],
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Выполните все шаги обучения и выберите модель по валидации",
+    description:
+      "Разберитесь, как цикл обучения декодера упорядочивает обратное распространение, ограничение нормы градиента, шаги AdamW по расписанию, валидацию без записи графа и выбор состояния без обращения к тестовым данным.",
+    headings: [
+      "Задайте весь план до начала обучения",
+      "Обновляйте по обучающей выборке, выбирайте по валидационной",
+      "Не смешивайте шаги, градиенты и роли выборок",
+      "От отчёта по обучению к контрольной точке LLM, выбранной по валидации",
+      "Сделайте общую границу обучения явной в Rust",
+      "Читайте только измеренные точки и не дорисовывайте кривую",
+      "Проверьте информационную границу и владение состоянием",
+      "Зафиксируйте выбранный декодер для одной тестовой оценки",
+    ],
+    diagramTitle: "Разделите обновление параметров и выбор модели по валидации",
+    diagramDescription:
+      "Проследите шесть последовательных операций в восьми измеренных обновлениях, затем сравните десять отдельных измерений на обучающей и валидационной выборках в пяти контрольных точках, не проводя между ними выдуманную кривую.",
+    selectedCell: "Выбрано",
+    cues: [
+      "● Круг: измерение на обучающей выборке",
+      "◆ Ромб: измерение на валидационной выборке",
+      "◎ Двойное подчёркивание: состояние, выбранное по валидации",
+      "↔ В промежутках нет измеренных значений или интерполированной линии",
+    ],
+    detailsFragment: "Побеждает первое значение, равное минимуму",
+    historyFragments: [
+      "Эти приёмы — часть пути к современным LLM",
+      "локальные учебные решения, а не общепринятая практика",
+    ],
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
@@ -168,6 +218,8 @@ async function expectDiagramContainment(page: Page) {
         ),
       ).entries()) {
         if (text.closest("[data-diagram-box]") !== box) continue;
+        const katex = text.closest(".katex");
+        if (katex && text !== katex) continue;
         const rect = text.getBoundingClientRect();
         if (
           rect.width > 0 &&
@@ -177,7 +229,15 @@ async function expectDiagramContainment(page: Page) {
             rect.bottom > boxRect.bottom + 2)
         ) {
           problems.push(
-            "box " + index + " text " + textIndex + " crosses its border",
+            "box " +
+              index +
+              " text " +
+              textIndex +
+              " (" +
+              text.tagName.toLowerCase() +
+              "." +
+              (text.getAttribute("class") ?? "") +
+              ") crosses its border",
           );
         }
       }
@@ -242,34 +302,36 @@ async function expectDiagramContainment(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 33,
-    revision: 2,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 3,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: ["en", "ru"],
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    localized.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
     .allTextContents();
   for (const expected of [
-    "\\theta_{s+1}=\\operatorname{AdamW}",
-    "s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
-    "\\widetilde g_s=\\alpha_s g_s",
+    "g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1})",
+    "\\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s",
+    "(\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}",
     "\\mathcal{L}_{va}",
     "\\frac{\\sum_j n_j\\mathcal{L}^{(j)}_{va}}{\\sum_j n_j}",
-    "s^*=\\min\\left\\{s:",
-    "\\lVert g_s\\rVert_2\\leq0.35",
+    "s^*=\\min\\left\\{s\\in\\mathcal{C}:",
+    "\\lVert \\widetilde g_s\\rVert_2\\leq0.35",
   ]) {
     expect(
       annotations
@@ -288,12 +350,9 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain(
-    "This is a history of the training practices on the road to modern LLMs",
-  );
-  expect(lessonText).toContain(
-    "local teaching choices, not universal properties of LLM training",
-  );
+  for (const fragment of localized.historyFragments) {
+    expect(lessonText).toContain(fragment);
+  }
   await expect(
     page.locator('.lesson-body a[href^="https://www.jmlr.org/"]'),
   ).toHaveCount(2);
@@ -309,8 +368,10 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="training-validation-checkpoints"]',
   );
-  await expect(diagram).toHaveAccessibleName(diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(
+    localized.diagramDescription,
+  );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram).toHaveAttribute("data-no-interpolation", "true");
   await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
@@ -329,11 +390,13 @@ async function expectChapterContent(
     diagram.locator('[data-selected="true"].selected-point'),
   ).toHaveAttribute("data-loss", "1.595297");
   await expect(diagram.locator("[data-checkpoint-row]")).toHaveCount(5);
-  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(11);
+  await expect(diagram.locator("[data-diagram-box]")).toHaveCount(18);
   await expect(diagram.locator("table")).toHaveCount(1);
-  await expect(
-    diagram.locator("svg, canvas, path, polyline, line"),
-  ).toHaveCount(0);
+  expect(
+    await diagram
+      .locator("svg, canvas, path, polyline, line")
+      .evaluateAll((nodes) => nodes.filter((node) => !node.closest(".katex")).length),
+  ).toBe(0);
   await expect(
     diagram.locator('[data-checkpoint-row="0"] annotation'),
   ).toHaveText(["s=0", "2.095016", "1.918167"]);
@@ -341,7 +404,7 @@ async function expectChapterContent(
     diagram.locator('[data-checkpoint-row="8"] annotation'),
   ).toHaveText(["s=8", "1.322897", "1.595297"]);
   await expect(diagram.locator(".selected-row")).toContainText(
-    "Double underline: selected validation state",
+    localized.selectedCell,
   );
   await expectDiagramContainment(page);
 
@@ -350,19 +413,22 @@ async function expectChapterContent(
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(6);
   await expect(details).toContainText(
-    "The first loss equal to the minimum wins",
+    localized.detailsFragment,
   );
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "32-decoder-model");
-  await expect(
-    page.locator(
-      'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-    ),
-  ).toHaveAttribute("data-chapter-id", "34-final-evaluation");
+  const next = page.locator(
+    'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+  );
+  if (locale === "en") {
+    await expect(next).toHaveAttribute("data-chapter-id", "34-final-evaluation");
+  } else {
+    await expect(next).toHaveCount(0);
+  }
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -370,132 +436,169 @@ test.describe(
   "chapter 33 training and validation selection vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 33 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 33 routes", async ({
       page,
     }) => {
-      const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(39);
-      expect(english[32]).toEqual(
-        expect.objectContaining({
-          chapterId,
-          order: 33,
-          title: chapterTitle,
-        }),
-      );
-      const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        expect(chapters[32]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 33,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+      }
     });
 
-    test("the Rust-backed lesson and discrete diagram render at desktop and narrow widths", async ({
+    test("both complete lessons and contained diagrams render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+      }
+    });
+
+    test("full view reuses each localized semantic figure and restores focus", async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
-    });
-
-    test("the shared full-view control reuses the same complete figure", async ({
-      page,
-    }) => {
-      await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
-      );
-      const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-      await expect(toggle).toHaveCount(1);
-      await toggle.click();
-      await page.waitForFunction(
-        () =>
-          document.fullscreenElement?.getAttribute("data-visualization-id") ===
-          "training-validation-checkpoints",
-      );
-      await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
-      await expect(diagram.locator(".measurement-point")).toHaveCount(10);
-      await expectDiagramContainment(page);
-      await page.keyboard.press("Escape");
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      const controlNames: string[] = [];
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="training-validation-checkpoints"]',
+        );
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
+        const before = await diagram.evaluate((node) => ({
+          boxes: node.querySelectorAll("[data-diagram-box]").length,
+          figures: document.querySelectorAll(
+            'figure[data-visualization-id="training-validation-checkpoints"]',
+          ).length,
+          scrollers: node.querySelectorAll("[data-diagram-scroll]").length,
+          tables: node.querySelectorAll("table").length,
+        }));
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute("data-visualization-id") ===
+            "training-validation-checkpoints",
+        );
+        await page.evaluate(() => document.fonts.ready);
+        const after = await diagram.evaluate((node) => ({
+          boxes: node.querySelectorAll("[data-diagram-box]").length,
+          debt: node.scrollWidth - node.clientWidth,
+          figures: document.querySelectorAll(
+            'figure[data-visualization-id="training-validation-checkpoints"]',
+          ).length,
+          regions: Array.from(
+            node.querySelectorAll<HTMLElement>("[data-diagram-scroll]"),
+          ).map((region) => ({
+            debt: region.scrollWidth - region.clientWidth,
+            name: region.getAttribute("aria-label"),
+          })),
+          scrollers: node.querySelectorAll("[data-diagram-scroll]").length,
+          tables: node.querySelectorAll("table").length,
+          verticalViewports: node.scrollHeight / node.clientHeight,
+        }));
+        expect({
+          boxes: after.boxes,
+          figures: after.figures,
+          scrollers: after.scrollers,
+          tables: after.tables,
+        }).toEqual(before);
+        expect(after.debt).toBeLessThanOrEqual(2);
+        expect(after.regions.filter(({ debt }) => debt > 320)).toEqual([]);
+        expect(
+          after.verticalViewports,
+          `${locale} full-view regions: ${JSON.stringify(after.regions)}`,
+        ).toBeLessThanOrEqual(3);
+        await expect(diagram.locator("[data-operation-order]")).toHaveCount(6);
+        await expect(diagram.locator(".measurement-point")).toHaveCount(10);
+        await expectDiagramContainment(page);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+      expect(new Set(controlNames).size).toBe(locales.length);
     });
 
     test("marker shapes and selection emphasis survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
-      );
-      await expect(diagram.locator(".cue-list li")).toHaveText([
-        "● Circle: measured training loss",
-        "◆ Diamond: measured validation loss",
-        "◎ Double underline: selected validation state",
-        "↔ Gaps contain no measured values or interpolated line",
-      ]);
-      await expect(diagram.locator(".selected-point > span")).toHaveCSS(
-        "text-decoration-style",
-        "double",
-      );
-      await expect(diagram.locator(".selected-row > :last-child")).toHaveCSS(
-        "border-left-style",
-        "double",
-      );
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="training-validation-checkpoints"]',
+        );
+        await expect(diagram.locator(".cue-list li")).toHaveText(
+          copy[locale].cues,
+        );
+        await expect(diagram.locator(".selected-point > span")).toHaveCSS(
+          "text-decoration-style",
+          "double",
+        );
+        await expect(diagram.locator(".selected-row > :last-child")).toHaveCSS(
+          "border-left-style",
+          "double",
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("RTL prose keeps the plot, table values, and checkpoint order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="training-validation-checkpoints"]',
-      );
-      await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-      await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      await expect(diagram.locator(".plot-field")).toHaveCSS(
-        "direction",
-        "ltr",
-      );
-      expect(
-        await diagram
-          .locator("[data-checkpoint-row]")
-          .evaluateAll((rows) =>
-            rows.map((row) => row.getAttribute("data-checkpoint-row")),
-          ),
-      ).toEqual(["0", "2", "4", "6", "8"]);
-      expect(
-        await diagram
-          .locator("[data-inline-math]")
-          .evaluateAll((nodes) =>
-            nodes.every((node) => getComputedStyle(node).direction === "ltr"),
-          ),
-      ).toBe(true);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="training-validation-checkpoints"]',
+        );
+        await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
+        await expect(diagram.locator("h4").first()).toHaveCSS(
+          "direction",
+          "rtl",
+        );
+        await expect(diagram.locator(".plot-field")).toHaveCSS(
+          "direction",
+          "ltr",
+        );
+        expect(
+          await diagram
+            .locator("[data-checkpoint-row]")
+            .evaluateAll((rows) =>
+              rows.map((row) => row.getAttribute("data-checkpoint-row")),
+            ),
+        ).toEqual(["0", "2", "4", "6", "8"]);
+        expect(
+          await diagram
+            .locator("[data-inline-math]")
+            .evaluateAll((nodes) =>
+              nodes.every((node) => getComputedStyle(node).direction === "ltr"),
+            ),
+        ).toBe(true);
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("the lesson and exact checkpoint evidence render without JavaScript", async ({
@@ -506,18 +609,21 @@ test.describe(
         baseURL: String(testInfo.project.use.baseURL),
       });
       const page = await context.newPage();
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator("[data-operation-order]")).toHaveCount(6);
-      await expect(page.locator(".measurement-point")).toHaveCount(10);
-      await expect(page.locator("[data-checkpoint-row]")).toHaveCount(5);
-      await expect(page.locator(".selected-point")).toHaveCount(1);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-        0,
-      );
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(page.locator("[data-operation-order]")).toHaveCount(6);
+        await expect(page.locator(".measurement-point")).toHaveCount(10);
+        await expect(page.locator("[data-checkpoint-row]")).toHaveCount(5);
+        await expect(page.locator(".selected-point")).toHaveCount(1);
+        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
+          0,
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

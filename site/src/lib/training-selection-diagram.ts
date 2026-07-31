@@ -11,7 +11,6 @@ export interface TrainingSelectionTrace {
   readonly checkpoints: readonly Readonly<Record<string, string>>[];
   readonly selection: Readonly<Record<string, string>>;
   readonly proof: Readonly<Record<string, string>>;
-  readonly history: Readonly<Record<string, string>>;
 }
 
 export interface TrainingSelectionDiagramLabels {
@@ -43,9 +42,11 @@ export interface TrainingSelectionDiagramLabels {
     readonly trainMeasurement: string;
     readonly validationMeasurement: string;
     readonly selectedState: string;
+    readonly selectedCell: string;
     readonly gapsUnobserved: string;
     readonly clipped: string;
     readonly notSelected: string;
+    readonly testRejected: string;
     readonly verified: string;
   };
   readonly proofs: {
@@ -72,23 +73,22 @@ const expectedLines = [
   "SCHEDULE|start=3|end=4|learning_rate=0.025000",
   "SCHEDULE|start=5|end=6|learning_rate=0.015000",
   "SCHEDULE|start=7|end=8|learning_rate=0.008000",
-  "UPDATE|step=1|batch=train-b@2,train-b@8|learning_rate=0.040000|train_loss=2.453998|grad_norm_before=4.051362|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=2|batch=train-a@0,train-b@9|learning_rate=0.040000|train_loss=1.636732|grad_norm_before=3.113352|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=3|batch=train-a@7,train-b@0|learning_rate=0.025000|train_loss=1.809688|grad_norm_before=1.861960|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=4|batch=train-a@1,train-b@7|learning_rate=0.025000|train_loss=1.116494|grad_norm_before=1.535791|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=5|batch=train-a@2,train-a@6|learning_rate=0.015000|train_loss=1.169224|grad_norm_before=1.697376|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=6|batch=train-a@3,train-a@4|learning_rate=0.015000|train_loss=1.771533|grad_norm_before=1.706953|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=7|batch=train-b@4,train-a@5|learning_rate=0.008000|train_loss=1.019272|grad_norm_before=1.168497|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
-  "UPDATE|step=8|batch=train-a@8,train-a@9|learning_rate=0.008000|train_loss=1.698170|grad_norm_before=1.490535|grad_norm_after=0.350000|clipped=true|finite=true|zeroed=true",
+  "UPDATE|step=1|batch=train-b@2,train-b@8|learning_rate=0.040000|train_loss=2.453998|grad_norm_before=4.051362|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=2|batch=train-a@0,train-b@9|learning_rate=0.040000|train_loss=1.636732|grad_norm_before=3.113352|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=3|batch=train-a@7,train-b@0|learning_rate=0.025000|train_loss=1.809688|grad_norm_before=1.861960|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=4|batch=train-a@1,train-b@7|learning_rate=0.025000|train_loss=1.116494|grad_norm_before=1.535791|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=5|batch=train-a@2,train-a@6|learning_rate=0.015000|train_loss=1.169224|grad_norm_before=1.697376|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=6|batch=train-a@3,train-a@4|learning_rate=0.015000|train_loss=1.771533|grad_norm_before=1.706953|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=7|batch=train-b@4,train-a@5|learning_rate=0.008000|train_loss=1.019272|grad_norm_before=1.168497|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
+  "UPDATE|step=8|batch=train-a@8,train-a@9|learning_rate=0.008000|train_loss=1.698170|grad_norm_before=1.490535|grad_norm_after=0.350000|clipped=true|finite=true|fresh_zero=true|cleared=true",
   "AXIS|min=1.300000|max=2.100000|ticks=[1.300000,1.700000,2.100000]",
-  "CHECKPOINT|step=0|train_loss=2.095016|validation_loss=1.918167|selected=false|graph_nodes_before=0|graph_nodes_after=0",
-  "CHECKPOINT|step=2|train_loss=1.562026|validation_loss=1.696310|selected=false|graph_nodes_before=0|graph_nodes_after=0",
-  "CHECKPOINT|step=4|train_loss=1.453259|validation_loss=1.687788|selected=false|graph_nodes_before=0|graph_nodes_after=0",
-  "CHECKPOINT|step=6|train_loss=1.369832|validation_loss=1.642599|selected=false|graph_nodes_before=0|graph_nodes_after=0",
-  "CHECKPOINT|step=8|train_loss=1.322897|validation_loss=1.595297|selected=true|graph_nodes_before=0|graph_nodes_after=0",
-  "SELECT|step=8|validation_loss=1.595297|criterion=validation-only|snapshot=true|test_reads=0",
-  "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|clipping_observed=true|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|replay_bitwise=true|input_unchanged=true",
-  "HISTORY|full_corpus_updates=true|training_only_reporting=true|minibatch_optimization=true|validation_selection=true|decoder_scale_clipping=true",
+  "CHECKPOINT|step=0|train_loss=2.095016|validation_loss=1.918167|selected=false|train_graphs=0|validation_graphs=0",
+  "CHECKPOINT|step=2|train_loss=1.562026|validation_loss=1.696310|selected=false|train_graphs=0|validation_graphs=0",
+  "CHECKPOINT|step=4|train_loss=1.453259|validation_loss=1.687788|selected=false|train_graphs=0|validation_graphs=0",
+  "CHECKPOINT|step=6|train_loss=1.369832|validation_loss=1.642599|selected=false|train_graphs=0|validation_graphs=0",
+  "CHECKPOINT|step=8|train_loss=1.322897|validation_loss=1.595297|selected=true|train_graphs=0|validation_graphs=0",
+  "SELECT|step=8|validation_loss=1.595297|criterion=validation-only|snapshot=true|test_partition_rejected=true",
+  "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|fresh_zero_gradients=true|cleared_gradients=true|clipping_observed=true|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|test_partition_rejected=true|replay_bitwise=true|input_unchanged=true",
   "END_TRAINING_SELECTION_TRACE",
 ] as const;
 
@@ -173,9 +173,11 @@ export function validateTrainingSelectionDiagramLabels(
       "trainMeasurement",
       "validationMeasurement",
       "selectedState",
+      "selectedCell",
       "gapsUnobserved",
       "clipped",
       "notSelected",
+      "testRejected",
       "verified",
     ],
     "cues",
@@ -252,8 +254,8 @@ export function parseTrainingSelectionTrace(
     invalid("trace must end with exactly one LF");
   const lines = source.slice(0, -1).split("\n");
   if (lines.length !== expectedLines.length)
-    invalid("trace must contain exactly 25 lines");
-  if (lines[0] !== expectedLines[0] || lines[24] !== expectedLines[24])
+    invalid("trace must contain exactly 24 lines");
+  if (lines[0] !== expectedLines[0] || lines[23] !== expectedLines[23])
     invalid("trace sentinels changed");
 
   const config = record(lines[1], "CONFIG");
@@ -341,7 +343,8 @@ export function parseTrainingSelectionTrace(
           "grad_norm_after",
           "clipped",
           "finite",
-          "zeroed",
+          "fresh_zero",
+          "cleared",
         ],
         "UPDATE",
       );
@@ -386,7 +389,8 @@ export function parseTrainingSelectionTrace(
           required(value, "grad_norm_after") !==
             required(value, "grad_norm_before")) ||
         required(value, "finite") !== "true" ||
-        required(value, "zeroed") !== "true"
+        required(value, "fresh_zero") !== "true" ||
+        required(value, "cleared") !== "true"
       ) {
         invalid("update clipping, finite, or zero-gradient evidence disagrees");
       }
@@ -427,8 +431,8 @@ export function parseTrainingSelectionTrace(
           "train_loss",
           "validation_loss",
           "selected",
-          "graph_nodes_before",
-          "graph_nodes_after",
+          "train_graphs",
+          "validation_graphs",
         ],
         "CHECKPOINT",
       );
@@ -452,8 +456,8 @@ export function parseTrainingSelectionTrace(
       if (!/^(?:true|false)$/.test(required(value, "selected")))
         invalid("selected is not boolean");
       if (
-        required(value, "graph_nodes_before") !== "0" ||
-        required(value, "graph_nodes_after") !== "0"
+        required(value, "train_graphs") !== "0" ||
+        required(value, "validation_graphs") !== "0"
       ) {
         invalid("validation recorded a graph");
       }
@@ -480,13 +484,19 @@ export function parseTrainingSelectionTrace(
   const selection = record(lines[21], "SELECT");
   exactKeys(
     selection,
-    ["step", "validation_loss", "criterion", "snapshot", "test_reads"],
+    [
+      "step",
+      "validation_loss",
+      "criterion",
+      "snapshot",
+      "test_partition_rejected",
+    ],
     "SELECT",
   );
   if (
     required(selection, "criterion") !== "validation-only" ||
     required(selection, "snapshot") !== "true" ||
-    required(selection, "test_reads") !== "0"
+    required(selection, "test_partition_rejected") !== "true"
   ) {
     invalid("selection boundary changed");
   }
@@ -529,10 +539,13 @@ export function parseTrainingSelectionTrace(
       "fixed_seed_batches",
       "schedule_exact",
       "finite_gradients",
+      "fresh_zero_gradients",
+      "cleared_gradients",
       "clipping_observed",
       "train_loss_decreased",
       "validation_no_grad",
       "selection_matches_argmin",
+      "test_partition_rejected",
       "replay_bitwise",
       "input_unchanged",
     ],
@@ -540,21 +553,6 @@ export function parseTrainingSelectionTrace(
   );
   if (Object.values(proof).some((value) => value !== "true"))
     invalid("every proof flag must be true");
-  const history = record(lines[23], "HISTORY");
-  exactKeys(
-    history,
-    [
-      "full_corpus_updates",
-      "training_only_reporting",
-      "minibatch_optimization",
-      "validation_selection",
-      "decoder_scale_clipping",
-    ],
-    "HISTORY",
-  );
-  if (Object.values(history).some((value) => value !== "true"))
-    invalid("every history flag must be true");
-
   for (const [index, expected] of expectedLines.entries()) {
     if (lines[index] !== expected)
       invalid("line " + (index + 1) + " differs from Rust");
@@ -569,7 +567,6 @@ export function parseTrainingSelectionTrace(
     checkpoints,
     selection,
     proof,
-    history,
   });
 }
 

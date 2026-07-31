@@ -533,7 +533,8 @@ pub struct TrainingStep {
     gradient_scale: f64,
     clipped: bool,
     finite_gradients: bool,
-    zeroed_gradients: bool,
+    fresh_zero_gradients: bool,
+    cleared_gradients: bool,
     events: [&'static str; 6],
 }
 
@@ -574,8 +575,12 @@ impl TrainingStep {
         self.finite_gradients
     }
 
-    pub const fn zeroed_gradients(&self) -> bool {
-        self.zeroed_gradients
+    pub const fn fresh_zero_gradients(&self) -> bool {
+        self.fresh_zero_gradients
+    }
+
+    pub const fn cleared_gradients(&self) -> bool {
+        self.cleared_gradients
     }
 
     pub const fn events(&self) -> &[&'static str; 6] {
@@ -861,14 +866,30 @@ fn clipped_parameter_copy(
 }
 // endregion:global-norm-clipping
 
-fn ensure_zero_gradients(model: &DecoderModel) -> Result<(), TrainerError> {
+fn verify_and_clear_gradients(model: &DecoderModel) -> Result<(), TrainerError> {
     for parameter in model.parameters() {
-        parameter.tensor().zero_grad()?;
         let gradient = parameter
             .tensor()
             .gradient()
             .expect("a named parameter always owns a gradient tensor");
         if let Some((index, &value)) = gradient
+            .as_slice()
+            .iter()
+            .enumerate()
+            .find(|(_, value)| **value != 0.0)
+        {
+            return Err(TrainerError::ParameterGradientNotZero {
+                name: parameter.name().to_owned(),
+                index,
+                value,
+            });
+        }
+        parameter.tensor().zero_grad()?;
+        let cleared = parameter
+            .tensor()
+            .gradient()
+            .expect("a named parameter always owns a gradient tensor");
+        if let Some((index, &value)) = cleared
             .as_slice()
             .iter()
             .enumerate()
@@ -980,7 +1001,7 @@ pub fn train_decoder(
             });
         }
         let candidate_model = DecoderModel::from_parameters(model_config, candidate_parameters)?;
-        ensure_zero_gradients(&candidate_model)?;
+        verify_and_clear_gradients(&candidate_model)?;
         model = candidate_model;
         optimizer = candidate_optimizer;
 
@@ -999,7 +1020,8 @@ pub fn train_decoder(
             gradient_scale: norm.scale,
             clipped: norm.scale < 1.0,
             finite_gradients: true,
-            zeroed_gradients: true,
+            fresh_zero_gradients: true,
+            cleared_gradients: true,
             events: UPDATE_EVENT_ORDER,
         });
 
@@ -1163,12 +1185,11 @@ mod tests {
         assert_eq!(result.steps()[0].learning_rate(), 0.02);
         assert_eq!(result.steps()[1].learning_rate(), 0.01);
         assert!(result.steps().iter().any(|step| step.clipped()));
-        assert!(
-            result
-                .steps()
-                .iter()
-                .all(|step| step.gradient_norm_after() <= 0.1 && step.zeroed_gradients())
-        );
+        assert!(result.steps().iter().all(|step| {
+            step.gradient_norm_after() <= 0.1
+                && step.fresh_zero_gradients()
+                && step.cleared_gradients()
+        }));
         assert_eq!(result.final_optimizer().step_count(), 2);
         assert_eq!(DecoderModelState::capture(&model), initial);
         assert_eq!(optimizer.step_count(), 0);
@@ -1265,5 +1286,28 @@ mod tests {
                 .iter()
                 .all(|value| value.is_finite())
         }));
+    }
+
+    #[test]
+    fn zero_and_below_ceiling_gradients_keep_unit_scale() {
+        let zero_model = model();
+        let zero = gradient_norm(&zero_model, 1.0).unwrap();
+        assert_eq!(zero.before, 0.0);
+        assert_eq!(zero.after, 0.0);
+        assert_eq!(zero.scale, 1.0);
+
+        let small_model = model();
+        let parameter = &small_model.parameters()[0];
+        let mut seed_values = vec![0.0; parameter.tensor().value().len()];
+        seed_values[0] = 0.25;
+        let seed = Tensor::from_vec(parameter.tensor().shape(), seed_values).unwrap();
+        parameter
+            .tensor()
+            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .unwrap();
+        let small = gradient_norm(&small_model, 1.0).unwrap();
+        assert_eq!(small.before, 0.25);
+        assert_eq!(small.after, 0.25);
+        assert_eq!(small.scale, 1.0);
     }
 }

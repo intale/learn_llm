@@ -2,7 +2,7 @@
 {
   "chapter_id": "33-training-selection",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 33,
   "concept_id": "training-selection",
   "title": "Train every step, select with validation",
@@ -11,32 +11,52 @@
   "worked_inputs": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
   "formula":
     {
-      "latex": "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+      "latex": "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
       "symbols":
         [
           {
             "symbol": "\\theta_s",
-            "meaning": "the complete stable-name decoder parameter state before update step s"
+            "meaning": "the complete stable-name decoder parameter state after exactly s planned updates; the initialized state has index zero"
           },
           {
             "symbol": "s",
-            "meaning": "a planned update or measured checkpoint index; step zero is the initialized model"
+            "meaning": "a one-based update index or a measured checkpoint index"
           },
           {
-            "symbol": "\\mathcal{L}_{tr}",
-            "meaning": "next-token loss computed only from the training partition"
+            "symbol": "\\mathcal{L}_{tr}^{(s)}",
+            "meaning": "next-token loss for training mini-batch s, computed only from the training partition"
           },
           {
-            "symbol": "\\nabla_\\theta\\mathcal{L}_{tr}",
-            "meaning": "the finite decoder gradient, globally clipped before the optimizer consumes it"
+            "symbol": "g_s",
+            "meaning": "the finite raw gradient of update s at the parameter state preceding that update"
+          },
+          {
+            "symbol": "\\widetilde g_s",
+            "meaning": "the globally clipped gradient consumed by AdamW"
+          },
+          {
+            "symbol": "c",
+            "meaning": "the positive global-norm ceiling, 0.35 in the worked fixture"
+          },
+          {
+            "symbol": "\\eta_s",
+            "meaning": "the predetermined learning rate for update s"
+          },
+          {
+            "symbol": "m_s,v_s",
+            "meaning": "Adam's first- and second-moment states after update s"
           },
           {
             "symbol": "\\operatorname{AdamW}",
-            "meaning": "the Chapter 22 optimizer, preserving moments while using the predetermined learning rate for this step and returning fresh zero-gradient leaves"
+            "meaning": "the Chapter 22 optimizer update that advances parameters and both moment states"
+          },
+          {
+            "symbol": "\\mathcal{C}",
+            "meaning": "the measured checkpoint set {0, 2, 4, 6, 8}"
           },
           {
             "symbol": "s^*",
-            "meaning": "the selected checkpoint step, with the earliest checkpoint retained on an exact tie"
+            "meaning": "the earliest measured checkpoint with minimum validation loss"
           },
           {
             "symbol": "\\mathcal{L}_{va}",
@@ -163,7 +183,7 @@ import TrainingSelectionDiagram from "../../../components/chapters/TrainingSelec
 export const diagramLabels = {
   title: "Separate updates from validation-based selection",
   description:
-    "Follow six ordered operations through eight Rust-authored updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
+    "Follow six ordered operations through eight measured updates, then compare ten isolated train and validation measurements at five checkpoints without inventing a curve between them.",
   sections: {
     order: "One successful update has six ordered operations",
     checkpoints: "Measure candidates only at declared checkpoints",
@@ -175,7 +195,7 @@ export const diagramLabels = {
     finiteCheck: "Finite-gradient check",
     clip: "Global-norm clip",
     adamwStep: "Scheduled AdamW step",
-    zeroGrad: "Confirm fresh zero gradients",
+    zeroGrad: "Verify and clear fresh gradients",
   },
   fields: {
     step: "Step",
@@ -190,22 +210,24 @@ export const diagramLabels = {
     trainMeasurement: "Circle: measured training loss",
     validationMeasurement: "Diamond: measured validation loss",
     selectedState: "Double underline: selected validation state",
+    selectedCell: "Selected",
     gapsUnobserved: "Gaps contain no measured values or interpolated line",
     clipped: "Clipped before the optimizer step",
     notSelected: "Not selected",
-    verified: "Verified by the Rust trace",
+    testRejected: "Rejected before any update",
+    verified: "Verified by the recorded run",
   },
   proofs: {
     selection: "Earliest validation minimum",
-    noGrad: "Validation records no graph",
+    noGrad: "Train and validation record no graphs",
     partitions: "Partition information boundary",
     optimization: "Clipping, schedule, and replay",
   },
   captions: {
     order:
-      "The trainer releases the backward graph, checks every gradient, clips once across the complete decoder, applies the predetermined rate, and verifies the replacement leaves are clear.",
+      "The trainer releases the backward graph, checks every gradient, clips once across the complete decoder, applies the predetermined rate, verifies the replacement leaves, and clears their gradients explicitly.",
     checkpoints:
-      "The table and markers preserve six-decimal Rust lexemes. Only observations at steps 0, 2, 4, 6, and 8 exist; their visual spacing is presentation, not new arithmetic.",
+      "The table and markers preserve the exact six-decimal values. Only observations at steps 0, 2, 4, 6, and 8 exist; their visual spacing is presentation, not new arithmetic.",
     proof:
       "Validation can choose a snapshot but cannot update it, and the test partition remains unread until the next chapter.",
   },
@@ -258,10 +280,14 @@ state in this fixture; the selection rule itself does not prefer the last state.
 
 ## Update on train, choose on validation
 
-The complete boundary is
+For update $s\in\{1,\ldots,8\}$, the raw gradient is evaluated at the state
+before that update, and the parameter and moment states advance together:
 
 $$
-\theta_{s+1}=\operatorname{AdamW}\!\left(\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)\right),\quad s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)
+\begin{aligned}g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1}),\\
+\widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s,\\
+(\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}\!\left(\theta_{s-1},\widetilde g_s,m_{s-1},v_{s-1}\right),\quad s=1,\ldots,8,\\
+s^*&=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)=\min_{k\in\mathcal{C}}\mathcal{L}_{va}(\theta_k)\right\}\end{aligned}
 $$
 
 The two losses have different jobs. The gradient comes from
@@ -274,19 +300,14 @@ For a raw gradient $g_s$ and ceiling $c=0.35$, the trainer applies one global
 scale across every parameter tensor:
 
 $$
-\alpha_s=\min\!\left(1,\frac{c}{\lVert g_s\rVert_2}\right),
+\alpha_s=\frac{c}{\max(c,\lVert g_s\rVert_2)},
 \qquad \widetilde g_s=\alpha_s g_s.
 $$
 
-The scheduled optimizer call is therefore more explicitly
-
-$$
-\theta_{s+1}=\operatorname{AdamW}_{\eta_s}
-\!\left(\theta_s,\widetilde g_s,m_s,v_s\right),
-$$
-
-where the rate $\eta_s$ changes at declared boundaries while the moment states
-$m_s$ and $v_s$ continue across those boundaries.
+Because $c>0$, the denominator never vanishes. A zero or already-small norm
+therefore uses $\alpha_s=1$, while a larger norm is reduced to $c$. The rate
+$\eta_s$ changes at declared boundaries while the moment states continue
+across those boundaries.
 
 Validation averages by predicted-token count, not by number of batches. If
 validation batch $j$ contains $n_j$ target tokens and has mean loss
@@ -297,25 +318,29 @@ $$
 =\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}.
 $$
 
-On an exact tie, strict comparison retains the earlier candidate. Equivalently,
+Selection ranges only over the measured checkpoint set
+$\mathcal{C}=\{0,2,4,6,8\}$. On an exact tie, strict comparison retains the
+earlier candidate. Equivalently,
 
 $$
-s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)
-=\min_k\mathcal{L}_{va}(\theta_k)\right\}.
+s^*=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)
+=\min_{k\in\mathcal{C}}\mathcal{L}_{va}(\theta_k)\right\}.
 $$
 
 {/* chapter-section:symbol-glossary */}
 
 ## Keep steps, gradients, and partitions distinct
 
-- $\theta_s$ is the complete stable-name decoder state before update $s$.
-- $s=0$ names the initialized state; $s\geq1$ names completed updates.
-- $\mathcal{L}_{tr}$ is next-token loss from the training partition only.
-- $g_s=\nabla_\theta\mathcal{L}_{tr}(\theta_s)$ is the raw finite gradient.
+- $\theta_0$ is the initialized decoder; $\theta_s$ is its state after update $s$.
+- $s\geq1$ is a one-based update index; checkpoint indices also include $0$.
+- $\mathcal{L}_{tr}^{(s)}$ is next-token loss for training mini-batch $s$.
+- $g_s=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})$ is the finite gradient before clipping.
 - $\widetilde g_s$ is the globally clipped gradient consumed by AdamW.
+- $c$ is the positive global-norm ceiling.
 - $\eta_s$ is the predetermined learning rate for update $s$.
 - $m_s$ and $v_s$ are Adam's continuing first- and second-moment states.
 - $\mathcal{L}_{va}$ is graph-free validation loss used only for selection.
+- $\mathcal{C}$ is the set of measured checkpoint indices.
 - $s^*$ is the earliest measured validation minimum.
 
 The names `Train`, `Validation`, and `Test` are concrete `Partition` variants in
@@ -335,8 +360,8 @@ handles pointing at stale parameters.
 
 Move from fitting and reporting one training state toward predetermined
 mini-batch updates that produce periodic validation candidates while a separate
-test partition stays unopened. This is a history of the training practices on
-the road to modern LLMs, not a history of implementation languages.
+test partition stays unopened. These training practices form part of the road
+to modern LLMs.
 
 [A Neural Probabilistic Language Model](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)
 provides an early neural-language-model boundary. Bengio and colleagues
@@ -433,7 +458,8 @@ the call if any bit changes.
 
 The scheduled AdamW boundary validates the temporary rate before mutation,
 continues the existing moments and step counter, and commits only after the
-candidate update succeeds.
+candidate update succeeds. The trainer inspects the new leaf gradients before
+explicitly clearing them, keeping those two facts separate in the evidence.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/training/adamw.rs"
@@ -484,26 +510,26 @@ that the selected model reproduces the saved parameter bits.
   label="Rust entry point for the Chapter 33 learner report"
 />
 
-Run `cargo run --quiet --locked -p ch33-training-selection`. Standard output
-matches `rust/demos/ch33-training-selection/expected.txt` byte for byte,
-including its final newline. The two-run fixture must also finish inside the
-declared ten-second local ceiling.
+Run `cargo run --quiet --locked -p ch33-training-selection`. The report lists
+all five measured checkpoints, the selected validation state, clipping and
+gradient-clear evidence, the rejected test-partition probe, ownership checks,
+and bitwise replay.
 
 {/* chapter-section:visualization */}
 
 ## Read measured checkpoints without inventing a curve
 
-The trace executable serializes the fixed configuration, six-operation order,
-four schedule segments, all eight update records, a Rust-authored plot axis,
-five checkpoint pairs, one selection record, and proof flags. The page parses
-that grammar strictly and presents the lexemes; it performs no model or tensor
-arithmetic.
+The recorded run contains the fixed configuration, six-operation order, four
+schedule segments, all eight update records, an axis derived from the measured
+losses, five checkpoint pairs, one selection record, and the verified
+boundaries. Together they show the relationship between optimization and model
+selection without filling in unmeasured steps.
 
 <RustSource
   path="rust/demos/ch33-training-selection/src/diagram_trace.rs"
   region="training-selection-trace"
-  caption="Emit the strict twenty-five-line training and validation selection trace"
-  label="Rust source producing the Chapter 33 static diagram trace"
+  caption="Record the measured updates, checkpoints, selection, and proof fields"
+  label="Rust source producing the Chapter 33 training-selection evidence"
 />
 
 <TrainingSelectionDiagram labels={diagramLabels} />
@@ -516,7 +542,7 @@ At $s=0$, the losses are $2.095016$ and $1.918167$. At $s=8$, they are
 $1.322897$ and $1.595297$. The double-underlined validation marker identifies
 $s^*=8$ because $1.595297$ is the smallest measured validation loss. The
 selection record also says `criterion=validation-only`, `snapshot=true`, and
-`test_reads=0`.
+`test_partition_rejected=true`.
 
 Every update in this particular fixture has raw gradient norm above $0.35$ and
 therefore reaches AdamW with norm $0.35$. That observation is fixture evidence,
@@ -566,5 +592,6 @@ on the test partition and compare it fairly with the frozen baseline.
 
 That next step must not tune the schedule, clipping ceiling, number of updates,
 or checkpoint choice after seeing test results. Chapter 33 ends with model
-selection complete and `test_reads=0`; Chapter 34 will open the held-out test
-partition exactly once for evaluation rather than selection.
+selection complete and a verified rejection of `Test` at the training boundary;
+Chapter 34 will open the held-out test partition exactly once for evaluation
+rather than selection.

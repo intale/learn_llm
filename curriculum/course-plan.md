@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 58,
+  "plan_revision": 59,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-32",
+    "policy_id": "selective-russian-through-chapter-33",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "32-decoder-model",
+        "through_chapter": "33-training-selection",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-32."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-33."
       },
       {
-        "from_chapter": "33-training-selection",
+        "from_chapter": "34-final-evaluation",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 32 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 33 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -334,6 +334,11 @@
         "step_id": "activate-ch32-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch32-russian-localization"
+      },
+      {
+        "step_id": "activate-ch33-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch33-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -903,8 +908,8 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–32 activate
-both, while Chapters 33–39 activate English only. Russian therefore keeps its index
+and chapter validation. English and Russian are registered; Chapters 0–33 activate
+both, while Chapters 34–39 activate English only. Russian therefore keeps its index
 and Chapter 0–32 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
@@ -1469,10 +1474,11 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `33-training-selection`
 - **Implementation step:** `implement-ch33-training-selection`
+- **Revision status:** Content revision 3 fixes update-state indexing and zero-safe clipping, restricts earliest-minimum selection to measured checkpoints, derives test-boundary evidence, separates fresh-zero verification from explicit gradient clearing, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch33-russian-localization`.
 - **Depends on:** `32-decoder-model`.
 - **Outcome:** Run a bounded deterministic decoder training loop and select one model state using validation loss without consulting test data.
 - **Scope boundary:** Teach forward/backward/clip/step/zero order, fixed-seed batches, finite-gradient checks, a predetermined learning-rate schedule, periodic no-grad validation, and best-state selection; defer final test comparison and generation.
-- **Formula:** `\theta_{s+1}=\operatorname{AdamW}\!\left(\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)\right),\quad s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`.
+- **Formula:** `\begin{aligned}g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1}),\\ \widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s,\\ (\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}\!\left(\theta_{s-1},\widetilde g_s,m_{s-1},v_{s-1}\right),\quad s=1,\ldots,8,\\ s^*&=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)=\min_{k\in\mathcal{C}}\mathcal{L}_{va}(\theta_k)\right\}\end{aligned}`.
 - **Historical contrast:** Contrast full-corpus updates and training-set-only reporting with mini-batch optimization plus validation-based model selection.
 - **Rust contribution:** Add trainer and no-grad validation APIs with a CPU-bounded tiny configuration, fixed schedule, best-state snapshot, and deterministic trace.
 - **Visualization:** Useful — plot discrete train/validation checkpoints and mark the selected step without drawing invented values between observations.

@@ -11191,3 +11191,98 @@ only after this checkpoint is committed independently.
 
 **Affected step and run:** `activate-ch32-russian-localization`, run
 `20260731T131004Z-activate-ch32-russian-localization-01`.
+
+## 2026-07-31 - Stage direct Russian Chapter 33 localization
+
+**Status:** Accepted before `activate-ch33-russian-localization` product edits.
+
+**Context:** Chapter 32 is independently committed at `85c8cd9`. Chapter 33 is
+the next deferred Russian route in the user-authorized four-chapter sequence.
+Its canonical training/validation distinction needs correction before direct
+translation: update-state indexing is inconsistent, clipping is undefined at a
+zero gradient, the diagram attributes a bound to the raw rather than clipped
+gradient, graph counters are mislabeled, and several declared history/test-data
+claims are not derived from executable evidence.
+
+**Decision:** Run the mandatory localization workflow under separately
+fingerprinted run `20260731T141035Z-activate-ch33-russian-localization-01`.
+First revise and freeze canonical English with indexed optimizer state,
+zero-safe clipping, checkpoint-only earliest-minimum selection, accurately
+named train/validation evidence, and learner-facing prose that describes the
+model workflow rather than authoring mechanics. Then translate that exact
+revision directly into natural technical Russian, advance only the Chapter 33
+locale boundary, and publish only after exact Rust/static and complete
+Chromium/Firefox containment validation.
+
+**Consequences:** The checkpoint may correct canonical formulas, Rust evidence,
+trace fields, and shared diagram-role integration when required by the audit,
+but it must not change dependencies, build definitions, hosting, deployment,
+or the user environment. Chapter 33 receives its own completion checkpoint and
+commit before Chapter 34 starts.
+
+**Affected step and run:** `activate-ch33-russian-localization`, run
+`20260731T141035Z-activate-ch33-russian-localization-01`.
+
+## 2026-07-31 - Revise Chapter 33 before deriving its Russian locale
+
+**Status:** Accepted during `activate-ch33-russian-localization` run 01 before
+Russian learner-facing edits.
+
+**Context:** Canonical revision 2 described `theta_s` as the state before update
+`s` but wrote an update to `theta_(s+1)`, while the implementation numbers the
+first completed state as `theta_1`. Its clipping quotient was undefined at a
+zero gradient, and selection did not explicitly restrict its index to measured
+checkpoints. The evidence also mislabeled train/validation graph counts as
+before/after values, asserted an unmeasured `test_reads=0`, cleared gradients
+before claiming fresh leaves were zero, and serialized hardcoded history flags.
+Visible prose discussed parser, static-page, exact-byte, and authoring-language
+mechanics rather than only the training evidence.
+
+**Decision:** Freeze English revision 3 at
+`sha256:2665b7e507ea778be4e1a0178169ea02cd20e901f53849a64961849c8d28ec9e`.
+Index update `s` from `theta_(s-1)` to `theta_s`; use the zero-safe scale
+`c/max(c, ||g_s||_2)`; select the earliest minimum only from
+`C={0,2,4,6,8}`. Replace the counter assertion with a real rejected
+`Partition::Test` probe, name train and validation graph counts separately,
+inspect fresh leaf gradients before explicit clearing, add zero and
+below-ceiling norm tests, and retain only the derived historical selection
+contrast. Migrate all 18 bounded diagram surfaces to shared roles and attribute
+the norm bound to the clipped gradient.
+
+**Consequences:** Russian Chapter 33 must derive directly from this checksum and
+must not project any superseded revision-2 claim. Exact losses, schedule,
+selected checkpoint, parameter ownership, sources, dependencies, build
+definitions, hosting, deployment, and user environment remain unchanged.
+
+**Affected step and run:** `activate-ch33-russian-localization`, run
+`20260731T141035Z-activate-ch33-russian-localization-01`.
+
+## 2026-07-31 - Publish direct Russian Chapter 33 localization
+
+**Status:** Accepted after complete validation of
+`activate-ch33-russian-localization` run 01.
+
+**Context:** Canonical English revision 3 now uses consistent before/after
+optimizer-state indexing, zero-safe global-norm clipping, checkpoint-only
+earliest-minimum selection, a real rejected test-partition probe, fresh-gradient
+and explicit-clear evidence, and learner prose confined to the LLM training
+workflow. The Russian projection was reviewed directly against that frozen
+English revision and corrected for established mathematical, optimizer,
+partition, `no_grad`, deep-copy, and historical-training terminology.
+
+**Decision:** Publish both Chapter 33 locales and advance the selective Russian
+boundary through Chapter 33. Freeze the exact 22-file product manifest at
+`sha256:ad4b837a4ca2fcbd83ed73ae74357229d14b178d3403acc39a6bb69e418cf0e6`
+and the accepted Linux image at
+`sha256:1f08050c93f42b14725dbc09c996cae2fdcc5b7f212dd911f883e3ad8cb9027a`.
+
+**Consequences:** All 848 site tests, workspace clippy, exact Chapter 33 Rust
+evidence, static output, and 170 Chromium plus 170 Firefox browser cases pass.
+The shared figure contains every localized bounded box at desktop, narrow,
+no-JavaScript, full-view, forced-color, and direction-sensitive surfaces. No
+dependency, build-definition, hosting, deployment, or user-environment change
+was made. Chapter 34 may begin only after this checkpoint is committed
+independently.
+
+**Affected step and run:** `activate-ch33-russian-localization`, run
+`20260731T141035Z-activate-ch33-russian-localization-01`.

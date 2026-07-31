@@ -2,44 +2,78 @@
 {
   "chapter_id": "33-training-selection",
   "concept_id": "training-selection",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 33,
   "objective": {
-    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data."
+    "en": "Run every step of a bounded decoder training plan, measure graph-free validation loss at fixed checkpoints, and restore the earliest validation minimum without consulting test data.",
+    "ru": "Выполнить все шаги плана обучения декодера с заранее заданным числом обновлений, измерить потери на валидационной выборке без записи графа в фиксированных контрольных точках и восстановить самую раннюю точку с минимальными потерями, не обращаясь к тестовым данным."
   },
   "worked_inputs": {
-    "en": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8."
+    "en": "Train a deterministic one-block, 144-parameter decoder for eight fixed mini-batch updates with an explicit four-segment learning-rate schedule, global-norm clipping at 0.35, and validation measurements at steps 0, 2, 4, 6, and 8.",
+    "ru": "Обучить детерминированный одноблочный декодер со 144 параметрами за восемь заданных обновлений на мини-пакетах, используя явное четырёхсегментное расписание скорости обучения, ограничение общей нормы градиента на уровне 0,35 и измерения на валидационной выборке после шагов 0, 2, 4, 6 и 8."
   },
   "formula": {
-    "latex": "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+    "latex": "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
     "symbols": [
       {
         "symbol": "\\theta_s",
-        "en": "the complete stable-name decoder parameter state before update step s"
+        "en": "the complete stable-name decoder parameter state after exactly s planned updates; the initialized state has index zero",
+        "ru": "полное состояние параметров декодера со стабильными именами после ровно s запланированных обновлений; начальное состояние имеет индекс ноль"
       },
       {
         "symbol": "s",
-        "en": "a planned update or measured checkpoint index; step zero is the initialized model"
+        "en": "a one-based update index or a measured checkpoint index",
+        "ru": "нумеруемый с единицы индекс обновления или индекс измеренной контрольной точки"
       },
       {
-        "symbol": "\\mathcal{L}_{tr}",
-        "en": "next-token loss computed only from the training partition"
+        "symbol": "\\mathcal{L}_{tr}^{(s)}",
+        "en": "next-token loss for training mini-batch s, computed only from the training partition",
+        "ru": "функция потерь следующего токена для обучающего мини-пакета s, вычисленная только по обучающей выборке"
       },
       {
-        "symbol": "\\nabla_\\theta\\mathcal{L}_{tr}",
-        "en": "the finite decoder gradient, globally clipped before the optimizer consumes it"
+        "symbol": "g_s",
+        "en": "the finite raw gradient of update s at the parameter state preceding that update",
+        "ru": "конечный градиент обновления s до ограничения нормы, вычисленный в предшествующем этому обновлению состоянии параметров"
+      },
+      {
+        "symbol": "\\widetilde g_s",
+        "en": "the globally clipped gradient consumed by AdamW",
+        "ru": "градиент после ограничения общей нормы, который получает AdamW"
+      },
+      {
+        "symbol": "c",
+        "en": "the positive global-norm ceiling, 0.35 in the worked fixture",
+        "ru": "положительный верхний предел общей нормы; в рассматриваемом примере он равен 0,35"
+      },
+      {
+        "symbol": "\\eta_s",
+        "en": "the predetermined learning rate for update s",
+        "ru": "заранее заданная скорость обучения для обновления s"
+      },
+      {
+        "symbol": "m_s,v_s",
+        "en": "Adam's first- and second-moment states after update s",
+        "ru": "состояния первого и второго моментов Adam после обновления s"
       },
       {
         "symbol": "\\operatorname{AdamW}",
-        "en": "the Chapter 22 optimizer, preserving moments while using the predetermined learning rate for this step and returning fresh zero-gradient leaves"
+        "en": "the Chapter 22 optimizer update that advances parameters and both moment states",
+        "ru": "изученное в главе 22 обновление оптимизатора, которое продвигает параметры и оба состояния моментов"
+      },
+      {
+        "symbol": "\\mathcal{C}",
+        "en": "the measured checkpoint set {0, 2, 4, 6, 8}",
+        "ru": "множество измеренных контрольных точек {0, 2, 4, 6, 8}"
       },
       {
         "symbol": "s^*",
-        "en": "the selected checkpoint step, with the earliest checkpoint retained on an exact tie"
+        "en": "the earliest measured checkpoint with minimum validation loss",
+        "ru": "самая ранняя измеренная контрольная точка с минимальными потерями на валидационной выборке"
       },
       {
         "symbol": "\\mathcal{L}_{va}",
-        "en": "the token-weighted graph-free loss on the validation partition, never the test partition"
+        "en": "the token-weighted graph-free loss on the validation partition, never the test partition",
+        "ru": "взвешенная по токенам функция потерь на валидационной, но не тестовой выборке, вычисленная без записи графа"
       }
     ]
   },
@@ -47,13 +81,16 @@
     "llm_evolution": {
       "predecessor_kind": "training-practice",
       "limitation": {
-        "en": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states."
+        "en": "Full-corpus or per-example updates and training-set-only reporting do not by themselves define a scalable update cadence or an independent rule for choosing among candidate language-model states.",
+        "ru": "Обновления по всему корпусу или по одному примеру и отчёт только по обучающей выборке сами по себе не задают масштабируемую периодичность обновлений и независимое правило выбора между состояниями языковой модели."
       },
       "later_advance": {
-        "en": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection."
+        "en": "Neural language-model work separated train, validation, and test responsibilities; sequence and Transformer systems added mini-batches, explicit schedules, clipping, and periodic candidates; later text-to-text work stated that validation chooses a checkpoint so test data does not perform model selection.",
+        "ru": "В работах по нейронным языковым моделям роли обучающей, валидационной и тестовой выборок были разделены; системы для последовательностей и Transformer добавили мини-пакеты, явные расписания, ограничение нормы и периодически сохраняемые состояния; в более поздних работах с преобразованием текста в текст прямо указано, что контрольную точку выбирают по валидации, не используя тестовые данные для выбора модели."
       },
       "modern_llm_role": {
-        "en": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for a later once-only evaluation."
+        "en": "Decoder-only LLM training repeatedly forms token batches, differentiates the training objective, controls gradient magnitude, applies a step schedule, and measures held-out validation candidates while reserving test evidence for a later once-only evaluation.",
+        "ru": "При обучении LLM только с декодером многократно формируют пакеты токенов, дифференцируют обучающую цель, контролируют величину градиента, применяют расписание скорости обучения и оценивают состояния-кандидаты на отложенной валидационной выборке, оставляя результаты на тестовой выборке для последующей однократной оценки."
       },
       "sources": [
         {
@@ -62,7 +99,8 @@
           "name": "A Neural Probabilistic Language Model",
           "source_url": "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
           "claim": {
-            "en": "Bengio and colleagues separate training, validation, and test text, explicitly associate validation with model selection and early stopping, and describe stochastic per-example parameter updates for a feed-forward neural language model."
+            "en": "Bengio and colleagues separate training, validation, and test text, explicitly associate validation with model selection and early stopping, and describe stochastic per-example parameter updates for a feed-forward neural language model.",
+            "ru": "Бенжио и соавторы разделяют обучающий, валидационный и тестовый текст, явно связывают валидацию с выбором модели и ранней остановкой и описывают стохастические обновления по одному примеру для нейронной языковой модели прямого распространения."
           }
         },
         {
@@ -71,7 +109,8 @@
           "name": "Sequence to Sequence Learning with Neural Networks",
           "source_url": "https://arxiv.org/pdf/1409.3215",
           "claim": {
-            "en": "Sutskever, Vinyals, and Le report batches of sequences, a predetermined learning-rate reduction policy, and rescaling when the global gradient norm crosses a fixed threshold in a recurrent sequence model."
+            "en": "Sutskever, Vinyals, and Le report batches of sequences, a predetermined learning-rate reduction policy, and rescaling when the global gradient norm crosses a fixed threshold in a recurrent sequence model.",
+            "ru": "Суцкевер, Виньялс и Ле сообщают о пакетах последовательностей, заранее заданном правиле уменьшения скорости обучения и масштабировании градиента, когда его общая норма превышает фиксированный порог в рекуррентной модели последовательностей."
           }
         },
         {
@@ -80,7 +119,8 @@
           "name": "Attention Is All You Need",
           "source_url": "https://arxiv.org/pdf/1706.03762",
           "claim": {
-            "en": "Vaswani and colleagues train Transformers with token-budgeted batches, a step-indexed warmup and inverse-square-root schedule, and periodically written checkpoints."
+            "en": "Vaswani and colleagues train Transformers with token-budgeted batches, a step-indexed warmup and inverse-square-root schedule, and periodically written checkpoints.",
+            "ru": "Васвани и соавторы обучают Transformer на пакетах с заданным числом токенов, используют зависящее от номера шага расписание с разогревом и убыванием обратно пропорционально квадратному корню и периодически записывают контрольные точки."
           }
         },
         {
@@ -89,7 +129,8 @@
           "name": "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
           "source_url": "https://www.jmlr.org/papers/volume21/20-074/20-074.pdf",
           "claim": {
-            "en": "Raffel and colleagues save fine-tuning checkpoints at a fixed cadence, choose the one with the best validation performance, and explicitly avoid using the test set for model selection."
+            "en": "Raffel and colleagues save fine-tuning checkpoints at a fixed cadence, choose the one with the best validation performance, and explicitly avoid using the test set for model selection.",
+            "ru": "Раффель и соавторы сохраняют контрольные точки дообучения с фиксированной периодичностью, выбирают лучшую по результату на валидации и прямо избегают использования тестовой выборки для выбора модели."
           }
         },
         {
@@ -98,16 +139,19 @@
           "name": "Language Models are Few-Shot Learners",
           "source_url": "https://arxiv.org/pdf/2005.14165",
           "claim": {
-            "en": "Brown and colleagues carry Adam, scheduled learning rates, token-based batch scaling, and global-gradient-norm clipping into decoder-only language-model training at GPT-3 scale."
+            "en": "Brown and colleagues carry Adam, scheduled learning rates, token-based batch scaling, and global-gradient-norm clipping into decoder-only language-model training at GPT-3 scale.",
+            "ru": "Браун и соавторы переносят Adam, расписание скорости обучения, масштабирование размера пакета в зависимости от числа токенов и ограничение общей нормы градиента в обучение языковой модели только с декодером масштаба GPT-3."
           }
         }
       ]
     },
     "approach": {
-      "en": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while a separate test partition stays unopened."
+      "en": "Move from fitting and reporting one training state toward predetermined mini-batch updates that produce periodic validation candidates while a separate test partition stays unopened.",
+      "ru": "Следующий этап — перейти от подгонки модели и отчёта по одному обученному состоянию к заранее заданным обновлениям на мини-пакетах. Такие обновления периодически создают состояния-кандидаты для валидации, а отдельная тестовая выборка остаётся закрытой."
     },
     "summary": {
-      "en": "The road to modern LLM training combines partition discipline with reproducible batches, finite gradients, norm control, an explicit learning-rate schedule, periodic graph-free validation, and checkpoint selection. These papers use different architectures and recipes, so the course's fixed seed, exact cadence, and earliest-tie rule are local teaching choices rather than universal practice."
+      "en": "The road to modern LLM training combines partition discipline with reproducible batches, finite gradients, norm control, an explicit learning-rate schedule, periodic graph-free validation, and checkpoint selection. These papers use different architectures and recipes, so the course's fixed seed, exact cadence, and earliest-tie rule are local teaching choices rather than universal practice.",
+      "ru": "Путь к современному обучению LLM объединяет строгое разделение ролей выборок, воспроизводимые пакеты, конечные градиенты, контроль нормы, явное расписание скорости обучения, периодическую валидацию без записи графа и выбор контрольной точки. В этих работах используются разные архитектуры и схемы обучения, поэтому фиксированное начальное значение генератора, точно заданная периодичность и выбор самой ранней точки при равенстве — локальные учебные решения, а не общепринятая практика."
     },
     "rust_contrast": "Run a tiny training-only trace whose last loss would win if training loss chose the state, contrast it with an earlier validation minimum, then prove that the cumulative decoder trainer accepts only Train for updates and Validation for selection while Test is rejected before mutation."
   },
@@ -122,46 +166,56 @@
       "rust/demos/ch33-training-selection/src/main.rs",
       "rust/demos/ch33-training-selection/src/diagram_trace.rs"
     ],
-    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_reads:0 snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true zeroed:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nhistory=training_only_step:2 validation_step:1 minibatches:true schedules:true clipping:true\nreplay=bitwise:true\nnext=evaluate the frozen selected state once on test data\n"
+    "expected_output": "chapter=33-training-selection\nconfig=vocabulary:5 model_width:4 layers:1 heads:2 context:2 parameters:144 updates:8 batch:2 clip_norm:0.350000\norder=forward>backward>finite-check>clip>adamw-step>zero-grad\nschedule=[0.040000,0.040000,0.025000,0.025000,0.015000,0.015000,0.008000,0.008000]\ncheckpoint=step:0 train_loss:2.095016 validation_loss:1.918167 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:2 train_loss:1.562026 validation_loss:1.696310 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:4 train_loss:1.453259 validation_loss:1.687788 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:6 train_loss:1.369832 validation_loss:1.642599 selected:false train_graphs:0 validation_graphs:0\ncheckpoint=step:8 train_loss:1.322897 validation_loss:1.595297 selected:true train_graphs:0 validation_graphs:0\nselection=step:8 validation_loss:1.595297 criterion:validation-only test_partition_rejected:true snapshot:true\nclipping=observed:true max_norm:0.350000 finite:true fresh_zero:true cleared:true\nownership=input_model_unchanged:true input_optimizer_unchanged:true selected_restored:true\nselection_contrast=training_only_step:2 validation_step:1\nreplay=bitwise:true\nnext=evaluate the frozen selected state once on test data\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "training-validation-checkpoints",
     "rationale": {
-      "en": "A discrete checkpoint plot makes train and validation measurements comparable without inventing values between observations, while the selected validation marker and operation-order cards expose why the chosen state is evidence rather than simply the last update."
+      "en": "A discrete checkpoint plot makes train and validation measurements comparable without inventing values between observations, while the selected validation marker and operation-order cards expose why the chosen state is evidence rather than simply the last update.",
+      "ru": "Дискретная схема контрольных точек позволяет сравнить измерения на обучающей и валидационной выборках, не выдумывая значения между ними. Отметка выбранного состояния и карточки порядка операций показывают, почему выбор подтверждён измерениями, а не просто совпадает с последним обновлением."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will score that state once on the test partition and compare it fairly with the frozen baseline."
+    "en": "The cumulative decoder can now execute a complete bounded training plan and return a frozen validation-selected state; Chapter 34 will score that state once on the test partition and compare it fairly with the frozen baseline.",
+    "ru": "Теперь совокупный декодер умеет выполнить полный план обучения с заранее заданным числом шагов и вернуть зафиксированное состояние, выбранное по валидационной выборке. В главе 34 это состояние будет один раз оценено на тестовой выборке и корректно сопоставлено с зафиксированной базовой моделью."
   },
   "terminology": [
     {
       "concept_id": "training-step",
-      "en": "training step"
+      "en": "training step",
+      "ru": "шаг обучения"
     },
     {
       "concept_id": "gradient-clipping",
-      "en": "global-norm gradient clipping"
+      "en": "global-norm gradient clipping",
+      "ru": "ограничение общей нормы градиента"
     },
     {
       "concept_id": "learning-rate-schedule",
-      "en": "learning-rate schedule"
+      "en": "learning-rate schedule",
+      "ru": "расписание скорости обучения"
     },
     {
       "concept_id": "validation-checkpoint",
-      "en": "validation checkpoint"
+      "en": "validation checkpoint",
+      "ru": "контрольная точка валидации"
     },
     {
       "concept_id": "model-selection",
-      "en": "validation-based model selection"
+      "en": "validation-based model selection",
+      "ru": "выбор модели по потерям на валидационной выборке"
     },
     {
       "concept_id": "no-grad-evaluation",
-      "en": "graph-free evaluation"
+      "en": "graph-free evaluation",
+      "ru": "оценка без записи графа вычислений"
     }
   ],
   "translation_notes": [
-    "Russian is registered but inactive for Chapter 33, so no Russian lesson or placeholder route is published.",
+    "Chapter 33 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 2665b7e507ea778be4e1a0178169ea02cd20e901f53849a64961849c8d28ec9e",
+    "Translate mini-batch as «мини-пакет», global-norm gradient clipping as «ограничение общей нормы градиента», and graph-free evaluation as «оценка без записи графа вычислений»; describe raw and clipped gradients as gradients before and after norm clipping rather than using a literal calque.",
     "Preserve the separation between training updates, validation selection, and later test evaluation; never translate validation as test.",
     "Preserve theta_s, s, s^*, L_tr, L_va, eta_s, g_s, the norm notation, exact trace tokens, stable parameter names, and step numbers.",
     "Programming language names may identify source provenance only where relevant; the history section must remain about the road to modern LLM training."
@@ -257,31 +311,37 @@ validation choices can differ.
 <!-- contract-section:formula -->
 ## Formula and symbols
 
-The chapter's shared training and selection shorthand is
+For update $s\in\{1,\ldots,8\}$, the state and Adam moments advance together:
 
 $$
-\theta_{s+1}=\operatorname{AdamW}\!\left(
-\theta_s,\nabla_\theta\mathcal{L}_{tr}(\theta_s)
-\right),\quad
-s^*=\arg\min_s\mathcal{L}_{va}(\theta_s).
+g_s=\nabla_\theta\mathcal{L}_{\mathrm{tr}}^{(s)}(\theta_{s-1}),\qquad
+(\theta_s,m_s,v_s)=\operatorname{AdamW}_{\eta_s}\!\left(
+\theta_{s-1},\widetilde g_s,m_{s-1},v_{s-1}
+\right).
 $$
 
-$\theta_s$ is the complete decoder state before update $s$.
-$\mathcal{L}_{\mathrm{tr}}$ uses only a training mini-batch. The optimizer
-shorthand expands to the already-taught AdamW moments and the predetermined
-rate $\eta_s$. Before that step, the global gradient $g_s$ is clipped once:
+$\theta_0$ is the initialized decoder; $\theta_s$ is the state after update
+$s$. $\mathcal{L}_{\mathrm{tr}}^{(s)}$ uses only training mini-batch $s$. The
+predetermined rate $\eta_s$ advances the parameters and the continuing moment
+states $m_s,v_s$. Before that update, the global gradient is clipped once:
 
 $$
-g_s=\nabla_\theta\mathcal{L}_{\mathrm{tr}}(\theta_s),\qquad
 \widetilde g_s=
-\min\!\left(1,\frac{c}{\lVert g_s\rVert_2}\right)g_s.
+\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s.
 $$
 
-$c=0.35$ is the fixture's ceiling. A zero norm uses scale one. The implementation
-uses a scaled sum-of-squares calculation so large finite coordinates do not
-overflow while deciding the clip scale. $s^*$ is chosen only from measured
-validation candidates. Exact ties retain the earlier step because replacement
-requires a strict loss decrease.
+$c=0.35$ is the fixture's ceiling. Because $c>0$, the denominator is never
+zero: a zero or already-small norm uses scale one. The implementation uses a
+scaled sum-of-squares calculation so large finite coordinates do not overflow
+while deciding the scale. Selection is restricted to the measured checkpoint
+set $\mathcal{C}=\{0,2,4,6,8\}$:
+
+$$
+s^*=\min\left\{s\in\mathcal{C}:\mathcal{L}_{\mathrm{va}}(\theta_s)
+=\min_{k\in\mathcal{C}}\mathcal{L}_{\mathrm{va}}(\theta_k)\right\}.
+$$
+
+The outer minimum makes the earliest-tie rule explicit.
 
 <!-- contract-section:history -->
 ## From fitting one language model to selecting a held-out candidate
@@ -345,7 +405,9 @@ backward, scans every named gradient for finite values, and computes one global
 $\ell_2$ norm. A deep candidate parameter list receives the clipped gradient.
 `AdamW::step_with_learning_rate` uses $\eta_s$ for that update while preserving
 the same moment state and base configuration. It prepares all replacements
-transactionally and returns fresh zero-gradient leaves.
+transactionally. The trainer inspects the replacement leaves before explicitly
+clearing them, so the evidence distinguishes fresh zero gradients from the
+clear operation itself.
 
 The Chapter 32 model cannot merely mutate a copied parameter registry: its
 embedding, block, and final-normalization components would otherwise keep stale
@@ -360,9 +422,9 @@ train and validation without a graph. Validation loss alone replaces the best
 deep snapshot under strict less-than comparison. The returned model is rebuilt
 from that snapshot. Tests cover configuration boundaries, test-partition
 rejection, no-grad restoration, token weighting, huge finite norms, clipping,
-rate changes without moment reset, leaf rebinding, snapshot immutability,
-earliest ties, exact event order, deterministic replay, and a ten-second CPU
-ceiling.
+rate changes without moment reset, zero and below-ceiling norms, leaf rebinding,
+snapshot immutability, earliest ties, exact event order, deterministic replay,
+and a ten-second CPU ceiling.
 
 <!-- contract-section:visualization -->
 ## Visualization decision
@@ -414,13 +476,15 @@ tokenizer and corpus provenance. It will not tune, stop, or reselect the model.
 <!-- contract-section:localization -->
 ## Localization boundary
 
-English is the complete Chapter 33 active locale set. Russian remains registered
-but deferred, so no Russian lesson or placeholder route may publish. Future
-translations must preserve the three partition roles, strict operation order,
-formula notation, exact trace tokens and parameter names, numerical fixtures,
-earliest-tie rule, accessible marker meanings, and the distinction between
-validation selection and once-only test evaluation. Historical prose must stay
-on the road to modern language-model training, not programming-language history.
+English is the canonical semantic source and Russian is an active direct
+translation of the same revision. Both locales publish complete lessons and
+reciprocal routes. Any later English change makes the Russian review stale until
+the three partition roles, strict operation order, formula notation, exact trace
+tokens and parameter names, numerical fixtures, earliest-tie rule, accessible
+marker meanings, and the distinction between validation selection and once-only
+test evaluation have been refreshed from English and reviewed again. Historical
+prose must stay on the road to modern language-model training, not
+programming-language history.
 
 <!-- contract-section:acceptance -->
 ## Acceptance evidence
@@ -428,8 +492,8 @@ on the road to modern language-model training, not programming-language history.
 The step is accepted only when the locked Rust workspace proves all configuration,
 partition, no-grad, clipping, schedule, ownership, snapshot, selection, replay,
 and runtime invariants; learner stdout and the diagram trace match their frozen
-files byte for byte; the English lesson projects this contract without an extra
-locale route; and the production static site passes formula, SEO, sitemap, link,
+files byte for byte; both localized lessons project this contract with reciprocal
+locale routes; and the production static site passes formula, SEO, sitemap, link,
 responsive, no-JavaScript, forced-color, direction, containment, shared full-view,
 Chromium, and Firefox checks. Publication uses one checksum manifest and the same
 complete gate must pass again against canonical files before the dedicated commit.

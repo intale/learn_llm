@@ -462,11 +462,12 @@ const requiredChapter14To39Math: Record<string, readonly string[]> = {
     String.raw`\tau=2\times10^{-5}`,
   ],
   "33": [
-    String.raw`\theta_{s+1}=\operatorname{AdamW}`,
-    String.raw`s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
+    String.raw`g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})`,
+    String.raw`\widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s`,
+    String.raw`(\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}`,
     String.raw`\widetilde g_s=\alpha_s g_s`,
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
-    String.raw`s^*=\min\left\{s:\mathcal{L}_{va}(\theta_s)`,
+    String.raw`s^*=\min\left\{s\in\mathcal{C}:\mathcal{L}_{va}(\theta_s)`,
   ],
   "34": [
     String.raw`\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}`,
@@ -756,7 +757,7 @@ const documentedChapter14To39Code = [
   {
     name: "literal selection and final-evaluation trace fields",
     pattern:
-      /^(?:criterion=validation-only|snapshot=true|test_reads=[01]|test_accesses=1|fnv1a64:[0-9a-f]{16})$/,
+      /^(?:criterion=validation-only|snapshot=true|test_partition_rejected=true|test_reads=[01]|test_accesses=1|fnv1a64:[0-9a-f]{16})$/,
   },
 ] as const;
 
@@ -1363,7 +1364,7 @@ describe("build-time formula rendering in Chapter 14-39 diagrams", () => {
       "String.raw`\\mathcal{L}_{va}=${selectedCheckpoint.validationLoss}`",
     );
     expect(components.trainingSelection).toContain(
-      "String.raw`\\lVert g_s\\rVert_2\\leq0.35`",
+      "String.raw`\\lVert \\widetilde g_s\\rVert_2\\leq0.35`",
     );
     expect(components.trainingSelection).toContain(
       "String.raw`\\eta_s\\in\\{0.040,0.025,0.015,0.008\\}`",

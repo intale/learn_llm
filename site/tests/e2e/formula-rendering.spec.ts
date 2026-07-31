@@ -596,12 +596,13 @@ const chapter14To39FormulaLatex: Record<
     String.raw`E^\top`,
   ],
   "33-training-selection": [
-    String.raw`\theta_{s+1}=\operatorname{AdamW}`,
-    String.raw`s^*=\arg\min_s\mathcal{L}_{va}(\theta_s)`,
-    String.raw`\widetilde g_s=\alpha_s g_s`,
+    String.raw`g_s&=\nabla_\theta\mathcal{L}_{tr}^{(s)}(\theta_{s-1})`,
+    String.raw`\widetilde g_s&=\frac{c}{\max(c,\lVert g_s\rVert_2)}g_s`,
+    String.raw`(\theta_s,m_s,v_s)&=\operatorname{AdamW}_{\eta_s}`,
+    String.raw`s^*=\min\left\{s\in\mathcal{C}`,
     String.raw`\frac{\sum_j n_j\mathcal{L}^{(j)}_{va}}{\sum_j n_j}`,
     String.raw`s^*=8`,
-    String.raw`\lVert g_s\rVert_2\leq0.35`,
+    String.raw`\lVert \widetilde g_s\rVert_2\leq0.35`,
   ],
   "34-final-evaluation": [
     String.raw`\mathcal{L}_{te}(\theta_{s^*})=-\frac{1}{N_{te}}`,

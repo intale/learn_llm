@@ -25,13 +25,12 @@ const operationLabels = [
   labels.operations.adamwStep,
   labels.operations.zeroGrad,
 ];
-const checkpoints = trace.checkpoints.map((checkpoint, checkpointIndex) => {
+const checkpoints = trace.checkpoints.map((checkpoint) => {
   const step = checkpoint.step ?? '';
   const trainLoss = checkpoint.train_loss ?? '';
   const validationLoss = checkpoint.validation_loss ?? '';
   const selected = checkpoint.selected ?? '';
   return {
-    checkpointIndex,
     step,
     trainLoss,
     validationLoss,
@@ -72,22 +71,22 @@ if (selectedCheckpoint === undefined) {
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.checkpoints}>
-      <li><span aria-hidden="true">●</span> {labels.cues.trainMeasurement}</li>
-      <li><span aria-hidden="true">◆</span> {labels.cues.validationMeasurement}</li>
-      <li class="selected-cue"><span aria-hidden="true">◎</span> {labels.cues.selectedState}</li>
-      <li><span aria-hidden="true">↔</span> {labels.cues.gapsUnobserved}</li>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.sections.checkpoints}>
+      <li data-diagram-card data-diagram-box class="course-diagram__card-stack"><span aria-hidden="true">●</span> {labels.cues.trainMeasurement}</li>
+      <li data-diagram-card data-diagram-box class="course-diagram__card-stack"><span aria-hidden="true">◆</span> {labels.cues.validationMeasurement}</li>
+      <li data-diagram-card data-diagram-box class="selected-cue course-diagram__card-stack"><span aria-hidden="true">◎</span> {labels.cues.selectedState}</li>
+      <li data-diagram-card data-diagram-box class="course-diagram__card-stack"><span aria-hidden="true">↔</span> {labels.cues.gapsUnobserved}</li>
     </ul>
   </figcaption>
 
-  <section aria-labelledby="training-selection-order-title">
+  <section data-diagram-box class="order-section course-diagram__card-stack" aria-labelledby="training-selection-order-title">
     <h4 id="training-selection-order-title">{labels.sections.order}</h4>
     <p>{labels.captions.order}</p>
-    <ol class="operation-list">
+    <ol class="operation-list course-diagram__grid">
       {operationLabels.map((label, index) => (
         <li>
           <article
-            class="operation-card"
+            class="operation-card course-diagram__card-stack"
             data-diagram-card
             data-diagram-box
             data-operation-order={index + 1}
@@ -100,7 +99,7 @@ if (selectedCheckpoint === undefined) {
     </ol>
   </section>
 
-  <section aria-labelledby="training-selection-checkpoints-title">
+  <section data-diagram-box class="checkpoints-section course-diagram__card-stack" aria-labelledby="training-selection-checkpoints-title">
     <h4 id="training-selection-checkpoints-title">{labels.sections.checkpoints}</h4>
     <p>{labels.captions.checkpoints}</p>
     <div
@@ -110,8 +109,8 @@ if (selectedCheckpoint === undefined) {
       aria-label={labels.scrollers.checkpoints}
       data-diagram-scroll
     >
-      <div class="checkpoint-content">
-        <article class="plot-card" data-diagram-card data-diagram-box>
+      <div class="checkpoint-content course-diagram__grid">
+        <article class="plot-card course-diagram__card-stack" data-diagram-card data-diagram-box>
           <h5>{labels.sections.checkpoints}</h5>
           <div
             class="plot-field"
@@ -127,7 +126,7 @@ if (selectedCheckpoint === undefined) {
               {checkpoints.flatMap((checkpoint) => [
                 <li
                   class="measurement-point train-point"
-                  style={`--point-column:${checkpoint.checkpointIndex};--point-x:${checkpoint.trainPosition.x};--point-y:${checkpoint.trainPosition.y}`}
+                  style={`--point-x:${checkpoint.trainPosition.x};--point-y:${checkpoint.trainPosition.y}`}
                   data-checkpoint-step={checkpoint.step}
                   data-series="train"
                   data-loss={checkpoint.trainLoss}
@@ -141,7 +140,7 @@ if (selectedCheckpoint === undefined) {
                     'validation-point',
                     { 'selected-point': checkpoint.selected === 'true' },
                   ]}
-                  style={`--point-column:${checkpoint.checkpointIndex};--point-x:${checkpoint.validationPosition.x};--point-y:${checkpoint.validationPosition.y}`}
+                  style={`--point-x:${checkpoint.validationPosition.x};--point-y:${checkpoint.validationPosition.y}`}
                   data-checkpoint-step={checkpoint.step}
                   data-series="validation"
                   data-loss={checkpoint.validationLoss}
@@ -186,7 +185,7 @@ if (selectedCheckpoint === undefined) {
                   <span class="state-symbol" aria-hidden="true">
                     {checkpoint.selected === 'true' ? '◎' : '—'}
                   </span>
-                  {checkpoint.selected === 'true' ? labels.cues.selectedState : labels.cues.notSelected}
+                  {checkpoint.selected === 'true' ? labels.cues.selectedCell : labels.cues.notSelected}
                 </td>
               </tr>
             ))}
@@ -196,31 +195,31 @@ if (selectedCheckpoint === undefined) {
     </div>
   </section>
 
-  <section aria-labelledby="training-selection-proof-title">
+  <section data-diagram-box class="proof-section course-diagram__card-stack" aria-labelledby="training-selection-proof-title">
     <h4 id="training-selection-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+    <div class="proof-grid course-diagram__grid">
+        <article data-diagram-card data-diagram-box data-status="pass" class="proof-card optimization-proof course-diagram__card-stack">
         <h5>{labels.proofs.selection}</h5>
         <p><InlineMath latex={`s^*=${selectedCheckpoint.step}`} /></p>
         <p><InlineMath latex={String.raw`\mathcal{L}_{va}=${selectedCheckpoint.validationLoss}`} /></p>
-        <code><bdi dir="ltr">criterion={trace.selection.criterion}, test_reads={trace.selection.test_reads}</bdi></code>
+        <code><bdi dir="ltr">criterion={trace.selection.criterion}, test_partition_rejected={trace.selection.test_partition_rejected}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card course-diagram__card-stack">
         <h5>{labels.proofs.noGrad}</h5>
-        <p><InlineMath latex="0\to0" /> {labels.cues.verified}</p>
-        <code><bdi dir="ltr">graph_nodes_before=0, graph_nodes_after=0</bdi></code>
+        <p><InlineMath latex={String.raw`0\to0`} /> {labels.cues.verified}</p>
+        <code><bdi dir="ltr">train_graphs=0, validation_graphs=0</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card course-diagram__card-stack">
         <h5>{labels.proofs.partitions}</h5>
         <p><code>Train</code> → {labels.operations.forward}</p>
         <p><code>Validation</code> → {labels.proofs.selection}</p>
-        <p><code>Test</code> → <bdi dir="ltr">test_reads=0</bdi></p>
+        <p><code>Test</code> → {labels.cues.testRejected}</p>
       </article>
-      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card">
+      <article data-diagram-card data-diagram-box data-status="pass" class="proof-card course-diagram__card-stack">
         <h5>{labels.proofs.optimization}</h5>
-        <p>
-          <InlineMath latex={String.raw`\lVert g_s\rVert_2\leq0.35`} />
+        <p class="clipping-proof">
+          <InlineMath latex={String.raw`\lVert \widetilde g_s\rVert_2\leq0.35`} />
           {labels.cues.clipped}
         </p>
         <p><InlineMath latex={String.raw`\eta_s\in\{0.040,0.025,0.015,0.008\}`} /></p>
@@ -231,17 +230,6 @@ if (selectedCheckpoint === undefined) {
 </figure>
 
 <style>
-  .training-selection-diagram,
-  .training-selection-diagram > *,
-  .checkpoint-region,
-  .checkpoint-content,
-  .operation-card,
-  .plot-card,
-  .proof-card {
-    min-inline-size: 0;
-  }
-
-  .operation-list,
   .marker-list,
   .step-axis {
     margin: 0;
@@ -250,42 +238,20 @@ if (selectedCheckpoint === undefined) {
   }
 
   .operation-list {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(7.5rem, 1fr));
-    gap: 0.55rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .operation-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.45rem;
-    align-content: start;
     justify-items: start;
     block-size: 100%;
   }
 
-  .operation-card h5,
-  .plot-card h5,
-  .proof-card h5,
-  .proof-card p {
-    margin: 0;
-  }
-
-  .operation-card h5 {
-    overflow-wrap: normal;
-    word-break: normal;
-    hyphens: none;
+  .cue-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .checkpoint-content {
-    display: grid;
     inline-size: max(100%, 52rem);
-    gap: 0.75rem;
-  }
-
-  .plot-card {
-    display: grid;
-    gap: 0.5rem;
   }
 
   .plot-field {
@@ -324,10 +290,11 @@ if (selectedCheckpoint === undefined) {
 
   .measurement-point {
     position: absolute;
-    inset-inline-start: calc(var(--point-column) * 20%);
+    inset-inline-start: clamp(1.1rem, var(--point-x), calc(100% - 1.1rem));
     inset-block-end: clamp(1.5rem, var(--point-y), calc(100% - 1.5rem));
     display: grid;
-    inline-size: 20%;
+    inline-size: 1.5rem;
+    translate: -50% 0;
     place-items: center;
     font-size: 1.15rem;
     font-weight: 800;
@@ -378,15 +345,13 @@ if (selectedCheckpoint === undefined) {
   }
 
   .proof-grid {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem;
   }
 
-  .proof-card {
+  .clipping-proof {
     display: grid;
-    gap: 0.45rem;
-    align-content: start;
+    min-inline-size: 0;
+    gap: 0.25rem;
   }
 
   @container course-diagram (max-width: 48rem) {

@@ -141,6 +141,7 @@ struct PreparedEpochs {
     updates: MiniBatchEpoch,
     train_evaluation: MiniBatchEpoch,
     validation: MiniBatchEpoch,
+    test_probe: MiniBatchEpoch,
 }
 
 fn epoch(
@@ -186,6 +187,12 @@ fn prepared_epochs() -> Result<PreparedEpochs, FixtureError> {
         BatchOrder::Sequential,
         4,
     )?;
+    let test_probe = epoch(
+        Partition::Test,
+        &validation_documents,
+        BatchOrder::Sequential,
+        4,
+    )?;
     require(
         updates.window_count() == 20,
         "training window count changed",
@@ -203,6 +210,7 @@ fn prepared_epochs() -> Result<PreparedEpochs, FixtureError> {
         updates,
         train_evaluation,
         validation,
+        test_probe,
     })
 }
 
@@ -248,6 +256,7 @@ struct SingleRun {
     result: TrainingResult,
     input_model_unchanged: bool,
     input_optimizer_unchanged: bool,
+    test_partition_rejected: bool,
 }
 
 fn run_once() -> Result<SingleRun, FixtureError> {
@@ -285,6 +294,21 @@ fn run_once() -> Result<SingleRun, FixtureError> {
         &epochs.validation,
         &fixture_trainer_config()?,
     )?;
+    let test_partition_rejected = matches!(
+        train_decoder(
+            &model,
+            &optimizer,
+            &epochs.test_probe,
+            &epochs.train_evaluation,
+            &epochs.validation,
+            &fixture_trainer_config()?,
+        ),
+        Err(TrainerError::WrongPartition {
+            role: llm_from_scratch::training::trainer::TrainerEpochRole::Update,
+            expected: Partition::Train,
+            actual: Partition::Test,
+        })
+    );
     let model_after = model
         .parameters()
         .iter()
@@ -302,6 +326,7 @@ fn run_once() -> Result<SingleRun, FixtureError> {
         input_model_unchanged: model_after == initial_bits,
         input_optimizer_unchanged: optimizer.step_count() == 0
             && optimizer.parameter_names().next().is_none(),
+        test_partition_rejected,
     })
 }
 
@@ -321,6 +346,9 @@ pub struct LearnerEvidence {
     pub replay_bitwise: bool,
     pub input_model_unchanged: bool,
     pub input_optimizer_unchanged: bool,
+    pub test_partition_rejected: bool,
+    /// Compatibility evidence for the final-evaluation boundary: rejection
+    /// before a forward pass implies that selection consumed zero test epochs.
     pub test_reads: usize,
     pub history: HistoricalSelection,
 }
@@ -378,6 +406,10 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         .collect::<Vec<_>>();
     require(selected.len() == 1, "selection marker count changed")?;
     require(
+        first.test_partition_rejected,
+        "test partition was not rejected during preflight",
+    )?;
+    require(
         selected[0].step() == first.result.selected_step(),
         "selected checkpoint and restored state disagree",
     )?;
@@ -400,12 +432,14 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         "restored selected model changed snapshot bits",
     )?;
     let replay_bitwise = replay_equal(&first, &second);
+    let test_partition_rejected = first.test_partition_rejected;
     Ok(LearnerEvidence {
         result: first.result,
         replay_bitwise,
         input_model_unchanged: first.input_model_unchanged,
         input_optimizer_unchanged: first.input_optimizer_unchanged,
-        test_reads: 0,
+        test_partition_rejected,
+        test_reads: usize::from(!test_partition_rejected),
         history: historical_selection(),
     })
 }
@@ -435,30 +469,35 @@ pub fn learner_report() -> Result<String, FixtureError> {
     ];
     for checkpoint in evidence.result.checkpoints() {
         lines.push(format!(
-            "checkpoint=step:{} train_loss:{:.6} validation_loss:{:.6} selected:{} graphs:0",
+            "checkpoint=step:{} train_loss:{:.6} validation_loss:{:.6} selected:{} train_graphs:{} validation_graphs:{}",
             checkpoint.step(),
             checkpoint.train().mean_loss(),
             checkpoint.validation().mean_loss(),
-            checkpoint.selected()
+            checkpoint.selected(),
+            checkpoint.train().recorded_graphs(),
+            checkpoint.validation().recorded_graphs()
         ));
     }
     lines.extend([
         format!(
-            "selection=step:{} validation_loss:{:.6} criterion:validation-only test_reads:{} snapshot:true",
+            "selection=step:{} validation_loss:{:.6} criterion:validation-only test_partition_rejected:{} snapshot:true",
             evidence.result.selected_step(),
             evidence.result.selected_validation_loss(),
-            evidence.test_reads
+            evidence.test_partition_rejected
         ),
         format!(
-            "clipping=observed:{} max_norm:{MAX_GRADIENT_NORM:.6} finite:true zeroed:true",
-            evidence.result.steps().iter().any(|step| step.clipped())
+            "clipping=observed:{} max_norm:{MAX_GRADIENT_NORM:.6} finite:{} fresh_zero:{} cleared:{}",
+            evidence.result.steps().iter().any(|step| step.clipped()),
+            evidence.result.steps().iter().all(|step| step.finite_gradients()),
+            evidence.result.steps().iter().all(|step| step.fresh_zero_gradients()),
+            evidence.result.steps().iter().all(|step| step.cleared_gradients())
         ),
         format!(
             "ownership=input_model_unchanged:{} input_optimizer_unchanged:{} selected_restored:true",
             evidence.input_model_unchanged, evidence.input_optimizer_unchanged
         ),
         format!(
-            "history=training_only_step:{} validation_step:{} minibatches:true schedules:true clipping:true",
+            "selection_contrast=training_only_step:{} validation_step:{}",
             evidence.history.training_only_step, evidence.history.validation_step
         ),
         format!("replay=bitwise:{}", evidence.replay_bitwise),
@@ -477,7 +516,7 @@ mod tests {
     fn fixture_runs_every_step_selects_validation_only_and_replays() {
         let evidence = learner_evidence().unwrap();
         assert!(evidence.replay_bitwise);
-        assert_eq!(evidence.test_reads, 0);
+        assert!(evidence.test_partition_rejected);
         assert!(evidence.input_model_unchanged);
         assert!(evidence.input_optimizer_unchanged);
         assert_eq!(evidence.result.steps().len(), 8);
@@ -491,13 +530,9 @@ mod tests {
             LEARNING_RATES
         );
         assert!(evidence.result.steps().iter().any(|step| step.clipped()));
-        assert!(
-            evidence
-                .result
-                .steps()
-                .iter()
-                .all(|step| step.finite_gradients() && step.zeroed_gradients())
-        );
+        assert!(evidence.result.steps().iter().all(|step| {
+            step.finite_gradients() && step.fresh_zero_gradients() && step.cleared_gradients()
+        }));
         assert_eq!(
             evidence
                 .result

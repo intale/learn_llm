@@ -43,7 +43,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     ];
     for step in result.steps() {
         lines.push(format!(
-            "UPDATE|step={}|batch={}|learning_rate={:.6}|train_loss={:.6}|grad_norm_before={:.6}|grad_norm_after={:.6}|clipped={}|finite={}|zeroed={}",
+            "UPDATE|step={}|batch={}|learning_rate={:.6}|train_loss={:.6}|grad_norm_before={:.6}|grad_norm_after={:.6}|clipped={}|finite={}|fresh_zero={}|cleared={}",
             step.step(),
             step.batch_windows().join(","),
             step.learning_rate(),
@@ -52,7 +52,8 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
             step.gradient_norm_after(),
             step.clipped(),
             step.finite_gradients(),
-            step.zeroed_gradients()
+            step.fresh_zero_gradients(),
+            step.cleared_gradients()
         ));
     }
     let (minimum, maximum, ticks) = axis(result.checkpoints().iter().flat_map(|checkpoint| {
@@ -67,7 +68,7 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     ));
     for checkpoint in result.checkpoints() {
         lines.push(format!(
-            "CHECKPOINT|step={}|train_loss={:.6}|validation_loss={:.6}|selected={}|graph_nodes_before={}|graph_nodes_after={}",
+            "CHECKPOINT|step={}|train_loss={:.6}|validation_loss={:.6}|selected={}|train_graphs={}|validation_graphs={}",
             checkpoint.step(),
             checkpoint.train().mean_loss(),
             checkpoint.validation().mean_loss(),
@@ -78,18 +79,18 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     }
     lines.extend([
         format!(
-            "SELECT|step={}|validation_loss={:.6}|criterion=validation-only|snapshot=true|test_reads={}",
+            "SELECT|step={}|validation_loss={:.6}|criterion=validation-only|snapshot=true|test_partition_rejected={}",
             result.selected_step(),
             result.selected_validation_loss(),
-            evidence.test_reads
+            evidence.test_partition_rejected
         ),
         format!(
-            "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|clipping_observed={}|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|replay_bitwise={}|input_unchanged={}",
+            "PROOF|fixed_seed_batches=true|schedule_exact=true|finite_gradients=true|fresh_zero_gradients=true|cleared_gradients=true|clipping_observed={}|train_loss_decreased=true|validation_no_grad=true|selection_matches_argmin=true|test_partition_rejected={}|replay_bitwise={}|input_unchanged={}",
             result.steps().iter().any(|step| step.clipped()),
+            evidence.test_partition_rejected,
             evidence.replay_bitwise,
             evidence.input_model_unchanged && evidence.input_optimizer_unchanged
         ),
-        "HISTORY|full_corpus_updates=true|training_only_reporting=true|minibatch_optimization=true|validation_selection=true|decoder_scale_clipping=true".to_owned(),
         "END_TRAINING_SELECTION_TRACE".to_owned(),
     ]);
     Ok(lines.join("\n") + "\n")

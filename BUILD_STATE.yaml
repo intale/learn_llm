@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T14:07:09Z"
+updated_at: "2026-07-31T15:20:59Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -24469,3 +24469,144 @@ builds:
                 status: passed
                 notes: "The ordinal 20-file product manifest is sha256:bf33a5cff8c7b26daddfe218c14f3c00e8a1de9c8e8be674dbcb0d954b095ff4 and matches canonical bytes; BUILD_STATE.yaml parses; git diff --check passes; every changed product path is declared; all modes remain 100644; four named Chapter 32 browser volumes and the temporary source image were removed."
             notes: "Succeeded. Published corrected canonical Chapter 32 revision 2 and its direct natural Russian projection, derived Rust evidence, shared-role localized diagram, complete semantic/math/accessibility coverage, and the locale boundary through Chapter 32 without changing dependencies, build definitions, hosting, deployment, or the user environment."
+  - build_id: activate-ch33-russian-localization
+    objective: "Audit the canonical Chapter 33 training-and-selection lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; cost alone does not require an approval pause."
+    completion_criteria:
+      - "English Chapter 33 correctly separates optimization on training data from checkpoint selection on validation data, with indexed updates, zero-safe clipping, earliest checkpoint-only selection, exact Rust evidence, bounded LLM history, exercises, and Chapter 34 handoff."
+      - "Russian Chapter 33 preserves every formula, symbol, value, identifier, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 33 is activated in this checkpoint, the locale policy advances through Chapter 33, and the completed step is committed independently before Chapter 34."
+    steps:
+      - id: activate-ch33-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 33 training-and-validation-selection lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch32-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-31 to translate Chapters 31-34 one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 58 and locale policy selective-russian-through-chapter-32"
+          - "curriculum/chapters/33-training-selection.md"
+          - "site/src/content/chapters/en/33-training-selection.mdx"
+          - "site/src/components/chapters/TrainingSelectionDiagram.astro"
+          - "site/src/lib/training-selection-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/33-training-selection-diagram.test.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 33 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit 85c8cd9"
+          - "Cached official mcr.microsoft.com/playwright:v1.61.1-noble image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Cached final pinned Linux image at immutable digest sha256:a79b8753c8953011ff0c5ff4d4a2b0e2ee434e84cbe0e3b6e3e9bb4c79e40984"
+        outputs:
+          - "curriculum/chapters/33-training-selection.md"
+          - "site/src/content/chapters/en/33-training-selection.mdx"
+          - "site/src/content/chapters/ru/33-training-selection.mdx"
+          - "site/src/components/chapters/TrainingSelectionDiagram.astro if canonical or rendered bilingual evidence requires shared-role or concept-geometry correction"
+          - "site/src/lib/training-selection-diagram.ts if the canonical evidence audit changes the strict trace or localized label projection"
+          - "Chapter 33 Rust implementation, exact output, and exact diagram trace if canonical executable evidence requires correction"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md and SKILLS.md if the advanced locale boundary changes their examples"
+          - "Chapter 33 unit and E2E tests plus shared content/formula/diagram tests when locale or revision expectations require updates"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 33 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 33 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 33 checkpoint is committed independently before Chapter 34."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/33-training-selection.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 33-training-selection"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 33-training-selection"
+          - "npm --prefix site run check:parity -- 33-training-selection en ru"
+          - "npm --prefix site test -- --run tests/33-training-selection-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch33-training-selection && cargo run --quiet --locked -p ch33-training-selection | diff -u rust/demos/ch33-training-selection/expected.txt - && cargo run --quiet --locked -p ch33-training-selection --example diagram_trace | diff -u rust/demos/ch33-training-selection/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 33, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260731T141035Z-activate-ch33-russian-localization-01
+            started_at: "2026-07-31T14:10:35Z"
+            finished_at: "2026-07-31T15:20:59Z"
+            status: succeeded
+            input_fingerprint:
+              git: "85c8cd94cb6b36e71090dafb471a86859af9ef22"
+              manifest: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:ade60d01292c67d65f2673524ae993b58adb23f75dd894dc6685e8be5321b015"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; the corrected current English lesson, exact Rust fixture, and its cited primary neural-language-model/sequence-to-sequence/Transformer/T5/GPT-3 sources are authoritative."
+            staging_dir: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 85c8cd9; parse the ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 33 source paths, exact implementation evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 33 revision 2, correct update indexing, clipping, selection, gradient-clear, partition-boundary, learner-prose, trace, and shared-diagram evidence, then freeze English revision 3 before translation."
+              - "Translate every Chapter 33 learner surface directly from frozen English revision 3 into natural technical Russian; activate exactly the Russian Chapter 33 route and advance the policy through Chapter 33."
+              - "Run focused contract, bilingual chapter, parity, formula, locale, content, shared-diagram, exact Rust, Astro, production-build, and static-link gates; repair failures before the final-image and browser gates."
+              - "Apply independent semantic, terminology, anti-calque, monolingual, source, accessibility, and contract review; correct no_grad, deep-copy, test-probe, learning-rate, batch-size, operation-order, and selection-cue language."
+              - "Build the exact pinned Linux image and run the full workspace, all 848 Vitest, clippy, Chapter 33 byte-exact Rust, static-link, SEO, sitemap, Analytics, Chromium, and Firefox gates."
+              - "Freeze and verify the ordinal 22-file product manifest, preserve review artifacts, and remove the four explicitly named disposable Chapter 33 browser volumes and temporary source image."
+            artifacts:
+              - path: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:ade60d01292c67d65f2673524ae993b58adb23f75dd894dc6685e8be5321b015"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 33 product edits."
+              - path: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:551838364c477832a3fd9bc154918522e8520d47af20e533fc580bd8ebf27c77"
+                notes: "Pre-translation revision-3 semantic commitments and terminology plan."
+              - path: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/meaning-lock-final.md"
+                checksum: "sha256:b7ed322b14eda23ed03a3d851976c474cffec8458fa9cedd1bf1cc91d68fcc7e"
+                notes: "Final English, Russian, and integrated-contract checksums after independent review."
+              - path: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/localization-review.md"
+                checksum: "sha256:3964c24d09228960167cc26fa151882a76bc2da06256aea28a75f1d84f9c61fd"
+                notes: "Recorded semantic, terminology, anti-calque, monolingual, accessibility, SEO, and rendered-surface review."
+              - path: ".build/runs/20260731T141035Z-activate-ch33-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:ad4b837a4ca2fcbd83ed73ae74357229d14b178d3403acc39a6bb69e418cf0e6"
+                notes: "Ordinal path-sorted checksums for the exact 22-file product publication."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:1f08050c93f42b14725dbc09c996cae2fdcc5b7f212dd911f883e3ad8cb9027a"
+                notes: "Exact final pinned Linux manifest list used for all accepted product and browser validation."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 32 is independently committed at 85c8cd9; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins are usable; Chapter 33 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "First integrated pinned-Linux candidate builds"
+                status: failed
+                notes: "The first candidate exposed Chapter 34's compile-time dependency on Chapter 33's legacy test_reads field; the second reached content validation and rejected paraphrased Russian history claims that did not reproduce the exact frontmatter commitments. Chapter 33 now retains a derived zero-read compatibility field from the proven test-partition rejection, and the Russian history renders every locked claim exactly; no partial candidate was published."
+              - command: "Focused Chapter 33 contract, bilingual chapter/parity, six selected Vitest files, exact Rust output/trace, Astro diagnostics, complete content/parity, production build, and static links"
+                status: passed
+                notes: "Contract and both lessons pass; 83 focused tests pass; all three Chapter 33 Rust tests and byte-exact learner/diagram outputs pass; Astro reports zero diagnostics; 79 static pages pass 2,199 links, 79 SEO routes, 79 sitemap URLs, 79 Analytics routes, and 156 artifacts."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, history, Rust-source, and diagram-label review"
+                status: passed
+                notes: "English revision 3 was frozen before direct translation. Review corrected thread-local no_grad, deep-copy semantics, the rejected test-partition probe, learning-rate and token-count batch-size terminology, the history opening, operation-order evidence, the double-underline cue, and idiomatic Russian summary language while preserving every formula, value, qualifier, link, identifier, exercise, answer, and handoff."
+              - command: "./course check on the exact final pinned Linux candidate"
+                status: passed
+                notes: "All workspace Rust tests pass; Astro reports zero diagnostics; complete content and locale parity pass; 79 static pages pass 2,199 links, 79 SEO routes, 79 sitemap URLs, 79 Analytics routes, and 156 artifacts."
+              - command: "Exact final-image Chapter 33 contract, bilingual chapter/parity, all site tests, workspace clippy, and byte-exact Rust gates"
+                status: passed
+                notes: "The integrated contract, both chapter sources, parity, all 52 Vitest files and 848 tests, workspace clippy, all three Chapter 33 Rust tests, learner output, and diagram trace pass from manifest-list sha256:1f08050c93f42b14725dbc09c996cae2fdcc5b7f212dd911f883e3ad8cb9027a."
+              - command: "Exact final-image Chromium and Firefox Chapter 33, formula-rendering, shared diagram-style, and shared full-view E2E gates"
+                status: passed
+                notes: "Both engines pass all 170 cases, covering desktop, narrow, no-JavaScript, native fullscreen, forced colors, synthetic RTL, focus restoration, nearest bounded boxes, painted text, localized labels, and formulas."
+              - command: "Frozen publication identity, ledger, whitespace, ownership, Git-mode, and disposable-resource cleanup audit"
+                status: passed
+                notes: "The ordinal 22-file product manifest is sha256:ad4b837a4ca2fcbd83ed73ae74357229d14b178d3403acc39a6bb69e418cf0e6 and matches canonical bytes; BUILD_STATE.yaml parses; git diff --check passes; every changed product path is declared; all modes remain 100644; four named Chapter 33 browser volumes and the temporary source image were removed."
+            notes: "Succeeded. Published corrected canonical Chapter 33 revision 3 and its direct natural Russian projection, derived training/partition evidence, shared-role localized diagram, complete semantic/math/accessibility coverage, and the locale boundary through Chapter 33 without changing dependencies, build definitions, hosting, deployment, or the user environment."

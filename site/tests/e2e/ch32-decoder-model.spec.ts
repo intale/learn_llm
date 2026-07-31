@@ -394,19 +394,11 @@ async function expectChapterContent(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "31-decoder-block");
-  if (locale === "en") {
-    await expect(
-      page.locator(
-        'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-      ),
-    ).toHaveAttribute("data-chapter-id", "33-training-selection");
-  } else {
-    await expect(
-      page.locator(
-        'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-      ),
-    ).toHaveCount(0);
-  }
+  await expect(
+    page.locator(
+      'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+    ),
+  ).toHaveAttribute("data-chapter-id", "33-training-selection");
   await expectNoOverflowOrClientScripts(page);
 }
 

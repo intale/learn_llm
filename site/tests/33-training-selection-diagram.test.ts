@@ -1,5 +1,5 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from "node:path";
 
@@ -27,6 +27,9 @@ const contractSource = read("curriculum/chapters/33-training-selection.md");
 const lessonSource = read(
   "site/src/content/chapters/en/33-training-selection.mdx",
 );
+const russianLessonSource = read(
+  "site/src/content/chapters/ru/33-training-selection.mdx",
+);
 const coursePlanSource = read("curriculum/course-plan.md");
 const trainerSource = read(
   "rust/crates/llm-from-scratch/src/training/trainer.rs",
@@ -47,6 +50,16 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error("missing JSON frontmatter");
   return JSON.parse(match[1]);
+}
+
+function diagramLabelsFromLesson(
+  source: string,
+): TrainingSelectionDiagramLabels {
+  const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
+  if (!match) throw new Error("missing diagramLabels object");
+  return Function(
+    `"use strict"; return (${match[1]});`,
+  )() as TrainingSelectionDiagramLabels;
 }
 
 const labels: TrainingSelectionDiagramLabels = {
@@ -78,9 +91,11 @@ const labels: TrainingSelectionDiagramLabels = {
     trainMeasurement: "train measurement",
     validationMeasurement: "validation measurement",
     selectedState: "selected state",
+    selectedCell: "selected",
     gapsUnobserved: "gaps unobserved",
     clipped: "clipped",
     notSelected: "not selected",
+    testRejected: "test rejected",
     verified: "verified",
   },
   proofs: {
@@ -134,7 +149,8 @@ describe("Chapter 33 Rust trace parser", () => {
       grad_norm_after: "0.350000",
       clipped: "true",
       finite: "true",
-      zeroed: "true",
+      fresh_zero: "true",
+      cleared: "true",
     });
     expect(trace.axis).toEqual({
       min: "1.300000",
@@ -153,22 +169,20 @@ describe("Chapter 33 Rust trace parser", () => {
       train_loss: "1.322897",
       validation_loss: "1.595297",
       selected: "true",
-      graph_nodes_before: "0",
-      graph_nodes_after: "0",
+      train_graphs: "0",
+      validation_graphs: "0",
     });
     expect(trace.selection).toEqual({
       step: "8",
       validation_loss: "1.595297",
       criterion: "validation-only",
       snapshot: "true",
-      test_reads: "0",
+      test_partition_rejected: "true",
     });
     expect(Object.values(trace.proof).every((value) => value === "true")).toBe(
       true,
     );
-    expect(
-      Object.values(trace.history).every((value) => value === "true"),
-    ).toBe(true);
+    expect(trace).not.toHaveProperty("history");
   });
 
   it("derives plot coordinates only from the Rust-authored axis and update count", () => {
@@ -299,7 +313,7 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(componentSource.match(/role="region"/g)).toHaveLength(1);
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(2);
     expect(componentSource.match(/<article\b/g)).toHaveLength(6);
-    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(6);
+    expect(componentSource.match(/data-diagram-box/g)).toHaveLength(13);
     expect(componentSource).toContain("operationLabels.map");
     expect(componentSource.match(/data-diagram-table/g)).toHaveLength(1);
     expect(componentSource.match(/<caption>/g)).toHaveLength(1);
@@ -312,6 +326,10 @@ describe("Chapter 33 static diagram and content boundary", () => {
     expect(componentSource).toContain("@media (forced-colors: active)");
     expect(componentSource).toContain("direction: ltr");
     expect(componentSource).toContain("unicode-bidi: isolate");
+    expect(componentSource.match(/course-diagram__grid/g)).toHaveLength(4);
+    expect(componentSource.match(/course-diagram__card-stack/g)).toHaveLength(
+      13,
+    );
     expect(componentSource).not.toMatch(/overflow-x\s*:/);
     expect(componentSource).not.toMatch(/overflow\s*:\s*(?:hidden|clip)/);
     expect(componentSource).not.toMatch(
@@ -322,6 +340,9 @@ describe("Chapter 33 static diagram and content boundary", () => {
   it("keeps the contract, lesson, Rust evidence, LLM history, formulas, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
+    const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
+    const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -357,14 +378,83 @@ describe("Chapter 33 static diagram and content boundary", () => {
       id: contract.visualization.id,
       rationale: contract.visualization.rationale.en,
     });
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
     expect([
       ...new Set(lesson.rust_sources.map(({ path }: { path: string }) => path)),
     ]).toEqual(contract.rust.sources);
-    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
-      "\\theta_{s+1}=\\operatorname{AdamW}\\!\\left(\\theta_s,\\nabla_\\theta\\mathcal{L}_{tr}(\\theta_s)\\right),\\quad s^*=\\arg\\min_s\\mathcal{L}_{va}(\\theta_s)",
+    expect(
+      russianLesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    ).toEqual(
+      lesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
     );
-    expect(contract.content_revision).toBe(2);
-    expect(lesson.content_revision).toBe(2);
+    expect([
+      ...new Set(
+        russianLesson.rust_sources.map(({ path }: { path: string }) => path),
+      ),
+    ]).toEqual(contract.rust.sources);
+    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+      expect(() =>
+        validateTrainingSelectionDiagramLabels(localizedLabels),
+      ).not.toThrow();
+      expect(Object.keys(localizedLabels).sort()).toEqual(
+        Object.keys(englishDiagramLabels).sort(),
+      );
+      for (const namespace of [
+        "sections",
+        "operations",
+        "fields",
+        "cues",
+        "proofs",
+        "captions",
+        "scrollers",
+      ] as const) {
+        expect(Object.keys(localizedLabels[namespace]).sort()).toEqual(
+          Object.keys(englishDiagramLabels[namespace]).sort(),
+        );
+      }
+    }
+    expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
+      "\\begin{aligned}g_s&=\\nabla_\\theta\\mathcal{L}_{tr}^{(s)}(\\theta_{s-1}),\\\\ \\widetilde g_s&=\\frac{c}{\\max(c,\\lVert g_s\\rVert_2)}g_s,\\\\ (\\theta_s,m_s,v_s)&=\\operatorname{AdamW}_{\\eta_s}\\!\\left(\\theta_{s-1},\\widetilde g_s,m_{s-1},v_{s-1}\\right),\\quad s=1,\\ldots,8,\\\\ s^*&=\\min\\left\\{s\\in\\mathcal{C}:\\mathcal{L}_{va}(\\theta_s)=\\min_{k\\in\\mathcal{C}}\\mathcal{L}_{va}(\\theta_k)\\right\\}\\end{aligned}",
+    );
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
     expect(coursePlanSource).not.toContain("s^\\*");
     expect(contractSource).not.toContain("s^\\*");
     expect(lessonSource).not.toContain("s^\\*");
@@ -380,19 +470,22 @@ describe("Chapter 33 static diagram and content boundary", () => {
       "<TrainingSelectionDiagram labels={diagramLabels} />",
     );
     expect(normalizedLesson).toContain(
-      "This is a history of the training practices on the road to modern LLMs",
+      "These training practices form part of the road to modern LLMs",
     );
     expect(lessonSource).not.toMatch(
       /TypeScript (?:validates|performs|computes)/,
     );
-    expect(
-      existsSync(
-        resolve(
-          repositoryRoot,
-          "site/src/content/chapters/ru/33-training-selection.mdx",
-        ),
-      ),
-    ).toBe(false);
+    expect(lessonSource).not.toMatch(
+      /byte for byte|final newline|page parses|static diagram|implementation languages/i,
+    );
+    expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(10);
+    expect(russianLessonSource).toContain(
+      "<TrainingSelectionDiagram labels={diagramLabels} />",
+    );
+    expect(russianLessonSource).not.toMatch(
+      /byte for byte|final newline|page parses|static diagram|implementation languages/i,
+    );
 
     expect(trainerSource).toContain("region:training-plan");
     expect(trainerSource).toContain("region:no-grad-evaluation");
