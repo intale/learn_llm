@@ -11,6 +11,10 @@ import { basename, join, resolve, sep } from 'node:path';
 
 import { expect, test, type Page } from '@playwright/test';
 
+import chapterLocaleManifest from '../../src/i18n/chapter-locales.json' with {
+  type: 'json',
+};
+
 import {
   chapterLocaleDefinitions,
   chapterPath,
@@ -26,6 +30,8 @@ const {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
+  readdirSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -42,6 +48,47 @@ const previousChapterId = '07-language-model-metrics';
 const fixtureChapterId = '08-tensor-storage';
 const fixtureTitle = 'Synthetic English-only tensor storage fixture';
 const fixtureRevision = 1;
+const previousChapterSource = readFileSync(
+  resolve(
+    process.cwd(),
+    'src',
+    'content',
+    'chapters',
+    'en',
+    `${previousChapterId}.mdx`,
+  ),
+  'utf8',
+);
+const previousChapterFrontmatter = previousChapterSource.match(
+  /^---\s*(\{[\s\S]*?\})\s*---/,
+)?.[1];
+if (!previousChapterFrontmatter) {
+  throw new Error(`The locale fixture cannot read ${previousChapterId} metadata.`);
+}
+const previousChapterRevision = Number(
+  JSON.parse(previousChapterFrontmatter).content_revision,
+);
+if (!Number.isInteger(previousChapterRevision) || previousChapterRevision < 1) {
+  throw new Error(`The locale fixture found an invalid ${previousChapterId} revision.`);
+}
+const fixtureChapterOrder = chapterLocaleManifest.chapters.find(
+  ({ chapterId }) => chapterId === fixtureChapterId,
+)?.order;
+if (fixtureChapterOrder === undefined) {
+  throw new Error(`The locale fixture chapter ${fixtureChapterId} is absent from policy.`);
+}
+const fixtureChapterLocaleManifest = {
+  schemaVersion: 1,
+  planId: 'selective-locale-browser-fixture',
+  planRevision: 1,
+  policyId: 'selective-russian-through-chapter-07-fixture',
+  referenceLocale: 'en',
+  chapters: chapterLocaleManifest.chapters.map(({ chapterId, order }) => ({
+    chapterId,
+    order,
+    activeLocales: order < fixtureChapterOrder ? ['en', 'ru'] : ['en'],
+  })),
+};
 const fixtureSource = `---
 {
   "chapter_id": "${fixtureChapterId}",
@@ -141,6 +188,36 @@ function createFixtureRepository(): void {
     'tsconfig.json',
   ]) {
     copyFileSync(join(sourceSite, file), join(fixtureSite, file));
+  }
+
+  const fixtureLocaleDirectory = join(fixtureSite, 'src', 'i18n');
+  writeFileSync(
+    join(fixtureLocaleDirectory, 'chapter-locales.json'),
+    JSON.stringify(fixtureChapterLocaleManifest, null, 2) + '\n',
+    'utf8',
+  );
+
+  for (const locale of ['en', 'ru'] as const) {
+    const activeChapterIds = new Set(
+      fixtureChapterLocaleManifest.chapters
+        .filter(({ activeLocales }) => activeLocales.includes(locale))
+        .map(({ chapterId }) => chapterId),
+    );
+    const localeDirectory = join(
+      fixtureSite,
+      'src',
+      'content',
+      'chapters',
+      locale,
+    );
+    for (const file of readdirSync(localeDirectory)) {
+      if (
+        file.endsWith('.mdx') &&
+        !activeChapterIds.has(file.slice(0, -'.mdx'.length))
+      ) {
+        rmSync(join(localeDirectory, file));
+      }
+    }
   }
 
   const linkType = process.platform === 'win32' ? 'junction' : 'dir';
@@ -431,7 +508,7 @@ test.describe(
         chapterId: previousChapterId,
         locale: 'en',
         order: 7,
-        revision: 2,
+        revision: previousChapterRevision,
         revisionLabel: 'Content revision',
         title: englishPrevious?.title ?? '',
       });

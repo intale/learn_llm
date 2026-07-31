@@ -18,7 +18,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
 
     [
         format!(
-            "META|shape={}|key_width=2|value_width=2|scale={:.6}|softmax_axis=key|masked=false|site_arithmetic=none",
+            "META|shape={}|key_width=2|value_width=2|scale={:.6}|softmax_axis=key|masked=false",
             format_shape(primary.query.shape()),
             primary.scale
         ),
@@ -123,7 +123,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             history.earlier, history.bridge, history.transformer, history.comparison
         ),
         format!(
-            "PROOF|row_sum_tolerance={ROW_SUM_TOLERANCE:.12}|query_checks={}|key_checks={}|value_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|replay={}|trace=rust-authored|unmasked=true",
+            "PROOF|row_sum_tolerance={ROW_SUM_TOLERANCE:.12}|query_checks={}|key_checks={}|value_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|replay={}|unmasked=true",
             evidence.query_checks,
             evidence.key_checks,
             evidence.value_checks,
@@ -147,17 +147,16 @@ mod tests {
     use crate::learner_evidence;
 
     #[test]
-    fn trace_has_the_frozen_grammar_and_provenance() {
+    fn trace_has_the_frozen_grammar_and_attention_evidence() {
         let trace = render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 21);
         assert!(trace.starts_with("META|shape=[1,2,2]"));
-        assert!(trace.contains("|site_arithmetic=none\n"));
         assert!(
             trace.contains(
                 "DOT_PRODUCTS|shape=[1,2,2]|values=[0.000000,6.000000,6.000000,-4.000000]"
             )
         );
-        assert!(trace.contains("trace=rust-authored|unmasked=true"));
+        assert!(trace.contains("replay=bitwise|unmasked=true"));
         assert!(trace.ends_with("NEXT|chapter=28-causal-masking\n"));
     }
 }

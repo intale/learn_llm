@@ -21,6 +21,6 @@ key_gradient=[-0.007195,0.062847,0.007195,-0.062847]
 value_gradient=[0.014166,0.999151,0.985834,0.000849]
 gradcheck=query_checks:4 key_checks:4 value_checks:4 tolerance:0.000002 passed:true
 errors=query_rank:true batch:true tokens:true empty:true width:true
-history=earlier:recurrent-fixed-context bridge:additive-encoder-decoder-alignment transformer:scaled-dot-product-self-attention recurrent_steps:2 attention_score_cells:4
+history=earlier:recurrent-fixed-context bridge:additive-encoder-decoder-alignment transformer:scaled-dot-product-self-attention comparison:all-sequence-positions
 same_fixture_replays_bitwise=true
 next=mask future key positions before row normalization

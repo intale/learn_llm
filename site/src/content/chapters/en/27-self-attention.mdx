@@ -2,13 +2,13 @@
 {
   "chapter_id": "27-self-attention",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 27,
   "concept_id": "scaled-dot-product-self-attention",
   "title": "Compute one unmasked self-attention head",
   "description": "Learn how one unmasked Transformer self-attention head scores queries against keys, normalizes each row, and mixes values with inspectable Rust evidence.",
   "objective": "Compute one unmasked attention head and explain every score, probability, and weighted value.",
-  "worked_inputs": "Reuse Chapter 26's projected tensors $Q=[[[0,3],[2,-1]]]$, $K=[[[3,0],[-1,2]]]$, and $V=[[[3,-3],[1,3]]]$. Predict which value row each query will favor before running the fixture.",
+  "worked_inputs": "Reuse Chapter 26's projected tensors $Q=[[[0,3],[2,-1]]]$, $K=[[[3,0],[-1,2]]]$, and $V=[[[3,-3],[1,3]]]$. Predict which value row each query will favor before running the worked example.",
   "formula": {
     "latex": "A=\\operatorname{softmax}\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right),\\quad O=AV",
     "symbols": [
@@ -23,9 +23,9 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
-      "limitation": "A basic recurrent encoder-decoder can compress an entire source sentence into one fixed-size vector, making long-range source details difficult to preserve; additive attention instead retrieves a new weighted source context for each decoder step but retains recurrent alignment steps between two sequence streams.",
-      "later_advance": "The Transformer uses scaled dot-product attention and packs many queries into matrices; self-attention compares positions from the same sequence so one layer can form its full score grid together.",
-      "modern_llm_role": "Each decoder self-attention head turns learned queries and keys into retrieval probabilities, then mixes learned values; a causal decoder additionally masks future key positions before normalization.",
+      "limitation": "A basic recurrent encoder-decoder can force an entire source sentence through one fixed-size vector, while additive attention still advances recurrently and computes a new source alignment at each output step.",
+      "later_advance": "The Transformer combines many queries into matrices and uses scaled dot-product self-attention to compare positions in the same available sequence, allowing one layer to form its full score grid with batched matrix operations.",
+      "modern_llm_role": "Each decoder self-attention head turns learned queries and keys into row-normalized attention weights, then mixes learned values; a causal decoder additionally masks future key positions before normalization.",
       "sources": [
         {
           "role": "earlier",
@@ -39,19 +39,19 @@
           "year": 2017,
           "name": "Vaswani et al., Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
-          "claim": "Vaswani et al. define scaled dot-product attention as softmax-normalized scaled query-key products applied to values, describe packed simultaneous queries, and define self-attention as relating positions within one sequence."
+          "claim": "Vaswani et al. define scaled dot-product attention as a softmax-normalized matrix of scaled query-key dot products applied to values, combine simultaneous queries in a matrix, and define self-attention as relating positions within one sequence."
         }
       ]
     },
     "approach": "From fixed recurrent context through additive encoder-decoder alignment to scaled dot-product self-attention",
-    "summary": "Additive attention replaced one fixed source summary with decoder-dependent retrieval from encoder annotations. Scaled dot-product self-attention makes every position in one sequence both a requester and a candidate source, forms a matrix of compatibilities, normalizes each query row, and mixes the value rows. This chapter leaves every position visible; Chapter 28 adds causal visibility.",
+    "summary": "Additive attention replaced one fixed source summary with decoder-dependent retrieval from encoder annotations. Scaled dot-product self-attention lets every position issue a query while every available position can contribute a value, forms a matrix of compatibilities, normalizes each query row, and mixes the value rows. This chapter leaves every position visible; Chapter 28 adds causal visibility.",
     "rust_source": "rust/demos/ch27-self-attention/src/lib.rs"
   },
   "rust_sources": [
     {
       "path": "rust/demos/ch27-self-attention/src/lib.rs",
       "region": "historical-attention-contrast",
-      "purpose": "Record a bounded two-token comparison between recurrent decoding steps and an all-position self-attention score grid."
+      "purpose": "Contrast separate decoder-to-encoder alignment sources with all query-key pairs drawn from one sequence."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/attention/self_attention.rs",
@@ -65,17 +65,12 @@
     },
     {
       "path": "rust/demos/ch27-self-attention/src/lib.rs",
-      "region": "self-attention-report",
-      "purpose": "Render the exact learner report from checked forward, reverse, shape, error, history, and replay evidence."
+      "region": "self-attention-fixture",
+      "purpose": "Build the worked forward, reverse, scale, shape, boundary, gradient-check, and replay evidence."
     },
     {
       "path": "rust/demos/ch27-self-attention/src/main.rs",
-      "purpose": "Print the frozen Chapter 27 learner report."
-    },
-    {
-      "path": "rust/demos/ch27-self-attention/src/diagram_trace.rs",
-      "region": "self-attention-trace",
-      "purpose": "Emit the strict locale-neutral twenty-one-line trace consumed by the static visualization."
+      "purpose": "Run the complete self-attention example and print its computed evidence."
     }
   ],
   "visualization": {
@@ -93,7 +88,7 @@ import SelfAttentionDiagram from '../../../components/chapters/SelfAttentionDiag
 export const diagramLabels = {
   title: 'Follow every score into a weighted value mixture',
   description:
-    'Read the exact Rust-authored query, key, value, score, probability, mixture, gradient, shape, history, and rejected-boundary evidence without recomputing attention in the page.',
+    'Follow exact query, key, value, score, probability, mixture, gradient, shape, history, and rejected-boundary evidence through one unmasked attention head.',
   sections: {
     calculation: 'Trace one complete unmasked attention calculation',
     evidence: 'Check gradients, shapes, and rejected boundaries',
@@ -108,7 +103,8 @@ export const diagramLabels = {
   },
   fields: {
     shape: 'Shape',
-    scale: 'Scale or tolerance',
+    scale: 'Attention scale',
+    gradientTolerance: 'Gradient-check tolerance',
     softmaxAxis: 'Normalization axis',
     mask: 'Visibility boundary',
     rowSum: 'Probability-row check',
@@ -118,7 +114,17 @@ export const diagramLabels = {
     batchShape: 'Batch isolation and shapes',
     singleToken: 'One token has no competing key',
     errors: 'Rejected input boundaries',
-    proof: 'Rust-authored proof',
+    proof: 'Numerical checks',
+    checkCount: 'Gradient coordinates checked',
+    batchIsolation: 'Batch independence',
+    queryGradient: 'Query gradient',
+    keyGradient: 'Key gradient',
+    replay: 'Deterministic replay',
+    gradientCheck: 'Gradient check',
+    errorKind: 'Error kind',
+    errorEvidence: 'Rejected shape evidence',
+    queryRowsKeyColumns: 'Query rows and key columns',
+    tokenRowsFeatureColumns: 'Token rows and feature columns',
     earlier: 'Fixed recurrent context',
     bridge: 'Additive encoder-decoder alignment',
     transformer: 'Scaled dot-product self-attention',
@@ -136,19 +142,33 @@ export const diagramLabels = {
     probability: 'Double-line probability cue',
     verified: 'Verified',
     rejected: 'Rejected',
+    unmasked: 'Every key position is visible',
+  },
+  errorReasons: {
+    queryRank: 'The query input must expose batch, token, and feature axes.',
+    batchMismatch: 'Query, key, and value tensors must have the same batch size.',
+    tokenMismatch: 'Query, key, and value tensors must have the same token count.',
+    emptyTokens: 'Attention needs at least one key position to normalize each row.',
+    queryKeyWidth: 'Query and key feature widths must match for their dot products.',
+  },
+  historyDetails: {
+    earlier: 'One fixed-size source vector is reused across the recurrent decoder steps.',
+    bridge: 'Each decoder step retrieves a new weighted context from encoder annotations.',
+    transformer: 'One layer forms a score for every query-key position pair in the available sequence.',
+    comparison: 'Every available key position is permitted for every query in this unmasked head.',
   },
   captions: {
-    calculation: 'Rows and columns preserve the Rust fixture exactly; borders and text carry every distinction without color.',
-    evidence: 'The page presents strings from the checked trace and does not calculate scores, probabilities, mixtures, or gradients.',
+    calculation: 'Rows and columns preserve the two-token calculation exactly; borders and text carry every distinction without color.',
+    evidence: 'The gradients, shapes, and boundary cases show what the same attention operation preserves and rejects.',
     history: 'The comparison describes model structure, not programming-language history or a hardware benchmark.',
   },
   scrollers: {
-    inputs: 'Scrollable query, key, and value inputs',
-    scores: 'Scrollable raw and scaled score stages',
-    probabilities: 'Scrollable attention probability rows',
-    mixtures: 'Scrollable weighted value mixtures',
-    gradients: 'Scrollable attention gradient table',
-    history: 'Scrollable neural-attention history comparison',
+    inputs: 'Query, key, and value input matrices',
+    scores: 'Scores before and after scaling',
+    probabilities: 'Attention probability rows',
+    mixtures: 'Weighted value mixtures',
+    gradients: 'Attention gradient table',
+    history: 'Neural-attention history comparison',
   },
 };
 
@@ -193,7 +213,7 @@ $$
 A=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right),\quad O=AV
 $$
 
-For this fixture, the raw and scaled score matrices are
+For this worked example, the score matrices before and after scaling are
 
 $$
 QK^\top=\begin{bmatrix}0&6\\6&-4\end{bmatrix},\qquad
@@ -270,11 +290,30 @@ $$
 That row sum makes $A_{bij}$ a retrieval weight. It is not a calibrated
 probability that a token or claim is correct.
 
-Vaswani et al. motivate the denominator with a bounded argument: if query and
-key components are independent with mean zero and variance one, their dot
-product has variance $d_k$. Dividing by $\sqrt{d_k}$ counteracts that variance
-growth in the argument. This is not a universal theorem, an overflow guarantee,
-or proof that the scale is an optimal temperature.
+Vaswani et al. motivate the denominator under a specific assumption: if query
+and key components are independent with mean zero and variance one, their dot
+product has variance $d_k$. Under those assumptions, dividing by $\sqrt{d_k}$
+keeps the variance of the softmax input from growing with $d_k$. This is not a
+universal theorem, an overflow guarantee, or proof that the scale is an optimal
+temperature.
+
+A two-coordinate probe makes the effect concrete. For the scores $[1,0]$, the
+favored weight without scaling is
+
+$$
+p_{\mathrm{unscaled}}=\frac{e^1}{e^1+e^0}\approx0.731059.
+$$
+
+With $d_k=2$, the same weight after square-root scaling is
+
+$$
+p_{\mathrm{scaled}}
+=\frac{e^{1/\sqrt{2}}}{e^{1/\sqrt{2}}+e^0}
+\approx0.669762.
+$$
+
+Scaling therefore softens this particular distribution; the assumptions above
+explain why the denominator is useful, not how sharp every attention row must be.
 
 {/* chapter-section:history */}
 
@@ -283,55 +322,48 @@ or proof that the scale is an optimal temperature.
 This is neural-attention history on the road to modern LLMs, not programming-
 language history.
 
+A basic recurrent encoder-decoder can force an entire source sentence through
+one fixed-size vector, while additive attention still advances recurrently and
+computes a new source alignment at each output step.
+
 [Bahdanau, Cho, and Bengio, *Neural Machine Translation by Jointly Learning to Align and Translate*](https://arxiv.org/abs/1409.0473)
-describe how a basic recurrent encoder-decoder may struggle when a whole source
-sentence must fit into one fixed-length vector. Their proposed model scores the
-previous decoder state against each encoder annotation, applies softmax, and
-mixes annotations into a new context for that decoder step.
-
-A basic recurrent encoder-decoder can compress an entire source sentence into
-one fixed-size vector, making long-range source details difficult to preserve;
-additive attention instead retrieves a new weighted source context for each
-decoder step but retains recurrent alignment steps between two sequence
-streams.
-
-Bahdanau, Cho, and Bengio describe the possible fixed-length-vector bottleneck
-of a basic encoder-decoder and compute each new context as a softmax-weighted
-sum of encoder annotations scored against the previous decoder state.
+introduced the relevant bridge. Bahdanau, Cho, and Bengio describe the possible
+fixed-length-vector bottleneck of a basic encoder-decoder and compute each new
+context as a softmax-weighted sum of encoder annotations scored against the
+previous decoder state.
 
 Calling that learned scoring function *additive attention* follows the later
 retrospective classification used by Vaswani and colleagues. The earlier paper
 does not use this chapter's query, key, and value notation, scaled dot products,
 or same-sequence score grid.
 
+The Transformer combines many queries into matrices and uses scaled dot-product
+self-attention to compare positions in the same available sequence, allowing one
+layer to form its full score grid with batched matrix operations.
+
 [Vaswani et al., *Attention Is All You Need*](https://arxiv.org/abs/1706.03762)
-define scaled dot-product attention with the chapter formula, pack multiple
-queries into matrices, and define self-attention as relating positions in one
-sequence.
+provide that later step. Vaswani et al. define scaled dot-product attention as a
+softmax-normalized matrix of scaled query-key dot products applied to values,
+combine simultaneous queries in a matrix, and define self-attention as relating
+positions within one sequence.
 
-The Transformer uses scaled dot-product attention and packs many queries into
-matrices; self-attention compares positions from the same sequence so one layer
-can form its full score grid together.
+Each decoder self-attention head turns learned queries and keys into
+row-normalized attention weights, then mixes learned values; a causal decoder
+additionally masks future key positions before normalization.
 
-Vaswani et al. define scaled dot-product attention as softmax-normalized scaled
-query-key products applied to values, describe packed simultaneous queries, and
-define self-attention as relating positions within one sequence.
+Forming that grid does not make total work constant, and it does not make
+autoregressive token generation parallel. The important historical change is
+structural: recurrent alignment computes a new context as the decoder advances,
+while self-attention relates all available positions within one layer.
 
-Each decoder self-attention head turns learned queries and keys into retrieval
-probabilities, then mixes learned values; a causal decoder additionally masks
-future key positions before normalization.
-
-Packing positions lets one layer form its score grid together. It does not make
-total work constant, and it does not make autoregressive token generation
-parallel. The tiny executable contrast records two recurrent decoder steps and
-four score cells for this fixture's $2\times2$ grid; it is a structural example,
-not a hardware benchmark:
+The executable contrast below isolates the change in which positions supply the
+query side and the key/value side:
 
 <RustSource
   path="rust/demos/ch27-self-attention/src/lib.rs"
   region="historical-attention-contrast"
-  caption="Contrast recurrent alignment steps with an all-position self-attention score grid"
-  label="Rust source for the Chapter 27 LLM-centered neural-attention history contrast"
+  caption="Contrast encoder-decoder alignment sources with same-sequence query-key pairs"
+  label="Rust source for the Chapter 27 LLM-centered attention history contrast"
 />
 
 {/* chapter-section:rust-implementation */}
@@ -363,86 +395,130 @@ forward-stage context:
   label="Rust source defining the Chapter 27 self-attention error boundary"
 />
 
-The reverse fixture uses
+For the reverse example, bars denote reverse-mode gradients:
 
 $$
-\bar O=\begin{bmatrix}1&0\\0&1\end{bmatrix}
+\bar X=\frac{\partial L}{\partial X}.
 $$
 
-and obtains
+Choose the upstream seed
 
 $$
-\bar Q\approx[0.079000,-0.039500,-0.014389,0.007195],
+\bar O=\begin{bmatrix}1&0\\0&1\end{bmatrix},
+$$
+
+which defines the scalar objective
+
+$$
+L=\langle O,\bar O\rangle=O_{00}+O_{11}\approx-1.966576.
+$$
+
+First the output matrix multiplication gives
+
+$$
+\bar V_b=A_b^{\mathsf T}\bar O_b,\qquad
+\bar A_b=\bar O_bV_b^{\mathsf T}.
+$$
+
+For each query row, the softmax backward rule is
+
+$$
+\bar S_{bij}
+=A_{bij}\left(\bar A_{bij}-\sum_r A_{bir}\bar A_{bir}\right).
+$$
+
+The scaled dot products then send gradients to queries and keys:
+
+$$
+\bar Q_b=\frac{\bar S_bK_b}{\sqrt{d_k}},\qquad
+\bar K_b=\frac{\bar S_b^{\mathsf T}Q_b}{\sqrt{d_k}}.
+$$
+
+Here $\mathsf T$ transposes the final two axes separately inside each batch.
+
+For the worked inputs, these equations give
+
+$$
+\bar Q\approx
+\begin{bmatrix}
+0.079000&-0.039500\\
+-0.014389&0.007195
+\end{bmatrix},
 $$
 
 $$
-\bar K\approx[-0.007195,0.062847,0.007195,-0.062847],
+\bar K\approx
+\begin{bmatrix}
+-0.007195&0.062847\\
+0.007195&-0.062847
+\end{bmatrix},
 $$
 
 $$
-\bar V\approx[0.014166,0.999151,0.985834,0.000849].
+\bar V\approx
+\begin{bmatrix}
+0.014166&0.999151\\
+0.985834&0.000849
+\end{bmatrix}.
 $$
 
-All four coordinates of each input pass central differences with step $10^{-6}$
-and tolerance $2\times10^{-6}$. Tests also cover equal keys, one token, extreme
-finite scores, token permutation, isolated and empty batches, independent
-$d_v$, direct Chapter 26 composition, typed failures, and bitwise replay.
+All four coordinates of each input agree with central differences using step
+$10^{-6}$ and tolerance $2\times10^{-6}$. Equal keys produce equal weights, a
+single token gives its only value weight one, matching permutations of $Q$, $K$,
+and $V$ produce the same output permutation, and separate batch elements remain
+independent. An empty batch with $Q,K$ shaped $[0,2,2]$ and $V$ shaped
+$[0,2,3]$ returns $A$ shaped $[0,2,2]$ and $O$ shaped $[0,2,3]$. The value
+width may differ from the query/key width: values shaped $[1,2,1]$ produce an
+output shaped $[1,2,1]$.
 
-The learner report gathers that evidence without a second implementation of the
-attention calculation:
+The complete evidence builder keeps these forward, reverse, scale, shape,
+boundary, and replay checks together:
 
 <RustSource
   path="rust/demos/ch27-self-attention/src/lib.rs"
-  region="self-attention-report"
-  caption="Render the deterministic self-attention learner report"
-  label="Rust source rendering the Chapter 27 expected output"
+  region="self-attention-fixture"
+  caption="Build the worked self-attention evidence from the cumulative tensor operations"
+  label="Rust source for the complete Chapter 27 self-attention example"
 />
 
 <RustSource
   path="rust/demos/ch27-self-attention/src/main.rs"
-  caption="Print the frozen learner report"
-  label="Rust entry point for the Chapter 27 learner report"
+  caption="Run the complete unmasked self-attention example"
+  label="Rust entry point for the Chapter 27 self-attention example"
 />
 
-Run `cargo run --quiet --locked -p ch27-self-attention`. Its stdout is frozen in
-`rust/demos/ch27-self-attention/expected.txt`, including the final newline.
+Run `cargo run --quiet --locked -p ch27-self-attention` to inspect the same
+scores, probabilities, mixtures, gradients, shapes, and boundary results.
 
 {/* chapter-section:visualization */}
 
-## Inspect every attention row without browser-side arithmetic
+## Trace every attention row from scores to output
 
-The separate trace contains the exact inputs, raw and scaled scores,
-probability rows and sums, weighted terms, outputs, gradients, shapes, errors,
-history labels, and replay proof:
-
-<RustSource
-  path="rust/demos/ch27-self-attention/src/diagram_trace.rs"
-  region="self-attention-trace"
-  caption="Emit the strict twenty-one-line unmasked self-attention trace"
-  label="Rust source producing the Chapter 27 static diagram trace"
-/>
+The diagram follows the exact inputs through raw and scaled scores, probability
+rows, weighted value terms, outputs, gradients, shapes, rejected inputs, and the
+historical transition to self-attention:
 
 <SelfAttentionDiagram labels={diagramLabels} />
 
-The site parser requires every trace line and numeric spelling to match the
-frozen fixture. It keeps numbers as strings and projects them into semantic
-static HTML; it does not recompute dot products, softmax, weighted mixtures, or
-gradients. Solid, dashed, double, and dotted borders make the roles readable
-without color. Dense rows own named keyboard-focusable local scrollers.
+Read each probability row across key positions before following it into the
+matching weighted value terms. Solid, dashed, double, and dotted borders keep
+query, key, value, score, and probability roles distinct without relying on
+color. Every position is still visible; Chapter 28 adds the missing causal
+boundary.
 
 {/* chapter-section:exercises */}
 
 ## Predict before reading the evidence
 
-1. Compute all four entries of $QK^\top$ for the frozen fixture.
+1. Compute all four entries of $QK^\top$ for the worked example.
 2. Predict which key each query favors before applying softmax.
 3. Explain why each row of $A$ sums to one instead of each column.
 4. Predict the output shape for $Q,K\in\mathbb{R}^{4\times7\times3}$ and $V\in\mathbb{R}^{4\times7\times5}$.
 5. Predict the attention probability and output when there is one token with value $[5,-2]$.
 6. Decide what happens if the same two token positions are swapped in $Q$, $K$, and $V$.
 7. Predict the probabilities when the two key rows are equal.
-8. Identify which information is visible here but invalid during causal decoder training.
-9. Explain what the two-step versus four-score historical fixture does and does not claim.
+8. Identify which future access would leak target information during causal decoder training.
+9. Contrast recurrent alignment with the score-grid structure of self-attention.
 
 <details>
   <summary>Check the predictions</summary>
@@ -452,10 +528,10 @@ without color. Dense rows own named keyboard-focusable local scrollers.
   3. Each query chooses among key positions, so softmax normalizes its key axis.
   4. The output shape is $[4,7,5]$.
   5. The only probability is $[1]$, and the output is $[5,-2]$.
-  6. Scores, probabilities, and outputs receive the same position swap; the operation is equivariant before positional information or masking.
+  6. Jointly permuting the rows of $Q$, $K$, and $V$ applies the same permutation to the output rows. Position-dependent inputs or a mask must be analyzed separately.
   7. Equal scores produce the uniform row $[0.5,0.5]$.
-  8. A query can read later target positions because this head is unmasked.
-  9. It contrasts recurrent steps with a score-grid structure; it does not prove constant work, a universal speedup, or parallel autoregressive generation.
+  8. A query can use later target positions because this head is unmasked; that future access would leak target information during autoregressive training.
+  9. Recurrent alignment computes a new context as the decoder advances; self-attention forms relationships among all available positions within one layer. This does not make total work constant or autoregressive generation parallel.
 </details>
 
 {/* chapter-section:decoder-connection */}

@@ -1,5 +1,9 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import chapterLocaleManifest from "../../src/i18n/chapter-locales.json" with {
+  type: "json",
+};
+
 import {
   chapterPath,
   chapterTag,
@@ -15,6 +19,18 @@ import {
 const chapterId = "00-llm-parts";
 const systemDiagramId = "llm-system-map";
 const detailDiagramId = "llm-parts-map";
+
+function policyChapters(locale: ChapterLocale, includeIntroduction: boolean) {
+  return chapterLocaleManifest.chapters.filter(
+    (chapter) =>
+      chapter.activeLocales.includes(locale) &&
+      (includeIntroduction || chapter.order > 0),
+  );
+}
+
+const russianPolicyChapterIds = new Set(
+  policyChapters("ru", true).map(({ chapterId }) => chapterId),
+);
 
 const chapterCopy = {
   en: {
@@ -378,7 +394,8 @@ async function expectCompleteChapterLinks(
   for (const link of links) {
     const englishChapter = englishById.get(link.chapterId);
     expect(englishChapter, `unknown diagram destination ${link.chapterId}`).toBeDefined();
-    const useRussianDestination = locale === "ru" && englishChapter!.order <= 7;
+    const useRussianDestination =
+      locale === "ru" && russianPolicyChapterIds.has(link.chapterId);
     const destination = useRussianDestination
       ? russianById.get(link.chapterId)
       : englishChapter;
@@ -461,7 +478,7 @@ test.describe(
         const chapters = await readOrderedCourseChapters(page, locale, {
           includeIntroduction: true,
         });
-        expect(chapters).toHaveLength(locale === "en" ? 40 : 8);
+        expect(chapters).toHaveLength(policyChapters(locale, true).length);
         expect(chapters[0]).toEqual(
           expect.objectContaining({
             chapterId,
@@ -471,7 +488,9 @@ test.describe(
         );
         await expect(page.locator("ol.course-list")).toHaveAttribute("start", "0");
         const implementationChapters = await readOrderedCourseChapters(page, locale);
-        expect(implementationChapters).toHaveLength(locale === "en" ? 39 : 7);
+        expect(implementationChapters).toHaveLength(
+          policyChapters(locale, false).length,
+        );
         expect(implementationChapters[0].chapterId).toBe("01-text-units");
         const response = await page.goto(chapterPath(locale, chapterId));
         expect(response?.status()).toBe(200);

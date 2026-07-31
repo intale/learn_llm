@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 52,
-  "policyId": "selective-russian-through-chapter-26",
+  "planRevision": 53,
+  "policyId": "selective-russian-through-chapter-27",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -32,7 +32,7 @@
     { "chapterId": "24-residual-connections", "order": 24, "activeLocales": ["en", "ru"] },
     { "chapterId": "25-rmsnorm", "order": 25, "activeLocales": ["en", "ru"] },
     { "chapterId": "26-qkv-projections", "order": 26, "activeLocales": ["en", "ru"] },
-    { "chapterId": "27-self-attention", "order": 27, "activeLocales": ["en"] },
+    { "chapterId": "27-self-attention", "order": 27, "activeLocales": ["en", "ru"] },
     { "chapterId": "28-causal-masking", "order": 28, "activeLocales": ["en"] },
     { "chapterId": "29-rope", "order": 29, "activeLocales": ["en"] },
     { "chapterId": "30-multi-head-attention", "order": 30, "activeLocales": ["en"] },

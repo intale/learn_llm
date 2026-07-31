@@ -147,8 +147,6 @@ pub struct HistoryEvidence {
     pub bridge: &'static str,
     pub transformer: &'static str,
     pub comparison: &'static str,
-    pub recurrent_steps: usize,
-    pub attention_score_cells: usize,
 }
 
 #[derive(Clone, Debug)]
@@ -399,14 +397,36 @@ fn error_evidence() -> Result<ErrorEvidence, FixtureError> {
 }
 
 // region:historical-attention-contrast
-fn historical_attention_contrast(tokens: usize) -> HistoryEvidence {
+fn attention_pairs<'a>(queries: &'a [&'a str], keys: &'a [&'a str]) -> Vec<(&'a str, &'a str)> {
+    queries
+        .iter()
+        .flat_map(|query| keys.iter().map(move |key| (*query, *key)))
+        .collect()
+}
+
+fn historical_attention_contrast() -> HistoryEvidence {
+    let decoder_states = ["decoder-state-0", "decoder-state-1"];
+    let encoder_annotations = ["encoder-annotation-0", "encoder-annotation-1"];
+    let hidden_sequence = ["hidden-position-0", "hidden-position-1"];
+
+    let encoder_decoder_alignment = attention_pairs(&decoder_states, &encoder_annotations);
+    let self_attention = attention_pairs(&hidden_sequence, &hidden_sequence);
+    assert!(
+        encoder_decoder_alignment
+            .iter()
+            .all(|(query, key)| query.starts_with("decoder") && key.starts_with("encoder"))
+    );
+    assert!(
+        self_attention
+            .iter()
+            .all(|(query, key)| query.starts_with("hidden") && key.starts_with("hidden"))
+    );
+
     HistoryEvidence {
         earlier: "recurrent-fixed-context",
         bridge: "additive-encoder-decoder-alignment",
         transformer: "scaled-dot-product-self-attention",
         comparison: "all-sequence-positions",
-        recurrent_steps: tokens,
-        attention_score_cells: tokens.saturating_mul(tokens),
     }
 }
 // endregion:historical-attention-contrast
@@ -464,6 +484,7 @@ fn gradient_evidence(
     ))
 }
 
+// region:self-attention-fixture
 pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let primary = primary_once()?;
     let replay = primary_once()?;
@@ -474,7 +495,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         single_token: single_token_evidence()?,
         shapes: shape_evidence()?,
         errors: error_evidence()?,
-        history: historical_attention_contrast(2),
+        history: historical_attention_contrast(),
         primary,
         query_checks,
         key_checks,
@@ -482,6 +503,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         gradcheck_passed,
     })
 }
+// endregion:self-attention-fixture
 
 pub(crate) fn format_shape(shape: &[usize]) -> String {
     format!(
@@ -642,12 +664,11 @@ pub fn render_report(evidence: &LearnerEvidence) -> String {
             errors.query_key_width_rejected
         ),
         format!(
-            "history=earlier:{} bridge:{} transformer:{} recurrent_steps:{} attention_score_cells:{}",
+            "history=earlier:{} bridge:{} transformer:{} comparison:{}",
             history.earlier,
             history.bridge,
             history.transformer,
-            history.recurrent_steps,
-            history.attention_score_cells
+            history.comparison
         ),
         format!("same_fixture_replays_bitwise={}", evidence.replay_bitwise),
         "next=mask future key positions before row normalization".to_owned(),

@@ -343,12 +343,35 @@ const chapterAccessibleLabel = (chapterId: string) => {
   }
 
   .llm-parts-diagram:fullscreen {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     align-content: start;
   }
 
   .llm-parts-diagram:fullscreen > figcaption {
-    grid-column: 1 / -1;
+    grid-column: 1 / span 10;
+    grid-row: 1;
+  }
+
+  .llm-parts-diagram:fullscreen > :global(.diagram-full-view-actions) {
+    grid-column: 11 / -1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: end;
+  }
+
+  .llm-parts-diagram:fullscreen > .inference-panel {
+    grid-column: 1 / span 4;
+    grid-row: 2;
+  }
+
+  .llm-parts-diagram:fullscreen > .decoder-panel {
+    grid-column: 5 / span 4;
+    grid-row: 2;
+  }
+
+  .llm-parts-diagram:fullscreen > .learning-panel {
+    grid-column: 9 / span 4;
+    grid-row: 2;
   }
 
   .llm-parts-diagram:fullscreen .inference-flow,

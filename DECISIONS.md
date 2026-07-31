@@ -10362,6 +10362,135 @@ completion checkpoint and commit before the already-authorized Chapter 27 work.
 **Affected step and run:** `activate-ch26-russian-localization`, run
 `20260731T030628Z-activate-ch26-russian-localization-01`.
 
+## 2026-07-31 - Repair locale-boundary regressions exposed by Chapter 27
+
+**Status:** Accepted during `activate-ch27-russian-localization` validation.
+
+**Context:** Advancing Russian publication from Chapter 26 through Chapter 27
+exposed two old browser assumptions outside the Chapter 27 page. Chapter 0's
+browser test still hard-coded the original Russian-through-7 count and fallback
+boundary, while the selective-locale fixture copied the live locale policy and
+therefore no longer represented its intended synthetic boundary. After those
+expectations were derived or isolated correctly, exact Chromium validation at
+the test's declared 1366x768 surface found the Russian LLM-parts map exceeded its
+20-percent full-view travel budget by 13 px. Geometry shows that all three
+evidence panels remain contained; the avoidable height is a separate 52 px row
+occupied only by the shared full-view action.
+
+**Decision:** Make Chapter 0 link and route expectations derive from
+`chapter-locales.json`. Give the temporary selective-locale fixture its own
+bilingual-through-7 policy and remove only fixture Russian lessons at and after
+its synthetic English-only Chapter 8 frontier. In the Chapter 0 parts figure,
+place the existing shared full-view action beside the caption and keep the three
+evidence panels at their existing widths in the following row. Do not alter
+learner text, link targets, typography, shared presentation styles, travel
+budgets, dependencies, build definitions, or the general full-view controller.
+
+**Consequences:** Future locale activations no longer require hard-coded Chapter
+0 count or fallback edits, the synthetic test remains independent of the live
+publication frontier, and the Russian parts map uses its fullscreen width more
+efficiently without scaling or hiding content. Chapter 27 retains ownership of
+these narrow integration outputs and must repeat both locale-specific browser
+checks before completion.
+
+**Affected step and run:** `activate-ch27-russian-localization`, run
+`20260731T042726Z-activate-ch27-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 27 after canonical and rendered audits
+
+**Status:** Accepted after final `activate-ch27-russian-localization`
+validation.
+
+**Context:** The pre-translation audit found that the inherited Chapter 27
+lesson needed explicit reverse equations, tighter shape semantics, LLM-centered
+historical framing, localized rejected-input reasons, and removal of delivery
+mechanics from learner prose. Independent review then corrected the remaining
+English claims and Russian calques before publication. Mandatory rendered gates
+also exposed narrow, independently reproduced containment regressions in the
+Chapter 20 Chromium tables and the Chapter 0 Russian full-view composition;
+their scope and corrections are recorded above.
+
+**Decision:** Publish English revision 2 at SHA-256
+`2706d801ad9857cb93ce8a57441e1da53278118919851e8d6b0e985725370a94` and its
+direct Russian projection at SHA-256
+`cd9380b5277d06b31bcda6eb89424af77e7b817335a49e1c0b3bce5890d5f856`.
+Require exact ordered parity for all 78 learner-facing formulas, localized
+boundary-error reasons, and one shared semantic self-attention figure. Advance
+the published Russian boundary only through Chapter 27. Record the final
+24-file product manifest at
+`C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/publish-product.sha256`
+with SHA-256
+`11534cde6ed8d969be258c92cc46727a9bb74b657c53149c2aa333a4af7faf55`.
+
+**Consequences:** Both locales now teach the complete unmasked single-head
+self-attention forward and reverse paths with exact shapes, values, identifiers,
+sources, exercises, answers, SEO, accessibility labels, and the Chapter 28
+handoff. The final candidate builds 73 pages and passes 2,101 local references,
+73 SEO routes, 73 sitemap URLs, 73 Analytics routes, 848 unit tests, 159 rendered
+shared-matrix cases per browser, seven Chapter 0 cases per browser, both
+selective-locale cases, exact Chapter 27 Rust output and trace, and the complete
+pinned Linux gate at Docker manifest-list SHA-256
+`c9b415928c26872d0e9eacc5522d2975f024df193b779ad42d5dd11ad2da4ef9`.
+No dependency, build, hosting, deployment, or user-environment change is
+introduced.
+
+**Affected step and run:** `activate-ch27-russian-localization`, run
+`20260731T042726Z-activate-ch27-russian-localization-01`.
+
+## 2026-07-31 - Repair the Chapter 20 Chromium containment regression found by Chapter 27
+
+**Status:** Accepted during `activate-ch27-russian-localization` validation.
+
+**Context:** The final Chapter 27 bilingual page passes its focused rendered
+matrix in Chromium and Firefox, and Firefox passes the complete 159-case shared
+matrix. The required Chromium shared-diagram gate independently reproduces an
+older Chapter 20 geometry defect: two forward-row formulas exceed their table
+cells by about 2 px at narrow and fullscreen widths, while two parameter-gradient
+matrices exceed their fullscreen cells by about 9 px and add 8 px of scroll debt.
+The failure is unrelated to Chapter 27 content but prevents the unchanged
+course-wide containment acceptance gate from passing.
+
+**Decision:** Treat `SwigluFeedForwardDiagram.astro` as a necessary regression
+integration output of the active checkpoint. Change only its concept-specific
+table geometry: add enough minimum width for the two forward result cells and
+reallocate the existing fullscreen parameter-table columns toward the matrix
+column. Preserve all Chapter 20 content, formulas, shared styles, scrolling
+semantics, dependencies, and build definitions. Re-run the isolated failing
+Chromium cases and then both complete browser matrices.
+
+**Consequences:** The Chapter 27 commit will contain this narrowly recorded
+Chapter 20 containment repair because the defect was discovered by a mandatory
+cross-course acceptance gate. No earlier chapter semantics or localization
+change, and Chapter 28 still cannot begin until the repaired matrix and Chapter
+27 checkpoint pass and commit independently.
+
+**Affected step and run:** `activate-ch27-russian-localization`, run
+`20260731T042726Z-activate-ch27-russian-localization-01`.
+
+## 2026-07-31 - Restore the pinned browser runtime for Chapter 27 validation
+
+**Status:** Accepted during `activate-ch27-russian-localization` execution.
+
+**Context:** The Chapter 27 checkpoint requires rendered validation in Chromium
+and Firefox. The repository still pins Playwright 1.61.1, but the previously
+verified official browser image is no longer present in the local Docker cache.
+The host browser installation cannot substitute for the recorded Linux browser
+runtime without weakening reproducibility.
+
+**Decision:** Pull the version-matched official
+`mcr.microsoft.com/playwright:v1.61.1-noble` image once, record its immutable
+digest, and use it only for the declared network-isolated Chapter 27 rendered
+checks. Keep the repository's package manifest, lockfile, Dockerfile, workflow,
+and preview-port configuration unchanged.
+
+**Consequences:** The pull is a bounded network input with no paid service or
+product dependency change. Chromium and Firefox execute against the same static
+candidate and exact Playwright version; the downloaded image remains a reusable
+local validation cache for Chapters 28-30.
+
+**Affected step and run:** `activate-ch27-russian-localization`, run
+`20260731T042726Z-activate-ch27-russian-localization-01`.
+
 ## 2026-07-31 - Publish bilingual Chapter 26 after corrective language review
 
 **Status:** Accepted after final Chapter 26 validation; this supersedes the
@@ -10404,6 +10533,35 @@ introduced.
 **Affected step and runs:** `activate-ch26-russian-localization`, failed run
 `20260731T030628Z-activate-ch26-russian-localization-01` and successful corrective
 run `20260731T040048Z-activate-ch26-russian-localization-02`.
+
+## 2026-07-31 - Stage Chapter 27 localization after the Chapter 26 commit
+
+**Status:** Accepted during `activate-ch27-russian-localization` preflight.
+
+**Context:** The user requested Chapters 25 through 30 in Russian, one chapter at
+a time. Chapter 26 is complete and independently committed at `091a15f`, and the
+published locale boundary ends there. Chapter 27 must first be audited against
+its exact single-head self-attention evidence, translated directly from the
+frozen English source, rendered in two engines, and committed before Chapter 28
+begins.
+
+**Decision:** Run Chapter 27 as the large standalone checkpoint
+`activate-ch27-russian-localization`, without a paid translation or generation
+service and without a cost-approval pause. Keep disposable candidate and rendered
+artifacts in
+`C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/`,
+record their checksums, and use the unchanged pinned Linux and browser workflows.
+Audit and freeze English meaning before translating; advance only the Chapter 27
+locale boundary. Do not change product dependencies, build definitions, hosting,
+deployment, or the user environment.
+
+**Consequences:** Publication requires semantic, mathematical, historical, Rust,
+SEO, accessibility, formula, static, link, Chromium, Firefox, fullscreen, and
+nearest-box containment gates for both locales. Chapter 27 receives its own
+completion checkpoint and commit before the already-authorized Chapter 28 work.
+
+**Affected step and run:** `activate-ch27-russian-localization`, run
+`20260731T042726Z-activate-ch27-russian-localization-01`.
 
 ## 2026-07-31 - Freeze corrected Chapter 26 English semantics before translation
 

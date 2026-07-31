@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 52,
+  "plan_revision": 53,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-26",
+    "policy_id": "selective-russian-through-chapter-27",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "26-qkv-projections",
+        "through_chapter": "27-self-attention",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-26."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-27."
       },
       {
-        "from_chapter": "27-self-attention",
+        "from_chapter": "28-causal-masking",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 26 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 27 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -304,6 +304,11 @@
         "step_id": "activate-ch26-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch26-russian-localization"
+      },
+      {
+        "step_id": "activate-ch27-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch27-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -873,9 +878,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–26 activate
-both, while Chapters 27–39 activate English only. Russian therefore keeps its index
-and Chapter 0–26 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–27 activate
+both, while Chapters 28–39 activate English only. Russian therefore keeps its index
+and Chapter 0–27 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1343,11 +1348,12 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `27-self-attention`
 - **Implementation step:** `implement-ch27-self-attention`
+- **Revision status:** Content revision 2 corrects the reverse objective and equations, removes unlike historical counts and learner-facing delivery mechanics, localizes diagram evidence and errors, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch27-russian-localization`.
 - **Depends on:** `26-qkv-projections`.
 - **Outcome:** Compute one unmasked attention head and explain every score, probability, and weighted value.
 - **Scope boundary:** Teach dot-product similarity, `1/√d` scaling, row-wise softmax, value mixing, and gradients; defer causality, position, and multiple heads.
 - **Formula:** `A=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right),\quad O=AV`.
-- **Historical contrast:** Contrast recurrent state compression and additive attention with parallel dot-product self-attention.
+- **Historical contrast:** Contrast recurrent state compression and additive attention with matrix-organized scaled dot-product self-attention.
 - **Rust contribution:** Add single-head scaled attention from cumulative matmul/softmax operations, returning output and inspectable weights.
 - **Visualization:** Useful — display Q·K score cells, row probabilities, and how one output is a weighted sum of value rows.
 - **Practice:** Predict attention weights for identical versus orthogonal query/key vectors and explain the scaling factor.

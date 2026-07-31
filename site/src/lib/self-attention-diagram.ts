@@ -20,7 +20,6 @@ export interface SelfAttentionTrace {
     readonly scale: string;
     readonly softmaxAxis: string;
     readonly masked: string;
-    readonly siteArithmetic: string;
   };
   readonly inputs: readonly SelfAttentionTensorRecord[];
   readonly dotProducts: {
@@ -89,7 +88,6 @@ export interface SelfAttentionTrace {
     readonly gradientTolerance: string;
     readonly gradcheck: string;
     readonly replay: string;
-    readonly trace: string;
     readonly unmasked: string;
   };
   readonly nextChapter: string;
@@ -113,6 +111,7 @@ export interface SelfAttentionDiagramLabels {
   readonly fields: {
     readonly shape: string;
     readonly scale: string;
+    readonly gradientTolerance: string;
     readonly softmaxAxis: string;
     readonly mask: string;
     readonly rowSum: string;
@@ -123,6 +122,16 @@ export interface SelfAttentionDiagramLabels {
     readonly singleToken: string;
     readonly errors: string;
     readonly proof: string;
+    readonly checkCount: string;
+    readonly batchIsolation: string;
+    readonly queryGradient: string;
+    readonly keyGradient: string;
+    readonly replay: string;
+    readonly gradientCheck: string;
+    readonly errorKind: string;
+    readonly errorEvidence: string;
+    readonly queryRowsKeyColumns: string;
+    readonly tokenRowsFeatureColumns: string;
     readonly earlier: string;
     readonly bridge: string;
     readonly transformer: string;
@@ -140,6 +149,20 @@ export interface SelfAttentionDiagramLabels {
     readonly probability: string;
     readonly verified: string;
     readonly rejected: string;
+    readonly unmasked: string;
+  };
+  readonly errorReasons: {
+    readonly queryRank: string;
+    readonly batchMismatch: string;
+    readonly tokenMismatch: string;
+    readonly emptyTokens: string;
+    readonly queryKeyWidth: string;
+  };
+  readonly historyDetails: {
+    readonly earlier: string;
+    readonly bridge: string;
+    readonly transformer: string;
+    readonly comparison: string;
   };
   readonly captions: {
     readonly calculation: string;
@@ -157,7 +180,7 @@ export interface SelfAttentionDiagramLabels {
 }
 
 const expectedLines = [
-  'META|shape=[1,2,2]|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|masked=false|site_arithmetic=none',
+  'META|shape=[1,2,2]|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|masked=false',
   'QUERY|shape=[1,2,2]|values=[0.000000,3.000000,2.000000,-1.000000]',
   'KEY|shape=[1,2,2]|values=[3.000000,0.000000,-1.000000,2.000000]',
   'VALUE|shape=[1,2,2]|values=[3.000000,-3.000000,1.000000,3.000000]',
@@ -176,7 +199,7 @@ const expectedLines = [
   'ERROR|case=empty-tokens|kind=empty-token-axis|tokens=0|rejected=true',
   'ERROR|case=query-key-width|kind=query-key-width-mismatch|query=2|key=3|rejected=true',
   'HISTORY|earlier=recurrent-fixed-context|bridge=additive-encoder-decoder-alignment|transformer=scaled-dot-product-self-attention|comparison=all-sequence-positions',
-  'PROOF|row_sum_tolerance=0.000000000001|query_checks=4|key_checks=4|value_checks=4|gradient_tolerance=0.000002|gradcheck=true|replay=bitwise|trace=rust-authored|unmasked=true',
+  'PROOF|row_sum_tolerance=0.000000000001|query_checks=4|key_checks=4|value_checks=4|gradient_tolerance=0.000002|gradcheck=true|replay=bitwise|unmasked=true',
   'NEXT|chapter=28-causal-masking',
 ] as const;
 
@@ -228,7 +251,7 @@ export function validateSelfAttentionLabels(
 ): SelfAttentionDiagramLabels {
   exactKeys(
     labels as unknown as Record<string, unknown>,
-    ['title', 'description', 'sections', 'stages', 'fields', 'roles', 'cues', 'captions', 'scrollers'],
+    ['title', 'description', 'sections', 'stages', 'fields', 'roles', 'cues', 'errorReasons', 'historyDetails', 'captions', 'scrollers'],
     'root',
   );
   if (labels.title.trim() === '') invalid('root.title must be a nonblank string');
@@ -246,8 +269,11 @@ export function validateSelfAttentionLabels(
   exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
     [
-      'shape', 'scale', 'softmaxAxis', 'mask', 'rowSum', 'weightedTerms', 'output',
-      'backward', 'batchShape', 'singleToken', 'errors', 'proof',
+      'shape', 'scale', 'gradientTolerance', 'softmaxAxis', 'mask', 'rowSum', 'weightedTerms', 'output',
+      'backward', 'batchShape', 'singleToken', 'errors', 'proof', 'checkCount',
+      'batchIsolation', 'queryGradient', 'keyGradient', 'replay', 'gradientCheck',
+      'errorKind', 'errorEvidence',
+      'queryRowsKeyColumns', 'tokenRowsFeatureColumns',
       'earlier', 'bridge', 'transformer',
     ],
     'fields',
@@ -259,8 +285,18 @@ export function validateSelfAttentionLabels(
   );
   exactStringKeys(
     labels.cues as unknown as Record<string, unknown>,
-    ['query', 'key', 'value', 'score', 'probability', 'verified', 'rejected'],
+    ['query', 'key', 'value', 'score', 'probability', 'verified', 'rejected', 'unmasked'],
     'cues',
+  );
+  exactStringKeys(
+    labels.errorReasons as unknown as Record<string, unknown>,
+    ['queryRank', 'batchMismatch', 'tokenMismatch', 'emptyTokens', 'queryKeyWidth'],
+    'errorReasons',
+  );
+  exactStringKeys(
+    labels.historyDetails as unknown as Record<string, unknown>,
+    ['earlier', 'bridge', 'transformer', 'comparison'],
+    'historyDetails',
   );
   exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
@@ -302,7 +338,7 @@ export function parseSelfAttentionTrace(source: string): SelfAttentionTrace {
   const meta = exactMatch(
     lines[0],
     new RegExp(
-      `^META\\|shape=(${shapePattern})\\|key_width=(${unsignedIntegerPattern})\\|value_width=(${unsignedIntegerPattern})\\|scale=(${decimalPattern})\\|softmax_axis=([^|]+)\\|masked=(true|false)\\|site_arithmetic=([^|]+)$`,
+      `^META\\|shape=(${shapePattern})\\|key_width=(${unsignedIntegerPattern})\\|value_width=(${unsignedIntegerPattern})\\|scale=(${decimalPattern})\\|softmax_axis=([^|]+)\\|masked=(true|false)$`,
     ),
     'META',
   );
@@ -389,7 +425,7 @@ export function parseSelfAttentionTrace(source: string): SelfAttentionTrace {
   const proof = exactMatch(
     lines[19],
     new RegExp(
-      `^PROOF\\|row_sum_tolerance=(${decimalTwelvePattern})\\|query_checks=(${unsignedIntegerPattern})\\|key_checks=(${unsignedIntegerPattern})\\|value_checks=(${unsignedIntegerPattern})\\|gradient_tolerance=(${decimalPattern})\\|gradcheck=(true|false)\\|replay=([^|]+)\\|trace=([^|]+)\\|unmasked=(true|false)$`,
+      `^PROOF\\|row_sum_tolerance=(${decimalTwelvePattern})\\|query_checks=(${unsignedIntegerPattern})\\|key_checks=(${unsignedIntegerPattern})\\|value_checks=(${unsignedIntegerPattern})\\|gradient_tolerance=(${decimalPattern})\\|gradcheck=(true|false)\\|replay=([^|]+)\\|unmasked=(true|false)$`,
     ),
     'PROOF',
   );
@@ -403,7 +439,6 @@ export function parseSelfAttentionTrace(source: string): SelfAttentionTrace {
       scale: meta[4],
       softmaxAxis: meta[5],
       masked: meta[6],
-      siteArithmetic: meta[7],
     }),
     inputs: Object.freeze([
       tensorRecord(lines[1], 'query', 'Q'),
@@ -456,8 +491,7 @@ export function parseSelfAttentionTrace(source: string): SelfAttentionTrace {
       gradientTolerance: proof[5],
       gradcheck: proof[6],
       replay: proof[7],
-      trace: proof[8],
-      unmasked: proof[9],
+      unmasked: proof[8],
     }),
     nextChapter: next[1],
   });

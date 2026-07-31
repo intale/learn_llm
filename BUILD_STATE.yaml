@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T04:24:36Z"
+updated_at: "2026-07-31T06:40:52Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -23591,3 +23591,147 @@ builds:
                 status: passed
                 notes: "All 19 changed product/test/policy files exactly match candidate-01 and the LF-terminated manifest verifies; dirty paths are declared Chapter 26 outputs; no dependency, build, hosting, deployment, or file-mode change occurred; git diff --check and YAML parsing pass."
             notes: "Succeeded at corrected revision 2. The direct Russian localization, repaired canonical history, exact Rust evidence, shared semantic figure, and localized full-view presentation pass every acceptance gate. Failed run 01 remains immutable for provenance; Chapter 27 did not start before this checkpoint completed."
+  - build_id: activate-ch27-russian-localization
+    objective: "Audit the canonical Chapter 27 single-head self-attention lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; cost alone does not require an approval pause."
+    completion_criteria:
+      - "English Chapter 27 accurately teaches unmasked scaled dot-product self-attention as an LLM milestone, with correct formulas, shapes, gradients, Rust evidence, history, exercises, and Chapter 28 handoff."
+      - "Russian Chapter 27 preserves every formula, symbol, shape, value, code identifier, causal claim, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 27 is activated in this checkpoint, the locale policy advances through Chapter 27, and the completed step is committed independently before Chapter 28 starts."
+    steps:
+      - id: activate-ch27-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 27 self-attention lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch26-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-31 to translate Chapters 25-30 one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 52 and locale policy selective-russian-through-chapter-26"
+          - "curriculum/chapters/27-self-attention.md"
+          - "site/src/content/chapters/en/27-self-attention.mdx"
+          - "site/src/components/chapters/SelfAttentionDiagram.astro"
+          - "site/src/lib/self-attention-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/27-self-attention-diagram.test.ts"
+          - "site/tests/e2e/ch27-self-attention.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 27 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit 091a15f"
+          - "Official mcr.microsoft.com/playwright:v1.61.1-noble validation image (one bounded network pull because the verified local cache was absent; immutable digest recorded after retrieval)"
+          - "Official node:22.12.0-bookworm staging-validation image at the Dockerfile-pinned immutable digest sha256:0e910f435308c36ea60b4cfd7b80208044d77a074d16b768a81901ce938a62dc (one bounded pull after the local tag was absent)"
+        outputs:
+          - "curriculum/chapters/27-self-attention.md"
+          - "site/src/content/chapters/en/27-self-attention.mdx"
+          - "site/src/content/chapters/ru/27-self-attention.mdx"
+          - "site/src/components/chapters/SelfAttentionDiagram.astro if canonical or rendered bilingual evidence requires shared-role or concept-geometry correction"
+          - "site/src/components/chapters/SwigluFeedForwardDiagram.astro for the narrowly recorded Chromium containment regression exposed by the mandatory shared-diagram gate"
+          - "site/src/components/chapters/LlmPartsDiagram.astro for the narrowly recorded Chapter 0 Russian full-view regression exposed by the advanced locale boundary"
+          - "site/src/lib/self-attention-diagram.ts if the canonical evidence audit changes the strict trace projection"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md if the content revision or locale boundary advances"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/27-self-attention-diagram.test.ts"
+          - "site/tests/e2e/ch27-self-attention.spec.ts"
+          - "site/tests/e2e/ch00-llm-parts.spec.ts and chapter-locales.spec.ts for manifest-derived route expectations and the isolated selective-locale fixture"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "Chapter 27 declared Rust sources and exact artifacts only if the canonical evidence audit finds a defect"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 27 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 27 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, and native full-view surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The independently reproduced Chapter 20 Chromium table-cell debt is removed without changing Chapter 20 content, formulas, shared presentation, or scroll semantics."
+          - "Chapter 0 route expectations derive from the locale manifest, its synthetic locale fixture owns a stable bilingual-through-7 boundary, and the Russian parts map remains within its 1366x768 full-view travel budget."
+          - "The completed Chapter 27 checkpoint is committed independently after Chapter 26 and before Chapter 28."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/27-self-attention.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 27-self-attention"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 27-self-attention"
+          - "npm --prefix site run check:parity -- 27-self-attention en ru"
+          - "npm --prefix site test -- --run tests/27-self-attention-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch27-self-attention && cargo run --quiet --locked -p ch27-self-attention | diff -u rust/demos/ch27-self-attention/expected.txt - && cargo run --quiet --locked -p ch27-self-attention --example ch27-self-attention-trace | diff -u rust/demos/ch27-self-attention/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 27, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "Pinned Chromium and Firefox Chapter 0 plus selective-locale E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, or deployment change."
+        runs:
+          - run_id: 20260731T042726Z-activate-ch27-russian-localization-01
+            started_at: "2026-07-31T04:27:26Z"
+            finished_at: "2026-07-31T06:40:52Z"
+            status: succeeded
+            input_fingerprint:
+              git: "091a15f9cbf611f0d4a2e875e875a4ee70085b70"
+              manifest: "C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:96abf443c4dbcad723e64d75f4026527b741d11208e8e073e9293323a1f4fd43"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation source or service; the current English Chapter 27, exact Rust behavior, and cited primary attention/Transformer sources are authoritative after any recorded canonical correction."
+            staging_dir: "C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 091a15f; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 27 source paths, and material checksums; record the cost and external-staging decision before product edits."
+              - "Pull the absent version-matched official Playwright 1.61.1 browser image once and verify its immutable digest before any Chromium or Firefox execution."
+              - "Materialize the checksum-identical Chapter 27 browser candidate in an isolated Docker volume; use the Dockerfile-pinned Node 22.12.0 image to rebuild a corrected candidate after rendered containment findings."
+              - "Audit and correct English revision 2 against exact Rust forward/reverse evidence, translate all learner-facing fields directly into Russian, migrate the figure to shared presentation roles, and preserve exact ordered parity for 78 formulas."
+              - "Apply independent semantic, terminology, anti-calque, monolingual, accessibility, SEO, history, formula, and static-diagram audits; correct every reported issue before publication."
+              - "Diagnose and repair the pre-existing Chapter 20 Chromium table-cell containment debt exposed by the mandatory shared matrix, then reproduce the corrected geometry in both engines."
+              - "Recover the interrupted final test cell, replace stale Chapter 0 locale-count assumptions with manifest-derived expectations, isolate the synthetic locale fixture from the live boundary, and reorganize the Chapter 0 full-view action row after exact 1366x768 diagnostics."
+              - "Run final Chapter 0 and selective-locale cases, then the exact 159-case Chapter 27/formula/shared-style/shared-full-view matrix in Chromium and Firefox; set Firefox's headless surface to 1366x900 for tests that request a 900px native fullscreen surface."
+              - "Run the complete pinned Linux course check, the 848-test site suite, exact Chapter 27 Rust tests/output/trace, freeze the 24-file product manifest, and remove the disposable browser-candidate volume."
+            artifacts:
+              - path: "C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:96abf443c4dbcad723e64d75f4026527b741d11208e8e073e9293323a1f4fd43"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and base-commit fingerprint before Chapter 27 product edits."
+              - path: "C:/tmp/learn_llm/runs/20260731T042726Z-activate-ch27-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:11534cde6ed8d969be258c92cc46727a9bb74b657c53149c2aa333a4af7faf55"
+                notes: "Sorted SHA-256 manifest for the 24 final product, curriculum, Rust, locale-policy, and regression-test files; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:c9b415928c26872d0e9eacc5522d2975f024df193b779ad42d5dd11ad2da4ef9"
+                notes: "Final canonical pinned Linux manifest list produced by ./course check and reused for the exact unit and Chapter 27 Rust gates."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 26 is independently committed at 091a15f; the worktree was clean; active_build was null with no pending or running record; host orchestration and repository pins are usable; Chapter 27 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, or deployment change is planned."
+              - command: "Official Playwright 1.61.1 browser-runtime retrieval and digest verification"
+                status: passed
+                notes: "The bounded pull restored mcr.microsoft.com/playwright:v1.61.1-noble at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48; repository dependencies and build definitions remain unchanged."
+              - command: "Dockerfile-pinned Node 22.12.0 staging-runtime retrieval and digest verification"
+                status: passed
+                notes: "The isolated candidate rebuild pulled node:22.12.0-bookworm at the Dockerfile's immutable base digest sha256:0e910f435308c36ea60b4cfd7b80208044d77a074d16b768a81901ce938a62dc; the candidate then passed Astro with zero diagnostics, its 73-page static build, and 2,101-reference link/SEO/sitemap/Analytics validation."
+              - command: "Independent English-source and direct-Russian localization review"
+                status: passed
+                notes: "English revision 2 is mathematically consistent with the exact Rust attention fixture and LLM-centered history. Russian preserves all 78 ordered formulas, symbols, shapes, values, identifiers, causal qualifiers, sources, exercises, answers, SEO fields, accessibility labels, and the Chapter 28 handoff in natural monolingual technical language."
+              - command: "Focused contract, content, parity, Astro, unit, static-link, and exact Rust gates"
+                status: passed
+                notes: "The 40-chapter/99-step plan, integrated contract, both localized sources, 68-source parity set, zero-diagnostic 206-file Astro analysis, all 848 site tests, 73-page build, 2,101 links, 73 SEO/sitemap/Analytics routes, three Chapter 27 Rust tests, and exact learner output plus diagram trace pass."
+              - command: "Final Chromium and Firefox rendered validation"
+                status: passed
+                notes: "Both engines pass all seven Chapter 0 bilingual desktop/narrow/no-JavaScript/full-view cases, both selective-locale fixture cases, the seven focused Chapter 27 cases, and the exact 159-case Chapter 27/formula/shared-style/shared-full-view matrix. Nearest-box, painted-text, fullscreen, forced-color, direction, and page containment checks pass without clipping or hidden overflow."
+              - command: "./course check and exact final-image replay"
+                status: passed
+                notes: "The canonical pinned Linux gate passes Rust formatting, all workspace tests, content/parity, Astro, the 73-page production build, and static artifacts at image manifest-list sha256:c9b415928c26872d0e9eacc5522d2975f024df193b779ad42d5dd11ad2da4ef9; that exact image also passes all 848 site tests and exact Chapter 27 output/trace replay."
+              - command: "Frozen publication identity, ledger, ownership, whitespace, and cleanup audit"
+                status: passed
+                notes: "The 24-file product manifest is sha256:11534cde6ed8d969be258c92cc46727a9bb74b657c53149c2aa333a4af7faf55; English is sha256:2706d801ad9857cb93ce8a57441e1da53278118919851e8d6b0e985725370a94 and Russian is sha256:cd9380b5277d06b31bcda6eb89424af77e7b817335a49e1c0b3bce5890d5f856. YAML, diff whitespace, output ownership, file modes, and the clean removal of the disposable candidate volume are verified."
+            notes: "Succeeded. Published English revision 2 and its direct Russian Chapter 27 projection, advanced Russian availability only through Chapter 27, repaired the narrowly discovered Chapter 20 and Chapter 0 containment integrations, and preserved the unchanged dependency, build, hosting, deployment, and user-environment boundaries."

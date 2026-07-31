@@ -1,4 +1,4 @@
-META|shape=[1,2,2]|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|masked=false|site_arithmetic=none
+META|shape=[1,2,2]|key_width=2|value_width=2|scale=0.707107|softmax_axis=key|masked=false
 QUERY|shape=[1,2,2]|values=[0.000000,3.000000,2.000000,-1.000000]
 KEY|shape=[1,2,2]|values=[3.000000,0.000000,-1.000000,2.000000]
 VALUE|shape=[1,2,2]|values=[3.000000,-3.000000,1.000000,3.000000]
@@ -17,5 +17,5 @@ ERROR|case=token-mismatch|kind=token-mismatch|query=2|key=3|value=2|rejected=tru
 ERROR|case=empty-tokens|kind=empty-token-axis|tokens=0|rejected=true
 ERROR|case=query-key-width|kind=query-key-width-mismatch|query=2|key=3|rejected=true
 HISTORY|earlier=recurrent-fixed-context|bridge=additive-encoder-decoder-alignment|transformer=scaled-dot-product-self-attention|comparison=all-sequence-positions
-PROOF|row_sum_tolerance=0.000000000001|query_checks=4|key_checks=4|value_checks=4|gradient_tolerance=0.000002|gradcheck=true|replay=bitwise|trace=rust-authored|unmasked=true
+PROOF|row_sum_tolerance=0.000000000001|query_checks=4|key_checks=4|value_checks=4|gradient_tolerance=0.000002|gradcheck=true|replay=bitwise|unmasked=true
 NEXT|chapter=28-causal-masking
