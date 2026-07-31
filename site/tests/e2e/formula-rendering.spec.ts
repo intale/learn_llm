@@ -568,7 +568,7 @@ const chapter14To39FormulaLatex: Record<
     String.raw`\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}`,
     String.raw`R(\phi)=`,
     String.raw`\theta_k=b^{-2k/d}`,
-    String.raw`R(a)^\top R(b)=R(b-a)`,
+    String.raw`R(\alpha)^\top R(\beta)=R(\beta-\alpha)`,
     String.raw`\begin{bmatrix}\bar{x}_{2k}`,
   ],
   "30-multi-head-attention": [

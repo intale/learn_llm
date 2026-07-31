@@ -10771,3 +10771,104 @@ hosting, deployment, or user-environment change is introduced.
 `20260731T080033Z-activate-ch28-russian-localization-02`. This entry supersedes
 the earlier `Publish bilingual Chapter 28 after causal and rendered audits`
 publication identity without rewriting its historical record.
+
+## 2026-07-31 - Stage direct Russian Chapter 29 localization
+
+**Status:** Accepted before `activate-ch29-russian-localization` product edits.
+
+**Context:** Chapter 28 is independently committed at `aa1adda`. Chapter 29 is
+the next deferred Russian route. Its existing English RoPE lesson, exact Rust
+fixture, integrated contract, diagram, parser, and regression tests are the
+canonical audit inputs; English must be corrected before any Russian surface is
+derived.
+
+**Decision:** Run the mandatory localization workflow under separately
+fingerprinted run `20260731T083927Z-activate-ch29-russian-localization-01`.
+Audit the English semantics, formula scope, LLM-centered history, Rust evidence,
+and shared diagram presentation first. Translate the resulting frozen English
+revision directly into natural technical Russian, advance the locale boundary
+only through Chapter 29, and publish only after exact Rust/static and complete
+Chromium/Firefox containment validation. Use no external translation or paid
+service and do not pause for cost approval.
+
+**Consequences:** The checkpoint may correct canonical learner meaning and
+shared-role integration when the audit establishes a defect, but it must not
+change dependencies, build definitions, hosting, deployment, or the user
+environment. Chapter 29 receives its own completion checkpoint and commit before
+the already-authorized Chapter 30 localization starts.
+
+**Affected step and run:** `activate-ch29-russian-localization`, run
+`20260731T083927Z-activate-ch29-russian-localization-01`.
+
+## 2026-07-31 - Revise canonical Chapter 29 before translating it
+
+**Status:** Accepted during `activate-ch29-russian-localization` run 01 before
+learner-facing product edits.
+
+**Context:** The canonical audit found that revision 1 describes permutation
+equivariance and common-shift evidence too broadly, duplicates the LLM-history
+sequence, leaves several formula symbols implicit, gives misleading labels to
+reverse-mode values, and exposes trace/page/build mechanics in learner prose.
+Its diagram also repeats private frame, card, table, focus, scrolling, and
+forced-color styling already owned by the shared presentation module.
+
+**Decision:** Advance Chapter 29 to English content revision 2 before creating
+Russian. Qualify the position-free attention and fixed-content common-shift
+claims, keep causal visibility separate from RoPE geometry, define every used
+symbol, consolidate the recurrent-to-Transformer-to-RoPE-to-LLaMA history, and
+describe learner evidence without authoring machinery. Correct the diagram's
+feature-coordinate, adjoint, invariant, shape, history, and boundary labels in
+both locales; retain literal program tokens only as inspectable data. Remove
+trace provenance fields that exist solely to describe delivery. Migrate generic
+figure presentation to `diagram.module.css`, leaving only RoPE geometry and
+redundant non-color cues in the component.
+
+**Consequences:** Russian Chapter 29 will be a direct translation of the frozen
+revision-2 English semantics, not revision 1. The exact Rust numerical evidence,
+operation, public API, dependencies, build definitions, hosting, deployment,
+and user environment remain unchanged; only the diagram trace's presentation-
+provenance fields are removed from its exact grammar.
+
+**Affected step and run:** `activate-ch29-russian-localization`, run
+`20260731T083927Z-activate-ch29-russian-localization-01`.
+
+## 2026-07-31 - Publish bilingual Chapter 29 after semantic and rendered audits
+
+**Status:** Accepted after `activate-ch29-russian-localization` run 01
+validation.
+
+**Context:** Canonical review established that Chapter 29 revision 1 overstated
+permutation and equal-shift scope, duplicated its LLM history, omitted symbol
+definitions, mislabeled reverse-mode values, exposed delivery rationale, and
+used a roadmap string instead of an executable historical contrast. Independent
+review of the revision-2 candidate then found several Russian anti-calques,
+ambiguous pair and matrix labels, a raw mathematical arrow, and missing combined
+fullscreen direction and forced-color coverage. An early fullscreen layout also
+left 431 pixels of scroll debt.
+
+**Decision:** Freeze English revision 2 at SHA-256
+`2fd2e1550eb156336ed7a2a8839a12b159ba71c576d2704cf90423c61d68be14`
+and publish its direct Russian projection at SHA-256
+`fe51b9a1ee62f37a453508f4f7702a0f582ab5d7ae3d71b1bea3d4350d3a9dcb`.
+Use a runnable additive sinusoidal-position function for the predecessor
+contrast, keep causal visibility distinct from RoPE geometry, and state
+common-shift invariance only for unchanged query/key content. Use the shared
+`course-v1` diagram presentation, route the shape relation through the math
+pipeline, and name every localized table and scroll region by its evidence.
+Freeze the ordinal path-sorted 19-file product manifest at
+`.build/runs/20260731T083927Z-activate-ch29-russian-localization-01/publish-product.sha256`
+with SHA-256
+`68741bc78966f1a79f3e544d200a38d77336e32ca22a009b59ae533c0bd8841a`.
+
+**Consequences:** Russian availability advances only through Chapter 29. The
+final exact candidate builds 75 pages and passes 2,087 local references, 75 SEO
+routes, 75 sitemap URLs, 75 Analytics routes, all 848 site tests, five Chapter
+29 Rust tests with byte-exact output and trace, and all 163 Chapter
+29/formula/shared-style/shared-full-view cases in each of Chromium and Firefox.
+Its pinned Linux Docker manifest-list SHA-256 is
+`21edce4067721bed0feb858ebefacbd65be09ef611ecb617ad4e36a8dd419f46`.
+No dependency, build-definition, hosting, deployment, or user-environment change
+is introduced.
+
+**Affected step and run:** `activate-ch29-russian-localization`, run
+`20260731T083927Z-activate-ch29-russian-localization-01`.

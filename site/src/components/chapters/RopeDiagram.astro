@@ -63,11 +63,37 @@ const errorLabels: Record<string, string> = {
   'offset-overflow': labels.errorCases.offsetOverflow,
   'released-input': labels.errorCases.releasedInput,
 };
+const shapeLabels: Record<string, string> = {
+  RANK3: labels.shapeCases.rank3,
+  RANK4: labels.shapeCases.rank4,
+  EMPTY_LEADING: labels.shapeCases.emptyLeading,
+  EMPTY_TOKENS: labels.shapeCases.emptyTokens,
+};
 const historyRows = [
-  { title: labels.fields.earlier, value: trace.history.earlier, className: 'earlier-stage' },
-  { title: labels.fields.transformer, value: trace.history.transformer, className: 'transformer-stage' },
-  { title: labels.fields.rotary, value: trace.history.rotary, className: 'rotary-stage' },
-  { title: labels.fields.modern, value: trace.history.modern_example, className: 'modern-stage' },
+  {
+    title: labels.fields.earlier,
+    detail: labels.historyDetails.earlier,
+    value: trace.history.earlier,
+    className: 'earlier-stage',
+  },
+  {
+    title: labels.fields.transformer,
+    detail: labels.historyDetails.transformer,
+    value: trace.history.transformer,
+    className: 'transformer-stage',
+  },
+  {
+    title: labels.fields.rotary,
+    detail: labels.historyDetails.rotary,
+    value: trace.history.rotary,
+    className: 'rotary-stage',
+  },
+  {
+    title: labels.fields.modern,
+    detail: labels.historyDetails.modern,
+    value: trace.history.modern_example,
+    className: 'modern-stage',
+  },
 ];
 ---
 
@@ -82,53 +108,40 @@ const historyRows = [
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="diagram-description course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.captions.rotations}>
-      <li class="fast-cue">{labels.cues.fastPair}</li>
-      <li class="slow-cue">{labels.cues.slowPair}</li>
-      <li class="zero-cue">{labels.cues.zeroOffset}</li>
-      <li class="positive-cue">{labels.cues.positiveOffset}</li>
-      <li class="negative-cue">{labels.cues.negativeOffset}</li>
+    <ul class="cue-list" aria-label={labels.captions.legend}>
+      <li data-diagram-box class="fast-cue">{labels.cues.fastPair}</li>
+      <li data-diagram-box class="slow-cue">{labels.cues.slowPair}</li>
+      <li data-diagram-box class="zero-cue">{labels.cues.zeroOffset}</li>
+      <li data-diagram-box class="positive-cue">{labels.cues.positiveOffset}</li>
+      <li data-diagram-box class="negative-cue">{labels.cues.negativeOffset}</li>
     </ul>
   </figcaption>
 
-  <section class="diagram-section rotation-section" aria-labelledby="rope-rotation-title">
+  <section class="diagram-section rotation-section course-diagram__card-stack" data-diagram-box aria-labelledby="rope-rotation-title">
     <h4 id="rope-rotation-title">{labels.sections.rotations}</h4>
     <p class="section-caption">{labels.captions.rotations}</p>
-    <p
-      class="formula-line course-diagram__scroll"
-      role="region"
-      tabindex="0"
-      aria-labelledby="rope-rotation-title"
-     data-diagram-scroll>
+    <div class="formula-line course-diagram__scroll" role="region" tabindex="0" aria-labelledby="rope-rotation-title" data-diagram-scroll>
       <InlineMath latex="\left(\operatorname{RoPE}(x_m)\right)_{2k:2k+2}=R(m\theta_k)(x_m)_{2k:2k+2}" />
-    </p>
-    <div
-      class="rotation-scroller technical course-diagram__scroll"
-      tabindex="0"
-      role="region"
-      aria-label={labels.scrollers.rotations}
-     data-diagram-scroll>
-      <table data-diagram-table class="evidence-table rotation-table">
+    </div>
+    <div class="rotation-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.rotations} data-diagram-scroll>
+      <table data-diagram-table class="rotation-table">
         <caption>{labels.captions.rotations}</caption>
         <thead>
           <tr>
             <th scope="col">{labels.fields.position}</th>
             <th scope="col">{labels.fields.pair}</th>
-            <th scope="col">{labels.fields.features}</th>
+            <th scope="col">{labels.fields.featureCoordinates}</th>
             <th scope="col">{labels.fields.frequency}</th>
             <th scope="col">{labels.fields.angle}</th>
-            <th scope="col">{labels.fields.before}</th>
-            <th scope="col">{labels.fields.after}</th>
+            <th scope="col">{labels.fields.beforeRotation}</th>
+            <th scope="col">{labels.fields.afterRotation}</th>
           </tr>
         </thead>
         <tbody>
           {pairRows.map((row) => (
             <tr class={row.className} data-position={row.position} data-pair={row.pair.pair}>
               <th scope="row"><InlineMath latex={'m=' + row.position} /></th>
-              <td>
-                <InlineMath latex={'k=' + row.pair.pair} />
-                <small>{row.cue}</small>
-              </td>
+              <td><InlineMath latex={'k=' + row.pair.pair} /><small>{row.cue}</small></td>
               <td><InlineMath latex={pairVector(row.pair.features[0], row.pair.features[1])} /></td>
               <td><InlineMath latex={String.raw`\theta_${row.pair.pair}=${row.pair.theta}`} /></td>
               <td><InlineMath latex={row.angle} /></td>
@@ -141,25 +154,15 @@ const historyRows = [
     </div>
   </section>
 
-  <section class="diagram-section dot-section" aria-labelledby="rope-dot-title">
+  <section class="diagram-section dot-section course-diagram__card-stack" data-diagram-box aria-labelledby="rope-dot-title">
     <h4 id="rope-dot-title">{labels.sections.dots}</h4>
     <p class="section-caption">{labels.captions.dots}</p>
-    <p
-      class="formula-line course-diagram__scroll"
-      role="region"
-      tabindex="0"
-      aria-labelledby="rope-dot-title"
-     data-diagram-scroll>
+    <div class="formula-line course-diagram__scroll" role="region" tabindex="0" aria-labelledby="rope-dot-title" data-diagram-scroll>
       <InlineMath latex="\left(R(m\theta_k)q\right)^\top\left(R(n\theta_k)k\right)=q^\top R((n-m)\theta_k)k" />
-    </p>
-    <div
-      class="dot-scroller technical course-diagram__scroll"
-      tabindex="0"
-      role="region"
-      aria-label={labels.scrollers.dots}
-     data-diagram-scroll>
-      <table data-diagram-table class="evidence-table dot-table">
-        <caption>{labels.captions.dots}</caption>
+    </div>
+    <div class="dot-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.dots} data-diagram-scroll>
+      <table data-diagram-table class="dot-table">
+        <caption><strong>{labels.fields.dot}</strong> — {labels.fields.relativeOffset}. {labels.captions.dots}</caption>
         <thead>
           <tr>
             <th scope="col">{labels.fields.queryPosition} / {labels.fields.keyPosition}</th>
@@ -172,20 +175,10 @@ const historyRows = [
               <th scope="row"><InlineMath latex={'m=' + row.queryPosition} /></th>
               {row.values.values.map((value, index) => {
                 const offset = row.relativeOffsets[index];
-                const offsetClass = offset === '0'
-                  ? 'zero-offset'
-                  : offset.startsWith('-') ? 'negative-offset' : 'positive-offset';
-                const cue = offset === '0'
-                  ? labels.cues.zeroOffset
-                  : offset.startsWith('-') ? labels.cues.negativeOffset : labels.cues.positiveOffset;
+                const offsetClass = offset === '0' ? 'zero-offset' : offset.startsWith('-') ? 'negative-offset' : 'positive-offset';
+                const cue = offset === '0' ? labels.cues.zeroOffset : offset.startsWith('-') ? labels.cues.negativeOffset : labels.cues.positiveOffset;
                 return (
-                  <td
-                    class={offsetClass}
-                    data-query-position={row.queryPosition}
-                    data-key-position={keyPositions[index]}
-                    data-relative-offset={offset}
-                    data-dot={value}
-                  >
+                  <td class={offsetClass} data-query-position={row.queryPosition} data-key-position={keyPositions[index]} data-relative-offset={offset} data-dot={value}>
                     <InlineMath latex={value} />
                     <small><InlineMath latex={'n-m=' + offset} /> · {cue}</small>
                   </td>
@@ -197,107 +190,71 @@ const historyRows = [
       </table>
     </div>
 
-    <div class="shift-grid">
-      <article data-diagram-card data-diagram-box class="shift-card original-shift" data-shift-grid="original">
+    <div class="shift-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="shift-card original-shift course-diagram__card-stack" data-shift-grid="original">
         <h5>{labels.fields.originalGrid}</h5>
         <p>{labels.fields.originalPositions}: <InlineMath latex="[0,1,2]" /></p>
-        <div class="shift-scroller technical course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.shift} data-diagram-scroll>
+        <div class="shift-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.originalShift} data-diagram-scroll>
           <table data-diagram-table class="compact-matrix">
             <caption>{labels.fields.originalGrid}</caption>
-            <tbody>
-              {beforeGrid.map((row, index) => (
-                <tr>
-                  <th scope="row"><InlineMath latex={'m=' + trace.commonShift.beforePositions[index]} /></th>
-                  {row.map((value) => <td><InlineMath latex={value} /></td>)}
-                </tr>
-              ))}
-            </tbody>
+            <thead><tr><th scope="col">{labels.fields.queryPosition} / {labels.fields.keyPosition}</th>{keyPositions.map((key) => <th scope="col"><InlineMath latex={'n=' + key} /></th>)}</tr></thead>
+            <tbody>{beforeGrid.map((row, index) => <tr><th scope="row"><InlineMath latex={'m=' + trace.commonShift.beforePositions[index]} /></th>{row.map((value) => <td><InlineMath latex={value} /></td>)}</tr>)}</tbody>
           </table>
         </div>
       </article>
-      <article data-diagram-card data-diagram-box class="shift-card shifted-shift" data-shift-grid="shifted">
+      <article data-diagram-card data-diagram-box class="shift-card shifted-shift course-diagram__card-stack" data-shift-grid="shifted">
         <h5>{labels.fields.shiftedGrid}</h5>
         <p>{labels.fields.shiftedPositions}: <InlineMath latex="[3,4,5]" /></p>
-        <div class="shift-scroller technical course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.shift} data-diagram-scroll>
+        <div class="shift-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.shiftedShift} data-diagram-scroll>
           <table data-diagram-table class="compact-matrix">
             <caption>{labels.fields.shiftedGrid}</caption>
-            <tbody>
-              {afterGrid.map((row, index) => (
-                <tr>
-                  <th scope="row"><InlineMath latex={'m=' + trace.commonShift.afterPositions[index]} /></th>
-                  {row.map((value) => <td><InlineMath latex={value} /></td>)}
-                </tr>
-              ))}
-            </tbody>
+            <thead><tr><th scope="col">{labels.fields.queryPosition} / {labels.fields.keyPosition}</th>{trace.commonShift.afterPositions.map((key) => <th scope="col"><InlineMath latex={'n=' + key} /></th>)}</tr></thead>
+            <tbody>{afterGrid.map((row, index) => <tr><th scope="row"><InlineMath latex={'m=' + trace.commonShift.afterPositions[index]} /></th>{row.map((value) => <td><InlineMath latex={value} /></td>)}</tr>)}</tbody>
           </table>
         </div>
       </article>
-      <article data-diagram-card data-diagram-box class="shift-card shift-proof" data-common-shift={trace.commonShift.preserved}>
-        <h5>{labels.fields.proof}</h5>
+      <article data-diagram-card data-diagram-box data-status={trace.commonShift.preserved === 'true' ? 'pass' : 'fail'} class="shift-card shift-check course-diagram__card-stack" data-common-shift={trace.commonShift.preserved}>
+        <h5>{labels.fields.commonShiftCheck}</h5>
         <p class="status-line">{verified(trace.commonShift.preserved)}</p>
         <p><InlineMath latex={String.raw`\varepsilon=${trace.commonShift.tolerance}`} /></p>
       </article>
     </div>
   </section>
 
-  <section class="diagram-section evidence-section" aria-labelledby="rope-evidence-title">
+  <section class="diagram-section evidence-section course-diagram__card-stack" data-diagram-box aria-labelledby="rope-evidence-title">
     <h4 id="rope-evidence-title">{labels.sections.evidence}</h4>
     <p class="section-caption">{labels.captions.evidence}</p>
-    <div class="evidence-grid">
-      <article data-diagram-card data-diagram-box class="evidence-card norm-card" data-norm-preserved={trace.norm.preserved}>
+    <div class="evidence-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box data-status={trace.norm.preserved === 'true' ? 'pass' : 'fail'} class="evidence-card norm-card course-diagram__card-stack" data-norm-preserved={trace.norm.preserved}>
         <h5>{labels.fields.norm}</h5>
-        <dl class="technical">
-          <div>
-            <dt>{labels.fields.before}</dt>
-            <dd
-              class="norm-value-scroller course-diagram__scroll"
-              tabindex="0"
-              role="region"
-              aria-label={`${labels.fields.norm}: ${labels.fields.before}`}
-             data-diagram-scroll><InlineMath latex={trace.norm.input.latex} /></dd>
-          </div>
-          <div>
-            <dt>{labels.fields.after}</dt>
-            <dd
-              class="norm-value-scroller course-diagram__scroll"
-              tabindex="0"
-              role="region"
-              aria-label={`${labels.fields.norm}: ${labels.fields.after}`}
-             data-diagram-scroll><InlineMath latex={trace.norm.rotated.latex} /></dd>
-          </div>
-          <div>
-            <dt>{labels.fields.shiftedPositions}</dt>
-            <dd
-              class="norm-value-scroller course-diagram__scroll"
-              tabindex="0"
-              role="region"
-              aria-label={`${labels.fields.norm}: ${labels.fields.shiftedPositions}`}
-             data-diagram-scroll><InlineMath latex={trace.norm.shifted.latex} /></dd>
-          </div>
+        <dl>
+          <div><dt>{labels.fields.beforeRotation}</dt><dd class="norm-value-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={`${labels.fields.norm}: ${labels.fields.beforeRotation}`} data-diagram-scroll><InlineMath latex={trace.norm.input.latex} /></dd></div>
+          <div><dt>{labels.fields.afterRotation}</dt><dd class="norm-value-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={`${labels.fields.norm}: ${labels.fields.afterRotation}`} data-diagram-scroll><InlineMath latex={trace.norm.rotated.latex} /></dd></div>
+          <div><dt>{labels.fields.shiftedPositions}</dt><dd class="norm-value-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={`${labels.fields.norm}: ${labels.fields.shiftedPositions}`} data-diagram-scroll><InlineMath latex={trace.norm.shifted.latex} /></dd></div>
         </dl>
         <p class="status-line">{verified(trace.norm.preserved)}</p>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card shape-card">
+      <article data-diagram-card data-diagram-box class="evidence-card shape-card course-diagram__card-stack">
         <h5>{labels.fields.shape}</h5>
-        <ul class="technical">
+        <ul class="course-diagram__grid">
           {trace.shapes.map((record) => (
-            <li data-shape-case={record.tag}>
-              <code>{record.tag}</code>
-              <InlineMath latex={record.fields.output_shape} />
+            <li data-diagram-card data-diagram-box data-status="pass" data-shape-case={record.tag}>
+              <span>{shapeLabels[record.tag]}</span>
+              <span><InlineMath latex={String.raw`${record.fields.input_shape}\to${record.fields.output_shape}`} /></span>
               <strong>{verified(record.fields.valid)}</strong>
             </li>
           ))}
         </ul>
       </article>
 
-      <article data-diagram-card data-diagram-box class="evidence-card error-card">
+      <article data-diagram-card data-diagram-box class="evidence-card error-card course-diagram__card-stack">
         <h5>{labels.fields.errors}</h5>
-        <ul>
+        <ul class="course-diagram__grid">
           {trace.errors.map((error) => (
-            <li data-error-case={error.case}>
+            <li data-diagram-card data-diagram-box data-state="rejected" data-error-case={error.case}>
               <span>{errorLabels[error.case]}</span>
-              <code>{error.kind}</code>
+              <code><bdi dir="ltr">{error.kind}</bdi></code>
               <strong>{verified(error.rejected)}</strong>
             </li>
           ))}
@@ -305,290 +262,149 @@ const historyRows = [
       </article>
     </div>
 
-    <div
-      class="gradient-scroller technical course-diagram__scroll"
-      tabindex="0"
-      role="region"
-      aria-label={labels.scrollers.gradients}
-     data-diagram-scroll>
-      <table data-diagram-table class="evidence-table gradient-table">
-        <caption>{labels.fields.backward}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{labels.fields.pair}</th>
-            <th scope="col">{labels.fields.before}</th>
-            <th scope="col">{labels.fields.backward}</th>
-          </tr>
-        </thead>
+    <div class="gradient-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.gradients} data-diagram-scroll>
+      <table data-diagram-table class="gradient-table">
+        <caption>{labels.fields.reverseMode}</caption>
+        <thead><tr><th scope="col">{labels.fields.tensor}</th><th scope="col">{labels.fields.outputAdjoint}</th><th scope="col">{labels.fields.inputAdjoint}</th></tr></thead>
         <tbody>
-          <tr>
-            <th scope="row"><InlineMath latex="Q" /></th>
-            <td><InlineMath latex={tokenMatrix(trace.backward.querySeed)} /></td>
-            <td><InlineMath latex={tokenMatrix(trace.backward.queryGradient)} /></td>
-          </tr>
-          <tr>
-            <th scope="row"><InlineMath latex="K" /></th>
-            <td><InlineMath latex={tokenMatrix(trace.backward.keySeed)} /></td>
-            <td><InlineMath latex={tokenMatrix(trace.backward.keyGradient)} /></td>
-          </tr>
+          <tr><th scope="row"><InlineMath latex="Q" /></th><td><InlineMath latex={tokenMatrix(trace.backward.querySeed)} /></td><td><InlineMath latex={tokenMatrix(trace.backward.queryGradient)} /></td></tr>
+          <tr><th scope="row"><InlineMath latex="K" /></th><td><InlineMath latex={tokenMatrix(trace.backward.keySeed)} /></td><td><InlineMath latex={tokenMatrix(trace.backward.keyGradient)} /></td></tr>
         </tbody>
       </table>
     </div>
-    <p class="proof-line" data-rope-proof>
-      {labels.fields.proof}: <InlineMath latex={`${trace.proof.query_checks}+${trace.proof.key_checks}`} /> ·
+    <div data-diagram-card data-diagram-box data-status={trace.proof.gradcheck === 'true' ? 'pass' : 'fail'} class="proof-line" data-rope-proof>
+      <strong>{labels.fields.gradientCheck}:</strong>
+      <InlineMath latex={`${trace.proof.query_checks}+${trace.proof.key_checks}`} /> ·
       <InlineMath latex={String.raw`\varepsilon_g=${trace.proof.gradient_tolerance}`} /> ·
       {verified(trace.proof.gradcheck)}
-    </p>
+    </div>
   </section>
 
-  <section class="diagram-section history-section" aria-labelledby="rope-history-title">
+  <section class="diagram-section history-section course-diagram__card-stack" data-diagram-box aria-labelledby="rope-history-title">
     <h4 id="rope-history-title">{labels.sections.history}</h4>
     <p class="section-caption">{labels.captions.history}</p>
-    <div
-      class="history-scroller course-diagram__scroll"
-      tabindex="0"
-      role="region"
-      aria-label={labels.scrollers.history}
-     data-diagram-scroll>
-      <ol class="history-grid">
+    <div class="history-scroller course-diagram__scroll" tabindex="0" role="region" aria-label={labels.scrollers.history} data-diagram-scroll>
+      <ol class="history-grid course-diagram__grid">
         {historyRows.map((row) => (
           <li>
-            <article data-diagram-card data-diagram-box class:list={['history-card', row.className]}>
+            <article data-diagram-card data-diagram-box class:list={['history-card', 'course-diagram__card-stack', row.className]} data-history-kind={row.value}>
               <h5>{row.title}</h5>
-              <code>{row.value}</code>
+              <p>{row.detail}</p>
             </article>
           </li>
         ))}
       </ol>
     </div>
-    <p class="boundary-note"><code>{trace.history.causal_boundary}</code></p>
+    <div data-diagram-card data-diagram-box class="boundary-note course-diagram__card-stack" data-causal-boundary={trace.history.causal_boundary}>
+      <strong>{labels.fields.causalBoundary}</strong>
+      <p>{labels.historyDetails.causalBoundary}</p>
+    </div>
   </section>
 </figure>
 
 <style>
-  .rope-diagram {
-    box-sizing: border-box;
-    max-width: 100%;
-    margin: 2rem 0;
-    padding: clamp(1rem, 2.5vw, 1.5rem);
-    border: 2px solid var(--border, #667085);
-    border-radius: 1rem;
-    background: color-mix(in srgb, var(--surface, #fff) 94%, var(--accent, #6d5dfc) 6%);
+  .diagram-description,
+  .section-caption {
+    max-inline-size: 76ch;
   }
 
-  .rope-diagram:focus-visible,
-  [tabindex="0"]:focus-visible {
-    outline: 3px solid var(--accent, #6d5dfc);
-    outline-offset: 3px;
-  }
-
-  h3, h4, h5, p { margin-block-start: 0; }
-  h4 { margin-block-end: 0.35rem; }
-  h5 { margin-block-end: 0.55rem; }
-  .diagram-description, .section-caption { max-width: 76ch; }
-
-  .cue-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-    margin: 1rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cue-list li {
-    padding: 0.35rem 0.65rem;
-    border: 2px solid currentColor;
-    border-radius: 999px;
-  }
-
-  .slow-cue, .slow-pair td { border-style: dashed; }
-  .zero-cue, .zero-offset { border-style: double; }
-  .positive-cue, .positive-offset { border-style: solid; }
-  .negative-cue, .negative-offset { border-style: dashed; }
-
-  .diagram-section {
-    min-width: 0;
-    margin-block-start: 1.5rem;
-    padding-block-start: 1.25rem;
-    border-block-start: 1px solid var(--border, #667085);
-  }
-
-  .formula-line {
-    box-sizing: border-box;
-    max-width: 100%;
-    padding: 0.75rem;
-    border-inline-start: 4px solid var(--accent, #6d5dfc);
-    background: var(--surface, #fff);
+  .formula-line,
+  .rotation-table,
+  .dot-table,
+  .compact-matrix,
+  .gradient-table,
+  .norm-value-scroller {
     direction: ltr;
     unicode-bidi: isolate;
   }
 
-  .rotation-scroller,
-  .dot-scroller,
-  .shift-scroller,
-  .gradient-scroller,
-  .history-scroller {
-    box-sizing: border-box;
-    max-width: 100%;
-    overscroll-behavior-inline: contain;
+  .rotation-table { inline-size: 100%; min-inline-size: 57rem; }
+  .dot-table { inline-size: 100%; min-inline-size: 42rem; }
+  .compact-matrix { inline-size: 100%; min-inline-size: 25rem; }
+  .gradient-table { inline-size: 100%; min-inline-size: 67rem; }
+
+  .rotation-table td small,
+  .dot-table td small {
+    display: block;
+    margin-block-start: 0.25rem;
   }
 
-  .technical,
-  .technical table,
-  .technical dl,
-  .technical ul {
-    direction: ltr;
-    unicode-bidi: isolate;
-    text-align: start;
+  .slow-cue,
+  .slow-pair :is(th, td),
+  .negative-cue,
+  .negative-offset,
+  .shifted-shift,
+  .earlier-stage,
+  .transformer-stage {
+    border-style: dashed;
   }
 
-  table {
-    border-collapse: collapse;
-    font-variant-numeric: tabular-nums;
+  .zero-cue,
+  .zero-offset,
+  .rotary-stage,
+  .modern-stage {
+    border-style: double;
+    border-width: 3px;
   }
 
-  caption {
-    padding-block-end: 0.45rem;
-    text-align: start;
-    font-weight: 650;
+  .fast-pair :is(th, td),
+  .positive-cue,
+  .positive-offset {
+    border-style: solid;
   }
-
-  th, td {
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--border, #667085);
-    vertical-align: top;
-    white-space: nowrap;
-  }
-
-  th { background: color-mix(in srgb, var(--surface, #fff) 88%, var(--accent, #6d5dfc) 12%); }
-  td small { display: block; margin-block-start: 0.25rem; white-space: normal; }
-  .rotation-table { min-width: 57rem; width: 100%; }
-  .dot-table { min-width: 42rem; width: 100%; }
-  .gradient-table { min-width: 67rem; width: 100%; }
-
-  .fast-pair { border-inline-start: 4px solid currentColor; }
-  .slow-pair { border-inline-start: 4px dashed currentColor; }
-  .zero-offset { border: 3px double currentColor; }
-  .negative-offset { border: 2px dashed currentColor; }
-  .positive-offset { border: 2px solid currentColor; }
 
   .shift-grid,
   .evidence-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     align-items: start;
-    gap: 0.9rem;
-    margin-block-start: 1rem;
   }
 
   .shift-card,
   .evidence-card,
   .history-card {
-    box-sizing: border-box;
-    min-width: 0;
-    padding: 0.9rem;
-    border: 2px solid var(--border, #667085);
-    border-radius: 0.75rem;
-    background: var(--surface, #fff);
-  }
-
-  .shifted-shift { border-style: dashed; }
-  .shift-proof { border-style: double; border-width: 4px; }
-  .compact-matrix { min-width: 22rem; width: 100%; }
-  .status-line { font-weight: 750; }
-
-  dl { margin: 0; }
-  dl div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
-  dt { font-weight: 700; }
-  dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-  .norm-value-scroller {
-    box-sizing: border-box;
-    max-width: 100%;
-    padding-block-end: 0.2rem;
-    overscroll-behavior-inline: contain;
+    align-self: start;
   }
 
   .shape-card ul,
   .error-card ul {
-    display: grid;
     gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
   .shape-card li,
   .error-card li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1.4fr) auto;
+    align-items: start;
     gap: 0.5rem;
-    padding-block-end: 0.4rem;
-    border-block-end: 1px dotted var(--border, #667085);
-  }
-
-  .gradient-scroller { margin-block-start: 1rem; }
-  .proof-line, .boundary-note {
-    margin-block: 0.9rem 0;
-    padding: 0.7rem;
-    border: 3px double var(--border, #667085);
-    background: var(--surface, #fff);
   }
 
   .history-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(13rem, 1fr));
+    grid-template-columns: repeat(4, minmax(15rem, 1fr));
+    min-inline-size: 64rem;
     align-items: start;
-    gap: 0.75rem;
-    min-width: 58rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
-  .history-card { border-inline-start-width: 5px; }
-  .transformer-stage { border-style: dashed; }
-  .rotary-stage { border-style: double; border-width: 4px; }
-  .modern-stage { border-inline-start-style: double; }
-  .history-card code {
-    display: block;
-    direction: ltr;
-    unicode-bidi: isolate;
-    overflow-wrap: anywhere;
-  }
-  code { overflow-wrap: anywhere; }
-
-  @container course-diagram (max-width: 760px) {
-    .rope-diagram { padding: 0.85rem; }
-    .shift-grid, .evidence-grid { grid-template-columns: minmax(0, 1fr); }
-    .rotation-table { min-width: 52rem; }
-    .gradient-table { min-width: 60rem; }
+  .status-line {
+    font-weight: 750;
   }
 
-  @media (forced-colors: active) {
-    .rope-diagram,
-    .shift-card,
-    .evidence-card,
-    .history-card,
-    th,
-    .formula-line,
-    .proof-line,
-    .boundary-note {
-      background: Canvas;
-      color: CanvasText;
-      border-color: CanvasText;
+  .rope-diagram:dir(rtl) :is(.rotation-table, .dot-table, .compact-matrix, .gradient-table) :is(caption, th, small) {
+    direction: rtl;
+    unicode-bidi: plaintext;
+  }
+
+  @container course-diagram (max-width: 40rem) {
+    .shape-card li,
+    .error-card li {
+      grid-template-columns: 1fr;
     }
-    .rope-diagram:focus-visible,
-    [tabindex="0"]:focus-visible { outline-color: Highlight; }
   }
 
-  :global([dir="rtl"]) .rope-diagram { text-align: start; }
-  :global([dir="rtl"]) .technical,
-  :global([dir="rtl"]) .formula-line,
-  :global([dir="rtl"]) .history-grid {
-    direction: ltr;
-    unicode-bidi: isolate;
+  .rope-diagram:fullscreen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  :global([dir="rtl"]) .history-card { direction: rtl; }
+
+  .rope-diagram:fullscreen :is(figcaption, .rotation-section, .dot-section, .evidence-section, .history-section) {
+    grid-column: 1 / -1;
+  }
 </style>

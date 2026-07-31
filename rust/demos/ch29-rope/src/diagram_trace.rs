@@ -38,7 +38,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     let history = &evidence.history;
     [
         format!(
-            "META|input_shape={}|table_shape={}|dot_shape={}|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final|site_arithmetic=none",
+            "META|input_shape={}|table_shape={}|dot_shape={}|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final",
             format_shape(primary.query.shape()),
             format_shape(primary.cosines.shape()),
             format_shape(primary.dot_grid.shape()),
@@ -147,7 +147,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             history.causal_boundary
         ),
         format!(
-            "PROOF|position_zero={}|norms={}|relative_dot={}|tape_finite={}|query_checks={}|key_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|replay={}|trace=rust-authored|site_arithmetic=none",
+            "PROOF|position_zero={}|norms={}|relative_dot={}|tape_finite={}|query_checks={}|key_checks={}|gradient_tolerance={TOLERANCE:.6}|gradcheck={}|replay={}",
             if primary.position_zero_identity {
                 "bitwise-identity"
             } else {
@@ -186,14 +186,15 @@ mod tests {
     use crate::learner_evidence;
 
     #[test]
-    fn trace_has_frozen_grammar_values_and_provenance() {
+    fn trace_has_frozen_grammar_values() {
         let trace = render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 29);
         assert!(trace.starts_with("META|input_shape=[3,4]|table_shape=[3,2]"));
         assert!(trace.contains("POSITION|position=0|angles=[0.000000,0.000000]"));
         assert!(trace.contains("relative_dot=common-shift-preserved"));
         assert!(trace.contains("causal_boundary=separate-mask"));
-        assert!(trace.contains("|site_arithmetic=none\n"));
+        assert!(!trace.contains("site_arithmetic"));
+        assert!(!trace.contains("rust-authored"));
         assert!(!trace.contains("-0.000000"));
         assert!(trace.ends_with("NEXT|chapter=30-multi-head-attention\n"));
     }

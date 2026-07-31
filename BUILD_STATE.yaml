@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T08:35:32Z"
+updated_at: "2026-07-31T09:36:36Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -23919,3 +23919,136 @@ builds:
                 status: passed
                 notes: "The ordinal-sorted 18-file product manifest is sha256:7adb7eb753b2638b354ab43dff77333cd7341231131cac581ad288e463bdbdc9; English is sha256:c2416c99c8feea7e634e744fa57c08d19c3876d3145d662959155daa625d3c63, Russian is sha256:3d03a73bc01b0c1a3c8025f97e91923f6156a87df541cfba876c6613727e59e4, the contract is sha256:fcf2d8c8603565043a361fc3ef30756a483643670e99d3e18caa2fbe90bef443, and the component is sha256:c2797f9ca7f56733bd1fb95955e8f45b68b895b2ebbcc4c44be6cf995e9919e6. Both disposable exact-candidate volumes were verified by name and permanently removed."
             notes: "Succeeded. Corrected the post-run-01 publication findings in a separately fingerprinted run, preserved the recovered earlier run identity, published the natural direct Russian projection and exact bilingual accessibility surface, restored shared diagram spacing with sufficient concept geometry, and changed no dependency, build definition, hosting, deployment, or user environment."
+  - build_id: activate-ch29-russian-localization
+    objective: "Audit the canonical Chapter 29 RoPE lesson, translate its complete surface directly into natural technical Russian, and activate exactly its Russian route."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses locally authored translation and cached Rust, static, Chromium, and Firefox validation without a paid service; cost alone does not require an approval pause."
+    completion_criteria:
+      - "English Chapter 29 accurately teaches rotary position embeddings as a query/key feature-pair rotation whose dot products expose relative offsets, with correct scope, formulas, shapes, gradients, Rust evidence, LLM-centered history, exercises, and Chapter 30 handoff."
+      - "Russian Chapter 29 preserves every formula, symbol, shape, value, identifier, qualifier, source, exercise, answer, SEO field, diagram label, accessibility label, and handoff in natural technical language."
+      - "The complete bilingual page and shared figure pass desktop, narrow, no-JavaScript, fullscreen, forced-color, direction, formula, and nearest-box containment checks in Chromium and Firefox."
+      - "Only Chapter 29 is activated in this checkpoint, the locale policy advances through Chapter 29, and the completed step is committed independently before Chapter 30 starts."
+    steps:
+      - id: activate-ch29-russian-localization
+        objective: "Freeze and publish the complete Russian Chapter 29 RoPE lesson and its localized shared visualization evidence."
+        depends_on:
+          - activate-ch28-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-07-31 to translate Chapters 25-30 one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 54 and locale policy selective-russian-through-chapter-28"
+          - "curriculum/chapters/29-rope.md"
+          - "site/src/content/chapters/en/29-rope.mdx"
+          - "site/src/components/chapters/RopeDiagram.astro"
+          - "site/src/lib/rope-diagram.ts"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/29-rope-diagram.test.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/content-contract.test.ts, chapter-locales.test.ts, formula-rendering.test.ts, and diagram presentation tests"
+          - "Chapter 29 declared Rust sources, exact output, and exact diagram trace"
+          - "Completed dependency commit aa1adda"
+          - "Cached official mcr.microsoft.com/playwright:v1.61.1-noble image at immutable digest sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+          - "Cached final pinned Linux image at immutable digest sha256:b33a8b41452b54a05b4db8a5e369117409a52f11b1855cb8d44849fb5c505721"
+        outputs:
+          - "curriculum/chapters/29-rope.md"
+          - "site/src/content/chapters/en/29-rope.mdx"
+          - "site/src/content/chapters/ru/29-rope.mdx"
+          - "site/src/components/chapters/RopeDiagram.astro if canonical or rendered bilingual evidence requires shared-role or concept-geometry correction"
+          - "site/src/lib/rope-diagram.ts if the canonical evidence audit changes the strict trace projection"
+          - "rust/demos/ch29-rope/diagram-trace.txt and its Rust author if learner-facing provenance or trace semantics require correction"
+          - "rust/demos/ch29-rope/src/lib.rs if the canonical audit replaces the non-executable historical roadmap sample with a real additive-position contrast"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md and SKILLS.md if the advanced locale boundary changes their examples"
+          - "site/tests/29-rope-diagram.test.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/chapter-locales.test.ts, content-contract.test.ts, formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if locale or revision expectations require updates"
+          - "site/tests/e2e/formula-rendering.spec.ts, diagram-style-system.spec.ts, and diagram-full-view.spec.ts if bilingual route coverage requires updates"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then its exact revision is the sole Russian semantic source."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and the exact active locale set {en, ru}."
+          - "The Chapter 29 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both locales and every registered Chapter 29 figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, unit, exact Rust, Astro, static-link, formula, shared-diagram, and supported Linux gates pass."
+          - "The completed Chapter 29 checkpoint is committed independently after Chapter 28 and before Chapter 30."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/29-rope.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 29-rope"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 29-rope"
+          - "npm --prefix site run check:parity -- 29-rope en ru"
+          - "npm --prefix site test -- --run tests/29-rope-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch29-rope && cargo run --quiet --locked -p ch29-rope | diff -u rust/demos/ch29-rope/expected.txt - && cargo run --quiet --locked -p ch29-rope --example diagram_trace | diff -u rust/demos/ch29-rope/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 29, formula-rendering, shared diagram-style, and full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical audit, complete technical translation, direct locale activation, exact Rust/static checks, and two-engine rendered validation use substantial local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260731T083927Z-activate-ch29-russian-localization-01
+            started_at: "2026-07-31T08:39:27Z"
+            finished_at: "2026-07-31T09:36:36Z"
+            status: succeeded
+            input_fingerprint:
+              git: "aa1addad34600fba8ca6667b1a322a8ec172b750"
+              manifest: ".build/runs/20260731T083927Z-activate-ch29-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:00e67d2f8fc801b8eb93fd8f8dc4fb4c37592503fbead2c64d05dd357235c88d"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; the corrected current English lesson, exact Rust fixture, and its cited primary Transformer/RoPE/LLaMA sources are authoritative."
+            staging_dir: ".build/runs/20260731T083927Z-activate-ch29-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit aa1adda; parse the complete ledger; recheck current decisions, environment, localization instructions, locale policy, Chapter 29 source paths, prior implementation evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit and revise canonical English to content revision 2: qualify unmasked permutation and fixed-content shift scope, define every symbol, consolidate LLM history, replace the roadmap-string contrast with runnable additive sinusoidal encoding, remove delivery prose, and correct the Chapter 30 handoff."
+              - "Translate every Chapter 29 surface directly from frozen English into natural technical Russian; activate only its Russian route and advance the documented locale boundary through Chapter 29."
+              - "Migrate RopeDiagram to shared course-v1 presentation roles, correct Q/K adjoint semantics, localize all explanatory evidence, route the shape relation through server-rendered math, and add exact bilingual accessibility and containment coverage."
+              - "Reject superseded candidates when focused validation and independent reviews exposed duplicated history, anti-calques, one fullscreen scroll debt, ambiguous labels, and missing combined fullscreen direction/forced-color coverage; correct each issue without clipping or private presentation skin."
+              - "Run the final pinned Linux ./course check, all 848 site tests, all five Chapter 29 Rust tests, byte-exact learner output and diagram trace, and all 163 Chapter 29/formula/shared-style/shared-full-view cases in both Chromium and Firefox."
+              - "Freeze the ordinal path-sorted 19-file publication manifest and exact image identity, verify file modes and cleanup targets, and permanently remove the two disposable Chapter 29 browser volumes."
+            artifacts:
+              - path: ".build/runs/20260731T083927Z-activate-ch29-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:00e67d2f8fc801b8eb93fd8f8dc4fb4c37592503fbead2c64d05dd357235c88d"
+                notes: "Exact workflow, policy, canonical lesson, shared figure, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 29 product edits."
+              - path: ".build/runs/20260731T083927Z-activate-ch29-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:68741bc78966f1a79f3e544d200a38d77336e32ca22a009b59ae533c0bd8841a"
+                notes: "Ordinal path-sorted SHA-256 manifest for the 19 exact final product, curriculum, Rust, locale-policy, and regression-test files; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:21edce4067721bed0feb858ebefacbd65be09ef611ecb617ad4e36a8dd419f46"
+                notes: "Exact final canonical pinned Linux manifest list produced after the frozen semantic and diagram corrections and reused for unit, Rust, Chromium, and Firefox gates."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 28 is independently committed at aa1adda; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins are usable; Chapter 29 is the next deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "Independent canonical-English, direct-Russian, formula, source, history, terminology, anti-calque, monolingual, SEO, accessibility, shared-style, and repository review"
+                status: passed
+                notes: "Repeated read-only reviews found and then cleared every issue. Final English SHA-256 2fd2e1550eb156336ed7a2a8839a12b159ba71c576d2704cf90423c61d68be14 is the exact contract source; Russian preserves all 94 formulas, three primary sources, five Rust projections, nine exercises and answers, identifiers, values, qualifiers, SEO fields, and diagram/accessibility meanings in natural language."
+              - command: "Focused Chapter 29 contract, English/Russian content, parity, formula, locale, and shared-diagram gates"
+                status: passed
+                notes: "The integrated contract, both localized sources, 70-source parity set, and all 82 focused assertions pass. The Chapter 29 unit test computes the canonical checksum and verifies Russian formula, history, body, and ordered math parity."
+              - command: "Superseded intermediate contract and rendered candidates"
+                status: failed
+                notes: "Intermediate checks correctly exposed stale exact history strings, a 431-pixel fullscreen evidence-region debt, duplicated historical claims, anti-calques, a raw shape arrow, ambiguous pair/matrix labels, and missing combined fullscreen RTL/forced-color assertions. No superseded output was published; each defect was corrected before the final image was built."
+              - command: "./course check and exact final-image unit/Rust replay"
+                status: passed
+                notes: "The canonical pinned Linux gate passes Rust formatting and all workspace tests, content/parity, zero-diagnostic 206-file Astro analysis, the 75-page production build, 2,087 local references, 75 SEO routes, 75 sitemap URLs, and 75 Analytics routes at image manifest-list sha256:21edce4067721bed0feb858ebefacbd65be09ef611ecb617ad4e36a8dd419f46. That exact image also passes all 848 site tests, five Chapter 29 Rust tests, and byte-exact learner output plus diagram trace."
+              - command: "Final exact-image Chromium and Firefox rendered matrix"
+                status: passed
+                notes: "Both engines pass all 163 Chapter 29/formula/shared-style/shared-full-view cases. Reciprocal routes, formulas, desktop, narrow, no-JavaScript, native fullscreen, combined fullscreen forced colors and synthetic RTL, focus restoration, nearest bounded boxes, painted text, page containment, localized captions, and non-color data cues pass without clipping or hidden overflow."
+              - command: "Frozen publication identity, YAML, whitespace, modes, ownership, and cleanup audit"
+                status: passed
+                notes: "The ordinal-sorted 19-file product manifest is sha256:68741bc78966f1a79f3e544d200a38d77336e32ca22a009b59ae533c0bd8841a; English is sha256:2fd2e1550eb156336ed7a2a8839a12b159ba71c576d2704cf90423c61d68be14, Russian is sha256:fe51b9a1ee62f37a453508f4f7702a0f582ab5d7ae3d71b1bea3d4350d3a9dcb, the contract is sha256:665b518becf86f66f6915df7aed28f3eb8af9c860c3d537c027a724a579b619e, and the component is sha256:6d87355ce94f032bf3eb876c2301c356b8d6f7a15ca778fbffe52d1a1389a196. Product files remain 100644; both named disposable browser volumes were verified and permanently removed."
+            notes: "Succeeded. Published canonical Chapter 29 revision 2 and its direct natural Russian projection, real historical Rust contrast, shared-role diagram with complete localized evidence, exact math/accessibility coverage, and the locale boundary through Chapter 29 without changing dependencies, build definitions, hosting, deployment, or the user environment."

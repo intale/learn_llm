@@ -346,8 +346,8 @@ revision. When English changes in meaning or presentation, invalidate the
 affected target-locale review until it has been refreshed from English. Invoke
 `.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
 
-For the current approved policy, Chapters 0 through 28 use English and Russian,
-and Chapters 29 through 39 use English only until a later explicit activation. A
+For the current approved policy, Chapters 0 through 29 use English and Russian,
+and Chapters 30 through 39 use English only until a later explicit activation. A
 registered but deferred locale keeps its site chrome, existing lessons, and
 future activation path, but it does not require a new lesson or receive a
 chapter route. For each locale active for the selected chapter, create:

@@ -1,4 +1,4 @@
-META|input_shape=[3,4]|table_shape=[3,2]|dot_shape=[3,3]|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final|site_arithmetic=none
+META|input_shape=[3,4]|table_shape=[3,2]|dot_shape=[3,3]|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final
 QUERY|shape=[3,4]|values=[1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000]
 KEY|shape=[3,4]|values=[1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000]
 FREQUENCY|pair=0|features=[0,1]|theta=[1.000000]
@@ -25,5 +25,5 @@ ERROR|case=position-range|kind=position-range-exceeded|offset=2|tokens=2|capacit
 ERROR|case=offset-overflow|kind=position-offset-overflow|tokens=1|rejected=true
 ERROR|case=released-input|kind=autodiff-stage|stage=rotary-pairs|rejected=true
 HISTORY|earlier=recurrent-order-in-state|transformer=absolute-vectors-added-to-embeddings|rotary=absolute-qk-rotations-relative-dot|modern_example=llama-rope-each-layer|causal_boundary=separate-mask
-PROOF|position_zero=bitwise-identity|norms=preserved|relative_dot=common-shift-preserved|tape_finite=true|query_checks=12|key_checks=12|gradient_tolerance=0.000004|gradcheck=true|replay=bitwise|trace=rust-authored|site_arithmetic=none
+PROOF|position_zero=bitwise-identity|norms=preserved|relative_dot=common-shift-preserved|tape_finite=true|query_checks=12|key_checks=12|gradient_tolerance=0.000004|gradcheck=true|replay=bitwise
 NEXT|chapter=30-multi-head-attention

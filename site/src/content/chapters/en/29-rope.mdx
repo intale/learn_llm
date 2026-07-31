@@ -2,102 +2,65 @@
 {
   "chapter_id": "29-rope",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 29,
   "concept_id": "rotary-position-embedding",
   "title": "Turn query and key pairs with RoPE",
   "description": "Learn how rotary position embeddings turn query and key feature pairs by absolute position so relative offsets appear in attention dot products, with a tested Rust implementation.",
-  "objective": "Rotate query and key feature pairs by absolute position, then observe relative offsets in their dot products.",
-  "worked_inputs": "First predict a single pair with $q=[1,0]$, $k=[0,1]$, and $\\theta_0=1$: compare $(m,n)=(0,0)$, $(1,0)$, and the common shift $(3,2)$. Then inspect the Rust fixture, which repeats $[1,0,1,0]$ at positions $0,1,2$ with $b=100$.",
+  "objective": "Rotate query and key feature pairs by absolute position, then observe signed relative positions in their dot products without changing the causal visibility boundary.",
+  "worked_inputs": "First predict one pair with $q=[1,0]$, $k=[0,1]$, and $\\theta_0=1$: compare $(m,n)=(0,0)$, $(1,0)$, and the equal shift $(3,2)$. Then inspect the Rust example, which repeats $[1,0,1,0]$ at positions $0,1,2$ with $b=100$.",
   "formula": {
     "latex": "\\left(\\operatorname{RoPE}(x_m)\\right)_{2k:2k+2}=R(m\\theta_k)(x_m)_{2k:2k+2}",
     "symbols": [
       { "symbol": "\\operatorname{RoPE}", "meaning": "the pairwise rotary position transformation applied independently to a query or key" },
-      { "symbol": "x_m", "meaning": "one query or key feature vector assigned to zero-based absolute position m" },
-      { "symbol": "m", "meaning": "the absolute position, including the sequence offset supplied by the caller" },
+      { "symbol": "x_m", "meaning": "one query or key feature vector assigned to absolute position m" },
+      { "symbol": "m", "meaning": "the query or input absolute position, including a caller-supplied sequence offset" },
+      { "symbol": "n", "meaning": "the key absolute position" },
       { "symbol": "k", "meaning": "the feature-pair and frequency index from zero through d/2 minus one" },
       { "symbol": "2k:2k+2", "meaning": "the half-open slice selecting adjacent coordinates 2k and 2k+1" },
       { "symbol": "R", "meaning": "the counterclockwise two-dimensional rotation matrix" },
+      { "symbol": "\\phi", "meaning": "an arbitrary rotation angle in radians" },
       { "symbol": "\\theta_k", "meaning": "the radians advanced per position by feature pair k" },
-      { "symbol": "b", "meaning": "the positive finite frequency base; the teaching fixture uses 100" },
-      { "symbol": "d", "meaning": "the nonzero even query or key feature width" }
+      { "symbol": "b", "meaning": "the positive finite frequency base; the teaching example uses 100" },
+      { "symbol": "d", "meaning": "the nonzero even query or key feature width" },
+      { "symbol": "q_m^{(k)}", "meaning": "the kth two-coordinate query pair at position m before rotation" },
+      { "symbol": "k_n^{(k)}", "meaning": "the kth two-coordinate key pair at position n before rotation" },
+      { "symbol": "n-m", "meaning": "the signed key-minus-query position difference, not an unsigned distance" },
+      { "symbol": "I", "meaning": "the two-dimensional identity matrix" },
+      { "symbol": "y", "meaning": "the rotated output corresponding to input x" },
+      { "symbol": "\\bar{x}", "meaning": "the derivative of scalar loss L with respect to the input x" },
+      { "symbol": "\\bar{y}", "meaning": "the derivative of scalar loss L with respect to the rotated output y" }
     ]
   },
   "history": {
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
-      "limitation": "Recurrent neural language models carried token order through a state updated one step at a time; removing recurrence made order unavailable unless the attention model received explicit position information.",
-      "later_advance": "The original Transformer added fixed sinusoidal or learned position vectors to input embeddings. RoFormer instead rotates query and key feature pairs by absolute position so their inner product exposes a relative offset.",
-      "modern_llm_role": "Rotary position embeddings are used by influential decoder-only LLMs such as the original LLaMA, which applies RoPE at every layer; they shape query-key scores while causal masking remains a separate visibility rule.",
+      "limitation": "Recurrent neural language models carried order through a state updated one token at a time; unmasked self-attention without a position signal is instead equivariant to a consistent permutation of its content rows.",
+      "later_advance": "Unlike the original Transformer's additive input encoding, RoFormer's query-key rotations introduce an inner-product term that depends on the signed position difference.",
+      "modern_llm_role": "In the original LLaMA, RoPE shapes query-key score geometry at each Transformer layer while the causal mask separately controls visibility.",
       "sources": [
-        {
-          "role": "earlier",
-          "year": 2017,
-          "name": "Vaswani et al., Attention Is All You Need",
-          "source_url": "https://arxiv.org/abs/1706.03762",
-          "claim": "Vaswani et al. remove recurrence and convolution, add position encodings to input embeddings, use multiple sinusoidal frequencies, and report a learned-position alternative with nearly identical translation results in their comparison."
-        },
-        {
-          "role": "later",
-          "year": 2021,
-          "name": "Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding",
-          "source_url": "https://arxiv.org/abs/2104.09864",
-          "claim": "Su et al. encode absolute position with rotations of query and key subspaces and derive a self-attention inner product whose positional term uses the difference between their positions."
-        },
-        {
-          "role": "later",
-          "year": 2023,
-          "name": "Touvron et al., LLaMA: Open and Efficient Foundation Language Models",
-          "source_url": "https://arxiv.org/abs/2302.13971",
-          "claim": "Touvron et al. document that the original LLaMA removes absolute positional embeddings and adds RoPE at each layer of its Transformer network."
-        }
+        { "role": "earlier", "year": 2017, "name": "Vaswani et al., Attention Is All You Need", "source_url": "https://arxiv.org/abs/1706.03762", "claim": "Vaswani et al. remove recurrence and convolution, add positional encodings to input embeddings, and compare fixed sinusoidal and learned position representations." },
+        { "role": "later", "year": 2021, "name": "Su et al., RoFormer: Enhanced Transformer with Rotary Position Embedding", "source_url": "https://arxiv.org/abs/2104.09864", "claim": "Su et al. encode absolute position through rotations of query and key subspaces and derive a self-attention inner product whose positional term uses their position difference." },
+        { "role": "later", "year": 2023, "name": "Touvron et al., LLaMA: Open and Efficient Foundation Language Models", "source_url": "https://arxiv.org/abs/2302.13971", "claim": "Touvron et al. document that the original LLaMA removes absolute positional embeddings and applies RoPE at each Transformer layer." }
       ]
     },
-    "approach": "From sequence order carried by recurrent state, through position vectors added to embeddings, to multiplicative query-key rotations",
-    "summary": "Attention without a position signal cannot distinguish a consistent reordering of otherwise identical content. Absolute rotary angles restore position information, while shared rotation algebra makes a fixed query-key dot product depend on their relative offset as well as their contents and pair frequencies.",
+    "approach": "From order carried by recurrent state, through position vectors added to embeddings, to multiplicative query-key rotations",
+    "summary": "Before masking, content-only self-attention has no relative-position geometry. Absolute rotary angles add that geometry, while the shared rotation identity makes a fixed query-key dot product depend on the signed difference n-m as well as contents and pair frequencies.",
     "rust_source": "rust/demos/ch29-rope/src/lib.rs"
   },
   "rust_sources": [
-    {
-      "path": "rust/crates/llm-from-scratch/src/attention/rope.rs",
-      "region": "rope-tables",
-      "purpose": "Validate the rotary configuration and precompute inverse frequencies plus sine and cosine tables."
-    },
-    {
-      "path": "rust/crates/llm-from-scratch/src/attention/rope.rs",
-      "region": "rope-rotation",
-      "purpose": "Validate the final feature width and checked absolute interval before rotating the penultimate token axis."
-    },
-    {
-      "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs",
-      "region": "rotary-pairs-forward",
-      "purpose": "Apply adjacent rotations in linear time and reuse their transpose for the local reverse rule."
-    },
-    {
-      "path": "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs",
-      "purpose": "Give the rotary tape node a stable locale-neutral operation identity."
-    },
-    {
-      "path": "rust/demos/ch29-rope/src/lib.rs",
-      "region": "historical-rope-contrast",
-      "purpose": "Record the bounded neural-model progression from recurrent order through rotary query-key geometry."
-    },
-    {
-      "path": "rust/demos/ch29-rope/src/main.rs",
-      "purpose": "Print the frozen Chapter 29 learner report."
-    },
-    {
-      "path": "rust/demos/ch29-rope/src/diagram_trace.rs",
-      "region": "rope-trace",
-      "purpose": "Emit the strict locale-neutral twenty-nine-line trace consumed by the static visualization."
-    }
+    { "path": "rust/demos/ch29-rope/src/lib.rs", "region": "historical-position-contrast", "purpose": "Show how the original Transformer-style sinusoidal method adds a position vector to an embedding, in contrast with later query-key rotations." },
+    { "path": "rust/crates/llm-from-scratch/src/attention/rope.rs", "region": "rope-tables", "purpose": "Validate the rotary configuration and precompute inverse frequencies plus sine and cosine tables." },
+    { "path": "rust/crates/llm-from-scratch/src/attention/rope.rs", "region": "rope-rotation", "purpose": "Validate the final feature width and checked absolute interval before rotating the penultimate token axis." },
+    { "path": "rust/crates/llm-from-scratch/src/autograd/model_ops.rs", "region": "rotary-pairs-forward", "purpose": "Apply adjacent rotations in linear time and reuse their transpose for the local reverse rule." },
+    { "path": "rust/demos/ch29-rope/src/main.rs", "purpose": "Run the complete Chapter 29 executable example." }
   ],
   "visualization": {
     "decision": "useful",
     "id": "rotary-position-pairs",
-    "rationale": "Position rows make each fast and slow pair rotation inspectable, while a query-by-key dot grid reveals repeated values along equal relative offsets and a common-shift comparison proves the local invariant."
+    "rationale": "Position rows make the two rotation rates inspectable, while repeated fixed content makes equal signed offsets visible along dot-matrix diagonals and lets two equally shifted position ranges demonstrate the local invariant."
   },
-  "decoder_connection": "The cumulative decoder can now rotate each query and key row before the Chapter 28 causal score computation. Chapter 30 partitions that position-aware feature axis into multiple heads, applies attention per head, concatenates the results, and projects them."
+  "decoder_connection": "The cumulative single-head path can rotate query and key rows before causal scoring. Chapter 30 reshapes projected queries and keys into heads, applies RoPE along each head's final feature axis, runs attention per head, concatenates the head outputs, and projects them."
 }
 ---
 
@@ -105,62 +68,82 @@ import RustSource from '../../../components/RustSource.astro';
 import RopeDiagram from '../../../components/chapters/RopeDiagram.astro';
 
 export const diagramLabels = {
-  title: 'Watch absolute rotations reveal relative query-key offsets',
+  title: 'Watch absolute rotations reveal relative query-key positions',
   description:
-    'Read exact Rust-authored frequencies, pair rotations, dot products, common-shift evidence, gradients, shapes, errors, and LLM history without recomputing RoPE in the page.',
+    'Compare two pair frequencies, their rotations, a query-key dot matrix, equal-shift evidence, reverse-mode values, valid shapes, rejected boundaries, and the path to modern decoder LLMs.',
   sections: {
     rotations: 'Follow two feature pairs through three absolute positions',
-    dots: 'Read relative offsets in the query-key dot grid',
-    evidence: 'Check norms, shapes, errors, and reverse mode',
+    dots: 'Read signed relative positions in the query-key dot matrix',
+    evidence: 'Check norms, shapes, boundaries, and reverse mode',
     history: 'Follow position information toward modern decoder LLMs',
   },
   fields: {
     position: 'Absolute position',
-    pair: 'Feature pair',
-    features: 'Coordinates',
+    pair: 'Coordinate pair',
+    featureCoordinates: 'Feature coordinates',
     frequency: 'Radians per position',
     angle: 'Absolute angle',
-    before: 'Before rotation',
-    after: 'After rotation',
+    beforeRotation: 'Before rotation',
+    afterRotation: 'After rotation',
     queryPosition: 'Query position',
     keyPosition: 'Key position',
-    relativeOffset: 'Relative key offset',
+    relativeOffset: 'Key position relative to query',
     dot: 'Rotated dot product',
     originalPositions: 'Original absolute positions',
-    shiftedPositions: 'Common-shifted positions',
-    originalGrid: 'Dot grid at positions zero through two',
-    shiftedGrid: 'Dot grid at positions three through five',
+    shiftedPositions: 'Equally shifted positions',
+    originalGrid: 'Dot matrix at positions zero through two',
+    shiftedGrid: 'Dot matrix at positions three through five',
     norm: 'Norm preservation',
-    backward: 'Output seed and input gradient',
     shape: 'Preserved tensor shapes',
     errors: 'Rejected boundaries',
-    proof: 'Rust-authored proof',
+    tensor: 'Input tensor',
+    outputAdjoint: 'Output adjoint',
+    inputAdjoint: 'Input adjoint',
+    reverseMode: 'Transpose rotation in reverse mode',
+    commonShiftCheck: 'Fixed-content equal-shift check',
+    gradientCheck: 'All-coordinate gradient check',
     earlier: 'Order carried by recurrent state',
     transformer: 'Position vectors added to embeddings',
     rotary: 'Query-key pair rotations',
     modern: 'RoPE in an influential decoder LLM',
+    causalBoundary: 'Visibility remains a separate decision',
   },
   cues: {
     fastPair: 'Fast pair: solid cue',
     slowPair: 'Slow pair: dashed cue',
-    zeroOffset: 'Zero offset: double cue',
+    zeroOffset: 'Equal positions: double cue',
     positiveOffset: 'Key lies later: solid cue',
     negativeOffset: 'Key lies earlier: dashed cue',
-    verified: 'Verified',
+    verified: 'Checked',
     rejected: 'Rejected',
   },
   captions: {
+    legend: 'Legend for pair frequencies and signed relative positions',
     rotations: 'The first pair advances one radian per position; the second advances one tenth of a radian.',
-    dots: 'Cells with the same relative offset repeat along diagonals; content and frequency still matter.',
-    evidence: 'The page projects checked strings and performs no trigonometry, norm, dot-product, or gradient arithmetic.',
-    history: 'The sequence follows neural language-model architecture, not programming-language or runtime history.',
+    dots: 'Because this example repeats the same content, cells with the same signed relative position repeat along diagonals.',
+    evidence: 'Orthogonal rotations preserve norms and shapes; the transpose carries output adjoints back to the inputs.',
+    history: 'Position information moved from sequential state to explicit vectors and then into query-key score geometry.',
   },
   scrollers: {
     rotations: 'Scrollable rotary feature-pair table',
-    dots: 'Scrollable relative-offset dot-product table',
-    shift: 'Scrollable common-shift dot-product matrix',
-    gradients: 'Scrollable rotary reverse-mode evidence',
-    history: 'Scrollable LLM position-information history',
+    dots: 'Scrollable relative-position dot-product table',
+    originalShift: 'Scrollable dot matrix for original positions zero through two',
+    shiftedShift: 'Scrollable dot matrix for shifted positions three through five',
+    gradients: 'Scrollable rotary reverse-mode values',
+    history: 'Scrollable history of position information in LLMs',
+  },
+  shapeCases: {
+    rank3: 'Batch, token, and feature axes',
+    rank4: 'Batch, head, token, and feature axes',
+    emptyLeading: 'Empty leading axis',
+    emptyTokens: 'Empty token axis at table capacity',
+  },
+  historyDetails: {
+    earlier: 'A recurrent state changed once per token, carrying order through sequential computation.',
+    transformer: 'The original Transformer added explicit position vectors to token embeddings.',
+    rotary: 'RoPE rotates query and key pairs by absolute position so their dot product contains a signed relative-position term.',
+    modern: 'The original LLaMA applies RoPE at every Transformer layer.',
+    causalBoundary: 'RoPE changes score geometry. The causal mask still decides which keys a query may see.',
   },
   errorCases: {
     oddWidth: 'Odd final feature width',
@@ -194,22 +177,21 @@ $$
 R(1)q\approx[0.540302,0.841471],\qquad R(0)k=[0,1].
 $$
 
-Predict their dot product. It is approximately $0.841471$. Then shift both
-absolute positions by $2$. The pair becomes $(m,n)=(3,2)$, but the difference
-$n-m=-1$ is unchanged, so the dot product remains approximately $0.841471$.
-Both rotated coordinates change; their relationship does not.
+Their dot product is approximately $0.841471$. Shift both absolute positions
+by $2$: $(m,n)=(3,2)$ still gives $n-m=-1$, so the dot product for these
+unchanged vectors remains approximately $0.841471$. Both rotated coordinates
+change, but their relative rotation does not.
 
-The executable fixture expands this idea to $d=4$. It repeats
-$[1,0,1,0]$ at positions $0$, $1$, and $2$, and uses $b=100$. The two
-frequencies are
+The executable example expands this idea to $d=4$. It repeats $[1,0,1,0]$ at
+positions $0$, $1$, and $2$, uses $b=100$, and therefore has frequencies
 
 $$
 [\theta_0,\theta_1]=[1,0.1].
 $$
 
 Before running it, predict which pair turns faster, what happens at position
-$0$, and which cells of the query-key grid should match after every position
-is shifted by $3$.
+$0$, and which cells should match after every query and key position is shifted
+by $3$ while their contents stay fixed.
 
 {/* chapter-section:formula */}
 
@@ -233,28 +215,22 @@ R(\phi)=
 \theta_k=b^{-2k/d}.
 $$
 
-For this course, coordinates $2k$ and $2k+1$ form an adjacent pair. That
-layout is an explicit implementation convention, not a claim that every RoPE
-implementation stores pairs the same way. The feature width $d$ must be
-nonzero and even so no coordinate is left without a partner.
+This implementation pairs coordinates $2k$ and $2k+1$. Other implementations
+may arrange the pairs differently. Here $d$ must be nonzero and even so every
+coordinate has a partner.
 
-Position $m=0$ gives a zero angle for every pair:
-
-$$
-R(0)=I.
-$$
-
-Each rotation is orthogonal, so it preserves the pair norm and therefore the
-full vector norm:
+Position $m=0$ gives a zero angle for every pair, and each rotation is
+orthogonal:
 
 $$
+R(0)=I,
+\qquad
 R(\phi)^\top R(\phi)=I,
 \qquad
 \lVert R(\phi)x\rVert_2=\lVert x\rVert_2.
 $$
 
-The important attention identity appears when a query at $m$ meets a key at
-$n$:
+When a query at $m$ meets a key at $n$,
 
 $$
 \bigl(R(m\theta_k)q_m^{(k)}\bigr)^\top
@@ -262,18 +238,20 @@ $$
 =(q_m^{(k)})^\top R((n-m)\theta_k)k_n^{(k)}.
 $$
 
-It follows from
+This follows from
 
 $$
-R(a)^\top R(b)=R(b-a).
+R(\alpha)^\top R(\beta)=R(\beta-\alpha).
 $$
 
-The rotations receive absolute positions. The relative quantity $n-m$ appears
-only after the two rotations combine in the dot product. The score still
-depends on the query/key contents and on every $\theta_k$; it is not a function
-of distance alone.
+The rotations receive absolute positions. The signed difference $n-m$ appears
+only when the two rotations combine in the dot product. The score still depends
+on the query/key contents and every $\theta_k$; it is not a function of position
+difference alone.
 
-In reverse mode, the input adjoint uses the transposed rotation:
+Let $L$ be a scalar loss, $\bar{y}=\partial L/\partial y$ the output adjoint,
+and $\bar{x}=\partial L/\partial x$ the input adjoint. Reverse mode applies the
+transposed rotation:
 
 $$
 \begin{bmatrix}\bar{x}_{2k}\\\bar{x}_{2k+1}\end{bmatrix}
@@ -285,90 +263,60 @@ $$
 
 ## Keep position, pair, and visibility roles distinct
 
-- $\operatorname{RoPE}$ is the pairwise rotary transformation applied
-  independently to a query or key.
-- $x_m$ is one query or key feature vector assigned to absolute position $m$.
-- $m$ includes any caller-supplied sequence offset.
-- $k$ selects one frequency and one adjacent feature pair.
-- $2k:2k+2$ is the half-open slice containing coordinates $2k$ and $2k+1$.
-- $R(\phi)$ is the stated counterclockwise two-dimensional rotation.
-- $\theta_k$ is the angle advanced per position for pair $k$.
-- $b$ is a positive finite frequency base; the fixture uses $b=100$ to keep
-  both rates easy to inspect.
-- $d$ is the nonzero even feature width.
-- $n-m$ is the key position relative to the query position.
+- $q_m^{(k)}$ and $k_n^{(k)}$ are the two-coordinate query and key pairs at
+  absolute positions $m$ and $n$ before rotation.
+- $k$ selects one adjacent coordinate pair and its frequency $\theta_k$.
+- $\phi$ is any rotation angle, and $I$ is the identity matrix.
+- $n-m$ is the signed position of the key relative to the query, not an
+  unsigned distance.
+- A bar denotes a derivative of $L$: $\bar{y}$ arrives from later operations,
+  and $\bar{x}$ is sent to earlier ones.
 
-RoPE changes query-key score geometry. Chapter 28's causal mask still decides
-whether a key is visible. Positive relative offsets remain present in the
-unmasked grid below; they are not silently marked as allowed or blocked by
-RoPE. Values $V$ are not rotated in this chapter.
+Without a position signal and before masking, content-only self-attention is
+equivariant to a consistent permutation of its rows: permuting queries, keys,
+and values together merely permutes the outputs. RoPE adds relative-position
+geometry to query-key scores. It does not decide visibility. Chapter 28's causal
+mask still blocks future keys, and values $V$ are not rotated here.
 
 {/* chapter-section:history */}
 
 ## From recurrent order to rotary score geometry
 
-This is the history of neural language-model structure on the road to modern
-LLMs, not the history of Rust, another programming language, or a tensor
-library.
+Recurrent neural language models carried order through a state updated one
+token at a time; unmasked self-attention without a position signal is instead
+equivariant to a consistent permutation of its content rows.
 
-[Vaswani et al., *Attention Is All You Need*](https://arxiv.org/abs/1706.03762)
-remove recurrent and convolutional layers from the Transformer. Without those
-structural paths for order, they add position encodings to the input embeddings
-at the bottoms of the encoder and decoder stacks. Their model uses several
-sine/cosine frequencies; they also report a learned-position alternative with
-nearly identical translation results in that comparison.
+[Vaswani et al. describe the original Transformer](https://arxiv.org/abs/1706.03762).
+Vaswani et al. remove recurrence and convolution, add positional encodings to
+input embeddings, and compare fixed sinusoidal and learned position
+representations. Their sinusoidal choice was
+motivated by a hypothesis about learning fixed offsets, not a guarantee of
+extrapolation to every longer context.
 
-Vaswani et al. remove recurrence and convolution, add position encodings to
-input embeddings, use multiple sinusoidal frequencies, and report a
-learned-position alternative with nearly identical translation results in
-their comparison.
-
-Recurrent neural language models carried token order through a state updated
-one step at a time; removing recurrence made order unavailable unless the
-attention model received explicit position information.
-
-The original paper says the sinusoidal choice was motivated by the hypothesis
-that fixed relative offsets would be easy to learn. It does not prove that any
-model will extrapolate to every longer context.
-
-[Su et al., *RoFormer: Enhanced Transformer with Rotary Position Embedding*](https://arxiv.org/abs/2104.09864)
-move position information into multiplicative rotations of query and key
-subspaces. Their construction encodes absolute position while making a
-relative position term explicit in the self-attention inner product.
-
-Su et al. encode absolute position with rotations of query and key subspaces
-and derive a self-attention inner product whose positional term uses the
-difference between their positions.
-
-The original Transformer added fixed sinusoidal or learned position vectors to
-input embeddings. RoFormer instead rotates query and key feature pairs by
-absolute position so their inner product exposes a relative offset.
-
-[Touvron et al., *LLaMA: Open and Efficient Foundation Language Models*](https://arxiv.org/abs/2302.13971)
-provide one bounded modern example. They document that the original LLaMA
-removes absolute positional embeddings and applies RoPE at each layer.
-
-Touvron et al. document that the original LLaMA removes absolute positional
-embeddings and adds RoPE at each layer of its Transformer network.
-
-Rotary position embeddings are used by influential decoder-only LLMs such as
-the original LLaMA, which applies RoPE at every layer; they shape query-key
-scores while causal masking remains a separate visibility rule.
-
-That example does not make RoPE universal, guarantee length extrapolation, or
-make a whole decoder invariant to shifting its input. The fixture proves a
-local identity for fixed query/key vectors.
-
-The Rust evidence records this bounded model progression without attributing
-the course's API, adjacent layout, base, error order, rounding, or trace grammar
-to any paper:
+The additive approach changes an embedding before it becomes a query, key, or
+value. This small Rust function shows that operation directly:
 
 <RustSource
   path="rust/demos/ch29-rope/src/lib.rs"
-  region="historical-rope-contrast"
-  caption="Record the LLM-centered path from recurrent order to rotary query-key geometry"
-  label="Rust source for the Chapter 29 neural-model history contrast"
+  region="historical-position-contrast"
+  caption="Add a sinusoidal position vector to one embedding"
+  label="Rust source contrasting additive sinusoidal position encoding with RoPE"
 />
+
+[Su et al. introduce RoFormer](https://arxiv.org/abs/2104.09864). Su et al.
+encode absolute position through rotations of query and key subspaces and
+derive a self-attention inner product whose positional term uses their position
+difference. Unlike the original Transformer's additive input encoding,
+RoFormer's query-key rotations introduce an inner-product term that depends on
+the signed position difference.
+
+[Touvron et al. describe the original LLaMA](https://arxiv.org/abs/2302.13971).
+Touvron et al. document that the original LLaMA removes absolute positional
+embeddings and applies RoPE at each Transformer layer. In the original LLaMA,
+RoPE shapes query-key score geometry at each Transformer layer while the causal
+mask separately controls visibility. This example does not make RoPE universal,
+guarantee length extrapolation, or prove that an entire decoder is invariant to
+a shifted input.
 
 {/* chapter-section:rust-implementation */}
 
@@ -382,97 +330,64 @@ per pair and one sine/cosine row per absolute position:
   path="rust/crates/llm-from-scratch/src/attention/rope.rs"
   region="rope-tables"
   caption="Validate the configuration and precompute the rotary tables"
-  label="Rust source building Chapter 29 inverse-frequency and trigonometric tables"
+  label="Rust source building inverse-frequency and trigonometric tables for RoPE"
 />
 
 `RotaryEmbedding::rotate` interprets the penultimate axis as tokens and the
-final axis as features. It accepts rank-two $[T,d]$, rank-three $[B,T,d]$,
-rank-four $[B,H,T,d]$, and arbitrary independent leading axes. The checked
-interval is
+final axis as features. It accepts $[T,d]$, $[B,T,d]$, $[B,H,T,d]$, and
+independent leading axes. For supplied offset $o$, it checks the interval
 
 $$
-[o,o+T),
+[o,o+T).
 $$
 
-where $o$ is the supplied absolute offset. An empty token interval may start at
-the table capacity; a nonempty interval may not cross it.
+An empty token interval may start at the table capacity; a nonempty interval
+may not cross it.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/rope.rs"
   region="rope-rotation"
-  caption="Validate shapes and select the checked absolute-position interval"
-  label="Rust source applying the Chapter 29 rotary table to a tensor value"
+  caption="Validate shapes and select the absolute-position interval"
+  label="Rust source applying the rotary table to a tensor"
 />
 
-The tape operation visits each adjacent pair once. It does not materialize a
-dense $d\times d$ rotation matrix. Passing the `inverse` branch applies the
-transpose for the VJP:
+The differentiable operation visits each adjacent pair once, without building
+a dense $d\times d$ matrix. Its inverse branch applies the transpose for the
+vector-Jacobian product:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
   region="rotary-pairs-forward"
-  caption="Rotate adjacent pairs in linear time and reverse them with the transpose"
-  label="Rust source implementing the differentiable Chapter 29 pair rotation"
+  caption="Rotate adjacent pairs and reverse them with the transpose"
+  label="Rust source implementing differentiable pair rotation"
 />
 
-The tape records a stable operation identity so traces and errors remain
-inspectable without embedding localized prose in the Rust core:
-
-<RustSource
-  path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
-  caption="Name the rotary-pair autodiff operation"
-  label="Rust source defining the Chapter 29 rotary tape operation"
-/>
-
-The fixture calls the same owner independently for $Q$ and $K$. It checks all
-$12$ query coordinates and all $12$ key coordinates by central differences
-with
+The example calls the same operation independently for $Q$ and $K$. Central
+differences check all $12$ coordinates of each input with
 
 $$
 h=10^{-6},\qquad \varepsilon_g=4\times10^{-6}.
 $$
 
-Tests also cover known signs, norm preservation, the full dot grid, a common
-offset, rank-two through rank-four layouts, independent leading lanes, empty
-leading and token axes, invalid configuration, odd or mismatched widths,
-out-of-range and overflowing intervals, released tapes, finite saved context,
-and bitwise replay.
-
-The learner entry point prints only frozen Rust evidence:
+It also checks signs, norms, every dot-matrix cell, an equal position shift,
+rank-two through rank-four layouts, empty axes, invalid configurations,
+position-range errors, finite saved values, and deterministic replay. Run
+`cargo run --quiet --locked -p ch29-rope` to inspect the complete values. The
+example executable constructs and prints that deterministic report:
 
 <RustSource
   path="rust/demos/ch29-rope/src/main.rs"
-  caption="Print the frozen rotary-position learner report"
-  label="Rust entry point for the Chapter 29 learner report"
+  caption="Run the complete RoPE example"
+  label="Rust entry point for the Chapter 29 RoPE example"
 />
-
-Run `cargo run --quiet --locked -p ch29-rope`. Its standard output matches
-`rust/demos/ch29-rope/expected.txt` byte for byte, including the final newline.
 
 {/* chapter-section:visualization */}
 
 ## Read the pair rotations and relative diagonals
 
-The separate Rust example emits all frequencies, positions, rotation rows,
-norms, dot cells, common-shift values, gradients, shapes, errors, history
-tokens, and proof fields consumed below:
-
-<RustSource
-  path="rust/demos/ch29-rope/src/diagram_trace.rs"
-  region="rope-trace"
-  caption="Emit the strict twenty-nine-line rotary-position trace"
-  label="Rust source producing the Chapter 29 static diagram trace"
-/>
-
 <RopeDiagram labels={diagramLabels} />
 
-The component validates the exact trace and keeps numeric lexemes as strings.
-It performs no trigonometry, norm, dot-product, gradient, or other tensor
-arithmetic. Solid, dashed, and double cues carry pair speeds and offset signs
-without relying on color. Each dense table owns a named keyboard-focusable
-local scroller.
-
-The unshifted dot grid is
+The matrix before the equal shift is
 
 $$
 \begin{bmatrix}
@@ -482,9 +397,12 @@ $$
 \end{bmatrix}.
 $$
 
-Equal relative offsets repeat along diagonals. Repeating the same fixed content
-at absolute positions $3$, $4$, and $5$ changes the rotated coordinates but
-preserves all nine dot products within $10^{-12}$.
+Because this example repeats the same query and key content at every position,
+equal signed offsets repeat along diagonals. Moving the unchanged content from
+absolute positions $0,1,2$ to $3,4,5$ changes the rotated coordinates but keeps
+all nine dot products equal within $10^{-12}$. This numerical comparison checks
+one instance of the algebraic identity; the identity itself is established by
+the rotation equation above.
 
 {/* chapter-section:exercises */}
 
@@ -492,57 +410,53 @@ preserves all nine dot products within $10^{-12}$.
 
 1. Prove that position $m=0$ is the identity for every pair.
 2. Compute the single-pair result for $(m,n)=(1,0)$.
-3. Predict what changes after adding the same offset to both $m$ and $n$.
-4. Explain why shifting only $m$ changes the dot product.
+3. Predict what changes after adding the same offset to both positions while
+   holding query and key contents fixed.
+4. Explain why shifting only $m$ generally changes the dot product.
 5. Derive norm preservation from $R(\phi)^\top R(\phi)=I$.
 6. Decide whether $V$ or the causal mask should be rotated.
-7. Explain why a final feature width of $3$ is rejected by this full-width
-   adjacent-pair implementation.
-8. Distinguish the absolute positions passed to RoPE from the relative offset
-   that appears in the dot product.
-9. Explain why the common-shift identity for fixed vectors does not guarantee
-   that a complete decoder prediction is shift-invariant.
+7. Explain why this full-width adjacent-pair implementation rejects $d=3$.
+8. Distinguish the absolute inputs from the signed difference in the dot
+   product.
+9. Explain why the local fixed-content identity does not prove shift invariance
+   for an entire decoder.
 
 <details>
   <summary>Check the key distinctions</summary>
 
   1. Position $m=0$ gives angle $0$ for every pair, so $R(0)=I$.
-  2. For $(m,n)=(1,0)$, the rotated query dotted with the unchanged key is
-     approximately $0.841471$.
-  3. Adding the same offset $c$ keeps $(n+c)-(m+c)=n-m$, so the fixed-content
-     dot product stays unchanged even though both absolute rotations change.
-  4. Shifting only $m$ changes $n-m$ and therefore generally changes the
-     query-key dot product.
-  5. Since $R(\phi)^\top R(\phi)=I$, multiplying by the rotation preserves the
-     squared norm and hence the norm.
-  6. This chapter rotates $Q$ and $K$, not $V$; the causal mask separately
+  2. At $(m,n)=(1,0)$, the dot product is approximately $0.841471$.
+  3. Adding $c$ to both positions keeps $(n+c)-(m+c)=n-m$, so the dot product
+     for unchanged contents stays fixed although both absolute rotations change.
+  4. Shifting only $m$ changes $n-m$ and therefore generally changes the result;
+     special contents or periodic angles can still produce equality.
+  5. $R(\phi)^\top R(\phi)=I$ preserves squared norm and therefore norm.
+  6. This chapter rotates $Q$ and $K$, not $V$; the causal mask independently
      decides which keys are visible.
-  7. Width $3$ leaves one coordinate without a partner, so this full-width
-     adjacent-pair implementation rejects it.
-  8. Absolute indices enter each local rotation; the relative offset emerges
-     only when the query and key rotations combine in their dot product.
-  9. The common-shift identity holds for fixed query and key contents. Other
-     decoder operations can still respond to absolute placement and changed
-     context, so it is not a whole-model invariance guarantee.
+  7. Width $3$ leaves one coordinate without a partner.
+  8. Absolute indices set local angles; the signed relative position appears
+     only after the query and key rotations combine.
+  9. A whole-model invariance claim would require checking every component and
+     boundary and preserving the same content and context. This local identity
+     alone is insufficient.
 </details>
 
-Misconception: RoPE is relative because it receives relative indices.
+Misconception: RoPE receives relative indices.
 
-Correction: it receives absolute positions. The shared rotation identity makes
-the resulting fixed query-key dot product expose their relative difference.
-RoPE does not replace causal masking, and a rotated score still depends on
-content and frequency.
+Correction: it receives absolute positions. Shared rotation algebra makes a
+fixed query-key dot product depend on their signed relative difference. RoPE
+does not replace causal masking, and the score still depends on content and
+frequency.
 
 {/* chapter-section:decoder-connection */}
 
 ## Hand the position-aware axis to multiple heads
 
-The cumulative decoder can now rotate each query and key row before the Chapter
-28 causal score computation. Chapter 30 partitions that position-aware feature
-axis into multiple heads, applies the same rotation and causal attention within
-each head, concatenates head outputs, and applies the learned output projection
-$W_O$.
+The current single-head path rotates each query and key row before Chapter 28's
+causal score computation. Chapter 30 first reshapes projected queries and keys
+into heads, applies RoPE along each head's final feature axis, performs causal
+attention independently per head, concatenates the head outputs, and applies
+the learned output projection $W_O$.
 
-Partial rotary dimensions, alternate pair layouts, key/value cache storage,
-prefill, and long-context frequency scaling remain deliberately outside this
-chapter.
+Partial rotary dimensions, alternate pair layouts, key/value caches, prefill,
+and long-context frequency scaling remain outside this chapter.

@@ -1,4 +1,6 @@
 // @ts-ignore Node APIs are available in the Vitest runner.
+import { createHash } from 'node:crypto';
+// @ts-ignore Node APIs are available in the Vitest runner.
 import { existsSync, readFileSync } from 'node:fs';
 // @ts-ignore Node APIs are available in the Vitest runner.
 import { resolve } from 'node:path';
@@ -21,6 +23,9 @@ const parserSource = read('site/src/lib/rope-diagram.ts');
 const componentSource = read('site/src/components/chapters/RopeDiagram.astro');
 const contractSource = read('curriculum/chapters/29-rope.md');
 const lessonSource = read('site/src/content/chapters/en/29-rope.mdx');
+const russianLessonSource = read('site/src/content/chapters/ru/29-rope.mdx');
+const lessonBody = lessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+const russianLessonBody = russianLessonSource.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 const coursePlanSource = read('curriculum/course-plan.md');
 const ropeSource = read('rust/crates/llm-from-scratch/src/attention/rope.rs');
 const modelOpsSource = read('rust/crates/llm-from-scratch/src/autograd/model_ops.rs');
@@ -32,6 +37,17 @@ function frontmatter(source: string) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) throw new Error('missing JSON frontmatter');
   return JSON.parse(match[1]);
+}
+
+const normalize = (value: string) => value.replace(/[$*_`]/g, '').replace(/\s+/g, ' ').trim();
+
+function markdownMathTokens(source: string): string[] {
+  const tokens: string[] = [];
+  const pattern = /\$\$([\s\S]*?)\$\$|(?<!\\)\$(?!\$)([^$\r\n]+?)(?<!\\)\$/g;
+  for (const match of source.matchAll(pattern)) {
+    tokens.push((match[1] ?? match[2]).replace(/\s+/g, ''));
+  }
+  return tokens;
 }
 
 const labels: RopeDiagramLabels = {
@@ -46,11 +62,11 @@ const labels: RopeDiagramLabels = {
   fields: {
     position: 'position',
     pair: 'pair',
-    features: 'features',
+    featureCoordinates: 'feature coordinates',
     frequency: 'frequency',
     angle: 'angle',
-    before: 'before',
-    after: 'after',
+    beforeRotation: 'before rotation',
+    afterRotation: 'after rotation',
     queryPosition: 'query position',
     keyPosition: 'key position',
     relativeOffset: 'relative offset',
@@ -60,14 +76,19 @@ const labels: RopeDiagramLabels = {
     originalGrid: 'original grid',
     shiftedGrid: 'shifted grid',
     norm: 'norm',
-    backward: 'backward',
     shape: 'shape',
     errors: 'errors',
-    proof: 'proof',
+    tensor: 'tensor',
+    outputAdjoint: 'output adjoint',
+    inputAdjoint: 'input adjoint',
+    reverseMode: 'reverse mode',
+    commonShiftCheck: 'common shift check',
+    gradientCheck: 'gradient check',
     earlier: 'earlier',
     transformer: 'transformer',
     rotary: 'rotary',
     modern: 'modern',
+    causalBoundary: 'causal boundary',
   },
   cues: {
     fastPair: 'fast pair',
@@ -79,6 +100,7 @@ const labels: RopeDiagramLabels = {
     rejected: 'rejected',
   },
   captions: {
+    legend: 'legend',
     rotations: 'rotation caption',
     dots: 'dot caption',
     evidence: 'evidence caption',
@@ -87,9 +109,23 @@ const labels: RopeDiagramLabels = {
   scrollers: {
     rotations: 'rotation scroller',
     dots: 'dot scroller',
-    shift: 'shift scroller',
+    originalShift: 'original shift scroller',
+    shiftedShift: 'shifted shift scroller',
     gradients: 'gradient scroller',
     history: 'history scroller',
+  },
+  shapeCases: {
+    rank3: 'rank three',
+    rank4: 'rank four',
+    emptyLeading: 'empty leading',
+    emptyTokens: 'empty tokens',
+  },
+  historyDetails: {
+    earlier: 'earlier detail',
+    transformer: 'transformer detail',
+    rotary: 'rotary detail',
+    modern: 'modern detail',
+    causalBoundary: 'causal boundary detail',
   },
   errorCases: {
     oddWidth: 'odd width',
@@ -109,7 +145,6 @@ describe('Chapter 29 Rust trace parser', () => {
       table_shape: '[3,2]',
       layout: 'adjacent',
       rotation: 'counterclockwise',
-      site_arithmetic: 'none',
     });
     expect(trace.frequencies).toEqual([
       { pair: '0', features: ['0', '1'], theta: '1.000000' },
@@ -163,7 +198,6 @@ describe('Chapter 29 Rust trace parser', () => {
       key_checks: '12',
       gradcheck: 'true',
       replay: 'bitwise',
-      site_arithmetic: 'none',
     });
     expect(trace.history).toMatchObject({
       earlier: 'recurrent-order-in-state',
@@ -246,21 +280,30 @@ describe('Chapter 29 static diagram and content boundary', () => {
     expect(componentSource).toContain('scope="col"');
     expect(componentSource).toContain('data-relative-offset={offset}');
     expect(componentSource).toContain('data-dot={value}');
+    expect(componentSource).toContain('labels.fields.relativeOffset');
+    expect(componentSource).toContain('labels.fields.dot');
+    expect(componentSource).not.toContain('/> → <');
+    expect(componentSource).toContain('\\to${record.fields.output_shape}');
     expect(componentSource).toContain('align-items: start');
     expect(componentSource).toContain('data-diagram-scroll');
     expect(componentSource).not.toContain('overflow-x: auto');
     expect(componentSource).toContain('border-style: dashed');
     expect(componentSource).toContain('border-style: double');
-    expect(componentSource).toContain('@media (forced-colors: active)');
+    expect(componentSource).not.toContain('@media (forced-colors: active)');
     expect(componentSource).toContain('direction: ltr');
     expect(componentSource).toContain('unicode-bidi: isolate');
     expect(componentSource).not.toMatch(/(?:^|\n)\s*(?:min-)?(?:block-size|height)\s*:/);
     expect(componentSource).not.toContain('overflow: hidden');
+    expect(componentSource).not.toContain('white-space: nowrap');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('course-diagram__grid');
+    expect(componentSource).toContain('data-diagram-box');
   });
 
   it('keeps plan, contract, lesson, Rust evidence, formula, history, SEO, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -274,21 +317,59 @@ describe('Chapter 29 static diagram and content boundary', () => {
     );
     expect(lesson.description).toMatch(/rotary position embeddings.*query and key.*relative offsets.*Rust/i);
     expect(lessonSource).toContain('R(\\phi)=');
-    expect(lessonSource).toContain('R(a)^\\top R(b)=R(b-a)');
+    expect(lessonSource).toContain('R(\\alpha)^\\top R(\\beta)=R(\\beta-\\alpha)');
     expect(lessonSource).toContain('https://arxiv.org/abs/1706.03762');
     expect(lessonSource).toContain('https://arxiv.org/abs/2104.09864');
     expect(lessonSource).toContain('https://arxiv.org/abs/2302.13971');
-    expect(lessonSource).toContain('road to modern');
-    expect(lessonSource).toContain('not the history of Rust');
+    expect(lessonSource).toContain('unmasked self-attention without a position signal');
+    expect(lessonSource).toContain('fixed query-key dot product');
+    expect(lessonSource).not.toContain('not the history of Rust');
+    expect(lessonSource).not.toContain('Rust-authored proof');
+    expect(lessonSource).not.toContain('site_arithmetic');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
-    expect(contract.translation_notes.join(' ')).toContain('Russian is registered but inactive');
-    expect(existsSync(resolve(repositoryRoot, 'site/src/content/chapters/ru/29-rope.mdx'))).toBe(false);
+    expect(contract.content_revision).toBe(2);
+    expect(contract.translation_notes.join(' ')).toContain('exact active locale set {en, ru}');
+    const englishSourceHash = createHash('sha256').update(lessonSource).digest('hex');
+    expect(contract.translation_notes.join(' ')).toContain(
+      `canonical English source SHA-256 is ${englishSourceHash}`,
+    );
+    expect(existsSync(resolve(repositoryRoot, 'site/src/content/chapters/ru/29-rope.mdx'))).toBe(true);
+    expect(russianLesson.content_revision).toBe(2);
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(({ symbol, ru }: { symbol: string; ru: string }) => ({
+        symbol,
+        meaning: ru,
+      })),
+    });
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map((source: {
+        role: string;
+        year: number;
+        name: string;
+        source_url: string;
+        claim: { ru: string };
+      }) => ({ ...source, claim: source.claim.ru })),
+    });
+    for (const field of [
+      contract.history.llm_evolution.limitation.ru,
+      contract.history.llm_evolution.later_advance.ru,
+      contract.history.llm_evolution.modern_llm_role.ru,
+      ...contract.history.llm_evolution.sources.map((source: { claim: { ru: string } }) => source.claim.ru),
+    ]) expect(normalize(russianLessonBody)).toContain(normalize(field));
+    expect(markdownMathTokens(russianLessonBody)).toEqual(markdownMathTokens(lessonBody));
+    expect(russianLessonBody).not.toMatch(/TypeScript|Python history|Rust history|браузер/i);
     for (const region of ['rope-tables', 'rope-rotation']) {
       expect(ropeSource).toContain(`region:${region}`);
     }
     expect(modelOpsSource).toContain('region:rotary-pairs-forward');
     expect(tensorCoreSource).toContain('RotaryPairs');
-    expect(demoSource).toContain('region:historical-rope-contrast');
+    expect(demoSource).toContain('region:historical-position-contrast');
+    expect(demoSource).toContain('pub fn add_sinusoidal_position');
     expect(traceSource).toContain('region:rope-trace');
   });
 });

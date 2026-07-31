@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 54,
+  "plan_revision": 55,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-28",
+    "policy_id": "selective-russian-through-chapter-29",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "28-causal-masking",
+        "through_chapter": "29-rope",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-28."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-29."
       },
       {
-        "from_chapter": "29-rope",
+        "from_chapter": "30-multi-head-attention",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 28 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 29 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -314,6 +314,11 @@
         "step_id": "activate-ch28-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch28-russian-localization"
+      },
+      {
+        "step_id": "activate-ch29-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch29-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -1385,6 +1390,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `29-rope`
 - **Implementation step:** `implement-ch29-rope`
+- **Revision status:** Content revision 2 qualifies position-free permutation equivariance and fixed-content equal shifts, defines the complete rotation and adjoint notation, replaces the roadmap-only historical sample with an additive sinusoidal contrast, consolidates the LLM-centered history, migrates the figure to shared presentation roles, and publishes the direct meaning-first Russian translation through `activate-ch29-russian-localization`.
 - **Depends on:** `28-causal-masking`.
 - **Outcome:** Rotate query/key feature pairs by position and observe relative offsets in their dot products.
 - **Scope boundary:** Teach why attention is permutation-equivariant, sinusoidal history, pairwise rotations, frequencies, even dimensions, and sequence offsets; defer multiple heads/cache integration.

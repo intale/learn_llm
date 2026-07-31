@@ -141,6 +141,21 @@ pub struct LearnerEvidence {
     pub replay_bitwise: bool,
 }
 
+// region:historical-position-contrast
+/// Add the original Transformer's sinusoidal position vector to one embedding.
+/// RoPE instead leaves the embedding unchanged and rotates query/key pairs later.
+pub fn add_sinusoidal_position(mut embedding: [f64; 4], position: usize) -> [f64; 4] {
+    let position = position as f64;
+    let fast_angle = position;
+    let slow_angle = position / 100.0;
+    embedding[0] += fast_angle.sin();
+    embedding[1] += fast_angle.cos();
+    embedding[2] += slow_angle.sin();
+    embedding[3] += slow_angle.cos();
+    embedding
+}
+// endregion:historical-position-contrast
+
 fn tensor(shape: &[usize], values: &[f64]) -> Tensor {
     Tensor::from_vec(shape.to_vec(), values.to_vec()).expect("fixture tensor shape matches data")
 }
@@ -440,7 +455,6 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         |probe| scalar_rotation_loss(probe, &KEY_UPSTREAM).unwrap(),
     )?;
 
-    // region:historical-rope-contrast
     let history = HistoryEvidence {
         earlier: "recurrent-order-in-state",
         transformer: "absolute-vectors-added-to-embeddings",
@@ -448,7 +462,6 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         modern_example: "llama-rope-each-layer",
         causal_boundary: "separate-mask",
     };
-    // endregion:historical-rope-contrast
 
     Ok(LearnerEvidence {
         primary,
@@ -591,6 +604,17 @@ mod tests {
         assert_eq!(evidence.key_checks, KEY.len());
         assert!(evidence.gradcheck_passed);
         assert!(evidence.replay_bitwise);
+    }
+
+    #[test]
+    fn additive_position_contrast_changes_the_embedding() {
+        let encoded = add_sinusoidal_position([1.0, 0.0, 1.0, 0.0], 0);
+        assert_eq!(encoded, [1.0, 1.0, 1.0, 1.0]);
+        let encoded = add_sinusoidal_position([1.0, 0.0, 1.0, 0.0], 1);
+        assert_eq!(encoded[0], 1.0 + 1.0_f64.sin());
+        assert_eq!(encoded[1], 1.0_f64.cos());
+        assert_eq!(encoded[2], 1.0 + 0.01_f64.sin());
+        assert_eq!(encoded[3], 0.01_f64.cos());
     }
 
     #[test]

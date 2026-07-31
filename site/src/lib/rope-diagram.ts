@@ -87,11 +87,11 @@ export interface RopeDiagramLabels {
   readonly fields: {
     readonly position: string;
     readonly pair: string;
-    readonly features: string;
+    readonly featureCoordinates: string;
     readonly frequency: string;
     readonly angle: string;
-    readonly before: string;
-    readonly after: string;
+    readonly beforeRotation: string;
+    readonly afterRotation: string;
     readonly queryPosition: string;
     readonly keyPosition: string;
     readonly relativeOffset: string;
@@ -101,14 +101,19 @@ export interface RopeDiagramLabels {
     readonly originalGrid: string;
     readonly shiftedGrid: string;
     readonly norm: string;
-    readonly backward: string;
     readonly shape: string;
     readonly errors: string;
-    readonly proof: string;
+    readonly tensor: string;
+    readonly outputAdjoint: string;
+    readonly inputAdjoint: string;
+    readonly reverseMode: string;
+    readonly commonShiftCheck: string;
+    readonly gradientCheck: string;
     readonly earlier: string;
     readonly transformer: string;
     readonly rotary: string;
     readonly modern: string;
+    readonly causalBoundary: string;
   };
   readonly cues: {
     readonly fastPair: string;
@@ -120,6 +125,7 @@ export interface RopeDiagramLabels {
     readonly rejected: string;
   };
   readonly captions: {
+    readonly legend: string;
     readonly rotations: string;
     readonly dots: string;
     readonly evidence: string;
@@ -128,9 +134,23 @@ export interface RopeDiagramLabels {
   readonly scrollers: {
     readonly rotations: string;
     readonly dots: string;
-    readonly shift: string;
+    readonly originalShift: string;
+    readonly shiftedShift: string;
     readonly gradients: string;
     readonly history: string;
+  };
+  readonly shapeCases: {
+    readonly rank3: string;
+    readonly rank4: string;
+    readonly emptyLeading: string;
+    readonly emptyTokens: string;
+  };
+  readonly historyDetails: {
+    readonly earlier: string;
+    readonly transformer: string;
+    readonly rotary: string;
+    readonly modern: string;
+    readonly causalBoundary: string;
   };
   readonly errorCases: {
     readonly oddWidth: string;
@@ -142,7 +162,7 @@ export interface RopeDiagramLabels {
   };
 }
 
-const expectedTrace = `META|input_shape=[3,4]|table_shape=[3,2]|dot_shape=[3,3]|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final|site_arithmetic=none
+const expectedTrace = `META|input_shape=[3,4]|table_shape=[3,2]|dot_shape=[3,3]|features=4|pairs=2|positions=6|base=100.000000|layout=adjacent|rotation=counterclockwise|token_axis=penultimate|feature_axis=final
 QUERY|shape=[3,4]|values=[1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000]
 KEY|shape=[3,4]|values=[1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000,1.000000,0.000000]
 FREQUENCY|pair=0|features=[0,1]|theta=[1.000000]
@@ -169,7 +189,7 @@ ERROR|case=position-range|kind=position-range-exceeded|offset=2|tokens=2|capacit
 ERROR|case=offset-overflow|kind=position-offset-overflow|tokens=1|rejected=true
 ERROR|case=released-input|kind=autodiff-stage|stage=rotary-pairs|rejected=true
 HISTORY|earlier=recurrent-order-in-state|transformer=absolute-vectors-added-to-embeddings|rotary=absolute-qk-rotations-relative-dot|modern_example=llama-rope-each-layer|causal_boundary=separate-mask
-PROOF|position_zero=bitwise-identity|norms=preserved|relative_dot=common-shift-preserved|tape_finite=true|query_checks=12|key_checks=12|gradient_tolerance=0.000004|gradcheck=true|replay=bitwise|trace=rust-authored|site_arithmetic=none
+PROOF|position_zero=bitwise-identity|norms=preserved|relative_dot=common-shift-preserved|tape_finite=true|query_checks=12|key_checks=12|gradient_tolerance=0.000004|gradcheck=true|replay=bitwise
 NEXT|chapter=30-multi-head-attention
 `;
 
@@ -203,7 +223,10 @@ function exactStringKeys(
 export function validateRopeDiagramLabels(labels: RopeDiagramLabels): RopeDiagramLabels {
   exactKeys(
     labels as unknown as Record<string, unknown>,
-    ['title', 'description', 'sections', 'fields', 'cues', 'captions', 'scrollers', 'errorCases'],
+    [
+      'title', 'description', 'sections', 'fields', 'cues', 'captions',
+      'scrollers', 'shapeCases', 'historyDetails', 'errorCases',
+    ],
     'root',
   );
   if (labels.title.trim() === '') invalid('root.title must be a nonblank string');
@@ -216,10 +239,12 @@ export function validateRopeDiagramLabels(labels: RopeDiagramLabels): RopeDiagra
   exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
     [
-      'position', 'pair', 'features', 'frequency', 'angle', 'before', 'after',
+      'position', 'pair', 'featureCoordinates', 'frequency', 'angle',
+      'beforeRotation', 'afterRotation',
       'queryPosition', 'keyPosition', 'relativeOffset', 'dot', 'originalPositions',
-      'shiftedPositions', 'originalGrid', 'shiftedGrid', 'norm', 'backward',
-      'shape', 'errors', 'proof', 'earlier', 'transformer', 'rotary', 'modern',
+      'shiftedPositions', 'originalGrid', 'shiftedGrid', 'norm', 'shape', 'errors',
+      'tensor', 'outputAdjoint', 'inputAdjoint', 'reverseMode', 'commonShiftCheck',
+      'gradientCheck', 'earlier', 'transformer', 'rotary', 'modern', 'causalBoundary',
     ],
     'fields',
   );
@@ -230,13 +255,23 @@ export function validateRopeDiagramLabels(labels: RopeDiagramLabels): RopeDiagra
   );
   exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
-    ['rotations', 'dots', 'evidence', 'history'],
+    ['legend', 'rotations', 'dots', 'evidence', 'history'],
     'captions',
   );
   exactStringKeys(
     labels.scrollers as unknown as Record<string, unknown>,
-    ['rotations', 'dots', 'shift', 'gradients', 'history'],
+    ['rotations', 'dots', 'originalShift', 'shiftedShift', 'gradients', 'history'],
     'scrollers',
+  );
+  exactStringKeys(
+    labels.shapeCases as unknown as Record<string, unknown>,
+    ['rank3', 'rank4', 'emptyLeading', 'emptyTokens'],
+    'shapeCases',
+  );
+  exactStringKeys(
+    labels.historyDetails as unknown as Record<string, unknown>,
+    ['earlier', 'transformer', 'rotary', 'modern', 'causalBoundary'],
+    'historyDetails',
   );
   exactStringKeys(
     labels.errorCases as unknown as Record<string, unknown>,
