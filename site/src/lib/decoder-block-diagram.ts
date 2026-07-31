@@ -25,7 +25,6 @@ export interface DecoderBlockTrace {
   readonly orderProof: {
     readonly pre_norm: string;
     readonly post_norm_differs: string;
-    readonly trace: string;
     readonly postNormToken: DecoderBlockTraceVector;
     readonly preNormToken: DecoderBlockTraceVector;
   };
@@ -44,7 +43,6 @@ export interface DecoderBlockTrace {
     readonly original_post_norm: string;
     readonly modern_pre_norm: string;
     readonly numeric_order_contrast: string;
-    readonly site_arithmetic: string;
     readonly rnnStates: DecoderBlockTraceVector;
   };
 }
@@ -60,24 +58,34 @@ export interface DecoderBlockDiagramLabels {
   };
   readonly stages: {
     readonly input: string;
-    readonly normalization: string;
+    readonly attentionNormalization: string;
     readonly attention: string;
     readonly attentionResidual: string;
+    readonly feedForwardNormalization: string;
     readonly feedForward: string;
     readonly output: string;
+  };
+  readonly shapeStages: {
+    readonly input: string;
+    readonly attentionNormalization: string;
+    readonly attentionWeights: string;
+    readonly attentionBranch: string;
+    readonly attentionResidual: string;
+    readonly feedForwardNormalization: string;
+    readonly feedForwardBranch: string;
+    readonly output: string;
+    readonly probeLogits: string;
   };
   readonly fields: {
     readonly shape: string;
     readonly token: string;
     readonly query: string;
-    readonly key: string;
-    readonly probability: string;
     readonly rowSum: string;
     readonly identity: string;
     readonly branch: string;
-    readonly result: string;
     readonly probe: string;
     readonly orderContrast: string;
+    readonly causality: string;
     readonly parameterCount: string;
     readonly gradientCount: string;
   };
@@ -90,6 +98,10 @@ export interface DecoderBlockDiagramLabels {
     readonly unchanged: string;
     readonly changed: string;
     readonly verified: string;
+  };
+  readonly states: {
+    readonly allowed: string;
+    readonly blocked: string;
   };
   readonly captions: {
     readonly attention: string;
@@ -105,7 +117,7 @@ export interface DecoderBlockDiagramLabels {
 }
 
 const expectedLines = [
-  'CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]|identity_cue=solid|branch_cue=dashed|merge_cue=double|site_arithmetic=none',
+  'CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]',
   'SHAPE|stage=input|value=[1,3,4]',
   'SHAPE|stage=attention-norm|value=[1,3,4]',
   'SHAPE|stage=attention-weights|value=[1,2,3,3]',
@@ -128,16 +140,16 @@ const expectedLines = [
   'WEIGHT|head=1|query=0|visibility=[allowed,blocked,blocked]|values=[1.000000,0.000000,0.000000]|row_sum=1.000000',
   'WEIGHT|head=1|query=1|visibility=[allowed,allowed,blocked]|values=[0.500000,0.500000,0.000000]|row_sum=1.000000',
   'WEIGHT|head=1|query=2|visibility=[allowed,allowed,allowed]|values=[0.052857,0.052857,0.894285]|row_sum=1.000000',
-  'MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact=true|identity_cue=solid|branch_cue=dashed|merge_cue=double',
-  'MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact=true|identity_cue=solid|branch_cue=dashed|merge_cue=double',
+  'MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact=true',
+  'MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact=true',
   'PROBE|token=0|values=[7.523188,0.000000,-7.523188]',
   'PROBE|token=1|values=[0.010896,7.512278,-7.523174]',
   'PROBE|token=2|values=[7.817198,7.817198,-1.469694]',
-  'ORDER_PROOF|pre_norm=true|post_norm_differs=true|post_norm_token_1=[-0.573144,1.732042,-0.579449,-0.579449]|pre_norm_token_1=[0.010881,3.989119,0.000000,0.000000]|trace=rust-authored',
+  'ORDER_PROOF|pre_norm=true|post_norm_differs=true|post_norm_token_1=[-0.573144,1.732042,-0.579449,-0.579449]|pre_norm_token_1=[0.010881,3.989119,0.000000,0.000000]',
   'CAUSAL_PROOF|position_0=bitwise-unchanged|position_1=bitwise-unchanged|position_2=changed|future_probabilities=exact-zero',
   'PARAMETERS|tensors=9|scalars=120|bias=false|stable_order=true|distinct=true|names=[decoder.block.0.attention_norm.gain,decoder.block.0.attention.query.weight,decoder.block.0.attention.key.weight,decoder.block.0.attention.value.weight,decoder.block.0.attention.output.weight,decoder.block.0.ffn_norm.gain,decoder.block.0.ffn.gate.weight,decoder.block.0.ffn.up.weight,decoder.block.0.ffn.down.weight]',
   'GRADIENTS|input=12|parameters=120|total=132|tolerance=0.000020|passed=true|tape_finite=true',
-  'HISTORY|rnn_style_states=[0.462117,0.096289,0.194699]|sequential=true|original_post_norm=true|modern_pre_norm=true|numeric_order_contrast=true|site_arithmetic=none',
+  'HISTORY|rnn_style_states=[0.462117,0.096289,0.194699]|sequential=true|original_post_norm=true|modern_pre_norm=true|numeric_order_contrast=true',
 ] as const;
 
 const decimalPattern = /^-?(?:0|[1-9]\d*)\.\d{6}$/;
@@ -170,7 +182,7 @@ export function validateDecoderBlockDiagramLabels(
 ): DecoderBlockDiagramLabels {
   exactKeys(
     labels as unknown as Record<string, unknown>,
-    ['title', 'description', 'sections', 'stages', 'fields', 'cues', 'captions', 'scrollers'],
+    ['title', 'description', 'sections', 'stages', 'shapeStages', 'fields', 'cues', 'states', 'captions', 'scrollers'],
     'labels',
   );
   if (labels.title.trim() === '') invalid('labels.title must be a nonblank string');
@@ -182,8 +194,23 @@ export function validateDecoderBlockDiagramLabels(
   );
   exactStringKeys(
     labels.stages as unknown as Record<string, unknown>,
-    ['input', 'normalization', 'attention', 'attentionResidual', 'feedForward', 'output'],
+    ['input', 'attentionNormalization', 'attention', 'attentionResidual', 'feedForwardNormalization', 'feedForward', 'output'],
     'stages',
+  );
+  exactStringKeys(
+    labels.shapeStages as unknown as Record<string, unknown>,
+    [
+      'input',
+      'attentionNormalization',
+      'attentionWeights',
+      'attentionBranch',
+      'attentionResidual',
+      'feedForwardNormalization',
+      'feedForwardBranch',
+      'output',
+      'probeLogits',
+    ],
+    'shapeStages',
   );
   exactStringKeys(
     labels.fields as unknown as Record<string, unknown>,
@@ -191,14 +218,12 @@ export function validateDecoderBlockDiagramLabels(
       'shape',
       'token',
       'query',
-      'key',
-      'probability',
       'rowSum',
       'identity',
       'branch',
-      'result',
       'probe',
       'orderContrast',
+      'causality',
       'parameterCount',
       'gradientCount',
     ],
@@ -208,6 +233,11 @@ export function validateDecoderBlockDiagramLabels(
     labels.cues as unknown as Record<string, unknown>,
     ['identity', 'branch', 'merge', 'allowed', 'blocked', 'unchanged', 'changed', 'verified'],
     'cues',
+  );
+  exactStringKeys(
+    labels.states as unknown as Record<string, unknown>,
+    ['allowed', 'blocked'],
+    'states',
   );
   exactStringKeys(
     labels.captions as unknown as Record<string, unknown>,
@@ -285,10 +315,6 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
       'feed_forward_width',
       'epsilon',
       'stage_order',
-      'identity_cue',
-      'branch_cue',
-      'merge_cue',
-      'site_arithmetic',
     ],
     'config',
   );
@@ -329,20 +355,7 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
   const merges = Object.freeze(
     lines.slice(23, 25).map((line) => {
       const record = fields(line);
-      exactKeys(
-        record,
-        [
-          'name',
-          'identity',
-          'branch',
-          'result',
-          'exact',
-          'identity_cue',
-          'branch_cue',
-          'merge_cue',
-        ],
-        'merge',
-      );
+      exactKeys(record, ['name', 'identity', 'branch', 'result', 'exact'], 'merge');
       return record;
     }),
   );
@@ -361,7 +374,7 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
   const orderRecord = fields(lines[28]);
   exactKeys(
     orderRecord,
-    ['pre_norm', 'post_norm_differs', 'post_norm_token_1', 'pre_norm_token_1', 'trace'],
+    ['pre_norm', 'post_norm_differs', 'post_norm_token_1', 'pre_norm_token_1'],
     'order proof',
   );
   const causalProof = fields(lines[29]);
@@ -395,7 +408,6 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
       'original_post_norm',
       'modern_pre_norm',
       'numeric_order_contrast',
-      'site_arithmetic',
     ],
     'history',
   );
@@ -410,7 +422,6 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
     orderProof: Object.freeze({
       pre_norm: required(orderRecord, 'pre_norm'),
       post_norm_differs: required(orderRecord, 'post_norm_differs'),
-      trace: required(orderRecord, 'trace'),
       postNormToken: vector(required(orderRecord, 'post_norm_token_1'), 4),
       preNormToken: vector(required(orderRecord, 'pre_norm_token_1'), 4),
     }),
@@ -429,7 +440,6 @@ export function parseDecoderBlockTrace(source: string): DecoderBlockTrace {
       original_post_norm: required(historyRecord, 'original_post_norm'),
       modern_pre_norm: required(historyRecord, 'modern_pre_norm'),
       numeric_order_contrast: required(historyRecord, 'numeric_order_contrast'),
-      site_arithmetic: required(historyRecord, 'site_arithmetic'),
       rnnStates: vector(required(historyRecord, 'rnn_style_states'), 3),
     }),
   });

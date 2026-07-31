@@ -2,40 +2,48 @@
 {
   "chapter_id": "31-decoder-block",
   "concept_id": "decoder-block",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 31,
   "objective": {
-    "en": "Compose one differentiable pre-normalized decoder block and verify the exact order of its attention and feed-forward residual paths."
+    "en": "Compose one differentiable pre-normalized decoder block and verify the exact order of its attention and feed-forward residual paths.",
+    "ru": "Соберите один дифференцируемый блок декодера с предварительной нормализацией и проверьте точный порядок остаточных ветвей внимания и сети прямого распространения."
   },
   "worked_inputs": {
-    "en": "Trace one batch of three model-width-four token rows through two RMSNorm gains, two rotary causal attention heads, identity-like SwiGLU projections, and two residual additions."
+    "en": "Trace one batch of three model-width-four token rows through two RMSNorm gains, two rotary causal attention heads, identity-like SwiGLU projections, and two residual additions.",
+    "ru": "Проследите, как один батч из трёх строк токенов ширины четыре проходит через два вектора масштабов RMSNorm, две головы каузального внимания с RoPE, проекции SwiGLU с единичными матрицами и два остаточных сложения."
   },
   "formula": {
     "latex": "x'=x+\\operatorname{MHA}(\\operatorname{RMSNorm}(x)),\\quad y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))",
     "symbols": [
       {
         "symbol": "x",
-        "en": "the model-width residual stream entering this decoder block"
+        "en": "the model-width residual stream entering this decoder block",
+        "ru": "остаточный поток ширины модели на входе этого блока декодера"
       },
       {
         "symbol": "x'",
-        "en": "the residual stream after the causal multi-head attention branch is added"
+        "en": "the residual stream after the causal multi-head attention branch is added",
+        "ru": "остаточный поток после сложения с ветвью каузального многоголового внимания"
       },
       {
         "symbol": "y",
-        "en": "the block output after the feed-forward branch is added to the intermediate residual stream"
+        "en": "the block output after the feed-forward branch is added to the intermediate residual stream",
+        "ru": "выход блока после сложения ветви сети прямого распространения с промежуточным остаточным потоком"
       },
       {
         "symbol": "\\operatorname{RMSNorm}",
-        "en": "one learned-gain root-mean-square normalization; the two appearances own separate gains"
+        "en": "one learned-gain root-mean-square normalization; the two appearances own separate gains",
+        "ru": "нормализация по среднеквадратичному значению с обучаемым масштабом; два применения владеют разными векторами масштабов"
       },
       {
         "symbol": "\\operatorname{MHA}",
-        "en": "the bias-free rotary causal multi-head self-attention transformation from Chapter 30"
+        "en": "the bias-free rotary causal multi-head self-attention transformation from Chapter 30",
+        "ru": "преобразование каузального многоголового самовнимания с RoPE без смещений из главы 30"
       },
       {
         "symbol": "\\operatorname{FFN}",
-        "en": "the bias-free SwiGLU feed-forward transformation from Chapter 20"
+        "en": "the bias-free SwiGLU feed-forward transformation from Chapter 20",
+        "ru": "преобразование сети прямого распространения SwiGLU без смещений из главы 20"
       }
     ]
   },
@@ -43,13 +51,16 @@
     "llm_evolution": {
       "predecessor_kind": "neural-architecture",
       "limitation": {
-        "en": "Recurrent LSTM language models advance a carried state one token step at a time, while the original Transformer placed LayerNorm after each residual merge; neither layout is the pre-normalized causal decoder block assembled here."
+          "en": "Recurrent LSTM language models advance a carried state one token step at a time, while the original Transformer placed LayerNorm after each residual merge; neither layout is the pre-normalized causal decoder block assembled here.",
+          "ru": "Рекуррентные языковые модели на LSTM передают состояние от одного шага токена к следующему, а исходный Transformer применял LayerNorm после каждого остаточного сложения; ни одна из этих схем не совпадает с собираемым здесь каузальным блоком декодера с предварительной нормализацией."
       },
       "later_advance": {
-        "en": "Pre-LN moves normalization onto each sublayer input, and LLaMA provides a bounded modern language-model example that combines input pre-normalization with RMSNorm, causal attention, RoPE, and SwiGLU."
+          "en": "Pre-LN moves normalization onto each sublayer input, and LLaMA provides a bounded modern language-model example that combines input pre-normalization with RMSNorm, causal attention, RoPE, and SwiGLU.",
+          "ru": "В схеме Pre-LN нормализация переносится на вход каждого подслоя, а LLaMA служит конкретным современным примером языковой модели, где предварительная нормализация входа сочетается с RMSNorm, каузальным вниманием, RoPE и SwiGLU."
       },
       "modern_llm_role": {
-        "en": "This block keeps a same-shaped residual stream while alternating token-mixing causal attention with per-token feature transformation, providing the repeatable unit that Chapter 32 will stack into a decoder-only language model."
+          "en": "This block keeps a same-shaped residual stream while alternating token-mixing causal attention with per-token feature transformation, providing the repeatable unit that Chapter 32 will stack into a decoder-only language model.",
+          "ru": "Блок сохраняет форму остаточного потока и чередует каузальное внимание, смешивающее токены, с преобразованием признаков каждого токена; в главе 32 такие повторяемые блоки образуют стек языковой модели только с декодером."
       },
       "sources": [
         {
@@ -58,7 +69,8 @@
           "name": "Long Short-Term Memory",
           "source_url": "https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory",
           "claim": {
-            "en": "Hochreiter and Schmidhuber introduce an explicitly recurrent architecture for long-time-lag learning, giving the chapter its sequential-state predecessor rather than a claim about every later LSTM language model."
+            "en": "Hochreiter and Schmidhuber introduce an explicitly recurrent architecture for long-time-lag learning, giving the chapter its sequential-state predecessor rather than a claim about every later LSTM language model.",
+            "ru": "Хохрайтер и Шмидхубер предлагают явно рекуррентную архитектуру для обучения на длительных временных зависимостях. Здесь она задаёт предшественника с последовательным состоянием, но не описывает устройство всех более поздних языковых моделей на LSTM."
           }
         },
         {
@@ -67,7 +79,8 @@
           "name": "Attention Is All You Need",
           "source_url": "https://arxiv.org/abs/1706.03762",
           "claim": {
-            "en": "Vaswani and colleagues define the original Transformer sublayer output as a residual merge followed by LayerNorm and mask the decoder self-attention against future positions."
+            "en": "Vaswani and colleagues define the original Transformer sublayer output as a residual merge followed by LayerNorm and mask the decoder self-attention against future positions.",
+            "ru": "Васвани и соавторы определяют выход подслоя исходного Transformer как остаточное сложение с последующей LayerNorm и маскируют в самовнимании декодера будущие позиции."
           }
         },
         {
@@ -76,7 +89,8 @@
           "name": "On Layer Normalization in the Transformer Architecture",
           "source_url": "https://arxiv.org/abs/2002.04745",
           "claim": {
-            "en": "Xiong and colleagues distinguish Post-LN from Pre-LN and analyze how placing normalization inside residual blocks changes gradient behavior at initialization."
+            "en": "Xiong and colleagues distinguish Post-LN from Pre-LN and analyze how placing normalization inside residual blocks changes gradient behavior at initialization.",
+            "ru": "Сюн и соавторы различают схемы Post-LN и Pre-LN и исследуют, как размещение нормализации внутри остаточного блока меняет поведение градиентов при инициализации."
           }
         },
         {
@@ -85,16 +99,19 @@
           "name": "LLaMA: Open and Efficient Foundation Language Models",
           "source_url": "https://arxiv.org/abs/2302.13971",
           "claim": {
-            "en": "Touvron and colleagues report a causal Transformer language model that normalizes each sublayer input with RMSNorm and uses SwiGLU and RoPE."
+            "en": "Touvron and colleagues report a causal Transformer language model that normalizes each sublayer input with RMSNorm and uses SwiGLU and RoPE.",
+            "ru": "Туврон и соавторы описывают каузальную языковую модель Transformer, которая нормализует вход каждого подслоя с помощью RMSNorm и использует SwiGLU и RoPE."
           }
         }
       ]
     },
     "approach": {
-      "en": "Sequential recurrent state and the original Transformer's post-normalized residual sublayers."
+      "en": "Sequential recurrent state and the original Transformer's post-normalized residual sublayers.",
+      "ru": "Последовательное рекуррентное состояние и остаточные подслои исходного Transformer с нормализацией после сложения."
     },
     "summary": {
-      "en": "LSTM improved long-lag learning but retained stepwise recurrent state; the Transformer removed recurrence but originally normalized after residual merges. Pre-normalization moves the normalizer before each transformation, and a modern causal decoder block uses that order to preserve an explicit residual stream around attention and feed-forward work."
+      "en": "LSTM improved long-lag learning but retained stepwise recurrent state; the Transformer removed recurrence but originally normalized after residual merges. Pre-normalization moves the normalizer before each transformation, and a modern causal decoder block uses that order to preserve an explicit residual stream around attention and feed-forward work.",
+      "ru": "LSTM улучшила обучение на длительных зависимостях, но сохранила пошаговое рекуррентное состояние. Transformer отказался от рекуррентности, однако в исходной схеме нормализация следовала за остаточным сложением. Предварительная нормализация ставит нормализатор перед каждым преобразованием, а современный каузальный блок декодера благодаря такому порядку сохраняет явный остаточный поток вокруг внимания и сети прямого распространения."
     },
     "rust_contrast": "Run the same frozen components once in the chapter's pre-normalized order and once with the first residual state normalized afterward, proving from exact outputs that the two layouts are not interchangeable."
   },
@@ -112,34 +129,41 @@
     "decision": "useful",
     "id": "pre-norm-decoder-block-flow",
     "rationale": {
-      "en": "Two visible identity paths and their exact same-shaped branch values make the pre-normalization order, the two separate residual merges, and the attention-versus-feature-mixing boundary easier to inspect than a formula alone."
+      "en": "Two visible identity paths and their exact same-shaped branch values make the pre-normalization order, the two separate residual merges, and the attention-versus-feature-mixing boundary easier to inspect than a formula alone.",
+      "ru": "Два видимых тождественных пути и точные значения ветвей той же формы позволяют яснее, чем одна формула, увидеть порядок предварительной нормализации, два отдельных остаточных сложения и границу между смешиванием токенов вниманием и преобразованием признаков."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative implementation now has one complete depth-one causal decoder block; Chapter 32 will repeat it between token embeddings, a final RMSNorm, and a tied vocabulary projection."
+    "en": "The cumulative implementation now has one complete depth-one causal decoder block; Chapter 32 will repeat it between token embeddings, a final RMSNorm, and a tied vocabulary projection.",
+    "ru": "Теперь в собираемой реализации есть один полный каузальный блок декодера глубины один. В главе 32 такие блоки будут повторяться между эмбеддингами токенов, завершающей RMSNorm и связанной проекцией на словарь."
   },
   "terminology": [
     {
       "concept_id": "decoder-block",
-      "en": "decoder block"
+      "en": "decoder block",
+      "ru": "блок декодера"
     },
     {
       "concept_id": "pre-normalization",
-      "en": "pre-normalization"
+      "en": "pre-normalization",
+      "ru": "предварительная нормализация"
     },
     {
       "concept_id": "residual-stream",
-      "en": "residual stream"
+      "en": "residual stream",
+      "ru": "остаточный поток"
     },
     {
       "concept_id": "post-normalization",
-      "en": "post-normalization"
+      "en": "post-normalization",
+      "ru": "нормализация после остаточного сложения"
     }
   ],
   "translation_notes": [
-    "Russian is registered but inactive for Chapter 31, so no Russian lesson or placeholder route is published.",
-    "Keep pre-normalization and post-normalization tied to operation order rather than translating them as vague before/after adjectives.",
-    "Preserve x, x', y, RMSNorm, MHA, FFN, axis order, parameter suffixes, trace tokens, and the distinction between token mixing and feature mixing."
+    "Chapter 31 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "The canonical English source SHA-256 is 89c9ff75985b69fa87f9f21600fafb4560f818c59d7ea005bd288ed7cfa1e9f7; Russian was translated directly from those exact bytes.",
+    "Translate pre-normalization as «предварительная нормализация» and residual stream as «остаточный поток». Use Pre-LN and Post-LN when naming the architecture contrast, and explain Post-LN as normalization after residual addition rather than as a vague after-normalization adjective.",
+    "Preserve x, x', y, RMSNorm, MHA, FFN, B, T, d_model, d_ff, N_a, N_f, A, F, axis order, parameter suffixes, trace tokens, source roles, URLs, and numeric values; keep token mixing distinct from per-token feature transformation."
   ],
   "acceptance_examples": [
     {
@@ -391,11 +415,12 @@ Chapter 31 does not anticipate that stack or head in its API.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the only active locale for this chapter. Russian remains registered
-for future localization, but Chapter 31 publishes no Russian lesson or placeholder
-route. A future translation must preserve formula symbols, six-operation order,
-shape axes, parameter suffixes, source boundaries, exact numeric fixture, and
-Rust trace tokens while rewriting explanatory prose naturally.
+English is the canonical semantic source and Russian is an active direct
+translation of the same revision. Both locales publish complete lessons and
+reciprocal routes. Any later English change makes the Russian review stale until
+formula symbols, six-operation order, shape axes, parameter suffixes, source
+boundaries, exact numeric fixture, Rust trace tokens, diagram labels, and
+accessibility labels have been refreshed from English and reviewed again.
 
 Translate “pre-normalization” and “post-normalization” as architecture terms tied
 to the position of the normalizer. Keep “residual stream” distinct from an error
@@ -406,8 +431,8 @@ relevant.
 <!-- contract-section:acceptance -->
 ## Acceptance
 
-The chapter is accepted when the contract and English lesson agree on the frozen
-fixture, formula, LLM-history boundary, and deferred scope; the reusable block
+The chapter is accepted when the contract and both localized lessons agree on the
+frozen fixture, formula, LLM-history boundary, and deferred scope; the reusable block
 preserves exact pre-norm order, causality, shapes, parameter ownership, and a
 finite differentiable tape; stdout and diagram trace match checked-in fixtures
 byte for byte; all 132 central-difference checks pass; and invalid configuration,
@@ -417,7 +442,8 @@ The static lesson must render every mathematical expression through the shared
 math pipeline and every declared source through `RustSource`. Its one useful
 diagram must consume only the frozen trace, satisfy shared semantic and
 containment roles, and remain readable at desktop and narrow widths, without
-JavaScript, in forced colors, in Chromium, and in Firefox. The complete English
-active-locale set, deferred Russian route, navigation, SEO description, sitemap,
-links, production build, unit tests, focused browser checks, and full regression
-suite must all pass before publication.
+JavaScript, in native full view, in forced colors, in direction-sensitive cases,
+in Chromium, and in Firefox. The complete bilingual active-locale set, reciprocal
+routes, navigation, SEO descriptions, sitemap, links, production build, unit
+tests, focused browser checks, and full regression suite must all pass before
+publication.

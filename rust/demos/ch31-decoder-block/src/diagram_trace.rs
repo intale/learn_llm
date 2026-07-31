@@ -38,7 +38,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
     let history = &evidence.history;
     let mut lines = vec![
         String::from(
-            "CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]|identity_cue=solid|branch_cue=dashed|merge_cue=double|site_arithmetic=none",
+            "CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]",
         ),
         format!("SHAPE|stage=input|value={}", format_shape(&shapes.input)),
         format!(
@@ -87,11 +87,11 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
             .map(|(head, query)| weight_record(evidence, head, query)),
     );
     lines.push(format!(
-        "MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact={}|identity_cue=solid|branch_cue=dashed|merge_cue=double",
+        "MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact={}",
         primary.first_residual_exact
     ));
     lines.push(format!(
-        "MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact={}|identity_cue=solid|branch_cue=dashed|merge_cue=double",
+        "MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact={}",
         primary.second_residual_exact
     ));
     lines.extend((0..TOKENS).map(|token| {
@@ -102,7 +102,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
         )
     }));
     lines.push(format!(
-        "ORDER_PROOF|pre_norm={}|post_norm_differs={}|post_norm_token_1={}|pre_norm_token_1={}|trace=rust-authored",
+        "ORDER_PROOF|pre_norm={}|post_norm_differs={}|post_norm_token_1={}|pre_norm_token_1={}",
         primary.pre_norm_order,
         primary.post_norm_differs,
         format_vector(token_row(primary.post_norm_first_stage.as_slice(), 1)),
@@ -149,7 +149,7 @@ pub fn render_trace(evidence: &LearnerEvidence) -> String {
         primary.tape_finite,
     ));
     lines.push(format!(
-        "HISTORY|rnn_style_states={}|sequential={}|original_post_norm={}|modern_pre_norm={}|numeric_order_contrast={}|site_arithmetic=none",
+        "HISTORY|rnn_style_states={}|sequential={}|original_post_norm={}|modern_pre_norm={}|numeric_order_contrast={}",
         format_vector(&history.rnn_style_states),
         history.sequential_recurrence,
         history.original_post_norm,
@@ -167,7 +167,7 @@ mod tests {
     use crate::learner_evidence;
 
     #[test]
-    fn trace_has_exact_order_counts_and_rust_provenance() {
+    fn trace_has_exact_order_counts_and_model_evidence() {
         let trace = render_trace(&learner_evidence().unwrap());
         assert_eq!(trace.lines().count(), 33);
         assert!(trace.starts_with("CONFIG|batch=1|tokens=3|model_width=4|heads=2"));
@@ -179,7 +179,10 @@ mod tests {
         assert!(trace.contains("future_probabilities=exact-zero"));
         assert!(trace.contains("tensors=9|scalars=120|bias=false"));
         assert!(trace.contains("total=132|tolerance=0.000020|passed=true"));
-        assert!(trace.ends_with("|site_arithmetic=none\n"));
+        assert!(trace.ends_with("|numeric_order_contrast=true\n"));
+        assert!(!trace.contains("site_arithmetic"));
+        assert!(!trace.contains("trace=rust-authored"));
+        assert!(!trace.contains("_cue="));
         assert!(!trace.contains("-0.000000"));
     }
 }

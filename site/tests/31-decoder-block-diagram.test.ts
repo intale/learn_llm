@@ -21,6 +21,7 @@ const parserSource = read('site/src/lib/decoder-block-diagram.ts');
 const componentSource = read('site/src/components/chapters/DecoderBlockDiagram.astro');
 const contractSource = read('curriculum/chapters/31-decoder-block.md');
 const lessonSource = read('site/src/content/chapters/en/31-decoder-block.mdx');
+const russianLessonSource = read('site/src/content/chapters/ru/31-decoder-block.mdx');
 const coursePlanSource = read('curriculum/course-plan.md');
 const blockSource = read(
   'rust/crates/llm-from-scratch/src/models/decoder_block.rs',
@@ -36,6 +37,12 @@ function frontmatter(source: string) {
   return JSON.parse(match[1]);
 }
 
+function diagramLabelsFromLesson(source: string): DecoderBlockDiagramLabels {
+  const match = source.match(/export const diagramLabels = (\{[\s\S]*?\n\});/);
+  if (!match) throw new Error('missing diagramLabels object');
+  return Function(`"use strict"; return (${match[1]});`)() as DecoderBlockDiagramLabels;
+}
+
 const labels: DecoderBlockDiagramLabels = {
   title: 'title',
   description: 'description',
@@ -47,24 +54,34 @@ const labels: DecoderBlockDiagramLabels = {
   },
   stages: {
     input: 'input',
-    normalization: 'normalization',
+    attentionNormalization: 'attention normalization',
     attention: 'attention',
     attentionResidual: 'attention residual',
+    feedForwardNormalization: 'feed-forward normalization',
     feedForward: 'feed forward',
     output: 'output',
+  },
+  shapeStages: {
+    input: 'input shape',
+    attentionNormalization: 'attention normalization shape',
+    attentionWeights: 'attention weights shape',
+    attentionBranch: 'attention branch shape',
+    attentionResidual: 'attention residual shape',
+    feedForwardNormalization: 'feed-forward normalization shape',
+    feedForwardBranch: 'feed-forward branch shape',
+    output: 'output shape',
+    probeLogits: 'probe logits shape',
   },
   fields: {
     shape: 'shape',
     token: 'token',
     query: 'query',
-    key: 'key',
-    probability: 'probability',
     rowSum: 'row sum',
     identity: 'identity',
     branch: 'branch',
-    result: 'result',
     probe: 'probe',
     orderContrast: 'order contrast',
+    causality: 'causality',
     parameterCount: 'parameter count',
     gradientCount: 'gradient count',
   },
@@ -77,6 +94,10 @@ const labels: DecoderBlockDiagramLabels = {
     unchanged: 'unchanged',
     changed: 'changed',
     verified: 'verified',
+  },
+  states: {
+    allowed: 'visible',
+    blocked: 'masked',
   },
   captions: {
     attention: 'attention caption',
@@ -104,7 +125,6 @@ describe('Chapter 31 Rust trace parser', () => {
       epsilon: '0.000000',
       stage_order:
         '[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]',
-      site_arithmetic: 'none',
     });
     expect(trace.shapes).toEqual({
       input: '[1,3,4]',
@@ -153,7 +173,6 @@ describe('Chapter 31 Rust trace parser', () => {
     expect(trace.orderProof).toMatchObject({
       pre_norm: 'true',
       post_norm_differs: 'true',
-      trace: 'rust-authored',
       postNormToken: {
         latex: '[-0.573144,1.732042,-0.579449,-0.579449]',
       },
@@ -188,7 +207,6 @@ describe('Chapter 31 Rust trace parser', () => {
       original_post_norm: 'true',
       modern_pre_norm: 'true',
       numeric_order_contrast: 'true',
-      site_arithmetic: 'none',
       rnnStates: { latex: '[0.462117,0.096289,0.194699]' },
     });
   });
@@ -210,7 +228,7 @@ describe('Chapter 31 Rust trace parser', () => {
       fixture.replace('0.010881,3.989119', '0.010882,3.989119'),
       fixture.replace('future_probabilities=exact-zero', 'future_probabilities=rounded-zero'),
       fixture.replace('post_norm_differs=true', 'post_norm_differs=false'),
-      fixture.replace('site_arithmetic=none', 'site_arithmetic=attention'),
+      fixture.replace('numeric_order_contrast=true', 'numeric_order_contrast=false'),
     ]) {
       expect(() => parseDecoderBlockTrace(changed)).toThrow(
         /invalid decoder-block trace/,
@@ -291,6 +309,13 @@ describe('Chapter 31 static diagram and content boundary', () => {
     expect(componentSource.match(/role="region"/g)).toHaveLength(7);
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(8);
     expect(componentSource.match(/<article data-diagram-card data-diagram-box/g)).toHaveLength(16);
+    expect(componentSource.match(/<section[^>]*data-diagram-box/g)).toHaveLength(4);
+    expect(componentSource.match(/<li data-diagram-box/g)).toHaveLength(5);
+    expect(componentSource).toContain('shape-grid course-diagram__grid');
+    expect(componentSource).toContain('proof-grid course-diagram__grid');
+    expect(componentSource).toContain('course-diagram__card-stack');
+    expect(componentSource).toContain('shapeStageLabels[item.name]');
+    expect(componentSource).not.toContain('>{item.name}</th>');
     expect(componentSource).toContain('data-diagram-table');
     expect(componentSource).toContain('<caption>');
     expect(componentSource).toContain('scope="row"');
@@ -310,6 +335,9 @@ describe('Chapter 31 static diagram and content boundary', () => {
   it('keeps contract, lesson, Rust, history, formula, source evidence, and locale policy aligned', () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
+    const englishDiagramLabels = diagramLabelsFromLesson(lessonSource);
+    const russianDiagramLabels = diagramLabelsFromLesson(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -345,11 +373,79 @@ describe('Chapter 31 static diagram and content boundary', () => {
       id: contract.visualization.id,
       rationale: contract.visualization.rationale.en,
     });
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
     expect([
       ...new Set(
         lesson.rust_sources.map(({ path }: { path: string }) => path),
       ),
     ]).toEqual(contract.rust.sources);
+    expect(
+      russianLesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    ).toEqual(
+      lesson.rust_sources.map(
+        ({ path, region }: { path: string; region?: string }) => ({ path, region }),
+      ),
+    );
+    expect([
+      ...new Set(
+        russianLesson.rust_sources.map(({ path }: { path: string }) => path),
+      ),
+    ]).toEqual(contract.rust.sources);
+    for (const localizedLabels of [englishDiagramLabels, russianDiagramLabels]) {
+      expect(() => validateDecoderBlockDiagramLabels(localizedLabels)).not.toThrow();
+      expect(Object.keys(localizedLabels).sort()).toEqual(
+        Object.keys(englishDiagramLabels).sort(),
+      );
+      for (const namespace of [
+        'sections',
+        'stages',
+        'shapeStages',
+        'fields',
+        'cues',
+        'states',
+        'captions',
+        'scrollers',
+      ] as const) {
+        expect(Object.keys(localizedLabels[namespace]).sort()).toEqual(
+          Object.keys(englishDiagramLabels[namespace]).sort(),
+        );
+      }
+    }
     expect(
       coursePlanSource.replace(/\r?\n/g, ''),
     ).toContain(
@@ -365,10 +461,12 @@ describe('Chapter 31 static diagram and content boundary', () => {
     expect(lessonSource.match(/<RustSource\b/g)).toHaveLength(6);
     expect(lessonSource).toContain('<DecoderBlockDiagram labels={diagramLabels} />');
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
+    expect(lessonSource).not.toMatch(/site parser|static HTML|JavaScript disabled|page labels frozen lexemes/i);
     expect(existsSync(resolve(
       repositoryRoot,
       'site/src/content/chapters/ru/31-decoder-block.mdx',
-    ))).toBe(false);
+    ))).toBe(true);
+    expect(russianLessonSource).not.toMatch(/site parser|static HTML|JavaScript disabled|page labels frozen lexemes/i);
 
     expect(blockSource).toContain('region:decoder-block-errors');
     expect(blockSource).toContain('region:decoder-block-layer');

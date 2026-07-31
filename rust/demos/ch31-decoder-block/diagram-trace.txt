@@ -1,4 +1,4 @@
-CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]|identity_cue=solid|branch_cue=dashed|merge_cue=double|site_arithmetic=none
+CONFIG|batch=1|tokens=3|model_width=4|heads=2|head_width=2|feed_forward_width=4|epsilon=0.000000|stage_order=[attention-norm,attention,residual-1,feed-forward-norm,feed-forward,residual-2]
 SHAPE|stage=input|value=[1,3,4]
 SHAPE|stage=attention-norm|value=[1,3,4]
 SHAPE|stage=attention-weights|value=[1,2,3,3]
@@ -21,13 +21,13 @@ WEIGHT|head=0|query=2|visibility=[allowed,allowed,allowed]|values=[0.333333,0.33
 WEIGHT|head=1|query=0|visibility=[allowed,blocked,blocked]|values=[1.000000,0.000000,0.000000]|row_sum=1.000000
 WEIGHT|head=1|query=1|visibility=[allowed,allowed,blocked]|values=[0.500000,0.500000,0.000000]|row_sum=1.000000
 WEIGHT|head=1|query=2|visibility=[allowed,allowed,allowed]|values=[0.052857,0.052857,0.894285]|row_sum=1.000000
-MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact=true|identity_cue=solid|branch_cue=dashed|merge_cue=double
-MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact=true|identity_cue=solid|branch_cue=dashed|merge_cue=double
+MERGE|name=attention|identity=input|branch=attention-branch|result=after-attention|exact=true
+MERGE|name=feed-forward|identity=after-attention|branch=feed-forward-branch|result=output|exact=true
 PROBE|token=0|values=[7.523188,0.000000,-7.523188]
 PROBE|token=1|values=[0.010896,7.512278,-7.523174]
 PROBE|token=2|values=[7.817198,7.817198,-1.469694]
-ORDER_PROOF|pre_norm=true|post_norm_differs=true|post_norm_token_1=[-0.573144,1.732042,-0.579449,-0.579449]|pre_norm_token_1=[0.010881,3.989119,0.000000,0.000000]|trace=rust-authored
+ORDER_PROOF|pre_norm=true|post_norm_differs=true|post_norm_token_1=[-0.573144,1.732042,-0.579449,-0.579449]|pre_norm_token_1=[0.010881,3.989119,0.000000,0.000000]
 CAUSAL_PROOF|position_0=bitwise-unchanged|position_1=bitwise-unchanged|position_2=changed|future_probabilities=exact-zero
 PARAMETERS|tensors=9|scalars=120|bias=false|stable_order=true|distinct=true|names=[decoder.block.0.attention_norm.gain,decoder.block.0.attention.query.weight,decoder.block.0.attention.key.weight,decoder.block.0.attention.value.weight,decoder.block.0.attention.output.weight,decoder.block.0.ffn_norm.gain,decoder.block.0.ffn.gate.weight,decoder.block.0.ffn.up.weight,decoder.block.0.ffn.down.weight]
 GRADIENTS|input=12|parameters=120|total=132|tolerance=0.000020|passed=true|tape_finite=true
-HISTORY|rnn_style_states=[0.462117,0.096289,0.194699]|sequential=true|original_post_norm=true|modern_pre_norm=true|numeric_order_contrast=true|site_arithmetic=none
+HISTORY|rnn_style_states=[0.462117,0.096289,0.194699]|sequential=true|original_post_norm=true|modern_pre_norm=true|numeric_order_contrast=true

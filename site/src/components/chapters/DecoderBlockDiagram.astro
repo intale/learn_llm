@@ -26,6 +26,17 @@ const afterAttention = stage('after-attention');
 const feedForwardNorm = stage('feed-forward-norm');
 const feedForwardBranch = stage('feed-forward-branch');
 const output = stage('output');
+const shapeStageLabels: Record<string, string> = {
+  input: labels.shapeStages.input,
+  'attention-norm': labels.shapeStages.attentionNormalization,
+  'attention-weights': labels.shapeStages.attentionWeights,
+  'attention-branch': labels.shapeStages.attentionBranch,
+  'after-attention': labels.shapeStages.attentionResidual,
+  'feed-forward-norm': labels.shapeStages.feedForwardNormalization,
+  'feed-forward-branch': labels.shapeStages.feedForwardBranch,
+  output: labels.shapeStages.output,
+  'probe-logits': labels.shapeStages.probeLogits,
+};
 const attentionEvidenceStages = [
   attentionInput,
   attentionNorm,
@@ -64,15 +75,15 @@ const statusLabel = (value: string) =>
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
     <ul class="cue-list" aria-label={labels.sections.overview}>
-      <li class="identity-cue">{labels.cues.identity}</li>
-      <li class="branch-cue">{labels.cues.branch}</li>
-      <li class="merge-cue">{labels.cues.merge}</li>
-      <li class="allowed-cue">{labels.cues.allowed}</li>
-      <li class="blocked-cue">{labels.cues.blocked}</li>
+      <li data-diagram-box class="identity-cue">{labels.cues.identity}</li>
+      <li data-diagram-box class="branch-cue">{labels.cues.branch}</li>
+      <li data-diagram-box class="merge-cue">{labels.cues.merge}</li>
+      <li data-diagram-box class="allowed-cue">{labels.cues.allowed}</li>
+      <li data-diagram-box class="blocked-cue">{labels.cues.blocked}</li>
     </ul>
   </figcaption>
 
-  <section class="overview-section" aria-labelledby="decoder-block-overview-title">
+  <section class="overview-section course-diagram__card-stack" data-diagram-box aria-labelledby="decoder-block-overview-title">
     <h4 id="decoder-block-overview-title">{labels.sections.overview}</h4>
     <div
       class="formula-region course-diagram__scroll"
@@ -86,17 +97,17 @@ const statusLabel = (value: string) =>
         <InlineMath latex={"y=x'+\\operatorname{FFN}(\\operatorname{RMSNorm}(x'))"} />
       </p>
     </div>
-    <dl class="shape-grid" aria-label={labels.fields.shape}>
+    <dl class="shape-grid course-diagram__grid" aria-label={labels.fields.shape}>
       {Object.entries(trace.shapes).map(([name, shape]) => (
-        <div data-shape-stage={name}>
-          <dt class="technical">{name}</dt>
+        <div data-diagram-card data-diagram-box data-shape-stage={name}>
+          <dt>{shapeStageLabels[name]}</dt>
           <dd><InlineMath latex={shape} /></dd>
         </div>
       ))}
     </dl>
   </section>
 
-  <section class="path-section" aria-labelledby="decoder-block-attention-title">
+  <section class="path-section course-diagram__card-stack" data-diagram-box aria-labelledby="decoder-block-attention-title">
     <h4 id="decoder-block-attention-title">{labels.sections.attention}</h4>
     <p>{labels.captions.attention}</p>
     <div
@@ -107,7 +118,7 @@ const statusLabel = (value: string) =>
       data-diagram-scroll
     >
       <div class="flow-layout" data-flow="attention">
-        <article data-diagram-card data-diagram-box class="flow-card source-card" data-stage="input">
+        <article data-diagram-card data-diagram-box class="flow-card source-card course-diagram__card-stack" data-stage="input">
           <h5>{labels.stages.input}</h5>
           <span class="wrapped-vector" data-trace-vector={'x=' + attentionInput.tokens[1].latex}>
             {vectorParts('x', attentionInput.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -115,7 +126,7 @@ const statusLabel = (value: string) =>
           <InlineMath latex={trace.shapes.input} />
         </article>
         <span class="arrow source-to-identity" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card identity-card" data-path="identity">
+        <article data-diagram-card data-diagram-box class="flow-card identity-card course-diagram__card-stack" data-path="identity">
           <h5>{labels.fields.identity}</h5>
           <span class="wrapped-vector" data-trace-vector={'x=' + attentionInput.tokens[1].latex}>
             {vectorParts('x', attentionInput.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -123,26 +134,26 @@ const statusLabel = (value: string) =>
         </article>
         <span class="arrow identity-to-merge" aria-hidden="true">→</span>
         <span class="arrow source-to-norm" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card" data-stage="attention-norm">
-          <h5>{labels.stages.normalization}</h5>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card course-diagram__card-stack" data-stage="attention-norm">
+          <h5>{labels.stages.attentionNormalization}</h5>
           <span class="wrapped-vector" data-trace-vector={'N_a=' + attentionNorm.tokens[1].latex}>
             {vectorParts('N_a', attentionNorm.tokens[1].values).map((part) => <InlineMath latex={part} />)}
           </span>
         </article>
         <span class="arrow norm-to-branch" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card" data-stage="attention-branch">
+        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card course-diagram__card-stack" data-stage="attention-branch">
           <h5>{labels.stages.attention}</h5>
           <span class="wrapped-vector" data-trace-vector={'A=' + attentionBranch.tokens[1].latex}>
             {vectorParts('A', attentionBranch.tokens[1].values).map((part) => <InlineMath latex={part} />)}
           </span>
         </article>
         <span class="arrow branch-to-merge" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card merge-card" data-merge="attention" data-status="pass">
+        <article data-diagram-card data-diagram-box class="flow-card merge-card course-diagram__card-stack" data-merge="attention" data-status="pass">
           <h5>{labels.cues.merge}</h5>
           <InlineMath latex="+" />
         </article>
         <span class="arrow merge-to-result" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card result-card" data-stage="after-attention">
+        <article data-diagram-card data-diagram-box class="flow-card result-card course-diagram__card-stack" data-stage="after-attention">
           <h5>{labels.stages.attentionResidual}</h5>
           <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
             {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -153,7 +164,7 @@ const statusLabel = (value: string) =>
     </div>
   </section>
 
-  <section class="path-section" aria-labelledby="decoder-block-ffn-title">
+  <section class="path-section course-diagram__card-stack" data-diagram-box aria-labelledby="decoder-block-ffn-title">
     <h4 id="decoder-block-ffn-title">{labels.sections.feedForward}</h4>
     <p>{labels.captions.feedForward}</p>
     <div
@@ -164,7 +175,7 @@ const statusLabel = (value: string) =>
       data-diagram-scroll
     >
       <div class="flow-layout" data-flow="feed-forward">
-        <article data-diagram-card data-diagram-box class="flow-card source-card" data-stage="after-attention">
+        <article data-diagram-card data-diagram-box class="flow-card source-card course-diagram__card-stack" data-stage="after-attention">
           <h5>{labels.stages.attentionResidual}</h5>
           <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
             {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -172,7 +183,7 @@ const statusLabel = (value: string) =>
           <InlineMath latex={trace.shapes['after-attention']} />
         </article>
         <span class="arrow source-to-identity" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card identity-card" data-path="identity">
+        <article data-diagram-card data-diagram-box class="flow-card identity-card course-diagram__card-stack" data-path="identity">
           <h5>{labels.fields.identity}</h5>
           <span class="wrapped-vector" data-trace-vector={"x'=" + afterAttention.tokens[1].latex}>
             {vectorParts("x'", afterAttention.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -180,26 +191,26 @@ const statusLabel = (value: string) =>
         </article>
         <span class="arrow identity-to-merge" aria-hidden="true">→</span>
         <span class="arrow source-to-norm" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card" data-stage="feed-forward-norm">
-          <h5>{labels.stages.normalization}</h5>
+        <article data-diagram-card data-diagram-box class="flow-card branch-card norm-card course-diagram__card-stack" data-stage="feed-forward-norm">
+          <h5>{labels.stages.feedForwardNormalization}</h5>
           <span class="wrapped-vector" data-trace-vector={'N_f=' + feedForwardNorm.tokens[1].latex}>
             {vectorParts('N_f', feedForwardNorm.tokens[1].values).map((part) => <InlineMath latex={part} />)}
           </span>
         </article>
         <span class="arrow norm-to-branch" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card" data-stage="feed-forward-branch">
+        <article data-diagram-card data-diagram-box class="flow-card branch-card transform-card course-diagram__card-stack" data-stage="feed-forward-branch">
           <h5>{labels.stages.feedForward}</h5>
           <span class="wrapped-vector" data-trace-vector={'F=' + feedForwardBranch.tokens[1].latex}>
             {vectorParts('F', feedForwardBranch.tokens[1].values).map((part) => <InlineMath latex={part} />)}
           </span>
         </article>
         <span class="arrow branch-to-merge" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card merge-card" data-merge="feed-forward" data-status="pass">
+        <article data-diagram-card data-diagram-box class="flow-card merge-card course-diagram__card-stack" data-merge="feed-forward" data-status="pass">
           <h5>{labels.cues.merge}</h5>
           <InlineMath latex="+" />
         </article>
         <span class="arrow merge-to-result" aria-hidden="true">→</span>
-        <article data-diagram-card data-diagram-box class="flow-card result-card" data-stage="output">
+        <article data-diagram-card data-diagram-box class="flow-card result-card course-diagram__card-stack" data-stage="output">
           <h5>{labels.stages.output}</h5>
           <span class="wrapped-vector" data-trace-vector={'y=' + output.tokens[1].latex}>
             {vectorParts('y', output.tokens[1].values).map((part) => <InlineMath latex={part} />)}
@@ -210,7 +221,7 @@ const statusLabel = (value: string) =>
     </div>
   </section>
 
-  <section class="proof-section" aria-labelledby="decoder-block-proof-title">
+  <section class="proof-section course-diagram__card-stack" data-diagram-box aria-labelledby="decoder-block-proof-title">
     <h4 id="decoder-block-proof-title">{labels.sections.proof}</h4>
     <p>{labels.captions.proof}</p>
     <div
@@ -225,7 +236,7 @@ const statusLabel = (value: string) =>
         <thead>
           <tr>
             <th scope="col">{labels.fields.token}</th>
-            {attentionEvidenceStages.map((item) => <th scope="col">{item.name}</th>)}
+            {attentionEvidenceStages.map((item) => <th scope="col">{shapeStageLabels[item.name]}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -253,7 +264,7 @@ const statusLabel = (value: string) =>
         <thead>
           <tr>
             <th scope="col">{labels.fields.token}</th>
-            {feedForwardEvidenceStages.map((item) => <th scope="col">{item.name}</th>)}
+            {feedForwardEvidenceStages.map((item) => <th scope="col">{shapeStageLabels[item.name]}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -306,7 +317,7 @@ const statusLabel = (value: string) =>
         <caption>{labels.scrollers.weights}</caption>
         <thead>
           <tr>
-            <th scope="col">h</th>
+            <th scope="col"><InlineMath latex="h" /></th>
             <th scope="col">{labels.fields.query}</th>
             {keyLabels.map((key) => <th scope="col"><InlineMath latex={'k=' + key} /></th>)}
             <th scope="col">{labels.fields.rowSum}</th>
@@ -320,7 +331,7 @@ const statusLabel = (value: string) =>
               {row.values.values.map((probability, keyIndex) => (
                 <td class={row.visibility[keyIndex]} data-visibility={row.visibility[keyIndex]}>
                   <InlineMath latex={probability} />
-                  <small>{row.visibility[keyIndex] === 'allowed' ? labels.cues.allowed : labels.cues.blocked}</small>
+                  <small>{row.visibility[keyIndex] === 'allowed' ? labels.states.allowed : labels.states.blocked}</small>
                 </td>
               ))}
               <td><InlineMath latex={row.rowSum} /></td>
@@ -330,8 +341,8 @@ const statusLabel = (value: string) =>
       </table>
     </div>
 
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box class="proof-card order-card" data-order-proof={trace.orderProof.pre_norm}>
+    <div class="proof-grid course-diagram__grid">
+      <article data-diagram-card data-diagram-box class="proof-card order-card course-diagram__card-stack" data-order-proof={trace.orderProof.pre_norm}>
         <h5>{labels.fields.orderContrast}</h5>
         <p><strong>{labels.cues.changed}</strong></p>
         <p class="wrapped-vector" data-trace-vector={'\\operatorname{PostNorm}_1=' + trace.orderProof.postNormToken.latex}>
@@ -341,8 +352,8 @@ const statusLabel = (value: string) =>
           {vectorParts("x'", trace.orderProof.preNormToken.values).map((part) => <InlineMath latex={part} />)}
         </p>
       </article>
-      <article data-diagram-card data-diagram-box class="proof-card causal-card">
-        <h5>{labels.captions.attention}</h5>
+      <article data-diagram-card data-diagram-box class="proof-card causal-card course-diagram__card-stack">
+        <h5>{labels.fields.causality}</h5>
         {(['0', '1', '2'] as const).map((position) => {
           const key = ('position_' + position) as 'position_0' | 'position_1' | 'position_2';
           const value = trace.causalProof[key];
@@ -353,13 +364,13 @@ const statusLabel = (value: string) =>
           );
         })}
       </article>
-      <article data-diagram-card data-diagram-box class="proof-card parameter-card">
+      <article data-diagram-card data-diagram-box class="proof-card parameter-card course-diagram__card-stack">
         <h5>{labels.fields.parameterCount}</h5>
         <p><InlineMath latex={'N_\\theta=' + trace.parameters.scalars} /></p>
         <p><code><bdi dir="ltr">tensors={trace.parameters.tensors}</bdi></code></p>
         <p><code><bdi dir="ltr">bias={trace.parameters.bias}</bdi></code></p>
       </article>
-      <article data-diagram-card data-diagram-box class="proof-card gradient-card">
+      <article data-diagram-card data-diagram-box class="proof-card gradient-card course-diagram__card-stack">
         <h5>{labels.fields.gradientCount}</h5>
         <p><InlineMath latex={'n=' + trace.gradients.total} /></p>
         <p><InlineMath latex={'\\tau=' + trace.gradients.tolerance} /></p>
@@ -370,21 +381,11 @@ const statusLabel = (value: string) =>
 </figure>
 
 <style>
-  .decoder-block-diagram,
-  .decoder-block-diagram > *,
-  .flow-region,
-  .evidence-region,
-  .weights-region,
-  .flow-card,
-  .proof-card {
-    min-inline-size: 0;
-  }
-
-  .formula-line,
-  .proof-card {
+  .formula-line {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem 1rem;
+    max-inline-size: 100%;
   }
 
   .technical {
@@ -402,22 +403,11 @@ const statusLabel = (value: string) =>
 
   .shape-grid,
   .proof-grid {
-    display: grid;
-    gap: 0.7rem;
     align-items: start;
   }
 
   .shape-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .shape-grid > div,
-  .proof-grid > * {
-    min-inline-size: 0;
-  }
-
-  .shape-grid dd {
-    margin-inline-start: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .flow-layout {
@@ -431,17 +421,9 @@ const statusLabel = (value: string) =>
   }
 
   .flow-card {
-    display: grid;
-    gap: 0.35rem;
     align-self: stretch;
     align-content: center;
     text-align: center;
-  }
-
-  .flow-card h5,
-  .proof-card h5,
-  .proof-card p {
-    margin: 0;
   }
 
   .source-card {
@@ -533,11 +515,6 @@ const statusLabel = (value: string) =>
     min-inline-size: 50rem;
   }
 
-  .weights-table small {
-    display: block;
-    margin-block-start: 0.2rem;
-  }
-
   td.allowed,
   .allowed-cue {
     border-block-end-style: solid;
@@ -559,15 +536,76 @@ const statusLabel = (value: string) =>
     margin-block-start: 0.75rem;
   }
 
-  .proof-card {
-    flex-direction: column;
-  }
-
   @container course-diagram (max-width: 48rem) {
     .shape-grid,
     .proof-grid {
       grid-template-columns: minmax(0, 1fr);
     }
+  }
+
+  .decoder-block-diagram:fullscreen {
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .decoder-block-diagram:fullscreen > :not(section) {
+    grid-column: 1 / -1;
+  }
+
+  .decoder-block-diagram:fullscreen > .overview-section {
+    grid-column: span 7;
+  }
+
+  .decoder-block-diagram:fullscreen > .path-section:nth-of-type(2) {
+    grid-column: span 17;
+  }
+
+  .decoder-block-diagram:fullscreen > .path-section:nth-of-type(3),
+  .decoder-block-diagram:fullscreen > .proof-section {
+    grid-column: 1 / -1;
+  }
+
+  .decoder-block-diagram:fullscreen .flow-layout {
+    grid-template-columns: 13.85rem 1.5rem 13.85rem 1.5rem 13.85rem 1.5rem 4rem 1.5rem 13.85rem;
+    min-inline-size: 0;
+  }
+
+  .decoder-block-diagram:fullscreen > .proof-section {
+    grid-template-columns: minmax(0, 0.25fr) minmax(0, 0.75fr);
+  }
+
+  .decoder-block-diagram:fullscreen > .proof-section > :is(h4, p),
+  .decoder-block-diagram:fullscreen > .proof-section > .attention-evidence-region,
+  .decoder-block-diagram:fullscreen > .proof-section > .feed-forward-evidence-region,
+  .decoder-block-diagram:fullscreen > .proof-section > .proof-grid {
+    grid-column: 1 / -1;
+  }
+
+  .decoder-block-diagram:fullscreen .proof-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .decoder-block-diagram:fullscreen .weights-table {
+    inline-size: 100%;
+    table-layout: fixed;
+  }
+
+  .decoder-block-diagram:fullscreen .weights-table small {
+    display: inline;
+    margin-block-start: 0;
+    margin-inline-start: 0.35rem;
+  }
+
+  .decoder-block-diagram:fullscreen .weights-table th:first-child {
+    inline-size: 3.5rem;
+  }
+
+  .decoder-block-diagram:fullscreen .weights-table th:nth-child(2) {
+    inline-size: 6rem;
+  }
+
+  .decoder-block-diagram:fullscreen .weights-table th:last-child {
+    inline-size: 5.5rem;
   }
 
   @media (forced-colors: active) {

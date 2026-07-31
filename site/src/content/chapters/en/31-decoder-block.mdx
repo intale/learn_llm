@@ -2,7 +2,7 @@
 {
   "chapter_id": "31-decoder-block",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 31,
   "concept_id": "decoder-block",
   "title": "Compose one pre-norm Transformer decoder block",
@@ -107,7 +107,7 @@ import DecoderBlockDiagram from '../../../components/chapters/DecoderBlockDiagra
 export const diagramLabels = {
   title: 'Follow two pre-normalized branches around one residual stream',
   description:
-    'Read exact Rust-authored rows through attention normalization, causal multi-head attention, the first residual merge, feed-forward normalization, SwiGLU, and the second residual merge.',
+    'Follow three exact token rows through attention normalization, causal multi-head attention, the first residual merge, feed-forward normalization, SwiGLU, and the second residual merge.',
   sections: {
     overview: 'One shape-preserving block, in source order',
     attention: 'Normalize before the causal attention branch',
@@ -116,24 +116,34 @@ export const diagramLabels = {
   },
   stages: {
     input: 'Input residual stream',
-    normalization: 'RMSNorm branch input',
+    attentionNormalization: 'Attention RMSNorm input',
     attention: 'Causal multi-head attention',
     attentionResidual: 'After attention residual',
+    feedForwardNormalization: 'Feed-forward RMSNorm input',
     feedForward: 'SwiGLU feed-forward branch',
     output: 'Block output',
+  },
+  shapeStages: {
+    input: 'Input residual stream',
+    attentionNormalization: 'Attention-normalized rows',
+    attentionWeights: 'Causal attention weights',
+    attentionBranch: 'Attention branch output',
+    attentionResidual: 'After attention residual',
+    feedForwardNormalization: 'Feed-forward-normalized rows',
+    feedForwardBranch: 'SwiGLU branch output',
+    output: 'Block output',
+    probeLogits: 'Probe logits',
   },
   fields: {
     shape: 'Tensor shapes from the Rust trace',
     token: 'Token position',
     query: 'Query position',
-    key: 'Key position',
-    probability: 'Probability',
     rowSum: 'Row sum',
     identity: 'Identity path',
     branch: 'Transformation branch',
-    result: 'Residual result',
     probe: 'Probe logits',
     orderContrast: 'Pre-norm and post-norm differ',
+    causality: 'Earlier outputs ignore the changed final token',
     parameterCount: 'Stable parameter ownership',
     gradientCount: 'Complete central-difference check',
   },
@@ -147,10 +157,14 @@ export const diagramLabels = {
     changed: 'Numerically different',
     verified: 'Verified from the Rust fixture',
   },
+  states: {
+    allowed: 'Visible',
+    blocked: 'Masked',
+  },
   captions: {
     attention: 'The identity copy bypasses RMSNorm and attention; only the dashed branch mixes visible token positions.',
     feedForward: 'The second identity copy bypasses the separate RMSNorm and per-token feature transformation.',
-    proof: 'The page labels frozen lexemes; it does not recompute normalization, attention, residuals, SwiGLU, probes, or gradients.',
+    proof: 'Exact stage rows expose operation order, causal isolation, parameter ownership, and the complete gradient comparison.',
   },
   scrollers: {
     formula: 'Scrollable pre-normalized decoder-block formula',
@@ -205,7 +219,7 @@ X'\xrightarrow{\operatorname{RMSNorm}_f}N_f
 \qquad Y=X'+F.
 $$
 
-All six residual-stream tensors have shape $[1,3,4]$. The attention
+All seven named model-width tensors have shape $[1,3,4]$. The attention
 probabilities alone have shape $[1,2,3,3]$. For token position $1$, predict
 which value reaches the first identity path unchanged and which value reaches
 attention only after $\operatorname{RMSNorm}_a$.
@@ -405,12 +419,12 @@ contrast.
 
 <DecoderBlockDiagram labels={diagramLabels} />
 
-The site parser accepts only that exact Rust-authored trace and keeps numeric
-lexemes as strings. It performs no normalization, attention, residual, SwiGLU,
-probe, or gradient arithmetic. Solid identity paths, dashed transformation
-branches, and double residual merges preserve meaning without color. Each wide
-relationship owns the smallest named keyboard-focusable scroll region, while
-the complete figure remains static HTML with JavaScript disabled.
+The stage rows show which value travels along each identity path and which value
+returns from each learned branch. The causal table isolates the only
+cross-token transformation, while the order comparison places the pre-norm and
+post-norm results side by side. Solid identity paths, dashed transformation
+branches, and double residual merges make those roles distinguishable without
+depending on color.
 
 Read token position $1$ across the first branch. The input row is
 $[0,2,0,0]$, while the attention result is
