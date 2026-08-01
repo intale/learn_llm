@@ -11,7 +11,7 @@
     {"term": "Upstream adjoint", "definition": "The objective sensitivity arriving at an operation's output tensor."},
     {"term": "Parent adjoint", "definition": "The accumulated objective sensitivity restored to an input tensor's shape."},
     {"term": "Broadcast reversal", "definition": "Summing reused output coordinates back into their original input coordinates."},
-    {"term": "Reduction VJP", "definition": "A reverse rule that expands reduced sensitivities across the saved axis."},
+    {"term": "Reduction VJP", "definition": "A reverse rule that reinserts and broadcasts a reduced axis, dividing by its extent for a mean."},
     {"term": "Non-scalar seed", "definition": "An explicit output cotangent matching a tensor-valued result's exact shape."},
     {"term": "Graph retention", "definition": "Keeping saved operation context available for another backward traversal."}
   ]

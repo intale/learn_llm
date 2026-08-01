@@ -323,6 +323,9 @@ const exactDefinitions = {
   '12-stable-softmax': {
     Underflow: 'A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero.',
   },
+  '15-tensor-autodiff-core': {
+    'Reduction VJP': 'A reverse rule that reinserts and broadcasts a reduced axis, dividing by its extent for a mean.',
+  },
 } as const;
 
 function readSheet(fileName: string) {
