@@ -153,7 +153,7 @@ const cheatSheet = z
     ),
     title: z.string().min(1),
     description: z.string().min(1),
-    terms: z.array(cheatSheetTerm).min(5).max(12),
+    terms: z.array(cheatSheetTerm).min(5),
   })
   .strict()
   .superRefine((sheet, context) => {

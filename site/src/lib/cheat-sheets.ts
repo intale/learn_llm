@@ -13,6 +13,16 @@ export interface CheatSheetData {
   readonly terms: readonly CheatSheetTerm[];
 }
 
+export const CHEAT_SHEET_PAGE_SIZE = 10;
+
+export interface CheatSheetPageStatus {
+  readonly currentPage: number;
+  readonly endTerm: number;
+  readonly pageCount: number;
+  readonly startTerm: number;
+  readonly totalTerms: number;
+}
+
 interface ChapterReference {
   readonly data: {
     readonly chapter_id: string;
@@ -29,7 +39,11 @@ export interface CheatSheetCopy {
   readonly closeLabel: string;
   readonly eyebrow: string;
   readonly fallbackSummary: string;
+  readonly nextLabel: string;
   readonly openLabel: string;
+  readonly pageStatus: (status: CheatSheetPageStatus) => string;
+  readonly paginationLabel: string;
+  readonly previousLabel: string;
 }
 
 const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
@@ -37,9 +51,48 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
     closeLabel: 'Close cheat sheet',
     eyebrow: 'Quick reference',
     fallbackSummary: 'Cheat sheet',
+    nextLabel: 'Next terms',
     openLabel: 'Open cheat sheet',
+    pageStatus: ({
+      currentPage,
+      endTerm,
+      pageCount,
+      startTerm,
+      totalTerms,
+    }) =>
+      `Terms ${startTerm}\u2013${endTerm} of ${totalTerms}; page ${currentPage} of ${pageCount}`,
+    paginationLabel: 'Cheat sheet term pages',
+    previousLabel: 'Previous terms',
   },
 };
+
+export function sortCheatSheetTerms(
+  terms: readonly CheatSheetTerm[],
+  locale: Locale,
+): CheatSheetTerm[] {
+  const collator = new Intl.Collator(locale, {
+    numeric: false,
+    sensitivity: 'base',
+    usage: 'sort',
+  });
+
+  return [...terms].sort((left, right) => {
+    const localizedOrder = collator.compare(left.term, right.term);
+    if (localizedOrder !== 0) return localizedOrder;
+    if (left.term === right.term) return 0;
+    return left.term < right.term ? -1 : 1;
+  });
+}
+
+export function paginateCheatSheetTerms(
+  terms: readonly CheatSheetTerm[],
+): CheatSheetTerm[][] {
+  const pages: CheatSheetTerm[][] = [];
+  for (let start = 0; start < terms.length; start += CHEAT_SHEET_PAGE_SIZE) {
+    pages.push(terms.slice(start, start + CHEAT_SHEET_PAGE_SIZE));
+  }
+  return pages;
+}
 
 export function cheatSheetRouteKey(locale: Locale, chapterId: string) {
   return `${locale}:${chapterId}`;

@@ -1,6 +1,9 @@
 ---
 import {
+  CHEAT_SHEET_PAGE_SIZE,
   getCheatSheetCopy,
+  paginateCheatSheetTerms,
+  sortCheatSheetTerms,
   type CheatSheetData,
 } from '../lib/cheat-sheets';
 
@@ -16,12 +19,26 @@ if (!copy) {
 const dialogId = `cheat-sheet-${sheet.chapter_id}`;
 const titleId = `${dialogId}-title`;
 const descriptionId = `${dialogId}-description`;
+const pagesId = `${dialogId}-pages`;
+const sortedTerms = sortCheatSheetTerms(sheet.terms, sheet.locale);
+const termPages = paginateCheatSheetTerms(sortedTerms);
+const pageStatuses = termPages.map((page, pageIndex) =>
+  copy.pageStatus({
+    currentPage: pageIndex + 1,
+    endTerm: pageIndex * CHEAT_SHEET_PAGE_SIZE + page.length,
+    pageCount: termPages.length,
+    startTerm: pageIndex * CHEAT_SHEET_PAGE_SIZE + 1,
+    totalTerms: sortedTerms.length,
+  }),
+);
 ---
 
 <aside
   class="cheat-sheet"
   data-cheat-sheet
   data-cheat-sheet-chapter={sheet.chapter_id}
+  data-cheat-sheet-page-count={termPages.length}
+  data-cheat-sheet-page-statuses={JSON.stringify(pageStatuses)}
 >
   <button
     class="cheat-sheet-trigger"
@@ -61,16 +78,64 @@ const descriptionId = `${dialogId}-description`;
       <p id={descriptionId} class="cheat-sheet-description">
         {sheet.description}
       </p>
-      <dl class="cheat-sheet-terms">
+      <div id={pagesId} class="cheat-sheet-pages" data-cheat-sheet-pages>
         {
-          sheet.terms.map(({ term, definition }) => (
-            <div class="cheat-sheet-term">
-              <dt>{term}</dt>
-              <dd>{definition}</dd>
+          termPages.map((page, pageIndex) => (
+            <div
+              class="cheat-sheet-page"
+              data-cheat-sheet-page={pageIndex + 1}
+              role="group"
+              aria-label={pageStatuses[pageIndex]}
+              hidden={pageIndex !== 0}
+            >
+              <dl class="cheat-sheet-terms">
+                {page.map(({ term, definition }) => (
+                  <div class="cheat-sheet-term">
+                    <dt>{term}</dt>
+                    <dd>{definition}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           ))
         }
-      </dl>
+      </div>
+      {
+        termPages.length > 1 && (
+          <nav
+            class="cheat-sheet-pagination"
+            aria-label={copy.paginationLabel}
+            data-cheat-sheet-pagination
+          >
+            <p
+              class="cheat-sheet-page-status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              data-cheat-sheet-page-status
+            >
+              {pageStatuses[0]}
+            </p>
+            <button
+              class="cheat-sheet-page-button cheat-sheet-previous"
+              type="button"
+              aria-controls={pagesId}
+              data-cheat-sheet-previous
+              disabled
+            >
+              {copy.previousLabel}
+            </button>
+            <button
+              class="cheat-sheet-page-button cheat-sheet-next"
+              type="button"
+              aria-controls={pagesId}
+              data-cheat-sheet-next
+            >
+              {copy.nextLabel}
+            </button>
+          </nav>
+        )
+      }
     </div>
   </dialog>
 
@@ -81,7 +146,7 @@ const descriptionId = `${dialogId}-description`;
       <p>{sheet.description}</p>
       <dl class="cheat-sheet-terms">
         {
-          sheet.terms.map(({ term, definition }) => (
+          sortedTerms.map(({ term, definition }) => (
             <div class="cheat-sheet-term">
               <dt>{term}</dt>
               <dd>{definition}</dd>
@@ -101,22 +166,80 @@ const descriptionId = `${dialogId}-description`;
     const dialog = root.querySelector<HTMLDialogElement>('[data-cheat-sheet-dialog]');
     const close = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-close]');
     const fallback = root.querySelector<HTMLDetailsElement>('[data-cheat-sheet-fallback]');
+    const pages = Array.from(
+      root.querySelectorAll<HTMLElement>('[data-cheat-sheet-page]'),
+    );
+    const pageCount = Number.parseInt(root.dataset.cheatSheetPageCount ?? '', 10);
+    const pagination = root.querySelector<HTMLElement>('[data-cheat-sheet-pagination]');
+    const previous = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-previous]');
+    const next = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-next]');
+    const pageStatus = root.querySelector<HTMLElement>('[data-cheat-sheet-page-status]');
     if (!trigger || !dialog || !close || !fallback || typeof dialog.showModal !== 'function') {
       return;
     }
 
+    let pageStatuses: unknown;
+    try {
+      pageStatuses = JSON.parse(root.dataset.cheatSheetPageStatuses ?? '');
+    } catch {
+      return;
+    }
+    if (
+      !Number.isInteger(pageCount) ||
+      pageCount < 1 ||
+      pages.length !== pageCount ||
+      !Array.isArray(pageStatuses) ||
+      pageStatuses.length !== pageCount ||
+      pageStatuses.some((status) => typeof status !== 'string')
+    ) {
+      return;
+    }
+
+    const isPaginated = pageCount > 1;
+    if (
+      isPaginated &&
+      (!pagination || !previous || !next || !pageStatus)
+    ) {
+      return;
+    }
+
+    let currentPage = 1;
+    const showPage = (requestedPage: number) => {
+      currentPage = Math.min(pageCount, Math.max(1, requestedPage));
+      pages.forEach((page, pageIndex) => {
+        page.hidden = pageIndex !== currentPage - 1;
+      });
+      root.dataset.cheatSheetCurrentPage = String(currentPage);
+      if (previous && next && pageStatus) {
+        previous.disabled = currentPage === 1;
+        next.disabled = currentPage === pageCount;
+        pageStatus.textContent = pageStatuses[currentPage - 1] as string;
+      }
+      if (dialog.open) dialog.scrollTop = 0;
+    };
+
+    showPage(1);
     root.dataset.cheatSheetEnhanced = 'true';
     trigger.hidden = false;
     fallback.hidden = true;
     let opener: HTMLElement | null = null;
 
     trigger.addEventListener('click', () => {
+      showPage(1);
       opener = document.activeElement instanceof HTMLElement
         ? document.activeElement
         : trigger;
       dialog.showModal();
     });
 
+    previous?.addEventListener('click', () => {
+      showPage(currentPage - 1);
+      if (currentPage === 1) next?.focus({ preventScroll: true });
+    });
+    next?.addEventListener('click', () => {
+      showPage(currentPage + 1);
+      if (currentPage === pageCount) previous?.focus({ preventScroll: true });
+    });
     close.addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', (event) => {
       if (event.target === dialog) dialog.close();
@@ -134,7 +257,8 @@ const descriptionId = `${dialogId}-description`;
   }
 
   .cheat-sheet-trigger,
-  .cheat-sheet-close {
+  .cheat-sheet-close,
+  .cheat-sheet-page-button {
     border: 1px solid var(--accent-dark);
     background: var(--accent-dark);
     color: white;
@@ -150,12 +274,14 @@ const descriptionId = `${dialogId}-description`;
   }
 
   .cheat-sheet-trigger:hover,
-  .cheat-sheet-close:hover {
+  .cheat-sheet-close:hover,
+  .cheat-sheet-page-button:hover:not(:disabled) {
     background: var(--ink);
   }
 
   .cheat-sheet-trigger:focus-visible,
   .cheat-sheet-close:focus-visible,
+  .cheat-sheet-page-button:focus-visible,
   .cheat-sheet-fallback summary:focus-visible {
     outline: 0.2rem solid var(--focus);
     outline-offset: 0.2rem;
@@ -184,6 +310,8 @@ const descriptionId = `${dialogId}-description`;
 
   .cheat-sheet-panel,
   .cheat-sheet-fallback-content {
+    box-sizing: border-box;
+    min-inline-size: 0;
     padding: clamp(1.1rem, 4vw, 2rem);
   }
 
@@ -231,6 +359,36 @@ const descriptionId = `${dialogId}-description`;
 
   .cheat-sheet-terms {
     margin: 1.5rem 0 0;
+  }
+
+  .cheat-sheet-pagination {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    min-inline-size: 0;
+    margin-top: 1rem;
+  }
+
+  .cheat-sheet-page-status {
+    grid-column: 1 / -1;
+    min-inline-size: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .cheat-sheet-page-button {
+    min-block-size: 2.75rem;
+    min-inline-size: 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.7rem;
+    overflow-wrap: anywhere;
+  }
+
+  .cheat-sheet-page-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
   }
 
   .cheat-sheet-term {
@@ -288,6 +446,7 @@ const descriptionId = `${dialogId}-description`;
   @media (forced-colors: active) {
     .cheat-sheet-trigger,
     .cheat-sheet-close,
+    .cheat-sheet-page-button,
     .cheat-sheet-dialog,
     .cheat-sheet-fallback,
     .cheat-sheet-term {
@@ -295,7 +454,8 @@ const descriptionId = `${dialogId}-description`;
     }
 
     .cheat-sheet-trigger,
-    .cheat-sheet-close {
+    .cheat-sheet-close,
+    .cheat-sheet-page-button {
       background: ButtonFace;
       color: ButtonText;
     }

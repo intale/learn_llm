@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+import {
+  CHEAT_SHEET_PAGE_SIZE,
+  paginateCheatSheetTerms,
+  sortCheatSheetTerms,
+} from '../../src/lib/cheat-sheets';
 import { chapterPath } from './chapter-helpers';
 
 const sheets = [
@@ -348,19 +353,50 @@ const sheets = [
   },
 ] as const;
 
+function expectedPages(terms: readonly string[]) {
+  const sorted = sortCheatSheetTerms(
+    terms.map((term) => ({ definition: 'Browser-test definition.', term })),
+    'en',
+  );
+  return paginateCheatSheetTerms(sorted).map((page) =>
+    page.map(({ term }) => term),
+  );
+}
+
+function expectedStatus(pageIndex: number, pageCount: number, termCount: number) {
+  const start = pageIndex * CHEAT_SHEET_PAGE_SIZE + 1;
+  const end = Math.min((pageIndex + 1) * CHEAT_SHEET_PAGE_SIZE, termCount);
+  return `Terms ${start}\u2013${end} of ${termCount}; page ${pageIndex + 1} of ${pageCount}`;
+}
+
 for (const sheet of sheets) {
   test.describe(`Chapter ${sheet.chapter} cheat sheet`, () => {
-    test('opens one modal, closes by Escape and button, and restores focus', async ({
-      page,
-    }) => {
+    test('presents sorted page slices with accessible controls and restores focus', async ({ page }) => {
       await page.goto(chapterPath('en', sheet.chapterId));
 
+      const termPages = expectedPages(sheet.terms);
+      const sortedTerms = termPages.flat();
       const root = page.locator('[data-cheat-sheet]');
       const trigger = root.getByRole('button', { name: 'Open cheat sheet' });
       const dialog = root.getByRole('dialog', { name: sheet.title });
       const fallback = root.locator('[data-cheat-sheet-fallback]');
+      const pages = dialog.locator('[data-cheat-sheet-pages]');
+      const visibleTerms = dialog.locator(
+        '[data-cheat-sheet-page]:not([hidden]) dt',
+      );
+      const pagination = dialog.getByRole('navigation', {
+        name: 'Cheat sheet term pages',
+      });
+      const previous = dialog.getByRole('button', { name: 'Previous terms' });
+      const next = dialog.getByRole('button', { name: 'Next terms' });
+      const status = dialog.getByRole('status');
+      const pagesId = `cheat-sheet-${sheet.chapterId}-pages`;
 
       await expect(root).toHaveCount(1);
+      await expect(root).toHaveAttribute(
+        'data-cheat-sheet-page-count',
+        String(termPages.length),
+      );
       await expect(trigger).toBeVisible();
       await expect(fallback).toBeHidden();
       await expect(dialog).not.toBeVisible();
@@ -368,69 +404,206 @@ for (const sheet of sheets) {
       await trigger.focus();
       await trigger.click();
       await expect(dialog).toBeVisible();
-      await expect(dialog.locator('dt')).toHaveText([...sheet.terms]);
+      await expect(pages).toHaveAttribute('id', pagesId);
+      await expect(dialog.locator('[data-cheat-sheet-page] dt')).toHaveText(
+        sortedTerms,
+      );
+      expect(new Set(sortedTerms).size).toBe(sortedTerms.length);
+      await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await expect(
         root.getByRole('button', { name: 'Close cheat sheet' }),
       ).toBeFocused();
+
+      if (termPages.length === 1) {
+        await expect(pagination).toHaveCount(0);
+        await expect(previous).toHaveCount(0);
+        await expect(next).toHaveCount(0);
+        await expect(status).toHaveCount(0);
+      } else {
+        await expect(pagination).toBeVisible();
+        await expect(previous).toHaveAttribute('aria-controls', pagesId);
+        await expect(next).toHaveAttribute('aria-controls', pagesId);
+        await expect(previous).toBeDisabled();
+        await expect(next).toBeEnabled();
+
+        for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
+          const pageStatus = expectedStatus(
+            pageIndex,
+            termPages.length,
+            sortedTerms.length,
+          );
+          await expect(root).toHaveAttribute(
+            'data-cheat-sheet-current-page',
+            String(pageIndex + 1),
+          );
+          await expect(visibleTerms).toHaveText(termPages[pageIndex] ?? []);
+          await expect(status).toHaveText(pageStatus);
+          await expect(
+            dialog.getByRole('group', { name: pageStatus }),
+          ).toBeVisible();
+          if (pageIndex === 0) {
+            await expect(previous).toBeDisabled();
+          } else {
+            await expect(previous).toBeEnabled();
+          }
+          if (pageIndex === termPages.length - 1) {
+            await expect(next).toBeDisabled();
+          } else {
+            await expect(next).toBeEnabled();
+          }
+
+          if (pageIndex < termPages.length - 1) {
+            await next.click();
+          }
+        }
+
+        await expect(previous).toBeFocused();
+        for (let pageIndex = termPages.length - 1; pageIndex > 0; pageIndex -= 1) {
+          await previous.click();
+          await expect(visibleTerms).toHaveText(termPages[pageIndex - 1] ?? []);
+        }
+        await expect(next).toBeFocused();
+      }
 
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
 
       await trigger.click();
+      await expect(root).toHaveAttribute('data-cheat-sheet-current-page', '1');
+      await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await root.getByRole('button', { name: 'Close cheat sheet' }).click();
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
     });
 
-    test('contains every term at a narrow viewport without page or dialog overflow', async ({
+    test('contains every modal page at narrow width and keeps it reachable at short height', async ({
       page,
     }) => {
-      await page.setViewportSize({ width: 360, height: 740 });
+      const termPages = expectedPages(sheet.terms);
+      await page.setViewportSize({ width: 360, height: 500 });
       await page.goto(chapterPath('en', sheet.chapterId));
       await page.getByRole('button', { name: 'Open cheat sheet' }).click();
 
       const dialog = page.getByRole('dialog', { name: sheet.title });
+      const next = dialog.getByRole('button', { name: 'Next terms' });
       await expect(dialog).toBeVisible();
-      const geometry = await dialog.evaluate((node) => {
-        const rect = node.getBoundingClientRect();
-        const terms = Array.from(node.querySelectorAll('dt, dd')).map(
-          (term) => {
-            const termRect = term.getBoundingClientRect();
-            return {
-              left: termRect.left,
-              right: termRect.right,
-            };
-          },
-        );
-        return {
-          bodyClientWidth: document.documentElement.clientWidth,
-          bodyScrollWidth: document.documentElement.scrollWidth,
-          dialog: {
-            left: rect.left,
-            right: rect.right,
-            top: rect.top,
-            bottom: rect.bottom,
-          },
-          terms,
-          viewport: { width: window.innerWidth, height: window.innerHeight },
-        };
-      });
 
-      expect(geometry.bodyScrollWidth).toBeLessThanOrEqual(
-        geometry.bodyClientWidth + 1,
-      );
-      expect(geometry.dialog.left).toBeGreaterThanOrEqual(0);
-      expect(geometry.dialog.right).toBeLessThanOrEqual(
-        geometry.viewport.width,
-      );
-      expect(geometry.dialog.top).toBeGreaterThanOrEqual(0);
-      expect(geometry.dialog.bottom).toBeLessThanOrEqual(
-        geometry.viewport.height,
-      );
-      for (const term of geometry.terms) {
-        expect(term.left).toBeGreaterThanOrEqual(geometry.dialog.left);
-        expect(term.right).toBeLessThanOrEqual(geometry.dialog.right);
+      for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
+        await expect(
+          dialog.locator('[data-cheat-sheet-page]:not([hidden]) dt'),
+        ).toHaveText(termPages[pageIndex] ?? []);
+
+        const geometry = await dialog.evaluate((node) => {
+          const bounds = (element: Element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              bottom: rect.bottom,
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+            };
+          };
+          const dialogRect = bounds(node);
+          const panel = node.querySelector('.cheat-sheet-panel');
+          const visiblePage = node.querySelector(
+            '[data-cheat-sheet-page]:not([hidden])',
+          );
+          const bounded = [
+            panel,
+            visiblePage,
+            node.querySelector('[data-cheat-sheet-pagination]'),
+            node.querySelector('[data-cheat-sheet-page-status]'),
+            node.querySelector('[data-cheat-sheet-previous]'),
+            node.querySelector('[data-cheat-sheet-next]'),
+          ]
+            .filter((element): element is Element => element !== null)
+            .map(bounds);
+          const paintedText = Array.from(
+            node.querySelectorAll(
+              '[data-cheat-sheet-page]:not([hidden]) dt, [data-cheat-sheet-page]:not([hidden]) dd',
+            ),
+          ).flatMap((element) => {
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            return Array.from(range.getClientRects()).map((rect) => ({
+              left: rect.left,
+              right: rect.right,
+            }));
+          });
+
+          return {
+            bodyClientWidth: document.documentElement.clientWidth,
+            bodyScrollWidth: document.documentElement.scrollWidth,
+            bounded,
+            dialog: dialogRect,
+            dialogClientWidth: node.clientWidth,
+            dialogScrollWidth: node.scrollWidth,
+            paintedText,
+            viewport: { height: window.innerHeight, width: window.innerWidth },
+          };
+        });
+
+        expect(geometry.bodyScrollWidth).toBeLessThanOrEqual(
+          geometry.bodyClientWidth + 1,
+        );
+        expect(geometry.dialogScrollWidth).toBeLessThanOrEqual(
+          geometry.dialogClientWidth + 1,
+        );
+        expect(geometry.dialog.left).toBeGreaterThanOrEqual(0);
+        expect(geometry.dialog.right).toBeLessThanOrEqual(
+          geometry.viewport.width,
+        );
+        expect(geometry.dialog.top).toBeGreaterThanOrEqual(0);
+        expect(geometry.dialog.bottom).toBeLessThanOrEqual(
+          geometry.viewport.height,
+        );
+        for (const bounds of geometry.bounded) {
+          expect(bounds.left).toBeGreaterThanOrEqual(geometry.dialog.left - 1);
+          expect(bounds.right).toBeLessThanOrEqual(geometry.dialog.right + 1);
+        }
+        for (const ink of geometry.paintedText) {
+          expect(ink.left).toBeGreaterThanOrEqual(geometry.dialog.left - 1);
+          expect(ink.right).toBeLessThanOrEqual(geometry.dialog.right + 1);
+        }
+
+        const reachability = await dialog.evaluate((node) => {
+          node.scrollTop = node.scrollHeight;
+          const target =
+            node.querySelector('[data-cheat-sheet-pagination]') ??
+            Array.from(
+              node.querySelectorAll(
+                '[data-cheat-sheet-page]:not([hidden]) .cheat-sheet-term',
+              ),
+            ).at(-1);
+          const dialogRect = node.getBoundingClientRect();
+          const targetRect = target?.getBoundingClientRect();
+          return {
+            clientHeight: node.clientHeight,
+            dialogBottom: dialogRect.bottom,
+            dialogTop: dialogRect.top,
+            scrollHeight: node.scrollHeight,
+            scrollTop: node.scrollTop,
+            targetBottom: targetRect?.bottom ?? Number.NaN,
+            targetTop: targetRect?.top ?? Number.NaN,
+          };
+        });
+        expect(
+          reachability.scrollTop + reachability.clientHeight,
+        ).toBeGreaterThanOrEqual(reachability.scrollHeight - 1);
+        expect(reachability.targetTop).toBeGreaterThanOrEqual(
+          reachability.dialogTop - 1,
+        );
+        expect(reachability.targetBottom).toBeLessThanOrEqual(
+          reachability.dialogBottom + 1,
+        );
+
+        if (pageIndex < termPages.length - 1) {
+          await next.click();
+          expect(
+            await dialog.evaluate((node) => node.scrollTop),
+          ).toBeLessThanOrEqual(1);
+        }
       }
     });
 
@@ -444,6 +617,7 @@ for (const sheet of sheets) {
       const page = await context.newPage();
       await page.goto(chapterPath('en', sheet.chapterId));
 
+      const sortedTerms = expectedPages(sheet.terms).flat();
       const root = page.locator('[data-cheat-sheet]');
       const fallback = root.locator('[data-cheat-sheet-fallback]');
       await expect(root.locator('[data-cheat-sheet-open]')).toBeHidden();
@@ -451,7 +625,10 @@ for (const sheet of sheets) {
       await expect(fallback).not.toHaveAttribute('open', '');
       await fallback.locator('summary').click();
       await expect(fallback).toHaveAttribute('open', '');
-      await expect(fallback.locator('dt')).toHaveText([...sheet.terms]);
+      await expect(fallback.locator('dt')).toHaveText(sortedTerms);
+      await expect(fallback.locator('[data-cheat-sheet-pagination]')).toHaveCount(0);
+      await expect(fallback.locator('[data-cheat-sheet-page]')).toHaveCount(0);
+      expect(await fallback.locator('dt:visible').count()).toBe(sortedTerms.length);
       expect(
         await page.evaluate(
           () =>

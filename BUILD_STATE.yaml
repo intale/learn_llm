@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T16:17:19Z"
+updated_at: "2026-08-01T16:49:54Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,8 +26251,8 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 33
-      notes: "No explicit resource limit applies. Thirty-three sheet checkpoints plus five recorded corrective runs use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+      spent: 34
+      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus six completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus three corrective checkpoints will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
       - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
@@ -27447,9 +27447,95 @@ builds:
               - {command: "Product manifest, labelled-volume cleanup, whitespace, YAML, JSON, historical-ledger, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal; no run-labelled volume remains; git diff --check and source parses pass; historical checkpoints are unchanged; Chapter 39 is now the sole eligible next step."}
             notes: "Succeeded. Chapter 38 now has one concise canonical English sheet covering model-wide ownership of one independent compatible cache per layer, prompt prefill, one-token decode, complete-prefix and newest-logit equivalence, retained-prefix attention-score work, exact context-limit and EOS stops, all-block coherent commit, replay, and logical reset that retains allocation. Chapter 0 and Russian routes remain sheet-free, the later-English boundary advances to Chapter 39, and no lesson, localization, dependency, build definition, deployment, or shared modal implementation changed."
 
+      - id: remove-cheat-sheet-term-cap
+        objective: "Remove the arbitrary cheat-sheet term ceiling and keep longer relevant sheets readable through deterministic sorting and progressive pagination."
+        depends_on: [add-ch38-cheat-sheet]
+        status: completed
+        inputs: ["Completed English Chapter 1-38 cheat-sheet records", "Shared locale-aware cheat-sheet schema, presentation component, and test matrices", "Canonical chapter-scoped terminology eligibility contract"]
+        outputs: ["site/src/content.config.ts", "site/src/lib/cheat-sheets.ts", "site/src/components/CheatSheet.astro", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance: ["The schema retains its minimum but has no arbitrary maximum term count; removing the ceiling does not broaden eligibility: every entry must still be necessary to understand that page's LLM or model architecture, mathematics, training, evaluation, inference or generation, or model checkpoint or state concept, while generic programming, Rust, web or UI, build, and deployment vocabulary merely mentioned on the page remains excluded; every enhanced and fallback sheet is deterministically locale-aware alphabetized; only enhanced sheets with more than ten terms paginate at exactly ten terms per page with localized Previous and Next controls, an accessible live localized page status, disabled boundaries, and page-one reset on every reopen; every term remains server-rendered; the no-JavaScript disclosure contains every sorted term without pagination; every page contains its content at narrow width; close, native Escape, and focus restoration remain correct; focused, Astro, build, link, Chromium, and Firefox gates pass; no cheat-sheet JSON, lesson, localization, dependency, build definition, or deployment file changes in this shared checkpoint; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox complete cheat-sheet E2E gates with exact ten-term pagination, ordering, fallback, accessibility, and narrow-page coverage", "git diff --check, BUILD_STATE.yaml parse, JSON parse, source-scope audit, and no-cheat-sheet-JSON diff audit"]
+        cost: {class: medium, notes: "One shared schema and progressive-interface correction plus cached local static and two-engine browser validation; no network generation or paid service."}
+        runs:
+          - run_id: 20260801T163320Z-remove-cheat-sheet-term-cap-01
+            started_at: "2026-08-01T16:33:20Z"
+            finished_at: "2026-08-01T16:49:54Z"
+            status: succeeded
+            input_fingerprint: {git: "1b0aaef51009d0a8666901945bb8d522aa8b63bc", manifest: ".build/runs/20260801T163320Z-remove-cheat-sheet-term-cap-01/input-fingerprint.txt", checksum: "sha256:64e3248837d31c3ccb3f666bb2521179bf76ab34ff68bab533a3a84de7488e3e", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, pinned repository Linux and Playwright 1.61.1 browser toolchains", external: "None; current canonical English sheets and the shared relevance contract are the only content inputs."}
+            staging_dir: ".build/runs/20260801T163320Z-remove-cheat-sheet-term-cap-01/"
+            commands:
+              - "Verify clean dependency commit 1b0aaef, completed Chapter 38, current shared schema and presentation ownership, environment pins, medium cost, exact no-JSON scope, and unavailable attached browser fallback."
+              - "Insert the shared correction plus separate pending Chapter 34 contextualization, Chapter 35 restoration and contextualization, and Chapter 38 restoration checkpoints before Chapter 39; correct declared output paths and final build accounting; record the superseding relevance-preserving pagination decision."
+              - "Remove the upper schema bound; add deterministic locale-aware sorting, exact ten-term page chunks, localized progressive controls, live range and page status, fail-closed transactional enhancement, boundary focus transfer, page reset, and complete sorted disclosure fallback without editing sheet JSON."
+              - "Expand focused and browser contracts for strict relevance exclusions, collation tie-breaks, 10/11/23 boundaries, no loss or duplication, visible sorted slices, controls and range status, first and last focus boundaries, reopen reset, 360-by-500 painted-ink and dialog overflow containment, short-height reachability, and complete sorted no-JavaScript fallback."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "npm.cmd --prefix site run check"
+              - "npx.cmd --prefix site playwright test tests/e2e/cheat-sheets.spec.ts --list"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; status=$?; tail -n 12 /tmp/build.log; exit $status'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-no-cap-e2e-163320 from source image sha256:0f3fc234f063a7458baa73f4b8c4eb27e084c3b375c66cb307801f4e967e55a4 and independently build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-no-cap-e2e-163320,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-no-cap-e2e-163320,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify exact run and snapshot labels; remove learn-llm-cheatsheet-no-cap-e2e-163320; freeze and reverify the five-file product manifest; confirm no sheet JSON, dependency, or build-definition diff; parse YAML and JSON; compare every prior completed active-build step byte-semantically; audit generic-term exclusions and the removed cap; run git diff --check; and confirm contextualize-ch34-evaluation-terms is the sole eligible next step."
+            artifacts:
+              - {path: ".build/runs/20260801T163320Z-remove-cheat-sheet-term-cap-01/input-fingerprint.txt", checksum: "sha256:64e3248837d31c3ccb3f666bb2521179bf76ab34ff68bab533a3a84de7488e3e", notes: "Exact shared-correction input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:0f3fc234f063a7458baa73f4b8c4eb27e084c3b375c66cb307801f4e967e55a4", notes: "Pinned Linux source image containing the exact shared implementation and tests used for static validation and exact-volume publication."}
+              - {path: "site/src/content.config.ts", checksum: "sha256:0af4d49dd9492f97069af40b9bd74b9bc7ca8922b234a64aeca7e10a67037e7c", notes: "Uncapped strict cheat-sheet content schema retaining the five-term minimum and duplicate rejection."}
+              - {path: "site/src/lib/cheat-sheets.ts", checksum: "sha256:20c73e41c4cf9ab882b81b3c5903776ad49f7f9b52e1fb022d22cf4df3e06402", notes: "Deterministic locale-aware copied-array sorting, exact ten-term page helper, and localized pagination copy."}
+              - {path: "site/src/components/CheatSheet.astro", checksum: "sha256:7aa1484e4be794a655151c0fd24c4d5fbead23e11a109f492e3a8d0efb8f27ed", notes: "Server-rendered sorted terms with fail-closed progressive pagination, complete disclosure fallback, accessibility, focus, and narrow-safe styling."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:b4d3f63a994133ec154ff0a61dcb971017b02498e29fe8392e59f7a5cad8cbb1", notes: "Focused schema, scope, ordering, page-boundary, no-loss, fail-closed localization, and integration regressions."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:36b35255fb8b319b25925a4d58d8630e19b82b573764c36f5beb958101cef5ec", notes: "Complete 115-case modal, page-slice, live-range, focus, narrow, short-height, fallback, locale, and rollout-boundary browser matrix."}
+              - {path: ".build/runs/20260801T163320Z-remove-cheat-sheet-term-cap-01/publish-product.sha256", checksum: "sha256:e09ff33a90cecb426dbe68d14e5311e3d3feada24649b58102d4561b6118ddab", notes: "Frozen manifest for the five published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, scope, and fingerprint preflight", status: passed, notes: "Chapter 38 is independently committed at the clean dependency commit and this shared correction is the sole eligible step after insertion. The fixed ceiling is presentation-driven and has already displaced page-relevant Chapter 35 and Chapter 38 concepts, but its removal must not admit generic implementation or delivery vocabulary. No cheat-sheet JSON may change in this checkpoint. The attached browser is unavailable, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host content, helper, schema, relevance, and integration checks", status: passed, notes: "44/44 cases pass, including locale-aware deterministic collation with an equal-primary-order tie, exact 10/11/23 page boundaries without loss or duplication, no upper schema cap, explicit generic programming, Rust, web, UI, build, and deployment term exclusions, localized-copy fail-closed behavior, and transactional enhancement source contracts."}
+              - {command: "Host Astro diagnostics", status: passed, notes: "Astro reports 210 files and zero errors, warnings, or hints after the shared component and schema correction."}
+              - {command: "Playwright collection check", status: passed, notes: "The complete browser specification compiles and discovers 115 cases across English Chapters 1-38 plus the orientation, locale, and later-English exclusions."}
+              - {command: "Pinned Linux focused checks", status: passed, notes: "44/44 focused cases pass in the recorded source image, and Astro independently reports 210 files with zero errors, warnings, or hints."}
+              - {command: "Pinned Linux production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass without any dependency or build-definition change."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled shared-correction volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium complete cheat-sheet gate", status: passed, notes: "115/115 cases pass for locale-sorted visible slices, exact ten-term pagination only above ten, complete server-rendered term sets, localized navigation and live ranges, disabled boundaries and deterministic focus transfer, reopen reset, 360-by-500 painted-ink and dialog overflow containment on every page, short-height reachability, complete sorted no-JavaScript disclosures, and orientation, Russian, and Chapter 39 exclusions."}
+              - {command: "Pinned exact-snapshot Firefox complete cheat-sheet gate", status: passed, notes: "115/115 cases pass independently with the same ordering, pagination, accessibility, focus, containment, reachability, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, snapshot cleanup, source-scope, whitespace, YAML, JSON, immutable-history, relevance, cap-removal, and scheduler audit", status: passed, notes: "All five product hashes are frozen and reverified; the exact labelled volume was checked before removal and no run-labelled volume or container remains; no sheet JSON, dependency, build definition, lesson, or Russian file changed; git diff --check and all source parses pass; every prior completed active-build step is unchanged. The first historical comparison wrapper exhausted Node's default child-process output buffer on the approximately one-megabyte ledger; the corrected eight-megabyte-buffer rerun passed without changing any file. contextualize-ch34-evaluation-terms is the sole eligible next step."}
+            notes: "Succeeded. The arbitrary twelve-term ceiling is gone without broadening term eligibility. Every current sheet is server-sorted with deterministic locale collation; enhanced sheets above ten terms expose exact ten-term pages with localized navigation, live range and page status, stable controlled-region IDs, disabled boundaries, deterministic boundary focus, scroll reset, and reopen reset; the no-JavaScript disclosure retains every sorted term without pagination. Chapter 0 and Russian routes remain sheet-free. No sheet JSON, lesson, localization, dependency, build definition, hosting, or deployment file changed."
+
+      - id: contextualize-ch34-evaluation-terms
+        objective: "Make two generic-sounding Chapter 34 labels explicitly identify their model-evaluation context."
+        depends_on: [remove-cheat-sheet-term-cap]
+        status: pending
+        inputs: ["Canonical English Chapter 34 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 34 sheet"]
+        outputs: ["site/src/content/cheat-sheets/en/34-final-evaluation.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 34 replaces Test-only gate with Single-use test evaluation boundary and Immutable report with Frozen final evaluation report without changing their page-grounded meanings or adding any term; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 34 contextualized-label E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "Two English label contextualizations plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: restore-ch35-checkpoint-schema-term
+        objective: "Restore the page-relevant Chapter 35 checkpoint-schema term and make six generic-sounding labels explicitly identify their checkpoint context."
+        depends_on: [contextualize-ch34-evaluation-terms]
+        status: pending
+        inputs: ["Canonical English Chapter 35 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 35 sheet"]
+        outputs: ["site/src/content/cheat-sheets/en/35-checkpoints.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 35 restores Checkpoint schema and contextualizes Payload record, Record descriptor, Absolute byte offset, Canonical encoding, FNV-1a checksum, and Atomic replacement as Checkpoint payload record, Checkpoint record descriptor, Checkpoint payload offset, Canonical checkpoint encoding, Checkpoint integrity checksum (FNV-1a), and Atomic checkpoint replacement without changing their page-grounded meanings or adding unrelated vocabulary; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 35 restored-term E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One restored English term plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: restore-ch38-per-layer-cache-term
+        objective: "Restore the page-relevant Chapter 38 per-layer-cache term after the Chapter 35 restoration."
+        depends_on: [restore-ch35-checkpoint-schema-term]
+        status: pending
+        inputs: ["Canonical English Chapter 38 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 38 sheet"]
+        outputs: ["site/src/content/cheat-sheets/en/38-cached-generation.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 38 restores the distinct page-necessary per-layer-cache concept without adding generic programming, Rust, UI, build, or deployment vocabulary; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 38 restored-term E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One restored English term plus cached local static and two-engine browser validation."}
+        runs: []
+
       - id: add-ch39-cheat-sheet
         objective: "Publish the canonical English Chapter 39 terminology sheet."
-        depends_on: [add-ch38-cheat-sheet]
+        depends_on: [restore-ch38-per-layer-cache-term]
         status: pending
         inputs: ["Canonical English Chapter 39 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/39-end-to-end-llm.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml","DECISIONS.md"]

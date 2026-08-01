@@ -6,8 +6,11 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  CHEAT_SHEET_PAGE_SIZE,
   getCheatSheetCopy,
   indexCheatSheets,
+  paginateCheatSheetTerms,
+  sortCheatSheetTerms,
   type CheatSheetData,
 } from '../src/lib/cheat-sheets';
 
@@ -876,7 +879,7 @@ describe('English chapter cheat-sheet content', () => {
       });
 
       expect(sheet.terms.map(({ term }) => term).join(' ')).not.toMatch(
-        /\b(?:Vec|usize|Result|borrow checker|TypeScript|Python)\b/,
+        /\b(?:Vec|usize|Result|borrow checker|TypeScript|Python|Rust|JavaScript|HTML|CSS|Astro|browser|modal|dialog|web interface|build|deployment|Docker|Git)\b/i,
       );
 
       for (const [term, definition] of Object.entries(
@@ -888,6 +891,63 @@ describe('English chapter cheat-sheet content', () => {
       }
     });
   }
+});
+
+describe('cheat-sheet ordering and page boundaries', () => {
+  const terms = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      definition: `Definition ${index + 1}.`,
+      term: `Term ${String(index + 1).padStart(2, '0')}`,
+    }));
+
+  it('sorts one copied array with locale collation and a deterministic tie-break', () => {
+    const source = [
+      { term: 'zeta', definition: 'Zeta definition.' },
+      { term: 'embedding', definition: 'Embedding definition.' },
+      { term: 'Attention', definition: 'Attention definition.' },
+      { term: 'Alpha', definition: 'Base alpha definition.' },
+      { term: '\u00c1lpha', definition: 'Alpha definition.' },
+    ];
+    const before = [...source];
+
+    expect(sortCheatSheetTerms(source, 'en').map(({ term }) => term)).toEqual([
+      'Alpha',
+      '\u00c1lpha',
+      'Attention',
+      'embedding',
+      'zeta',
+    ]);
+    expect(source).toEqual(before);
+
+    expect(
+      sortCheatSheetTerms(
+        [
+          { term: '\u042f\u0434\u0440\u043e', definition: 'One.' },
+          { term: '\u0410\u043a\u0442\u0438\u0432\u0430\u0446\u0438\u044f', definition: 'Two.' },
+          { term: '\u0401\u043c\u043a\u043e\u0441\u0442\u044c', definition: 'Three.' },
+        ],
+        'ru',
+      ).map(({ term }) => term),
+    ).toEqual(['\u0410\u043a\u0442\u0438\u0432\u0430\u0446\u0438\u044f', '\u0401\u043c\u043a\u043e\u0441\u0442\u044c', '\u042f\u0434\u0440\u043e']);
+  });
+
+  it('uses an exact ten-term page size without loss or duplication', () => {
+    expect(CHEAT_SHEET_PAGE_SIZE).toBe(10);
+
+    for (const [count, expectedLengths] of [
+      [10, [10]],
+      [11, [10, 1]],
+      [23, [10, 10, 3]],
+    ] as const) {
+      const source = terms(count);
+      const pages = paginateCheatSheetTerms(source);
+      expect(pages.map((page) => page.length)).toEqual(expectedLengths);
+      expect(pages.flat().map(({ term }) => term)).toEqual(
+        source.map(({ term }) => term),
+      );
+      expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(count);
+    }
+  });
 });
 
 describe('cheat-sheet integration contract', () => {
@@ -904,6 +964,8 @@ describe('cheat-sheet integration contract', () => {
 
     expect(config).toContain("pattern: '**/*.json'");
     expect(config).toContain('const cheatSheets = defineCollection');
+    expect(config).toContain('terms: z.array(cheatSheetTerm).min(5),');
+    expect(config).not.toContain('.max(12)');
     expect(config).toContain(
       'export const collections = { chapters, cheatSheets }',
     );
@@ -914,9 +976,18 @@ describe('cheat-sheet integration contract', () => {
     expect(component).toContain('aria-describedby={descriptionId}');
     expect(component).toContain('aria-haspopup="dialog"');
     expect(component).toContain('dialog.showModal()');
+    expect(component).toContain('sortCheatSheetTerms(sheet.terms, sheet.locale)');
+    expect(component).toContain('paginateCheatSheetTerms(sortedTerms)');
+    expect(component).toContain('data-cheat-sheet-pagination');
+    expect(component).toContain('data-cheat-sheet-page-status');
+    expect(component).toContain('aria-live="polite"');
+    expect(component).toContain('sortedTerms.map(({ term, definition })');
     expect(component).toContain("dialog.addEventListener('close'");
     expect(component).toContain('opener?.focus()');
     expect(component).toContain('<details');
+    expect(component.indexOf('showPage(1);')).toBeLessThan(
+      component.indexOf('fallback.hidden = true;'),
+    );
     expect(component).not.toMatch(/client:|React|Vue|Svelte/);
   });
 
@@ -939,15 +1010,47 @@ describe('cheat-sheet integration contract', () => {
         [sheet],
       ),
     ).toThrow(/Orientation/);
+
+    const russianSheet = {
+      data: { ...sheet.data, locale: 'ru' as const },
+    };
+    expect(() =>
+      indexCheatSheets(
+        [{ data: { chapter_id: '01-text-units', locale: 'ru' as const } }],
+        [russianSheet],
+      ),
+    ).toThrow(/no localized interface copy/);
   });
 
   it('exposes interface copy only for locales with published cheat sheets', () => {
-    expect(getCheatSheetCopy('en')).toEqual({
+    const englishCopy = getCheatSheetCopy('en');
+    expect(englishCopy).not.toBeNull();
+    expect({
+      closeLabel: englishCopy?.closeLabel,
+      eyebrow: englishCopy?.eyebrow,
+      fallbackSummary: englishCopy?.fallbackSummary,
+      nextLabel: englishCopy?.nextLabel,
+      openLabel: englishCopy?.openLabel,
+      paginationLabel: englishCopy?.paginationLabel,
+      previousLabel: englishCopy?.previousLabel,
+    }).toEqual({
       closeLabel: 'Close cheat sheet',
       eyebrow: 'Quick reference',
       fallbackSummary: 'Cheat sheet',
+      nextLabel: 'Next terms',
       openLabel: 'Open cheat sheet',
+      paginationLabel: 'Cheat sheet term pages',
+      previousLabel: 'Previous terms',
     });
+    expect(
+      englishCopy?.pageStatus({
+        currentPage: 2,
+        endTerm: 12,
+        pageCount: 2,
+        startTerm: 11,
+        totalTerms: 12,
+      }),
+    ).toBe('Terms 11\u201312 of 12; page 2 of 2');
     expect(getCheatSheetCopy('ru')).toBeNull();
   });
 });

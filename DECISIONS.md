@@ -12003,3 +12003,49 @@ review succeed.
 
 **Affected step and run:** `correct-ch36-stable-ranking-wording`, run
 `20260801T124651Z-correct-ch36-stable-ranking-wording-01`.
+
+## 2026-08-01 - Remove the arbitrary cheat-sheet term cap without broadening scope
+
+**Status:** Accepted for `remove-cheat-sheet-term-cap`.
+
+**Context:** The shared content schema capped every sheet at twelve entries. That
+presentation-driven limit forced the page-relevant Chapter 35 checkpoint-schema
+concept to be folded into another definition and left the distinct Chapter 38
+per-layer-cache concept for a later correction. A content ceiling should not
+decide whether a concept necessary to understand a chapter can be represented.
+
+**Decision:** Remove the upper schema bound while retaining the minimum and the
+strict chapter-relevance contract. Eligibility does not broaden: include only
+terms necessary to understand the matching page's LLM or model architecture,
+mathematics, training, evaluation, inference or generation, or model checkpoint
+or state concept. Continue to exclude generic programming and Rust terminology,
+web or UI language, build vocabulary, and deployment vocabulary merely mentioned
+on the page. Pagination is presentation capacity, never a target or invitation
+to generate more terms.
+
+Sort every sheet deterministically with its locale's collation. Keep every term
+in server-rendered HTML. When JavaScript enhances a sheet containing more than
+ten terms, show exactly ten terms per modal page with localized Previous and Next
+controls, a localized live page status, disabled boundaries, and page-one reset
+on reopen. The no-JavaScript disclosure remains unpaginated and exposes every
+sorted term. Preserve close and native-Escape behavior, focus restoration,
+constrained scrolling, and narrow-width containment.
+
+**Consequences:** This supersedes any fixed twelve-term strategy or use of the
+schema maximum as a content target, but does not supersede the concise,
+page-specific relevance rule. The shared correction changes no sheet JSON. Three
+subsequent independent checkpoints first contextualize two Chapter 34 evaluation
+labels, then restore the displaced Chapter 35 schema concept while contextualizing
+six checkpoint labels, and finally restore the displaced Chapter 38 cache concept
+before Chapter 39 proceeds. These are label-precision corrections, not invitations
+to broaden either sheet. Static tests enforce both the uncapped schema and the
+unchanged eligibility exclusions; Chromium and Firefox verify alphabetical page
+chunks, controls, live state, reopen reset, every narrow modal page, and the
+complete sorted no-JavaScript fallback. The active build therefore contains 29
+sheet checkpoints and 9 corrective or shared runs when complete. No lesson,
+Russian content, dependency, build definition, hosting, or deployment change is
+introduced.
+
+**Affected steps:** `remove-cheat-sheet-term-cap`,
+`contextualize-ch34-evaluation-terms`, `restore-ch35-checkpoint-schema-term`, and
+`restore-ch38-per-layer-cache-term`.
