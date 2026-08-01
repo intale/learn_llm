@@ -11560,6 +11560,102 @@ the checkpoint is committed.
 **Affected step and run:** `activate-ch36-russian-localization`, run
 `20260801T042840Z-activate-ch36-russian-localization-01`.
 
+## 2026-08-01 - Complete corrected bilingual Chapter 37 cache instruction
+
+**Status:** Accepted and completed in `activate-ch37-russian-localization` run
+01.
+
+**Context:** The canonical audit found three material issues before translation:
+historical cache-reuse booleans were asserted rather than measured, raw public
+cache append could bypass the layer/RoPE provenance boundary, and the lesson
+described values as rotated even though RoPE applies only to queries and keys.
+English revision 2 was frozen only after those defects and the shared diagram
+contract were corrected.
+
+**Decision:** Publish English revision 2 and its direct natural Russian
+projection. Activate exactly `{en, ru}` for Chapter 37, advance the selective
+Russian boundary through Chapter 37, and keep Chapters 38-39 English-only until
+their independent localization checkpoints. Cache rows can now be populated
+publicly only by the bound layer's transactional incremental forward path; the
+historical contrast records fixture-derived query spans and projection-row
+reuse; and every learner-facing surface distinguishes rotated keys from
+unrotated values.
+
+**Consequences:** English is
+`sha256:ca5680a0d8ff4f43a3ceaa84dacbab5c695a2c6aee503613cdb9856e6ba567b6`,
+Russian is
+`sha256:835246621cd5263953714c81c4e5f73e910aff7fd431b225c61a8dbc12d2add2`,
+and the 18-file product manifest is
+`sha256:1968188612af091e926340b32329554bd287cbcf2459c09b77a42adcfec47bab`.
+The complete pinned Linux gate passes 363 library tests plus every demo, checks
+206 Astro files without diagnostics, and builds 83 pages with 2,311 local
+references, 83 SEO routes, 83 sitemap URLs, and 83 Analytics routes. Chromium
+passes the 177 shared/formula/diagram cases plus the corrected six-case Chapter
+37 slice; Firefox passes all 178 selected cases. Both locales pass desktop,
+narrow, no-JavaScript, native full-view, forced-color, formula-geometry,
+containment, and direction-sensitive review. No dependency, package,
+build-definition, hosting, deployment, or user-environment change was made. A
+later English meaning or presentation change makes this Russian review stale
+until it is refreshed directly from English.
+
+**Affected step and run:** `activate-ch37-russian-localization`, run
+`20260801T051259Z-activate-ch37-russian-localization-01`.
+
+## 2026-08-01 - Audit Chapter 37 before Russian activation
+
+**Status:** Accepted during `activate-ch37-russian-localization` run 01 before
+learner-facing edits.
+
+**Context:** Chapter 37 is the next deferred Russian route after the independently
+committed Chapter 36 checkpoint. English remains the semantic source, so its
+formula treatment, LLM-inference history, executable projection-work contrast,
+cache semantics, diagram contract, and learner-facing language must be verified
+before any translation is frozen.
+
+**Decision:** Complete Chapter 37 as one standalone checkpoint. Correct every
+canonical defect found by the audit, freeze a new English revision, translate it
+directly into natural technical Russian, activate exactly `{en, ru}`, and advance
+the selective locale boundary only through Chapter 37. Keep Chapters 38-39
+deferred until their own independent checkpoints.
+
+**Consequences:** The accepted step may revise the Chapter 37 report, trace,
+parser, diagram, and tests when needed to replace asserted evidence with measured
+fixture values. It will not change dependencies, build definitions, hosting,
+deployment, or the user environment. Both localized pages and the complete
+figure require Chromium and Firefox validation before publication.
+
+**Affected step and run:** `activate-ch37-russian-localization`, run
+`20260801T051259Z-activate-ch37-russian-localization-01`.
+
+## 2026-08-01 - Close the Chapter 37 raw cache-population bypass
+
+**Status:** Accepted during `activate-ch37-russian-localization` run 01 before
+freezing English revision 2.
+
+**Context:** The canonical audit found that public `LayerKvCache::append` checked
+shape, capacity, and finiteness but could not establish that supplied rows came
+from the parameter nodes and RoPE configuration bound to that cache. Arbitrary
+same-shaped rows could therefore bypass the provenance guarantee later relied on
+by `forward_incremental`. The fixture also covered a changed RoPE base but not a
+same-base configuration with a different maximum-position capacity.
+
+**Decision:** Make raw cache append private to the attention implementation, so
+the public population path is the bound layer's transactional incremental
+forward operation. Preserve private unit coverage for append validation, replace
+the external demo's raw nonfinite append with a nonfinite public-forward case,
+and add unchanged-state evidence for a same-base/different-position-capacity RoPE
+mismatch.
+
+**Consequences:** Chapter 37's public correctness story now matches the Rust API.
+The local report, trace, parser, diagram, and tests gain the precise additional
+error evidence. This is a source-compatible restriction for the repository's
+consumers: the only external raw append call was the Chapter 37 diagnostic itself.
+No dependency, build-definition, hosting, deployment, or user-environment change
+is introduced.
+
+**Affected step and run:** `activate-ch37-russian-localization`, run
+`20260801T051259Z-activate-ch37-russian-localization-01`.
+
 ## 2026-08-01 - Complete corrected bilingual Chapter 36 decoding instruction
 
 **Status:** Accepted and completed in `activate-ch36-russian-localization` run

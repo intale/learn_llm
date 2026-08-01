@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T05:10:41Z"
+updated_at: "2026-08-01T06:17:40Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -15777,7 +15777,7 @@ builds:
                 notes: "BUILD_STATE.yaml parses as schema version 1; git diff --check passes; exactly the 23 manifest product paths plus BUILD_STATE.yaml and DECISIONS.md are in scope; every product hash matches staging, the canonical working tree, and the final archive tree; desktop.ini remains the sole unrelated untracked path."
             notes: "Succeeded. Chapter 36 now teaches explicit greedy and positive-temperature stable top-k policies, reproducible one-draw sampling, and uncached checkpoint-backed generation with exact tie, RNG, EOS, token-budget, and context semantics. The shared static figure distinguishes every fixture and policy boundary, preserves contained desktop/narrow evidence, and uses rendered math throughout. Final staging and fresh network-disabled canonical matrices pass strict Rust checks with 339 library tests and 36 demos, 789 site tests, 48-page/link/SEO/sitemap validation, focused Chromium/Firefox and formula geometry, and all 267 Chromium regressions; all 23 product hashes are frozen and unrelated desktop.ini is untouched."
       - id: implement-ch37-incremental-attention
-        objective: "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
+        objective: "Append one position's rotated keys and unrotated values to a single layer cache and match full-prefix attention at the new position."
         depends_on:
           - implement-ch36-temperature-top-k
         status: completed
@@ -15863,7 +15863,7 @@ builds:
           - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
           - "Cargo.lock"
         acceptance:
-          - "Append one position's keys and values to a single layer cache and match full-prefix attention at the new position."
+          - "Append one position's rotated keys and unrotated values to a single layer cache and match full-prefix attention at the new position."
           - "The chapter contains one tiny predict-first example, notation-only formula with every symbol explained, accurate historical contrast, exercises, a misconception check, and an explicit handoff."
           - "The cumulative implementation and historical demo are written in Rust without a dependency that implements the taught concept; edge cases, invariants, tolerances, and deterministic output are tested."
           - "A locale-neutral visualization uses the exact Rust fixture, semantic structure, keyboard access, responsive layout, and non-color cues."
@@ -25152,3 +25152,137 @@ builds:
                 status: passed
                 notes: "Russian sha256:cc68bb932b7cd47b3eaa72fead0fb1e498905ee425291941e9b52bae91f9e380 preserves every frozen meaning in natural technical language; the 17-file manifest sha256:66f48f0e7b7ccdb9be178d2da248ce34c30d9ffa051e5901fb51bc9344bc7a77 matches canonical bytes; git diff --check and target mode 100644 pass; all paths are declared; the exact disposable volume and temporary source image were removed."
             notes: "Succeeded. Published canonical Chapter 36 revision 2 and its direct natural Russian projection, sampler-derived historical evidence, exact formula/accessibility/SEO parity, and the locale boundary through Chapter 36 without changing dependencies, build definitions, hosting, deployment, or the user environment."
+  - build_id: activate-ch37-russian-localization
+    objective: "Audit and correct Chapter 37 incremental-attention evidence, translate the frozen lesson directly into natural technical Russian, and activate both locales."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "Canonical English Chapter 37 contains measured incremental-attention evidence, exact formulas, qualified LLM-inference history, and learner-facing prose free of authoring mechanics."
+      - "Russian Chapter 37 is translated directly from the frozen current English revision with exact semantic, mathematical, historical, Rust, diagram, accessibility, SEO, exercise, and navigation parity."
+      - "Chapter 37 publishes in English and Russian, and the documented selective-localization boundary advances through Chapter 37 while Chapters 38-39 remain deferred."
+      - "Focused Rust, trace, content, parity, static-site, link, Chromium, and Firefox validation passes, and this checkpoint is committed independently before Chapter 38 starts."
+    steps:
+      - id: activate-ch37-russian-localization
+        objective: "Publish corrected English and direct natural-Russian Chapter 37 incremental-attention instruction with measured executable and rendered evidence."
+        depends_on:
+          - activate-ch36-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-08-01 to translate all remaining chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum localization documentation and course plan revision 62"
+          - "Chapter 37 contract, English MDX, Rust demo, exact output/trace, component, parser, and focused/shared tests"
+          - "Primary Vaswani et al., Shazeer, and PagedAttention sources cited by the English lesson"
+          - "Completed dependency commit 6aae1a9"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "curriculum/chapters/37-incremental-attention.md"
+          - "site/src/content/chapters/en/37-incremental-attention.mdx"
+          - "site/src/content/chapters/ru/37-incremental-attention.mdx"
+          - "rust/crates/llm-from-scratch/src/attention/incremental.rs"
+          - "rust/demos/ch37-incremental-attention/src/lib.rs"
+          - "rust/demos/ch37-incremental-attention/expected.txt"
+          - "rust/demos/ch37-incremental-attention/diagram-trace.txt"
+          - "site/src/lib/incremental-attention-diagram.ts"
+          - "site/src/components/chapters/IncrementalAttentionDiagram.astro"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/37-incremental-attention-diagram.test.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "shared formula and diagram tests only if revision or locale expectations require updates"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson, historical claims, executable contrast, formulas, accessibility, and diagram contract are audited and corrected before translation."
+          - "Historical Rust evidence derives the complete-prefix and incremental projection-row counts from the real fixture rather than returning hard-coded claims."
+          - "Only the bound attention implementation can populate raw cache rows, and same-base RoPE configurations with different position capacities are rejected without changing cache state."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records complete Russian fields, terminology, translation notes, source checksum, and exact active locale set {en, ru}."
+          - "Both complete pages and the registered incremental-attention figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, diagram, exact Rust, trace, Astro, static-link, formula, and supported Linux gates pass."
+          - "The completed Chapter 37 checkpoint is committed independently before Chapter 38 begins."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/37-incremental-attention.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 37-incremental-attention"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 37-incremental-attention"
+          - "npm --prefix site run check:parity -- 37-incremental-attention en ru"
+          - "npm --prefix site test -- --run tests/37-incremental-attention-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch37-incremental-attention && cargo clippy --locked -p ch37-incremental-attention --all-targets -- -D warnings"
+          - "cargo test --locked -p llm-from-scratch attention::incremental && cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings"
+          - "cargo run --quiet --locked -p ch37-incremental-attention | diff -u rust/demos/ch37-incremental-attention/expected.txt -"
+          - "cargo run --quiet --locked -p ch37-incremental-attention --example diagram_trace | diff -u rust/demos/ch37-incremental-attention/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 37, formula-rendering, shared diagram-style, and shared full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical evidence repair, complete technical translation, locale activation, exact Rust/static checks, and two-engine rendered validation use substantial cached local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260801T051259Z-activate-ch37-russian-localization-01
+            started_at: "2026-08-01T05:12:59Z"
+            finished_at: "2026-08-01T06:17:40Z"
+            status: succeeded
+            input_fingerprint:
+              git: "6aae1a9f8f9ff79f972004d6bf728c478c18f042"
+              manifest: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:5db0ea02cb17f93285d2a6c79c16393a553122a0bd81a9c278eadbb98a1ba59b"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; corrected current English Chapter 37, exact Rust evidence, cited primary LLM-inference sources, and the recorded terminology audit are authoritative."
+            staging_dir: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 6aae1a9; parse the complete ledger; recheck latest decisions and run artifacts, environment, localization instructions, locale policy, Chapter 37 sources/tests/evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 37 formulas, LLM-inference history against primary sources, executable contrast, learner-facing prose, accessibility, and shared diagram evidence before direct Russian translation."
+              - "Replace asserted history booleans with fixture-derived query-span and projection-row evidence; close public raw append; add same-base/different-position-capacity RoPE evidence; correct rotated-key/unrotated-value semantics; align report, trace, parser, diagram, prose, and tests; freeze English revision 2."
+              - "Translate the exact frozen English revision directly into Russian; review semantic parity, terminology, anti-calques, monolingual prose, formulas, code and trace literals, source claims, SEO, accessibility labels, diagram copy, exercises, and handoff; activate exactly en and ru through Chapter 37."
+              - "Run focused warning-denied Rust/core tests and exact report/trace diffs; contract, locale, parity, Vitest, Astro, static build/link, formula, diagram, and full clean Linux gates; diagnose and correct only test/source defects exposed by validation."
+              - "Copy the clean validated workspace into isolated volume learn_llm_ch37_e2e_20260801 and run selected Chapter 37, formula, shared diagram-style, and shared full-view matrices in pinned Playwright 1.61.1 Chromium and Firefox."
+              - "Freeze the exact 18-file product manifest and independent meaning/localization review artifacts before the completion checkpoint."
+            artifacts:
+              - path: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:5db0ea02cb17f93285d2a6c79c16393a553122a0bd81a9c278eadbb98a1ba59b"
+                notes: "Exact workflow, policy, canonical lesson, diagram, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 37 product edits."
+              - path: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:0f0b539e2f67eb125a948e96652b2fb044553a84e32d256862495310ece8d3a3"
+                notes: "Frozen English revision 2 meaning, executable evidence, API boundary, source/history qualifications, presentation cues, and Russian terminology before direct translation."
+              - path: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/localization-review.md"
+                checksum: "sha256:b925ffc52cc592479bcc1d52577e7d788b11d2e4ab3001a280233c0f56155225"
+                notes: "Independent semantic, terminology, anti-calque, monolingual, formula, source, SEO, accessibility, and two-engine rendered review."
+              - path: ".build/runs/20260801T051259Z-activate-ch37-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:1968188612af091e926340b32329554bd287cbcf2459c09b77a42adcfec47bab"
+                notes: "Frozen SHA-256 manifest for exactly 18 Chapter 37 product, locale-policy, shared-integration, and focused-test files; BUILD_STATE.yaml and DECISIONS.md are checkpoint records outside the product manifest."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 36 is independently committed at 6aae1a9; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins match; Chapter 37 is the first deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "Focused Chapter 37 demo/core Rust tests, warning-denied Clippy, and exact report/diagram-trace diffs"
+                status: passed
+                notes: "The first exact-error test compile exposed two wrong pattern field names and was retained as a failed diagnostic; after correcting rank and tokens, 2 Chapter 37 tests, 7 focused core tests, both Clippy gates, and both byte-exact diffs pass."
+              - command: "Chapter 37 contract, English/Russian content, parity, focused Vitest, formula, diagram-style, and full-view unit gates"
+                status: passed
+                notes: "The contract first exposed three visible Russian source-claim paraphrases and the focused suite later exposed generic-Prettier corruption of strict JSON frontmatter; exact claim prose and strict JSON were restored. Six files and 81 focused tests pass."
+              - command: "./course check in the pinned clean Linux workspace"
+                status: passed
+                notes: "An initial attempt retained a failed Astro diagnostic after generic formatting moved a ts-ignore away from a multiline Node import; the file's established format was restored. The final clean gate passes 363 library tests plus every demo, 206 Astro files with zero diagnostics, 78 localized sources/parity, an 83-page production build, and 2,311 local links with 83 SEO, sitemap, and Analytics routes."
+              - command: "Pinned Playwright Chromium Chapter 37, formula-rendering, shared diagram-style, and shared full-view gates"
+                status: passed
+                notes: "The first 178-case matrix passed 177 cases and exposed one ASCII-versus-curly apostrophe test assertion. After making that assertion typography-neutral, all six Chapter 37 cases pass; all page, formula, containment, full-view, forced-color, no-JavaScript, and shared diagram cases from the first matrix were already green."
+              - command: "Pinned Playwright Firefox Chapter 37, formula-rendering, shared diagram-style, and shared full-view gates"
+                status: passed
+                notes: "All 178 selected cases pass, including both localized Chapter 37 pages at desktop/narrow widths, native full view, forced colors, no JavaScript, formula geometry, box containment, focus restoration, and synthetic RTL."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical-source, and rendered-surface review"
+                status: passed
+                notes: "English sha256 ca5680a0, Russian sha256 83524662, contract sha256 7dbdedcf, and the 18-file product manifest sha256 19681886 are frozen; all required review dimensions pass and a later English meaning or presentation change is explicitly stale."
+            notes: "Succeeded. English revision 2 now teaches rotated-key/unrotated-value cache semantics through measured projection reuse and a provenance-safe transactional API; the direct natural Russian projection is active with complete contract, SEO, accessibility, navigation, formula, source, exercise, and diagram parity. Exact Rust, focused unit, clean pinned Linux, 83-page link/SEO/sitemap/Analytics, Chromium, Firefox, checksum, and independent localization review gates pass; the 18-file product manifest is frozen for the standalone Chapter 37 commit."

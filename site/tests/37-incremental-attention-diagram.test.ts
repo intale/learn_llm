@@ -26,6 +26,9 @@ const contractSource = read("curriculum/chapters/37-incremental-attention.md");
 const lessonSource = read(
   "site/src/content/chapters/en/37-incremental-attention.mdx",
 );
+const russianLessonSource = read(
+  "site/src/content/chapters/ru/37-incremental-attention.mdx",
+);
 const coursePlanSource = read("curriculum/course-plan.md");
 const incrementalSource = read(
   "rust/crates/llm-from-scratch/src/attention/incremental.rs",
@@ -76,7 +79,7 @@ const labels: IncrementalAttentionDiagramLabels = {
     cached: "cached proof",
     reused: "reused proof",
   },
-  scrollers: {
+  lists: {
     cacheRows: "cache rows",
   },
 };
@@ -140,7 +143,28 @@ describe("Chapter 37 Rust trace parser", () => {
       replay_identical: "true",
     });
     expect(Object.values(trace.errors).every((value) => value === "true")).toBe(true);
-    expect(Object.values(trace.history).every((value) => value === "true")).toBe(true);
+    expect(trace.history).toEqual({
+      newest_query_key_rows: "[1,2,3]",
+      complete_prefix_rows_per_projection: "6",
+      incremental_rows_per_projection: "3",
+      reused_key_rows: "3",
+      reused_value_rows: "3",
+    });
+    expect(trace.history.newest_query_key_rows).toBe(
+      `[${trace.steps.map((step) => step.heads[0].weights.length).join(",")}]`,
+    );
+    expect(trace.history.complete_prefix_rows_per_projection).toBe(
+      trace.work.full_rows_per_projection,
+    );
+    expect(trace.history.incremental_rows_per_projection).toBe(
+      trace.work.incremental_rows_per_projection,
+    );
+    expect(trace.history.reused_key_rows).toBe(
+      trace.work.reused_rows_per_kv_projection,
+    );
+    expect(trace.history.reused_value_rows).toBe(
+      trace.work.reused_rows_per_kv_projection,
+    );
     expect(trace.next).toBe("cached-generation");
   });
 
@@ -155,7 +179,7 @@ describe("Chapter 37 Rust trace parser", () => {
       fixture.replace("incremental_rows_per_projection=3", "incremental_rows_per_projection=4"),
       fixture.replace("allocation_reused=true", "allocation_reused=false"),
       fixture.replace("layer_mismatch=true", "layer_mismatch=false"),
-      fixture.replace("serving_memory=true", "serving_memory=false"),
+      fixture.replace("reused_value_rows=3", "reused_value_rows=4"),
       fixture.replace("next=cached-generation", "next=wrong-boundary"),
       fixture.slice(0, -1),
       fixture + "\n",
@@ -211,7 +235,7 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(componentSource.match(/<figure\b/g)).toHaveLength(1);
     expect(componentSource.match(/<figcaption\b/g)).toHaveLength(1);
     expect(componentSource.match(/data-diagram-box/g)).toHaveLength(8);
-    expect(componentSource.match(/data-diagram-card/g)).toHaveLength(7);
+    expect(componentSource.match(/data-diagram-card/g)).toHaveLength(8);
     expect(componentSource.match(/tabindex="0"/g)).toHaveLength(1);
     expect(componentSource).not.toMatch(/<script|client:|<dialog|<button/i);
     expect(componentSource).not.toMatch(/<(?:svg|canvas|path|polyline|line)\b/i);
@@ -220,11 +244,13 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(componentSource).toContain("trace.steps.map");
     expect(componentSource).toContain("step.heads.map");
     expect(componentSource).toContain("data-rope-position={step.position}");
-    expect(componentSource).toContain("border: 0.12rem solid currentColor");
+    expect(componentSource).toContain("data-diagram-card");
     expect(componentSource).toContain("border-style: double");
+    expect(componentSource).toContain("<InlineMath latex={`[${step.cacheShape.join(',')}]`} />");
     expect(componentSource).toContain("trace.errors.layer_mismatch");
     expect(componentSource).toContain("trace.errors.rope_mismatch");
-    expect(componentSource).toContain("trace.errors.nonfinite_append");
+    expect(componentSource).toContain("trace.errors.rope_positions_mismatch");
+    expect(componentSource).toContain("trace.errors.nonfinite_projection");
     expect(componentSource).toContain("@container course-diagram");
     expect(componentSource).not.toMatch(/@media\s*\(/);
     expect(componentSource).not.toMatch(/overflow(?:-x)?\s*:/);
@@ -236,6 +262,7 @@ describe("Chapter 37 static diagram and content boundary", () => {
   it("keeps the contract, lesson, formula, LLM history, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -277,8 +304,43 @@ describe("Chapter 37 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
     );
-    expect(contract.content_revision).toBe(1);
-    expect(lesson.content_revision).toBe(1);
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
+    expect(russianLesson.content_revision).toBe(2);
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
 
     const normalizedLesson = lessonSource.replace(/\s+/g, " ");
     for (const source of lesson.history.llm_evolution.sources) {
@@ -304,15 +366,30 @@ describe("Chapter 37 static diagram and content boundary", () => {
       existsSync(
         resolve(repositoryRoot, "site/src/content/chapters/ru/37-incremental-attention.mdx"),
       ),
-    ).toBe(false);
+    ).toBe(true);
+    const normalizedRussianLesson = russianLessonSource.replace(/\s+/g, " ");
+    for (const source of russianLesson.history.llm_evolution.sources) {
+      expect(russianLessonSource).toContain(source.source_url);
+      expect(normalizedRussianLesson).toContain(source.claim);
+    }
+    expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(6);
+    expect(russianLessonSource).toContain(
+      "<IncrementalAttentionDiagram labels={diagramLabels} />",
+    );
+    expect(russianLessonSource).not.toMatch(
+      /полно-префикс|инференс-состояни|безграфов|транзакционн|фикстур|репле|поинт|кей[- ]?велью/i,
+    );
 
     expect(incrementalSource).toContain("region:layer-kv-cache");
     expect(incrementalSource).toContain("region:incremental-attention");
     expect(incrementalSource).toContain("LayerKvCache::new");
     expect(incrementalSource).toContain("forward_incremental");
+    expect(incrementalSource).not.toContain("pub fn append");
     expect(demoSource).toContain("region:historical-kv-contrast");
     expect(demoSource).toContain("region:cache-errors");
     expect(demoSource).toContain("region:cache-step");
     expect(demoSource).toContain("INCREMENTAL_ATTENTION_TRACE_V1");
+    expect(demoSource).toContain("rope_positions_mismatch_rejected");
   });
 });

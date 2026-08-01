@@ -65,13 +65,13 @@ describe('chapter-locale manifest', () => {
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–36 and English only for Chapters 37–39',
+      'English and Russian for Chapters 0–37 and English only for Chapters 38–39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–36 use English and Russian',
+      'Chapters 0–37 use English and Russian',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 36 use English and Russian, and Chapters 37 through 39 use English only',
+      'Chapters 0 through 37 use English and Russian, and Chapters 38 through 39 use English only',
     );
   });
 
@@ -228,6 +228,11 @@ describe('chapter-locale manifest', () => {
       order: 36,
       activeLocales: ['en', 'ru'],
     });
+    expect(chapterLocaleConfiguration.chapters[37]).toMatchObject({
+      chapterId: '37-incremental-attention',
+      order: 37,
+      activeLocales: ['en', 'ru'],
+    });
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
@@ -235,7 +240,7 @@ describe('chapter-locale manifest', () => {
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 37)
+        .slice(0, 38)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -245,7 +250,7 @@ describe('chapter-locale manifest', () => {
     ).toBe(true);
     expect(
       chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 37)
+        .filter((chapter) => chapter.order >= 38)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 1 &&
@@ -318,6 +323,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('35-checkpoints', 'ru')).toBe(true);
     expect(activeLocalesForChapter('36-temperature-top-k')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('36-temperature-top-k', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('37-incremental-attention')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('37-incremental-attention', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 

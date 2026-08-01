@@ -37,7 +37,7 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.timeline}>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.sections.timeline}>
       <li><span aria-hidden="true">|</span> {labels.cues.retained}</li>
       <li><span aria-hidden="true">||</span> {labels.cues.appended}</li>
       <li><span aria-hidden="true">=</span> {labels.cues.match}</li>
@@ -47,10 +47,10 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   <section aria-labelledby="incremental-timeline-title">
     <h4 id="incremental-timeline-title">{labels.sections.timeline}</h4>
     <p>{labels.captions.timeline}</p>
-    <div class="step-grid">
+    <div class="step-grid course-diagram__grid">
       {trace.steps.map((step) => (
         <article
-          class="step-card"
+          class="step-card course-diagram__card-stack"
           data-diagram-card
           data-diagram-box
           data-cache-step={step.position}
@@ -61,7 +61,7 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
           data-cache-shape={step.cacheShape.join(',')}
           data-status="match"
         >
-          <header class="step-header">
+          <header class="step-header course-diagram__card-heading">
             <h5>{labels.fields.position} <InlineMath latex={`p=${step.position}`} /></h5>
             <span aria-hidden="true">-&gt;</span>
             <p>
@@ -71,23 +71,24 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
           </header>
           <p>
             <strong>{labels.fields.shape}:</strong>
-            <code><bdi dir="ltr">[{step.cacheShape.join(',')}]</bdi></code>
+            <InlineMath latex={`[${step.cacheShape.join(',')}]`} />
           </p>
-          <div class="head-grid">
+          <div class="head-grid course-diagram__grid">
             {step.heads.map((head) => {
               const keys = pairRows(head.keys);
               const values = pairRows(head.values);
               return (
                 <section
-                  class="head-lane"
+                  class="head-lane course-diagram__card-stack"
                   data-head={head.head}
                   aria-label={`${labels.fields.head} ${head.head}`}
                 >
                   <h6>{labels.fields.head} <InlineMath latex={`h=${head.head}`} /></h6>
-                  <ol class="cache-rows" aria-label={labels.scrollers.cacheRows}>
+                  <ol class="cache-rows course-diagram__grid" aria-label={labels.lists.cacheRows}>
                     {keys.map((key, position) => (
                       <li
-                        class="cache-row"
+                        class="cache-row course-diagram__card-stack"
+                        data-diagram-card
                         data-diagram-box
                         data-cache-row={position}
                         data-state={position === keys.length - 1 ? 'appended' : 'retained'}
@@ -122,7 +123,7 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
               );
             })}
           </div>
-          <div class="match-proof" data-match-proof={step.position}>
+          <div class="match-proof course-diagram__card-stack" data-match-proof={step.position}>
             <p>
               <strong>{labels.fields.cached}:</strong>
               <span class="value-list">
@@ -154,18 +155,18 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   <section aria-labelledby="incremental-work-title">
     <h4 id="incremental-work-title">{labels.sections.work}</h4>
     <p>{labels.captions.work}</p>
-    <div class="proof-grid">
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="full">
+    <div class="proof-grid course-diagram__grid">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="full">
         <h5>{labels.fields.full}</h5>
         <InlineMath latex={`1+2+3=${trace.work.full_rows_per_projection}`} />
         <p>{labels.proofs.full}</p>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="cached">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="cached">
         <h5>{labels.fields.cached}</h5>
         <InlineMath latex={`1+1+1=${trace.work.incremental_rows_per_projection}`} />
         <p>{labels.proofs.cached}</p>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="reuse">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="reuse">
         <h5>{labels.cues.retained}</h5>
         <InlineMath latex={`2\\times${trace.work.reused_rows_per_kv_projection}=${trace.work.avoided_rows_across_kv}`} />
         <p>{labels.proofs.reused}</p>
@@ -176,19 +177,19 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   <section aria-labelledby="incremental-reset-title">
     <h4 id="incremental-reset-title">{labels.sections.reset}</h4>
     <p>{labels.captions.reset}</p>
-    <div class="proof-grid">
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="reset" data-status="pass">
+    <div class="proof-grid course-diagram__grid">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="reset" data-status="pass">
         <h5>{labels.cues.unchanged}</h5>
         <p><InlineMath latex={`${trace.reset.before}\to${trace.reset.after}`} /></p>
         <code><bdi dir="ltr">allocation_reused={trace.reset.allocation_reused}</bdi></code>
         <code><bdi dir="ltr">storage_unchanged={trace.reset.storage_unchanged}</bdi></code>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="replay" data-status="pass">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="replay" data-status="pass">
         <h5>{labels.cues.replay}</h5>
         <code><bdi dir="ltr">replay_identical={trace.reset.replay_identical}</bdi></code>
-        <p><span aria-hidden="true">OK</span> {labels.cues.match}</p>
+        <p><span aria-hidden="true">✓</span> {labels.cues.match}</p>
       </article>
-      <article class="proof-card" data-diagram-card data-diagram-box data-proof="errors" data-status="pass">
+      <article class="proof-card course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="errors" data-status="pass">
         <h5>{labels.cues.errors}</h5>
         <code><bdi dir="ltr">two_tokens={trace.errors.two_tokens}</bdi></code>
         <code><bdi dir="ltr">full_cache={trace.errors.full_cache}</bdi></code>
@@ -196,7 +197,8 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
         <code><bdi dir="ltr">head_mismatch={trace.errors.head_mismatch}</bdi></code>
         <code><bdi dir="ltr">layer_mismatch={trace.errors.layer_mismatch}</bdi></code>
         <code><bdi dir="ltr">rope_mismatch={trace.errors.rope_mismatch}</bdi></code>
-        <code><bdi dir="ltr">nonfinite_append={trace.errors.nonfinite_append}</bdi></code>
+        <code><bdi dir="ltr">rope_positions_mismatch={trace.errors.rope_positions_mismatch}</bdi></code>
+        <code><bdi dir="ltr">nonfinite_projection={trace.errors.nonfinite_projection}</bdi></code>
         <code><bdi dir="ltr">unchanged={trace.errors.unchanged}</bdi></code>
       </article>
     </div>
@@ -216,25 +218,7 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   }
 
   .step-grid {
-    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.7rem;
-  }
-
-  .step-card,
-  .proof-card,
-  .head-lane,
-  .match-proof {
-    display: grid;
-    align-content: start;
-    gap: 0.5rem;
-  }
-
-  .step-card > *,
-  .proof-card > *,
-  .head-lane > *,
-  .match-proof > * {
-    margin: 0;
   }
 
   .step-header {
@@ -249,26 +233,15 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   }
 
   .head-grid {
-    display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.55rem;
   }
 
   .cache-rows {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   }
 
   .cache-row {
-    display: grid;
-    gap: 0.2rem;
     max-inline-size: 100%;
-    padding: 0.4rem;
-    border: 0.12rem solid currentColor;
   }
 
   .cache-row[data-state='appended'] {
@@ -286,9 +259,7 @@ function pairRows(values: readonly string[]): readonly (readonly string[])[] {
   }
 
   .proof-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-    gap: 0.65rem;
   }
 
   @container course-diagram (max-width: 62rem) {

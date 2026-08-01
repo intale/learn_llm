@@ -216,17 +216,6 @@ impl LayerKvCache {
         })
     }
 
-    /// Appends one rotated key row and one value row transactionally.
-    ///
-    /// Both inputs must have shape `[batch, heads, 1, head_width]`. All shape,
-    /// capacity, and finite-value checks finish before either backing buffer is
-    /// changed.
-    pub fn append(&mut self, key: &Tensor, value: &Tensor) -> Result<(), LayerKvCacheError> {
-        self.validate_append(key, value)?;
-        self.append_prevalidated(key, value);
-        Ok(())
-    }
-
     fn validate_append(&self, key: &Tensor, value: &Tensor) -> Result<(), LayerKvCacheError> {
         let expected = [self.batch_size, self.heads, 1, self.head_width];
         if key.shape() != expected.as_slice() {
@@ -1200,6 +1189,20 @@ mod tests {
         assert_eq!(cache.key_storage(), key_bytes);
         assert_eq!(cache.value_storage(), value_bytes);
 
+        let replacement = [-0.25, 0.5, 0.75, -1.0];
+        let replacement_cached = layer
+            .forward_incremental(&constant(&[1, 1, MODEL_WIDTH], &replacement), &mut cache)
+            .unwrap();
+        let replacement_full = layer
+            .forward(&constant(&[1, 1, MODEL_WIDTH], &replacement), 0)
+            .unwrap();
+        assert_close(
+            replacement_cached.output().value().as_slice(),
+            replacement_full.output().value().as_slice(),
+        );
+        assert_eq!(cache.len(), 1);
+        cache.reset();
+
         let mut replay_outputs = Vec::new();
         for position in 0..TOKENS {
             let start = position * MODEL_WIDTH;
@@ -1273,10 +1276,10 @@ mod tests {
             Err(LayerKvCacheError::ElementCountOverflow { .. })
         ));
 
-        let mut cache = LayerKvCache::new(&layer, 1, 1).unwrap();
+        let cache = LayerKvCache::new(&layer, 1, 1).unwrap();
         let before = cache.clone();
         assert!(matches!(
-            cache.append(
+            cache.validate_append(
                 &tensor(&[1, 1, 1, 2], &[0.0, 0.0]),
                 &tensor(&[1, 2, 1, 2], &[0.0; 4])
             ),
@@ -1284,7 +1287,7 @@ mod tests {
         ));
         assert_eq!(cache, before);
         assert!(matches!(
-            cache.append(
+            cache.validate_append(
                 &tensor(&[1, 2, 1, 2], &[0.0; 4]),
                 &tensor(&[1, 1, 1, 2], &[0.0, 0.0])
             ),
@@ -1292,7 +1295,7 @@ mod tests {
         ));
         assert_eq!(cache, before);
         assert!(matches!(
-            cache.append(
+            cache.validate_append(
                 &tensor(&[1, 2, 1, 2], &[0.0, f64::NAN, 0.0, 0.0]),
                 &tensor(&[1, 2, 1, 2], &[0.0; 4])
             ),
@@ -1300,7 +1303,7 @@ mod tests {
         ));
         assert_eq!(cache, before);
         assert!(matches!(
-            cache.append(
+            cache.validate_append(
                 &tensor(&[1, 2, 1, 2], &[0.0; 4]),
                 &tensor(&[1, 2, 1, 2], &[0.0, 0.0, f64::INFINITY, 0.0])
             ),
@@ -1313,29 +1316,36 @@ mod tests {
     fn rejected_forward_calls_leave_the_cache_unchanged() {
         let layer = fixture_layer(3);
         let valid = constant(&[1, 1, MODEL_WIDTH], &[1.0, 0.0, 1.0, 0.0]);
-        let cases = [
-            (
-                constant(&[1, MODEL_WIDTH], &[1.0, 0.0, 1.0, 0.0]),
-                LayerKvCache::new(&layer, 1, 3).unwrap(),
-            ),
-            (
-                constant(&[1, 2, MODEL_WIDTH], &[0.0; 8]),
-                LayerKvCache::new(&layer, 1, 3).unwrap(),
-            ),
-            (
-                constant(&[1, 1, 2], &[0.0; 2]),
-                LayerKvCache::new(&layer, 1, 3).unwrap(),
-            ),
-            (
-                constant(&[2, 1, MODEL_WIDTH], &[0.0; 8]),
-                LayerKvCache::new(&layer, 1, 3).unwrap(),
-            ),
-        ];
-        for (input, mut cache) in cases {
-            let before = cache.clone();
-            assert!(layer.forward_incremental(&input, &mut cache).is_err());
-            assert_eq!(cache, before);
+        macro_rules! assert_rejected_unchanged {
+            ($input:expr, $pattern:pat) => {{
+                let mut cache = LayerKvCache::new(&layer, 1, 3).unwrap();
+                let before = cache.clone();
+                assert!(matches!(
+                    layer.forward_incremental(&$input, &mut cache),
+                    Err($pattern)
+                ));
+                assert_eq!(cache, before);
+            }};
         }
+        assert_rejected_unchanged!(
+            constant(&[1, MODEL_WIDTH], &[1.0, 0.0, 1.0, 0.0]),
+            IncrementalAttentionError::InputRank { rank: 2 }
+        );
+        assert_rejected_unchanged!(
+            constant(&[1, 2, MODEL_WIDTH], &[0.0; 8]),
+            IncrementalAttentionError::SingleTokenRequired { tokens: 2 }
+        );
+        assert_rejected_unchanged!(
+            constant(&[1, 1, 2], &[0.0; 2]),
+            IncrementalAttentionError::InputWidthMismatch {
+                expected: MODEL_WIDTH,
+                actual: 2
+            }
+        );
+        assert_rejected_unchanged!(
+            constant(&[2, 1, MODEL_WIDTH], &[0.0; 8]),
+            IncrementalAttentionError::InputBatchMismatch { cache: 1, input: 2 }
+        );
 
         let mut rng = SplitMix64::from_seed(37);
         let wider = MultiHeadAttention::new("wider", 8, HEADS, 3, BASE, &mut rng).unwrap();
@@ -1376,6 +1386,15 @@ mod tests {
             Err(IncrementalAttentionError::CacheRopeMismatch { .. })
         ));
         assert_eq!(rope_cache, before);
+
+        let different_positions = shared_parameter_layer(&layer, 4, BASE);
+        let mut position_cache = LayerKvCache::new(&layer, 1, 3).unwrap();
+        let before = position_cache.clone();
+        assert!(matches!(
+            different_positions.forward_incremental(&valid, &mut position_cache),
+            Err(IncrementalAttentionError::CacheRopeMismatch { .. })
+        ));
+        assert_eq!(position_cache, before);
 
         let mut full = LayerKvCache::new(&layer, 1, 1).unwrap();
         layer.forward_incremental(&valid, &mut full).unwrap();

@@ -2,12 +2,12 @@
 {
   "chapter_id": "37-incremental-attention",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 37,
   "concept_id": "incremental-attention",
   "title": "Keep the prefix, project only the new row",
-  "description": "Learn how one layer-bound KV cache appends rotated keys and values while reproducing full-prefix attention at the newest position.",
-  "objective": "Append one position's rotated keys and values to one attention-layer cache and reproduce the full-prefix attention result at that newest position.",
+  "description": "Learn how one layer-bound KV cache appends rotated keys and unrotated values while reproducing full-prefix attention at the newest position.",
+  "objective": "Append one position's rotated keys and unrotated values to one attention-layer cache and reproduce the full-prefix attention result at that newest position.",
   "worked_inputs": "Feed three model-width-four rows into a two-head attention layer one row at a time, use cache lengths 0, 1, and 2 as the absolute RoPE positions, and compare each cached output with the corresponding full-prefix last row within 1e-12.",
   "formula": {
     "latex": "K^{(\\ell)}_{1:t}=[K^{(\\ell)}_{1:t-1};k^{(\\ell)}_t],\\quad V^{(\\ell)}_{1:t}=[V^{(\\ell)}_{1:t-1};v^{(\\ell)}_t]",
@@ -57,9 +57,9 @@
   "history": {
     "llm_evolution": {
       "predecessor_kind": "inference-design",
-      "limitation": "Causal Transformer attention lets the newest decoder position read the known prefix, but a naive generation loop can rebuild every earlier key and value projection on every step even though those earlier layer states are unchanged.",
-      "later_advance": "Incremental Transformer decoding retained earlier per-layer key and value tensors, appended one new pair, and made repeated KV movement an explicit performance concern; later LLM serving systems treated the dynamically growing KV cache as a major memory-management object.",
-      "modern_llm_role": "A layer-local KV cache avoids reprojecting the same earlier states while the newest query still attends across the complete retained prefix; model-wide cached generation therefore needs one compatible cache for every decoder block.",
+      "limitation": "Causal Transformer attention lets each newest decoder position read the known prefix. Without retained projections, however, a generation loop can recompute unchanged earlier key and value rows at every step.",
+      "later_advance": "Incremental decoding made one-step reuse explicit by retaining per-layer key/value tensors; later LLM serving systems treated the growing KV cache as a central memory-management object.",
+      "modern_llm_role": "Modern cached generation keeps one compatible cache per decoder block: each new query reads the retained prefix while only the newest key and value are projected.",
       "sources": [
         {
           "role": "earlier",
@@ -84,8 +84,8 @@
         }
       ]
     },
-    "approach": "Move from complete-prefix recomputation toward one-step attention that retains each layer's earlier key and value state.",
-    "summary": "The road to modern LLM inference starts from causal prefix attention, makes per-step KV reuse explicit, and later manages that growing state as a serving-memory problem. This course's fixed capacity, exact layout, reset behavior, RoPE offset rule, layer binding, and typed errors are local correctness policies rather than claims made by those papers.",
+    "approach": "The transition is from recomputing every complete prefix to appending one layer-local key/value pair per step.",
+    "summary": "The historical thread runs from causal masked attention, through explicit incremental KV reuse, to serving systems designed around a dynamically growing cache. Fixed capacity, exact layout, reset behavior, the RoPE offset rule, layer binding, and typed errors are this lesson's local correctness policies.",
     "rust_source": "rust/demos/ch37-incremental-attention/src/lib.rs"
   },
   "rust_sources": [
@@ -102,12 +102,12 @@
     {
       "path": "rust/demos/ch37-incremental-attention/src/lib.rs",
       "region": "historical-kv-contrast",
-      "purpose": "Keep the historical evidence centered on causal Transformer inference, explicit KV reuse, and later serving-memory pressure."
+      "purpose": "Measure complete-prefix projection work against incremental reuse for the same three prefixes."
     },
     {
       "path": "rust/demos/ch37-incremental-attention/src/lib.rs",
       "region": "cache-errors",
-      "purpose": "Prove full, shape, model, head, layer, RoPE, and nonfinite failures leave cache state unchanged."
+      "purpose": "Check that full, shape, model, head, layer, RoPE, and nonfinite failures leave cache state unchanged."
     },
     {
       "path": "rust/demos/ch37-incremental-attention/src/lib.rs",
@@ -124,7 +124,7 @@
     "id": "incremental-attention",
     "rationale": "A three-step cache timeline makes the retained rows, one appended row, absolute RoPE position, growing attention span, full-prefix match, and avoided repeated projections visible together."
   },
-  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and values across decode steps, reject stale or incompatible state, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block."
+  "decoder_connection": "One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps, reject incompatible layer identities or configurations, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block."
 }
 ---
 
@@ -132,8 +132,8 @@ import RustSource from "../../../components/RustSource.astro";
 import IncrementalAttentionDiagram from "../../../components/chapters/IncrementalAttentionDiagram.astro";
 
 export const diagramLabels = {
-  title: "Retain earlier K/V rows; append exactly one new row",
-  description: "The exact Rust trace follows three absolute positions, shows both head caches and attention weights, matches each newest output to a full-prefix reference, and proves reset plus rejected calls preserve storage.",
+  title: "Retain earlier key/value rows; append exactly one new pair",
+  description: "The exact Rust trace follows three absolute positions, shows both head caches and attention weights, matches each newest output to a full-prefix reference, and records that reset plus rejected calls preserve storage.",
   sections: {
     timeline: "Advance the layer cache one position at a time",
     work: "Count projection rows, not hardware time",
@@ -145,31 +145,31 @@ export const diagramLabels = {
     shape: "Logical cache shape",
     head: "Head",
     keys: "Rotated keys",
-    values: "Values",
+    values: "Unrotated values",
     weights: "Newest-query weights",
     cached: "Cached output",
     full: "Full-prefix reference",
     difference: "Maximum absolute difference",
   },
   cues: {
-    retained: "retained earlier row - solid cue",
-    appended: "newly appended row - double cue",
+    retained: "retained earlier row - solid border",
+    appended: "newly appended row - double border",
     match: "newest outputs match within tolerance",
-    unchanged: "Reset keeps allocated bytes",
+    unchanged: "Reset keeps the allocation and stored values",
     replay: "The same rows replay identically",
     errors: "Rejected calls commit no append",
   },
   captions: {
     timeline: "The old logical length is the zero-based RoPE position. Every head retains its earlier rows, adds one key/value pair, and lets the newest query read the complete resulting prefix.",
-    work: "For prefix lengths one through three, the reference projects six rows per branch. The cached path projects three new rows and reuses three earlier K rows plus three earlier V rows.",
+    work: "For prefix lengths one through three, the reference projects six rows per branch. The cached path projects three new rows and reuses three earlier key rows plus three earlier value rows.",
     reset: "Logical reset reuses the same allocation. Full, incompatible, or invalid calls leave both length and storage unchanged.",
   },
   proofs: {
-    full: "rows per query, key, or value projection",
-    cached: "new rows per query, key, or value projection",
+    full: "complete-prefix rows per query, key, or value projection",
+    cached: "incremental rows per query, key, or value projection",
     reused: "earlier rows avoided across key and value projections",
   },
-  scrollers: {
+  lists: {
     cacheRows: "Cache rows in chronological order",
   },
 };
@@ -180,14 +180,14 @@ export const diagramLabels = {
 
 The fixture has one batch, model width $D=4$, $H=2$ heads, head width $d_h=2$,
 and cache capacity $C=4$. Before the first call the cache is empty. Each call
-accepts one row shaped $[1,1,4]$, so the logical K/V shapes advance through
+accepts one row shaped $[1,1,4]$, so the logical key/value shapes advance through
 $[1,2,1,2]$, $[1,2,2,2]$, and $[1,2,3,2]$.
 
 The first two cached outputs are $[1,0,1,0]$ and
 $[0.213809009,0.786190991,0.770151153,-0.420735492]$. Before revealing the
 third output, predict three facts:
 
-1. The old length is $2$, so the new Q and K use absolute RoPE position $2$.
+1. The old length is $2$, so the new $Q$ and $K$ use absolute RoPE position $2$.
 2. Each head's newest query receives $3$ key rows and $3$ value rows.
 3. The cache appends one rotated key row and one unrotated value row; it does not
    retain the query.
@@ -238,7 +238,7 @@ $C$ or allocating replacement buffers.
 
 ## From causal attention to managed LLM inference state
 
-Causal Transformer attention lets the newest decoder position read the known prefix, but a naive generation loop can rebuild every earlier key and value projection on every step even though those earlier layer states are unchanged.
+Causal Transformer attention lets each newest decoder position read the known prefix. Without retained projections, however, a generation loop can recompute unchanged earlier key and value rows at every step.
 
 [Attention Is All You Need](https://arxiv.org/pdf/1706.03762) supplies the
 causal reference. Vaswani and colleagues define scaled dot-product attention, describe an autoregressive decoder that emits one element at a time, and mask decoder self-attention so a position can use only the known prefix; the paper does not specify KV caching or RoPE.
@@ -249,18 +249,19 @@ makes the reuse boundary explicit. Shazeer's incremental multi-head self-attenti
 [Efficient Memory Management for Large Language Model Serving with PagedAttention](https://arxiv.org/pdf/2309.06180)
 continues the road into modern serving. Kwon and colleagues describe sequential LLM generation in which earlier key and value vectors are cached and only the newest pair is computed, then organize dynamically growing KV caches as logical blocks mapped to non-contiguous physical memory.
 
-Incremental Transformer decoding retained earlier per-layer key and value tensors, appended one new pair, and made repeated KV movement an explicit performance concern; later LLM serving systems treated the dynamically growing KV cache as a major memory-management object.
+Incremental decoding made one-step reuse explicit by retaining per-layer key/value tensors; later LLM serving systems treated the growing KV cache as a central memory-management object.
 
-A layer-local KV cache avoids reprojecting the same earlier states while the newest query still attends across the complete retained prefix; model-wide cached generation therefore needs one compatible cache for every decoder block.
+Modern cached generation keeps one compatible cache per decoder block: each new query reads the retained prefix while only the newest key and value are projected.
 
-Move from complete-prefix recomputation toward one-step attention that retains each layer's earlier key and value state.
-
-The road to modern LLM inference starts from causal prefix attention, makes per-step KV reuse explicit, and later manages that growing state as a serving-memory problem. This course's fixed capacity, exact layout, reset behavior, RoPE offset rule, layer binding, and typed errors are local correctness policies rather than claims made by those papers.
+The historical thread runs from causal masked attention, through explicit
+incremental KV reuse, to serving systems designed around a dynamically growing
+cache. Fixed capacity, exact layout, reset behavior, the RoPE offset rule, layer
+binding, and typed errors are this lesson's local correctness policies.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
   region="historical-kv-contrast"
-  caption="Record the causal-attention, retained-K/V, and serving-memory progression"
+  caption="Measure newest-query span and projection reuse across three prefixes"
   label="Rust source for the Chapter 37 LLM-inference history contrast"
 />
 
@@ -271,8 +272,8 @@ The road to modern LLM inference starts from causal prefix attention, makes per-
 `LayerKvCache::new` takes the actual attention layer. It records batch, model,
 head, capacity, and head-width configuration; owns fixed key/value buffers; and
 privately retains the exact parameter-node and RoPE identity. Equal dimensions
-are therefore not enough to reuse stale state from rebuilt weights or a
-different positional configuration.
+are therefore not enough to reuse state from rebuilt or updated weights or a
+different positional configuration; the new model needs new caches.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
@@ -282,7 +283,7 @@ different positional configuration.
 />
 
 `forward_incremental` accepts exactly $[B,1,D]$. Inside its own no-gradient
-scope it projects the new row, splits heads, rotates Q and K at the old cache
+scope it projects the new row, splits heads, rotates $Q$ and $K$ at the old cache
 length, computes stable weights shaped $[B,H,1,t+1]$, mixes the retained and
 candidate values, merges heads, and applies the existing output projection.
 Only a fully assembled result permits the key/value copy and length increment.
@@ -290,29 +291,32 @@ Only a fully assembled result permits the key/value copy and length increment.
 <RustSource
   path="rust/crates/llm-from-scratch/src/attention/incremental.rs"
   region="incremental-attention"
-  caption="Evaluate one newest query across retained K/V rows before committing the append"
+  caption="Evaluate one newest query across retained key/value rows before committing the append"
   label="Rust source implementing Chapter 37 incremental multi-head attention"
 />
 
-Across prefix lengths $1$, $2$, and $3$, a full-prefix call visits
-$1+2+3=6$ input rows in each Q, K, or V projection. The incremental path visits
-$1+1+1=3$ rows per projection. It therefore reuses $3$ earlier K rows and $3$
-earlier V rows. The newest query still reads all $t$ retained positions, so
+Across prefix lengths $1$, $2$, and $3$, the executable history contrast records
+that the newest queries read $[1,2,3]$ key rows. A full-prefix call visits
+$1+2+3=6$ input rows in each $Q$, $K$, or $V$ projection. The incremental path
+visits $1+1+1=3$ rows per projection. It therefore reuses $3$ earlier key rows
+and $3$ earlier value rows. The newest query still reads all $t$ retained positions, so
 this count does not claim constant-time attention or a measured speedup.
 
 Errors are transactional. Two-token input, a full cache, model or head mismatch,
-same-shaped rebuilt weights, a different RoPE configuration, and a nonfinite
-append all return before cache bytes or logical length change.
+same-shaped rebuilt weights, a changed RoPE base, the same base with a different
+position capacity, and nonfinite input all return before cached values or logical
+length change. Raw key/value append is private to the bound attention operation,
+so public callers cannot bypass those compatibility checks.
 
 <RustSource
   path="rust/demos/ch37-incremental-attention/src/lib.rs"
   region="cache-errors"
   caption="Exercise incompatible and invalid calls against unchanged cache snapshots"
-  label="Rust source proving Chapter 37 cache errors are transactional"
+  label="Rust source checking that Chapter 37 cache errors are transactional"
 />
 
 The fixture performs all three cached calls and all three independent reference
-calls. It checks full logical K/V prefixes as well as outputs, resets to length
+calls. It checks full logical key/value prefixes as well as outputs, resets to length
 $0$ without replacing storage, and replays the same evidence exactly.
 
 <RustSource
@@ -331,7 +335,7 @@ step=position:1 cache:1->2 shape:[1,2,2,2] max_abs_diff:0.000000000000 output:[0
 step=position:2 cache:2->3 shape:[1,2,3,2] max_abs_diff:0.000000000000 output:[0.629044078,0.945303958,0.374718490,-0.583589471]
 work=full_rows_per_projection:6 incremental_rows_per_projection:3 reused_rows_per_kv_projection:3 avoided_rows_across_kv:6
 reset=before:3 after:0 allocation_reused:true storage_unchanged:true replay_identical:true
-errors=two_tokens:true full_cache:true model_mismatch:true head_mismatch:true layer_mismatch:true rope_mismatch:true nonfinite_append:true unchanged:true
+errors=two_tokens:true full_cache:true model_mismatch:true head_mismatch:true layer_mismatch:true rope_mismatch:true rope_positions_mismatch:true nonfinite_projection:true unchanged:true
 ```
 
 <RustSource
@@ -344,15 +348,15 @@ errors=two_tokens:true full_cache:true model_mismatch:true head_mismatch:true la
 
 ## Follow retained rows into the newest query
 
-The figure uses the Rust-authored trace rather than recalculating attention. Read
-from absolute position $0$ through position $2$. Solid boxes are retained rows;
-the double box is the one new K/V pair. Each row includes its newest-query weight,
+The figure follows the exact values produced by the three Rust calls. Read from
+absolute position $0$ through position $2$. Solid-border boxes are retained rows;
+the double box is the one new key/value pair. Each row includes its newest-query weight,
 and each step ends with cached and full-prefix output values beside the recorded
 maximum difference.
 
 The work cards compare projection-row counts, not elapsed time. The final cards
-show that reset reuses allocation and that rejected calls preserve state. Every
-state distinction is repeated in text and border style.
+show that reset reuses allocation and that rejected calls preserve state. A solid
+border marks a retained row; a double border marks the newly appended pair.
 
 <IncrementalAttentionDiagram labels={diagramLabels} />
 
@@ -363,9 +367,9 @@ state distinction is repeated in text and border style.
 1. Which RoPE offset is used when logical cache length is $2$?
 2. Does the layer cache retain the newest query?
 3. At the third call, how many keys can each newest query read?
-4. How many rows does one full-prefix K projection visit across lengths $1$, $2$,
+4. How many rows does one full-prefix key projection visit across lengths $1$, $2$,
    and $3$?
-5. How many rows does the incremental K projection visit?
+5. How many rows does the incremental key projection visit?
 6. What does reset change?
 7. Can a same-shaped cache from rebuilt weights be reused?
 8. What happens to cache state when the capacity is already full?
@@ -374,13 +378,13 @@ state distinction is repeated in text and border style.
 <summary>Check the eight predictions</summary>
 
 1. The offset is $2$, exactly the old logical length.
-2. No. Only rotated K and unrotated V rows persist.
+2. No. Only rotated $K$ and unrotated $V$ rows persist.
 3. Each query reads $3$ keys and mixes $3$ values.
-4. The reference visits $1+2+3=6$ K-projection rows.
-5. The incremental path visits $1+1+1=3$ K-projection rows.
-6. Reset changes logical length to $0$ and keeps the allocation and stored bytes.
+4. The reference visits $1+2+3=6$ key-projection rows.
+5. The incremental path visits $1+1+1=3$ key-projection rows.
+6. Reset changes logical length to $0$ and keeps the allocation and stored values.
 7. No. Parameter identity is part of compatibility even when shapes agree.
-8. The call returns a typed error before any byte or length changes.
+8. The call returns a typed error before stored values or logical length change.
 
 </details>
 
@@ -388,7 +392,7 @@ state distinction is repeated in text and border style.
 
 ## Give every decoder block its own state next
 
-One attention layer can now preserve graph-free rotated keys and values across decode steps, reject stale or incompatible state, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block.
+One attention layer can now preserve graph-free rotated keys and unrotated values across decode steps, reject incompatible layer identities or configurations, reset without reallocating, and reproduce its full-prefix newest-position output; Chapter 38 will compose one such cache per decoder block.
 
 The current cumulative decoder still evaluates full prefixes. Chapter 38 will
 create one cache from each block's actual attention layer, thread those caches

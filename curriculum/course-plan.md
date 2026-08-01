@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 62,
+  "plan_revision": 63,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-36",
+    "policy_id": "selective-russian-through-chapter-37",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "36-temperature-top-k",
+        "through_chapter": "37-incremental-attention",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-36."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-37."
       },
       {
-        "from_chapter": "37-incremental-attention",
+        "from_chapter": "38-cached-generation",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 36 until a later explicit locale activation."
+        "reason": "Produce English only from the chapter after Chapter 37 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -354,6 +354,11 @@
         "step_id": "activate-ch36-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch36-russian-localization"
+      },
+      {
+        "step_id": "activate-ch37-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch37-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -923,9 +928,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–36 activate
-both, while Chapters 37–39 activate English only. Russian therefore keeps its index
-and Chapter 0–36 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–37 activate
+both, while Chapters 38–39 activate English only. Russian therefore keeps its index
+and Chapter 0–37 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1554,7 +1559,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Chapter ID:** `37-incremental-attention`
 - **Implementation step:** `implement-ch37-incremental-attention`
 - **Depends on:** `36-temperature-top-k`.
-- **Outcome:** Append one position's keys and values to a single layer cache and match full-prefix attention at the new position.
+- **Outcome:** Append one position's rotated keys and unrotated values to a single layer cache and match full-prefix attention at the new position.
 - **Scope boundary:** Teach cache tensor shapes, capacity, append offsets, RoPE absolute positions, reset, and incremental multi-head attention. Defer threading independent caches through a decoder stack and generation API.
 - **Formula:** `K^{(\ell)}_{1:t}=[K^{(\ell)}_{1:t-1};k^{(\ell)}_t],\quad V^{(\ell)}_{1:t}=[V^{(\ell)}_{1:t-1};v^{(\ell)}_t]`.
 - **Historical contrast:** Contrast recomputing every earlier key/value projection for a new token with retaining layer-local inference state.
@@ -1563,6 +1568,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Practice:** Predict cache shapes and RoPE position after three appends, then count which projections are avoided.
 - **Integration evidence:** Per-step last-position outputs match full-prefix attention within tolerance; append, reset, overflow, model/head mismatch, RoPE offsets, and operation counts pass.
 - **Handoff:** Chapter 38 gives every decoder block its own cache and separates prompt prefill from one-token decode.
+- **Revision status:** Content revision 2 closes the raw cache-population bypass, derives the history contrast from measured attention spans and projection work, distinguishes RoPE-base and position-capacity mismatches, moves tensor shapes through the math pipeline, and publishes the direct meaning-first Russian localization through `activate-ch37-russian-localization`.
 
 ## 38. Model-wide prefill and cached generation
 

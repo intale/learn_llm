@@ -158,21 +158,65 @@ pub fn fixture_layer() -> Result<MultiHeadAttention, FixtureError> {
 }
 // endregion:fixture-layer
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HistoricalKvContrast {
-    pub causal_decoder_reads_the_known_prefix: bool,
-    pub incremental_attention_retains_keys_and_values: bool,
-    pub serving_systems_manage_growing_kv_memory: bool,
+    pub newest_query_key_rows: Vec<usize>,
+    pub complete_prefix_rows_per_projection: usize,
+    pub incremental_rows_per_projection: usize,
+    pub reused_key_rows: usize,
+    pub reused_value_rows: usize,
 }
 
 // region:historical-kv-contrast
-/// Records the LLM-inference progression supported by the chapter's sources.
-pub const fn historical_kv_contrast() -> HistoricalKvContrast {
-    HistoricalKvContrast {
-        causal_decoder_reads_the_known_prefix: true,
-        incremental_attention_retains_keys_and_values: true,
-        serving_systems_manage_growing_kv_memory: true,
+/// Measures complete-prefix recomputation against one-row incremental projection.
+pub fn historical_kv_contrast(
+    steps: &[StepEvidence],
+) -> Result<HistoricalKvContrast, FixtureError> {
+    require(
+        !steps.is_empty(),
+        "history evidence needs at least one step",
+    )?;
+    let mut newest_query_key_rows = Vec::new();
+    newest_query_key_rows
+        .try_reserve_exact(steps.len())
+        .map_err(|_| FixtureError::Invariant("cannot allocate history evidence"))?;
+    for step in steps {
+        let rows = step
+            .heads
+            .first()
+            .ok_or(FixtureError::Invariant(
+                "history step has no attention head",
+            ))?
+            .weights
+            .len();
+        require(
+            step.heads.iter().all(|head| head.weights.len() == rows),
+            "attention heads disagree about retained key rows",
+        )?;
+        require(
+            rows == step.cache_after && step.cache_shape.get(2) == Some(&step.cache_after),
+            "attention span disagrees with logical cache length",
+        )?;
+        newest_query_key_rows.push(rows);
     }
+    let complete_prefix_rows_per_projection =
+        steps.iter().map(|step| step.full_rows_per_projection).sum();
+    let incremental_rows_per_projection = steps
+        .iter()
+        .map(|step| step.incremental_rows_per_projection)
+        .sum();
+    let reused_rows = steps.iter().map(|step| step.reused_key_value_rows).sum();
+    require(
+        complete_prefix_rows_per_projection == incremental_rows_per_projection + reused_rows,
+        "projection-row contrast is inconsistent",
+    )?;
+    Ok(HistoricalKvContrast {
+        newest_query_key_rows,
+        complete_prefix_rows_per_projection,
+        incremental_rows_per_projection,
+        reused_key_rows: reused_rows,
+        reused_value_rows: reused_rows,
+    })
 }
 // endregion:historical-kv-contrast
 
@@ -227,7 +271,8 @@ pub struct ErrorEvidence {
     pub head_mismatch_rejected: bool,
     pub layer_mismatch_rejected: bool,
     pub rope_mismatch_rejected: bool,
-    pub nonfinite_append_rejected: bool,
+    pub rope_positions_mismatch_rejected: bool,
+    pub nonfinite_projection_rejected: bool,
     pub every_cache_unchanged: bool,
 }
 
@@ -395,15 +440,25 @@ fn error_evidence(layer: &MultiHeadAttention) -> Result<ErrorEvidence, FixtureEr
     let mut rope_cache = LayerKvCache::new(layer, 1, CAPACITY)?;
     let rope_mismatch_rejected = unchanged_after_error(&different_rope, &single, &mut rope_cache);
 
-    let mut append_cache = LayerKvCache::new(layer, 1, CAPACITY)?;
-    let before_append = append_cache.clone();
-    let nonfinite_append_rejected = append_cache
-        .append(
-            &tensor(&[1, HEADS, 1, HEAD_WIDTH], &[0.0, f64::NAN, 0.0, 0.0])?,
-            &tensor(&[1, HEADS, 1, HEAD_WIDTH], &[0.0; MODEL_WIDTH])?,
-        )
-        .is_err()
-        && append_cache == before_append;
+    let different_positions = MultiHeadAttention::from_parameters(
+        layer.parameters()[0].clone(),
+        layer.parameters()[1].clone(),
+        layer.parameters()[2].clone(),
+        layer.parameters()[3].clone(),
+        HEADS,
+        MAX_POSITIONS + 1,
+        ROPE_BASE,
+    )?;
+    let mut position_cache = LayerKvCache::new(layer, 1, CAPACITY)?;
+    let rope_positions_mismatch_rejected =
+        unchanged_after_error(&different_positions, &single, &mut position_cache);
+
+    let mut nonfinite_cache = LayerKvCache::new(layer, 1, CAPACITY)?;
+    let nonfinite_projection_rejected = unchanged_after_error(
+        layer,
+        &constant(&[1, 1, MODEL_WIDTH], &[f64::MAX; MODEL_WIDTH])?,
+        &mut nonfinite_cache,
+    );
 
     let every_cache_unchanged = two_tokens_rejected
         && full_cache_rejected
@@ -411,7 +466,8 @@ fn error_evidence(layer: &MultiHeadAttention) -> Result<ErrorEvidence, FixtureEr
         && head_mismatch_rejected
         && layer_mismatch_rejected
         && rope_mismatch_rejected
-        && nonfinite_append_rejected;
+        && rope_positions_mismatch_rejected
+        && nonfinite_projection_rejected;
     Ok(ErrorEvidence {
         two_tokens_rejected,
         full_cache_rejected,
@@ -419,7 +475,8 @@ fn error_evidence(layer: &MultiHeadAttention) -> Result<ErrorEvidence, FixtureEr
         head_mismatch_rejected,
         layer_mismatch_rejected,
         rope_mismatch_rejected,
-        nonfinite_append_rejected,
+        rope_positions_mismatch_rejected,
+        nonfinite_projection_rejected,
         every_cache_unchanged,
     })
 }
@@ -431,6 +488,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let layer = fixture_layer()?;
     let mut cache = LayerKvCache::new(&layer, 1, CAPACITY)?;
     let steps = collect_steps(&layer, &mut cache)?;
+    let history = historical_kv_contrast(&steps)?;
     let work = WorkEvidence {
         full_rows_per_projection: steps.iter().map(|step| step.full_rows_per_projection).sum(),
         incremental_rows_per_projection: steps
@@ -483,7 +541,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         work,
         reset,
         errors,
-        history: historical_kv_contrast(),
+        history,
     })
 }
 // endregion:cache-step
@@ -558,27 +616,26 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "errors=two_tokens:{} full_cache:{} model_mismatch:{} head_mismatch:{} layer_mismatch:{} rope_mismatch:{} nonfinite_append:{} unchanged:{}",
+        "errors=two_tokens:{} full_cache:{} model_mismatch:{} head_mismatch:{} layer_mismatch:{} rope_mismatch:{} rope_positions_mismatch:{} nonfinite_projection:{} unchanged:{}",
         bool_text(evidence.errors.two_tokens_rejected),
         bool_text(evidence.errors.full_cache_rejected),
         bool_text(evidence.errors.model_mismatch_rejected),
         bool_text(evidence.errors.head_mismatch_rejected),
         bool_text(evidence.errors.layer_mismatch_rejected),
         bool_text(evidence.errors.rope_mismatch_rejected),
-        bool_text(evidence.errors.nonfinite_append_rejected),
+        bool_text(evidence.errors.rope_positions_mismatch_rejected),
+        bool_text(evidence.errors.nonfinite_projection_rejected),
         bool_text(evidence.errors.every_cache_unchanged)
     )
     .unwrap();
     writeln!(
         report,
-        "history=causal_prefix:{} retained_kv:{} serving_memory:{}",
-        bool_text(evidence.history.causal_decoder_reads_the_known_prefix),
-        bool_text(
-            evidence
-                .history
-                .incremental_attention_retains_keys_and_values
-        ),
-        bool_text(evidence.history.serving_systems_manage_growing_kv_memory)
+        "history=newest_query_key_rows:{} complete_prefix_rows_per_projection:{} incremental_rows_per_projection:{} reused_key_rows:{} reused_value_rows:{}",
+        usize_vector(&evidence.history.newest_query_key_rows),
+        evidence.history.complete_prefix_rows_per_projection,
+        evidence.history.incremental_rows_per_projection,
+        evidence.history.reused_key_rows,
+        evidence.history.reused_value_rows
     )
     .unwrap();
     writeln!(
@@ -654,27 +711,26 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         trace,
-        "ERRORS|two_tokens={}|full_cache={}|model_mismatch={}|head_mismatch={}|layer_mismatch={}|rope_mismatch={}|nonfinite_append={}|unchanged={}",
+        "ERRORS|two_tokens={}|full_cache={}|model_mismatch={}|head_mismatch={}|layer_mismatch={}|rope_mismatch={}|rope_positions_mismatch={}|nonfinite_projection={}|unchanged={}",
         bool_text(evidence.errors.two_tokens_rejected),
         bool_text(evidence.errors.full_cache_rejected),
         bool_text(evidence.errors.model_mismatch_rejected),
         bool_text(evidence.errors.head_mismatch_rejected),
         bool_text(evidence.errors.layer_mismatch_rejected),
         bool_text(evidence.errors.rope_mismatch_rejected),
-        bool_text(evidence.errors.nonfinite_append_rejected),
+        bool_text(evidence.errors.rope_positions_mismatch_rejected),
+        bool_text(evidence.errors.nonfinite_projection_rejected),
         bool_text(evidence.errors.every_cache_unchanged)
     )
     .unwrap();
     writeln!(
         trace,
-        "HISTORY|causal_prefix={}|retained_kv={}|serving_memory={}",
-        bool_text(evidence.history.causal_decoder_reads_the_known_prefix),
-        bool_text(
-            evidence
-                .history
-                .incremental_attention_retains_keys_and_values
-        ),
-        bool_text(evidence.history.serving_systems_manage_growing_kv_memory)
+        "HISTORY|newest_query_key_rows={}|complete_prefix_rows_per_projection={}|incremental_rows_per_projection={}|reused_key_rows={}|reused_value_rows={}",
+        usize_vector(&evidence.history.newest_query_key_rows),
+        evidence.history.complete_prefix_rows_per_projection,
+        evidence.history.incremental_rows_per_projection,
+        evidence.history.reused_key_rows,
+        evidence.history.reused_value_rows
     )
     .unwrap();
     writeln!(trace, "END|next=cached-generation").unwrap();
@@ -699,6 +755,18 @@ mod tests {
         assert_eq!(evidence.work.incremental_rows_per_projection, 3);
         assert_eq!(evidence.work.reused_rows_per_key_value_projection, 3);
         assert_eq!(evidence.work.avoided_rows_across_key_and_value, 6);
+        assert_eq!(evidence.history.newest_query_key_rows, [1, 2, 3]);
+        assert_eq!(evidence.history.complete_prefix_rows_per_projection, 6);
+        assert_eq!(evidence.history.incremental_rows_per_projection, 3);
+        assert_eq!(evidence.history.reused_key_rows, 3);
+        assert_eq!(evidence.history.reused_value_rows, 3);
+        let first_two = historical_kv_contrast(&evidence.steps[..2]).unwrap();
+        assert_eq!(first_two.newest_query_key_rows, [1, 2]);
+        assert_eq!(first_two.complete_prefix_rows_per_projection, 3);
+        assert_eq!(first_two.incremental_rows_per_projection, 2);
+        assert_eq!(first_two.reused_key_rows, 1);
+        assert_eq!(first_two.reused_value_rows, 1);
+        assert!(historical_kv_contrast(&[]).is_err());
         assert!(evidence.reset.replay_identical);
         assert!(evidence.errors.every_cache_unchanged);
     }

@@ -67,7 +67,7 @@ export interface IncrementalAttentionDiagramLabels {
     readonly cached: string;
     readonly reused: string;
   };
-  readonly scrollers: {
+  readonly lists: {
     readonly cacheRows: string;
   };
 }
@@ -88,8 +88,8 @@ HEAD|position=2|head=1|appended_key=[-1.325444263,0.493150590]|appended_value=[1
 MATCH|position=2|incremental=[0.629044078,0.945303958,0.374718490,-0.583589471]|full=[0.629044078,0.945303958,0.374718490,-0.583589471]|max_abs_diff=0.000000000000
 WORK|full_rows_per_projection=6|incremental_rows_per_projection=3|reused_rows_per_kv_projection=3|avoided_rows_across_kv=6
 RESET|before=3|after=0|allocation_reused=true|storage_unchanged=true|replay_identical=true
-ERRORS|two_tokens=true|full_cache=true|model_mismatch=true|head_mismatch=true|layer_mismatch=true|rope_mismatch=true|nonfinite_append=true|unchanged=true
-HISTORY|causal_prefix=true|retained_kv=true|serving_memory=true
+ERRORS|two_tokens=true|full_cache=true|model_mismatch=true|head_mismatch=true|layer_mismatch=true|rope_mismatch=true|rope_positions_mismatch=true|nonfinite_projection=true|unchanged=true
+HISTORY|newest_query_key_rows=[1,2,3]|complete_prefix_rows_per_projection=6|incremental_rows_per_projection=3|reused_key_rows=3|reused_value_rows=3
 END|next=cached-generation
 `;
 
@@ -139,7 +139,7 @@ export function validateIncrementalAttentionDiagramLabels(
       "cues",
       "captions",
       "proofs",
-      "scrollers",
+      "lists",
     ],
     "labels",
   );
@@ -183,9 +183,9 @@ export function validateIncrementalAttentionDiagramLabels(
     "labels.proofs",
   );
   exactStringKeys(
-    labels.scrollers as unknown as Record<string, unknown>,
+    labels.lists as unknown as Record<string, unknown>,
     ["cacheRows"],
-    "labels.scrollers",
+    "labels.lists",
   );
   return labels;
 }
@@ -472,15 +472,68 @@ export function parseIncrementalAttentionTrace(
     "head_mismatch",
     "layer_mismatch",
     "rope_mismatch",
-    "nonfinite_append",
+    "rope_positions_mismatch",
+    "nonfinite_projection",
     "unchanged",
   ]);
   cursor += 1;
-  const history = trueRecord(lines[cursor], "HISTORY", [
-    "causal_prefix",
-    "retained_kv",
-    "serving_memory",
-  ]);
+  const history = record(lines[cursor], "HISTORY");
+  exactKeys(
+    history,
+    [
+      "newest_query_key_rows",
+      "complete_prefix_rows_per_projection",
+      "incremental_rows_per_projection",
+      "reused_key_rows",
+      "reused_value_rows",
+    ],
+    "HISTORY",
+  );
+  const historyKeyRows = integerList(
+    required(history, "newest_query_key_rows"),
+    "HISTORY newest_query_key_rows",
+  );
+  if (historyKeyRows.join(",") !== "1,2,3")
+    invalid("HISTORY newest-query key rows changed");
+  for (const key of [
+    "complete_prefix_rows_per_projection",
+    "incremental_rows_per_projection",
+    "reused_key_rows",
+    "reused_value_rows",
+  ])
+    canonicalInteger(required(history, key), "HISTORY " + key);
+  if (
+    required(history, "complete_prefix_rows_per_projection") !== "6" ||
+    required(history, "incremental_rows_per_projection") !== "3" ||
+    required(history, "reused_key_rows") !== "3" ||
+    required(history, "reused_value_rows") !== "3"
+  )
+    invalid("HISTORY projection-row evidence changed");
+  const measuredKeyRows = steps.map((step) => {
+    const firstHead = step.heads[0];
+    if (!firstHead) invalid("HISTORY step has no attention head");
+    const rows = String(firstHead.weights.length);
+    if (
+      step.heads.some((head) => String(head.weights.length) !== rows) ||
+      step.cacheAfter !== rows ||
+      step.cacheShape[2] !== rows
+    )
+      invalid("HISTORY attention span disagrees with STEP evidence");
+    return rows;
+  });
+  if (required(history, "newest_query_key_rows") !== `[${measuredKeyRows.join(",")}]`)
+    invalid("HISTORY key rows disagree with STEP evidence");
+  if (
+    required(history, "complete_prefix_rows_per_projection") !==
+      required(work, "full_rows_per_projection") ||
+    required(history, "incremental_rows_per_projection") !==
+      required(work, "incremental_rows_per_projection") ||
+    required(history, "reused_key_rows") !==
+      required(work, "reused_rows_per_kv_projection") ||
+    required(history, "reused_value_rows") !==
+      required(work, "reused_rows_per_kv_projection")
+  )
+    invalid("HISTORY projection counts disagree with WORK evidence");
   cursor += 1;
   const end = record(lines[cursor], "END");
   exactKeys(end, ["next"], "END");
