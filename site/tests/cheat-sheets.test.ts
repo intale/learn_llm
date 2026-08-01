@@ -48,6 +48,22 @@ const expectedSheets = {
       ['Provenance group', 'provenance group remains within one role'],
     ],
   },
+  '03-learn-bpe-merges': {
+    file: '03-learn-bpe-merges.json',
+    lesson: '03-learn-bpe-merges.mdx',
+    title: 'Learning deterministic BPE merges',
+    entries: [
+      ['Byte Pair Encoding (BPE)', 'family of repeated-pair procedures'],
+      ['Adjacent-pair candidate', 'an ordered adjacent pair'],
+      ['Candidate count', 'two candidate positions'],
+      ['Merge round', 'For each round'],
+      ['Merge rank', 'Rank 0 therefore selects'],
+      ['Deterministic tie-break', 'smaller left and then smaller right'],
+      ['Non-overlapping replacement', 'without overlap'],
+      ['Byte expansion', 'byte expansions'],
+      ['Document boundary', 'across the boundary'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

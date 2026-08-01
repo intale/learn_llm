@@ -34,6 +34,22 @@ const sheets = [
       'Provenance group',
     ],
   },
+  {
+    chapter: 3,
+    chapterId: '03-learn-bpe-merges',
+    title: 'Learning deterministic BPE merges',
+    terms: [
+      'Byte Pair Encoding (BPE)',
+      'Adjacent-pair candidate',
+      'Candidate count',
+      'Merge round',
+      'Merge rank',
+      'Deterministic tie-break',
+      'Non-overlapping replacement',
+      'Byte expansion',
+      'Document boundary',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

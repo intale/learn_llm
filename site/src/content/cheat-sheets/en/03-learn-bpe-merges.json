@@ -1,0 +1,44 @@
+{
+  "chapter_id": "03-learn-bpe-merges",
+  "locale": "en",
+  "title": "Learning deterministic BPE merges",
+  "description": "A quick reference for the pair-counting and merge-rule terms used in this chapter.",
+  "terms": [
+    {
+      "term": "Byte Pair Encoding (BPE)",
+      "definition": "A tokenization method that repeatedly learns rules for replacing selected adjacent byte-symbol pairs."
+    },
+    {
+      "term": "Adjacent-pair candidate",
+      "definition": "An ordered pair of neighboring token IDs that may be selected for the next merge."
+    },
+    {
+      "term": "Candidate count",
+      "definition": "The number of adjacent positions carrying one pair, including overlapping positions during selection."
+    },
+    {
+      "term": "Merge round",
+      "definition": "One cycle of counting candidates, choosing a pair, assigning a symbol, and replacing that pair."
+    },
+    {
+      "term": "Merge rank",
+      "definition": "The zero-based position of a learned rule in the ordered BPE table, with earlier ranks taking priority."
+    },
+    {
+      "term": "Deterministic tie-break",
+      "definition": "A fixed rule that chooses the numerically smaller pair when candidate frequencies are equal."
+    },
+    {
+      "term": "Non-overlapping replacement",
+      "definition": "A left-to-right rewrite that consumes each input token at most once."
+    },
+    {
+      "term": "Byte expansion",
+      "definition": "The exact underlying byte sequence represented by either a raw token or a merged token."
+    },
+    {
+      "term": "Document boundary",
+      "definition": "A hard barrier where BPE pair counting stops, preventing pairs from joining separate documents."
+    }
+  ]
+}
