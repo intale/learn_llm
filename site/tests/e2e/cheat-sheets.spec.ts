@@ -268,6 +268,12 @@ const sheets = [
     title: 'Normalize feature scale without centering',
     terms: ['RMSNorm', 'Mean square', 'Reciprocal RMS', 'Root-mean-square scale', 'Learned gain', 'Epsilon stabilizer', 'Final feature axis', 'Approximate scale invariance', 'Pre-normalization', 'LayerNorm'],
   },
+  {
+    chapter: 26,
+    chapterId: '26-qkv-projections',
+    title: 'Create query, key, and value views',
+    terms: ['Query, key, and value projections', 'Hidden-state tensor', 'Model width', 'Head width', 'Query view', 'Key view', 'Value view', 'Self-attention', 'Bias-free projection', 'Independent projection weights'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -397,6 +403,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '26-qkv-projections'));
+  await page.goto(chapterPath('en', '27-self-attention'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

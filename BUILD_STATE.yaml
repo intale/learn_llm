@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T12:20:18Z"
+updated_at: "2026-08-01T12:28:57Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 19
+      spent: 20
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26845,13 +26845,36 @@ builds:
       - id: add-ch26-cheat-sheet
         objective: "Publish the canonical English Chapter 26 terminology sheet."
         depends_on: [add-ch25-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 26 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/26-qkv-projections.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 26 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 26 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T122428Z-add-ch26-cheat-sheet-01
+            started_at: "2026-08-01T12:24:28Z"
+            finished_at: "2026-08-01T12:28:57Z"
+            status: succeeded
+            input_fingerprint: {git: "461e9cbfb45ebc1962ba1d20a9396c1860524ca2", manifest: ".build/runs/20260801T122428Z-add-ch26-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:0d6251102217274b35edf60ccfeec99f715c97bf86430232bf5322f66f139304", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 26 is the terminology source."}
+            staging_dir: ".build/runs/20260801T122428Z-add-ch26-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 461e9cb, completed Chapter 25, canonical English Chapter 26, source ownership, environment pins, medium cost, browser availability, and exact one-sheet scope."
+              - "Add the audited ten-term Chapter 26 record, extend the shared content and browser matrices, and move staged later-English absence to Chapter 27."
+              - "Build the pinned Linux source image and run focused content, Astro diagnostics, production build, and static-link gates."
+              - "Create one labelled exact-snapshot volume, run network-disabled Chromium and Firefox independently, verify labels, remove the volume, and freeze product hashes."
+            artifacts:
+              - {path: ".build/runs/20260801T122428Z-add-ch26-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:0d6251102217274b35edf60ccfeec99f715c97bf86430232bf5322f66f139304", notes: "Exact Chapter 26 input fingerprint before product edits."}
+              - {path: ".build/runs/20260801T122428Z-add-ch26-cheat-sheet-01/publish-product.sha256", checksum: "sha256:334d806f8581e3900c1c19c3e65eb50c3a94bd2af4b6ed1cc2681f67accf941c", notes: "Exact Chapter 26 record and shared-test hashes."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:d2f8f5954444fbccb4cbeba9c3adee64b6e5d7f9897bbcc1d136a74b2907da75", notes: "Exact Chapter 26 source snapshot used for pinned static and browser validation."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, and fingerprint preflight", status: passed, notes: "Chapter 25 is independently committed and Chapter 26 is the only eligible step. The canonical lesson has no body defect requiring Russian parity. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts", status: passed, notes: "All 30 tests pass, including the exact twenty-six-sheet set, Chapter 26 source grounding, the expanded query-key-value projection name, and omission of later score and value-mixture concepts."}
+              - {command: "Pinned Astro diagnostics, production build, and static-link audit", status: passed, notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 79 Chapter 1-26 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."}
+              - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 79 equivalent Chapter 1-26 rendered and progressive-enhancement cases pass."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, and Chapter 27 is next."}
+            notes: "Succeeded. Chapter 26 now has a canonical English-only ten-term query, key, and value projection sheet with projection independence and bias policy in scope; query-key scoring and weighted value mixing remain Chapter 27 concepts. Chapter 0, Russian routes, and English Chapters 27-39 remain sheet-free. No chapter body, Russian content, dependency, package, build-definition, hosting, deployment, user-environment, or later-chapter product change was made."
 
       - id: add-ch27-cheat-sheet
         objective: "Publish the canonical English Chapter 27 terminology sheet."

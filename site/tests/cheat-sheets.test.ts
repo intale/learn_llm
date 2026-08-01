@@ -436,6 +436,23 @@ const expectedSheets = {
       ['LayerNorm', 'LayerNorm centers the anchor'],
     ],
   },
+  '26-qkv-projections': {
+    file: '26-qkv-projections.json',
+    lesson: '26-qkv-projections.mdx',
+    title: 'Create query, key, and value views',
+    entries: [
+      ['Query, key, and value projections', 'query, key, and value projections'],
+      ['Hidden-state tensor', 'hidden-state tensor entering self-attention'],
+      ['Model width', 'is the input feature width'],
+      ['Head width', 'is the output width for this one-head chapter'],
+      ['Query view', 'is the query view'],
+      ['Key view', 'is the key view'],
+      ['Value view', 'is the value view'],
+      ['Self-attention', 'define self-attention over one sequence'],
+      ['Bias-free projection', 'three independent bias-free projections'],
+      ['Independent projection weights', 'are independent learned weights'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {

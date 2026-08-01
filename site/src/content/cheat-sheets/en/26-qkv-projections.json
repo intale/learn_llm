@@ -1,0 +1,18 @@
+{
+  "chapter_id": "26-qkv-projections",
+  "locale": "en",
+  "title": "Create query, key, and value views",
+  "description": "A quick reference for the three projection roles, feature widths, and independence constraints used here.",
+  "terms": [
+    {"term": "Query, key, and value projections", "definition": "Three independent learned last-axis transformations that turn one hidden-state sequence into role-specific tensors while preserving batch and token coordinates."},
+    {"term": "Hidden-state tensor", "definition": "The rank-three input containing one model-width feature vector at every batch and token position."},
+    {"term": "Model width", "definition": "The input feature count consumed by each query, key, and value projection weight."},
+    {"term": "Head width", "definition": "The output feature count produced by each projection for this one-head chapter."},
+    {"term": "Query view", "definition": "The projected representation used later to ask what each token position should retrieve."},
+    {"term": "Key view", "definition": "The projected representation used later to describe how each token position can be matched."},
+    {"term": "Value view", "definition": "The projected representation carrying content that later attention weights will mix."},
+    {"term": "Self-attention", "definition": "Attention in which one previous-layer sequence supplies the query, key, and value roles."},
+    {"term": "Bias-free projection", "definition": "A learned matrix transformation that adds no bias vector after multiplication."},
+    {"term": "Independent projection weights", "definition": "Separate query, key, and value parameters that let each role learn its own representation."}
+  ]
+}
