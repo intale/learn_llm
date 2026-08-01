@@ -280,7 +280,7 @@ const expectedSheets = {
       ['SiLU', "SiLU's derivative at zero"],
       ['Log-softmax', 'log-softmax produces'],
       ['Indexed mean NLL', 'combined indexed mean NLL'],
-      ['Target-logit gradient', 'target-logit gradient'],
+      ['Loss-logit gradient', 'target-logit gradient'],
     ],
   },
   '17-parameter-initialization': {
@@ -325,6 +325,10 @@ const exactDefinitions = {
   },
   '15-tensor-autodiff-core': {
     'Reduction VJP': 'A reverse rule that reinserts and broadcasts a reduced axis, dividing by its extent for a mean.',
+  },
+  '16-model-autodiff-ops': {
+    'Indexed mean NLL': 'Average negative log-likelihood over examples or token positions, selecting one target class in each row.',
+    'Loss-logit gradient': 'Gradient of mean token loss with respect to every class logit in each row.',
   },
 } as const;
 

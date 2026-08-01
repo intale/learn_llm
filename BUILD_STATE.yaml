@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 10
+      spent: 11
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26528,6 +26528,24 @@ builds:
               - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 49 equivalent Chapter 1-16 rendered and progressive-enhancement cases pass."}
               - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact labels were verified before volume removal, no run-labelled volume remains, and Chapter 17 is next."}
             notes: "Succeeded. Chapter 16 now has a canonical English-only ten-term model-autodiff-operations sheet; Chapter 0 and Russian routes remain sheet-free, and English Chapters 17-39 remain staged."
+          - run_id: 20260801T113111Z-add-ch16-cheat-sheet-02
+            started_at: "2026-08-01T11:31:11Z"
+            finished_at: "2026-08-01T11:33:57Z"
+            status: succeeded
+            input_fingerprint: {git: "d9d848fd757654418f0e2d7042e4c357127bc52b", manifest: ".build/runs/20260801T113111Z-add-ch16-cheat-sheet-02/input-fingerprint.txt", checksum: "sha256:e961126c17333fcefed190a429e30361c6805dd3ff5b865f5fb320f42f79b724", tools: "Pinned repository Linux and Playwright toolchains", external: "Independent read-only technical terminology audit."}
+            staging_dir: ".build/runs/20260801T113111Z-add-ch16-cheat-sheet-02/"
+            commands: ["Verify the independent audit findings and exact corrective scope.", "Correct indexed mean NLL and rename/define the full loss-logit gradient; add exact regressions and rendered expectation.", "Run focused, pinned static/link, and exact-snapshot Chromium/Firefox gates; verify cleanup and freeze hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T113111Z-add-ch16-cheat-sheet-02/input-fingerprint.txt", checksum: "sha256:e961126c17333fcefed190a429e30361c6805dd3ff5b865f5fb320f42f79b724", notes: "Exact corrective Chapter 16 input fingerprint."}
+              - {path: ".build/runs/20260801T113111Z-add-ch16-cheat-sheet-02/publish-product.sha256", checksum: "sha256:2e43de4b13f6a1ffa8bbc41d545683223cc7ac726e91648682d6672298df9dda", notes: "Corrected Chapter 16 record and shared exact/rendered tests."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:0cf7e663691c3a67694ac3fd9c5902e9d7be56f6cfe4179ab173e8e833f0ba10", notes: "Exact corrected source snapshot."}
+            validation:
+              - {command: "Corrective-run preflight", status: passed, notes: "Run 01 remains immutable; run 02 owns two corrected terms."}
+              - {command: "Focused host and pinned Linux tests", status: passed, notes: "22 tests pass, including exact corrected definitions and term scope."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files, zero diagnostics; 85 pages and 2,447 references plus route checks pass."}
+              - {command: "Chromium and Firefox E2E", status: passed, notes: "55/55 pass independently in each engine with the renamed term."}
+              - {command: "Manifest, volume, mode, whitespace, and ledger audit", status: passed, notes: "Three changed product hashes frozen; labelled volume removed; Chapter 19 is next."}
+            notes: "Succeeded. Indexed mean NLL now averages examples or token positions, and Loss-logit gradient names the full class row; exact regressions cover both."
 
       - id: add-ch17-cheat-sheet
         objective: "Publish the canonical English Chapter 17 terminology sheet."

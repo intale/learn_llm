@@ -12,7 +12,7 @@
     {"term": "Matrix VJP", "definition": "A reverse matrix-product rule producing gradients for both matrix operands."},
     {"term": "SiLU", "definition": "A smooth activation multiplying each input by its sigmoid value."},
     {"term": "Log-softmax", "definition": "Logarithms of class probabilities computed through a stable normalization."},
-    {"term": "Indexed mean NLL", "definition": "Average negative log-likelihood across target classes selected by integer indices."},
-    {"term": "Target-logit gradient", "definition": "The loss sensitivity assigned to every target and competing logit."}
+    {"term": "Indexed mean NLL", "definition": "Average negative log-likelihood over examples or token positions, selecting one target class in each row."},
+    {"term": "Loss-logit gradient", "definition": "Gradient of mean token loss with respect to every class logit in each row."}
   ]
 }

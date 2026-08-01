@@ -212,7 +212,7 @@ const sheets = [
     chapter: 16,
     chapterId: '16-model-autodiff-ops',
     title: 'Reverse the operations that turn token IDs into loss',
-    terms: ['Embedding table', 'Row gather', 'Token ID', 'Repeated selector', 'Scatter-add', 'Matrix VJP', 'SiLU', 'Log-softmax', 'Indexed mean NLL', 'Target-logit gradient'],
+    terms: ['Embedding table', 'Row gather', 'Token ID', 'Repeated selector', 'Scatter-add', 'Matrix VJP', 'SiLU', 'Log-softmax', 'Indexed mean NLL', 'Loss-logit gradient'],
   },
   {
     chapter: 17,
