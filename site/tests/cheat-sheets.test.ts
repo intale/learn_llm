@@ -81,6 +81,22 @@ const expectedSheets = {
       ['Strict UTF-8 view', 'separate strict view'],
     ],
   },
+  '05-autoregressive-examples': {
+    file: '05-autoregressive-examples.json',
+    lesson: '05-autoregressive-examples.mdx',
+    title: 'Building autoregressive input–target pairs',
+    entries: [
+      ['Autoregressive language model', 'An autoregressive language model predicts each token'],
+      ['Input–target pair', 'input–target pairs that provide the correct'],
+      ['One-token shift', 'Express the one-token shift with slices'],
+      ['Context length', 'Choose context length'],
+      ['Stride', 'The stride selects candidate starts'],
+      ['Overlapping pairs', 'across overlapping pairs'],
+      ['BOS and EOS boundary tokens', 'BOS and EOS boundary tokens'],
+      ['Causal computation', 'causal computation may use only'],
+      ['Causal mask', 'needs an explicit causal mask'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

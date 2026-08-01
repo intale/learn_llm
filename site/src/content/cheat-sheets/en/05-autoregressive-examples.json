@@ -1,0 +1,44 @@
+{
+  "chapter_id": "05-autoregressive-examples",
+  "locale": "en",
+  "title": "Building autoregressive input–target pairs",
+  "description": "A quick reference for the alignment, boundary, and causal-visibility terms used here.",
+  "terms": [
+    {
+      "term": "Autoregressive language model",
+      "definition": "A language model that predicts each token from the tokens that precede it."
+    },
+    {
+      "term": "Input–target pair",
+      "definition": "Two aligned token sequences where each target supplies the next-token answer for its input position."
+    },
+    {
+      "term": "One-token shift",
+      "definition": "The alignment created when the target begins one source position after the input."
+    },
+    {
+      "term": "Context length",
+      "definition": "The fixed number of input positions available within one autoregressive training example."
+    },
+    {
+      "term": "Stride",
+      "definition": "The positive distance between consecutive candidate starts when constructing examples from a document."
+    },
+    {
+      "term": "Overlapping pairs",
+      "definition": "Examples from nearby starts that share source positions and may repeat adjacent transitions."
+    },
+    {
+      "term": "BOS and EOS boundary tokens",
+      "definition": "Controls that mark a document's beginning and ending inside its encoded sequence."
+    },
+    {
+      "term": "Causal computation",
+      "definition": "Computation that uses only the current and earlier input positions for each prediction."
+    },
+    {
+      "term": "Causal mask",
+      "definition": "An attention mask that blocks each position from reading later input positions."
+    }
+  ]
+}

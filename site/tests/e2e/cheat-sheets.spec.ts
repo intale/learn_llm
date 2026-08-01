@@ -67,6 +67,22 @@ const sheets = [
       'Strict UTF-8 view',
     ],
   },
+  {
+    chapter: 5,
+    chapterId: '05-autoregressive-examples',
+    title: 'Building autoregressive input–target pairs',
+    terms: [
+      'Autoregressive language model',
+      'Input–target pair',
+      'One-token shift',
+      'Context length',
+      'Stride',
+      'Overlapping pairs',
+      'BOS and EOS boundary tokens',
+      'Causal computation',
+      'Causal mask',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {
