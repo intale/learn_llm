@@ -202,6 +202,12 @@ const sheets = [
     title: 'Accumulate gradients through a scalar graph',
     terms: ['Computation graph', 'Reverse mode', 'Adjoint', 'Operand-use edge', 'Local derivative', 'Reverse topological order', 'Gradient accumulation', 'Backward pass', 'Detach', 'Zeroing gradients'],
   },
+  {
+    chapter: 15,
+    chapterId: '15-tensor-autodiff-core',
+    title: 'Reverse tensor operations with edge-local VJPs',
+    terms: ['Tensor autodiff tape', 'Vector-Jacobian product (VJP)', 'Jacobian', 'Operand-use edge', 'Upstream adjoint', 'Parent adjoint', 'Broadcast reversal', 'Reduction VJP', 'Non-scalar seed', 'Graph retention'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -331,6 +337,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '15-tensor-autodiff-core'));
+  await page.goto(chapterPath('en', '16-model-autodiff-ops'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

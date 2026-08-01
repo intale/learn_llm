@@ -249,6 +249,23 @@ const expectedSheets = {
       ['Zeroing gradients', 'clears every reachable tracked node'],
     ],
   },
+  '15-tensor-autodiff-core': {
+    file: '15-tensor-autodiff-core.json',
+    lesson: '15-tensor-autodiff-core.mdx',
+    title: 'Reverse tensor operations with edge-local VJPs',
+    entries: [
+      ['Tensor autodiff tape', 'reusable eight-node tensor tape'],
+      ['Vector-Jacobian product (VJP)', 'Apply one edge-local VJP instead of building a Jacobian'],
+      ['Jacobian', 'The conceptual Jacobian'],
+      ['Operand-use edge', 'operand-use edge'],
+      ['Upstream adjoint', 'fresh upstream adjoint'],
+      ['Parent adjoint', 'fresh parent-adjoint accumulator'],
+      ['Broadcast reversal', 'Explicit broadcast sums missing'],
+      ['Reduction VJP', 'reductions save their axis, retained-dimension choice, and input extent'],
+      ['Non-scalar seed', 'non-scalar seed'],
+      ['Graph retention', 'A retained second pass recomputes fresh intermediates'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

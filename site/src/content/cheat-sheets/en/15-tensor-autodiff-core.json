@@ -1,0 +1,18 @@
+{
+  "chapter_id": "15-tensor-autodiff-core",
+  "locale": "en",
+  "title": "Reverse tensor operations with edge-local VJPs",
+  "description": "A quick reference for the tensor reverse-mode, VJP, and graph-lifecycle terms used here.",
+  "terms": [
+    {"term": "Tensor autodiff tape", "definition": "A graph recording tensor operations and context needed for reverse differentiation."},
+    {"term": "Vector-Jacobian product (VJP)", "definition": "A product mapping an upstream adjoint into one parent contribution."},
+    {"term": "Jacobian", "definition": "A conceptual matrix of all output derivatives with respect to inputs."},
+    {"term": "Operand-use edge", "definition": "One recorded occurrence of a parent tensor consumed by an operation."},
+    {"term": "Upstream adjoint", "definition": "The objective sensitivity arriving at an operation's output tensor."},
+    {"term": "Parent adjoint", "definition": "The accumulated objective sensitivity restored to an input tensor's shape."},
+    {"term": "Broadcast reversal", "definition": "Summing reused output coordinates back into their original input coordinates."},
+    {"term": "Reduction VJP", "definition": "A reverse rule that expands reduced sensitivities across the saved axis."},
+    {"term": "Non-scalar seed", "definition": "An explicit output cotangent matching a tensor-valued result's exact shape."},
+    {"term": "Graph retention", "definition": "Keeping saved operation context available for another backward traversal."}
+  ]
+}
