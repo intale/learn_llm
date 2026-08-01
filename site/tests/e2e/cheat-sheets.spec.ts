@@ -238,6 +238,12 @@ const sheets = [
     title: 'Let one learned branch gate another',
     terms: ['SwiGLU', 'Position-wise feed-forward network', 'Gate projection', 'Up projection', 'Down projection', 'SiLU', 'Sigmoid', 'Elementwise product', 'Feed-forward width', 'Position independence'],
   },
+  {
+    chapter: 21,
+    chapterId: '21-mini-batches',
+    title: 'Count real tokens in every mini-batch',
+    terms: ['Causal window', 'Mini-batch', 'Requested batch capacity', 'Smaller final batch', 'Target occurrence', 'Actual target-token denominator', 'Token-mean gradient', 'Raw accumulator', 'Token-weighted mean', 'No-padding batch'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -367,6 +373,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '21-mini-batches'));
+  await page.goto(chapterPath('en', '22-adamw'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

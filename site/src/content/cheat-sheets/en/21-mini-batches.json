@@ -1,0 +1,18 @@
+{
+  "chapter_id": "21-mini-batches",
+  "locale": "en",
+  "title": "Count real tokens in every mini-batch",
+  "description": "A quick reference for the causal-window, batching, and token-weighted averaging terms used here.",
+  "terms": [
+    {"term": "Causal window", "definition": "A fixed-length input and shifted-target record that never crosses a document boundary."},
+    {"term": "Mini-batch", "definition": "A group of training windows whose contributions share one parameter update."},
+    {"term": "Requested batch capacity", "definition": "The maximum number of complete windows requested for one batch chunk."},
+    {"term": "Smaller final batch", "definition": "The last batch retained with fewer examples when the epoch remainder is incomplete."},
+    {"term": "Target occurrence", "definition": "One training-example appearance of a target token, counted separately from matching IDs."},
+    {"term": "Actual target-token denominator", "definition": "The number of real target occurrences used to average batch loss and gradients."},
+    {"term": "Token-mean gradient", "definition": "A parameter-gradient sum divided by the number of actual target-token contributions."},
+    {"term": "Raw accumulator", "definition": "An unnormalized sum retained with its contribution count before final averaging."},
+    {"term": "Token-weighted mean", "definition": "A combined mean that weights each accumulated piece by its token count."},
+    {"term": "No-padding batch", "definition": "A batch containing only real windows, with no synthetic rows or tokens."}
+  ]
+}

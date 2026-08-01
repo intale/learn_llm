@@ -351,6 +351,23 @@ const expectedSheets = {
       ['Position independence', 'SwiGLU transforms positions independently'],
     ],
   },
+  '21-mini-batches': {
+    file: '21-mini-batches.json',
+    lesson: '21-mini-batches.mdx',
+    title: 'Count real tokens in every mini-batch',
+    entries: [
+      ['Causal window', 'separate causal windows'],
+      ['Mini-batch', 'mini-batches of fixed-length rows'],
+      ['Requested batch capacity', 'With requested capacity'],
+      ['Smaller final batch', 'The final batch stays smaller'],
+      ['Target occurrence', 'target occurrences'],
+      ['Actual target-token denominator', 'actual target-token denominator'],
+      ['Token-mean gradient', 'token-mean loss plus gradient coordinates'],
+      ['Raw accumulator', 'raw accumulators'],
+      ['Token-weighted mean', 'token-weighted mean'],
+      ['No-padding batch', 'no padding'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
