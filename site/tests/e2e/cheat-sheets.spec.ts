@@ -244,6 +244,12 @@ const sheets = [
     title: 'Count real tokens in every mini-batch',
     terms: ['Causal window', 'Mini-batch', 'Requested batch capacity', 'Smaller final batch', 'Target occurrence', 'Actual target-token denominator', 'Token-mean gradient', 'Raw accumulator', 'Token-weighted mean', 'No-padding batch'],
   },
+  {
+    chapter: 22,
+    chapterId: '22-adamw',
+    title: 'Keep decay out of the gradient moments',
+    terms: ['AdamW', 'First gradient moment', 'Second gradient moment', 'Bias correction', 'Adaptive update', 'Decoupled weight decay', 'Learning rate', 'Numerical stabilizer', 'Decay group', 'No-decay group'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -373,6 +379,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '22-adamw'));
+  await page.goto(chapterPath('en', '23-neural-ngram'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

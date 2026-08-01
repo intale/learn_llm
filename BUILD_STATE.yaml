@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 15
+      spent: 16
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26728,13 +26728,31 @@ builds:
       - id: add-ch22-cheat-sheet
         objective: "Publish the canonical English Chapter 22 terminology sheet."
         depends_on: [add-ch21-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 22 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/22-adamw.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 22 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 22 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T115908Z-add-ch22-cheat-sheet-01
+            started_at: "2026-08-01T11:59:08Z"
+            finished_at: "2026-08-01T12:01:14Z"
+            status: succeeded
+            input_fingerprint: {git: "b49d87c71f972ba36abfa8452eb96efc543cfde9", manifest: ".build/runs/20260801T115908Z-add-ch22-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:bfe41b58a79bc5a6eea937ca767074574a06f608d0e5e82708a5d51802638a9d", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 22 is the source."}
+            staging_dir: ".build/runs/20260801T115908Z-add-ch22-cheat-sheet-01/"
+            commands: ["Verify clean dependency commit b49d87c and one-sheet scope.", "Add the ten-term Ch22 record, extend tests, move staged absence to Ch23.", "Run focused, pinned static/link, and exact-snapshot browser gates; clean volume and freeze hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T115908Z-add-ch22-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:bfe41b58a79bc5a6eea937ca767074574a06f608d0e5e82708a5d51802638a9d", notes: "Exact Chapter 22 input fingerprint."}
+              - {path: ".build/runs/20260801T115908Z-add-ch22-cheat-sheet-01/publish-product.sha256", checksum: "sha256:dbe8c7122e45293c7048e0cba11c3d9364cc7179d044c94ab5257ece76cb69d3", notes: "Exact Ch22 record and shared tests."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:a1088b1552ca5102673455243315a06086656098e5da6d9a8d5e3b223375eea0", notes: "Exact validated Ch22 snapshot."}
+            validation:
+              - {command: "Preflight", status: passed, notes: "Chapter 22 was the sole eligible step."}
+              - {command: "Focused tests", status: passed, notes: "26 host and pinned tests pass."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files, zero diagnostics; 85 pages, 2,447 references and route checks pass."}
+              - {command: "Chromium and Firefox", status: passed, notes: "67/67 pass independently in each engine."}
+              - {command: "Manifest and cleanup", status: passed, notes: "Three hashes frozen; labelled volume removed; Ch23 is next."}
+            notes: "Succeeded. Chapter 22 has a canonical English ten-term AdamW sheet; Chapter 0, Russian routes, and English Chapters 23-39 remain sheet-free."
 
       - id: add-ch23-cheat-sheet
         objective: "Publish the canonical English Chapter 23 terminology sheet."

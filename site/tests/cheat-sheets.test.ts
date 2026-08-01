@@ -368,6 +368,23 @@ const expectedSheets = {
       ['No-padding batch', 'no padding'],
     ],
   },
+  '22-adamw': {
+    file: '22-adamw.json',
+    lesson: '22-adamw.mdx',
+    title: 'Keep decay out of the gradient moments',
+    entries: [
+      ['AdamW', 'AdamW instead moves the shrinkage term outside'],
+      ['First gradient moment', 'first raw gradient moment'],
+      ['Second gradient moment', 'second raw moment tracks recent squared magnitude'],
+      ['Bias correction', 'corrects their early zero-initialization bias'],
+      ['Adaptive update', 'adaptive delta'],
+      ['Decoupled weight decay', 'moves parameter-proportional decay outside the gradient'],
+      ['Learning rate', 'is the learning rate'],
+      ['Numerical stabilizer', 'stabilizes the adaptive denominator'],
+      ['Decay group', 'decay-group parameter'],
+      ['No-decay group', 'no-decay parameter'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {

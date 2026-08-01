@@ -1,0 +1,18 @@
+{
+  "chapter_id": "22-adamw",
+  "locale": "en",
+  "title": "Keep decay out of the gradient moments",
+  "description": "A quick reference for the adaptive-moment, bias-correction, and decoupled-decay terms used here.",
+  "terms": [
+    {"term": "AdamW", "definition": "An adaptive optimizer combining moment-normalized gradient updates with separate parameter decay."},
+    {"term": "First gradient moment", "definition": "An exponentially weighted estimate carrying recent gradient direction across steps."},
+    {"term": "Second gradient moment", "definition": "An exponentially weighted estimate of recent squared gradient magnitude by coordinate."},
+    {"term": "Bias correction", "definition": "An adjustment compensating for early moment estimates that start at zero."},
+    {"term": "Adaptive update", "definition": "A parameter change scaled coordinatewise using corrected direction and magnitude estimates."},
+    {"term": "Decoupled weight decay", "definition": "Parameter-proportional shrinkage applied outside the gradient moments used for adaptation."},
+    {"term": "Learning rate", "definition": "A positive scalar controlling the size of adaptive and decay contributions."},
+    {"term": "Numerical stabilizer", "definition": "A small positive denominator addition keeping adaptive division well defined."},
+    {"term": "Decay group", "definition": "Named parameters selected to receive the optimizer's shrinkage contribution."},
+    {"term": "No-decay group", "definition": "Named parameters deliberately excluded from parameter-proportional shrinkage during updates."}
+  ]
+}
