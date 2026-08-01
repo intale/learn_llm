@@ -304,6 +304,12 @@ const sheets = [
     title: 'Compose a pre-norm decoder block in exact order',
     terms: ['Pre-normalized decoder block', 'Residual stream', 'Attention RMSNorm', 'Causal multi-head attention', 'First residual merge', 'Feed-forward RMSNorm', 'SwiGLU feed-forward branch', 'Second residual merge', 'Identity path', 'Post-norm order'],
   },
+  {
+    chapter: 32,
+    chapterId: '32-decoder-model',
+    title: 'Trace one tied table through a decoder stack',
+    terms: ['Decoder stack', 'Decoder depth', 'Distinct decoder blocks', 'Embedding lookup', 'Final RMSNorm', 'Weight tying', 'Tied projection', 'Vocabulary logits', 'Mean indexed negative log likelihood', 'Prefix invariance', 'Tied gradient accumulation'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -433,6 +439,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '32-decoder-model'));
+  await page.goto(chapterPath('en', '33-training-selection'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

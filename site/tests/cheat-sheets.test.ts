@@ -542,6 +542,24 @@ const expectedSheets = {
       ['Post-norm order', 'post-norm order'],
     ],
   },
+  '32-decoder-model': {
+    file: '32-decoder-model.json',
+    lesson: '32-decoder-model.mdx',
+    title: 'Trace one tied table through a decoder stack',
+    entries: [
+      ['Decoder stack', 'one decoder stack'],
+      ['Decoder depth', 'decoder depth'],
+      ['Distinct decoder blocks', 'Two distinct decoder blocks'],
+      ['Embedding lookup', 'Embedding lookup'],
+      ['Final RMSNorm', 'Final RMSNorm'],
+      ['Weight tying', 'Weight tying is stronger than equal initialization'],
+      ['Tied projection', 'Tied projection'],
+      ['Vocabulary logits', 'vocabulary logits'],
+      ['Mean indexed negative log likelihood', 'mean indexed negative log likelihood'],
+      ['Prefix invariance', 'prefix invariance'],
+      ['Tied gradient accumulation', 'adds both contributions on the same leaf'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -596,6 +614,19 @@ const exactDefinitions = {
     'Second residual merge': 'The addition of the SwiGLU output to the unchanged intermediate stream, producing the block output.',
     'Identity path': "A bypass that carries a branch's entering residual value unchanged around its learned transformation.",
     'Post-norm order': 'The contrasting layout that performs a residual merge before applying LayerNorm to the merged value.',
+  },
+  '32-decoder-model': {
+    'Decoder stack': 'The ordered sequence of zero or more causal decoder blocks between token lookup and final normalization.',
+    'Decoder depth': 'The configured number of repeated decoder blocks; zero is valid and makes the empty block composition the identity.',
+    'Distinct decoder blocks': 'Repeated blocks with the same configuration but separately owned parameters, so matching structure does not imply shared weights.',
+    'Embedding lookup': 'Gathering one row from the vocabulary-by-feature table for each input token ID, producing model-width feature vectors.',
+    'Final RMSNorm': 'The independently parameterized learned-gain normalization applied after the entire block stack, including at zero depth.',
+    'Weight tying': 'Using one parameter table for both token lookup and vocabulary scoring, not two separate tables that merely start with equal values.',
+    'Tied projection': 'Multiplying final hidden states by a differentiable transpose view of the embedding table instead of a separate output-head parameter.',
+    'Vocabulary logits': 'The unnormalized output scores over every vocabulary item at each batch and token position, distinct from the scalar training loss.',
+    'Mean indexed negative log likelihood': "The scalar loss formed by selecting each target token's negative log probability and averaging over all batch-position pairs.",
+    'Prefix invariance': 'The causal guarantee that changing only a later token leaves every earlier logit row bitwise unchanged.',
+    'Tied gradient accumulation': "Reverse-mode addition of the table's lookup-role gradient and output-role gradient onto the one shared parameter leaf.",
   },
 } as const;
 

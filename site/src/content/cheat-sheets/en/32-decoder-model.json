@@ -1,0 +1,19 @@
+{
+  "chapter_id": "32-decoder-model",
+  "locale": "en",
+  "title": "Trace one tied table through a decoder stack",
+  "description": "A quick reference for decoder depth, distinct blocks, final normalization, tied vocabulary projection, logits, causal invariance, and shared gradients.",
+  "terms": [
+    { "term": "Decoder stack", "definition": "The ordered sequence of zero or more causal decoder blocks between token lookup and final normalization." },
+    { "term": "Decoder depth", "definition": "The configured number of repeated decoder blocks; zero is valid and makes the empty block composition the identity." },
+    { "term": "Distinct decoder blocks", "definition": "Repeated blocks with the same configuration but separately owned parameters, so matching structure does not imply shared weights." },
+    { "term": "Embedding lookup", "definition": "Gathering one row from the vocabulary-by-feature table for each input token ID, producing model-width feature vectors." },
+    { "term": "Final RMSNorm", "definition": "The independently parameterized learned-gain normalization applied after the entire block stack, including at zero depth." },
+    { "term": "Weight tying", "definition": "Using one parameter table for both token lookup and vocabulary scoring, not two separate tables that merely start with equal values." },
+    { "term": "Tied projection", "definition": "Multiplying final hidden states by a differentiable transpose view of the embedding table instead of a separate output-head parameter." },
+    { "term": "Vocabulary logits", "definition": "The unnormalized output scores over every vocabulary item at each batch and token position, distinct from the scalar training loss." },
+    { "term": "Mean indexed negative log likelihood", "definition": "The scalar loss formed by selecting each target token's negative log probability and averaging over all batch-position pairs." },
+    { "term": "Prefix invariance", "definition": "The causal guarantee that changing only a later token leaves every earlier logit row bitwise unchanged." },
+    { "term": "Tied gradient accumulation", "definition": "Reverse-mode addition of the table's lookup-role gradient and output-role gradient onto the one shared parameter leaf." }
+  ]
+}
