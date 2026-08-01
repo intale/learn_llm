@@ -198,6 +198,23 @@ const expectedSheets = {
       ['Attention score', 'attention scores'],
     ],
   },
+  '12-stable-softmax': {
+    file: '12-stable-softmax.json',
+    lesson: '12-stable-softmax.mdx',
+    title: 'Turn extreme logits into stable probabilities',
+    entries: [
+      ['Logit', 'These values are logits: scores before normalization, not probabilities.'],
+      ['Softmax', "The chapter's stable softmax formula is:"],
+      ['Maximum shift', 'The maximum shift removes a'],
+      ['Normalization group', 'An axis divides a tensor into independent normalization groups.'],
+      ['Class axis', 'class axis gives group shape'],
+      ['Log-sum-exp', 'Log-sum-exp adds the maximum back'],
+      ['Log-softmax', 'Log-softmax keeps the safer shifted difference'],
+      ['Indexed NLL', 'Indexed NLL selects one target'],
+      ['Overflow', 'directly exponentiating unshifted large logits can overflow'],
+      ['Underflow', 'negative extremes become zero divided by zero'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

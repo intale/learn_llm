@@ -184,6 +184,12 @@ const sheets = [
       'Attention score',
     ],
   },
+  {
+    chapter: 12,
+    chapterId: '12-stable-softmax',
+    title: 'Turn extreme logits into stable probabilities',
+    terms: ['Logit', 'Softmax', 'Maximum shift', 'Normalization group', 'Class axis', 'Log-sum-exp', 'Log-softmax', 'Indexed NLL', 'Overflow', 'Underflow'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -313,6 +319,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '12-stable-softmax'));
+  await page.goto(chapterPath('en', '13-gradient-checking'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

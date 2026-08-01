@@ -1,0 +1,18 @@
+{
+  "chapter_id": "12-stable-softmax",
+  "locale": "en",
+  "title": "Turn extreme logits into stable probabilities",
+  "description": "A quick reference for the stable-normalization, log-probability, and numerical-range terms used here.",
+  "terms": [
+    {"term": "Logit", "definition": "An unnormalized class score produced before conversion into a probability distribution."},
+    {"term": "Softmax", "definition": "A normalization that converts grouped logits into nonnegative probabilities summing to one."},
+    {"term": "Maximum shift", "definition": "Subtracting a group's largest logit before exponentiation to improve numerical stability."},
+    {"term": "Normalization group", "definition": "The class values normalized together along one explicitly selected tensor axis."},
+    {"term": "Class axis", "definition": "The tensor axis whose entries represent competing choices in one probability distribution."},
+    {"term": "Log-sum-exp", "definition": "A stable log-domain summary of exponentiated logits within one normalization group."},
+    {"term": "Log-softmax", "definition": "The logarithms of normalized softmax probabilities computed without avoidable intermediate rounding."},
+    {"term": "Indexed NLL", "definition": "The negative log-probability assigned to one selected target class."},
+    {"term": "Overflow", "definition": "A finite-precision failure where a computed magnitude exceeds the representable range."},
+    {"term": "Underflow", "definition": "A finite-precision effect where a tiny nonzero magnitude rounds down to zero."}
+  ]
+}
