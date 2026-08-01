@@ -232,6 +232,12 @@ const sheets = [
     title: "Mix each token's features with one learned projection",
     terms: ['Linear layer', 'Learned projection', 'Input feature width', 'Output feature width', 'Leading axes', 'Weight matrix', 'Bias', 'Affine map', 'Parameter sharing', 'Bias-free projection'],
   },
+  {
+    chapter: 20,
+    chapterId: '20-swiglu-feed-forward',
+    title: 'Let one learned branch gate another',
+    terms: ['SwiGLU', 'Position-wise feed-forward network', 'Gate projection', 'Up projection', 'Down projection', 'SiLU', 'Sigmoid', 'Elementwise product', 'Feed-forward width', 'Position independence'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -361,6 +367,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '20-swiglu-feed-forward'));
+  await page.goto(chapterPath('en', '21-mini-batches'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

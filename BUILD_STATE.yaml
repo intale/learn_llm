@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T11:21:26Z"
+updated_at: "2026-08-01T11:44:53Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 12
+      spent: 13
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26642,13 +26642,35 @@ builds:
       - id: add-ch20-cheat-sheet
         objective: "Publish the canonical English Chapter 20 terminology sheet."
         depends_on: [add-ch19-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 20 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/20-swiglu-feed-forward.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 20 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 20 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T113932Z-add-ch20-cheat-sheet-01
+            started_at: "2026-08-01T11:39:32Z"
+            finished_at: "2026-08-01T11:44:53Z"
+            status: succeeded
+            input_fingerprint: {git: "b3d2e6bf09056537d5a59e6a75a7a4196bca334a", manifest: ".build/runs/20260801T113932Z-add-ch20-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:09958acef0353a08314d9fc160c44927b69db89e2a9b1d7ff229cd570314efde", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 20 is the terminology source."}
+            staging_dir: ".build/runs/20260801T113932Z-add-ch20-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit b3d2e6b, completed Chapter 19, source ownership, environment pins, browser availability, and exact one-sheet scope."
+              - "Add the ten-term Ch20 record, extend the shared tests, and move staged English absence to Ch21."
+              - "Run focused host and pinned-Linux checks, exact static/link validation, and network-disabled exact-snapshot Chromium and Firefox gates; verify labels, remove the volume, and freeze product hashes."
+            artifacts:
+              - {path: ".build/runs/20260801T113932Z-add-ch20-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:09958acef0353a08314d9fc160c44927b69db89e2a9b1d7ff229cd570314efde", notes: "Exact Chapter 20 input fingerprint before product edits."}
+              - {path: ".build/runs/20260801T113932Z-add-ch20-cheat-sheet-01/publish-product.sha256", checksum: "sha256:8100e30bd5af07ad79b34a50585cbf59572cf1837900b20a33718fe140f9ec90", notes: "Exact Chapter 20 record and shared-test hashes."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:1aab8842674c8129dcfb66f99a021004339d627760639bda01822cb5d9190bbb", notes: "Exact Chapter 20 source snapshot used for pinned static and browser validation."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, and fingerprint preflight", status: passed, notes: "Chapter 19 is independently committed; Chapter 20 is the only eligible step. No in-app browser is attached, so accepted rendered validation will use the pinned exact-snapshot Chromium and Firefox workflow."}
+              - {command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts", status: passed, notes: "All 24 tests pass, including the exact twenty-sheet set and Chapter 20 source grounding."}
+              - {command: "Pinned Astro diagnostics, production build, and static-link audit", status: passed, notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 61 Chapter 1-20 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."}
+              - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 61 equivalent Chapter 1-20 rendered and progressive-enhancement cases pass."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, and Chapter 21 is next."}
+            notes: "Succeeded. Chapter 20 now has a canonical English-only ten-term SwiGLU feed-forward sheet; Chapter 0 and Russian routes remain sheet-free, and English Chapters 21-39 remain staged. No dependency, package, build-definition, hosting, deployment, user-environment, Russian-content, chapter-MDX, or later-chapter product change was made."
 
       - id: add-ch21-cheat-sheet
         objective: "Publish the canonical English Chapter 21 terminology sheet."

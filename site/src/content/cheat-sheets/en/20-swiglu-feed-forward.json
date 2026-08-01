@@ -1,0 +1,18 @@
+{
+  "chapter_id": "20-swiglu-feed-forward",
+  "locale": "en",
+  "title": "Let one learned branch gate another",
+  "description": "A quick reference for the SwiGLU branches, activation, and position-wise behavior used here.",
+  "terms": [
+    {"term": "SwiGLU", "definition": "A gated feed-forward transformation multiplying a SiLU branch with another projection."},
+    {"term": "Position-wise feed-forward network", "definition": "A feature transformation applied independently and identically at every token position."},
+    {"term": "Gate projection", "definition": "The learned branch activated by SiLU before multiplicative interaction."},
+    {"term": "Up projection", "definition": "The parallel learned branch multiplied elementwise by the activated gate."},
+    {"term": "Down projection", "definition": "The final matrix that contracts gated hidden features to output width."},
+    {"term": "SiLU", "definition": "A smooth activation multiplying each value by its sigmoid."},
+    {"term": "Sigmoid", "definition": "A smooth function mapping real inputs strictly between zero and one."},
+    {"term": "Elementwise product", "definition": "Multiplication pairing corresponding coordinates from two equal-shaped branches."},
+    {"term": "Feed-forward width", "definition": "The expanded feature dimension used inside the gated transformation."},
+    {"term": "Position independence", "definition": "Changing one token row cannot affect another row's SwiGLU output."}
+  ]
+}

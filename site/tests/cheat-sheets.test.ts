@@ -334,6 +334,23 @@ const expectedSheets = {
       ['Bias-free projection', 'bias-free policy'],
     ],
   },
+  '20-swiglu-feed-forward': {
+    file: '20-swiglu-feed-forward.json',
+    lesson: '20-swiglu-feed-forward.mdx',
+    title: 'Let one learned branch gate another',
+    entries: [
+      ['SwiGLU', 'bias-free SwiGLU sublayer'],
+      ['Position-wise feed-forward network', 'feed-forward network separately at every sequence position'],
+      ['Gate projection', 'owns gate, up, and down'],
+      ['Up projection', 'second projection before the output projection'],
+      ['Down projection', 'down projection'],
+      ['SiLU', 'SiLU uses a sigmoid internally'],
+      ['Sigmoid', 'sigmoid internally'],
+      ['Elementwise product', 'two projected branches meet through elementwise multiplication'],
+      ['Feed-forward width', 'input, branch, and output feature widths'],
+      ['Position independence', 'SwiGLU transforms positions independently'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
