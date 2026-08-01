@@ -598,6 +598,25 @@ const expectedSheets = {
       ['Like-for-like targets', 'like-for-like targets'],
     ],
   },
+  '35-checkpoints': {
+    file: '35-checkpoints.json',
+    lesson: '35-checkpoints.mdx',
+    title: 'Save every state, resume exactly',
+    entries: [
+      ['Versioned decoder checkpoint', 'versioned decoder checkpoint'],
+      ['Same-step boundary', 'parameters and AdamW state describe one common'],
+      ['AdamW optimizer state', 'named AdamW moment tensors, parameter groups, step'],
+      ['Continuation RNG state', 'continuation stream for later sampling'],
+      ['Payload record', 'ordered payload records'],
+      ['Record descriptor', 'A descriptor stores role, name, dtype, shape, absolute offset, and byte length'],
+      ['Absolute byte offset', 'absolute start offset of record'],
+      ['Canonical encoding', 'Encoding the same state twice produces'],
+      ['FNV-1a checksum', 'FNV-1a detects accidental corruption; it does not authenticate'],
+      ['Exact round trip', 'exact round trip and resumed update'],
+      ['Exact resumed update', 'one equal resumed update'],
+      ['Atomic replacement', 'atomic replacement under the supported'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -693,6 +712,20 @@ const exactDefinitions = {
     'Immutable report': 'A versioned final record with getters but no setters or selection operation, preserving provenance, targets, scores, gate use, and state checks.',
     'Frozen bigram': 'An add-one bigram fitted only on the same training token slices and sealed before test access.',
     'Like-for-like targets': 'A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows.',
+  },
+  '35-checkpoints': {
+    'Versioned decoder checkpoint': 'A schema-versioned artifact whose contract binds tokenizer layout and decoder configuration, named parameters, matching optimizer state, selected step, record roles, and continuation RNG state.',
+    'Same-step boundary': 'The clean post-update boundary where saved decoder parameters and AdamW state share one completed step and no gradients remain.',
+    'AdamW optimizer state': 'Named first and second moments together with parameter groups, step count, configuration, and exact accumulated beta powers.',
+    'Continuation RNG state': 'The saved raw SplitMix64 stream state used for later sampling, not the earlier batch-shuffle seed.',
+    'Payload record': 'One ordered contiguous block of encoded tokenizer, parameter, or optimizer values.',
+    'Record descriptor': "Metadata storing one record's role, name, dtype, shape, absolute offset, and byte length.",
+    'Absolute byte offset': 'The file position where a payload record begins, advanced by element count times stored byte width.',
+    'Canonical encoding': 'A deterministic little-endian representation with stable record order, header, descriptors, and payload layout.',
+    'FNV-1a checksum': 'An accidental-corruption check covering the canonical file while treating its checksum field as zero; it does not authenticate the file against attackers.',
+    'Exact round trip': 'Loading and canonical re-encoding reproduce identical bytes, logits bits, and the next RNG draw in the same arithmetic environment.',
+    'Exact resumed update': 'Original and restored states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits.',
+    'Atomic replacement': 'A supported Unix same-filesystem publication that synchronizes a complete same-directory temporary file, renames it over the destination, then synchronizes the directory.',
   },
 } as const;
 

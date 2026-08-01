@@ -322,6 +322,12 @@ const sheets = [
     title: 'Freeze choices before one final test report',
     terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Test-only gate', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance', 'No-grad evaluation', 'Immutable report', 'Frozen bigram', 'Like-for-like targets'],
   },
+  {
+    chapter: 35,
+    chapterId: '35-checkpoints',
+    title: 'Save every state, resume exactly',
+    terms: ['Versioned decoder checkpoint', 'Same-step boundary', 'AdamW optimizer state', 'Continuation RNG state', 'Payload record', 'Record descriptor', 'Absolute byte offset', 'Canonical encoding', 'FNV-1a checksum', 'Exact round trip', 'Exact resumed update', 'Atomic replacement'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -451,6 +457,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '35-checkpoints'));
+  await page.goto(chapterPath('en', '36-temperature-top-k'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
