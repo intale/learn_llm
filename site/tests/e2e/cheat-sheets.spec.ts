@@ -196,6 +196,12 @@ const sheets = [
     title: 'Check gradients before trusting backpropagation',
     terms: ['Gradient check', 'Central difference', 'Numerical derivative', 'Analytic gradient', 'Step size', 'Truncation error', 'Rounding error', 'Scale-aware error', 'Tolerance', 'Deterministic coordinate sampling'],
   },
+  {
+    chapter: 14,
+    chapterId: '14-scalar-autodiff',
+    title: 'Accumulate gradients through a scalar graph',
+    terms: ['Computation graph', 'Reverse mode', 'Adjoint', 'Operand-use edge', 'Local derivative', 'Reverse topological order', 'Gradient accumulation', 'Backward pass', 'Detach', 'Zeroing gradients'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -325,6 +331,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '14-scalar-autodiff'));
+  await page.goto(chapterPath('en', '15-tensor-autodiff-core'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

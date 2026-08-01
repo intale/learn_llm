@@ -1,0 +1,18 @@
+{
+  "chapter_id": "14-scalar-autodiff",
+  "locale": "en",
+  "title": "Accumulate gradients through a scalar graph",
+  "description": "A quick reference for the scalar reverse-mode and graph-accumulation terms used here.",
+  "terms": [
+    {"term": "Computation graph", "definition": "A directed record of scalar values, operations, and their dependencies."},
+    {"term": "Reverse mode", "definition": "Differentiation that propagates one output sensitivity backward toward many inputs."},
+    {"term": "Adjoint", "definition": "The selected output's derivative with respect to one intermediate value."},
+    {"term": "Operand-use edge", "definition": "One recorded occurrence of a value consumed by an operation."},
+    {"term": "Local derivative", "definition": "An operation result's derivative with respect to one operand occurrence."},
+    {"term": "Reverse topological order", "definition": "An ordering that visits consumers before sending completed sensitivities to operands."},
+    {"term": "Gradient accumulation", "definition": "Adding contributions from every path instead of overwriting earlier contributions."},
+    {"term": "Backward pass", "definition": "One complete reverse traversal seeded from a selected scalar output."},
+    {"term": "Detach", "definition": "Creating an untracked value that preserves its primal but stops gradients."},
+    {"term": "Zeroing gradients", "definition": "Clearing stored parameter gradients before accumulating a new training step."}
+  ]
+}

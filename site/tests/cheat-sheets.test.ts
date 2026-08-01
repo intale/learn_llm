@@ -232,6 +232,23 @@ const expectedSheets = {
       ['Deterministic coordinate sampling', 'No random generator or hidden state is involved.'],
     ],
   },
+  '14-scalar-autodiff': {
+    file: '14-scalar-autodiff.json',
+    lesson: '14-scalar-autodiff.mdx',
+    title: 'Accumulate gradients through a scalar graph',
+    entries: [
+      ['Computation graph', 'One scalar value stored in the computation graph.'],
+      ['Reverse mode', 'Baydin et al. describe reverse mode as recording dependencies'],
+      ['Adjoint', 'pass-local adjoint'],
+      ['Operand-use edge', 'operand-use edges'],
+      ['Local derivative', 'local derivative'],
+      ['Reverse topological order', 'topological list is traversed in reverse'],
+      ['Gradient accumulation', 'Accumulation across separate backward calls'],
+      ['Backward pass', 'Every backward call computes a fresh pass'],
+      ['Detach', 'detached branch has no edge to the original'],
+      ['Zeroing gradients', 'clears every reachable tracked node'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {
