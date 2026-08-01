@@ -18,6 +18,22 @@ const sheets = [
       'Subword tokenizer',
     ],
   },
+  {
+    chapter: 2,
+    chapterId: '02-corpus-partitions',
+    title: 'Corpus documents and frozen partitions',
+    terms: [
+      'Corpus',
+      'Whole document',
+      'Training partition',
+      'Validation partition',
+      'Test partition',
+      'Disjoint split',
+      'Holdout',
+      'Data leakage',
+      'Provenance group',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

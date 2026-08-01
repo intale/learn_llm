@@ -32,6 +32,22 @@ const expectedSheets = {
       ['Subword tokenizer', 'Modern subword methods'],
     ],
   },
+  '02-corpus-partitions': {
+    file: '02-corpus-partitions.json',
+    lesson: '02-corpus-partitions.mdx',
+    title: 'Corpus documents and frozen partitions',
+    entries: [
+      ['Corpus', 'six-document corpus'],
+      ['Whole document', 'original whole document first'],
+      ['Training partition', 'Only the training set may'],
+      ['Validation partition', 'Validation may later guide choices'],
+      ['Test partition', 'test remains sealed for the final report'],
+      ['Disjoint split', 'three roles cover the entire corpus'],
+      ['Holdout', 'fixed holdouts developed'],
+      ['Data leakage', 'particular leakage path'],
+      ['Provenance group', 'provenance group remains within one role'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

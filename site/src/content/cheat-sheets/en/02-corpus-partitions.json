@@ -1,0 +1,44 @@
+{
+  "chapter_id": "02-corpus-partitions",
+  "locale": "en",
+  "title": "Corpus documents and frozen partitions",
+  "description": "A quick reference for the data-boundary terms used before tokenizer or model fitting begins.",
+  "terms": [
+    {
+      "term": "Corpus",
+      "definition": "The complete collection of source documents from which tokenizer and model data are prepared."
+    },
+    {
+      "term": "Whole document",
+      "definition": "The indivisible source unit assigned to a partition before token units or training windows are created."
+    },
+    {
+      "term": "Training partition",
+      "definition": "The documents permitted to contribute tokenizer statistics and learned model parameters."
+    },
+    {
+      "term": "Validation partition",
+      "definition": "Held-out documents used to compare choices or select a checkpoint, but not to fit parameters."
+    },
+    {
+      "term": "Test partition",
+      "definition": "Sealed documents used for final reported evidence after fitting and model selection are complete."
+    },
+    {
+      "term": "Disjoint split",
+      "definition": "A partitioning in which every corpus document appears exactly once and no roles overlap."
+    },
+    {
+      "term": "Holdout",
+      "definition": "Data kept outside model fitting so it can provide evidence about unseen text."
+    },
+    {
+      "term": "Data leakage",
+      "definition": "Training information crossing into a held-out partition and making its evaluation less independent."
+    },
+    {
+      "term": "Provenance group",
+      "definition": "A label joining documents derived from the same source so related versions stay in one partition."
+    }
+  ]
+}
