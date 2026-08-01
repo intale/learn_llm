@@ -300,6 +300,23 @@ const expectedSheets = {
       ['Pseudorandom generator', 'deterministic pseudorandom'],
     ],
   },
+  '18-token-embeddings': {
+    file: '18-token-embeddings.json',
+    lesson: '18-token-embeddings.mdx',
+    title: 'Give token IDs trainable vectors',
+    entries: [
+      ['Token embedding', 'Transformers keep learned token embeddings'],
+      ['Embedding table', 'trainable token table'],
+      ['Vocabulary size', 'vocabulary size'],
+      ['Embedding width', 'embedding width'],
+      ['Token ID', 'integer token ID'],
+      ['Direct row lookup', 'direct row lookup'],
+      ['One-hot vector', 'One-hot vectors make token identity explicit'],
+      ['Gather operation', 'calls the Chapter 16 gather operation'],
+      ['Repeated-token gradient', 'repeated-token gradients add'],
+      ['Scatter-add', 'scatter-add algorithm'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

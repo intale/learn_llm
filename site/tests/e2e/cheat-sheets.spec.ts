@@ -220,6 +220,12 @@ const sheets = [
     title: 'Initialize trainable weights reproducibly',
     terms: ['Parameter initialization', 'Hidden-unit symmetry', 'Fan-in', 'Fan-out', 'Xavier-style initialization', 'Target variance', 'Uniform bound', 'Seed', 'Reproducibility', 'Pseudorandom generator'],
   },
+  {
+    chapter: 18,
+    chapterId: '18-token-embeddings',
+    title: 'Give token IDs trainable vectors',
+    terms: ['Token embedding', 'Embedding table', 'Vocabulary size', 'Embedding width', 'Token ID', 'Direct row lookup', 'One-hot vector', 'Gather operation', 'Repeated-token gradient', 'Scatter-add'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -349,6 +355,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '18-token-embeddings'));
+  await page.goto(chapterPath('en', '19-linear-layers'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

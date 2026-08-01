@@ -1,0 +1,18 @@
+{
+  "chapter_id": "18-token-embeddings",
+  "locale": "en",
+  "title": "Give token IDs trainable vectors",
+  "description": "A quick reference for the token-table lookup and shared-gradient terms used here.",
+  "terms": [
+    {"term": "Token embedding", "definition": "A learned dense vector representing one tokenizer vocabulary item."},
+    {"term": "Embedding table", "definition": "A shared trainable matrix with one vector for each token ID."},
+    {"term": "Vocabulary size", "definition": "The number of distinct token rows available for lookup."},
+    {"term": "Embedding width", "definition": "The feature count contained in every learned token vector."},
+    {"term": "Token ID", "definition": "A discrete integer selector naming one row of the embedding table."},
+    {"term": "Direct row lookup", "definition": "Selecting a stored token vector without materializing a one-hot input."},
+    {"term": "One-hot vector", "definition": "A vocabulary-wide indicator containing one active token coordinate."},
+    {"term": "Gather operation", "definition": "An operation that copies rows selected by an index collection."},
+    {"term": "Repeated-token gradient", "definition": "Multiple occurrence contributions accumulated into one shared embedding row."},
+    {"term": "Scatter-add", "definition": "Adding each gathered occurrence's gradient back to its source row."}
+  ]
+}
