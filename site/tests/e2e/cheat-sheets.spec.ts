@@ -83,6 +83,22 @@ const sheets = [
       'Causal mask',
     ],
   },
+  {
+    chapter: 6,
+    chapterId: '06-bigram-baseline',
+    title: 'From transition counts to a bigram model',
+    terms: [
+      'Bigram model',
+      'Transition count',
+      'Context',
+      'Probability row',
+      'Maximum-likelihood estimate (MLE)',
+      'Unobserved successor',
+      'Unseen context',
+      'Add-one smoothing',
+      'Pseudocount',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

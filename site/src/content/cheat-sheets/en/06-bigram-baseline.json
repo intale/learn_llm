@@ -1,0 +1,44 @@
+{
+  "chapter_id": "06-bigram-baseline",
+  "locale": "en",
+  "title": "From transition counts to a bigram model",
+  "description": "A quick reference for the count-table, probability-row, and smoothing terms used here.",
+  "terms": [
+    {
+      "term": "Bigram model",
+      "definition": "A next-token model whose prediction depends only on the current token."
+    },
+    {
+      "term": "Transition count",
+      "definition": "The number of times one token immediately precedes another in the training documents."
+    },
+    {
+      "term": "Context",
+      "definition": "The preceding information used to condition a prediction; a bigram keeps one token."
+    },
+    {
+      "term": "Probability row",
+      "definition": "One normalized table row giving next-token probabilities for a selected current token."
+    },
+    {
+      "term": "Maximum-likelihood estimate (MLE)",
+      "definition": "The probability estimate obtained by dividing observed counts by a positive row total."
+    },
+    {
+      "term": "Unobserved successor",
+      "definition": "A candidate next token with zero count after an otherwise observed context."
+    },
+    {
+      "term": "Unseen context",
+      "definition": "A current token with no observed outgoing transitions, leaving its MLE row undefined."
+    },
+    {
+      "term": "Add-one smoothing",
+      "definition": "A rule that adds one pseudocount to every candidate before row normalization."
+    },
+    {
+      "term": "Pseudocount",
+      "definition": "An artificial positive count added to observed counts by a smoothing rule."
+    }
+  ]
+}

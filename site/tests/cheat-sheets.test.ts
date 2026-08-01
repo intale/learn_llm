@@ -97,6 +97,22 @@ const expectedSheets = {
       ['Causal mask', 'needs an explicit causal mask'],
     ],
   },
+  '06-bigram-baseline': {
+    file: '06-bigram-baseline.json',
+    lesson: '06-bigram-baseline.mdx',
+    title: 'From transition counts to a bigram model',
+    entries: [
+      ['Bigram model', 'This is a **bigram** model'],
+      ['Transition count', 'number of observed transitions'],
+      ['Context', 'one current token'],
+      ['Probability row', 'probability distribution'],
+      ['Maximum-likelihood estimate (MLE)', 'maximum-likelihood estimate (MLE)'],
+      ['Unobserved successor', 'unobserved successor after `A`'],
+      ['Unseen context', 'unseenContext'],
+      ['Add-one smoothing', 'Add-one smoothing'],
+      ['Pseudocount', 'positive pseudocount added'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {
