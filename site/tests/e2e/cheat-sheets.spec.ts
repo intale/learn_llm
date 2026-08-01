@@ -349,7 +349,7 @@ const sheets = [
     chapter: 38,
     chapterId: '38-cached-generation',
     title: 'Prefill once, then decode one token at a time',
-    terms: ['Model-wide KV cache', 'Prompt prefill', 'One-token decode', 'Complete-prefix reference', 'Newest-logit equivalence', 'Retained prefix length', 'Attention-score work', 'Context-limit stop', 'EOS stop', 'Coherent cache commit', 'Cached-generation replay', 'Cache reset'],
+    terms: ['Model-wide KV cache', 'Per-layer KV cache', 'Prompt prefill', 'One-token decode', 'Complete-prefix reference', 'Newest-logit equivalence', 'Retained prefix length', 'Attention-score work', 'Context-limit stop', 'EOS stop', 'Coherent cache commit', 'Cached-generation replay', 'Cache reset'],
   },
 ] as const;
 
@@ -392,6 +392,24 @@ for (const sheet of sheets) {
           'Exact round trip',
           'Same-step boundary',
           'Versioned decoder checkpoint',
+        ]);
+      }
+      if (sheet.chapterId === '38-cached-generation') {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
+        expect(sortedTerms).toEqual([
+          'Attention-score work',
+          'Cache reset',
+          'Cached-generation replay',
+          'Coherent cache commit',
+          'Complete-prefix reference',
+          'Context-limit stop',
+          'EOS stop',
+          'Model-wide KV cache',
+          'Newest-logit equivalence',
+          'One-token decode',
+          'Per-layer KV cache',
+          'Prompt prefill',
+          'Retained prefix length',
         ]);
       }
       const root = page.locator('[data-cheat-sheet]');

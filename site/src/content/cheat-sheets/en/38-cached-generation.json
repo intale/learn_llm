@@ -4,7 +4,8 @@
   "title": "Prefill once, then decode one token at a time",
   "description": "A quick reference for model-wide cache ownership, prompt prefill, one-token decoding, reference equivalence, coherent commits, replay, and reset.",
   "terms": [
-    { "term": "Model-wide KV cache", "definition": "The complete decoder cache containing one independent compatible cache per layer, each retaining that layer's keys and values while every logical length advances coherently." },
+    { "term": "Model-wide KV cache", "definition": "The decoder-level state that owns one compatible per-layer KV cache and advances every block’s logical length, phase, and work counters coherently." },
+    { "term": "Per-layer KV cache", "definition": "One decoder block’s independent, fixed-capacity store for that block’s K/V prefix, bound to its attention-layer identity and therefore not interchangeable with an equal-shaped cache from another depth." },
     { "term": "Prompt prefill", "definition": "The initial complete-prompt phase that fills every layer's cache and produces the logits used for the first generation decision." },
     { "term": "One-token decode", "definition": "A later generation phase that feeds only the newly selected token while reusing every layer's retained key/value prefix to produce later logits." },
     { "term": "Complete-prefix reference", "definition": "An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation." },

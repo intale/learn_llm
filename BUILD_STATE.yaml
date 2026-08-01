@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T17:08:19Z"
+updated_at: "2026-08-01T17:17:41Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,8 +26251,8 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 36
-      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus eight completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus one corrective checkpoint will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
+      spent: 37
+      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus nine completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
       - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
@@ -27599,13 +27599,49 @@ builds:
       - id: restore-ch38-per-layer-cache-term
         objective: "Restore the page-relevant Chapter 38 per-layer-cache term after the Chapter 35 restoration."
         depends_on: [restore-ch35-checkpoint-schema-term]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 38 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 38 sheet"]
         outputs: ["site/src/content/cheat-sheets/en/38-cached-generation.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
         acceptance: ["Chapter 38 restores the distinct page-necessary per-layer-cache concept without adding generic programming, Rust, UI, build, or deployment vocabulary; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 38 restored-term E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One restored English term plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T171145Z-restore-ch38-per-layer-cache-term-01
+            started_at: "2026-08-01T17:11:45Z"
+            finished_at: "2026-08-01T17:17:41Z"
+            status: succeeded
+            input_fingerprint: "Dependency HEAD c125fb21d8000399bd9197e443460dd2198176aa; sha256:c0a5a80c156843cfcd81ef864c894a8e44561a0fbedc0ab802d5d1544b1390e0 records the canonical English and Russian Chapter 38 lessons, existing English sheet, exact/evidence/browser tests, immutable shared modal/library/schema, dependencies, build definition, state, decisions, policy, and pinned environment."
+            staging_dir: ".build/runs/20260801T171145Z-restore-ch38-per-layer-cache-term-01/"
+            commands:
+              - "Read-only Chapter 38 lesson, sheet, test, scheduler, decision, and environment preflight"
+              - "Publish the exact approved Per-layer KV cache term directly after Model-wide KV cache, tighten the model-wide definition, and extend evidence, exact-definition, thirteen-term, locale-sorted 10-plus-3 no-loss, and browser regressions without editing lesson, title, Russian, or shared presentation sources."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "npm.cmd --prefix site run check"
+              - "npx.cmd --prefix site playwright test tests/e2e/cheat-sheets.spec.ts --list"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm --network none learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm --network none learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; status=$?; tail -n 12 /tmp/build.log; exit $status'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch38-restore-e2e-171145 from source image sha256:edee0befa36481aa3a434be8ed669e0129792ed180d325ba73f855bf12e70891 and independently build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch38-restore-e2e-171145,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch38-restore-e2e-171145,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify exact run and chapter-38-restored snapshot labels; remove learn-llm-cheatsheet-ch38-restore-e2e-171145; freeze and reverify the three-file product manifest; parse BUILD_STATE.yaml and every sheet JSON; confirm exact four-file ownership and immutable lesson, title, Russian, dependency, build, decision, and shared-interface inputs; audit exact thirteen-term uniqueness, relevance, exclusions, locale ordering, and 10-plus-3 pagination without loss; run git diff --check; and confirm add-ch39-cheat-sheet is the sole eligible next step."
+            artifacts:
+              - {path: ".build/runs/20260801T171145Z-restore-ch38-per-layer-cache-term-01/input-fingerprint.txt", checksum: "sha256:c0a5a80c156843cfcd81ef864c894a8e44561a0fbedc0ab802d5d1544b1390e0", notes: "Exact Chapter 38 restoration input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:edee0befa36481aa3a434be8ed669e0129792ed180d325ba73f855bf12e70891", notes: "Pinned Linux source image containing the exact Chapter 38 thirteen-term restoration and tests used for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/38-cached-generation.json", checksum: "sha256:42f2ce215867f204040983b7534b3d63c5e9492854b8c0c5b28356cd422d75cd", notes: "Canonical thirteen-term English Chapter 38 sheet with distinct decoder-level and attention-layer-bound KV cache concepts."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:d447b2132304e25e14acae46b2b0355c78a573a52413a37fc522ea1b5d5e8deb", notes: "Shared content matrix updated with the exact Chapter 38 definition, canonical evidence, and explicit sorted 10-plus-3 no-loss regression."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:4f511e1b9b2c54afe28fa6a5b6fbd7862f452c6cc46c9a7b1322c74269adc1c0", notes: "Complete browser matrix updated with all thirteen Chapter 38 term names and exact 10-plus-3 ordering assertion."}
+              - {path: ".build/runs/20260801T171145Z-restore-ch38-per-layer-cache-term-01/publish-product.sha256", checksum: "sha256:a6f0177b9efc80bb60dbd5a58f940457273647f094ffa601dfde8ded2e1d4f5c", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Preflight scope and semantic audit", status: passed, notes: "Dependency checkpoint is completed; the workspace began clean at c125fb21d8000399bd9197e443460dd2198176aa; the canonical lesson proves one fixed-capacity, attention-identity-bound K/V prefix per decoder block and a coherent decoder-level owner; the existing twelve-term sheet omits that necessary layer-local concept; Token-limit stop and generic API, Rust, build, deployment, and UI vocabulary remain excluded; no lesson, title, Russian, dependency, build, or shared-interface edit is needed."}
+              - {command: "Host focused content, Astro diagnostics, and Playwright collection checks", status: passed, notes: "46/46 focused cases pass; Astro reports 210 files with zero errors, warnings, or hints; the complete browser specification compiles and discovers exactly 115 cases."}
+              - {command: "Pinned Linux focused content and Astro diagnostics", status: passed, notes: "46/46 focused cases pass in the exact source image, and Astro independently reports 210 files with zero errors, warnings, or hints."}
+              - {command: "Pinned Linux production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 38 restoration volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium complete cheat-sheet gate", status: passed, notes: "115/115 cases pass, including Chapter 38's exact thirteen-term locale-sorted 10-plus-3 pages without loss, both model-wide and per-layer cache concepts, navigation and live ranges, boundary focus, reopen reset, 360-by-500 page containment, short-height reachability, complete sorted no-JavaScript fallback, and all orientation, Russian, and Chapter 39 exclusions."}
+              - {command: "Pinned exact-snapshot Firefox complete cheat-sheet gate", status: passed, notes: "115/115 cases pass independently with the same Chapter 38 terminology, exact 10-plus-3 ordering, accessibility, containment, reachability, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, snapshot cleanup, source-scope, whitespace, YAML, JSON, immutable-input and history, exact-count, uniqueness, relevance, exclusion, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal and no run-labelled volume or container remains; the English and Russian lessons, title, dependencies, build definitions, decisions, and shared interface are unchanged; git diff --check and all source parses pass; every prior completed active-build step is unchanged; the record has exactly thirteen unique page-grounded terms, excludes Token-limit stop and generic implementation vocabulary, and sorts into exact 10-plus-3 pages without loss; add-ch39-cheat-sheet is the sole eligible next step."}
+            notes: "Succeeded. Chapter 38 now distinguishes the decoder-level Model-wide KV cache from each decoder block's fixed-capacity, attention-identity-bound Per-layer KV cache. Exactly thirteen page-grounded concepts are exposed, sorted into complete 10-plus-3 modal pages and a complete no-JavaScript fallback. Token-limit stop remains excluded because this page only inherits that generic policy; no lesson, title, Russian content, dependency, build definition, deployment, decision, or shared-interface file changed."
 
       - id: add-ch39-cheat-sheet
         objective: "Publish the canonical English Chapter 39 terminology sheet."

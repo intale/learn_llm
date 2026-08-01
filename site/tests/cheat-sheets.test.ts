@@ -665,6 +665,7 @@ const expectedSheets = {
     title: 'Prefill once, then decode one token at a time',
     entries: [
       ['Model-wide KV cache', 'Model-wide cached generation prefills one independent cache per decoder block'],
+      ['Per-layer KV cache', 'one logical K/V prefix per block'],
       ['Prompt prefill', 'Prefill sends both prompt positions through both blocks'],
       ['One-token decode', 'one-token decoder calls'],
       ['Complete-prefix reference', 'complete-prefix references'],
@@ -818,7 +819,8 @@ const exactDefinitions = {
     'Transactional cache update': 'A rule that copies the candidate key/value rows and increments logical length only after the complete incremental output, including output projection, succeeds.',
   },
   '38-cached-generation': {
-    'Model-wide KV cache': "The complete decoder cache containing one independent compatible cache per layer, each retaining that layer's keys and values while every logical length advances coherently.",
+    'Model-wide KV cache': 'The decoder-level state that owns one compatible per-layer KV cache and advances every block’s logical length, phase, and work counters coherently.',
+    'Per-layer KV cache': 'One decoder block’s independent, fixed-capacity store for that block’s K/V prefix, bound to its attention-layer identity and therefore not interchangeable with an equal-shaped cache from another depth.',
     'Prompt prefill': "The initial complete-prompt phase that fills every layer's cache and produces the logits used for the first generation decision.",
     'One-token decode': "A later generation phase that feeds only the newly selected token while reusing every layer's retained key/value prefix to produce later logits.",
     'Complete-prefix reference': 'An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation.',
@@ -867,6 +869,31 @@ describe('English chapter cheat-sheet content', () => {
       'Exact round trip',
       'Same-step boundary',
       'Versioned decoder checkpoint',
+    ];
+
+    expect(pages.map((page) => page.length)).toEqual([10, 3]);
+    expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
+    expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(13);
+  });
+
+  it('sorts all thirteen Chapter 38 concepts into exact ten-plus-three pages without loss', () => {
+    const sheet = readSheet('38-cached-generation.json');
+    const sorted = sortCheatSheetTerms(sheet.terms, 'en');
+    const pages = paginateCheatSheetTerms(sorted);
+    const expectedSortedTerms = [
+      'Attention-score work',
+      'Cache reset',
+      'Cached-generation replay',
+      'Coherent cache commit',
+      'Complete-prefix reference',
+      'Context-limit stop',
+      'EOS stop',
+      'Model-wide KV cache',
+      'Newest-logit equivalence',
+      'One-token decode',
+      'Per-layer KV cache',
+      'Prompt prefill',
+      'Retained prefix length',
     ];
 
     expect(pages.map((page) => page.length)).toEqual([10, 3]);
