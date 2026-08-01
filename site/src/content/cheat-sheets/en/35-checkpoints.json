@@ -4,17 +4,18 @@
   "title": "Save every state, resume exactly",
   "description": "A quick reference for complete checkpoint state, canonical byte layout, integrity checks, exact replay, and atomic publication.",
   "terms": [
-    { "term": "Versioned decoder checkpoint", "definition": "A schema-versioned artifact whose contract binds tokenizer layout and decoder configuration, named parameters, matching optimizer state, selected step, record roles, and continuation RNG state." },
-    { "term": "Same-step boundary", "definition": "The clean post-update boundary where saved decoder parameters and AdamW state share one completed step and no gradients remain." },
-    { "term": "AdamW optimizer state", "definition": "Named first and second moments together with parameter groups, step count, configuration, and exact accumulated beta powers." },
-    { "term": "Continuation RNG state", "definition": "The saved raw SplitMix64 stream state used for later sampling, not the earlier batch-shuffle seed." },
-    { "term": "Payload record", "definition": "One ordered contiguous block of encoded tokenizer, parameter, or optimizer values." },
-    { "term": "Record descriptor", "definition": "Metadata storing one record's role, name, dtype, shape, absolute offset, and byte length." },
-    { "term": "Absolute byte offset", "definition": "The file position where a payload record begins, advanced by element count times stored byte width." },
-    { "term": "Canonical encoding", "definition": "A deterministic little-endian representation with stable record order, header, descriptors, and payload layout." },
-    { "term": "FNV-1a checksum", "definition": "An accidental-corruption check covering the canonical file while treating its checksum field as zero; it does not authenticate the file against attackers." },
-    { "term": "Exact round trip", "definition": "Loading and canonical re-encoding reproduce identical bytes, logits bits, and the next RNG draw in the same arithmetic environment." },
-    { "term": "Exact resumed update", "definition": "Original and restored states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits." },
-    { "term": "Atomic replacement", "definition": "A supported Unix same-filesystem publication that synchronizes a complete same-directory temporary file, renames it over the destination, then synchronizes the directory." }
+    { "term": "Versioned decoder checkpoint", "definition": "A validated, schema-versioned artifact binding tokenizer layout, decoder configuration and parameters, same-step optimizer state, selected step, and continuation RNG." },
+    { "term": "Checkpoint schema", "definition": "The versioned application contract that defines required tokenizer, decoder, optimizer, and RNG state together with record roles and compatibility checks." },
+    { "term": "Same-step boundary", "definition": "The clean post-update point where decoder parameters and AdamW state share one completed step and no gradients need saving." },
+    { "term": "AdamW optimizer state", "definition": "Named first and second moments, parameter groups, step, configuration, and exact accumulated beta powers required to continue the selected decoder’s next update." },
+    { "term": "Continuation RNG state", "definition": "The saved raw SplitMix64 stream state used for later sampling, distinct from the earlier batch-shuffle seed." },
+    { "term": "Checkpoint payload record", "definition": "One ordered contiguous block of encoded tokenizer, decoder-parameter, or optimizer values in the checkpoint payload." },
+    { "term": "Checkpoint record descriptor", "definition": "Metadata assigning one checkpoint payload record its role, name, dtype, shape, absolute offset, and byte length." },
+    { "term": "Checkpoint payload offset", "definition": "The absolute file-byte position where one checkpoint payload record begins; the next offset advances by element byte width times shape product." },
+    { "term": "Canonical checkpoint encoding", "definition": "The deterministic little-endian checkpoint representation with stable header fields, descriptor and payload order, and no implicit alignment padding." },
+    { "term": "Checkpoint integrity checksum (FNV-1a)", "definition": "An accidental-corruption check over the complete canonical checkpoint with its checksum field treated as zero; FNV-1a does not authenticate the file." },
+    { "term": "Exact round trip", "definition": "Loading and canonical re-encoding reproduce identical checkpoint bytes, logits bits, and the next RNG draw in the same arithmetic environment." },
+    { "term": "Exact resumed update", "definition": "Original and restored same-step states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits." },
+    { "term": "Atomic checkpoint replacement", "definition": "The supported Unix same-filesystem publication that synchronizes a complete same-directory temporary checkpoint, renames it over the destination, then synchronizes the directory." }
   ]
 }

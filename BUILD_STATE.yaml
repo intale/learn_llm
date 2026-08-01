@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T16:56:39Z"
+updated_at: "2026-08-01T17:08:19Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,8 +26251,8 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 35
-      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus seven completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus two corrective checkpoints will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
+      spent: 36
+      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus eight completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus one corrective checkpoint will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
       - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
@@ -27550,13 +27550,51 @@ builds:
       - id: restore-ch35-checkpoint-schema-term
         objective: "Restore the page-relevant Chapter 35 checkpoint-schema term and make six generic-sounding labels explicitly identify their checkpoint context."
         depends_on: [contextualize-ch34-evaluation-terms]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 35 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 35 sheet"]
         outputs: ["site/src/content/cheat-sheets/en/35-checkpoints.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
         acceptance: ["Chapter 35 restores Checkpoint schema and contextualizes Payload record, Record descriptor, Absolute byte offset, Canonical encoding, FNV-1a checksum, and Atomic replacement as Checkpoint payload record, Checkpoint record descriptor, Checkpoint payload offset, Canonical checkpoint encoding, Checkpoint integrity checksum (FNV-1a), and Atomic checkpoint replacement without changing their page-grounded meanings or adding unrelated vocabulary; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 35 restored-term E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One restored English term plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T170110Z-restore-ch35-checkpoint-schema-term-01
+            started_at: "2026-08-01T17:01:10Z"
+            finished_at: "2026-08-01T17:08:19Z"
+            status: succeeded
+            input_fingerprint: {git: "e2bfa436e262b07f6bdf2b6ab28e0780d7f8996c", manifest: ".build/runs/20260801T170110Z-restore-ch35-checkpoint-schema-term-01/input-fingerprint.txt", checksum: "sha256:5820ae27854a54b4a81cd664bedb139fbb6753048ff865d0155257564a0c7b51", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, pinned repository Linux and Playwright 1.61.1 browser toolchains", external: "None; canonical English Chapter 35, its frozen contract, and the approved thirteen-term checkpoint audit are the only content inputs."}
+            staging_dir: ".build/runs/20260801T170110Z-restore-ch35-checkpoint-schema-term-01/"
+            commands:
+              - "Verify clean dependency commit e2bfa43, completed Chapter 34 terminology correction, sole eligible Chapter 35 restoration, exact four-file ownership, environment pins, medium cost, canonical lesson and contract evidence, and unavailable attached-browser fallback."
+              - "Publish the approved thirteen-term Chapter 35 English record: restore Checkpoint schema, contextualize six checkpoint labels, replace all definitions with the audited exact wording, and extend exact evidence plus 10-plus-3 ordering, no-loss, and browser expectations without editing either chapter body or shared presentation code."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "npm.cmd --prefix site run check"
+              - "npx.cmd --prefix site playwright test tests/e2e/cheat-sheets.spec.ts --list"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; status=$?; tail -n 12 /tmp/build.log; exit $status'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch35-restore-e2e-170110 from source image sha256:59eedec6b64b141bb95ad9da47d162129b70d2643390ea820133cc84333c4069 and independently build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch35-restore-e2e-170110,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch35-restore-e2e-170110,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify exact run and snapshot labels; remove learn-llm-cheatsheet-ch35-restore-e2e-170110; freeze and reverify the three-file product manifest; confirm exact four-file diff ownership and immutable lesson, contract, Russian, dependency, build, and shared-interface inputs; parse YAML and all sheet JSON; compare every prior completed active-build step byte-semantically; audit exact thirteen-term uniqueness and relevance; run git diff --check; and confirm restore-ch38-per-layer-cache-term is the sole eligible next step."
+            artifacts:
+              - {path: ".build/runs/20260801T170110Z-restore-ch35-checkpoint-schema-term-01/input-fingerprint.txt", checksum: "sha256:5820ae27854a54b4a81cd664bedb139fbb6753048ff865d0155257564a0c7b51", notes: "Exact Chapter 35 restoration input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:59eedec6b64b141bb95ad9da47d162129b70d2643390ea820133cc84333c4069", notes: "Pinned Linux source image containing the exact Chapter 35 thirteen-term restoration and tests used for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/35-checkpoints.json", checksum: "sha256:8163a57526a14bf222904076ca6465068264cbe5fee34327bf951b4dda8a7c35", notes: "Canonical thirteen-term English Chapter 35 sheet with restored schema and checkpoint-contextualized terminology."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:15e4aae439b8097b12636ac9f380e8191da1cc9cad8fe902e36fa3975d2a6cef", notes: "Shared content matrix updated with all thirteen exact Chapter 35 definitions, canonical evidence, and explicit sorted 10-plus-3 no-loss regression."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:997219a1fc97e847a9f89311fa4c0912fb413338c0f6c02e808afe385da7ea64", notes: "Complete browser matrix updated with the thirteen Chapter 35 term names and exact 10-plus-3 ordering assertion."}
+              - {path: ".build/runs/20260801T170110Z-restore-ch35-checkpoint-schema-term-01/publish-product.sha256", checksum: "sha256:9cfd27c9bb966cb6efb3dd4caba779690b9c99629d175af754d56f83d08f8121", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, relevance, and fingerprint preflight", status: passed, notes: "Chapter 34 is independently committed and restore-ch35-checkpoint-schema-term is the sole eligible step. The canonical Chapter 35 lesson and frozen contract explicitly distinguish the versioned decoder artifact from its application schema; complete same-step decoder, AdamW, tokenizer, configuration, and continuation-RNG state; ordered payload records and descriptors; absolute offset progression by byte width times shape product without implicit padding; deterministic little-endian encoding; complete-file accidental-corruption checking with the checksum field zeroed; exact round-trip and one resumed-update evidence under the same arithmetic environment; and supported Unix same-directory, same-filesystem atomic replacement. Exactly thirteen page-grounded checkpoint terms are required and no generic programming, Rust, web, UI, build, or deployment term is eligible. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host content, evidence, exact-definition, relevance, ordering, and pagination checks", status: passed, notes: "45/45 cases pass with all thirteen approved Chapter 35 names and definitions verbatim, literal canonical-lesson evidence for every entry, exact locale-sorted 10-plus-3 pages without loss or duplication, no generic vocabulary, and every shared schema and integration contract intact."}
+              - {command: "Independent read-only Chapter 35 terminology precision audit", status: passed, notes: "A separate agent found no material defect: the definitions distinguish schema contract from validated artifact, state absolute offset recurrence and no-padding canonical encoding, scope FNV-1a to the complete canonical file with its field zeroed and no authentication claim, qualify round-trip and resumed-update evidence correctly, preserve supported Unix same-directory and same-filesystem atomicity, and keep all thirteen entries necessary to the page's LLM checkpoint concept."}
+              - {command: "Host Astro diagnostics and Playwright collection check", status: passed, notes: "Astro reports 210 files and zero errors, warnings, or hints; the complete browser specification compiles and discovers exactly 115 cases across English Chapters 1-38 plus the orientation, locale, and later-English exclusions."}
+              - {command: "Pinned Linux focused checks", status: passed, notes: "45/45 focused cases pass in the recorded source image, and Astro independently reports 210 files with zero errors, warnings, or hints."}
+              - {command: "Pinned Linux production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 35 restoration volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium complete cheat-sheet gate", status: passed, notes: "115/115 cases pass, including Chapter 35's exact thirteen-term locale-sorted 10-plus-3 pages without loss, every approved contextualized name, navigation and live ranges, boundary focus, reopen reset, 360-by-500 page containment, short-height reachability, complete sorted no-JavaScript fallback, and all orientation, Russian, and Chapter 39 exclusions."}
+              - {command: "Pinned exact-snapshot Firefox complete cheat-sheet gate", status: passed, notes: "115/115 cases pass independently with the same Chapter 35 terminology, exact 10-plus-3 ordering, accessibility, containment, reachability, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, snapshot cleanup, source-scope, whitespace, YAML, JSON, immutable-input and history, exact-count, uniqueness, relevance, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal and no run-labelled volume or container remains; the English and Russian lessons, frozen contract, dependencies, build definitions, and shared interface are unchanged; git diff --check and all source parses pass; every prior completed active-build step is unchanged; the record has exactly thirteen unique checkpoint-relevant terms; restore-ch38-per-layer-cache-term is the sole eligible next step."}
+            notes: "Succeeded. Chapter 35 now has exactly thirteen page-grounded checkpoint concepts with the application Checkpoint schema restored separately from the validated Versioned decoder checkpoint artifact. Six formerly generic labels now identify checkpoint payload records, descriptors, offsets, canonical encoding, complete-file FNV-1a integrity checking, and atomic replacement explicitly. The shared locale sort presents the complete unique set as exact 10-plus-3 modal pages and the no-JavaScript fallback exposes all thirteen sorted terms. No lesson, Russian content, contract, dependency, build definition, deployment, or shared-interface file changed."
 
       - id: restore-ch38-per-layer-cache-term
         objective: "Restore the page-relevant Chapter 38 per-layer-cache term after the Chapter 35 restoration."

@@ -607,17 +607,18 @@ const expectedSheets = {
     title: 'Save every state, resume exactly',
     entries: [
       ['Versioned decoder checkpoint', 'versioned decoder checkpoint'],
+      ['Checkpoint schema', 'application schema for tokenizer'],
       ['Same-step boundary', 'parameters and AdamW state describe one common'],
       ['AdamW optimizer state', 'named AdamW moment tensors, parameter groups, step'],
       ['Continuation RNG state', 'continuation stream for later sampling'],
-      ['Payload record', 'ordered payload records'],
-      ['Record descriptor', 'A descriptor stores role, name, dtype, shape, absolute offset, and byte length'],
-      ['Absolute byte offset', 'absolute start offset of record'],
-      ['Canonical encoding', 'Encoding the same state twice produces'],
-      ['FNV-1a checksum', 'FNV-1a detects accidental corruption; it does not authenticate'],
+      ['Checkpoint payload record', 'ordered payload records'],
+      ['Checkpoint record descriptor', 'A descriptor stores role, name, dtype, shape, absolute offset, and byte length'],
+      ['Checkpoint payload offset', 'absolute start offset of record'],
+      ['Canonical checkpoint encoding', 'Encoding the same state twice produces'],
+      ['Checkpoint integrity checksum (FNV-1a)', 'FNV-1a detects accidental corruption; it does not authenticate'],
       ['Exact round trip', 'exact round trip and resumed update'],
       ['Exact resumed update', 'one equal resumed update'],
-      ['Atomic replacement', 'atomic replacement under the supported'],
+      ['Atomic checkpoint replacement', 'atomic replacement under the supported'],
     ],
   },
   '36-temperature-top-k': {
@@ -774,18 +775,19 @@ const exactDefinitions = {
     'Like-for-like targets': 'A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows.',
   },
   '35-checkpoints': {
-    'Versioned decoder checkpoint': 'A schema-versioned artifact whose contract binds tokenizer layout and decoder configuration, named parameters, matching optimizer state, selected step, record roles, and continuation RNG state.',
-    'Same-step boundary': 'The clean post-update boundary where saved decoder parameters and AdamW state share one completed step and no gradients remain.',
-    'AdamW optimizer state': 'Named first and second moments together with parameter groups, step count, configuration, and exact accumulated beta powers.',
-    'Continuation RNG state': 'The saved raw SplitMix64 stream state used for later sampling, not the earlier batch-shuffle seed.',
-    'Payload record': 'One ordered contiguous block of encoded tokenizer, parameter, or optimizer values.',
-    'Record descriptor': "Metadata storing one record's role, name, dtype, shape, absolute offset, and byte length.",
-    'Absolute byte offset': 'The file position where a payload record begins, advanced by element count times stored byte width.',
-    'Canonical encoding': 'A deterministic little-endian representation with stable record order, header, descriptors, and payload layout.',
-    'FNV-1a checksum': 'An accidental-corruption check covering the canonical file while treating its checksum field as zero; it does not authenticate the file against attackers.',
-    'Exact round trip': 'Loading and canonical re-encoding reproduce identical bytes, logits bits, and the next RNG draw in the same arithmetic environment.',
-    'Exact resumed update': 'Original and restored states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits.',
-    'Atomic replacement': 'A supported Unix same-filesystem publication that synchronizes a complete same-directory temporary file, renames it over the destination, then synchronizes the directory.',
+    'Versioned decoder checkpoint': 'A validated, schema-versioned artifact binding tokenizer layout, decoder configuration and parameters, same-step optimizer state, selected step, and continuation RNG.',
+    'Checkpoint schema': 'The versioned application contract that defines required tokenizer, decoder, optimizer, and RNG state together with record roles and compatibility checks.',
+    'Same-step boundary': 'The clean post-update point where decoder parameters and AdamW state share one completed step and no gradients need saving.',
+    'AdamW optimizer state': 'Named first and second moments, parameter groups, step, configuration, and exact accumulated beta powers required to continue the selected decoder’s next update.',
+    'Continuation RNG state': 'The saved raw SplitMix64 stream state used for later sampling, distinct from the earlier batch-shuffle seed.',
+    'Checkpoint payload record': 'One ordered contiguous block of encoded tokenizer, decoder-parameter, or optimizer values in the checkpoint payload.',
+    'Checkpoint record descriptor': 'Metadata assigning one checkpoint payload record its role, name, dtype, shape, absolute offset, and byte length.',
+    'Checkpoint payload offset': 'The absolute file-byte position where one checkpoint payload record begins; the next offset advances by element byte width times shape product.',
+    'Canonical checkpoint encoding': 'The deterministic little-endian checkpoint representation with stable header fields, descriptor and payload order, and no implicit alignment padding.',
+    'Checkpoint integrity checksum (FNV-1a)': 'An accidental-corruption check over the complete canonical checkpoint with its checksum field treated as zero; FNV-1a does not authenticate the file.',
+    'Exact round trip': 'Loading and canonical re-encoding reproduce identical checkpoint bytes, logits bits, and the next RNG draw in the same arithmetic environment.',
+    'Exact resumed update': 'Original and restored same-step states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits.',
+    'Atomic checkpoint replacement': 'The supported Unix same-filesystem publication that synchronizes a complete same-directory temporary checkpoint, renames it over the destination, then synchronizes the directory.',
   },
   '36-temperature-top-k': {
     Temperature: 'A finite strictly positive divisor applied to logits before softmax; lower values sharpen probability gaps and higher values flatten them without changing rank.',
@@ -845,6 +847,31 @@ describe('English chapter cheat-sheet content', () => {
         .sort(),
     );
     expect(() => readdirSync(resolve(contentRoot, 'ru'))).toThrow();
+  });
+
+  it('sorts all thirteen Chapter 35 concepts into exact ten-plus-three pages without loss', () => {
+    const sheet = readSheet('35-checkpoints.json');
+    const sorted = sortCheatSheetTerms(sheet.terms, 'en');
+    const pages = paginateCheatSheetTerms(sorted);
+    const expectedSortedTerms = [
+      'AdamW optimizer state',
+      'Atomic checkpoint replacement',
+      'Canonical checkpoint encoding',
+      'Checkpoint integrity checksum (FNV-1a)',
+      'Checkpoint payload offset',
+      'Checkpoint payload record',
+      'Checkpoint record descriptor',
+      'Checkpoint schema',
+      'Continuation RNG state',
+      'Exact resumed update',
+      'Exact round trip',
+      'Same-step boundary',
+      'Versioned decoder checkpoint',
+    ];
+
+    expect(pages.map((page) => page.length)).toEqual([10, 3]);
+    expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
+    expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(13);
   });
 
   for (const [chapterId, expected] of Object.entries(expectedSheets)) {

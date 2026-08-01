@@ -331,7 +331,7 @@ const sheets = [
     chapter: 35,
     chapterId: '35-checkpoints',
     title: 'Save every state, resume exactly',
-    terms: ['Versioned decoder checkpoint', 'Same-step boundary', 'AdamW optimizer state', 'Continuation RNG state', 'Payload record', 'Record descriptor', 'Absolute byte offset', 'Canonical encoding', 'FNV-1a checksum', 'Exact round trip', 'Exact resumed update', 'Atomic replacement'],
+    terms: ['Versioned decoder checkpoint', 'Checkpoint schema', 'Same-step boundary', 'AdamW optimizer state', 'Continuation RNG state', 'Checkpoint payload record', 'Checkpoint record descriptor', 'Checkpoint payload offset', 'Canonical checkpoint encoding', 'Checkpoint integrity checksum (FNV-1a)', 'Exact round trip', 'Exact resumed update', 'Atomic checkpoint replacement'],
   },
   {
     chapter: 36,
@@ -376,6 +376,24 @@ for (const sheet of sheets) {
 
       const termPages = expectedPages(sheet.terms);
       const sortedTerms = termPages.flat();
+      if (sheet.chapterId === '35-checkpoints') {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
+        expect(sortedTerms).toEqual([
+          'AdamW optimizer state',
+          'Atomic checkpoint replacement',
+          'Canonical checkpoint encoding',
+          'Checkpoint integrity checksum (FNV-1a)',
+          'Checkpoint payload offset',
+          'Checkpoint payload record',
+          'Checkpoint record descriptor',
+          'Checkpoint schema',
+          'Continuation RNG state',
+          'Exact resumed update',
+          'Exact round trip',
+          'Same-step boundary',
+          'Versioned decoder checkpoint',
+        ]);
+      }
       const root = page.locator('[data-cheat-sheet]');
       const trigger = root.getByRole('button', { name: 'Open cheat sheet' });
       const dialog = root.getByRole('dialog', { name: sheet.title });
