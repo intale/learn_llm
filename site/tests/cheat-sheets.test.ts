@@ -636,6 +636,25 @@ const expectedSheets = {
       ['RNG-state replay', 'random-generator state'],
     ],
   },
+  '37-incremental-attention': {
+    file: '37-incremental-attention.json',
+    lesson: '37-incremental-attention.mdx',
+    title: 'Keep the prefix, project only the new row',
+    entries: [
+      ['Incremental multi-head attention', 'incremental multi-head self-attention'],
+      ['Layer-bound KV cache', 'one layer-bound KV cache'],
+      ['Absolute RoPE position', 'absolute RoPE position $2$'],
+      ['Rotated key', 'one rotated key row'],
+      ['Unrotated value', 'one unrotated value row'],
+      ['Current query', 'there is no query cache'],
+      ['Logical cache length', 'logical cache length'],
+      ['Cache capacity', 'cache capacity'],
+      ['Candidate key/value pair', 'one-row candidate pair'],
+      ['Full-prefix reference', 'full-prefix reference'],
+      ['Projection reuse', 'reuses $3$ earlier key rows'],
+      ['Transactional cache update', 'Only a fully assembled result permits the key/value copy and length increment'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -759,6 +778,20 @@ const exactDefinitions = {
     'Greedy decoding': 'The separate deterministic policy that chooses the first stable rank and leaves the random-generator state untouched.',
     'Stochastic top-1': 'A sampling policy that retains one token and chooses the same ID as greedy but still consumes exactly one random draw.',
     'RNG-state replay': 'Reproducing categorical choices by restoring the same generator state and preserving deterministic ranking, interval order, and sampling policy.',
+  },
+  '37-incremental-attention': {
+    'Incremental multi-head attention': 'A one-row attention path that projects the current row for every head, reads retained layer-local keys and values plus the candidate pair, and returns the newest output.',
+    'Layer-bound KV cache': "Fixed key/value storage tied to one attention layer's parameter-node, RoPE, batch, model, head, capacity, and head-width identity.",
+    'Absolute RoPE position': "The zero-based position used to rotate the current query and key, equal to the cache's old logical length before append.",
+    'Rotated key': 'A projected, head-split key after RoPE at its absolute position; this is the key representation retained in the cache.',
+    'Unrotated value': 'A projected and head-split value kept without RoPE; this is the value representation retained in the cache.',
+    'Current query': 'The newest projected, head-split, RoPE-rotated query used only for the current attention calculation and never cached.',
+    'Logical cache length': 'The number of retained positions currently exposed; reset sets it to zero without reallocating or clearing stored values.',
+    'Cache capacity': 'The fixed maximum number of positions backed by the physical buffers; logical reset does not change it.',
+    'Candidate key/value pair': 'The newest rotated-key and unrotated-value rows included with the retained prefix for calculation before any cache append is committed.',
+    'Full-prefix reference': "Independent uncached attention over the complete prefix whose newest output is the correctness reference, matched within the lesson's tolerance.",
+    'Projection reuse': 'Reusing earlier cached key and value projections so only the newest rows are reprojected; the newest query still reads the retained prefix, so attention is not constant time.',
+    'Transactional cache update': 'A rule that copies the candidate key/value rows and increments logical length only after the complete incremental output, including output projection, succeeds.',
   },
 } as const;
 

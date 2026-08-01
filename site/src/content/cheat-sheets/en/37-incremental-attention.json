@@ -1,0 +1,20 @@
+{
+  "chapter_id": "37-incremental-attention",
+  "locale": "en",
+  "title": "Keep the prefix, project only the new row",
+  "description": "A quick reference for layer-bound multi-head KV reuse, absolute-position RoPE, logical cache state, full-prefix equivalence, and transactional updates.",
+  "terms": [
+    { "term": "Incremental multi-head attention", "definition": "A one-row attention path that projects the current row for every head, reads retained layer-local keys and values plus the candidate pair, and returns the newest output." },
+    { "term": "Layer-bound KV cache", "definition": "Fixed key/value storage tied to one attention layer's parameter-node, RoPE, batch, model, head, capacity, and head-width identity." },
+    { "term": "Absolute RoPE position", "definition": "The zero-based position used to rotate the current query and key, equal to the cache's old logical length before append." },
+    { "term": "Rotated key", "definition": "A projected, head-split key after RoPE at its absolute position; this is the key representation retained in the cache." },
+    { "term": "Unrotated value", "definition": "A projected and head-split value kept without RoPE; this is the value representation retained in the cache." },
+    { "term": "Current query", "definition": "The newest projected, head-split, RoPE-rotated query used only for the current attention calculation and never cached." },
+    { "term": "Logical cache length", "definition": "The number of retained positions currently exposed; reset sets it to zero without reallocating or clearing stored values." },
+    { "term": "Cache capacity", "definition": "The fixed maximum number of positions backed by the physical buffers; logical reset does not change it." },
+    { "term": "Candidate key/value pair", "definition": "The newest rotated-key and unrotated-value rows included with the retained prefix for calculation before any cache append is committed." },
+    { "term": "Full-prefix reference", "definition": "Independent uncached attention over the complete prefix whose newest output is the correctness reference, matched within the lesson's tolerance." },
+    { "term": "Projection reuse", "definition": "Reusing earlier cached key and value projections so only the newest rows are reprojected; the newest query still reads the retained prefix, so attention is not constant time." },
+    { "term": "Transactional cache update", "definition": "A rule that copies the candidate key/value rows and increments logical length only after the complete incremental output, including output projection, succeeds." }
+  ]
+}

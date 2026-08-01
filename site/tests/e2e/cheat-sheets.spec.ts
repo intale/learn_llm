@@ -334,6 +334,12 @@ const sheets = [
     title: 'Shape a stable top-k distribution, then draw once',
     terms: ['Temperature', 'Stable ranking', 'Top-k candidate set', 'Tie-breaking rule', 'Top-k renormalization', 'Max-shifted softmax', 'Removed-token probability', 'Categorical draw', 'Half-open sampling interval', 'Greedy decoding', 'Stochastic top-1', 'RNG-state replay'],
   },
+  {
+    chapter: 37,
+    chapterId: '37-incremental-attention',
+    title: 'Keep the prefix, project only the new row',
+    terms: ['Incremental multi-head attention', 'Layer-bound KV cache', 'Absolute RoPE position', 'Rotated key', 'Unrotated value', 'Current query', 'Logical cache length', 'Cache capacity', 'Candidate key/value pair', 'Full-prefix reference', 'Projection reuse', 'Transactional cache update'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -463,6 +469,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '37-incremental-attention'));
+  await page.goto(chapterPath('en', '38-cached-generation'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
