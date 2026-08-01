@@ -12049,3 +12049,31 @@ introduced.
 **Affected steps:** `remove-cheat-sheet-term-cap`,
 `contextualize-ch34-evaluation-terms`, `restore-ch35-checkpoint-schema-term`, and
 `restore-ch38-per-layer-cache-term`.
+
+## 2026-08-01 - Complete the English instructional-course cheat-sheet rollout
+
+**Status:** Completed in `20260801T172327Z-add-ch39-cheat-sheet-01`.
+
+**Context:** The sequential Chapter 11-39 build has reached its final
+instructional chapter. Chapter 39 integrates the course's tokenizer, causal
+training, selection, held-out evaluation, checkpoint, probability, and cached
+generation boundaries. Independent review narrowed two draft definitions before
+acceptance so the sheet does not confuse the single final test pass with earlier
+validation evaluation or overstate the exact training-replay evidence.
+
+**Decision:** Publish one canonical English cheat sheet for every instructional
+Chapter 1-39 and keep Chapter 0 and every Russian route sheet-free until direct
+localization from these English records is performed. Preserve the one shared
+locale-aware, alphabetically sorted, ten-term-page progressive modal and its
+complete no-JavaScript disclosure as the only presentation surface. Chapter 39
+contains sixteen page-grounded terms and sorts without loss into exact ten-plus-six
+pages.
+
+**Consequences:** The English rollout closes with 39 records and 409 terms. The
+focused 48-case content gate, 364 Rust library tests, 85-page static build, 2,447
+local-reference audit, and independent corrected-snapshot Chromium and Firefox
+118-case gates pass. No chapter lesson, Russian content, dependency, build
+definition, hosting, deployment, or shared presentation implementation changes.
+
+**Affected build and run:** `add-english-cheat-sheets-ch11-ch39` and
+`20260801T172327Z-add-ch39-cheat-sheet-01`.

@@ -679,6 +679,29 @@ const expectedSheets = {
       ['Cache reset', 'Reset clears logical length, phase, and work counters'],
     ],
   },
+  '39-end-to-end-llm': {
+    file: '39-end-to-end-llm.json',
+    lesson: '39-end-to-end-llm.mdx',
+    title: 'Run the whole tiny LLM',
+    entries: [
+      ['End-to-end LLM pipeline', 'Every course component now participates in one functional program'],
+      ['Decoder-only LLM', 'decoder-only language model'],
+      ['Frozen document split', 'frozen document partitions'],
+      ['Training-only BPE', 'training-only BPE'],
+      ['Causal window', 'causal windows'],
+      ['Bitwise training replay', 'compares every training event'],
+      ['Validation-selected state', 'validation fixes the selected state'],
+      ['Selection-isolated final test evaluation', 'selection-isolated final evaluation'],
+      ['Frozen alpha-one bigram baseline', 'alpha-one bigram from the same training tokens'],
+      ['Same-target test-loss comparison', 'identical test-reserved targets'],
+      ['Exact checkpoint round trip', 'checkpoint bytes and state round-trip exactly'],
+      ['Exact logit probe', 'the separate At probe reproduces logits bit for bit'],
+      ['KV-cached generation', 'cached and complete-prefix decisions match'],
+      ['Joint sequence probability', 'The sequence probability'],
+      ['Autoregressive factorization', 'The factorization is a causal promise'],
+      ['Next-token conditional distribution', 'generation samples one new $z_t$ from the conditional distribution'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -833,6 +856,24 @@ const exactDefinitions = {
     'Cached-generation replay': 'Repeating cached generation from reset state with the same exact model, prompt, policy, and RNG state to reproduce selected tokens, draws, final RNG state, and stopping reason.',
     'Cache reset': 'Clearing logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, and stored values outside the now-empty logical prefix.',
   },
+  '39-end-to-end-llm': {
+    'End-to-end LLM pipeline': 'The one-way course path that turns frozen documents into BPE tokens and causal batches, trains and selects a decoder, evaluates the selected decoder once on held-out test targets, restores it, and generates text.',
+    'Decoder-only LLM': 'An autoregressive language model with a causal decoder stack and no separate encoder, mapping a bounded earlier-token context to next-token logits.',
+    'Frozen document split': 'A fixed assignment of whole documents to training, validation, and test roles, preventing test-reserved text from influencing tokenizer learning, parameter updates, or selection.',
+    'Training-only BPE': 'A byte-pair tokenizer whose merge ranks are learned only from training documents, then frozen and applied unchanged to validation and test documents.',
+    'Causal window': 'A fixed-context input–target slice whose positions predict aligned next tokens using only the allowed earlier-token context.',
+    'Bitwise training replay': 'A repeat of the frozen training run with identical data, initialization, batch order, and arithmetic environment that reproduces every recorded training event and gradient diagnostic, the selected checkpoint, every final model value, and the final optimizer state bit for bit.',
+    'Validation-selected state': 'The trained decoder state chosen by validation loss before test mini-batches are materialized.',
+    'Selection-isolated final test evaluation': 'One local post-selection pass over held-out test targets that cannot update parameters or feed its result back into model selection.',
+    'Frozen alpha-one bigram baseline': 'An add-one-smoothed, one-token-context model fitted only on training tokens and frozen before it scores the final test targets.',
+    'Same-target test-loss comparison': 'A loss comparison in which the decoder and frozen bigram score the same ordered test target positions; the measured gap describes only this frozen fixture and isolates neither a causal effect nor a universal architecture ranking.',
+    'Exact checkpoint round trip': 'Saving and loading the selected state so checkpoint bytes, model and optimizer bits, BPE ranks, selected step, and RNG state all reproduce exactly.',
+    'Exact logit probe': 'A deliberately narrow check that the restored decoder reproduces every logit bit for the fixed At input, without claiming that every possible input was compared.',
+    'KV-cached generation': 'In this fixture, generation after prompt prefill retains per-block key/value state and decodes only tokens needed for later logits, while matching the complete-prefix reference’s draws, token decisions, stopping, and final RNG state.',
+    'Joint sequence probability': 'The probability assigned to an entire token sequence, computed as the product of the observed next-token conditional probability at every position.',
+    'Autoregressive factorization': 'The causal decomposition of joint sequence probability into one next-token conditional factor per position, with each factor depending only on the earlier prefix.',
+    'Next-token conditional distribution': 'The decoder’s probability distribution over the next token given the allowed earlier prefix; training scores the observed token, while generation samples a new token from it.',
+  },
 } as const;
 
 function readSheet(fileName: string) {
@@ -899,6 +940,34 @@ describe('English chapter cheat-sheet content', () => {
     expect(pages.map((page) => page.length)).toEqual([10, 3]);
     expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
     expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(13);
+  });
+
+  it('sorts all sixteen Chapter 39 concepts into exact ten-plus-six pages without loss', () => {
+    const sheet = readSheet('39-end-to-end-llm.json');
+    const sorted = sortCheatSheetTerms(sheet.terms, 'en');
+    const pages = paginateCheatSheetTerms(sorted);
+    const expectedSortedTerms = [
+      'Autoregressive factorization',
+      'Bitwise training replay',
+      'Causal window',
+      'Decoder-only LLM',
+      'End-to-end LLM pipeline',
+      'Exact checkpoint round trip',
+      'Exact logit probe',
+      'Frozen alpha-one bigram baseline',
+      'Frozen document split',
+      'Joint sequence probability',
+      'KV-cached generation',
+      'Next-token conditional distribution',
+      'Same-target test-loss comparison',
+      'Selection-isolated final test evaluation',
+      'Training-only BPE',
+      'Validation-selected state',
+    ];
+
+    expect(pages.map((page) => page.length)).toEqual([10, 6]);
+    expect(pages.flat().map(({ term }) => term)).toEqual(expectedSortedTerms);
+    expect(new Set(pages.flat().map(({ term }) => term)).size).toBe(16);
   });
 
   for (const [chapterId, expected] of Object.entries(expectedSheets)) {

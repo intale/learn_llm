@@ -351,6 +351,12 @@ const sheets = [
     title: 'Prefill once, then decode one token at a time',
     terms: ['Model-wide KV cache', 'Per-layer KV cache', 'Prompt prefill', 'One-token decode', 'Complete-prefix reference', 'Newest-logit equivalence', 'Retained prefix length', 'Attention-score work', 'Context-limit stop', 'EOS stop', 'Coherent cache commit', 'Cached-generation replay', 'Cache reset'],
   },
+  {
+    chapter: 39,
+    chapterId: '39-end-to-end-llm',
+    title: 'Run the whole tiny LLM',
+    terms: ['End-to-end LLM pipeline', 'Decoder-only LLM', 'Frozen document split', 'Training-only BPE', 'Causal window', 'Bitwise training replay', 'Validation-selected state', 'Selection-isolated final test evaluation', 'Frozen alpha-one bigram baseline', 'Same-target test-loss comparison', 'Exact checkpoint round trip', 'Exact logit probe', 'KV-cached generation', 'Joint sequence probability', 'Autoregressive factorization', 'Next-token conditional distribution'],
+  },
 ] as const;
 
 function expectedPages(terms: readonly string[]) {
@@ -410,6 +416,27 @@ for (const sheet of sheets) {
           'Per-layer KV cache',
           'Prompt prefill',
           'Retained prefix length',
+        ]);
+      }
+      if (sheet.chapterId === '39-end-to-end-llm') {
+        expect(termPages.map((termPage) => termPage.length)).toEqual([10, 6]);
+        expect(sortedTerms).toEqual([
+          'Autoregressive factorization',
+          'Bitwise training replay',
+          'Causal window',
+          'Decoder-only LLM',
+          'End-to-end LLM pipeline',
+          'Exact checkpoint round trip',
+          'Exact logit probe',
+          'Frozen alpha-one bigram baseline',
+          'Frozen document split',
+          'Joint sequence probability',
+          'KV-cached generation',
+          'Next-token conditional distribution',
+          'Same-target test-loss comparison',
+          'Selection-isolated final test evaluation',
+          'Training-only BPE',
+          'Validation-selected state',
         ]);
       }
       const root = page.locator('[data-cheat-sheet]');
@@ -677,7 +704,7 @@ for (const sheet of sheets) {
   });
 }
 
-test('Chapter 0, Russian chapters, and later English chapters remain sheet-free', async ({
+test('Chapter 0 and Russian chapters remain sheet-free', async ({
   page,
 }) => {
   await page.goto(chapterPath('en', '00-llm-parts'));
@@ -687,7 +714,4 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await page.goto(chapterPath('ru', sheet.chapterId));
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
-
-  await page.goto(chapterPath('en', '39-end-to-end-llm'));
-  await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
