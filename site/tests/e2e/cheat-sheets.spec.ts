@@ -280,6 +280,12 @@ const sheets = [
     title: 'Compute one unmasked self-attention head',
     terms: ['Scaled dot-product self-attention', 'Unmasked attention', 'Query', 'Key', 'Value', 'Attention score', 'Query/key width', 'Square-root scaling', 'Row-wise softmax', 'Attention weight', 'Weighted value mixture'],
   },
+  {
+    chapter: 28,
+    chapterId: '28-causal-masking',
+    title: 'Block future keys with a causal mask',
+    terms: ['Causal mask', 'Inclusive diagonal', 'Additive mask', 'Query row', 'Key column', 'Allowed prefix', 'Blocked future key', 'Causal softmax', 'Shifted decoder input', 'Prefix invariance', 'Position signal'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -409,6 +415,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '28-causal-masking'));
+  await page.goto(chapterPath('en', '29-rope'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

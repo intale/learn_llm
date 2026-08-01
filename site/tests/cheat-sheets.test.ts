@@ -471,6 +471,24 @@ const expectedSheets = {
       ['Weighted value mixture', 'weighted value mixture'],
     ],
   },
+  '28-causal-masking': {
+    file: '28-causal-masking.json',
+    lesson: '28-causal-masking.mdx',
+    title: 'Block future keys with a causal mask',
+    entries: [
+      ['Causal mask', 'each query attends only to its available prefix'],
+      ['Inclusive diagonal', 'The diagonal is deliberately allowed'],
+      ['Additive mask', 'use the additive mask'],
+      ['Query row', 'For query row'],
+      ['Key column', 'key column'],
+      ['Allowed prefix', 'Each allowed prefix keeps the full'],
+      ['Blocked future key', 'after the future keys are excluded'],
+      ['Causal softmax', 'causal_softmax'],
+      ['Shifted decoder input', 'Decoder inputs are shifted by one target position'],
+      ['Prefix invariance', 'prefix-invariance result'],
+      ['Position signal', 'absolute or relative position signal'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -489,6 +507,11 @@ const exactDefinitions = {
   },
   '27-self-attention': {
     'Attention weight': 'A normalized retrieval coefficient for one query-key pair, not confidence in correctness.',
+  },
+  '28-causal-masking': {
+    'Causal mask': 'An attention visibility rule allowing each query to use its own key and all earlier keys, but no later keys.',
+    'Shifted decoder input': 'A training input offset by one target position so the allowed diagonal contains an earlier known token, not the predicted target.',
+    'Position signal': 'Separate absolute or relative information that distinguishes token order; the causal mask provides visibility, not position.',
   },
 } as const;
 

@@ -1,0 +1,19 @@
+{
+  "chapter_id": "28-causal-masking",
+  "locale": "en",
+  "title": "Block future keys with a causal mask",
+  "description": "A quick reference for lower-triangular visibility, prefix normalization, shifted decoder inputs, and position boundaries used here.",
+  "terms": [
+    {"term": "Causal mask", "definition": "An attention visibility rule allowing each query to use its own key and all earlier keys, but no later keys."},
+    {"term": "Inclusive diagonal", "definition": "The rule that keeps each query's same-position input key inside the allowed lower triangle."},
+    {"term": "Additive mask", "definition": "A score-space mask adding zero to allowed cells and negative infinity to future cells before softmax."},
+    {"term": "Query row", "definition": "One row of attention scores associated with a single query position."},
+    {"term": "Key column", "definition": "One column of attention scores associated with a single candidate key position."},
+    {"term": "Allowed prefix", "definition": "The current position and all earlier key positions over which a query's probabilities are normalized."},
+    {"term": "Blocked future key", "definition": "A key later than the current query position whose attention probability is exactly zero."},
+    {"term": "Causal softmax", "definition": "Row normalization performed only across the allowed prefix, assigning exact zero to blocked cells."},
+    {"term": "Shifted decoder input", "definition": "A training input offset by one target position so the allowed diagonal contains an earlier known token, not the predicted target."},
+    {"term": "Prefix invariance", "definition": "The property that changing future keys and values cannot change any earlier attention output."},
+    {"term": "Position signal", "definition": "Separate absolute or relative information that distinguishes token order; the causal mask provides visibility, not position."}
+  ]
+}
