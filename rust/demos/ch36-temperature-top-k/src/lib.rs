@@ -83,23 +83,67 @@ fn require(condition: bool, message: &'static str) -> Result<(), FixtureError> {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct HistoricalDecodingContrast {
-    pub beam_suits_constrained_targets: bool,
-    pub open_ended_has_many_valid_continuations: bool,
-    pub top_k_limits_the_sampled_tail: bool,
-    pub fixed_k_is_context_insensitive: bool,
+    pub greedy_token: u32,
+    pub greedy_rng_advanced: bool,
+    pub top_k: usize,
+    pub retained_token_ids: Vec<u32>,
+    pub retained_full_probability_mass: f64,
+    pub removed_full_probability_mass: f64,
 }
 
 // region:historical-decoding-contrast
-/// Captures the bounded LLM-decoding progression demonstrated by the cited papers.
-pub const fn historical_decoding_contrast() -> HistoricalDecodingContrast {
-    HistoricalDecodingContrast {
-        beam_suits_constrained_targets: true,
-        open_ended_has_many_valid_continuations: true,
-        top_k_limits_the_sampled_tail: true,
-        fixed_k_is_context_insensitive: true,
-    }
+/// Measures how greedy choice and fixed top-k truncation differ on one logit row.
+pub fn historical_decoding_contrast() -> Result<HistoricalDecodingContrast, FixtureError> {
+    let full = sampling_distribution(
+        &LOGITS,
+        SamplingMode::TemperatureTopK {
+            temperature: 1.0,
+            top_k: LOGITS.len(),
+        },
+    )?;
+    let truncated = sampling_distribution(
+        &LOGITS,
+        SamplingMode::TemperatureTopK {
+            temperature: 1.0,
+            top_k: SAMPLE_TOP_K,
+        },
+    )?;
+    let retained_token_ids = truncated.survivors().to_vec();
+    let retained_full_probability_mass = full
+        .candidates()
+        .iter()
+        .filter(|candidate| retained_token_ids.contains(&candidate.token_id()))
+        .map(|candidate| candidate.probability())
+        .sum::<f64>();
+    let removed_full_probability_mass = full
+        .candidates()
+        .iter()
+        .filter(|candidate| !retained_token_ids.contains(&candidate.token_id()))
+        .map(|candidate| candidate.probability())
+        .sum::<f64>();
+    let mut greedy_rng = SplitMix64::from_seed(SAMPLE_SEED);
+    let initial_rng_state = greedy_rng.state();
+    let greedy = sample_next_token(&LOGITS, SamplingMode::Greedy, &mut greedy_rng)?;
+
+    require(
+        retained_token_ids.len() == SAMPLE_TOP_K,
+        "historical top-k candidate count changed",
+    )?;
+    require(
+        (retained_full_probability_mass + removed_full_probability_mass - 1.0).abs() < 1e-12,
+        "historical full-softmax mass no longer sums to one",
+    )?;
+
+    Ok(HistoricalDecodingContrast {
+        greedy_token: greedy.token_id(),
+        greedy_rng_advanced: greedy_rng.state() != initial_rng_state,
+        top_k: SAMPLE_TOP_K,
+        retained_token_ids,
+        retained_full_probability_mass,
+        removed_full_probability_mass,
+    })
 }
 // endregion:historical-decoding-contrast
 
@@ -209,7 +253,7 @@ fn error_evidence() -> ErrorEvidence {
 }
 
 // region:learner-evidence
-/// Loads the Chapter 35 checkpoint and proves sampling plus honest full-prefix stops.
+/// Loads the Chapter 35 checkpoint and records sampling plus full-prefix stops.
 pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
     let temperatures = temperature_evidence()?;
     let boundary = sampling_distribution(
@@ -260,7 +304,7 @@ pub fn learner_evidence() -> Result<LearnerEvidence, FixtureError> {
         &mut eos_rng,
     )?;
     let errors = error_evidence();
-    let history = historical_decoding_contrast();
+    let history = historical_decoding_contrast()?;
 
     require(
         boundary.survivors() == [3, 1],
@@ -363,14 +407,14 @@ pub fn learner_report() -> Result<String, FixtureError> {
     );
     Ok(format!(
         "chapter=36-temperature-top-k\n\
-input=logits:[0.000000,1.000000,1.000000,2.000000] stable_rank:[3,1,2,0]\n\
+input=logits:[0.000000,1.000000,1.000000,2.000000] stable_order:[3,1,2,0]\n\
 temperature=tau:0.500000 probabilities:{} tau:1.000000 probabilities:{} tau:2.000000 probabilities:{}\n\
 top_k=k:2 survivors:{} tied_boundary:keep:1 remove:2 sum:{:.12}\n\
 sample=seed:{} top_k:{} sequence:{} draws:{} greedy_token:{} greedy_draw:none\n\
 	checkpoint=loaded_bytes:{} rng_state:0x{:016x} vocabulary:{} context:{} eos:none max_new_tokens:{} prompt:[0] generated:{} prefixes:{} stop:{} full_prefix_calls:{} replay_identical:{}\n\
 	eos=vocabulary:{} context:{} eos_token:{} max_new_tokens:{} generated:{} stop:{} full_prefix_calls:{}\n\
 errors=temperature_zero:{} top_k_zero:{} nonfinite_logit:{} rng_unchanged:{}\n\
-history=beam_constrained:{} open_ended_many_valid:{} top_k_limits_tail:{} fixed_k_context_insensitive:{}\n\
+history=greedy_token:{} greedy_rng_advanced:{} top_k:{} survivors:{} retained_full_mass:{:.12} removed_full_mass:{:.12}\n\
 next=cache one attention layer while preserving its newest-position output\n",
         format_probabilities(&evidence.temperatures[0].distribution),
         format_probabilities(&evidence.temperatures[1].distribution),
@@ -403,10 +447,12 @@ next=cache one attention layer while preserving its newest-position output\n",
         evidence.errors.zero_top_k_rejected,
         evidence.errors.nonfinite_logit_rejected,
         evidence.errors.rng_unchanged,
-        evidence.history.beam_suits_constrained_targets,
-        evidence.history.open_ended_has_many_valid_continuations,
-        evidence.history.top_k_limits_the_sampled_tail,
-        evidence.history.fixed_k_is_context_insensitive,
+        evidence.history.greedy_token,
+        evidence.history.greedy_rng_advanced,
+        evidence.history.top_k,
+        format_ids(evidence.history.retained_token_ids.iter().copied()),
+        evidence.history.retained_full_probability_mass,
+        evidence.history.removed_full_probability_mass,
     ))
 }
 
@@ -507,11 +553,13 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         evidence.errors.rng_unchanged,
     ));
     trace.push_str(&format!(
-        "HISTORY|beam_constrained={}|open_ended_many_valid={}|top_k_limits_tail={}|fixed_k_context_insensitive={}\n",
-        evidence.history.beam_suits_constrained_targets,
-        evidence.history.open_ended_has_many_valid_continuations,
-        evidence.history.top_k_limits_the_sampled_tail,
-        evidence.history.fixed_k_is_context_insensitive,
+        "HISTORY|greedy_token={}|greedy_rng_advanced={}|top_k={}|survivors={}|retained_full_mass={:.12}|removed_full_mass={:.12}\n",
+        evidence.history.greedy_token,
+        evidence.history.greedy_rng_advanced,
+        evidence.history.top_k,
+        format_ids(evidence.history.retained_token_ids.iter().copied()),
+        evidence.history.retained_full_probability_mass,
+        evidence.history.removed_full_probability_mass,
     ));
     trace.push_str("END|next=incremental-attention\n");
     Ok(trace)

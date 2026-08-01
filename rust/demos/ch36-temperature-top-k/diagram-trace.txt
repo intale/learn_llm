@@ -33,5 +33,5 @@ GREEDY|token=3|draw=none|rng_advanced=false|top_k_one_token=3
 LOADED|bytes=6330|rng_state=0x9e3779b97f4a7c38|vocabulary=5|context=2|eos=none|max_new_tokens=4|prompt=[0]|generated=[4,4]|prefixes=[1,2]|stop=context-limit|calls=2|replay=true
 EOS|vocabulary=5|context=2|eos=4|max_new_tokens=4|generated=[4]|stop=eos|calls=1
 ERRORS|temperature_zero=true|top_k_zero=true|nonfinite_logit=true|rng_unchanged=true
-HISTORY|beam_constrained=true|open_ended_many_valid=true|top_k_limits_tail=true|fixed_k_context_insensitive=true
+HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|survivors=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
 END|next=incremental-attention

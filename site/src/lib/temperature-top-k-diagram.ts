@@ -130,7 +130,7 @@ GREEDY|token=3|draw=none|rng_advanced=false|top_k_one_token=3
 LOADED|bytes=6330|rng_state=0x9e3779b97f4a7c38|vocabulary=5|context=2|eos=none|max_new_tokens=4|prompt=[0]|generated=[4,4]|prefixes=[1,2]|stop=context-limit|calls=2|replay=true
 EOS|vocabulary=5|context=2|eos=4|max_new_tokens=4|generated=[4]|stop=eos|calls=1
 ERRORS|temperature_zero=true|top_k_zero=true|nonfinite_logit=true|rng_unchanged=true
-HISTORY|beam_constrained=true|open_ended_many_valid=true|top_k_limits_tail=true|fixed_k_context_insensitive=true
+HISTORY|greedy_token=3|greedy_rng_advanced=false|top_k=3|survivors=[3,1,2]|retained_full_mass=0.927670511871|removed_full_mass=0.072329488129
 END|next=incremental-attention
 `;
 
@@ -535,11 +535,43 @@ export function parseTemperatureTopKTrace(source: string): TemperatureTopKTrace 
   const history = record(lines[35], "HISTORY");
   exactKeys(
     history,
-    ["beam_constrained", "open_ended_many_valid", "top_k_limits_tail", "fixed_k_context_insensitive"],
+    [
+      "greedy_token",
+      "greedy_rng_advanced",
+      "top_k",
+      "survivors",
+      "retained_full_mass",
+      "removed_full_mass",
+    ],
     "HISTORY",
   );
-  if (Object.values(history).some((value) => value !== "true"))
-    invalid("every HISTORY flag must be true");
+  canonicalInteger(required(history, "greedy_token"), "history greedy token");
+  canonicalInteger(required(history, "top_k"), "history top-k");
+  canonicalIntegerList(required(history, "survivors"), "history survivors");
+  boundedDecimal(
+    required(history, "retained_full_mass"),
+    "history retained mass",
+    decimalTwelvePattern,
+    1,
+  );
+  boundedDecimal(
+    required(history, "removed_full_mass"),
+    "history removed mass",
+    decimalTwelvePattern,
+    1,
+  );
+  if (
+    required(history, "greedy_rng_advanced") !== "false" ||
+    required(history, "greedy_token") !== required(greedy, "token") ||
+    required(history, "top_k") !== required(drawPolicy, "top_k") ||
+    required(history, "survivors") !== required(drawPolicy, "survivors") ||
+    Math.abs(
+      Number(required(history, "retained_full_mass")) +
+        Number(required(history, "removed_full_mass")) -
+        1,
+    ) > 1e-12
+  )
+    invalid("HISTORY measured contrast changed");
 
   const end = record(lines[36], "END");
   exactKeys(end, ["next"], "END");

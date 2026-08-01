@@ -13,22 +13,65 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "36-temperature-top-k";
-const chapterTitle = "Shape the choices, then draw once";
-const chapterDescription =
-  "Learn how positive temperature, stable top-k filtering, and one seeded categorical draw turn decoder logits into reproducible uncached LLM generation.";
-const diagramTitle = "Temperature reshapes; top-k removes; one draw selects";
-const diagramDescription =
-  "The exact Rust trace compares three temperatures, exposes a stable tied boundary, follows eight seeded half-open intervals, and proves checkpoint generation stops.";
-const chapterHeadings = [
-  "Start with four logits and make every choice visible",
-  "Filter the candidate set, then renormalize",
-  "Keep logits, candidates, and probabilities distinct",
-  "From constrained search to open-ended LLM sampling",
-  "Validate first, rank stably, and advance the random stream once",
-  "Read the distribution from left to right",
-  "Predict before revealing the trace",
-  "Preserve this uncached sequence when generation becomes incremental",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Shape the choices, then draw once",
+    description:
+      "Learn how positive temperature, stable top-k filtering, and a restored random-generator state turn decoder logits into controlled, replayable uncached LLM generation.",
+    diagramTitle: "Temperature reshapes; top-k removes; one draw selects",
+    diagramDescription:
+      "The exact Rust trace compares three temperatures, exposes a stable tied boundary, follows eight seeded half-open intervals, and records checkpoint generation stops.",
+    headings: [
+      "Start with four logits and make every choice visible",
+      "Filter the candidate set, then renormalize",
+      "Keep logits, candidates, and probabilities distinct",
+      "From constrained search to open-ended LLM sampling",
+      "Validate first, rank stably, and advance the random stream once",
+      "Read the distribution from left to right",
+      "Predict before revealing the trace",
+      "Preserve this uncached sequence when generation becomes incremental",
+    ],
+    cues: [
+      "✓ retained — double border",
+      "× removed — dashed border",
+      "→ selected by the draw",
+    ],
+    detailsFragment: "survives because equal logits use ascending token ID",
+    historyFragment:
+      "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Сформируйте набор вариантов, затем сделайте один случайный выбор",
+    description:
+      "Разберитесь, как положительная температура, фильтрация top-k с однозначным порядком и восстановленное состояние генератора псевдослучайных чисел превращают логиты декодера в управляемую и воспроизводимую генерацию LLM без кэша.",
+    diagramTitle:
+      "Температура меняет форму, top-k отсекает, случайное число выбирает",
+    diagramDescription:
+      "Точная трасса из программы на Rust сравнивает три температуры, показывает границу равных логитов с однозначным порядком, восемь полуоткрытых интервалов и причины остановки генерации из контрольной точки.",
+    headings: [
+      "Начните с четырёх логитов и сделайте каждый выбор явным",
+      "Отфильтруйте кандидатов, затем нормализуйте заново",
+      "Не смешивайте логиты, кандидатов и вероятности",
+      "От поиска при жёстких ограничениях к свободной генерации LLM",
+      "Сначала проверьте входы, однозначно задайте порядок и лишь затем измените состояние генератора",
+      "Прочитайте распределение слева направо",
+      "Сначала предскажите, затем откройте трассу",
+      "Сохраните эту последовательность без кэша при переходе к поэтапной генерации",
+    ],
+    cues: [
+      "✓ оставлен — двойная рамка",
+      "× исключён — пунктирная рамка",
+      "→ выбран случайным числом",
+    ],
+    detailsFragment: "Остаётся токен 1",
+    historyFragment:
+      "не универсальная гарантия качества, не защита от галлюцинаций и не конечная точка исследований декодирования",
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
@@ -252,22 +295,24 @@ async function expectProbabilityBarGeometry(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 36,
-    revision: 1,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: ["en", "ru"],
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    localized.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -301,9 +346,7 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain(
-    "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
-  );
+  expect(lessonText).toContain(localized.historyFragment);
   await expect(
     page.locator('.lesson-body a[href="https://arxiv.org/pdf/1805.04833"]'),
   ).toHaveCount(1);
@@ -324,8 +367,10 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="temperature-top-k"]',
   );
-  await expect(diagram).toHaveAccessibleName(diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(
+    localized.diagramDescription,
+  );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-temperature]")).toHaveCount(3);
   await expect(diagram.locator("[data-temperature] [data-token-id]")).toHaveCount(12);
@@ -392,18 +437,21 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(8);
-  await expect(details).toContainText(
-    "survives because equal logits use ascending token ID",
-  );
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expect(details).toContainText(localized.detailsFragment);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "35-checkpoints");
-  await expect(
-    page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]'),
-  ).toHaveAttribute("data-chapter-id", "37-incremental-attention");
+  const next = page.locator(
+    'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+  );
+  if (locale === "en") {
+    await expect(next).toHaveAttribute("data-chapter-id", "37-incremental-attention");
+  } else {
+    await expect(next).toHaveCount(0);
+  }
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -411,126 +459,122 @@ test.describe(
   "chapter 36 temperature and top-k generation vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 36 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 36 routes", async ({
       page,
     }) => {
-      const english = await readOrderedCourseChapters(page, "en");
-      expect(english).toHaveLength(39);
-      expect(english[35]).toEqual(
-        expect.objectContaining({
-          chapterId,
-          order: 36,
-          title: chapterTitle,
-        }),
-      );
-      const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        expect(chapters[35]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 36,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute("href", new RegExp(`/${other}/course/${chapterId}/$`));
+      }
     });
 
-    test("the Rust-backed sampler renders at desktop and narrow widths", async ({
+    test("both Rust-backed lessons render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
-      await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+      }
     });
 
-    test("the shared full-view control reuses the same complete figure", async ({
+    test("full view reuses each localized complete figure", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="temperature-top-k"]',
-      );
-      const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-      await expect(toggle).toHaveCount(1);
-      await toggle.click();
-      await page.waitForFunction(
-        () =>
-          document.fullscreenElement?.getAttribute("data-visualization-id") ===
-          "temperature-top-k",
-      );
-      await expect(diagram.locator("[data-temperature]")).toHaveCount(3);
-      await expect(diagram.locator("[data-draw-index]")).toHaveCount(8);
-      await expectDiagramContainment(page);
-      await page.keyboard.press("Escape");
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      const controlNames: string[] = [];
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="temperature-top-k"]',
+        );
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute("data-visualization-id") ===
+            "temperature-top-k",
+        );
+        await expect(diagram.locator("[data-temperature]")).toHaveCount(3);
+        await expect(diagram.locator("[data-draw-index]")).toHaveCount(8);
+        await expectDiagramContainment(page);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+      expect(new Set(controlNames).size).toBe(locales.length);
     });
 
     test("text plus solid, dashed, and double cues survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="temperature-top-k"]',
-      );
-      await expect(diagram.locator(".cue-list li")).toHaveText([
-        "✓ retained — double cue",
-        "× removed — dashed cue",
-        "→ selected by the draw",
-      ]);
-      await expect(
-        diagram.locator('[data-top-k-token="1"] > :first-child'),
-      ).toHaveCSS("border-left-style", "double");
-      await expect(
-        diagram.locator('[data-top-k-token="2"] > :first-child'),
-      ).toHaveCSS("border-left-style", "dashed");
-      await expectProbabilityBarGeometry(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="temperature-top-k"]',
+        );
+        await expect(diagram.locator(".cue-list li")).toHaveText(
+          copy[locale].cues,
+        );
+        await expect(
+          diagram.locator('[data-top-k-token="1"] > :first-child'),
+        ).toHaveCSS("border-left-style", "double");
+        await expect(
+          diagram.locator('[data-top-k-token="2"] > :first-child'),
+        ).toHaveCSS("border-left-style", "dashed");
+        await expectProbabilityBarGeometry(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("RTL prose keeps technical values and evidence order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="temperature-top-k"]',
-      );
-      await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-      await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      expect(
-        await diagram
-          .locator("[data-temperature]")
-          .evaluateAll((cards) =>
-            cards.map((card) => card.getAttribute("data-temperature")),
-          ),
-      ).toEqual(["0.500000", "1.000000", "2.000000"]);
-      expect(
-        await diagram
-          .locator("code, bdi, [data-inline-math]")
-          .evaluateAll((nodes) =>
-            nodes.every((node) => getComputedStyle(node).direction === "ltr"),
-          ),
-      ).toBe(true);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="temperature-top-k"]',
+        );
+        await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
+        await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
+        expect(
+          await diagram
+            .locator("[data-temperature]")
+            .evaluateAll((cards) =>
+              cards.map((card) => card.getAttribute("data-temperature")),
+            ),
+        ).toEqual(["0.500000", "1.000000", "2.000000"]);
+        expect(
+          await diagram
+            .locator("code, bdi, [data-inline-math]")
+            .evaluateAll((nodes) =>
+              nodes.every((node) => getComputedStyle(node).direction === "ltr"),
+            ),
+        ).toBe(true);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("the complete sampling evidence renders without JavaScript", async ({
@@ -541,31 +585,34 @@ test.describe(
         baseURL: String(testInfo.project.use.baseURL),
       });
       const page = await context.newPage();
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator("[data-temperature]")).toHaveCount(3);
-      await expect(page.locator("[data-top-k-token]")).toHaveCount(4);
-      await expect(page.locator("[data-draw-index]")).toHaveCount(8);
-      await expect(page.locator("[data-draw-policy]")).toHaveAttribute(
-        "data-top-k",
-        "3",
-      );
-      await expect(page.locator("[data-diagram-box]")).toHaveCount(7);
-      await expect(page.locator("[data-diagram-scroll]")).toHaveCount(1);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-        0,
-      );
-      await expect(page.locator('[data-proof="loaded"]')).toContainText(
-        "prefixes=[1,2]",
-      );
-      await expect(page.locator('[data-proof="loaded"]')).toContainText(
-        "eos=none",
-      );
-      await expect(page.locator('[data-proof="eos"]')).toContainText("eos=4");
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(page.locator("[data-temperature]")).toHaveCount(3);
+        await expect(page.locator("[data-top-k-token]")).toHaveCount(4);
+        await expect(page.locator("[data-draw-index]")).toHaveCount(8);
+        await expect(page.locator("[data-draw-policy]")).toHaveAttribute(
+          "data-top-k",
+          "3",
+        );
+        await expect(page.locator("[data-diagram-box]")).toHaveCount(7);
+        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(1);
+        await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
+          0,
+        );
+        await expect(page.locator('[data-proof="loaded"]')).toContainText(
+          "prefixes=[1,2]",
+        );
+        await expect(page.locator('[data-proof="loaded"]')).toContainText(
+          "eos=none",
+        );
+        await expect(page.locator('[data-proof="eos"]')).toContainText("eos=4");
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

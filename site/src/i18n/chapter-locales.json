@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 61,
-  "policyId": "selective-russian-through-chapter-35",
+  "planRevision": 62,
+  "policyId": "selective-russian-through-chapter-36",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -41,7 +41,7 @@
     { "chapterId": "33-training-selection", "order": 33, "activeLocales": ["en", "ru"] },
     { "chapterId": "34-final-evaluation", "order": 34, "activeLocales": ["en", "ru"] },
     { "chapterId": "35-checkpoints", "order": 35, "activeLocales": ["en", "ru"] },
-    { "chapterId": "36-temperature-top-k", "order": 36, "activeLocales": ["en"] },
+    { "chapterId": "36-temperature-top-k", "order": 36, "activeLocales": ["en", "ru"] },
     { "chapterId": "37-incremental-attention", "order": 37, "activeLocales": ["en"] },
     { "chapterId": "38-cached-generation", "order": 38, "activeLocales": ["en"] },
     { "chapterId": "39-end-to-end-llm", "order": 39, "activeLocales": ["en"] }

@@ -11530,3 +11530,66 @@ English.
 
 **Affected step and run:** `activate-ch35-russian-localization`, run
 `20260731T170130Z-activate-ch35-russian-localization-01`.
+
+## 2026-08-01 - Repair Chapter 36 history evidence before Russian activation
+
+**Status:** Accepted during `activate-ch36-russian-localization` run 01 before
+learner-facing edits.
+
+**Context:** The user requested direct Russian translations for all remaining
+chapters, one checkpoint at a time. Chapter 36 is the first deferred route. Its
+English history accurately follows open-ended language-model decoding, but the
+displayed Rust contrast merely returns four hard-coded booleans about that
+history. Repeating those assertions in Russian would not teach or measure the
+sampling boundary.
+
+**Decision:** Complete Chapter 36 as its own standalone checkpoint. Replace the
+boolean history sample with values derived from the real greedy and temperature
+top-k distributions over the frozen logits: chosen token, retained IDs, retained
+and removed full-softmax mass, and fixed candidate count. Freeze the corrected
+English revision, translate every learner-facing and diagram surface directly
+into natural Russian, activate exactly `{en, ru}` for Chapter 36, and leave
+Chapters 37-39 deferred until their later independent checkpoints.
+
+**Consequences:** The Chapter 36 learner report and diagram trace change, but the
+sampling API, decoder/checkpoint behavior, formulas, dependencies, build
+definitions, hosting, deployment, and user environment do not. The complete
+bilingual page and figure require exact Chromium and Firefox validation before
+the checkpoint is committed.
+
+**Affected step and run:** `activate-ch36-russian-localization`, run
+`20260801T042840Z-activate-ch36-russian-localization-01`.
+
+## 2026-08-01 - Complete corrected bilingual Chapter 36 decoding instruction
+
+**Status:** Accepted and completed in `activate-ch36-russian-localization` run
+01.
+
+**Context:** The canonical audit replaced asserted historical booleans with
+evidence measured through the lesson's real sampler and clarified that a seed
+replays a sample only when RNG state and deterministic traversal rules are also
+restored. English revision 2 was frozen before the Russian lesson was authored.
+
+**Decision:** Publish English revision 2 and its direct natural Russian
+projection. Activate exactly `{en, ru}` for Chapter 36, advance the selective
+Russian boundary through Chapter 36, and keep Chapters 37-39 English-only until
+their independent localization checkpoints. Preserve one shared semantic figure
+and expose its half-open random interval through localized visible and accessible
+labels.
+
+**Consequences:** English is
+`sha256:340d7bc4e9527f9206fd0751f2e3909429a2798305d64629b5fcf35973215055`,
+Russian is
+`sha256:cc68bb932b7cd47b3eaa72fead0fb1e498905ee425291941e9b52bae91f9e380`,
+and the 17-file publication manifest is
+`sha256:66f48f0e7b7ccdb9be178d2da248ce34c30d9ffa051e5901fb51bc9344bc7a77`.
+The complete pinned Linux gate builds 82 pages and passes 2,283 local links, 82
+SEO routes, 82 sitemap URLs, and 82 Analytics routes. Chromium and Firefox each
+pass all 176 selected rendered cases from exact image
+`sha256:371264b51df25a435b95181b572ce4ccdf059a9aea4623a162c490c7e033d09c`.
+No dependency, package, build-definition, hosting, deployment, or
+user-environment change was made. A later English meaning or presentation change
+makes this Russian review stale until it is refreshed directly from English.
+
+**Affected step and run:** `activate-ch36-russian-localization`, run
+`20260801T042840Z-activate-ch36-russian-localization-01`.

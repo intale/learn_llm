@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-07-31T17:43:09Z"
+updated_at: "2026-08-01T05:10:41Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -25005,3 +25005,150 @@ builds:
                 status: passed
                 notes: "The ordinal 13-file product manifest is sha256:3750e6caf2728dad1fb39ed7192532da37080f72ca039d720a7831f93d33717e and matches canonical bytes; BUILD_STATE.yaml parses through the 40-chapter/107-step course-plan gate; git diff --check passes; all 15 working-tree paths are declared; and both exact disposable Chapter 35 browser volumes were removed. An initial staged-mode audit predicate incorrectly treated a new file's expected 000000 source mode as a defect; the corrected audit verifies target mode 100644 for all 15 files."
             notes: "Succeeded. Published corrected canonical Chapter 35 revision 2 and its direct natural Russian projection, model-derived historical contrast, contiguous accessible byte-layout evidence, complete math/SEO/accessibility coverage, and the locale boundary through Chapter 35 without changing dependencies, build definitions, hosting, deployment, the checkpoint wire format, or the user environment."
+  - build_id: activate-ch36-russian-localization
+    objective: "Replace Chapter 36's hard-coded history assertions with measured decoding evidence, translate the frozen lesson directly into natural technical Russian, and activate both locales."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "No explicit resource limit applies. This large localization build uses cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "Canonical English Chapter 36 contains truthful measured sampling evidence, exact formulas, LLM-centered history, and learner-facing prose free of authoring mechanics."
+      - "Russian Chapter 36 is translated directly from the frozen English revision with exact semantic, mathematical, historical, Rust, diagram, accessibility, SEO, exercise, and navigation parity."
+      - "Chapter 36 publishes in English and Russian, and the documented selective-localization boundary advances through Chapter 36 while Chapters 37-39 remain deferred."
+      - "Focused Rust, trace, content, parity, static-site, link, Chromium, and Firefox validation passes, and the completed checkpoint is committed independently before Chapter 37 starts."
+    steps:
+      - id: activate-ch36-russian-localization
+        objective: "Publish corrected English and direct natural-Russian Chapter 36 temperature/top-k instruction with measured executable and rendered evidence."
+        depends_on:
+          - activate-ch35-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-08-01 to translate all remaining chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md revision 61 and locale policy selective-russian-through-chapter-35"
+          - "curriculum/chapters/36-temperature-top-k.md"
+          - "site/src/content/chapters/en/36-temperature-top-k.mdx"
+          - "site/src/components/chapters/TemperatureTopKDiagram.astro"
+          - "site/src/lib/temperature-top-k-diagram.ts"
+          - "site/src/i18n/locales.json and site/src/i18n/chapter-locales.json"
+          - "site/tests/36-temperature-top-k-diagram.test.ts, site/tests/e2e/ch36-temperature-top-k.spec.ts, and shared locale/content/formula/diagram tests"
+          - "Chapter 36 declared Rust sources, exact learner output, and exact diagram trace"
+          - "Primary Fan et al., GPT-2, and Holtzman et al. sources cited by the English lesson"
+          - "Completed dependency commit a3b9c09"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "curriculum/chapters/36-temperature-top-k.md"
+          - "site/src/content/chapters/en/36-temperature-top-k.mdx"
+          - "site/src/content/chapters/ru/36-temperature-top-k.mdx"
+          - "rust/demos/ch36-temperature-top-k/src/lib.rs"
+          - "rust/demos/ch36-temperature-top-k/expected.txt"
+          - "rust/demos/ch36-temperature-top-k/diagram-trace.txt"
+          - "site/src/lib/temperature-top-k-diagram.ts"
+          - "site/src/components/chapters/TemperatureTopKDiagram.astro if shared concept geometry needs a bilingual correction"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/36-temperature-top-k-diagram.test.ts"
+          - "site/tests/e2e/ch36-temperature-top-k.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "site/tests/formula-rendering.test.ts, diagram-style-system.test.ts, and diagram-full-view.test.ts if revision or locale expectations require updates"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson is audited and corrected before translation, then the new content revision is the sole Russian semantic source."
+          - "The historical Rust contrast derives greedy choice, retained candidates, and removed probability mass from the real sampling implementation rather than returning hard-coded historical booleans."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records Russian fields, terminology, translation notes, source checksum, and exact active locale set {en, ru}."
+          - "The Chapter 36 route, navigation, locale alternates, SEO, diagram labels, accessibility labels, exercises, and answers publish in both locales with parity."
+          - "Both complete pages and the registered temperature/top-k figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, diagram, exact Rust, trace, Astro, static-link, formula, and supported Linux gates pass."
+          - "The completed Chapter 36 checkpoint is committed independently before Chapter 37 begins."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/36-temperature-top-k.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 36-temperature-top-k"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 36-temperature-top-k"
+          - "npm --prefix site run check:parity -- 36-temperature-top-k en ru"
+          - "npm --prefix site test -- --run tests/36-temperature-top-k-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch36-temperature-top-k && cargo clippy --locked -p ch36-temperature-top-k --all-targets -- -D warnings"
+          - "cargo run --quiet --locked -p ch36-temperature-top-k | diff -u rust/demos/ch36-temperature-top-k/expected.txt -"
+          - "cargo run --quiet --locked -p ch36-temperature-top-k --example diagram_trace | diff -u rust/demos/ch36-temperature-top-k/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 36, formula-rendering, shared diagram-style, and shared full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical executable-evidence repair, complete technical translation, locale activation, exact Rust/static checks, and two-engine rendered validation use substantial cached local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260801T042840Z-activate-ch36-russian-localization-01
+            started_at: "2026-08-01T04:28:40Z"
+            finished_at: "2026-08-01T05:10:41Z"
+            status: succeeded
+            input_fingerprint:
+              git: "a3b9c09e69c47f9cfcc4819a0b516f58ad4587c0"
+              manifest: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:f2fab11c305a98ff9fc4afb6c89a20ae5ddc80cf27d809ab962849e351ebe196"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; corrected current English Chapter 36, exact Rust evidence, cited primary LLM-decoding sources, and the recorded terminology audit are authoritative."
+            staging_dir: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit a3b9c09; parse the complete ledger; recheck latest decisions and run artifacts, environment, localization instructions, locale policy, Chapter 36 sources/tests/evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 36 formulas, LLM-decoding history against primary sources, executable contrast, learner-facing prose, accessibility, and shared diagram evidence before direct Russian translation."
+              - "Freeze corrected English content revision 2 after replacing hard-coded history booleans with sampler-derived greedy, retained-set, and full-softmax-mass evidence; rename the ordered token-ID report field, qualify seeded replay, and expose the localized half-open-interval label."
+              - "Translate the frozen English revision directly into Russian; perform semantic, mathematical, terminology, anti-calque, monolingual, accessibility, SEO, and diagram-label review; activate Chapter 36 in both locales; advance the selective locale policy to revision 62."
+              - "Run focused contract, chapter, parity, Rust, trace, Astro, static-build, link, Vitest, and Playwright validation; then run the complete supported Linux gate, warning-denied workspace Clippy, the full 848-test site suite, and the two-engine 176-case rendered matrix."
+              - "Freeze the exact 17-file product manifest, verify target Git modes and declared ownership, and remove the unattached disposable browser volume and temporary source image."
+            artifacts:
+              - path: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:f2fab11c305a98ff9fc4afb6c89a20ae5ddc80cf27d809ab962849e351ebe196"
+                notes: "Exact workflow, policy, canonical lesson, diagram, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 36 product edits."
+              - path: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:10ee0ebfdde4720e8f1d47fd2310fef58adc46a3e7de11add6717265693b6379"
+                notes: "Frozen revision-2 algorithm, numerical, historical, replayability, loaded-model, formula, diagram, terminology, and direct-translation commitments. Canonical English SHA-256 is 340d7bc4e9527f9206fd0751f2e3909429a2798305d64629b5fcf35973215055."
+              - path: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/meaning-lock-final.md"
+                checksum: "sha256:5fe526ce675a3692288a51bb74766903bb3e7cc41c7735740b26253d8a38fa0b"
+                notes: "Final frozen English revision-2 identity and Russian semantic commitments after all canonical corrections."
+              - path: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/localization-review.md"
+                checksum: "sha256:2e114702118abba65910966af782c516750696cc02004901da3cf0f7555b797c"
+                notes: "Final direct-translation semantic, terminology, anti-calque, monolingual, accessibility, SEO, evidence, and rendered-surface review."
+              - path: ".build/runs/20260801T042840Z-activate-ch36-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:66f48f0e7b7ccdb9be178d2da248ce34c30d9ffa051e5901fb51bc9344bc7a77"
+                notes: "Ordinal path-sorted checksums for the exact 17-file Chapter 36 product publication; governance ledgers are intentionally excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:371264b51df25a435b95181b572ce4ccdf059a9aea4623a162c490c7e033d09c"
+                notes: "Exact final corrected-source pinned Linux manifest list used for accepted complete static, focused, Chromium, and Firefox validation."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 35 is independently committed at a3b9c09; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins match; Chapter 36 is the first deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "Primary-source Chapter 36 LLM-decoding history audit"
+                status: passed
+                notes: "Fan et al. document top-10 sampling, tuned generation temperature, better task-bounded story results than beam search, and low-probability risk; GPT-2 documents top-k with k=2 for summarization and k=40 for WebText continuations; Holtzman et al. define top-k truncation/renormalization, temperature scaling, and fixed-k context sensitivity. The lesson's qualified history claims are supported."
+              - command: "Pinned Rust Chapter 36 unit tests plus exact learner-report and diagram-trace diffs"
+                status: passed
+                notes: "Both Rust tests pass; stdout exactly matches expected.txt; diagram_trace exactly matches diagram-trace.txt. The measured history line records greedy token 3, no greedy RNG advance, top-k 3 survivors [3,1,2], retained full-softmax mass 0.927670511871, and removed mass 0.072329488129. The first focused Vitest attempt correctly exposed a stale parser fixture and revision assertion; both were corrected before localization."
+              - command: "Canonical English revision-2 semantic and formula audit"
+                status: passed
+                notes: "English revision 2 is frozen at sha256:340d7bc4e9527f9206fd0751f2e3909429a2798305d64629b5fcf35973215055. Exact formulas, source claims, numerical values, loaded checkpoint evidence, scope, deterministic tie/interval rules, and conditional replayability match the meaning lock; a temporary tab escape in tau was caught and corrected before translation."
+              - command: "Focused Chapter 36 contract, bilingual chapter/parity, locale/content/formula/diagram tests, Rust, trace, Astro, static-build, link, and rendered gates"
+                status: passed
+                notes: "The integrated contract, both localized sources, parity, six selected Vitest files with 81 tests, Astro with zero diagnostics, exact Rust output and trace, 82-page static build, 2,283 links, 82 SEO routes, 82 sitemap URLs, 82 Analytics routes, and all six focused Chromium cases pass."
+              - command: "./course check, workspace Clippy, and complete site unit suite on the exact final pinned Linux candidate"
+                status: passed
+                notes: "The complete supported Linux gate passes at manifest-list sha256:371264b51df25a435b95181b572ce4ccdf059a9aea4623a162c490c7e033d09c; warning-denied workspace Clippy passes; all 52 Vitest files and 848 tests pass."
+              - command: "Exact final-image Chromium and Firefox Chapter 36, formula, shared diagram-style, and shared full-view E2E gates"
+                status: passed
+                notes: "Each engine passes all 176 selected cases, covering complete English and Russian pages at desktop and narrow widths, native full view, no-JavaScript fallback, forced colors, direction-sensitive presentation, formula ink, bounded-box containment, and focus behavior."
+              - command: "Independent direct-translation, publication-identity, ledger, whitespace, ownership, Git-mode, and disposable-resource audit"
+                status: passed
+                notes: "Russian sha256:cc68bb932b7cd47b3eaa72fead0fb1e498905ee425291941e9b52bae91f9e380 preserves every frozen meaning in natural technical language; the 17-file manifest sha256:66f48f0e7b7ccdb9be178d2da248ce34c30d9ffa051e5901fb51bc9344bc7a77 matches canonical bytes; git diff --check and target mode 100644 pass; all paths are declared; the exact disposable volume and temporary source image were removed."
+            notes: "Succeeded. Published canonical Chapter 36 revision 2 and its direct natural Russian projection, sampler-derived historical evidence, exact formula/accessibility/SEO parity, and the locale boundary through Chapter 36 without changing dependencies, build definitions, hosting, deployment, or the user environment."

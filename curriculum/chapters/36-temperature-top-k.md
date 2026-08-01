@@ -2,56 +2,68 @@
 {
   "chapter_id": "36-temperature-top-k",
   "concept_id": "temperature-top-k",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 36,
   "objective": {
-    "en": "Sample one next token reproducibly after positive-temperature scaling and stable top-k filtering, then repeat that choice in an uncached autoregressive loop."
+    "en": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
+    "ru": "Сформировать одно распределение следующего токена при помощи положительной температуры и фильтрации top-k с однозначным порядком, а затем повторить случайный выбор из категориального распределения, восстановив то же состояние генератора в авторегрессионном цикле без кэша."
   },
   "worked_inputs": {
-    "en": "Rank logits [0,1,1,2] by descending value and ascending token ID, compare temperatures 0.5, 1, and 2, keep two tokens across the tied boundary, and replay eight top-three draws from SplitMix64 seed 36 before loading the Chapter 35 checkpoint."
+    "en": "Rank logits [0,1,1,2] by descending value and ascending token ID, compare temperatures 0.5, 1, and 2, keep two tokens across the tied boundary, and replay eight top-three draws from SplitMix64 seed 36 before loading the Chapter 35 checkpoint.",
+    "ru": "Упорядочить логиты [0,1,1,2] по убыванию значения, а при равенстве — по возрастанию ID токена, сравнить температуры 0.5, 1 и 2, оставить два токена, однозначно разрешив равенство на границе top-k, и повторить восемь случайных выборов из трёх кандидатов с начальным значением SplitMix64, равным 36, прежде чем загрузить контрольную точку из главы 35."
   },
   "formula": {
     "latex": "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     "symbols": [
       {
         "symbol": "q_i^{(\\tau,k)}",
-        "en": "the final probability assigned to token i after temperature scaling, top-k filtering, and renormalization"
+        "en": "the final probability assigned to token i after temperature scaling, top-k filtering, and renormalization",
+        "ru": "итоговая вероятность токена i после изменения масштаба температурой, фильтрации top-k и повторной нормализации"
       },
       {
         "symbol": "\\tau",
-        "en": "a finite positive temperature; smaller values sharpen differences and larger values flatten them"
+        "en": "a finite positive temperature; smaller values sharpen differences and larger values flatten them",
+        "ru": "конечная положительная температура; меньшие значения усиливают различия, а большие сглаживают их"
       },
       {
         "symbol": "k",
-        "en": "the exact number of ranked token IDs retained for stochastic sampling"
+        "en": "the exact number of ranked token IDs retained for stochastic sampling",
+        "ru": "точное число упорядоченных ID токенов, оставленных для случайного выбора"
       },
       {
         "symbol": "V",
-        "en": "the vocabulary size, which bounds the retained candidate count k"
+        "en": "the vocabulary size, which bounds the retained candidate count k",
+        "ru": "размер словаря, который задаёт верхнюю границу числа оставленных кандидатов k"
       },
       {
         "symbol": "K_k",
-        "en": "the retained set of k highest logits, with equal logits ordered by ascending token ID in this implementation"
+        "en": "the retained set of k highest logits, with equal logits ordered by ascending token ID in this implementation",
+        "ru": "множество из k оставленных наибольших логитов; в этой реализации равные логиты упорядочиваются по возрастанию ID токена"
       },
       {
         "symbol": "\\mathbf{1}[i\\in K_k]",
-        "en": "the indicator that is one for a retained token and zero for a filtered token"
+        "en": "the indicator that is one for a retained token and zero for a filtered token",
+        "ru": "индикатор, равный единице для оставленного токена и нулю для исключённого"
       },
       {
         "symbol": "\\ell_i",
-        "en": "the decoder logit for candidate token i at the current final prefix position"
+        "en": "the decoder logit for candidate token i at the current final prefix position",
+        "ru": "логит декодера для токена-кандидата i в последней позиции текущего префикса"
       },
       {
         "symbol": "i",
-        "en": "the candidate token ID whose final probability is being computed"
+        "en": "the candidate token ID whose final probability is being computed",
+        "ru": "ID токена-кандидата, для которого вычисляется итоговая вероятность"
       },
       {
         "symbol": "j",
-        "en": "the denominator index ranging across the vocabulary, where filtered terms contribute zero"
+        "en": "the denominator index ranging across the vocabulary, where filtered terms contribute zero",
+        "ru": "индекс знаменателя, перебирающий весь словарь; слагаемые исключённых токенов равны нулю"
       },
       {
         "symbol": "\\exp",
-        "en": "the exponential used by softmax after subtracting the retained maximum for numerical stability"
+        "en": "the exponential used by softmax after subtracting the retained maximum for numerical stability",
+        "ru": "экспонента в softmax; перед её вычислением для численной устойчивости вычитается максимум среди оставленных значений"
       }
     ]
   },
@@ -59,13 +71,16 @@
     "llm_evolution": {
       "predecessor_kind": "inference-design",
       "limitation": {
-        "en": "Likelihood-maximizing beam decoding is useful when a source tightly constrains the target, but open-ended continuation admits many plausible futures; beam output can become generic or repetitive, while unrestricted sampling can admit an unreliable low-probability tail."
+        "en": "Likelihood-maximizing beam decoding is useful when a source tightly constrains the target, but open-ended continuation admits many plausible futures; beam output can become generic or repetitive, while unrestricted sampling can admit an unreliable low-probability tail.",
+        "ru": "Лучевое декодирование, максимизирующее правдоподобие, полезно, когда исходный текст жёстко ограничивает результат. Но у свободного продолжения много допустимых вариантов: лучевой поиск может давать шаблонный или повторяющийся текст, а случайный выбор без ограничения кандидатов способен захватить ненадёжный хвост маловероятных токенов."
       },
       "later_advance": {
-        "en": "Open-ended story systems combined softmax temperature with top-k sampling, GPT-2 used top-k for summaries and long continuations, and later GPT-2 analysis made the truncation and renormalization trade-off explicit while showing why one fixed $k$ cannot fit every context."
+        "en": "Open-ended story systems combined softmax temperature with top-k sampling, GPT-2 used top-k for summaries and long continuations, and later GPT-2 analysis made the truncation and renormalization trade-off explicit while showing why one fixed $k$ cannot fit every context.",
+        "ru": "Итак, системы генерации историй сочетали температуру softmax с top-k, GPT-2 применяла top-k к кратким изложениям и длинным продолжениям, а последующий анализ GPT-2 явно описал компромисс между отсечением и повторной нормализацией и показал, почему одно фиксированное $k$ не подходит для любого контекста."
       },
       "modern_llm_role": {
-        "en": "Controlled stochastic decoding turns an autoregressive LLM distribution into repeatable choices while exposing an adjustable diversity-versus-concentration boundary; later methods can replace the fixed candidate count without changing the decoder logits."
+        "en": "Controlled stochastic decoding turns an autoregressive LLM distribution into an adjustable diversity-versus-concentration distribution; a fixed random-generator state, deterministic tie-breaking, and deterministic interval traversal can replay its choices, while later methods can replace the fixed candidate count without changing the decoder logits.",
+        "ru": "Управляемое стохастическое декодирование превращает распределение авторегрессионной LLM в настраиваемый компромисс между разнообразием и концентрацией. Если восстановить состояние генератора псевдослучайных чисел и сохранить однозначные правила разрешения равенств и обхода интервалов, выбор можно воспроизвести. Более поздние методы заменяют фиксированное число кандидатов, не меняя логиты декодера."
       },
       "sources": [
         {
@@ -74,7 +89,8 @@
           "name": "Hierarchical Neural Story Generation",
           "source_url": "https://arxiv.org/pdf/1805.04833",
           "claim": {
-            "en": "Fan, Lewis, and Dauphin sample at each step from the ten most likely words, tune a generation-time softmax temperature, and report that this task-bounded strategy works better for their open-ended stories than beam search, while unrestricted random sampling can introduce damaging unlikely words."
+            "en": "Fan, Lewis, and Dauphin sample at each step from the ten most likely words, tune a generation-time softmax temperature, and report that this task-bounded strategy works better for their open-ended stories than beam search, while unrestricted random sampling can introduce damaging unlikely words.",
+            "ru": "На каждом шаге они выбирают случайное слово среди десяти наиболее вероятных, настраивают температуру softmax во время генерации и сообщают, что в их задаче продолжения историй такой подход работает лучше лучевого поиска. Выбор без ограничений, напротив, может добавить редкое слово, которое серьёзно ухудшит текст."
           }
         },
         {
@@ -83,7 +99,8 @@
           "name": "Language Models are Unsupervised Multitask Learners",
           "source_url": "https://cdn.openai.com/better-language-models/language-models.pdf",
           "claim": {
-            "en": "The GPT-2 report uses top-k random sampling with $k=2$ for one summarization setup and $k=40$ for open WebText continuations, showing truncated stochastic decoding in large Transformer language-model practice without claiming one $k$ is universal."
+            "en": "The GPT-2 report uses top-k random sampling with $k=2$ for one summarization setup and $k=40$ for open WebText continuations, showing truncated stochastic decoding in large Transformer language-model practice without claiming one $k$ is universal.",
+            "ru": "В одном режиме составления краткого изложения используется случайный выбор top-k с $k=2$, а для свободных продолжений WebText — с $k=40$. Это пример усечённого стохастического декодирования, но не утверждение об универсальности одного значения $k$."
           }
         },
         {
@@ -92,18 +109,21 @@
           "name": "The Curious Case of Neural Text Degeneration",
           "source_url": "https://arxiv.org/pdf/1904.09751",
           "claim": {
-            "en": "Holtzman and colleagues compare maximization and stochastic decoders on GPT-2, define top-k as sampling from the $k$ highest-probability tokens after renormalization, give the temperature-scaled softmax, and show why flat and peaked contexts make a fixed $k$ an imperfect compromise."
+            "en": "Holtzman and colleagues compare maximization and stochastic decoders on GPT-2, define top-k as sampling from the $k$ highest-probability tokens after renormalization, give the temperature-scaled softmax, and show why flat and peaked contexts make a fixed $k$ an imperfect compromise.",
+            "ru": "Они сравнивают на GPT-2 декодирование с максимизацией и со случайным выбором, определяют top-k как выбор среди $k$ самых вероятных токенов после повторной нормализации, приводят softmax с температурой и показывают, почему фиксированное $k$ даёт несовершенный компромисс как при равномерном, так и при сильно концентрированном распределении."
           }
         }
       ]
     },
     "approach": {
-      "en": "Move from choosing one high-likelihood continuation toward controlled stochastic decoding for open-ended language-model continuations, while keeping greedy selection as an explicit deterministic policy."
+      "en": "Move from choosing one high-likelihood continuation toward controlled stochastic decoding for open-ended language-model continuations, while keeping greedy selection as an explicit deterministic policy.",
+      "ru": "Перейти от единственного продолжения с высоким правдоподобием к управляемому стохастическому декодированию свободных продолжений языковой модели, сохранив жадный выбор как отдельное детерминированное правило."
     },
     "summary": {
-      "en": "The road to modern LLM generation distinguishes constrained search from open-ended continuation, truncates unreliable tails before sampling, and treats temperature and candidate-set policy as visible inference choices. Stable token-ID ties, seed replay, error precedence, and stop rules are course-specific reproducibility decisions."
+      "en": "The road to modern LLM generation distinguishes constrained search from open-ended continuation, truncates unreliable tails before sampling, and treats temperature and candidate-set policy as visible inference choices. Stable token-ID ties, seed replay, error precedence, and stop rules are course-specific reproducibility decisions.",
+      "ru": "На пути к современной генерации LLM важно отличать поиск при жёстких ограничениях от свободного продолжения, отсекать ненадёжный хвост перед случайным выбором и явно задавать температуру и правило формирования множества кандидатов. Разрешение равных логитов по ID токена, повтор из того же состояния генератора, порядок проверки ошибок и правила остановки — решения этой реализации для воспроизводимости."
     },
-    "rust_contrast": "Compare one explicit greedy choice with positive-temperature top-k sampling over the same logits, then load the Chapter 35 checkpoint and audit every full-prefix call, saved RNG continuation, EOS stop, and context stop."
+    "rust_contrast": "Measure one explicit greedy choice, the three token IDs retained by top-k, and the full-softmax probability mass retained and removed by that truncation; then load the Chapter 35 checkpoint and audit every full-prefix call, saved RNG continuation, EOS stop, and context stop."
   },
   "rust": {
     "package": "ch36-temperature-top-k",
@@ -112,46 +132,55 @@
       "rust/demos/ch36-temperature-top-k/src/lib.rs",
       "rust/demos/ch36-temperature-top-k/src/main.rs"
     ],
-    "expected_output": "chapter=36-temperature-top-k\ninput=logits:[0.000000,1.000000,1.000000,2.000000] stable_rank:[3,1,2,0]\ntemperature=tau:0.500000 probabilities:[0.014209336619,0.104993585404,0.104993585404,0.775803492574] tau:1.000000 probabilities:[0.072329488129,0.196611933241,0.196611933241,0.534446645389] tau:2.000000 probabilities:[0.142536956597,0.235003712202,0.235003712202,0.387455619000]\ntop_k=k:2 survivors:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000\nsample=seed:36 top_k:3 sequence:[3,2,2,2,3,3,3,3] draws:8 greedy_token:3 greedy_draw:none\ncheckpoint=loaded_bytes:6330 rng_state:0x9e3779b97f4a7c38 vocabulary:5 context:2 eos:none max_new_tokens:4 prompt:[0] generated:[4,4] prefixes:[1,2] stop:context-limit full_prefix_calls:2 replay_identical:true\neos=vocabulary:5 context:2 eos_token:4 max_new_tokens:4 generated:[4] stop:eos full_prefix_calls:1\nerrors=temperature_zero:true top_k_zero:true nonfinite_logit:true rng_unchanged:true\nhistory=beam_constrained:true open_ended_many_valid:true top_k_limits_tail:true fixed_k_context_insensitive:true\nnext=cache one attention layer while preserving its newest-position output\n"
+    "expected_output": "chapter=36-temperature-top-k\ninput=logits:[0.000000,1.000000,1.000000,2.000000] stable_order:[3,1,2,0]\ntemperature=tau:0.500000 probabilities:[0.014209336619,0.104993585404,0.104993585404,0.775803492574] tau:1.000000 probabilities:[0.072329488129,0.196611933241,0.196611933241,0.534446645389] tau:2.000000 probabilities:[0.142536956597,0.235003712202,0.235003712202,0.387455619000]\ntop_k=k:2 survivors:[3,1] tied_boundary:keep:1 remove:2 sum:1.000000000000\nsample=seed:36 top_k:3 sequence:[3,2,2,2,3,3,3,3] draws:8 greedy_token:3 greedy_draw:none\ncheckpoint=loaded_bytes:6330 rng_state:0x9e3779b97f4a7c38 vocabulary:5 context:2 eos:none max_new_tokens:4 prompt:[0] generated:[4,4] prefixes:[1,2] stop:context-limit full_prefix_calls:2 replay_identical:true\neos=vocabulary:5 context:2 eos_token:4 max_new_tokens:4 generated:[4] stop:eos full_prefix_calls:1\nerrors=temperature_zero:true top_k_zero:true nonfinite_logit:true rng_unchanged:true\nhistory=greedy_token:3 greedy_rng_advanced:false top_k:3 survivors:[3,1,2] retained_full_mass:0.927670511871 removed_full_mass:0.072329488129\nnext=cache one attention layer while preserving its newest-position output\n"
   },
   "visualization": {
     "decision": "useful",
     "id": "temperature-top-k",
     "rationale": {
-      "en": "Aligned probability bars make temperature sharpening and flattening visible, while one tied-boundary table and seeded interval list show exactly which candidates survive, how they are renormalized, and where one random draw lands."
+      "en": "Aligned probability bars make temperature sharpening and flattening visible, while one tied-boundary table and seeded interval list show exactly which candidates survive, how they are renormalized, and where one random draw lands.",
+      "ru": "Совмещённые полосы вероятностей наглядно показывают, как температура усиливает и сглаживает различия. Таблица границы равных логитов и список интервалов при заданном начальном состоянии генератора показывают, какие кандидаты остаются, как они повторно нормализуются и куда попадает одно случайное число."
     }
   },
   "decoder_connection": {
-    "en": "The cumulative decoder can now load its selected checkpoint, turn each final-position logit row into a reproducible next token, stop at EOS or context capacity, and expose the uncached reference sequence that Chapter 37 will preserve incrementally."
+    "en": "The cumulative decoder can now load its selected checkpoint, turn each final-position logit row into a controlled next-token distribution, replay choices from a restored random-generator state, stop at EOS or context capacity, and expose the uncached reference sequence that Chapter 37 will preserve incrementally.",
+    "ru": "Теперь совокупный декодер может загрузить выбранную контрольную точку, преобразовать строку логитов последней позиции в управляемое распределение следующего токена, повторить выбор из восстановленного состояния генератора, остановиться на EOS или при исчерпании ёмкости контекста и предоставить эталонную последовательность без кэша, которую глава 37 сохранит при поэтапных вычислениях."
   },
   "terminology": [
     {
       "concept_id": "temperature-top-k",
-      "en": "temperature and top-k sampling"
+      "en": "temperature and top-k sampling",
+      "ru": "случайный выбор с температурой после фильтрации top-k"
     },
     {
       "concept_id": "greedy-decoding",
-      "en": "greedy decoding"
+      "en": "greedy decoding",
+      "ru": "жадное декодирование"
     },
     {
       "concept_id": "temperature",
-      "en": "sampling temperature"
+      "en": "sampling temperature",
+      "ru": "температура при случайном выборе"
     },
     {
       "concept_id": "top-k-set",
-      "en": "stable top-k set"
+      "en": "stable top-k set",
+      "ru": "множество top-k с однозначным порядком при равных логитах"
     },
     {
       "concept_id": "categorical-sampling",
-      "en": "seeded categorical sampling"
+      "en": "seeded categorical sampling",
+      "ru": "случайный выбор из категориального распределения с заданным начальным состоянием генератора"
     },
     {
       "concept_id": "uncached-generation",
-      "en": "uncached full-prefix generation"
+      "en": "uncached full-prefix generation",
+      "ru": "генерация без кэша с полным пересчётом префикса"
     }
   ],
   "translation_notes": [
-    "Russian is registered but inactive for Chapter 36, so no Russian lesson or placeholder route is published.",
+    "Chapter 36 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: 340d7bc4e9527f9206fd0751f2e3909429a2798305d64629b5fcf35973215055",
     "Preserve tau, k, K_k, ell_i, q_i, token IDs, seeds, logits, probabilities, half-open intervals, and exact trace tokens.",
     "Greedy is a separate valid mode; tau equals zero is only a mathematical limit and is rejected as a stochastic setting.",
     "Top-k is a useful controlled decoder but not a universal quality guarantee, hallucination defense, or endpoint of decoding research.",
@@ -200,8 +229,9 @@
 ## Scope
 
 This chapter teaches one inference boundary: turn the decoder's final-position
-logits into one reproducible token using explicit greedy selection or
-positive-temperature top-k sampling. It covers stable ties, numerical
+logits into a controlled next-token distribution using explicit greedy selection
+or positive-temperature top-k sampling, then replay stochastic choices by
+restoring the same random-generator state. It covers stable ties, numerical
 renormalization, one seeded categorical draw, EOS, token and context limits,
 invalid settings, and an uncached full-prefix loop.
 
@@ -214,7 +244,7 @@ generation.
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
-Use token-ID-ordered logits $[0,1,1,2]$. Stable descending rank is
+Use token-ID-ordered logits $[0,1,1,2]$. The stable descending token-ID order is
 $[3,1,2,0]$: token $3$ has the largest logit, and equal-logit tokens $1$ and
 $2$ keep ascending ID order. With $\tau=1$ and $k=2$, only IDs $3$ and $1$
 survive. The renormalized probabilities are approximately
@@ -294,6 +324,12 @@ The demo loads bytes produced by the Chapter 35 checkpoint fixture and restores
 its saved RNG state. Its standard output and separate diagram trace are exact,
 deterministic Rust evidence.
 
+Over the full temperature-$1$ distribution, greedy chooses token $3$ without
+advancing the random generator. Fixed $k=3$ keeps IDs $[3,1,2]$, retaining
+probability mass $0.927670511871$ and removing mass $0.072329488129$ before
+renormalization. These measurements expose the truncation mechanism; they do
+not by themselves establish which policy produces better text.
+
 <!-- contract-section:visualization -->
 ## Visualization
 
@@ -335,19 +371,21 @@ back for another uncached call.
 <!-- contract-section:decoder-connection -->
 ## Cumulative model connection
 
-The selected checkpoint now produces reproducible next-token choices and one
-auditable uncached reference sequence. Chapter 37 will append one position's key
-and value vectors inside one attention layer and prove that its newest-position
-result matches this full-prefix computation.
+The selected checkpoint now produces controlled next-token distributions and,
+when the same random-generator state and deterministic traversal rules are
+restored, one replayable uncached reference sequence. Chapter 37 will append one
+position's key and value vectors inside one attention layer and check that its
+newest-position result matches this full-prefix computation.
 
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the sole active locale. Keep mathematical symbols and exact trace
+English is the canonical source. Keep mathematical symbols and exact trace
 values language-neutral. Distinguish greedy selection, the limit
 $\tau\to0^+$, and the invalid setting $\tau=0$. Translate top-k as a candidate
-set of fixed cardinality, not a probability threshold. A later Russian
-activation must receive native technical review before a route is published.
+set of fixed cardinality, not a probability threshold. Replayability requires
+the same random-generator state and deterministic ordering; it does not follow
+from temperature or top-k alone.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

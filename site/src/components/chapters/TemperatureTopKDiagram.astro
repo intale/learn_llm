@@ -159,6 +159,7 @@ const temperatureLabels = [
           <strong>{labels.fields.draw} {Number(draw.index) + 1}</strong>
           <InlineMath latex={`u=${draw.unit}`} />
           <span aria-hidden="true">→</span>
+          <span>{labels.fields.interval}</span>
           <InlineMath
             latex={String.raw`[${draw.interval_start},${draw.interval_end})`}
           />

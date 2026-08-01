@@ -6,7 +6,7 @@ per-chapter learning boundary, cumulative Rust contribution, visualization
 decision, and handoff. `BUILD_STATE.yaml` mirrors that order with one complete
 chapter implementation step per chapter.
 
-Chapters 0–35 publish one exact English/Russian locale pair per chapter. The
+Chapters 0–36 publish one exact English/Russian locale pair per chapter. The
 current revisions of Chapters 1–13 are 5, 5, 5, 5, 5, 5, 4, 5, 5, 4, 4, 4, and 4 respectively
 after their meaning-first language, notation, accessibility, and
 rendered-containment work. Chapter 2 onward
@@ -209,7 +209,7 @@ inactive locale.
 Only a complete, same-revision chapter-active set is returned by the static course
 route. Every registered locale index always exists, even before the first lesson is
 publishable. The current checked projection activates English and Russian for
-Chapters 0–35 and English only for Chapters 36–39. Russian keeps its localized index
+Chapters 0–36 and English only for Chapters 37–39. Russian keeps its localized index
 and existing lessons, but a deferred Russian chapter has no lesson route; its
 language switch target falls back to the Russian course index.
 

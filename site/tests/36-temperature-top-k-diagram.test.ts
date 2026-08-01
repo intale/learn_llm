@@ -26,6 +26,9 @@ const contractSource = read("curriculum/chapters/36-temperature-top-k.md");
 const lessonSource = read(
   "site/src/content/chapters/en/36-temperature-top-k.mdx",
 );
+const russianLessonSource = read(
+  "site/src/content/chapters/ru/36-temperature-top-k.mdx",
+);
 const coursePlanSource = read("curriculum/course-plan.md");
 const generationSource = read(
   "rust/crates/llm-from-scratch/src/generation/sampling.rs",
@@ -179,7 +182,14 @@ describe("Chapter 36 Rust trace parser", () => {
       calls: "1",
     });
     expect(Object.values(trace.errors).every((value) => value === "true")).toBe(true);
-    expect(Object.values(trace.history).every((value) => value === "true")).toBe(true);
+    expect(trace.history).toEqual({
+      greedy_token: "3",
+      greedy_rng_advanced: "false",
+      top_k: "3",
+      survivors: "[3,1,2]",
+      retained_full_mass: "0.927670511871",
+      removed_full_mass: "0.072329488129",
+    });
   });
 
   it("rejects structural and semantic mutations before frozen fixture equality", () => {
@@ -191,6 +201,10 @@ describe("Chapter 36 Rust trace parser", () => {
       fixture.replace("draw=none", "draw=0.000000000000"),
       fixture.replace("stop=context-limit", "stop=eos"),
       fixture.replace("rng_unchanged=true", "rng_unchanged=false"),
+      fixture.replace(
+        "retained_full_mass=0.927670511871",
+        "retained_full_mass=0.500000000000",
+      ),
       fixture.slice(0, -1),
       fixture + "\n",
       fixture.replace(/\n/g, "\r\n"),
@@ -257,6 +271,7 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(componentSource).toContain("trace.topK.tokens.map");
     expect(componentSource).toContain("trace.drawPolicy");
     expect(componentSource).toContain("trace.draws.map");
+    expect(componentSource).toContain("labels.fields.interval");
     expect(componentSource.match(/data-diagram-box/g)).toHaveLength(5);
     expect(componentSource.match(/data-diagram-table/g)).toHaveLength(1);
     expect(componentSource.match(/<caption>/g)).toHaveLength(1);
@@ -284,6 +299,7 @@ describe("Chapter 36 static diagram and content boundary", () => {
   it("keeps the contract, lesson, formula, source evidence, and locale policy aligned", () => {
     const contract = frontmatter(contractSource);
     const lesson = frontmatter(lessonSource);
+    const russianLesson = frontmatter(russianLessonSource);
     expect(contract.rust.expected_output).toBe(expectedOutput);
     expect(lesson.formula).toEqual({
       latex: contract.formula.latex,
@@ -325,8 +341,43 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     );
-    expect(contract.content_revision).toBe(1);
-    expect(lesson.content_revision).toBe(1);
+    expect(contract.content_revision).toBe(2);
+    expect(lesson.content_revision).toBe(2);
+    expect(russianLesson.content_revision).toBe(2);
+    expect(russianLesson.formula).toEqual({
+      latex: contract.formula.latex,
+      symbols: contract.formula.symbols.map(
+        ({ symbol, ru }: { symbol: string; ru: string }) => ({
+          symbol,
+          meaning: ru,
+        }),
+      ),
+    });
+    expect(russianLesson.objective).toBe(contract.objective.ru);
+    expect(russianLesson.worked_inputs).toBe(contract.worked_inputs.ru);
+    expect(russianLesson.decoder_connection).toBe(contract.decoder_connection.ru);
+    expect(russianLesson.history.approach).toBe(contract.history.approach.ru);
+    expect(russianLesson.history.summary).toBe(contract.history.summary.ru);
+    expect(russianLesson.history.llm_evolution).toEqual({
+      predecessor_kind: contract.history.llm_evolution.predecessor_kind,
+      limitation: contract.history.llm_evolution.limitation.ru,
+      later_advance: contract.history.llm_evolution.later_advance.ru,
+      modern_llm_role: contract.history.llm_evolution.modern_llm_role.ru,
+      sources: contract.history.llm_evolution.sources.map(
+        (source: {
+          role: string;
+          year: number;
+          name: string;
+          source_url: string;
+          claim: { ru: string };
+        }) => ({ ...source, claim: source.claim.ru }),
+      ),
+    });
+    expect(russianLesson.visualization).toEqual({
+      decision: contract.visualization.decision,
+      id: contract.visualization.id,
+      rationale: contract.visualization.rationale.ru,
+    });
 
     const normalizedLesson = lessonSource.replace(/\s+/g, " ");
     for (const source of lesson.history.llm_evolution.sources) {
@@ -346,7 +397,13 @@ describe("Chapter 36 static diagram and content boundary", () => {
       existsSync(
         resolve(repositoryRoot, "site/src/content/chapters/ru/36-temperature-top-k.mdx"),
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(russianLessonSource.match(/chapter-section:/g)).toHaveLength(8);
+    expect(russianLessonSource.match(/<RustSource\b/g)).toHaveLength(5);
+    expect(russianLessonSource).toContain(
+      "<TemperatureTopKDiagram labels={diagramLabels} />",
+    );
+    expect(russianLessonSource).not.toMatch(/\t|сэмплирован|\bсид\b|\bреплей\b|выживш|фикстур|транзакцион/i);
 
     expect(generationSource).toContain("region:sampling-policy");
     expect(generationSource).toContain("region:uncached-generation");
