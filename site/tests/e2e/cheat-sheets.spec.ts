@@ -116,6 +116,23 @@ const sheets = [
       'Argmax',
     ],
   },
+  {
+    chapter: 8,
+    chapterId: '08-tensor-storage',
+    title: 'From tensor coordinates to one flat buffer',
+    terms: [
+      'Tensor',
+      'Shape',
+      'Axis',
+      'Rank',
+      'Extent',
+      'Coordinate',
+      'Row-major order',
+      'Element stride',
+      'Offset',
+      'Contiguous storage',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

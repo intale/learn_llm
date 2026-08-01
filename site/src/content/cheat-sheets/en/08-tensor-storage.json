@@ -1,0 +1,48 @@
+{
+  "chapter_id": "08-tensor-storage",
+  "locale": "en",
+  "title": "From tensor coordinates to one flat buffer",
+  "description": "A quick reference for the tensor-shape, stride, and flat-storage terms used here.",
+  "terms": [
+    {
+      "term": "Tensor",
+      "definition": "A multidimensional interpretation of scalar values addressed through logical coordinates."
+    },
+    {
+      "term": "Shape",
+      "definition": "The ordered list of extents describing how many positions each tensor axis contains."
+    },
+    {
+      "term": "Axis",
+      "definition": "One independent dimension of a tensor, identified by its position in the shape."
+    },
+    {
+      "term": "Rank",
+      "definition": "The number of axes in a tensor, equal to the shape's length."
+    },
+    {
+      "term": "Extent",
+      "definition": "The number of valid index positions available along one tensor axis."
+    },
+    {
+      "term": "Coordinate",
+      "definition": "One zero-based index per axis that identifies a logical tensor element."
+    },
+    {
+      "term": "Row-major order",
+      "definition": "A storage convention in which the final coordinate changes fastest through the buffer."
+    },
+    {
+      "term": "Element stride",
+      "definition": "The flat-buffer distance moved when one axis index increases by one."
+    },
+    {
+      "term": "Offset",
+      "definition": "The zero-based flat-buffer position selected by a valid multidimensional coordinate."
+    },
+    {
+      "term": "Contiguous storage",
+      "definition": "Keeping every tensor value together in one flat buffer under a fixed layout."
+    }
+  ]
+}

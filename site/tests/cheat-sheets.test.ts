@@ -130,6 +130,23 @@ const expectedSheets = {
       ['Argmax', 'argmax alone'],
     ],
   },
+  '08-tensor-storage': {
+    file: '08-tensor-storage.json',
+    lesson: '08-tensor-storage.mdx',
+    title: 'From tensor coordinates to one flat buffer',
+    entries: [
+      ['Tensor', 'A tensor gives'],
+      ['Shape', 'For shape [2,2,3]'],
+      ['Axis', 'It has three axes'],
+      ['Rank', 'its **rank** is'],
+      ['Extent', 'Axis `1` has extent'],
+      ['Coordinate', 'coordinate `[1,0,2]`'],
+      ['Row-major order', 'In row-major order'],
+      ['Element stride', 'element stride'],
+      ['Offset', 'Offset `8` is'],
+      ['Contiguous storage', 'contiguous row-major buffer'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {
