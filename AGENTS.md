@@ -61,6 +61,23 @@ through natural concise wording, wrapping, or safe reflow; never clip, hide,
 truncate, overlap, or shrink text to force a translation into English-sized
 geometry.
 
+### Chapter cheat sheets
+
+Keep chapter cheat sheets as a separate locale-aware content surface. English is
+the canonical semantic source; translate a non-English sheet directly from its
+matching current English record with the localization skill and the same
+semantic, terminology, accessibility, and rendered-layout reviews required for
+chapter prose. An explicit staged rollout may publish an English sheet before its
+translation, but never substitute English terms on a non-English page.
+
+Include only concise LLM-related terms that the matching chapter actually uses or
+teaches. Define each term in the chapter's context; do not turn the sheet into a
+second lesson, add unrelated programming vocabulary, or add one to an orientation
+page such as Chapter 0. Present sheets through the one shared progressive modal
+surface so they do not interrupt the lesson flow. The trigger, dialog, close and
+Escape behavior, focus restoration, constrained scrolling, narrow layout, and
+no-JavaScript disclosure fallback must remain keyboard-accessible and readable.
+
 ### Formula rendering
 
 Every learner-facing mathematical expression or equation must use the site's

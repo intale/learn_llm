@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T09:07:49Z"
+updated_at: "2026-08-01T09:43:25Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: null
+active_build: add-english-cheat-sheets-ch01-ch10
 
 builds:
   - build_id: bootstrap-course
@@ -25601,3 +25601,222 @@ builds:
                 status: passed
                 notes: "English sha256 a31f7222, Russian sha256 3df4a541, contract sha256 321dc675, and the 23-file product manifest sha256 cccc6415 are frozen; every required review dimension passes and later English meaning or presentation drift is explicitly stale."
             notes: "Succeeded. Chapter 39 now exposes selection-isolated test access, bitwise training replay, exact checkpoint/state/probe evidence, and derived cached-versus-complete-prefix generation work without overstating the bounded fixture. Its direct natural Russian projection is active with complete contract, SEO, accessibility, formula, source, exercise, navigation, and rendered parity. Every Chapter 0-39 route is now bilingual. Focused Rust/unit, clean pinned Linux, 85-page link/SEO/sitemap/Analytics, exact 194-case Chromium, exact 194-case Firefox, checksum, and independent localization review gates pass; the exact 23-file product manifest is frozen for this standalone commit."
+
+  - build_id: add-english-cheat-sheets-ch01-ch10
+    objective: "Add concise, chapter-specific English LLM terminology cheat sheets to Chapters 1-10 through one accessible shared modal, one independently validated chapter checkpoint at a time."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. Ten sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "English Chapters 1-10 each expose one concise cheat sheet containing only LLM-related terms used or taught on that chapter page."
+      - "Chapter 0, Russian pages, and English Chapters 11-39 do not expose a cheat sheet in this staged rollout."
+      - "One shared accessible modal keeps the glossary outside the normal lesson flow, restores focus, closes by button and Escape, and has a readable no-JavaScript fallback."
+      - "Every sheet is validated and committed as its own completed checkpoint before work begins on the next chapter."
+      - "Focused content, accessibility, Astro, static-link, Chromium, and Firefox validation passes."
+    steps:
+      - id: add-ch01-cheat-sheet
+        objective: "Introduce the shared locale-aware cheat-sheet surface and publish the canonical English Chapter 1 terminology sheet."
+        depends_on:
+          - activate-ch39-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-08-01 for English-only Chapter 1-10 cheat sheets, implemented one chapter checkpoint at a time."
+          - "AGENTS.md and the current chapter-localization rules"
+          - "Canonical English Chapter 1 lesson"
+          - "Current Astro content schema, lesson route, shared page styles, and E2E infrastructure"
+          - "Completed dependency commit d7a3b3b599b73e06c8a26c7f43581ac9210e2aa1"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "AGENTS.md"
+          - "site/src/content.config.ts"
+          - "site/src/components/CheatSheet.astro"
+          - "site/src/lib/cheat-sheets.ts"
+          - "site/src/content/cheat-sheets/en/01-text-units.json"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/cheat-sheets.test.ts"
+          - "site/tests/e2e/cheat-sheets.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The Chapter 1 sheet defines concise terms that are actually used or taught in the current English lesson."
+          - "The sheet is stored as separate canonical English localization content and is absent from Chapter 0 and every Russian route."
+          - "The shared trigger and native dialog have explicit accessible names, close by button and Escape, restore focus, contain long text at desktop and narrow widths, and expose a no-JavaScript disclosure fallback."
+          - "No private server runtime, dependency, build-definition, hosting, deployment, or Russian learner-content change is introduced."
+          - "Focused content, type, build, link, Chromium, and Firefox gates pass before the checkpoint is committed."
+        validate:
+          - "npm --prefix site test -- --run tests/cheat-sheets.test.ts"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox tests/e2e/cheat-sheets.spec.ts Chapter 1 modal, keyboard, narrow, no-JavaScript, and locale-absence gates"
+          - "git diff --check and BUILD_STATE.yaml parse"
+        cost:
+          class: medium
+          notes: "Shared content/schema/UI/test infrastructure plus two-engine rendered validation uses cached local CPU only."
+        runs:
+          - run_id: 20260801T092306Z-add-ch01-cheat-sheet-01
+            started_at: "2026-08-01T09:23:06Z"
+            finished_at: "2026-08-01T09:43:25Z"
+            status: succeeded
+            input_fingerprint:
+              git: "d7a3b3b599b73e06c8a26c7f43581ac9210e2aa1"
+              manifest: ".build/runs/20260801T092306Z-add-ch01-cheat-sheet-01/input-fingerprint.txt"
+              checksum: "sha256:b704886377089d5c1d1c6b1a1bc9cbbaf9c938bc34ad2787609d31e93b0b18b6"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains are not authoritative."
+              external: "No external source or paid service; current canonical English Chapter 1 is the terminology source."
+            staging_dir: ".build/runs/20260801T092306Z-add-ch01-cheat-sheet-01/"
+            commands:
+              - "Run the startup protocol; verify the clean dependency commit, full ledger, latest decisions/run, environment pins, content source, route architecture, and browser-test workflow."
+              - "Record the separate locale-aware content model and accessible shared-dialog decision before product edits."
+              - "Add the strict cheatSheets collection, route index, shared progressive native-dialog component, Chapter 1 English record, authoring rules, and focused unit/E2E coverage."
+              - "Build the pinned source and complete workspace images; run focused Vitest, Astro, content/parity, production-build, link, Chromium, and Firefox gates."
+              - "Attempt an additional in-app-browser inspection; record that no in-app browser was attached, then retain the already-passed exact-snapshot two-engine browser evidence."
+              - "Verify and remove the exact labelled E2E volume and temporary loopback preview container; freeze the eight-file product checksum manifest."
+            artifacts:
+              - path: ".build/runs/20260801T092306Z-add-ch01-cheat-sheet-01/input-fingerprint.txt"
+                checksum: "sha256:b704886377089d5c1d1c6b1a1bc9cbbaf9c938bc34ad2787609d31e93b0b18b6"
+                notes: "Exact dependency, source, architecture, workflow, tool, and scope fingerprint before Chapter 1 product edits."
+              - path: ".build/runs/20260801T092306Z-add-ch01-cheat-sheet-01/publish-product.sha256"
+                checksum: "sha256:6212012be0a1d77519ba3cc2928c6e55db944251628080a402bd7a3b2ea6ee1a"
+                notes: "Exact eight-file Chapter 1 product, shared infrastructure, authoring-rule, and focused-test manifest; governance ledgers are excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:3eca1ce740abef17a83bfec6440736927366c12f9ae3350397a4495952ebe8be"
+                notes: "Exact clean source snapshot that passed the complete pinned Linux gate and supplied browser-test files."
+              - path: "docker-image:learn-llm-site:local"
+                checksum: "sha256:deb6a82bc9f5c75313b8c8ee2bd6b467fe6b02add5066477f3349c9bee35b593"
+                notes: "Static Nginx image used by the explicit loopback readiness check."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "The dependency commit is clean; active_build was null with no running work; repository pins match; Chapter 1 owns the first checkpoint; the user explicitly requires sequential English-only rollout and no cost approval pause."
+              - command: "Host npm --prefix site run check"
+                status: failed
+                notes: "The known non-authoritative host Node 24/Vite cleanup incompatibility raised msg.includes before diagnostics; all accepted checks were rerun successfully with pinned Node 22 in Linux."
+              - command: "Focused pinned-Linux tests/cheat-sheets.test.ts"
+                status: passed
+                notes: "All 5 content, source-grounding, collection, resolver, progressive-component, locale-copy, duplicate, orphan, and orientation guards pass."
+              - command: "Pinned Astro diagnostics plus existing content and parity gates"
+                status: passed
+                notes: "Astro checks 210 files with zero errors, warnings, or hints; all 80 chapter sources remain 40 publishable bilingual sets and existing diagram/catalog contracts remain green."
+              - command: "Pinned production build and static-link/SEO/sitemap/Analytics gate"
+                status: passed
+                notes: "The site builds 85 pages and validates 2,447 local references, 85 SEO routes, 85 sitemap URLs, 85 Analytics routes, and 163 artifacts."
+              - command: "First complete workspace-image command"
+                status: failed
+                notes: "The orchestration command reached its 184-second timeout while the full Rust workspace was still running; no test failure was reported. The same deterministic command was restarted with a longer allowance."
+              - command: "Complete clean pinned-Linux workspace gate"
+                status: passed
+                notes: "The exact final image passes cargo formatting, the complete Rust workspace including 364 library tests, Astro/content/parity diagnostics, production build, and static-link audit."
+              - command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 4 Chapter 1 modal, Escape/button close, focus restoration, narrow containment, no-JavaScript fallback, Chapter 0, Russian, and later-route absence cases pass."
+              - command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 4 equivalent interaction, containment, progressive-fallback, and staged-locale cases pass."
+              - command: "In-app browser visual inspection"
+                status: failed
+                notes: "The browser runtime reported no attached browser. No alternate interactive browser was substituted; exact-snapshot Chromium and Firefox automation already covered the accepted rendered surface."
+              - command: "Product manifest, resource cleanup, mode, whitespace, and completed-ledger audit"
+                status: passed
+                notes: "All eight product hashes are frozen, the labelled E2E volume and loopback preview container were verified and removed, git diff --check passes, no mode change exists, and the YAML ledger parses with only Chapter 1 completed."
+            notes: "Succeeded. Chapter 1 now has a canonical English-only eight-term sheet through one shared progressive modal. Chapter 0, Russian routes, and Chapters 2-39 remain sheet-free. Focused content, complete clean Linux, static, link, Chromium, and Firefox gates pass; the exact product manifest is frozen for the standalone Chapter 1 commit."
+
+      - id: add-ch02-cheat-sheet
+        objective: "Publish the canonical English Chapter 2 corpus-partition terminology sheet."
+        depends_on: [add-ch01-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 2 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/02-corpus-partitions.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 2 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 2 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch03-cheat-sheet
+        objective: "Publish the canonical English Chapter 3 BPE-learning terminology sheet."
+        depends_on: [add-ch02-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 3 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/03-learn-bpe-merges.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 3 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 3 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch04-cheat-sheet
+        objective: "Publish the canonical English Chapter 4 BPE-application terminology sheet."
+        depends_on: [add-ch03-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 4 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/04-apply-bpe-tokenizer.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 4 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 4 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch05-cheat-sheet
+        objective: "Publish the canonical English Chapter 5 autoregressive-example terminology sheet."
+        depends_on: [add-ch04-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 5 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/05-autoregressive-examples.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 5 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 5 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch06-cheat-sheet
+        objective: "Publish the canonical English Chapter 6 bigram-model terminology sheet."
+        depends_on: [add-ch05-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 6 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/06-bigram-baseline.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 6 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 6 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch07-cheat-sheet
+        objective: "Publish the canonical English Chapter 7 language-model-metrics terminology sheet."
+        depends_on: [add-ch06-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 7 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/07-language-model-metrics.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 7 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 7 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch08-cheat-sheet
+        objective: "Publish the canonical English Chapter 8 tensor-storage terminology sheet."
+        depends_on: [add-ch07-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 8 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/08-tensor-storage.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 8 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 8 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch09-cheat-sheet
+        objective: "Publish the canonical English Chapter 9 tensor-view terminology sheet."
+        depends_on: [add-ch08-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 9 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/09-tensor-views.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
+        acceptance: ["Chapter 9 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 9 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch10-cheat-sheet
+        objective: "Publish the canonical English Chapter 10 broadcasting-and-reduction terminology sheet and close the staged rollout."
+        depends_on: [add-ch09-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 10 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/10-broadcasting-reductions.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance: ["English Chapters 1-10 each have a page-specific sheet; Chapter 0, Russian routes, and English Chapters 11-39 remain sheet-free; the full ten-sheet content/modal/narrow/no-JavaScript/Chromium/Firefox/Astro/link matrix passes; the final checkpoint is committed independently and closes the build."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox complete Chapter 1-10 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus the complete cached local static and two-engine browser regression matrix."}
+        runs: []

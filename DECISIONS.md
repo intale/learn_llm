@@ -11833,3 +11833,37 @@ directly from English.
 
 **Affected step and run:** `activate-ch39-russian-localization`, run
 `20260801T072533Z-activate-ch39-russian-localization-01`.
+
+## 2026-08-01 - Keep chapter cheat sheets separate, localized, and progressive
+
+**Status:** Accepted for the `add-english-cheat-sheets-ch01-ch10` build.
+
+**Context:** The user requested non-intrusive LLM-term cheat sheets for Chapters
+1-10, English only for the first rollout, with Chapter 0 excluded and every
+chapter completed through its own checkpoint. The existing bilingual chapter
+documents remain reviewed units, while the new glossary surface will later need
+direct Russian localization from English.
+
+**Decision:** Store cheat sheets in a separate locale-aware content collection,
+keyed by the matching chapter ID and locale. English is the canonical semantic
+source for each sheet. Render at most one matching sheet through one shared
+native-dialog component after the lesson objective, with an explicit trigger,
+button and Escape closure, focus restoration, constrained scrolling, and a
+semantic no-JavaScript disclosure fallback. Keep terms concise, unique, and
+limited to LLM concepts actually used or taught by the matching lesson. Do not
+publish a sheet for an orientation page. Roll out Chapters 1-10 sequentially;
+Russian sheets and later English chapters remain absent until their own future
+checkpoints.
+
+**Consequences:** The chapter body and its content revision do not change merely
+because a separate cheat sheet is added. The new collection can be translated
+directly from its English records later without treating Russian absence as a
+chapter-parity defect during the explicitly staged rollout. Shared tests must
+reject orphaned or duplicate records, mismatched locale/path metadata, unrelated
+terms, inaccessible dialog behavior, unintended page overflow, and cheat-sheet
+presence on Chapter 0 or untranslated routes. No dependency, build-definition,
+hosting, deployment, or runtime-server change is introduced.
+
+**Affected build and first run:** `add-english-cheat-sheets-ch01-ch10`, step
+`add-ch01-cheat-sheet`, run
+`20260801T092306Z-add-ch01-cheat-sheet-01`.

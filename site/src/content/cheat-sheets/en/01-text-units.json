@@ -1,0 +1,40 @@
+{
+  "chapter_id": "01-text-units",
+  "locale": "en",
+  "title": "Text units and vocabulary IDs",
+  "description": "A quick reference for the text representations and tokenizer terms used in this chapter.",
+  "terms": [
+    {
+      "term": "UTF-8 byte",
+      "definition": "One byte of UTF-8-encoded text; one visible text symbol may occupy several bytes."
+    },
+    {
+      "term": "Unicode scalar value",
+      "definition": "A Unicode code-point value treated as one input position by this chapter's scalar-level tokenizer."
+    },
+    {
+      "term": "Vocabulary",
+      "definition": "A fixed lookup table that assigns known text units deterministic integer IDs."
+    },
+    {
+      "term": "Token ID",
+      "definition": "The integer representing a text unit at one sequence position and later selecting an embedding row."
+    },
+    {
+      "term": "Unknown token",
+      "definition": "A reserved marker used when a text unit is absent from the vocabulary, losing the original unit's identity."
+    },
+    {
+      "term": "Reversible round trip",
+      "definition": "Encoding followed by decoding that recovers the original text when every input unit is known."
+    },
+    {
+      "term": "Grapheme cluster",
+      "definition": "A user-perceived character that may contain more than one Unicode scalar value."
+    },
+    {
+      "term": "Subword tokenizer",
+      "definition": "A tokenizer using units between whole words and individual characters to balance vocabulary size and sequence length."
+    }
+  ]
+}

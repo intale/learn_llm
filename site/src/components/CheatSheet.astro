@@ -1,0 +1,308 @@
+---
+import {
+  getCheatSheetCopy,
+  type CheatSheetData,
+} from '../lib/cheat-sheets';
+
+interface Props {
+  sheet: CheatSheetData;
+}
+
+const { sheet } = Astro.props;
+const copy = getCheatSheetCopy(sheet.locale);
+if (!copy) {
+  throw new Error(`Missing cheat-sheet interface copy for ${sheet.locale}.`);
+}
+const dialogId = `cheat-sheet-${sheet.chapter_id}`;
+const titleId = `${dialogId}-title`;
+const descriptionId = `${dialogId}-description`;
+---
+
+<aside
+  class="cheat-sheet"
+  data-cheat-sheet
+  data-cheat-sheet-chapter={sheet.chapter_id}
+>
+  <button
+    class="cheat-sheet-trigger"
+    type="button"
+    aria-controls={dialogId}
+    aria-haspopup="dialog"
+    data-cheat-sheet-open
+    hidden
+  >
+    {copy.openLabel}
+  </button>
+
+  <dialog
+    id={dialogId}
+    class="cheat-sheet-dialog"
+    aria-labelledby={titleId}
+    aria-describedby={descriptionId}
+    data-cheat-sheet-dialog
+  >
+    <div class="cheat-sheet-panel">
+      <header class="cheat-sheet-header">
+        <div>
+          <p class="cheat-sheet-eyebrow">{copy.eyebrow}</p>
+          <h2 id={titleId}>{sheet.title}</h2>
+        </div>
+        <button
+          class="cheat-sheet-close"
+          type="button"
+          aria-label={copy.closeLabel}
+          title={copy.closeLabel}
+          data-cheat-sheet-close
+          autofocus
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </header>
+      <p id={descriptionId} class="cheat-sheet-description">
+        {sheet.description}
+      </p>
+      <dl class="cheat-sheet-terms">
+        {
+          sheet.terms.map(({ term, definition }) => (
+            <div class="cheat-sheet-term">
+              <dt>{term}</dt>
+              <dd>{definition}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </dialog>
+
+  <details class="cheat-sheet-fallback" data-cheat-sheet-fallback>
+    <summary>{copy.fallbackSummary}</summary>
+    <div class="cheat-sheet-fallback-content">
+      <h2>{sheet.title}</h2>
+      <p>{sheet.description}</p>
+      <dl class="cheat-sheet-terms">
+        {
+          sheet.terms.map(({ term, definition }) => (
+            <div class="cheat-sheet-term">
+              <dt>{term}</dt>
+              <dd>{definition}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </details>
+</aside>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-cheat-sheet]').forEach((root) => {
+    if (root.dataset.cheatSheetEnhanced === 'true') return;
+
+    const trigger = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-open]');
+    const dialog = root.querySelector<HTMLDialogElement>('[data-cheat-sheet-dialog]');
+    const close = root.querySelector<HTMLButtonElement>('[data-cheat-sheet-close]');
+    const fallback = root.querySelector<HTMLDetailsElement>('[data-cheat-sheet-fallback]');
+    if (!trigger || !dialog || !close || !fallback || typeof dialog.showModal !== 'function') {
+      return;
+    }
+
+    root.dataset.cheatSheetEnhanced = 'true';
+    trigger.hidden = false;
+    fallback.hidden = true;
+    let opener: HTMLElement | null = null;
+
+    trigger.addEventListener('click', () => {
+      opener = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : trigger;
+      dialog.showModal();
+    });
+
+    close.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      opener?.focus();
+      opener = null;
+    });
+  });
+</script>
+
+<style>
+  .cheat-sheet {
+    margin-top: 1.25rem;
+  }
+
+  .cheat-sheet-trigger,
+  .cheat-sheet-close {
+    border: 1px solid var(--accent-dark);
+    background: var(--accent-dark);
+    color: white;
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .cheat-sheet-trigger {
+    min-block-size: 2.75rem;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+  }
+
+  .cheat-sheet-trigger:hover,
+  .cheat-sheet-close:hover {
+    background: var(--ink);
+  }
+
+  .cheat-sheet-trigger:focus-visible,
+  .cheat-sheet-close:focus-visible,
+  .cheat-sheet-fallback summary:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.2rem;
+  }
+
+  .cheat-sheet-dialog {
+    box-sizing: border-box;
+    inline-size: min(42rem, calc(100vw - 2rem));
+    max-block-size: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    overflow-x: visible;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    scrollbar-gutter: stable;
+  }
+
+  .cheat-sheet-dialog::backdrop {
+    background: rgba(22, 33, 29, 0.66);
+  }
+
+  .cheat-sheet-panel,
+  .cheat-sheet-fallback-content {
+    padding: clamp(1.1rem, 4vw, 2rem);
+  }
+
+  .cheat-sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .cheat-sheet-header h2,
+  .cheat-sheet-fallback-content h2 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.7rem, 5vw, 2.35rem);
+    font-weight: 500;
+    line-height: 1.12;
+  }
+
+  .cheat-sheet-eyebrow {
+    margin: 0 0 0.35rem;
+    color: var(--accent-dark);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .cheat-sheet-close {
+    display: grid;
+    flex: 0 0 auto;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    place-items: center;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .cheat-sheet-description {
+    margin: 1rem 0 0;
+    color: var(--muted);
+  }
+
+  .cheat-sheet-terms {
+    margin: 1.5rem 0 0;
+  }
+
+  .cheat-sheet-term {
+    display: grid;
+    grid-template-columns: minmax(8rem, 0.7fr) minmax(0, 1.3fr);
+    gap: 0.5rem 1rem;
+    padding-block: 0.9rem;
+    border-block-start: 1px solid var(--line);
+  }
+
+  .cheat-sheet-term:last-child {
+    border-block-end: 1px solid var(--line);
+  }
+
+  .cheat-sheet-term dt {
+    font-weight: 800;
+  }
+
+  .cheat-sheet-term dd {
+    min-inline-size: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+  }
+
+  .cheat-sheet-fallback {
+    border: 1px solid var(--line);
+    border-radius: 0.85rem;
+    background: var(--surface);
+  }
+
+  .cheat-sheet-fallback summary {
+    padding: 0.8rem 1rem;
+    color: var(--accent-dark);
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .cheat-sheet-fallback-content {
+    padding-top: 0.5rem;
+  }
+
+  @media (max-width: 34rem) {
+    .cheat-sheet-dialog {
+      inline-size: calc(100vw - 1rem);
+      max-block-size: calc(100dvh - 1rem);
+      border-radius: 0.9rem;
+    }
+
+    .cheat-sheet-term {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .cheat-sheet-trigger,
+    .cheat-sheet-close,
+    .cheat-sheet-dialog,
+    .cheat-sheet-fallback,
+    .cheat-sheet-term {
+      border-color: CanvasText;
+    }
+
+    .cheat-sheet-trigger,
+    .cheat-sheet-close {
+      background: ButtonFace;
+      color: ButtonText;
+    }
+
+    .cheat-sheet-dialog::backdrop {
+      background: Canvas;
+      opacity: 0.75;
+    }
+  }
+</style>

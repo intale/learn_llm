@@ -135,6 +135,42 @@ const supplementaryVisualization = z
   })
   .strict();
 
+const cheatSheetTerm = z
+  .object({
+    term: z.string().min(1),
+    definition: z.string().min(1),
+  })
+  .strict();
+
+const cheatSheet = z
+  .object({
+    chapter_id: chapterId.refine((value) => value !== '00-llm-parts', {
+      message: 'Orientation chapters do not have cheat sheets.',
+    }),
+    locale: z.custom<Locale>(
+      (value) => typeof value === 'string' && isLocale(value),
+      'locale must be configured in src/i18n/locales.json',
+    ),
+    title: z.string().min(1),
+    description: z.string().min(1),
+    terms: z.array(cheatSheetTerm).min(5).max(12),
+  })
+  .strict()
+  .superRefine((sheet, context) => {
+    const normalizedTerms = new Set<string>();
+    sheet.terms.forEach(({ term }, index) => {
+      const normalized = term.trim().toLocaleLowerCase(sheet.locale);
+      if (normalizedTerms.has(normalized)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['terms', index, 'term'],
+          message: 'Cheat-sheet terms must be unique within a chapter.',
+        });
+      }
+      normalizedTerms.add(normalized);
+    });
+  });
+
 const visualization = z.discriminatedUnion('decision', [
   z
     .object({
@@ -162,6 +198,19 @@ const chapterLoader: Loader = existsSync(chapterDirectory)
     })
   : {
       name: 'empty-chapter-directory',
+      async load({ store }) {
+        store.clear();
+      },
+    };
+
+const cheatSheetDirectory = new URL('./content/cheat-sheets/', import.meta.url);
+const cheatSheetLoader: Loader = existsSync(cheatSheetDirectory)
+  ? glob({
+      base: './src/content/cheat-sheets',
+      pattern: '**/*.json',
+    })
+  : {
+      name: 'empty-cheat-sheet-directory',
       async load({ store }) {
         store.clear();
       },
@@ -292,4 +341,9 @@ const chapters = defineCollection({
     }),
 });
 
-export const collections = { chapters };
+const cheatSheets = defineCollection({
+  loader: cheatSheetLoader,
+  schema: cheatSheet,
+});
+
+export const collections = { chapters, cheatSheets };
