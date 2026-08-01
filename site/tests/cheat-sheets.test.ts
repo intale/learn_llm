@@ -507,6 +507,24 @@ const expectedSheets = {
       ['Causal mask', 'mask still blocks future keys'],
     ],
   },
+  '30-multi-head-attention': {
+    file: '30-multi-head-attention.json',
+    lesson: '30-multi-head-attention.mdx',
+    title: 'Keep attention head-local until output mixing',
+    entries: [
+      ['Multi-head causal self-attention', 'complete multi-head causal self-attention layer'],
+      ['Packed Q/K/V projections', 'first lets every $W_i^Q$, $W_i^K$, and $W_i^V$ read the whole input row'],
+      ['Model width', 'input and output width of the complete layer'],
+      ['Head count', 'number of independently normalized attention heads'],
+      ['Head width', 'is the width of one head; it is even here'],
+      ['Head split', 'transpose then produce'],
+      ['Per-head RoPE', 'apply RoPE only to its query and key rows'],
+      ['Per-head causal attention', "softmax runs separately over each head's key"],
+      ['Head output', "is head $i$'s weighted value mixture"],
+      ['Head concatenation', 'it does not normalize or mix them'],
+      ['Output projection', 'only multiplication by $W_O$ permits'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -536,6 +554,19 @@ const exactDefinitions = {
     'Signed relative position': 'The key position minus the query position, preserving direction rather than only distance.',
     'Query-key rotation': 'RoPE rotates queries and keys while leaving value vectors unrotated in this lesson.',
     'Causal mask': 'The separate visibility rule blocking future key positions independently of RoPE geometry.',
+  },
+  '30-multi-head-attention': {
+    'Multi-head causal self-attention': 'An attention layer that computes separately normalized causal attention in several projected head views before concatenation and output mixing.',
+    'Packed Q/K/V projections': "Three dense model-width maps applied before the head split; every head's output columns can read and mix all input features.",
+    'Model width': "The feature count of the complete layer's input and output, restored after all head outputs are concatenated.",
+    'Head count': 'The number of independently normalized attention heads, required here to be nonzero and divide model width exactly.',
+    'Head width': 'The feature count inside one head, equal to model width divided by head count and even for this RoPE design.',
+    'Head split': 'A reshape and transpose of projected queries, keys, and values into a head axis, performed only after their dense projections.',
+    'Per-head RoPE': 'Pairwise position rotations applied independently inside each head to queries and keys, while values remain unrotated.',
+    'Per-head causal attention': "Each head's masked scaled-score table, row softmax over key positions, and weighted value mixture, normalized independently of other heads.",
+    'Head output': "The weighted mixture of unrotated value rows produced by one head using that head's causal attention probabilities.",
+    'Head concatenation': 'A parameter-free join of completed head outputs along the final feature axis that restores model width without averaging or mixing.',
+    'Output projection': 'The learned map after concatenation that can recombine completed head features, while earlier dense query, key, and value maps may already mix input features.',
   },
 } as const;
 

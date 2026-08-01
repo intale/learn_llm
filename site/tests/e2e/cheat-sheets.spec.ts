@@ -292,6 +292,12 @@ const sheets = [
     title: 'Turn query and key pairs with RoPE',
     terms: ['Rotary position embedding (RoPE)', 'Adjacent coordinate pair', 'Rotation matrix', 'Pair frequency', 'Frequency base', 'Absolute position', 'Signed relative position', 'Equal-shift invariance', 'Orthogonal rotation', 'Query-key rotation', 'Causal mask'],
   },
+  {
+    chapter: 30,
+    chapterId: '30-multi-head-attention',
+    title: 'Keep attention head-local until output mixing',
+    terms: ['Multi-head causal self-attention', 'Packed Q/K/V projections', 'Model width', 'Head count', 'Head width', 'Head split', 'Per-head RoPE', 'Per-head causal attention', 'Head output', 'Head concatenation', 'Output projection'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -421,6 +427,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '30-multi-head-attention'));
+  await page.goto(chapterPath('en', '31-decoder-block'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

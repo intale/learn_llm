@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T13:04:15Z"
+updated_at: "2026-08-01T13:15:40Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 24
+      spent: 25
       notes: "No explicit resource limit applies. Twenty-nine sheet checkpoints plus five recorded corrective runs use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -27004,6 +27004,17 @@ builds:
               - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
               - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
               - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; tail -n 8 /tmp/build.log'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch30-e2e-130747 from source image sha256:bc68bb333e3270cc6e45acbdad116545d4b87f76dc91a8f30c4e6771b0bdc0de and build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch30-e2e-130747,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch30-e2e-130747,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify run and snapshot labels, remove learn-llm-cheatsheet-ch30-e2e-130747, freeze and verify the three-file product manifest, parse BUILD_STATE.yaml and JSON, and run git diff --check."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; tail -n 8 /tmp/build.log'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch30-e2e-130747 from source image sha256:bc68bb333e3270cc6e45acbdad116545d4b87f76dc91a8f30c4e6771b0bdc0de and build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch30-e2e-130747,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch30-e2e-130747,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; tail -n 8 /tmp/build.log'"
               - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch29-e2e-125741 from source image sha256:298ea0d842c40c8f9375c8061ed1db5fff6bc5d9c9bfb32d124c6b49341f625c and build its 85-page site."
               - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch29-e2e-125741,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
               - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch29-e2e-125741,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
@@ -27029,13 +27040,43 @@ builds:
       - id: add-ch30-cheat-sheet
         objective: "Publish the canonical English Chapter 30 terminology sheet."
         depends_on: [add-ch29-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 30 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/30-multi-head-attention.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 30 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 30 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T130747Z-add-ch30-cheat-sheet-01
+            started_at: "2026-08-01T13:07:47Z"
+            finished_at: "2026-08-01T13:15:40Z"
+            status: succeeded
+            input_fingerprint: {git: fa6015bf3551a45ad9e9e2f086f6accb12ef8add, manifest: ".build/runs/20260801T130747Z-add-ch30-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:ec5c6956593f39cf11aa1d1674bf7c880c79f9a8267cbe1fb85459240b7abdde", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 30 is the terminology source."}
+            staging_dir: ".build/runs/20260801T130747Z-add-ch30-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit fa6015b, completed Chapter 29, canonical English Chapter 30, source ownership, environment pins, medium cost, browser availability, and exact one-sheet scope."
+              - "Add the audited 11-term Chapter 30 English record, exact definition safeguards, browser matrix entry, and Chapter 31 later-English absence boundary."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+            artifacts:
+              - {path: ".build/runs/20260801T130747Z-add-ch30-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:ec5c6956593f39cf11aa1d1674bf7c880c79f9a8267cbe1fb85459240b7abdde", notes: "Exact Chapter 30 input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:bc68bb333e3270cc6e45acbdad116545d4b87f76dc91a8f30c4e6771b0bdc0de", notes: "Pinned source image containing the exact Chapter 30 implementation snapshot for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/30-multi-head-attention.json", checksum: "sha256:e925ee9d1a15b673f287cb71f5b4800d748dbcf4829c6df4321a35db283a35cd", notes: "Canonical 11-term English Chapter 30 multi-head causal attention terminology record."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:53527f9292bc3a6eb7e1e5d67c3759bb55f920a6537c145b1d2e4dd3293a2754", notes: "Shared content matrix extended with Chapter 30 evidence and exact definitions for every requested semantic boundary."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:19abfa87aaee2652771a2fce858c614fdd258c818b78a90d94c7e2e2401a4d11", notes: "Shared browser matrix extended through Chapter 30 with the absence boundary moved to Chapter 31."}
+              - {path: ".build/runs/20260801T130747Z-add-ch30-cheat-sheet-01/publish-product.sha256", checksum: "sha256:b035da4b0d956a2bbc92b7ac806579e04020c224ead7d7be4e834fe579f1a660", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, and fingerprint preflight", status: passed, notes: "Chapter 29 is independently committed and Chapter 30 is the sole eligible step. The canonical lesson already preserves projection-before-split, full-input packed columns, per-head normalization, Q/K-only RoPE, no-mixing concatenation, and post-attention output mixing, so no lesson or Russian edit is required. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Initial focused host content checks", status: failed, notes: "33/34 cases passed. One Head split evidence substring crossed the canonical source's Markdown line break, so the test could not find it; the JSON parsed and no product-content defect was reported. The anchor was narrowed to the same learner-facing sentence."}
+              - {command: "Second focused host content checks", status: failed, notes: "33/34 cases passed after the first anchor repair. The Output projection evidence suffix crossed a second canonical Markdown line break; its anchor was narrowed within the same sentence without changing sheet content or acceptance."}
+              - {command: "Final focused host content checks", status: passed, notes: "34/34 cases pass, including all eleven exact Chapter 30 definitions, learner-facing evidence anchors, registry continuity, and later-English absence at Chapter 31."}
+              - {command: "Pinned focused content and Astro diagnostics", status: passed, notes: "34/34 focused cases pass; Astro reports 210 files and zero diagnostics."}
+              - {command: "Pinned production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 30 volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium Chapter 30 gate", status: passed, notes: "91/91 cases pass for modal interaction, Escape and button closure, focus restoration, narrow containment, no-JavaScript disclosure, Chapter 0 and Russian exclusions, and Chapter 31 absence."}
+              - {command: "Pinned exact-snapshot Firefox Chapter 30 gate", status: passed, notes: "91/91 cases pass independently with the same accessibility, containment, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, YAML, JSON, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal; no run-labelled volume remains; git diff --check and source parses pass; Chapter 31 is now the sole eligible next step."}
+            notes: "Succeeded. Chapter 30 now has one canonical English sheet covering full-width packed projection before splitting, head dimensions, separately normalized rotary causal lanes, completed head outputs, parameter-free concatenation, and learned output recombination. Exact definitions preserve that dense query/key/value maps may mix input features while concatenation itself does not mix and the output projection recombines completed head features. Chapter 0 and Russian routes remain sheet-free, the later-English boundary advances to Chapter 31, and no lesson, localization, dependency, build definition, deployment, or shared modal implementation changed."
 
       - id: add-ch31-cheat-sheet
         objective: "Publish the canonical English Chapter 31 terminology sheet."

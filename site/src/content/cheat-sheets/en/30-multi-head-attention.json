@@ -1,0 +1,19 @@
+{
+  "chapter_id": "30-multi-head-attention",
+  "locale": "en",
+  "title": "Keep attention head-local until output mixing",
+  "description": "A quick reference for packed projections, head dimensions, per-head rotary causal attention, concatenation, and output mixing.",
+  "terms": [
+    { "term": "Multi-head causal self-attention", "definition": "An attention layer that computes separately normalized causal attention in several projected head views before concatenation and output mixing." },
+    { "term": "Packed Q/K/V projections", "definition": "Three dense model-width maps applied before the head split; every head's output columns can read and mix all input features." },
+    { "term": "Model width", "definition": "The feature count of the complete layer's input and output, restored after all head outputs are concatenated." },
+    { "term": "Head count", "definition": "The number of independently normalized attention heads, required here to be nonzero and divide model width exactly." },
+    { "term": "Head width", "definition": "The feature count inside one head, equal to model width divided by head count and even for this RoPE design." },
+    { "term": "Head split", "definition": "A reshape and transpose of projected queries, keys, and values into a head axis, performed only after their dense projections." },
+    { "term": "Per-head RoPE", "definition": "Pairwise position rotations applied independently inside each head to queries and keys, while values remain unrotated." },
+    { "term": "Per-head causal attention", "definition": "Each head's masked scaled-score table, row softmax over key positions, and weighted value mixture, normalized independently of other heads." },
+    { "term": "Head output", "definition": "The weighted mixture of unrotated value rows produced by one head using that head's causal attention probabilities." },
+    { "term": "Head concatenation", "definition": "A parameter-free join of completed head outputs along the final feature axis that restores model width without averaging or mixing." },
+    { "term": "Output projection", "definition": "The learned map after concatenation that can recombine completed head features, while earlier dense query, key, and value maps may already mix input features." }
+  ]
+}
