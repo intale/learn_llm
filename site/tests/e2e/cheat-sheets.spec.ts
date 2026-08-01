@@ -328,6 +328,12 @@ const sheets = [
     title: 'Save every state, resume exactly',
     terms: ['Versioned decoder checkpoint', 'Same-step boundary', 'AdamW optimizer state', 'Continuation RNG state', 'Payload record', 'Record descriptor', 'Absolute byte offset', 'Canonical encoding', 'FNV-1a checksum', 'Exact round trip', 'Exact resumed update', 'Atomic replacement'],
   },
+  {
+    chapter: 36,
+    chapterId: '36-temperature-top-k',
+    title: 'Shape a stable top-k distribution, then draw once',
+    terms: ['Temperature', 'Stable ranking', 'Top-k candidate set', 'Tie-breaking rule', 'Top-k renormalization', 'Max-shifted softmax', 'Removed-token probability', 'Categorical draw', 'Half-open sampling interval', 'Greedy decoding', 'Stochastic top-1', 'RNG-state replay'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -457,6 +463,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '36-temperature-top-k'));
+  await page.goto(chapterPath('en', '37-incremental-attention'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

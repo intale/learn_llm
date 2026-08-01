@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T16:00:52Z"
+updated_at: "2026-08-01T16:09:00Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 30
+      spent: 31
       notes: "No explicit resource limit applies. Thirty sheet checkpoints plus five recorded corrective runs use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -27315,13 +27315,47 @@ builds:
       - id: add-ch36-cheat-sheet
         objective: "Publish the canonical English Chapter 36 terminology sheet."
         depends_on: [add-ch35-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 36 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/36-temperature-top-k.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 36 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 36 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T160512Z-add-ch36-cheat-sheet-01
+            started_at: "2026-08-01T16:05:12Z"
+            finished_at: "2026-08-01T16:09:00Z"
+            status: succeeded
+            input_fingerprint: {git: 610fd4f459d7cdd7b185e38c6a13fa51bfee70be, manifest: ".build/runs/20260801T160512Z-add-ch36-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:4b483223b118cac70a57ba028f2805878304cc30010a04b2dad8ba6c7f6f5599", tools: "Pinned repository Linux and Playwright toolchains", external: "None; corrected bilingual Chapter 36 revision 3 is frozen and canonical English is the terminology source."}
+            staging_dir: ".build/runs/20260801T160512Z-add-ch36-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 610fd4f, completed Chapter 35, corrected bilingual Chapter 36 revision 3 from commit 14bd834, source ownership, environment pins, medium cost, browser availability, and exact one-sheet scope."
+              - "Add the audited 12-term Chapter 36 English record, exact definition safeguards, browser matrix entry, and Chapter 37 later-English absence boundary without editing either chapter body."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; status=$?; tail -n 12 /tmp/build.log; exit $status'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch36-e2e-160512 from source image sha256:c9b73becb4d1cf10f27cb2d5d35057c38b4d3dbc4e6688e82fbcb916b5e681c7 and build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch36-e2e-160512,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch36-e2e-160512,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify run and snapshot labels, remove learn-llm-cheatsheet-ch36-e2e-160512, freeze and verify the three-file product manifest, parse BUILD_STATE.yaml and JSON, verify frozen bilingual source hashes, and run git diff --check."
+            artifacts:
+              - {path: ".build/runs/20260801T160512Z-add-ch36-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:4b483223b118cac70a57ba028f2805878304cc30010a04b2dad8ba6c7f6f5599", notes: "Exact Chapter 36 input fingerprint before product edits, including the frozen bilingual revision-3 sources."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:c9b73becb4d1cf10f27cb2d5d35057c38b4d3dbc4e6688e82fbcb916b5e681c7", notes: "Pinned source image containing the exact Chapter 36 implementation snapshot for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/36-temperature-top-k.json", checksum: "sha256:ea4a8ae0122fdcfcd15ebc5e7cba65aca3b3bd050c0662b61878ecc4534cb0a3", notes: "Canonical 12-term English Chapter 36 temperature and top-k terminology record."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:37ace12ceee9e3bdbe18f7d3a720f48d25c04425838d365bc549a4b1b449608a", notes: "Shared content matrix extended with exact Chapter 36 evidence and definitions."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:bdf134f45fc9c52add7da7a85d63fbe6bf449043b3ec2820184672ad9a568844", notes: "Shared browser matrix extended through Chapter 36 with the absence boundary moved to Chapter 37."}
+              - {path: ".build/runs/20260801T160512Z-add-ch36-cheat-sheet-01/publish-product.sha256", checksum: "sha256:02d2f3e906f807b653184cd3ad8b0d64cc53a49011ed69e2a216433677124b63", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, revision, and fingerprint preflight", status: passed, notes: "Chapter 35 is independently committed and Chapter 36 is the sole eligible step. Corrected bilingual revision 3 already preserves finite positive temperature, descending-logit and ascending-ID stable ranking, filter-then-renormalize order, exact-zero removed probabilities, one categorical draw, greedy without a draw, stochastic top-1 with one draw, and deterministic RNG-state replay; no new body defect, lesson edit, or Russian refresh is required. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host content checks", status: passed, notes: "40/40 cheat-sheet unit cases pass, including all twelve exact Chapter 36 definitions, learner-facing evidence anchors, registry continuity, and later-English absence at Chapter 37."}
+              - {command: "Pinned focused content and Astro diagnostics", status: passed, notes: "40/40 focused cases pass; Astro reports 210 files and zero diagnostics."}
+              - {command: "Pinned production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 36 volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium Chapter 36 gate", status: passed, notes: "109/109 cases pass for modal interaction, Escape and button closure, focus restoration, narrow containment, no-JavaScript disclosure, Chapter 0 and Russian exclusions, and Chapter 37 absence."}
+              - {command: "Pinned exact-snapshot Firefox Chapter 36 gate", status: passed, notes: "109/109 cases pass independently with the same accessibility, containment, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, bilingual-source immutability, labelled-volume cleanup, whitespace, YAML, JSON, historical-ledger, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; corrected English and Russian revision-3 source hashes remain unchanged; exact labels were checked before volume removal; no run-labelled volume remains; git diff --check and source parses pass; historical checkpoints are unchanged; Chapter 37 is now the sole eligible next step."}
+            notes: "Succeeded. Chapter 36 now has one concise canonical English sheet covering strictly positive temperature, deterministic descending-logit and ascending-ID ranking, exact top-k membership, filter-then-renormalize order, max-shifted softmax, exact-zero removal, one categorical draw over half-open intervals, greedy without RNG advance, stochastic top-1 with one draw, and RNG-state replay. Corrected bilingual revision 3 remains untouched; no new parity defect was found. Chapter 0 and Russian routes remain sheet-free, the later-English boundary advances to Chapter 37, and no lesson, localization, dependency, build definition, deployment, or shared modal implementation changed."
 
       - id: add-ch37-cheat-sheet
         objective: "Publish the canonical English Chapter 37 terminology sheet."

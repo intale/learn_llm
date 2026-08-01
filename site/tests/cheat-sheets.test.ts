@@ -617,6 +617,25 @@ const expectedSheets = {
       ['Atomic replacement', 'atomic replacement under the supported'],
     ],
   },
+  '36-temperature-top-k': {
+    file: '36-temperature-top-k.json',
+    lesson: '36-temperature-top-k.mdx',
+    title: 'Shape a stable top-k distribution, then draw once',
+    entries: [
+      ['Temperature', 'finite positive temperature'],
+      ['Stable ranking', 'stable descending-logit order'],
+      ['Top-k candidate set', 'Filter the candidate set, then renormalize'],
+      ['Tie-breaking rule', 'equal logits ordered by ascending token ID'],
+      ['Top-k renormalization', 'after renormalization'],
+      ['Max-shifted softmax', 'max-shifted normalization'],
+      ['Removed-token probability', 'Removed IDs keep exact probability $0$'],
+      ['Categorical draw', 'categorical draw acts only after both decisions'],
+      ['Half-open sampling interval', 'half-open interval'],
+      ['Greedy decoding', 'Greedy decoding is therefore a separate policy'],
+      ['Stochastic top-1', 'Stochastic $k=1$'],
+      ['RNG-state replay', 'random-generator state'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -726,6 +745,20 @@ const exactDefinitions = {
     'Exact round trip': 'Loading and canonical re-encoding reproduce identical bytes, logits bits, and the next RNG draw in the same arithmetic environment.',
     'Exact resumed update': 'Original and restored states given identical inputs, targets, and learning rate produce identical parameter bits, optimizer state, and post-update logits.',
     'Atomic replacement': 'A supported Unix same-filesystem publication that synchronizes a complete same-directory temporary file, renames it over the destination, then synchronizes the directory.',
+  },
+  '36-temperature-top-k': {
+    Temperature: 'A finite strictly positive divisor applied to logits before softmax; lower values sharpen probability gaps and higher values flatten them without changing rank.',
+    'Stable ranking': 'Deterministic ordering by descending logit, with the configured tie rule resolving equal values before candidate filtering.',
+    'Top-k candidate set': 'The exact number of highest-ranked token IDs retained before sampling, bounded between one and the vocabulary size.',
+    'Tie-breaking rule': 'Equal logits are ordered by ascending token ID, making the retained boundary and greedy choice deterministic.',
+    'Top-k renormalization': 'Recomputing probabilities over only retained candidates after filtering, so their probabilities sum to one.',
+    'Max-shifted softmax': 'Softmax computed after subtracting the largest retained scaled logit, preserving probability ratios while avoiding overflow.',
+    'Removed-token probability': 'An exact zero assigned to every filtered token, so it owns no sampling interval and cannot be selected.',
+    'Categorical draw': 'One unit-interval random draw used after temperature scaling, filtering, and renormalization to select a retained token.',
+    'Half-open sampling interval': 'A cumulative probability range including its lower endpoint and excluding its upper endpoint, traversed here in ascending token-ID order.',
+    'Greedy decoding': 'The separate deterministic policy that chooses the first stable rank and leaves the random-generator state untouched.',
+    'Stochastic top-1': 'A sampling policy that retains one token and chooses the same ID as greedy but still consumes exactly one random draw.',
+    'RNG-state replay': 'Reproducing categorical choices by restoring the same generator state and preserving deterministic ranking, interval order, and sampling policy.',
   },
 } as const;
 

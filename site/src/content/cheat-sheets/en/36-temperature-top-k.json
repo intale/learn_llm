@@ -1,0 +1,20 @@
+{
+  "chapter_id": "36-temperature-top-k",
+  "locale": "en",
+  "title": "Shape a stable top-k distribution, then draw once",
+  "description": "A quick reference for positive temperature, deterministic top-k filtering, renormalized probabilities, one categorical draw, and random-state replay.",
+  "terms": [
+    { "term": "Temperature", "definition": "A finite strictly positive divisor applied to logits before softmax; lower values sharpen probability gaps and higher values flatten them without changing rank." },
+    { "term": "Stable ranking", "definition": "Deterministic ordering by descending logit, with the configured tie rule resolving equal values before candidate filtering." },
+    { "term": "Top-k candidate set", "definition": "The exact number of highest-ranked token IDs retained before sampling, bounded between one and the vocabulary size." },
+    { "term": "Tie-breaking rule", "definition": "Equal logits are ordered by ascending token ID, making the retained boundary and greedy choice deterministic." },
+    { "term": "Top-k renormalization", "definition": "Recomputing probabilities over only retained candidates after filtering, so their probabilities sum to one." },
+    { "term": "Max-shifted softmax", "definition": "Softmax computed after subtracting the largest retained scaled logit, preserving probability ratios while avoiding overflow." },
+    { "term": "Removed-token probability", "definition": "An exact zero assigned to every filtered token, so it owns no sampling interval and cannot be selected." },
+    { "term": "Categorical draw", "definition": "One unit-interval random draw used after temperature scaling, filtering, and renormalization to select a retained token." },
+    { "term": "Half-open sampling interval", "definition": "A cumulative probability range including its lower endpoint and excluding its upper endpoint, traversed here in ascending token-ID order." },
+    { "term": "Greedy decoding", "definition": "The separate deterministic policy that chooses the first stable rank and leaves the random-generator state untouched." },
+    { "term": "Stochastic top-1", "definition": "A sampling policy that retains one token and chooses the same ID as greedy but still consumes exactly one random draw." },
+    { "term": "RNG-state replay", "definition": "Reproducing categorical choices by restoring the same generator state and preserving deterministic ranking, interval order, and sampling policy." }
+  ]
+}
