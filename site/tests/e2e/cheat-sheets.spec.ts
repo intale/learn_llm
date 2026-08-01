@@ -316,6 +316,12 @@ const sheets = [
     title: 'Select a decoder with validation checkpoints',
     terms: ['Training mini-batch', 'Partition roles', 'Learning-rate schedule', 'Raw gradient', 'Global-norm clipping', 'Clipped gradient', 'AdamW update', 'Optimizer moment state', 'Graph-free validation loss', 'Checkpoint set', 'Earliest validation minimum', 'Token-weighted mean'],
   },
+  {
+    chapter: 34,
+    chapterId: '34-final-evaluation',
+    title: 'Freeze choices before one final test report',
+    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Test-only gate', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance', 'No-grad evaluation', 'Immutable report', 'Frozen bigram', 'Like-for-like targets'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -445,6 +451,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '34-final-evaluation'));
+  await page.goto(chapterPath('en', '35-checkpoints'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

@@ -579,6 +579,25 @@ const expectedSheets = {
       ['Token-weighted mean', 'Validation averages by predicted-token count, not by number of batches'],
     ],
   },
+  '34-final-evaluation': {
+    file: '34-final-evaluation.json',
+    lesson: '34-final-evaluation.mdx',
+    title: 'Freeze choices before one final test report',
+    entries: [
+      ['Validation-selected checkpoint', 'validation-selected checkpoint index'],
+      ['Frozen selected state', 'frozen validation-selected decoder'],
+      ['Test-only gate', 'test-only gate'],
+      ['Final test evaluation', 'before test evaluation'],
+      ['Token-weighted mean NLL', 'token-weighted mean negative log-likelihood'],
+      ['Perplexity', 'test perplexity'],
+      ['Aligned target slot', 'aligned target slots'],
+      ['Evaluation provenance', 'EvaluationProvenance'],
+      ['No-grad evaluation', 'existing no-grad'],
+      ['Immutable report', 'immutable report'],
+      ['Frozen bigram', 'Frozen bigram'],
+      ['Like-for-like targets', 'like-for-like targets'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -660,6 +679,20 @@ const exactDefinitions = {
     'Checkpoint set': 'The predetermined measured update indices, including initialized and final states, over which validation selection is allowed.',
     'Earliest validation minimum': 'The measured checkpoint with minimum validation loss, with exact ties retained at the smallest update index by strict improvement.',
     'Token-weighted mean': 'An epoch loss that weights each batch mean by its predicted-token count rather than giving every batch equal weight.',
+  },
+  '34-final-evaluation': {
+    'Validation-selected checkpoint': 'The planned model checkpoint chosen using validation evidence before any test result is available.',
+    'Frozen selected state': 'The complete selected decoder snapshot after every model and data choice is sealed; test scores may describe it but cannot change it.',
+    'Test-only gate': 'A local single-use permission that opens only after role and provenance checks, then is consumed when final test scoring begins.',
+    'Final test evaluation': 'The reporting-only pass over held-out test data after selection closes; its result cannot choose a checkpoint or tune another decision.',
+    'Token-weighted mean NLL': 'Total negative log likelihood divided by the number of aligned target tokens, so longer documents contribute in proportion to their targets.',
+    Perplexity: 'The exponential of mean negative log likelihood, expressing average multiplicative uncertainty per target token.',
+    'Aligned target slot': 'One causal input and observed next-token target at a stable document, window, and position, including repetitions from overlapping windows.',
+    'Evaluation provenance': 'The shared corpus, split, tokenizer, and context identity binding the selected decoder, baseline, and test epoch.',
+    'No-grad evaluation': 'Scoring with graph construction disabled and with decoder parameters and gradient bits verified unchanged afterward.',
+    'Immutable report': 'A versioned final record with getters but no setters or selection operation, preserving provenance, targets, scores, gate use, and state checks.',
+    'Frozen bigram': 'An add-one bigram fitted only on the same training token slices and sealed before test access.',
+    'Like-for-like targets': 'A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows.',
   },
 } as const;
 

@@ -1,0 +1,20 @@
+{
+  "chapter_id": "34-final-evaluation",
+  "locale": "en",
+  "title": "Freeze choices before one final test report",
+  "description": "A quick reference for validation-selected state, the test-only gate, fair token weighting, evaluation provenance, immutable reporting, and like-for-like comparison.",
+  "terms": [
+    { "term": "Validation-selected checkpoint", "definition": "The planned model checkpoint chosen using validation evidence before any test result is available." },
+    { "term": "Frozen selected state", "definition": "The complete selected decoder snapshot after every model and data choice is sealed; test scores may describe it but cannot change it." },
+    { "term": "Test-only gate", "definition": "A local single-use permission that opens only after role and provenance checks, then is consumed when final test scoring begins." },
+    { "term": "Final test evaluation", "definition": "The reporting-only pass over held-out test data after selection closes; its result cannot choose a checkpoint or tune another decision." },
+    { "term": "Token-weighted mean NLL", "definition": "Total negative log likelihood divided by the number of aligned target tokens, so longer documents contribute in proportion to their targets." },
+    { "term": "Perplexity", "definition": "The exponential of mean negative log likelihood, expressing average multiplicative uncertainty per target token." },
+    { "term": "Aligned target slot", "definition": "One causal input and observed next-token target at a stable document, window, and position, including repetitions from overlapping windows." },
+    { "term": "Evaluation provenance", "definition": "The shared corpus, split, tokenizer, and context identity binding the selected decoder, baseline, and test epoch." },
+    { "term": "No-grad evaluation", "definition": "Scoring with graph construction disabled and with decoder parameters and gradient bits verified unchanged afterward." },
+    { "term": "Immutable report", "definition": "A versioned final record with getters but no setters or selection operation, preserving provenance, targets, scores, gate use, and state checks." },
+    { "term": "Frozen bigram", "definition": "An add-one bigram fitted only on the same training token slices and sealed before test access." },
+    { "term": "Like-for-like targets", "definition": "A comparison where both models score the same ordered target slots, including every repetition from overlapping decoder windows." }
+  ]
+}
