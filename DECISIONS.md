@@ -11975,3 +11975,31 @@ MDX, existing Russian content, dependency, build definition, or presentation
 code changes.
 
 **Affected step:** `add-ch19-cheat-sheet`.
+
+## 2026-08-01 - Correct Chapter 36 ranking terminology in both locale reviews
+
+**Status:** Accepted during `add-english-cheat-sheets-ch11-ch39`.
+
+**Context:** A read-only terminology audit discovered that the canonical English
+Chapter 36 prose calls `[3,1,2,0]` a descending token-ID order. It is actually
+the descending-logit order, with ascending token ID used only to break equal
+logits. The Russian lesson already states that rule correctly, but an English
+meaning or presentation change makes its recorded target-locale review stale.
+
+**Decision:** Insert one corrective checkpoint after Chapter 28 and before the
+Chapter 29 cheat sheet. Correct the English lesson and contract wording, advance
+the English/Russian publication set to content revision 3, refresh the contract's
+canonical English checksum, and explicitly re-review Russian directly against
+the corrected English source. Preserve the already-natural Russian explanation
+unless that review finds a semantic or layout defect. Add an exact regression
+that rejects the superseded phrase and repeat the complete bilingual Chapter 36
+content and rendered-page gates in Chromium and Firefox.
+
+**Consequences:** The correction is a separate committed chapter-content step;
+it is not hidden inside a cheat-sheet checkpoint. No formula, numeric value,
+Rust behavior, diagram geometry, dependency, build definition, or Russian prose
+meaning changes. Chapter 29 remains pending until the bilingual correction and
+review succeed.
+
+**Affected step and run:** `correct-ch36-stable-ranking-wording`, run
+`20260801T124651Z-correct-ch36-stable-ranking-wording-01`.

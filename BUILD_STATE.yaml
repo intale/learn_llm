@@ -26251,8 +26251,8 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 22
-      notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+      spent: 23
+      notes: "No explicit resource limit applies. Twenty-nine sheet checkpoints plus five recorded corrective runs use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
       - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
@@ -26948,9 +26948,42 @@ builds:
               - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, and Chapter 29 is next."}
             notes: "Succeeded. Chapter 28 now has a canonical English-only eleven-term causal-masking sheet. The mask controls visibility, shifted decoder input controls diagonal content, and a separate position signal identifies order. Chapter 0, Russian routes, and English Chapters 29-39 remain sheet-free. No chapter body, Russian content, dependency, package, build-definition, hosting, deployment, user-environment, or later-chapter product change was made."
 
+      - id: correct-ch36-stable-ranking-wording
+        objective: "Correct Chapter 36's stable ranking terminology and refresh the bilingual revision and Russian review from canonical English."
+        depends_on: [add-ch28-cheat-sheet]
+        status: completed
+        inputs: ["Canonical English and Russian Chapter 36 revision 2", "Chapter 36 contract", "User requirement to mirror chapter fixes across locales", ".agents/skills/localize-llm-course/SKILL.md"]
+        outputs: ["curriculum/chapters/36-temperature-top-k.md","site/src/content/chapters/en/36-temperature-top-k.mdx","site/src/content/chapters/ru/36-temperature-top-k.mdx","site/tests/36-temperature-top-k-diagram.test.ts","site/tests/e2e/ch36-temperature-top-k.spec.ts","DECISIONS.md","BUILD_STATE.yaml"]
+        acceptance: ["English calls [3,1,2,0] descending-logit order and identifies ascending token ID only as the tie-breaker; the false descending-token-ID phrase is absent.", "English and Russian publish one same-revision revision-3 set; Russian is refreshed directly from corrected English and retains natural correct ranking language.", "Contract, chapter, parity, content, static, link, Chromium, Firefox, desktop, narrow, full-view, forced-colors, no-JavaScript, formula, and bounded-box checks pass."]
+        validate: ["npm --prefix site run check:contract -- ../curriculum/chapters/36-temperature-top-k.md", "npm --prefix site run check:chapter -- --locale en --chapter 36-temperature-top-k && npm --prefix site run check:chapter -- --locale ru --chapter 36-temperature-top-k && npm --prefix site run check:parity -- --chapter 36-temperature-top-k && npm --prefix site run check:content", "npm --prefix site test -- --run tests/36-temperature-top-k-diagram.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox tests/e2e/ch36-temperature-top-k.spec.ts", "git diff --check, mode audit, manifest verification, and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One wording correction, bilingual revision refresh, and cached local static plus two-engine rendered validation; no paid service, network generation, dependency, or build-definition change."}
+        runs:
+          - run_id: 20260801T124651Z-correct-ch36-stable-ranking-wording-01
+            started_at: "2026-08-01T12:46:51Z"
+            finished_at: "2026-08-01T12:55:40Z"
+            status: succeeded
+            input_fingerprint: {git: "713756bac9734f2a80a08efada8956f1fa02cd9d", manifest: ".build/runs/20260801T124651Z-correct-ch36-stable-ranking-wording-01/input-fingerprint.txt", checksum: "sha256:8eb2813902b2daef297ab7b1eed61b957e4e5e542e13dc2ddc0760911788ae91", tools: "Docker 29.6.2; Git 2.55.0.windows.3; Node v24.18.0; pinned repository Linux and Playwright toolchains", external: "None; canonical repository sources only."}
+            staging_dir: ".build/runs/20260801T124651Z-correct-ch36-stable-ranking-wording-01/"
+            commands: ["Verify clean dependency commit 713756b, completed Chapter 28, sole-step ownership, active en/ru projection, canonical source, localization skill, medium local cost, and exact correction scope.", "Attempt focused and contract/parity checks through the host npm PowerShell shim; discard the attempt because local execution policy blocks npm.ps1 before a test starts.", "Correct descending-logit terminology in canonical English and contract; advance both locales and the contract to revision 3; refresh the canonical hash; add exact English and Russian regression evidence.", "Run contract, per-locale, parity, full-content, focused unit, Astro, production, and link gates in the pinned Linux image.", "Run exact-snapshot Chromium and Firefox; correct the stale Russian Chapter 37 navigation expectation exposed by the first pass; rebuild and rerun both engines.", "Complete independent meaning, terminology, anti-calque, monolingual, accessibility, desktop, narrow, full-view, forced-color, RTL, and no-JavaScript reviews; remove the labelled volume and freeze product hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T124651Z-correct-ch36-stable-ranking-wording-01/input-fingerprint.txt", checksum: "sha256:8eb2813902b2daef297ab7b1eed61b957e4e5e542e13dc2ddc0760911788ae91", notes: "Exact Chapter 36 correction input fingerprint."}
+              - {path: ".build/runs/20260801T124651Z-correct-ch36-stable-ranking-wording-01/publish-product.sha256", checksum: "sha256:b76f0f6cae39ec6017f0a0c47411eda23cf7de895c7ef4212a4be78868c80ded", notes: "Exact contract, bilingual lessons, and focused unit/browser tests."}
+              - {path: "docker-image:learn-llm-ch36-correction-source:local", checksum: "sha256:1685d935147cbeab7e425e6cca0533f5aabac97857cb0348e5e8feb3eee890bc", notes: "Exact revision-3 snapshot used for final rendered validation."}
+            validation:
+              - {command: "Preflight and localization-source review", status: passed, notes: "English is canonical; en and ru are active. The English phrase was false; Russian already stated descending logits with ascending-ID tie-breaking and required refreshed semantic and rendered review rather than a wording rewrite."}
+              - {command: "Host npm validation attempt", status: failed, notes: "Environment-only failure: Windows execution policy blocked npm.ps1 before Vitest or any content checker started; no product failure and no user setting was changed."}
+              - {command: "Contract, en, ru, parity, and full-content checks", status: passed, notes: "One contract, each locale, one two-locale set, and all 80 sources/40 publishable sets pass at revision 3."}
+              - {command: "Focused unit and Astro diagnostics", status: passed, notes: "5/5 focused tests pass; Astro reports 210 files and zero diagnostics; the false phrase is rejected and the natural Russian rule is asserted."}
+              - {command: "Production build and links", status: passed, notes: "85 pages and all 2,447 local references plus SEO, sitemap, and Analytics route audits pass."}
+              - {command: "Initial pinned Chromium and Firefox Chapter 36 gates", status: failed, notes: "Both engines passed 5/6; all content/layout surfaces passed, but a stale test expected no Russian next link even though Russian Chapter 37 is published."}
+              - {command: "Final pinned Chromium and Firefox Chapter 36 gates", status: passed, notes: "6/6 pass independently in each engine after requiring the published Chapter 37 link in both locales; desktop, narrow, full view, forced colors, RTL, and no-JavaScript pass."}
+              - {command: "Russian semantic and linguistic reviews", status: passed, notes: "Direct comparison with corrected English found no semantic, terminology, anti-calque, monolingual, or accessibility defect; formulas, values, IDs, traces, and scope match."}
+              - {command: "Manifest and cleanup", status: passed, notes: "Five product hashes frozen; exact labelled volume removed; Chapter 29 is next."}
+            notes: "Succeeded. Chapter 36 now correctly names descending-logit order, the bilingual set is revision 3, and Russian retains its already-natural equivalent after complete refreshed review. No formula, numeric evidence, Rust behavior, diagram geometry, dependency, build definition, or deployment changed."
+
       - id: add-ch29-cheat-sheet
         objective: "Publish the canonical English Chapter 29 terminology sheet."
-        depends_on: [add-ch28-cheat-sheet]
+        depends_on: [correct-ch36-stable-ranking-wording]
         status: pending
         inputs: ["Canonical English Chapter 29 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/29-rope.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]

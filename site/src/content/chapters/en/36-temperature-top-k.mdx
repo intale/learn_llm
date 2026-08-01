@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "locale": "en",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 36,
   "concept_id": "temperature-top-k",
   "title": "Shape the choices, then draw once",
@@ -187,8 +187,9 @@ export const diagramLabels = {
 ## Start with four logits and make every choice visible
 
 The decoder supplies final-position logits in token-ID order:
-$[0,1,1,2]$. Their stable descending token-ID order is $[3,1,2,0]$. Token $3$
-is unambiguously first. Tokens $1$ and $2$ have equal logits, so this
+$[0,1,1,2]$. Their stable descending-logit order, with ascending token ID as
+the tie-breaker, is $[3,1,2,0]$. Token $3$ is unambiguously first. Tokens $1$
+and $2$ have equal logits, so this
 implementation places the smaller ID first. That local rule makes the tied
 candidate order deterministic.
 

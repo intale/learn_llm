@@ -302,7 +302,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 36,
-    revision: 2,
+    revision: 3,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -447,11 +447,10 @@ async function expectChapterContent(
   const next = page.locator(
     'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
   );
-  if (locale === "en") {
-    await expect(next).toHaveAttribute("data-chapter-id", "37-incremental-attention");
-  } else {
-    await expect(next).toHaveCount(0);
-  }
+  await expect(next).toHaveAttribute(
+    "data-chapter-id",
+    "37-incremental-attention",
+  );
   await expectNoOverflowOrClientScripts(page);
 }
 

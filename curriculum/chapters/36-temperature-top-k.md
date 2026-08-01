@@ -2,7 +2,7 @@
 {
   "chapter_id": "36-temperature-top-k",
   "concept_id": "temperature-top-k",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 36,
   "objective": {
     "en": "Shape one next-token distribution with positive-temperature scaling and stable top-k filtering, then reproduce a categorical choice by restoring the same random-generator state in an uncached autoregressive loop.",
@@ -179,8 +179,8 @@
     }
   ],
   "translation_notes": [
-    "Chapter 36 has the exact active locale set {en, ru}. English content revision 2 is the canonical semantic source; Russian was translated directly from that frozen revision and must be refreshed if it changes.",
-    "canonical English SHA-256: 340d7bc4e9527f9206fd0751f2e3909429a2798305d64629b5fcf35973215055",
+    "Chapter 36 has the exact active locale set {en, ru}. English content revision 3 is the canonical semantic source; Russian was reviewed directly against that frozen revision and must be refreshed if it changes.",
+    "canonical English SHA-256: c343bc6416f7624dc0e0db24fb254373e479f51e965952096df346dfbb8abc04",
     "Preserve tau, k, K_k, ell_i, q_i, token IDs, seeds, logits, probabilities, half-open intervals, and exact trace tokens.",
     "Greedy is a separate valid mode; tau equals zero is only a mathematical limit and is rejected as a stochastic setting.",
     "Top-k is a useful controlled decoder but not a universal quality guarantee, hallucination defense, or endpoint of decoding research.",
@@ -244,9 +244,10 @@ generation.
 <!-- contract-section:worked-inputs -->
 ## Worked inputs
 
-Use token-ID-ordered logits $[0,1,1,2]$. The stable descending token-ID order is
-$[3,1,2,0]$: token $3$ has the largest logit, and equal-logit tokens $1$ and
-$2$ keep ascending ID order. With $\tau=1$ and $k=2$, only IDs $3$ and $1$
+Use token-ID-ordered logits $[0,1,1,2]$. The stable descending-logit order,
+with ascending token ID as the tie-breaker, is $[3,1,2,0]$: token $3$ has the
+largest logit, and equal-logit tokens $1$ and $2$ keep ascending ID order. With
+$\tau=1$ and $k=2$, only IDs $3$ and $1$
 survive. The renormalized probabilities are approximately
 $q_1=0.268941421370$ and $q_3=0.731058578630$; IDs $0$ and $2$ receive exact
 zero.

@@ -341,9 +341,9 @@ describe("Chapter 36 static diagram and content boundary", () => {
     expect(coursePlanSource.replace(/\r?\n/g, "")).toContain(
       "q_i^{(\\tau,k)}=\\frac{\\mathbf{1}[i\\in K_k]\\exp(\\ell_i/\\tau)}{\\sum_j\\mathbf{1}[j\\in K_k]\\exp(\\ell_j/\\tau)}",
     );
-    expect(contract.content_revision).toBe(2);
-    expect(lesson.content_revision).toBe(2);
-    expect(russianLesson.content_revision).toBe(2);
+    expect(contract.content_revision).toBe(3);
+    expect(lesson.content_revision).toBe(3);
+    expect(russianLesson.content_revision).toBe(3);
     expect(russianLesson.formula).toEqual({
       latex: contract.formula.latex,
       symbols: contract.formula.symbols.map(
@@ -391,6 +391,13 @@ describe("Chapter 36 static diagram and content boundary", () => {
     );
     expect(normalizedLesson).toContain(
       "not a universal quality guarantee, a hallucination defense, or the endpoint of decoding research",
+    );
+    expect(normalizedLesson).toContain(
+      "stable descending-logit order, with ascending token ID as the tie-breaker, is $[3,1,2,0]$",
+    );
+    expect(normalizedLesson).not.toContain("descending token-ID order");
+    expect(russianLessonSource.replace(/\s+/g, " ")).toContain(
+      "по убыванию логита, а равные значения — по возрастанию ID",
     );
     expect(lessonSource).not.toMatch(/TypeScript (?:validates|performs|computes)/);
     expect(
