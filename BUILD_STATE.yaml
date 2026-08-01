@@ -25608,7 +25608,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 6
+      spent: 7
       notes: "No explicit resource limit applies. Ten sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-10 each expose one concise cheat sheet containing only LLM-related terms used or taught on that chapter page."
@@ -26013,13 +26013,59 @@ builds:
       - id: add-ch07-cheat-sheet
         objective: "Publish the canonical English Chapter 7 language-model-metrics terminology sheet."
         depends_on: [add-ch06-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 7 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/07-language-model-metrics.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
         acceptance: ["Chapter 7 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 7 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T101021Z-add-ch07-cheat-sheet-01
+            started_at: "2026-08-01T10:10:21Z"
+            finished_at: "2026-08-01T10:12:59Z"
+            status: succeeded
+            input_fingerprint:
+              git: "85b40bd152d534fd981863ef554b961a45df43e6"
+              manifest: ".build/runs/20260801T101021Z-add-ch07-cheat-sheet-01/input-fingerprint.txt"
+              checksum: "sha256:7015592f3404282f7812d616ba48dca1586e861b0506558071522670822410cb"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate pinned Linux Node 22.12.0/npm 10.9.0 and Playwright 1.61.1."
+              external: "No external source or paid service; current canonical English Chapter 7 is the terminology source."
+            staging_dir: ".build/runs/20260801T101021Z-add-ch07-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 85b40bd, completed Chapter 6, Chapter 7 source ownership, environment pins, and exact one-sheet scope."
+              - "Add the ten-term canonical English Chapter 7 record and extend the shared source-grounding and rendered interaction matrices."
+              - "Build the pinned source image; run focused Vitest, Astro diagnostics, production build, static links, and the full Chapter 1-7 Chromium and Firefox suites."
+              - "Verify and remove the labelled Chapter 7 E2E volume; freeze the three-file product checksum manifest."
+            artifacts:
+              - path: ".build/runs/20260801T101021Z-add-ch07-cheat-sheet-01/input-fingerprint.txt"
+                checksum: "sha256:7015592f3404282f7812d616ba48dca1586e861b0506558071522670822410cb"
+                notes: "Exact dependency, Chapter 7 source, shared tests, tools, and scope fingerprint before product edits."
+              - path: ".build/runs/20260801T101021Z-add-ch07-cheat-sheet-01/publish-product.sha256"
+                checksum: "sha256:3b265267c1df759094c8f2ecdde4d141090e791be3345b84d3d5bf898ce43e74"
+                notes: "Exact Chapter 7 English record and two shared focused-test files; governance ledger excluded."
+              - path: "docker-image:learn-llm-cheat-sheet-source:local"
+                checksum: "sha256:1b45041e6bf6befa75264007a19e815547989c34b9952f766325b262b2228d83"
+                notes: "Exact Chapter 7 source snapshot used for pinned static and browser validation."
+            validation:
+              - command: "Scheduler, dependency, working-tree, ownership, environment, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 6 is independently committed at 85b40bd; the worktree was clean; Chapter 7 is the first eligible pending step and owns only its English record plus shared focused-test expectations."
+              - command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts"
+                status: passed
+                notes: "All 11 tests pass, including exact staged records, prior-sheet regression, Chapter 7 source grounding, definitions, collection, resolver, and locale guards."
+              - command: "Pinned Astro diagnostics, production build, and static-link audit"
+                status: passed
+                notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."
+              - command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 22 Chapter 1-7 modal, keyboard, focus, narrow containment, no-JavaScript, and staged-absence cases pass."
+              - command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 22 equivalent Chapter 1-7 rendered and progressive-enhancement cases pass."
+              - command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit"
+                status: passed
+                notes: "All three product hashes are frozen, the exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, git diff --check passes, no mode change exists, and only Chapter 7 transitions to completed."
+            notes: "Succeeded. Chapter 7 now has a canonical English-only ten-term language-model-metrics sheet. Chapter 0, Russian routes, and Chapters 8-39 remain sheet-free. Focused content, pinned static, link, Chromium, and Firefox gates pass; the exact three-file product manifest is frozen for the standalone commit."
 
       - id: add-ch08-cheat-sheet
         objective: "Publish the canonical English Chapter 8 tensor-storage terminology sheet."

@@ -113,6 +113,23 @@ const expectedSheets = {
       ['Pseudocount', 'positive pseudocount added'],
     ],
   },
+  '07-language-model-metrics': {
+    file: '07-language-model-metrics.json',
+    lesson: '07-language-model-metrics.mdx',
+    title: 'From assigned probability to perplexity',
+    entries: [
+      ['Assigned probability', 'Assigned probability'],
+      ['Surprise', 'define its **surprise**'],
+      ['Sequence likelihood', 'sequence likelihood'],
+      ['Negative log-likelihood (NLL)', 'negative log-likelihood'],
+      ['Mean NLL', 'mean negative log-likelihood (mean NLL)'],
+      ['Length normalization', 'length normalization missing'],
+      ['Nat', 'nats per target'],
+      ['Perplexity', 'Perplexity is'],
+      ['Empirical cross-entropy', 'empirical cross-entropy'],
+      ['Argmax', 'argmax alone'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

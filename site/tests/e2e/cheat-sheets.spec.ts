@@ -99,6 +99,23 @@ const sheets = [
       'Pseudocount',
     ],
   },
+  {
+    chapter: 7,
+    chapterId: '07-language-model-metrics',
+    title: 'From assigned probability to perplexity',
+    terms: [
+      'Assigned probability',
+      'Surprise',
+      'Sequence likelihood',
+      'Negative log-likelihood (NLL)',
+      'Mean NLL',
+      'Length normalization',
+      'Nat',
+      'Perplexity',
+      'Empirical cross-entropy',
+      'Argmax',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

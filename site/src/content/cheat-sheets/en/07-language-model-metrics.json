@@ -1,0 +1,48 @@
+{
+  "chapter_id": "07-language-model-metrics",
+  "locale": "en",
+  "title": "From assigned probability to perplexity",
+  "description": "A quick reference for the probability, negative-log, and evaluation terms used here.",
+  "terms": [
+    {
+      "term": "Assigned probability",
+      "definition": "The probability a model gives to the observed target under its current context."
+    },
+    {
+      "term": "Surprise",
+      "definition": "The negative natural logarithm of an event's probability; rarer events have greater surprise."
+    },
+    {
+      "term": "Sequence likelihood",
+      "definition": "The product of conditional probabilities assigned to every observed target in a sequence."
+    },
+    {
+      "term": "Negative log-likelihood (NLL)",
+      "definition": "The sum of negative log probabilities for the observed target events."
+    },
+    {
+      "term": "Mean NLL",
+      "definition": "Total negative log-likelihood divided by the number of evaluated target tokens."
+    },
+    {
+      "term": "Length normalization",
+      "definition": "Dividing total surprise by target count so differently sized samples remain comparable."
+    },
+    {
+      "term": "Nat",
+      "definition": "The information unit produced when negative log-likelihood uses the natural logarithm."
+    },
+    {
+      "term": "Perplexity",
+      "definition": "The exponential of mean NLL, expressed as an equivalent constant prediction difficulty."
+    },
+    {
+      "term": "Empirical cross-entropy",
+      "definition": "Mean NLL interpreted against the empirical distribution of the observed target tokens."
+    },
+    {
+      "term": "Argmax",
+      "definition": "The highest-probability choice, which does not reveal probability assigned to another observed target."
+    }
+  ]
+}
