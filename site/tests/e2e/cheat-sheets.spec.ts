@@ -150,6 +150,23 @@ const sheets = [
       'Attention head',
     ],
   },
+  {
+    chapter: 10,
+    chapterId: '10-broadcasting-reductions',
+    title: 'Align compatible shapes, reduce a named axis',
+    terms: [
+      'Broadcasting',
+      'Trailing-axis alignment',
+      'Singleton axis',
+      'Elementwise operation',
+      'Reduction',
+      'Reduction axis',
+      'Keep dimension',
+      'Feature axis',
+      'Attention softmax',
+      'Feature normalization',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

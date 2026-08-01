@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: add-english-cheat-sheets-ch01-ch10
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -25604,11 +25604,11 @@ builds:
 
   - build_id: add-english-cheat-sheets-ch01-ch10
     objective: "Add concise, chapter-specific English LLM terminology cheat sheets to Chapters 1-10 through one accessible shared modal, one independently validated chapter checkpoint at a time."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
-      spent: 9
+      spent: 10
       notes: "No explicit resource limit applies. Ten sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-10 each expose one concise cheat sheet containing only LLM-related terms used or taught on that chapter page."
@@ -26184,10 +26184,63 @@ builds:
       - id: add-ch10-cheat-sheet
         objective: "Publish the canonical English Chapter 10 broadcasting-and-reduction terminology sheet and close the staged rollout."
         depends_on: [add-ch09-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 10 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/10-broadcasting-reductions.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance: ["English Chapters 1-10 each have a page-specific sheet; Chapter 0, Russian routes, and English Chapters 11-39 remain sheet-free; the full ten-sheet content/modal/narrow/no-JavaScript/Chromium/Firefox/Astro/link matrix passes; the final checkpoint is committed independently and closes the build."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox complete Chapter 1-10 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus the complete cached local static and two-engine browser regression matrix."}
-        runs: []
+        runs:
+          - run_id: 20260801T102218Z-add-ch10-cheat-sheet-01
+            started_at: "2026-08-01T10:22:18Z"
+            finished_at: "2026-08-01T10:28:25Z"
+            status: succeeded
+            input_fingerprint:
+              git: "01d756304d7a1e92c941376cea6eb2c99e14f1e3"
+              manifest: ".build/runs/20260801T102218Z-add-ch10-cheat-sheet-01/input-fingerprint.txt"
+              checksum: "sha256:30aa4aa209556a803b8910cd59a90fc4f0755e8e44ce8c842f29a0a92e1afa3c"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate pinned Linux Node 22.12.0/npm 10.9.0 and Playwright 1.61.1."
+              external: "No external source or paid service; current canonical English Chapter 10 is the terminology source."
+            staging_dir: ".build/runs/20260801T102218Z-add-ch10-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 01d7563, completed Chapter 9, Chapter 10 source ownership, environment pins, and exact one-sheet plus build-closure scope."
+              - "Add the ten-term canonical English Chapter 10 record and extend the shared source-grounding and rendered interaction matrices."
+              - "Build exact pinned source and complete workspace images; run focused Vitest plus Rust formatting, the complete Rust workspace, Astro diagnostics, content/parity, production-build, and static-link gates."
+              - "Run the complete Chapter 1-10 cheat-sheet interaction, keyboard, narrow-containment, no-JavaScript, locale, orientation, and staged-absence matrix in Chromium and Firefox."
+              - "Verify and remove the labelled Chapter 10 E2E volume, record the staged-build closure decision, freeze the three-file product checksum manifest, and close the build."
+            artifacts:
+              - path: ".build/runs/20260801T102218Z-add-ch10-cheat-sheet-01/input-fingerprint.txt"
+                checksum: "sha256:30aa4aa209556a803b8910cd59a90fc4f0755e8e44ce8c842f29a0a92e1afa3c"
+                notes: "Exact dependency, Chapter 10 source, shared tests, decisions, tools, and scope fingerprint before product edits."
+              - path: ".build/runs/20260801T102218Z-add-ch10-cheat-sheet-01/publish-product.sha256"
+                checksum: "sha256:6fc474bbf0b36caa704805e9db118f675d4d88d496827793438f7e0af9a26d8c"
+                notes: "Exact Chapter 10 English record and two shared focused-test files; governance ledgers are excluded."
+              - path: "DECISIONS.md"
+                checksum: "sha256:cf1c39a0103c77917c6b029d54528ea6d2c93b6584a77e7182f085c42c8c417c"
+                notes: "Durable closure decision for the completed English Chapter 1-10 rollout."
+              - path: "docker-image:learn-llm-cheat-sheet-source:local"
+                checksum: "sha256:be5cc68a89ac967f862edf6154d6bc97a06b774097adca45baf7d9422ede5509"
+                notes: "Exact Chapter 10 source snapshot used for the focused pinned test."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:568c253ab00017f985e7e7651a58c1d9e41e94ea02c0770761bb5d2194b628b2"
+                notes: "Exact clean Chapter 10 snapshot that passed the complete Linux workspace gate and supplied the final browser-test files."
+            validation:
+              - command: "Scheduler, dependency, working-tree, ownership, environment, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 9 is independently committed at 01d7563; the worktree was clean; Chapter 10 is the first eligible pending step and owns its English record, shared focused-test expectations, and staged-build closure."
+              - command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts"
+                status: passed
+                notes: "All 14 tests pass, including the exact ten-sheet set, prior-sheet regression, Chapter 10 source grounding, definitions, collection, resolver, modal-source, orientation, and locale guards."
+              - command: "Complete clean pinned-Linux workspace gate"
+                status: passed
+                notes: "Rust formatting and the complete workspace pass, including 364 library tests; Astro checks 210 files with zero diagnostics; 80 localized sources remain 40 bilingual chapter sets; content/parity, the 85-page build, and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."
+              - command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 31 Chapter 1-10 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."
+              - command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 31 equivalent Chapter 1-10 rendered and progressive-enhancement cases pass."
+              - command: "Product manifest, labelled-volume cleanup, whitespace, mode, completed-ledger, and build-closure audit"
+                status: passed
+                notes: "All three product hashes are frozen, the exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, git diff --check passes, no mode change exists, all ten sequential steps are completed, and active_build is null."
+            notes: "Succeeded. English Chapters 1-10 now each have one canonical page-specific LLM terminology sheet through the shared progressive modal. Chapter 0, Russian routes, and English Chapters 11-39 remain sheet-free by the staged scope. Focused content, complete clean Linux, static, link, Chromium, and Firefox gates pass; the exact Chapter 10 product manifest and durable build-closure decision are frozen for the standalone final commit."

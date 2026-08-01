@@ -1,0 +1,48 @@
+{
+  "chapter_id": "10-broadcasting-reductions",
+  "locale": "en",
+  "title": "Align compatible shapes, reduce a named axis",
+  "description": "A quick reference for the broadcasting, elementwise, and explicit-axis reduction terms used here.",
+  "terms": [
+    {
+      "term": "Broadcasting",
+      "definition": "Mapping compatible input shapes to one output shape while reusing size-one coordinates."
+    },
+    {
+      "term": "Trailing-axis alignment",
+      "definition": "Comparing shapes from their final axes, with missing leading axes treated as size one."
+    },
+    {
+      "term": "Singleton axis",
+      "definition": "An axis of extent one whose sole coordinate can be reused across a compatible extent."
+    },
+    {
+      "term": "Elementwise operation",
+      "definition": "Applying the same scalar function independently at every aligned output coordinate."
+    },
+    {
+      "term": "Reduction",
+      "definition": "Combining values along one named axis while preserving the other coordinates."
+    },
+    {
+      "term": "Reduction axis",
+      "definition": "The explicit tensor axis whose values are grouped by a reduction."
+    },
+    {
+      "term": "Keep dimension",
+      "definition": "An option that retains a reduced axis with extent one instead of removing it."
+    },
+    {
+      "term": "Feature axis",
+      "definition": "The tensor dimension indexing the components of each token's learned representation."
+    },
+    {
+      "term": "Attention softmax",
+      "definition": "A normalization of attention scores along the source-position axis after numerical stabilization."
+    },
+    {
+      "term": "Feature normalization",
+      "definition": "Normalizing each token's values with statistics computed across its feature axis."
+    }
+  ]
+}

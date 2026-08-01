@@ -11867,3 +11867,34 @@ hosting, deployment, or runtime-server change is introduced.
 **Affected build and first run:** `add-english-cheat-sheets-ch01-ch10`, step
 `add-ch01-cheat-sheet`, run
 `20260801T092306Z-add-ch01-cheat-sheet-01`.
+
+## 2026-08-01 - Complete the first English chapter cheat-sheet rollout
+
+**Status:** Accepted and completed in `add-ch10-cheat-sheet` run 01.
+
+**Context:** The shared progressive surface was introduced with Chapter 1, and
+the user required every subsequent sheet to pass and commit as its own checkpoint
+before the next chapter began. Chapters 1-10 now each have a concise terminology
+record grounded directly in the matching canonical English lesson.
+
+**Decision:** Close the staged build with exactly one English cheat sheet on each
+Chapter 1-10 page. Keep Chapter 0, all Russian pages, and English Chapters 11-39
+sheet-free until separate future localization or expansion checkpoints. Preserve
+the separate locale-aware content records and the one shared native-dialog plus
+no-JavaScript disclosure implementation; do not modify chapter revisions merely
+to add this reference surface.
+
+**Consequences:** The final exact snapshot passes 14 focused content and
+integration tests, 210 Astro files with zero diagnostics, 80 localized sources
+as 40 bilingual chapter sets, the complete Rust workspace including 364 library
+tests, an 85-page production build, and 2,447 local references plus 85 SEO,
+sitemap, and Analytics routes. Chromium and Firefox each pass all 31 cheat-sheet
+interaction, focus-restoration, narrow-containment, no-JavaScript, orientation,
+locale, and staged-absence cases. Russian cheat-sheet localization remains a
+future direct translation from these English source records and will require its
+own semantic and rendered-layout review. No dependency, build-definition,
+hosting, deployment, or runtime-server change was made.
+
+**Affected build and final run:** `add-english-cheat-sheets-ch01-ch10`, step
+`add-ch10-cheat-sheet`, run
+`20260801T102218Z-add-ch10-cheat-sheet-01`.

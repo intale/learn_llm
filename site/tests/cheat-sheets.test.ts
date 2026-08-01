@@ -164,6 +164,23 @@ const expectedSheets = {
       ['Attention head', 'parallel heads'],
     ],
   },
+  '10-broadcasting-reductions': {
+    file: '10-broadcasting-reductions.json',
+    lesson: '10-broadcasting-reductions.mdx',
+    title: 'Align compatible shapes, reduce a named axis',
+    entries: [
+      ['Broadcasting', 'Broadcasting and mean reduction'],
+      ['Trailing-axis alignment', 'trailing-axis alignment'],
+      ['Singleton axis', 'singleton and missing leading dimensions'],
+      ['Elementwise operation', 'elementwise operations'],
+      ['Reduction', 'A reduction is also not'],
+      ['Reduction axis', 'explicit zero-based reduction axis'],
+      ['Keep dimension', 'Keep dimension'],
+      ['Feature axis', 'final feature axis'],
+      ['Attention softmax', 'attention softmax'],
+      ['Feature normalization', 'feature normalization'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {
