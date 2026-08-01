@@ -133,6 +133,23 @@ const sheets = [
       'Contiguous storage',
     ],
   },
+  {
+    chapter: 9,
+    chapterId: '09-tensor-views',
+    title: 'Shared views and explicit tensor copies',
+    terms: [
+      'Tensor view',
+      'Reshape',
+      'Transpose',
+      'Axis permutation',
+      'Slice',
+      'Base offset',
+      'Row-major contiguity',
+      'Materialization',
+      'Query, key, and value (Q/K/V)',
+      'Attention head',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

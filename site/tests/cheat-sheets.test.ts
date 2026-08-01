@@ -147,6 +147,23 @@ const expectedSheets = {
       ['Contiguous storage', 'contiguous row-major buffer'],
     ],
   },
+  '09-tensor-views': {
+    file: '09-tensor-views.json',
+    lesson: '09-tensor-views.mdx',
+    title: 'Shared views and explicit tensor copies',
+    entries: [
+      ['Tensor view', 'shared tensor views'],
+      ['Reshape', 'First, reshape the view'],
+      ['Transpose', 'transpose axes `0` and `1`'],
+      ['Axis permutation', 'axis permutation'],
+      ['Slice', 'The frozen inner-axis slice'],
+      ['Base offset', 'base offset'],
+      ['Row-major contiguity', 'row-major contiguous'],
+      ['Materialization', 'Materialization is the operation'],
+      ['Query, key, and value (Q/K/V)', 'query, key, and value matrices'],
+      ['Attention head', 'parallel heads'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

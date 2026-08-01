@@ -1,0 +1,48 @@
+{
+  "chapter_id": "09-tensor-views",
+  "locale": "en",
+  "title": "Shared views and explicit tensor copies",
+  "description": "A quick reference for the tensor-view, layout-transform, and attention-shape terms used here.",
+  "terms": [
+    {
+      "term": "Tensor view",
+      "definition": "A borrowed interpretation of an owner's values with independent shape, stride, and offset metadata."
+    },
+    {
+      "term": "Reshape",
+      "definition": "Changing a contiguous view's shape while preserving its element count and logical order."
+    },
+    {
+      "term": "Transpose",
+      "definition": "Swapping axes and their strides without rearranging the underlying owner's values."
+    },
+    {
+      "term": "Axis permutation",
+      "definition": "Reordering every tensor axis and its corresponding extent and stride metadata."
+    },
+    {
+      "term": "Slice",
+      "definition": "A bounded subregion that shares storage while adjusting shape and base offset."
+    },
+    {
+      "term": "Base offset",
+      "definition": "The owner's flat-buffer position from which a view's coordinate mapping begins."
+    },
+    {
+      "term": "Row-major contiguity",
+      "definition": "A layout property where logical row-major traversal follows adjacent storage positions without gaps."
+    },
+    {
+      "term": "Materialization",
+      "definition": "Explicitly copying a view's logical values into a new contiguous tensor owner."
+    },
+    {
+      "term": "Query, key, and value (Q/K/V)",
+      "definition": "Three projected representations used to compare positions and combine information in attention."
+    },
+    {
+      "term": "Attention head",
+      "definition": "One parallel attention computation operating on its own projected feature subspace."
+    }
+  ]
+}
