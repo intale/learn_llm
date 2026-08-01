@@ -13,22 +13,80 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "38-cached-generation";
-const chapterTitle = "Prefill once, then advance one token";
-const chapterDescription =
-  "Learn how one independent KV cache per decoder block turns prompt prefill into coherent one-token decoding while matching complete-prefix generation.";
-const diagramTitle = "Prefill every layer once; decode every layer together";
-const diagramDescription =
-  "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, matches newest-position logits, and compares bounded attention-score work plus stopping and reset behavior.";
-const chapterHeadings = [
-  "Predict both cache lengths before running",
-  "Count attention-score cells, not total runtime",
-  "Keep retained length and final length separate",
-  "From causal stacks to prompt and decode phases",
-  "Prepare every block, then commit the stack",
-  "Follow prefill into one-token decode",
-  "Predict before checking the evidence",
-  "Connect inference to the whole pipeline",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Prefill once, then advance one token",
+    description:
+      "Learn how one KV cache per decoder block turns prompt processing into coherent one-token decoding, with measured newest-logit and generation checks against complete-prefix references.",
+    diagramTitle: "Prefill every layer once; decode every layer together",
+    diagramDescription:
+      "The exact Rust trace follows a two-token prompt and one later token through two distinct decoder-block caches, checks newest-position logits within tolerance, and compares measured attention-score work plus stopping and reset behavior.",
+    headings: [
+      "Predict both cache lengths before running",
+      "Count attention-score cells, not total runtime",
+      "Keep retained length and final length separate",
+      "From causal stacks to prompt and decode phases",
+      "Prepare every block, then commit the stack",
+      "Follow prefill into one-token decode",
+      "Predict before checking the evidence",
+      "Connect inference to the whole pipeline",
+    ],
+    cues: [
+      "| prompt prefill — solid border",
+      "|| new one-token decode — double border",
+      "= newest logits match within tolerance",
+    ],
+    detailsFragment:
+      "Equal values and shapes do not preserve parameter-node identity or the exact decoder configuration recorded by the cache",
+    constantTimeFragment: "Cached attention is not constant-time",
+    historyPolicyFragment:
+      "local correctness choices rather than policies defined by the cited papers",
+    historyCountFragment: "this exact schedule avoids",
+    contextBoundaryFragment:
+      "selected from those logits and returned, then context-limit stops before decoding it",
+    fullViewOpenLabel: "View diagram full screen",
+    fullViewCloseLabel: "Exit full screen",
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Один раз заполните кэши, затем декодируйте по одному токену",
+    description:
+      "Разберитесь, как отдельный KV-кэш (кэш ключей и значений) каждого блока декодера позволяет один раз обработать промпт, затем согласованно декодировать по одному токену и отдельно сверять с расчётом по полному префиксу логиты последней позиции и решения при генерации.",
+    diagramTitle:
+      "Один раз заполните кэш каждого слоя; затем декодируйте все слои согласованно",
+    diagramDescription:
+      "Точная трассировка программы на Rust проводит промпт из двух токенов и один следующий токен через два отдельных кэша блоков декодера, проверяет логиты последней позиции в пределах допуска и сравнивает измеренное число оценок внимания, причины остановки и поведение при сбросе.",
+    headings: [
+      "Предскажите длины обоих кэшей до запуска",
+      "Считайте значения оценок внимания, а не полное время работы",
+      "Не смешивайте сохранённую и конечную длины",
+      "От стека каузальных слоёв к обработке промпта и последовательному декодированию",
+      "Подготовьте каждый блок, затем согласованно примените изменения ко всему стеку",
+      "Проследите путь от промпта до декодирования одного токена",
+      "Сначала предскажите, затем проверьте свидетельства",
+      "Соедините вывод со всем процессом",
+    ],
+    cues: [
+      "| заполнение по промпту — сплошная рамка",
+      "|| новый шаг декодирования одного токена — двойная рамка",
+      "= логиты последней позиции совпадают в пределах допуска",
+    ],
+    detailsFragment:
+      "Одинаковые значения и формы не сохраняют идентичность узлов параметров и точную конфигурацию декодера, записанную в кэше",
+    constantTimeFragment: "Внимание с KV-кэшем не работает за постоянное время",
+    historyPolicyFragment:
+      "локальные правила корректности, а не требования цитируемых статей",
+    historyCountFragment:
+      "в этой заданной последовательности вызовов не вычисляются",
+    contextBoundaryFragment:
+      "выбирается из полученных логитов и возвращается, после чего ограничение контекста останавливает генерацию до его декодирования",
+    fullViewOpenLabel: "Развернуть схему на весь экран",
+    fullViewCloseLabel: "Выйти из полноэкранного режима",
+  },
+} as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
 
@@ -219,22 +277,24 @@ async function expectDiagramContainment(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 38,
-    revision: 1,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: ["en", "ru"],
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    localized.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -257,6 +317,7 @@ async function expectChapterContent(
       "expected a rendered formula containing " + expected,
     ).toBe(true);
   }
+  expect(annotations.map(normalizeMath)).toContain("28");
   expect(annotations.some((expression) => expression.includes("\\*"))).toBe(
     false,
   );
@@ -267,10 +328,10 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain("Cached attention is not constant-time");
-  expect(lessonText).toContain(
-    "local correctness choices rather than policies defined by those papers",
-  );
+  expect(lessonText).toContain(localized.constantTimeFragment);
+  expect(lessonText).toContain(localized.historyPolicyFragment);
+  expect(lessonText).toContain(localized.historyCountFragment);
+  expect(lessonText).toContain(localized.contextBoundaryFragment);
   for (const href of [
     "https://arxiv.org/pdf/1706.03762",
     "https://arxiv.org/pdf/1911.02150",
@@ -287,13 +348,15 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="cached-generation"]',
   );
-  await expect(diagram).toHaveAccessibleName(diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(
+    localized.diagramDescription,
+  );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-phase]")).toHaveCount(2);
   await expect(diagram.locator("[data-layer]")).toHaveCount(4);
   await expect(diagram.locator("[data-match-phase]")).toHaveCount(2);
-  await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
+  await expect(diagram.locator("[data-diagram-card]")).toHaveCount(12);
   await expect(diagram.locator("[data-diagram-box]")).toHaveCount(12);
   await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
   await expect(diagram.locator('[data-phase="prefill"]')).toHaveAttribute(
@@ -338,6 +401,18 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-proof="reference"]')).toContainText(
     "layer_caches=2",
   );
+  await expect(
+    diagram
+      .locator('[data-proof="cache"] annotation[encoding="application/x-tex"]')
+      .first(),
+  ).toHaveText("4\\times(1+2+3)=24");
+  await expect(
+    diagram
+      .locator(
+        '[data-proof="reference"] annotation[encoding="application/x-tex"]',
+      )
+      .first(),
+  ).toHaveText("4\\times(2^2+3^2)=52");
   await expect(diagram.locator('[data-generation="loaded"]')).toContainText(
     "[4,4] -> 44",
   );
@@ -347,6 +422,11 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-generation="loaded"]')).toContainText(
     "rng_match=true",
   );
+  await expect(
+    diagram.locator(
+      '[data-generation="loaded"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText(["t=2", "N_{\\mathrm{cache}}=6", "N_{\\mathrm{full}}=10"]);
   await expect(
     diagram
       .locator(
@@ -378,20 +458,21 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(9);
-  await expect(details).toContainText(
-    "Equal values and shapes do not preserve parameter-node identity",
-  );
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expect(details).toContainText(localized.detailsFragment);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
     ),
   ).toHaveAttribute("data-chapter-id", "37-incremental-attention");
-  await expect(
-    page.locator(
-      'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
-    ),
-  ).toHaveAttribute("data-chapter-id", "39-end-to-end-llm");
+  const next = page.locator(
+    'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
+  );
+  if (locale === "en") {
+    await expect(next).toHaveAttribute("data-chapter-id", "39-end-to-end-llm");
+  } else {
+    await expect(next).toHaveCount(0);
+  }
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -399,151 +480,165 @@ test.describe(
   "chapter 38 cached generation vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 38 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 38 routes", async ({
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
       expect(english).toHaveLength(39);
-      expect(english[37]).toEqual(
-        expect.objectContaining({
-          chapterId,
-          order: 38,
-          title: chapterTitle,
-        }),
-      );
       const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      expect(russian).toHaveLength(38);
+
+      for (const locale of locales) {
+        const chapters = locale === "en" ? english : russian;
+        expect(chapters[37]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 38,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute(
+          "href",
+          new RegExp(`/${other}/course/${chapterId}/$`),
+        );
+      }
     });
 
-    test("the complete cached-generation lesson renders at desktop and narrow widths", async ({
+    test("both complete cached-generation lessons render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
-      await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+      }
     });
 
-    test("the shared full-view control reuses the same complete figure", async ({
+    test("full view reuses each localized complete figure", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="cached-generation"]',
-      );
-      await expect(
-        page.locator('figure[data-visualization-id="cached-generation"]'),
-      ).toHaveCount(1);
-      const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-      await expect(toggle).toHaveCount(1);
-      await toggle.click();
-      await page.waitForFunction(
-        () =>
-          document.fullscreenElement?.getAttribute("data-visualization-id") ===
-          "cached-generation",
-      );
-      await expect(
-        page.locator('figure[data-visualization-id="cached-generation"]'),
-      ).toHaveCount(1);
-      await expect(diagram.locator("[data-phase]")).toHaveCount(2);
-      await expect(diagram.locator("[data-layer]")).toHaveCount(4);
-      await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
-      await expect(diagram.locator("[data-diagram-box]")).toHaveCount(12);
-      await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
-      await expectDiagramContainment(page);
-      await page.keyboard.press("Escape");
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      const controlNames: string[] = [];
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="cached-generation"]',
+        );
+        await expect(
+          page.locator('figure[data-visualization-id="cached-generation"]'),
+        ).toHaveCount(1);
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        await expect(toggle).toHaveAccessibleName(
+          copy[locale].fullViewOpenLabel,
+        );
+        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute(
+              "data-visualization-id",
+            ) === "cached-generation",
+        );
+        await expect(toggle).toHaveAccessibleName(
+          copy[locale].fullViewCloseLabel,
+        );
+        await expect(
+          page.locator('figure[data-visualization-id="cached-generation"]'),
+        ).toHaveCount(1);
+        await expect(diagram.locator("[data-phase]")).toHaveCount(2);
+        await expect(diagram.locator("[data-layer]")).toHaveCount(4);
+        await expect(diagram.locator("[data-diagram-card]")).toHaveCount(12);
+        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(12);
+        await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
+        await expectDiagramContainment(page);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+      expect(new Set(controlNames).size).toBe(locales.length);
     });
 
-    test("text plus solid and double phase cues survive forced colors", async ({
+    test("localized text plus solid and double phase cues survive forced colors", async ({
       page,
     }) => {
       await page.emulateMedia({ forcedColors: "active" });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="cached-generation"]',
-      );
-      await expect(diagram.locator(".cue-list li")).toHaveText([
-        "| prompt prefill - solid cue",
-        "|| new one-token decode - double cue",
-        "= newest logits match within tolerance",
-      ]);
-      await expect(
-        diagram.locator('[data-phase="prefill"] [data-layer="0"]'),
-      ).toHaveCSS("border-left-style", "solid");
-      await expect(
-        diagram.locator('[data-phase="decode"] [data-layer="0"]'),
-      ).toHaveCSS("border-left-style", "double");
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="cached-generation"]',
+        );
+        await expect(diagram.locator(".cue-list li")).toHaveText(
+          copy[locale].cues,
+        );
+        await expect(
+          diagram.locator('[data-phase="prefill"] [data-layer="0"]'),
+        ).toHaveCSS("border-left-style", "solid");
+        await expect(
+          diagram.locator('[data-phase="decode"] [data-layer="0"]'),
+        ).toHaveCSS("border-left-style", "double");
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("RTL prose keeps technical values and phase order left-to-right", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="cached-generation"]',
-      );
-      await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-      await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      expect(
-        await diagram
-          .locator("[data-phase]")
-          .evaluateAll((cards) =>
-            cards.map((card) => card.getAttribute("data-phase")),
-          ),
-      ).toEqual(["prefill", "decode"]);
-      expect(
-        await diagram
-          .locator("[data-layer]")
-          .evaluateAll((rows) =>
-            rows.map((row) => [
-              row.getAttribute("data-layer-phase"),
-              row.getAttribute("data-layer"),
-            ]),
-          ),
-      ).toEqual([
-        ["prefill", "0"],
-        ["prefill", "1"],
-        ["decode", "0"],
-        ["decode", "1"],
-      ]);
-      expect(
-        await diagram
-          .locator("code, bdi, [data-inline-math]")
-          .evaluateAll((nodes) =>
-            nodes.every((node) => getComputedStyle(node).direction === "ltr"),
-          ),
-      ).toBe(true);
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="cached-generation"]',
+        );
+        await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
+        await expect(diagram.locator("h4").first()).toHaveCSS(
+          "direction",
+          "rtl",
+        );
+        expect(
+          await diagram
+            .locator("[data-phase]")
+            .evaluateAll((cards) =>
+              cards.map((card) => card.getAttribute("data-phase")),
+            ),
+        ).toEqual(["prefill", "decode"]);
+        expect(
+          await diagram
+            .locator("[data-layer]")
+            .evaluateAll((rows) =>
+              rows.map((row) => [
+                row.getAttribute("data-layer-phase"),
+                row.getAttribute("data-layer"),
+              ]),
+            ),
+        ).toEqual([
+          ["prefill", "0"],
+          ["prefill", "1"],
+          ["decode", "0"],
+          ["decode", "1"],
+        ]);
+        expect(
+          await diagram
+            .locator("code, bdi, [data-inline-math]")
+            .evaluateAll((nodes) =>
+              nodes.every((node) => getComputedStyle(node).direction === "ltr"),
+            ),
+        ).toBe(true);
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("the complete model-wide cache evidence renders without JavaScript", async ({
@@ -554,49 +649,51 @@ test.describe(
         baseURL: String(testInfo.project.use.baseURL),
       });
       const page = await context.newPage();
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator("[data-phase]")).toHaveCount(2);
-      await expect(page.locator("[data-layer]")).toHaveCount(4);
-      await expect(page.locator("[data-match-phase]")).toHaveCount(2);
-      await expect(page.locator("[data-diagram-card]")).toHaveCount(8);
-      await expect(page.locator("[data-diagram-box]")).toHaveCount(12);
-      await expect(page.locator("[data-diagram-scroll]")).toHaveCount(0);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-        0,
-      );
-      await expect(page.locator('[data-phase="prefill"]')).toHaveAttribute(
-        "data-cache-after",
-        "2",
-      );
-      await expect(page.locator('[data-phase="decode"]')).toHaveAttribute(
-        "data-cache-after",
-        "3",
-      );
-      await expect(page.locator('[data-generation="loaded"]')).toContainText(
-        "tokens_match=true",
-      );
-      await expect(page.locator('[data-generation="loaded"]')).toContainText(
-        "rng_match=true",
-      );
-      await expect(
-        page
-          .locator(
-            '[data-generation="eos"] annotation[encoding="application/x-tex"]',
-          )
-          .last(),
-      ).toHaveText("n_{\\mathrm{decode}}=0");
-      await expect(page.locator('[data-proof="reset"]')).toContainText(
-        "replay_identical=true",
-      );
-      await expect(page.locator('[data-proof="errors"]')).toContainText(
-        "unchanged=true",
-      );
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(page.locator("[data-phase]")).toHaveCount(2);
+        await expect(page.locator("[data-layer]")).toHaveCount(4);
+        await expect(page.locator("[data-match-phase]")).toHaveCount(2);
+        await expect(page.locator("[data-diagram-card]")).toHaveCount(12);
+        await expect(page.locator("[data-diagram-box]")).toHaveCount(12);
+        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(0);
+        await expect(
+          page.locator("[data-diagram-full-view-toggle]"),
+        ).toHaveCount(0);
+        await expect(page.locator('[data-phase="prefill"]')).toHaveAttribute(
+          "data-cache-after",
+          "2",
+        );
+        await expect(page.locator('[data-phase="decode"]')).toHaveAttribute(
+          "data-cache-after",
+          "3",
+        );
+        await expect(page.locator('[data-generation="loaded"]')).toContainText(
+          "tokens_match=true",
+        );
+        await expect(page.locator('[data-generation="loaded"]')).toContainText(
+          "rng_match=true",
+        );
+        await expect(
+          page
+            .locator(
+              '[data-generation="eos"] annotation[encoding="application/x-tex"]',
+            )
+            .last(),
+        ).toHaveText("n_{\\mathrm{decode}}=0");
+        await expect(page.locator('[data-proof="reset"]')).toContainText(
+          "replay_identical=true",
+        );
+        await expect(page.locator('[data-proof="errors"]')).toContainText(
+          "unchanged=true",
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

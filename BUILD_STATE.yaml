@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T06:17:40Z"
+updated_at: "2026-08-01T06:19:09Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -25286,3 +25286,154 @@ builds:
                 status: passed
                 notes: "English sha256 ca5680a0, Russian sha256 83524662, contract sha256 7dbdedcf, and the 18-file product manifest sha256 19681886 are frozen; all required review dimensions pass and a later English meaning or presentation change is explicitly stale."
             notes: "Succeeded. English revision 2 now teaches rotated-key/unrotated-value cache semantics through measured projection reuse and a provenance-safe transactional API; the direct natural Russian projection is active with complete contract, SEO, accessibility, navigation, formula, source, exercise, and diagram parity. Exact Rust, focused unit, clean pinned Linux, 83-page link/SEO/sitemap/Analytics, Chromium, Firefox, checksum, and independent localization review gates pass; the 18-file product manifest is frozen for the standalone Chapter 37 commit."
+
+  - build_id: activate-ch38-russian-localization
+    objective: "Audit and correct Chapter 38 cached-generation evidence, translate the frozen lesson directly into natural technical Russian, and activate both locales."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large localization build uses cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "Canonical English Chapter 38 contains measured cached-generation evidence, exact formulas, qualified LLM-inference history, and learner-facing prose free of authoring mechanics."
+      - "Russian Chapter 38 is translated directly from the frozen current English revision with exact semantic, mathematical, historical, Rust, diagram, accessibility, SEO, exercise, and navigation parity."
+      - "Chapter 38 publishes in English and Russian, and the documented selective-localization boundary advances through Chapter 38 while Chapter 39 remains deferred."
+      - "Focused Rust, trace, content, parity, static-site, link, Chromium, and Firefox validation passes, and this checkpoint is committed independently before Chapter 39 starts."
+    steps:
+      - id: activate-ch38-russian-localization
+        objective: "Publish corrected English and direct natural-Russian Chapter 38 cached-generation instruction with measured executable and rendered evidence."
+        depends_on:
+          - activate-ch37-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-08-01 to translate all remaining chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum localization documentation and course plan revision 63"
+          - "Chapter 38 contract, English MDX, core cache implementation, Rust demo, exact output/trace, component, parser, and focused/shared tests"
+          - "Primary Vaswani et al., Shazeer, and PagedAttention sources cited by the English lesson"
+          - "Completed dependency commit 85218b4"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "curriculum/chapters/38-cached-generation.md"
+          - "site/src/content/chapters/en/38-cached-generation.mdx"
+          - "site/src/content/chapters/ru/38-cached-generation.mdx"
+          - "rust/crates/llm-from-scratch/src/generation/kv_cache.rs"
+          - "rust/demos/ch38-cached-generation/src/lib.rs"
+          - "rust/demos/ch38-cached-generation/expected.txt"
+          - "rust/demos/ch38-cached-generation/diagram-trace.txt"
+          - "site/src/lib/cached-generation-diagram.ts"
+          - "site/src/components/chapters/CachedGenerationDiagram.astro"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/38-cached-generation-diagram.test.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "shared formula and diagram tests only if revision or locale expectations require updates"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English lesson, historical claims, executable contrast, formulas, stopping semantics, accessibility, and diagram contract are audited and corrected before translation."
+          - "Historical Rust evidence derives cached and complete-prefix attention-score counts from the real fixture rather than returning hard-coded claims."
+          - "Learner claims distinguish newest-position logit/generation equivalence, exact stop boundaries, coherent multi-layer cache state, and the narrow attention-score metric from total runtime."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records complete Russian fields, terminology, translation notes, source checksum, and exact active locale set {en, ru}."
+          - "Both complete pages and the registered cached-generation figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, diagram, exact Rust, trace, Astro, static-link, formula, and supported Linux gates pass."
+          - "The completed Chapter 38 checkpoint is committed independently before Chapter 39 begins."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/38-cached-generation.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 38-cached-generation"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 38-cached-generation"
+          - "npm --prefix site run check:parity -- 38-cached-generation en ru"
+          - "npm --prefix site test -- --run tests/38-cached-generation-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch38-cached-generation && cargo clippy --locked -p ch38-cached-generation --all-targets -- -D warnings"
+          - "cargo test --locked -p llm-from-scratch generation::kv_cache && cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings"
+          - "cargo run --quiet --locked -p ch38-cached-generation | diff -u rust/demos/ch38-cached-generation/expected.txt -"
+          - "cargo run --quiet --locked -p ch38-cached-generation --example diagram_trace | diff -u rust/demos/ch38-cached-generation/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "Pinned Chromium and Firefox Chapter 38, formula-rendering, shared diagram-style, and shared full-view E2E gates"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical evidence repair, complete technical translation, locale activation, exact Rust/static checks, and two-engine rendered validation use substantial cached local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260801T061909Z-activate-ch38-russian-localization-01
+            started_at: "2026-08-01T06:19:09Z"
+            finished_at: "2026-08-01T07:22:31Z"
+            status: succeeded
+            input_fingerprint:
+              git: "85218b45e9dc4dd0161637533cead7cafd63cae2"
+              manifest: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:1a8e3b45c8bc4c9c1c2d7dcdcd09f5cd6f83832c3e320c9bcc9b92ca7210dff7"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; corrected current English Chapter 38, exact Rust evidence, cited primary LLM-inference sources, and the recorded terminology audit are authoritative."
+            staging_dir: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 85218b4; parse the complete ledger; recheck decisions, environment, localization instructions, locale policy, Chapter 38 sources/tests/evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit canonical Chapter 38 formulas, LLM-inference history against primary sources, executable score-cell contrast, cache/stopping semantics, learner-facing prose, accessibility, and shared diagram evidence before direct Russian translation."
+              - "Replace hard-coded history flags with measured per-phase cached and complete-prefix attention-score tensors; add exact model-wide cache, stop-precedence, reset, and typed-error evidence; update the report, trace, parser, shared-role diagram, English revision 2, and focused tests."
+              - "Freeze English revision 2 at sha256:7d0c69e27b270ef976a924bdb6e88b04829a6bb92ff4a6a33f066cecbaada62d, translate every Russian learner surface directly from it, complete the contract projection, run the semantic/terminology/anti-calque/monolingual/accessibility reviews, and activate {en, ru}."
+              - "Run focused Rust, byte-exact report/trace, contract, chapter, parity, course-plan, 83 selected Vitest, Astro, 84-page static-link/SEO/sitemap/Analytics, complete pinned-Linux, and exact 180-case Chromium plus 180-case Firefox gates."
+            artifacts:
+              - path: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:1a8e3b45c8bc4c9c1c2d7dcdcd09f5cd6f83832c3e320c9bcc9b92ca7210dff7"
+                notes: "Exact workflow, policy, canonical lesson, diagram, tests, Rust evidence, environment, scope, and dependency-commit fingerprint before Chapter 38 product edits."
+              - path: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:ae02dd8d05ff544e86b1c0b96e86525c6aeeb01302e0f41953fa488a8e7ced57"
+                notes: "Frozen English revision 2 commitments, exact fixture boundaries, formula distinction, historical-source qualifications, and Russian terminology plan before direct translation."
+              - path: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/localization-review.md"
+                checksum: "sha256:32ceea9c484e90c7d5ae9e7b31d5974833851df757a304313b18765ecb329fdb"
+                notes: "Final semantic, terminology, anti-calque, monolingual, formula, history, SEO, accessibility, evidence, and two-engine rendered review."
+              - path: ".build/runs/20260801T061909Z-activate-ch38-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:00ac0a43baba679a4cc1a064ec829d611ec163847415cfb0a4a16eaadf75fe2d"
+                notes: "Frozen SHA-256 manifest for exactly 18 Chapter 38 product, locale-policy, shared-integration, and focused-test files; governance ledgers are excluded."
+              - path: "docker-image:learn-llm-workspace:local"
+                checksum: "sha256:0f62304e3efde393ef283f878990c11c0909c38a149d90f56fd5b236ac2a3283"
+                notes: "Exact final corrected-source pinned Linux manifest list used for accepted complete static, focused, Chromium, and Firefox validation."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 37 is independently committed at 85218b4; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins match; Chapter 38 is the first deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "Primary-source history, canonical English, measured fixture, stopping, diagram, and learner-language audit"
+                status: passed
+                notes: "Vaswani et al. support the stacked causal decoder boundary, Shazeer supports explicit previous K/V state without an invention claim, and Kwon et al. support prompt/generation separation plus layer/head KV state. English revision 2 scopes equivalence to the exact fixtures, distinguishes score-element counts from runtime, and exposes exact context and EOS boundaries."
+              - command: "Focused Chapter 38 demo/core Rust tests, warning-denied Clippy, and byte-exact report/diagram-trace diffs"
+                status: passed
+                notes: "All 4 demo and 13 focused core tests pass; the one-layer/two-head mutation test rejects hard-coded work counts; both Clippy gates pass; stdout and the diagram trace match their fixtures byte for byte."
+              - command: "First integrated course-plan invocation after content corrections"
+                status: failed
+                notes: "The validator correctly found that a broadened reviewed-plan outcome no longer matched the immutable completed implementation-step objective, then found missing formula punctuation. The historical outcome was restored, the revised evidence moved to integration/revision fields, and the exact formula punctuation was aligned; no product runtime failed."
+              - command: "Final Chapter 38 contract, English/Russian content, parity, locale policy, course-plan, formula, diagram, and focused unit gates"
+                status: passed
+                notes: "The direct contract and both lessons pass; all 79 localized sources form 40 publishable sets; plan revision 64 validates 40 chapters and 110 steps; six selected files pass 83 tests, including exact bilingual contract/frontmatter and anti-calque guards."
+              - command: "First bind-mounted production build"
+                status: failed
+                notes: "Astro diagnostics and all 82 then-current focused tests passed, but a stale root-owned bind-mounted site/dist directory caused EACCES while Vite removed .prerender. Repeating with an isolated anonymous output volume passed; source validation did not fail and no product file changed."
+              - command: "Pinned isolated static build and link/SEO/sitemap/Analytics audit"
+                status: passed
+                notes: "Astro reports 206 files with zero diagnostics; the exact active policy builds 84 HTML pages and passes 2,339 local references, 84 SEO routes, 84 sitemap URLs, and 84 Analytics routes."
+              - command: "Complete clean pinned-Linux workspace gate"
+                status: passed
+                notes: "The final image passes every workspace Rust test, 206-file Astro check, all content/parity gates, production build, and static-link audit from copied clean source at manifest-list sha256:0f62304e3efde393ef283f878990c11c0909c38a149d90f56fd5b236ac2a3283."
+              - command: "Pinned Playwright Chromium Chapter 38, formula-rendering, shared diagram-style, and shared full-view gates"
+                status: passed
+                notes: "All 180 cases pass on the exact clean build, including both localized Chapter 38 routes at desktop/narrow widths, native full view, no JavaScript, forced colors, synthetic RTL, formula geometry, focus restoration, and every bounded diagram box."
+              - command: "Pinned Playwright Firefox Chapter 38, formula-rendering, shared diagram-style, and shared full-view gates"
+                status: passed
+                notes: "All 180 cases pass with the same exact bilingual, geometry, fallback, accessibility, and direction-sensitive surface matrix."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical-source, and rendered-surface review"
+                status: passed
+                notes: "English sha256 7d0c69e2, Russian sha256 8799f1a4, contract sha256 e9c08f9f, and the 18-file product manifest sha256 00ac0a43 are frozen; every required review dimension passes and a later English meaning or presentation change is explicitly stale."
+              - command: "Final completed-ledger, scheduler, course-plan, exact-scope, mode, whitespace, and product-manifest audit"
+                status: passed
+                notes: "The complete YAML ledger parses with active_build null, this build/step completed, run 01 succeeded, and no running step; plan revision 64 remains valid with 40 chapters and 110 steps; exactly 18 manifested product files plus BUILD_STATE.yaml and DECISIONS.md are in scope; all 18 hashes match; git diff --check passes and no mode change exists."
+            notes: "Succeeded. Chapter 38 now derives cached and complete-prefix attention-score evidence from actual fixture tensors, states coherent model-wide cache and exact stopping boundaries, and uses one shared contained diagram. Its direct natural Russian projection is active with complete contract, SEO, accessibility, formula, source, exercise, navigation, and rendered parity. Focused Rust/unit, clean pinned Linux, 84-page link/SEO/sitemap/Analytics, 180-case Chromium, 180-case Firefox, checksum, and independent localization review gates pass; the exact 18-file product manifest is frozen for this standalone commit."

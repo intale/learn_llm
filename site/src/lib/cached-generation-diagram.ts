@@ -14,6 +14,8 @@ export interface CachedGenerationMatchTrace {
   readonly phase: CachedGenerationPhase;
   readonly cached: readonly string[];
   readonly completePrefix: readonly string[];
+  readonly cachedScores: string;
+  readonly completePrefixScores: string;
   readonly maxAbsDiff: string;
 }
 
@@ -53,6 +55,7 @@ export interface CachedGenerationWorkTrace {
 
 export interface CachedGenerationLoadedTrace {
   readonly checkpointBytes: string;
+  readonly contextCapacity: string;
   readonly rngState: string;
   readonly prompt: readonly string[];
   readonly generated: readonly string[];
@@ -60,10 +63,21 @@ export interface CachedGenerationLoadedTrace {
   readonly prefixes: readonly string[];
   readonly stop: "context-limit";
   readonly finalCache: string;
+  readonly prefillTokens: string;
+  readonly decodeTokens: string;
   readonly cachedScores: string;
   readonly completePrefixScores: string;
   readonly tokensMatch: "true";
   readonly rngMatch: "true";
+}
+
+export interface CachedGenerationHistoryTrace {
+  readonly lanes: string;
+  readonly cachedLengths: readonly string[];
+  readonly cachedScores: string;
+  readonly completePrefixLengths: readonly string[];
+  readonly completePrefixScores: string;
+  readonly avoidedScores: string;
 }
 
 export interface CachedGenerationEosTrace {
@@ -85,7 +99,7 @@ export interface CachedGenerationTrace {
   readonly eos: CachedGenerationEosTrace;
   readonly reset: Readonly<Record<string, string>>;
   readonly errors: Readonly<Record<string, "true">>;
-  readonly history: Readonly<Record<string, "true">>;
+  readonly history: CachedGenerationHistoryTrace;
   readonly next: "end-to-end-llm";
 }
 
@@ -139,17 +153,17 @@ CONFIG|layers=2|heads=2|model_width=4|head_width=2|capacity=4|tolerance=0.000000
 PREFILL|prompt=[0,1]|cache_before=0|cache_after=2|positions=[0,1]|layer_lengths=[2,2]|cache_shape=[1,2,2,2]
 LAYER|phase=prefill|layer=0|cache_len=2|shape=[1,2,2,2]|storage=distinct
 LAYER|phase=prefill|layer=1|cache_len=2|shape=[1,2,2,2]|storage=distinct
-MATCH|phase=prefill|cached=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|complete_prefix=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|max_abs_diff=0.000000000000
+MATCH|phase=prefill|cached=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|complete_prefix=[1.768374438,0.208825256,1.056205728,-0.451857108,0.388467944]|cached_scores=12|complete_prefix_scores=16|max_abs_diff=0.000000000000
 DECODE|token=2|position=2|cache_before=2|cache_after=3|layer_lengths=[3,3]|cache_shape=[1,2,3,2]
 LAYER|phase=decode|layer=0|cache_len=3|shape=[1,2,3,2]|storage=distinct
 LAYER|phase=decode|layer=1|cache_len=3|shape=[1,2,3,2]|storage=distinct
-MATCH|phase=decode|cached=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|complete_prefix=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|max_abs_diff=0.000000000000
+MATCH|phase=decode|cached=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|complete_prefix=[0.032908910,-0.679583624,1.408381841,0.525525421,-0.588014095]|cached_scores=12|complete_prefix_scores=36|max_abs_diff=0.000000000000
 WORK|prefill_tokens=2|decode_tokens=1|layer_caches=2|cache_appends=6|qkv_rows=18|cached_scores=24|complete_prefix_scores=52|formula_cached=4*(1+2+3)|formula_complete=4*(2^2+3^2)
-LOADED|checkpoint_bytes=6330|rng_state=0x9e3779b97f4a7c38|prompt=[0]|generated=[4,4]|text=44|prefixes=[1,2]|stop=context-limit|final_cache=2|cached_scores=6|complete_prefix_scores=10|tokens_match=true|rng_match=true
+LOADED|checkpoint_bytes=6330|context_capacity=2|rng_state=0x9e3779b97f4a7c38|prompt=[0]|generated=[4,4]|text=44|prefixes=[1,2]|stop=context-limit|final_cache=2|prefill_tokens=1|decode_tokens=1|cached_scores=6|complete_prefix_scores=10|tokens_match=true|rng_match=true
 EOS|token=4|generated=[4]|stop=eos|final_cache=1|decode_tokens=0|tokens_match=true|rng_match=true
 RESET|before=3|after=0|allocation_reused=true|storage_unchanged=true|work_zeroed=true|replay_identical=true
 ERRORS|decode_before_prefill=true|prefill_nonempty=true|overflow=true|rebuilt_model=true|changed_config=true|unchanged=true
-HISTORY|causal_stack=true|previous_kv=true|prompt_decode=true|paging_deferred=true
+HISTORY|lanes=4|cached_lengths=[1,2,3]|cached_scores=24|complete_prefix_lengths=[2,3]|complete_prefix_scores=52|avoided_scores=28
 END|next=end-to-end-llm
 `;
 
@@ -370,7 +384,14 @@ function parseMatch(
   const fields = record(line, "MATCH");
   exactKeys(
     fields,
-    ["phase", "cached", "complete_prefix", "max_abs_diff"],
+    [
+      "phase",
+      "cached",
+      "complete_prefix",
+      "cached_scores",
+      "complete_prefix_scores",
+      "max_abs_diff",
+    ],
     "MATCH",
   );
   if (required(fields, "phase") !== phase) invalid("MATCH phase changed");
@@ -384,6 +405,14 @@ function parseMatch(
     "MATCH max_abs_diff",
     decimalTwelvePattern,
   );
+  const cachedScores = canonicalInteger(
+    required(fields, "cached_scores"),
+    "MATCH cached_scores",
+  );
+  const completePrefixScores = canonicalInteger(
+    required(fields, "complete_prefix_scores"),
+    "MATCH complete_prefix_scores",
+  );
   if (
     cached.length !== 5 ||
     completePrefix.length !== 5 ||
@@ -392,7 +421,14 @@ function parseMatch(
     Number(maxAbsDiff) > tolerance
   )
     invalid("MATCH reference or tolerance contract changed");
-  return Object.freeze({ phase, cached, completePrefix, maxAbsDiff });
+  return Object.freeze({
+    phase,
+    cached,
+    completePrefix,
+    cachedScores,
+    completePrefixScores,
+    maxAbsDiff,
+  });
 }
 
 export function parseCachedGenerationTrace(
@@ -578,10 +614,25 @@ export function parseCachedGenerationTrace(
     formulaCached: required(workFields, "formula_cached"),
     formulaComplete: required(workFields, "formula_complete"),
   });
+  const tokenForwards = Number(work.prefillTokens) + Number(work.decodeTokens);
+  if (
+    work.prefillTokens !== prefillAfter ||
+    Number(work.decodeTokens) !== Number(decodeAfter) - Number(decodeBefore) ||
+    work.layerCaches !== required(config, "layers") ||
+    Number(work.cacheAppends) !== Number(work.layerCaches) * tokenForwards ||
+    Number(work.qkvRows) !== 3 * Number(work.cacheAppends) ||
+    Number(work.cachedScores) !==
+      Number(prefillMatch.cachedScores) + Number(decodeMatch.cachedScores) ||
+    Number(work.completePrefixScores) !==
+      Number(prefillMatch.completePrefixScores) +
+        Number(decodeMatch.completePrefixScores)
+  )
+    invalid("WORK counters disagree with phase evidence");
 
   const loadedFields = record(lines[cursor++], "LOADED");
   const loadedKeys = [
     "checkpoint_bytes",
+    "context_capacity",
     "rng_state",
     "prompt",
     "generated",
@@ -589,6 +640,8 @@ export function parseCachedGenerationTrace(
     "prefixes",
     "stop",
     "final_cache",
+    "prefill_tokens",
+    "decode_tokens",
     "cached_scores",
     "complete_prefix_scores",
     "tokens_match",
@@ -598,6 +651,10 @@ export function parseCachedGenerationTrace(
   const checkpointBytes = canonicalInteger(
     required(loadedFields, "checkpoint_bytes"),
     "LOADED checkpoint_bytes",
+  );
+  const contextCapacity = canonicalInteger(
+    required(loadedFields, "context_capacity"),
+    "LOADED context_capacity",
   );
   const rngState = required(loadedFields, "rng_state");
   if (!lowerHex64Pattern.test(rngState))
@@ -621,6 +678,14 @@ export function parseCachedGenerationTrace(
     required(loadedFields, "final_cache"),
     "LOADED final_cache",
   );
+  const loadedPrefillTokens = canonicalInteger(
+    required(loadedFields, "prefill_tokens"),
+    "LOADED prefill_tokens",
+  );
+  const loadedDecodeTokens = canonicalInteger(
+    required(loadedFields, "decode_tokens"),
+    "LOADED decode_tokens",
+  );
   const loadedCachedScores = canonicalInteger(
     required(loadedFields, "cached_scores"),
     "LOADED cached_scores",
@@ -632,11 +697,21 @@ export function parseCachedGenerationTrace(
   if (
     required(loadedFields, "stop") !== "context-limit" ||
     required(loadedFields, "tokens_match") !== "true" ||
-    required(loadedFields, "rng_match") !== "true"
+    required(loadedFields, "rng_match") !== "true" ||
+    loadedPrompt.join(",") !== "0" ||
+    loadedGenerated.join(",") !== "4,4" ||
+    prefixes.join(",") !== "1,2" ||
+    loadedFinalCache !== contextCapacity ||
+    loadedPrefillTokens !== String(loadedPrompt.length) ||
+    Number(loadedDecodeTokens) !== loadedGenerated.length - 1 ||
+    Number(loadedPrefillTokens) + Number(loadedDecodeTokens) !==
+      Number(loadedFinalCache) ||
+    prefixes.at(-1) !== contextCapacity
   )
-    invalid("LOADED replay evidence changed");
+    invalid("LOADED replay or context-stop evidence changed");
   const loaded: CachedGenerationLoadedTrace = Object.freeze({
     checkpointBytes,
+    contextCapacity,
     rngState,
     prompt: loadedPrompt,
     generated: loadedGenerated,
@@ -644,6 +719,8 @@ export function parseCachedGenerationTrace(
     prefixes,
     stop: "context-limit" as const,
     finalCache: loadedFinalCache,
+    prefillTokens: loadedPrefillTokens,
+    decodeTokens: loadedDecodeTokens,
     cachedScores: loadedCachedScores,
     completePrefixScores: loadedCompleteScores,
     tokensMatch: "true" as const,
@@ -680,7 +757,10 @@ export function parseCachedGenerationTrace(
   if (
     required(eosFields, "stop") !== "eos" ||
     required(eosFields, "tokens_match") !== "true" ||
-    required(eosFields, "rng_match") !== "true"
+    required(eosFields, "rng_match") !== "true" ||
+    eosGenerated.join(",") !== eosToken ||
+    eosFinalCache !== String(loadedPrompt.length) ||
+    eosDecodeTokens !== "0"
   )
     invalid("EOS replay evidence changed");
   const eos: CachedGenerationEosTrace = Object.freeze({
@@ -706,8 +786,16 @@ export function parseCachedGenerationTrace(
     ],
     "RESET",
   );
-  canonicalInteger(required(reset, "before"), "RESET before");
-  canonicalInteger(required(reset, "after"), "RESET after");
+  const resetBefore = canonicalInteger(
+    required(reset, "before"),
+    "RESET before",
+  );
+  const resetAfter = canonicalInteger(
+    required(reset, "after"),
+    "RESET after",
+  );
+  if (resetBefore !== decodeAfter || resetAfter !== "0")
+    invalid("RESET boundary disagrees with decode state");
   for (const key of [
     "allocation_reused",
     "storage_unchanged",
@@ -724,12 +812,63 @@ export function parseCachedGenerationTrace(
     "changed_config",
     "unchanged",
   ]);
-  const history = trueRecord(lines[cursor++], "HISTORY", [
-    "causal_stack",
-    "previous_kv",
-    "prompt_decode",
-    "paging_deferred",
-  ]);
+  const historyFields = record(lines[cursor++], "HISTORY");
+  exactKeys(
+    historyFields,
+    [
+      "lanes",
+      "cached_lengths",
+      "cached_scores",
+      "complete_prefix_lengths",
+      "complete_prefix_scores",
+      "avoided_scores",
+    ],
+    "HISTORY",
+  );
+  const historyLanes = canonicalInteger(
+    required(historyFields, "lanes"),
+    "HISTORY lanes",
+  );
+  const historyCachedLengths = integerList(
+    required(historyFields, "cached_lengths"),
+    "HISTORY cached_lengths",
+  );
+  const historyCachedScores = canonicalInteger(
+    required(historyFields, "cached_scores"),
+    "HISTORY cached_scores",
+  );
+  const historyCompletePrefixLengths = integerList(
+    required(historyFields, "complete_prefix_lengths"),
+    "HISTORY complete_prefix_lengths",
+  );
+  const historyCompletePrefixScores = canonicalInteger(
+    required(historyFields, "complete_prefix_scores"),
+    "HISTORY complete_prefix_scores",
+  );
+  const historyAvoidedScores = canonicalInteger(
+    required(historyFields, "avoided_scores"),
+    "HISTORY avoided_scores",
+  );
+  if (
+    Number(historyLanes) !==
+      Number(required(config, "layers")) * Number(required(config, "heads")) ||
+    historyCachedLengths.join(",") !== `1,${prefillAfter},${decodeAfter}` ||
+    historyCompletePrefixLengths.join(",") !==
+      `${prefillAfter},${decodeAfter}` ||
+    historyCachedScores !== work.cachedScores ||
+    historyCompletePrefixScores !== work.completePrefixScores ||
+    Number(historyAvoidedScores) !==
+      Number(historyCompletePrefixScores) - Number(historyCachedScores)
+  )
+    invalid("HISTORY contrast disagrees with measured work");
+  const history: CachedGenerationHistoryTrace = Object.freeze({
+    lanes: historyLanes,
+    cachedLengths: historyCachedLengths,
+    cachedScores: historyCachedScores,
+    completePrefixLengths: historyCompletePrefixLengths,
+    completePrefixScores: historyCompletePrefixScores,
+    avoidedScores: historyAvoidedScores,
+  });
   const end = record(lines[cursor++], "END");
   exactKeys(end, ["next"], "END");
   if (required(end, "next") !== "end-to-end-llm")

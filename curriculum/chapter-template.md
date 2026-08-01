@@ -106,8 +106,8 @@ Before filling in this contract, find the chapter's exact `activeLocales` entry 
 `site/src/i18n/chapter-locales.json`. Every localized contract object must contain
 exactly those locale keys, and matching lesson frontmatter for each active locale
 copies the localized `worked_inputs`, `history`, and `decoder_connection` values.
-The English-only example above matches the current Chapter 38–39 active sets;
-Chapters 0–37 use English and Russian. A registered but inactive locale gets no
+The English-only example above matches the current Chapter 39 active set;
+Chapters 0–38 use English and Russian. A registered but inactive locale gets no
 placeholder contract key, lesson, or chapter route. Every ordered lesson section
 contains teaching prose, the formula section renders the exact `formula.latex`, the
 Rust section owns its `<RustSource>` evidence, useful visualizations invoke every

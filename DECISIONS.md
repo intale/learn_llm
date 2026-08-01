@@ -11560,6 +11560,48 @@ the checkpoint is committed.
 **Affected step and run:** `activate-ch36-russian-localization`, run
 `20260801T042840Z-activate-ch36-russian-localization-01`.
 
+## 2026-08-01 - Complete corrected bilingual Chapter 38 cached generation
+
+**Status:** Accepted and completed in `activate-ch38-russian-localization` run
+01.
+
+**Context:** The pre-translation audit found that Chapter 38 returned hard-coded
+historical booleans, reconstructed work claims without retaining the actual
+per-phase attention tensors, used overly broad generation-equivalence wording,
+and left the loaded context/EOS boundaries less explicit than the executable
+behavior. Its diagram also duplicated shared presentation roles, while the
+Russian route remained deferred.
+
+**Decision:** Publish English revision 2 and its direct natural Russian
+projection. Derive the $24$ cached and $52$ complete-prefix score-value counts
+from the actual fixture tensors, retain their distinct call schedules, record the
+$28$ avoided values without calling them runtime, and make model-wide commit,
+reset, exact error, EOS, token-limit, and context-limit evidence explicit. Use
+the shared diagram roles and math pipeline, activate exactly `{en, ru}` for
+Chapter 38, advance the selective Russian boundary through Chapter 38, and keep
+only Chapter 39 deferred for its independent checkpoint.
+
+**Consequences:** English is
+`sha256:7d0c69e27b270ef976a924bdb6e88b04829a6bb92ff4a6a33f066cecbaada62d`,
+Russian is
+`sha256:8799f1a439ea26146f00fe77b0125db3e5baba9cc855bec99512c01b5f01851c`,
+the contract is
+`sha256:e9c08f9ff9a78cef61385d1997e60c98bdf132dcf93ae281876064bc8848a861`,
+and the exact 18-file product manifest is
+`sha256:00ac0a43baba679a4cc1a064ec829d611ec163847415cfb0a4a16eaadf75fe2d`.
+The pinned clean Linux image
+`sha256:0f62304e3efde393ef283f878990c11c0909c38a149d90f56fd5b236ac2a3283`
+passes the complete Rust/content/static gate, builds 84 pages, and validates
+2,339 local references plus 84 SEO, sitemap, and Analytics routes. Chromium and
+Firefox each pass all 180 selected Chapter 38, formula, diagram-style, and
+full-view cases. No dependency, package, build-definition, hosting, deployment,
+or user-environment change was made. A later English meaning or presentation
+change makes this Russian review stale until it is refreshed directly from
+English.
+
+**Affected step and run:** `activate-ch38-russian-localization`, run
+`20260801T061909Z-activate-ch38-russian-localization-01`.
+
 ## 2026-08-01 - Complete corrected bilingual Chapter 37 cache instruction
 
 **Status:** Accepted and completed in `activate-ch37-russian-localization` run
@@ -11600,6 +11642,33 @@ until it is refreshed directly from English.
 
 **Affected step and run:** `activate-ch37-russian-localization`, run
 `20260801T051259Z-activate-ch37-russian-localization-01`.
+
+## 2026-08-01 - Audit Chapter 38 before Russian activation
+
+**Status:** Accepted during `activate-ch38-russian-localization` run 01 before
+learner-facing edits.
+
+**Context:** Chapter 38 is the next deferred Russian route after the independently
+committed Chapter 37 checkpoint. English remains the semantic source, so its
+cached-generation formula, historical claims, executable attention-work
+contrast, coherent model-wide cache semantics, stopping behavior, diagram
+contract, and learner-facing language must be verified before translation.
+
+**Decision:** Complete Chapter 38 as one standalone checkpoint. Correct every
+canonical defect found by the audit, freeze a new English revision when meaning
+or presentation changes, translate it directly into natural technical Russian,
+activate exactly `{en, ru}`, and advance the selective locale boundary only
+through Chapter 38. Keep Chapter 39 deferred until its independent checkpoint.
+
+**Consequences:** The accepted step may revise the Chapter 38 report, trace,
+parser, diagram, core/demo tests, and learner prose when needed to replace
+asserted evidence with measured fixture values or make state/stopping claims
+precise. It will not change dependencies, build definitions, hosting,
+deployment, or the user environment. Both localized pages and the complete
+figure require Chromium and Firefox validation before publication.
+
+**Affected step and run:** `activate-ch38-russian-localization`, run
+`20260801T061909Z-activate-ch38-russian-localization-01`.
 
 ## 2026-08-01 - Audit Chapter 37 before Russian activation
 

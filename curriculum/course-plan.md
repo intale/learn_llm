@@ -1,30 +1,30 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 63,
+  "plan_revision": 64,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-37",
+    "policy_id": "selective-russian-through-chapter-38",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "37-incremental-attention",
+        "through_chapter": "38-cached-generation",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-37."
+        "reason": "Publish the reviewed Russian orientation and Chapters 1-38."
       },
       {
-        "from_chapter": "38-cached-generation",
+        "from_chapter": "39-end-to-end-llm",
         "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en"
         ],
-        "reason": "Produce English only from the chapter after Chapter 37 until a later explicit locale activation."
+        "reason": "Produce English only for Chapter 39 until a later explicit locale activation."
       }
     ],
     "deferred_locales": [
@@ -359,6 +359,11 @@
         "step_id": "activate-ch37-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch37-russian-localization"
+      },
+      {
+        "step_id": "activate-ch38-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch38-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -928,9 +933,9 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–37 activate
-both, while Chapters 38–39 activate English only. Russian therefore keeps its index
-and Chapter 0–37 lessons but receives no placeholder lesson or route for a deferred
+and chapter validation. English and Russian are registered; Chapters 0–38 activate
+both, while Chapter 39 activates English only. Russian therefore keeps its index
+and Chapter 0–38 lessons but receives no placeholder lesson or route for a deferred
 chapter. The same rules apply to any registered locale.
 
 The post-prerequisite gate for every chapter is:
@@ -1577,13 +1582,14 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Depends on:** `37-incremental-attention`.
 - **Outcome:** Thread independent layer caches through the decoder so prefill plus one-token decode reproduces uncached generation.
 - **Scope boundary:** Teach one cache per block, prompt prefill, decode state, context limits, reset, and cached generation API ownership; introduce no paged attention, batching, eviction, or production memory kernels.
-- **Formula:** `\sum_{t=1}^{T}t^2\in\Theta(T^3),\quad \sum_{t=1}^{T}t\in\Theta(T^2)`.
+- **Formula:** `\sum_{t=1}^{T}t^2\in\Theta(T^3),\quad \sum_{t=1}^{T}t\in\Theta(T^2)\,.`.
 - **Historical contrast:** Contrast complete-prefix decoder recomputation at every generated token with a stateful prefill/decode interface.
 - **Rust contribution:** Add model-wide cache state plus prefill and decode APIs, update every block coherently, and integrate them with the Chapter 36 sampler.
 - **Visualization:** Useful — separate one-time prompt prefill from repeated single-token decode across a stack of distinct layer caches.
 - **Practice:** Assign cache ownership for a three-block model and compare uncached versus cached attention-score counts.
-- **Integration evidence:** Loaded-model logits and text match uncached generation within tolerance; multi-layer isolation, prefill, append, reset, overflow, model mismatch, seeded EOS stopping, and complexity counters pass.
+- **Integration evidence:** Fixture newest-position logits match complete-prefix references within tolerance; restored cached and complete-prefix paths match selected tokens, sampling draws, final RNG state, and stops; measured score tensors, multi-layer isolation, prefill, append, reset, overflow, and exact model errors pass.
 - **Handoff:** Chapter 39 proves the complete course as one train/evaluate/save/load/cached-generate program.
+- **Revision status:** Content revision 2 derives the historical work contrast from measured attention-score tensors, scopes equivalence claims to the exact fixtures, makes stop precedence and the loaded context boundary explicit, uses the shared diagram presentation roles, and publishes the direct meaning-first Russian localization through `activate-ch38-russian-localization`.
 
 ## 39. Capstone: an end-to-end tiny LLM
 

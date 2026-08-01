@@ -30,7 +30,7 @@ const descriptionId = 'cached-generation-diagram-description';
   <figcaption class="course-diagram__caption">
     <h3 id={titleId}>{labels.title}</h3>
     <p id={descriptionId} class="course-diagram__description">{labels.description}</p>
-    <ul class="cue-list" aria-label={labels.sections.timeline}>
+    <ul class="cue-list course-diagram__grid" aria-label={labels.sections.timeline}>
       <li><span aria-hidden="true">|</span> {labels.cues.prefill}</li>
       <li><span aria-hidden="true">||</span> {labels.cues.decode}</li>
       <li><span aria-hidden="true">=</span> {labels.cues.match}</li>
@@ -40,9 +40,9 @@ const descriptionId = 'cached-generation-diagram-description';
   <section aria-labelledby="cached-generation-timeline-title">
     <h4 id="cached-generation-timeline-title">{labels.sections.timeline}</h4>
     <p>{labels.captions.timeline}</p>
-    <div class="phase-grid">
+    <div class="phase-grid course-diagram__grid">
       <article
-        class="phase-card"
+        class="phase-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-phase="prefill"
@@ -51,7 +51,7 @@ const descriptionId = 'cached-generation-diagram-description';
         data-cache-shape={trace.prefill.cacheShape.join(',')}
         data-status="match"
       >
-        <header class="phase-header">
+        <header class="phase-header course-diagram__card-heading">
           <h5>{labels.cues.prefill}</h5>
           <span class="state-symbol" aria-hidden="true">|</span>
         </header>
@@ -71,12 +71,13 @@ const descriptionId = 'cached-generation-diagram-description';
         </p>
         <p>
           <strong>{labels.fields.shape}:</strong>
-          <code><bdi dir="ltr">[{trace.prefill.cacheShape.join(',')}]</bdi></code>
+          <InlineMath latex={`\\left[${trace.prefill.cacheShape.join(',')}\\right]`} />
         </p>
-        <ol class="layer-list">
+        <ol class="layer-list course-diagram__grid">
           {trace.prefill.layers.map((layer) => (
             <li
-              class="layer-row"
+              class="layer-row course-diagram__card-stack"
+              data-diagram-card
               data-diagram-box
               data-layer={layer.layer}
               data-layer-phase={layer.phase}
@@ -84,12 +85,12 @@ const descriptionId = 'cached-generation-diagram-description';
             >
               <strong>{labels.fields.layer} <InlineMath latex={`\\ell=${layer.layer}`} /></strong>
               <span>{labels.fields.cache} <InlineMath latex={`t=${layer.cacheLen}`} /></span>
-              <code><bdi dir="ltr">[{layer.shape.join(',')}]</bdi></code>
+              <InlineMath latex={`\\left[${layer.shape.join(',')}\\right]`} />
               <span>{labels.cues.distinct}</span>
             </li>
           ))}
         </ol>
-        <div class="logit-proof" data-match-phase="prefill">
+        <div class="logit-proof course-diagram__card-stack" data-match-phase="prefill">
           <p>
             <strong>{labels.fields.cached}:</strong>
             <span class="value-list">
@@ -116,7 +117,7 @@ const descriptionId = 'cached-generation-diagram-description';
       </article>
 
       <article
-        class="phase-card"
+        class="phase-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-phase="decode"
@@ -125,7 +126,7 @@ const descriptionId = 'cached-generation-diagram-description';
         data-cache-shape={trace.decode.cacheShape.join(',')}
         data-status="match"
       >
-        <header class="phase-header">
+        <header class="phase-header course-diagram__card-heading">
           <h5>{labels.cues.decode}</h5>
           <span class="state-symbol" aria-hidden="true">||</span>
         </header>
@@ -143,12 +144,13 @@ const descriptionId = 'cached-generation-diagram-description';
         </p>
         <p>
           <strong>{labels.fields.shape}:</strong>
-          <code><bdi dir="ltr">[{trace.decode.cacheShape.join(',')}]</bdi></code>
+          <InlineMath latex={`\\left[${trace.decode.cacheShape.join(',')}\\right]`} />
         </p>
-        <ol class="layer-list">
+        <ol class="layer-list course-diagram__grid">
           {trace.decode.layers.map((layer) => (
             <li
-              class="layer-row"
+              class="layer-row course-diagram__card-stack"
+              data-diagram-card
               data-diagram-box
               data-layer={layer.layer}
               data-layer-phase={layer.phase}
@@ -156,12 +158,12 @@ const descriptionId = 'cached-generation-diagram-description';
             >
               <strong>{labels.fields.layer} <InlineMath latex={`\\ell=${layer.layer}`} /></strong>
               <span>{labels.fields.cache} <InlineMath latex={`t=${layer.cacheLen}`} /></span>
-              <code><bdi dir="ltr">[{layer.shape.join(',')}]</bdi></code>
+              <InlineMath latex={`\\left[${layer.shape.join(',')}\\right]`} />
               <span>{labels.cues.distinct}</span>
             </li>
           ))}
         </ol>
-        <div class="logit-proof" data-match-phase="decode">
+        <div class="logit-proof course-diagram__card-stack" data-match-phase="decode">
           <p>
             <strong>{labels.fields.cached}:</strong>
             <span class="value-list">
@@ -192,15 +194,15 @@ const descriptionId = 'cached-generation-diagram-description';
   <section aria-labelledby="cached-generation-work-title">
     <h4 id="cached-generation-work-title">{labels.sections.work}</h4>
     <p>{labels.captions.work}</p>
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box data-proof="cache">
+    <div class="proof-grid course-diagram__grid">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="cache">
         <h5>{labels.fields.cached}</h5>
         <InlineMath latex={`4\\times(1+2+3)=${trace.work.cachedScores}`} />
         <p>{labels.proofs.cache}</p>
         <code><bdi dir="ltr">cache_appends={trace.work.cacheAppends}</bdi></code>
         <code><bdi dir="ltr">qkv_rows={trace.work.qkvRows}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-proof="reference">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="reference">
         <h5>{labels.fields.completePrefix}</h5>
         <InlineMath latex={`4\\times(2^2+3^2)=${trace.work.completePrefixScores}`} />
         <p>{labels.proofs.reference}</p>
@@ -212,8 +214,8 @@ const descriptionId = 'cached-generation-diagram-description';
   <section aria-labelledby="cached-generation-driver-title">
     <h4 id="cached-generation-driver-title">{labels.sections.generation}</h4>
     <p>{labels.captions.generation}</p>
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box data-generation="loaded" data-status="match">
+    <div class="proof-grid course-diagram__grid">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-generation="loaded" data-status="match">
         <h5>{labels.proofs.loaded}</h5>
         <p>
           <strong>{labels.fields.prompt}:</strong>
@@ -239,7 +241,7 @@ const descriptionId = 'cached-generation-diagram-description';
         <code><bdi dir="ltr">tokens_match={trace.loaded.tokensMatch}</bdi></code>
         <code><bdi dir="ltr">rng_match={trace.loaded.rngMatch}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-generation="eos" data-status="match">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-generation="eos" data-status="match">
         <h5>{labels.proofs.eos}</h5>
         <p>
           <strong>{labels.fields.token}:</strong>
@@ -267,8 +269,8 @@ const descriptionId = 'cached-generation-diagram-description';
   <section aria-labelledby="cached-generation-reset-title">
     <h4 id="cached-generation-reset-title">{labels.sections.reset}</h4>
     <p>{labels.captions.reset}</p>
-    <div class="proof-grid">
-      <article data-diagram-card data-diagram-box data-proof="reset" data-status="pass">
+    <div class="proof-grid course-diagram__grid">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="reset" data-status="pass">
         <h5>{labels.cues.reset}</h5>
         <p><InlineMath latex={`${trace.reset.before}\\to${trace.reset.after}`} /></p>
         <code><bdi dir="ltr">allocation_reused={trace.reset.allocation_reused}</bdi></code>
@@ -276,7 +278,7 @@ const descriptionId = 'cached-generation-diagram-description';
         <code><bdi dir="ltr">work_zeroed={trace.reset.work_zeroed}</bdi></code>
         <code><bdi dir="ltr">replay_identical={trace.reset.replay_identical}</bdi></code>
       </article>
-      <article data-diagram-card data-diagram-box data-proof="errors" data-status="pass">
+      <article class="course-diagram__card-stack" data-diagram-card data-diagram-box data-proof="errors" data-status="pass">
         <h5>{labels.cues.unchanged}</h5>
         <code><bdi dir="ltr">decode_before_prefill={trace.errors.decode_before_prefill}</bdi></code>
         <code><bdi dir="ltr">prefill_nonempty={trace.errors.prefill_nonempty}</bdi></code>
@@ -306,30 +308,12 @@ const descriptionId = 'cached-generation-diagram-description';
     gap: 0.75rem;
   }
 
-  .phase-card,
-  .logit-proof,
-  [data-diagram-card] {
-    display: grid;
-    align-content: start;
-    gap: 0.5rem;
-  }
-
-  .phase-card > *,
-  .logit-proof > *,
-  [data-diagram-card] > * {
-    margin: 0;
-  }
-
   .phase-header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: 0.35rem 0.7rem;
-  }
-
-  .phase-header > * {
-    margin: 0;
   }
 
   .layer-list {
@@ -342,10 +326,7 @@ const descriptionId = 'cached-generation-diagram-description';
   }
 
   .layer-row {
-    display: grid;
-    gap: 0.25rem;
-    padding: 0.5rem;
-    border: 0.12rem solid currentColor;
+    min-inline-size: 0;
   }
 
   .layer-row[data-layer-phase='decode'] {

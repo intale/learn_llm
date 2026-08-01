@@ -1320,7 +1320,10 @@ mod tests {
 
         assert!(matches!(
             cache.prefill(&decoder, &[0]),
-            Err(DecoderKvCacheError::IncrementalAttention { layer: 1, .. })
+            Err(DecoderKvCacheError::IncrementalAttention {
+                layer: 1,
+                source: IncrementalAttentionError::CacheLayerMismatch,
+            })
         ));
         assert!(cache.is_empty());
         assert_eq!(cache.work(), DecoderKvCacheWork::default());
@@ -1499,6 +1502,38 @@ mod tests {
         assert_eq!(eos.stop(), GenerationStop::Eos);
         assert_eq!(eos.generated(), &[first]);
         assert_eq!(eos.work().decode_tokens(), 0);
+
+        let one_position = model(2, 1, 46);
+        let mut first_rng = SplitMix64::from_seed(44);
+        let first = generate_cached(
+            &one_position,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, None, 1),
+            &mut first_rng,
+        )
+        .unwrap()
+        .generated()[0];
+        let mut eos_collision_rng = SplitMix64::from_seed(44);
+        let eos_collision = generate_cached(
+            &one_position,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, Some(first), 1),
+            &mut eos_collision_rng,
+        )
+        .unwrap();
+        assert_eq!(eos_collision.stop(), GenerationStop::Eos);
+        assert_eq!(eos_collision.generated(), &[first]);
+        assert_eq!(eos_collision.work().decode_tokens(), 0);
+        let mut token_collision_rng = SplitMix64::from_seed(44);
+        let token_collision = generate_cached(
+            &one_position,
+            &[0],
+            GenerationConfig::new(SamplingMode::Greedy, None, 1),
+            &mut token_collision_rng,
+        )
+        .unwrap();
+        assert_eq!(token_collision.stop(), GenerationStop::TokenLimit);
+        assert_eq!(token_collision.work().decode_tokens(), 0);
 
         let mut context_rng = SplitMix64::from_seed(44);
         let context = generate_cached(
