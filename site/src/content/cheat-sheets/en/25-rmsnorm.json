@@ -1,0 +1,18 @@
+{
+  "chapter_id": "25-rmsnorm",
+  "locale": "en",
+  "title": "Normalize feature scale without centering",
+  "description": "A quick reference for the RMS statistic, learned gain, and pre-normalization terms used here.",
+  "terms": [
+    {"term": "RMSNorm", "definition": "A feature normalization using a stabilized root-mean-square denominator followed by learned gain."},
+    {"term": "Mean square", "definition": "The average of squared coordinates within one final-axis feature vector."},
+    {"term": "Reciprocal RMS", "definition": "The multiplicative inverse of the stabilized square root used to rescale a feature vector."},
+    {"term": "Root-mean-square scale", "definition": "The square root of a feature vector's average squared coordinate magnitude."},
+    {"term": "Learned gain", "definition": "A trainable per-feature multiplier applied after the shared normalization factor."},
+    {"term": "Epsilon stabilizer", "definition": "A nonnegative term added to the mean square before the reciprocal square root."},
+    {"term": "Final feature axis", "definition": "The last tensor dimension normalized independently for every preceding coordinate tuple."},
+    {"term": "Approximate scale invariance", "definition": "Positive input rescaling barely changes output when the signal's mean square dominates epsilon."},
+    {"term": "Pre-normalization", "definition": "Normalization applied to the residual-stream input before an attention or feed-forward branch."},
+    {"term": "LayerNorm", "definition": "A per-example normalization that subtracts the feature mean before rescaling."}
+  ]
+}

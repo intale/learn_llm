@@ -419,6 +419,23 @@ const expectedSheets = {
       ['Branch Jacobian', 'branch Jacobian'],
     ],
   },
+  '25-rmsnorm': {
+    file: '25-rmsnorm.json',
+    lesson: '25-rmsnorm.mdx',
+    title: 'Normalize feature scale without centering',
+    entries: [
+      ['RMSNorm', 'For one final-axis vector, RMSNorm is'],
+      ['Mean square', 'compute the mean square'],
+      ['Reciprocal RMS', 'The reciprocal RMS'],
+      ['Root-mean-square scale', 'root-mean-square scale'],
+      ['Learned gain', 'The learned gain'],
+      ['Epsilon stabilizer', 'stabilizes the reciprocal square root'],
+      ['Final feature axis', 'final feature axis'],
+      ['Approximate scale invariance', 'scale-invariant away from zero'],
+      ['Pre-normalization', 'A pre-normalized decoder'],
+      ['LayerNorm', 'LayerNorm centers the anchor'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {

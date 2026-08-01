@@ -262,6 +262,12 @@ const sheets = [
     title: 'Keep an identity path around each learned update',
     terms: ['Residual connection', 'Identity path', 'Residual branch', 'Residual stream', 'Learned update', 'Exact-shape merge', 'Vector-Jacobian product', 'Upstream adjoint', 'Gradient accumulation', 'Branch Jacobian'],
   },
+  {
+    chapter: 25,
+    chapterId: '25-rmsnorm',
+    title: 'Normalize feature scale without centering',
+    terms: ['RMSNorm', 'Mean square', 'Reciprocal RMS', 'Root-mean-square scale', 'Learned gain', 'Epsilon stabilizer', 'Final feature axis', 'Approximate scale invariance', 'Pre-normalization', 'LayerNorm'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -391,6 +397,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '25-rmsnorm'));
+  await page.goto(chapterPath('en', '26-qkv-projections'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

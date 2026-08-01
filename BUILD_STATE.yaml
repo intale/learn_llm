@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T11:56:15Z"
+updated_at: "2026-08-01T12:20:18Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 18
+      spent: 19
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26816,13 +26816,31 @@ builds:
       - id: add-ch25-cheat-sheet
         objective: "Publish the canonical English Chapter 25 terminology sheet."
         depends_on: [add-ch24-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 25 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/25-rmsnorm.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 25 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 25 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T121606Z-add-ch25-cheat-sheet-01
+            started_at: "2026-08-01T12:16:06Z"
+            finished_at: "2026-08-01T12:20:18Z"
+            status: succeeded
+            input_fingerprint: {git: "7eaabed999d5f327e072f381f151be9c2dbba71e", manifest: ".build/runs/20260801T121606Z-add-ch25-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:f9f91351bdbcf7ccc894a2ce86040349cfe44fb721e8dd520945ab780c3b1b83", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 25 is the source."}
+            staging_dir: ".build/runs/20260801T121606Z-add-ch25-cheat-sheet-01/"
+            commands: ["Verify clean dependency commit 7eaabed, completed Ch24, canonical lesson integrity, source ownership, and one-sheet scope.", "Add the ten-term Ch25 record, extend shared tests, and move staged later-English absence to Ch26.", "Build the pinned Linux source image and run focused, Astro, static-build, and link gates.", "Create one labelled exact-snapshot volume, run Chromium and Firefox gates independently with networking disabled, verify labels, remove the volume, and freeze product hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T121606Z-add-ch25-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:f9f91351bdbcf7ccc894a2ce86040349cfe44fb721e8dd520945ab780c3b1b83", notes: "Exact Chapter 25 input fingerprint."}
+              - {path: ".build/runs/20260801T121606Z-add-ch25-cheat-sheet-01/publish-product.sha256", checksum: "sha256:33cde80065603534b1540293368cb9e6484fa86a4ff0b717bcc37bfd41232296", notes: "Exact Ch25 record and shared tests."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:6bd5a0c83ffd43e508205c7e7775676ab9d9d8f769f317974e326d2bf7557470", notes: "Exact validated Ch25 snapshot."}
+            validation:
+              - {command: "Preflight", status: passed, notes: "Chapter 25 is the sole eligible step; dependency commit and canonical English source are intact."}
+              - {command: "Focused tests", status: passed, notes: "29/29 pass on the host and in the pinned Linux image."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files and zero diagnostics; 85 pages, 2,447 local references, 85 SEO routes, 85 sitemap URLs, and 85 analytics routes pass."}
+              - {command: "Chromium and Firefox", status: passed, notes: "76/76 pass independently in each engine against the exact Linux snapshot, including modal, narrow, no-JavaScript, Chapter 0, Russian, and later-English absence cases."}
+              - {command: "Manifest and cleanup", status: passed, notes: "Three product hashes frozen; labelled snapshot volume removed; no Russian learner-facing content or chapter body changed."}
+            notes: "Succeeded. Chapter 25 has a canonical English ten-term RMSNorm sheet; canonical prose review found no chapter-body defect. Chapter 0, Russian routes, and English Chapters 26-39 remain sheet-free."
 
       - id: add-ch26-cheat-sheet
         objective: "Publish the canonical English Chapter 26 terminology sheet."
