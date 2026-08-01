@@ -310,6 +310,12 @@ const sheets = [
     title: 'Trace one tied table through a decoder stack',
     terms: ['Decoder stack', 'Decoder depth', 'Distinct decoder blocks', 'Embedding lookup', 'Final RMSNorm', 'Weight tying', 'Tied projection', 'Vocabulary logits', 'Mean indexed negative log likelihood', 'Prefix invariance', 'Tied gradient accumulation'],
   },
+  {
+    chapter: 33,
+    chapterId: '33-training-selection',
+    title: 'Select a decoder with validation checkpoints',
+    terms: ['Training mini-batch', 'Partition roles', 'Learning-rate schedule', 'Raw gradient', 'Global-norm clipping', 'Clipped gradient', 'AdamW update', 'Optimizer moment state', 'Graph-free validation loss', 'Checkpoint set', 'Earliest validation minimum', 'Token-weighted mean'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -439,6 +445,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '33-training-selection'));
+  await page.goto(chapterPath('en', '34-final-evaluation'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

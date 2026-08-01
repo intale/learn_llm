@@ -560,6 +560,25 @@ const expectedSheets = {
       ['Tied gradient accumulation', 'adds both contributions on the same leaf'],
     ],
   },
+  '33-training-selection': {
+    file: '33-training-selection.json',
+    lesson: '33-training-selection.mdx',
+    title: 'Select a decoder with validation checkpoints',
+    entries: [
+      ['Training mini-batch', 'next-token loss for training mini-batch'],
+      ['Partition roles', 'only `Validation` may select a state, while `Test` is rejected here'],
+      ['Learning-rate schedule', 'All eight steps execute. Validation does not stop the run early.'],
+      ['Raw gradient', 'finite gradient before clipping'],
+      ['Global-norm clipping', 'scale across every parameter tensor'],
+      ['Clipped gradient', 'globally clipped gradient consumed by AdamW'],
+      ['AdamW update', 'parameter and moment states advance together'],
+      ['Optimizer moment state', 'continues the existing moments and step counter'],
+      ['Graph-free validation loss', 'never differentiated and never updates the'],
+      ['Checkpoint set', 'set of measured checkpoint indices'],
+      ['Earliest validation minimum', 'earliest measured validation minimum'],
+      ['Token-weighted mean', 'Validation averages by predicted-token count, not by number of batches'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -627,6 +646,20 @@ const exactDefinitions = {
     'Mean indexed negative log likelihood': "The scalar loss formed by selecting each target token's negative log probability and averaging over all batch-position pairs.",
     'Prefix invariance': 'The causal guarantee that changing only a later token leaves every earlier logit row bitwise unchanged.',
     'Tied gradient accumulation': "Reverse-mode addition of the table's lookup-role gradient and output-role gradient onto the one shared parameter leaf.",
+  },
+  '33-training-selection': {
+    'Training mini-batch': 'An ordered batch from the training partition whose next-token loss supplies one planned forward, backward, and optimizer update.',
+    'Partition roles': 'Training fits parameters, validation selects among measured checkpoints without updating or stopping the bounded run, and test remains excluded until later evaluation.',
+    'Learning-rate schedule': 'A predetermined finite positive rate for every planned update, with all updates executed even while validation is measured.',
+    'Raw gradient': 'The finite derivative of one training mini-batch loss at the pre-update parameter state, before any clipping.',
+    'Global-norm clipping': 'Computing one norm across every parameter gradient and applying one shared scale so the complete gradient respects a ceiling.',
+    'Clipped gradient': 'The raw gradient after the shared global scale, left unchanged below the ceiling and consumed by AdamW.',
+    'AdamW update': 'The scheduled optimizer operation that advances parameters and continuing moment state using the clipped training gradient.',
+    'Optimizer moment state': "AdamW's persistent first moment, second moment, and step counter, continued across learning-rate schedule boundaries.",
+    'Graph-free validation loss': 'A token-weighted validation metric computed without a reverse graph or gradient mutation; it selects only, never updates or stops the bounded run.',
+    'Checkpoint set': 'The predetermined measured update indices, including initialized and final states, over which validation selection is allowed.',
+    'Earliest validation minimum': 'The measured checkpoint with minimum validation loss, with exact ties retained at the smallest update index by strict improvement.',
+    'Token-weighted mean': 'An epoch loss that weights each batch mean by its predicted-token count rather than giving every batch equal weight.',
   },
 } as const;
 

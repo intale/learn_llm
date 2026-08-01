@@ -1,0 +1,20 @@
+{
+  "chapter_id": "33-training-selection",
+  "locale": "en",
+  "title": "Select a decoder with validation checkpoints",
+  "description": "A quick reference for partition roles, scheduled clipped AdamW updates, graph-free validation, and token-weighted checkpoint selection.",
+  "terms": [
+    { "term": "Training mini-batch", "definition": "An ordered batch from the training partition whose next-token loss supplies one planned forward, backward, and optimizer update." },
+    { "term": "Partition roles", "definition": "Training fits parameters, validation selects among measured checkpoints without updating or stopping the bounded run, and test remains excluded until later evaluation." },
+    { "term": "Learning-rate schedule", "definition": "A predetermined finite positive rate for every planned update, with all updates executed even while validation is measured." },
+    { "term": "Raw gradient", "definition": "The finite derivative of one training mini-batch loss at the pre-update parameter state, before any clipping." },
+    { "term": "Global-norm clipping", "definition": "Computing one norm across every parameter gradient and applying one shared scale so the complete gradient respects a ceiling." },
+    { "term": "Clipped gradient", "definition": "The raw gradient after the shared global scale, left unchanged below the ceiling and consumed by AdamW." },
+    { "term": "AdamW update", "definition": "The scheduled optimizer operation that advances parameters and continuing moment state using the clipped training gradient." },
+    { "term": "Optimizer moment state", "definition": "AdamW's persistent first moment, second moment, and step counter, continued across learning-rate schedule boundaries." },
+    { "term": "Graph-free validation loss", "definition": "A token-weighted validation metric computed without a reverse graph or gradient mutation; it selects only, never updates or stops the bounded run." },
+    { "term": "Checkpoint set", "definition": "The predetermined measured update indices, including initialized and final states, over which validation selection is allowed." },
+    { "term": "Earliest validation minimum", "definition": "The measured checkpoint with minimum validation loss, with exact ties retained at the smallest update index by strict improvement." },
+    { "term": "Token-weighted mean", "definition": "An epoch loss that weights each batch mean by its predicted-token count rather than giving every batch equal weight." }
+  ]
+}
