@@ -655,6 +655,25 @@ const expectedSheets = {
       ['Transactional cache update', 'Only a fully assembled result permits the key/value copy and length increment'],
     ],
   },
+  '38-cached-generation': {
+    file: '38-cached-generation.json',
+    lesson: '38-cached-generation.mdx',
+    title: 'Prefill once, then decode one token at a time',
+    entries: [
+      ['Model-wide KV cache', 'Model-wide cached generation prefills one independent cache per decoder block'],
+      ['Prompt prefill', 'Prefill sends both prompt positions through both blocks'],
+      ['One-token decode', 'one-token decoder calls'],
+      ['Complete-prefix reference', 'complete-prefix references'],
+      ['Newest-logit equivalence', 'newest-position logits agree with complete-prefix references within'],
+      ['Retained prefix length', 'current retained prefix length'],
+      ['Attention-score work', 'attention-score work'],
+      ['Context-limit stop', 'context-limit stops before decoding it'],
+      ['EOS stop', 'EOS is returned as the selected token, and no later logits are needed.'],
+      ['Coherent cache commit', 'layer caches, common length, phase counts, and score-cell counts'],
+      ['Cached-generation replay', 'resets and replays'],
+      ['Cache reset', 'Reset clears logical length, phase, and work counters'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -792,6 +811,20 @@ const exactDefinitions = {
     'Full-prefix reference': "Independent uncached attention over the complete prefix whose newest output is the correctness reference, matched within the lesson's tolerance.",
     'Projection reuse': 'Reusing earlier cached key and value projections so only the newest rows are reprojected; the newest query still reads the retained prefix, so attention is not constant time.',
     'Transactional cache update': 'A rule that copies the candidate key/value rows and increments logical length only after the complete incremental output, including output projection, succeeds.',
+  },
+  '38-cached-generation': {
+    'Model-wide KV cache': "The complete decoder cache containing one independent compatible cache per layer, each retaining that layer's keys and values while every logical length advances coherently.",
+    'Prompt prefill': "The initial complete-prompt phase that fills every layer's cache and produces the logits used for the first generation decision.",
+    'One-token decode': "A later generation phase that feeds only the newly selected token while reusing every layer's retained key/value prefix to produce later logits.",
+    'Complete-prefix reference': 'An uncached computation that reruns the entire known prefix and provides the correctness baseline for cached generation.',
+    'Newest-logit equivalence': 'Agreement within tolerance between cached and complete-prefix logits at the newest position, preserving the same next-token decision under the same policy.',
+    'Retained prefix length': 'The current number of token positions exposed by every coherent layer cache and therefore the number of keys read by the newest cached query.',
+    'Attention-score work': 'The count of query-key score values formed; cached decoding avoids earlier query rows but the newest query still scans the retained prefix.',
+    'Context-limit stop': 'A stop that keeps the token selected from logits at a full retained prefix, then ends before decoding it because the cache has reached capacity.',
+    'EOS stop': 'A stop that keeps the selected end-of-sequence token in the output and ends before decoding it because no later logits are needed.',
+    'Coherent cache commit': 'A transaction that advances every block cache, common length, phase, and work counters only after the full decoder row and vocabulary logits succeed, leaving committed state unchanged on error.',
+    'Cached-generation replay': 'Repeating cached generation from reset state with the same exact model, prompt, policy, and RNG state to reproduce selected tokens, draws, final RNG state, and stopping reason.',
+    'Cache reset': 'Clearing logical length, phase, and work counters for a fresh sequence while retaining backing allocations, capacity, and stored values outside the now-empty logical prefix.',
   },
 } as const;
 
