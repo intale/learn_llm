@@ -190,6 +190,12 @@ const sheets = [
     title: 'Turn extreme logits into stable probabilities',
     terms: ['Logit', 'Softmax', 'Maximum shift', 'Normalization group', 'Class axis', 'Log-sum-exp', 'Log-softmax', 'Indexed NLL', 'Overflow', 'Underflow'],
   },
+  {
+    chapter: 13,
+    chapterId: '13-gradient-checking',
+    title: 'Check gradients before trusting backpropagation',
+    terms: ['Gradient check', 'Central difference', 'Numerical derivative', 'Analytic gradient', 'Step size', 'Truncation error', 'Rounding error', 'Scale-aware error', 'Tolerance', 'Deterministic coordinate sampling'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -319,6 +325,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '13-gradient-checking'));
+  await page.goto(chapterPath('en', '14-scalar-autodiff'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

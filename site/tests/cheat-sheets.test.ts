@@ -215,6 +215,23 @@ const expectedSheets = {
       ['Underflow', 'negative extremes become zero divided by zero'],
     ],
   },
+  '13-gradient-checking': {
+    file: '13-gradient-checking.json',
+    lesson: '13-gradient-checking.mdx',
+    title: 'Check gradients before trusting backpropagation',
+    entries: [
+      ['Gradient check', 'Start with a small scalar gradient check:'],
+      ['Central difference', 'The central-difference formula is:'],
+      ['Numerical derivative', 'predicts a numerical derivative of'],
+      ['Analytic gradient', 'the analytic derivative is'],
+      ['Step size', 'the six-step scan'],
+      ['Truncation error', 'truncation error of order'],
+      ['Rounding error', 'rounding has raised the displayed result'],
+      ['Scale-aware error', 'passes exactly when scaled error is no greater than'],
+      ['Tolerance', 'declared finite nonnegative tolerance'],
+      ['Deterministic coordinate sampling', 'No random generator or hidden state is involved.'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {
