@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T16:49:54Z"
+updated_at: "2026-08-01T16:56:39Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,8 +26251,8 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 34
-      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus six completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus three corrective checkpoints will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
+      spent: 35
+      notes: "No explicit resource limit applies. Twenty-eight completed sheet checkpoints plus seven completed corrective or shared runs currently use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change. The remaining Chapter 39 sheet plus two corrective checkpoints will bring this build to 38 total runs (29 sheet checkpoints and 9 corrective or shared runs)."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
       - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
@@ -27503,13 +27503,49 @@ builds:
       - id: contextualize-ch34-evaluation-terms
         objective: "Make two generic-sounding Chapter 34 labels explicitly identify their model-evaluation context."
         depends_on: [remove-cheat-sheet-term-cap]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 34 lesson", "Completed uncapped, sorted, paginated shared cheat-sheet infrastructure", "Existing canonical English Chapter 34 sheet"]
         outputs: ["site/src/content/cheat-sheets/en/34-final-evaluation.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
         acceptance: ["Chapter 34 replaces Test-only gate with Single-use test evaluation boundary and Immutable report with Frozen final evaluation report without changing their page-grounded meanings or adding any term; all existing scope, content, pagination, fallback, narrow, Chromium, Firefox, Astro, and link gates pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 34 contextualized-label E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "Two English label contextualizations plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T165239Z-contextualize-ch34-evaluation-terms-01
+            started_at: "2026-08-01T16:52:39Z"
+            finished_at: "2026-08-01T16:56:39Z"
+            status: succeeded
+            input_fingerprint: {git: "f32b00262cc416bd31e29e621bc9c72d1a10e00b", manifest: ".build/runs/20260801T165239Z-contextualize-ch34-evaluation-terms-01/input-fingerprint.txt", checksum: "sha256:0851362f17c34a836e6e70dc22b94415661c2b93007e6835e86ab3dcdb688187", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, pinned repository Linux and Playwright 1.61.1 browser toolchains", external: "None; canonical English Chapter 34 and the shared evaluation-term contextualization decision are the only content inputs."}
+            staging_dir: ".build/runs/20260801T165239Z-contextualize-ch34-evaluation-terms-01/"
+            commands:
+              - "Verify clean dependency commit f32b002, completed uncapped pagination checkpoint, sole eligible Chapter 34 correction, exact four-file ownership, environment pins, medium cost, canonical English evidence, and unavailable attached-browser fallback."
+              - "Replace Test-only gate with Single-use test evaluation boundary and Immutable report with Frozen final evaluation report; define the once-only post-selection protocol and frozen evidence record without changing the twelve-concept sheet or either chapter body."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; status=$?; tail -n 12 /tmp/build.log; exit $status'"
+              - "npx.cmd --prefix site playwright test tests/e2e/cheat-sheets.spec.ts --list"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch34-context-e2e-165239 from source image sha256:e920c430acb31ba19dda991bb5f3956bf1a45ac865f08f5b9c8f847b509f92f5 and independently build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch34-context-e2e-165239,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch34-context-e2e-165239,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify exact run and snapshot labels; remove learn-llm-cheatsheet-ch34-context-e2e-165239; freeze and reverify the three-file product manifest; confirm exact scope and immutable lesson, Russian, dependency, build, and shared-interface inputs; parse YAML and JSON; run git diff --check; and confirm restore-ch35-checkpoint-schema-term is the sole eligible next step."
+            artifacts:
+              - {path: ".build/runs/20260801T165239Z-contextualize-ch34-evaluation-terms-01/input-fingerprint.txt", checksum: "sha256:0851362f17c34a836e6e70dc22b94415661c2b93007e6835e86ab3dcdb688187", notes: "Exact Chapter 34 correction input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:e920c430acb31ba19dda991bb5f3956bf1a45ac865f08f5b9c8f847b509f92f5", notes: "Pinned Linux source image containing the exact Chapter 34 terminology correction and tests used for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/34-final-evaluation.json", checksum: "sha256:751f5003d6fc7e737d1b96686274799f36920182e32624894c6f7a9681591b79", notes: "Canonical twelve-term English Chapter 34 sheet with contextualized evaluation boundary and report terminology."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:2404f14fed69f7ec4139ef89aea961ba0d2ce21685092c689b4436fcec08db98", notes: "Shared content matrix updated with exact Chapter 34 labels, evidence anchors, and definitions."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:8f337300f6fef04fd8a516ad40e99f5bcd8c4cfc73a73b5de4f4293b3eb57440", notes: "Complete browser matrix updated with the two contextualized Chapter 34 term names."}
+              - {path: ".build/runs/20260801T165239Z-contextualize-ch34-evaluation-terms-01/publish-product.sha256", checksum: "sha256:542bc22a5120517548056d703aad42c2ff452b5b326c2e24ad2aea7731717c0c", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, relevance, and fingerprint preflight", status: passed, notes: "The shared uncapped-pagination step is independently committed and contextualize-ch34-evaluation-terms is the sole eligible step. The canonical Chapter 34 lesson explicitly teaches a once-only held-out test boundary after validation selection, role and provenance checks before scoring, consumption when scoring begins, exclusion of test evidence from selection, and a versioned final record fixed after choices close. The two concepts remain relevant, but their existing labels and definitions expose custom permission-object and getter/setter mechanics. No lesson or Russian edit is required. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host and pinned-Linux content, schema, ordering, pagination, relevance, and integration checks", status: passed, notes: "44/44 cases pass with exactly twelve Chapter 34 terms, the two required contextualized labels and definitions, literal canonical-lesson evidence, no generic API framing, and all uncapped sorting/pagination relevance contracts intact."}
+              - {command: "Pinned Astro diagnostics", status: passed, notes: "Astro reports 210 files and zero errors, warnings, or hints."}
+              - {command: "Playwright collection check", status: passed, notes: "The complete browser specification compiles and discovers exactly 115 cases across English Chapters 1-38 plus the orientation, locale, and later-English exclusions."}
+              - {command: "Pinned Linux production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 34 correction volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium complete cheat-sheet gate", status: passed, notes: "115/115 cases pass, including Chapter 34's locale-sorted two-page slices, both contextualized labels, navigation and live status, boundary focus, reopen reset, 360-by-500 containment, short-height reachability, complete no-JavaScript fallback, and all orientation, Russian, and Chapter 39 exclusions."}
+              - {command: "Pinned exact-snapshot Firefox complete cheat-sheet gate", status: passed, notes: "115/115 cases pass independently with the same Chapter 34 terminology, ordering, pagination, accessibility, containment, reachability, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, snapshot cleanup, source-scope, whitespace, YAML, JSON, immutable-input, relevance, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal and no run-labelled volume or container remains; the Chapter 34 lesson, Russian source, dependencies, build definitions, and shared interface remain unchanged; git diff --check and source parses pass; prior history is unchanged; restore-ch35-checkpoint-schema-term is the sole eligible next step."}
+            notes: "Succeeded. Chapter 34 retains exactly twelve page-grounded evaluation concepts. Single-use test evaluation boundary now describes the once-only post-selection protocol, including held-out role and provenance checks, access consumption when scoring starts, and exclusion of test evidence from selection. Frozen final evaluation report now describes the versioned, post-selection record of provenance, aligned targets, scores, one-use evidence, and state-preservation checks without generic getter/setter framing. No lesson, Russian content, dependency, build definition, deployment, or shared-interface file changed."
 
       - id: restore-ch35-checkpoint-schema-term
         objective: "Restore the page-relevant Chapter 35 checkpoint-schema term and make six generic-sounding labels explicitly identify their checkpoint context."

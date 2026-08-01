@@ -325,7 +325,7 @@ const sheets = [
     chapter: 34,
     chapterId: '34-final-evaluation',
     title: 'Freeze choices before one final test report',
-    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Test-only gate', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance', 'No-grad evaluation', 'Immutable report', 'Frozen bigram', 'Like-for-like targets'],
+    terms: ['Validation-selected checkpoint', 'Frozen selected state', 'Single-use test evaluation boundary', 'Final test evaluation', 'Token-weighted mean NLL', 'Perplexity', 'Aligned target slot', 'Evaluation provenance', 'No-grad evaluation', 'Frozen final evaluation report', 'Frozen bigram', 'Like-for-like targets'],
   },
   {
     chapter: 35,
