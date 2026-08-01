@@ -5,21 +5,25 @@
   "content_revision": 1,
   "order": 1,
   "objective": {
-    "en": "State one observable behavior the student will implement and verify."
+    "en": "State one observable behavior the student will implement and verify.",
+    "ru": "Опишите одно наблюдаемое поведение, которое учащийся реализует и проверит."
   },
   "worked_inputs": {
-    "en": "Give one tiny English or language-neutral input."
+    "en": "Give one tiny English or language-neutral input.",
+    "ru": "Приведите один небольшой русскоязычный или нейтральный к языку пример входных данных."
   },
   "formula": {
     "latex": "y = f(x)",
     "symbols": [
       {
         "symbol": "x",
-        "en": "the observable input"
+        "en": "the observable input",
+        "ru": "наблюдаемые входные данные"
       },
       {
         "symbol": "y",
-        "en": "the expected result"
+        "en": "the expected result",
+        "ru": "ожидаемый результат"
       }
     ]
   },
@@ -27,13 +31,16 @@
     "llm_evolution": {
       "predecessor_kind": "language-model",
       "limitation": {
-        "en": "State the earlier approach's relevant limitation or scale pressure."
+          "en": "State the earlier approach's relevant limitation or scale pressure.",
+          "ru": "Опишите значимое ограничение прежнего подхода или проблему масштабирования."
       },
       "later_advance": {
-        "en": "Name the later LLM computation, model-building, training, evaluation, inference, or correctness practice."
+          "en": "Name the later LLM computation, model-building, training, evaluation, inference, or correctness practice.",
+          "ru": "Назовите более поздний метод вычислений, построения, обучения, оценки, вывода или проверки корректности LLM."
       },
       "modern_llm_role": {
-        "en": "Explain how this mechanism supports, implements, measures, or validates the target model or its pipeline."
+          "en": "Explain how this mechanism supports, implements, measures, or validates the target model or its pipeline.",
+          "ru": "Объясните, как этот механизм помогает реализовать, измерить или проверить целевую модель и процесс её работы."
       },
       "sources": [
         {
@@ -42,7 +49,8 @@
           "name": "Name the primary source for the earlier model or practice.",
           "source_url": "https://example.com/primary-earlier-source",
           "claim": {
-            "en": "State the exact bounded claim this source supports."
+            "en": "State the exact bounded claim this source supports.",
+            "ru": "Сформулируйте точное ограниченное утверждение, которое подтверждает источник."
           }
         },
         {
@@ -51,16 +59,19 @@
           "name": "Name the primary source for the later LLM context.",
           "source_url": "https://example.com/primary-later-source",
           "claim": {
-            "en": "State the exact bounded claim this source supports."
+            "en": "State the exact bounded claim this source supports.",
+            "ru": "Сформулируйте точное ограниченное утверждение, которое подтверждает источник."
           }
         }
       ]
     },
     "approach": {
-      "en": "Name the earlier language model, neural architecture, model-building or training practice, evaluation method, or inference design."
+      "en": "Name the earlier language model, neural architecture, model-building or training practice, evaluation method, or inference design.",
+      "ru": "Назовите прежнюю языковую модель, нейронную архитектуру, метод построения, обучения или оценки модели либо устройство вывода."
     },
     "summary": {
-      "en": "State its limitation or scale pressure, connect it to later LLM work, and explain how this mechanism supports the decoder or its training, evaluation, inference, or correctness pipeline."
+      "en": "State its limitation or scale pressure, connect it to later LLM work, and explain how this mechanism supports the decoder or its training, evaluation, inference, or correctness pipeline.",
+      "ru": "Опишите ограничение или проблему масштабирования, свяжите её с последующим развитием LLM и объясните роль механизма в декодере, обучении, оценке, выводе или проверке корректности."
     },
     "rust_contrast": "Expose one relevant model calculation, invariant, cost, or layout consequence in Rust; do not invent architecture-level causality for a local implementation policy."
   },
@@ -76,16 +87,19 @@
     "decision": "useful",
     "id": "chapter-concept",
     "rationale": {
-      "en": "Explain which relationship becomes easier to see."
+      "en": "Explain which relationship becomes easier to see.",
+      "ru": "Объясните, какую связь визуализация делает нагляднее."
     }
   },
   "decoder_connection": {
-    "en": "Explain where this result enters the cumulative decoder-only model."
+    "en": "Explain where this result enters the cumulative decoder-only model.",
+    "ru": "Объясните, где этот результат используется в создаваемой декодерной модели."
   },
   "terminology": [
     {
       "concept_id": "chapter-concept",
-      "en": "English technical term"
+      "en": "English technical term",
+      "ru": "русский технический термин"
     }
   ],
   "translation_notes": [
@@ -106,9 +120,9 @@ Before filling in this contract, find the chapter's exact `activeLocales` entry 
 `site/src/i18n/chapter-locales.json`. Every localized contract object must contain
 exactly those locale keys, and matching lesson frontmatter for each active locale
 copies the localized `worked_inputs`, `history`, and `decoder_connection` values.
-The English-only example above matches the current Chapter 39 active set;
-Chapters 0–38 use English and Russian. A registered but inactive locale gets no
-placeholder contract key, lesson, or chapter route. Every ordered lesson section
+The bilingual example above matches the current active set for Chapters 0–39.
+A registered but inactive future locale gets no placeholder contract key, lesson,
+or chapter route. Every ordered lesson section
 contains teaching prose, the formula section renders the exact `formula.latex`, the
 Rust section owns its `<RustSource>` evidence, useful visualizations invoke every
 registered chapter-specific diagram there in registration order, and exercises

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "planId": "tiny-decoder-llm-rust",
-  "planRevision": 64,
-  "policyId": "selective-russian-through-chapter-38",
+  "planRevision": 65,
+  "policyId": "bilingual-all-chapters",
   "referenceLocale": "en",
   "chapters": [
     { "chapterId": "00-llm-parts", "order": 0, "activeLocales": ["en", "ru"] },
@@ -44,6 +44,6 @@
     { "chapterId": "36-temperature-top-k", "order": 36, "activeLocales": ["en", "ru"] },
     { "chapterId": "37-incremental-attention", "order": 37, "activeLocales": ["en", "ru"] },
     { "chapterId": "38-cached-generation", "order": 38, "activeLocales": ["en", "ru"] },
-    { "chapterId": "39-end-to-end-llm", "order": 39, "activeLocales": ["en"] }
+    { "chapterId": "39-end-to-end-llm", "order": 39, "activeLocales": ["en", "ru"] }
   ]
 }

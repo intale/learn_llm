@@ -131,7 +131,7 @@
   "translation_notes": [
     "Russian revision 3 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
     "Keep LLM, BPE, RMSNorm, SwiGLU, Q/K/V, RoPE, AdamW, KV, BOS, EOS, source titles, identifiers, URLs, and diagram topology stable; use established Russian technical forms such as логиты, эмбеддинги, каузальное внимание, функция потерь, контрольная точка, and KV-кэш (кэш ключей и значений) in explanations.",
-    "On the Russian detail map, use published Russian destinations for Chapters 1-7 and visibly/accessibly marked English destinations for deferred Russian Chapters 8-39; never create placeholder Russian routes.",
+    "On the Russian detail map, use the published Russian destination for every implementation chapter; if a future chapter has no active Russian route, use a visibly and accessibly marked English destination rather than creating a placeholder route.",
     "Preserve Chapter 0 as a non-assessed orientation: do not add a formula lesson, implementation sample, predict-first exercise, or checked-answer block."
   ],
   "acceptance_examples": [

@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T06:19:09Z"
+updated_at: "2026-08-01T09:07:49Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -25437,3 +25437,167 @@ builds:
                 status: passed
                 notes: "The complete YAML ledger parses with active_build null, this build/step completed, run 01 succeeded, and no running step; plan revision 64 remains valid with 40 chapters and 110 steps; exactly 18 manifested product files plus BUILD_STATE.yaml and DECISIONS.md are in scope; all 18 hashes match; git diff --check passes and no mode change exists."
             notes: "Succeeded. Chapter 38 now derives cached and complete-prefix attention-score evidence from actual fixture tensors, states coherent model-wide cache and exact stopping boundaries, and uses one shared contained diagram. Its direct natural Russian projection is active with complete contract, SEO, accessibility, formula, source, exercise, navigation, and rendered parity. Focused Rust/unit, clean pinned Linux, 84-page link/SEO/sitemap/Analytics, 180-case Chromium, 180-case Firefox, checksum, and independent localization review gates pass; the exact 18-file product manifest is frozen for this standalone commit."
+
+  - build_id: activate-ch39-russian-localization
+    objective: "Audit the Chapter 39 end-to-end capstone, translate the frozen lesson directly into natural technical Russian, and complete bilingual publication for the entire course."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. This large final localization build uses cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "Canonical English Chapter 39 accurately integrates the existing tokenizer, training, selection, evaluation, checkpoint, and cached-generation evidence without overstating its bounded fixture."
+      - "Russian Chapter 39 is translated directly from the frozen current English revision with exact semantic, mathematical, historical, Rust, diagram, accessibility, SEO, exercise, and navigation parity."
+      - "Chapter 39 publishes in English and Russian, and every Chapter 0-39 course route is bilingual with no deferred Russian chapter remaining."
+      - "Focused Rust, trace, content, parity, static-site, link, Chromium, and Firefox validation passes, and the final localization checkpoint is committed independently."
+    steps:
+      - id: activate-ch39-russian-localization
+        objective: "Publish an audited English and direct natural-Russian Chapter 39 capstone with exact executable and rendered end-to-end evidence."
+        depends_on:
+          - activate-ch38-russian-localization
+        status: completed
+        inputs:
+          - "User request on 2026-08-01 to translate all remaining chapters one by one."
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md section 6"
+          - "curriculum localization documentation and course plan revision 64"
+          - "Chapter 39 contract, English MDX, pipeline implementation, Rust demo, exact output/trace, component, parser, and focused/shared tests"
+          - "Primary LLM-history sources cited by the English lesson"
+          - "Completed dependency commit 1f0cc8008d1ead8940182a275f2bb66e2b5d21ff"
+          - "Cached pinned Linux workspace and Playwright images"
+        outputs:
+          - "curriculum/chapters/39-end-to-end-llm.md"
+          - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
+          - "site/src/content/chapters/ru/39-end-to-end-llm.mdx"
+          - "rust/crates/llm-from-scratch/src/pipeline.rs"
+          - "rust/demos/ch39-end-to-end-llm/src/lib.rs"
+          - "rust/demos/ch39-end-to-end-llm/expected.txt"
+          - "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"
+          - "site/src/lib/end-to-end-llm-diagram.ts"
+          - "site/src/components/chapters/EndToEndLlmDiagram.astro"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/course-plan.md"
+          - "curriculum/README.md"
+          - "curriculum/chapter-template.md"
+          - "SKILLS.md"
+          - "site/tests/39-end-to-end-llm-diagram.test.ts"
+          - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "site/tests/chapter-locales.test.ts"
+          - "site/tests/content-contract.test.ts"
+          - "curriculum/chapters/00-llm-parts.md"
+          - "site/tests/formula-rendering.test.ts"
+          - "site/tests/e2e/formula-rendering.spec.ts"
+          - "site/tests/e2e/ch37-incremental-attention.spec.ts"
+          - "site/tests/e2e/ch38-cached-generation.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The current English capstone, historical claims, executable pipeline evidence, formula, stopping semantics, accessibility, and diagram contract are audited and corrected before translation."
+          - "Learner claims remain scoped to the bounded deterministic fixture and distinguish validation selection, untouched test evaluation, reload equivalence, cached generation, and total end-to-end completion."
+          - "All learner-facing Russian surfaces are complete, idiomatic, monolingual, mathematically and technically exact, and contain no literal-calque or authoring-language leakage."
+          - "The contract records complete Russian fields, terminology, translation notes, source checksum, and exact active locale set {en, ru}."
+          - "Both complete pages and the registered end-to-end figure remain contained and readable in Chromium and Firefox at desktop, narrow, no-JavaScript, native full-view, forced-color, and direction-sensitive surfaces."
+          - "Focused content, contract, parity, diagram, exact Rust, trace, Astro, static-link, formula, and supported Linux gates pass."
+          - "The completed Chapter 39 checkpoint is committed independently and leaves no deferred Russian course chapter."
+        validate:
+          - "npm --prefix site run check:contract -- ../curriculum/chapters/39-end-to-end-llm.md"
+          - "npm --prefix site run check:chapter -- --locale en --chapter 39-end-to-end-llm"
+          - "npm --prefix site run check:chapter -- --locale ru --chapter 39-end-to-end-llm"
+          - "npm --prefix site run check:parity -- --chapter 39-end-to-end-llm"
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site test -- --run tests/39-end-to-end-llm-diagram.test.ts tests/chapter-locales.test.ts tests/content-contract.test.ts tests/formula-rendering.test.ts tests/diagram-style-system.test.ts tests/diagram-full-view.test.ts"
+          - "cargo fmt --all -- --check && cargo test --locked -p ch39-end-to-end-llm && cargo clippy --locked -p ch39-end-to-end-llm --all-targets -- -D warnings"
+          - "cargo test --locked -p llm-from-scratch pipeline && cargo clippy --locked -p llm-from-scratch --all-targets -- -D warnings"
+          - "cargo run --quiet --locked -p ch39-end-to-end-llm | diff -u rust/demos/ch39-end-to-end-llm/expected.txt -"
+          - "cargo run --quiet --locked -p ch39-end-to-end-llm --example diagram_trace | diff -u rust/demos/ch39-end-to-end-llm/diagram-trace.txt -"
+          - "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links"
+          - "docker volume create --label learn_llm.run=20260801T072533Z-activate-ch39-russian-localization-01 --label learn_llm.snapshot=final learn-llm-ch39-e2e-final-072533 && docker run --rm --mount type=volume,source=learn-llm-ch39-e2e-final-072533,target=/e2e learn-llm-workspace:local bash -lc 'cp -a /workspace/. /e2e/'"
+          - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-ch39-e2e-final-072533,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/ch37-incremental-attention.spec.ts tests/e2e/ch38-cached-generation.spec.ts tests/e2e/ch39-end-to-end-llm.spec.ts tests/e2e/formula-rendering.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=chromium"
+          - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-ch39-e2e-final-072533,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/ch37-incremental-attention.spec.ts tests/e2e/ch38-cached-generation.spec.ts tests/e2e/ch39-end-to-end-llm.spec.ts tests/e2e/formula-rendering.spec.ts tests/e2e/diagram-style-system.spec.ts tests/e2e/diagram-full-view.spec.ts --browser=firefox"
+          - "docker volume rm learn-llm-ch39-e2e-final-072533"
+          - "./course check"
+          - "git diff --check and BUILD_STATE.yaml parse"
+          - "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical, and rendered-surface review"
+        cost:
+          class: large
+          notes: "Canonical capstone audit, complete technical translation, final locale activation, exact Rust/static checks, and two-engine rendered validation use substantial cached local CPU but no paid service, new dependency, build-definition change, hosting change, deployment change, or user-environment change."
+        runs:
+          - run_id: 20260801T072533Z-activate-ch39-russian-localization-01
+            started_at: "2026-08-01T07:25:33Z"
+            finished_at: "2026-08-01T09:07:49Z"
+            status: succeeded
+            input_fingerprint:
+              git: "1f0cc8008d1ead8940182a275f2bb66e2b5d21ff"
+              manifest: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/input-fingerprint.txt"
+              checksum: "sha256:c8e87199c5150978065d670d9faa757b511b1d5256dab3b1520e54bc9280289f"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate repository pins Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1; host language toolchains remain unused for authoritative product validation."
+              external: "No external translation service; audited current English Chapter 39, exact Rust evidence, cited primary LLM sources, and the recorded terminology audit are authoritative."
+            staging_dir: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/"
+            commands:
+              - "Verify clean dependency commit 1f0cc80; parse the complete ledger; recheck decisions, environment, localization instructions, locale policy, Chapter 39 sources/tests/evidence, cached validation images, and material checksums; record the large local cost before product edits."
+              - "Audit and correct the canonical Chapter 39 pipeline, report, trace, parser, diagram, formula/history prose, contract, exact fixtures, and tests; freeze English revision 2 at sha256 a31f7222."
+              - "Translate every Chapter 39 learner-facing and metadata surface directly from frozen English revision 2 into natural technical Russian; project exact Russian contract fields and activate {en, ru}."
+              - "Run focused Rust formatting, demo/core tests, Clippy, byte-exact report, and byte-exact diagram-trace gates in pinned Linux containers."
+              - "Run course-plan, contract, per-locale content, exact parity, focused Vitest, Astro, production build, and static link/SEO/sitemap/Analytics gates."
+              - "Iterate the one-figure large-container geometry and concise Russian diagram labels from measured Chromium and Firefox box/full-view evidence without clipping, shrinking, a private scroller, or duplicated markup."
+              - "Build the complete pinned Linux workspace image and copy its exact source/build snapshot into an isolated named volume for network-disabled Chromium and Firefox validation."
+              - "Freeze and verify the 23-file product checksum manifest plus the independent semantic, terminology, anti-calque, monolingual, accessibility, historical-source, SEO, and rendered-surface review."
+            artifacts:
+              - path: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/input-fingerprint.txt"
+                checksum: "sha256:c8e87199c5150978065d670d9faa757b511b1d5256dab3b1520e54bc9280289f"
+                notes: "Exact workflow, policy, canonical lesson, capstone pipeline, diagram, tests, environment, scope, and dependency-commit fingerprint before Chapter 39 product edits."
+              - path: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/meaning-lock.md"
+                checksum: "sha256:fb316c980b6992d8b5db6bdeb25e81135a2724cb278371d1cb7ce461913d1465"
+                notes: "Frozen English revision-2 semantics, exact numerical boundaries, At-versus-A distinction, raw/visible generated spaces, history scope, terminology, and anti-calque constraints used for direct Russian translation."
+              - path: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/localization-review.md"
+                checksum: "sha256:fd7c537cda2240eac99df9972492f877e4f79283aefc30c0645a2836c63669ab"
+                notes: "Independent direct-source semantic, terminology, anti-calque, monolingual, accessibility, historical, SEO, checksum, and two-engine rendered review."
+              - path: ".build/runs/20260801T072533Z-activate-ch39-russian-localization-01/publish-product.sha256"
+                checksum: "sha256:cccc641524724aa2fe61d882b7ed4167790d17e102e1ec7bb7cf7562ae06e5a5"
+                notes: "Exact 23-file product publication manifest; BUILD_STATE.yaml and DECISIONS.md are checkpoint records outside this product manifest."
+            validation:
+              - command: "Scheduler, source-of-truth, environment, dependency, working-tree, ownership, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 38 is independently committed at 1f0cc80; the worktree was clean; active_build was null with no pending or running record; cached host orchestration and repository pins match; Chapter 39 is the only deferred Russian route and owns this checkpoint; no paid service, dependency, build, hosting, deployment, or user-environment change is planned."
+              - command: "First integrated Russian contract/content/parity gate"
+                status: failed
+                notes: "The validator correctly found one punctuation mismatch between the Russian Brown-source frontmatter claim and its visible history prose. The direct translation was aligned to one natural two-sentence claim before any successful publication gate."
+              - command: "First six-file focused site unit matrix"
+                status: failed
+                notes: "Chapter 39's 27 focused tests passed, while two synthetic policy fixtures still expected the former English-only chapter template and an older range-gap error. Both fixtures were updated to plan revision 65 and the complete bilingual policy."
+              - command: "Canonical Chapter 39 contract, English/Russian content, exact parity, and course-plan gates"
+                status: passed
+                notes: "Plan revision 65 validates 40 chapters and 111 scheduled steps; the contract and both revision-2 lessons pass; exact active locales are {en, ru}; all 80 localized sources form 40 publishable sets."
+              - command: "Focused Chapter 39 demo/core Rust tests, formatting, and Clippy gates"
+                status: passed
+                notes: "All 4 demo and 4 focused pipeline tests pass; both package Clippy gates and cargo fmt pass, including the signed-zero bit-pattern guard and selection-isolated test materialization."
+              - command: "Exact Rust report and diagram trace replay"
+                status: passed
+                notes: "The executable report and V2 diagram trace match their checked-in fixtures byte for byte, including final newlines, exact checkpoint/probe evidence, prefix schedule, score cells, and RNG state."
+              - command: "Final six-file focused site unit matrix"
+                status: passed
+                notes: "All 103 selected tests pass, including bilingual contract projection, formula source rules, shared diagram roles/full-view ownership, anti-calque, encoding, and exact trace/parser evidence."
+              - command: "Pinned static-site diagnostics, production build, and link/SEO/sitemap/Analytics audit"
+                status: passed
+                notes: "Astro reports 206 files with zero diagnostics; 85 HTML pages pass 2,367 local references, 85 SEO routes, 85 sitemap URLs, and 85 Analytics routes."
+              - command: "First integrated Chromium Chapter 37-39/formula/shared-diagram matrix"
+                status: failed
+                notes: "192 of 194 cases passed. One stale uppercase Russian history fragment followed an intentional punctuation correction, and the first equal-column capstone grid retained 138px of full-view travel. The copy assertion was aligned and the figure was reorganized from measured card geometry."
+              - command: "Measured Chromium and Firefox capstone layout iterations"
+                status: passed
+                notes: "The final large-container layout keeps stages 1-5 on a balanced setup row and gives stages 6-8 wider evidence regions; concise natural Russian labels preserve every claim. Both engines pass desktop, narrow, containment, full-view, no-JavaScript, forced-color, and RTL checks without clipping or a private scroller."
+              - command: "Complete clean pinned-Linux workspace gate"
+                status: passed
+                notes: "The exact final source image sha256:26fd8e9b57f60f040844ab8c7ab7b7d34d6892fb709b2c0c001aa92f7442d100 passes cargo fmt, every workspace Rust test, all content/parity gates, 206-file Astro diagnostics, the 85-page production build, and static-link audit."
+              - command: "Pinned Playwright Chromium Chapter 37-39, formula-rendering, shared diagram-style, and shared full-view gates on the exact clean image snapshot"
+                status: passed
+                notes: "All 194 cases pass with Playwright image sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48, including both Chapter 39 locales, the final Chapter 37/38 navigation, every formula route, native full view, no JavaScript, forced colors, RTL, focus restoration, and box containment."
+              - command: "Pinned Playwright Firefox Chapter 37-39, formula-rendering, shared diagram-style, and shared full-view gates on the exact clean image snapshot"
+                status: passed
+                notes: "All 194 cases pass with the same exact bilingual, geometry, fallback, accessibility, and direction-sensitive surface matrix."
+              - command: "Independent exact-meaning, terminology, anti-calque, monolingual, accessibility, SEO, checksum, historical-source, and rendered-surface review"
+                status: passed
+                notes: "English sha256 a31f7222, Russian sha256 3df4a541, contract sha256 321dc675, and the 23-file product manifest sha256 cccc6415 are frozen; every required review dimension passes and later English meaning or presentation drift is explicitly stale."
+            notes: "Succeeded. Chapter 39 now exposes selection-isolated test access, bitwise training replay, exact checkpoint/state/probe evidence, and derived cached-versus-complete-prefix generation work without overstating the bounded fixture. Its direct natural Russian projection is active with complete contract, SEO, accessibility, formula, source, exercise, navigation, and rendered parity. Every Chapter 0-39 route is now bilingual. Focused Rust/unit, clean pinned Linux, 85-page link/SEO/sitemap/Analytics, exact 194-case Chromium, exact 194-case Firefox, checksum, and independent localization review gates pass; the exact 23-file product manifest is frozen for this standalone commit."

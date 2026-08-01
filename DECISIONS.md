@@ -11602,6 +11602,36 @@ English.
 **Affected step and run:** `activate-ch38-russian-localization`, run
 `20260801T061909Z-activate-ch38-russian-localization-01`.
 
+## 2026-08-01 - Audit Chapter 39 before final Russian activation
+
+**Status:** Accepted during `activate-ch39-russian-localization` run 01 before
+learner-facing edits.
+
+**Context:** Chapter 39 is the only remaining deferred Russian route after the
+independently committed Chapter 38 checkpoint. English remains the semantic
+source, so the capstone formula, LLM-history claims, executable pipeline,
+validation/test separation, checkpoint and cached-generation evidence, diagram
+contract, and learner-facing language must be verified before translation is
+frozen.
+
+**Decision:** Complete Chapter 39 as one standalone checkpoint. Correct every
+canonical defect found by the audit, freeze the current English revision,
+translate it directly into natural technical Russian, activate exactly
+`{en, ru}`, and advance the checked locale policy to the complete bilingual
+Chapter 0-39 course. Do not add a new model concept or broaden the deterministic
+capstone fixture.
+
+**Consequences:** The accepted step may revise the Chapter 39 pipeline/report,
+trace, parser, diagram, core/demo tests, and learner prose when needed to replace
+asserted evidence with derived fixture values or make selection, evaluation,
+reload, and generation claims precise. It will not change dependencies, build
+definitions, hosting, deployment, or the user environment. Both localized pages
+and the complete figure require Chromium and Firefox validation before
+publication.
+
+**Affected step and run:** `activate-ch39-russian-localization`, run
+`20260801T072533Z-activate-ch39-russian-localization-01`.
+
 ## 2026-08-01 - Complete corrected bilingual Chapter 37 cache instruction
 
 **Status:** Accepted and completed in `activate-ch37-russian-localization` run
@@ -11758,3 +11788,48 @@ makes this Russian review stale until it is refreshed directly from English.
 
 **Affected step and run:** `activate-ch36-russian-localization`, run
 `20260801T042840Z-activate-ch36-russian-localization-01`.
+
+## 2026-08-01 - Complete the audited bilingual capstone and course locale set
+
+**Status:** Accepted and completed in `activate-ch39-russian-localization` run
+01.
+
+**Context:** The Chapter 39 canonical audit found that the capstone needed to
+make its information boundary executable, compare replayed floating-point state
+by bit pattern, distinguish an exact checkpoint round-trip from a separate logit
+probe, and derive cached versus complete-prefix work from the recorded generation
+schedule. Russian was the only remaining unpublished course translation. The
+first rendered candidate also made the complete Russian pipeline too tall in
+Firefox full view.
+
+**Decision:** Publish corrected English revision 2 and its direct natural Russian
+projection. Materialize test batches only after training replay and validation
+selection; preserve one locally owned final evaluator; compare training records,
+model values, AdamW values, and checkpoint values by float bits; and report byte,
+state, probe, sampling, prefix, RNG, and score-cell evidence as separate exact
+claims. Activate exactly `{en, ru}` for every Chapter 0-39 route and replace the
+selective boundary with the `bilingual-all-chapters` policy. Reflow the shared
+eight-card capstone figure into a five-stage setup row and a wider three-stage
+evidence row at large container widths, using concise natural Russian labels
+without clipping, text reduction, a private scroller, or duplicated markup.
+
+**Consequences:** English is
+`sha256:a31f722286c1e922169f6a889aecc939cf4c097aa34d0a6ba1178a721719fc9b`,
+Russian is
+`sha256:3df4a541462cb3238f50e1f72a666d9eb35f3202d0062a735ddc17c69f59dac8`,
+the contract is
+`sha256:321dc675481de0c2aabc06470954fd88014d1a0d2c928a75bc9f289008ae0b9d`,
+and the exact 23-file product manifest is
+`sha256:cccc641524724aa2fe61d882b7ed4167790d17e102e1ec7bb7cf7562ae06e5a5`.
+The clean pinned Linux image
+`sha256:26fd8e9b57f60f040844ab8c7ab7b7d34d6892fb709b2c0c001aa92f7442d100`
+passes the complete Rust workspace, 80 localized sources as 40 bilingual sets,
+zero Astro diagnostics, an 85-page build, 2,367 local references, and 85 SEO,
+sitemap, and Analytics routes. Chromium and Firefox each pass all 194 selected
+cases from that exact snapshot. No dependency, package, build-definition,
+hosting, deployment, or user-environment change was made. A later English
+meaning or presentation change makes the Russian review stale until refreshed
+directly from English.
+
+**Affected step and run:** `activate-ch39-russian-localization`, run
+`20260801T072533Z-activate-ch39-russian-localization-01`.

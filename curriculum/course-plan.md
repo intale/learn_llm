@@ -1,35 +1,25 @@
 ---
 {
   "plan_id": "tiny-decoder-llm-rust",
-  "plan_revision": 64,
+  "plan_revision": 65,
   "chapter_count": 40,
   "implementation_state_source": "curriculum/chapters",
   "localization_registry": "site/src/i18n/locales.json",
   "chapter_locale_policy": {
-    "policy_id": "selective-russian-through-chapter-38",
+    "policy_id": "bilingual-all-chapters",
     "reference_locale": "en",
     "ranges": [
       {
         "from_chapter": "00-llm-parts",
-        "through_chapter": "38-cached-generation",
+        "through_chapter": "39-end-to-end-llm",
         "locales": [
           "en",
           "ru"
         ],
-        "reason": "Publish the reviewed Russian orientation and Chapters 1-38."
-      },
-      {
-        "from_chapter": "39-end-to-end-llm",
-        "through_chapter": "39-end-to-end-llm",
-        "locales": [
-          "en"
-        ],
-        "reason": "Produce English only for Chapter 39 until a later explicit locale activation."
+        "reason": "Publish every reviewed course chapter in English and Russian."
       }
     ],
-    "deferred_locales": [
-      "ru"
-    ],
+    "deferred_locales": [],
     "future_activation": {
       "requires_cross_cutting_step": true,
       "requires_backfill_for_implemented_chapters": true,
@@ -364,6 +354,11 @@
         "step_id": "activate-ch38-russian-localization",
         "after_chapter": "39-end-to-end-llm",
         "standalone_build_id": "activate-ch38-russian-localization"
+      },
+      {
+        "step_id": "activate-ch39-russian-localization",
+        "after_chapter": "39-end-to-end-llm",
+        "standalone_build_id": "activate-ch39-russian-localization"
       }
     ],
     "planned_chapter_splits": [],
@@ -933,10 +928,10 @@ The `generalize-localization-infrastructure` prerequisite makes
 directionality, and localized indexes. The checked
 `site/src/i18n/chapter-locales.json` projection separately controls localized
 contract fields, lesson parity, chapter routes, equivalent-page alternate links,
-and chapter validation. English and Russian are registered; Chapters 0–38 activate
-both, while Chapter 39 activates English only. Russian therefore keeps its index
-and Chapter 0–38 lessons but receives no placeholder lesson or route for a deferred
-chapter. The same rules apply to any registered locale.
+and chapter validation. English and Russian are registered and active for every
+current chapter from 0 through 39, so each index, lesson route, locale switch, and
+equivalent-page alternate link has a reviewed bilingual counterpart. Future
+locales still require an explicit validated activation step before routes publish.
 
 The post-prerequisite gate for every chapter is:
 
@@ -1599,12 +1594,13 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 - **Outcome:** Partition data, learn/apply BPE, train/select/evaluate, save/reload, and cache-generate with one functional bilingual decoder-only LLM in Rust.
 - **Scope boundary:** Synthesize the existing corpus, tokenizer, tensor/autodiff, model, optimizer, evaluation, checkpoint, and generation APIs; introduce no hidden framework, new model concept, or test-set tuning.
 - **Formula:** `P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`.
-- **Historical contrast:** Return to the frozen count-based bigram and compare what additional context and learned computation buy.
+- **Historical contrast:** Compare the training-only one-token bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the loss gap as fixture evidence rather than causal attribution.
 - **Rust contribution:** Add the documented capstone CLI and acceptance harness; invoke the cumulative APIs to perform one fresh bounded deterministic train/select/evaluate/save/load/generate run without copying their implementations.
 - **Visualization:** Useful — render the complete static text → tokens → batches → decoder → loss/update and prompt → cached generation → text pipeline.
-- **Practice:** Ask students to predict split provenance, tensor shapes, parameter count, test baseline ordering, checkpoint offsets, cache shapes, and seeded output before executing the capstone.
-- **Integration evidence:** On a fixed seed and bounded CPU configuration, the decoder beats the frozen bigram on previously unscored test loss, reload preserves logits, cached/uncached generation agrees, and two seeded runs match.
+- **Practice:** Ask students to predict split provenance, batch and target arithmetic, parameter count, validation selection, test baseline ordering, exact checkpoint fields, the distinct `At` logit probe, and seeded output before executing the capstone.
+- **Integration evidence:** On the frozen CPU fixture, validation selects before test mini-batches are materialized; one local evaluator compares the decoder and bigram on 1,744 identical targets; checkpoint bytes, model, optimizer, tokenizer, step, and RNG round-trip exactly; logits for probe `At` match bit for bit; cached and complete-prefix generation from `A` with temperature 0.8, top-k 4, and seed 38 agrees on `[260,34,34]`, draws, stop, and final RNG state; and two training runs match by bit pattern.
 - **Handoff:** The student now owns every component required to inspect, modify, test, and extend a functional decoder-only LLM.
+- **Revision status:** Content revision 2 derives the history contrast from measured same-target losses, compares replay and persisted state by bit pattern, materializes test batches only after validation selection, distinguishes the `At` reload probe from generation prompt `A`, exposes batch and generation schedules, uses shared diagram presentation roles, and publishes the direct meaning-first Russian localization through `activate-ch39-russian-localization`.
 
 
 ## Primary architecture anchors

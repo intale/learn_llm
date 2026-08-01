@@ -661,8 +661,13 @@ const chapter14To39FormulaLatex: Record<
   "39-end-to-end-llm": [
     String.raw`P_\theta(z_{1:T})=\prod_{t=1}^{T}P_\theta(z_t\mid z_{<t})`,
     String.raw`C=4`,
+    String.raw`N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744`,
+    String.raw`\tau=0.8`,
+    String.raw`k=4`,
     String.raw`3.981342714-3.866087547=0.115255167`,
     String.raw`3.866087547<3.981342714`,
+    String.raw`1+2+3=6`,
+    String.raw`1^2+2^2+3^2=14`,
   ],
 };
 

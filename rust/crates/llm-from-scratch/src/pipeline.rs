@@ -20,10 +20,11 @@ use crate::models::decoder::{DecoderModel, DecoderModelConfig};
 use crate::nn::init::SplitMix64;
 use crate::tokenizer::bpe::{BpeTokenizer, TOKENIZER_LAYOUT_VERSION};
 use crate::tokenizer::bpe_trainer::BpeTrainer;
-use crate::training::adamw::{AdamW, AdamWConfig};
+use crate::training::adamw::{AdamW, AdamWConfig, AdamWState};
 use crate::training::batch::{BatchDocument, BatchOrder, MiniBatchConfig, MiniBatchEpoch};
 use crate::training::trainer::{
-    LearningRateSchedule, TrainerConfig, TrainingResult, train_decoder,
+    Evaluation, LearningRateSchedule, LossCheckpoint, TrainerConfig, TrainingResult, TrainingStep,
+    train_decoder,
 };
 
 /// The frozen capstone configuration selected from training and validation only.
@@ -388,8 +389,13 @@ pub struct CheckpointEvidence {
     selected_step: u64,
     optimizer_step: u64,
     rng_state: u64,
+    bytes_roundtrip: bool,
+    model_bits_exact: bool,
+    optimizer_bits_exact: bool,
     tokenizer_exact: bool,
-    logits_bitwise: bool,
+    logit_probe_text: String,
+    logit_probe_ids: Vec<u32>,
+    prompt_logits_bitwise: bool,
 }
 
 impl CheckpointEvidence {
@@ -421,12 +427,32 @@ impl CheckpointEvidence {
         self.rng_state
     }
 
+    pub const fn bytes_roundtrip(&self) -> bool {
+        self.bytes_roundtrip
+    }
+
+    pub const fn model_bits_exact(&self) -> bool {
+        self.model_bits_exact
+    }
+
+    pub const fn optimizer_bits_exact(&self) -> bool {
+        self.optimizer_bits_exact
+    }
+
     pub const fn tokenizer_exact(&self) -> bool {
         self.tokenizer_exact
     }
 
-    pub const fn logits_bitwise(&self) -> bool {
-        self.logits_bitwise
+    pub fn logit_probe_text(&self) -> &str {
+        &self.logit_probe_text
+    }
+
+    pub fn logit_probe_ids(&self) -> &[u32] {
+        &self.logit_probe_ids
+    }
+
+    pub const fn prompt_logits_bitwise(&self) -> bool {
+        self.prompt_logits_bitwise
     }
 }
 
@@ -438,9 +464,14 @@ pub struct GenerationEvidence {
     generated_ids: Vec<u32>,
     decoded_text: String,
     stop: GenerationStop,
+    prefix_lengths: Vec<usize>,
     final_cache_length: usize,
+    prefill_tokens: usize,
+    decode_tokens: usize,
     cached_attention_scores: usize,
-    complete_prefix_attention_scores: usize,
+    calculated_complete_prefix_attention_scores: usize,
+    initial_rng_state: u64,
+    final_rng_state: u64,
     tokens_exact: bool,
     decisions_bitwise: bool,
     rng_state_exact: bool,
@@ -467,16 +498,36 @@ impl GenerationEvidence {
         self.stop
     }
 
+    pub fn prefix_lengths(&self) -> &[usize] {
+        &self.prefix_lengths
+    }
+
     pub const fn final_cache_length(&self) -> usize {
         self.final_cache_length
+    }
+
+    pub const fn prefill_tokens(&self) -> usize {
+        self.prefill_tokens
+    }
+
+    pub const fn decode_tokens(&self) -> usize {
+        self.decode_tokens
     }
 
     pub const fn cached_attention_scores(&self) -> usize {
         self.cached_attention_scores
     }
 
-    pub const fn complete_prefix_attention_scores(&self) -> usize {
-        self.complete_prefix_attention_scores
+    pub const fn calculated_complete_prefix_attention_scores(&self) -> usize {
+        self.calculated_complete_prefix_attention_scores
+    }
+
+    pub const fn initial_rng_state(&self) -> u64 {
+        self.initial_rng_state
+    }
+
+    pub const fn final_rng_state(&self) -> u64 {
+        self.final_rng_state
     }
 
     pub const fn tokens_exact(&self) -> bool {
@@ -637,7 +688,6 @@ struct PreparedTraining {
     updates: MiniBatchEpoch,
     train: MiniBatchEpoch,
     validation: MiniBatchEpoch,
-    test: MiniBatchEpoch,
     trainer_config: TrainerConfig,
 }
 
@@ -678,13 +728,6 @@ fn prepare_training(
         config.evaluation_batch_size(),
         BatchOrder::Sequential,
     )?;
-    let test = epoch(
-        &data.encoded,
-        Partition::Test,
-        config.context_length(),
-        config.evaluation_batch_size(),
-        BatchOrder::Sequential,
-    )?;
     let schedule = map(
         PipelineStage::Training,
         LearningRateSchedule::new(vec![config.learning_rate(); config.updates()]),
@@ -702,7 +745,6 @@ fn prepare_training(
         updates,
         train,
         validation,
-        test,
         trainer_config,
     })
 }
@@ -736,14 +778,95 @@ fn training_once(
     )
 }
 
+fn evaluation_bitwise(left: Evaluation, right: Evaluation) -> bool {
+    left.mean_loss().to_bits() == right.mean_loss().to_bits()
+        && left.token_count() == right.token_count()
+        && left.batch_count() == right.batch_count()
+        && left.recorded_graphs() == right.recorded_graphs()
+}
+
+fn checkpoint_bitwise(left: &LossCheckpoint, right: &LossCheckpoint) -> bool {
+    left.step() == right.step()
+        && evaluation_bitwise(left.train(), right.train())
+        && evaluation_bitwise(left.validation(), right.validation())
+        && left.selected() == right.selected()
+}
+
+fn training_step_bitwise(left: &TrainingStep, right: &TrainingStep) -> bool {
+    left.step() == right.step()
+        && left.batch_windows() == right.batch_windows()
+        && left.learning_rate().to_bits() == right.learning_rate().to_bits()
+        && left.train_loss().to_bits() == right.train_loss().to_bits()
+        && left.gradient_norm_before().to_bits() == right.gradient_norm_before().to_bits()
+        && left.gradient_norm_after().to_bits() == right.gradient_norm_after().to_bits()
+        && left.gradient_scale().to_bits() == right.gradient_scale().to_bits()
+        && left.clipped() == right.clipped()
+        && left.finite_gradients() == right.finite_gradients()
+        && left.fresh_zero_gradients() == right.fresh_zero_gradients()
+        && left.cleared_gradients() == right.cleared_gradients()
+        && left.events() == right.events()
+}
+
+fn adamw_config_bitwise(left: AdamWConfig, right: AdamWConfig) -> bool {
+    left.learning_rate().to_bits() == right.learning_rate().to_bits()
+        && left.beta1().to_bits() == right.beta1().to_bits()
+        && left.beta2().to_bits() == right.beta2().to_bits()
+        && left.epsilon().to_bits() == right.epsilon().to_bits()
+        && left.weight_decay().to_bits() == right.weight_decay().to_bits()
+}
+
+fn float_slice_bitwise(left: &[f64], right: &[f64]) -> bool {
+    left.len() == right.len()
+        && left
+            .iter()
+            .zip(right)
+            .all(|(left, right)| left.to_bits() == right.to_bits())
+}
+
+fn adamw_state_bitwise(left: &AdamWState, right: &AdamWState) -> bool {
+    if !adamw_config_bitwise(left.config(), right.config())
+        || left.parameter_groups() != right.parameter_groups()
+        || left.step_count() != right.step_count()
+        || left.beta1_power().to_bits() != right.beta1_power().to_bits()
+        || left.beta2_power().to_bits() != right.beta2_power().to_bits()
+    {
+        return false;
+    }
+    let left_names = left.parameter_names().collect::<Vec<_>>();
+    let right_names = right.parameter_names().collect::<Vec<_>>();
+    left_names == right_names
+        && left_names.into_iter().all(|name| {
+            let left = left.state(name).expect("name came from the state");
+            let right = right
+                .state(name)
+                .expect("matching name came from the state");
+            left.shape() == right.shape()
+                && float_slice_bitwise(left.first_moment(), right.first_moment())
+                && float_slice_bitwise(left.second_moment(), right.second_moment())
+        })
+}
+
 fn training_replays_bitwise(left: &TrainingResult, right: &TrainingResult) -> bool {
-    left.steps() == right.steps()
-        && left.checkpoints() == right.checkpoints()
+    left.steps().len() == right.steps().len()
+        && left
+            .steps()
+            .iter()
+            .zip(right.steps())
+            .all(|(left, right)| training_step_bitwise(left, right))
+        && left.checkpoints().len() == right.checkpoints().len()
+        && left
+            .checkpoints()
+            .iter()
+            .zip(right.checkpoints())
+            .all(|(left, right)| checkpoint_bitwise(left, right))
         && left.selected_step() == right.selected_step()
         && left.selected_validation_loss().to_bits() == right.selected_validation_loss().to_bits()
         && left.selected_state().bit_pattern() == right.selected_state().bit_pattern()
         && left.final_state().bit_pattern() == right.final_state().bit_pattern()
-        && left.final_optimizer().persistence_state() == right.final_optimizer().persistence_state()
+        && adamw_state_bitwise(
+            &left.final_optimizer().persistence_state(),
+            &right.final_optimizer().persistence_state(),
+        )
 }
 
 fn logits_bits(model: &DecoderModel, prompt: &[u32]) -> Result<Vec<u64>, PipelineError> {
@@ -830,15 +953,35 @@ fn generation_evidence(
         PipelineStage::Generation,
         tokenizer.decode_content_utf8(&cached.generated()[..content_end]),
     )?;
+    let prefix_lengths = uncached
+        .steps()
+        .iter()
+        .map(|step| step.prefix_length())
+        .collect::<Vec<_>>();
+    let attention_lanes = config.layers() * config.heads();
+    let calculated_complete_prefix_attention_scores = prefix_lengths
+        .iter()
+        .map(|length| attention_lanes * length * length)
+        .sum::<usize>();
+    require(
+        calculated_complete_prefix_attention_scores
+            == cached.work().complete_prefix_attention_score_values(),
+        "complete-prefix score calculation disagrees with the generation schedule",
+    )?;
     Ok(GenerationEvidence {
         prompt_text: prompt_text.to_owned(),
         prompt_ids: prompt_ids.clone(),
         generated_ids: cached.generated().to_vec(),
         decoded_text,
         stop: cached.stop(),
+        prefix_lengths,
         final_cache_length: cached.final_cache_len(),
+        prefill_tokens: cached.work().prefill_tokens(),
+        decode_tokens: cached.work().decode_tokens(),
         cached_attention_scores: cached.work().cached_attention_score_values(),
-        complete_prefix_attention_scores: cached.work().complete_prefix_attention_score_values(),
+        calculated_complete_prefix_attention_scores,
+        initial_rng_state: rng_state,
+        final_rng_state: cached_rng.state(),
         tokens_exact: cached.generated() == uncached.generated(),
         decisions_bitwise,
         rng_state_exact,
@@ -906,9 +1049,16 @@ pub fn run_capstone(
         PipelineStage::FinalEvaluation,
         FrozenBigram::new(&data.bigram, Partition::Train, &provenance),
     )?;
+    let test_epoch = epoch(
+        &data.encoded,
+        Partition::Test,
+        config.context_length(),
+        config.evaluation_batch_size(),
+        BatchOrder::Sequential,
+    )?;
     let mut evaluator = map(
         PipelineStage::FinalEvaluation,
-        FinalEvaluator::new(prepared.test.clone(), provenance.clone()),
+        FinalEvaluator::new(test_epoch.clone(), provenance.clone()),
     )?;
     require(
         evaluator.access_count() == 0,
@@ -943,8 +1093,9 @@ pub fn run_capstone(
         Checkpoint::load(checkpoint_path.as_ref()),
     )?;
     let loaded_encoded = map(PipelineStage::Checkpoint, loaded.encode())?;
+    let bytes_roundtrip = encoded_checkpoint.bytes() == loaded_encoded.bytes();
     require(
-        encoded_checkpoint.bytes() == loaded_encoded.bytes(),
+        bytes_roundtrip,
         "loaded checkpoint bytes differ from the saved record",
     )?;
     let loaded_tokenizer = map(PipelineStage::Checkpoint, loaded.tokenizer().restore_bpe())?
@@ -954,13 +1105,20 @@ pub fn run_capstone(
         primary.selected_state().restore(),
     )?;
     let loaded_model = map(PipelineStage::Checkpoint, loaded.restore_model())?;
-    let logit_prompt = data.tokenizer.encode_utf8("At");
-    let logits_bitwise =
-        logits_bits(&selected_model, &logit_prompt)? == logits_bits(&loaded_model, &logit_prompt)?;
+    let model_bits_exact =
+        loaded.model_state().bit_pattern() == primary.selected_state().bit_pattern();
+    let optimizer_bits_exact = adamw_state_bitwise(
+        loaded.optimizer_state(),
+        &primary.final_optimizer().persistence_state(),
+    );
+    let logit_probe_text = "At";
+    let logit_probe_ids = data.tokenizer.encode_utf8(logit_probe_text);
+    let prompt_logits_bitwise = logits_bits(&selected_model, &logit_probe_ids)?
+        == logits_bits(&loaded_model, &logit_probe_ids)?;
     let tokenizer_exact = loaded_tokenizer == data.tokenizer;
     require(
-        logits_bitwise && tokenizer_exact,
-        "checkpoint reload changed tokenizer or logits",
+        model_bits_exact && optimizer_bits_exact && prompt_logits_bitwise && tokenizer_exact,
+        "checkpoint reload changed model, optimizer, tokenizer, or probe logits",
     )?;
     let generation =
         generation_evidence(&loaded_model, &loaded_tokenizer, loaded.rng_state(), config)?;
@@ -988,12 +1146,12 @@ pub fn run_capstone(
         window_counts: [
             prepared.train.window_count(),
             prepared.validation.window_count(),
-            prepared.test.window_count(),
+            test_epoch.window_count(),
         ],
         batch_counts: [
             prepared.train.batch_count(),
             prepared.validation.batch_count(),
-            prepared.test.batch_count(),
+            test_epoch.batch_count(),
         ],
         checkpoints,
         selected_step,
@@ -1009,8 +1167,13 @@ pub fn run_capstone(
         selected_step: loaded.selected_step(),
         optimizer_step: loaded.optimizer_state().step_count(),
         rng_state: loaded.rng_state(),
+        bytes_roundtrip,
+        model_bits_exact,
+        optimizer_bits_exact,
         tokenizer_exact,
-        logits_bitwise,
+        logit_probe_text: logit_probe_text.to_owned(),
+        logit_probe_ids,
+        prompt_logits_bitwise,
     };
     Ok(CapstoneRun {
         partitions: data.partitions,
@@ -1036,10 +1199,23 @@ mod tests {
         assert_eq!(config.feed_forward_width(), 4);
         assert_eq!(config.layers(), 1);
         assert_eq!(config.context_length(), 4);
+        assert_eq!(config.update_batch_size(), 16);
+        assert_eq!(config.evaluation_batch_size(), 128);
         assert_eq!(config.updates(), 32);
         assert_eq!(config.generation_seed(), 38);
+        assert_eq!(config.generation_temperature().to_bits(), 0.8_f64.to_bits());
         assert_eq!(config.generation_top_k(), 4);
         assert_eq!(config.generation_tokens(), 3);
+    }
+
+    #[test]
+    fn replay_comparison_distinguishes_equal_floats_with_different_bits() {
+        assert_eq!(0.0, -0.0);
+        assert!(!float_slice_bitwise(&[0.0], &[-0.0]));
+        let positive = AdamWConfig::new(0.1, 0.9, 0.999, 1e-8, 0.0).unwrap();
+        let negative = AdamWConfig::new(0.1, 0.9, 0.999, 1e-8, -0.0).unwrap();
+        assert_eq!(positive, negative);
+        assert!(!adamw_config_bitwise(positive, negative));
     }
 
     #[test]

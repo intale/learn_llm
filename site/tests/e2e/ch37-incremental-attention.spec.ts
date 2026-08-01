@@ -384,14 +384,10 @@ async function expectChapterContent(
   const next = page.locator(
     'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
   );
-  if (locale === "en") {
-    await expect(next).toHaveAttribute(
-      "data-chapter-id",
-      "38-cached-generation",
-    );
-  } else {
-    await expect(next).toHaveCount(0);
-  }
+  await expect(next).toHaveAttribute(
+    "data-chapter-id",
+    "38-cached-generation",
+  );
   await expectNoOverflowOrClientScripts(page);
 }
 
@@ -405,7 +401,7 @@ test.describe(
       const english = await readOrderedCourseChapters(page, "en");
       expect(english).toHaveLength(39);
       const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian).toHaveLength(37);
+      expect(russian).toHaveLength(39);
 
       for (const locale of locales) {
         const chapters = locale === "en" ? english : russian;

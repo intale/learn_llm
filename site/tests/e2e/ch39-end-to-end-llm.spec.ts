@@ -13,23 +13,81 @@ import {
 } from "./chapter-helpers";
 
 const chapterId = "39-end-to-end-llm";
-const chapterTitle = "Run the whole tiny LLM";
-const chapterDescription =
-  "Connect frozen bilingual data, training-only BPE, decoder training, final evaluation, checkpoint reload, and cached text generation in one Rust program.";
-const diagramTitle =
-  "Keep evidence one-way from text to generated text";
-const diagramDescription =
-  "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation.";
-const chapterHeadings = [
-  "Predict the boundary before predicting the output",
-  "One product connects every next-token decision",
-  "Keep sequence position separate from pipeline stage",
-  "From short count contexts to autoregressive Transformer LLMs",
-  "Assemble APIs instead of copying algorithms",
-  "Follow the one-way pipeline",
-  "Predict before checking the final trace",
-  "Take ownership of the complete decoder",
-] as const;
+type ChapterLocale = "en" | "ru";
+const locales = ["en", "ru"] as const satisfies readonly ChapterLocale[];
+const copy = {
+  en: {
+    revisionLabel: "Content revision",
+    title: "Run the whole tiny LLM",
+    description:
+      "Trace a tiny decoder-only language model in Rust from frozen bilingual splits and training-only BPE through validation-selected training, selection-isolated final evaluation, exact checkpoint reload, and KV-cached generation.",
+    diagramTitle: "Keep evidence one-way from text to generated text",
+    diagramDescription:
+      "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation.",
+    headings: [
+      "Predict the boundary before predicting the output",
+      "One product connects every next-token decision",
+      "Keep sequence position separate from pipeline stage",
+      "From short count contexts to autoregressive Transformer LLMs",
+      "Assemble APIs instead of copying algorithms",
+      "Follow the one-way pipeline",
+      "Predict before checking the final trace",
+      "Take ownership of the complete decoder",
+    ],
+    historyLimitation:
+      "A count-based bigram estimates the next token from one preceding token",
+    scaleBoundary:
+      "none of its scale or capability results transfers to this tiny teaching run",
+    qualityBoundary:
+      "It does not establish a universal architecture ranking or useful generation quality",
+    detailsFragment: "The literal generated IDs are [260,34,34]",
+    selectedCue: "validation-selected state",
+    testCue: "|| local one-use test gate",
+    checkpointCue:
+      "= bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
+    generationCue: "= cached and complete-prefix decisions match",
+    decodedTextLabel: "Cyrillic т followed by two generated spaces",
+    spaceMarker: "Each ␠ marks one generated space.",
+    fullViewOpenLabel: "View diagram full screen",
+    fullViewCloseLabel: "Exit full screen",
+  },
+  ru: {
+    revisionLabel: "Версия материала",
+    title: "Запустите небольшую LLM целиком",
+    description:
+      "Проследите полный процесс работы небольшой декодерной языковой модели на Rust: от зафиксированного разбиения двуязычного корпуса и обучения BPE только по обучающей выборке до выбора состояния по валидации, последующей итоговой оценки выбранного состояния, точного восстановления из контрольной точки и генерации с KV-кэшем.",
+    diagramTitle: "Проследите односторонний путь от текста к генерации",
+    diagramDescription:
+      "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем.",
+    headings: [
+      "Сначала предскажите границы доступа, затем результат",
+      "Одно произведение связывает все решения о следующем токене",
+      "Не смешивайте позицию в последовательности с этапом процесса",
+      "От короткого частотного контекста к авторегрессионным LLM на основе Transformer",
+      "Соберите готовые API, не копируя алгоритмы",
+      "Проследите односторонний процесс",
+      "Сначала предскажите, затем проверьте итоговую трассировку",
+      "Теперь весь декодер в ваших руках",
+    ],
+    historyLimitation:
+      "Биграммная модель на основе частот оценивает следующий токен по одному предшествующему токену",
+    scaleBoundary:
+      "Результаты по масштабу и возможностям этой модели нельзя переносить на небольшой учебный запуск",
+    qualityBoundary: "не подтверждает полезное качество генерации",
+    detailsFragment: "Точные сгенерированные ID: [260,34,34]",
+    selectedCue: "выбрано по валидации",
+    testCue:
+      "|| тестовая выборка открывается один раз после выбора состояния",
+    checkpointCue:
+      "= байты и всё состояние восстанавливаются точно; логиты пробы совпадают",
+    generationCue:
+      "= решения с кэшем и по полному префиксу совпадают",
+    decodedTextLabel: "кириллическая т и два сгенерированных пробела",
+    spaceMarker: "␠ — сгенерированный пробел.",
+    fullViewOpenLabel: "Развернуть схему на весь экран",
+    fullViewCloseLabel: "Выйти из полноэкранного режима",
+  },
+} as const;
 const stageOrder = [
   "data",
   "tokenizer",
@@ -266,22 +324,24 @@ async function expectDiagramContainment(page: Page) {
 async function expectChapterContent(
   page: Page,
   chapters: readonly CourseChapterLink[],
+  locale: ChapterLocale,
 ) {
+  const localized = copy[locale];
   await expectLocalizedChapterRoute(page, {
     chapterId,
-    locale: "en",
+    locale,
     order: 39,
-    revision: 1,
-    revisionLabel: "Content revision",
-    title: chapterTitle,
-    equivalentLocales: ["en"],
+    revision: 2,
+    revisionLabel: localized.revisionLabel,
+    title: localized.title,
+    equivalentLocales: ["en", "ru"],
     fallbackRouteSuffix: "/course/",
   });
   await expect(page.locator(".lesson-description")).toHaveText(
-    chapterDescription,
+    localized.description,
   );
-  await expectSeoDescription(page, chapterDescription);
-  await expect(page.locator(".lesson-body h2")).toHaveText(chapterHeadings);
+  await expectSeoDescription(page, localized.description);
+  await expect(page.locator(".lesson-body h2")).toHaveText(localized.headings);
 
   const annotations = await page
     .locator('.lesson-body annotation[encoding="application/x-tex"]')
@@ -289,8 +349,13 @@ async function expectChapterContent(
   for (const expected of [
     "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
     "C=4",
+    "N_{\\mathrm{test}}=W_{\\mathrm{test}}C=436\\cdot4=1744",
+    "\\tau=0.8",
+    "k=4",
     "3.981342714-3.866087547=0.115255167",
     "3.866087547<3.981342714",
+    "1+2+3=6",
+    "1^2+2^2+3^2=14",
   ]) {
     expect(
       annotations
@@ -307,15 +372,9 @@ async function expectChapterContent(
     /\s+/g,
     " ",
   );
-  expect(lessonText).toContain(
-    "A count-based bigram estimates the next token from one preceding token",
-  );
-  expect(lessonText).toContain(
-    "scale and capability claims from that model do not transfer to this tiny teaching run",
-  );
-  expect(lessonText).toContain(
-    "It does not establish a universal architecture ranking or useful generation quality",
-  );
+  expect(lessonText).toContain(localized.historyLimitation);
+  expect(lessonText).toContain(localized.scaleBoundary);
+  expect(lessonText).toContain(localized.qualityBoundary);
   for (const href of [
     "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf",
     "https://arxiv.org/pdf/1706.03762",
@@ -332,8 +391,10 @@ async function expectChapterContent(
   const diagram = page.locator(
     'figure[data-visualization-id="end-to-end-llm"]',
   );
-  await expect(diagram).toHaveAccessibleName(diagramTitle);
-  await expect(diagram).toHaveAccessibleDescription(diagramDescription);
+  await expect(diagram).toHaveAccessibleName(localized.diagramTitle);
+  await expect(diagram).toHaveAccessibleDescription(
+    localized.diagramDescription,
+  );
   await expect(diagram).toHaveAttribute("data-diagram-style", "course-v1");
   await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
   await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
@@ -352,13 +413,46 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-stage="data"]')).toContainText(
     "8/2/2",
   );
+  await expect(diagram.locator('[data-stage="data"]')).toContainText(
+    "fnv1a64:04786e7303f1dfd6",
+  );
   await expect(diagram.locator('[data-stage="tokenizer"]')).toContainText(
     "266",
+  );
+  await expect(diagram.locator('[data-stage="tokenizer"]')).toContainText(
+    "[1852,471,444]",
   );
   await expect(diagram.locator('[data-stage="batches"]')).toContainText(
     "[1820,463,436]",
   );
+  await expect(diagram.locator('[data-stage="batches"]')).toContainText(
+    "16/128",
+  );
+  await expect(diagram.locator('[data-stage="batches"]')).toContainText(
+    "[15,4,4]",
+  );
   await expect(diagram.locator('[data-stage="model"]')).toContainText("1188");
+  await expect(
+    diagram
+      .locator('[data-stage="model"] annotation[encoding="application/x-tex"]')
+      .last(),
+  ).toHaveText("L=1,\\ H=1,\\ D=4");
+  await expect(
+    diagram
+      .locator(
+        '[data-stage="selection"] annotation[encoding="application/x-tex"]',
+      ),
+  ).toHaveText([
+    "s=0",
+    "5.621745486",
+    "5.628342353",
+    "s=32",
+    "3.855502695",
+    "3.889531885",
+  ]);
+  await expect(diagram.locator(".selected-row dt")).toContainText(
+    localized.selectedCue,
+  );
   await expect(diagram.locator('[data-stage="selection"]')).toContainText(
     "3.889531885",
   );
@@ -372,15 +466,43 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-stage="checkpoint"]')).toContainText(
     "34",
   );
+  await expect(
+    diagram.locator('[data-stage="checkpoint"] code').last(),
+  ).toHaveText("At [67,118]");
+  await expect(
+    diagram.locator('[data-stage="generation"] code').first(),
+  ).toHaveText("A [67]");
+  await expect(
+    diagram
+      .locator(
+        '[data-stage="generation"] annotation[encoding="application/x-tex"]',
+      )
+      .first(),
+  ).toHaveText("\\tau=0.8,\\ k=4");
+  await expect(diagram.locator('[data-stage="generation"]')).toContainText(
+    "seed=38",
+  );
   await expect(diagram.locator('[data-stage="generation"]')).toContainText(
     "[260,34,34]",
   );
-  expect(
-    await diagram.locator('[data-stage="generation"] q').textContent(),
-  ).toBe("т  ");
+  const decoded = diagram.locator('[data-stage="generation"] q');
+  await expect(decoded).toHaveText("т␠␠");
+  await expect(decoded).toHaveAccessibleName(localized.decodedTextLabel);
+  await expect(
+    diagram.locator('[data-stage="generation"] small'),
+  ).toHaveText(localized.spaceMarker);
   await expect(diagram.locator('[data-stage="generation"]')).toContainText(
-    "6/14",
+    "prefixes=[1,2,3] prefill=1 decode=2",
   );
+  await expect(
+    diagram.locator(
+      '[data-stage="generation"] annotation[encoding="application/x-tex"]',
+    ),
+  ).toHaveText([
+    "\\tau=0.8,\\ k=4",
+    "1+2+3=6",
+    "1^2+2^2+3^2=14",
+  ]);
   await expect(
     diagram
       .locator('[data-stage="test"] .cue annotation[encoding="application/x-tex"]')
@@ -395,10 +517,8 @@ async function expectChapterContent(
   await expect(details).toHaveCount(1);
   await details.locator("summary").click();
   await expect(details.locator("ol > li")).toHaveCount(10);
-  await expect(details).toContainText(
-    "The literal generated IDs are [260,34,34]",
-  );
-  await expectOrderedChapterNavigation(page, "en", chapterId, chapters);
+  await expect(details).toContainText(localized.detailsFragment);
+  await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(
     page.locator(
       'nav[data-chapter-navigation] a[data-chapter-direction="previous"]',
@@ -416,140 +536,183 @@ test.describe(
   "chapter 39 end-to-end LLM vertical slice",
   { tag: chapterTag(chapterId) },
   () => {
-    test("English publishes Chapter 39 while its Russian route remains deferred", async ({
+    test("English and Russian publish reciprocal Chapter 39 routes", async ({
       page,
     }) => {
       const english = await readOrderedCourseChapters(page, "en");
       expect(english).toHaveLength(39);
-      expect(english[38]).toEqual(
-        expect.objectContaining({ chapterId, order: 39, title: chapterTitle }),
-      );
       const russian = await readOrderedCourseChapters(page, "ru");
-      expect(russian.length).toBeGreaterThan(0);
-      const lastRussianChapter = russian[russian.length - 1]!;
-      await page.goto(chapterPath("ru", lastRussianChapter.chapterId));
-      await expectOrderedChapterNavigation(
-        page,
-        "ru",
-        lastRussianChapter.chapterId,
-        russian,
-      );
-      expect(russian.some((chapter) => chapter.chapterId === chapterId)).toBe(
-        false,
-      );
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.locator('.locale-switch a[data-locale="ru"]'),
-      ).toHaveAttribute("href", "/ru/course/");
-      await expect(
-        page.locator('link[rel="alternate"][hreflang="ru"]'),
-      ).toHaveCount(0);
-      const missing = await page.goto(chapterPath("ru", chapterId));
-      expect(missing?.status()).toBe(404);
+      expect(russian).toHaveLength(39);
+
+      for (const locale of locales) {
+        const chapters = locale === "en" ? english : russian;
+        expect(chapters[38]).toEqual(
+          expect.objectContaining({
+            chapterId,
+            order: 39,
+            title: copy[locale].title,
+          }),
+        );
+        await page.goto(chapterPath(locale, chapterId));
+        const other: ChapterLocale = locale === "en" ? "ru" : "en";
+        await expect(
+          page.locator(`.locale-switch a[data-locale="${other}"]`),
+        ).toHaveAttribute("href", chapterPath(other, chapterId));
+        await expect(
+          page.locator(`link[rel="alternate"][hreflang="${other}"]`),
+        ).toHaveAttribute(
+          "href",
+          new RegExp(`/${other}/course/${chapterId}/$`),
+        );
+      }
     });
 
-    test("the complete capstone lesson renders at desktop and narrow widths", async ({
+    test("both complete capstone lessons render at desktop and narrow widths", async ({
       page,
     }) => {
-      const chapters = await readOrderedCourseChapters(page, "en");
-      await page.setViewportSize({ width: 1440, height: 1000 });
-      await page.goto(chapterPath("en", chapterId));
-      await expectChapterContent(page, chapters);
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.reload();
-      await expectChapterContent(page, chapters);
+      for (const locale of locales) {
+        const chapters = await readOrderedCourseChapters(page, locale);
+        await page.setViewportSize({ width: 1440, height: 1000 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expectChapterContent(page, chapters, locale);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.reload();
+        await expectChapterContent(page, chapters, locale);
+      }
     });
 
-    test("the shared full-view control reuses the same complete pipeline", async ({
+    test("full view reuses each localized complete pipeline", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="end-to-end-llm"]',
-      );
-      await expect(diagram).toHaveCount(1);
-      const toggle = diagram.locator("[data-diagram-full-view-toggle]");
-      await expect(toggle).toHaveCount(1);
-      await toggle.click();
-      await page.waitForFunction(
-        () =>
-          document.fullscreenElement?.getAttribute("data-visualization-id") ===
-          "end-to-end-llm",
-      );
-      await expect(
-        page.locator('figure[data-visualization-id="end-to-end-llm"]'),
-      ).toHaveCount(1);
-      await expect(diagram.locator("[data-stage]")).toHaveCount(8);
-      await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
-      await expectDiagramContainment(page);
-      const travel = await diagram.evaluate((node) => ({
-        horizontal: node.scrollWidth - node.clientWidth,
-        vertical: node.scrollHeight - node.clientHeight,
-        verticalLimit: Math.ceil(node.clientHeight * 0.12),
-      }));
-      expect(travel.horizontal).toBe(0);
-      expect(travel.vertical).toBeLessThanOrEqual(travel.verticalLimit);
-      await page.keyboard.press("Escape");
-      await page.waitForFunction(() => document.fullscreenElement === null);
-      await expect(toggle).toBeFocused();
+      const controlNames: string[] = [];
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="end-to-end-llm"]',
+        );
+        await expect(diagram).toHaveCount(1);
+        const toggle = diagram.locator("[data-diagram-full-view-toggle]");
+        await expect(toggle).toHaveCount(1);
+        await expect(toggle).toHaveAccessibleName(
+          copy[locale].fullViewOpenLabel,
+        );
+        controlNames.push((await toggle.getAttribute("aria-label")) ?? "");
+        await toggle.click();
+        await page.waitForFunction(
+          () =>
+            document.fullscreenElement?.getAttribute(
+              "data-visualization-id",
+            ) === "end-to-end-llm",
+        );
+        await expect(toggle).toHaveAccessibleName(
+          copy[locale].fullViewCloseLabel,
+        );
+        await expect(
+          page.locator('figure[data-visualization-id="end-to-end-llm"]'),
+        ).toHaveCount(1);
+        await expect(diagram.locator("[data-stage]")).toHaveCount(8);
+        await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
+        await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
+        await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
+        await expect(
+          diagram.locator('[data-stage="checkpoint"] code').last(),
+        ).toHaveText("At [67,118]");
+        await expect(
+          diagram.locator('[data-stage="generation"] code').first(),
+        ).toHaveText("A [67]");
+        await expect(
+          diagram.locator('[data-stage="generation"] q'),
+        ).toHaveText("т␠␠");
+        await expectDiagramContainment(page);
+        const travel = await diagram.evaluate((node) => ({
+          horizontal: node.scrollWidth - node.clientWidth,
+          vertical: node.scrollHeight - node.clientHeight,
+          verticalLimit: Math.ceil(node.clientHeight * 0.12),
+        }));
+        expect(travel.horizontal).toBe(0);
+        expect(travel.vertical).toBeLessThanOrEqual(travel.verticalLimit);
+        await page.keyboard.press("Escape");
+        await page.waitForFunction(() => document.fullscreenElement === null);
+        await expect(toggle).toBeFocused();
+      }
+      expect(new Set(controlNames).size).toBe(locales.length);
     });
 
-    test("text and border cues survive forced colors", async ({ page }) => {
+    test("localized text and redundant boundaries survive forced colors", async ({
+      page,
+    }) => {
       await page.emulateMedia({ forcedColors: "active" });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="end-to-end-llm"]',
-      );
-      await expect(diagram.locator('[data-stage="selection"]')).toHaveCSS(
-        "border-top-style",
-        "double",
-      );
-      await expect(diagram.locator('[data-stage="test"]')).toHaveCSS(
-        "border-top-style",
-        "double",
-      );
-      await expect(diagram.locator(".selected-row")).toHaveCSS(
-        "border-left-style",
-        "double",
-      );
-      await expect(
-        diagram.locator('[data-stage="test"] .cue').first(),
-      ).toContainText("|| one-way test gate");
-      await expect(
-        diagram.locator('[data-stage="checkpoint"] .cue'),
-      ).toContainText("= restored tokenizer and logits are exact");
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="end-to-end-llm"]',
+        );
+        await expect(diagram.locator('[data-stage="selection"]')).toHaveCSS(
+          "border-top-style",
+          "double",
+        );
+        await expect(diagram.locator('[data-stage="test"]')).toHaveCSS(
+          "border-top-style",
+          "double",
+        );
+        await expect(diagram.locator(".selected-row")).toHaveCSS(
+          "border-left-style",
+          "double",
+        );
+        await expect(diagram.locator(".selected-row dt")).toContainText(
+          copy[locale].selectedCue,
+        );
+        await expect(
+          diagram.locator('[data-stage="test"] .cue').first(),
+        ).toHaveText(copy[locale].testCue);
+        await expect(
+          diagram.locator('[data-stage="checkpoint"] .cue'),
+        ).toHaveText(copy[locale].checkpointCue);
+        await expect(
+          diagram.locator('[data-stage="generation"] .cue'),
+        ).toHaveText(copy[locale].generationCue);
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
-    test("RTL prose preserves stage order and left-to-right technical evidence", async ({
+    test("RTL prose preserves localized stage order and left-to-right evidence", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      const diagram = page.locator(
-        'figure[data-visualization-id="end-to-end-llm"]',
-      );
-      await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
-      await expect(diagram.locator("h4").first()).toHaveCSS("direction", "rtl");
-      expect(
-        await diagram.locator("[data-stage]").evaluateAll((cards) =>
-          cards.map((card) => card.getAttribute("data-stage")),
-        ),
-      ).toEqual(stageOrder);
-      expect(
-        await diagram
-          .locator('code, bdi[dir="ltr"], [data-inline-math]')
-          .evaluateAll((nodes) =>
-            nodes.every((node) => getComputedStyle(node).direction === "ltr"),
+      for (const locale of locales) {
+        await page.goto(chapterPath(locale, chapterId));
+        const diagram = page.locator(
+          'figure[data-visualization-id="end-to-end-llm"]',
+        );
+        await diagram.evaluate((node) => node.setAttribute("dir", "rtl"));
+        await expect(diagram.locator("h4").first()).toHaveCSS(
+          "direction",
+          "rtl",
+        );
+        expect(
+          await diagram.locator("[data-stage]").evaluateAll((cards) =>
+            cards.map((card) => card.getAttribute("data-stage")),
           ),
-      ).toBe(true);
-      await expect(
-        diagram.locator('[data-stage="generation"] bdi[dir="auto"]'),
-      ).toHaveCSS("direction", "ltr");
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+        ).toEqual(stageOrder);
+        expect(
+          await diagram
+            .locator("code, bdi, [data-inline-math]")
+            .evaluateAll((nodes) =>
+              nodes.every(
+                (node) => getComputedStyle(node).direction === "ltr",
+              ),
+            ),
+        ).toBe(true);
+        const decoded = diagram.locator('[data-stage="generation"] q');
+        await expect(decoded).toHaveText("т␠␠");
+        await expect(decoded).toHaveAccessibleName(
+          copy[locale].decodedTextLabel,
+        );
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
     });
 
     test("the complete pipeline remains available without JavaScript", async ({
@@ -560,26 +723,51 @@ test.describe(
         baseURL: String(testInfo.project.use.baseURL),
       });
       const page = await context.newPage();
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(chapterPath("en", chapterId));
-      await expect(
-        page.getByRole("heading", { level: 1, name: chapterTitle }),
-      ).toBeVisible();
-      await expect(page.locator("[data-stage]")).toHaveCount(8);
-      await expect(page.locator("[data-diagram-card]")).toHaveCount(8);
-      await expect(page.locator("[data-diagram-box]")).toHaveCount(8);
-      await expect(page.locator("[data-diagram-scroll]")).toHaveCount(0);
-      await expect(page.locator("[data-diagram-full-view-toggle]")).toHaveCount(
-        0,
-      );
-      await expect(page.locator('[data-stage="test"]')).toContainText(
-        "3.866087547",
-      );
-      await expect(page.locator('[data-stage="generation"]')).toContainText(
-        "[260,34,34]",
-      );
-      await expectDiagramContainment(page);
-      await expectNoOverflowOrClientScripts(page);
+      for (const locale of locales) {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(chapterPath(locale, chapterId));
+        await expect(
+          page.getByRole("heading", { level: 1, name: copy[locale].title }),
+        ).toBeVisible();
+        await expect(page.locator("[data-stage]")).toHaveCount(8);
+        await expect(page.locator("[data-diagram-card]")).toHaveCount(8);
+        await expect(page.locator("[data-diagram-box]")).toHaveCount(8);
+        await expect(page.locator("[data-diagram-scroll]")).toHaveCount(0);
+        await expect(
+          page.locator("[data-diagram-full-view-toggle]"),
+        ).toHaveCount(0);
+        await expect(page.locator('[data-stage="test"]')).toContainText(
+          "1744",
+        );
+        await expect(page.locator('[data-stage="test"]')).toContainText(
+          "0.115255167",
+        );
+        await expect(
+          page.locator('[data-stage="checkpoint"] code').last(),
+        ).toHaveText("At [67,118]");
+        await expect(
+          page.locator('[data-stage="generation"] code').first(),
+        ).toHaveText("A [67]");
+        await expect(page.locator('[data-stage="generation"]')).toContainText(
+          "[260,34,34]",
+        );
+        const decoded = page.locator('[data-stage="generation"] q');
+        await expect(decoded).toHaveText("т␠␠");
+        await expect(decoded).toHaveAccessibleName(
+          copy[locale].decodedTextLabel,
+        );
+        await expect(
+          page.locator(
+            '[data-stage="generation"] annotation[encoding="application/x-tex"]',
+          ),
+        ).toHaveText([
+          "\\tau=0.8,\\ k=4",
+          "1+2+3=6",
+          "1^2+2^2+3^2=14",
+        ]);
+        await expectDiagramContainment(page);
+        await expectNoOverflowOrClientScripts(page);
+      }
       await context.close();
     });
   },

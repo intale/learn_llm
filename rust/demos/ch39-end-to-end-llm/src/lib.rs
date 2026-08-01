@@ -70,23 +70,26 @@ impl Drop for TemporaryCheckpoint {
 }
 
 // region:historical-contrast
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct HistoricalContrast {
     pub bigram_context_tokens: usize,
     pub decoder_context_tokens: usize,
-    pub distributed_features: bool,
-    pub causal_transformer: bool,
-    pub scaled_autoregressive_model: bool,
+    pub shared_test_targets: usize,
+    pub bigram_mean_nll: f64,
+    pub decoder_mean_nll: f64,
+    pub loss_gap: f64,
 }
 
-/// Keeps the historical progression about language models rather than tooling.
-pub const fn historical_contrast() -> HistoricalContrast {
+/// Measures the fixture's short-context baseline against its causal decoder.
+pub fn historical_contrast(evidence: &CapstoneRun) -> HistoricalContrast {
+    let evaluation = evidence.final_evaluation();
     HistoricalContrast {
         bigram_context_tokens: 1,
-        decoder_context_tokens: CapstoneConfig::tiny().context_length(),
-        distributed_features: true,
-        causal_transformer: true,
-        scaled_autoregressive_model: true,
+        decoder_context_tokens: evidence.training().model_config().max_positions(),
+        shared_test_targets: evaluation.target_count(),
+        bigram_mean_nll: evaluation.bigram().mean_nll(),
+        decoder_mean_nll: evaluation.decoder().mean_nll(),
+        loss_gap: evaluation.loss_gap(),
     }
 }
 // endregion:historical-contrast
@@ -105,8 +108,12 @@ pub fn learner_evidence() -> Result<CapstoneRun, FixtureError> {
         "same-seed training replay changed bits",
     )?;
     require(
-        evidence.checkpoint().tokenizer_exact() && evidence.checkpoint().logits_bitwise(),
-        "checkpoint reload changed tokenizer or logits",
+        evidence.checkpoint().bytes_roundtrip()
+            && evidence.checkpoint().model_bits_exact()
+            && evidence.checkpoint().optimizer_bits_exact()
+            && evidence.checkpoint().tokenizer_exact()
+            && evidence.checkpoint().prompt_logits_bitwise(),
+        "checkpoint reload changed bytes, model, optimizer, tokenizer, or probe logits",
     )?;
     require(
         evidence.generation().tokens_exact()
@@ -173,7 +180,7 @@ pub fn learner_report() -> Result<String, FixtureError> {
     let config = CapstoneConfig::tiny();
     let evaluation = evidence.final_evaluation();
     let generation = evidence.generation();
-    let history = historical_contrast();
+    let history = historical_contrast(&evidence);
     let encoded = evidence.tokenizer().encoded_tokens();
     let windows = evidence.training().window_counts();
     let batches = evidence.training().batch_counts();
@@ -206,13 +213,15 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "model=layers:{} heads:{} width:{} feed_forward:{} context:{} parameters:{} windows:[{}] batches:[{}]",
+        "model=layers:{} heads:{} width:{} feed_forward:{} context:{} parameters:{} update_batch_size:{} evaluation_batch_size:{} windows:[{}] evaluation_batches:[{}]",
         config.layers(),
         config.heads(),
         config.model_width(),
         config.feed_forward_width(),
         config.context_length(),
         evidence.training().parameter_count(),
+        config.update_batch_size(),
+        config.evaluation_batch_size(),
         usize_list(&windows),
         usize_list(&batches),
     )
@@ -248,7 +257,7 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "checkpoint=bytes:{} header:{} records:{} checksum:{} selected:{} optimizer:{} rng:0x{:016x} tokenizer_exact:{} logits_bitwise:{}",
+        "checkpoint=bytes:{} header:{} records:{} checksum:{} selected:{} optimizer:{} rng:0x{:016x} bytes_roundtrip:{} model_bits_exact:{} optimizer_bits_exact:{} tokenizer_exact:{} logit_probe:{} logit_probe_ids:[{}] prompt_logits_bitwise:{}",
         evidence.checkpoint().bytes(),
         evidence.checkpoint().header_bytes(),
         evidence.checkpoint().tensor_records(),
@@ -256,21 +265,34 @@ pub fn learner_report() -> Result<String, FixtureError> {
         evidence.checkpoint().selected_step(),
         evidence.checkpoint().optimizer_step(),
         evidence.checkpoint().rng_state(),
+        evidence.checkpoint().bytes_roundtrip(),
+        evidence.checkpoint().model_bits_exact(),
+        evidence.checkpoint().optimizer_bits_exact(),
         evidence.checkpoint().tokenizer_exact(),
-        evidence.checkpoint().logits_bitwise(),
+        evidence.checkpoint().logit_probe_text(),
+        u32_list(evidence.checkpoint().logit_probe_ids()),
+        evidence.checkpoint().prompt_logits_bitwise(),
     )
     .unwrap();
     writeln!(
         report,
-        "generation=prompt:{} prompt_ids:[{}] generated:[{}] text:{:?} stop:{} final_cache:{} cached_scores:{} complete_prefix_scores:{} tokens_exact:{} decisions_bitwise:{} rng_exact:{}",
+        "generation=prompt:{} prompt_ids:[{}] temperature:{:.1} top_k:{} seed:{} generated:[{}] text:{:?} prefixes:[{}] stop:{} prefill:{} decode:{} final_cache:{} cached_scores:{} calculated_complete_prefix_scores:{} rng_initial:0x{:016x} rng_final:0x{:016x} tokens_exact:{} decisions_bitwise:{} rng_exact:{}",
         generation.prompt_text(),
         u32_list(generation.prompt_ids()),
+        config.generation_temperature(),
+        config.generation_top_k(),
+        config.generation_seed(),
         u32_list(generation.generated_ids()),
         generation.decoded_text(),
+        usize_list(generation.prefix_lengths()),
         stop_name(generation.stop()),
+        generation.prefill_tokens(),
+        generation.decode_tokens(),
         generation.final_cache_length(),
         generation.cached_attention_scores(),
-        generation.complete_prefix_attention_scores(),
+        generation.calculated_complete_prefix_attention_scores(),
+        generation.initial_rng_state(),
+        generation.final_rng_state(),
         generation.tokens_exact(),
         generation.decisions_bitwise(),
         generation.rng_state_exact(),
@@ -278,12 +300,13 @@ pub fn learner_report() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         report,
-        "history=bigram_context:{} decoder_context:{} distributed_features:{} causal_transformer:{} scaled_autoregressive:{} local_pipeline:true",
+        "history=targets:{} bigram_context:{} decoder_context:{} bigram:{:.9} decoder:{:.9} gap:{:.9}",
+        history.shared_test_targets,
         history.bigram_context_tokens,
         history.decoder_context_tokens,
-        history.distributed_features,
-        history.causal_transformer,
-        history.scaled_autoregressive_model,
+        history.bigram_mean_nll,
+        history.decoder_mean_nll,
+        history.loss_gap,
     )
     .unwrap();
     writeln!(
@@ -303,31 +326,39 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     let windows = evidence.training().window_counts();
     let batches = evidence.training().batch_counts();
     let mut trace = String::new();
-    writeln!(trace, "END_TO_END_LLM_TRACE_V1").unwrap();
+    writeln!(trace, "END_TO_END_LLM_TRACE_V2").unwrap();
     writeln!(
         trace,
-        "DATA|checksum={}|split={}|train={}|validation={}|test={}",
+        "DATA|checksum={}|split={}|train={}|validation={}|test={}|train_ids={}|validation_ids={}|test_ids={}",
         evidence.partitions().corpus_checksum(),
         evidence.partitions().split_strategy(),
         evidence.partitions().train_document_ids().len(),
         evidence.partitions().validation_document_ids().len(),
         evidence.partitions().test_document_ids().len(),
+        string_list(evidence.partitions().train_document_ids()),
+        string_list(evidence.partitions().validation_document_ids()),
+        string_list(evidence.partitions().test_document_ids()),
     )
     .unwrap();
     writeln!(
         trace,
-        "TOKENIZER|layout={}|requested={}|learned={}|vocabulary={}|training_only=true|encoded={}",
+        "TOKENIZER|layout={}|requested={}|learned={}|vocabulary={}|training_only={}|training_ids={}|encoded={}",
         evidence.tokenizer().layout_version(),
         evidence.tokenizer().requested_merges(),
         evidence.tokenizer().learned_merges(),
         evidence.tokenizer().vocabulary_size(),
+        evidence.tokenizer().training_document_ids()
+            == evidence.partitions().train_document_ids(),
+        string_list(evidence.tokenizer().training_document_ids()),
         usize_list(&encoded),
     )
     .unwrap();
     writeln!(
         trace,
-        "BATCHES|context={}|windows={}|batches={}",
+        "BATCHES|context={}|update_batch_size={}|evaluation_batch_size={}|windows={}|evaluation_batches={}",
         config.context_length(),
+        config.update_batch_size(),
+        config.evaluation_batch_size(),
         usize_list(&windows),
         usize_list(&batches),
     )
@@ -340,6 +371,14 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
         config.model_width(),
         config.feed_forward_width(),
         evidence.training().parameter_count(),
+    )
+    .unwrap();
+    writeln!(
+        trace,
+        "TRAINING|updates={}|seed={}|replay_bitwise={}",
+        config.updates(),
+        config.seed(),
+        evidence.training().replay_bitwise(),
     )
     .unwrap();
     for checkpoint in evidence.training().checkpoints() {
@@ -355,11 +394,13 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     }
     writeln!(
         trace,
-        "TEST|access={}|windows={}|batches={}|targets={}|decoder={:.9}|bigram={:.9}|gap={:.9}|decoder_wins={}|no_grad={}|unchanged={}",
+        "TEST|access={}|documents={}|windows={}|batches={}|targets={}|fingerprint={}|decoder={:.9}|bigram={:.9}|gap={:.9}|decoder_wins={}|no_grad={}|unchanged={}",
         evaluation.access_count(),
+        string_list(evaluation.test_document_ids()),
         evaluation.window_count(),
         evaluation.batch_count(),
         evaluation.target_count(),
+        evaluation.target_fingerprint(),
         evaluation.decoder().mean_nll(),
         evaluation.bigram().mean_nll(),
         evaluation.loss_gap(),
@@ -370,35 +411,57 @@ pub fn diagram_trace() -> Result<String, FixtureError> {
     .unwrap();
     writeln!(
         trace,
-        "CHECKPOINT|bytes={}|header={}|records={}|selected={}|optimizer={}|tokenizer_exact={}|logits_bitwise={}",
+        "CHECKPOINT|bytes={}|header={}|records={}|checksum={}|selected={}|optimizer={}|rng=0x{:016x}|bytes_roundtrip={}|model_bits_exact={}|optimizer_bits_exact={}|tokenizer_exact={}|logit_probe={}|logit_probe_ids={}|prompt_logits_bitwise={}",
         evidence.checkpoint().bytes(),
         evidence.checkpoint().header_bytes(),
         evidence.checkpoint().tensor_records(),
+        evidence.checkpoint().checksum(),
         evidence.checkpoint().selected_step(),
         evidence.checkpoint().optimizer_step(),
+        evidence.checkpoint().rng_state(),
+        evidence.checkpoint().bytes_roundtrip(),
+        evidence.checkpoint().model_bits_exact(),
+        evidence.checkpoint().optimizer_bits_exact(),
         evidence.checkpoint().tokenizer_exact(),
-        evidence.checkpoint().logits_bitwise(),
+        evidence.checkpoint().logit_probe_text(),
+        u32_list(evidence.checkpoint().logit_probe_ids()),
+        evidence.checkpoint().prompt_logits_bitwise(),
     )
     .unwrap();
     writeln!(
         trace,
-        "GENERATE|prompt={}|prompt_ids={}|generated={}|text={:?}|stop={}|final_cache={}|cached_scores={}|complete_prefix_scores={}|tokens_exact={}|decisions_bitwise={}|rng_exact={}",
+        "GENERATE|prompt={}|prompt_ids={}|temperature={:.1}|top_k={}|seed={}|generated={}|text={:?}|prefixes={}|stop={}|prefill={}|decode={}|final_cache={}|cached_scores={}|calculated_complete_prefix_scores={}|rng_initial=0x{:016x}|rng_final=0x{:016x}|tokens_exact={}|decisions_bitwise={}|rng_exact={}",
         generation.prompt_text(),
         u32_list(generation.prompt_ids()),
+        config.generation_temperature(),
+        config.generation_top_k(),
+        config.generation_seed(),
         u32_list(generation.generated_ids()),
         generation.decoded_text(),
+        usize_list(generation.prefix_lengths()),
         stop_name(generation.stop()),
+        generation.prefill_tokens(),
+        generation.decode_tokens(),
         generation.final_cache_length(),
         generation.cached_attention_scores(),
-        generation.complete_prefix_attention_scores(),
+        generation.calculated_complete_prefix_attention_scores(),
+        generation.initial_rng_state(),
+        generation.final_rng_state(),
         generation.tokens_exact(),
         generation.decisions_bitwise(),
         generation.rng_state_exact(),
     )
     .unwrap();
+    let history = historical_contrast(&evidence);
     writeln!(
         trace,
-        "HISTORY|bigram_context=1|distributed_features=true|causal_transformer=true|scaled_autoregressive=true"
+        "HISTORY|targets={}|bigram_context={}|decoder_context={}|bigram={:.9}|decoder={:.9}|gap={:.9}",
+        history.shared_test_targets,
+        history.bigram_context_tokens,
+        history.decoder_context_tokens,
+        history.bigram_mean_nll,
+        history.decoder_mean_nll,
+        history.loss_gap,
     )
     .unwrap();
     writeln!(trace, "END|next=student-owned-decoder").unwrap();
@@ -464,8 +527,13 @@ mod tests {
     #[test]
     fn reload_and_cached_generation_preserve_exact_evidence() {
         let evidence = evidence();
+        assert!(evidence.checkpoint().bytes_roundtrip());
+        assert!(evidence.checkpoint().model_bits_exact());
+        assert!(evidence.checkpoint().optimizer_bits_exact());
         assert!(evidence.checkpoint().tokenizer_exact());
-        assert!(evidence.checkpoint().logits_bitwise());
+        assert_eq!(evidence.checkpoint().logit_probe_text(), "At");
+        assert!(!evidence.checkpoint().logit_probe_ids().is_empty());
+        assert!(evidence.checkpoint().prompt_logits_bitwise());
         assert_eq!(evidence.checkpoint().selected_step(), 32);
         assert_eq!(evidence.checkpoint().optimizer_step(), 32);
         assert_eq!(evidence.checkpoint().bytes(), 30_994);
@@ -478,9 +546,25 @@ mod tests {
         assert_eq!(evidence.generation().generated_ids(), [260, 34, 34]);
         assert_eq!(evidence.generation().decoded_text(), "т  ");
         assert_eq!(evidence.generation().stop(), GenerationStop::TokenLimit);
+        assert_eq!(evidence.generation().prefix_lengths(), [1, 2, 3]);
+        assert_eq!(evidence.generation().prefill_tokens(), 1);
+        assert_eq!(evidence.generation().decode_tokens(), 2);
         assert_eq!(evidence.generation().final_cache_length(), 3);
         assert_eq!(evidence.generation().cached_attention_scores(), 6);
-        assert_eq!(evidence.generation().complete_prefix_attention_scores(), 14);
+        assert_eq!(
+            evidence
+                .generation()
+                .calculated_complete_prefix_attention_scores(),
+            14
+        );
+        assert_eq!(
+            evidence.generation().initial_rng_state(),
+            evidence.checkpoint().rng_state()
+        );
+        assert_ne!(
+            evidence.generation().final_rng_state(),
+            evidence.generation().initial_rng_state()
+        );
         assert!(evidence.generation().tokens_exact());
         assert!(evidence.generation().decisions_bitwise());
         assert!(evidence.generation().rng_state_exact());
@@ -488,15 +572,12 @@ mod tests {
 
     #[test]
     fn historical_contrast_stays_on_the_road_to_modern_llms() {
-        assert_eq!(
-            historical_contrast(),
-            HistoricalContrast {
-                bigram_context_tokens: 1,
-                decoder_context_tokens: 4,
-                distributed_features: true,
-                causal_transformer: true,
-                scaled_autoregressive_model: true,
-            }
-        );
+        let contrast = historical_contrast(evidence());
+        assert_eq!(contrast.bigram_context_tokens, 1);
+        assert_eq!(contrast.decoder_context_tokens, 4);
+        assert_eq!(contrast.shared_test_targets, 1_744);
+        assert!((contrast.bigram_mean_nll - 3.981_342_714).abs() < 5e-10);
+        assert!((contrast.decoder_mean_nll - 3.866_087_547).abs() < 5e-10);
+        assert!((contrast.loss_gap - 0.115_255_167).abs() < 5e-10);
     }
 }

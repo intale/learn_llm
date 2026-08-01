@@ -18,6 +18,7 @@ const trace = parseEndToEndLlmTrace(traceSource);
 const titleId = 'end-to-end-llm-diagram-title';
 const descriptionId = 'end-to-end-llm-diagram-description';
 const [initial, selected] = trace.selection;
+const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
 ---
 
 <figure
@@ -35,16 +36,17 @@ const [initial, selected] = trace.selection;
 
   <section aria-labelledby="end-to-end-pipeline-title">
     <h4 id="end-to-end-pipeline-title">{labels.sections.pipeline}</h4>
-    <p>{labels.captions.pipeline}</p>
-    <ol class="pipeline">
+    <div class="course-diagram__card-stack">
+      <p class="course-diagram__description">{labels.captions.pipeline}</p>
+      <ol class="pipeline course-diagram__grid">
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="data"
         data-stage-index="1"
       >
-        <header><strong aria-hidden="true">1</strong><h5>{labels.stages.data}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">1</strong><h5>{labels.stages.data}</h5></header>
         <p>
           <strong>{labels.fields.documents}:</strong>
           <code><bdi dir="ltr">{trace.data.train}/{trace.data.validation}/{trace.data.test}</bdi></code>
@@ -55,14 +57,14 @@ const [initial, selected] = trace.selection;
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="tokenizer"
         data-stage-index="2"
         data-state="trusted"
       >
-        <header><strong aria-hidden="true">2</strong><h5>{labels.stages.tokenizer}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">2</strong><h5>{labels.stages.tokenizer}</h5></header>
         <p class="cue">= {labels.cues.trainingOnly}</p>
         <p>
           <strong>{labels.fields.vocabulary}:</strong>
@@ -75,13 +77,13 @@ const [initial, selected] = trace.selection;
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="batches"
         data-stage-index="3"
       >
-        <header><strong aria-hidden="true">3</strong><h5>{labels.stages.batches}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">3</strong><h5>{labels.stages.batches}</h5></header>
         <p>
           <strong>{labels.fields.context}:</strong>
           <InlineMath latex={'C=' + trace.batches.context} />
@@ -90,16 +92,24 @@ const [initial, selected] = trace.selection;
           <strong>{labels.fields.windows}:</strong>
           <code><bdi dir="ltr">[{trace.batches.windows.join(',')}]</bdi></code>
         </p>
+        <p>
+          <strong>{labels.fields.updateBatchSize} / {labels.fields.evaluationBatchSize}:</strong>
+          <code><bdi dir="ltr">{trace.batches.update_batch_size}/{trace.batches.evaluation_batch_size}</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.evaluationBatches}:</strong>
+          <code><bdi dir="ltr">[{trace.batches.evaluation_batches.join(',')}]</bdi></code>
+        </p>
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="model"
         data-stage-index="4"
       >
-        <header><strong aria-hidden="true">4</strong><h5>{labels.stages.model}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">4</strong><h5>{labels.stages.model}</h5></header>
         <p>
           <strong>{labels.fields.parameters}:</strong>
           <code><bdi dir="ltr">{trace.model.parameters}</bdi></code>
@@ -110,23 +120,23 @@ const [initial, selected] = trace.selection;
       </li>
 
       <li
-        class="stage-card selection-card"
+        class="stage-card selection-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="selection"
         data-stage-index="5"
         data-state="trusted"
       >
-        <header><strong aria-hidden="true">5</strong><h5>{labels.stages.selection}</h5></header>
-        <dl>
-          <div>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">5</strong><h5>{labels.stages.selection}</h5></header>
+        <dl class="course-diagram__grid">
+          <div class="course-diagram__card-stack">
             <dt>{labels.cues.candidate} <InlineMath latex={'s=' + initial.step} /></dt>
             <dd>
               <span>{labels.fields.trainLoss} <InlineMath latex={initial.train} /></span>
               <span>{labels.fields.validationLoss} <InlineMath latex={initial.validation} /></span>
             </dd>
           </div>
-          <div class="selected-row">
+          <div class="selected-row course-diagram__card-stack">
             <dt>{labels.cues.selected} <InlineMath latex={'s=' + selected.step} /></dt>
             <dd>
               <span>{labels.fields.trainLoss} <InlineMath latex={selected.train} /></span>
@@ -137,14 +147,14 @@ const [initial, selected] = trace.selection;
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="test"
         data-stage-index="6"
         data-state="trusted"
       >
-        <header><strong aria-hidden="true">6</strong><h5>{labels.stages.test}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">6</strong><h5>{labels.stages.test}</h5></header>
         <p class="cue">|| {labels.cues.oneTime}</p>
         <p>
           <strong>{labels.fields.targets}:</strong>
@@ -166,14 +176,14 @@ const [initial, selected] = trace.selection;
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="checkpoint"
         data-stage-index="7"
         data-state="trusted"
       >
-        <header><strong aria-hidden="true">7</strong><h5>{labels.stages.checkpoint}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">7</strong><h5>{labels.stages.checkpoint}</h5></header>
         <p class="cue">= {labels.cues.exact}</p>
         <p>
           <strong>{labels.fields.bytes}:</strong>
@@ -183,21 +193,30 @@ const [initial, selected] = trace.selection;
           <strong>{labels.fields.records}:</strong>
           <code><bdi dir="ltr">{trace.checkpoint.records}</bdi></code>
         </p>
+        <p>
+          <strong>{labels.fields.logitProbe}:</strong>
+          <code><bdi dir="ltr">{trace.checkpoint.logit_probe} [{trace.checkpoint.logit_probe_ids.join(',')}]</bdi></code>
+        </p>
       </li>
 
       <li
-        class="stage-card"
+        class="stage-card course-diagram__card-stack"
         data-diagram-card
         data-diagram-box
         data-stage="generation"
         data-stage-index="8"
         data-state="trusted"
       >
-        <header><strong aria-hidden="true">8</strong><h5>{labels.stages.generation}</h5></header>
+        <header class="course-diagram__card-heading"><strong aria-hidden="true">8</strong><h5>{labels.stages.generation}</h5></header>
         <p class="cue">= {labels.cues.cachedMatch}</p>
         <p>
           <strong>{labels.fields.prompt}:</strong>
           <code><bdi dir="ltr">{trace.generation.prompt} [{trace.generation.prompt_ids.join(',')}]</bdi></code>
+        </p>
+        <p>
+          <strong>{labels.fields.sampling}:</strong>
+          <InlineMath latex={'\\tau=' + trace.generation.temperature + ',\\ k=' + trace.generation.top_k} />
+          <code><bdi dir="ltr">seed={trace.generation.seed}</bdi></code>
         </p>
         <p>
           <strong>{labels.fields.generated}:</strong>
@@ -205,41 +224,28 @@ const [initial, selected] = trace.selection;
         </p>
         <p>
           <strong>{labels.fields.decoded}:</strong>
-          <q><bdi dir="auto">{trace.generation.text}</bdi></q>
+          <q aria-label={labels.cues.decodedText}><bdi dir="auto">{visibleGeneratedText}</bdi></q>
+          <small>{labels.cues.spaceMarker}</small>
+        </p>
+        <p>
+          <strong>{labels.fields.generationWork}:</strong>
+          <code><bdi dir="ltr">prefixes=[{trace.generation.prefixes.join(',')}] prefill={trace.generation.prefill} decode={trace.generation.decode}</bdi></code>
         </p>
         <p>
           <strong>{labels.fields.attentionScores}:</strong>
-          <code><bdi dir="ltr">{trace.generation.cached_scores}/{trace.generation.complete_prefix_scores}</bdi></code>
+          <InlineMath latex={`1+2+3=${trace.generation.cached_scores}`} /> /
+          <InlineMath latex={`1^2+2^2+3^2=${trace.generation.calculated_complete_prefix_scores}`} />
         </p>
       </li>
-    </ol>
+      </ol>
+    </div>
   </section>
 
 </figure>
 
 <style>
   .pipeline {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--diagram-gap);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    counter-reset: none;
-  }
-
-  .stage-card {
-    display: grid;
-    align-content: start;
-    gap: 0.5rem;
-    min-inline-size: 0;
-  }
-
-  .stage-card header {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    min-inline-size: 0;
   }
 
   .stage-card header > strong {
@@ -250,28 +256,11 @@ const [initial, selected] = trace.selection;
     place-items: center;
   }
 
-  .stage-card h5,
-  .stage-card p,
-  .stage-card dl,
-  .stage-card dd {
-    min-inline-size: 0;
-    margin: 0;
-  }
-
-  .selection-card dl {
-    display: grid;
-    gap: 0.55rem;
-  }
-
-  .selection-card dl > div {
-    display: grid;
-    gap: 0.25rem;
-    min-inline-size: 0;
-  }
-
   .selection-card dd {
     display: grid;
     gap: 0.2rem;
+    min-inline-size: 0;
+    margin: 0;
   }
 
   .selected-row {
@@ -280,13 +269,42 @@ const [initial, selected] = trace.selection;
   }
 
   @container course-diagram (min-width: 68rem) {
-    .pipeline {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']
+      .pipeline.course-diagram__grid {
+      display: flex;
+      flex-wrap: wrap;
     }
 
-    .selection-card dl {
+    .stage-card[data-stage='data'],
+    .stage-card[data-stage='model'] {
+      flex: 1 0 16%;
+    }
+
+    .stage-card[data-stage='tokenizer'] {
+      flex: 1 0 19%;
+    }
+
+    .stage-card[data-stage='batches'] {
+      flex: 1 0 23%;
+    }
+
+    .stage-card[data-stage='selection'] {
+      flex: 1 0 20%;
+    }
+
+    .stage-card[data-stage='test'] {
+      flex: 1 0 28%;
+    }
+
+    .stage-card[data-stage='checkpoint'] {
+      flex: 1 0 22%;
+    }
+
+    .stage-card[data-stage='generation'] {
+      flex: 1 0 45%;
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
   }
 
   @container course-diagram (max-width: 42rem) {

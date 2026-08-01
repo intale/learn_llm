@@ -20,6 +20,9 @@ export interface EndToEndLlmDiagramLabels {
     encodedTokens: string;
     context: string;
     windows: string;
+    updateBatchSize: string;
+    evaluationBatchSize: string;
+    evaluationBatches: string;
     parameters: string;
     trainLoss: string;
     validationLoss: string;
@@ -29,9 +32,12 @@ export interface EndToEndLlmDiagramLabels {
     gap: string;
     bytes: string;
     records: string;
+    logitProbe: string;
     prompt: string;
+    sampling: string;
     generated: string;
     decoded: string;
+    generationWork: string;
     attentionScores: string;
   };
   cues: {
@@ -41,17 +47,29 @@ export interface EndToEndLlmDiagramLabels {
     oneTime: string;
     exact: string;
     cachedMatch: string;
+    decodedText: string;
+    spaceMarker: string;
   };
   captions: { pipeline: string };
 }
 
 export interface EndToEndLlmTrace {
-  data: Record<"checksum" | "split" | "train" | "validation" | "test", string>;
+  data: Record<"checksum" | "split" | "train" | "validation" | "test", string> & {
+    train_ids: string[];
+    validation_ids: string[];
+    test_ids: string[];
+  };
   tokenizer: Record<
     "layout" | "requested" | "learned" | "vocabulary" | "training_only",
     string
-  > & { encoded: string[] };
-  batches: { context: string; windows: string[]; batches: string[] };
+  > & { training_ids: string[]; encoded: string[] };
+  batches: {
+    context: string;
+    update_batch_size: string;
+    evaluation_batch_size: string;
+    windows: string[];
+    evaluation_batches: string[];
+  };
   model: Record<
     "layers" | "heads" | "width" | "feed_forward" | "parameters",
     string
@@ -62,6 +80,7 @@ export interface EndToEndLlmTrace {
     validation: string;
     selected: string;
   }>;
+  training: Record<"updates" | "seed" | "replay_bitwise", string>;
   test: Record<
     | "access"
     | "windows"
@@ -74,33 +93,53 @@ export interface EndToEndLlmTrace {
     | "no_grad"
     | "unchanged",
     string
-  >;
+  > & { documents: string[]; fingerprint: string };
   checkpoint: Record<
     | "bytes"
     | "header"
     | "records"
+    | "checksum"
     | "selected"
     | "optimizer"
+    | "rng"
+    | "bytes_roundtrip"
+    | "model_bits_exact"
+    | "optimizer_bits_exact"
     | "tokenizer_exact"
-    | "logits_bitwise",
+    | "logit_probe"
+    | "prompt_logits_bitwise",
     string
-  >;
+  > & { logit_probe_ids: string[] };
   generation: Record<
     | "prompt"
+    | "temperature"
+    | "top_k"
+    | "seed"
     | "stop"
+    | "prefill"
+    | "decode"
     | "final_cache"
     | "cached_scores"
-    | "complete_prefix_scores"
+    | "calculated_complete_prefix_scores"
+    | "rng_initial"
+    | "rng_final"
     | "tokens_exact"
     | "decisions_bitwise"
     | "rng_exact",
     string
-  > & { prompt_ids: string[]; generated: string[]; text: string };
+  > & {
+    prompt_ids: string[];
+    generated: string[];
+    prefixes: string[];
+    text: string;
+  };
   history: Record<
+    | "targets"
     | "bigram_context"
-    | "distributed_features"
-    | "causal_transformer"
-    | "scaled_autoregressive",
+    | "decoder_context"
+    | "bigram"
+    | "decoder"
+    | "gap",
     string
   >;
 }
@@ -132,10 +171,40 @@ const record = (
     }
     result[key] = value;
   }
-  if (Object.keys(result).length !== keys.length) {
-    throw new Error(kind + " does not contain its complete field set");
+  const actualKeys = Object.keys(result);
+  if (
+    actualKeys.length !== keys.length ||
+    actualKeys.some((key, index) => key !== keys[index])
+  ) {
+    throw new Error(kind + " does not contain its ordered complete field set");
   }
   return result;
+};
+
+const stringList = (value: string, width: number, field: string): string[] => {
+  const values = value.split(",");
+  if (
+    values.length !== width ||
+    values.some((entry) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry)) ||
+    new Set(values).size !== values.length
+  ) {
+    throw new Error(field + " must contain " + width + " unique identifiers");
+  }
+  return values;
+};
+
+const requireHash = (value: string, field: string): string => {
+  if (!/^fnv1a64:[0-9a-f]{16}$/.test(value)) {
+    throw new Error(field + " must be one canonical FNV-1a label");
+  }
+  return value;
+};
+
+const requireRng = (value: string, field: string): string => {
+  if (!/^0x[0-9a-f]{16}$/.test(value)) {
+    throw new Error(field + " must be one canonical RNG state");
+  }
+  return value;
 };
 
 const list = (value: string, width: number, field: string): string[] => {
@@ -174,11 +243,14 @@ const quotedText = (value: string): string => {
 };
 
 export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
-  const lines = source.trimEnd().split(/\r?\n/);
+  if (!/\r?\n$/.test(source) || /\r?\n\r?\n$/.test(source)) {
+    throw new Error("end-to-end trace must end with exactly one newline");
+  }
+  const lines = source.replace(/\r?\n$/, "").split(/\r?\n/);
   if (
-    lines.length !== 12 ||
-    lines[0] !== "END_TO_END_LLM_TRACE_V1" ||
-    lines[11] !== "END|next=student-owned-decoder"
+    lines.length !== 13 ||
+    lines[0] !== "END_TO_END_LLM_TRACE_V2" ||
+    lines[12] !== "END|next=student-owned-decoder"
   ) {
     throw new Error("end-to-end trace envelope changed");
   }
@@ -188,6 +260,9 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "train",
     "validation",
     "test",
+    "train_ids",
+    "validation_ids",
+    "test_ids",
   ]);
   const tokenizerRecord = record(lines[2], "TOKENIZER", [
     "layout",
@@ -195,12 +270,15 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "learned",
     "vocabulary",
     "training_only",
+    "training_ids",
     "encoded",
   ]);
   const batchRecord = record(lines[3], "BATCHES", [
     "context",
+    "update_batch_size",
+    "evaluation_batch_size",
     "windows",
-    "batches",
+    "evaluation_batches",
   ]);
   const model = record(lines[4], "MODEL", [
     "layers",
@@ -209,14 +287,21 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "feed_forward",
     "parameters",
   ]);
-  const selection = [lines[5], lines[6]].map((line) =>
+  const training = record(lines[5], "TRAINING", [
+    "updates",
+    "seed",
+    "replay_bitwise",
+  ]);
+  const selection = [lines[6], lines[7]].map((line) =>
     record(line, "SELECT", ["step", "train", "validation", "selected"]),
   );
-  const test = record(lines[7], "TEST", [
+  const test = record(lines[8], "TEST", [
     "access",
+    "documents",
     "windows",
     "batches",
     "targets",
+    "fingerprint",
     "decoder",
     "bigram",
     "gap",
@@ -224,34 +309,80 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     "no_grad",
     "unchanged",
   ]);
-  const checkpoint = record(lines[8], "CHECKPOINT", [
+  const checkpoint = record(lines[9], "CHECKPOINT", [
     "bytes",
     "header",
     "records",
+    "checksum",
     "selected",
     "optimizer",
+    "rng",
+    "bytes_roundtrip",
+    "model_bits_exact",
+    "optimizer_bits_exact",
     "tokenizer_exact",
-    "logits_bitwise",
+    "logit_probe",
+    "logit_probe_ids",
+    "prompt_logits_bitwise",
   ]);
-  const generationRecord = record(lines[9], "GENERATE", [
+  const generationRecord = record(lines[10], "GENERATE", [
     "prompt",
     "prompt_ids",
+    "temperature",
+    "top_k",
+    "seed",
     "generated",
     "text",
+    "prefixes",
     "stop",
+    "prefill",
+    "decode",
     "final_cache",
     "cached_scores",
-    "complete_prefix_scores",
+    "calculated_complete_prefix_scores",
+    "rng_initial",
+    "rng_final",
     "tokens_exact",
     "decisions_bitwise",
     "rng_exact",
   ]);
-  const history = record(lines[10], "HISTORY", [
+  const history = record(lines[11], "HISTORY", [
+    "targets",
     "bigram_context",
-    "distributed_features",
-    "causal_transformer",
-    "scaled_autoregressive",
+    "decoder_context",
+    "bigram",
+    "decoder",
+    "gap",
   ]);
+
+  const trainIds = stringList(data.train_ids, Number(data.train), "train_ids");
+  const validationIds = stringList(
+    data.validation_ids,
+    Number(data.validation),
+    "validation_ids",
+  );
+  const testIds = stringList(data.test_ids, Number(data.test), "test_ids");
+  const tokenizerTrainingIds = stringList(
+    tokenizerRecord.training_ids,
+    Number(data.train),
+    "training_ids",
+  );
+  const encoded = list(tokenizerRecord.encoded, 3, "encoded");
+  const windows = list(batchRecord.windows, 3, "windows");
+  const evaluationBatches = list(
+    batchRecord.evaluation_batches,
+    3,
+    "evaluation_batches",
+  );
+  const testDocuments = stringList(
+    test.documents,
+    Number(data.test),
+    "test documents",
+  );
+  const logitProbeIds = list(checkpoint.logit_probe_ids, 2, "logit_probe_ids");
+  const promptIds = list(generationRecord.prompt_ids, 1, "prompt_ids");
+  const generated = list(generationRecord.generated, 3, "generated");
+  const prefixes = list(generationRecord.prefixes, 3, "prefixes");
 
   for (const [field, value] of Object.entries({
     train: data.train,
@@ -262,28 +393,44 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     learned: tokenizerRecord.learned,
     vocabulary: tokenizerRecord.vocabulary,
     context: batchRecord.context,
+    update_batch_size: batchRecord.update_batch_size,
+    evaluation_batch_size: batchRecord.evaluation_batch_size,
     layers: model.layers,
     heads: model.heads,
     width: model.width,
     feed_forward: model.feed_forward,
     parameters: model.parameters,
+    updates: training.updates,
+    training_seed: training.seed,
+    selection_step_0: selection[0].step,
+    selection_step_1: selection[1].step,
     access: test.access,
+    test_windows: test.windows,
+    test_batches: test.batches,
     targets: test.targets,
     checkpoint_bytes: checkpoint.bytes,
     checkpoint_header: checkpoint.header,
     checkpoint_records: checkpoint.records,
     selected_step: checkpoint.selected,
     optimizer_step: checkpoint.optimizer,
+    top_k: generationRecord.top_k,
+    generation_seed: generationRecord.seed,
+    prefill: generationRecord.prefill,
+    decode: generationRecord.decode,
     final_cache: generationRecord.final_cache,
     cached_scores: generationRecord.cached_scores,
-    complete_prefix_scores: generationRecord.complete_prefix_scores,
+    calculated_complete_prefix_scores:
+      generationRecord.calculated_complete_prefix_scores,
+    history_targets: history.targets,
     bigram_context: history.bigram_context,
+    decoder_context: history.decoder_context,
   })) {
     if (!integer.test(value)) {
       throw new Error(field + " must be an unsigned integer");
     }
   }
   for (const [field, value] of Object.entries({
+    temperature: generationRecord.temperature,
     selection_train_0: selection[0].train,
     selection_validation_0: selection[0].validation,
     selection_train_1: selection[1].train,
@@ -291,38 +438,69 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
     decoder: test.decoder,
     bigram: test.bigram,
     gap: test.gap,
+    history_bigram: history.bigram,
+    history_decoder: history.decoder,
+    history_gap: history.gap,
   })) {
     requireDecimal(value, field);
   }
   for (const [field, value] of Object.entries({
     training_only: tokenizerRecord.training_only,
+    replay_bitwise: training.replay_bitwise,
     select_0: selection[0].selected,
     select_1: selection[1].selected,
     decoder_wins: test.decoder_wins,
     no_grad: test.no_grad,
     unchanged: test.unchanged,
+    bytes_roundtrip: checkpoint.bytes_roundtrip,
+    model_bits_exact: checkpoint.model_bits_exact,
+    optimizer_bits_exact: checkpoint.optimizer_bits_exact,
     tokenizer_exact: checkpoint.tokenizer_exact,
-    logits_bitwise: checkpoint.logits_bitwise,
+    prompt_logits_bitwise: checkpoint.prompt_logits_bitwise,
     tokens_exact: generationRecord.tokens_exact,
     decisions_bitwise: generationRecord.decisions_bitwise,
     rng_exact: generationRecord.rng_exact,
-    distributed_features: history.distributed_features,
-    causal_transformer: history.causal_transformer,
-    scaled_autoregressive: history.scaled_autoregressive,
   })) {
     requireBoolean(value, field);
   }
+  requireHash(data.checksum, "corpus checksum");
+  requireHash(test.fingerprint, "test fingerprint");
+  requireHash(checkpoint.checksum, "checkpoint checksum");
+  requireRng(checkpoint.rng, "checkpoint RNG");
+  requireRng(generationRecord.rng_initial, "initial generation RNG");
+  requireRng(generationRecord.rng_final, "final generation RNG");
+
+  if (
+    tokenizerTrainingIds.join(",") !== trainIds.join(",") ||
+    tokenizerRecord.training_only !== "true" ||
+    tokenizerRecord.requested !== tokenizerRecord.learned
+  ) {
+    throw new Error("tokenizer provenance disagrees with the training partition");
+  }
+  if (
+    testDocuments.join(",") !== testIds.join(",") ||
+    test.windows !== windows[2] ||
+    test.batches !== evaluationBatches[2] ||
+    Number(test.targets) !== Number(test.windows) * Number(batchRecord.context) ||
+    evaluationBatches.some(
+      (count, index) =>
+        Number(count) !==
+        Math.ceil(Number(windows[index]) / Number(batchRecord.evaluation_batch_size)),
+    )
+  ) {
+    throw new Error("final targets disagree with the isolated evaluation batches");
+  }
   if (
     test.access !== "1" ||
+    training.replay_bitwise !== "true" ||
     selection[0].selected !== "false" ||
     selection[1].selected !== "true" ||
-    selection[0].step === selection[1].step ||
+    Number(selection[1].validation) >= Number(selection[0].validation) ||
+    selection[1].step !== training.updates ||
     checkpoint.selected !== selection[1].step ||
     checkpoint.optimizer !== selection[1].step
   ) {
-    throw new Error(
-      "selection and final evaluation must preserve the one-way boundary",
-    );
+    throw new Error("selection and final evaluation do not preserve their boundary");
   }
   const decoderLoss = Number(test.decoder);
   const bigramLoss = Number(test.bigram);
@@ -333,54 +511,139 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
   ) {
     throw new Error("test losses and reported gap do not agree");
   }
-  if (!['eos', 'token-limit', 'context-limit'].includes(generationRecord.stop)) {
-    throw new Error("generation stop reason is unknown");
+  if (
+    history.targets !== test.targets ||
+    history.bigram_context !== "1" ||
+    history.decoder_context !== batchRecord.context ||
+    history.bigram !== test.bigram ||
+    history.decoder !== test.decoder ||
+    history.gap !== test.gap
+  ) {
+    throw new Error("historical contrast disagrees with measured test evidence");
+  }
+  const attentionLanes = Number(model.layers) * Number(model.heads);
+  const cachedScores = prefixes.reduce((sum, value) => sum + Number(value), 0);
+  const completePrefixScores = prefixes.reduce(
+    (sum, value) => sum + Number(value) ** 2,
+    0,
+  );
+  if (
+    generationRecord.stop !== "token-limit" ||
+    prefixes.some((value, index) => Number(value) !== promptIds.length + index) ||
+    Number(generationRecord.prefill) !== promptIds.length ||
+    Number(generationRecord.decode) !== generated.length - 1 ||
+    Number(generationRecord.final_cache) !==
+      Number(generationRecord.prefill) + Number(generationRecord.decode) ||
+    Number(generationRecord.cached_scores) !== attentionLanes * cachedScores ||
+    Number(generationRecord.calculated_complete_prefix_scores) !==
+      attentionLanes * completePrefixScores ||
+    generationRecord.rng_initial !== checkpoint.rng
+  ) {
+    throw new Error("generation schedule and reported work do not agree");
+  }
+  if (
+    checkpoint.logit_probe !== "At" ||
+    generationRecord.prompt !== "A" ||
+    logitProbeIds.join(",") === promptIds.join(",")
+  ) {
+    throw new Error("checkpoint probe and generation prompt must remain distinct");
   }
   if (
     tokenizerRecord.training_only !== "true" ||
+    training.replay_bitwise !== "true" ||
     test.decoder_wins !== "true" ||
     test.no_grad !== "true" ||
     test.unchanged !== "true" ||
+    checkpoint.bytes_roundtrip !== "true" ||
+    checkpoint.model_bits_exact !== "true" ||
+    checkpoint.optimizer_bits_exact !== "true" ||
     checkpoint.tokenizer_exact !== "true" ||
-    checkpoint.logits_bitwise !== "true" ||
+    checkpoint.prompt_logits_bitwise !== "true" ||
     generationRecord.tokens_exact !== "true" ||
     generationRecord.decisions_bitwise !== "true" ||
-    generationRecord.rng_exact !== "true" ||
-    history.distributed_features !== "true" ||
-    history.causal_transformer !== "true" ||
-    history.scaled_autoregressive !== "true"
+    generationRecord.rng_exact !== "true"
   ) {
     throw new Error("capstone proof field changed from true");
   }
 
   return {
-    data: data as EndToEndLlmTrace["data"],
+    data: {
+      checksum: data.checksum,
+      split: data.split,
+      train: data.train,
+      validation: data.validation,
+      test: data.test,
+      train_ids: trainIds,
+      validation_ids: validationIds,
+      test_ids: testIds,
+    },
     tokenizer: {
       layout: tokenizerRecord.layout,
       requested: tokenizerRecord.requested,
       learned: tokenizerRecord.learned,
       vocabulary: tokenizerRecord.vocabulary,
       training_only: tokenizerRecord.training_only,
-      encoded: list(tokenizerRecord.encoded, 3, "encoded"),
+      training_ids: tokenizerTrainingIds,
+      encoded,
     },
     batches: {
       context: batchRecord.context,
-      windows: list(batchRecord.windows, 3, "windows"),
-      batches: list(batchRecord.batches, 3, "batches"),
+      update_batch_size: batchRecord.update_batch_size,
+      evaluation_batch_size: batchRecord.evaluation_batch_size,
+      windows,
+      evaluation_batches: evaluationBatches,
     },
     model: model as EndToEndLlmTrace["model"],
+    training: training as EndToEndLlmTrace["training"],
     selection: selection as EndToEndLlmTrace["selection"],
-    test: test as EndToEndLlmTrace["test"],
-    checkpoint: checkpoint as EndToEndLlmTrace["checkpoint"],
+    test: {
+      access: test.access,
+      windows: test.windows,
+      batches: test.batches,
+      targets: test.targets,
+      decoder: test.decoder,
+      bigram: test.bigram,
+      gap: test.gap,
+      decoder_wins: test.decoder_wins,
+      no_grad: test.no_grad,
+      unchanged: test.unchanged,
+      documents: testDocuments,
+      fingerprint: test.fingerprint,
+    },
+    checkpoint: {
+      bytes: checkpoint.bytes,
+      header: checkpoint.header,
+      records: checkpoint.records,
+      checksum: checkpoint.checksum,
+      selected: checkpoint.selected,
+      optimizer: checkpoint.optimizer,
+      rng: checkpoint.rng,
+      bytes_roundtrip: checkpoint.bytes_roundtrip,
+      model_bits_exact: checkpoint.model_bits_exact,
+      optimizer_bits_exact: checkpoint.optimizer_bits_exact,
+      tokenizer_exact: checkpoint.tokenizer_exact,
+      logit_probe: checkpoint.logit_probe,
+      logit_probe_ids: logitProbeIds,
+      prompt_logits_bitwise: checkpoint.prompt_logits_bitwise,
+    },
     generation: {
       prompt: generationRecord.prompt,
-      prompt_ids: list(generationRecord.prompt_ids, 1, "prompt_ids"),
-      generated: list(generationRecord.generated, 3, "generated"),
+      prompt_ids: promptIds,
+      temperature: generationRecord.temperature,
+      top_k: generationRecord.top_k,
+      seed: generationRecord.seed,
+      generated,
       text: quotedText(generationRecord.text),
+      prefixes,
       stop: generationRecord.stop,
+      prefill: generationRecord.prefill,
+      decode: generationRecord.decode,
       final_cache: generationRecord.final_cache,
       cached_scores: generationRecord.cached_scores,
-      complete_prefix_scores: generationRecord.complete_prefix_scores,
+      calculated_complete_prefix_scores:
+        generationRecord.calculated_complete_prefix_scores,
+      rng_initial: generationRecord.rng_initial,
+      rng_final: generationRecord.rng_final,
       tokens_exact: generationRecord.tokens_exact,
       decisions_bitwise: generationRecord.decisions_bitwise,
       rng_exact: generationRecord.rng_exact,
@@ -392,19 +655,88 @@ export const parseEndToEndLlmTrace = (source: string): EndToEndLlmTrace => {
 export const validateEndToEndLlmDiagramLabels = (
   labels: EndToEndLlmDiagramLabels,
 ): void => {
-  const visit = (value: unknown, path: string): void => {
-    if (typeof value === "string") {
-      if (value.trim().length === 0) {
-        throw new Error("diagram label " + path + " must be nonblank");
-      }
-      return;
-    }
+  const exactKeys = (
+    value: unknown,
+    expected: readonly string[],
+    path: string,
+  ): Record<string, unknown> => {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       throw new Error("diagram label " + path + " has an invalid value");
     }
-    for (const [key, child] of Object.entries(value)) {
-      visit(child, path + "." + key);
+    const actual = Object.keys(value);
+    if (
+      actual.length !== expected.length ||
+      actual.some((key) => !expected.includes(key))
+    ) {
+      throw new Error("diagram label " + path + " has an invalid field set");
+    }
+    return value as Record<string, unknown>;
+  };
+  const nonblank = (value: unknown, path: string): void => {
+    if (typeof value !== "string" || value.trim().length === 0) {
+      throw new Error("diagram label " + path + " must be nonblank");
     }
   };
-  visit(labels, "labels");
+  const root = exactKeys(
+    labels,
+    ["title", "description", "sections", "stages", "fields", "cues", "captions"],
+    "labels",
+  );
+  nonblank(root.title, "labels.title");
+  nonblank(root.description, "labels.description");
+  for (const [name, keys] of Object.entries({
+    sections: ["pipeline"],
+    stages: [
+      "data",
+      "tokenizer",
+      "batches",
+      "model",
+      "selection",
+      "test",
+      "checkpoint",
+      "generation",
+    ],
+    fields: [
+      "documents",
+      "vocabulary",
+      "encodedTokens",
+      "context",
+      "windows",
+      "updateBatchSize",
+      "evaluationBatchSize",
+      "evaluationBatches",
+      "parameters",
+      "trainLoss",
+      "validationLoss",
+      "targets",
+      "decoderLoss",
+      "bigramLoss",
+      "gap",
+      "bytes",
+      "records",
+      "logitProbe",
+      "prompt",
+      "sampling",
+      "generated",
+      "decoded",
+      "generationWork",
+      "attentionScores",
+    ],
+    cues: [
+      "trainingOnly",
+      "candidate",
+      "selected",
+      "oneTime",
+      "exact",
+      "cachedMatch",
+      "decodedText",
+      "spaceMarker",
+    ],
+    captions: ["pipeline"],
+  })) {
+    const group = exactKeys(root[name], keys, `labels.${name}`);
+    for (const key of keys) {
+      nonblank(group[key], `labels.${name}.${key}`);
+    }
+  }
 };

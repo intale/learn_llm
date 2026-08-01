@@ -941,11 +941,11 @@ describe('curriculum and catalog contracts', () => {
     );
     const result = validateChapterContractText(template, {
       sourceName: 'chapter-template.md',
-      supportedLocales: ['en'],
+      supportedLocales: ['en', 'ru'],
     });
 
     expect(result.data.visualization.decision).toBe('useful');
-    expect(Object.keys(result.data.objective)).toEqual(['en']);
+    expect(Object.keys(result.data.objective)).toEqual(['en', 'ru']);
   });
 
   it('keeps localization review mandatory without a pre-publication approval pause', () => {
@@ -1413,7 +1413,7 @@ describe('curriculum and catalog contracts', () => {
 
     const staleHistoryPolicy = replaceOnce(
       planSource,
-      '"plan_revision": 64',
+      '"plan_revision": 65',
       '"plan_revision": 15',
     );
     expect(() => validateCoursePlanText(staleHistoryPolicy)).toThrow(
@@ -1573,14 +1573,9 @@ describe('curriculum and catalog contracts', () => {
     });
     const deferredPlanSource = replaceOnce(
       planSource,
+      '    "deferred_locales": [],',
       [
         '    "deferred_locales": [',
-        '      "ru"',
-        '    ],',
-      ].join('\n'),
-      [
-        '    "deferred_locales": [',
-        '      "ru",',
         '      "es"',
         '    ],',
       ].join('\n'),
@@ -1721,7 +1716,7 @@ describe('curriculum and catalog contracts', () => {
 
     const uncoveredChapter = replaceOnce(
       deferredPlanSource,
-      '        "through_chapter": "38-cached-generation",',
+      '        "through_chapter": "39-end-to-end-llm",',
       '        "through_chapter": "13-gradient-checking",',
     );
     expect(() =>
@@ -1730,7 +1725,7 @@ describe('curriculum and catalog contracts', () => {
         'gapped synthetic chapter-locale plan',
         localeConfiguration,
       ),
-    ).toThrow(/must continue the exact chapter sequence/);
+    ).toThrow(/chapter locale ranges must cover every chapter exactly once/);
 
     expect(() =>
       validateCoursePlanText(

@@ -2,13 +2,13 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 1,
+  "content_revision": 2,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
-  "description": "Connect frozen bilingual data, training-only BPE, decoder training, final evaluation, checkpoint reload, and cached text generation in one Rust program.",
-  "objective": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one-time test evaluation, checkpoint reload, and cached text generation.",
-  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, beat the frozen bigram on 1,744 test targets, reload bitwise-equal logits, and continue prompt A with token IDs 260, 34, 34 as the text т followed by two spaces.",
+  "description": "Trace a tiny decoder-only language model in Rust from frozen bilingual splits and training-only BPE through validation-selected training, selection-isolated final evaluation, exact checkpoint reload, and KV-cached generation.",
+  "objective": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
+  "worked_inputs": "Use the checked-in eight/two/two bilingual document split, learn eight BPE merges from training only, train a one-block 1,188-parameter decoder for 32 updates, select validation loss 3.889531885, compare the decoder and frozen bigram on the same 1,744 test targets, restore exact checkpoint state and probe-At logits, and continue prompt A with token IDs 260, 34, 34 as Cyrillic т followed by two spaces.",
   "formula": {
     "latex": "P_\\theta(z_{1:T})=\\prod_{t=1}^{T}P_\\theta(z_t\\mid z_{<t})",
     "symbols": [
@@ -42,7 +42,7 @@
       },
       {
         "symbol": "z_{<t}",
-        "meaning": "all tokens before position t that form the causal context"
+        "meaning": "the earlier prefix in the general factorization; this bounded fixture presents at most the last four earlier tokens to the decoder"
       }
     ]
   },
@@ -51,7 +51,7 @@
       "predecessor_kind": "language-model",
       "limitation": "A count-based bigram estimates the next token from one preceding token and cannot share statistical strength through learned features or use the longer causal prefix.",
       "later_advance": "Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective.",
-      "modern_llm_role": "The capstone joins the complete evidence boundary used by an autoregressive decoder: data isolation, tokenizer learning, causal next-token updates, validation-only selection, untouched final evaluation, persistence, and stateful generation.",
+      "modern_llm_role": "This course capstone combines training-only tokenizer learning, causal next-token updates, validation-selected state, selection-isolated final evaluation, exact checkpoint round-trip, and stateful generation; these are local evidence rules, not requirements of the cited papers.",
       "sources": [
         {
           "role": "earlier",
@@ -72,12 +72,12 @@
           "year": 2020,
           "name": "Language Models are Few-Shot Learners",
           "source_url": "https://arxiv.org/pdf/2005.14165",
-          "claim": "Brown and colleagues report GPT-3 as a scaled autoregressive language model and evaluate its task behavior without parameter updates at use time; scale and capability claims from that model do not transfer to this tiny teaching run."
+          "claim": "Brown and colleagues train GPT-3, a 175-billion-parameter autoregressive Transformer language model based on the GPT-2 architecture, and evaluate zero-, one-, and few-shot tasks without gradient updates or fine-tuning; none of its scale or capability results transfers to this tiny teaching run."
         }
       ]
     },
-    "approach": "Return to the training-only alpha-one bigram as the frozen short-context baseline, then compare it with the validation-selected causal decoder on exactly the same previously unopened test targets.",
-    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became modern LLMs. This capstone demonstrates the same end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.",
+    "approach": "Compare the training-only alpha-one bigram with the validation-selected four-token causal decoder on identical test-reserved targets, treating the measured gap as fixture evidence rather than causal attribution.",
+    "summary": "Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became one major family of modern LLMs. This capstone demonstrates local end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.",
     "rust_source": "rust/demos/ch39-end-to-end-llm/src/lib.rs"
   },
   "rust_sources": [
@@ -89,7 +89,7 @@
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "region": "historical-contrast",
-      "purpose": "Keep the executable historical comparison on the progression from one-token count context to learned causal language models."
+      "purpose": "Report the measured same-target loss contrast between the one-token bigram and four-token causal decoder."
     },
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
@@ -104,9 +104,9 @@
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
-    "rationale": "One left-to-right pipeline makes the information boundary visible: test evidence appears only after training and validation selection, then the exact selected state crosses save/reload before cached generation."
+    "rationale": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation."
   },
-  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, the decoder trains and is selected without test access, the held-out report beats its frozen bigram, the checkpoint restores exact state, and cached generation returns decoded text."
+  "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local final evaluator receives test batches, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text."
 }
 ---
 
@@ -135,6 +135,9 @@ export const diagramLabels = {
     encodedTokens: "Encoded tokens by partition",
     context: "Causal context",
     windows: "Train / validation / test windows",
+    updateBatchSize: "Update mini-batch size",
+    evaluationBatchSize: "Evaluation mini-batch size",
+    evaluationBatches: "Evaluation mini-batches by partition",
     parameters: "Learned parameters",
     trainLoss: "train",
     validationLoss: "validation",
@@ -144,21 +147,26 @@ export const diagramLabels = {
     gap: "Loss advantage",
     bytes: "Checkpoint bytes",
     records: "Tensor records",
+    logitProbe: "Reload logit probe",
     prompt: "Prompt and token ID",
+    sampling: "Sampling configuration",
     generated: "Generated token IDs",
     decoded: "Decoded text",
-    attentionScores: "Cached / complete-prefix score cells",
+    generationWork: "Prefix / forward schedule",
+    attentionScores: "Cached / calculated complete-prefix score cells",
   },
   cues: {
     trainingOnly: "no validation or test text contributes a merge",
     candidate: "initial candidate",
     selected: "validation-selected state",
-    oneTime: "one-way test gate",
-    exact: "restored tokenizer and logits are exact",
+    oneTime: "local one-use test gate",
+    exact: "bytes, model, optimizer, and tokenizer round-trip exactly; probe logits match",
     cachedMatch: "cached and complete-prefix decisions match",
+    decodedText: "Cyrillic т followed by two generated spaces",
+    spaceMarker: "Each ␠ marks one generated space.",
   },
   captions: {
-    pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, one-time test, and exact replay boundaries.",
+    pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the local one-use test gate, and exact replay boundaries.",
   },
 };
 
@@ -174,26 +182,40 @@ neither.
 
 Eight training-only BPE merges produce vocabulary size $266$. With context
 length $C=4$, the encoded partitions produce $1820$, $463$, and $436$ causal
-windows. The decoder has one block, one head, width $4$, feed-forward width $4$,
-and $1188$ learned scalar parameters.
+windows. Updates use mini-batches of $16$ windows; the three evaluation epochs
+use mini-batches of at most $128$ windows, so they contain $15$, $4$, and $4$
+mini-batches. The decoder has one block, one head, width $4$, feed-forward width
+$4$, and $1188$ learned scalar parameters.
 
 Before reading the result, predict:
 
 1. whether two runs from training seed $39$ select the same state bit for bit;
 2. whether test loss is visible before that state is fixed;
-3. whether checkpoint reload changes any prompt logit; and
+3. whether checkpoint reload changes any logit for the frozen <code>At</code>
+   probe; and
 4. whether cached generation changes a sampling decision.
 
-Both training replays select step $32$ at validation loss $3.889531885$. The
-one-time final report then scores $1744$ identical targets. Decoder loss is
-$3.866087547$, while the frozen alpha-one bigram reaches $3.981342714$, a gap
-of $0.115255167$ in favor of this decoder run.
+Both training replays select step $32$ at validation loss $3.889531885$. Only
+after selection does the run materialize test mini-batches and give them to one
+local final evaluator. Every one of the $436$ test windows contributes $C=4$
+target positions:
 
-The $30994$-byte checkpoint restores the tokenizer and logits exactly. Prompt
-<code>A</code> encodes as literal token ID <code>67</code>. Top-$4$ sampling
-from generation seed $38$ chooses literal IDs <code>[260,34,34]</code>, decoded
-as <code>т  </code>. Cached and complete-prefix paths use the same draws and
-make the same decisions.
+$$
+N_{\mathrm{test}}=W_{\mathrm{test}}C=436\cdot4=1744.
+$$
+
+The decoder and frozen alpha-one bigram score those same $1744$ targets. Decoder
+loss is $3.866087547$, while the bigram reaches $3.981342714$, a gap of
+$0.115255167$ in favor of this decoder run.
+
+The $30994$-byte checkpoint re-encodes to the same bytes and restores the model,
+optimizer, tokenizer, and random state exactly. A separate probe
+<code>At</code>, encoded as <code>[67,118]</code>, reproduces every logit bit.
+Generation then starts from prompt <code>A</code>, encoded as literal token ID
+<code>67</code>. Sampling with $\tau=0.8$, $k=4$, and seed $38$ chooses literal
+IDs <code>[260,34,34]</code>, decoded as <code>т␠␠</code>, where each
+<code>␠</code> marks one generated space. Cached and complete-prefix paths use
+the same draws and make the same decisions.
 
 {/* chapter-section:formula */}
 
@@ -213,9 +235,11 @@ $\theta$; and generation samples one new $z_t$ from the conditional distribution
 given $z_{<t}$.
 
 The factorization is a causal promise. The probability for position $t$ may
-depend on $z_{<t}$, never on a later token. A frozen split makes the experimental
-promise parallel to the mathematical one: later test evidence cannot flow
-backward into tokenizer learning, updates, or selection.
+depend on $z_{<t}$, never on a later token. Here $z_{<t}$ names the whole earlier
+prefix in the general factorization; this bounded decoder actually receives at
+most the retained last $C=4$ earlier tokens. A frozen split makes the
+experimental promise parallel to the mathematical one: test-reserved documents
+cannot affect tokenizer learning, updates, or validation selection in this run.
 
 {/* chapter-section:symbol-glossary */}
 
@@ -228,7 +252,8 @@ backward into tokenizer learning, updates, or selection.
 - $\prod_{t=1}^{T}$ multiplies one conditional term at every position.
 - $t$ is the current token position.
 - $z_t$ is the observed token at that position.
-- $z_{<t}$ is the complete earlier causal prefix.
+- $z_{<t}$ is the earlier causal prefix in the general factorization; this
+  fixture presents at most the last $C=4$ earlier tokens to the decoder.
 
 The training step number is not $t$. A step updates $\theta$ from a mini-batch;
 $t$ indexes a token inside the language-model factorization.
@@ -246,15 +271,28 @@ supports this bounded claim: Bengio and colleagues describe traditional n-gram g
 boundary: Vaswani and colleagues define the Transformer and mask decoder self-attention so a position cannot read later positions; their published architecture is an encoder-decoder model and does not define this course data, checkpoint, or generation policy.
 
 [Language Models are Few-Shot Learners](https://arxiv.org/pdf/2005.14165)
-supplies the scaled-LLM context: Brown and colleagues report GPT-3 as a scaled autoregressive language model and evaluate its task behavior without parameter updates at use time; scale and capability claims from that model do not transfer to this tiny teaching run.
+supplies the scaled-LLM context: Brown and colleagues train GPT-3, a
+175-billion-parameter autoregressive Transformer language model based on the
+GPT-2 architecture, and evaluate zero-, one-, and few-shot tasks without gradient
+updates or fine-tuning; none of its scale or capability results transfers to
+this tiny teaching run.
 
 Neural language models learned distributed token features and longer-context probability functions; the Transformer supplied masked self-attention, and later autoregressive Transformer language models scaled that training objective.
 
-The capstone joins the complete evidence boundary used by an autoregressive decoder: data isolation, tokenizer learning, causal next-token updates, validation-only selection, untouched final evaluation, persistence, and stateful generation.
+This course capstone combines training-only tokenizer learning, causal
+next-token updates, validation-selected state, selection-isolated final
+evaluation, exact checkpoint round-trip, and stateful generation; these are
+local evidence rules, not requirements of the cited papers.
 
-Return to the training-only alpha-one bigram as the frozen short-context baseline, then compare it with the validation-selected causal decoder on exactly the same previously unopened test targets.
+Compare the training-only alpha-one bigram with the validation-selected
+four-token causal decoder on identical test-reserved targets. The measured gap
+is evidence about this fixture, not causal attribution to context or attention.
 
-Count n-grams provided a strong short-context baseline; learned distributed features and masked self-attention made longer learned computation possible, and scaled autoregressive Transformers became modern LLMs. This capstone demonstrates the same end-to-end responsibility boundaries at inspectable scale without treating one tiny loss win as a general quality claim.
+Count n-grams provided a strong short-context baseline; learned distributed
+features and masked self-attention made longer learned computation possible, and
+scaled autoregressive Transformers became one major family of modern LLMs. This
+capstone demonstrates local end-to-end responsibility boundaries at inspectable
+scale without treating one tiny loss win as a general quality claim.
 
 The executable contrast is narrow: one-token count context against a four-token
 causal decoder on this frozen corpus. A lower loss verifies this fixture. It does
@@ -278,14 +316,19 @@ separate causal epochs for update, validation, and final evaluation.
 
 Two decoder runs receive the same initialization and batch-order seed. Each
 executes all $32$ updates. The implementation compares every training event,
-loss checkpoint, optimizer state, selected step, and model bit. Only after that
-replay agrees does <code>FinalEvaluator</code> consume its one local test
-permission.
+loss checkpoint, optimizer moment, selected step, and model value by bit pattern.
+Only after that replay agrees and validation fixes the selected state does the
+run materialize test mini-batches. One owned <code>FinalEvaluator</code> then
+consumes its local permission once; this is an executable boundary inside this
+run, not a claim that the repository globally prevents other code from reading
+the corpus.
 
-The selected model and step-$32$ optimizer enter one versioned checkpoint. Save
-and load bytes must match, the restored BPE ranks must equal the learned ranks,
-and prompt logits must agree bit for bit. The loaded model then runs cached and
-complete-prefix generation from the same RNG state.
+The selected model and step-$32$ optimizer enter one versioned checkpoint.
+Re-encoding the loaded checkpoint must reproduce the saved bytes; restored model
+and optimizer bits, BPE ranks, step, and RNG state must all agree. Logits for the
+separate probe <code>At</code> must match bit for bit. Only then does the loaded
+model run cached and complete-prefix generation from prompt <code>A</code> and
+the same RNG state.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/pipeline.rs"
@@ -295,8 +338,9 @@ complete-prefix generation from the same RNG state.
 />
 
 The runnable evidence requires every final claim together. It rejects a changed
-test ordering, a non-winning frozen comparison, nondeterministic replay, altered
-checkpoint logits, or any cached sampling divergence.
+test ordering, a non-winning frozen comparison in this fixture, a replay with
+different bits, altered checkpoint state or probe logits, or any cached sampling
+divergence.
 
 <RustSource
   path="rust/demos/ch39-end-to-end-llm/src/lib.rs"
@@ -312,12 +356,12 @@ executable prints this exact report:
 chapter=39-end-to-end-llm
 data=checksum:fnv1a64:04786e7303f1dfd6 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]
 tokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]
-model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 windows:[1820,463,436] batches:[15,4,4]
+model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]
 training=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true
 test=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true
-checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 tokenizer_exact:true logits_bitwise:true
-generation=prompt:A prompt_ids:[67] generated:[260,34,34] text:"т  " stop:token-limit final_cache:3 cached_scores:6 complete_prefix_scores:14 tokens_exact:true decisions_bitwise:true rng_exact:true
-history=bigram_context:1 decoder_context:4 distributed_features:true causal_transformer:true scaled_autoregressive:true local_pipeline:true
+checkpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true
+generation=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:"т  " prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true
+history=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167
 next=inspect, modify, test, and extend the complete decoder
 ```
 
@@ -333,12 +377,16 @@ next=inspect, modify, test, and extend the complete decoder
 
 The figure begins with fixed document roles and training-only tokenizer learning.
 It then follows causal windows into the decoder and places the validation-selected
-state before a double-marked test gate. Test loss has no path back to an update.
+state before a double-marked local test gate. Test loss has no path back to an
+update or selection in this run.
 
 The last two stages ask different equality questions. Checkpoint reload preserves
-the tokenizer and logits exactly. Cached generation preserves the complete-prefix
-token decisions and RNG state while forming $6$ rather than $14$ attention-score
-cells for this continuation.
+saved bytes plus model, optimizer, tokenizer, step, and RNG state exactly; logits
+for probe <code>At</code> agree bit for bit. Cached generation from prompt
+<code>A</code> preserves the complete-prefix token decisions and RNG state. Its
+instrumented attention work contains $1+2+3=6$ score cells; the same prefix
+schedule gives the calculated dense reference count
+$1^2+2^2+3^2=14$.
 
 <EndToEndLlmDiagram labels={diagramLabels} />
 
@@ -350,31 +398,36 @@ cells for this continuation.
 2. How many decoder parameters receive updates?
 3. What evidence chooses step $32$?
 4. May the test loss change that choice?
-5. How many final target positions does each model score?
+5. How do $436$ test windows become $1744$ scored target positions?
 6. What is the measured test-loss gap?
-7. Which state must checkpoint reload preserve exactly?
+7. Which checkpoint facts are exact, and which claim belongs only to probe <code>At</code>?
 8. Which literal token IDs follow prompt <code>A</code>?
-9. Why is decoded <code>т  </code> not evidence of translation quality?
+9. Why is decoded <code>т␠␠</code> not evidence of translation quality?
 10. What does the second seed-$39$ training run prove?
 
-Misconception: an end-to-end run may inspect test repeatedly because every
-component is deterministic. Determinism makes repetition reproducible; it does
-not turn test data into valid selection evidence. The state is frozen first, and
-one owned evaluator records one final access.
+Misconception: an end-to-end run may use test repeatedly for selection because
+every component is deterministic. Determinism makes repetition reproducible; it
+does not turn test data into valid selection evidence. This run freezes the
+state first, materializes test batches afterward, and records one access through
+its owned evaluator.
 
 <details>
 <summary>Check the ten predictions</summary>
 
 1. Only the $8$ training documents contribute BPE pair counts.
 2. The one-block decoder has $1188$ learned scalar parameters.
-3. Validation loss chooses step $32$ at $3.889531885$.
+3. Step $32$ has validation loss $3.889531885$, lower than step $0$ at
+   $5.628342353$.
 4. No. Final test evidence arrives after selection and performs no update.
-5. Each model scores the same $1744$ target positions.
+5. Each of the $436$ windows has $C=4$ target slots, so
+   $436\cdot4=1744$; both models score those same positions.
 6. $3.981342714-3.866087547=0.115255167$ in favor of this decoder run.
-7. BPE ranks, model values and logits, optimizer step, and RNG state must agree.
+7. Re-encoded bytes, model and optimizer bits, BPE ranks, selected step, and RNG
+   state are exact; only logits for the explicit <code>At</code> probe are compared.
 8. The literal generated IDs are <code>[260,34,34]</code>.
 9. It is one seeded sample from a tiny bilingual corpus, not a semantic benchmark.
-10. It proves the complete training and validation result is bitwise reproducible under the frozen inputs and seed.
+10. It checks that this executable fixture reproduces every recorded training,
+    validation, optimizer, and model bit under the frozen inputs and toolchain.
 
 </details>
 
@@ -382,7 +435,12 @@ one owned evaluator records one final access.
 
 ## Take ownership of the complete decoder
 
-Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, the decoder trains and is selected without test access, the held-out report beats its frozen bigram, the checkpoint restores exact state, and cached generation returns decoded text.
+Every course component now participates in one functional program: frozen
+bilingual data becomes BPE tokens and causal batches; validation selects the
+decoder before the local final evaluator receives test batches; checkpoint bytes
+and state round-trip exactly; the separate <code>At</code> probe reproduces
+logits bit for bit; and cached generation from <code>A</code> returns decoded
+text.
 
 That completes the planned road to a modern decoder-only LLM at teaching scale.
 You can now change one bounded piece—more context, a wider block, another

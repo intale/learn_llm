@@ -59,19 +59,19 @@ function fixtureManifest(
 }
 
 describe('chapter-locale manifest', () => {
-  it('keeps all authoring guides aligned with the two current locale ranges', () => {
+  it('keeps all authoring guides aligned with the current bilingual range', () => {
     const repositoryRoot = resolve(process.cwd(), '..');
     const normalized = (path: string) =>
       readFileSync(resolve(repositoryRoot, path), 'utf8').replace(/\s+/g, ' ');
 
     expect(normalized('curriculum/README.md')).toContain(
-      'English and Russian for Chapters 0–38 and English only for Chapter 39',
+      'activates English and Russian for every chapter from 0 through 39',
     );
     expect(normalized('curriculum/chapter-template.md')).toContain(
-      'Chapters 0–38 use English and Russian',
+      'bilingual example above matches the current active set for Chapters 0–39',
     );
     expect(normalized('SKILLS.md')).toContain(
-      'Chapters 0 through 38 use English and Russian, and Chapter 39 uses English only',
+      'every chapter from 0 through 39 uses English and Russian',
     );
   });
 
@@ -241,11 +241,11 @@ describe('chapter-locale manifest', () => {
     expect(chapterLocaleConfiguration.chapters[39]).toMatchObject({
       chapterId: '39-end-to-end-llm',
       order: 39,
-      activeLocales: ['en'],
+      activeLocales: ['en', 'ru'],
     });
     expect(
       chapterLocaleConfiguration.chapters
-        .slice(0, 39)
+        .slice(0, 40)
         .every(
           (chapter) =>
             chapter.activeLocales.length === 2 &&
@@ -253,16 +253,6 @@ describe('chapter-locale manifest', () => {
             chapter.activeLocales[1] === 'ru',
         ),
     ).toBe(true);
-    expect(
-      chapterLocaleConfiguration.chapters
-        .filter((chapter) => chapter.order >= 39)
-        .every(
-          (chapter) =>
-            chapter.activeLocales.length === 1 &&
-            chapter.activeLocales[0] === 'en',
-        ),
-    ).toBe(true);
-
     expect(activeLocalesForChapter('00-llm-parts')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('00-llm-parts', 'ru')).toBe(true);
     expect(activeLocalesForChapter('07-language-model-metrics')).toEqual([
@@ -332,6 +322,8 @@ describe('chapter-locale manifest', () => {
     expect(isChapterLocaleActive('37-incremental-attention', 'ru')).toBe(true);
     expect(activeLocalesForChapter('38-cached-generation')).toEqual(['en', 'ru']);
     expect(isChapterLocaleActive('38-cached-generation', 'ru')).toBe(true);
+    expect(activeLocalesForChapter('39-end-to-end-llm')).toEqual(['en', 'ru']);
+    expect(isChapterLocaleActive('39-end-to-end-llm', 'ru')).toBe(true);
     expect(() => activeLocalesForChapter('40-unknown')).toThrow(/no chapter/);
   });
 
