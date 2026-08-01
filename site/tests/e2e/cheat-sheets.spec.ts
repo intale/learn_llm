@@ -286,6 +286,12 @@ const sheets = [
     title: 'Block future keys with a causal mask',
     terms: ['Causal mask', 'Inclusive diagonal', 'Additive mask', 'Query row', 'Key column', 'Allowed prefix', 'Blocked future key', 'Causal softmax', 'Shifted decoder input', 'Prefix invariance', 'Position signal'],
   },
+  {
+    chapter: 29,
+    chapterId: '29-rope',
+    title: 'Turn query and key pairs with RoPE',
+    terms: ['Rotary position embedding (RoPE)', 'Adjacent coordinate pair', 'Rotation matrix', 'Pair frequency', 'Frequency base', 'Absolute position', 'Signed relative position', 'Equal-shift invariance', 'Orthogonal rotation', 'Query-key rotation', 'Causal mask'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -415,6 +421,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '29-rope'));
+  await page.goto(chapterPath('en', '30-multi-head-attention'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

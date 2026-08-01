@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T12:43:59Z"
+updated_at: "2026-08-01T13:04:15Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 23
+      spent: 24
       notes: "No explicit resource limit applies. Twenty-nine sheet checkpoints plus five recorded corrective runs use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26984,13 +26984,47 @@ builds:
       - id: add-ch29-cheat-sheet
         objective: "Publish the canonical English Chapter 29 terminology sheet."
         depends_on: [correct-ch36-stable-ranking-wording]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 29 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/29-rope.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 29 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 29 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T125741Z-add-ch29-cheat-sheet-01
+            started_at: "2026-08-01T12:57:41Z"
+            finished_at: "2026-08-01T13:04:15Z"
+            status: succeeded
+            input_fingerprint: {git: 14bd834ad372634ab364bbfc1c0d65482bf1eb4e, manifest: ".build/runs/20260801T125741Z-add-ch29-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:10d30c93d1a66ee7149075b6a561861742cc28aafebd8ce94afa8576e3b5e688", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 29 is the terminology source."}
+            staging_dir: ".build/runs/20260801T125741Z-add-ch29-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 14bd834, completed Chapter 36 correction after Chapter 28, canonical English Chapter 29, source ownership, environment pins, medium cost, browser availability, and exact one-sheet scope."
+              - "Add the audited 11-term Chapter 29 English record, exact content assertions, browser matrix entry, and Chapter 30 later-English absence boundary."
+              - "npm.cmd --prefix site test -- --run tests/cheat-sheets.test.ts"
+              - "docker build --target source -t learn-llm-cheat-sheet-source:local ."
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site test -- --run tests/cheat-sheets.test.ts && npm --prefix site run check'"
+              - "docker run --rm learn-llm-cheat-sheet-source:local sh -lc 'npm --prefix site run build >/tmp/build.log && npm --prefix site run test:links; tail -n 8 /tmp/build.log'"
+              - "Create labelled exact-snapshot volume learn-llm-cheatsheet-ch29-e2e-125741 from source image sha256:298ea0d842c40c8f9375c8061ed1db5fff6bc5d9c9bfb32d124c6b49341f625c and build its 85-page site."
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch29-e2e-125741,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=chromium"
+              - "docker run --rm --network none --ipc=host --mount type=volume,source=learn-llm-cheatsheet-ch29-e2e-125741,target=/workspace -w /workspace/site mcr.microsoft.com/playwright:v1.61.1-noble npx playwright test tests/e2e/cheat-sheets.spec.ts --browser=firefox"
+              - "Verify run and snapshot labels, remove learn-llm-cheatsheet-ch29-e2e-125741, freeze and verify the three-file product manifest, parse BUILD_STATE.yaml, and run git diff --check."
+            artifacts:
+              - {path: ".build/runs/20260801T125741Z-add-ch29-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:10d30c93d1a66ee7149075b6a561861742cc28aafebd8ce94afa8576e3b5e688", notes: "Exact Chapter 29 input fingerprint before product edits."}
+              - {path: "docker-image://learn-llm-cheat-sheet-source:local", checksum: "sha256:298ea0d842c40c8f9375c8061ed1db5fff6bc5d9c9bfb32d124c6b49341f625c", notes: "Pinned source image containing the exact Chapter 29 implementation snapshot for static validation and exact-volume publication."}
+              - {path: "site/src/content/cheat-sheets/en/29-rope.json", checksum: "sha256:68a33bdcbc60bee015886b8e7d391a7c63c88b49e2280edc97e7750dfafe03e3", notes: "Canonical 11-term English Chapter 29 RoPE terminology record."}
+              - {path: "site/tests/cheat-sheets.test.ts", checksum: "sha256:d81c36198de4cb3416dab463948b4d3628d7f4b9ef2052ea3aa7b6267f6fd326", notes: "Shared content matrix extended with exact Chapter 29 evidence and definitions."}
+              - {path: "site/tests/e2e/cheat-sheets.spec.ts", checksum: "sha256:80dc1cb841e08df83ddad3b63e8b4ac3f1d4c1cc4b520cf1b342d006a242ab48", notes: "Shared browser matrix extended through Chapter 29 with the absence boundary moved to Chapter 30."}
+              - {path: ".build/runs/20260801T125741Z-add-ch29-cheat-sheet-01/publish-product.sha256", checksum: "sha256:55c2c2596921aea506b134acf86ac20869c5e791d7ba23b8aa781185f1f478a4", notes: "Frozen manifest for the three published product files; run-local and intentionally ignored."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, and fingerprint preflight", status: passed, notes: "The Chapter 36 correction is independently committed after Chapter 28 and Chapter 29 is the only eligible step. The canonical RoPE lesson has no body defect requiring Russian parity. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host content checks", status: passed, notes: "33/33 cheat-sheet unit cases pass, including Chapter 29 evidence anchoring, exact definitions, registry continuity, and later-English absence at Chapter 30."}
+              - {command: "Pinned focused content and Astro diagnostics", status: passed, notes: "33/33 focused cases pass; Astro reports 210 files and zero diagnostics."}
+              - {command: "Pinned production build and static links", status: passed, notes: "85 pages build; all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot preparation", status: passed, notes: "The labelled Chapter 29 volume was copied from the recorded source image and independently built all 85 pages."}
+              - {command: "Pinned exact-snapshot Chromium Chapter 29 gate", status: passed, notes: "88/88 cases pass for modal interaction, Escape and button closure, focus restoration, narrow containment, no-JavaScript disclosure, Chapter 0 and Russian exclusions, and Chapter 30 absence."}
+              - {command: "Pinned exact-snapshot Firefox Chapter 29 gate", status: passed, notes: "88/88 cases pass independently with the same accessibility, containment, fallback, and rollout-boundary coverage."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, YAML, and scheduler audit", status: passed, notes: "All three product hashes are frozen and reverified; exact labels were checked before volume removal; no run-labelled volume remains; git diff --check and YAML parse pass; Chapter 30 is now the sole eligible next step."}
+            notes: "Succeeded. Chapter 29 now has one concise canonical English RoPE sheet covering pair rotations, frequencies, absolute and relative positions, invariance, query-key scope, and causal masking. Chapter 0 and Russian routes remain sheet-free, the later-English boundary advances to Chapter 30, and no lesson, localization, dependency, build definition, deployment, or shared modal implementation changed."
 
       - id: add-ch30-cheat-sheet
         objective: "Publish the canonical English Chapter 30 terminology sheet."

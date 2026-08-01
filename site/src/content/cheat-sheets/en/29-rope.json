@@ -1,0 +1,19 @@
+{
+  "chapter_id": "29-rope",
+  "locale": "en",
+  "title": "Turn query and key pairs with RoPE",
+  "description": "A quick reference for RoPE's coordinate pairs, frequencies, absolute rotations, relative score geometry, and masking boundary.",
+  "terms": [
+    {"term": "Rotary position embedding (RoPE)", "definition": "A pairwise rotation of query and key features that adds relative-position geometry to attention scores."},
+    {"term": "Adjacent coordinate pair", "definition": "Two neighboring feature coordinates rotated together using one shared pair frequency."},
+    {"term": "Rotation matrix", "definition": "A two-dimensional orthogonal transformation turning one feature pair by a chosen angle."},
+    {"term": "Pair frequency", "definition": "The radians advanced per absolute position for one indexed feature pair."},
+    {"term": "Frequency base", "definition": "The positive value used in the exponent schedule that determines every pair frequency."},
+    {"term": "Absolute position", "definition": "The token index supplied to RoPE when determining each pair's local angle."},
+    {"term": "Signed relative position", "definition": "The key position minus the query position, preserving direction rather than only distance."},
+    {"term": "Equal-shift invariance", "definition": "For unchanged query and key contents, shifting both positions equally preserves their dot product."},
+    {"term": "Orthogonal rotation", "definition": "A rotation preserving each pair's Euclidean norm and the tensor shape."},
+    {"term": "Query-key rotation", "definition": "RoPE rotates queries and keys while leaving value vectors unrotated in this lesson."},
+    {"term": "Causal mask", "definition": "The separate visibility rule blocking future key positions independently of RoPE geometry."}
+  ]
+}

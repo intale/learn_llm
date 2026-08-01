@@ -489,6 +489,24 @@ const expectedSheets = {
       ['Position signal', 'absolute or relative position signal'],
     ],
   },
+  '29-rope': {
+    file: '29-rope.json',
+    lesson: '29-rope.mdx',
+    title: 'Turn query and key pairs with RoPE',
+    entries: [
+      ['Rotary position embedding (RoPE)', 'geometry to query-key scores'],
+      ['Adjacent coordinate pair', 'pairs coordinates'],
+      ['Rotation matrix', 'rotation matrix'],
+      ['Pair frequency', 'one adjacent coordinate pair and its frequency'],
+      ['Frequency base', 'positive finite base'],
+      ['Absolute position', 'rotations receive absolute positions'],
+      ['Signed relative position', 'signed position of the key relative to the query'],
+      ['Equal-shift invariance', 'adding the same offset to both positions'],
+      ['Orthogonal rotation', 'preserves squared norm and therefore norm'],
+      ['Query-key rotation', 'values $V$ are not rotated here'],
+      ['Causal mask', 'mask still blocks future keys'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -512,6 +530,12 @@ const exactDefinitions = {
     'Causal mask': 'An attention visibility rule allowing each query to use its own key and all earlier keys, but no later keys.',
     'Shifted decoder input': 'A training input offset by one target position so the allowed diagonal contains an earlier known token, not the predicted target.',
     'Position signal': 'Separate absolute or relative information that distinguishes token order; the causal mask provides visibility, not position.',
+  },
+  '29-rope': {
+    'Absolute position': "The token index supplied to RoPE when determining each pair's local angle.",
+    'Signed relative position': 'The key position minus the query position, preserving direction rather than only distance.',
+    'Query-key rotation': 'RoPE rotates queries and keys while leaving value vectors unrotated in this lesson.',
+    'Causal mask': 'The separate visibility rule blocking future key positions independently of RoPE geometry.',
   },
 } as const;
 
