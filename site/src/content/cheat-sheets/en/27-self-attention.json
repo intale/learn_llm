@@ -1,0 +1,19 @@
+{
+  "chapter_id": "27-self-attention",
+  "locale": "en",
+  "title": "Compute one unmasked self-attention head",
+  "description": "A quick reference for the query, key, score-scaling, row-normalization, and value-mixture terms used here.",
+  "terms": [
+    {"term": "Scaled dot-product self-attention", "definition": "Attention comparing same-sequence queries and keys, scaling their dot products, then mixing values."},
+    {"term": "Unmasked attention", "definition": "An attention calculation where every query may read every available key position."},
+    {"term": "Query", "definition": "A per-position feature row expressing what content that position should retrieve."},
+    {"term": "Key", "definition": "A per-position feature row compared with queries to determine matching scores."},
+    {"term": "Value", "definition": "A per-position content row combined using the normalized attention weights."},
+    {"term": "Attention score", "definition": "A query-key compatibility value formed from a dot product before softmax normalization."},
+    {"term": "Query/key width", "definition": "The shared feature dimension of queries and keys that determines the score scale."},
+    {"term": "Square-root scaling", "definition": "Dividing attention scores by the square root of query-key width before softmax."},
+    {"term": "Row-wise softmax", "definition": "Normalizing each query's scores across key positions into weights summing to one."},
+    {"term": "Attention weight", "definition": "A normalized retrieval coefficient for one query-key pair, not confidence in correctness."},
+    {"term": "Weighted value mixture", "definition": "An output row formed by summing value rows multiplied by their attention weights."}
+  ]
+}

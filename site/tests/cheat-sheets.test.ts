@@ -453,6 +453,24 @@ const expectedSheets = {
       ['Independent projection weights', 'are independent learned weights'],
     ],
   },
+  '27-self-attention': {
+    file: '27-self-attention.json',
+    lesson: '27-self-attention.mdx',
+    title: 'Compute one unmasked self-attention head',
+    entries: [
+      ['Scaled dot-product self-attention', 'scaled dot-product attention'],
+      ['Unmasked attention', 'unmasked scaled dot-product attention head'],
+      ['Query', 'one query row per token position'],
+      ['Key', 'candidate key rows'],
+      ['Value', 'value rows whose content is mixed'],
+      ['Attention score', 'score row'],
+      ['Query/key width', 'shared query/key width'],
+      ['Square-root scaling', 'square-root scaling'],
+      ['Row-wise softmax', 'Softmax runs across key positions independently for each query'],
+      ['Attention weight', 'a retrieval weight'],
+      ['Weighted value mixture', 'weighted value mixture'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -468,6 +486,9 @@ const exactDefinitions = {
   },
   '19-linear-layers': {
     'Affine map': 'A matrix transformation followed by addition of a fixed or trainable bias vector.',
+  },
+  '27-self-attention': {
+    'Attention weight': 'A normalized retrieval coefficient for one query-key pair, not confidence in correctness.',
   },
 } as const;
 

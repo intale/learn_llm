@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T12:28:57Z"
+updated_at: "2026-08-01T12:37:34Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 20
+      spent: 21
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26879,13 +26879,38 @@ builds:
       - id: add-ch27-cheat-sheet
         objective: "Publish the canonical English Chapter 27 terminology sheet."
         depends_on: [add-ch26-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 27 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/27-self-attention.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 27 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 27 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T123245Z-add-ch27-cheat-sheet-01
+            started_at: "2026-08-01T12:32:45Z"
+            finished_at: "2026-08-01T12:37:34Z"
+            status: succeeded
+            input_fingerprint: {git: c87f193e6566b5452d13e9a50d05528155f55b2f, manifest: ".build/runs/20260801T123245Z-add-ch27-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:2c141448b26b923eac649d313f665c7004226969773e971990e25e561e85ebaf", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 27 is the terminology source."}
+            staging_dir: ".build/runs/20260801T123245Z-add-ch27-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit c87f193, completed Chapter 26, canonical English Chapter 27, source ownership, environment pins, medium cost, browser availability, and exact one-sheet scope."
+              - "Add the audited eleven-term Chapter 27 record, extend the shared content and browser matrices, preserve the retrieval-weight versus correctness-confidence boundary, and move staged later-English absence to Chapter 28."
+              - "Build the pinned Linux source image for static and exact-snapshot browser validation."
+              - "Run focused content tests, Astro diagnostics, production build, and static links in the pinned Linux source image."
+              - "Create one labelled exact-snapshot volume and run the full Chapter 1-27 cheat-sheet suite independently in network-disabled Chromium and Firefox."
+              - "Verify exact run and snapshot labels, remove the browser volume, freeze the three-file product manifest, and audit the completed ledger and standalone commit scope."
+            artifacts:
+              - {path: ".build/runs/20260801T123245Z-add-ch27-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:2c141448b26b923eac649d313f665c7004226969773e971990e25e561e85ebaf", notes: "Exact Chapter 27 input fingerprint before product edits."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:65fedc3147103041dd63168664318eb1caa2d9d53c8db8694fb08a9d64ef6d37", notes: "Exact Chapter 27 source snapshot prepared for pinned static and browser validation."}
+              - {path: ".build/runs/20260801T123245Z-add-ch27-cheat-sheet-01/publish-product.sha256", checksum: "sha256:fb9a4416677547002df2105dbf058b4c298678feda4a9980ac80f82189be4c3e", notes: "Exact Chapter 27 English record and shared-test hashes; governance is excluded."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, browser availability, canonical-source, and fingerprint preflight", status: passed, notes: "Chapter 26 is independently committed and Chapter 27 is the only eligible step. The canonical lesson has no body defect requiring Russian parity. No attached browser is available, so accepted rendered validation will use pinned exact-snapshot Chromium and Firefox."}
+              - {command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts", status: passed, notes: "All 31 tests pass, including the exact twenty-seven-sheet set, Chapter 27 source grounding, definition length and uniqueness, and an exact assertion that an attention weight is a retrieval coefficient rather than correctness confidence."}
+              - {command: "Pinned Astro diagnostics, production build, and static-link audit", status: passed, notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 82 Chapter 1-27 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."}
+              - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 82 equivalent Chapter 1-27 rendered and progressive-enhancement cases pass."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, and Chapter 28 is the next eligible step."}
+            notes: "Succeeded. Chapter 27 now has a canonical English-only eleven-term scaled dot-product self-attention sheet. Attention weights remain explicitly scoped as retrieval coefficients rather than correctness confidence. Chapter 0, Russian routes, and English Chapters 28-39 remain sheet-free. No chapter body, Russian content, dependency, package, build-definition, hosting, deployment, user-environment, or later-chapter product change was made."
 
       - id: add-ch28-cheat-sheet
         objective: "Publish the canonical English Chapter 28 terminology sheet."

@@ -274,6 +274,12 @@ const sheets = [
     title: 'Create query, key, and value views',
     terms: ['Query, key, and value projections', 'Hidden-state tensor', 'Model width', 'Head width', 'Query view', 'Key view', 'Value view', 'Self-attention', 'Bias-free projection', 'Independent projection weights'],
   },
+  {
+    chapter: 27,
+    chapterId: '27-self-attention',
+    title: 'Compute one unmasked self-attention head',
+    terms: ['Scaled dot-product self-attention', 'Unmasked attention', 'Query', 'Key', 'Value', 'Attention score', 'Query/key width', 'Square-root scaling', 'Row-wise softmax', 'Attention weight', 'Weighted value mixture'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -403,6 +409,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '27-self-attention'));
+  await page.goto(chapterPath('en', '28-causal-masking'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
