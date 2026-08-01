@@ -256,6 +256,12 @@ const sheets = [
     title: 'Train a fixed-context neural language model',
     terms: ['Neural n-gram', 'Fixed context', 'Token embedding', 'Context concatenation', 'SwiGLU hidden layer', 'Vocabulary projection', 'Next-token logit', 'Indexed mean loss', 'Held-out validation loss', 'Greedy generation'],
   },
+  {
+    chapter: 24,
+    chapterId: '24-residual-connections',
+    title: 'Keep an identity path around each learned update',
+    terms: ['Residual connection', 'Identity path', 'Residual branch', 'Residual stream', 'Learned update', 'Exact-shape merge', 'Vector-Jacobian product', 'Upstream adjoint', 'Gradient accumulation', 'Branch Jacobian'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -385,6 +391,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '24-residual-connections'));
+  await page.goto(chapterPath('en', '25-rmsnorm'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

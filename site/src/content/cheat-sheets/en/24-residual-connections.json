@@ -1,0 +1,18 @@
+{
+  "chapter_id": "24-residual-connections",
+  "locale": "en",
+  "title": "Keep an identity path around each learned update",
+  "description": "A quick reference for the residual-stream, merge, and reverse-gradient terms used here.",
+  "terms": [
+    {"term": "Residual connection", "definition": "A merge adding a learned branch update to its unchanged input tensor."},
+    {"term": "Identity path", "definition": "A route carrying the input unchanged around a learned transformation."},
+    {"term": "Residual branch", "definition": "A learned mapping producing a same-shaped update for the stream."},
+    {"term": "Residual stream", "definition": "A common-width hidden representation carried through successive Transformer sublayers."},
+    {"term": "Learned update", "definition": "A branch output added coordinatewise without increasing the feature width."},
+    {"term": "Exact-shape merge", "definition": "Residual addition requiring both inputs to share every dimension exactly."},
+    {"term": "Vector-Jacobian product", "definition": "A reverse-mode contribution mapping an upstream gradient through the learned branch."},
+    {"term": "Upstream adjoint", "definition": "The gradient arriving from later computations at a residual block's output."},
+    {"term": "Gradient accumulation", "definition": "Addition of identity-path and branch-path contributions at their shared input."},
+    {"term": "Branch Jacobian", "definition": "The local derivative of the learned branch with respect to its input."}
+  ]
+}

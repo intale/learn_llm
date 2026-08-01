@@ -402,6 +402,23 @@ const expectedSheets = {
       ['Greedy generation', 'greedy generation'],
     ],
   },
+  '24-residual-connections': {
+    file: '24-residual-connections.json',
+    lesson: '24-residual-connections.mdx',
+    title: 'Keep an identity path around each learned update',
+    entries: [
+      ['Residual connection', 'The entire residual connection is'],
+      ['Identity path', 'identity path'],
+      ['Residual branch', 'learned branch mapping'],
+      ['Residual stream', 'residual stream'],
+      ['Learned update', 'learned update'],
+      ['Exact-shape merge', 'exact-shape merge'],
+      ['Vector-Jacobian product', 'vector-Jacobian product'],
+      ['Upstream adjoint', 'upstream output adjoint'],
+      ['Gradient accumulation', 'gradient contributions accumulate'],
+      ['Branch Jacobian', 'branch Jacobian'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
