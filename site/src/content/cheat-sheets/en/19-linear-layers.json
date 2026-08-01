@@ -1,0 +1,18 @@
+{
+  "chapter_id": "19-linear-layers",
+  "locale": "en",
+  "title": "Mix each token's features with one learned projection",
+  "description": "A quick reference for the feature-projection, shape, and parameter-sharing terms used here.",
+  "terms": [
+    {"term": "Linear layer", "definition": "A shared feature projection applied independently at every leading position."},
+    {"term": "Learned projection", "definition": "A trainable matrix transformation mapping input features into output features."},
+    {"term": "Input feature width", "definition": "The final-axis size expected by the layer's weight matrix."},
+    {"term": "Output feature width", "definition": "The final-axis size created by the layer's projection."},
+    {"term": "Leading axes", "definition": "Batch, sequence, or other position axes preserved by projection."},
+    {"term": "Weight matrix", "definition": "The shared trainable coefficients mixing every input feature into outputs."},
+    {"term": "Bias", "definition": "An optional trainable output vector added at every leading position."},
+    {"term": "Affine map", "definition": "A matrix transformation followed by addition of a nonzero bias."},
+    {"term": "Parameter sharing", "definition": "Reusing one weight and bias across all independent token positions."},
+    {"term": "Bias-free projection", "definition": "A projection that omits the additive bias parameter entirely."}
+  ]
+}

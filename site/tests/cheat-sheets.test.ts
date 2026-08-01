@@ -317,6 +317,23 @@ const expectedSheets = {
       ['Scatter-add', 'scatter-add algorithm'],
     ],
   },
+  '19-linear-layers': {
+    file: '19-linear-layers.json',
+    lesson: '19-linear-layers.mdx',
+    title: "Mix each token's features with one learned projection",
+    entries: [
+      ['Linear layer', 'linear layer'],
+      ['Learned projection', 'learned projection'],
+      ['Input feature width', 'input feature width'],
+      ['Output feature width', 'output feature width'],
+      ['Leading axes', 'leading axes'],
+      ['Weight matrix', 'trainable matrix'],
+      ['Bias', 'optional named bias'],
+      ['Affine map', 'affine rather than strictly linear'],
+      ['Parameter sharing', 'Because every position shares'],
+      ['Bias-free projection', 'bias-free policy'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {

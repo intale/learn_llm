@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 11
+      spent: 12
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26613,13 +26613,31 @@ builds:
       - id: add-ch19-cheat-sheet
         objective: "Publish the canonical English Chapter 19 terminology sheet."
         depends_on: [add-ch18-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 19 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/19-linear-layers.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 19 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 19 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T113501Z-add-ch19-cheat-sheet-01
+            started_at: "2026-08-01T11:35:01Z"
+            finished_at: "2026-08-01T11:37:34Z"
+            status: succeeded
+            input_fingerprint: {git: "125e4eeb6076d0f9c9cdb0dad804aeda0dc9584c", manifest: ".build/runs/20260801T113501Z-add-ch19-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:42ba3915563cfcd0115836fd1b8d8524594bdcd4209e2aa4e8adfb99043f8e5b", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 19 is the source."}
+            staging_dir: ".build/runs/20260801T113501Z-add-ch19-cheat-sheet-01/"
+            commands: ["Verify clean dependency commit 125e4ee and one-sheet scope.", "Add the ten-term Ch19 record, extend tests, move staged absence to Ch20.", "Run focused, pinned static/link, and exact-snapshot browser gates; clean volume and freeze hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T113501Z-add-ch19-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:42ba3915563cfcd0115836fd1b8d8524594bdcd4209e2aa4e8adfb99043f8e5b", notes: "Exact Chapter 19 input fingerprint."}
+              - {path: ".build/runs/20260801T113501Z-add-ch19-cheat-sheet-01/publish-product.sha256", checksum: "sha256:3153055641bcd1096c0a0d5d097bfaf7fd7d9dfc4ef89481f5e6ffe01fd9410a", notes: "Exact Ch19 record and shared tests."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:3f16bb5f356a8bd3368eef4d9e3085384a84d9296d8c59c952f5960f5e3cec41", notes: "Exact validated Ch19 snapshot."}
+            validation:
+              - {command: "Preflight", status: passed, notes: "Chapter 19 was the sole eligible step."}
+              - {command: "Focused tests", status: passed, notes: "23 host and pinned tests pass."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files, zero diagnostics; 85 pages, 2,447 references and route checks pass."}
+              - {command: "Chromium and Firefox", status: passed, notes: "58/58 pass independently in each engine."}
+              - {command: "Manifest and cleanup", status: passed, notes: "Three hashes frozen; labelled volume removed; Ch20 is next."}
+            notes: "Succeeded. Chapter 19 has a canonical English ten-term linear-layer sheet; Chapter 0, Russian routes, and English Chapters 20-39 remain sheet-free."
 
       - id: add-ch20-cheat-sheet
         objective: "Publish the canonical English Chapter 20 terminology sheet."
