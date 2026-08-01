@@ -181,6 +181,23 @@ const expectedSheets = {
       ['Feature normalization', 'feature normalization'],
     ],
   },
+  '11-matrix-multiplication': {
+    file: '11-matrix-multiplication.json',
+    lesson: '11-matrix-multiplication.mdx',
+    title: 'Multiply rows by columns, then reuse batches',
+    entries: [
+      ['Matrix multiplication', 'Checked matrix multiplication'],
+      ['Activation matrix', 'The activation matrix'],
+      ['Projection weight', 'projection weight'],
+      ['Output cell', 'One output cell'],
+      ['Inner dimension', 'inner dimension'],
+      ['Contraction', 'row-column contraction'],
+      ['Batched matrix multiplication', 'batched matrix multiplication'],
+      ['Batch broadcasting', 'batch broadcasting'],
+      ['Logical transpose', 'logical transpose flags'],
+      ['Attention score', 'attention scores'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

@@ -11898,3 +11898,33 @@ hosting, deployment, or runtime-server change was made.
 **Affected build and final run:** `add-english-cheat-sheets-ch01-ch10`, step
 `add-ch10-cheat-sheet`, run
 `20260801T102218Z-add-ch10-cheat-sheet-01`.
+
+## 2026-08-01 - Extend English cheat sheets through every instructional chapter
+
+**Status:** Accepted for the `add-english-cheat-sheets-ch11-ch39` build.
+
+**Context:** The user asked to continue the completed English Chapter 1-10
+rollout through the rest of the course. The shared locale-aware content model,
+progressive dialog, no-JavaScript fallback, and rendered validation contract are
+already established and do not need a second presentation implementation.
+
+**Decision:** Publish one canonical English cheat sheet for each Chapter 11-39,
+in chapter order, with one independently validated and committed checkpoint per
+sheet. Derive every term directly from the matching current English lesson and
+keep entries limited to LLM, mathematical, training, evaluation, checkpointing,
+or generation concepts taught there. Continue to exclude Chapter 0 and every
+Russian route; Russian sheets remain a future direct localization from the
+completed English records. Keep the shared component, content schema, dependency
+set, build definitions, and chapter revisions unchanged unless a separately
+recorded defect requires otherwise.
+
+**Consequences:** Each checkpoint extends the exact content and browser matrices
+by one chapter, moves the later-English absence assertion to the next unpublished
+chapter, and must pass keyboard, focus-restoration, narrow-containment,
+no-JavaScript, locale, and orientation checks in both Chromium and Firefox. The
+final Chapter 39 checkpoint removes only the no-longer-applicable later-English
+absence assertion and closes the build with all instructional English chapters
+covered. No pre-publication approval pause is added.
+
+**Affected build and first step:** `add-english-cheat-sheets-ch11-ch39`,
+`add-ch11-cheat-sheet`.

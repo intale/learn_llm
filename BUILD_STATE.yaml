@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: null
+active_build: add-english-cheat-sheets-ch11-ch39
 
 builds:
   - build_id: bootstrap-course
@@ -26244,3 +26244,387 @@ builds:
                 status: passed
                 notes: "All three product hashes are frozen, the exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, git diff --check passes, no mode change exists, all ten sequential steps are completed, and active_build is null."
             notes: "Succeeded. English Chapters 1-10 now each have one canonical page-specific LLM terminology sheet through the shared progressive modal. Chapter 0, Russian routes, and English Chapters 11-39 remain sheet-free by the staged scope. Focused content, complete clean Linux, static, link, Chromium, and Firefox gates pass; the exact Chapter 10 product manifest and durable build-closure decision are frozen for the standalone final commit."
+
+  - build_id: add-english-cheat-sheets-ch11-ch39
+    objective: "Extend the canonical English LLM terminology cheat sheets through every remaining instructional chapter, one independently validated chapter checkpoint at a time."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
+    completion_criteria:
+      - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
+      - "Chapter 0 and every Russian page remain cheat-sheet-free in this English-source rollout."
+      - "The existing shared accessible modal and no-JavaScript fallback remain the only presentation implementation."
+      - "Every Chapter 11-39 sheet is validated and committed as its own completed checkpoint before work begins on the next chapter."
+      - "Focused content, accessibility, Astro, static-link, Chromium, and Firefox validation passes, with a complete clean workspace gate at final closure."
+    steps:
+      - id: add-ch11-cheat-sheet
+        objective: "Publish the canonical English Chapter 11 terminology sheet."
+        depends_on: [add-ch10-cheat-sheet]
+        status: completed
+        inputs: ["Canonical English Chapter 11 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/11-matrix-multiplication.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml","DECISIONS.md"]
+        acceptance: ["Chapter 11 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 11 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs:
+          - run_id: 20260801T103631Z-add-ch11-cheat-sheet-01
+            started_at: "2026-08-01T10:36:31Z"
+            finished_at: "2026-08-01T10:40:40Z"
+            status: succeeded
+            input_fingerprint:
+              git: "8caa8c2b669591f7f2e42fe14d11e6d1f0a5a9f0"
+              manifest: ".build/runs/20260801T103631Z-add-ch11-cheat-sheet-01/input-fingerprint.txt"
+              checksum: "sha256:9a0e850cfddb7ce435c401b8c565a7eebb06e4921e0de8a44f1fef488258d871"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate pinned Linux Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1."
+              external: "No external source or paid service; current canonical English Chapter 11 is the terminology source."
+            staging_dir: ".build/runs/20260801T103631Z-add-ch11-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 8caa8c2, completed Chapter 10 rollout, new Chapter 11-39 build plan, Chapter 11 source ownership, environment pins, and exact one-sheet scope."
+              - "Record the English Chapter 11-39 expansion decision and twenty-nine-step sequential build without changing shared implementation or build definitions."
+              - "Add the ten-term canonical English Chapter 11 record, extend the shared source-grounding and rendered interaction matrices, and move the later-English absence probe to Chapter 12."
+              - "Build the pinned source image; run focused Vitest, Astro diagnostics, production build, static links, and the full Chapter 1-11 Chromium and Firefox suites."
+              - "Verify and remove the labelled Chapter 11 E2E volume; freeze the three-file product checksum manifest."
+            artifacts:
+              - path: ".build/runs/20260801T103631Z-add-ch11-cheat-sheet-01/input-fingerprint.txt"
+                checksum: "sha256:9a0e850cfddb7ce435c401b8c565a7eebb06e4921e0de8a44f1fef488258d871"
+                notes: "Exact dependency, build plan, decision, Chapter 11 source, shared tests, tools, and scope fingerprint before product edits."
+              - path: ".build/runs/20260801T103631Z-add-ch11-cheat-sheet-01/publish-product.sha256"
+                checksum: "sha256:381c7ab7d13578d2cd4f809e85d88dd993a4f460ff210ea2c156df20fc9677b5"
+                notes: "Exact Chapter 11 English record and two shared focused-test files; governance ledgers are excluded."
+              - path: "DECISIONS.md"
+                checksum: "sha256:b1d46305fb7a1a9670b60b8f71621c3c2b22c18bce96daeb93cca364bc608023"
+                notes: "Durable decision extending the sequential canonical-English rollout through Chapter 39."
+              - path: "docker-image:learn-llm-cheat-sheet-source:local"
+                checksum: "sha256:a3f0f51e41794d54a9956f64f1a679ecf6744d8a42eb63dfe267d38eef9db47a"
+                notes: "Exact Chapter 11 source snapshot used for pinned static and browser validation."
+            validation:
+              - command: "Scheduler, dependency, working-tree, ownership, environment, cost, browser availability, and input-fingerprint preflight"
+                status: passed
+                notes: "The prior rollout is independently committed at 8caa8c2; the worktree was clean before owned governance initialization; Chapter 11 is the first eligible step. No in-app browser is attached, so accepted rendered validation will use the pinned exact-snapshot Chromium and Firefox workflow."
+              - command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts"
+                status: passed
+                notes: "All 15 tests pass, including the exact eleven-sheet set, prior-sheet regression, Chapter 11 source grounding, definitions, collection, resolver, modal-source, orientation, and locale guards."
+              - command: "Pinned Astro diagnostics, production build, and static-link audit"
+                status: passed
+                notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."
+              - command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 34 Chapter 1-11 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."
+              - command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 34 equivalent Chapter 1-11 rendered and progressive-enhancement cases pass."
+              - command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit"
+                status: passed
+                notes: "All three product hashes are frozen, the exact run and snapshot labels were verified before volume removal, no run-labelled volume remains, git diff --check passes, no mode change exists, only Chapter 11 transitions to completed, and Chapter 12 remains the next eligible step."
+            notes: "Succeeded. Chapter 11 now has a canonical English-only ten-term matrix-multiplication sheet. Chapter 0 and Russian routes remain sheet-free; English Chapters 12-39 remain staged. The new sequential build and durable expansion decision are recorded; focused content, pinned static, link, Chromium, and Firefox gates pass for the standalone Chapter 11 commit."
+
+      - id: add-ch12-cheat-sheet
+        objective: "Publish the canonical English Chapter 12 terminology sheet."
+        depends_on: [add-ch11-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 12 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/12-stable-softmax.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 12 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 12 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch13-cheat-sheet
+        objective: "Publish the canonical English Chapter 13 terminology sheet."
+        depends_on: [add-ch12-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 13 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/13-gradient-checking.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 13 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 13 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch14-cheat-sheet
+        objective: "Publish the canonical English Chapter 14 terminology sheet."
+        depends_on: [add-ch13-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 14 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/14-scalar-autodiff.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 14 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 14 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch15-cheat-sheet
+        objective: "Publish the canonical English Chapter 15 terminology sheet."
+        depends_on: [add-ch14-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 15 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/15-tensor-autodiff-core.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 15 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 15 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch16-cheat-sheet
+        objective: "Publish the canonical English Chapter 16 terminology sheet."
+        depends_on: [add-ch15-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 16 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/16-model-autodiff-ops.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 16 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 16 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch17-cheat-sheet
+        objective: "Publish the canonical English Chapter 17 terminology sheet."
+        depends_on: [add-ch16-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 17 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/17-parameter-initialization.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 17 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 17 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch18-cheat-sheet
+        objective: "Publish the canonical English Chapter 18 terminology sheet."
+        depends_on: [add-ch17-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 18 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/18-token-embeddings.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 18 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 18 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch19-cheat-sheet
+        objective: "Publish the canonical English Chapter 19 terminology sheet."
+        depends_on: [add-ch18-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 19 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/19-linear-layers.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 19 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 19 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch20-cheat-sheet
+        objective: "Publish the canonical English Chapter 20 terminology sheet."
+        depends_on: [add-ch19-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 20 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/20-swiglu-feed-forward.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 20 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 20 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch21-cheat-sheet
+        objective: "Publish the canonical English Chapter 21 terminology sheet."
+        depends_on: [add-ch20-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 21 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/21-mini-batches.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 21 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 21 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch22-cheat-sheet
+        objective: "Publish the canonical English Chapter 22 terminology sheet."
+        depends_on: [add-ch21-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 22 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/22-adamw.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 22 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 22 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch23-cheat-sheet
+        objective: "Publish the canonical English Chapter 23 terminology sheet."
+        depends_on: [add-ch22-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 23 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/23-neural-ngram.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 23 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 23 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch24-cheat-sheet
+        objective: "Publish the canonical English Chapter 24 terminology sheet."
+        depends_on: [add-ch23-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 24 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/24-residual-connections.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 24 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 24 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch25-cheat-sheet
+        objective: "Publish the canonical English Chapter 25 terminology sheet."
+        depends_on: [add-ch24-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 25 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/25-rmsnorm.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 25 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 25 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch26-cheat-sheet
+        objective: "Publish the canonical English Chapter 26 terminology sheet."
+        depends_on: [add-ch25-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 26 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/26-qkv-projections.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 26 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 26 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch27-cheat-sheet
+        objective: "Publish the canonical English Chapter 27 terminology sheet."
+        depends_on: [add-ch26-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 27 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/27-self-attention.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 27 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 27 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch28-cheat-sheet
+        objective: "Publish the canonical English Chapter 28 terminology sheet."
+        depends_on: [add-ch27-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 28 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/28-causal-masking.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 28 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 28 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch29-cheat-sheet
+        objective: "Publish the canonical English Chapter 29 terminology sheet."
+        depends_on: [add-ch28-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 29 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/29-rope.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 29 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 29 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch30-cheat-sheet
+        objective: "Publish the canonical English Chapter 30 terminology sheet."
+        depends_on: [add-ch29-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 30 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/30-multi-head-attention.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 30 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 30 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch31-cheat-sheet
+        objective: "Publish the canonical English Chapter 31 terminology sheet."
+        depends_on: [add-ch30-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 31 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/31-decoder-block.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 31 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 31 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch32-cheat-sheet
+        objective: "Publish the canonical English Chapter 32 terminology sheet."
+        depends_on: [add-ch31-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 32 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/32-decoder-model.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 32 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 32 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch33-cheat-sheet
+        objective: "Publish the canonical English Chapter 33 terminology sheet."
+        depends_on: [add-ch32-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 33 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/33-training-selection.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 33 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 33 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch34-cheat-sheet
+        objective: "Publish the canonical English Chapter 34 terminology sheet."
+        depends_on: [add-ch33-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 34 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/34-final-evaluation.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 34 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 34 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch35-cheat-sheet
+        objective: "Publish the canonical English Chapter 35 terminology sheet."
+        depends_on: [add-ch34-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 35 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/35-checkpoints.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 35 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 35 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch36-cheat-sheet
+        objective: "Publish the canonical English Chapter 36 terminology sheet."
+        depends_on: [add-ch35-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 36 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/36-temperature-top-k.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 36 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 36 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch37-cheat-sheet
+        objective: "Publish the canonical English Chapter 37 terminology sheet."
+        depends_on: [add-ch36-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 37 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/37-incremental-attention.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 37 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 37 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch38-cheat-sheet
+        objective: "Publish the canonical English Chapter 38 terminology sheet."
+        depends_on: [add-ch37-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 38 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/38-cached-generation.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        acceptance: ["Chapter 38 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 38 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
+        runs: []
+
+      - id: add-ch39-cheat-sheet
+        objective: "Publish the canonical English Chapter 39 terminology sheet."
+        depends_on: [add-ch38-cheat-sheet]
+        status: pending
+        inputs: ["Canonical English Chapter 39 lesson", "Completed shared cheat-sheet infrastructure"]
+        outputs: ["site/src/content/cheat-sheets/en/39-end-to-end-llm.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml","DECISIONS.md"]
+        acceptance: ["Chapter 39 has a page-specific English sheet; English Chapters 1-39 are covered; Chapter 0 and Russian routes remain sheet-free; the complete content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, link, and clean-workspace gates pass; the checkpoint is committed independently and closes the build."]
+        validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 39 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
+        cost: {class: medium, notes: "One English content record plus the complete cached local static, clean-workspace, and two-engine browser regression matrix."}
+        runs: []

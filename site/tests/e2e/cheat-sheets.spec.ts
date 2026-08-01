@@ -167,6 +167,23 @@ const sheets = [
       'Feature normalization',
     ],
   },
+  {
+    chapter: 11,
+    chapterId: '11-matrix-multiplication',
+    title: 'Multiply rows by columns, then reuse batches',
+    terms: [
+      'Matrix multiplication',
+      'Activation matrix',
+      'Projection weight',
+      'Output cell',
+      'Inner dimension',
+      'Contraction',
+      'Batched matrix multiplication',
+      'Batch broadcasting',
+      'Logical transpose',
+      'Attention score',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -296,6 +313,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '11-matrix-multiplication'));
+  await page.goto(chapterPath('en', '12-stable-softmax'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

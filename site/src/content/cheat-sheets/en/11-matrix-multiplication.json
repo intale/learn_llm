@@ -1,0 +1,48 @@
+{
+  "chapter_id": "11-matrix-multiplication",
+  "locale": "en",
+  "title": "Multiply rows by columns, then reuse batches",
+  "description": "A quick reference for the matrix-contraction, batching, and projection terms used here.",
+  "terms": [
+    {
+      "term": "Matrix multiplication",
+      "definition": "An operation that forms each output cell from one left row and right column."
+    },
+    {
+      "term": "Activation matrix",
+      "definition": "A matrix whose rows hold feature values for token positions entering a computation."
+    },
+    {
+      "term": "Projection weight",
+      "definition": "A learned matrix that maps input features into a chosen output feature space."
+    },
+    {
+      "term": "Output cell",
+      "definition": "One scalar result produced by pairing and summing a complete row and column."
+    },
+    {
+      "term": "Inner dimension",
+      "definition": "The shared matrix extent that must match and disappears from the output shape."
+    },
+    {
+      "term": "Contraction",
+      "definition": "Summing products across a shared dimension to produce each remaining output coordinate."
+    },
+    {
+      "term": "Batched matrix multiplication",
+      "definition": "Running independent matrix products at every compatible leading batch coordinate."
+    },
+    {
+      "term": "Batch broadcasting",
+      "definition": "Reusing a singleton or missing leading batch across multiple output batches."
+    },
+    {
+      "term": "Logical transpose",
+      "definition": "Swapping an operand's final-axis interpretation without copying its stored values."
+    },
+    {
+      "term": "Attention score",
+      "definition": "A query-key compatibility value produced by matrix multiplication before attention normalization."
+    }
+  ]
+}
