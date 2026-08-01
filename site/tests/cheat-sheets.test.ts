@@ -1101,9 +1101,28 @@ describe('cheat-sheet integration contract', () => {
     expect(component).toContain('dialog.showModal()');
     expect(component).toContain('sortCheatSheetTerms(sheet.terms, sheet.locale)');
     expect(component).toContain('paginateCheatSheetTerms(sortedTerms)');
+    expect(component).toContain('const isPaginated = termPages.length > 1;');
+    expect(component).toContain("{ 'cheat-sheet-dialog-paginated': isPaginated }");
     expect(component).toContain('data-cheat-sheet-pagination');
     expect(component).toContain('data-cheat-sheet-page-status');
     expect(component).toContain('aria-live="polite"');
+    expect(component).toContain("role={isPaginated ? 'region' : undefined}");
+    expect(component).toContain("tabindex={isPaginated ? '0' : undefined}");
+    expect(component).toContain(
+      'aria-describedby={isPaginated ? pageStatusId : undefined}',
+    );
+    expect(component).toContain(
+      'grid-template-rows: auto auto minmax(0, 1fr) auto;',
+    );
+    expect(component).toContain('pageViewport.scrollTop = 0;');
+    expect(component).toContain('if (dialog.open) dialog.scrollTop = 0;');
+    const openHandler = component.slice(
+      component.indexOf("trigger.addEventListener('click'"),
+      component.indexOf("previous?.addEventListener('click'"),
+    );
+    expect(openHandler.indexOf('dialog.showModal();')).toBeLessThan(
+      openHandler.indexOf('showPage(1);'),
+    );
     expect(component).toContain('sortedTerms.map(({ term, definition })');
     expect(component).toContain("dialog.addEventListener('close'");
     expect(component).toContain('opener?.focus()');

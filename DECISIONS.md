@@ -12077,3 +12077,36 @@ definition, hosting, deployment, or shared presentation implementation changes.
 
 **Affected build and run:** `add-english-cheat-sheets-ch11-ch39` and
 `20260801T172327Z-add-ch39-cheat-sheet-01`.
+
+## 2026-08-01 - Make cheat-sheet pagination discoverable before scrolling
+
+**Status:** Accepted for `repair-cheat-sheet-pagination-discoverability`.
+
+**Context:** The completed paginator retained every term and passed page-slice,
+containment, reachability, and no-JavaScript checks, but placed its only visible
+status and controls after the ten term definitions. At 1440 by 900, Chapter 39's
+dialog ends at y=884 while the paginator starts near y=1520 in Chromium and
+y=1495 in Firefox. A learner therefore sees ten terms and no indication that a
+second page exists unless they first scroll hundreds of pixels, which presents
+the uncapped content as though it were capped.
+
+**Decision:** Treat pagination discoverability as part of correctness. Every
+enhanced sheet above ten terms must present exactly one localized pagination
+navigation inside the initial visible dialog viewport and keep it available
+while the learner reads or scrolls the current page. Only the current term list
+may own necessary vertical travel; changing pages returns that list to its
+beginning. Retain exact ten-term page sizing, locale-aware ordering, disabled
+boundaries, live status, boundary focus, reopen reset, complete server-rendered
+terms, and the unpaginated no-JavaScript fallback. Do not duplicate controls or
+change term eligibility or content.
+
+**Consequences:** Strengthen browser geometry checks to fail when the paginator
+exists but is initially below the dialog viewport, and verify it remains visible
+while the term list scrolls at desktop, narrow, and short heights in Chromium and
+Firefox. The correction changes no sheet JSON, chapter lesson, Russian content,
+dependency, build definition, hosting, or deployment file.
+
+**Affected build, step, and run:**
+`repair-cheat-sheet-pagination-discoverability`,
+`repair-cheat-sheet-pagination-discoverability`, run
+`20260801T180026Z-repair-cheat-sheet-pagination-discoverability-01`.
