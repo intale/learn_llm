@@ -364,6 +364,9 @@ const exactDefinitions = {
     'Indexed mean NLL': 'Average negative log-likelihood over examples or token positions, selecting one target class in each row.',
     'Loss-logit gradient': 'Gradient of mean token loss with respect to every class logit in each row.',
   },
+  '19-linear-layers': {
+    'Affine map': 'A matrix transformation followed by addition of a fixed or trainable bias vector.',
+  },
 } as const;
 
 function readSheet(fileName: string) {

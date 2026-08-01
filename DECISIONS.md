@@ -11954,3 +11954,24 @@ dependencies, build definitions, and presentation code remain unchanged.
 
 **Affected steps:** `add-ch12-cheat-sheet`, `add-ch15-cheat-sheet`, and
 `add-ch16-cheat-sheet`.
+
+## 2026-08-01 - Correct the Chapter 19 affine-map definition
+
+**Status:** Accepted during `add-english-cheat-sheets-ch11-ch39`.
+
+**Context:** A read-only follow-up audit found that the published Chapter 19
+sheet incorrectly required an affine map's bias to be nonzero. An affine map may
+use any fixed or trainable bias vector, including zero.
+
+**Decision:** Before Chapter 21 begins, append a second run to
+`add-ch19-cheat-sheet`, correct only that definition, add an exact regression,
+repeat the pinned static and two-engine rendered gates, and preserve run 01.
+Future Russian localization must translate the corrected canonical English
+definition rather than the superseded wording.
+
+**Consequences:** Chapter 20 remains independently committed and unchanged.
+Chapter 21 stays pending until the corrective Chapter 19 run commits. No chapter
+MDX, existing Russian content, dependency, build definition, or presentation
+code changes.
+
+**Affected step:** `add-ch19-cheat-sheet`.

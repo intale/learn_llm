@@ -11,7 +11,7 @@
     {"term": "Leading axes", "definition": "Batch, sequence, or other position axes preserved by projection."},
     {"term": "Weight matrix", "definition": "The shared trainable coefficients mixing every input feature into outputs."},
     {"term": "Bias", "definition": "An optional trainable output vector added at every leading position."},
-    {"term": "Affine map", "definition": "A matrix transformation followed by addition of a nonzero bias."},
+    {"term": "Affine map", "definition": "A matrix transformation followed by addition of a fixed or trainable bias vector."},
     {"term": "Parameter sharing", "definition": "Reusing one weight and bias across all independent token positions."},
     {"term": "Bias-free projection", "definition": "A projection that omits the additive bias parameter entirely."}
   ]
