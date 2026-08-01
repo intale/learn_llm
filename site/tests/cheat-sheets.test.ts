@@ -283,6 +283,23 @@ const expectedSheets = {
       ['Target-logit gradient', 'target-logit gradient'],
     ],
   },
+  '17-parameter-initialization': {
+    file: '17-parameter-initialization.json',
+    lesson: '17-parameter-initialization.mdx',
+    title: 'Initialize trainable weights reproducibly',
+    entries: [
+      ['Parameter initialization', 'Initialize a projection of shape'],
+      ['Hidden-unit symmetry', "preserves the hidden units' equality"],
+      ['Fan-in', 'fan-in'],
+      ['Fan-out', 'fan-out'],
+      ['Xavier-style initialization', 'Xavier-style rule'],
+      ['Target variance', 'target variance'],
+      ['Uniform bound', 'uniform bound'],
+      ['Seed', 'The seed is the raw state'],
+      ['Reproducibility', 'The same seed, shape, fan values, and construction order'],
+      ['Pseudorandom generator', 'deterministic pseudorandom'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

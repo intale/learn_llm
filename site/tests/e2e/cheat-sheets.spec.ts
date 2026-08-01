@@ -214,6 +214,12 @@ const sheets = [
     title: 'Reverse the operations that turn token IDs into loss',
     terms: ['Embedding table', 'Row gather', 'Token ID', 'Repeated selector', 'Scatter-add', 'Matrix VJP', 'SiLU', 'Log-softmax', 'Indexed mean NLL', 'Target-logit gradient'],
   },
+  {
+    chapter: 17,
+    chapterId: '17-parameter-initialization',
+    title: 'Initialize trainable weights reproducibly',
+    terms: ['Parameter initialization', 'Hidden-unit symmetry', 'Fan-in', 'Fan-out', 'Xavier-style initialization', 'Target variance', 'Uniform bound', 'Seed', 'Reproducibility', 'Pseudorandom generator'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -343,6 +349,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '17-parameter-initialization'));
+  await page.goto(chapterPath('en', '18-token-embeddings'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
