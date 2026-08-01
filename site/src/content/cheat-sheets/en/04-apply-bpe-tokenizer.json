@@ -1,0 +1,48 @@
+{
+  "chapter_id": "04-apply-bpe-tokenizer",
+  "locale": "en",
+  "title": "Applying and reversing a BPE tokenizer",
+  "description": "A quick reference for the frozen-tokenizer, control-token, and exact-decoding terms used here.",
+  "terms": [
+    {
+      "term": "Byte-level BPE tokenizer",
+      "definition": "A tokenizer that starts with all byte values and applies learned merges to frequent byte sequences."
+    },
+    {
+      "term": "Frozen merge rank",
+      "definition": "A learned rule whose fixed rank determines application priority without recounting pairs on new input."
+    },
+    {
+      "term": "Canonical encoding",
+      "definition": "The single token segmentation produced by replaying frozen merge ranks in their defined order."
+    },
+    {
+      "term": "Content token",
+      "definition": "A non-control token representing one byte or a learned byte sequence in document content."
+    },
+    {
+      "term": "Control token",
+      "definition": "A structural token marking a document boundary instead of representing content bytes."
+    },
+    {
+      "term": "BOS and EOS",
+      "definition": "Beginning-of-sequence and end-of-sequence controls placed only at document endpoints after content encoding."
+    },
+    {
+      "term": "Content offset",
+      "definition": "The shift applied to content-token IDs so the first two IDs remain reserved for controls."
+    },
+    {
+      "term": "Byte fallback",
+      "definition": "A one-byte content token used when no learned merge covers that byte."
+    },
+    {
+      "term": "Byte-exact decoding",
+      "definition": "Recovering token byte expansions in order so the output bytes exactly match the original input."
+    },
+    {
+      "term": "Strict UTF-8 view",
+      "definition": "An optional text conversion that reports invalid UTF-8 instead of altering or replacing recovered bytes."
+    }
+  ]
+}

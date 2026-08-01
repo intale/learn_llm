@@ -50,6 +50,23 @@ const sheets = [
       'Document boundary',
     ],
   },
+  {
+    chapter: 4,
+    chapterId: '04-apply-bpe-tokenizer',
+    title: 'Applying and reversing a BPE tokenizer',
+    terms: [
+      'Byte-level BPE tokenizer',
+      'Frozen merge rank',
+      'Canonical encoding',
+      'Content token',
+      'Control token',
+      'BOS and EOS',
+      'Content offset',
+      'Byte fallback',
+      'Byte-exact decoding',
+      'Strict UTF-8 view',
+    ],
+  },
 ] as const;
 
 for (const sheet of sheets) {

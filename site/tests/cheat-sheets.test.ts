@@ -64,6 +64,23 @@ const expectedSheets = {
       ['Document boundary', 'across the boundary'],
     ],
   },
+  '04-apply-bpe-tokenizer': {
+    file: '04-apply-bpe-tokenizer.json',
+    lesson: '04-apply-bpe-tokenizer.mdx',
+    title: 'Applying and reversing a BPE tokenizer',
+    entries: [
+      ['Byte-level BPE tokenizer', 'base alphabet of only 256 symbols'],
+      ['Frozen merge rank', 'Rank is priority'],
+      ['Canonical encoding', 'canonical encoding'],
+      ['Content token', 'content token ID'],
+      ['Control token', 'Document controls are a structural layer'],
+      ['BOS and EOS', 'BOS and EOS appear only after encoding'],
+      ['Content offset', 'shifted by two'],
+      ['Byte fallback', 'One-byte fallback'],
+      ['Byte-exact decoding', 'Guarantee exact bytes in one direction'],
+      ['Strict UTF-8 view', 'separate strict view'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

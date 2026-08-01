@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-01T09:54:14Z"
+updated_at: "2026-08-01T09:55:20Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -25608,7 +25608,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "No explicit resource limit applies. Ten sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-10 each expose one concise cheat sheet containing only LLM-related terms used or taught on that chapter page."
@@ -25839,13 +25839,59 @@ builds:
       - id: add-ch04-cheat-sheet
         objective: "Publish the canonical English Chapter 4 BPE-application terminology sheet."
         depends_on: [add-ch03-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 4 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/04-apply-bpe-tokenizer.json", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml"]
         acceptance: ["Chapter 4 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 4 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T095520Z-add-ch04-cheat-sheet-01
+            started_at: "2026-08-01T09:55:20Z"
+            finished_at: "2026-08-01T10:00:29Z"
+            status: succeeded
+            input_fingerprint:
+              git: "349d78849d1f9d1f1e4634e5f99392969d099ad5"
+              manifest: ".build/runs/20260801T095520Z-add-ch04-cheat-sheet-01/input-fingerprint.txt"
+              checksum: "sha256:5febf13bd4d945f87eb2fec90341d514a11b9bef2a464ee9aff601c10746b3ab"
+              tools: "Windows Git 2.55.0.windows.3 and Docker 29.6.2/Compose 5.3.1 orchestrate pinned Linux Node 22.12.0/npm 10.9.0 and Playwright 1.61.1."
+              external: "No external source or paid service; current canonical English Chapter 4 is the terminology source."
+            staging_dir: ".build/runs/20260801T095520Z-add-ch04-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 349d788, completed Chapter 3, Chapter 4 source ownership, environment pins, and exact one-sheet scope."
+              - "Add the ten-term canonical English Chapter 4 record and extend the shared source-grounding and rendered interaction matrices."
+              - "Build the pinned source image; run focused Vitest, Astro diagnostics, production build, static links, and the full Chapter 1-4 Chromium and Firefox suites."
+              - "Remove the labelled Chapter 4 E2E volume, verify no run-labelled volume remains, and freeze the three-file product checksum manifest."
+            artifacts:
+              - path: ".build/runs/20260801T095520Z-add-ch04-cheat-sheet-01/input-fingerprint.txt"
+                checksum: "sha256:5febf13bd4d945f87eb2fec90341d514a11b9bef2a464ee9aff601c10746b3ab"
+                notes: "Exact dependency, Chapter 4 source, shared tests, tools, and scope fingerprint before product edits."
+              - path: ".build/runs/20260801T095520Z-add-ch04-cheat-sheet-01/publish-product.sha256"
+                checksum: "sha256:dadd3f8b4c98e010c24e2264a77fe1305a9ecd99877b652108d2d240297c1523"
+                notes: "Exact Chapter 4 English record and two shared focused-test files; governance ledger excluded."
+              - path: "docker-image:learn-llm-cheat-sheet-source:local"
+                checksum: "sha256:8a4b5a45028d8f95c99c81b20ec21181e63858c777eead841150492c7fa6a27c"
+                notes: "Exact Chapter 4 source snapshot used for pinned static and browser validation."
+            validation:
+              - command: "Scheduler, dependency, working-tree, ownership, environment, cost, and input-fingerprint preflight"
+                status: passed
+                notes: "Chapter 3 is independently committed at 349d788; the worktree was clean; Chapter 4 is the first eligible pending step and owns only its English record plus shared focused-test expectations."
+              - command: "Focused pinned-Linux tests/cheat-sheets.test.ts"
+                status: passed
+                notes: "All 8 tests pass, including exact staged records, prior-sheet regression, Chapter 4 source grounding, definitions, collection, resolver, and locale guards."
+              - command: "Pinned Astro diagnostics, production build, and static-link audit"
+                status: passed
+                notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."
+              - command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 13 Chapter 1-4 modal, keyboard, focus, narrow containment, no-JavaScript, and staged-absence cases pass."
+              - command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts"
+                status: passed
+                notes: "All 13 equivalent Chapter 1-4 rendered and progressive-enhancement cases pass."
+              - command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit"
+                status: passed
+                notes: "All three product hashes are frozen, no volume carrying the Chapter 4 run label remains, git diff --check passes, no mode change exists, and only Chapter 4 transitions to completed."
+            notes: "Succeeded. Chapter 4 now has a canonical English-only ten-term BPE-application sheet. Chapter 0, Russian routes, and Chapters 5-39 remain sheet-free. Focused content, pinned static, link, Chromium, and Firefox gates pass; the exact three-file product manifest is frozen for the standalone commit."
 
       - id: add-ch05-cheat-sheet
         objective: "Publish the canonical English Chapter 5 autoregressive-example terminology sheet."
