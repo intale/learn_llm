@@ -11928,3 +11928,29 @@ covered. No pre-publication approval pause is added.
 
 **Affected build and first step:** `add-english-cheat-sheets-ch11-ch39`,
 `add-ch11-cheat-sheet`.
+
+## 2026-08-01 - Correct terminology precision through recorded sheet reruns
+
+**Status:** Accepted during `add-english-cheat-sheets-ch11-ch39`.
+
+**Context:** An independent read-only terminology audit after the Chapter 18
+checkpoint found four material precision defects in otherwise validated records:
+Chapter 12 described only underflow-to-zero, Chapter 15 omitted the extent
+division in the mean-reduction VJP, and Chapter 16 misstated both the averaging
+domain of indexed mean NLL and the scope of the full loss-logit gradient. The
+original run records and commits remain immutable evidence of what passed the
+earlier structural and rendered gates.
+
+**Decision:** Before Chapter 19 begins, rerun Chapters 12, 15, and 16 as three
+separate one-sheet checkpoints. Correct only the affected English definitions
+and term name, add exact focused regression assertions, and repeat each sheet's
+pinned static and two-engine rendered gates. Append new run records to the
+existing stable step IDs rather than relabeling or overwriting their prior runs.
+
+**Consequences:** Budget accounting includes the three additional runs. Chapter
+18 remains independently committed and unchanged. Chapter 19 stays pending until
+all three corrective reruns succeed and commit; Chapter 0, Russian content,
+dependencies, build definitions, and presentation code remain unchanged.
+
+**Affected steps:** `add-ch12-cheat-sheet`, `add-ch15-cheat-sheet`, and
+`add-ch16-cheat-sheet`.

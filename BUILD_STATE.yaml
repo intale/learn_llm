@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 8
+      spent: 9
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26326,7 +26326,7 @@ builds:
         depends_on: [add-ch11-cheat-sheet]
         status: completed
         inputs: ["Canonical English Chapter 12 lesson", "Completed shared cheat-sheet infrastructure"]
-        outputs: ["site/src/content/cheat-sheets/en/12-stable-softmax.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
+        outputs: ["site/src/content/cheat-sheets/en/12-stable-softmax.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml","DECISIONS.md"]
         acceptance: ["Chapter 12 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 12 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
@@ -26354,6 +26354,25 @@ builds:
               - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 37 equivalent Chapter 1-12 rendered and progressive-enhancement cases pass."}
               - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact labels were verified before volume removal, no run-labelled volume remains, and Chapter 13 is next."}
             notes: "Succeeded. Chapter 12 now has a canonical English-only ten-term stable-softmax sheet; Chapter 0 and Russian routes remain sheet-free, and English Chapters 13-39 remain staged."
+          - run_id: 20260801T112342Z-add-ch12-cheat-sheet-02
+            started_at: "2026-08-01T11:23:42Z"
+            finished_at: "2026-08-01T11:26:12Z"
+            status: succeeded
+            input_fingerprint: {git: "1563146dbc8dfa686d08a5b44d37a45e5d15a51f", manifest: ".build/runs/20260801T112342Z-add-ch12-cheat-sheet-02/input-fingerprint.txt", checksum: "sha256:5d8d40a268b9f5d65dd754f38d87f38e0316b46b03cc1e4fbea195a4ed404889", tools: "Pinned repository Linux and Playwright toolchains", external: "Independent read-only technical terminology audit."}
+            staging_dir: ".build/runs/20260801T112342Z-add-ch12-cheat-sheet-02/"
+            commands: ["Verify the independent audit finding and exact corrective scope.", "Correct the underflow definition and add an exact regression assertion.", "Run focused, pinned static/link, and exact-snapshot Chromium/Firefox gates; verify volume cleanup and freeze product hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T112342Z-add-ch12-cheat-sheet-02/input-fingerprint.txt", checksum: "sha256:5d8d40a268b9f5d65dd754f38d87f38e0316b46b03cc1e4fbea195a4ed404889", notes: "Exact corrective Chapter 12 input fingerprint."}
+              - {path: ".build/runs/20260801T112342Z-add-ch12-cheat-sheet-02/publish-product.sha256", checksum: "sha256:8214dffa7cd44c800eefa86366f557b34d6f452c8a7ff5dee4c143d1513bc1ed", notes: "Corrected Chapter 12 record and exact regression test."}
+              - {path: "DECISIONS.md", checksum: "sha256:9002b449c60004846e6ebf12f22e2a5dc4f9f806b478601c98eacc144e079c02", notes: "Durable three-rerun correction decision."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:537cca0e1992f0ed21bb6d4ebe4cdeb9b17d90cc2ba80dd52628e2a8f3198bc3", notes: "Exact corrected source snapshot."}
+            validation:
+              - {command: "Corrective-run preflight", status: passed, notes: "Run 01 remains immutable; run 02 owns one corrected definition."}
+              - {command: "Focused host and pinned Linux tests", status: passed, notes: "22 tests pass, including exact underflow semantics."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files, zero diagnostics; 85 pages and 2,447 references plus route checks pass."}
+              - {command: "Chromium and Firefox E2E", status: passed, notes: "55/55 pass independently in each engine."}
+              - {command: "Manifest, volume, mode, whitespace, and ledger audit", status: passed, notes: "Two changed product hashes frozen; labelled volume removed; Chapter 15 correction is next."}
+            notes: "Succeeded. Underflow now covers subnormal outcomes and rounding to zero, with exact regression coverage."
 
       - id: add-ch13-cheat-sheet
         objective: "Publish the canonical English Chapter 13 terminology sheet."

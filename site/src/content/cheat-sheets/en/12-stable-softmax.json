@@ -13,6 +13,6 @@
     {"term": "Log-softmax", "definition": "The logarithms of normalized softmax probabilities computed without avoidable intermediate rounding."},
     {"term": "Indexed NLL", "definition": "The negative log-probability assigned to one selected target class."},
     {"term": "Overflow", "definition": "A finite-precision failure where a computed magnitude exceeds the representable range."},
-    {"term": "Underflow", "definition": "A finite-precision effect where a tiny nonzero magnitude rounds down to zero."}
+    {"term": "Underflow", "definition": "A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero."}
   ]
 }

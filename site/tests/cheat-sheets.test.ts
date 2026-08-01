@@ -319,6 +319,12 @@ const expectedSheets = {
   },
 } as const;
 
+const exactDefinitions = {
+  '12-stable-softmax': {
+    Underflow: 'A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero.',
+  },
+} as const;
+
 function readSheet(fileName: string) {
   return JSON.parse(
     readFileSync(resolve(contentRoot, 'en', fileName), 'utf8'),
@@ -369,6 +375,14 @@ describe('English chapter cheat-sheet content', () => {
       expect(sheet.terms.map(({ term }) => term).join(' ')).not.toMatch(
         /\b(?:Vec|usize|Result|borrow checker|TypeScript|Python)\b/,
       );
+
+      for (const [term, definition] of Object.entries(
+        exactDefinitions[chapterId as keyof typeof exactDefinitions] ?? {},
+      )) {
+        expect(sheet.terms.find((entry) => entry.term === term)?.definition).toBe(
+          definition,
+        );
+      }
     });
   }
 });
