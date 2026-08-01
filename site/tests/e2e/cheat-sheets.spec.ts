@@ -250,6 +250,12 @@ const sheets = [
     title: 'Keep decay out of the gradient moments',
     terms: ['AdamW', 'First gradient moment', 'Second gradient moment', 'Bias correction', 'Adaptive update', 'Decoupled weight decay', 'Learning rate', 'Numerical stabilizer', 'Decay group', 'No-decay group'],
   },
+  {
+    chapter: 23,
+    chapterId: '23-neural-ngram',
+    title: 'Train a fixed-context neural language model',
+    terms: ['Neural n-gram', 'Fixed context', 'Token embedding', 'Context concatenation', 'SwiGLU hidden layer', 'Vocabulary projection', 'Next-token logit', 'Indexed mean loss', 'Held-out validation loss', 'Greedy generation'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -379,6 +385,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '23-neural-ngram'));
+  await page.goto(chapterPath('en', '24-residual-connections'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

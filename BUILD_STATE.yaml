@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 16
+      spent: 17
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26757,13 +26757,31 @@ builds:
       - id: add-ch23-cheat-sheet
         objective: "Publish the canonical English Chapter 23 terminology sheet."
         depends_on: [add-ch22-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 23 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/23-neural-ngram.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 23 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 23 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T120243Z-add-ch23-cheat-sheet-01
+            started_at: "2026-08-01T12:02:43Z"
+            finished_at: "2026-08-01T12:04:57Z"
+            status: succeeded
+            input_fingerprint: {git: "d6a092665a646ef59f70e8590e332a4d0acc5d94", manifest: ".build/runs/20260801T120243Z-add-ch23-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:7ab873dc183d53c9d1f48fc3a5dd2eec9d38764aca6b665b3eb4bda7928a3c61", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 23 is the source."}
+            staging_dir: ".build/runs/20260801T120243Z-add-ch23-cheat-sheet-01/"
+            commands: ["Verify clean dependency commit d6a0926 and one-sheet scope.", "Add the ten-term Ch23 record, extend tests, move staged absence to Ch24.", "Run focused, pinned static/link, and exact-snapshot browser gates; clean volume and freeze hashes."]
+            artifacts:
+              - {path: ".build/runs/20260801T120243Z-add-ch23-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:7ab873dc183d53c9d1f48fc3a5dd2eec9d38764aca6b665b3eb4bda7928a3c61", notes: "Exact Chapter 23 input fingerprint."}
+              - {path: ".build/runs/20260801T120243Z-add-ch23-cheat-sheet-01/publish-product.sha256", checksum: "sha256:64bca3323cd043adc70a469ada522a1098bcd795c2103cbe2b724e772f2da1c6", notes: "Exact Ch23 record and shared tests."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:13d2dca9b11ec1f0860bdd12ed2b63a3c461a781ee56f665b4d24d22eb5434e3", notes: "Exact validated Ch23 snapshot."}
+            validation:
+              - {command: "Preflight", status: passed, notes: "Chapter 23 was the sole eligible step."}
+              - {command: "Focused tests", status: passed, notes: "27 host and pinned tests pass."}
+              - {command: "Astro, build, and links", status: passed, notes: "210 files, zero diagnostics; 85 pages, 2,447 references and route checks pass."}
+              - {command: "Chromium and Firefox", status: passed, notes: "70/70 pass independently in each engine."}
+              - {command: "Manifest and cleanup", status: passed, notes: "Three hashes frozen; labelled volume removed; Ch24 is next."}
+            notes: "Succeeded. Chapter 23 has a canonical English ten-term neural-n-gram sheet; Chapter 0, Russian routes, and English Chapters 24-39 remain sheet-free."
 
       - id: add-ch24-cheat-sheet
         objective: "Publish the canonical English Chapter 24 terminology sheet."

@@ -385,6 +385,23 @@ const expectedSheets = {
       ['No-decay group', 'no-decay parameter'],
     ],
   },
+  '23-neural-ngram': {
+    file: '23-neural-ngram.json',
+    lesson: '23-neural-ngram.mdx',
+    title: 'Train a fixed-context neural language model',
+    entries: [
+      ['Neural n-gram', 'The neural n-gram is'],
+      ['Fixed context', 'a concatenated fixed context'],
+      ['Token embedding', 'maps a token ID to'],
+      ['Context concatenation', 'concatenate those rows in chronological order'],
+      ['SwiGLU hidden layer', 'SwiGLU receives'],
+      ['Vocabulary projection', 'a vocabulary projection for next-token prediction'],
+      ['Next-token logit', 'next-token logits'],
+      ['Indexed mean loss', 'The indexed mean loss is'],
+      ['Held-out validation loss', 'held-out validation loss falls'],
+      ['Greedy generation', 'greedy generation'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {

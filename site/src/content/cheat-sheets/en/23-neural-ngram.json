@@ -1,0 +1,18 @@
+{
+  "chapter_id": "23-neural-ngram",
+  "locale": "en",
+  "title": "Train a fixed-context neural language model",
+  "description": "A quick reference for the fixed-context model, next-token loss, validation, and generation terms used here.",
+  "terms": [
+    {"term": "Neural n-gram", "definition": "A fixed-context language model learning shared features instead of separate count tables."},
+    {"term": "Fixed context", "definition": "A predetermined number of preceding token IDs used for every next-token prediction."},
+    {"term": "Token embedding", "definition": "A learned feature vector retrieved from a shared table by token identity."},
+    {"term": "Context concatenation", "definition": "Joining context embeddings chronologically into one feature vector for processing."},
+    {"term": "SwiGLU hidden layer", "definition": "A gated nonlinear transformation mapping concatenated context features into a hidden representation."},
+    {"term": "Vocabulary projection", "definition": "A learned mapping from hidden features to one score for each vocabulary item."},
+    {"term": "Next-token logit", "definition": "An unnormalized vocabulary score produced for one possible following token."},
+    {"term": "Indexed mean loss", "definition": "Average negative log-probability selected at each row's target token."},
+    {"term": "Held-out validation loss", "definition": "Loss measured on reserved validation examples rather than training examples."},
+    {"term": "Greedy generation", "definition": "A decoding rule repeatedly selecting the greatest permitted next-token score."}
+  ]
+}
