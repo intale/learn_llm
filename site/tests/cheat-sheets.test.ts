@@ -266,6 +266,23 @@ const expectedSheets = {
       ['Graph retention', 'A retained second pass recomputes fresh intermediates'],
     ],
   },
+  '16-model-autodiff-ops': {
+    file: '16-model-autodiff-ops.json',
+    lesson: '16-model-autodiff-ops.mdx',
+    title: 'Reverse the operations that turn token IDs into loss',
+    entries: [
+      ['Embedding table', 'three-row embedding table'],
+      ['Row gather', 'Row gather materializes'],
+      ['Token ID', 'four token IDs'],
+      ['Repeated selector', 'Repeated selectors therefore accumulate'],
+      ['Scatter-add', 'embedding scatter-add'],
+      ['Matrix VJP', 'Matrix VJPs transpose'],
+      ['SiLU', "SiLU's derivative at zero"],
+      ['Log-softmax', 'log-softmax produces'],
+      ['Indexed mean NLL', 'combined indexed mean NLL'],
+      ['Target-logit gradient', 'target-logit gradient'],
+    ],
+  },
 } as const;
 
 function readSheet(fileName: string) {

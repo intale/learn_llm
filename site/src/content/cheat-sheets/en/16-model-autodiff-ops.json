@@ -1,0 +1,18 @@
+{
+  "chapter_id": "16-model-autodiff-ops",
+  "locale": "en",
+  "title": "Reverse the operations that turn token IDs into loss",
+  "description": "A quick reference for the embedding, activation, projection, and loss gradients used here.",
+  "terms": [
+    {"term": "Embedding table", "definition": "A trainable matrix containing one feature row per vocabulary item."},
+    {"term": "Row gather", "definition": "Selecting table rows by integer token identifiers during the forward pass."},
+    {"term": "Token ID", "definition": "A discrete vocabulary index that selects one embedding-table row."},
+    {"term": "Repeated selector", "definition": "A token identifier appearing multiple times and sharing one parameter row."},
+    {"term": "Scatter-add", "definition": "Returning occurrence gradients by adding them into their selected table rows."},
+    {"term": "Matrix VJP", "definition": "A reverse matrix-product rule producing gradients for both matrix operands."},
+    {"term": "SiLU", "definition": "A smooth activation multiplying each input by its sigmoid value."},
+    {"term": "Log-softmax", "definition": "Logarithms of class probabilities computed through a stable normalization."},
+    {"term": "Indexed mean NLL", "definition": "Average negative log-likelihood across target classes selected by integer indices."},
+    {"term": "Target-logit gradient", "definition": "The loss sensitivity assigned to every target and competing logit."}
+  ]
+}

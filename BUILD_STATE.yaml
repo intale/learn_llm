@@ -26251,7 +26251,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 5
+      spent: 6
       notes: "No explicit resource limit applies. Twenty-nine sequential static-content checkpoints use cached local Linux and browser validation without a paid service, dependency change, build-definition change, hosting change, deployment change, or user-environment change."
     completion_criteria:
       - "English Chapters 1-39 each expose one concise cheat sheet containing only LLM-related, mathematical, training, evaluation, checkpointing, or generation terms used or taught on that chapter page."
@@ -26461,13 +26461,36 @@ builds:
       - id: add-ch16-cheat-sheet
         objective: "Publish the canonical English Chapter 16 terminology sheet."
         depends_on: [add-ch15-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["Canonical English Chapter 16 lesson", "Completed shared cheat-sheet infrastructure"]
         outputs: ["site/src/content/cheat-sheets/en/16-model-autodiff-ops.json","site/tests/cheat-sheets.test.ts","site/tests/e2e/cheat-sheets.spec.ts","BUILD_STATE.yaml"]
         acceptance: ["Chapter 16 has a page-specific English sheet; Chapter 0 and Russian routes remain sheet-free; focused content, modal, narrow, no-JavaScript, Chromium, Firefox, Astro, and link checks pass; the checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "Pinned Chromium and Firefox Chapter 16 cheat-sheet E2E gates", "git diff --check and BUILD_STATE.yaml parse"]
         cost: {class: medium, notes: "One English content record plus cached local static and two-engine browser validation."}
-        runs: []
+        runs:
+          - run_id: 20260801T110852Z-add-ch16-cheat-sheet-01
+            started_at: "2026-08-01T11:08:52Z"
+            finished_at: "2026-08-01T11:11:37Z"
+            status: succeeded
+            input_fingerprint: {git: "73b093a42f5b50b79ea2a78a1efd7c3c2ce39e81", manifest: ".build/runs/20260801T110852Z-add-ch16-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:69d815bb80797790f99d402d21113f54b37cd450f23e02ad015209048075bc20", tools: "Pinned repository Linux and Playwright toolchains", external: "None; canonical English Chapter 16 is the terminology source."}
+            staging_dir: ".build/runs/20260801T110852Z-add-ch16-cheat-sheet-01/"
+            commands:
+              - "Verify clean dependency commit 73b093a, completed Chapter 15, source ownership, environment pins, and exact one-sheet scope."
+              - "Add the ten-term canonical English Chapter 16 record, extend shared source-grounding and rendered interaction matrices, and move the later-English absence probe to Chapter 17."
+              - "Build the pinned source image; run focused Vitest, Astro diagnostics, production build, static links, and full Chapter 1-16 Chromium and Firefox suites."
+              - "Verify and remove the labelled Chapter 16 E2E volume; freeze the three-file product checksum manifest."
+            artifacts:
+              - {path: ".build/runs/20260801T110852Z-add-ch16-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:69d815bb80797790f99d402d21113f54b37cd450f23e02ad015209048075bc20", notes: "Exact Chapter 16 input fingerprint before product edits."}
+              - {path: ".build/runs/20260801T110852Z-add-ch16-cheat-sheet-01/publish-product.sha256", checksum: "sha256:8e90c49cd2684d571f63007476e69ca1449565228acbb738c4c3f30232455ae2", notes: "Exact Chapter 16 English record and two shared focused-test files; governance is excluded."}
+              - {path: "docker-image:learn-llm-cheat-sheet-source:local", checksum: "sha256:3773337f1c8214c6c3345b4d84a7becf9526efeaeccd8f4ffc418d3da22e77ee", notes: "Exact Chapter 16 source snapshot used for pinned static and browser validation."}
+            validation:
+              - {command: "Scheduler, dependency, worktree, ownership, environment, cost, and fingerprint preflight", status: passed, notes: "Chapter 15 is independently committed; Chapter 16 is the only eligible step."}
+              - {command: "Focused host and pinned-Linux tests/cheat-sheets.test.ts", status: passed, notes: "All 20 tests pass, including the exact sixteen-sheet set and Chapter 16 source grounding."}
+              - {command: "Pinned Astro diagnostics, production build, and static-link audit", status: passed, notes: "Astro checks 210 files with zero diagnostics; 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Pinned Playwright Chromium tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 49 Chapter 1-16 modal, keyboard, focus-restoration, narrow containment, no-JavaScript, orientation, locale, and staged-absence cases pass."}
+              - {command: "Pinned Playwright Firefox tests/e2e/cheat-sheets.spec.ts", status: passed, notes: "All 49 equivalent Chapter 1-16 rendered and progressive-enhancement cases pass."}
+              - {command: "Product manifest, labelled-volume cleanup, whitespace, mode, and completed-ledger audit", status: passed, notes: "All three product hashes are frozen, exact labels were verified before volume removal, no run-labelled volume remains, and Chapter 17 is next."}
+            notes: "Succeeded. Chapter 16 now has a canonical English-only ten-term model-autodiff-operations sheet; Chapter 0 and Russian routes remain sheet-free, and English Chapters 17-39 remain staged."
 
       - id: add-ch17-cheat-sheet
         objective: "Publish the canonical English Chapter 17 terminology sheet."

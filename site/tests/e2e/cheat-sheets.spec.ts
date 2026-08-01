@@ -208,6 +208,12 @@ const sheets = [
     title: 'Reverse tensor operations with edge-local VJPs',
     terms: ['Tensor autodiff tape', 'Vector-Jacobian product (VJP)', 'Jacobian', 'Operand-use edge', 'Upstream adjoint', 'Parent adjoint', 'Broadcast reversal', 'Reduction VJP', 'Non-scalar seed', 'Graph retention'],
   },
+  {
+    chapter: 16,
+    chapterId: '16-model-autodiff-ops',
+    title: 'Reverse the operations that turn token IDs into loss',
+    terms: ['Embedding table', 'Row gather', 'Token ID', 'Repeated selector', 'Scatter-add', 'Matrix VJP', 'SiLU', 'Log-softmax', 'Indexed mean NLL', 'Target-logit gradient'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -337,6 +343,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '16-model-autodiff-ops'));
+  await page.goto(chapterPath('en', '17-parameter-initialization'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });
