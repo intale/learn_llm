@@ -1,0 +1,18 @@
+{
+  "chapter_id": "31-decoder-block",
+  "locale": "en",
+  "title": "Compose a pre-norm decoder block in exact order",
+  "description": "A quick reference for the attention, SwiGLU, residual-merge, and ordering terms used here.",
+  "terms": [
+    { "term": "Pre-normalized decoder block", "definition": "A block that normalizes each sublayer input, runs its transformation, then adds the result to that branch's entering residual stream." },
+    { "term": "Residual stream", "definition": "A same-shaped model-width tensor updated by each branch while preserving a direct identity route." },
+    { "term": "Attention RMSNorm", "definition": "The first independently parameterized normalization, applied to the block input before causal attention." },
+    { "term": "Causal multi-head attention", "definition": "The token-mixing first branch that attends only to the current and earlier token positions." },
+    { "term": "First residual merge", "definition": "The addition of causal-attention output to the unchanged block input, producing the intermediate stream." },
+    { "term": "Feed-forward RMSNorm", "definition": "The second independently parameterized normalization, applied to the intermediate stream before SwiGLU." },
+    { "term": "SwiGLU feed-forward branch", "definition": "The per-token feature transformation whose model-width output returns to the second residual merge." },
+    { "term": "Second residual merge", "definition": "The addition of the SwiGLU output to the unchanged intermediate stream, producing the block output." },
+    { "term": "Identity path", "definition": "A bypass that carries a branch's entering residual value unchanged around its learned transformation." },
+    { "term": "Post-norm order", "definition": "The contrasting layout that performs a residual merge before applying LayerNorm to the merged value." }
+  ]
+}

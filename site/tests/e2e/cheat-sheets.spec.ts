@@ -298,6 +298,12 @@ const sheets = [
     title: 'Keep attention head-local until output mixing',
     terms: ['Multi-head causal self-attention', 'Packed Q/K/V projections', 'Model width', 'Head count', 'Head width', 'Head split', 'Per-head RoPE', 'Per-head causal attention', 'Head output', 'Head concatenation', 'Output projection'],
   },
+  {
+    chapter: 31,
+    chapterId: '31-decoder-block',
+    title: 'Compose a pre-norm decoder block in exact order',
+    terms: ['Pre-normalized decoder block', 'Residual stream', 'Attention RMSNorm', 'Causal multi-head attention', 'First residual merge', 'Feed-forward RMSNorm', 'SwiGLU feed-forward branch', 'Second residual merge', 'Identity path', 'Post-norm order'],
+  },
 ] as const;
 
 for (const sheet of sheets) {
@@ -427,6 +433,6 @@ test('Chapter 0, Russian chapters, and later English chapters remain sheet-free'
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }
 
-  await page.goto(chapterPath('en', '31-decoder-block'));
+  await page.goto(chapterPath('en', '32-decoder-model'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 });

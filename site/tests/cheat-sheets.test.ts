@@ -525,6 +525,23 @@ const expectedSheets = {
       ['Output projection', 'only multiplication by $W_O$ permits'],
     ],
   },
+  '31-decoder-block': {
+    file: '31-decoder-block.json',
+    lesson: '31-decoder-block.mdx',
+    title: 'Compose a pre-norm decoder block in exact order',
+    entries: [
+      ['Pre-normalized decoder block', 'pre-normalized decoder block'],
+      ['Residual stream', 'model-width residual stream entering the block'],
+      ['Attention RMSNorm', 'Attention RMSNorm input'],
+      ['Causal multi-head attention', 'causal multi-head attention'],
+      ['First residual merge', 'first residual merge'],
+      ['Feed-forward RMSNorm', 'feed-forward RMSNorm'],
+      ['SwiGLU feed-forward branch', 'SwiGLU feed-forward branch'],
+      ['Second residual merge', 'second residual merge'],
+      ['Identity path', 'identity path'],
+      ['Post-norm order', 'post-norm order'],
+    ],
+  },
 } as const;
 
 const exactDefinitions = {
@@ -567,6 +584,18 @@ const exactDefinitions = {
     'Head output': "The weighted mixture of unrotated value rows produced by one head using that head's causal attention probabilities.",
     'Head concatenation': 'A parameter-free join of completed head outputs along the final feature axis that restores model width without averaging or mixing.',
     'Output projection': 'The learned map after concatenation that can recombine completed head features, while earlier dense query, key, and value maps may already mix input features.',
+  },
+  '31-decoder-block': {
+    'Pre-normalized decoder block': "A block that normalizes each sublayer input, runs its transformation, then adds the result to that branch's entering residual stream.",
+    'Residual stream': 'A same-shaped model-width tensor updated by each branch while preserving a direct identity route.',
+    'Attention RMSNorm': 'The first independently parameterized normalization, applied to the block input before causal attention.',
+    'Causal multi-head attention': 'The token-mixing first branch that attends only to the current and earlier token positions.',
+    'First residual merge': 'The addition of causal-attention output to the unchanged block input, producing the intermediate stream.',
+    'Feed-forward RMSNorm': 'The second independently parameterized normalization, applied to the intermediate stream before SwiGLU.',
+    'SwiGLU feed-forward branch': 'The per-token feature transformation whose model-width output returns to the second residual merge.',
+    'Second residual merge': 'The addition of the SwiGLU output to the unchanged intermediate stream, producing the block output.',
+    'Identity path': "A bypass that carries a branch's entering residual value unchanged around its learned transformation.",
+    'Post-norm order': 'The contrasting layout that performs a residual merge before applying LayerNorm to the merged value.',
   },
 } as const;
 
