@@ -18,7 +18,7 @@ declare const process: { cwd(): string };
 
 const root = process.cwd();
 const contentRoot = resolve(root, 'src/content/cheat-sheets');
-const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 37;
+const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 38;
 
 const expectedSheets = {
   '01-text-units': {
