@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T09:41:02Z"
+updated_at: "2026-08-02T10:10:58Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: null
+active_build: audit-full-course-20260802
 
 builds:
   - build_id: bootstrap-course
@@ -29249,3 +29249,169 @@ builds:
               - {command: "Complete exact-snapshot Chromium and Firefox bilingual cheat-sheet matrices", status: passed, notes: "235/235 cases pass independently in Chromium and 235/235 in Firefox. All 39 English and 39 Russian sheets pass desktop, narrow, paginated, focus, keyboard, containment, and no-JavaScript checks, and Chapter 0 remains sheet-free."}
               - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, checkpoint, decision, and build-closure audit", status: passed, notes: "The Russian sheet and rollout-test host hashes match the accepted exact snapshot; all three non-ledger outputs match the frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Dockerfile, and Compose definition are byte-identical; exactly 39 Russian sheets cover the canonical 409 concepts while Chapter 0 remains excluded; no run-labelled Docker resource remains; every build completion criterion passes."}
             notes: "Succeeded. Chapter 39 now has one direct Russian localization of all sixteen capstone terms on locale-sorted pages of ten and six. The rollout contains exactly 78 English/Russian sheets representing all 409 canonical concepts, every static and link gate passes, the focused Chapter 39 gates pass in both engines, the full matrix passes 235/235 in each engine, and the build is closed."
+
+  - build_id: audit-full-course-20260802
+    objective: "Independently audit the complete English/Russian course at the current clean product revision without changing learner-facing or implementation files."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
+    completion_criteria:
+      - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
+      - "Every declared command is attempted and its result, coverage, and any reproducible finding are preserved."
+      - "A prioritized consolidated report distinguishes verified passes, audit limitations, and actionable defects without silently changing product files."
+    steps:
+      - id: audit-course-content-localization
+        objective: "Audit the full English/Russian curriculum for contract parity, LLM scope, formula discipline, localization meaning and naturalness, cheat-sheet relevance, and source-level accessibility."
+        depends_on: []
+        status: running
+        inputs: ["AGENTS.md", ".agents/skills/localize-llm-course/SKILL.md", "SKILLS.md", "curriculum/course-plan.md", "curriculum/chapters/", "site/src/content/chapters/", "site/src/content/cheat-sheets/", "site/src/i18n/locales.json", "site/src/i18n/chapter-locales.json"]
+        outputs: ["audits/2026-08-02-full-course/content-localization.md"]
+        acceptance:
+          - "Every chapter-active English/Russian pair and every English/Russian cheat-sheet pair is covered by deterministic gates plus recorded semantic, terminology, anti-calque, monolingual, relevance, formula, history, and accessibility review."
+          - "Chapter 0's orientation exception and Chapters 1-39 implementation contract are checked explicitly."
+          - "No product file is changed."
+        validate:
+          - "node scripts/check-course-plan.mjs"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site test -- --run tests/content-contract.test.ts tests/chapter-locales.test.ts tests/chapter-publication.test.ts tests/cheat-sheets.test.ts tests/formula-rendering.test.ts tests/mathml-compat.test.ts tests/i18n.test.ts"
+          - "Recorded full-course bilingual manual review with reproducible source references"
+        cost: {class: large, notes: "Full bilingual source review across 40 chapter pairs and 39 sheet pairs; cached local compute only."}
+        runs:
+          - run_id: 20260802T095110Z-audit-course-content-localization-01
+            started_at: 2026-08-02T09:51:10Z
+            finished_at: null
+            status: running
+            input_fingerprint:
+              git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", chapter-locales.json: "sha256:64126e42e3144f0ab8f2c65d409599773ced9486d9e1a010b6d4e0362a83fc51"}
+              tools: "Git 2.55.0, Docker 29.6.2, repository Node 22.12.0/npm 10.9.2"
+              external: "None; English at the same revision is the canonical semantic source for Russian review."
+            staging_dir: .build/runs/20260802T095110Z-audit-course-content-localization-01/
+            commands: ["Run startup protocol and localization-skill preflight; inventory 40 contracts, 80 lessons, and 78 cheat sheets."]
+            artifacts: []
+            validation: []
+            notes: "Running; assigned only source/content/localization audit surfaces."
+      - id: audit-rust-workspace
+        objective: "Audit the cumulative dependency-free Rust LLM implementation and every chapter demo for formatting, warnings, tests, dependencies, deterministic evidence, and contract coverage."
+        depends_on: []
+        status: running
+        inputs: ["Cargo.toml", "Cargo.lock", "rust/crates/", "rust/demos/", "curriculum/chapters/", "scripts/check-rust-dependencies.sh", "scripts/check-rust-demos.sh"]
+        outputs: ["audits/2026-08-02-full-course/rust.md"]
+        acceptance:
+          - "Formatting, clippy with warnings denied, complete workspace tests, dependency policy, and all deterministic chapter-demo checks are attempted in the pinned Linux toolchain."
+          - "Coverage and any failure are reported with the exact command and affected package or source."
+          - "No product file is changed."
+        validate:
+          - "cargo fmt --all -- --check"
+          - "cargo clippy --workspace --all-targets --locked -- -D warnings"
+          - "cargo test --workspace --locked"
+          - "scripts/check-rust-dependencies.sh"
+          - "scripts/check-rust-demos.sh"
+        cost: {class: medium, notes: "Cached compilation and execution of the complete Rust workspace; no network or paid service."}
+        runs:
+          - run_id: 20260802T095110Z-audit-rust-workspace-01
+            started_at: 2026-08-02T09:51:10Z
+            finished_at: null
+            status: running
+            input_fingerprint:
+              git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              files: {Cargo.lock: "sha256:55c3289704fde3b45c1ad6cf71dadae1993d71dc8b07db1820534f691d27a491"}
+              tools: "Docker 29.6.2; repository Rust/Cargo 1.93.1 Linux pin"
+              external: "None; offline cached workspace validation."
+            staging_dir: .build/runs/20260802T095110Z-audit-rust-workspace-01/
+            commands: ["Run startup and immutable-source preflight; inventory one cumulative crate and 40 demo packages, including the Chapter 0 orientation exception."]
+            artifacts: []
+            validation: []
+            notes: "Running; assigned only Rust and deterministic-demo audit surfaces."
+      - id: audit-static-delivery
+        objective: "Audit the complete static site, deployment policy, unit suite, type safety, production output, links, SEO, sitemap, Analytics, and host/CLI hygiene."
+        depends_on: []
+        status: completed
+        inputs: ["site/", "scripts/", "Dockerfile", "compose.yaml", "course", ".github/workflows/", "site/package.json", "site/package-lock.json"]
+        outputs: ["audits/2026-08-02-full-course/static-delivery.md"]
+        acceptance:
+          - "All site unit tests, Astro checks, production build, static-link/SEO/sitemap/Analytics audits, deployment checks, course CLI checks, and host-artifact checks are attempted in the pinned Linux toolchain."
+          - "Generated route, reference, test, and diagnostic counts plus any failure are recorded."
+          - "No product file is changed."
+        validate:
+          - "npm --prefix site run check"
+          - "npm --prefix site test -- --run"
+          - "npm --prefix site run check:content"
+          - "npm --prefix site run check:parity"
+          - "npm --prefix site run build"
+          - "npm --prefix site run test:links"
+          - "node scripts/check-deployment-workflow.mjs"
+          - "bash scripts/check-course-cli.sh"
+          - "bash scripts/check-host-artifacts.sh"
+        cost: {class: medium, notes: "Complete cached static-site and repository-delivery validation; no network or paid service."}
+        runs:
+          - run_id: 20260802T095110Z-audit-static-delivery-01
+            started_at: 2026-08-02T09:51:10Z
+            finished_at: 2026-08-02T10:10:58Z
+            status: succeeded
+            input_fingerprint:
+              git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              files: {site-package-lock.json: "sha256:ab55ed2683ff18aca9aaf1d7b4589c4801749f8ecd83d30abcfa6667b6b5b0d3"}
+              tools: "Docker 29.6.2; Linux Node 22.12.0/npm 10.9.0 runtime with npm@10.9.2 declared by the package; Astro 7.1.1 and Vitest 3.2.7"
+              external: "None; production assets and checks are local."
+            staging_dir: .build/runs/20260802T095110Z-audit-static-delivery-01/
+            commands:
+              - "Run startup and immutable-source preflight; inventory 53 unit files, 85 expected static routes, deployment and local CLI surfaces."
+              - "Run Astro check, all 946 Vitest cases, complete content/parity gates, default production build, link/SEO/sitemap/Analytics audit, and deployment workflow validation in the immutable Linux source image."
+              - "Attempt the course CLI and host-artifact checks in the immutable image and available Git Bash host; preserve the missing GNU mv options and generated-host-tree failures as audit evidence."
+              - "Reconstruct the vanished cached source tag from the exact Git archive on the accepted pinned workspace image, verify product hashes, and rerun the production build plus link audit with the exact GitHub Pages base and site URL."
+              - "Record the stale README coverage statement and distinguish agreed basic SEO exclusions from defects; publish the static-delivery audit without changing product files."
+            artifacts:
+              - {path: audits/2026-08-02-full-course/static-delivery.md, checksum: "sha256:cf8601cccf34188ebfa0a2dd35a949f3021c3c4ba352f17e0cb3a980c3ac8a20", notes: "Canonical static-delivery audit fragment."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/npm-check.log, checksum: "sha256:6675434729c8c209d53edb2bd608e928ddb97824dad0ea22350ec67fd0a1a973", notes: "Astro 210-file diagnostic output."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/npm-unit.log, checksum: "sha256:e9d8669cbd5a5953ae37df58ec9903d08d2dbbea354195459310ec29c78f0ce9", notes: "Complete 53-file, 946-case Vitest output."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/build-links.log, checksum: "sha256:52acb8c9e66b64c738a8bc751362530e4adaf8706949c2d8cecdb71a8e05227d", notes: "Default-base 85-page build and 2,447-reference link audit."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/gh-pages-build-links.log, checksum: "sha256:85a90462551f42c27935119d8e53ac537ece9b69454db8159f6064cc478a8ff4", notes: "Exact GitHub Pages /learn_llm/ build and link audit."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/deployment.log, checksum: "sha256:ae18f2a9d14fdd0d394ad4ebe0479ad5123fda8ec93c0c94b9718cd869412b3e", notes: "Passing GitHub Pages workflow audit."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/course-cli.log, checksum: "sha256:8e5b4d5d3c8d262305e8f5b7f39f28930c5bd9a73d00ec461314bc04f65a1f6d", notes: "Preserved Docker course-CLI environment failure at the documented GNU mv capability boundary."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/host-artifacts.log, checksum: "sha256:e2742084bb76bec0250489004ec65849359484ebd2eede48e471421b99df926c", notes: "Preserved generated-host-tree hygiene failure."}
+              - {path: .build/runs/20260802T095110Z-audit-static-delivery-01/head-2b24a50.tar, checksum: "sha256:28b19bbf8fdab9ee072d61f14397d41d0495ca840a3278333382238707cea969", notes: "Exact audited Git archive used to reconstruct the source snapshot."}
+              - {path: docker-image://learn-llm-full-audit-source:local, checksum: "sha256:994383fb740655e2c9a5437c5bac111880bcfdd0eae6cf2f962a0fec6d103c26", notes: "Immutable audited revision with pinned cached toolchain and dependencies."}
+            validation:
+              - {command: "Astro, Vitest, content, parity, default build, and static-link gates", status: passed, notes: "210 files have zero diagnostics; 946/946 tests pass; 80 lessons form 40 exact locale pairs; 85 pages, 2,447 local references, 85 SEO descriptions, 85 sitemap URLs, and 85 Analytics routes pass."}
+              - {command: "GitHub Pages project-base production build and links", status: passed, notes: "With SITE_BASE=/learn_llm/ and SITE_URL=https://intale.github.io/learn_llm/, all 85 pages and the complete static-link/SEO/sitemap/Analytics audit pass."}
+              - {command: "Deployment workflow audit", status: passed, notes: "The checked main-only GitHub Pages workflow, permissions, Pages-derived base/site inputs, actions, artifact, and deploy dependency pass."}
+              - {command: "Course CLI contract", status: limited, notes: "Attempted in both available shells. Debian bookworm and Git Bash coreutils 8.32 lack mv --exchange/--no-copy; the supported README surface explicitly requires GNU coreutils 9.7, so end-to-end CLI behavior could not be established here."}
+              - {command: "Host artifact audit", status: failed, notes: "The current host contains ignored generated build, dependency, cache, and test trees; the exact Git archive and immutable audit image exclude them."}
+              - {command: "Manual static delivery and documentation review", status: findings, notes: "README.md:5-8 is stale and says publication ends at the bigram baseline. No route, description, sitemap, Analytics, GitHub Pages base, or tracked-mode defect was found."}
+              - {command: "Product immutability and audit-fragment review", status: passed, notes: "Only audit ledger, decision, and report artifacts changed; learner-facing, Rust, build, hosting, and deployment files remain at 2b24a50."}
+            notes: "Audit succeeded with one low-severity README drift finding, one supported-host CLI coverage limitation, and one ignored host-workspace hygiene failure. The static application and exact GitHub Pages output pass all declared gates."
+      - id: audit-browser-rendering
+        objective: "Audit every rendered course surface in Chromium and Firefox, including both locales, desktop and narrow containment, formulas, diagrams inline/full view, no-JavaScript fallbacks, cheat sheets, SEO, sitemap, and console compatibility."
+        depends_on: [audit-static-delivery]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/static-delivery.md", "site/dist/", "site/tests/e2e/", "site/playwright.config.ts", "mcr.microsoft.com/playwright:v1.61.1-noble"]
+        outputs: ["audits/2026-08-02-full-course/browser.md"]
+        acceptance:
+          - "The complete collected Playwright suite is attempted independently in pinned Chromium and Firefox against one immutable static candidate and isolated loopback ports."
+          - "Every failure is retried only for diagnosis, reproduced or classified, and reported without a product change."
+        validate:
+          - "npm --prefix site run test:e2e -- --browser=chromium"
+          - "npm --prefix site run test:e2e -- --browser=firefox"
+        cost: {class: large, notes: "Two complete rendered-browser matrices over all English/Russian pages; substantial cached local CPU, no network or paid service."}
+        runs: []
+      - id: consolidate-full-course-audit
+        objective: "Publish one prioritized, evidence-backed full-course audit report and close the audit build."
+        depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, audit-browser-rendering]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/content-localization.md", "audits/2026-08-02-full-course/rust.md", "audits/2026-08-02-full-course/static-delivery.md", "audits/2026-08-02-full-course/browser.md"]
+        outputs: ["audits/2026-08-02-full-course.md", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "The report states the audited revision and toolchain, exact coverage, all verified passes, reproducible defects ordered by severity, and limitations."
+          - "No reported defect is described as fixed, and no product file differs from the audited revision."
+          - "The final checkpoint is valid YAML, the build is closed, and the audit records are committed without unrelated changes."
+        validate:
+          - "Manual cross-check of every fragment, preserved log, and consolidated finding"
+          - "YAML parse and scheduler audit"
+          - "git diff --check and product-path immutability audit"
+        cost: {class: small, notes: "Local report consolidation and ledger closure only."}
+        runs: []

@@ -12217,3 +12217,34 @@ Russian sheet review stale until it is refreshed directly from English.
 **Affected build, step, and run:**
 `localize-russian-cheat-sheets-ch01-ch39`, `localize-ch39-cheat-sheet`, run
 `20260802T092955Z-localize-ch39-cheat-sheet-01`.
+
+## 2026-08-02: Audit the entire bilingual course at one immutable revision
+
+**Context:** The user requested a full-course audit after the English/Russian
+course and cheat-sheet rollout reached Chapter 39. The repository is clean at
+`2b24a50d86609445ed19aa33a4162414904dc4ca`; all preceding builds are closed.
+An audit spanning 40 contracts, 80 lessons, 78 cheat sheets, 39 Rust concept
+implementations, static delivery, and complete Chromium/Firefox rendering is
+large because it consumes substantial local CPU. No paid service, network
+generation, or new product scope is required.
+
+**Decision:** Create `audit-full-course-20260802` and evaluate the exact current
+product revision in four independently evidenced surfaces: bilingual source and
+localization, the Rust workspace and deterministic demos, static delivery, and
+rendered browser behavior. Use English as the semantic source for the Russian
+review and apply the localization skill's meaning, terminology, anti-calque,
+monolingual, accessibility, and target-layout criteria. Execute the complete
+cached Chromium and Firefox matrices rather than extrapolating from English or
+from one engine. Treat a failing product check as an audit finding: preserve its
+evidence and continue safe independent checks instead of editing the product.
+
+**Consequences:** The work may use as much cached local CPU as the declared full
+matrix needs, but it must not mutate learner-facing, Rust, build, hosting, or
+deployment files. Audit fragments and the final consolidated report are the only
+new canonical artifacts. Findings will distinguish verified defects from audit
+limitations and previously recorded passing evidence.
+
+**Affected build and steps:** `audit-full-course-20260802`,
+`audit-course-content-localization`, `audit-rust-workspace`,
+`audit-static-delivery`, `audit-browser-rendering`, and
+`consolidate-full-course-audit`.
