@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T05:24:25Z"
+updated_at: "2026-08-02T05:34:42Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 2
+      spent: 3
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -27871,13 +27871,40 @@ builds:
       - id: localize-ch03-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 3 cheat sheet."
         depends_on: [localize-ch02-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/03-learn-bpe-merges.json", "site/src/content/chapters/ru/03-learn-bpe-merges.mdx", "curriculum/chapters/03-learn-bpe-merges.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/03-learn-bpe-merges.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-3 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:03-learn-bpe-merges'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:03-learn-bpe-merges'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T052548Z-localize-ch03-cheat-sheet-01
+            started_at: "2026-08-02T05:25:48Z"
+            finished_at: "2026-08-02T05:34:42Z"
+            status: succeeded
+            input_fingerprint: {git: "b778d5aad4a15114b94ea869daa71e637083b4db", manifest: ".build/runs/20260802T052548Z-localize-ch03-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:6f610c954b82823408419d4d1d19319f2e4a91a7892b4c451dacbfc626a0ae8a", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 3 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T052548Z-localize-ch03-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 2 commit and worktree, exact Chapter 3 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Lock and directly translate all nine BPE concepts using the reviewed Russian lesson and contract; independently review terminology, literals, semantic distinctions, relevance, and layout risk."
+              - "docker build --target source -t learn-llm-ru-cheatsheet-ch03-source:local .; run 51 focused cases, zero-diagnostic Astro check, collect 127 browser cases, and build/link all 85 pages."
+              - "Build the first exact browser snapshot and run focused Chromium/Firefox checks; reject it when Chromium reports seven pixels of narrow dialog overflow from the long title beside the close control."
+              - "Replace the title with the concise natural 'Обучение правилам слияния BPE с однозначным выбором' while preserving deterministic-selection meaning."
+              - "docker build --target source -t learn-llm-ru-cheatsheet-ch03-source-v2:local .; repeat all final static gates and independently build a fresh exact browser snapshot."
+              - "Run the three focused Russian Chapter 3 scenarios in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, verify scope and immutable inputs, then remove labelled volumes."
+            artifacts:
+              - {path: ".build/runs/20260802T052548Z-localize-ch03-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:6f610c954b82823408419d4d1d19319f2e4a91a7892b4c451dacbfc626a0ae8a", notes: "Exact Chapter 3 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch03-source:local", checksum: "sha256:d40a69f2f2e7bd9baae43a6d7fa6a03f656b9a5a63dc430f551ec3109e67a1f4", notes: "Rejected first source snapshot retained by immutable image ID; static gates pass but the exact narrow Chromium dialog overflows horizontally by seven pixels."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch03-source-v2:local", checksum: "sha256:ab03ad42e040e9ca83e72d5fd144d1822986bf9a9fc1338df72ea5965906b9a6", notes: "Accepted concise-title source snapshot used for all final static and exact rendered gates."}
+              - {path: ".build/runs/20260802T052548Z-localize-ch03-cheat-sheet-01/publish-product.sha256", checksum: "sha256:2ebdf0626a9446af72bf241cd11b1ae736c6ed1865f640c92bd91e4e35bb0baf", notes: "Frozen hashes for the two non-ledger Chapter 3 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 2 is completed and independently committed at b778d5a; the worktree was clean; Chapter 3 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 3 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All nine canonical BPE concepts and order survive. The Russian sheet separates overlapping candidate frequency from non-overlapping replacement, preserves ordered ID pairs, zero-based priority ranks, the local numeric tie-break, exact token byte sequences, and document barriers. BPE and ID literals survive where required; no unrelated term is added."}
+              - {command: "First exact-snapshot Chromium narrow containment", status: failed, notes: "The 360-by-500 case reports dialog scrollWidth 313 versus clientWidth 305 plus tolerance: a seven-pixel overflow caused by the first title's long min-content word beside the fixed close control. Desktop and no-JavaScript Chromium cases pass; the snapshot is rejected before acceptance."}
+              - {command: "Corrected final focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "51/51 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 127 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Corrected exact-snapshot Chromium and Firefox Chapter 3 gates", status: passed, notes: "3/3 cases pass independently in each engine. The concise title removes narrow overflow without clipping or shrinking; the nine-term sheet stays one page, and desktop focus restoration, 360-by-500 containment/reachability, Russian sorting, and complete no-JavaScript fallback all pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-3 are localized; no whitespace or mode error exists; failed and accepted exact volumes were removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 3 now has one direct Russian localization of all nine current BPE-learning terms. A rendered narrow-width failure was fixed through a shorter natural title rather than clipping or shrinking; the corrected sheet passes all static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gates while canonical sources and shared behavior remain unchanged."
       - id: localize-ch04-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 4 cheat sheet."
         depends_on: [localize-ch03-cheat-sheet]
