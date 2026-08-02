@@ -29256,7 +29256,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
     completion_criteria:
       - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
@@ -29422,7 +29422,7 @@ builds:
       - id: audit-browser-rendering
         objective: "Audit every rendered course surface in Chromium and Firefox, including both locales, desktop and narrow containment, formulas, diagrams inline/full view, no-JavaScript fallbacks, cheat sheets, SEO, sitemap, and console compatibility."
         depends_on: [audit-static-delivery]
-        status: running
+        status: completed
         inputs: ["audits/2026-08-02-full-course/static-delivery.md", "site/dist/", "site/tests/e2e/", "site/playwright.config.ts", "mcr.microsoft.com/playwright:v1.61.1-noble"]
         outputs: ["audits/2026-08-02-full-course/browser.md"]
         acceptance:
@@ -29435,8 +29435,8 @@ builds:
         runs:
           - run_id: 20260802T101259Z-audit-browser-rendering-01
             started_at: 2026-08-02T10:12:59Z
-            finished_at: null
-            status: running
+            finished_at: 2026-08-02T10:46:56Z
+            status: succeeded
             input_fingerprint:
               product_git: 2b24a50d86609445ed19aa33a4162414904dc4ca
               ledger_git: a2950f568b89f20683feab0a0d1cb32df6a5d36f
@@ -29448,9 +29448,34 @@ builds:
             staging_dir: .build/runs/20260802T101259Z-audit-browser-rendering-01/
             commands:
               - "Verify the completed and committed static-delivery dependency, exact Git archive, immutable source image, package/runtime version match, 648 collected cases per engine, isolated loopback configuration, and large local-only cost."
-            artifacts: []
-            validation: []
-            notes: "Running; the complete Chromium and Firefox matrices will use disjoint immutable volumes and no external network."
+              - "Run the unmodified 648-case Playwright matrix independently in Chromium and Firefox; preserve all failures and the one unstarted selective-locale sibling per engine."
+              - "Create ignored diagnostic copies of the stale shared-script and selective-locale fixture checks, rerun both complete matrices, and preserve the concurrent 16-worker results."
+              - "Rerun each engine's exact failed-test set sequentially at four workers, distinguish contention timeouts from deterministic failures, and reproduce the three Firefox Russian full-view geometry failures in a focused retry."
+              - "Correct five masked Russian navigation expectations only in diagnostic staging and rerun their complete desktop/narrow tests in both engines."
+              - "Run audit-only console and no-JavaScript sweeps over all 85 static routes at both browser engines; package checksummed evidence and publish the browser audit without a product or production-test change."
+            artifacts:
+              - {path: audits/2026-08-02-full-course/browser.md, checksum: "sha256:d1ea638caf9dcd83f4243d2593387dc46c5a07928ac71b18dfa1741c72b2f5d1", notes: "Canonical rendered-browser audit fragment."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/chromium.log, checksum: "sha256:db7fdc505364298719ccd87efa1da252a6d5519c8e2889b2ae7913200714122c", notes: "Unmodified Chromium matrix: 314 passed, 333 failed, one did not run."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/firefox.log, checksum: "sha256:94e37cd348b5b2e9fbff0945fd90d592df9b0bddf456bf75f78fb0d697b891ce", notes: "Unmodified Firefox matrix: 311 passed, 336 failed, one did not run."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/diagnostic-test-patches.diff, checksum: "sha256:53022710c14362061261ec806e3a2b0719f225aed0295028dc92f2dc4e295884", notes: "Exact audit-only corrections used to reveal behavior masked by stale test assumptions."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/chromium-diagnostic-retry.log, checksum: "sha256:3272df662bee799b31f92482a593c2569d5484d0ed558e4b3c984ad0d1cdf2a0", notes: "Sequential retry: seven contention failures cleared and five stale navigation assertions remained."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-diagnostic-retry.log, checksum: "sha256:4e885599d7fbfe91650f3ca1d901ee30a92c1eefc0572cea5a1773e98a260902", notes: "Sequential retry: nineteen contention failures cleared; five stale navigation and three geometry failures remained."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-geometry-retry.log, checksum: "sha256:47adf80b3d601617b03f0424bef0bd167fc2fd97fbabca2625d552ba450c19e5", notes: "Focused reproduction of all three Firefox Russian full-view failures."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/chromium-console-audit.log, checksum: "sha256:3e5fb1575e0afb11c98d71de1695bf9df1909fde189bde8bd81b208f469ee63f", notes: "All 85 routes passed unexpected console/page-error inspection."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-console-audit.log, checksum: "sha256:2d330c0ae5fb1f56dfbc2c679435d0b73afbae35fba5dc18e7578f7d7fcb0cb9", notes: "All 85 routes passed unexpected console/page-error inspection."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/chromium-nojs-audit.log, checksum: "sha256:a904f7fa84882d4ecbe607127d6220b12845b2fc02e689a79c76cca65ff79a48", notes: "All 85 routes passed desktop and narrow no-JavaScript fallback inspection."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-nojs-audit.log, checksum: "sha256:4d6d4495410cc813452425632de0c5672eed51afc6326848839a54dd68883d06", notes: "All 85 routes passed desktop and narrow no-JavaScript fallback inspection."}
+              - {path: .build/runs/20260802T101259Z-audit-browser-rendering-01/browser-evidence-sha256.txt, checksum: "sha256:6ba325c653c8a54bbebcf22180f78257fd5879824b35811e6d677a9cf4d70c43", notes: "Checksum manifest for original, diagnostic, console, no-JavaScript, and staging-source evidence."}
+              - {path: docker-image://learn-llm-full-audit-browser-source:local, checksum: "sha256:fb9d5c71a3c23ab485e88d72b77200120ba17ad538dc63e857d7fe97825e2f7d", notes: "Exact built audited candidate used by both browser volumes."}
+            validation:
+              - {command: "Unmodified Chromium and Firefox 648-case matrices", status: failed, notes: "The repository gate is stale: 332 shared-script assertion failures plus one selective-locale fixture failure per engine; Firefox also exposes three localized full-view defects."}
+              - {command: "Diagnostic complete matrices and sequential exact-failure retries", status: findings, notes: "All 26 contention timeouts cleared. Five masked stale Russian navigation expectations were isolated in both engines; after diagnostic correction their complete tests passed 5/5 per engine. Firefox alone retained three product geometry failures."}
+              - {command: "Focused Firefox Chapters 19-21 full-view retry", status: failed, notes: "Russian block debt reproduced at 215/192, 289/258, and 207/194 pixels; English and Chromium counterparts pass."}
+              - {command: "Rendered formula, cheat-sheet, route, diagram, SEO, sitemap, Analytics, forced-color, and direction-sensitive coverage", status: passed_with_findings, notes: "All covered assertions pass once the documented stale test assumptions are isolated, except the three Firefox Russian full-view budgets."}
+              - {command: "Audit-only 85-route console sweep in Chromium and Firefox", status: passed, notes: "85/85 routes per engine emit no unexpected warning, error, or page exception; deprecated MathML variants and fixed-arity errors did not recur."}
+              - {command: "Audit-only 85-route no-JavaScript desktop/narrow sweep in Chromium and Firefox", status: passed, notes: "85/85 routes per engine preserve static content, viewport containment, semantic figures, server-rendered formulas where required, and localized cheat-sheet disclosure fallbacks."}
+              - {command: "Product and production-test immutability", status: passed, notes: "Only the audit report and ledger are canonical changes; all diagnostic test edits are ignored run artifacts or disposable volume contents."}
+            notes: "Audit completed with one high-severity browser-validation regression and three medium-severity Firefox Russian full-view defects. A succeeded run means the audit objective and evidence are complete, not that the product is defect-free."
       - id: consolidate-full-course-audit
         objective: "Publish one prioritized, evidence-backed full-course audit report and close the audit build."
         depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, audit-browser-rendering]
