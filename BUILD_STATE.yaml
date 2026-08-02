@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T08:44:19Z"
+updated_at: "2026-08-02T08:51:02Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 33
+      spent: 34
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28996,13 +28996,39 @@ builds:
       - id: localize-ch34-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 34 cheat sheet."
         depends_on: [localize-ch33-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/34-final-evaluation.json", "site/src/content/chapters/ru/34-final-evaluation.mdx", "curriculum/chapters/34-final-evaluation.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/34-final-evaluation.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-34 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:34-final-evaluation'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:34-final-evaluation'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T084545Z-localize-ch34-cheat-sheet-01
+            started_at: "2026-08-02T08:45:45Z"
+            finished_at: "2026-08-02T08:51:02Z"
+            status: succeeded
+            input_fingerprint: {git: "68a3daf83c18489be6c4f76813a245796ae0816b", manifest: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:13c9085f513251bf9efbf23152aabefc44ec65be0e61804549508b8af6be7423", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 34 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 33 commit and worktree, exact Chapter 34 inputs, accepted pinned Linux source base, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all twelve Chapter 34 terms directly from English, preserving pre-test choice sealing, the local once-only access boundary, target weighting, repeated aligned slots, provenance identity, no-graph state preservation, immutable reporting, and like-for-like baseline comparison; advance the exact rollout boundary to Chapter 34."
+              - "Compose source image sha256:e9f40ed93a376431b458080c6fbf248b8fc64b63e0fd5dd258d2dee8888e4b4d from the accepted Chapter 33 source base plus the three exact Chapter 34 outputs; run source gates and a fresh labelled exact snapshot in pinned Chromium and Firefox."
+              - "Reconcile host and exact-snapshot hashes, freeze the two product hashes, verify immutable inputs and exact scope, then remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:13c9085f513251bf9efbf23152aabefc44ec65be0e61804549508b8af6be7423", notes: "Exact Chapter 34 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch34-source:local", checksum: "sha256:e9f40ed93a376431b458080c6fbf248b8fc64b63e0fd5dd258d2dee8888e4b4d", notes: "Accepted pinned Linux source snapshot composed without network access."}
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/source-validation.log", checksum: "sha256:2ad06b4f1102bad9d895e707d4c07fae199f90d782c90e7033069193a4a5ba35", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/exact-build.log", checksum: "sha256:9cce249bb14dbedfc2dd0db520d77334af833de4a5c1279351b468034f01e6da", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/chromium.log", checksum: "sha256:4f596bc279358bf0ad35884ba4c6bddda562d213328b09ee8ce0fed66f0adfca", notes: "Pinned Chromium Chapter 34 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/firefox.log", checksum: "sha256:008344d413392144e5abd87abda64503a71cb3e310ca82b4e3da36ef89b657fd", notes: "Pinned Firefox Chapter 34 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T084545Z-localize-ch34-cheat-sheet-01/publish-product.sha256", checksum: "sha256:9535378df986afe0a15f80e899b53acc221a30d2251fa64fe673396df37e963b", notes: "Frozen hashes for the two non-ledger Chapter 34 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 33 is completed and independently committed at 68a3daf; the worktree was clean; Chapter 34 is the first eligible pending step; exact localization inputs and the accepted pinned Linux source base exist; validation requires no paid service or network generation."}
+              - {command: "Chapter 34 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All twelve concepts survive in canonical order. Validation seals checkpoint and data choices before test access; preflight role/provenance failures do not consume access but scoring start does; test results only report. Total NLL is divided by all aligned targets, both models score the same ordered slots including overlaps, provenance binds corpus/split/tokenizer/context, no-graph scoring preserves parameter and gradient bits, the bigram is training-only and frozen, and the immutable report supports only this fixture rather than a universal model claim."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "82/82 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 220 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 34 gates", status: passed, notes: "3/3 cases pass independently in each engine. Russian collation yields exact page lengths 10 and 2; every term remains reachable, long provenance, once-only-boundary, immutable-report, and NLL labels wrap safely, fixed paginator geometry and focus work at 360 by 500, and the complete no-JavaScript disclosure passes."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Dockerfile, and Compose definition are byte-identical; exactly Chapters 1-34 are localized; no run-labelled Docker resource remains."}
+            notes: "Succeeded. Chapter 34 now has one direct Russian localization of all twelve final-evaluation terms on locale-sorted pages of ten and two. Choice sealing, the local once-only gate, fair target weighting, provenance, no-graph preservation, immutable reporting, and exact decoder/bigram comparison remain precise, and every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate passes."
       - id: localize-ch35-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 35 cheat sheet."
         depends_on: [localize-ch34-cheat-sheet]
