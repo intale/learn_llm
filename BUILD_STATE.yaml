@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T05:40:59Z"
+updated_at: "2026-08-02T05:47:03Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 4
+      spent: 5
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -27942,13 +27942,37 @@ builds:
       - id: localize-ch05-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 5 cheat sheet."
         depends_on: [localize-ch04-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/05-autoregressive-examples.json", "site/src/content/chapters/ru/05-autoregressive-examples.mdx", "curriculum/chapters/05-autoregressive-examples.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/05-autoregressive-examples.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-5 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:05-autoregressive-examples'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:05-autoregressive-examples'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T054205Z-localize-ch05-cheat-sheet-01
+            started_at: "2026-08-02T05:42:05Z"
+            finished_at: "2026-08-02T05:47:03Z"
+            status: succeeded
+            input_fingerprint: {git: "c15021f4d04383cd0dc24b336972ef12fe36d7c7", manifest: ".build/runs/20260802T054205Z-localize-ch05-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:b58cc7bd1a6dd507211fad206d27cd7432d8dfb0075194945d7b9980d1e43110", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 5 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T054205Z-localize-ch05-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 4 commit and worktree, exact Chapter 5 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Lock and directly translate all nine autoregressive-example concepts with reviewed Russian terminology; independently review alignment, causal-access distinctions, literals, relevance, and narrow-title risk."
+              - "Use the concise natural modal title 'Пары «вход — цель» для авторегрессии' to preserve the concept without a known long-word header hazard."
+              - "docker build --target source -t learn-llm-ru-cheatsheet-ch05-source:local ."
+              - "Run 53 focused cases, zero-diagnostic Astro check, collect exactly 133 browser cases, and build/link all 85 static pages."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Russian Chapter 5 scenarios in pinned Chromium and Firefox, reconcile hashes, freeze the manifest, and clean labelled resources."
+            artifacts:
+              - {path: ".build/runs/20260802T054205Z-localize-ch05-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:b58cc7bd1a6dd507211fad206d27cd7432d8dfb0075194945d7b9980d1e43110", notes: "Exact Chapter 5 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch05-source:local", checksum: "sha256:ffef2be28dd9f9dfe550e6817c89330d3332a6e4261233dbe634a3ec1dbf8fa7", notes: "Accepted Chapter 5 source snapshot used for all static and exact rendered gates."}
+              - {path: ".build/runs/20260802T054205Z-localize-ch05-cheat-sheet-01/publish-product.sha256", checksum: "sha256:f05c10d214a42ab07aba702beedf045c66243c82a15370d4789285450e6d93d1", notes: "Frozen hashes for the two non-ledger Chapter 5 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 4 is completed and independently committed at c15021f; the worktree was clean; Chapter 5 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 5 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All nine concepts survive in canonical order. Each target is the next-token answer aligned to its input, the shift is one source position, context length and positive stride remain distinct, overlap reuse is allowed, BOS/EOS remain document controls, and target construction is not confused with causal access. Causal computation includes current and earlier positions; the causal mask blocks later ones."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "53/53 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 133 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 5 gates", status: passed, notes: "3/3 cases pass independently in each engine. The nine-term one-page sheet has no paginator; desktop focus restoration, 360-by-500 outer scrolling/final-term reachability/containment, localized sorting/copy, and complete no-JavaScript disclosure all pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-5 are localized; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 5 now has one direct Russian localization of all nine current autoregressive-example terms. The concise modal title and complete terminology pass every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate while canonical sources and shared behavior remain unchanged."
       - id: localize-ch06-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 6 cheat sheet."
         depends_on: [localize-ch05-cheat-sheet]
