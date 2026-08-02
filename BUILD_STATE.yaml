@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T07:48:03Z"
+updated_at: "2026-08-02T07:53:33Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 25
+      spent: 26
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28695,13 +28695,39 @@ builds:
       - id: localize-ch26-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 26 cheat sheet."
         depends_on: [localize-ch25-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/26-qkv-projections.json", "site/src/content/chapters/ru/26-qkv-projections.mdx", "curriculum/chapters/26-qkv-projections.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/26-qkv-projections.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-26 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:26-qkv-projections'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:26-qkv-projections'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T074941Z-localize-ch26-cheat-sheet-01
+            started_at: "2026-08-02T07:49:41Z"
+            finished_at: "2026-08-02T07:53:33Z"
+            status: succeeded
+            input_fingerprint: {git: "ca310843045c0e51c9d28fddfdf31368d3109f66", manifest: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:3b8065fed35415ead8e785bf0cd5ff3bfcf712a24969233d053911ef29e296fb", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 26 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 25 commit and worktree, exact Chapter 26 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all ten Chapter 26 terms directly from English, preserving the three roles and input/output width distinction, then advance the exact Russian rollout boundary to Chapter 26."
+              - "Build source image sha256:9749c3bd0d8e3d0d582e04622b81c26a828083da8c0d0e06a88d6926e0b3d37f; run focused tests, Astro checks, browser collection, the production build, and link audit."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Chapter 26 cases in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, and remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:3b8065fed35415ead8e785bf0cd5ff3bfcf712a24969233d053911ef29e296fb", notes: "Exact Chapter 26 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch26-source:local", checksum: "sha256:9749c3bd0d8e3d0d582e04622b81c26a828083da8c0d0e06a88d6926e0b3d37f", notes: "Accepted pinned Linux source snapshot for Chapter 26."}
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/source-validation.log", checksum: "sha256:13916dace9306d5d4d3c57d765e55639683c25890d89bd8d13ad0356490fc995", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/exact-build.log", checksum: "sha256:6095d7fd1eddd20196201e2faa29f5d542a01ac62d85d910441a7620832d6ff2", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/chromium.log", checksum: "sha256:a8404bba240f18e5f5318f7d8c4421dfaa7fc0d1f9e0f5af998bee86b2ad3061", notes: "Pinned Chromium Chapter 26 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/firefox.log", checksum: "sha256:7e75a4d0bf4b7677c5d48752e379d3f3f6bae1c6fed1c83a24186152a10adfe9", notes: "Pinned Firefox Chapter 26 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T074941Z-localize-ch26-cheat-sheet-01/publish-product.sha256", checksum: "sha256:eb5caeee9200c728ea29359984a0115046cf15035783a6acfadeaae88b45f312", notes: "Frozen hashes for the two non-ledger Chapter 26 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 25 is completed and independently committed at ca31084; the worktree was clean; Chapter 26 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 26 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All ten concepts survive in canonical order. Three independent learned last-axis transformations preserve batch/token coordinates while changing model-width features to the one-head width; query, key, and value remain distinct retrieval, matching, and content representations rather than tensor-view mechanics; self-attention sources all roles from one prior-layer sequence but retains separate weights; bias-free means no additive vector; this projection stage does not yet score or mix positions."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "74/74 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 196 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 26 gates", status: passed, notes: "3/3 cases pass independently in each engine. The ten-term sheet remains one page without a paginator; long Russian three-role, query/key/value representation, and independent-weight entries wrap safely, and desktop focus, 360-by-500 containment/reachability, localized sorting, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-26 are localized; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 26 now has one direct Russian localization of all ten query/key/value projection terms. Role-specific representations, rank-three hidden input, model and head widths, single-source self-attention, bias omission, and separate learned weights remain precise, and the sheet passes every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate."
       - id: localize-ch27-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 27 cheat sheet."
         depends_on: [localize-ch26-cheat-sheet]
