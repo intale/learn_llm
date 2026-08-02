@@ -18,7 +18,7 @@ declare const process: { cwd(): string };
 
 const root = process.cwd();
 const contentRoot = resolve(root, 'src/content/cheat-sheets');
-const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 34;
+const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 35;
 
 const expectedSheets = {
   '01-text-units': {
@@ -1039,7 +1039,7 @@ describe('English chapter cheat-sheet content', () => {
 });
 
 describe('Russian chapter cheat-sheet localization', () => {
-  const protectedLiterals = /<[^>]+>|UTF-8|Unicode|BPE|BOS|EOS|Q\/K\/V|RMSNorm|LayerNorm|RoPE|SwiGLU|AdamW|FNV-1a|KV|LLM|NLL|MLE|VJP|f64|SplitMix64/g;
+  const protectedLiterals = /<[^>]+>|UTF-8|Unicode|BPE|BOS|EOS|Q\/K\/V|RMSNorm|LayerNorm|RoPE|SwiGLU|AdamW|FNV-1a|KV|LLM|NLL|MLE|VJP|f64|SplitMix64|Unix/g;
 
   for (const chapterId of expectedRussianChapterIds) {
     it(`${chapterId} preserves the English concepts in natural Russian`, () => {
