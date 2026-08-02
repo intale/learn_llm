@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T08:15:32Z"
+updated_at: "2026-08-02T08:26:34Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 29
+      spent: 30
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28844,13 +28844,47 @@ builds:
       - id: localize-ch30-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 30 cheat sheet."
         depends_on: [localize-ch29-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/30-multi-head-attention.json", "site/src/content/chapters/ru/30-multi-head-attention.mdx", "curriculum/chapters/30-multi-head-attention.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/30-multi-head-attention.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-30 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:30-multi-head-attention'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:30-multi-head-attention'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T081732Z-localize-ch30-cheat-sheet-01
+            started_at: "2026-08-02T08:17:32Z"
+            finished_at: "2026-08-02T08:26:34Z"
+            status: succeeded
+            input_fingerprint: {git: "645a09dd8779daad1070255f39dfc2cb7c366020", manifest: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:8adee8df3a4703e15377b3be597f5a1ab67cc9f9bab1194f244248c914ee1417", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 30 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 29 commit and worktree, exact Chapter 30 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all eleven Chapter 30 terms directly from English, preserving packed Q/K/V projection, independent head normalization, unrotated values, parameter-free concatenation, and output-mixing boundaries; advance the exact rollout boundary to Chapter 30."
+              - "Discard two non-product Dockerfile invocations: the first omitted the source target and could not resolve the intentionally external staged context; the second correctly selected source but confirmed that the network-disabled base setup layer was no longer cached."
+              - "Compose source image sha256:98abc21ed463c95c226c0b7699264f9d6d9f3ca7e03c6d9a9ee03f89f8436fc5 deterministically from the accepted Chapter 29 image plus the three exact Chapter 30 outputs, without network access; run source gates and the first exact two-engine snapshot."
+              - "Shorten only the Russian title and description without changing their concepts; compose corrected source image sha256:f8db34ca0628b009ead7bea8b87442b69d179c1ca1b8e9839156b0ff0662d1be; rerun source gates and a fresh labelled exact snapshot in pinned Chromium and Firefox."
+              - "Reconcile host and exact-snapshot hashes, freeze the two product hashes, verify immutable inputs and exact scope, then remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:8adee8df3a4703e15377b3be597f5a1ab67cc9f9bab1194f244248c914ee1417", notes: "Exact Chapter 30 localization input fingerprint."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/source-validation-attempt-01.log", checksum: "sha256:ff1387eef954051c69bb384096cbbd3955f83dbc8e62c8adbd9e8050427422f4", notes: "First source-gate output before the rendered-layout correction; all source gates passed."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/exact-build-attempt-01.log", checksum: "sha256:8263216bf51f9264b88b3d072114839f9b1f865bc1f0ec457d645f887e5ac008", notes: "First exact-snapshot build output before the rendered-layout correction."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/chromium-attempt-01.log", checksum: "sha256:b4e34299a99aa52a18423b0c22fba7be906726f25aac689e756fa90a370f04d7", notes: "Preserved Chromium failure: the narrow paginated dialog scrollHeight 577 exceeded clientHeight 482 by 95 pixels."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/firefox-attempt-01.log", checksum: "sha256:d5e6dc26d69839572abae5a7e7aa4fdef6a319b651ed22d91b625247165c38a0", notes: "Preserved Firefox failure: the narrow paginated dialog scrollHeight 577 exceeded clientHeight 482 by 95 pixels."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch30-source:local", checksum: "sha256:f8db34ca0628b009ead7bea8b87442b69d179c1ca1b8e9839156b0ff0662d1be", notes: "Accepted pinned Linux source snapshot composed without network access after the concise-header correction."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/source-validation.log", checksum: "sha256:acf48a9c82db3870f6d0ab6bc9bf79d23cbc526b3e2894be482a83c5577ec36b", notes: "Final focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/exact-build.log", checksum: "sha256:d122ba99bd7897ba6875c9253bf88adb439ab862859fc82caab152b7e9d580ab", notes: "Final independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/chromium.log", checksum: "sha256:ec8d9362306cad9b7611ec8b5292dcc32f76d0cdd57230b4ecb474c8ee25fc40", notes: "Pinned Chromium Chapter 30 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/firefox.log", checksum: "sha256:c8906b71e71dc7eda823113aba91d8ccd08abe5eefc054bad74ad1596a26a5f9", notes: "Pinned Firefox Chapter 30 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T081732Z-localize-ch30-cheat-sheet-01/publish-product.sha256", checksum: "sha256:cbe93e7bd42d513db260d6bd9c8371fe62dbe9cff94ea46ad00f3e7f2ecfe3af", notes: "Frozen hashes for the two non-ledger Chapter 30 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 29 is completed and independently committed at 645a09d; the worktree was clean; Chapter 30 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "First focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "78/78 focused cases pass; Astro reports zero diagnostics; exactly 208 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "First exact-snapshot Chromium and Firefox Chapter 30 gates", status: failed, notes: "Desktop and no-JavaScript cases passed in both engines, but the 360-by-500 paginated shell overflowed vertically by 95 pixels in both. The long Russian title and description will be shortened naturally and every gate rerun from a new exact snapshot."}
+              - {command: "Chapter 30 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All eleven concepts survive in canonical order. Three separate full-width Q/K/V projections precede the parameter-free head split and can mix every input feature; each nonzero exactly dividing head count yields an even RoPE head width here; each head rotates only queries and keys, normalizes its causal rows independently, and mixes unrotated values; concatenation restores width without averaging or mixing; the output projection can recombine completed head features without being misdescribed as the layer's first learned feature mixing."}
+              - {command: "Corrected focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "78/78 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 208 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Corrected exact-snapshot Chromium and Firefox Chapter 30 gates", status: passed, notes: "3/3 cases pass independently in each engine. Russian collation yields exact page lengths 10 and 1 with RoPE in each head on the singleton page; both pages remain reachable, mixed-script Q/K/V and RoPE wrap safely, and focus, fixed paginator geometry, 360-by-500 containment, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Dockerfile, and Compose definition are byte-identical; exactly Chapters 1-30 are localized; no run-labelled Docker resource remains."}
+            notes: "Succeeded. Chapter 30 now has one direct Russian localization of all eleven multi-head-attention terms on locale-sorted pages of ten and one. The first rendered attempt exposed and preserves a 95-pixel narrow-dialog overflow; concise semantically equivalent title and description wording corrected it, and every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate passes."
       - id: localize-ch31-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 31 cheat sheet."
         depends_on: [localize-ch30-cheat-sheet]
