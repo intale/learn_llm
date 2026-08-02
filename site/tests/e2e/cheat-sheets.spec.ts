@@ -1,13 +1,24 @@
+// @ts-ignore Node APIs are available in the Playwright runtime.
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+// @ts-ignore Node APIs are available in the Playwright runtime.
+import { resolve } from 'node:path';
+
 import { expect, test, type Locator } from '@playwright/test';
 
 import {
   CHEAT_SHEET_PAGE_SIZE,
+  getCheatSheetCopy,
   paginateCheatSheetTerms,
   sortCheatSheetTerms,
+  type CheatSheetCopy,
+  type CheatSheetData,
 } from '../../src/lib/cheat-sheets';
+import type { Locale } from '../../src/i18n';
 import { chapterPath } from './chapter-helpers';
 
-const sheets = [
+declare const process: { cwd(): string };
+
+const englishSheets = [
   {
     chapter: 1,
     chapterId: '01-text-units',
@@ -359,20 +370,84 @@ const sheets = [
   },
 ] as const;
 
-function expectedPages(terms: readonly string[]) {
+interface BrowserSheet {
+  readonly chapter: number;
+  readonly chapterId: string;
+  readonly copy: CheatSheetCopy;
+  readonly locale: Locale;
+  readonly terms: readonly string[];
+  readonly title: string;
+}
+
+const englishCopy = getCheatSheetCopy('en');
+const russianCopy = getCheatSheetCopy('ru');
+if (!englishCopy || !russianCopy) {
+  throw new Error('Cheat-sheet browser coverage requires English and Russian interface copy.');
+}
+
+const russianSheetRoot = resolve(
+  process.cwd(),
+  'src/content/cheat-sheets/ru',
+);
+const russianSheets: BrowserSheet[] = existsSync(russianSheetRoot)
+  ? readdirSync(russianSheetRoot)
+      .filter((fileName: string) => fileName.endsWith('.json'))
+      .sort()
+      .map((fileName: string) => {
+        const sheet = JSON.parse(
+          readFileSync(resolve(russianSheetRoot, fileName), 'utf8'),
+        ) as CheatSheetData;
+        if (
+          sheet.locale !== 'ru' ||
+          fileName !== `${sheet.chapter_id}.json`
+        ) {
+          throw new Error(`Invalid Russian cheat-sheet identity: ${fileName}`);
+        }
+        return {
+          chapter: Number.parseInt(sheet.chapter_id.slice(0, 2), 10),
+          chapterId: sheet.chapter_id,
+          copy: russianCopy,
+          locale: 'ru' as const,
+          terms: sheet.terms.map(({ term }) => term),
+          title: sheet.title,
+        };
+      })
+  : [];
+
+const sheets: BrowserSheet[] = [
+  ...englishSheets.map((sheet) => ({
+    ...sheet,
+    copy: englishCopy,
+    locale: 'en' as const,
+  })),
+  ...russianSheets,
+];
+
+function expectedPages(terms: readonly string[], locale: Locale) {
   const sorted = sortCheatSheetTerms(
     terms.map((term) => ({ definition: 'Browser-test definition.', term })),
-    'en',
+    locale,
   );
   return paginateCheatSheetTerms(sorted).map((page) =>
     page.map(({ term }) => term),
   );
 }
 
-function expectedStatus(pageIndex: number, pageCount: number, termCount: number) {
+function expectedStatus(
+  copy: CheatSheetCopy,
+  pageIndex: number,
+  pageCount: number,
+  termCount: number,
+) {
   const start = pageIndex * CHEAT_SHEET_PAGE_SIZE + 1;
   const end = Math.min((pageIndex + 1) * CHEAT_SHEET_PAGE_SIZE, termCount);
-  return `Terms ${start}\u2013${end} of ${termCount}; page ${pageIndex + 1} of ${pageCount}`;
+  return copy.pageStatus({
+    currentPage: pageIndex + 1,
+    endTerm: end,
+    pageCount,
+    startTerm: start,
+    totalTerms: termCount,
+  });
 }
 
 interface Bounds {
@@ -491,14 +566,14 @@ function expectCurrentPageEndReachable(
 }
 
 for (const sheet of sheets) {
-  test.describe(`Chapter ${sheet.chapter} cheat sheet`, () => {
+  test.describe(`${sheet.locale.toUpperCase()} Chapter ${sheet.chapter} cheat sheet @cheat-sheet:${sheet.locale}:${sheet.chapterId}`, () => {
     test('presents sorted page slices with accessible controls and restores focus', async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
-      await page.goto(chapterPath('en', sheet.chapterId));
+      await page.goto(chapterPath(sheet.locale, sheet.chapterId));
 
-      const termPages = expectedPages(sheet.terms);
+      const termPages = expectedPages(sheet.terms, sheet.locale);
       const sortedTerms = termPages.flat();
-      if (sheet.chapterId === '35-checkpoints') {
+      if (sheet.locale === 'en' && sheet.chapterId === '35-checkpoints') {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
         expect(sortedTerms).toEqual([
           'AdamW optimizer state',
@@ -516,7 +591,7 @@ for (const sheet of sheets) {
           'Versioned decoder checkpoint',
         ]);
       }
-      if (sheet.chapterId === '38-cached-generation') {
+      if (sheet.locale === 'en' && sheet.chapterId === '38-cached-generation') {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 3]);
         expect(sortedTerms).toEqual([
           'Attention-score work',
@@ -534,7 +609,7 @@ for (const sheet of sheets) {
           'Retained prefix length',
         ]);
       }
-      if (sheet.chapterId === '39-end-to-end-llm') {
+      if (sheet.locale === 'en' && sheet.chapterId === '39-end-to-end-llm') {
         expect(termPages.map((termPage) => termPage.length)).toEqual([10, 6]);
         expect(sortedTerms).toEqual([
           'Autoregressive factorization',
@@ -556,7 +631,7 @@ for (const sheet of sheets) {
         ]);
       }
       const root = page.locator('[data-cheat-sheet]');
-      const trigger = root.getByRole('button', { name: 'Open cheat sheet' });
+      const trigger = root.getByRole('button', { name: sheet.copy.openLabel });
       const dialog = root.getByRole('dialog', { name: sheet.title });
       const fallback = root.locator('[data-cheat-sheet-fallback]');
       const pages = dialog.locator('[data-cheat-sheet-pages]');
@@ -564,10 +639,12 @@ for (const sheet of sheets) {
         '[data-cheat-sheet-page]:not([hidden]) dt',
       );
       const pagination = dialog.getByRole('navigation', {
-        name: 'Cheat sheet term pages',
+        name: sheet.copy.paginationLabel,
       });
-      const previous = dialog.getByRole('button', { name: 'Previous terms' });
-      const next = dialog.getByRole('button', { name: 'Next terms' });
+      const previous = dialog.getByRole('button', {
+        name: sheet.copy.previousLabel,
+      });
+      const next = dialog.getByRole('button', { name: sheet.copy.nextLabel });
       const status = dialog.getByRole('status');
       const pagesId = `cheat-sheet-${sheet.chapterId}-pages`;
       const titleId = `cheat-sheet-${sheet.chapterId}-title`;
@@ -585,6 +662,9 @@ for (const sheet of sheets) {
       await trigger.focus();
       await trigger.click();
       await expect(dialog).toBeVisible();
+      await expect(dialog.locator('.cheat-sheet-eyebrow')).toHaveText(
+        sheet.copy.eyebrow,
+      );
       await expect(pages).toHaveAttribute('id', pagesId);
       await expect(dialog.locator('[data-cheat-sheet-page] dt')).toHaveText(
         sortedTerms,
@@ -592,7 +672,7 @@ for (const sheet of sheets) {
       expect(new Set(sortedTerms).size).toBe(sortedTerms.length);
       await expect(visibleTerms).toHaveText(termPages[0] ?? []);
       await expect(
-        root.getByRole('button', { name: 'Close cheat sheet' }),
+        root.getByRole('button', { name: sheet.copy.closeLabel }),
       ).toBeFocused();
 
       if (termPages.length === 1) {
@@ -639,6 +719,7 @@ for (const sheet of sheets) {
 
         for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
           const pageStatus = expectedStatus(
+            sheet.copy,
             pageIndex,
             termPages.length,
             sortedTerms.length,
@@ -699,7 +780,7 @@ for (const sheet of sheets) {
       if (termPages.length > 1) {
         expectPaginatedShell(await readPaginatedLayout(dialog));
       }
-      await root.getByRole('button', { name: 'Close cheat sheet' }).click();
+      await root.getByRole('button', { name: sheet.copy.closeLabel }).click();
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
     });
@@ -707,18 +788,18 @@ for (const sheet of sheets) {
     test('contains every modal page at narrow width and keeps it reachable at short height', async ({
       page,
     }) => {
-      const termPages = expectedPages(sheet.terms);
+      const termPages = expectedPages(sheet.terms, sheet.locale);
       await page.setViewportSize({ width: 360, height: 500 });
-      await page.goto(chapterPath('en', sheet.chapterId));
-      const trigger = page.getByRole('button', { name: 'Open cheat sheet' });
+      await page.goto(chapterPath(sheet.locale, sheet.chapterId));
+      const trigger = page.getByRole('button', { name: sheet.copy.openLabel });
       await trigger.click();
 
       const dialog = page.getByRole('dialog', { name: sheet.title });
       const pages = dialog.locator('[data-cheat-sheet-pages]');
       const pagination = dialog.getByRole('navigation', {
-        name: 'Cheat sheet term pages',
+        name: sheet.copy.paginationLabel,
       });
-      const next = dialog.getByRole('button', { name: 'Next terms' });
+      const next = dialog.getByRole('button', { name: sheet.copy.nextLabel });
       await expect(dialog).toBeVisible();
 
       for (let pageIndex = 0; pageIndex < termPages.length; pageIndex += 1) {
@@ -873,7 +954,7 @@ for (const sheet of sheets) {
       if (termPages.length > 1) {
         expectPaginatedShell(await readPaginatedLayout(dialog));
       }
-      await dialog.getByRole('button', { name: 'Close cheat sheet' }).click();
+      await dialog.getByRole('button', { name: sheet.copy.closeLabel }).click();
     });
 
     test('retains a collapsed semantic disclosure when JavaScript is disabled', async ({
@@ -884,14 +965,17 @@ for (const sheet of sheets) {
         javaScriptEnabled: false,
       });
       const page = await context.newPage();
-      await page.goto(chapterPath('en', sheet.chapterId));
+      await page.goto(chapterPath(sheet.locale, sheet.chapterId));
 
-      const sortedTerms = expectedPages(sheet.terms).flat();
+      const sortedTerms = expectedPages(sheet.terms, sheet.locale).flat();
       const root = page.locator('[data-cheat-sheet]');
       const fallback = root.locator('[data-cheat-sheet-fallback]');
       await expect(root.locator('[data-cheat-sheet-open]')).toBeHidden();
       await expect(fallback).toBeVisible();
       await expect(fallback).not.toHaveAttribute('open', '');
+      await expect(fallback.locator('summary')).toHaveText(
+        sheet.copy.fallbackSummary,
+      );
       await fallback.locator('summary').click();
       await expect(fallback).toHaveAttribute('open', '');
       await expect(fallback.locator('dt')).toHaveText(sortedTerms);
@@ -910,13 +994,19 @@ for (const sheet of sheets) {
   });
 }
 
-test('Chapter 0 and Russian chapters remain sheet-free', async ({
+test('Chapter 0 and unpublished Russian chapters remain sheet-free', async ({
   page,
 }) => {
   await page.goto(chapterPath('en', '00-llm-parts'));
   await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
+  await page.goto(chapterPath('ru', '00-llm-parts'));
+  await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
 
-  for (const sheet of sheets) {
+  const publishedRussianChapterIds = new Set(
+    russianSheets.map(({ chapterId }) => chapterId),
+  );
+  for (const sheet of englishSheets) {
+    if (publishedRussianChapterIds.has(sheet.chapterId)) continue;
     await page.goto(chapterPath('ru', sheet.chapterId));
     await expect(page.locator('[data-cheat-sheet]')).toHaveCount(0);
   }

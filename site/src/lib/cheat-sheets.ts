@@ -64,6 +64,24 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
     paginationLabel: 'Cheat sheet term pages',
     previousLabel: 'Previous terms',
   },
+  ru: {
+    closeLabel: 'Закрыть справочник терминов',
+    eyebrow: 'Краткий справочник',
+    fallbackSummary: 'Справочник терминов',
+    nextLabel: 'Следующие термины',
+    openLabel: 'Открыть справочник терминов',
+    pageStatus: ({
+      currentPage,
+      endTerm,
+      pageCount,
+      startTerm,
+      totalTerms,
+    }) =>
+      `Термины: ${startTerm}\u2013${endTerm} из ${totalTerms}; ` +
+      `страница ${currentPage} из ${pageCount}`,
+    paginationLabel: 'Страницы справочника терминов',
+    previousLabel: 'Предыдущие термины',
+  },
 };
 
 export function sortCheatSheetTerms(

@@ -12110,3 +12110,47 @@ dependency, build definition, hosting, or deployment file.
 `repair-cheat-sheet-pagination-discoverability`,
 `repair-cheat-sheet-pagination-discoverability`, run
 `20260801T180026Z-repair-cheat-sheet-pagination-discoverability-01`.
+
+## 2026-08-02 - Localize cheat sheets into Russian one chapter at a time
+
+**Status:** Accepted for `localize-russian-cheat-sheets-ch01-ch39`.
+
+**Context:** The instructional course has 39 canonical English cheat sheets with
+409 chapter-specific LLM terms. Russian lessons already exist for the same
+chapters, but Russian routes intentionally remained sheet-free until each sheet
+could be translated directly from its current English record and reviewed as a
+separate locale-aware content surface. Chapter 0 is an orientation and remains
+outside the cheat-sheet scope.
+
+**Decision:** Translate and publish exactly one Russian chapter sheet per
+checkpoint and commit, in Chapter 1-39 order. Use the matching current English
+JSON record as the sole semantic source, and use the current Russian lesson and
+reviewed contract terminology only to choose natural established Russian
+technical language. Preserve concept identity, scope, qualifications, literals,
+numeric values, abbreviations, causal distinctions, and the number of entries,
+but do not preserve English sentence shape or display order. Russian display
+order derives from Russian collation and may therefore form different ten-term
+page slices.
+
+The Chapter 1 checkpoint also activates one complete Russian interface-copy set
+for the shared progressive modal. Use noun-neutral page-range wording that does
+not encode an incomplete Russian plural rule. Generalize browser coverage to
+exercise every published locale sheet from its exact source record, while a
+checked rollout boundary lists the Russian chapter IDs that are currently
+published. Each checkpoint records separate meaning, terminology, anti-calque,
+monolingual, accessible-language, Chromium, Firefox, desktop, narrow,
+no-JavaScript, and containment reviews. The final checkpoint repeats the complete
+78-sheet browser matrix. No pre-publication user approval pause is added.
+
+**Consequences:** The rollout has 39 sequential medium-cost steps and uses only
+cached local Docker and Playwright toolchains. Each step changes one Russian
+sheet plus its checkpoint boundary and necessary shared integration files; it
+does not change English sheets, chapter lessons, dependencies, build definitions,
+hosting, or deployment. A later English meaning or presentation change makes
+only the matching Russian sheet review stale until refreshed directly from
+English.
+
+**Affected build and first run:**
+`localize-russian-cheat-sheets-ch01-ch39`,
+`localize-ch01-cheat-sheet`, run
+`20260802T045941Z-localize-ch01-cheat-sheet-01`.

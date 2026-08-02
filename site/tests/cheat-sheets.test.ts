@@ -18,6 +18,7 @@ declare const process: { cwd(): string };
 
 const root = process.cwd();
 const contentRoot = resolve(root, 'src/content/cheat-sheets');
+const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 1;
 
 const expectedSheets = {
   '01-text-units': {
@@ -704,6 +705,11 @@ const expectedSheets = {
   },
 } as const;
 
+const expectedRussianChapterIds = Object.keys(expectedSheets).slice(
+  0,
+  RUSSIAN_ROLLOUT_THROUGH_CHAPTER,
+);
+
 const exactDefinitions = {
   '12-stable-softmax': {
     Underflow: 'A finite-precision effect where a tiny magnitude becomes subnormal or rounds to zero.',
@@ -876,10 +882,14 @@ const exactDefinitions = {
   },
 } as const;
 
-function readSheet(fileName: string) {
+function readLocalizedSheet(locale: 'en' | 'ru', fileName: string) {
   return JSON.parse(
-    readFileSync(resolve(contentRoot, 'en', fileName), 'utf8'),
+    readFileSync(resolve(contentRoot, locale, fileName), 'utf8'),
   ) as CheatSheetData;
+}
+
+function readSheet(fileName: string) {
+  return readLocalizedSheet('en', fileName);
 }
 
 describe('English chapter cheat-sheet content', () => {
@@ -889,7 +899,19 @@ describe('English chapter cheat-sheet content', () => {
         .map(({ file }) => file)
         .sort(),
     );
-    expect(() => readdirSync(resolve(contentRoot, 'ru'))).toThrow();
+    expect(readdirSync(resolve(contentRoot, 'ru')).sort()).toEqual(
+      expectedRussianChapterIds.map((chapterId) => `${chapterId}.json`).sort(),
+    );
+    expect(
+      expectedRussianChapterIds.map((chapterId) =>
+        Number.parseInt(chapterId.slice(0, 2), 10),
+      ),
+    ).toEqual(
+      Array.from(
+        { length: RUSSIAN_ROLLOUT_THROUGH_CHAPTER },
+        (_, index) => index + 1,
+      ),
+    );
   });
 
   it('sorts all thirteen Chapter 35 concepts into exact ten-plus-three pages without loss', () => {
@@ -1012,6 +1034,50 @@ describe('English chapter cheat-sheet content', () => {
           definition,
         );
       }
+    });
+  }
+});
+
+describe('Russian chapter cheat-sheet localization', () => {
+  const protectedLiterals = /<[^>]+>|UTF-8|Unicode|BPE|BOS|EOS|Q\/K\/V|RMSNorm|RoPE|SwiGLU|AdamW|FNV-1a|KV|LLM|NLL|MLE|f64|SplitMix64/g;
+
+  for (const chapterId of expectedRussianChapterIds) {
+    it(`${chapterId} preserves the English concepts in natural Russian`, () => {
+      const english = readLocalizedSheet('en', `${chapterId}.json`);
+      const russian = readLocalizedSheet('ru', `${chapterId}.json`);
+
+      expect(russian.chapter_id).toBe(chapterId);
+      expect(russian.locale).toBe('ru');
+      expect(russian.title).not.toBe(english.title);
+      expect(russian.title).toMatch(/[А-Яа-яЁё]/);
+      expect(russian.description).not.toBe(english.description);
+      expect(russian.description).toMatch(/[А-Яа-яЁё]/);
+      expect(russian.terms).toHaveLength(english.terms.length);
+      expect(
+        new Set(russian.terms.map(({ term }) => term.toLocaleLowerCase('ru'))).size,
+      ).toBe(russian.terms.length);
+
+      russian.terms.forEach(({ term, definition }, index) => {
+        // Locale records retain canonical concept order; display order is locale-sorted.
+        const source = english.terms[index];
+        expect(source).toBeDefined();
+        expect(term.trim()).toBe(term);
+        expect(definition.trim()).toBe(definition);
+        expect(definition).toMatch(/[А-Яа-яЁё]/);
+        expect(definition).toMatch(/\.$/);
+        expect(definition).not.toBe(source?.definition);
+        expect(definition).not.toMatch(
+          /\b(?:the|this|that|when|while|using|used|each|from|with|without|before|after|into|only|and|or)\b/i,
+        );
+
+        const sourceLiterals = new Set(
+          `${source?.term ?? ''} ${source?.definition ?? ''}`.match(protectedLiterals) ?? [],
+        );
+        const localizedText = `${term} ${definition}`;
+        for (const literal of sourceLiterals) {
+          expect(localizedText).toContain(literal);
+        }
+      });
     });
   }
 });
@@ -1154,17 +1220,17 @@ describe('cheat-sheet integration contract', () => {
     ).toThrow(/Orientation/);
 
     const russianSheet = {
-      data: { ...sheet.data, locale: 'ru' as const },
+      data: readLocalizedSheet('ru', '01-text-units.json'),
     };
-    expect(() =>
+    expect(
       indexCheatSheets(
         [{ data: { chapter_id: '01-text-units', locale: 'ru' as const } }],
         [russianSheet],
-      ),
-    ).toThrow(/no localized interface copy/);
+      ).get('ru:01-text-units'),
+    ).toBe(russianSheet);
   });
 
-  it('exposes interface copy only for locales with published cheat sheets', () => {
+  it('exposes complete interface copy for every published sheet locale', () => {
     const englishCopy = getCheatSheetCopy('en');
     expect(englishCopy).not.toBeNull();
     expect({
@@ -1193,6 +1259,34 @@ describe('cheat-sheet integration contract', () => {
         totalTerms: 12,
       }),
     ).toBe('Terms 11\u201312 of 12; page 2 of 2');
-    expect(getCheatSheetCopy('ru')).toBeNull();
+
+    const russianCopy = getCheatSheetCopy('ru');
+    expect(russianCopy).not.toBeNull();
+    expect({
+      closeLabel: russianCopy?.closeLabel,
+      eyebrow: russianCopy?.eyebrow,
+      fallbackSummary: russianCopy?.fallbackSummary,
+      nextLabel: russianCopy?.nextLabel,
+      openLabel: russianCopy?.openLabel,
+      paginationLabel: russianCopy?.paginationLabel,
+      previousLabel: russianCopy?.previousLabel,
+    }).toEqual({
+      closeLabel: 'Закрыть справочник терминов',
+      eyebrow: 'Краткий справочник',
+      fallbackSummary: 'Справочник терминов',
+      nextLabel: 'Следующие термины',
+      openLabel: 'Открыть справочник терминов',
+      paginationLabel: 'Страницы справочника терминов',
+      previousLabel: 'Предыдущие термины',
+    });
+    expect(
+      russianCopy?.pageStatus({
+        currentPage: 2,
+        endTerm: 12,
+        pageCount: 2,
+        startTerm: 11,
+        totalTerms: 12,
+      }),
+    ).toBe('Термины: 11\u201312 из 12; страница 2 из 2');
   });
 });
