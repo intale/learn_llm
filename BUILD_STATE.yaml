@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T06:45:25Z"
+updated_at: "2026-08-02T06:51:33Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 14
+      spent: 15
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28299,13 +28299,39 @@ builds:
       - id: localize-ch15-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 15 cheat sheet."
         depends_on: [localize-ch14-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/15-tensor-autodiff-core.json", "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx", "curriculum/chapters/15-tensor-autodiff-core.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/15-tensor-autodiff-core.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-15 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:15-tensor-autodiff-core'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:15-tensor-autodiff-core'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T064622Z-localize-ch15-cheat-sheet-01
+            started_at: "2026-08-02T06:46:22Z"
+            finished_at: "2026-08-02T06:51:33Z"
+            status: succeeded
+            input_fingerprint: {git: "746dd03fd8d3448190fd08d43532bf8d8b825a2c", manifest: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:2e7943cc9be7e91fd33516b639d4b3d5b03ed69d7d32c4db1e5d8ea183a5c04b", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 15 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 14 commit and worktree, exact Chapter 15 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all ten Chapter 15 terms directly from English, add VJP to the exact-literal regression, then advance the Russian rollout boundary to Chapter 15."
+              - "Build source image sha256:9117a614d0ba08806bd3db20bcd1347abf41238607cc9b8d927fdd4724595925; run focused tests, Astro checks, browser collection, the production build, and link audit."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Chapter 15 cases in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, and remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:2e7943cc9be7e91fd33516b639d4b3d5b03ed69d7d32c4db1e5d8ea183a5c04b", notes: "Exact Chapter 15 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch15-source:local", checksum: "sha256:9117a614d0ba08806bd3db20bcd1347abf41238607cc9b8d927fdd4724595925", notes: "Accepted pinned Linux source snapshot for Chapter 15."}
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/source-validation.log", checksum: "sha256:7bca56ad6c64af71420b372db9565a913ba63aa83fdd9a3c2a53beebd79e40e6", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/exact-build.log", checksum: "sha256:dd5d2c2b092eb61b18bc617d345389ba4c2afb21fa8740e6a607bad821bd607b", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/chromium.log", checksum: "sha256:0f876a1d36e4474dd1e7d35a29e3306fea21b457344b3fb4fe8e0690d463f869", notes: "Pinned Chromium Chapter 15 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/firefox.log", checksum: "sha256:8a531088cb0ba48ab18f72adbf1214180a8d6c770e12aa6f99e96080bedcf2ea", notes: "Pinned Firefox Chapter 15 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T064622Z-localize-ch15-cheat-sheet-01/publish-product.sha256", checksum: "sha256:4b3823659ef3e53e3a6eea43a9300fcdd4c58c2602b8774501965a152db60ec1", notes: "Frozen hashes for the two non-ledger Chapter 15 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 14 is completed and independently committed at 746dd03; the worktree was clean; Chapter 15 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 15 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All ten concepts survive in canonical order and VJP is now regression-protected. The Jacobian remains conceptual; each operand occurrence owns an edge-local VJP; upstream and restored parent adjoints retain their respective shapes; reverse broadcasting sums reused coordinates; reduction reversal reinserts an axis and only mean divides by its extent; a non-scalar seed exactly matches output shape; retention preserves context for another traversal."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "63/63 focused cases pass, including exact VJP retention; Astro reports 210 files with zero diagnostics; exactly 163 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 15 gates", status: passed, notes: "3/3 cases pass independently in each engine. The ten-term sheet remains one page without a paginator; long Russian tape, VJP, broadcast-reversal, and non-scalar-seed headwords wrap safely, and desktop focus, 360-by-500 containment/reachability, localized sorting, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-15 are localized; the only shared-test change besides the boundary is the exact VJP guard; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 15 now has one direct Russian localization of all ten tensor reverse-mode terms. Edge-local VJPs, adjoint shapes, reverse broadcasting, reduction reversal, non-scalar seeds, and tape retention remain precise; VJP is regression-protected; and the sheet passes every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate."
       - id: localize-ch16-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 16 cheat sheet."
         depends_on: [localize-ch15-cheat-sheet]
