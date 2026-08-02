@@ -18,7 +18,7 @@ declare const process: { cwd(): string };
 
 const root = process.cwd();
 const contentRoot = resolve(root, 'src/content/cheat-sheets');
-const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 26;
+const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 27;
 
 const expectedSheets = {
   '01-text-units': {
@@ -1259,6 +1259,15 @@ describe('cheat-sheet integration contract', () => {
         totalTerms: 12,
       }),
     ).toBe('Terms 11\u201312 of 12; page 2 of 2');
+    expect(
+      englishCopy?.pageStatus({
+        currentPage: 2,
+        endTerm: 11,
+        pageCount: 2,
+        startTerm: 11,
+        totalTerms: 11,
+      }),
+    ).toBe('Terms 11 of 11; page 2 of 2');
 
     const russianCopy = getCheatSheetCopy('ru');
     expect(russianCopy).not.toBeNull();
@@ -1288,5 +1297,14 @@ describe('cheat-sheet integration contract', () => {
         totalTerms: 12,
       }),
     ).toBe('Термины: 11\u201312 из 12; страница 2 из 2');
+    expect(
+      russianCopy?.pageStatus({
+        currentPage: 2,
+        endTerm: 11,
+        pageCount: 2,
+        startTerm: 11,
+        totalTerms: 11,
+      }),
+    ).toBe('Термины: 11 из 11; страница 2 из 2');
   });
 });

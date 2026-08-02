@@ -12154,3 +12154,31 @@ English.
 `localize-russian-cheat-sheets-ch01-ch39`,
 `localize-ch01-cheat-sheet`, run
 `20260802T045941Z-localize-ch01-cheat-sheet-01`.
+
+## 2026-08-02 - Handle singleton tail pages without inventing overflow
+
+**Status:** Accepted for `localize-russian-cheat-sheets-ch01-ch39`.
+
+**Context:** Chapter 27 is the first published Russian cheat sheet above the
+ten-term page size. Its eleven terms produce a full first page and a one-term
+tail page after Russian collation. The narrow browser gate incorrectly required
+positive scrolling on every page, even when the visible term page was shorter
+than its viewport. The localized status also rendered the singleton tail as the
+duplicated range `11–11`, which is grammatical but needlessly awkward.
+
+**Decision:** Continue checking that the final term is reachable on every page,
+but require positive term-viewport scrolling only when that page actually
+overflows; a non-overflowing page must remain at its initial scroll position.
+Render a single ordinal when a page range begins and ends on the same term, in
+both supported locales, while retaining the existing range form for multi-term
+pages. Add exact unit coverage for both singleton labels and retain the existing
+multi-term assertions.
+
+**Consequences:** Chapter 27 owns the necessary shared copy, unit, and browser
+regressions in addition to its Russian record and rollout boundary. Pagination
+size, locale collation, fixed paginator geometry, page reset, complete no-JavaScript
+fallback, and every canonical cheat-sheet term remain unchanged.
+
+**Affected build, step, and run:**
+`localize-russian-cheat-sheets-ch01-ch39`, `localize-ch27-cheat-sheet`, run
+`20260802T075447Z-localize-ch27-cheat-sheet-01`.

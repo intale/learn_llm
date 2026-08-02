@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T07:53:33Z"
+updated_at: "2026-08-02T08:00:43Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 26
+      spent: 27
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28731,13 +28731,39 @@ builds:
       - id: localize-ch27-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 27 cheat sheet."
         depends_on: [localize-ch26-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/27-self-attention.json", "site/src/content/chapters/ru/27-self-attention.mdx", "curriculum/chapters/27-self-attention.md", ".agents/skills/localize-llm-course/SKILL.md"]
-        outputs: ["site/src/content/cheat-sheets/ru/27-self-attention.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
-        acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-27 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
+        outputs: ["site/src/content/cheat-sheets/ru/27-self-attention.json", "site/src/lib/cheat-sheets.ts", "site/tests/cheat-sheets.test.ts", "site/tests/e2e/cheat-sheets.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; eleven terms paginate as 10 and 1 after Russian collation; a singleton tail uses a nonduplicated localized status; every page end remains reachable while positive scrolling is required only for pages that overflow; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-27 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:27-self-attention'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:27-self-attention'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T075447Z-localize-ch27-cheat-sheet-01
+            started_at: "2026-08-02T07:54:47Z"
+            finished_at: "2026-08-02T08:00:43Z"
+            status: succeeded
+            input_fingerprint: {git: "262cb5c026d438cf5720631302f56997b0bf4222", manifest: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:793ab3cc5faf5c0d718f8dd7f68f643d8dad4c1b9dacb0715c3bef577048100c", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 27 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 26 commit and worktree, exact Chapter 27 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all eleven Chapter 27 terms directly from English; record and implement the singleton-status and conditional-scroll correction; advance the exact Russian rollout boundary to Chapter 27."
+              - "Build source image sha256:fa1ccb2ab9138664efdead5ec4cdfb28a5dbaccf8f8d95c64315cae0de2b296d; run focused tests, Astro checks, browser collection, the production build, and link audit."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Chapter 27 cases in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, and remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:793ab3cc5faf5c0d718f8dd7f68f643d8dad4c1b9dacb0715c3bef577048100c", notes: "Exact Chapter 27 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch27-source:local", checksum: "sha256:fa1ccb2ab9138664efdead5ec4cdfb28a5dbaccf8f8d95c64315cae0de2b296d", notes: "Accepted pinned Linux source snapshot for Chapter 27."}
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/source-validation.log", checksum: "sha256:d5578407a446a1b5a1bfaa1565d3feb5587be7ee896a322da870e95878e4a69e", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/exact-build.log", checksum: "sha256:2322e5699e083a07a6241629669d4ed2ab43d3e389fd061250ea1f61673d70e2", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/chromium.log", checksum: "sha256:0aa6ef13eba8b1912fe56c43c271ec38c25ca5f267ffeec2d8a0e5fe831ba25a", notes: "Pinned Chromium Chapter 27 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/firefox.log", checksum: "sha256:1ac6fb03215dbffa595b832f8759535b3cb8ca836c0c1d98eeb75b82f577b617", notes: "Pinned Firefox Chapter 27 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T075447Z-localize-ch27-cheat-sheet-01/publish-product.sha256", checksum: "sha256:ae9891f405d3c6ce49404b0f5d84ad7cea269d763e4b6d9785e5a058748a3485", notes: "Frozen hashes for the four non-ledger Chapter 27 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 26 is completed and independently committed at 262cb5c; the worktree was clean; Chapter 27 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 27 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All eleven concepts survive in canonical order and softmax remains established technical prose. Same-sequence queries and keys produce pre-softmax dot-product compatibility scores; division uses the square root of shared query/key width; each query row normalizes across key positions to weights summing to one; a weight controls retrieval rather than correctness confidence; output mixes value rows; unmasked means every available key, including future positions, remains visible."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "75/75 focused cases pass, including exact multi-term and singleton statuses in both locales; Astro reports 210 files with zero diagnostics; exactly 199 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 27 gates", status: passed, notes: "3/3 cases pass independently in each engine. Russian collation yields exact page lengths 10 and 1; the full page scrolls while the singleton page remains unscrolled and reachable; the status reads 'Термины: 11 из 11; страница 2 из 2'; long scaled-dot-product and square-root terms wrap safely; fixed paginator geometry, focus, 360-by-500 containment, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, declared-source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "All four non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared component/layout, dependencies, Docker definitions, and Compose definition are byte-identical; the declared copy/unit/E2E corrections and decision are present; exactly Chapters 1-27 are localized; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 27 now has one direct Russian localization of all eleven unmasked self-attention terms on locale-sorted pages of ten and one. Scores, scaling, row normalization, weights, and value mixing remain precise; singleton status avoids a duplicated range, and nonoverflowing tail pages no longer invent scrolling. Every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate passes."
       - id: localize-ch28-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 28 cheat sheet."
         depends_on: [localize-ch27-cheat-sheet]

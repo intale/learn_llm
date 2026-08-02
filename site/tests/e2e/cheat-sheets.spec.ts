@@ -886,7 +886,11 @@ for (const sheet of sheets) {
           expectPaginatedShell(initialLayout);
           const reachability = await scrollCurrentTermPageToEnd(pages);
           expectCurrentPageEndReachable(reachability);
-          expect(reachability.scrollTop).toBeGreaterThan(1);
+          if (reachability.scrollHeight > reachability.clientHeight + 1) {
+            expect(reachability.scrollTop).toBeGreaterThan(1);
+          } else {
+            expect(reachability.scrollTop).toBeLessThanOrEqual(1);
+          }
           const scrolledLayout = await readPaginatedLayout(dialog);
           expectPaginatedShell(scrolledLayout);
           expect(

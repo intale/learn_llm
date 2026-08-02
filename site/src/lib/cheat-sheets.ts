@@ -59,8 +59,13 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
       pageCount,
       startTerm,
       totalTerms,
-    }) =>
-      `Terms ${startTerm}\u2013${endTerm} of ${totalTerms}; page ${currentPage} of ${pageCount}`,
+    }) => {
+      const termRange =
+        startTerm === endTerm
+          ? `${startTerm}`
+          : `${startTerm}\u2013${endTerm}`;
+      return `Terms ${termRange} of ${totalTerms}; page ${currentPage} of ${pageCount}`;
+    },
     paginationLabel: 'Cheat sheet term pages',
     previousLabel: 'Previous terms',
   },
@@ -76,9 +81,16 @@ const copyByLocale: Partial<Record<Locale, CheatSheetCopy>> = {
       pageCount,
       startTerm,
       totalTerms,
-    }) =>
-      `Термины: ${startTerm}\u2013${endTerm} из ${totalTerms}; ` +
-      `страница ${currentPage} из ${pageCount}`,
+    }) => {
+      const termRange =
+        startTerm === endTerm
+          ? `${startTerm}`
+          : `${startTerm}\u2013${endTerm}`;
+      return (
+        `Термины: ${termRange} из ${totalTerms}; ` +
+        `страница ${currentPage} из ${pageCount}`
+      );
+    },
     paginationLabel: 'Страницы справочника терминов',
     previousLabel: 'Предыдущие термины',
   },
