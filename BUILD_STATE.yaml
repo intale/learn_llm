@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T07:43:19Z"
+updated_at: "2026-08-02T07:48:03Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 24
+      spent: 25
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28659,13 +28659,39 @@ builds:
       - id: localize-ch25-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 25 cheat sheet."
         depends_on: [localize-ch24-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/25-rmsnorm.json", "site/src/content/chapters/ru/25-rmsnorm.mdx", "curriculum/chapters/25-rmsnorm.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/25-rmsnorm.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-25 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:25-rmsnorm'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:25-rmsnorm'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T074429Z-localize-ch25-cheat-sheet-01
+            started_at: "2026-08-02T07:44:29Z"
+            finished_at: "2026-08-02T07:48:03Z"
+            status: succeeded
+            input_fingerprint: {git: "14d21562e896b7c5c85dd56b33343742d7ade7ca", manifest: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:b3006e0a2ba38b0c11327c362db2828788508433798d23909fabd9595a2ab635", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 25 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 24 commit and worktree, exact Chapter 25 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all ten Chapter 25 terms directly from English, preserving RMSNorm, RMS, and LayerNorm; strengthen literal coverage and advance the exact Russian rollout boundary to Chapter 25."
+              - "Build source image sha256:e2498c446d962895b6e8d1bf9ba8f6be6eeec26c08f6e876a7ec115ac3489bc6; run focused tests, Astro checks, browser collection, the production build, and link audit."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Chapter 25 cases in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, and remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:b3006e0a2ba38b0c11327c362db2828788508433798d23909fabd9595a2ab635", notes: "Exact Chapter 25 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch25-source:local", checksum: "sha256:e2498c446d962895b6e8d1bf9ba8f6be6eeec26c08f6e876a7ec115ac3489bc6", notes: "Accepted pinned Linux source snapshot for Chapter 25."}
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/source-validation.log", checksum: "sha256:6006b9935846cb4988a3b72880653721beef202767a6fb4b3ee45d90334b55d8", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/exact-build.log", checksum: "sha256:92e514e7b78686df37ed77e5c3fd25cc7e663a24a456489535e09c315227e14b", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/chromium.log", checksum: "sha256:1d423490b9ea626115b18dba0c8274d62301a42b3d74eaadc4e005128cba48d0", notes: "Pinned Chromium Chapter 25 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/firefox.log", checksum: "sha256:e5d0bc3609854056fcbe790f81ca232ccff50c0ecdd457a2b3692712e254b374", notes: "Pinned Firefox Chapter 25 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T074429Z-localize-ch25-cheat-sheet-01/publish-product.sha256", checksum: "sha256:708a143bca998880af6f8fd418d0a3f402ec3f876ee6eaf5acdb6142903e5068", notes: "Frozen hashes for the two non-ledger Chapter 25 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 24 is completed and independently committed at 14d2156; the worktree was clean; Chapter 25 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 25 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All ten concepts survive in canonical order and RMSNorm, RMS, and LayerNorm survive. Mean square, its root, and the stabilized reciprocal remain distinct; epsilon is added before the square root; one learned multiplier follows the shared row factor for each feature; normalization acts independently on every final-axis vector without centering; positive-scale invariance is only approximate when finite epsilon is dominated by signal; pre-normalization applies to the learned branch while the identity path bypasses it."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "73/73 focused cases pass, including new LayerNorm literal protection; Astro reports 210 files with zero diagnostics; exactly 193 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 25 gates", status: passed, notes: "3/3 cases pass independently in each engine. The ten-term sheet remains one page without a paginator; mixed-script RMS/RMSNorm/LayerNorm and long Russian reciprocal, gain, epsilon, invariance, and pre-normalization entries wrap safely, and desktop focus, 360-by-500 containment/reachability, localized sorting, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-25 are localized; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 25 now has one direct Russian localization of all ten RMSNorm terms. Mean square, RMS and its stabilized reciprocal, per-feature learned gain, final-axis scope, finite-epsilon behavior, pre-normalization, and the LayerNorm centering contrast remain precise, and the sheet passes every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate."
       - id: localize-ch26-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 26 cheat sheet."
         depends_on: [localize-ch25-cheat-sheet]
