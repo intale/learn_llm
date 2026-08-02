@@ -377,6 +377,14 @@ describe("Chapter 20 labels and static component", () => {
     expect(componentSource).toContain(
       "grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) 10rem",
     );
+    expect(componentSource).toContain(
+      "grid-template-columns: minmax(11rem, 0.4fr) minmax(0, 1fr)",
+    );
+    expect(componentSource).toContain("'heading proof'");
+    expect(componentSource).toContain("'note proof'");
+    expect(componentSource).toContain("grid-area: heading");
+    expect(componentSource).toContain("grid-area: note");
+    expect(componentSource).toContain("grid-area: proof");
     expect(componentSource).toContain("'summary summary summary'");
     expect(componentSource).toContain("'positions gradients gradients'");
     expect(componentSource).toContain("'independence gradients gradients'");

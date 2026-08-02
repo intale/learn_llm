@@ -502,16 +502,24 @@ const parameterRows = trace.parameterGradients.map((row) => {
   }
 
   .swiglu-diagram:fullscreen > .independence-stage {
-    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    grid-template-columns: minmax(11rem, 0.4fr) minmax(0, 1fr);
+    grid-template-areas:
+      'heading proof'
+      'note proof';
     align-items: start;
   }
 
+  .swiglu-diagram:fullscreen > .independence-stage > h4 {
+    grid-area: heading;
+  }
+
   .swiglu-diagram:fullscreen > .independence-stage > p {
+    grid-area: note;
     margin: 0;
   }
 
   .swiglu-diagram:fullscreen .independence-proof {
-    grid-column: 1 / -1;
+    grid-area: proof;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-areas:
       'changed replacement observed result'
