@@ -217,7 +217,7 @@ const compactDecimal = (value: string) =>
     </h4>
     <p>{labels.notes.finalBatch}</p>
     <div class="denominator-contrast course-diagram__grid">
-      <article data-diagram-card data-diagram-box class="capacity-denominator">
+      <article data-diagram-card data-diagram-box class="capacity-denominator course-diagram__card-stack">
         <p>{labels.summary.requestedCapacity}</p>
         <InlineMath
           latex={String.raw`${trace.meta.capacity}\times${trace.meta.context}=${trace.final.capacityTokens}`}
@@ -225,7 +225,7 @@ const compactDecimal = (value: string) =>
         <strong>{labels.symbols.unused}</strong>
       </article>
       <span class="contrast-arrow" aria-hidden="true">→</span>
-      <article data-diagram-card data-diagram-box class="actual-denominator">
+      <article data-diagram-card data-diagram-box class="actual-denominator course-diagram__card-stack">
         <p>{labels.fields.actualWidth}</p>
         <InlineMath
           latex={String.raw`${trace.final.width}\times${trace.meta.context}=${trace.final.actualDenominator}`}
@@ -380,12 +380,6 @@ const compactDecimal = (value: string) =>
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: stretch;
     gap: 0.75rem;
-  }
-
-  .denominator-contrast article {
-    display: grid;
-    align-content: start;
-    gap: 0.45rem;
   }
 
   .capacity-denominator {
