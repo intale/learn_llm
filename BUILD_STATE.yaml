@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T06:07:45Z"
+updated_at: "2026-08-02T06:13:25Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 8
+      spent: 9
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -28083,13 +28083,39 @@ builds:
       - id: localize-ch09-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 9 cheat sheet."
         depends_on: [localize-ch08-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/09-tensor-views.json", "site/src/content/chapters/ru/09-tensor-views.mdx", "curriculum/chapters/09-tensor-views.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/09-tensor-views.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-9 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:09-tensor-views'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:09-tensor-views'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T060851Z-localize-ch09-cheat-sheet-01
+            started_at: "2026-08-02T06:08:51Z"
+            finished_at: "2026-08-02T06:13:25Z"
+            status: succeeded
+            input_fingerprint: {git: "22cffdf25b869ecdf5412e7e796cf5974ef7b666", manifest: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:226a7cd7ef9d6885fae9336e2c48596feb0950a9f2973b45f93f0a83e483c354", tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins", external: "None; current English Chapter 9 sheet is the sole semantic source."}
+            staging_dir: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/"
+            commands:
+              - "Verify the clean Chapter 8 commit and worktree, exact Chapter 9 inputs, cached toolchain, dependency closure, sequential scheduler, and medium local cost."
+              - "Translate and independently review all ten Chapter 9 terms directly from English, preserving Q/K/V, then advance the exact Russian rollout boundary to Chapter 9."
+              - "Build source image sha256:9acb856584d9bd1f8a3799f7f747528f24a04939f7b1dd9c7d5ded2a2e04ed72; run focused tests, Astro checks, browser collection, the production build, and link audit."
+              - "Create and independently build the run-labelled exact browser snapshot, run the three focused Chapter 9 cases in pinned Chromium and Firefox, reconcile hashes, freeze the product manifest, and remove the labelled volume."
+            artifacts:
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/input-fingerprint.txt", checksum: "sha256:226a7cd7ef9d6885fae9336e2c48596feb0950a9f2973b45f93f0a83e483c354", notes: "Exact Chapter 9 localization input fingerprint."}
+              - {path: "docker-image://learn-llm-ru-cheatsheet-ch09-source:local", checksum: "sha256:9acb856584d9bd1f8a3799f7f747528f24a04939f7b1dd9c7d5ded2a2e04ed72", notes: "Accepted pinned Linux source snapshot for Chapter 9."}
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/source-validation.log", checksum: "sha256:162d7069701d5b5b4ca82ce5a28f69a882a15a50abea78ecd3339fc3a11c4126", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/exact-build.log", checksum: "sha256:dac7b5937f8cf783d99fd3a069070d0297c184b84e26fbd038783e5c271b70bb", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/chromium.log", checksum: "sha256:bc274833618744b3abe866f5be2dd64badc6a7f7115fb3943cb639aeda30d0b7", notes: "Pinned Chromium Chapter 9 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/firefox.log", checksum: "sha256:0ec41cb002c315407a3e00b65f82cebab0eb2daad3e2bb74759ab67d622b2dbf", notes: "Pinned Firefox Chapter 9 rendered-gate output, 3/3 passed."}
+              - {path: ".build/runs/20260802T060851Z-localize-ch09-cheat-sheet-01/publish-product.sha256", checksum: "sha256:de15b8a80f998e688155321fb4b0390c10d110a344b9d74cc66f985a5d667ada", notes: "Frozen hashes for the two non-ledger Chapter 9 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 8 is completed and independently committed at 22cffdf; the worktree was clean; Chapter 9 is the first eligible pending step; exact localization inputs exist; cached validation requires no paid service or network generation."}
+              - {command: "Chapter 9 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All ten concepts survive in canonical order and Q/K/V is exact. A view borrows owner values while keeping its own layout metadata; reshape remains contiguous-only and order-preserving; transpose and permutation alter axis metadata without moving owner values; slices share storage; base offset remains an owner-buffer position; row-major contiguity is distinct from sharing; and materialization is the explicit copy boundary into a new owner."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "57/57 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 145 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 9 gates", status: passed, notes: "3/3 cases pass independently in each engine. The ten-term sheet remains one page without a paginator; long Russian contiguity and Q/K/V headwords wrap safely, and desktop focus, 360-by-500 containment/reachability, localized sorting, and complete no-JavaScript disclosure pass."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Docker definitions, and Compose definition are byte-identical; exactly Chapters 1-9 are localized; no whitespace or mode error exists; the exact volume was removed and no run-labelled resource remains."}
+            notes: "Succeeded. Chapter 9 now has one direct Russian localization of all ten tensor-view and attention-shape terms. Shared storage, independent view metadata, row-major contiguity, metadata-only transformations, and explicit materialization remain distinct, and the sheet passes every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate."
       - id: localize-ch10-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 10 cheat sheet."
         depends_on: [localize-ch09-cheat-sheet]
