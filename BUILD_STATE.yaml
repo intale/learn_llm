@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T10:19:14Z"
+updated_at: "2026-08-02T10:20:15Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -29256,7 +29256,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 2
+      spent: 3
       notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
     completion_criteria:
       - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
@@ -29315,7 +29315,7 @@ builds:
       - id: audit-rust-workspace
         objective: "Audit the cumulative dependency-free Rust LLM implementation and every chapter demo for formatting, warnings, tests, dependencies, deterministic evidence, and contract coverage."
         depends_on: []
-        status: running
+        status: completed
         inputs: ["Cargo.toml", "Cargo.lock", "rust/crates/", "rust/demos/", "curriculum/chapters/", "scripts/check-rust-dependencies.sh", "scripts/check-rust-demos.sh"]
         outputs: ["audits/2026-08-02-full-course/rust.md"]
         acceptance:
@@ -29332,18 +29332,35 @@ builds:
         runs:
           - run_id: 20260802T095110Z-audit-rust-workspace-01
             started_at: 2026-08-02T09:51:10Z
-            finished_at: null
-            status: running
+            finished_at: 2026-08-02T10:20:15Z
+            status: succeeded
             input_fingerprint:
               git: 2b24a50d86609445ed19aa33a4162414904dc4ca
               files: {Cargo.lock: "sha256:55c3289704fde3b45c1ad6cf71dadae1993d71dc8b07db1820534f691d27a491"}
               tools: "Docker 29.6.2; repository Rust/Cargo 1.93.1 Linux pin"
               external: "None; offline cached workspace validation."
             staging_dir: .build/runs/20260802T095110Z-audit-rust-workspace-01/
-            commands: ["Run startup and immutable-source preflight; inventory one cumulative crate and 40 demo packages, including the Chapter 0 orientation exception."]
-            artifacts: []
-            validation: []
-            notes: "Running; assigned only Rust and deterministic-demo audit surfaces."
+            commands:
+              - "Run startup and immutable-source preflight; inventory one cumulative crate and 40 demo packages, including the Chapter 0 orientation exception."
+              - "Run formatting, strict all-target Clippy, complete locked workspace tests, dependency policy, and all deterministic chapter-demo fixtures offline in the pinned Linux toolchain."
+              - "Aggregate unit/integration/doc-test results and inventory the exact contract, demo, expected-fixture, and workspace-package coverage."
+              - "Investigate Cargo's repeated diagram_trace output-collision warnings and report their present and forward-compatibility impact without changing example targets."
+            artifacts:
+              - {path: audits/2026-08-02-full-course/rust.md, checksum: "sha256:8f2677978ce7339cba1e9ce92c08fcd482ec0a432bc3269df5b462fd467efe97", notes: "Canonical Rust workspace audit fragment."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/cargo-fmt.log, checksum: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", notes: "Silent passing rustfmt output; exit and elapsed time are in cargo-fmt.meta."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/cargo-clippy.log, checksum: "sha256:f7222a64fe06f678a5cb55413bf953321e8498d2262b82b3c732bc0bc7ddfff3", notes: "Passing strict all-target Clippy output."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/cargo-test.log, checksum: "sha256:5f77aa86ec775988d8667eb39f94a2164742ad0481f1723bc751a8a806a58994", notes: "Passing 500-test workspace output plus Cargo target-collision warnings."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/rust-dependencies.log, checksum: "sha256:9f72eb2eb7e61ac387c12f42f7943c197382162f415d441b5baa356df3e78ae8", notes: "Passing no-external-crate dependency policy."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/rust-demos.log, checksum: "sha256:7893cd080153d6eb29ea1964014138596fa54d6fb8df08072a47ccf047157386", notes: "Passing 39-demo byte-exact fixture gate."}
+              - {path: .build/runs/20260802T095110Z-audit-rust-workspace-01/coverage-inventory.log, checksum: "sha256:aa6541ce5f484740d6223eb801e7921dd7e12038caf8b18f06e7d8ab131640c1", notes: "Final contract/demo/fixture/workspace coverage inventory; earlier malformed find attempts remain preserved separately."}
+            validation:
+              - {command: "cargo fmt --all -- --check", status: passed, notes: "Passed in 1.2 seconds."}
+              - {command: "cargo clippy --workspace --all-targets --locked -- -D warnings", status: passed, notes: "Passed in 7.9 seconds with no Rust lint diagnostic."}
+              - {command: "cargo test --workspace --locked", status: findings, notes: "500 tests across 120 result groups pass with zero failure in 144.1 seconds. Cargo warns that repeated diagram_trace example targets collide in target/debug/examples and may become a hard error in the future."}
+              - {command: "scripts/check-rust-dependencies.sh", status: passed, notes: "Workspace packages only; no external supporting or concept-implementing crate."}
+              - {command: "scripts/check-rust-demos.sh", status: passed, notes: "All 39 implementation chapter demos match exact expected bytes in 133.3 seconds; Chapter 0 is correctly excluded."}
+              - {command: "Coverage and product-immutability audit", status: passed, notes: "40 contracts, 39 demos, 39 expected fixtures, and 41 workspace packages are accounted for; no Rust, contract, manifest, or lockfile changed."}
+            notes: "Audit succeeded with one medium build-hygiene finding: 34 chapter packages reuse the diagram_trace example name, and Cargo reports ambiguous workspace output paths. All current formatting, lint, test, dependency, and deterministic-demo gates pass."
       - id: audit-static-delivery
         objective: "Audit the complete static site, deployment policy, unit suite, type safety, production output, links, SEO, sitemap, Analytics, and host/CLI hygiene."
         depends_on: []
