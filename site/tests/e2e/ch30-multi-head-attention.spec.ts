@@ -432,11 +432,7 @@ async function expectChapterContent(
   await expect(
     page.locator('nav[data-chapter-navigation] a[data-chapter-direction="previous"]'),
   ).toHaveAttribute('data-chapter-id', '29-rope');
-  if (locale === 'en') {
-    await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveAttribute('data-chapter-id', '31-decoder-block');
-  } else {
-    await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveCount(0);
-  }
+  await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveAttribute('data-chapter-id', '31-decoder-block');
   await expectNoOverflowOrClientScripts(page);
 }
 

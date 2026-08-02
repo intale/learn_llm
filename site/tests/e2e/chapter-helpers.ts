@@ -332,6 +332,11 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
   const hasSharedShell = labels.open !== null || labels.close !== null;
   expect(Boolean(labels.open?.trim())).toBe(hasSharedShell);
   expect(Boolean(labels.close?.trim())).toBe(hasSharedShell);
+  const cheatSheetCount = await page.locator('[data-cheat-sheet]').count();
+  expect(
+    cheatSheetCount,
+    'a chapter must render at most one shared cheat-sheet surface',
+  ).toBeLessThanOrEqual(1);
 
   const scripts = await page
     .locator('script:not([type="application/ld+json"])')
@@ -388,18 +393,56 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
   const sharedScripts = scripts.filter(
     (_script, index) => index !== loaderIndex && index !== initializerIndex,
   );
-  expect(sharedScripts).toHaveLength(hasSharedShell ? 1 : 0);
-  if (!hasSharedShell) return;
+  const expectedEnhancements = [
+    ...(hasSharedShell
+      ? [
+          {
+            name: 'diagram',
+            markers: [
+              'diagramFullViewReady',
+              'figure[data-visualization-id]',
+            ],
+          },
+        ]
+      : []),
+    ...(cheatSheetCount === 1
+      ? [
+          {
+            name: 'cheat-sheet',
+            markers: ['cheatSheetEnhanced', '[data-cheat-sheet]'],
+          },
+        ]
+      : []),
+  ];
+  expect(sharedScripts).toHaveLength(expectedEnhancements.length);
 
-  const sharedScript = sharedScripts[0];
-  expect(sharedScript?.type).toBe('module');
-  if (sharedScript?.src) {
-    expect(sharedScript.text).toBe('');
-    expect(new URL(sharedScript.src).pathname).toMatch(/^\/_astro\/.+\.js$/);
-  } else {
-    expect(sharedScript?.text).toContain('diagramFullViewReady');
-    expect(sharedScript?.text).toContain('figure[data-visualization-id]');
+  const externalSources = new Set<string>();
+  const observedEnhancements: string[] = [];
+  for (const sharedScript of sharedScripts) {
+    expect(sharedScript.type).toBe('module');
+    let source = sharedScript.text;
+    if (sharedScript.src) {
+      expect(source).toBe('');
+      expect(new URL(sharedScript.src).pathname).toMatch(/^\/_astro\/.+\.js$/);
+      expect(externalSources.has(sharedScript.src)).toBe(false);
+      externalSources.add(sharedScript.src);
+      const response = await page.request.get(sharedScript.src);
+      expect(response.ok(), `failed to read ${sharedScript.src}`).toBe(true);
+      source = await response.text();
+    }
+
+    const matches = expectedEnhancements.filter(({ markers }) =>
+      markers.every((marker) => source.includes(marker)),
+    );
+    expect(
+      matches,
+      'every non-analytics module must be one rendered shared enhancement',
+    ).toHaveLength(1);
+    observedEnhancements.push(matches[0]?.name ?? '');
   }
+  expect(observedEnhancements.sort()).toEqual(
+    expectedEnhancements.map(({ name }) => name).sort(),
+  );
 }
 
 export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {
@@ -408,6 +451,6 @@ export async function expectNoOverflowOrUnexpectedClientScripts(page: Page) {
 }
 
 // Compatibility name retained for existing chapter suites. The assertion now
-// permits exactly the analytics pair and shared progressive diagram enhancement.
+// permits exactly the analytics pair and rendered shared progressive enhancements.
 export const expectNoOverflowOrClientScripts =
   expectNoOverflowOrUnexpectedClientScripts;

@@ -203,19 +203,25 @@ function createFixtureRepository(): void {
         .filter(({ activeLocales }) => activeLocales.includes(locale))
         .map(({ chapterId }) => chapterId),
     );
-    const localeDirectory = join(
-      fixtureSite,
-      'src',
-      'content',
-      'chapters',
-      locale,
-    );
-    for (const file of readdirSync(localeDirectory)) {
-      if (
-        file.endsWith('.mdx') &&
-        !activeChapterIds.has(file.slice(0, -'.mdx'.length))
-      ) {
-        rmSync(join(localeDirectory, file));
+    for (const { collection, extension } of [
+      { collection: 'chapters', extension: '.mdx' },
+      { collection: 'cheat-sheets', extension: '.json' },
+    ]) {
+      const localeDirectory = join(
+        fixtureSite,
+        'src',
+        'content',
+        collection,
+        locale,
+      );
+      if (!existsSync(localeDirectory)) continue;
+      for (const file of readdirSync(localeDirectory)) {
+        if (
+          file.endsWith(extension) &&
+          !activeChapterIds.has(file.slice(0, -extension.length))
+        ) {
+          rmSync(join(localeDirectory, file));
+        }
       }
     }
   }

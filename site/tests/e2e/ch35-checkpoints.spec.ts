@@ -351,14 +351,10 @@ async function expectChapterContent(
   const nextChapter = page.locator(
     'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
   );
-  if (locale === "en") {
-    await expect(nextChapter).toHaveAttribute(
-      "data-chapter-id",
-      "36-temperature-top-k",
-    );
-  } else {
-    await expect(nextChapter).toHaveCount(0);
-  }
+  await expect(nextChapter).toHaveAttribute(
+    "data-chapter-id",
+    "36-temperature-top-k",
+  );
   await expectNoOverflowOrClientScripts(page);
 }
 

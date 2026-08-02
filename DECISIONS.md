@@ -12329,3 +12329,76 @@ prioritized findings; no defect is described as fixed.
 **Affected build, step, and run:** `audit-full-course-20260802`,
 `consolidate-full-course-audit`, run
 `20260802T110333Z-consolidate-full-course-audit-02`.
+
+## 2026-08-02 - Remediate the full-course audit through independent acceptance boundaries
+
+**Status:** Accepted for `remediate-full-course-audit-20260802`.
+
+**Context:** The completed full-course audit records five actionable findings:
+three stale browser-suite assumptions, excessive Firefox full-view travel in the
+Russian Chapter 19-21 diagrams, an obsolete Russian Chapter 0 availability
+paragraph, colliding Cargo example outputs, and a README description that stops
+at the bigram baseline. The audit reports are immutable evidence and must not be
+rewritten as defects are fixed. A metadata review also refines the Rust finding:
+the workspace contains 34 `diagram_trace.rs` source files, but only 14 packages
+still expose the duplicated Cargo target name `diagram_trace`; Chapters 8-27
+already use package-qualified target names. The orchestration host has changed
+from the recorded Windows environment to Linux with Git 2.53.0, Docker 25.0.2,
+and Compose 2.17.3, while all repository-owned Rust, Node, npm, and Playwright
+pins remain unchanged.
+
+**Decision:** Restore the browser gate before changing product geometry. Reflow
+Chapters 19, 20, and 21 as three independently measured and committed steps,
+without relaxing their existing travel budgets, reducing readable type, or
+concealing overflow; run the complete two-engine matrix after the third repair.
+Treat the Chapter 0 copy correction as content revision 4: retain English as the
+semantic source, translate the current course-map meaning directly into natural
+Russian under the localization workflow, and advance the contract and both
+locale records together. Generalize the established Chapter 8 Rust convention
+by retaining each `examples/diagram_trace.rs` path while naming the remaining 14
+targets `<package>-trace`; update live contract commands and strengthen the demo
+gate so every registered trace target is globally unique and its output is
+compared byte-for-byte with its fixture. Correct the README in a final separate
+step. Preserve historical run commands and audit reports unchanged.
+
+**Consequences:** The remediation consists of seven completion commits: one
+browser-gate repair, one per affected diagram, one Chapter 0 localization
+revision, one Rust target/gate repair, and one README correction. Every step
+must pass its staged and canonical checks before its checkpoint commit. The work
+uses pinned Docker toolchains and browsers; it changes no dependencies, server
+runtime, hosting, deployment, analytics, or published audit evidence.
+
+**Affected build and steps:** `remediate-full-course-audit-20260802`,
+`restore-browser-acceptance-gate`, `reflow-ch19-firefox-full-view`,
+`reflow-ch20-firefox-full-view`, `reflow-ch21-firefox-full-view`,
+`correct-ch00-russian-availability`, `disambiguate-rust-example-targets`, and
+`refresh-readme-course-boundary`.
+
+## 2026-08-02 - Browser geometry acceptance requires the pinned Noble runtime
+
+**Status:** Accepted for `20260802T134308Z-restore-browser-acceptance-gate-01`.
+
+**Context:** The exact `mcr.microsoft.com/playwright:v1.61.1-noble` image used
+by the audit is absent from the Linux host. A repository-built Node Bookworm
+image happens to contain Playwright 1.61.1 and the same browser revisions, but a
+trial run produced cross-chapter Chromium geometry failures that contradict the
+official-Noble audit. Its font and operating-system environment therefore is
+not interchangeable for pixel-budget evidence. The trial was stopped and its
+Chapter 30 measurement is rejected as an environment artifact, not promoted to
+product scope.
+
+**Decision:** Pull the exact tagged Noble image, verify its immutable image ID
+and Playwright package/runtime version, and use it for every broad or geometric
+browser acceptance command. Keep networking disabled while building and running
+the static candidate. The one registry pull is an explicit large-step input;
+package dependencies and source remain locked and offline.
+
+**Consequences:** The remediation retains the seven declared commit boundaries
+and the three audit-backed geometry steps. Evidence from the Bookworm trial may
+explain the rejected attempt but cannot satisfy or expand acceptance. If the
+pulled Noble image does not match the audit's recorded image identity or runtime
+version, the step must stop rather than substitute another browser environment.
+
+**Affected build, step, and run:** `remediate-full-course-audit-20260802`,
+`restore-browser-acceptance-gate`, and
+`20260802T134308Z-restore-browser-acceptance-gate-01`.

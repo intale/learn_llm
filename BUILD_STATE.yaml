@@ -1,19 +1,19 @@
 schema_version: 1
-updated_at: "2026-08-02T11:05:40Z"
+updated_at: "2026-08-02T14:28:51Z"
 
 environment:
-  os: "Windows host with Linux x86_64 product and browser containers"
+  os: "Linux x86_64 host with Linux x86_64 product and browser containers"
   execution: "Docker-only product build and validation; host use is limited to Docker, Docker Compose, Git, and repository orchestration."
-  docker: "29.6.2"
-  docker_compose: "5.3.1"
+  docker: "25.0.2"
+  docker_compose: "2.17.3"
   rustc: "1.93.1"
   cargo: "1.93.1"
   node: "22.12.0"
   npm: "10.9.0"
-  git: "2.55.0.windows.3"
-  notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
+  git: "2.53.0"
+  notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: remediate-full-course-audit-20260802
 
 builds:
   - build_id: bootstrap-course
@@ -29572,3 +29572,185 @@ builds:
               - {command: "YAML parse, dependency topology, scheduler, and build closure", status: passed, notes: "The invalidated browser report has one contiguous completed replacement; every consolidation dependency is completed; no step or run remains running; active_build is null and the audit build is completed."}
               - {command: "git diff --check and product-path immutability audit", status: passed, notes: "No whitespace error exists. Outside audits/, BUILD_STATE.yaml, and append-only DECISIONS.md, every path remains byte-identical to product revision 2b24a50."}
             notes: "Succeeded. The full-course audit closes with one high, three medium, and one low finding, two explicitly scoped audit limitations, complete verified-pass evidence, and no product or production-test modification."
+
+  - build_id: remediate-full-course-audit-20260802
+    objective: "Resolve every actionable defect recorded by the 2026-08-02 full-course audit while preserving its immutable evidence."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "User-requested remediation. Two complete browser matrices and one complete Rust workspace run require substantial local CPU. The exact pinned Playwright Noble image was not retained locally and requires one explicit registry pull; no paid service, generation, package-dependency change, hosting mutation, or deployment is planned."
+    completion_criteria:
+      - "The normal Chromium and Firefox browser acceptance matrices pass without audit-only patches or exclusions."
+      - "Russian Chapters 19-21 full-view diagrams stay within their recorded Firefox travel budgets without clipping or reduced readable type."
+      - "Russian Chapter 0 accurately describes the complete localized course map and passes direct-from-English linguistic and rendered review."
+      - "Every Cargo example target has an unambiguous workspace output and the demo gate prevents duplicate example names."
+      - "README accurately describes the complete bilingual Chapter 0-39 course, and every fix is persisted in its own commit."
+    steps:
+      - id: restore-browser-acceptance-gate
+        objective: "Replace the three stale Playwright assumptions identified by the audit so the gate reports current product behavior instead of known test drift."
+        depends_on: []
+        status: completed
+        inputs:
+          - "audits/2026-08-02-full-course.md"
+          - "audits/2026-08-02-full-course/browser-corrected.md"
+          - "site/src/components/CheatSheet.astro"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/i18n/chapter-locales.json"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+        outputs:
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/chapter-locales.spec.ts"
+          - "site/tests/e2e/ch29-rope.spec.ts"
+          - "site/tests/e2e/ch30-multi-head-attention.spec.ts"
+          - "site/tests/e2e/ch33-training-selection.spec.ts"
+          - "site/tests/e2e/ch34-final-evaluation.spec.ts"
+          - "site/tests/e2e/ch35-checkpoints.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The client-script check derives the exact allowed progressive modules from the rendered diagram shell and cheat-sheet surface, validates every module, and still rejects unexpected scripts."
+          - "Selective-locale fixtures remove inactive cheat sheets with inactive lessons and still fail closed on orphan records."
+          - "Chapters 29, 30, 33, 34, and 35 expect the currently published next Russian chapter rather than a retired rollout boundary."
+          - "The complete Chromium matrix passes; Firefox passes every case except the three unchanged full-view findings owned by the next steps."
+          - "No learner-facing, component, style, Rust, dependency, build, hosting, deployment, or audit-report file changes."
+        validate:
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "Docker Playwright 1.61.1 complete Chromium matrix"
+          - "Docker Playwright 1.61.1 Firefox matrix excluding only the three recorded Chapters 19-21 full-view cases"
+          - "Exact five-navigation and selective-locale fixture checks in both engines"
+          - "git diff --check and exact staged/canonical scope audit"
+        cost: {class: large, notes: "Two broad Playwright runs plus site checks and one exact pinned Noble-image pull; substantial local CPU and registry bandwidth, with no paid service."}
+        runs:
+          - run_id: 20260802T134308Z-restore-browser-acceptance-gate-01
+            started_at: 2026-08-02T13:43:08Z
+            finished_at: 2026-08-02T14:28:51Z
+            status: succeeded
+            input_fingerprint:
+              git: aed26f2afc38fe21972019f513ff058a7d8327a0
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:a68e1cc6bc9827c029b2691e161d762cbc0ef3b226f36cab90d486f8ae903fe3", DECISIONS.md: "sha256:1b994eb48864028215dff038f1873e61034211873aa95b49dc2caa7f36117c46", audit: "sha256:806117d9cd164432bb077d497a7299aa101a16011d3c6650ebb96341330036cb", browser-report: "sha256:39710f0af4a20b8f61d1739816564522b595fa78c7b0d83ffaf07a70fbafc014"}
+              tools: "Host Git 2.53.0, Docker 25.0.2, Compose 2.17.3; repository Rust/Cargo 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins"
+              external: "Pull only mcr.microsoft.com/playwright:v1.61.1-noble because the exact acceptance image is absent locally; reject any digest or runtime-version mismatch."
+            staging_dir: .build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/
+            commands:
+              - "Run the startup protocol at clean commit aed26f2, parse the complete 56-build ledger, inspect the completed audit and current test/component contracts, record the Linux orchestration environment, and claim the first remediation step."
+              - "Build isolated staged source image learn-llm-audit-browser-gate:staged; run site type checks and all 946 unit checks without network."
+              - "Build the staged static site and run the six affected Playwright files in Chromium and Firefox with four workers; repeat the newly exposed Chapter 30 Firefox full-view case twice with one worker."
+              - "Stop the broad custom-runner matrix after its Debian Bookworm font environment creates unrelated cross-chapter geometry failures; classify all geometry measurements from that runner as invalid acceptance evidence."
+              - "Pull mcr.microsoft.com/playwright:v1.61.1-noble at recorded digest sha256:5b8f294a, verify Playwright package 1.61.1, and confirm all 16 Bookworm-sensitive Chromium cases plus Chapter 30 Firefox pass."
+              - "Run the staged official-Noble matrices with four workers: all 648 Chromium checks and all 645 Firefox checks outside the three declared Chapter 19-21 geometry cases pass."
+              - "Freeze the seven-file publish manifest and run ./course review 20260802T134308Z-restore-browser-acceptance-gate-01 --check; publish byte-identical files to canonical paths."
+              - "Build canonical source image sha256:42fbd4a1; rerun Astro diagnostics, all 946 unit checks, the 648-case Chromium matrix, and the 645 enabled-case Firefox matrix from an isolated exact-snapshot volume."
+              - "Verify canonical files against the frozen manifest, audit the declared nine-file commit scope including ledger and decision records, validate YAML, and run git diff --check."
+            artifacts:
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/validation/ch30-firefox-repeat-test-results/ch30-multi-head-attention--ad866-c-figure-and-restores-focus-firefox/error-context.md", sha256: "b2a350e635b9db4d725fab086c2c8b8d8cd4579a9cd2053c47e56488362595b4", notes: "Rejected Bookworm-runner diagnostic preserved to explain why that non-contract environment cannot supply geometry evidence; the official Noble case passes."}
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/publish.sha256", sha256: "18fb2cc0c37946132bf0d77d2a1d06353d55df24568f90f245d1af1d6e3b3c26", notes: "Frozen manifest for the exact seven staged test files; canonical hashes match every entry."}
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/validation/staged-noble-chromium-full.log", sha256: "e01017b1ad98695ba3a04ca5689e26a03f2225c44bed777aa6b29a2f83b0c8ee", notes: "Complete staged official-Noble Chromium acceptance log: 648/648 pass."}
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/validation/staged-noble-firefox-minus-ch19-ch21.log", sha256: "d07a336b15c8bddf822e06de501de7db0153a526485fad63075ecd43fbfc43d7", notes: "Staged official-Noble Firefox acceptance log: all 645 checks outside the three declared Chapter 19-21 full-view cases pass."}
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/validation/canonical-noble-chromium-full.log", sha256: "19d2efda5d378beef24ab4ed87d18531594e9799c3ed143ee6ca721fd8925707", notes: "Complete canonical official-Noble Chromium acceptance log: 648/648 pass."}
+              - {path: ".build/runs/20260802T134308Z-restore-browser-acceptance-gate-01/validation/canonical-noble-firefox-minus-ch19-ch21.log", sha256: "9e1989a7ea71652dd1c66a41d93ef2e6f2793ce15692b941caea6e6c365fa268", notes: "Canonical official-Noble Firefox acceptance log: all 645 checks outside the three declared Chapter 19-21 full-view cases pass."}
+            validation:
+              - {command: "Repository, scheduler, environment, dependency, ownership, cost, and audit-evidence preflight", status: passed, notes: "The tree is clean at aed26f2; no build or run is active; the five audit findings remain reproducible in current sources; outputs overlap no active owner; cached local work fits the unlimited budget; and the material Windows-to-Linux orchestration change is recorded without changing product pins."}
+              - {command: "Staged npm --prefix site run check and npm --prefix site run test -- --run", status: passed, notes: "Astro reports 0 diagnostics; all 53 files and 946 unit checks pass."}
+              - {command: "Staged affected-file Playwright run in Chromium", status: passed, notes: "All 31 checks pass, including the selective-locale fixture, five current Russian next-link expectations, and shared-module classification."}
+              - {command: "Staged affected-file Playwright run in Firefox under a repository-built Bookworm runner", status: rejected, notes: "30 of 31 checks pass, but Chapter 30 measures 3.007832898 viewports against 2.75. A broader Chromium run produces many geometry failures absent from the official Noble audit, proving this OS/font environment is not valid acceptance evidence. Exact navigation and fixture assertions still pass separately in both engines."}
+              - {command: "Exact official Noble runtime identity and environment-discriminator checks", status: passed, notes: "Registry digest matches the audit exactly at sha256:5b8f294a; package/runtime is 1.61.1; 16/16 Chromium discriminator cases and the Chapter 30 Firefox case pass, rejecting the Bookworm geometry evidence."}
+              - {command: "Staged complete official-Noble Chromium matrix", status: passed, notes: "648/648 checks pass with four workers."}
+              - {command: "Staged official-Noble Firefox matrix excluding only the three declared Chapter 19-21 full-view cases", status: passed, notes: "645/645 enabled checks pass with four workers."}
+              - {command: "Frozen manifest, staged review build, static content/parity/type/build/link gates, and byte-exact publication", status: passed, notes: "The seven-file manifest verifies before and after review; 80 lessons, 40 locale pairs, 210 Astro files, 85 pages, and 2,447 local references pass; canonical files equal staged bytes."}
+              - {command: "Canonical npm --prefix site run check and npm --prefix site run test -- --run", status: passed, notes: "Astro reports zero diagnostics across 210 files; all 53 files and 946 unit checks pass."}
+              - {command: "Canonical complete official-Noble Chromium matrix", status: passed, notes: "648/648 checks pass with four workers."}
+              - {command: "Canonical official-Noble Firefox matrix excluding only the three declared Chapter 19-21 full-view cases", status: passed, notes: "645/645 enabled checks pass with four workers."}
+              - {command: "Final byte identity, declared-output scope, scheduler, YAML, and whitespace audit", status: passed, notes: "All seven canonical test files equal the frozen staged bytes; only those files plus BUILD_STATE.yaml and DECISIONS.md differ; no learner-facing, component, style, Rust, dependency, build, hosting, deployment, or audit-report path changed."}
+            notes: "Succeeded. The production browser gate now understands both shared progressive modules, selective-locale fixtures prune matching sheets, and all five Russian next links follow the current publication manifest. The only omitted Firefox cases are the three unchanged geometry defects owned by the next checkpoints."
+      - id: reflow-ch19-firefox-full-view
+        objective: "Reflow the audited Chapter 19 Russian full-view diagram so Firefox keeps the complete figure within its existing readable-travel budget."
+        depends_on: [restore-browser-acceptance-gate]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/browser-corrected.md", "site/src/styles/diagram.module.css", "site/src/components/chapters/LinearLayersDiagram.astro", "site/src/content/chapters/en/19-linear-layers.mdx", "site/src/content/chapters/ru/19-linear-layers.mdx", "site/tests/e2e/ch19-linear-layers.spec.ts"]
+        outputs: ["site/src/components/chapters/LinearLayersDiagram.astro", "BUILD_STATE.yaml"]
+        acceptance:
+          - "Firefox Russian full-view block debt is at or below the unchanged Chapter 19 budget; English and Chromium remain within budget."
+          - "All ordinary content and painted text/formulas stay within their nearest boxes, and no clipping, hiding, truncation, overlap, font reduction, or budget relaxation is used."
+          - "Inline, narrow, no-JavaScript, forced-color, direction-sensitive, keyboard, Escape, and focus-restoration behavior remains intact in both locales."
+          - "The focused Chapter 19 matrix passes in unmodified Chromium and Firefox."
+        validate: ["./course run npm --prefix site run check", "./course run npm --prefix site run test -- --run", "Docker Playwright 1.61.1 focused Chapter 19 matrix in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
+        cost: {class: medium, notes: "Measurement-guided two-engine geometry work using cached browsers; local CPU only."}
+        runs: []
+      - id: reflow-ch20-firefox-full-view
+        objective: "Reflow the audited Chapter 20 Russian full-view diagram so Firefox keeps the complete figure within its existing readable-travel budget."
+        depends_on: [reflow-ch19-firefox-full-view]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/browser-corrected.md", "site/src/styles/diagram.module.css", "site/src/components/chapters/SwigluFeedForwardDiagram.astro", "site/src/content/chapters/en/20-swiglu-feed-forward.mdx", "site/src/content/chapters/ru/20-swiglu-feed-forward.mdx", "site/tests/e2e/ch20-swiglu-feed-forward.spec.ts"]
+        outputs: ["site/src/components/chapters/SwigluFeedForwardDiagram.astro", "BUILD_STATE.yaml"]
+        acceptance:
+          - "Firefox Russian full-view block debt is at or below the unchanged Chapter 20 budget; English and Chromium remain within budget."
+          - "All ordinary content and painted text/formulas stay within their nearest boxes, and no clipping, hiding, truncation, overlap, font reduction, or budget relaxation is used."
+          - "Inline, narrow, no-JavaScript, forced-color, direction-sensitive, keyboard, Escape, and focus-restoration behavior remains intact in both locales."
+          - "The focused Chapter 20 matrix passes in unmodified Chromium and Firefox."
+        validate: ["./course run npm --prefix site run check", "./course run npm --prefix site run test -- --run", "Docker Playwright 1.61.1 focused Chapter 20 matrix in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
+        cost: {class: medium, notes: "Measurement-guided two-engine geometry work using cached browsers; local CPU only."}
+        runs: []
+      - id: reflow-ch21-firefox-full-view
+        objective: "Reflow the audited Chapter 21 Russian full-view diagram so Firefox keeps the complete figure within its existing readable-travel budget."
+        depends_on: [reflow-ch20-firefox-full-view]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/browser-corrected.md", "site/src/styles/diagram.module.css", "site/src/components/chapters/MiniBatchesDiagram.astro", "site/src/content/chapters/en/21-mini-batches.mdx", "site/src/content/chapters/ru/21-mini-batches.mdx", "site/tests/e2e/ch21-mini-batches.spec.ts"]
+        outputs: ["site/src/components/chapters/MiniBatchesDiagram.astro", "BUILD_STATE.yaml"]
+        acceptance:
+          - "Firefox Russian full-view block debt is at or below the unchanged Chapter 21 budget; English and Chromium remain within budget."
+          - "All ordinary content and painted text/formulas stay within their nearest boxes, and no clipping, hiding, truncation, overlap, font reduction, or budget relaxation is used."
+          - "Inline, narrow, no-JavaScript, forced-color, direction-sensitive, keyboard, Escape, and focus-restoration behavior remains intact in both locales."
+          - "The focused Chapter 21 matrix passes in unmodified Chromium and Firefox."
+        validate: ["./course run npm --prefix site run check", "./course run npm --prefix site run test -- --run", "Docker Playwright 1.61.1 focused Chapter 21 matrix in Chromium and Firefox", "Docker Playwright 1.61.1 complete matrix in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
+        cost: {class: large, notes: "Measurement-guided geometry work followed by the complete cached two-engine browser matrix; local CPU only."}
+        runs: []
+      - id: correct-ch00-russian-availability
+        objective: "Remove the obsolete Russian Chapter 0 rollout claim and align its course-map explanation directly with the current English source and locale projection."
+        depends_on: [reflow-ch21-firefox-full-view]
+        status: pending
+        inputs: [".agents/skills/localize-llm-course/SKILL.md", "SKILLS.md", "curriculum/README.md", "curriculum/chapters/00-llm-parts.md", "site/src/i18n/locales.json", "site/src/i18n/chapter-locales.json", "site/src/content/chapters/en/00-llm-parts.mdx", "site/src/content/chapters/ru/00-llm-parts.mdx", "audits/2026-08-02-full-course/content-localization.md"]
+        outputs: ["curriculum/chapters/00-llm-parts.md", "curriculum/course-plan.md", "site/src/content/chapters/en/00-llm-parts.mdx", "site/src/content/chapters/ru/00-llm-parts.mdx", "site/tests/00-llm-parts-diagram.test.ts", "site/tests/e2e/ch00-llm-parts.spec.ts", "BUILD_STATE.yaml"]
+        acceptance:
+          - "Visible Russian prose no longer claims that only Chapters 1-7 are localized or that current links fall back to English; it preserves the English statement that every named part links to its implementation chapter."
+          - "Meaning, terminology, anti-calque, monolingual, accessibility, and direct-English semantic reviews pass for the exact frozen paragraph."
+          - "All Chapter 0 diagram destinations resolve to current Russian routes and the complete Russian page remains contained in Chromium and Firefox at desktop, narrow, no-JavaScript, and full view."
+          - "The shared Chapter 0 content revision advances to 4 in its contract and both locale pages; English body meaning, routes, locale policy, diagram component, dependencies, build, hosting, and deployment remain unchanged."
+        validate: ["./course run npm --prefix site run check:chapter -- --locale ru --chapter 00-llm-parts", "./course run npm --prefix site run check:parity -- --chapter 00-llm-parts", "./course run npm --prefix site run test -- --run tests/00-llm-parts-diagram.test.ts", "./course run npm --prefix site run build", "./course run npm --prefix site run test:links", "Docker Playwright 1.61.1 @chapter:00-llm-parts in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
+        cost: {class: medium, notes: "One short direct-English Russian correction plus complete target-page checks in two cached engines; no network or paid service."}
+        runs: []
+      - id: disambiguate-rust-example-targets
+        objective: "Give every duplicated diagram-trace example target a package-qualified artifact name and enforce workspace-wide example-name uniqueness."
+        depends_on: [correct-ch00-russian-availability]
+        status: pending
+        inputs: ["audits/2026-08-02-full-course/rust.md", "Cargo.toml", "Cargo.lock", "rust/demos/*/Cargo.toml", "scripts/check-rust-demos.sh"]
+        outputs: ["rust/demos/ch05-autoregressive-examples/Cargo.toml", "rust/demos/ch06-bigram-baseline/Cargo.toml", "rust/demos/ch07-language-model-metrics/Cargo.toml", "rust/demos/ch28-causal-masking/Cargo.toml", "rust/demos/ch29-rope/Cargo.toml", "rust/demos/ch30-multi-head-attention/Cargo.toml", "rust/demos/ch31-decoder-block/Cargo.toml", "rust/demos/ch32-decoder-model/Cargo.toml", "rust/demos/ch33-training-selection/Cargo.toml", "rust/demos/ch34-final-evaluation/Cargo.toml", "rust/demos/ch36-temperature-top-k/Cargo.toml", "rust/demos/ch37-incremental-attention/Cargo.toml", "rust/demos/ch38-cached-generation/Cargo.toml", "rust/demos/ch39-end-to-end-llm/Cargo.toml", "curriculum/chapters/05-autoregressive-examples.md", "curriculum/chapters/06-bigram-baseline.md", "curriculum/chapters/07-language-model-metrics.md", "curriculum/chapters/28-causal-masking.md", "curriculum/chapters/29-rope.md", "curriculum/chapters/30-multi-head-attention.md", "curriculum/chapters/31-decoder-block.md", "curriculum/chapters/32-decoder-model.md", "curriculum/chapters/33-training-selection.md", "curriculum/chapters/34-final-evaluation.md", "scripts/check-rust-demos.sh", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "All 34 example targets are globally unique; the fourteen currently duplicated diagram_trace targets follow the established chNN-slug-trace naming scheme without renaming source files or changing trace bytes."
+          - "The deterministic Rust demo gate rejects any future duplicate Cargo example target name."
+          - "Locked offline metadata, formatting, strict all-target Clippy, all workspace tests, dependency policy, and all 39 exact demo outputs pass without output-collision warnings."
+          - "Cargo.lock, Rust source, expected output, learner content, dependencies, build definitions, hosting, and deployment remain unchanged."
+        validate: ["./course run cargo metadata --no-deps --format-version 1 --locked --offline", "./course run cargo fmt --all -- --check", "./course run cargo clippy --workspace --all-targets --locked --offline -- -D warnings", "./course run cargo test --workspace --locked --offline", "./course run scripts/check-rust-dependencies.sh", "./course run scripts/check-rust-demos.sh", "git diff --check and exact staged/canonical scope audit"]
+        cost: {class: medium, notes: "Mechanical manifest repair plus a complete cached offline Rust workspace and demo run; substantial local CPU, no network or paid service."}
+        runs: []
+      - id: refresh-readme-course-boundary
+        objective: "Update the root usage guide so its opening description matches the complete bilingual Chapter 0-39 course."
+        depends_on: [disambiguate-rust-example-targets]
+        status: pending
+        inputs: ["README.md", "site/src/i18n/chapter-locales.json", "curriculum/course-plan.md", "audits/2026-08-02-full-course/static-delivery.md"]
+        outputs: ["README.md", "BUILD_STATE.yaml"]
+        acceptance:
+          - "README states that both enabled locales publish the Chapter 0 orientation and implementation Chapters 1-39 through a functional tiny decoder-only LLM."
+          - "The description remains concise, accurate, and consistent with the locale projection and generated course indexes."
+          - "The complete canonical Docker check, static-link audit, remediation-scope audit, and checkpoint closure pass."
+        validate: ["./course check", "./course run npm --prefix site run test:links", "scripts/check-course-cli.sh", "./course audit-host", "git diff --check and complete remediation-build audit"]
+        cost: {class: large, notes: "Small documentation change followed by the complete cached canonical Docker gate and final remediation audit; local CPU only."}
+        runs: []

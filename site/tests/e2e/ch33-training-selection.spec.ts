@@ -424,11 +424,7 @@ async function expectChapterContent(
   const next = page.locator(
     'nav[data-chapter-navigation] a[data-chapter-direction="next"]',
   );
-  if (locale === "en") {
-    await expect(next).toHaveAttribute("data-chapter-id", "34-final-evaluation");
-  } else {
-    await expect(next).toHaveCount(0);
-  }
+  await expect(next).toHaveAttribute("data-chapter-id", "34-final-evaluation");
   await expectNoOverflowOrClientScripts(page);
 }
 

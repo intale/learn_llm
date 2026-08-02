@@ -304,11 +304,7 @@ async function expectChapterContent(
   await expect(details.locator('ol > li')).toHaveCount(9);
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="previous"]')).toHaveAttribute('data-chapter-id', '28-causal-masking');
-  if (locale === 'en') {
-    await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveAttribute('data-chapter-id', '30-multi-head-attention');
-  } else {
-    await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveCount(0);
-  }
+  await expect(page.locator('nav[data-chapter-navigation] a[data-chapter-direction="next"]')).toHaveAttribute('data-chapter-id', '30-multi-head-attention');
   await expectNoOverflowOrClientScripts(page);
 }
 
