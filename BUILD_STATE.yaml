@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T10:20:15Z"
+updated_at: "2026-08-02T11:02:40Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -29256,7 +29256,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 4
+      spent: 5
       notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
     completion_criteria:
       - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
@@ -29422,7 +29422,7 @@ builds:
       - id: audit-browser-rendering
         objective: "Audit every rendered course surface in Chromium and Firefox, including both locales, desktop and narrow containment, formulas, diagrams inline/full view, no-JavaScript fallbacks, cheat sheets, SEO, sitemap, and console compatibility."
         depends_on: [audit-static-delivery]
-        status: completed
+        status: invalidated
         inputs: ["audits/2026-08-02-full-course/static-delivery.md", "site/dist/", "site/tests/e2e/", "site/playwright.config.ts", "mcr.microsoft.com/playwright:v1.61.1-noble"]
         outputs: ["audits/2026-08-02-full-course/browser.md"]
         acceptance:
@@ -29476,11 +29476,50 @@ builds:
               - {command: "Audit-only 85-route no-JavaScript desktop/narrow sweep in Chromium and Firefox", status: passed, notes: "85/85 routes per engine preserve static content, viewport containment, semantic figures, server-rendered formulas where required, and localized cheat-sheet disclosure fallbacks."}
               - {command: "Product and production-test immutability", status: passed, notes: "Only the audit report and ledger are canonical changes; all diagnostic test edits are ignored run artifacts or disposable volume contents."}
             notes: "Audit completed with one high-severity browser-validation regression and three medium-severity Firefox Russian full-view defects. A succeeded run means the audit objective and evidence are complete, not that the product is defect-free."
+      - id: correct-browser-audit-report
+        objective: "Publish a corrected rendered-browser report that preserves the completed evidence while fixing retry, attribution, and no-JavaScript scope wording found during final independent review."
+        depends_on: [audit-static-delivery]
+        replaces: [audit-browser-rendering]
+        status: completed
+        inputs: ["audits/2026-08-02-full-course/browser.md", ".build/runs/20260802T101259Z-audit-browser-rendering-01/browser-evidence-sha256.txt", ".build/runs/20260802T101259Z-audit-browser-rendering-01/chromium-diagnostic.log", ".build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-diagnostic.log", ".build/runs/20260802T101259Z-audit-browser-rendering-01/chromium-diagnostic-retry.log", ".build/runs/20260802T101259Z-audit-browser-rendering-01/firefox-diagnostic-retry.log"]
+        outputs: ["audits/2026-08-02-full-course/browser-corrected.md", "BUILD_STATE.yaml", "DECISIONS.md"]
+        acceptance:
+          - "The original completed browser report and run remain unchanged and visible as invalidated history."
+          - "The corrected report distinguishes raw timeout blocks from retry outcomes, says engines rather than four-worker cases ran sequentially, attributes original failures exactly, and limits no-JavaScript containment claims to the assertions actually executed."
+          - "All other counts, severities, source references, evidence checksums, and product-immutability claims remain unchanged."
+        validate:
+          - "Manual line-by-line comparison with the preserved original and diagnostic browser logs"
+          - "Markdown link, checksum, YAML, whitespace, and product-path immutability audit"
+        cost: {class: small, notes: "Local audit-report correction only; no browser rerun, network, or paid service."}
+        runs:
+          - run_id: 20260802T105913Z-correct-browser-audit-report-01
+            started_at: 2026-08-02T10:59:13Z
+            finished_at: 2026-08-02T11:02:40Z
+            status: succeeded
+            input_fingerprint:
+              product_git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              ledger_git: 1cdc1274e126d782c52c424cdc9cf4d4408b1fc9
+              files: {browser.md: "sha256:d1ea638caf9dcd83f4243d2593387dc46c5a07928ac71b18dfa1741c72b2f5d1", browser-evidence-sha256.txt: "sha256:6ba325c653c8a54bbebcf22180f78257fd5879824b35811e6d677a9cf4d70c43", chromium-diagnostic.log: "sha256:26b525b9399968a35e18b57a35c4b128bff1cefd7fbef1e837f05d3f586bc6ea", firefox-diagnostic.log: "sha256:f221a57fcfb01622c9f1ac2dc72a0a77babe588bb32d6f91036102f0915ebff3", chromium-diagnostic-retry.log: "sha256:3272df662bee799b31f92482a593c2569d5484d0ed558e4b3c984ad0d1cdf2a0", firefox-diagnostic-retry.log: "sha256:4e885599d7fbfe91650f3ca1d901ee30a92c1eefc0572cea5a1773e98a260902"}
+              tools: "Local Markdown review, Git 2.55.0.windows.3, and the repository's installed YAML parser"
+              external: "None; correction uses only committed reports and preserved checksummed logs."
+            staging_dir: .build/runs/20260802T105913Z-correct-browser-audit-report-01/
+            commands:
+              - "Independent final review identifies six wording discrepancies without changing the browser evidence or product verdict; invalidate the stale report checkpoint and start an immutable replacement report."
+              - "Copy the committed historical report to a new replacement path and correct only timeout/retry attribution, original-versus-masked drift, test-check terminology, gate-recovery scope, and no-JavaScript horizontal-overflow wording."
+              - "Run an independent line-by-line browser-evidence review, verify the original report hash remains unchanged, and complete the replacement checkpoint without rerunning browsers or changing product files."
+            artifacts:
+              - {path: audits/2026-08-02-full-course/browser-corrected.md, checksum: "sha256:39710f0af4a20b8f61d1739816564522b595fa78c7b0d83ffaf07a70fbafc014", notes: "Corrected canonical rendered-browser narrative; the invalidated original remains at browser.md."}
+            validation:
+              - {command: "Original report immutability", status: passed, notes: "browser.md remains byte-identical at sha256:d1ea638caf9dcd83f4243d2593387dc46c5a07928ac71b18dfa1741c72b2f5d1."}
+              - {command: "Preserved log and transition-count review", status: passed, notes: "Eleven of twelve Chromium and twenty-one of twenty-seven Firefox diagnostic failures contained timeout blocks; separate four-worker retries yielded 7/19 outright passes, 4/2 advances to stale navigation, five final navigation failures per engine, and three retained Firefox geometry failures."}
+              - {command: "Independent corrected-report review", status: passed, notes: "All six discrepancies are corrected exactly; finding counts, severities, line references, checksums, console/no-JavaScript results, and product verdict remain consistent."}
+              - {command: "YAML, whitespace, replacement topology, and product immutability audit", status: passed, notes: "The invalidated browser step is immediately replaced from the nearest completed dependency; the consolidation dependency now targets the corrected report; no product or production-test path changed."}
+            notes: "Succeeded. browser-corrected.md supersedes only the invalidated report narrative. The complete browser evidence and audited product are unchanged."
       - id: consolidate-full-course-audit
         objective: "Publish one prioritized, evidence-backed full-course audit report and close the audit build."
-        depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, audit-browser-rendering]
+        depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, correct-browser-audit-report]
         status: pending
-        inputs: ["audits/2026-08-02-full-course/content-localization.md", "audits/2026-08-02-full-course/rust.md", "audits/2026-08-02-full-course/static-delivery.md", "audits/2026-08-02-full-course/browser.md"]
+        inputs: ["audits/2026-08-02-full-course/content-localization.md", "audits/2026-08-02-full-course/rust.md", "audits/2026-08-02-full-course/static-delivery.md", "audits/2026-08-02-full-course/browser-corrected.md"]
         outputs: ["audits/2026-08-02-full-course.md", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
           - "The report states the audited revision and toolchain, exact coverage, all verified passes, reproducible defects ordered by severity, and limitations."
@@ -29491,4 +29530,21 @@ builds:
           - "YAML parse and scheduler audit"
           - "git diff --check and product-path immutability audit"
         cost: {class: small, notes: "Local report consolidation and ledger closure only."}
-        runs: []
+        runs:
+          - run_id: 20260802T104925Z-consolidate-full-course-audit-01
+            started_at: 2026-08-02T10:49:25Z
+            finished_at: 2026-08-02T10:59:13Z
+            status: interrupted
+            input_fingerprint:
+              product_git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              ledger_git: 1cdc1274e126d782c52c424cdc9cf4d4408b1fc9
+              files: {content-localization.md: "sha256:cb896e3fcf6c56fd6868a534df573f0b8136789a2a92b6af5e9e08b67f0efdc4", rust.md: "sha256:8f2677978ce7339cba1e9ce92c08fcd482ec0a432bc3269df5b462fd467efe97", static-delivery.md: "sha256:cf8601cccf34188ebfa0a2dd35a949f3021c3c4ba352f17e0cb3a980c3ac8a20", browser.md: "sha256:d1ea638caf9dcd83f4243d2593387dc46c5a07928ac71b18dfa1741c72b2f5d1"}
+              tools: "Local Markdown review, Git 2.55.0.windows.3, and the repository's installed YAML parser"
+              external: "None; consolidation uses only committed audit fragments and preserved local evidence."
+            staging_dir: .build/runs/20260802T104925Z-consolidate-full-course-audit-01/
+            commands:
+              - "Verify all four prerequisite audit steps are completed and individually committed; hash their canonical reports, confirm the product remains identical to 2b24a50, and start the consolidation checkpoint."
+              - "Draft the consolidated report and request two independent final consistency reviews; preserve the uncommitted draft when the browser review identifies material wording discrepancies in its prerequisite report."
+            artifacts: []
+            validation: []
+            notes: "Interrupted because independent review invalidated browser.md's narrative accuracy. The uncommitted consolidated draft remains an explicitly incomplete working-tree artifact and will be refreshed only after browser-corrected.md is completed and committed."

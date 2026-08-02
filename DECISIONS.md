@@ -12248,3 +12248,45 @@ limitations and previously recorded passing evidence.
 `audit-course-content-localization`, `audit-rust-workspace`,
 `audit-static-delivery`, `audit-browser-rendering`, and
 `consolidate-full-course-audit`.
+
+## 2026-08-02 - Supersede the browser audit narrative without rewriting history
+
+**Status:** Accepted for
+`20260802T105913Z-correct-browser-audit-report-01`.
+
+**Context:** The rendered-browser evidence and its committed report completed in
+`20260802T101259Z-audit-browser-rendering-01`. During the separate consolidation
+checkpoint, an independent final review found six narrative discrepancies: raw
+timeout blocks were conflated with outright retry passes, four workers were
+called sequential, the three kinds of test drift were attributed as though all
+surfaced in the original matrix, 332 failing checks were called pages, the
+remaining Firefox geometry failures were omitted from one gate-recovery phrase,
+and the audit-only no-JavaScript check was described as full viewport containment
+instead of page-level horizontal-overflow detection. The underlying logs,
+failure classification, severities, geometry measurements, console results, and
+product verdict remain valid.
+
+**Decision:** Preserve `audits/2026-08-02-full-course/browser.md` and its
+successful run unchanged as historical evidence, mark its step invalidated, and
+create the contiguous replacement `correct-browser-audit-report`. Publish the
+correct narrative at
+`audits/2026-08-02-full-course/browser-corrected.md`, explicitly retaining the
+original evidence and checksums. Interrupt the first consolidation attempt and
+resume it only after the corrected report is independently validated and
+committed.
+
+**Consequences:** No browser rerun or product change is necessary. The corrected
+report must say that the concurrent matrices contained eleven Chromium and
+twenty-one Firefox timeout blocks; on separate four-worker engine retries the
+timeout condition disappeared, seven and nineteen cases passed outright, and
+the remaining timeout-marked cases advanced to stale navigation assertions. It
+must also distinguish the first two drift kinds that account for the original
+333 failures per engine from the five navigation expectations revealed only
+afterward, and limit the no-JavaScript claim to absence of page-level horizontal
+overflow plus the explicitly asserted static surfaces. The final consolidated
+report will cite only the corrected browser fragment.
+
+**Affected build, invalidated step, replacement step, and interrupted run:**
+`audit-full-course-20260802`, `audit-browser-rendering`,
+`correct-browser-audit-report`, and
+`20260802T104925Z-consolidate-full-course-audit-01`.
