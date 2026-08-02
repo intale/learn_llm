@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T08:57:50Z"
+updated_at: "2026-08-02T09:41:02Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: localize-russian-cheat-sheets-ch01-ch39
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -27776,11 +27776,11 @@ builds:
 
   - build_id: localize-russian-cheat-sheets-ch01-ch39
     objective: "Translate every canonical English instructional-chapter cheat sheet directly into natural technical Russian."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
-      spent: 38
+      spent: 39
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -29207,10 +29207,45 @@ builds:
       - id: localize-ch39-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 39 cheat sheet."
         depends_on: [localize-ch38-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/39-end-to-end-llm.json", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "curriculum/chapters/39-end-to-end-llm.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/39-end-to-end-llm.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-39 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently. The full 78-sheet two-engine matrix passes and closes the build."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:39-end-to-end-llm'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:39-end-to-end-llm'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T092955Z-localize-ch39-cheat-sheet-01
+            started_at: 2026-08-02T09:29:55Z
+            finished_at: 2026-08-02T09:41:02Z
+            status: succeeded
+            input_fingerprint:
+              git: 5771c746b838dc847fff69ca286e8618d48a5097
+              manifest: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/input-fingerprint.txt
+              checksum: sha256:6f08d8333e50147781174f6361264346f1fbcc5b116244f6831f07157e6818a9
+              tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins"
+              external: "None; current English Chapter 39 sheet is the sole semantic source."
+            staging_dir: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/
+            commands:
+              - "Verify the clean Chapter 38 commit and worktree, exact Chapter 39 inputs, accepted pinned Linux source base, dependency closure, sequential scheduler, medium local cost, and required final 78-sheet two-engine matrix."
+              - "Translate and independently review all sixteen Chapter 39 terms directly from English, preserving the one-way data boundary, train-only BPE, bounded causal decoder, bitwise replay qualifications, validation-before-test selection, local final evaluator, frozen add-one baseline, same-target comparison limits, exact checkpoint state, fixed At probe scope, fixture-bound cached generation, and three distinct probability concepts; advance the exact rollout boundary to Chapter 39 and protect At as a word-bounded literal."
+              - "Compose accepted source image sha256:4c84050974b5f0013e838cf02260d149b201e7d8b5cd0a1199b58b455b7e96e3 from the Chapter 38 source base plus the exact Chapter 39 outputs; run source gates and an independent labelled exact build."
+              - "Run focused Chapter 39 desktop, 360-by-500, and no-JavaScript gates in pinned Chromium and Firefox, then run the complete unfiltered 235-case cheat-sheet matrix independently in both engines against the same immutable snapshot."
+              - "Append the build-closure decision, reconcile host and exact-snapshot hashes, freeze the three non-ledger output hashes, verify immutable inputs and exact scope, then remove the labelled volume and close the active build."
+            artifacts:
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/input-fingerprint.txt, checksum: "sha256:6f08d8333e50147781174f6361264346f1fbcc5b116244f6831f07157e6818a9", notes: "Exact Chapter 39 localization input fingerprint."}
+              - {path: docker-image://learn-llm-ru-cheatsheet-ch39-source:local, checksum: "sha256:4c84050974b5f0013e838cf02260d149b201e7d8b5cd0a1199b58b455b7e96e3", notes: "Accepted pinned Linux source snapshot composed without network access."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/source-validation.log, checksum: "sha256:992a1748fd58fdf8a56f3b3bb31a06bbd0e20710c97dc379ccd6997759de26d0", notes: "Complete focused, Astro, collection, static-build, and link output."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/exact-build.log, checksum: "sha256:1bf2d8a7ca0ce65fea153192b619b676bc57de9b7e2cc868ebd9b79b47398d0c", notes: "Independent exact-snapshot 85-page build output."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/chromium-focused.log, checksum: "sha256:a8ffef9ae125cb6e3da04e18f2b3dbbfa27f3fec5eb7fecf741f383a3afc52f2", notes: "Pinned Chromium Chapter 39 focused rendered-gate output, 3/3 passed."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/firefox-focused.log, checksum: "sha256:6356d961d50e94d44838b3a9d9b111a2b7bc43e61be8dded5efad79232e8408e", notes: "Pinned Firefox Chapter 39 focused rendered-gate output, 3/3 passed."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/chromium-full.log, checksum: "sha256:f468900f92bdd8bacf49d4a7653284bcc5a40a142ab05349dd69a0db0dc0797b", notes: "Pinned Chromium complete bilingual cheat-sheet matrix output, 235/235 passed."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/firefox-full.log, checksum: "sha256:81752159847c3cdea6156ea4e825d10203f0444e4e470c239bcd779977e80fb8", notes: "Pinned Firefox complete bilingual cheat-sheet matrix output, 235/235 passed."}
+              - {path: .build/runs/20260802T092955Z-localize-ch39-cheat-sheet-01/publish-product.sha256, checksum: "sha256:ad26dc2de3287e3d45d09532850ef5f27060b2319fe0209f01aa83804cde5f60", notes: "Frozen hashes for the Russian sheet, rollout test, and build-closure decision."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 38 is completed and independently committed at 5771c74; the worktree was clean; Chapter 39 is the first eligible pending step; exact localization inputs and the accepted pinned Linux source base exist; the final focused and complete two-engine matrices require only cached local CPU and no paid service or network generation."}
+              - {command: "Chapter 39 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All sixteen concepts survive in canonical order. The process remains one-way from whole-document roles and train-only BPE through validation selection, one local post-selection test pass, exact restoration, and generation; replay is bitwise only under identical data, initialization, batch order, and arithmetic environment; the bigram comparison uses the same ordered targets but proves no causal or universal ranking; checkpoint exactness, the fixed At-only logit probe, and finite cached-generation evidence remain distinct; joint probability, autoregressive factorization, and next-token distribution are not collapsed."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "87/87 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 235 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Exact-snapshot Chromium and Firefox Chapter 39 focused gates", status: passed, notes: "3/3 cases pass independently in each engine. Russian collation yields exact page lengths 10 and 6; every term remains reachable, long evaluation, baseline, replay, checkpoint, generation, and probability entries wrap safely, fixed paginator geometry and focus work at 360 by 500, and the complete no-JavaScript disclosure passes."}
+              - {command: "Complete exact-snapshot Chromium and Firefox bilingual cheat-sheet matrices", status: passed, notes: "235/235 cases pass independently in Chromium and 235/235 in Firefox. All 39 English and 39 Russian sheets pass desktop, narrow, paginated, focus, keyboard, containment, and no-JavaScript checks, and Chapter 0 remains sheet-free."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, checkpoint, decision, and build-closure audit", status: passed, notes: "The Russian sheet and rollout-test host hashes match the accepted exact snapshot; all three non-ledger outputs match the frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Dockerfile, and Compose definition are byte-identical; exactly 39 Russian sheets cover the canonical 409 concepts while Chapter 0 remains excluded; no run-labelled Docker resource remains; every build completion criterion passes."}
+            notes: "Succeeded. Chapter 39 now has one direct Russian localization of all sixteen capstone terms on locale-sorted pages of ten and six. The rollout contains exactly 78 English/Russian sheets representing all 409 canonical concepts, every static and link gate passes, the focused Chapter 39 gates pass in both engines, the full matrix passes 235/235 in each engine, and the build is closed."

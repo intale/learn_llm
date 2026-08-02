@@ -12182,3 +12182,38 @@ fallback, and every canonical cheat-sheet term remain unchanged.
 **Affected build, step, and run:**
 `localize-russian-cheat-sheets-ch01-ch39`, `localize-ch27-cheat-sheet`, run
 `20260802T075447Z-localize-ch27-cheat-sheet-01`.
+
+## 2026-08-02 - Complete the Russian cheat-sheet localization rollout
+
+**Status:** Completed in `20260802T092955Z-localize-ch39-cheat-sheet-01`.
+
+**Context:** The sequential rollout reached Chapter 39 after publishing and
+independently committing one direct Russian localization for each canonical
+English instructional-chapter cheat sheet. The final checkpoint had to prove
+both the capstone sheet itself and the complete bilingual presentation surface;
+Chapter 0 remains an orientation page and intentionally has no cheat sheet.
+
+**Decision:** Publish the Chapter 39 Russian record with all sixteen canonical
+concepts, then close `localize-russian-cheat-sheets-ch01-ch39`. The completed
+surface contains exactly 39 English and 39 Russian records representing the same
+409 chapter-specific LLM concepts. Russian display remains locale-collated and
+paginated in groups of ten, while the no-JavaScript disclosure exposes every
+term. English remains the sole semantic source for future localization refreshes.
+
+Accept the rollout only after the exact immutable snapshot passes the focused
+Chapter 39 desktop, 360-by-500, and no-JavaScript gates in both engines and the
+unfiltered 235-case matrix independently passes in Chromium and Firefox. Retain
+the shared localized modal, keyboard and focus behavior, fixed paginator,
+complete fallback, and Chapter 0 exclusion without a chapter-specific UI path.
+
+**Consequences:** All 39 Russian sheets pass semantic, terminology, anti-calque,
+monolingual, accessibility, containment, Chromium, and Firefox review. The final
+87-case content gate, 85-page static build, 2,447-reference link audit, focused
+3/3 gates per engine, and full 235/235 gates per engine pass. No chapter lesson,
+English sheet, dependency, build definition, hosting, or deployment file changes.
+A later English meaning or presentation change still makes only its matching
+Russian sheet review stale until it is refreshed directly from English.
+
+**Affected build, step, and run:**
+`localize-russian-cheat-sheets-ch01-ch39`, `localize-ch39-cheat-sheet`, run
+`20260802T092955Z-localize-ch39-cheat-sheet-01`.
