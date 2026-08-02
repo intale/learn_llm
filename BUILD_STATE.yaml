@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T14:28:51Z"
+updated_at: "2026-08-02T14:48:41Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -1151,7 +1151,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 1
+      spent: 2
       notes: "No explicit resource budget has been supplied. This is local documentation and cached validation only, with no network or paid service planned."
     completion_criteria:
       - "A root README gives a student a working path from checkout to the localized course and runnable Rust example."
@@ -29674,7 +29674,7 @@ builds:
       - id: reflow-ch19-firefox-full-view
         objective: "Reflow the audited Chapter 19 Russian full-view diagram so Firefox keeps the complete figure within its existing readable-travel budget."
         depends_on: [restore-browser-acceptance-gate]
-        status: pending
+        status: completed
         inputs: ["audits/2026-08-02-full-course/browser-corrected.md", "site/src/styles/diagram.module.css", "site/src/components/chapters/LinearLayersDiagram.astro", "site/src/content/chapters/en/19-linear-layers.mdx", "site/src/content/chapters/ru/19-linear-layers.mdx", "site/tests/e2e/ch19-linear-layers.spec.ts"]
         outputs: ["site/src/components/chapters/LinearLayersDiagram.astro", "BUILD_STATE.yaml"]
         acceptance:
@@ -29684,7 +29684,36 @@ builds:
           - "The focused Chapter 19 matrix passes in unmodified Chromium and Firefox."
         validate: ["./course run npm --prefix site run check", "./course run npm --prefix site run test -- --run", "Docker Playwright 1.61.1 focused Chapter 19 matrix in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
         cost: {class: medium, notes: "Measurement-guided two-engine geometry work using cached browsers; local CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260802T143508Z-reflow-ch19-firefox-full-view-01
+            started_at: 2026-08-02T14:35:08Z
+            finished_at: 2026-08-02T14:48:41Z
+            status: succeeded
+            input_fingerprint:
+              git: fbfccf8
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:56b3f295ecbbdb5629cb39e384ee7e25a738751d6dafe49302e6e3223028818c", DECISIONS.md: "sha256:cc0097030142a9747f8906b512ca557393f7af53ea0ee999f0002446e8c47c76", browser-report: "sha256:39710f0af4a20b8f61d1739816564522b595fa78c7b0d83ffaf07a70fbafc014", shared-diagram-css: "sha256:bddb77b7065662db49a8908ad998afcfc3a8b481172722eab136130184515b46", component: "sha256:6897221a547001659eae598c3d98ba7155e4e509aed4218082b285c941468611", english-lesson: "sha256:adff1d50da64a6daab88a349a9be6439ad5b4f7de20feba62dec21801b539c7e", russian-lesson: "sha256:aec5190cd6a283ca5d448b116c744f4bf95759b01d235f47e90cc0e6542c87dd", focused-test: "sha256:33596a955bae17a8835e893606a74ae0902a3284631352683a570b7737d7eae7"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Node 22.12.0/npm 10.9.0 and exact official Playwright 1.61.1 Noble runtime at sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+              external: "None; the exact browser image and all product dependencies are cached."
+            staging_dir: .build/runs/20260802T143508Z-reflow-ch19-firefox-full-view-01/
+            commands:
+              - "Verify the clean fbfccf8 checkpoint, re-read the Chapter 19 acceptance boundary and audited Firefox measurement, hash every material input, create the run-specific staging tree, and claim the step before product edits."
+              - "Build an isolated canonical baseline and reproduce the exact Russian Firefox debt: 215 pixels against the unchanged 192-pixel budget, with the 478-pixel gradients panel controlling the final row."
+              - "Reject an integer 3/6/7 bottom-row split after exact Firefox shows the narrower policy panel grows to 501 pixels; replace the sixteen-track layout with five fractional tracks that preserve all upper-row ratios while balancing the bottom panels."
+              - "Give the small policy-position coordinate column 18% rather than 24% in full view, leaving more natural wrapping space for both policy descriptions; rebuild and verify the formerly failing Firefox case."
+              - "Run staged Astro diagnostics, all 946 unit checks, and the complete seven-case Chapter 19 contract in official Chromium and Firefox; freeze the one-file manifest and pass the staged review pipeline."
+              - "Publish the byte-identical component with apply_patch, verify its checksum, and rerun diagnostics, unit checks, and both focused browser matrices against the exact source snapshot."
+              - "Attempt a new network-isolated canonical source-image composition; reject it when an uncached base setup layer requires Debian metadata, then use the already isolated source snapshot whose changed component is byte-identical to canonical."
+            artifacts:
+              - {path: ".build/runs/20260802T143508Z-reflow-ch19-firefox-full-view-01/publish.sha256", sha256: "f0fd0430275560e003dffa85fc6e5ca82ac39d7e498920671314c45e008d0d63", notes: "Frozen manifest for the sole staged component; canonical SHA-256 is 55c22cf4e546f48f97bdcd92f70ceabdffb60db75ee6d82a10267621a952f5b9."}
+            validation:
+              - {command: "Repository, dependency, ownership, cost, and input preflight", status: passed, notes: "The preceding browser-gate step is committed; the tree is clean; no other active owner overlaps this component; exact Noble browsers are cached; and medium local CPU work fits the unlimited build budget."}
+              - {command: "Exact official-Noble Firefox baseline reproduction", status: passed, notes: "The unmodified snapshot reproduces Russian block debt 215 > 192 and reports the audited panel geometry; this establishes a valid environment discriminator before any correction."}
+              - {command: "Staged npm --prefix site run check and npm --prefix site run test -- --run", status: passed, notes: "Astro reports 0 diagnostics across 210 files; all 53 files and 946 unit checks pass."}
+              - {command: "Staged complete Chapter 19 Chromium and Firefox matrices", status: passed, notes: "All 7 checks pass in each engine, covering both locales, desktop and narrow containment, full view and nearest-box paint bounds, forced colors, direction, keyboard/focus behavior, and no-JavaScript fallback."}
+              - {command: "./course review 20260802T143508Z-reflow-ch19-firefox-full-view-01 --check", status: passed, notes: "The frozen one-file tree passes content and parity checks, zero-diagnostic Astro validation, an 85-page static build, and 2,447 local-reference checks without mutating staging."}
+              - {command: "Canonical byte identity plus repeated diagnostics, units, and focused Chromium/Firefox matrices", status: passed, notes: "Canonical component bytes match the frozen staged SHA-256; 0 diagnostics, 946/946 unit checks, and 7/7 Chapter 19 checks in each exact engine pass after publication."}
+              - {command: "git diff --check and declared-output audit", status: passed, notes: "Only the Chapter 19 component and BUILD_STATE.yaml changed; learner prose, shared diagram CSS, tests, budgets, dependencies, build definitions, audit evidence, hosting, and deployment remain unchanged."}
+            notes: "Succeeded. A five-track full-view grid keeps the prior 14/2 caption, 6/10 evidence, and overall bottom-row proportions while giving the policy and gradient panels balanced space; the smaller coordinate column removes Russian wrapping debt. No content, type size, overflow rule, clipping, or acceptance budget changed."
       - id: reflow-ch20-firefox-full-view
         objective: "Reflow the audited Chapter 20 Russian full-view diagram so Firefox keeps the complete figure within its existing readable-travel budget."
         depends_on: [reflow-ch19-firefox-full-view]
