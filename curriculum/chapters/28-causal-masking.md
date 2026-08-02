@@ -180,7 +180,7 @@
       "expected": "stdout equals rust/demos/ch28-causal-masking/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch28-causal-masking --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch28-causal-masking --example ch28-causal-masking-trace",
       "expected": "stdout equals rust/demos/ch28-causal-masking/diagram-trace.txt byte for byte and follows the exact 26-line Chapter 28 trace grammar."
     }
   ]

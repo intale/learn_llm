@@ -171,7 +171,7 @@
       "expected": "Treat them as the correct answers only; require left-to-right recurrent computation or a causal self-attention mask to prevent access to later input positions."
     },
     {
-      "input": "cargo run --quiet --locked -p ch05-autoregressive-examples --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch05-autoregressive-examples --example ch05-autoregressive-examples-trace",
       "expected": "Standard output is byte-for-byte equal to rust/demos/ch05-autoregressive-examples/diagram-trace.txt."
     }
   ]
@@ -352,7 +352,7 @@ fixed 8/2/2 corpus split.
 ## Visualization
 
 Parse only the strict `TRACE autoregressive-examples-v1` block produced by
-`cargo run --quiet --locked -p ch05-autoregressive-examples --example diagram_trace`.
+`cargo run --quiet --locked -p ch05-autoregressive-examples --example ch05-autoregressive-examples-trace`.
 Render train, validation, and test as separate regions, with a separate token tape
 for every document. Align input and target rows under their source positions and
 mark the one-position shift with arrows. Show an outlined, text-labeled suffix

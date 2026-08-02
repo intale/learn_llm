@@ -8,3 +8,7 @@ llm-from-scratch = { path = "../../crates/llm-from-scratch" }
 
 [lints]
 workspace = true
+
+[[example]]
+name = "ch31-decoder-block-trace"
+path = "examples/diagram_trace.rs"

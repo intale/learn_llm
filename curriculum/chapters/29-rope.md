@@ -261,7 +261,7 @@
       "expected": "stdout equals rust/demos/ch29-rope/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch29-rope --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch29-rope --example ch29-rope-trace",
       "expected": "stdout equals rust/demos/ch29-rope/diagram-trace.txt byte for byte and follows the exact 29-line Chapter 29 trace grammar."
     }
   ]

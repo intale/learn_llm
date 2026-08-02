@@ -179,7 +179,7 @@
       "expected": "stdout equals rust/demos/ch07-language-model-metrics/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch07-language-model-metrics --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch07-language-model-metrics --example ch07-language-model-metrics-trace",
       "expected": "stdout equals rust/demos/ch07-language-model-metrics/diagram-trace.txt byte for byte and follows TRACE language-model-metrics-v1."
     }
   ]

@@ -10,3 +10,7 @@ llm-from-scratch = { path = "../../crates/llm-from-scratch" }
 
 [lints]
 workspace = true
+
+[[example]]
+name = "ch37-incremental-attention-trace"
+path = "examples/diagram_trace.rs"

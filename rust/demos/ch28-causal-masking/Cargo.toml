@@ -8,5 +8,5 @@ publish = false
 llm-from-scratch = { path = "../../crates/llm-from-scratch" }
 
 [[example]]
-name = "diagram_trace"
+name = "ch28-causal-masking-trace"
 path = "examples/diagram_trace.rs"

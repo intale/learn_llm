@@ -84,7 +84,7 @@
     {"input": "query A-to-C and the complete A row", "expected": "MLE(A-to-C)=0, add-one(A-to-C)=1/8, and the smoothed A row is [1/8,1/8,2/8,3/8,1/8]."},
     {"input": "query the complete C row", "expected": "Its zero count total makes the MLE row undefined; add-one smoothing produces the uniform row [1/5,1/5,1/5,1/5,1/5]."},
     {"input": "cargo run --quiet --locked -p ch06-bigram-baseline", "expected": "stdout equals rust/demos/ch06-bigram-baseline/expected.txt byte for byte."},
-    {"input": "cargo run --quiet --locked -p ch06-bigram-baseline --example diagram_trace", "expected": "stdout equals rust/demos/ch06-bigram-baseline/diagram-trace.txt byte for byte."}
+    {"input": "cargo run --quiet --locked -p ch06-bigram-baseline --example ch06-bigram-baseline-trace", "expected": "stdout equals rust/demos/ch06-bigram-baseline/diagram-trace.txt byte for byte."}
   ]
 }
 ---

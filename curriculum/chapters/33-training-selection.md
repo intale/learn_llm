@@ -250,7 +250,7 @@
       "expected": "stdout equals rust/demos/ch33-training-selection/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch33-training-selection --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch33-training-selection --example ch33-training-selection-trace",
       "expected": "stdout equals rust/demos/ch33-training-selection/diagram-trace.txt byte for byte and follows the frozen Chapter 33 trace grammar."
     }
   ]

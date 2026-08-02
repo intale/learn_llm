@@ -6,3 +6,7 @@ publish = false
 
 [dependencies]
 llm-from-scratch = { path = "../../crates/llm-from-scratch" }
+
+[[example]]
+name = "ch33-training-selection-trace"
+path = "examples/diagram_trace.rs"

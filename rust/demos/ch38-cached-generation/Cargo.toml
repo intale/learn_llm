@@ -11,3 +11,7 @@ llm-from-scratch = { path = "../../crates/llm-from-scratch" }
 
 [lints]
 workspace = true
+
+[[example]]
+name = "ch38-cached-generation-trace"
+path = "examples/diagram_trace.rs"

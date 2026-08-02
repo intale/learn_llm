@@ -14,3 +14,7 @@ workspace = true
 [[bin]]
 name = "ch06-bigram-baseline"
 path = "src/main.rs"
+
+[[example]]
+name = "ch06-bigram-baseline-trace"
+path = "examples/diagram_trace.rs"

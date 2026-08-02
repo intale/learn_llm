@@ -306,7 +306,7 @@
       "expected": "stdout equals rust/demos/ch30-multi-head-attention/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch30-multi-head-attention --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch30-multi-head-attention --example ch30-multi-head-attention-trace",
       "expected": "stdout equals rust/demos/ch30-multi-head-attention/diagram-trace.txt byte for byte and follows the frozen Chapter 30 trace grammar."
     }
   ]

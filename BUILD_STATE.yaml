@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T15:53:55Z"
+updated_at: "2026-08-02T15:56:06Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -29855,7 +29855,7 @@ builds:
       - id: disambiguate-rust-example-targets
         objective: "Give every duplicated diagram-trace example target a package-qualified artifact name and enforce workspace-wide example-name uniqueness."
         depends_on: [correct-ch00-russian-availability]
-        status: pending
+        status: completed
         inputs: ["audits/2026-08-02-full-course/rust.md", "Cargo.toml", "Cargo.lock", "rust/demos/*/Cargo.toml", "scripts/check-rust-demos.sh"]
         outputs: ["rust/demos/ch05-autoregressive-examples/Cargo.toml", "rust/demos/ch06-bigram-baseline/Cargo.toml", "rust/demos/ch07-language-model-metrics/Cargo.toml", "rust/demos/ch28-causal-masking/Cargo.toml", "rust/demos/ch29-rope/Cargo.toml", "rust/demos/ch30-multi-head-attention/Cargo.toml", "rust/demos/ch31-decoder-block/Cargo.toml", "rust/demos/ch32-decoder-model/Cargo.toml", "rust/demos/ch33-training-selection/Cargo.toml", "rust/demos/ch34-final-evaluation/Cargo.toml", "rust/demos/ch36-temperature-top-k/Cargo.toml", "rust/demos/ch37-incremental-attention/Cargo.toml", "rust/demos/ch38-cached-generation/Cargo.toml", "rust/demos/ch39-end-to-end-llm/Cargo.toml", "curriculum/chapters/05-autoregressive-examples.md", "curriculum/chapters/06-bigram-baseline.md", "curriculum/chapters/07-language-model-metrics.md", "curriculum/chapters/28-causal-masking.md", "curriculum/chapters/29-rope.md", "curriculum/chapters/30-multi-head-attention.md", "curriculum/chapters/31-decoder-block.md", "curriculum/chapters/32-decoder-model.md", "curriculum/chapters/33-training-selection.md", "curriculum/chapters/34-final-evaluation.md", "scripts/check-rust-demos.sh", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
@@ -29865,7 +29865,42 @@ builds:
           - "Cargo.lock, Rust source, expected output, learner content, dependencies, build definitions, hosting, and deployment remain unchanged."
         validate: ["./course run cargo metadata --no-deps --format-version 1 --locked --offline", "./course run cargo fmt --all -- --check", "./course run cargo clippy --workspace --all-targets --locked --offline -- -D warnings", "./course run cargo test --workspace --locked --offline", "./course run scripts/check-rust-dependencies.sh", "./course run scripts/check-rust-demos.sh", "git diff --check and exact staged/canonical scope audit"]
         cost: {class: medium, notes: "Mechanical manifest repair plus a complete cached offline Rust workspace and demo run; substantial local CPU, no network or paid service."}
-        runs: []
+        runs:
+          - run_id: 20260802T155606Z-disambiguate-rust-example-targets-01
+            started_at: 2026-08-02T15:56:06Z
+            finished_at: 2026-08-02T16:20:47Z
+            status: succeeded
+            input_fingerprint:
+              git: 4860fb0
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:d6e8c59edb4dc92d542d0301a508a2f0fec657e7ef6f3b21fc849e97ecf4ddab", DECISIONS.md: "sha256:cc0097030142a9747f8906b512ca557393f7af53ea0ee999f0002446e8c47c76", rust-audit: "sha256:8f2677978ce7339cba1e9ce92c08fcd482ec0a432bc3269df5b462fd467efe97", workspace-manifest: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1", lockfile: "sha256:55c3289704fde3b45c1ad6cf71dadae1993d71dc8b07db1820534f691d27a491", target-manifest-set: "sha256:e70a3cb14c1ea968e548f969c8e9ab96893bf03f9e20bc9d2a62534741565e92", live-contract-set: "sha256:8682c4c3f90feb0a081cdbc71f98823026a54592b484679f50fec6d04d285b8b", demo-gate: "sha256:fa4410e0cdf8300d9c15b83f017e0b477ac87bf84861ebe932cdd3e234f84133", dependency-gate: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Rust/Cargo 1.93.1 in the cached canonical workspace image; Node 22.12.0 is available only inside Docker for metadata validation."
+              external: "None; locked offline metadata, compilation, tests, and fixtures use cached local inputs."
+            staging_dir: .build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/
+            commands:
+              - "Verify the clean 4860fb0 checkpoint, confirm Chapter 0 is completed and committed, reconcile the audit's 34 diagram_trace.rs files with the 14 still-generic Cargo target names, inspect the accepted package-qualified naming decision, hash material inputs, create the run-specific staging tree, and claim the step before edits."
+              - "Stage package-qualified declarations in the fourteen affected Cargo manifests, align eleven live contract command occurrences across ten contracts, and extend scripts/check-rust-demos.sh to inventory workspace examples and execute both output surfaces."
+              - "Build the staged review-workspace image, prove 34/34 unique target names, run an isolated duplicate-name rejection probe, and run the complete locked/offline Rust, plan, content, parity, build, and link validations."
+              - "Freeze the 25-file publish tree, pass ./course review 20260802T155606Z-disambiguate-rust-example-targets-01 --check, publish byte-identical canonical files, and verify every staged/canonical pair."
+              - "Run the complete canonical Docker check and the remaining locked/offline metadata, formatting, strict Clippy, dependency, 39-main/34-trace exact-output, course-plan, duplicate-rejection, and scope gates."
+            artifacts:
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/publish.sha256", sha256: "231d07de08bcc42cb78279f7b9736aa58a696cf2e4c34e08e2b6dab8048e6f37", notes: "Frozen manifest for the fourteen Cargo manifests, ten live contracts, and revised deterministic demo gate; every canonical file matches its staged SHA-256."}
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/validation/staged-complete.log", sha256: "9ce090b0ef37d1e547c49f5cd862f98f53efeffd84eb81227eb942b42a4b5375", notes: "Staged formatting, strict all-target Clippy, workspace tests, dependency policy, 39 main outputs, 34 trace outputs, course plan, content, and parity evidence."}
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/validation/staged-structural.log", sha256: "8625d4d158c7c3400f1a16b780d15954fcec9c0bebee7557428afa8a18823f5a", notes: "Staged 34-target uniqueness inventory and disposable duplicate-name rejection probe."}
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/validation/canonical-course-check.log", sha256: "b87e0d68aac9f39f82fe11d2cf6ae5f9402b84eac385d3f0cddcba6d7e9dc4a2", notes: "Post-publication complete canonical Docker workspace test, static-site diagnostics, content, parity, build, and 2,447-link gate."}
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/validation/canonical-rust-gates.log", sha256: "f510994710cc6d7e05425f26051920e14302ae38e43ce93c3a91c353ed0f1012", notes: "Post-publication 34/34 metadata inventory, strict Clippy, dependency policy, 39 main output fixtures, 34 trace fixtures, course plan, and negative collision probe."}
+              - {path: ".build/runs/20260802T155606Z-disambiguate-rust-example-targets-01/validation/canonical-scope.log", sha256: "db64b96d613bf5675bd3b6f42a5803f1185f8218c073c7fd7711daf1a43194b3", notes: "Exact 25-file publish identity and scope proof; lockfile, Rust source, all output fixtures, existing qualified targets, dependencies, build, hosting, and deployment remain unchanged."}
+            validation:
+              - {command: "Repository, dependency, ownership, cost, and scope preflight", status: passed, notes: "The tree is clean; the dependency is completed and committed; all declared inputs exist; no active owner overlaps these manifests, contracts, or the demo gate; medium cached offline CPU work fits the unlimited budget; and the accepted remediation decision already records the corrected 34-source/14-target distinction."}
+              - {command: "Locked offline Cargo metadata inventory in staged and canonical Docker images", status: passed, notes: "The preflight 34 targets / 21 names / one 14-package diagram_trace collision becomes 34 targets / 34 package-qualified names / zero collisions; Chapters 8-27 retain their existing qualified declarations."}
+              - {command: "Disposable duplicate-name gate probes in staged and canonical Docker images", status: passed, notes: "Changing the Chapter 5 target to the Chapter 6 name makes the gate fail with both package owners during metadata validation, before any cargo run."}
+              - {command: "cargo fmt --all -- --check and cargo clippy --workspace --all-targets --locked --offline -- -D warnings", status: passed, notes: "Formatting and strict all-target Clippy pass in both the staged and byte-identical canonical source snapshots."}
+              - {command: "cargo test --workspace --locked --offline and scripts/check-rust-dependencies.sh", status: passed, notes: "All chapter, shared-library, documentation, and policy tests pass without an output-filename collision warning; the workspace remains dependency-local."}
+              - {command: "scripts/check-rust-demos.sh", status: passed, notes: "The revised gate discovers and byte-compares 39 deterministic main outputs plus all 34 diagram-trace outputs in staging and after canonical publication."}
+              - {command: "Staged content, parity, diagnostics, build, link, and course-plan gates", status: passed, notes: "Both locale projections remain valid; Astro reports zero diagnostics; 85 static pages build; all 2,447 local references pass; and all 40 chapter contracts remain consistent with the 111-step plan."}
+              - {command: "./course review 20260802T155606Z-disambiguate-rust-example-targets-01 --check", status: passed, notes: "The frozen 25-file staging tree passes the checksum-aware repository review pipeline without mutation."}
+              - {command: "./course check plus post-publication canonical Rust gates", status: passed, notes: "The complete canonical Docker workspace, static delivery, locked metadata, formatting, strict Clippy, dependency, exact-output, and negative collision checks all pass after byte-identical publication."}
+              - {command: "git diff --check and exact staged/canonical scope audit", status: passed, notes: "Only the fourteen planned manifests, ten matching contract command surfaces, the one shared gate, and BUILD_STATE.yaml changed. Cargo.lock, Rust source, fixtures, dependencies, learner semantics, build definitions, hosting, deployment, and immutable audit history remain unchanged."}
+            notes: "Succeeded. All 34 diagram-trace examples now have globally unique package-qualified Cargo target names, every live command uses the matching target, and the deterministic gate prevents recurrence while verifying all 73 output fixtures byte for byte."
       - id: refresh-readme-course-boundary
         objective: "Update the root usage guide so its opening description matches the complete bilingual Chapter 0-39 course."
         depends_on: [disambiguate-rust-example-targets]

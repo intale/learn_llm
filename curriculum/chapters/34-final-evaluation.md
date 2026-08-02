@@ -212,7 +212,7 @@
       "expected": "stdout equals rust/demos/ch34-final-evaluation/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch34-final-evaluation --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch34-final-evaluation --example ch34-final-evaluation-trace",
       "expected": "stdout equals rust/demos/ch34-final-evaluation/diagram-trace.txt byte for byte and follows the frozen nine-line Chapter 34 grammar."
     }
   ]

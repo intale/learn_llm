@@ -160,7 +160,26 @@ if (!Array.isArray(metadata.packages) || !Array.isArray(metadata.workspace_membe
 }
 duplicate(metadata.packages.map((pkg) => pkg.id), 'Cargo package ID');
 const workspaceMembers = new Set(metadata.workspace_members);
-const chapterPackages = metadata.packages.filter((pkg) =>
+const workspacePackages = metadata.packages.filter((pkg) =>
+  workspaceMembers.has(pkg.id),
+);
+const exampleOwners = new Map();
+for (const pkg of workspacePackages) {
+  for (const target of pkg.targets.filter((target) =>
+    target.kind.includes('example'),
+  )) {
+    const previousOwner = exampleOwners.get(target.name);
+    if (previousOwner !== undefined) {
+      fail(
+        `duplicate Cargo example target name ${JSON.stringify(target.name)}: ` +
+          `${previousOwner} and ${pkg.name}`,
+      );
+    }
+    exampleOwners.set(target.name, pkg.name);
+  }
+}
+
+const chapterPackages = workspacePackages.filter((pkg) =>
   packagePattern.test(pkg.name),
 );
 const metadataNames = chapterPackages.map((pkg) => pkg.name).sort();
@@ -171,6 +190,8 @@ if (JSON.stringify(metadataNames) !== JSON.stringify(contractPackages)) {
   );
 }
 
+const runnableRecords = [];
+let traceCount = 0;
 for (const pkg of chapterPackages.sort((left, right) => left.name.localeCompare(right.name))) {
   if (!workspaceMembers.has(pkg.id)) fail(`${pkg.name}: package is not a workspace member`);
   const demoDirectory = join(demoRoot, pkg.name);
@@ -204,7 +225,77 @@ for (const pkg of chapterPackages.sort((left, right) => left.name.localeCompare(
   if (readFileSync(fixture, 'utf8') !== contract.data.rust.expected_output) {
     fail(`${pkg.name}: expected.txt differs byte-for-byte from contract rust.expected_output`);
   }
-  process.stdout.write(`${pkg.name}\0${bin.name}\0${fixture}\0`);
+
+  const traceSource = join(demoDirectory, 'examples/diagram_trace.rs');
+  const traceFixture = join(demoDirectory, 'diagram-trace.txt');
+  let traceSourceStats = null;
+  let traceFixtureStats = null;
+  try {
+    traceSourceStats = lstatSync(traceSource);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  try {
+    traceFixtureStats = lstatSync(traceFixture);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  if ((traceSourceStats === null) !== (traceFixtureStats === null)) {
+    fail(`${pkg.name}: diagram trace source and fixture must either both exist or both be absent`);
+  }
+
+  let traceTargetName = '';
+  let traceFixturePath = '';
+  const traceTargets = pkg.targets.filter(
+    (target) =>
+      target.kind.includes('example') &&
+      resolve(target.src_path) === resolve(traceSource),
+  );
+  if (traceSourceStats !== null && traceFixtureStats !== null) {
+    if (
+      !traceSourceStats.isFile() ||
+      traceSourceStats.isSymbolicLink() ||
+      traceSourceStats.size === 0
+    ) {
+      fail(`${pkg.name}: examples/diagram_trace.rs must be a nonempty regular file`);
+    }
+    if (
+      !traceFixtureStats.isFile() ||
+      traceFixtureStats.isSymbolicLink() ||
+      traceFixtureStats.size === 0
+    ) {
+      fail(`${pkg.name}: diagram-trace.txt must be a nonempty regular file`);
+    }
+    if (traceTargets.length !== 1) {
+      fail(`${pkg.name}: expected exactly one Cargo example target for examples/diagram_trace.rs`);
+    }
+    const expectedTraceName = `${pkg.name}-trace`;
+    if (traceTargets[0].name !== expectedTraceName) {
+      fail(
+        `${pkg.name}: diagram trace target must be named ${expectedTraceName}, got ${traceTargets[0].name}`,
+      );
+    }
+    traceTargetName = traceTargets[0].name;
+    traceFixturePath = traceFixture;
+    traceCount += 1;
+  } else if (traceTargets.length !== 0) {
+    fail(`${pkg.name}: Cargo metadata registers a missing diagram trace source`);
+  }
+
+  runnableRecords.push([
+    pkg.name,
+    bin.name,
+    fixture,
+    traceTargetName,
+    traceFixturePath,
+  ]);
+}
+
+if (traceCount !== 34) {
+  fail(`expected 34 diagram trace examples, found ${traceCount}`);
+}
+for (const record of runnableRecords) {
+  process.stdout.write(`${record.join('\0')}\0`);
 }
 NODE
 
@@ -214,9 +305,12 @@ if [[ ! -s "${demo_manifest_path}" ]]; then
 fi
 
 checked=0
+trace_checked=0
 while IFS= read -r -d '' package_name && \
   IFS= read -r -d '' binary_name && \
-  IFS= read -r -d '' expected_path; do
+  IFS= read -r -d '' expected_path && \
+  IFS= read -r -d '' trace_target_name && \
+  IFS= read -r -d '' trace_expected_path; do
   actual_path="${temporary_directory}/${package_name}.actual.txt"
   cargo run \
     --quiet \
@@ -235,6 +329,32 @@ while IFS= read -r -d '' package_name && \
     exit 1
   fi
   checked=$((checked + 1))
+
+  if [[ -n "${trace_target_name}" ]]; then
+    actual_trace_path="${temporary_directory}/${package_name}.trace.actual.txt"
+    cargo run \
+      --quiet \
+      --locked \
+      --offline \
+      --manifest-path "${repository_root}/Cargo.toml" \
+      --package "${package_name}" \
+      --example "${trace_target_name}" \
+      >"${actual_trace_path}"
+    if ! diff -u \
+      --label "${trace_expected_path}" \
+      --label "${package_name} trace stdout" \
+      "${trace_expected_path}" \
+      "${actual_trace_path}"; then
+      echo "Rust demo check failed: deterministic diagram trace stdout drifted for ${package_name}." >&2
+      exit 1
+    fi
+    trace_checked=$((trace_checked + 1))
+  fi
 done <"${demo_manifest_path}"
 
-echo "Rust demo check passed: ${checked} discovered chapter demo(s)."
+if [[ ${trace_checked} -ne 34 ]]; then
+  echo "Rust demo check failed: expected 34 checked diagram traces, got ${trace_checked}." >&2
+  exit 1
+fi
+
+echo "Rust demo check passed: ${checked} discovered chapter demo(s), ${trace_checked} checked diagram trace(s)."

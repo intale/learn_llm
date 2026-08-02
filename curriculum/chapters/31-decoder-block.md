@@ -195,7 +195,7 @@
       "expected": "stdout equals rust/demos/ch31-decoder-block/expected.txt byte for byte, including the final newline."
     },
     {
-      "input": "cargo run --quiet --locked -p ch31-decoder-block --example diagram_trace",
+      "input": "cargo run --quiet --locked -p ch31-decoder-block --example ch31-decoder-block-trace",
       "expected": "stdout equals rust/demos/ch31-decoder-block/diagram-trace.txt byte for byte and follows the frozen Chapter 31 trace grammar."
     }
   ]
