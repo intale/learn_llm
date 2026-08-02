@@ -12290,3 +12290,42 @@ report will cite only the corrected browser fragment.
 `audit-full-course-20260802`, `audit-browser-rendering`,
 `correct-browser-audit-report`, and
 `20260802T104925Z-consolidate-full-course-audit-01`.
+
+## 2026-08-02 - Close the full-course audit with findings, not product edits
+
+**Status:** Accepted for completion in
+`20260802T110333Z-consolidate-full-course-audit-02`.
+
+**Context:** All current prerequisite reports are completed and committed at
+product revision `2b24a50d86609445ed19aa33a4162414904dc4ca`. The corrected
+browser narrative now distinguishes original test drift, masked navigation
+expectations, retry transitions, and genuine Firefox geometry failures. The
+source/localization, Rust, static-delivery, and browser evidence agree on the
+published inventory and isolate five actionable findings.
+
+**Decision:** Publish `audits/2026-08-02-full-course.md` as the canonical audit
+summary. Classify the unusable browser acceptance gate as high severity: the
+first two stale test assumptions produce 333 failures per engine and mask five
+additional stale Russian-navigation expectations. Firefox has three additional
+genuine full-view failures, producing its 336 original total; classify those
+three as one medium learner-facing layout finding. Classify the false Russian
+Chapter 0 availability paragraph as one medium content finding, the Cargo
+`diagram_trace` output collisions as one medium forward-compatibility finding,
+and the README course boundary as low documentation drift. Record the course
+CLI and dirty host-artifact gate as limitations rather than product defects.
+
+Treat completed audit runs as successful evidence collection, not as a clean
+product verdict. Do not fold fixes into this audit build. Each remediation must
+become a separately checkpointed future build that preserves the recorded
+failing evidence and reruns its relevant complete gate.
+
+**Consequences:** The audit build closes after committing only reports, the
+ledger, and decision history. Learner-facing content, Rust code, site
+components, styles, production tests, dependencies, build configuration,
+hosting, and deployment remain byte-identical to the audited product revision.
+All verified passes and audit-environment limitations remain visible beside the
+prioritized findings; no defect is described as fixed.
+
+**Affected build, step, and run:** `audit-full-course-20260802`,
+`consolidate-full-course-audit`, run
+`20260802T110333Z-consolidate-full-course-audit-02`.

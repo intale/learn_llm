@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T11:02:40Z"
+updated_at: "2026-08-02T11:05:40Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.55.0.windows.3"
   notes: "Current Windows/Dropbox orchestration environment recorded on 2026-07-28 after returning from the Linux host used by the preceding analytics step. Repository-defined Rust 1.93.1 and Node 22.12.0/npm 10.9.0 product pins remain unchanged in Linux source/workspace images; Playwright remains pinned at 1.61.1. Host Node 24.18.0 was observed during a non-authoritative diagnostic in the Chapter 28 run, but all accepted product validation used the pinned Linux toolchains."
 
-active_build: audit-full-course-20260802
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -29252,11 +29252,11 @@ builds:
 
   - build_id: audit-full-course-20260802
     objective: "Independently audit the complete English/Russian course at the current clean product revision without changing learner-facing or implementation files."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
-      spent: 5
+      spent: 6
       notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
     completion_criteria:
       - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
@@ -29518,7 +29518,7 @@ builds:
       - id: consolidate-full-course-audit
         objective: "Publish one prioritized, evidence-backed full-course audit report and close the audit build."
         depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, correct-browser-audit-report]
-        status: pending
+        status: completed
         inputs: ["audits/2026-08-02-full-course/content-localization.md", "audits/2026-08-02-full-course/rust.md", "audits/2026-08-02-full-course/static-delivery.md", "audits/2026-08-02-full-course/browser-corrected.md"]
         outputs: ["audits/2026-08-02-full-course.md", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
@@ -29548,3 +29548,27 @@ builds:
             artifacts: []
             validation: []
             notes: "Interrupted because independent review invalidated browser.md's narrative accuracy. The uncommitted consolidated draft remains an explicitly incomplete working-tree artifact and will be refreshed only after browser-corrected.md is completed and committed."
+          - run_id: 20260802T110333Z-consolidate-full-course-audit-02
+            started_at: 2026-08-02T11:03:33Z
+            finished_at: 2026-08-02T11:05:40Z
+            status: succeeded
+            input_fingerprint:
+              product_git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              ledger_git: 24c6631dc58a9d172df3961e59ba2d5a801249c7
+              files: {content-localization.md: "sha256:cb896e3fcf6c56fd6868a534df573f0b8136789a2a92b6af5e9e08b67f0efdc4", rust.md: "sha256:8f2677978ce7339cba1e9ce92c08fcd482ec0a432bc3269df5b462fd467efe97", static-delivery.md: "sha256:cf8601cccf34188ebfa0a2dd35a949f3021c3c4ba352f17e0cb3a980c3ac8a20", browser-corrected.md: "sha256:39710f0af4a20b8f61d1739816564522b595fa78c7b0d83ffaf07a70fbafc014"}
+              tools: "Local Markdown review, Git 2.55.0.windows.3, and the repository's installed YAML parser"
+              external: "None; resumed consolidation uses only completed committed audit fragments and preserved local evidence."
+            staging_dir: .build/runs/20260802T110333Z-consolidate-full-course-audit-02/
+            commands:
+              - "Verify the contiguous browser-report replacement is completed and committed, hash all four current prerequisite reports, confirm the product remains identical to 2b24a50, and resume consolidation as a fresh run."
+              - "Refresh the interrupted draft against browser-corrected.md, add the complete toolchain and exact five-finding severity summary, distinguish verified passes from limitations, and append the durable closure decision."
+              - "Run independent final report review, relative-link and UTF-8 checks, YAML and dependency-topology validation, whitespace review, exact product-path immutability comparison, and build-closure audit."
+            artifacts:
+              - {path: audits/2026-08-02-full-course.md, checksum: "sha256:806117d9cd164432bb077d497a7299aa101a16011d3c6650ebb96341330036cb", notes: "Canonical prioritized full-course audit report."}
+            validation:
+              - {command: "Manual cross-check of all four current audit fragments and preserved evidence", status: passed, notes: "The report states the exact product revision and toolchain, five prioritized findings, verified pass counts, audit limitations, and remediation targets without describing a defect as fixed."}
+              - {command: "Independent final report and decision review", status: passed, notes: "All counts, severities, browser-failure attribution, geometry measurements, CLI/host classifications, and source references agree with the current fragments; no remaining discrepancy was found."}
+              - {command: "Relative-link and UTF-8 audit", status: passed, notes: "All four detailed-evidence links resolve to committed current reports; the consolidated and corrected browser reports contain no suspicious replacement or mojibake code point."}
+              - {command: "YAML parse, dependency topology, scheduler, and build closure", status: passed, notes: "The invalidated browser report has one contiguous completed replacement; every consolidation dependency is completed; no step or run remains running; active_build is null and the audit build is completed."}
+              - {command: "git diff --check and product-path immutability audit", status: passed, notes: "No whitespace error exists. Outside audits/, BUILD_STATE.yaml, and append-only DECISIONS.md, every path remains byte-identical to product revision 2b24a50."}
+            notes: "Succeeded. The full-course audit closes with one high, three medium, and one low finding, two explicitly scoped audit limitations, complete verified-pass evidence, and no product or production-test modification."
