@@ -192,6 +192,7 @@ describe("Chapter 0 diagram labels and component contract", () => {
   it("keeps the learner page an unassessed orientation", () => {
     for (const [locale, chapterPage] of Object.entries(chapterPages)) {
       expect(chapterPage).toContain('"chapter_kind": "orientation"');
+      expect(chapterPage).toContain('"content_revision": 4');
       expect(chapterPage).toContain('"formula": null');
       expect(chapterPage).toContain('"rust_sources": []');
       expect(chapterPage).toContain("import LlmSystemDiagram");
@@ -208,5 +209,14 @@ describe("Chapter 0 diagram labels and component contract", () => {
     expect(chapterPages.en).toContain("The first figure is the whole-system schema");
     expect(chapterPages.ru).toContain("Запоминать эту карту не нужно.");
     expect(chapterPages.ru).toContain("Первая схема показывает всю систему.");
+    expect(chapterPages.ru).toContain(
+      "На второй схеме модель показана подробнее.",
+    );
+    expect(chapterPages.ru).toContain(
+      "Для каждой части указаны ссылки на главы курса,",
+    );
+    expect(chapterPages.ru).not.toMatch(
+      /Ссылки на главы 1–7 открывают русские страницы|русская версия соответствующей главы пока недоступна|ссылка ведёт на английскую страницу/,
+    );
   });
 });

@@ -967,7 +967,7 @@ visualization choice, exercises, misconceptions, and rendered browser evidence.
 
 - **Chapter ID:** `00-llm-parts`
 - **Implementation step:** `revise-ch00-orientation`
-- **Localization status:** Content revision 3 delivers the complete meaning-first Russian orientation through `activate-ch00-russian-localization` after exact language, checksum, and rendered-diagram validation; user review follows delivery.
+- **Localization status:** Content revision 4 aligns the Russian orientation with the current Chapter 0-39 Russian route projection and refreshes the detailed-map explanation directly from English; revision 3's meaning-first localization remains recorded by `activate-ch00-russian-localization`.
 - **Depends on:** none; this orientation names completed course parts but introduces no implementation prerequisite.
 - **Outcome:** Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.
 - **Scope boundary:** Build a mental map of inference and learning without pre-teaching tensor arithmetic, optimization derivations, implementation internals, or production extensions.

@@ -96,7 +96,8 @@ const chapterCopy = {
     orientationBoundary:
       "Этот обзор намеренно ограничивается названиями, назначением и связями частей.",
     noMemorization: "Запоминать эту карту не нужно.",
-    linksStatement: "Каждая названная часть ведёт к главе, где она реализуется.",
+    linksStatement:
+      "Для каждой части указаны ссылки на главы курса, где она реализуется.",
     samplerCue: "ID токена → эмбеддинг",
     generationFeedback:
       "Выбранный ID возвращается к эмбеддингам на следующем шаге с KV‑кэшем.",
@@ -198,7 +199,7 @@ async function expectChapter(page: Page, locale: ChapterLocale) {
     chapterId,
     locale,
     order: 0,
-    revision: 3,
+    revision: 4,
     revisionLabel: copy.revisionLabel,
     title: copy.title,
     equivalentLocales: ["en", "ru"],
@@ -307,6 +308,14 @@ async function expectChapter(page: Page, locale: ChapterLocale) {
   );
   await expect(page.locator(".lesson-body")).toContainText(copy.noMemorization);
   await expect(page.locator(".lesson-body")).toContainText(copy.linksStatement);
+  if (locale === "ru") {
+    await expect(page.locator(".lesson-body")).not.toContainText(
+      "Ссылки на главы 1–7 открывают русские страницы.",
+    );
+    await expect(page.locator(".lesson-body")).not.toContainText(
+      "русская версия соответствующей главы пока недоступна",
+    );
+  }
   await expect(detailDiagram.locator('[data-part-id="sampler"]')).toContainText(
     copy.samplerCue,
   );

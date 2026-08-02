@@ -3,7 +3,7 @@
   "chapter_id": "00-llm-parts",
   "chapter_kind": "orientation",
   "concept_id": "llm-parts",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 0,
   "objective": {
     "en": "Identify the major parts of a decoder-only LLM, understand how they connect, and use the course links to find the chapter that builds each part.",
@@ -129,7 +129,7 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 3 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
+    "Russian revision 4 is translated directly from the matching English orientation; do not use another locale as an intermediate source.",
     "Keep LLM, BPE, RMSNorm, SwiGLU, Q/K/V, RoPE, AdamW, KV, BOS, EOS, source titles, identifiers, URLs, and diagram topology stable; use established Russian technical forms such as логиты, эмбеддинги, каузальное внимание, функция потерь, контрольная точка, and KV-кэш (кэш ключей и значений) in explanations.",
     "On the Russian detail map, use the published Russian destination for every implementation chapter; if a future chapter has no active Russian route, use a visibly and accessibly marked English destination rather than creating a placeholder route.",
     "Preserve Chapter 0 as a non-assessed orientation: do not add a formula lesson, implementation sample, predict-first exercise, or checked-answer block."
@@ -236,13 +236,15 @@ and evidence.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English and Russian are the active locales for revision 3. The Russian orientation
+English and Russian are the active locales for revision 4. The Russian orientation
 is translated directly from the matching English source with established technical
 language, while model names, abbreviations, source titles, URLs, and diagram
 relationships remain stable. Keep the historical sequence on the road to modern
 LLMs and keep both pages as overviews rather than turning either into an assessed
-lesson. The Russian detail map may link to a marked English destination when that
-implementation chapter has no active Russian route.
+lesson. Every current detail-map destination has an active same-locale page. If a
+future implementation chapter has no active Russian route, the Russian detail map
+may link to a visibly and accessibly marked English destination rather than
+creating a placeholder route.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

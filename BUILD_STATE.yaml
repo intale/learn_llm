@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T15:40:11Z"
+updated_at: "2026-08-02T15:53:55Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -29809,7 +29809,7 @@ builds:
       - id: correct-ch00-russian-availability
         objective: "Remove the obsolete Russian Chapter 0 rollout claim and align its course-map explanation directly with the current English source and locale projection."
         depends_on: [reflow-ch21-firefox-full-view]
-        status: pending
+        status: completed
         inputs: [".agents/skills/localize-llm-course/SKILL.md", "SKILLS.md", "curriculum/README.md", "curriculum/chapters/00-llm-parts.md", "site/src/i18n/locales.json", "site/src/i18n/chapter-locales.json", "site/src/content/chapters/en/00-llm-parts.mdx", "site/src/content/chapters/ru/00-llm-parts.mdx", "audits/2026-08-02-full-course/content-localization.md"]
         outputs: ["curriculum/chapters/00-llm-parts.md", "curriculum/course-plan.md", "site/src/content/chapters/en/00-llm-parts.mdx", "site/src/content/chapters/ru/00-llm-parts.mdx", "site/tests/00-llm-parts-diagram.test.ts", "site/tests/e2e/ch00-llm-parts.spec.ts", "BUILD_STATE.yaml"]
         acceptance:
@@ -29819,7 +29819,39 @@ builds:
           - "The shared Chapter 0 content revision advances to 4 in its contract and both locale pages; English body meaning, routes, locale policy, diagram component, dependencies, build, hosting, and deployment remain unchanged."
         validate: ["./course run npm --prefix site run check:chapter -- --locale ru --chapter 00-llm-parts", "./course run npm --prefix site run check:parity -- --chapter 00-llm-parts", "./course run npm --prefix site run test -- --run tests/00-llm-parts-diagram.test.ts", "./course run npm --prefix site run build", "./course run npm --prefix site run test:links", "Docker Playwright 1.61.1 @chapter:00-llm-parts in Chromium and Firefox", "git diff --check and exact staged/canonical scope audit"]
         cost: {class: medium, notes: "One short direct-English Russian correction plus complete target-page checks in two cached engines; no network or paid service."}
-        runs: []
+        runs:
+          - run_id: 20260802T154259Z-correct-ch00-russian-availability-01
+            started_at: 2026-08-02T15:42:59Z
+            finished_at: 2026-08-02T15:53:55Z
+            status: succeeded
+            input_fingerprint:
+              git: 0f41660
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:f06a11bd1092f8122c531a740e03611eab3c09611112b22697f3a7332534f61e", DECISIONS.md: "sha256:cc0097030142a9747f8906b512ca557393f7af53ea0ee999f0002446e8c47c76", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", chapter-workflow: "sha256:0fd6f27f0d7b3cc3e606f7dd4365f028df6d1d4b3df14737d73cca0ea1151f84", curriculum-readme: "sha256:f09b9c0f7a2afe6b4fdcda63bec3f61957c65329a8b00fce7d1ade4446b02111", contract: "sha256:2bfb255b6b6fecff8d12267f00237b665d0d98443aa306736ea7dcd8580b9f9a", course-plan: "sha256:94bb9d159a4990e6117041a87ef98460d17b0fa4894bad9f528b1a045abce762", locale-registry: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad", locale-projection: "sha256:64126e42e3144f0ab8f2c65d409599773ced9486d9e1a010b6d4e0362a83fc51", english-lesson: "sha256:2978d001921057913769f941d8115ae2be1e92843db37f56bc2419b387c2ce5f", russian-lesson: "sha256:a7eb2c7b2c6f09bc718b67a90490e7f9404849a60562e321b724cf2bdf198f99", component-test: "sha256:f22b67f2e55f85c4566e6049ddd535db9ea322cbaf2d5810ebb9ef06f8f28cfb", focused-test: "sha256:78c78452cc2340c178ac6acfcf28a614532867c90e5446a6e5dcd75c1a9cdb9d", audit-report: "sha256:cb896e3fcf6c56fd6868a534df573f0b8136789a2a92b6af5e9e08b67f0efdc4"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Node 22.12.0/npm 10.9.0 and exact official Playwright 1.61.1 Noble runtime at sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+              external: "None; source correction and all validation use committed or cached local inputs."
+            staging_dir: .build/runs/20260802T154259Z-correct-ch00-russian-availability-01/
+            commands:
+              - "Verify the clean 0f41660 checkpoint, confirm Chapter 21 is completed and committed, read the English and Russian Chapter 0 sources against the current all-Russian locale projection, apply the localization skill checklist, hash material inputs, create the run-specific staging tree, and claim the step before content edits."
+              - "Advance the contract and both locale pages to content revision 4; leave the English learner body unchanged; replace the stale Russian second-figure paragraph with a direct, natural three-sentence rendering; and align the course plan and regression contracts."
+              - "Record semantic segment mapping plus terminology, anti-calque, monolingual, accessibility, invariant, and rendered-surface review in the run-local localization record."
+              - "Build the staged review workspace, run focused content/parity/unit checks, seed an isolated exact-browser snapshot, and pass the seven-case Chapter 0 matrix in both engines."
+              - "Freeze the six-file manifest, pass the repository staged-review command, publish byte-identical files with apply_patch, verify every checksum, and repeat the canonical Docker and browser gates."
+            artifacts:
+              - {path: ".build/runs/20260802T154259Z-correct-ch00-russian-availability-01/publish.sha256", sha256: "81feb4407027d144eb41c74dbfab777849cd8b289d30ea69237cffbb7b4a70a5", notes: "Frozen six-file content, plan, and regression-contract manifest; all canonical files match the listed staged hashes."}
+              - {path: ".build/runs/20260802T154259Z-correct-ch00-russian-availability-01/validation/localization-review.md", sha256: "09e5bb7be8abf37a08a01b230c67cae99101147da48563dedc65d9ed42d0c13c", notes: "Direct-English semantic mapping and completed terminology, anti-calque, monolingual, accessibility, invariant, and two-engine rendered review."}
+              - {path: ".build/runs/20260802T154259Z-correct-ch00-russian-availability-01/validation/canonical-chromium-focused.log", sha256: "e2ab5e77bb2bc39b03334ba8c42d7718e5529d8c2f3c7b55f9eb386da23fba1a", notes: "Post-publication Chapter 0 Chromium matrix: 7/7 passed."}
+              - {path: ".build/runs/20260802T154259Z-correct-ch00-russian-availability-01/validation/canonical-firefox-focused.log", sha256: "e9367578b232b2eae9463912aa225a04383459d45f8bc50311255a50b33e33fd", notes: "Post-publication Chapter 0 Firefox matrix: 7/7 passed."}
+            validation:
+              - {command: "Repository, dependency, ownership, cost, source, and localization preflight", status: passed, notes: "The tree is clean; the dependency is completed and committed; all declared inputs exist; the medium cached local work fits the unlimited budget; English revision 3 is the direct semantic source; every Chapter 0-39 Russian route is active; and no other running step owns these outputs."}
+              - {command: "Direct-English semantic, terminology, anti-calque, monolingual, and accessibility review", status: passed, notes: "The Russian paragraph naturally states the same second-figure, three-panel, generation, decoder-interior, post-logit-learning, and implementation-link claims as English. It removes both obsolete availability sentences, adds no English learner copy, and relies on neither visual position nor the dormant EN badge."}
+              - {command: "Staged Chapter 0 content, parity, unit, diagnostics, build, and link gates", status: passed, notes: "The direct Russian chapter and exact two-locale parity checks pass; the four source-contract tests pass; Astro reports 0 diagnostics; all 80 sources and 40 locale sets pass; the build emits 85 pages; and all 2,447 local references pass."}
+              - {command: "Staged exact Chromium and Firefox Chapter 0 matrices", status: passed, notes: "All seven cases pass independently in each engine. English and Russian pages retain desktop and 390-pixel narrow containment, 43 correct same-locale links, both complete figures in full view, ordinary-word wrapping, keyboard/Escape/focus behavior, and the complete no-JavaScript fallback."}
+              - {command: "./course review 20260802T154259Z-correct-ch00-russian-availability-01 --check", status: passed, notes: "The checksum-frozen six-file publish tree renders both Chapter 0 routes and passes the repository review pipeline without mutating staging."}
+              - {command: "Canonical byte identity plus repository Docker gate and focused Chapter 0 checks", status: passed, notes: "All six canonical outputs match the frozen staged SHA-256 values. The complete Rust/static workspace gate, focused Russian content and parity checks, four source-contract tests, 85-page build, and 2,447-link check pass after publication."}
+              - {command: "Post-publication exact Chromium and Firefox Chapter 0 matrices", status: passed, notes: "The byte-identical canonical snapshot again passes 7/7 cases in each engine, including the complete Russian rendered-layout review."}
+              - {command: "node scripts/check-course-plan.mjs in the canonical Docker workspace", status: passed, notes: "The revised Chapter 0 status remains consistent with all 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."}
+              - {command: "git diff --check and exact staged/canonical scope audit", status: passed, notes: "Only the declared Chapter 0 contract, course-plan line, two locale pages, two regression files, and BUILD_STATE.yaml changed; the English body meaning, routes, locale policy, diagrams, labels, dependencies, build definitions, audit evidence, hosting, and deployment remain unchanged."}
+            notes: "Succeeded. Chapter 0 revision 4 now describes the detailed diagram in natural Russian and accurately reflects that every current Chapter 0-39 destination has a Russian page, while retaining the conditional future-locale fallback only in the authoring contract."
       - id: disambiguate-rust-example-targets
         objective: "Give every duplicated diagram-trace example target a package-qualified artifact name and enforce workspace-wide example-name uniqueness."
         depends_on: [correct-ch00-russian-availability]
