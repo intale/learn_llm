@@ -18,7 +18,7 @@ declare const process: { cwd(): string };
 
 const root = process.cwd();
 const contentRoot = resolve(root, 'src/content/cheat-sheets');
-const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 35;
+const RUSSIAN_ROLLOUT_THROUGH_CHAPTER = 36;
 
 const expectedSheets = {
   '01-text-units': {
@@ -1040,6 +1040,7 @@ describe('English chapter cheat-sheet content', () => {
 
 describe('Russian chapter cheat-sheet localization', () => {
   const protectedLiterals = /<[^>]+>|UTF-8|Unicode|BPE|BOS|EOS|Q\/K\/V|RMSNorm|LayerNorm|RoPE|SwiGLU|AdamW|FNV-1a|KV|LLM|NLL|MLE|VJP|f64|SplitMix64|Unix/g;
+  const caseFoldedProtectedLiterals = /top-k|top-1|softmax/gi;
 
   for (const chapterId of expectedRussianChapterIds) {
     it(`${chapterId} preserves the English concepts in natural Russian`, () => {
@@ -1076,6 +1077,16 @@ describe('Russian chapter cheat-sheet localization', () => {
         const localizedText = `${term} ${definition}`;
         for (const literal of sourceLiterals) {
           expect(localizedText).toContain(literal);
+        }
+
+        const sourceCaseFoldedLiterals = new Set(
+          (`${source?.term ?? ''} ${source?.definition ?? ''}`.match(
+            caseFoldedProtectedLiterals,
+          ) ?? []).map((literal) => literal.toLocaleLowerCase('en')),
+        );
+        const localizedCaseFoldedText = localizedText.toLocaleLowerCase('en');
+        for (const literal of sourceCaseFoldedLiterals) {
+          expect(localizedCaseFoldedText).toContain(literal);
         }
       });
     });

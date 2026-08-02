@@ -27780,7 +27780,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 35
+      spent: 36
       notes: "Thirty-nine sequential medium checkpoints with cached local static and two-engine browser validation; no paid service or network generation."
     completion_criteria:
       - "Chapters 1-39 each publish exactly one direct Russian localization of the matching current English cheat sheet; Chapter 0 remains excluded."
@@ -29068,13 +29068,54 @@ builds:
       - id: localize-ch36-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 36 cheat sheet."
         depends_on: [localize-ch35-cheat-sheet]
-        status: pending
+        status: completed
         inputs: ["site/src/content/cheat-sheets/en/36-temperature-top-k.json", "site/src/content/chapters/ru/36-temperature-top-k.mdx", "curriculum/chapters/36-temperature-top-k.md", ".agents/skills/localize-llm-course/SKILL.md"]
         outputs: ["site/src/content/cheat-sheets/ru/36-temperature-top-k.json", "site/tests/cheat-sheets.test.ts", "BUILD_STATE.yaml"]
         acceptance: ["One natural Russian sheet is translated directly from the matching current English record; the same chapter-specific LLM concepts, qualifications, literals, and distinctions survive without literal English syntax; Russian interface copy is complete; locale collation, pagination, keyboard behavior, no-JavaScript fallback, desktop and 360-by-500 containment pass in Chromium and Firefox; the English sheet and both chapter lessons remain byte-identical; exactly Chapters 1-36 have Russian sheets; Chapter 0 and later Russian chapters remain sheet-free; the completed checkpoint is committed independently."]
         validate: ["npm --prefix site test -- --run tests/cheat-sheets.test.ts", "npm --prefix site run check && npm --prefix site run build && npm --prefix site run test:links", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=chromium --grep '@cheat-sheet:ru:36-temperature-top-k'", "npm --prefix site run test:e2e -- tests/e2e/cheat-sheets.spec.ts --browser=firefox --grep '@cheat-sheet:ru:36-temperature-top-k'", "Recorded meaning, terminology, anti-calque, monolingual, accessibility, exact-source, layout, scope, checksum, and clean-worktree audits"]
         cost: {class: medium, notes: "One local meaning-first translation and cached exact-snapshot static plus two-engine rendered review; no paid service or network generation."}
-        runs: []
+        runs:
+          - run_id: 20260802T090050Z-localize-ch36-cheat-sheet-01
+            started_at: 2026-08-02T09:00:50Z
+            finished_at: 2026-08-02T09:11:01Z
+            status: succeeded
+            input_fingerprint:
+              git: 08127b6c8a9223f75f8d7e7223f533ddc40f8af7
+              manifest: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/input-fingerprint.txt
+              checksum: sha256:2a1ed0f676a3998905775bb9d2974b4ee61cfc46352ad6b5a40111bc551286a4
+              tools: "Git 2.55.0, Docker 29.6.2, Compose 5.3.1, repository Node 22.12.0/npm 10.9.2 and Playwright 1.61.1 pins"
+              external: "None; current English Chapter 36 sheet is the sole semantic source."
+            staging_dir: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/
+            commands:
+              - "Verify the clean Chapter 35 commit and worktree, exact Chapter 36 inputs, accepted pinned Linux source base, dependency closure, sequential scheduler, and medium local cost."
+              - "Compose and validate the exact Chapter 36 source snapshot, then attempt both rendered gates in the source-composition image; preserve the pre-launch failures and correct the runtime selection to the pinned Playwright image without changing the snapshot."
+              - "Run the pinned Chromium and Firefox gates against first content candidate sha256:4174f2f13c1e3fba6ce053cec1d592bd312e756ad61024dd989d219978c01306, preserve the shared narrow-shell failure, remove the labelled volume, and shorten only the Russian title and description before a fresh snapshot."
+              - "Translate and independently review all twelve Chapter 36 terms directly from English, preserving positive finite temperature, deterministic top-k ranking and ties, exact-zero removed probabilities, one categorical draw, half-open interval order, greedy versus stochastic top-1 RNG use, and generator-state replay; advance the rollout boundary and add case-folded protection for top-k, top-1, and softmax."
+              - "Compose accepted source image sha256:4435a1413f001b713be97f54027654d5144f56058e122c01f0ebd9c60ca88868 from the Chapter 35 source base plus the exact Chapter 36 outputs; rerun every source gate and a fresh labelled exact snapshot in pinned Chromium and Firefox."
+              - "Reconcile host and exact-snapshot hashes, freeze the two product hashes, verify immutable inputs and exact scope, then remove the labelled volume."
+            artifacts:
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/input-fingerprint.txt, checksum: "sha256:2a1ed0f676a3998905775bb9d2974b4ee61cfc46352ad6b5a40111bc551286a4", notes: "Exact Chapter 36 localization input fingerprint."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/chromium-attempt-01.log, checksum: "sha256:7045e3116bf25bcfab41cdd648b0c582c19d08ec8c7aa62614efa80393d53cc1", notes: "Preserved Chromium pre-launch failure from the source-composition image, which contains no browser executable."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/firefox-attempt-01.log, checksum: "sha256:a5242475df60fed2807e3aa723e84926cfff310ca624947ab11c26cc4467dfd4", notes: "Preserved Firefox pre-launch failure from the source-composition image, which contains no browser executable."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/source-validation-attempt-01.log, checksum: "sha256:bf5a3b6c08261b5ab2e1ed857507ff413fa97eef4bdbe22fc7537754819b8c18", notes: "Passing source gates for the first, later shortened Chapter 36 content candidate."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/exact-build-attempt-01.log, checksum: "sha256:5c8834fb2f938081e64b49ab55671ccf1e531830a45d46b882639481c8cbd8aa", notes: "Passing independent build for the first, later shortened Chapter 36 content candidate."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/chromium-attempt-02.log, checksum: "sha256:e61a814e31bdcea6835a8b88dcf6479354d3485496dd11709a296b25a6dcfbe6", notes: "Preserved Chromium narrow-layout failure for the first content candidate."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/firefox-attempt-02.log, checksum: "sha256:77688b2aa2275b1cc92948e65f88430f90f7f1408d93332c417f82a5b31b0c04", notes: "Preserved Firefox narrow-layout failure for the first content candidate."}
+              - {path: docker-image://learn-llm-ru-cheatsheet-ch36-source:local, checksum: "sha256:4435a1413f001b713be97f54027654d5144f56058e122c01f0ebd9c60ca88868", notes: "Accepted pinned Linux source snapshot composed without network access."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/source-validation.log, checksum: "sha256:aac9347091921b842616a62351bf42ba43a6fdfed6272faf55b44fda63008acc", notes: "Complete focused, Astro, collection, static-build, and link output for the accepted content."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/exact-build.log, checksum: "sha256:d7605b2edd5bac37c4b3d3b9e44ce14402e80001b5771a6e12df88f3f90f445d", notes: "Independent exact-snapshot 85-page build output for the accepted content."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/chromium.log, checksum: "sha256:68815f950ec496317b96c08e841e9fc73fd0ba8aee5f65bf5084c379926f8185", notes: "Pinned Chromium Chapter 36 rendered-gate output, 3/3 passed."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/firefox.log, checksum: "sha256:bc03ef2d453edb619f6403cfa299f84ea56dddc27ecba8214d4099473f888df7", notes: "Pinned Firefox Chapter 36 rendered-gate output, 3/3 passed."}
+              - {path: .build/runs/20260802T090050Z-localize-ch36-cheat-sheet-01/publish-product.sha256, checksum: "sha256:5600ac195b2cf311afe3992d396be7976e3870b8a5e2a2687339b53a6e37d76a", notes: "Frozen hashes for the two non-ledger Chapter 36 publication outputs."}
+            validation:
+              - {command: "Dependency, environment, source-scope, cost, and scheduler preflight", status: passed, notes: "Chapter 35 is completed and independently committed at 08127b6; the worktree was clean; Chapter 36 is the first eligible pending step; exact localization inputs and the accepted pinned Linux source base exist; validation requires no paid service or network generation."}
+              - {command: "Initial exact-snapshot Chromium and Firefox Chapter 36 gates", status: failed, notes: "Both invocations stopped before page launch because the source-composition image has no Playwright browser binaries. The immutable exact volume, source validation, and independent build remain valid; retry uses mcr.microsoft.com/playwright:v1.61.1-noble."}
+              - {command: "First-content-candidate exact-snapshot Chromium and Firefox Chapter 36 gates", status: failed, notes: "Both engines passed desktop and no-JavaScript cases but reported the same 511-pixel dialog scroll height inside a 482-pixel client area at 360 by 500. The labelled exact volume was verified and removed; only the natural Russian title and description will be shortened before repeating all gates."}
+              - {command: "Chapter 36 meaning, terminology, anti-calque, monolingual, relevance, literal, and accessibility review", status: passed, notes: "All twelve canonical concepts survive in source order. Temperature remains finite and strictly positive and preserves rank; equal logits resolve by ascending token ID before exactly k candidates survive; removed tokens have exact-zero probability; retained candidates are renormalized with max-shifted softmax; intervals are half-open and traversed by ascending ID; greedy consumes no draw while stochastic top-1 consumes exactly one; replay requires identical generator state and deterministic selection rules."}
+              - {command: "Focused, Astro, browser-collection, production-build, and link gates", status: passed, notes: "84/84 focused cases pass; Astro reports 210 files with zero diagnostics; exactly 226 browser cases collect; all 85 pages build and all 2,447 local references plus 85 SEO, sitemap, and Analytics routes pass."}
+              - {command: "Accepted exact-snapshot Chromium and Firefox Chapter 36 gates", status: passed, notes: "3/3 cases pass independently in each engine. Russian collation yields exact page lengths 10 and 2; every term remains reachable, top-k, top-1, softmax, long categorical and generator-state entries wrap safely, fixed paginator geometry and focus work at 360 by 500, and the complete no-JavaScript disclosure passes."}
+              - {command: "Final checksum, immutable-input, source-scope, whitespace, mode, resource-cleanup, scheduler, and checkpoint audit", status: passed, notes: "Both non-ledger host hashes match the accepted exact snapshot and frozen manifest; canonical English, both lessons, contract, shared UI/E2E, dependencies, Dockerfile, and Compose definition are byte-identical; exactly Chapters 1-36 are localized; Chapter 0 and Chapters 37-39 remain sheet-free in Russian; no run-labelled Docker resource remains."}
+            notes: "Succeeded after preserving one runtime-selection mistake and one overlong-heading layout candidate. Chapter 36 now has one direct Russian localization of all twelve temperature and top-k terms on locale-sorted pages of ten and two; every static, link, accessibility, desktop, narrow, no-JavaScript, Chromium, and Firefox gate passes."
       - id: localize-ch37-cheat-sheet
         objective: "Publish the direct Russian localization of the Chapter 37 cheat sheet."
         depends_on: [localize-ch36-cheat-sheet]
