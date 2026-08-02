@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T10:10:58Z"
+updated_at: "2026-08-02T10:19:14Z"
 
 environment:
   os: "Windows host with Linux x86_64 product and browser containers"
@@ -29256,7 +29256,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 1
+      spent: 2
       notes: "The user requested the full audit. It uses cached local Docker images and substantial local CPU, with no paid service or network generation."
     completion_criteria:
       - "All 40 contracts, 80 localized chapter pages, 78 localized cheat sheets, 39 implementation chapters, static delivery surfaces, and complete Chromium/Firefox rendered matrices are audited at one immutable product revision."
@@ -29266,7 +29266,7 @@ builds:
       - id: audit-course-content-localization
         objective: "Audit the full English/Russian curriculum for contract parity, LLM scope, formula discipline, localization meaning and naturalness, cheat-sheet relevance, and source-level accessibility."
         depends_on: []
-        status: running
+        status: completed
         inputs: ["AGENTS.md", ".agents/skills/localize-llm-course/SKILL.md", "SKILLS.md", "curriculum/course-plan.md", "curriculum/chapters/", "site/src/content/chapters/", "site/src/content/cheat-sheets/", "site/src/i18n/locales.json", "site/src/i18n/chapter-locales.json"]
         outputs: ["audits/2026-08-02-full-course/content-localization.md"]
         acceptance:
@@ -29283,18 +29283,35 @@ builds:
         runs:
           - run_id: 20260802T095110Z-audit-course-content-localization-01
             started_at: 2026-08-02T09:51:10Z
-            finished_at: null
-            status: running
+            finished_at: 2026-08-02T10:19:14Z
+            status: succeeded
             input_fingerprint:
               git: 2b24a50d86609445ed19aa33a4162414904dc4ca
               files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", chapter-locales.json: "sha256:64126e42e3144f0ab8f2c65d409599773ced9486d9e1a010b6d4e0362a83fc51"}
-              tools: "Git 2.55.0, Docker 29.6.2, repository Node 22.12.0/npm 10.9.2"
+              tools: "Git 2.55.0, Docker 29.6.2, Linux Node 22.12.0/npm 10.9.0 runtime with npm@10.9.2 declared by the package"
               external: "None; English at the same revision is the canonical semantic source for Russian review."
             staging_dir: .build/runs/20260802T095110Z-audit-course-content-localization-01/
-            commands: ["Run startup protocol and localization-skill preflight; inventory 40 contracts, 80 lessons, and 78 cheat sheets."]
-            artifacts: []
-            validation: []
-            notes: "Running; assigned only source/content/localization audit surfaces."
+            commands:
+              - "Run startup protocol and localization-skill preflight; inventory 40 contracts, 80 lessons, and 78 cheat sheets."
+              - "Run the course-plan, complete content/parity, and seven-file 181-case focused source suites in the immutable Linux source image."
+              - "Generate complete English/Russian chapter and cheat-sheet pair digests; compare formula annotations, numeric and code/trace literals, external links, Unicode integrity, programming-language prose, authoring leakage, stale-rollout language, and Russian Latin runs."
+              - "Review every locale pair by meaning, terminology, anti-calque, monolingual flow, LLM-history scope, formula discipline, learner-facing accessibility, and cheat-sheet relevance; distinguish natural localized differences from drift."
+              - "Confirm and report the obsolete Russian Chapter 0 locale-availability paragraph without modifying learner-facing files."
+            artifacts:
+              - {path: audits/2026-08-02-full-course/content-localization.md, checksum: "sha256:cb896e3fcf6c56fd6868a534df573f0b8136789a2a92b6af5e9e08b67f0efdc4", notes: "Canonical bilingual source/content audit fragment."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/course-plan.log, checksum: "sha256:7e90b6d9168c8e076d50d9635abea1d7f794490340509db010e7fd02c34eb010", notes: "Passing 40-chapter course-plan audit."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/content.log, checksum: "sha256:29b989751defffd052f208b5dc381041f49c3fdca54508728ccb7c4e805d49dd", notes: "Passing complete content gate."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/parity.log, checksum: "sha256:b2efc4d4675dfc93fa44f4bd86aecd00f46b035174f244601533d110ecb899aa", notes: "Passing 40-pair localization parity gate."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/content-tests.log, checksum: "sha256:cd644c82e13c653489e7746189b56e2cb21e43a600d7b0fef0f4d83e7cf6e941", notes: "Passing 7-file, 181-case focused source suite."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/chapter-pair-digest.log, checksum: "sha256:8192aa3160775f40e9599a11383535e0e41da21b07e4834c61cc7e1636c8f472", notes: "Complete 40-pair lesson review digest."}
+              - {path: .build/runs/20260802T095110Z-audit-course-content-localization-01/cheat-sheet-pair-digest.log, checksum: "sha256:ccdc15a20dcf7d011328bd620be1976821d92f281cf298c7bce9b9f5309db62a", notes: "Complete 39-pair cheat-sheet review digest."}
+            validation:
+              - {command: "Course plan, complete content, and parity gates", status: passed, notes: "40 contracts, 80 localized lessons, 40 publishable pairs, 32 catalog keys, and 42 registered diagrams pass."}
+              - {command: "Focused content/localization/formula/MathML/cheat-sheet suite", status: passed, notes: "181/181 cases pass across seven test files; 39 sheets per locale cover the same 409 canonical concepts and Chapter 0 remains excluded."}
+              - {command: "Meaning, terminology, anti-calque, monolingual, LLM-history, formula, literal, evidence-link, accessibility, and relevance review", status: findings, notes: "One confirmed defect: site/src/content/chapters/ru/00-llm-parts.mdx:283-286 falsely says only Chapters 1-7 have Russian pages and later links fall back to English. No other confirmed semantic, linguistic, history-scope, formula, or cheat-sheet relevance defect was found."}
+              - {command: "Unicode, programming-language, authoring-leakage, and stale-rollout scans", status: passed, notes: "No suspicious Unicode line or visible programming/build-framework narrative was found. The stale-rollout scan isolated the confirmed Russian Chapter 0 paragraph; other not-yet phrases describe concept sequencing rather than publication availability."}
+              - {command: "Product immutability and audit-fragment review", status: passed, notes: "Only audit ledger and report artifacts changed; all learner-facing and implementation inputs remain at 2b24a50."}
+            notes: "Audit succeeded with one medium learner-facing localization defect. Deterministic structural gates pass; the separate browser step owns target-locale rendered containment and interaction evidence."
       - id: audit-rust-workspace
         objective: "Audit the cumulative dependency-free Rust LLM implementation and every chapter demo for formatting, warnings, tests, dependencies, deterministic evidence, and contract coverage."
         depends_on: []
@@ -29388,7 +29405,7 @@ builds:
       - id: audit-browser-rendering
         objective: "Audit every rendered course surface in Chromium and Firefox, including both locales, desktop and narrow containment, formulas, diagrams inline/full view, no-JavaScript fallbacks, cheat sheets, SEO, sitemap, and console compatibility."
         depends_on: [audit-static-delivery]
-        status: pending
+        status: running
         inputs: ["audits/2026-08-02-full-course/static-delivery.md", "site/dist/", "site/tests/e2e/", "site/playwright.config.ts", "mcr.microsoft.com/playwright:v1.61.1-noble"]
         outputs: ["audits/2026-08-02-full-course/browser.md"]
         acceptance:
@@ -29398,7 +29415,25 @@ builds:
           - "npm --prefix site run test:e2e -- --browser=chromium"
           - "npm --prefix site run test:e2e -- --browser=firefox"
         cost: {class: large, notes: "Two complete rendered-browser matrices over all English/Russian pages; substantial cached local CPU, no network or paid service."}
-        runs: []
+        runs:
+          - run_id: 20260802T101259Z-audit-browser-rendering-01
+            started_at: 2026-08-02T10:12:59Z
+            finished_at: null
+            status: running
+            input_fingerprint:
+              product_git: 2b24a50d86609445ed19aa33a4162414904dc4ca
+              ledger_git: a2950f568b89f20683feab0a0d1cb32df6a5d36f
+              files: {static-delivery.md: "sha256:cf8601cccf34188ebfa0a2dd35a949f3021c3c4ba352f17e0cb3a980c3ac8a20", playwright.config.ts: "sha256:f6872a60b7b31af4c69ca52d0f0b0b8301fb3bfc6e22a27face3a7ae85c7223e", site-package-lock.json: "sha256:ab55ed2683ff18aca9aaf1d7b4589c4801749f8ecd83d30abcfa6667b6b5b0d3"}
+              source_image: "sha256:994383fb740655e2c9a5437c5bac111880bcfdd0eae6cf2f962a0fec6d103c26"
+              browser_image: "sha256:5b8f294aff9041b7191c34a4bab3ac270157a28774d4b0660e9743297b697e48"
+              tools: "Playwright package and browser runtime 1.61.1; pinned Chromium and Firefox in the official Noble image"
+              external: "None; browser containers run with networking disabled and isolated loopback preview/proxy ports."
+            staging_dir: .build/runs/20260802T101259Z-audit-browser-rendering-01/
+            commands:
+              - "Verify the completed and committed static-delivery dependency, exact Git archive, immutable source image, package/runtime version match, 648 collected cases per engine, isolated loopback configuration, and large local-only cost."
+            artifacts: []
+            validation: []
+            notes: "Running; the complete Chromium and Firefox matrices will use disjoint immutable volumes and no external network."
       - id: consolidate-full-course-audit
         objective: "Publish one prioritized, evidence-backed full-course audit report and close the audit build."
         depends_on: [audit-course-content-localization, audit-rust-workspace, audit-static-delivery, audit-browser-rendering]
