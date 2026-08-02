@@ -4,8 +4,9 @@ Curriculum website [https://intale.github.io/learn_llm/](https://intale.github.i
 
 A static, localized course for learning how modern large language models work by
 implementing each part from first principles in Rust. English and Russian are
-currently enabled, and the published course covers text units, corpus partitions,
-BPE training and application, autoregressive examples, and a bigram baseline.
+currently enabled; both locales publish the Chapter 0 orientation and
+implementation Chapters 1–39, progressing from text units to a tiny but
+functional decoder-only LLM.
 
 ## Requirements
 

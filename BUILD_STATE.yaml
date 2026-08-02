@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T15:56:06Z"
+updated_at: "2026-08-02T16:34:08Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: remediate-full-course-audit-20260802
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -29575,7 +29575,7 @@ builds:
 
   - build_id: remediate-full-course-audit-20260802
     objective: "Resolve every actionable defect recorded by the 2026-08-02 full-course audit while preserving its immutable evidence."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -29904,7 +29904,7 @@ builds:
       - id: refresh-readme-course-boundary
         objective: "Update the root usage guide so its opening description matches the complete bilingual Chapter 0-39 course."
         depends_on: [disambiguate-rust-example-targets]
-        status: pending
+        status: completed
         inputs: ["README.md", "site/src/i18n/chapter-locales.json", "curriculum/course-plan.md", "audits/2026-08-02-full-course/static-delivery.md"]
         outputs: ["README.md", "BUILD_STATE.yaml"]
         acceptance:
@@ -29913,4 +29913,42 @@ builds:
           - "The complete canonical Docker check, static-link audit, remediation-scope audit, and checkpoint closure pass."
         validate: ["./course check", "./course run npm --prefix site run test:links", "scripts/check-course-cli.sh", "./course audit-host", "git diff --check and complete remediation-build audit"]
         cost: {class: large, notes: "Small documentation change followed by the complete cached canonical Docker gate and final remediation audit; local CPU only."}
-        runs: []
+        runs:
+          - run_id: 20260802T162340Z-refresh-readme-course-boundary-01
+            started_at: 2026-08-02T16:23:40Z
+            finished_at: 2026-08-02T16:34:08Z
+            status: succeeded
+            input_fingerprint:
+              git: 9f1dfac
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:82a6e85e9ac3bb18dd5c5d6b71ccdd26261c7f2efe2c33b7fa752512d8e0ad37", DECISIONS.md: "sha256:cc0097030142a9747f8906b512ca557393f7af53ea0ee999f0002446e8c47c76", README.md: "sha256:1be1a49b5dab2829c69ce5a19746588ab549ed5e310c02ad7427239dc236aeae", chapter-locales: "sha256:64126e42e3144f0ab8f2c65d409599773ced9486d9e1a010b6d4e0362a83fc51", course-plan: "sha256:577ab64ae175b7091925c64940951b3818fd3956ef8ab4439cb3df4efec855d4", static-delivery-audit: "sha256:cf8601cccf34188ebfa0a2dd35a949f3021c3c4ba352f17e0cb3a980c3ac8a20", course-cli: "sha256:691063490fd1adc7c3931ef08499faad0cecb2b7affaeff9cd4766e8790e4331", host-audit: "sha256:f2c6b4daa6f057dba1ae8e1c2d758b40bcb6946d4eca5148487bd00ef84f4a8f"}
+              tools: "Host Git 2.53.0, Docker 25.0.2, Compose 2.17.3, and repository-pinned Rust/Cargo 1.93.1 plus Node 22.12.0 inside Docker."
+              external: "None; the one-line documentation correction and complete cached validation use only local repository and Docker inputs."
+            staging_dir: .build/runs/20260802T162340Z-refresh-readme-course-boundary-01/
+            commands:
+              - "Verify the clean 9f1dfac Rust-target checkpoint, confirm the dependency is completed in its own commit, inspect the README against the 40-entry bilingual locale projection and complete course plan, review the immutable static-delivery finding, hash all material inputs, create the run-specific staging copy, and claim the final remediation step."
+              - "Replace only the stale opening boundary in the staged README with the complete Chapter 0 plus implementation Chapters 1-39 bilingual scope and tiny-but-functional decoder-only LLM outcome."
+              - "Freeze and validate the one-file staging tree against the locale projection and course plan, then pass the checksum-aware staged review pipeline."
+              - "Publish README.md byte-identically, run the complete canonical Docker and explicit link gates, exercise the CLI contract on the documented GNU mv host, and restore the Docker-only host boundary by removing exact ignored generated caches and the incomplete .prerender-only release tree."
+              - "Audit the full seven-step remediation scope against aed26f2, preserve all immutable audit evidence, close the step and build, clear active_build, and validate the final scheduler state."
+            artifacts:
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/publish.sha256", sha256: "c11b8484e56c018ca81f8e9cba2c9d0eadb1a0237401567e91bdf9438b3890ef", notes: "Frozen one-file manifest; canonical README.md matches the staged 84569ea1 SHA-256 byte for byte."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/staged-boundary.log", sha256: "92dfb1c632dd277cb948b20fe82d241054545dd57d2981f3c534d7f40ce1a9c9", notes: "Staged direct assertion against 40 bilingual locale records and the complete course plan."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/staged-review.log", sha256: "2895a2957783e7a61e229f1c188c000ef7bd95d23446603884cabada5046696b", notes: "Checksum-aware staged content, parity, diagnostics, build, and 2,447-link review evidence."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/canonical-course-check.log", sha256: "e3ac3d3e3604d3aa29202611ea29161f39b1437c7a5411bf300121377f2c1b4a", notes: "Post-publication complete canonical Rust workspace, static diagnostics, content, parity, build, and link gate."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/canonical-links.log", sha256: "dfba932e241efec655828dc4c155c9c447f6b99ef861c65725d95fb6676b48e7", notes: "Declared explicit post-build audit of 85 pages, 2,447 local references, 85 SEO/sitemap/Analytics routes, and 163 artifacts."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/course-cli.log", sha256: "bee6be341f78a125b849dfe55608d37dc40fb7855c960ed876c593416dac5927", notes: "The release/review/help/signal CLI contract passes on the documented Linux host with GNU mv 9.7 capabilities."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/host-audit.log", sha256: "e6c4f1130e310f70353f26d45eef364a4c37211eef99441604f79ed5376e3597", notes: "Docker-only host boundary passes after removal of reproducible ignored Rust, Node, Astro, coverage, browser-report, test-result, and incomplete release artifacts."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/preclosure-scope.log", sha256: "db40ccb48ad3d5f456d00fdef10f548507a5a4887c872a0c8b33b6b0336cb01b", notes: "Six prior standalone commits, exact pending two-file seventh checkpoint, 45-path combined scope, immutable audit reports, and unchanged build/deployment boundaries."}
+              - {path: ".build/runs/20260802T162340Z-refresh-readme-course-boundary-01/validation/canonical-boundary.log", sha256: "0638cd0b091e0a6ea372852291ffdd74b610a07c7e5268fae51bceb06e43410d", notes: "Canonical README, 40-entry bilingual projection, and 111-step plan consistency proof."}
+            validation:
+              - {command: "Repository, dependency, ownership, cost, source, and scope preflight", status: passed, notes: "The tree is clean; the Rust dependency is completed and committed; README is the sole product output; the locale projection publishes Chapter 0-39 in English and Russian; the course target culminates in a bounded functional decoder-only LLM; no owner overlaps the output; and the accepted large cached local validation fits the unlimited budget without network or paid services."}
+              - {command: "Independent README boundary review against chapter-locales.json, course-plan.md, and the immutable static-delivery finding", status: passed, notes: "The concise opening states both enabled locales, the Chapter 0 orientation, implementation Chapters 1-39, and progression from text units to a tiny but functional decoder-only LLM; the obsolete bigram endpoint is gone."}
+              - {command: "Staged README boundary assertion and node scripts/check-course-plan.mjs in Docker", status: passed, notes: "All 40 projected chapters are active in exactly English and Russian, the endpoints are 00-llm-parts and 39-end-to-end-llm, the README claims match, and all 111 scheduled steps remain structurally valid."}
+              - {command: "./course review 20260802T162340Z-refresh-readme-course-boundary-01 --check", status: passed, notes: "The frozen README staging tree passes content, parity, zero-diagnostic Astro analysis, 85-page static build, and all 2,447 references without mutation."}
+              - {command: "Canonical byte identity and ./course check", status: passed, notes: "README.md matches its staged SHA-256 exactly; the complete locked Rust workspace plus static diagnostics, content, parity, build, and link checks pass after publication."}
+              - {command: "./course run npm --prefix site run test:links", status: passed, notes: "The explicit canonical link audit passes 85 HTML files, 2,447 local references, 85 SEO routes, 85 sitemap URLs, 85 Analytics routes, and 163 total artifacts."}
+              - {command: "scripts/check-course-cli.sh", status: passed, notes: "The supported host's GNU mv 9.7 provides --exchange and --no-copy; release replacement, review validation, help, failure boundaries, signal handling, and cleanup all pass."}
+              - {command: "./course audit-host", status: passed, notes: "The audit initially exposed stale ignored host caches and reports plus an incomplete site/dist containing only .prerender output. Removing those exact reproducible artifacts restores the Docker-only boundary; no tracked or staged file was deleted."}
+              - {command: "git diff --check and complete remediation-build preclosure audit", status: passed, notes: "The six completed commits after aed26f2 own six distinct steps; the prepared seventh checkpoint contains only README.md and BUILD_STATE.yaml; the combined remediation has exactly 45 paths; audit reports, Cargo.lock, dependencies, Docker/CLI definitions, hosting, deployment, analytics, and sitemap definitions remain unchanged."}
+              - {command: "Final YAML, dependency topology, scheduler, and build closure", status: passed, notes: "All seven ordered remediation steps and runs are succeeded/completed, the build is completed, active_build is null, no running step remains, and the cumulative browser, layout, localization, Rust target, fixture, README, and per-step commit criteria are satisfied."}
+            notes: "Succeeded. The README now describes the complete bilingual Chapter 0-39 course through its functional tiny decoder-only LLM outcome; all five audit findings are remediated, each result has its own checkpoint, immutable audit evidence is preserved, and the Docker-only host boundary is clean."
