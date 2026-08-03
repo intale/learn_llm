@@ -4,6 +4,7 @@ export const messageKeys = [
   'skipToContent',
   'homeLabel',
   'languageSwitchLabel',
+  'darkThemeLabel',
   'languagePickerTitle',
   'languagePickerIntro',
   'eyebrow',

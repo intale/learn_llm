@@ -5,13 +5,13 @@
 .host :global(figure.course-diagram[data-diagram-style='course-v1']) {
   --diagram-ink: var(--ink);
   --diagram-muted: var(--muted);
-  --diagram-paper: color-mix(in srgb, var(--paper) 42%, white 58%);
-  --diagram-surface: color-mix(in srgb, var(--surface) 88%, white 12%);
-  --diagram-surface-raised: color-mix(in srgb, var(--paper) 24%, white 76%);
+  --diagram-paper: var(--diagram-panel-surface);
+  --diagram-surface: var(--diagram-frame-surface);
+  --diagram-surface-raised: var(--diagram-raised-surface);
   --diagram-line: color-mix(in srgb, var(--ink) 22%, transparent);
   --diagram-line-strong: color-mix(in srgb, var(--ink) 42%, transparent);
   --diagram-accent: var(--accent);
-  --diagram-accent-dark: var(--accent-dark);
+  --diagram-accent-dark: var(--accent-ink);
   --diagram-accent-soft: color-mix(in srgb, var(--accent) 11%, transparent);
   --diagram-warm: var(--warm);
   --diagram-focus: var(--focus);
@@ -61,7 +61,7 @@
   border: 1px solid var(--diagram-line-strong);
   border-radius: var(--diagram-frame-radius);
   background: var(--diagram-surface);
-  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--ink) 9%, transparent);
+  box-shadow: var(--diagram-shadow);
   color: var(--diagram-ink);
   font-family: inherit;
   font-size: 1rem;

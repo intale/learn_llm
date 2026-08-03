@@ -4,6 +4,8 @@ import '../styles/global.css';
 import diagramStyles from '../styles/diagram.module.css';
 
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import ThemeBootstrap from '../components/ThemeBootstrap.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
 import {
   getLocaleDefinition,
@@ -14,6 +16,7 @@ import {
   type Locale,
 } from '../i18n';
 import { sitePath } from '../lib/site-path';
+import { THEME_STORAGE_KEY } from '../lib/theme';
 
 interface Props {
   locale: Locale;
@@ -71,13 +74,15 @@ const switchTargets = localeDefinitions
   dir={localeDefinition.direction}
   data-diagram-full-view-open={copy.diagramFullViewOpenLabel}
   data-diagram-full-view-close={copy.diagramFullViewCloseLabel}
+  data-theme-storage-key={THEME_STORAGE_KEY}
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <ThemeBootstrap />
     <GoogleAnalytics />
     <title>{fullTitle}</title>
     {
@@ -98,25 +103,28 @@ const switchTargets = localeDefinitions
         <span aria-hidden="true" class="wordmark-mark">λ</span>
         <span>{copy.siteTitle}</span>
       </a>
-      <nav class="locale-switch" aria-label={copy.languageSwitchLabel}>
-        <span>{copy.languageSwitchLabel}</span>
-        {
-          switchTargets.map(({ definition: alternate, equivalent, href, fallbackLabel }) => (
-            <a
-              href={href}
-              lang={alternate.languageTag}
-              dir={alternate.direction}
-              hreflang={alternate.languageTag}
-              data-locale={alternate.code}
-              data-locale-fallback={equivalent ? undefined : 'course-index'}
-              aria-label={fallbackLabel ? `${alternate.nativeName}: ${fallbackLabel}` : undefined}
-            >
-              <span>{alternate.nativeName}</span>
-              {fallbackLabel && <small>{fallbackLabel}</small>}
-            </a>
-          ))
-        }
-      </nav>
+      <div class="site-header__controls">
+        <nav class="locale-switch" aria-label={copy.languageSwitchLabel}>
+          <span>{copy.languageSwitchLabel}</span>
+          {
+            switchTargets.map(({ definition: alternate, equivalent, href, fallbackLabel }) => (
+              <a
+                href={href}
+                lang={alternate.languageTag}
+                dir={alternate.direction}
+                hreflang={alternate.languageTag}
+                data-locale={alternate.code}
+                data-locale-fallback={equivalent ? undefined : 'course-index'}
+                aria-label={fallbackLabel ? `${alternate.nativeName}: ${fallbackLabel}` : undefined}
+              >
+                <span>{alternate.nativeName}</span>
+                {fallbackLabel && <small>{fallbackLabel}</small>}
+              </a>
+            ))
+          }
+        </nav>
+        <ThemeToggle label={copy.darkThemeLabel} />
+      </div>
     </header>
     <main id="main-content">
       <slot />

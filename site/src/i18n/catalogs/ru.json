@@ -4,6 +4,7 @@
   "skipToContent": "Перейти к содержимому",
   "homeLabel": "Главная",
   "languageSwitchLabel": "Язык",
+  "darkThemeLabel": "Тёмная тема",
   "languagePickerTitle": "Выберите язык",
   "languagePickerIntro": "Соберите языковую модель с нуля на Rust.",
   "eyebrow": "От текста к работающей модели",

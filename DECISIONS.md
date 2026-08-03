@@ -12402,3 +12402,84 @@ version, the step must stop rather than substitute another browser environment.
 **Affected build, step, and run:** `remediate-full-course-audit-20260802`,
 `restore-browser-acceptance-gate`, and
 `20260802T134308Z-restore-browser-acceptance-gate-01`.
+
+## 2026-08-03 - Add one persisted visual theme without alternate routes
+
+**Status:** Accepted for `add-persistent-dark-theme-20260803`.
+
+**Context:** The static course currently publishes one light palette and fixes
+`color-scheme` to light. The user requested an optional dark palette, a header
+control, local persistence, and an SEO boundary that prevents a theme choice
+from creating crawlable copies of course pages. The root language chooser does
+not use the localized base layout, while every localized home, course, and
+chapter page does. Shared diagrams derive their presentation colors from the
+global token set, but three diagram surfaces still mix toward literal white and
+several shell controls reuse one accent token for incompatible foreground and
+filled-button roles.
+
+**Decision:** Implement light and Darcula-inspired dark palettes through shared
+semantic CSS tokens. Use the operating-system color preference only when the
+visitor has not made an explicit choice; accept and persist only `light` or
+`dark` under one locale-independent `localStorage` key. A guarded synchronous
+head bootstrap applies the resolved palette before paint in both the localized
+base layout and the root chooser. A separate shared enhancement reveals one
+native header toggle only after its handler is attached, retains focus, exposes
+the current dark-state through `aria-pressed`, follows system changes until an
+explicit choice is made, and treats unavailable storage as a nonfatal
+session-only condition.
+
+The control is a `button`, never an anchor. Consequently `rel="nofollow"` is
+neither valid nor necessary: there is no `href` for a crawler to follow and no
+theme path, query, fragment, alternate, canonical, sitemap entry, or duplicated
+content surface. Tests must enforce that stronger no-crawl contract and prove
+that switching changes only visual state and local preference.
+
+Keep English as the catalog source with the stable toggle label `Dark theme`.
+Translate it directly into natural Russian as `Тёмная тема`, and source the
+label from the typed locale catalog so a future registered language adds its own
+copy without theme-component conditionals. Keep Rust and Shiki code panels on
+their existing dark high-contrast palette; retokenize the page, callouts,
+controls, dialog, inline code, and shared diagram surfaces centrally rather than
+adding chapter-specific colors.
+
+**Consequences:** All existing logical routes, learner content, formulas, Rust
+evidence, dependencies, analytics, sitemap membership, hosting, and deployment
+remain unchanged. JavaScript-disabled pages retain a complete static course and
+follow the system palette through CSS while the inert toggle remains hidden.
+The exact dark and light surfaces require desktop, narrow, dialog, formula,
+code, diagram inline/full-view, focus, storage-failure, forced-color, and
+Chromium/Firefox validation. A future strict content-security policy must cover
+the existing analytics initializer and this small pre-paint bootstrap together.
+
+**Affected build, step, and run:** `add-persistent-dark-theme-20260803`,
+`add-persistent-dark-theme`, and
+`20260803T121222Z-add-persistent-dark-theme-01`.
+
+## 2026-08-03 - Theme acceptance includes useful reading width
+
+**Status:** Accepted for `20260803T121222Z-add-persistent-dark-theme-01`.
+
+**Context:** The representative dark-theme capture showed that Chapter 12's
+fullscreen diagram stayed technically contained but placed the probability
+invariance evidence in a narrow side column and forced four rejection cards
+into one half-width row. Ordinary labels and the recorded denominator were
+therefore fragmented into distracting pieces. The defect predates the dark
+palette, but leaving it in the visual evidence would not satisfy this step's
+readability acceptance or the repository-wide diagram presentation rules.
+
+**Decision:** Include the smallest geometry-only Chapter 12 correction in the
+theme step: reflow the invariance card into intact stacked label/value units and
+arrange the rejection evidence as two compact useful-width columns. Add
+rendered assertions for those widths in both localized pages while retaining
+the established fullscreen travel budget. Do not change chapter prose, trace
+data, diagram semantics, inline fallback geometry, shared diagram chrome, or
+palette.
+
+**Consequences:** `StableSoftmaxDiagram.astro` becomes one necessary product
+output of this step. The change remains in the same standalone commit because
+it is required to validate the representative themed surface, while its exact
+scope and rationale remain independently visible here and in the run ledger.
+
+**Affected build, step, and run:** `add-persistent-dark-theme-20260803`,
+`add-persistent-dark-theme`, and
+`20260803T121222Z-add-persistent-dark-theme-01`.

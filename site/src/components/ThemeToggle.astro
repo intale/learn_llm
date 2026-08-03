@@ -1,0 +1,106 @@
+---
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+if (typeof label !== 'string' || label.trim().length === 0) {
+  throw new Error('Theme toggle label must be a non-blank string.');
+}
+---
+
+<button
+  class="theme-toggle"
+  type="button"
+  aria-pressed="false"
+  title={label}
+  data-theme-toggle
+  hidden
+>
+  <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+  <span class="theme-toggle__label">{label}</span>
+  <span class="theme-toggle__state" aria-hidden="true">✓</span>
+</button>
+
+<script>
+  import { initializeThemeToggle } from '../lib/theme';
+
+  initializeThemeToggle();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--accent-ink);
+    border-radius: 999px;
+    background: var(--control-surface);
+    color: var(--accent-ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 750;
+    line-height: 1.2;
+  }
+
+  .theme-toggle[hidden] {
+    display: none;
+  }
+
+  .theme-toggle:hover {
+    background: var(--accent-soft);
+  }
+
+  .theme-toggle[aria-pressed='true'] {
+    border-color: var(--accent-fill);
+    background: var(--accent-fill);
+    color: var(--on-accent);
+  }
+
+  .theme-toggle[aria-pressed='true']:hover {
+    border-color: var(--accent-fill-hover);
+    background: var(--accent-fill-hover);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 0.2rem solid var(--focus);
+    outline-offset: 0.2rem;
+  }
+
+  .theme-toggle__icon {
+    font-size: 1.15em;
+    line-height: 1;
+  }
+
+  .theme-toggle__label {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .theme-toggle__state {
+    inline-size: 1em;
+    flex: 0 0 1em;
+    line-height: 1;
+    visibility: hidden;
+  }
+
+  .theme-toggle[aria-pressed='true'] .theme-toggle__state {
+    visibility: visible;
+  }
+
+  @media (forced-colors: active) {
+    .theme-toggle,
+    .theme-toggle[aria-pressed='true'] {
+      border-color: ButtonText;
+      background: ButtonFace;
+      color: ButtonText;
+      forced-color-adjust: auto;
+    }
+  }
+</style>

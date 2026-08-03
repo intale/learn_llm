@@ -1,20 +1,46 @@
 :root {
-  color-scheme: light;
-  --ink: #16211d;
-  --muted: #52645c;
-  --paper: #f7f4ec;
-  --paper-deep: #eee8dc;
-  --surface: rgba(255, 255, 255, 0.68);
-  --line: rgba(22, 33, 29, 0.18);
-  --accent: #0f766e;
-  --accent-dark: #075a54;
-  --warm: #d97745;
-  --focus: #1d4ed8;
-  --shadow: 0 22px 60px rgba(38, 48, 42, 0.12);
+  color-scheme: light dark;
+  --ink: light-dark(#16211d, #f2f2f2);
+  --muted: light-dark(#52645c, #b9c0c7);
+  --paper: light-dark(#f7f4ec, #2b2b2b);
+  --paper-deep: light-dark(#eee8dc, #202124);
+  --paper-middle: light-dark(#fbfaf6, #252629);
+  --surface: light-dark(rgba(255, 255, 255, 0.68), rgba(52, 54, 56, 0.88));
+  --surface-raised: light-dark(rgba(255, 255, 255, 0.75), #3c3f41);
+  --control-surface: light-dark(rgba(255, 255, 255, 0.78), #343638);
+  --line: light-dark(rgba(22, 33, 29, 0.18), rgba(242, 242, 242, 0.22));
+  --accent: light-dark(#0f766e, #6fcfc5);
+  --accent-ink: light-dark(#075a54, #8bd5ca);
+  --accent-fill: light-dark(#075a54, #00645e);
+  --accent-fill-hover: light-dark(#0f766e, #00756d);
+  --on-accent: #ffffff;
+  --accent-soft: light-dark(rgba(15, 118, 110, 0.08), rgba(139, 213, 202, 0.12));
+  --accent-soft-hover: light-dark(rgba(15, 118, 110, 0.12), rgba(139, 213, 202, 0.18));
+  --warm: light-dark(#d97745, #ffad7a);
+  --focus: light-dark(#1d4ed8, #8ab4f8);
+  --inline-code-surface: light-dark(rgba(22, 33, 29, 0.08), rgba(255, 255, 255, 0.1));
+  --dialog-backdrop: light-dark(rgba(22, 33, 29, 0.66), rgba(0, 0, 0, 0.78));
+  --warm-glow: light-dark(rgba(217, 119, 69, 0.12), rgba(255, 173, 122, 0.1));
+  --accent-glow: light-dark(rgba(15, 118, 110, 0.13), rgba(111, 207, 197, 0.1));
+  --diagram-frame-surface: light-dark(rgba(255, 255, 255, 0.74), #303236);
+  --diagram-panel-surface: light-dark(#fbfaf6, #2f3135);
+  --diagram-raised-surface: light-dark(#fdfcf9, #3a3d42);
+  --diagram-shadow-color: light-dark(rgba(22, 33, 29, 0.09), rgba(0, 0, 0, 0.38));
+  --shadow-color: light-dark(rgba(38, 48, 42, 0.12), rgba(0, 0, 0, 0.42));
+  --diagram-shadow: 0 1rem 2.5rem var(--diagram-shadow-color);
+  --shadow: 0 22px 60px var(--shadow-color);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 * {
@@ -31,9 +57,9 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 15% 8%, rgba(217, 119, 69, 0.12), transparent 28rem),
-    radial-gradient(circle at 88% 22%, rgba(15, 118, 110, 0.13), transparent 31rem),
-    linear-gradient(180deg, var(--paper), #fbfaf6 54%, var(--paper-deep));
+    radial-gradient(circle at 15% 8%, var(--warm-glow), transparent 28rem),
+    radial-gradient(circle at 88% 22%, var(--accent-glow), transparent 31rem),
+    linear-gradient(180deg, var(--paper), var(--paper-middle) 54%, var(--paper-deep));
   line-height: 1.6;
 }
 
@@ -55,7 +81,7 @@ a:focus-visible {
   padding: 0.6rem 0.9rem;
   border-radius: 999px;
   background: var(--ink);
-  color: white;
+  color: var(--paper);
   transform: translateY(-200%);
 }
 
@@ -77,6 +103,15 @@ a:focus-visible {
   gap: 1rem;
   padding-block: 1.35rem;
   border-bottom: 1px solid var(--line);
+}
+
+.site-header__controls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem 1rem;
 }
 
 .wordmark {
@@ -105,6 +140,7 @@ a:focus-visible {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.7rem;
+  min-width: 0;
   color: var(--muted);
   font-size: 0.82rem;
   text-transform: uppercase;
@@ -125,7 +161,7 @@ a:focus-visible {
 
 .eyebrow {
   margin: 0 0 1rem;
-  color: var(--accent-dark);
+  color: var(--accent-ink);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -197,11 +233,11 @@ a:focus-visible {
   margin-block: 2rem 6rem;
   padding: 1.2rem 1.35rem;
   border-inline-start: 0.25rem solid var(--accent);
-  background: rgba(15, 118, 110, 0.08);
+  background: var(--accent-soft);
 }
 
 .course-note > span {
-  color: var(--accent-dark);
+  color: var(--accent-ink);
   font-size: 2rem;
 }
 
@@ -244,21 +280,21 @@ a:focus-visible {
 }
 
 .course-cta {
-  background: var(--accent-dark);
-  color: white;
+  background: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .course-cta:hover {
-  background: var(--accent);
+  background: var(--accent-fill-hover);
 }
 
 .repository-cta {
-  border-color: var(--accent-dark);
-  color: var(--accent-dark);
+  border-color: var(--accent-ink);
+  color: var(--accent-ink);
 }
 
 .repository-cta:hover {
-  background: rgba(15, 118, 110, 0.12);
+  background: var(--accent-soft-hover);
 }
 
 .site-footer {
@@ -309,7 +345,7 @@ a:focus-visible {
 
 .language-picker h1 span {
   display: block;
-  color: var(--accent-dark);
+  color: var(--accent-ink);
 }
 
 .language-picker h1 span:first-child {
@@ -346,7 +382,7 @@ a:focus-visible {
   padding: 1rem 1.1rem;
   border: 1px solid var(--line);
   border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--surface-raised);
   font-weight: 750;
   text-decoration: none;
   transition:
@@ -360,7 +396,7 @@ a:focus-visible {
 }
 
 .language-options a span:last-child {
-  color: var(--accent-dark);
+  color: var(--accent-ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
 }
@@ -381,6 +417,11 @@ html[dir="rtl"] .locale-switch {
   .site-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .site-header__controls {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .feature-grid,

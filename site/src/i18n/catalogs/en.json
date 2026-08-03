@@ -4,6 +4,7 @@
   "skipToContent": "Skip to content",
   "homeLabel": "Home",
   "languageSwitchLabel": "Language",
+  "darkThemeLabel": "Dark theme",
   "languagePickerTitle": "Choose a language",
   "languagePickerIntro": "Build a language model from first principles in Rust.",
   "eyebrow": "From text to a working model",

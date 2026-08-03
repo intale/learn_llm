@@ -282,9 +282,9 @@ const pageStatuses = termPages.map((page, pageIndex) =>
   .cheat-sheet-trigger,
   .cheat-sheet-close,
   .cheat-sheet-page-button {
-    border: 1px solid var(--accent-dark);
-    background: var(--accent-dark);
-    color: white;
+    border: 1px solid var(--accent-fill);
+    background: var(--accent-fill);
+    color: var(--on-accent);
     font: inherit;
     font-weight: 750;
     cursor: pointer;
@@ -300,6 +300,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
   .cheat-sheet-close:hover,
   .cheat-sheet-page-button:hover:not(:disabled) {
     background: var(--ink);
+    color: var(--paper);
   }
 
   .cheat-sheet-trigger:focus-visible,
@@ -333,7 +334,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
   }
 
   .cheat-sheet-dialog::backdrop {
-    background: rgba(22, 33, 29, 0.66);
+    background: var(--dialog-backdrop);
   }
 
   .cheat-sheet-panel,
@@ -380,7 +381,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
 
   .cheat-sheet-eyebrow {
     margin: 0 0 0.35rem;
-    color: var(--accent-dark);
+    color: var(--accent-ink);
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.13em;
@@ -469,7 +470,7 @@ const pageStatuses = termPages.map((page, pageIndex) =>
 
   .cheat-sheet-fallback summary {
     padding: 0.8rem 1rem;
-    color: var(--accent-dark);
+    color: var(--accent-ink);
     font-weight: 750;
     cursor: pointer;
   }

@@ -347,6 +347,7 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
         type: (node as HTMLScriptElement).type,
         async: (node as HTMLScriptElement).async,
         parent: node.parentElement?.tagName ?? '',
+        themeBootstrap: node.hasAttribute('data-theme-bootstrap'),
       })),
     );
   const loaderIndex = scripts.findIndex(
@@ -393,7 +394,36 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
   const sharedScripts = scripts.filter(
     (_script, index) => index !== loaderIndex && index !== initializerIndex,
   );
+  const themeBootstraps = sharedScripts.filter(
+    (script) => script.themeBootstrap,
+  );
+  expect(themeBootstraps).toHaveLength(1);
+  expect(themeBootstraps[0]).toEqual(
+    expect.objectContaining({
+      src: '',
+      type: '',
+      async: false,
+      parent: 'HEAD',
+    }),
+  );
+  expect(themeBootstraps[0].text).toContain('themeStorageKey');
+  expect(themeBootstraps[0].text).toContain('window.localStorage.getItem');
+  expect(themeBootstraps[0].text).toContain('delete root.dataset.theme');
+  const themeToggleCount = await page.locator('button[data-theme-toggle]').count();
+  expect(
+    themeToggleCount,
+    'a rendered page must contain at most one shared theme toggle',
+  ).toBeLessThanOrEqual(1);
   const expectedEnhancements = [
+    ...(themeToggleCount === 1
+      ? [
+          {
+            name: 'theme-toggle',
+            markers: ['themeToggleReady', 'button[data-theme-toggle]'],
+            type: 'module',
+          },
+        ]
+      : []),
     ...(hasSharedShell
       ? [
           {
@@ -402,6 +432,7 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
               'diagramFullViewReady',
               'figure[data-visualization-id]',
             ],
+            type: 'module',
           },
         ]
       : []),
@@ -410,16 +441,19 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
           {
             name: 'cheat-sheet',
             markers: ['cheatSheetEnhanced', '[data-cheat-sheet]'],
+            type: 'module',
           },
         ]
       : []),
   ];
-  expect(sharedScripts).toHaveLength(expectedEnhancements.length);
 
   const externalSources = new Set<string>();
-  const observedEnhancements: string[] = [];
+  const observedEnhancements = new Map<string, number>(
+    expectedEnhancements.map(({ name }) => [name, 0]),
+  );
   for (const sharedScript of sharedScripts) {
-    expect(sharedScript.type).toBe('module');
+    if (sharedScript.themeBootstrap) continue;
+
     let source = sharedScript.text;
     if (sharedScript.src) {
       expect(source).toBe('');
@@ -436,12 +470,18 @@ export async function expectOnlySharedDiagramClientScript(page: Page) {
     );
     expect(
       matches,
-      'every non-analytics module must be one rendered shared enhancement',
-    ).toHaveLength(1);
-    observedEnhancements.push(matches[0]?.name ?? '');
+      'every non-analytics script must contain only rendered shared enhancements',
+    ).not.toHaveLength(0);
+    for (const match of matches) {
+      expect(sharedScript.type).toBe(match.type);
+      observedEnhancements.set(
+        match.name,
+        (observedEnhancements.get(match.name) ?? 0) + 1,
+      );
+    }
   }
-  expect(observedEnhancements.sort()).toEqual(
-    expectedEnhancements.map(({ name }) => name).sort(),
+  expect(Object.fromEntries(observedEnhancements)).toEqual(
+    Object.fromEntries(expectedEnhancements.map(({ name }) => [name, 1])),
   );
 }
 

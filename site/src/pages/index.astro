@@ -2,6 +2,7 @@
 import '../styles/global.css';
 
 import GoogleAnalytics from '../components/GoogleAnalytics.astro';
+import ThemeBootstrap from '../components/ThemeBootstrap.astro';
 
 import {
   defaultLocale,
@@ -10,6 +11,7 @@ import {
   localePath,
 } from '../i18n';
 import { sitePath } from '../lib/site-path';
+import { THEME_STORAGE_KEY } from '../lib/theme';
 
 const pickerCopy = localeDefinitions.map((locale) => ({
   ...locale,
@@ -19,7 +21,7 @@ const defaultCopy = getMessages(defaultLocale);
 ---
 
 <!doctype html>
-<html lang="mul" dir="ltr">
+<html lang="mul" dir="ltr" data-theme-storage-key={THEME_STORAGE_KEY}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -27,7 +29,8 @@ const defaultCopy = getMessages(defaultLocale);
       name="description"
       content={defaultCopy.siteDescription}
     />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <ThemeBootstrap />
     <GoogleAnalytics />
     <title>{defaultCopy.languagePickerTitle}</title>
     {

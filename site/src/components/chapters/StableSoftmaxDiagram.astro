@@ -164,8 +164,9 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     >
       <span class="state-symbol" aria-hidden="true">{labels.symbols.stable}</span>
       <strong>{labels.statuses.probabilitiesMatch}</strong>
-      <span>
-        {labels.fields.denominator}: <bdi dir="ltr">{sharedDenominator.lexeme}</bdi>
+      <span class="denominator-evidence">
+        <span>{labels.fields.denominator}:</span>
+        <bdi dir="ltr">{sharedDenominator.lexeme}</bdi>
       </span>
     </p>
   </section>
@@ -307,6 +308,25 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
       grid-row: 1 / span 3;
     }
 
+    .softmax-diagram:fullscreen > section:first-of-type > .invariance-note {
+      display: grid;
+      grid-column: 1;
+      grid-row: 3;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .softmax-diagram:fullscreen .invariance-note > .denominator-evidence {
+      display: flex;
+      grid-column: 1 / -1;
+      flex-wrap: wrap;
+      gap: 0.2rem 0.45rem;
+    }
+
+    .softmax-diagram:fullscreen .denominator-evidence > bdi {
+      white-space: nowrap;
+    }
+
     .softmax-diagram:fullscreen .shift-table { min-inline-size: 0; }
 
     .softmax-diagram:fullscreen > section:nth-of-type(2) {
@@ -324,7 +344,21 @@ function naiveSymbol(status: (typeof trace.naive)[number]['status']): string {
     }
 
     .softmax-diagram:fullscreen .error-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .softmax-diagram:fullscreen .error-card {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 0.35rem 0.55rem;
+    }
+
+    .softmax-diagram:fullscreen .error-card > :is(.state-symbol, h5) {
+      grid-row: 1;
+    }
+
+    .softmax-diagram:fullscreen .error-card > p {
+      grid-column: 1 / -1;
     }
   }
 </style>

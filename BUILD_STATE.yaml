@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-02T16:34:08Z"
+updated_at: "2026-08-03T13:26:29Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -29952,3 +29952,141 @@ builds:
               - {command: "git diff --check and complete remediation-build preclosure audit", status: passed, notes: "The six completed commits after aed26f2 own six distinct steps; the prepared seventh checkpoint contains only README.md and BUILD_STATE.yaml; the combined remediation has exactly 45 paths; audit reports, Cargo.lock, dependencies, Docker/CLI definitions, hosting, deployment, analytics, and sitemap definitions remain unchanged."}
               - {command: "Final YAML, dependency topology, scheduler, and build closure", status: passed, notes: "All seven ordered remediation steps and runs are succeeded/completed, the build is completed, active_build is null, no running step remains, and the cumulative browser, layout, localization, Rust target, fixture, README, and per-step commit criteria are satisfied."}
             notes: "Succeeded. The README now describes the complete bilingual Chapter 0-39 course through its functional tiny decoder-only LLM outcome; all five audit findings are remediated, each result has its own checkpoint, immutable audit evidence is preserved, and the Docker-only host boundary is clean."
+
+  - build_id: add-persistent-dark-theme-20260803
+    objective: "Add an accessible, persistent, visual-only dark theme without changing course URLs, crawl surfaces, content, or runtime architecture."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "One cross-cutting site step. Complete static checks plus dark/light rendering in pinned Chromium and Firefox require substantial cached local CPU; no network, paid service, or dependency change is planned."
+    completion_criteria:
+      - "Every localized page exposes one keyboard-accessible header button that switches between the existing light palette and a readable Darcula-inspired dark palette."
+      - "A validated light/dark choice persists locally, applies before paint on localized pages and the root chooser, and fails safely when storage is absent, invalid, or unavailable."
+      - "Theme selection creates no link, route, query parameter, fragment, alternate, sitemap entry, or other crawlable copy of a page."
+      - "English and Russian controls are natural and accessible, future registered locales inherit the same catalog-driven control, and all shared content surfaces remain readable and contained."
+      - "The complete static and two-engine browser acceptance gates pass, and the completed step is persisted in its own commit."
+    steps:
+      - id: add-persistent-dark-theme
+        objective: "Implement and verify one shared localized light/dark theme control across the static course shell."
+        depends_on: []
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "SKILLS.md"
+          - "curriculum/README.md"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/src/styles/global.css"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/components/ChapterNavigation.astro"
+          - "site/src/components/CheatSheet.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "site/tests/e2e/localized-shell.spec.ts"
+          - "site/playwright.config.ts"
+        outputs:
+          - "site/src/components/ThemeBootstrap.astro"
+          - "site/src/components/ThemeToggle.astro"
+          - "site/src/lib/theme.ts"
+          - "site/src/layouts/BaseLayout.astro"
+          - "site/src/pages/index.astro"
+          - "site/src/i18n/messages.ts"
+          - "site/src/i18n/catalogs/en.json"
+          - "site/src/i18n/catalogs/ru.json"
+          - "site/src/styles/global.css"
+          - "site/src/styles/diagram.module.css"
+          - "site/src/components/chapters/StableSoftmaxDiagram.astro"
+          - "site/src/components/ChapterNavigation.astro"
+          - "site/src/components/CheatSheet.astro"
+          - "site/src/pages/[locale]/course/[...slug].astro"
+          - "site/src/pages/[locale]/course/index.astro"
+          - "site/tests/theme.test.ts"
+          - "site/tests/e2e/theme.spec.ts"
+          - "site/tests/e2e/chapter-helpers.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The control is a hidden-until-enhanced native button in the localized header, has stable localized text and an accurate aria-pressed state, remains focused when operated, and is absent from the no-JavaScript focus order."
+          - "Only the allowlisted values light and dark are accepted; an explicit choice is stored under one locale-independent localStorage key, survives reload, navigation, locale switching, and return to the root chooser, and storage failures remain nonfatal."
+          - "With no explicit choice, the rendered palette follows prefers-color-scheme; either explicit choice overrides that preference before first paint."
+          - "Theme changes mutate no URL or learner-content identity. No theme anchor or link exists, so rel=nofollow is inapplicable and crawlers receive no theme destination."
+          - "Semantic shared tokens cover the page, controls, callouts, formulas, tables, dialogs, code framing, and every registered diagram without chapter-local palette changes; forced colors remain usable."
+          - "English 'Dark theme' is the canonical label and Russian 'Тёмная тема' passes direct-English meaning, terminology, anti-calque, monolingual, accessibility, and rendered-layout review."
+          - "Light and dark pages remain contained at desktop and narrow widths in Chromium and Firefox; diagram inline/full-view geometry and all existing content, route, SEO, sitemap, analytics, and link contracts remain unchanged."
+          - "The representative Chapter 12 fullscreen diagram gives its invariance evidence and rejection cards useful reading width instead of fragmenting ordinary labels into narrow columns."
+        validate:
+          - "./course run npm --prefix site run check"
+          - "./course run npm --prefix site run test -- --run"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Docker Playwright 1.61.1 focused theme matrix in Chromium and Firefox"
+          - "Docker Playwright 1.61.1 complete Chromium and Firefox matrices"
+          - "./course audit-host"
+          - "git diff --check and exact staged/canonical scope audit"
+        cost: {class: large, notes: "Shared color and browser-shell work requires complete cached two-engine rendering plus static validation; substantial local CPU only, with no network or paid service."}
+        runs:
+          - run_id: 20260803T121222Z-add-persistent-dark-theme-01
+            started_at: 2026-08-03T12:12:22Z
+            finished_at: 2026-08-03T13:26:29Z
+            status: succeeded
+            input_fingerprint:
+              git: 6772ebcd1a932868dcafb860dce49cfc06da3286
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", BUILD_STATE.yaml: "sha256:65c49dd2e9f4bb0be38271e2cb390042c483534cb72b07d309f1c43669b457c3", DECISIONS.md: "sha256:cc0097030142a9747f8906b512ca557393f7af53ea0ee999f0002446e8c47c76", SKILLS.md: "sha256:0fd6f27f0d7b3cc3e606f7dd4365f028df6d1d4b3df14737d73cca0ea1151f84", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", curriculum-readme: "sha256:f09b9c0f7a2afe6b4fdcda63bec3f61957c65329a8b00fce7d1ade4446b02111", locale-registry: "sha256:9adc55bf927a295eaee098bff737662c700dbaa92f54ad870bbb4fab6e75f4ad", messages: "sha256:89077df749b2b3653b041ba079d52345a08363da145e0ddba7b6d16c71b7d683", english-catalog: "sha256:66b59c2f3014cf08b26ded5a1d8c6f6f21808f4c4b0e0c10228734514061cecb", russian-catalog: "sha256:a71c3f80c80e5058aaafad21035a61daab599666583783ad447dbc24516dd00b", layout: "sha256:e0067c517387f09e7fa50c81f1568a09027f974d99c95e35755bb623d78b338e", root-page: "sha256:7fe4eb3221ed1f9c99b56df82741a863062df30cb0360bd048c664011512fcd7", global-css: "sha256:a7a1327ff325b335f479cd0dfdb1614cd965ec2b4de46b10f5aa6e2ce7273845", diagram-css: "sha256:bddb77b7065662db49a8908ad998afcfc3a8b481172722eab136130184515b46", chapter-navigation: "sha256:a3a83182d147af9514996cef181bac3476116a1857283d38718003ce0d32dda5", cheat-sheet: "sha256:8ea5f1aea2236e56875d3f1b631d29bc2cdea2bffcf1d6fd9d5f324089c0df3f", lesson-route: "sha256:8c8d142b85daed4eda84a2b7a680199b17213179c8e8f1a01106ce13556e89c2", browser-helper: "sha256:e47d7be9da9ab455c4c1fdb8b83ba6387e57b141db1d18425e03e804125e8b51", localized-shell: "sha256:826933c3feb4d9e316e17678b23b60962cdc732227242716e78de620bf76ce14", playwright-config: "sha256:f6872a60b7b31af4c69ca52d0f0b0b8301fb3bfc6e22a27face3a7ae85c7223e"}
+              tools: "Host Git 2.53.0, Docker 25.0.2, Compose 2.17.3; repository Node 22.12.0/npm 10.9.0 and Playwright 1.61.1 remain Docker-only."
+              external: "No dependency or package download; Docker resolved cached base-image registry metadata while building the isolated staged review image."
+            staging_dir: .build/runs/20260803T121222Z-add-persistent-dark-theme-01/
+            commands:
+              - "Run the startup protocol at clean commit 6772ebc, parse all 57 builds in the complete ledger, verify no active step or run, read the shared layout/style/i18n/test contracts and localization workflow, and perform three independent read-only architecture, browser-test, and visual-token audits."
+              - "Remove the exact ignored 194 MB host Cargo target cache after proving it contains no tracked file, symlink, or active process, restoring the Docker-only artifact boundary before product work."
+              - "Record the visual-only theme architecture, create the run staging tree, and claim the single cross-cutting implementation step before editing canonical product files."
+              - "Implement the shared staged theme model, pre-paint bootstrap, localized progressive header control, Darcula-inspired semantic palette, diagram surfaces, storage behavior, and unit/browser regression contracts."
+              - "Build the isolated staged review image and run content, parity, Astro diagnostics, static generation, and exact link/SEO/sitemap/Analytics validation."
+              - "Materialize the isolated staged workspace, run all 950 Vitest checks, combine it with the exact Playwright 1.61.1 Noble runtime, verify the immutable browser image identity, and run the focused Chromium theme matrix."
+              - "Correct the test-only Rust-source locator, pass all 11 focused theme scenarios in Chromium and Firefox, then run the pre-existing localized-shell suite in both engines."
+              - "Apply independent final architecture, test, localization, and rendered visual reviews; correct live system-preference, storage, forced-color, locale-extensibility, and representative Chapter 12 fullscreen readability findings before freezing the candidate."
+              - "Render and inspect matching dark/light header, diagram, fullscreen, dialog, and narrow Russian evidence; refine Chapter 12 to preserve both useful label widths and the established Firefox fullscreen travel budget."
+              - "Run the first complete 665-case Chromium and Firefox matrices, retain their invalid-candidate exit failures, isolate the Chapter 12 block-debt regression, and verify the final compact stacked-card geometry in both engines."
+              - "Pass clean complete 665-case matrices on the corrected candidate in both engines, freeze the 18-file checksum manifest and localization/browser evidence, and pass the repository staged-review gate."
+              - "Publish every candidate file byte-for-byte with apply_patch, build the canonical Docker workspace, and pass the complete Rust/static gate, all 950 site unit checks, and focused canonical browser replays."
+              - "Verify exact staged/canonical identity, the 40-chapter/111-step plan, the Docker-only host boundary, whitespace, and the exact 20-file checkpoint scope before closure."
+            artifacts:
+              - {path: "docker-image:learn-llm-review:20260803t121222z-add-persistent-dark-theme-01", sha256: "f1c1eaa7915690ac06fde94ac52c2ff6d5a475b151641912cc48bb57f5504d80", notes: "Reusable isolated staged static-site image after the first complete source, content, build, and link pass."}
+              - {path: "docker-image:learn-llm-theme:20260803-staged", sha256: "78b24ac9c8b85f186a4061bf71bf55bd488c003a18c3190116a5f445d0c7fbd3", notes: "Reusable staged source, dependencies, and built static output used by unit and browser validation."}
+              - {path: "docker-image:learn-llm-theme-browser:20260803-staged", sha256: "7f77d63eb727827a11ccfaefe479dfdf00bfc84b96f4b6f231dd7d6fde0bfe46", notes: "Staged source layered onto mcr.microsoft.com/playwright:v1.61.1-noble at registry digest sha256:5b8f294a and Playwright package 1.61.1."}
+              - {path: "docker-image:learn-llm-theme:20260803-final", sha256: "44649c8809d8092bc96d82c6af8f32c318b6fbf8dfa09099e5a3a8dbc89380c8", notes: "Final checksum-frozen staged workspace used by both clean complete browser matrices."}
+              - {path: "docker-image:learn-llm-theme-browser:20260803-final", sha256: "ca50238a1bafe23c9e3149d833c9d0689b96cfacba106f341ac56e97017930cb", notes: "Final staged workspace layered onto the exact Playwright 1.61.1 Noble runtime."}
+              - {path: ".build/runs/20260803T121222Z-add-persistent-dark-theme-01/publish.sha256", sha256: "0431cf8dc35b4d3d89d182c0716b0361397fed77e2f6a873d636f323f776f82d", notes: "Frozen 18-file theme, shared-surface, Chapter 12 geometry, and regression manifest; every canonical output matches its staged SHA-256."}
+              - {path: ".build/runs/20260803T121222Z-add-persistent-dark-theme-01/validation/localization-review.md", sha256: "8153564e0f730545d5bc44d791e1ce6c934218c89a4a7813b2ed90fe292fbd7a", notes: "Direct-English Russian semantic, terminology, anti-calque, monolingual, accessibility, locale-extensibility, and rendered-layout review."}
+              - {path: ".build/runs/20260803T121222Z-add-persistent-dark-theme-01/validation/browser-matrix-summary.md", sha256: "bac2aaf9d50102d6c6d54a9908f13b287a17e46aa9dccae313ff975d28e095bb", notes: "Immutable runtime identities, clean 665/665 Chromium and Firefox outcomes, and checksums for seven inspected dark/light captures."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "5aff3232fb083aa58df422dee99adec6719042673a2702847daf83ce17c66f33", notes: "Post-publication canonical workspace after the complete Rust and static-site gate."}
+              - {path: "docker-image:learn-llm-theme-browser:20260803-canonical", sha256: "1add78529a9729e6546eb5595d4df46cb10ab9953446d613d2d9ede86518be80", notes: "Canonical workspace layered onto the exact Playwright 1.61.1 Noble runtime for focused post-publication replays."}
+            validation:
+              - {command: "Repository, scheduler, environment, dependency, ownership, cost, localization, and architecture preflight", status: passed, notes: "The committed tree is clean at 6772ebc; the prior build is completed; all 57 ledger builds parse with no active step or run; outputs overlap no owner; the large cached local work fits the unlimited budget; the Docker-only host boundary is restored; and the shared shell can add the feature without a route, dependency, or chapter-local implementation."}
+              - {command: "./course review 20260803T121222Z-add-persistent-dark-theme-01 --check", status: passed, notes: "The isolated overlay passes 80-source content/parity checks, zero-diagnostic Astro analysis across 215 files, an 85-page static build, 2,447 local references, 85 SEO/sitemap/Analytics routes, and 163 artifacts without mutating staging."}
+              - {command: "npm --prefix site run test -- --run in the staged workspace image", status: passed, notes: "All 54 files and 950 unit checks pass, including four new theme contract checks."}
+              - {command: "Exact Playwright Noble runtime identity", status: passed, notes: "The cached base is mcr.microsoft.com/playwright@sha256:5b8f294a with local image ID sha256:89924b46 and package version 1.61.1."}
+              - {command: "Focused Chromium @theme matrix, first attempt", status: failed, notes: "10/11 scenarios pass. The remaining case stops before measuring the product because the new contrast helper uses strict locator .rust-source against ten valid Rust figures; narrow it to the intended first figure and rerun the unchanged candidate."}
+              - {command: "Focused Chromium and Firefox @theme matrices after the locator correction", status: passed, notes: "All 11 scenarios pass independently in both engines, covering localized controls, keyboard operation, persistence, route/locale/root continuity, system preference, invalid and blocked storage, no-JavaScript fallback, contrast, every registered diagram, fullscreen, narrow layout, and forced colors."}
+              - {command: "Chromium and Firefox localized-shell matrices, first attempt", status: failed, notes: "All four cases in each engine stop in the strengthened script allowlist helper: its broad bootstrap source markers also match the compiled theme-toggle module. The rendered product and theme behavior are not implicated; identify the already attribute-marked inline bootstrap directly and rerun the unchanged candidate."}
+              - {command: "Corrected Chromium and Firefox localized-shell matrices", status: passed, notes: "All four localized shell cases pass in each engine after the helper identifies the marked inline bootstrap independently from bundled module enhancements."}
+              - {command: "Independent implementation, test, visual, and localization reviews plus representative screenshots", status: passed, notes: "All review findings are resolved: root system preference stays live without storage; pre-paint order, cross-tab clear, blocked storage, catalog-driven labels, long RTL wrapping, non-color pressed state, forced-color focus, font settling, light preservation, Russian containment, and Chapter 12 reading width are explicitly verified. The final visual re-review reports no actionable defect."}
+              - {command: "First corrected focused @theme matrices", status: failed, notes: "16/17 pass in each engine; the synthetic future-locale test used an unsupported 240 px viewport whose pre-existing page minimum is 320 px. Re-run at the repository-supported 360 px narrow viewport passes in both engines without a product change."}
+              - {command: "Exact final focused Chromium and Firefox @theme matrices before broad replay", status: passed, notes: "All 17 focused cases pass in both engines on the frozen candidate."}
+              - {command: "First complete 665-case Chromium and Firefox matrices", status: failed, notes: "Chromium reports 664 passed and one Chapter 12 fullscreen travel-budget failure after the first useful-width reflow; Firefox exits 1 on the same invalid candidate and the isolated Firefox replay confirms that same block-debt defect. No unrelated regression appears."}
+              - {command: "Final Chapter 12 fullscreen readability and travel-budget replays in Chromium and Firefox", status: passed, notes: "Both engines pass the pre-existing bilingual travel-budget case and the new bilingual useful-width assertion. The final stacked denominator preserves each semantic part on one line, rejection cards remain above 200 px in two columns, and independent screenshot review finds no actionable defect."}
+              - {command: "Clean complete Playwright 1.61.1 Chromium and Firefox matrices", status: passed, notes: "The corrected frozen candidate passes 665/665 tests independently in Chromium and Firefox, including every existing chapter, formula, diagram, localization, SEO, sitemap, link, accessibility, and the 17-case theme contract."}
+              - {command: "Frozen manifest, localization record, ./course review 20260803T121222Z-add-persistent-dark-theme-01 --check, and canonical byte identity", status: passed, notes: "All 18 staged files are checksum-frozen; the staged review passes without mutation; the Russian label passes the complete direct-English localization workflow; and every published canonical file matches its staged hash exactly."}
+              - {command: "./course check", status: passed, notes: "The post-publication Docker workspace passes Rust formatting and all workspace tests, zero-diagnostic Astro analysis across 215 files, 80-source content and parity gates, an 85-page static build, and 2,447 local references with 85 SEO, sitemap, and Analytics routes."}
+              - {command: "./course run npm --prefix site run test -- --run", status: passed, notes: "All 54 canonical Vitest files and 950 checks pass, including the four source-level theme contracts."}
+              - {command: "Canonical focused Chromium and Firefox @theme matrices", status: passed, notes: "The byte-identical published workspace passes all 17 theme scenarios in each engine, including localization, system and explicit preferences, storage boundaries, no-JavaScript fallback, every diagram, Chapter 12 full view, and forced colors."}
+              - {command: "node scripts/check-course-plan.mjs and ./course audit-host", status: passed, notes: "The plan remains valid with 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39; the host remains free of Rust, Node, Python, browser, and test artifacts except the intentional site/dist release."}
+              - {command: "git diff --check and exact staged/canonical scope audit", status: passed, notes: "Whitespace and all 18 product/test checksum pairs pass. The checkpoint contains exactly those outputs plus BUILD_STATE.yaml and DECISIONS.md; dependencies, learner prose, Rust, routes, canonical/alternate links, sitemap membership, analytics, hosting, deployment, and site/dist remain unchanged."}
+            notes: "Succeeded. Every localized course page now has one accessible, catalog-driven, persisted light/dark button; the root chooser receives the same pre-paint palette without a second control; system preference remains live until an explicit choice; storage failures are safe; no route or crawl target exists; shared Darcula-inspired surfaces remain readable; and the necessary Chapter 12 full-view evidence reflow satisfies both reading-width and travel budgets."
