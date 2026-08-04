@@ -21,6 +21,30 @@ Build a learning tool that teaches how the parts of modern large language models
    LLM in Rust.
 8. The tool should support localization. For now, it should support only Russian and English
 
+### Supporting-library boundary
+
+Use a mature, narrowly scoped supporting library for general-purpose plumbing
+when that plumbing is not itself the learner-facing concept and the dependency
+cost is proportionate. Do not handwrite a standard parser, serializer,
+command-line layer, or similar infrastructure merely to keep the workspace
+dependency-free.
+
+Course-owned Rust must still implement every current or historical LLM
+algorithm, transformation, invariant, or decision that learners are asked to
+predict, inspect, reproduce, or compare. A dependency is disallowed when it
+performs or materially hides that operation. Historical demonstrations are
+learner evidence, not incidental plumbing.
+
+Judge a dependency by its role at the call site. For example, `serde_json` may
+decode the standard JSON syntax of Chapter 2's split manifest, while the course
+must still enforce the manifest's checksum, coverage, separation, order, and
+provenance rules. A serialization library must not replace Chapter 35's taught
+checkpoint wire-format implementation.
+
+Record each supporting dependency's role and rationale in `DECISIONS.md`, enable
+only required features, lock and allowlist its complete dependency graph, and
+keep course-specific validation outside the library boundary.
+
 ### Learner-facing prose
 
 Learner-facing chapter content must explain LLM concepts, evidence, and

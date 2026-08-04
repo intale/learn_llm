@@ -10,7 +10,8 @@ Chapters 0–39 publish one exact English/Russian locale pair per chapter. The
 current revisions of Chapters 1–13 are 5, 5, 5, 5, 5, 5, 4, 5, 5, 4, 4, 5, and 5 respectively
 after their meaning-first language, notation, accessibility, and
 rendered-containment work. Chapter 2 onward
-extends one cumulative, dependency-free Rust decoder until the capstone can
+extends one cumulative Rust decoder with a narrow, audited supporting-library
+boundary until the capstone can
 tokenize, train, evaluate, checkpoint, and generate with a small causal Transformer.
 
 Chapter 0 is the sole orientation exception. It carries
@@ -44,6 +45,26 @@ The curriculum contract is the reviewed handoff between course planning, shared
 Rust implementation, visualization work, and localized lesson authoring. Copy
 `chapter-template.md` to `curriculum/chapters/NN-slug.md` and validate the contract
 before writing code or lesson prose.
+
+## Keep the from-scratch boundary on learner evidence
+
+The cumulative Rust implementation is from scratch at the LLM-concept boundary,
+not at every infrastructure boundary. Prefer a mature, narrowly scoped library
+for standard parsing, serialization, command-line, or similar plumbing when that
+work is not what the chapter teaches. Handwriting such infrastructure distracts
+from the model mechanism without adding useful learner evidence.
+
+Judge each dependency by its role at the call site. A JSON library may decode
+Chapter 2's standard manifest syntax, while the course still implements and
+tests checksum, coverage, disjointness, order, and provenance. A library must not
+perform or hide a current or historical algorithm, transformation, invariant, or
+decision that learners predict, inspect, reproduce, or compare. Historical
+contrasts therefore remain explicit even when a modern supporting library could
+replace them.
+
+Record the supporting role and rationale in `DECISIONS.md`, enable only required
+features, lock and inspect the complete transitive graph, allowlist it explicitly,
+and retain the denylist for concept-implementing crates.
 
 ## English is the translation source
 

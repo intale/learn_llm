@@ -202,9 +202,21 @@ Rust is the executable source of truth for the taught concept.
   needed by this and later chapters.
 - Put the historical contrast and a small runnable example in
   `rust/demos/chNN-slug/`.
-- Use supporting libraries only when they do not implement the taught concept,
-  their rationale is recorded in `DECISIONS.md`, and the dependency policy is
-  updated deliberately. The default is the dependency-free workspace.
+- Prefer a mature, narrowly scoped supporting library over handwritten standard
+  parsing, serialization, command-line, or similar plumbing when that work is
+  not the learner-facing concept and the dependency cost is proportionate.
+- Classify a dependency by its role at each call site. Course Rust must still
+  implement every current or historical algorithm, transformation, invariant,
+  or decision that learners predict, inspect, reproduce, or compare. A library
+  is disallowed when it performs or materially hides that learner evidence.
+- Keep course-specific validation outside a format library. For example,
+  `serde_json` may decode Chapter 2's split-manifest syntax, but the course owns
+  its checksum, coverage, separation, order, and provenance rules. Conversely,
+  do not delegate Chapter 35's taught checkpoint wire format to a serializer.
+- Record every supporting dependency's call-site role and rationale in
+  `DECISIONS.md`, enable only required features, lock and inspect the complete
+  transitive graph, and allowlist that exact graph while retaining the
+  concept-library denylist.
 - Cover normal behavior, boundaries, invalid inputs, invariants, and important
   misconceptions with tests.
 - Use fixed seeds and stable ordering. Numerical work declares tolerances;
@@ -217,8 +229,8 @@ Rust is the executable source of truth for the taught concept.
 The root workspace glob discovers `rust/demos/*`; do not add every new demo to
 root `Cargo.toml`. After creating the package, run `cargo generate-lockfile
 --offline` and inspect `Cargo.lock`. Its diff should add only the new local
-workspace package unless a supporting dependency was separately declared,
-approved, and allowlisted.
+workspace package unless a supporting dependency was separately justified,
+minimally featured, locked, inspected, and allowlisted.
 
 When a lesson needs an excerpt, add one unique ordered marker pair:
 
@@ -624,6 +636,9 @@ A chapter is complete only when all answers are yes:
   without needless repetition of local, unambiguous information?
 - Is the taught behavior implemented and tested in cumulative Rust without a
   concept-implementing library?
+- Is incidental general-purpose plumbing delegated where appropriate without
+  hiding learner evidence, with every supporting dependency minimally featured,
+  justified, locked, inspected, and fully allowlisted?
 - Are the demo, contract, `expected.txt`, rendered sources, and diagram fixture
   exact views of the same evidence?
 - Does every chapter-active locale form a same-revision set and pass meaning,

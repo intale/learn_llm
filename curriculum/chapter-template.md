@@ -195,8 +195,13 @@ use Markdown's angle-bracket destination form: `[source](<https://example/...>)`
 ## Rust behavior
 
 Specify inputs, public operations, edge cases, tests, command, and exact output.
-The implementation may use supporting libraries only when they do not implement
-the concept being taught.
+Prefer a mature, narrowly scoped supporting library for standard parsing,
+serialization, command-line, or similar plumbing that is not learner evidence.
+Keep every current or historical operation, transformation, invariant, and
+decision that learners inspect or reproduce explicit in course Rust. State each
+dependency's call-site role and rationale, enable only required features, and
+lock, inspect, and allowlist its complete graph. A format library may decode
+syntax, but course-specific semantic validation remains course-owned.
 
 <!-- contract-section:visualization -->
 ## Visualization

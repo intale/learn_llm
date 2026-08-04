@@ -12734,3 +12734,53 @@ scope and rationale remain independently visible here and in the run ledger.
 **Affected build, step, and run:** `add-persistent-dark-theme-20260803`,
 `add-persistent-dark-theme`, and
 `20260803T121222Z-add-persistent-dark-theme-01`.
+
+## 2026-08-04 - Put the from-scratch boundary on learner evidence
+
+**Status:** Accepted scope extension for
+`repair-explicit-wording-findings-20260804`.
+
+**Context:** The cumulative Rust crate currently contains a handwritten JSON
+lexer and parser for Chapter 2's split manifest. That code is not an LLM
+mechanism, partitioning invariant, or historical comparison; it is standard
+format plumbing that competes with the lesson's actual subject. Learning
+objective 5 already permits supporting libraries that do not implement the LLM
+concept, but the workflow's blanket “dependency-free workspace” default
+encouraged the narrower rule to be applied to unrelated infrastructure.
+
+**Decision:** Prefer a mature, narrowly scoped supporting library for standard
+parsing, serialization, command-line handling, and similar general-purpose
+plumbing when that work is not learner evidence and its dependency cost is
+proportionate. Do not handwrite such infrastructure merely to avoid all external
+Rust crates.
+
+Judge the boundary by the dependency's role at each call site. Course-owned Rust
+must implement every current or historical LLM algorithm, transformation,
+invariant, or decision that learners predict, inspect, reproduce, or compare. A
+dependency is forbidden when it performs or materially hides that operation.
+Historical implementations remain explicit because they are comparison evidence,
+not incidental plumbing. A format library may decode standard syntax, but all
+course-specific semantic validation remains outside it.
+
+Record every supporting dependency's role and rationale here, enable only the
+features required for that role, lock and inspect its complete transitive graph,
+and allowlist that exact graph while retaining the concept-library denylist. For
+the immediate case, `serde_json` may decode Chapter 2's split-manifest JSON;
+checksum, schema and strategy policy, partition coverage and disjointness, source
+order, provenance, and training-only handoff remain course-owned. The taught
+Chapter 35 checkpoint wire format may not be delegated to a serializer.
+
+**Consequences:** This checkpoint changes only the normative and operational
+authoring documents, the build ledger, and this rationale. It supersedes the
+workflow's dependency-free default without weakening the ban on libraries that
+implement course concepts. The actual Chapter 2 parser migration, locked
+dependency graph, tests, accurate English lesson revision, direct-English
+Russian refresh, and rendered validation are a separate next step and commit.
+The active build's objective, cost note, completion criteria, and Chapter 39
+dependency are updated explicitly so no scope or network input is hidden.
+
+**Affected build, steps, and run:**
+`repair-explicit-wording-findings-20260804`,
+`codify-supporting-library-boundary`,
+`replace-ch02-manifest-parser-with-serde`, and
+`20260804T100409Z-codify-supporting-library-boundary-01`.

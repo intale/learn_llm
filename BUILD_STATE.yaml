@@ -30338,19 +30338,21 @@ builds:
             notes: "Succeeded. Every active lesson and cheat sheet was inspected independently by locale under the explicit-wording rule. The canonical report records six issue clusters across five chapters—three medium and three low, with no high finding—and all 78 cheat sheets pass. The audit leaves learner content unchanged so each accepted repair can be separately scheduled, validated, and committed."
 
   - build_id: repair-explicit-wording-findings-20260804
-    objective: "Close all six actionable clusters in the frozen explicit-wording audit through five independently validated and committed chapter corrections."
+    objective: "Close all six actionable clusters in the frozen explicit-wording audit, then align Chapter 2's incidental JSON plumbing with the course's supporting-library boundary through independently validated and committed checkpoints."
     status: active
     budget:
       unit: agent-session
       limit: null
       spent: 0
-      notes: "Five medium corrective chapter steps use local authored edits and cached Docker content, unit, Chromium, and Firefox validation. No paid service, external translation, dependency change, or Rust behavior change is planned; browser validation may use substantial cached CPU."
+      notes: "Five medium corrective chapter steps use local authored edits and cached Docker content, unit, Chromium, and Firefox validation. The added small policy checkpoint uses local reasoning only; the medium Chapter 2 migration may resolve and download a narrowly scoped locked Rust dependency graph inside Docker. No paid service or external translation is planned; browser and workspace validation may use substantial cached CPU."
     completion_criteria:
       - "Audit findings F01-F06 are closed at their point of use without introducing unnecessary repetition or changing the taught behavior."
       - "Canonical English is revised first and every affected Russian surface is refreshed directly from that exact English revision with meaning, terminology, anti-calque, monolingual, accessibility, and rendered-layout review."
       - "Each corrected chapter advances as one same-revision locale set with focused source and rendered regression coverage."
+      - "Authoring rules distinguish mature supporting libraries for incidental general-purpose plumbing from current and historical LLM mechanisms, invariants, and decisions that remain course-owned learner evidence."
+      - "Chapter 2 uses serde/serde_json only for standard split-manifest JSON decoding while preserving its public API, corpus bytes, partition semantics, deterministic evidence, and course-owned validation."
       - "The historical audit remains an immutable report of revision d4134e3; completion is recorded in this replacement build and its chapter checkpoints."
-      - "Each of the five chapter corrections is persisted in its own Git commit before the next step starts."
+      - "Each chapter correction and each added supporting-library checkpoint is persisted in its own Git commit before the next step starts."
     steps:
       - id: repair-ch12-explicit-mean-nll
         objective: "Explain Chapter 12's ordinary and overflow-safe indexed mean-NLL accumulators and their selection condition explicitly."
@@ -30573,9 +30575,63 @@ builds:
               - {command: "git diff --check, exact staged/canonical scope audit, and ./course audit-host", status: passed, notes: "Whitespace is clean; only the five declared Chapter 25 outputs plus BUILD_STATE.yaml changed; all five canonical files match the frozen staging tree; Rust, trace, diagram, dependencies, routes, release output, and the frozen audit remain unchanged; the Docker-only host-artifact audit passes."}
             notes: "Succeeded. Finding F03 is closed at every point of use: revision 4 names hat x as the RMS-rescaled vector before learned gain g in the worked input, body, exercise 3, and answer 3; explicitly excludes the final gain-scaled output from the invariance comparison; and publishes one natural same-revision English/Russian locale pair without changing RMSNorm behavior or evidence."
 
+      - id: codify-supporting-library-boundary
+        objective: "Define when course Rust should use mature supporting libraries and when a current or historical LLM mechanism must remain explicitly course-owned."
+        depends_on: [repair-ch25-explicit-rmsnorm-stage]
+        status: completed
+        inputs: ["User clarification that build-it-yourself applies only to taught LLM mechanisms", "AGENTS.md", "SKILLS.md", "curriculum/chapter-template.md", "curriculum/README.md", "DECISIONS.md", "BUILD_STATE.yaml", "commit b1f0ee6906aed67b2c614f8454b0af326ea49b5d"]
+        outputs: ["AGENTS.md", "SKILLS.md", "curriculum/chapter-template.md", "curriculum/README.md", "DECISIONS.md", "BUILD_STATE.yaml"]
+        acceptance:
+          - "The normative rule prefers a mature narrowly scoped library for standard parsing, serialization, command-line, and similar plumbing when that work is not the learner-facing concept and the dependency cost is proportionate."
+          - "Every current or historical algorithm, transformation, invariant, or decision that learners predict, inspect, reproduce, or compare remains explicit course-owned Rust; a dependency may not perform or materially hide it."
+          - "Dependency decisions are judged by role at the call site, with serde_json manifest decoding distinguished from taught checkpoint serialization, and historical demonstrations identified as learner evidence rather than incidental plumbing."
+          - "Every supporting dependency has recorded rationale, minimal features, a locked and fully allowlisted graph, and no concept-implementing crate; authoring docs no longer claim the whole Rust workspace must be dependency-free."
+          - "No learner lesson, Rust implementation, dependency manifest, lockfile, test, route, generated release, or deployment behavior changes in this policy checkpoint."
+        validate: ["Docker node scripts/check-course-plan.mjs", "Repository text assertions for the supporting-library boundary", "Independent policy review", "git diff --check and exact six-file scope audit", "./course audit-host"]
+        cost: {class: small, notes: "Six documentation/state files with deterministic local review and cached Docker validation; no dependency change, network input, paid service, generation service, or product mutation."}
+        runs:
+          - run_id: 20260804T100409Z-codify-supporting-library-boundary-01
+            started_at: 2026-08-04T10:04:09Z
+            finished_at: 2026-08-04T10:10:34Z
+            status: succeeded
+            input_fingerprint:
+              git: b1f0ee6906aed67b2c614f8454b0af326ea49b5d
+              files: {AGENTS.md: "sha256:e4a4f7ffe028f35484a777a65c257fa0e6717839de52c1fdadb5c3f742efd12f", SKILLS.md: "sha256:e6431f4c5501289c21ae2517fd369a57864d8d9b077557b2d3f2f816b12f27c5", chapter-template: "sha256:7ce5537bc39343bdee77a87ffdfbcbd7d611a7ccb07801e304f548942d89b581", curriculum-readme: "sha256:2aa5df2a19fb54333692e50e207b2867ee5b987162860ff3b8ce6f65c17946fb", DECISIONS.md: "sha256:953bb67293cbf9296bd8689ce912b89b934fe7703643366652bd3f56ba7acb2d", BUILD_STATE.yaml: "sha256:39724e94e2709270f5cedd9096c25f3b942dfece7e47cfeb7f5e3b605f3eef8a"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Node 22.12.0 remains Docker-only."
+              external: "None. The rule is derived from the user clarification, existing objective 5, the recorded architecture boundary, and local course implementation."
+            staging_dir: .build/runs/20260804T100409Z-codify-supporting-library-boundary-01/
+            commands:
+              - "Confirm clean commit b1f0ee6 independently completed Chapter 25, inspect the current dependency-free wording and parser audit, extend the active build explicitly, and claim the policy-only outputs before editing them."
+              - "Add one consistent call-site-role boundary to AGENTS.md, SKILLS.md, the chapter template, and the curriculum guide; append the durable scope/rationale decision; and declare the separate Chapter 2 migration plus explicit network and validation inputs."
+              - "Validate the scheduler in no-network Docker, assert the required and obsolete policy phrases, obtain an independent six-file review, verify YAML and whitespace, audit exact scope, and preserve the host-artifact boundary."
+            artifacts: []
+            validation:
+              - {command: "Repository, scheduler, policy-source, ownership, dependency, and cost preflight", status: passed, notes: "Chapter 25 is completed and committed; the tree is clean; the user explicitly narrowed the build-it-yourself objective to taught LLM work; only six policy/state files are owned; the small step uses no network, dependency mutation, paid service, or product build."}
+              - {command: "No-network Docker node scripts/check-course-plan.mjs and Docker YAML parse", status: passed, notes: "The current scheduler and contracts parse successfully; the course plan reports 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."}
+              - {command: "Repository supporting-library text assertions", status: passed, notes: "The normative rule, workflow, template, and curriculum guide all prefer proportionate mature libraries for incidental plumbing, judge the boundary at the call site, preserve historical evidence, separate Chapter 2 syntax from Chapter 35's taught format, and contain no obsolete dependency-free-workspace default."}
+              - {command: "Independent supporting-library boundary review", status: passed, notes: "The reviewer found the six-file policy clear, accurate, proportionate, and internally consistent; minimal features, complete locked and inspected allowlisting, concept denylist, separate migration/network/localization scope, and Chapter 39 dependency are explicit with no blocker."}
+              - {command: "git diff --check, exact six-file scope audit, and ./course audit-host", status: passed, notes: "Whitespace passes; only AGENTS.md, SKILLS.md, curriculum/chapter-template.md, curriculum/README.md, DECISIONS.md, and BUILD_STATE.yaml changed; no learner lesson, Rust, dependency, test, route, release, or deployment surface changed; the host-artifact boundary passes."}
+            notes: "Succeeded. The repository now positively prefers mature narrowly scoped libraries for non-taught general-purpose plumbing, while every current or historical operation, invariant, and decision learners inspect remains explicit course-owned evidence. Dependency role, rationale, minimal features, complete locked/inspected allowlisting, concept denylist, and course-specific validation boundaries are normative before the separately committed Chapter 2 serde migration."
+
+      - id: replace-ch02-manifest-parser-with-serde
+        objective: "Replace Chapter 2's handwritten split-manifest JSON parser with serde/serde_json while preserving every course-owned corpus and partition invariant."
+        depends_on: [codify-supporting-library-boundary]
+        status: pending
+        inputs: ["Committed codify-supporting-library-boundary checkpoint", "rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts"]
+        outputs: ["rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts", "DECISIONS.md", "BUILD_STATE.yaml"]
+        acceptance:
+          - "A private serde Deserialize wire record with strict required fields and deny_unknown_fields replaces the handwritten general JSON lexer/parser while SplitManifest::from_json keeps its public Result API and a stable invalid-JSON error prefix."
+          - "Standard JSON escapes are accepted intentionally; unknown, missing, duplicate, mistyped, malformed, and trailing-content inputs remain rejected without promising serde_json's complete diagnostic wording."
+          - "The document corpus format, UTF-8 and marker checks, FNV checksum, schema and strategy policy, partition nonemptiness, coverage, disjointness, order, provenance, borrowed views, and training-only handoff remain explicit course-owned behavior."
+          - "serde and serde_json use only required features; the exact locked direct and transitive graph is allowlisted; the concept-library denylist remains active; and no host Rust, Node, Python, browser, or test artifact is produced."
+          - "Chapter 2 advances as one accurate English/Russian revision explaining that serde_json handles format syntax while course Rust enforces the partition semantics; deterministic fixtures, demo stdout, trace, diagram data, and routes remain unchanged."
+        validate: ["Docker cargo fmt, focused corpus tests, Clippy, locked workspace tests, dependency policy, and deterministic demos", "Staged Chapter 2 review/content/parity/static/link gate", "Focused Chapter 2 Vitest", "Focused Chromium and Firefox Chapter 2, diagram, full-view, and formula matrix", "./course check", "Canonical focused replay", "git diff --check", "./course audit-host"]
+        cost: {class: medium, notes: "One supporting dependency migration plus same-revision bilingual Chapter 2 accuracy update and cached two-engine validation; initial locked crate resolution/download is an explicit Docker network input, with no paid or generation service."}
+        runs: []
+
       - id: repair-ch39-explicit-figure-mappings
         objective: "Make every compressed Chapter 39 figure array order and unit understandable inside the figure itself."
-        depends_on: [repair-ch25-explicit-rmsnorm-stage]
+        depends_on: [replace-ch02-manifest-parser-with-serde]
         status: pending
         inputs: ["Audit finding F06", "curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"]
         outputs: ["curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
