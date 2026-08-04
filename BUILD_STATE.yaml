@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T07:26:26Z"
+updated_at: "2026-08-04T07:42:11Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: explicit-wording-course-audit-20260804
 
 builds:
   - build_id: bootstrap-course
@@ -30194,3 +30194,113 @@ builds:
               - {command: "./course audit-host", status: passed, notes: "After removing the exact rebuildable pre-existing root target cache, the host contains no Rust, Node, Python, browser, or test artifacts; site/dist remains the intentional static-release exception."}
               - {command: "git diff --check, course-plan validation, and exact checkpoint scope audit", status: passed, notes: "Whitespace and the scheduler ledger validate; the checkpoint contains exactly the contract, both lessons, two focused tests, BUILD_STATE.yaml, and DECISIONS.md. No dependency, Rust, diagram implementation/style, route, SEO, analytics, hosting, deployment, or site/dist output changed."}
             notes: "Succeeded. Chapter 2 revision 6 now explains the overlapping-window leak with concrete shared text and a role-neutral document-first order, expands 8 / 2 / 2 immediately as training/validation/test document counts, and replaces UI/color commentary with the exact heading, ID, count, and provenance evidence learners should verify. Canonical English and direct-English Russian pass independent content review and complete staged/canonical source and two-engine rendered validation."
+
+  - build_id: explicit-wording-course-audit-20260804
+    objective: "Make explicit explanatory wording a durable chapter-authoring rule, then audit the complete published course against that rule without changing lesson content."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "The rule step is small. The complete wording-only source audit is large reasoning work over 80 active locale lessons, 78 cheat sheets, and chapter figure copy, but uses local files only with no network, paid service, generation service, dependency change, or substantial compute."
+    completion_criteria:
+      - "The normative authoring rules and chapter workflow prefer explicit explanations and define the minimum information learners must not have to infer."
+      - "The wording rule distinguishes sufficient explicitness from needless repetition or verbosity."
+      - "Every published Chapter 0-39 lesson and Chapter 1-39 cheat sheet in both active locales is inspected only for explanatory explicitness, with complete coverage and actionable prioritized findings."
+      - "The audit does not change learner content and does not evaluate code or API quality, factual correctness, translation naturalness, localization parity, mathematical correctness or notation, diagram implementation, visual layout, or build behavior."
+      - "The rule and the completed audit are persisted as two independently inspectable commits."
+    steps:
+      - id: codify-explicit-wording-rule
+        objective: "Add one precise explicit-over-implicit explanatory prose rule to the normative authoring contract and chapter workflow."
+        depends_on: []
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+          - "audits/2026-08-02-full-course.md"
+          - "audits/2026-08-02-full-course/content-localization.md"
+          - "commit 9caa0d169e7f49f03140a16f871fbf4446a104e6"
+        outputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "The rule explicitly says to prefer explicit wording over implicit wording in learner explanations."
+          - "At the point where understanding depends on them, prose names the concrete referent and operation, each relevant quantity and its unit, any mapping from a value to its meaning, the required order, prerequisite or condition, causal link, and scope."
+          - "Essential meaning never depends on reconstructing an earlier example, unstated context, visual styling, interface chrome, or author intent."
+          - "When compression would hide a required link, authors add the smallest sufficient explanation or concrete example; explicitness does not require repeating already local, unambiguous information."
+          - "The workflow applies the rule during English-source authoring, manual pedagogical review, and chapter completion review while keeping translation-quality review a separate concern."
+          - "No learner content, application code, tests, dependencies, generated release, route, or deployment surface changes."
+        validate:
+          - "Docker node scripts/check-course-plan.mjs"
+          - "Repository text assertions for the normative rule and workflow checklist"
+          - "git diff --check and exact four-file scope audit"
+          - "./course audit-host"
+        cost: {class: small, notes: "Two authoring-document edits plus state and rationale; deterministic validation with no paid service or dependency change. Docker may refresh cached base-image registry metadata."}
+        runs:
+          - run_id: 20260804T073050Z-codify-explicit-wording-rule-01
+            started_at: 2026-08-04T07:30:50Z
+            finished_at: 2026-08-04T07:42:11Z
+            status: succeeded
+            input_fingerprint:
+              git: 9caa0d169e7f49f03140a16f871fbf4446a104e6
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", SKILLS.md: "sha256:0fd6f27f0d7b3cc3e606f7dd4365f028df6d1d4b3df14737d73cca0ea1151f84", BUILD_STATE.yaml: "sha256:5331665f941b1531117f74319ce304b41604695db00962fcc43575010e8e5add", DECISIONS.md: "sha256:870b22486498f5452fe20950875b5b2faafa1ff312ef98ee6884ef57a32b7fe4", prior-audit: "sha256:806117d9cd164432bb077d497a7299aa101a16011d3c6650ebb96341330036cb", prior-content-audit: "sha256:cb896e3fcf6c56fd6868a534df573f0b8136789a2a92b6af5e9e08b67f0efdc4"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Node 22.12.0 remains Docker-only."
+              external: "Docker refreshed cached Node base-image registry metadata while building the repository workspace image; no package, dependency, or content download occurred."
+            staging_dir: .build/runs/20260804T073050Z-codify-explicit-wording-rule-01/
+            commands:
+              - "Confirm the clean post-Chapter-2 commit, inactive scheduler, exact source hashes, prior audit conventions, and the existing learner-prose and manual-review contracts; claim the standalone rule step before editing authoring documents."
+              - "Build the Docker-only canonical workspace while invoking the declared course-plan check; retain the stronger successful Rust, content, parity, static-build, and link evidence produced by the repository image boundary."
+              - "Add the normative rule, English-authoring instruction, manual-review question, completion check, audit scope, and durable rationale; use two independent read-only reviews to refine ambiguous wording and scope boundaries."
+              - "Run the final course-plan parser in a read-only no-network Node container, inspect image identities, remove the exact regenerated ignored root Cargo target cache after proving it is untracked, rebuildable, symlink-free, and unused, then rerun the host boundary."
+            artifacts:
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "1dcedd548ebb21337e368f9252911a608a413bac3deb9e2256f5ff287ddc5d19", notes: "Canonical documentation-only workspace whose build passed the full Rust and static-site gate before the final wording refinements."}
+              - {path: "docker-image:node:22.12.0-bookworm", sha256: "0e910f435308c36ea60b4cfd7b80208044d77a074d16b768a81901ce938a62dc", notes: "Pinned read-only no-network course-plan validation runtime; local image ID sha256:344dbe71e1c47a59db0e94bebdcc94ef3a7bc8bd828393c820168993539048da."}
+            validation:
+              - {command: "Repository, scheduler, scope, ownership, and cost preflight", status: passed, notes: "The Chapter 2 correction is completed in commit 9caa0d1; the tree is clean; no active work owns these four outputs; the documentation-only rule step is small and needs no paid service, dependency change, or product mutation."}
+              - {command: "./course run node scripts/check-course-plan.mjs", status: passed, notes: "The Docker-only workspace rebuild passes all 500 Rust tests, 215-file zero-diagnostic Astro analysis, both 80-source content gates, 85-page static generation, all 2,447 local references plus SEO/sitemap/Analytics checks, and the requested 40-chapter/111-step course-plan validation. Docker refreshed base-image registry metadata; no dependency changed."}
+              - {command: "First independent explicit-wording rule and audit-scope review", status: failed, notes: "The review found an ambiguous quantity/unit/mapping phrase, missing English-authoring and completion hooks, contradictory figure/formula scope, omitted cheat-sheet coverage, and an unclear locale-correlation boundary. All five findings were corrected before checkpoint completion."}
+              - {command: "docker run --rm --network none --mount type=bind,src=/home/int/Dropbox/learn_llm,dst=/workspace,readonly -w /workspace node:22.12.0-bookworm node scripts/check-course-plan.mjs", status: passed, notes: "The final post-refinement YAML and scheduler topology validate: 40 chapters, 111 scheduled course steps, and 40 implemented contracts through Chapter 39. Docker materialized the pinned Node tag from its content-addressed layers before the no-network container ran."}
+              - {command: "Repository text assertions and git diff --check", status: passed, notes: "The exact explicit-over-implicit rule, unambiguous quantity/unit/value mapping, English-source authoring hook, manual mapping, and completion question are present; whitespace passes and only the four declared authoring/state files differ."}
+              - {command: "./course audit-host, first attempt", status: failed, notes: "The check found a 3.7 MB ignored root target cache regenerated during Docker validation. It contained only Cargo metadata and rmeta/dependency artifacts, no tracked file or symlink, and no Cargo or Rust process used it."}
+              - {command: "Remove the exact ignored /home/int/Dropbox/learn_llm/target cache and rerun ./course audit-host", status: passed, notes: "The rebuildable Cargo cache was removed; the host boundary passes with site/dist as the intentional static-release exception."}
+              - {command: "Final independent explicit-wording rule and audit-scope review", status: passed, notes: "After two correction passes, the normative taxonomy, English authoring workflow, manual and completion checks, 80-lesson/78-sheet/figure-copy audit scope, in-scope visible formula and figure wording, exclusions, and independent-locale correlation boundary have no remaining concrete conflict."}
+            notes: "Succeeded. Explicit wording is now normative and operational at English authoring, manual review, and completion: learners must receive the smallest sufficient local statement of every essential referent, operation, quantity and unit, value mapping, order or prerequisite, causal link, and scope without needless repetition. The separate whole-course wording audit is fully scoped but remains pending."
+
+      - id: audit-course-explicit-wording
+        objective: "Inspect every published English and Russian lesson and cheat sheet for explanations that require learners to infer an essential referent or operation, quantity or unit, value-to-meaning mapping, order, prerequisite or condition, causal link, or scope."
+        depends_on:
+          - codify-explicit-wording-rule
+        status: pending
+        inputs:
+          - "The committed codify-explicit-wording-rule checkpoint"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "site/src/content/chapters/en/*.mdx"
+          - "site/src/content/chapters/ru/*.mdx"
+          - "site/src/content/cheat-sheets/en/*.json"
+          - "site/src/content/cheat-sheets/ru/*.json"
+          - "site/src/components/chapters/*.astro"
+          - "curriculum/chapters/*.md"
+          - "site/src/i18n/chapter-locales.json"
+        outputs:
+          - "audits/2026-08-04-explicit-wording.md"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "All 40 English and all 40 Russian published lessons plus all 39 English and all 39 Russian cheat sheets have an explicit recorded audit disposition; no chapter, sheet, or active locale is omitted."
+          - "Each finding identifies the chapter and locale, the exact passage or stable section anchor, the missing explicit link, its learner consequence, a concrete rewrite direction, and a severity."
+          - "Each locale is reviewed independently before findings are correlated only to classify source-wide versus locale-only explicitness issues, without assessing whether Russian is a natural or faithful translation."
+          - "The report contains a prioritized summary, complete per-chapter coverage, the audited commit, method, limitations, and validation evidence."
+          - "Visible narrative, headings, callouts, figure copy, formula explanations and symbol glossaries, exercises, answers, handoffs, and cheat-sheet definitions are in scope only for wording explicitness."
+          - "Facts, pedagogy beyond this rule, code or API quality, mathematical notation or correctness, translation quality or parity, figure implementation or evidence validity, layout, tests, build, and runtime behavior are explicitly out of scope."
+          - "No contract, lesson, code, test, dependency, generated release, route, or deployment file changes."
+        validate:
+          - "Docker node scripts/check-course-plan.mjs"
+          - "Audit coverage assertion against site/src/i18n/chapter-locales.json and both active lesson and cheat-sheet directories"
+          - "git diff --check and exact audit/state/decision scope audit"
+          - "./course audit-host"
+        cost: {class: large, notes: "Manual wording-only review of 80 local lesson sources, 78 local cheat sheets, and chapter figure copy; substantial reasoning but no network, paid service, generation service, or substantial CPU."}
+        runs: []

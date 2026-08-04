@@ -31,6 +31,16 @@ is not useful, state the concrete informational or pedagogical reason and teach
 from the chosen evidence. Keep delivery mechanics in this file, chapter
 contracts, state and decision records, and tests.
 
+Prefer explicit wording over implicit wording in learner-facing explanations.
+At the point where understanding depends on them, name the concrete referent and
+operation; state each relevant quantity, its unit, and any mapping from a value
+to its meaning; and state the required order, prerequisite or condition, causal
+link, and scope. Do not require the learner to reconstruct essential meaning
+from a distant example, an ambiguous pronoun, code, diagram styling, interface
+chrome, or author intent. When compression would hide a required link, add the
+smallest sufficient explanation or a concrete example. Explicitness does not
+require repeating information that is already local and unambiguous.
+
 ### Localization source and review
 
 English is the canonical semantic source for every localized course surface.

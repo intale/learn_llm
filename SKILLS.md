@@ -346,6 +346,13 @@ revision. When English changes in meaning or presentation, invalidate the
 affected target-locale review until it has been refreshed from English. Invoke
 `.agents/skills/localize-llm-course/SKILL.md` for the target-language work.
 
+Apply the repository's explicit-wording rule while authoring English, before any
+translation begins. At each point of use, supply the smallest explanation needed
+to identify the referent and operation, each relevant quantity and its unit, any
+mapping from a value to its meaning, the required order, prerequisite or
+condition, causal link, and scope. A target-language pass cannot repair a
+relationship that the canonical source leaves implicit.
+
 For the current approved policy, every chapter from 0 through 39 uses English
 and Russian. A future registered but deferred locale keeps its site chrome,
 existing lessons, and activation path, but it does not require a new lesson or
@@ -525,6 +532,11 @@ and browser behavior. It does not prove pedagogy, factual accuracy, or natural
 language. Add a manual mapping that answers all of these:
 
 - Can a student predict the tiny example before running it?
+- Can a learner identify every essential referent and operation, each relevant
+  quantity and its unit, any mapping from a value to its meaning, the required
+  order, prerequisite or condition, causal link, and scope at the point of use
+  without reconstructing missing meaning from distant prose, code, or visual
+  styling?
 - Is every formula symbol defined and every claim scoped correctly?
 - Does the historical source support the exact statement?
 - Do tests expose the important invariant and misconception?
@@ -608,6 +620,8 @@ A chapter is complete only when all answers are yes:
   recorded cost?
 - Is there one narrow objective, predict-first example, notation-only formula,
   historical contrast, misconception, and explicit handoff?
+- Does every explanation satisfy the explicit-wording rule at its point of use
+  without needless repetition of local, unambiguous information?
 - Is the taught behavior implemented and tested in cumulative Rust without a
   concept-implementing library?
 - Are the demo, contract, `expected.txt`, rendered sources, and diagram fixture

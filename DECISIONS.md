@@ -12455,6 +12455,57 @@ the existing analytics initializer and this small pre-paint bootstrap together.
 `add-persistent-dark-theme`, and
 `20260803T121222Z-add-persistent-dark-theme-01`.
 
+## 2026-08-04 - Require explicit explanatory wording at the point of use
+
+**Status:** Accepted for `explicit-wording-course-audit-20260804`.
+
+**Context:** Three Chapter 2 passages made learners reconstruct essential
+meaning: distinct IDs concealed overlapping source text, the bare `8 / 2 / 2`
+notation omitted both its units and role mapping, and a diagram introduction
+described presentation cues instead of the evidence to read. Existing authoring
+rules require learner-level prose but do not state which conceptual links must
+be local and explicit. A broad clarity rule must catch the same failure mode
+without encouraging repetitive or inflated lessons.
+
+**Decision:** Prefer explicit wording over implicit wording in every
+learner-facing explanation. At the point where understanding depends on them,
+name the concrete referent and operation; state each relevant quantity, its unit,
+and any mapping from a value to its meaning; and state the required order,
+prerequisite or condition, causal link, and scope. Essential meaning must not
+depend on a distant example, ambiguous pronoun, code, visual styling, interface
+chrome, or presumed author intent. When concise phrasing would hide a required
+link, add the smallest sufficient explanation or one concrete example; do not
+repeat information that is already local and unambiguous. Make this requirement
+normative in `AGENTS.md` and operational during canonical English authoring,
+manual pedagogical review, and chapter completion review in `SKILLS.md`.
+
+After that rule is committed, audit all 40 published English lessons, all 40
+published Russian lessons, and all 39 cheat sheets in each locale independently
+against this explicitness axis. Review learner-visible wording, including
+narrative, headings, callouts, figure captions, descriptions and labels, formula
+explanations and symbol glossaries, exercises, answers, handoffs, and cheat-sheet
+definitions. The audit may use contracts only to resolve intended meaning. It
+must report passes as well as findings and must not modify lesson content.
+English-Russian semantic parity, translation fluency or terminology, factual
+correctness, pedagogical quality beyond this rule, mathematical notation or
+correctness, code or API quality, figure implementation or evidence validity,
+layout, accessibility mechanics, build behavior, and runtime behavior remain
+outside this audit.
+
+**Consequences:** The rule and audit are separate completion checkpoints and
+commits. The audit succeeds when its declared coverage and evidence are
+complete, even when it finds defects; later wording repairs require separately
+scheduled content steps. Review each locale on its own first; findings may then
+be correlated only to classify whether the same explicitness issue is
+source-wide or locale-only, never to judge translation quality. A finding is
+high severity when the missing statement
+can produce incorrect data, model, evaluation, or inference behavior; medium
+when it blocks or materially distorts the concept; and low when the intended
+meaning is recoverable but imposes avoidable non-local reconstruction.
+
+**Affected build and steps:** `explicit-wording-course-audit-20260804`,
+`codify-explicit-wording-rule`, and `audit-course-explicit-wording`.
+
 ## 2026-08-04 - Keep Chapter 2 diagram guidance on partition evidence
 
 **Status:** Accepted scope extension for `clarify-ch02-fixture-counts-20260804`.
