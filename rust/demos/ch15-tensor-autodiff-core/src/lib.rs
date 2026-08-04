@@ -168,7 +168,7 @@ pub fn frozen_tensor_example() -> Result<FrozenTensorExample, TensorAutodiffErro
     let baseline = handwritten_fixed_shape_baseline();
 
     assert_eq!(output.value().as_slice(), baseline.output);
-    let first_pass = output.backward_with_seed(&seed.view(), GraphRetention::Retain)?;
+    let first_pass = output.backward_with_seed_and_trace(&seed.view(), GraphRetention::Retain)?;
     let first = parameter_snapshot(&x, &bias);
     assert_eq!(first.x.as_slice(), baseline.x_gradient);
     assert_eq!(first.bias.as_slice(), baseline.bias_gradient);

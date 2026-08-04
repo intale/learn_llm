@@ -400,7 +400,8 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
             .mul(&TensorValue::constant(upstream.clone())?)?,
     )?;
     let loss_value = loss.value().as_slice()[0];
-    let backward = loss.backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
+    let backward =
+        loss.backward_with_seed_and_trace(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
     let input_gradient = input
         .gradient()
         .expect("fixture input participates in loss");

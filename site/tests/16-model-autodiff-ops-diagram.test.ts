@@ -27,6 +27,22 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/ModelAutodiffOpsDiagram.astro'),
   'utf8',
 );
+const demoSource = readFileSync(
+  resolve(repositoryRoot, 'rust/demos/ch16-model-autodiff-ops/src/lib.rs'),
+  'utf8',
+);
+const chapter16Contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/16-model-autodiff-ops.md'),
+  'utf8',
+);
+const chapter16English = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/16-model-autodiff-ops.mdx'),
+  'utf8',
+);
+const chapter16Russian = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/16-model-autodiff-ops.mdx'),
+  'utf8',
+);
 
 const labels: ModelAutodiffOpsDiagramLabels = {
   title: 'title',
@@ -106,6 +122,26 @@ const labels: ModelAutodiffOpsDiagramLabels = {
 };
 
 describe('Chapter 16 Rust trace parser', () => {
+  it('requests intermediate adjoints explicitly from the shared backward calculation', () => {
+    const fixtureStart = demoSource.indexOf('// region:shared-model-vjp-fixture');
+    const fixtureEnd = demoSource.indexOf('// endregion:shared-model-vjp-fixture');
+    expect(fixtureStart).toBeGreaterThan(-1);
+    expect(fixtureEnd).toBeGreaterThan(fixtureStart);
+    const fixtureSource = demoSource.slice(fixtureStart, fixtureEnd);
+    expect(fixtureSource).toContain('loss.backward_with_trace()?');
+    expect(fixtureSource).not.toContain('loss.backward()?');
+
+    for (const source of [chapter16Contract, chapter16English, chapter16Russian]) {
+      expect(source).toContain('"content_revision": 4');
+    }
+    expect(chapter16English.replace(/\s+/g, ' ')).toContain(
+      'Ordinary training uses a lean method: `backward` when implicit graph retention is appropriate, or `backward_with_seed` when the caller must choose retention or release.',
+    );
+    expect(chapter16Russian.replace(/\s+/g, ' ')).toContain(
+      'При обычном обучении используется метод без трассировки',
+    );
+  });
+
   it('projects the exact repeated-token path, pullbacks, accumulation, checks, and errors', () => {
     const trace = parseModelAutodiffOpsTrace(fixture);
 

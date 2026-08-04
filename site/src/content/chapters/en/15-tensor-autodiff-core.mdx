@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 15,
   "concept_id": "tensor-autodiff-core",
   "title": "Reverse tensor operations with edge-local VJPs",
@@ -438,12 +438,28 @@ broadcasts; mean also divides by the saved nonzero extent.
   label="Rust source implementing the Chapter 15 shape-aware structural VJPs"
 />
 
-`backward()` is a convenience only for a tracked rank-zero output. The worked
-rank-one output instead calls `backward_with_seed` with an exactly matching
-finite tensor and an explicit `GraphRetention` choice. Reverse traversal visits
-each node once but processes every ordered edge, including both multiply edges.
-Only after all VJPs, pass accumulators, and prospective parameter sums validate
-does the implementation commit any stored gradient.
+`backward()` is the ordinary call for a tracked rank-zero output; it supplies a
+scalar seed of one. A non-scalar output instead uses `backward_with_seed` with a
+finite tensor of exactly the same shape. Both calls build the node order, hold
+fresh adjoints for the duration of the pass, and read the saved context required
+by each local VJP. They commit parameter gradients but do not create a node-and-
+edge report.
+
+When a caller needs to inspect that report, `backward_with_trace` or
+`backward_with_seed_and_trace` observes the same reverse calculation and returns
+`TensorBackwardPass`. For every edge, the trace records its upstream adjoint,
+local contribution, and the pass-local parent adjoint immediately before and
+after adding that contribution. Each node record also shows its pass-local
+adjoint and the validated prospective stored gradient for a parameter leaf. The
+trace does not recompute the derivatives.
+
+`backward()` and `backward_with_trace()` always retain the graph. The seeded
+methods accept an explicit `GraphRetention` choice, independently of whether a
+trace is requested. To release a scalar graph, call a seeded method with the
+rank-zero seed one and `GraphRetention::Release`. Reverse traversal visits each
+node once but processes every ordered edge, including both multiply edges. No
+stored gradient changes unless all VJPs, pass accumulators, and prospective
+parameter sums validate.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
@@ -452,13 +468,16 @@ does the implementation commit any stored gradient.
   label="Rust source implementing the Chapter 15 tensor reverse pass and lifecycle"
 />
 
-A retained second pass recomputes fresh intermediates and doubles the two stored
-parameter gradients. `zero_grad` writes positive zero through saved parameter
-handles. A successful releasing pass restores the first-pass values, then drops
-the reachable operation nodes' parent edges and saved context. Primal values,
-committed parameter gradients, and the evidence already returned by that pass
-remain readable, but another backward call or differentiable reuse of a released
-operation fails without mutation.
+The worked example explicitly requests a trace for its first pass because it
+inspects the edge-by-edge evidence shown below. Its second pass needs only the
+committed gradients and therefore uses the ordinary call. A retained second pass recomputes fresh intermediates and doubles the two stored parameter
+gradients.
+`zero_grad` writes positive zero through saved parameter handles. A successful
+releasing pass restores the first-pass values, then drops the reachable
+operation nodes' parent edges and saved context. Primal values, committed
+parameter gradients, and an explicit trace returned earlier remain readable,
+but another backward call or differentiable reuse of a released operation fails
+without mutation.
 
 The short example sets parameter $p=[2,3]$ and adds $p\odot p$ to
 $10\operatorname{detach}(p)$ before summing. Both branches produce forward

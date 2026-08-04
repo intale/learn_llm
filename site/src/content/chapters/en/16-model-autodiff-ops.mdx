@@ -2,7 +2,7 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 16,
   "concept_id": "model-autodiff-ops",
   "title": "Reverse the operations that turn token IDs into loss",
@@ -431,7 +431,13 @@ each target and applies the saved mean scale.
 
 The complete example builds gather, matmul, SiLU, displayed log-softmax, and
 combined loss from the values above, then compares its forward and reverse
-tensors with the fixed-array calculation.
+tensors with the fixed-array calculation. It calls `backward_with_trace`
+because that comparison reads the adjoints of the SiLU output, matrix-product
+output, and gathered-row output. Ordinary training uses a lean method:
+`backward` when implicit graph retention is appropriate, or
+`backward_with_seed` when the caller must choose retention or release. The lean
+and traced methods use the same reverse calculation; tracing records its results
+rather than implementing the local VJPs a second time.
 
 <RustSource
   path="rust/demos/ch16-model-autodiff-ops/src/lib.rs"

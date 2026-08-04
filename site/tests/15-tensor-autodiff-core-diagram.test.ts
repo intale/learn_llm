@@ -27,6 +27,37 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/TensorAutodiffCoreDiagram.astro'),
   'utf8',
 );
+const tensorCoreSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/autograd/tensor_core.rs'),
+  'utf8',
+);
+const trainerSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/training/trainer.rs'),
+  'utf8',
+);
+const chapter15DemoSource = readFileSync(
+  resolve(repositoryRoot, 'rust/demos/ch15-tensor-autodiff-core/src/lib.rs'),
+  'utf8',
+);
+const laterTraceConsumerSources = [
+  'rust/demos/ch16-model-autodiff-ops/src/lib.rs',
+  'rust/demos/ch28-causal-masking/src/lib.rs',
+  'rust/demos/ch29-rope/src/lib.rs',
+  'rust/demos/ch30-multi-head-attention/src/lib.rs',
+  'rust/demos/ch31-decoder-block/src/lib.rs',
+].map((path) => readFileSync(resolve(repositoryRoot, path), 'utf8'));
+const chapter15Contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/15-tensor-autodiff-core.md'),
+  'utf8',
+);
+const chapter15English = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/15-tensor-autodiff-core.mdx'),
+  'utf8',
+);
+const chapter15Russian = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/15-tensor-autodiff-core.mdx'),
+  'utf8',
+);
 
 const labels: TensorAutodiffCoreDiagramLabels = {
   title: 'title',
@@ -137,6 +168,79 @@ const labels: TensorAutodiffCoreDiagramLabels = {
 };
 
 describe('Chapter 15 Rust trace parser', () => {
+  it('keeps ordinary backward lean while explicit tracing observes one reverse kernel', () => {
+    const backwardStart = tensorCoreSource.indexOf('pub fn backward(&self)');
+    const backwardEnd = tensorCoreSource.indexOf(
+      '/// Reverses a rank-zero output and records its node and edge evidence.',
+      backwardStart,
+    );
+    const seededStart = tensorCoreSource.indexOf('pub fn backward_with_seed(');
+    const seededEnd = tensorCoreSource.indexOf(
+      '/// Runs a fresh exact-shape reverse pass and records its trace.',
+      seededStart,
+    );
+    const kernelStart = tensorCoreSource.indexOf('fn backward_with_observer<');
+    const kernelEnd = tensorCoreSource.indexOf(
+      "/// Clears this parameter's accumulated gradient",
+      kernelStart,
+    );
+    const ignoreStart = tensorCoreSource.indexOf(
+      'impl TensorBackwardObserver for NoTensorBackwardTrace',
+    );
+    const ignoreEnd = tensorCoreSource.indexOf(
+      '#[derive(Default)]\nstruct RecordTensorBackwardTrace',
+      ignoreStart,
+    );
+
+    expect(backwardStart).toBeGreaterThan(-1);
+    expect(backwardEnd).toBeGreaterThan(backwardStart);
+    expect(seededStart).toBeGreaterThan(-1);
+    expect(seededEnd).toBeGreaterThan(seededStart);
+    expect(kernelStart).toBeGreaterThan(-1);
+    expect(kernelEnd).toBeGreaterThan(kernelStart);
+    expect(ignoreStart).toBeGreaterThan(-1);
+    expect(ignoreEnd).toBeGreaterThan(ignoreStart);
+
+    const backwardBody = tensorCoreSource.slice(backwardStart, backwardEnd);
+    const seededBody = tensorCoreSource.slice(seededStart, seededEnd);
+    const kernelBody = tensorCoreSource.slice(kernelStart, kernelEnd);
+    const ignoreBody = tensorCoreSource.slice(ignoreStart, ignoreEnd);
+    for (const ordinaryBody of [backwardBody, seededBody]) {
+      expect(ordinaryBody).toContain('NoTensorBackwardTrace');
+      expect(ordinaryBody).not.toContain('RecordTensorBackwardTrace');
+      expect(ordinaryBody).not.toContain('TensorBackwardPass');
+      expect(ordinaryBody).not.toContain('TensorBackwardNode');
+      expect(ordinaryBody).not.toContain('TensorBackwardEdge');
+    }
+    expect(tensorCoreSource.match(/fn backward_with_observer</g)).toHaveLength(1);
+    expect(kernelBody.match(/apply_vjp\(/g)).toHaveLength(1);
+    expect(kernelBody).not.toContain('TensorBackwardPass {');
+    expect(kernelBody).not.toContain('TensorBackwardNode {');
+    expect(kernelBody).not.toContain('TensorBackwardEdge {');
+    expect(ignoreBody).not.toContain('.clone()');
+    expect(ignoreBody).not.toContain('Vec<');
+
+    const trainerImplementation = trainerSource.slice(0, trainerSource.indexOf('#[cfg(test)]'));
+    expect(trainerImplementation).toContain('.backward_with_seed(');
+    expect(trainerImplementation).not.toContain('backward_with_trace');
+    expect(trainerImplementation).not.toContain('backward_with_seed_and_trace');
+    expect(chapter15DemoSource).toContain('backward_with_seed_and_trace');
+    expect(laterTraceConsumerSources[0]).toContain('backward_with_trace');
+    for (const source of laterTraceConsumerSources.slice(1)) {
+      expect(source).toContain('backward_with_seed_and_trace');
+    }
+
+    for (const source of [chapter15Contract, chapter15English, chapter15Russian]) {
+      expect(source).toContain('"content_revision": 5');
+    }
+    expect(chapter15English.replace(/\s+/g, ' ')).toContain(
+      'Both calls build the node order, hold fresh adjoints for the duration of the pass, and read the saved context required by each local VJP.',
+    );
+    expect(chapter15Russian.replace(/\s+/g, ' ')).toContain(
+      'Оба метода строят порядок узлов, хранят сопряжённые величины только на время текущего прохода',
+    );
+  });
+
   it('projects the exact tensor DAG, VJP ledger, lifecycle, checks, and errors', () => {
     const trace = parseTensorAutodiffCoreTrace(fixture);
 

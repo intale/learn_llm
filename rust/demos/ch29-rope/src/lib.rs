@@ -287,7 +287,8 @@ fn primary_once() -> Result<PrimaryEvidence, FixtureError> {
         sum_to_scalar(rotated_key_value.mul(&TensorValue::constant(key_upstream.clone())?)?)?;
     let loss = query_loss.add(&key_loss)?;
     let loss_value = loss.value().as_slice()[0];
-    let backward = loss.backward_with_seed(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
+    let backward =
+        loss.backward_with_seed_and_trace(&tensor(&[], &[1.0]).view(), GraphRetention::Retain)?;
 
     let pairs = FEATURE_WIDTH / 2;
     let table_len = 3 * pairs;

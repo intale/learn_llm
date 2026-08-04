@@ -2,11 +2,11 @@
 {
   "chapter_id": "16-model-autodiff-ops",
   "concept_id": "model-autodiff-ops",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 16,
   "objective": {
     "en": "Differentiate matrix products, repeated embedding lookups, nonlinearities, log-softmax, and indexed mean token loss.",
-    "ru": "Дифференцировать матричные произведения, повторяющийся выбор строк эмбеддингов, нелинейные функции, log-softmax и среднее NLL по индексам целевых токенов."
+    "ru": "Дифференцировать матричные произведения, выбор строк эмбеддингов по индексам с повторяющимися ID, нелинейные функции, log-softmax и среднее NLL по индексам целевых токенов."
   },
   "worked_inputs": {
     "en": "Set embedding table E[3,2]=[[2,2],[1,-1],[-1,1]], token IDs z=[1,1,1,2], projection W[2,2]=[[1,-1],[1,-1]], and targets [0,0,0,1]. Treat flat positions 0 through 3 as the row-major order of the formula's (b,t) occurrences. Predict four gathered rows, zero projection preactivations, SiLU outputs used as two-class loss logits, log-probabilities of -ln(2), mean loss ln(2), target-logit gradients of magnitude 1/8, and the three contributions accumulated into embedding row 1 before running Rust.",
@@ -28,7 +28,7 @@
       {
         "symbol": "i",
         "en": "one vocabulary-row index in E",
-        "ru": "индекс одной строки словаря в E"
+        "ru": "индекс строки таблицы E, соответствующей одному элементу словаря"
       },
       {
         "symbol": ":",
@@ -81,11 +81,11 @@
       },
       "later_advance": {
         "en": "Abadi et al. describe tensor operation graphs whose differentiation finds every path from a loss to parameters and sums partial-gradient contributions, including gathered embedding rows. Vaswani et al. place learned embeddings and the output projection at model boundaries while matrix projections, softmax attention, and nonlinear feed-forward sublayers repeat through the Transformer stack. Shazeer later evaluates Swish with beta one—the same function as SiLU—and SwiGLU variants inside Transformer feed-forward sublayers.",
-        "ru": "Abadi и соавторы описывают графы тензорных операций, при дифференцировании которых находятся все пути от функции потерь к параметрам и суммируются вклады частных градиентов, в том числе для выбранных строк эмбеддингов. В Transformer из работы Vaswani и соавторов обучаемые эмбеддинги и выходная проекция находятся на границах модели, а матричные проекции, softmax внимания и нелинейные сети прямого распространения повторяются в стеке слоёв. Позже Shazeer исследует в сетях прямого распространения Transformer функцию Swish при $\\beta=1$, то есть ту же функцию, что и SiLU, а также варианты SwiGLU."
+        "ru": "Abadi и соавторы описывают графы тензорных операций, при дифференцировании которых находятся все пути от функции потерь к параметрам и суммируются вклады этих путей в градиенты параметров, включая пути через выбранные строки эмбеддингов. В Transformer из работы Vaswani и соавторов обучаемые эмбеддинги и выходная проекция находятся на границах модели, а матричные проекции, softmax внимания и нелинейные сети прямого распространения повторяются в стеке слоёв. Позже Shazeer исследует в сетях прямого распространения Transformer функцию Swish при $\\beta=1$, то есть ту же функцию, что и SiLU, а также варианты SwiGLU."
       },
       "modern_llm_role": {
         "en": "This chapter supplies reusable local VJPs for batched matrix products, repeated row gathers, exp, log, SiLU, stable log-softmax, and combined indexed mean NLL. These operations form the local reverse rules later embedding, projection, SwiGLU, attention, and token-loss components need. Training retains operation-specific forward values and shape metadata for those rules; ordinary inference uses only the forward paths.",
-        "ru": "В этой главе добавляются переиспользуемые локальные VJP для пакетных матричных произведений, повторяющегося выбора строк, exp, log, SiLU, устойчивого log-softmax и объединённого среднего NLL по индексам. Эти операции образуют набор локальных правил обратного прохода, необходимый последующим компонентам эмбеддингов, проекций, SwiGLU, внимания и функции потерь по токенам. Во время обучения для этих правил сохраняются данные прямого прохода и сведения о формах, относящиеся к конкретной операции; при обычном инференсе выполняется только прямой проход."
+        "ru": "В этой главе добавляются переиспользуемые локальные VJP для пакетных матричных произведений, выбора строк по повторяющимся ID, exp, log, SiLU, устойчивого log-softmax и объединённого среднего NLL по индексам. Эти операции образуют набор локальных правил обратного прохода, необходимый последующим компонентам эмбеддингов, проекций, SwiGLU, внимания и функции потерь по токенам. Во время обучения для этих правил сохраняются данные прямого прохода и сведения о формах, относящиеся к конкретной операции; при обычном инференсе выполняется только прямой проход."
       },
       "sources": [
         {
@@ -132,7 +132,7 @@
     },
     "approach": {
       "en": "From model-specific next-word backward equations to composable operation VJPs reused throughout decoder training",
-      "ru": "От специальных уравнений обратного прохода для модели следующего слова к компонуемым VJP операций, переиспользуемым при обучении декодера"
+      "ru": "От специальных уравнений обратного прохода для модели следующего слова к компонуемым VJP отдельных операций, переиспользуемым при обучении декодера"
     },
     "summary": {
       "en": "Bengio et al. expose a learned-row-to-next-word training path with model-specific equations. Operation-graph differentiation then makes path accumulation reusable. Transformer work places embeddings and vocabulary projection at the model boundaries and repeats projections, attention, and nonlinear feed-forward computation through the layer stack. The Rust contrast computes one compact operation chain by hand and through the shared tensor tape without attributing its implementation choices to those sources.",
@@ -209,7 +209,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 16 has the exact active locale set {en,ru}. English revision 3 is the canonical semantic source, and Russian is translated directly from that revision.",
+    "Chapter 16 has the exact active locale set {en,ru}. English revision 4 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep E, X, L, V, d, i, b, t, z, the colon feature slice, conditioned summation, shapes, row-major IDs, targets, signs, gradients, Rust identifiers, trace keywords, formulas, and source URLs exact when another locale is activated later.",
     "Translate gather as selecting and materializing table rows and scatter-add as summing each occurrence's adjoint into its destination row. Do not imply that gathered output rows alias the parent table. Token IDs are integer selectors and receive no gradient.",
     "Use established Russian mathematical language: сопряжённая величина for adjoint, выбор строк по индексам for row gather, and накопление вкладов по индексам for scatter-add. Do not calque pullback or scatter-add as пулбэк or рассеянное сложение.",
@@ -409,6 +409,14 @@ class axes, target errors, empty targets, and release behavior have executable
 tests. The error example first records nonzero parameter gradients, then confirms
 separately that each rejected operation leaves its affected gradient unchanged.
 
+The worked fixture calls `backward_with_trace` because it compares the adjoints
+of the SiLU output, matrix-product output, and gathered-row output with the
+fixed-array calculation. Ordinary training uses the lean API: `backward` when
+implicit retention is appropriate, or `backward_with_seed` when the caller must
+select retention or release. Both lean and traced entry points use the same
+reverse kernel, so the trace is observation rather than a second derivative
+implementation.
+
 <!-- contract-section:visualization -->
 ## Visualization
 
@@ -461,7 +469,7 @@ backward pass for each whole layer.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 3 is the canonical source for both active locales. Russian must
+English revision 4 is the canonical source for both active locales. Russian must
 translate the complete contract, lesson, diagram labels, accessible names,
 history claims, exercises, and answers directly from that revision.
 

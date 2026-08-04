@@ -210,7 +210,7 @@ pub fn frozen_model_example() -> Result<FrozenModelExample, TensorAutodiffError>
     );
     assert_close(loss.value().as_slice(), &[baseline.loss], 1e-12);
 
-    let backward = loss.backward()?;
+    let backward = loss.backward_with_trace()?;
     let loss_input_gradient = pass_adjoint(&backward, TensorOperation::Silu);
     let matmul_output_gradient = pass_adjoint(&backward, TensorOperation::MatMul);
     let gathered_gradient = pass_adjoint(&backward, TensorOperation::GatherRows);

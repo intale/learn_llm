@@ -748,7 +748,7 @@ mod tests {
         let loss = logits.indexed_mean_nll(1, &[0, 0, 0, 1]).unwrap();
 
         assert_close(loss.value().as_slice(), &[2.0_f64.ln()], 1e-12);
-        let pass = loss.backward().unwrap();
+        let pass = loss.backward_with_trace().unwrap();
         assert_eq!(
             pass.nodes.last().unwrap().operation,
             TensorOperation::IndexedMeanNll
@@ -1105,7 +1105,7 @@ mod tests {
     fn backward_trace_exposes_typed_model_saved_context() {
         let table = parameter(&[2, 2], &[1.0, 0.0, 0.0, 1.0]);
         let loss = sum_to_scalar(table.gather_rows(&[1, 1], &[2]).unwrap());
-        let pass = loss.backward().unwrap();
+        let pass = loss.backward_with_trace().unwrap();
         assert!(pass.edges.iter().any(|edge| matches!(
             edge.saved,
             TensorSavedContext::Model(ModelSavedContext::GatherRows { .. })

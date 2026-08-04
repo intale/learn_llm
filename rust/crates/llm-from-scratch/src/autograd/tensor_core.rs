@@ -443,7 +443,7 @@ pub struct TensorBackwardEdge {
     pub parent_adjoint_after: Option<Tensor>,
 }
 
-/// Rust-authored evidence from one fresh, successfully committed tensor pass.
+/// The trace returned by one explicitly observed, successfully committed pass.
 #[derive(Clone, Debug, PartialEq)]
 pub struct TensorBackwardPass {
     pub seed: Tensor,
@@ -580,6 +580,127 @@ impl TensorValue {
     }
 }
 // endregion:tensor-tape-values
+
+trait TensorBackwardObserver {
+    type Output;
+
+    #[allow(clippy::too_many_arguments)]
+    fn observe_edge(
+        &mut self,
+        child: usize,
+        parent: usize,
+        operand: usize,
+        saved: &TensorSavedContext,
+        upstream: &Tensor,
+        contribution: &Tensor,
+        parent_tracked: bool,
+        parent_adjoint_before: Option<&Tensor>,
+        parent_adjoint_after: Option<&Tensor>,
+    );
+
+    fn finish(
+        self,
+        retention: GraphRetention,
+        topology: &[TensorValue],
+        pass_adjoints: &[Option<Tensor>],
+        prospective_gradients: &[Option<Tensor>],
+    ) -> Self::Output;
+}
+
+struct NoTensorBackwardTrace;
+
+impl TensorBackwardObserver for NoTensorBackwardTrace {
+    type Output = ();
+
+    fn observe_edge(
+        &mut self,
+        _child: usize,
+        _parent: usize,
+        _operand: usize,
+        _saved: &TensorSavedContext,
+        _upstream: &Tensor,
+        _contribution: &Tensor,
+        _parent_tracked: bool,
+        _parent_adjoint_before: Option<&Tensor>,
+        _parent_adjoint_after: Option<&Tensor>,
+    ) {
+    }
+
+    fn finish(
+        self,
+        _retention: GraphRetention,
+        _topology: &[TensorValue],
+        _pass_adjoints: &[Option<Tensor>],
+        _prospective_gradients: &[Option<Tensor>],
+    ) {
+    }
+}
+
+#[derive(Default)]
+struct RecordTensorBackwardTrace {
+    edges: Vec<TensorBackwardEdge>,
+}
+
+impl TensorBackwardObserver for RecordTensorBackwardTrace {
+    type Output = TensorBackwardPass;
+
+    fn observe_edge(
+        &mut self,
+        child: usize,
+        parent: usize,
+        operand: usize,
+        saved: &TensorSavedContext,
+        upstream: &Tensor,
+        contribution: &Tensor,
+        parent_tracked: bool,
+        parent_adjoint_before: Option<&Tensor>,
+        parent_adjoint_after: Option<&Tensor>,
+    ) {
+        self.edges.push(TensorBackwardEdge {
+            reverse_index: self.edges.len(),
+            child,
+            parent,
+            operand,
+            saved: saved.clone(),
+            upstream: upstream.clone(),
+            contribution: contribution.clone(),
+            parent_tracked,
+            parent_adjoint_before: parent_adjoint_before.cloned(),
+            parent_adjoint_after: parent_adjoint_after.cloned(),
+        });
+    }
+
+    fn finish(
+        self,
+        retention: GraphRetention,
+        topology: &[TensorValue],
+        pass_adjoints: &[Option<Tensor>],
+        prospective_gradients: &[Option<Tensor>],
+    ) -> TensorBackwardPass {
+        let nodes = topology
+            .iter()
+            .enumerate()
+            .map(|(topology_index, value)| TensorBackwardNode {
+                topology_index,
+                operation: value.operation(),
+                shape: value.shape(),
+                tracked: value.tracks_gradient(),
+                parameter: value.is_parameter(),
+                pass_adjoint: pass_adjoints[topology_index].clone(),
+                accumulated_gradient: prospective_gradients[topology_index].clone(),
+            })
+            .collect();
+        TensorBackwardPass {
+            seed: pass_adjoints
+                .last()
+                .and_then(Clone::clone)
+                .expect("a backward topology ends with its seeded output"),
+            retention,
+            nodes,
+            edges: self.edges,
+        }
+    }
+}
 
 // region:tensor-forward-operations
 impl TensorValue {
@@ -779,7 +900,19 @@ impl TensorValue {
 
     // region:tensor-reverse-pass
     /// Reverses a rank-zero output with an implicit scalar seed of one.
-    pub fn backward(&self) -> Result<TensorBackwardPass, TensorAutodiffError> {
+    pub fn backward(&self) -> Result<(), TensorAutodiffError> {
+        self.backward_scalar(NoTensorBackwardTrace)
+    }
+
+    /// Reverses a rank-zero output and records its node and edge evidence.
+    pub fn backward_with_trace(&self) -> Result<TensorBackwardPass, TensorAutodiffError> {
+        self.backward_scalar(RecordTensorBackwardTrace::default())
+    }
+
+    fn backward_scalar<Observer: TensorBackwardObserver>(
+        &self,
+        observer: Observer,
+    ) -> Result<Observer::Output, TensorAutodiffError> {
         if self.is_released() {
             return Err(TensorAutodiffError::GraphReleased {
                 operation: self.operation(),
@@ -797,10 +930,10 @@ impl TensorValue {
             });
         }
         let seed = Tensor::from_vec(Vec::new(), vec![1.0])?;
-        self.backward_with_seed(&seed.view(), GraphRetention::Retain)
+        self.backward_with_observer(&seed.view(), GraphRetention::Retain, observer)
     }
 
-    /// Runs a fresh exact-shape reverse pass and commits it transactionally.
+    /// Runs a fresh exact-shape reverse pass without creating a trace record.
     ///
     /// Stored parameter gradients and graph edges remain bit-identical unless
     /// every VJP, pass accumulation, and prospective stored gradient is finite.
@@ -808,7 +941,25 @@ impl TensorValue {
         &self,
         seed: &TensorView<'_>,
         retention: GraphRetention,
+    ) -> Result<(), TensorAutodiffError> {
+        self.backward_with_observer(seed, retention, NoTensorBackwardTrace)
+    }
+
+    /// Runs a fresh exact-shape reverse pass and records its trace.
+    pub fn backward_with_seed_and_trace(
+        &self,
+        seed: &TensorView<'_>,
+        retention: GraphRetention,
     ) -> Result<TensorBackwardPass, TensorAutodiffError> {
+        self.backward_with_observer(seed, retention, RecordTensorBackwardTrace::default())
+    }
+
+    fn backward_with_observer<Observer: TensorBackwardObserver>(
+        &self,
+        seed: &TensorView<'_>,
+        retention: GraphRetention,
+        mut observer: Observer,
+    ) -> Result<Observer::Output, TensorAutodiffError> {
         if self.is_released() {
             return Err(TensorAutodiffError::GraphReleased {
                 operation: self.operation(),
@@ -838,8 +989,7 @@ impl TensorValue {
             .map(|(index, value)| (value.key(), index))
             .collect::<HashMap<_, _>>();
         let mut pass_adjoints = vec![None; topology.len()];
-        pass_adjoints[topology.len() - 1] = Some(seed.clone());
-        let mut edges = Vec::new();
+        pass_adjoints[topology.len() - 1] = Some(seed);
 
         for child in (0..topology.len()).rev() {
             let Some(upstream) = pass_adjoints[child].clone() else {
@@ -860,7 +1010,7 @@ impl TensorValue {
                 }
 
                 let parent_tracked = edge.parent.tracks_gradient();
-                let (before, after) = if parent_tracked {
+                if parent_tracked {
                     let previous = pass_adjoints[parent]
                         .clone()
                         .unwrap_or(zeros(edge.parent.shape().as_slice())?);
@@ -873,24 +1023,31 @@ impl TensorValue {
                                 contribution,
                             }
                         })?;
-                    pass_adjoints[parent] = Some(next.clone());
-                    (Some(previous), Some(next))
+                    observer.observe_edge(
+                        child,
+                        parent,
+                        operand,
+                        &edge.saved,
+                        &upstream,
+                        &contribution,
+                        true,
+                        Some(&previous),
+                        Some(&next),
+                    );
+                    pass_adjoints[parent] = Some(next);
                 } else {
-                    (None, None)
-                };
-
-                edges.push(TensorBackwardEdge {
-                    reverse_index: edges.len(),
-                    child,
-                    parent,
-                    operand,
-                    saved: edge.saved.clone(),
-                    upstream: upstream.clone(),
-                    contribution,
-                    parent_tracked,
-                    parent_adjoint_before: before,
-                    parent_adjoint_after: after,
-                });
+                    observer.observe_edge(
+                        child,
+                        parent,
+                        operand,
+                        &edge.saved,
+                        &upstream,
+                        &contribution,
+                        false,
+                        None,
+                        None,
+                    );
+                }
             }
         }
 
@@ -914,31 +1071,13 @@ impl TensorValue {
             )?);
         }
 
+        let observation = observer.finish(retention, &topology, &pass_adjoints, &prospective);
+
         for (value, gradient) in topology.iter().zip(&prospective) {
             if let Some(gradient) = gradient {
                 value.node.borrow_mut().parameter_gradient = Some(gradient.clone());
             }
         }
-
-        let nodes = topology
-            .iter()
-            .enumerate()
-            .map(|(topology_index, value)| TensorBackwardNode {
-                topology_index,
-                operation: value.operation(),
-                shape: value.shape(),
-                tracked: value.tracks_gradient(),
-                parameter: value.is_parameter(),
-                pass_adjoint: pass_adjoints[topology_index].clone(),
-                accumulated_gradient: prospective[topology_index].clone(),
-            })
-            .collect();
-        let pass = TensorBackwardPass {
-            seed,
-            retention,
-            nodes,
-            edges,
-        };
 
         if retention == GraphRetention::Release {
             for value in &topology {
@@ -950,7 +1089,7 @@ impl TensorValue {
             }
         }
 
-        Ok(pass)
+        Ok(observation)
     }
 
     /// Clears this parameter's accumulated gradient without changing its tape.
@@ -1222,6 +1361,93 @@ mod tests {
         }
     }
 
+    fn worked_tape() -> (
+        TensorValue,
+        TensorValue,
+        Vec<TensorValue>,
+        TensorValue,
+        Tensor,
+    ) {
+        let x = TensorValue::parameter(tensor(&[2, 3], &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0])).unwrap();
+        let reshaped = x.reshape(&[3, 2]).unwrap();
+        let transposed = reshaped.transpose(0, 1).unwrap();
+        let bias = TensorValue::parameter(tensor(&[3], &[1.0, -1.0, 0.0])).unwrap();
+        let broadcast_bias = bias.broadcast_to(&[2, 3]).unwrap();
+        let shifted = transposed.add(&broadcast_bias).unwrap();
+        let squared = shifted.mul(&shifted).unwrap();
+        let output = squared.mean_axis(1, false).unwrap();
+        let nodes = vec![
+            x.clone(),
+            reshaped,
+            transposed,
+            bias.clone(),
+            broadcast_bias,
+            shifted,
+            squared,
+            output.clone(),
+        ];
+        (x, bias, nodes, output, tensor(&[2], &[3.0, 6.0]))
+    }
+
+    fn tensor_bits(tensor: &Tensor) -> Vec<u64> {
+        tensor
+            .as_slice()
+            .iter()
+            .map(|value| value.to_bits())
+            .collect()
+    }
+
+    fn assert_same_backward_error(
+        lean: Result<(), TensorAutodiffError>,
+        traced: Result<TensorBackwardPass, TensorAutodiffError>,
+    ) {
+        let lean = lean.expect_err("the lean backward call must fail");
+        let traced = traced.expect_err("the traced backward call must fail");
+        match (lean, traced) {
+            (
+                TensorAutodiffError::GraphReleased { operation: lean },
+                TensorAutodiffError::GraphReleased { operation: traced },
+            ) => assert_eq!(lean, traced),
+            (
+                TensorAutodiffError::NonFinitePassAdjoint {
+                    node: lean_node,
+                    index: lean_index,
+                    previous: lean_previous,
+                    contribution: lean_contribution,
+                },
+                TensorAutodiffError::NonFinitePassAdjoint {
+                    node: traced_node,
+                    index: traced_index,
+                    previous: traced_previous,
+                    contribution: traced_contribution,
+                },
+            ) => {
+                assert_eq!((lean_node, lean_index), (traced_node, traced_index));
+                assert_eq!(lean_previous.to_bits(), traced_previous.to_bits());
+                assert_eq!(lean_contribution.to_bits(), traced_contribution.to_bits());
+            }
+            (
+                TensorAutodiffError::NonFiniteAccumulatedGradient {
+                    node: lean_node,
+                    index: lean_index,
+                    stored: lean_stored,
+                    pass_adjoint: lean_pass_adjoint,
+                },
+                TensorAutodiffError::NonFiniteAccumulatedGradient {
+                    node: traced_node,
+                    index: traced_index,
+                    stored: traced_stored,
+                    pass_adjoint: traced_pass_adjoint,
+                },
+            ) => {
+                assert_eq!((lean_node, lean_index), (traced_node, traced_index));
+                assert_eq!(lean_stored.to_bits(), traced_stored.to_bits());
+                assert_eq!(lean_pass_adjoint.to_bits(), traced_pass_adjoint.to_bits());
+            }
+            (lean, traced) => panic!("unexpected parity errors: lean={lean:?} traced={traced:?}"),
+        }
+    }
+
     #[test]
     fn transformer_shaped_fixture_reverses_views_broadcasts_and_reductions() {
         let x = TensorValue::parameter(tensor(&[2, 3], &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0])).unwrap();
@@ -1247,7 +1473,7 @@ mod tests {
         assert_eq!(output.value().as_slice(), [11.0, 18.0]);
 
         let pass = output
-            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .backward_with_seed_and_trace(&seed.view(), GraphRetention::Retain)
             .unwrap();
         assert_eq!(
             x.gradient().unwrap().as_slice(),
@@ -1323,13 +1549,159 @@ mod tests {
     }
 
     #[test]
+    fn lean_and_traced_backward_are_bit_identical_through_retain_zero_and_release() {
+        let (lean_x, lean_bias, lean_nodes, lean_output, lean_seed) = worked_tape();
+        let (traced_x, traced_bias, traced_nodes, traced_output, traced_seed) = worked_tape();
+
+        for expected_multiplier in [1.0, 2.0] {
+            lean_output
+                .backward_with_seed(&lean_seed.view(), GraphRetention::Retain)
+                .unwrap();
+            let trace = traced_output
+                .backward_with_seed_and_trace(&traced_seed.view(), GraphRetention::Retain)
+                .unwrap();
+
+            assert_eq!(trace.retention, GraphRetention::Retain);
+            assert_eq!(trace.nodes.len(), 8);
+            assert_eq!(trace.edges.len(), 8);
+            assert_eq!(
+                tensor_bits(&lean_x.gradient().unwrap()),
+                tensor_bits(&traced_x.gradient().unwrap())
+            );
+            assert_eq!(
+                tensor_bits(&lean_bias.gradient().unwrap()),
+                tensor_bits(&traced_bias.gradient().unwrap())
+            );
+            assert_eq!(
+                lean_x.gradient().unwrap().as_slice()[0],
+                4.0 * expected_multiplier
+            );
+            assert_eq!(
+                lean_nodes
+                    .iter()
+                    .map(TensorValue::is_released)
+                    .collect::<Vec<_>>(),
+                traced_nodes
+                    .iter()
+                    .map(TensorValue::is_released)
+                    .collect::<Vec<_>>()
+            );
+        }
+
+        lean_x.zero_grad().unwrap();
+        lean_bias.zero_grad().unwrap();
+        traced_x.zero_grad().unwrap();
+        traced_bias.zero_grad().unwrap();
+        assert_eq!(
+            tensor_bits(&lean_x.gradient().unwrap()),
+            tensor_bits(&traced_x.gradient().unwrap())
+        );
+        assert_eq!(
+            tensor_bits(&lean_bias.gradient().unwrap()),
+            tensor_bits(&traced_bias.gradient().unwrap())
+        );
+
+        lean_output
+            .backward_with_seed(&lean_seed.view(), GraphRetention::Release)
+            .unwrap();
+        let trace = traced_output
+            .backward_with_seed_and_trace(&traced_seed.view(), GraphRetention::Release)
+            .unwrap();
+        assert_eq!(trace.retention, GraphRetention::Release);
+        assert_eq!(
+            tensor_bits(&lean_x.gradient().unwrap()),
+            tensor_bits(&traced_x.gradient().unwrap())
+        );
+        assert_eq!(
+            tensor_bits(&lean_bias.gradient().unwrap()),
+            tensor_bits(&traced_bias.gradient().unwrap())
+        );
+        assert_eq!(
+            lean_nodes
+                .iter()
+                .map(TensorValue::is_released)
+                .collect::<Vec<_>>(),
+            traced_nodes
+                .iter()
+                .map(TensorValue::is_released)
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn lean_and_traced_backward_share_error_precedence_and_rollback() {
+        let lean_parameter = TensorValue::parameter(tensor(&[2], &[1.0, 2.0])).unwrap();
+        let lean_ancestor = lean_parameter.mul(&lean_parameter).unwrap();
+        let lean_output = lean_ancestor.add(&lean_parameter).unwrap();
+        lean_ancestor
+            .backward_with_seed(&tensor(&[2], &[1.0, 1.0]).view(), GraphRetention::Release)
+            .unwrap();
+
+        let traced_parameter = TensorValue::parameter(tensor(&[2], &[1.0, 2.0])).unwrap();
+        let traced_ancestor = traced_parameter.mul(&traced_parameter).unwrap();
+        let traced_output = traced_ancestor.add(&traced_parameter).unwrap();
+        traced_ancestor
+            .backward_with_seed_and_trace(
+                &tensor(&[2], &[1.0, 1.0]).view(),
+                GraphRetention::Release,
+            )
+            .unwrap();
+
+        let wrong_seed = tensor(&[1], &[f64::INFINITY]);
+        assert_same_backward_error(
+            lean_output.backward_with_seed(&wrong_seed.view(), GraphRetention::Release),
+            traced_output.backward_with_seed_and_trace(&wrong_seed.view(), GraphRetention::Release),
+        );
+        assert_eq!(
+            tensor_bits(&lean_parameter.gradient().unwrap()),
+            tensor_bits(&traced_parameter.gradient().unwrap())
+        );
+
+        let lean_reused = TensorValue::parameter(tensor(&[1], &[1.0])).unwrap();
+        let lean_sum = lean_reused.add(&lean_reused).unwrap();
+        let traced_reused = TensorValue::parameter(tensor(&[1], &[1.0])).unwrap();
+        let traced_sum = traced_reused.add(&traced_reused).unwrap();
+        let huge_seed = tensor(&[1], &[f64::MAX]);
+        assert_same_backward_error(
+            lean_sum.backward_with_seed(&huge_seed.view(), GraphRetention::Release),
+            traced_sum.backward_with_seed_and_trace(&huge_seed.view(), GraphRetention::Release),
+        );
+        assert_eq!(
+            tensor_bits(&lean_reused.gradient().unwrap()),
+            tensor_bits(&traced_reused.gradient().unwrap())
+        );
+        assert!(!lean_sum.is_released());
+        assert!(!traced_sum.is_released());
+
+        let lean_accumulated = TensorValue::parameter(tensor(&[1], &[1.0])).unwrap();
+        let traced_accumulated = TensorValue::parameter(tensor(&[1], &[1.0])).unwrap();
+        lean_accumulated
+            .backward_with_seed(&huge_seed.view(), GraphRetention::Retain)
+            .unwrap();
+        traced_accumulated
+            .backward_with_seed_and_trace(&huge_seed.view(), GraphRetention::Retain)
+            .unwrap();
+        assert_same_backward_error(
+            lean_accumulated.backward_with_seed(&huge_seed.view(), GraphRetention::Release),
+            traced_accumulated
+                .backward_with_seed_and_trace(&huge_seed.view(), GraphRetention::Release),
+        );
+        assert_eq!(
+            tensor_bits(&lean_accumulated.gradient().unwrap()),
+            tensor_bits(&traced_accumulated.gradient().unwrap())
+        );
+        assert!(!lean_accumulated.is_released());
+        assert!(!traced_accumulated.is_released());
+    }
+
+    #[test]
     fn explicit_broadcast_reduces_a_non_scalar_seed_to_the_parameter_shape() {
         let parameter = TensorValue::parameter(tensor(&[2], &[3.0, 5.0])).unwrap();
         let output = parameter.broadcast_to(&[2, 2]).unwrap();
         let seed = tensor(&[2, 2], &[1.0, 2.0, 3.0, 4.0]);
 
         let pass = output
-            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .backward_with_seed_and_trace(&seed.view(), GraphRetention::Retain)
             .unwrap();
 
         assert_eq!(output.value().as_slice(), [3.0, 5.0, 3.0, 5.0]);
@@ -1388,7 +1760,7 @@ mod tests {
         );
 
         let pass = output
-            .backward_with_seed(&seed.view(), GraphRetention::Retain)
+            .backward_with_seed_and_trace(&seed.view(), GraphRetention::Retain)
             .unwrap();
 
         assert_eq!(
@@ -1423,7 +1795,7 @@ mod tests {
         let summed = parameter.sum_axis(1, true).unwrap();
         let sum_seed = tensor(&[2, 1], &[10.0, 20.0]);
         let pass = summed
-            .backward_with_seed(&sum_seed.view(), GraphRetention::Retain)
+            .backward_with_seed_and_trace(&sum_seed.view(), GraphRetention::Retain)
             .unwrap();
         assert_eq!(summed.shape(), [2, 1]);
         assert_eq!(
@@ -1495,7 +1867,7 @@ mod tests {
         let output = square.add(&x).unwrap();
 
         let pass = output
-            .backward_with_seed(&scalar(1.0).view(), GraphRetention::Release)
+            .backward_with_seed_and_trace(&scalar(1.0).view(), GraphRetention::Release)
             .unwrap();
         assert_eq!(pass.retention, GraphRetention::Release);
         assert_eq!(x.gradient().unwrap().as_slice(), [7.0]);

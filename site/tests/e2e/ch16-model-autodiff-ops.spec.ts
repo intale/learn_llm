@@ -23,7 +23,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '16-model-autodiff-ops';
-const contentRevision = 3;
+const contentRevision = 4;
 const formulaLatex = String.raw`\frac{\partial L}{\partial E_{i,:}}=\sum_{(b,t):z_{b,t}=i}\frac{\partial L}{\partial X_{b,t,:}}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -96,9 +96,10 @@ const copy: Record<ChapterLocale, LocalizedCopy> = {
   },
   ru: {
     revisionLabel: 'Версия материала',
-    title: 'Проведите обратный проход через операции от ID токенов до функции потерь',
+    title:
+      'Выполните обратный проход через операции, преобразующие ID токенов в функцию потерь',
     description:
-      'Проведите обратный проход через матричное умножение, повторяющийся выбор строк эмбеддингов, SiLU, log-softmax и среднее NLL по целевым токенам, а затем проверьте новые VJP центральными разностями в выбранных координатах.',
+      'Реализуйте VJP для матричных произведений, выбора строк эмбеддингов по индексам с повторяющимися ID, SiLU, log-softmax и средней функции потерь NLL по токенам, а затем сравните каждое новое локальное правило с центральными разностями в выбранных координатах.',
     headings: [
       'Предскажите путь повторяющегося токена',
       'Добавляйте вклад каждого вхождения в одну и ту же строку эмбеддингов',

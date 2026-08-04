@@ -2,7 +2,7 @@
 {
   "chapter_id": "15-tensor-autodiff-core",
   "concept_id": "tensor-autodiff-core",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 15,
   "objective": {
     "en": "Differentiate structural and elementwise tensor expressions while reversing shape transformations, broadcasts, and reductions correctly.",
@@ -23,7 +23,7 @@
       {
         "symbol": "e",
         "en": "one distinct operand occurrence at one consumer operation",
-        "ru": "одно отдельное вхождение операнда в одну потребляющую операцию"
+        "ru": "одно вхождение родительского тензора в определённое место операнда одной операции"
       },
       {
         "symbol": "p(e)",
@@ -33,7 +33,7 @@
       {
         "symbol": "c(e)",
         "en": "the consumer result produced by the operation that owns edge e",
-        "ru": "результат потребляющей операции, которой принадлежит ребро e"
+        "ru": "результат операции, в которую тензор p(e) передан по ребру e"
       },
       {
         "symbol": "J_e",
@@ -66,7 +66,7 @@
       },
       "later_advance": {
         "en": "Abadi et al. represent computation as operation vertices joined by tensor-valued edges and describe automatic differentiation that finds every backward path from a loss to parameters and sums the paths' partial gradients. Vaswani et al. then train repeated Transformer attention and feed-forward tensor blocks, while Radford et al. scale autoregressive Transformer language models to deeper and wider stacks.",
-        "ru": "Abadi и соавторы представляют вычисление вершинами-операциями, соединёнными тензорными рёбрами, и описывают автоматическое дифференцирование, которое находит все обратные пути от функции потерь к параметрам и суммирует частные градиенты этих путей. Затем Vaswani и соавторы обучают повторяющиеся тензорные блоки Transformer с вниманием и сетями прямого распространения, одинаковыми для каждой позиции, а Radford и соавторы масштабируют авторегрессионные языковые модели Transformer в глубину и ширину."
+        "ru": "Abadi и соавторы представляют вычисление вершинами-операциями, соединёнными тензорными рёбрами, и описывают автоматическое дифференцирование, которое находит все обратные пути от функции потерь к параметрам и суммирует вклады этих путей в градиенты параметров. Затем Vaswani и соавторы обучают повторяющиеся тензорные блоки Transformer с вниманием и сетями прямого распространения, одинаковыми для каждой позиции, а Radford и соавторы масштабируют авторегрессионные языковые модели Transformer в глубину и ширину."
       },
       "modern_llm_role": {
         "en": "This chapter records one local vector-Jacobian product for each operand use, restores every contribution to its parent's exact shape through reshape, transpose, broadcast, sum, and mean rules, and checks those rules numerically before model-specific derivatives are added. Ordinary inference does not run the reverse tape; training uses it to carry loss sensitivity back through repeated tensor blocks.",
@@ -90,7 +90,7 @@
           "source_url": "https://www.usenix.org/system/files/conference/osdi16/osdi16-abadi.pdf",
           "claim": {
             "en": "Abadi et al. define graph vertices as operations and edge values as tensors, then describe a differentiation library that derives backpropagation for layer-and-loss compositions by finding backward paths to parameters and summing each path's partial-gradient contribution.",
-            "ru": "Abadi и соавторы определяют вершины графа как операции, а значения рёбер — как тензоры, и описывают библиотеку дифференцирования, которая выводит обратное распространение для композиций слоёв и функций потерь: находит обратные пути к параметрам и суммирует частный градиент каждого пути."
+            "ru": "Abadi и соавторы определяют вершины графа как операции, а значения рёбер — как тензоры, и описывают библиотеку дифференцирования, которая выводит обратное распространение для композиций слоёв и функций потерь: находит обратные пути к параметрам и суммирует вклад каждого пути в градиент параметра."
           }
         },
         {
@@ -144,7 +144,7 @@
   },
   "decoder_connection": {
     "en": "The cumulative project can now reverse shape-preserving elementwise operations and structural tensor transformations while returning every contribution to its parent's exact shape, accumulating only parameter-leaf gradients, and releasing saved operation context safely. Chapter 16 adds model-critical VJPs for matrix multiplication, repeated embedding gathers, nonlinearities, log-softmax, and indexed mean token loss; Chapter 15 alone still cannot train the decoder.",
-    "ru": "Теперь совокупная реализация умеет проводить обратный проход через поэлементные операции, сохраняющие форму, и структурные тензорные преобразования, возвращать каждый вклад к точной форме родителя, накапливать градиенты только в листовых узлах-параметрах и безопасно освобождать сохранённый контекст операций. В главе 16 появятся необходимые для модели VJP матричного умножения, повторяющихся выборок эмбеддингов, нелинейностей, log-softmax и средней функции потерь по индексам целевых токенов; одной главы 15 всё ещё недостаточно для обучения декодера."
+    "ru": "Теперь совокупная реализация умеет проводить обратный проход через поэлементные операции, сохраняющие форму, и структурные тензорные преобразования, возвращать каждый вклад к точной форме родителя, накапливать градиенты только в листовых узлах-параметрах и безопасно освобождать сохранённый контекст операций. В главе 16 появятся необходимые для модели VJP матричного умножения, выбора строк эмбеддингов по индексам с повторяющимися ID, нелинейностей, log-softmax и средней функции потерь по индексам целевых токенов; одной главы 15 всё ещё недостаточно для обучения декодера."
   },
   "terminology": [
     {
@@ -209,11 +209,11 @@
     }
   ],
   "translation_notes": [
-    "Chapter 15 has the exact active locale set {en,ru}; both lessons must remain complete and semantically aligned with English as the source.",
+    "Chapter 15 has the exact active locale set {en,ru}. English revision 5 is the canonical semantic source, and Russian is translated directly from that revision.",
     "Keep shapes, axes, ordered values, seeds, gradients, bar notation, Jacobian notation, Rust identifiers, formulas, and source URLs exact across locales.",
     "In the displayed formula, the superscript transpose applies to the conceptual Jacobian map. It is not the same object as the forward TensorValue::transpose operation, whose own VJP swaps the saved axes back.",
     "Describe broadcasting as coordinate reuse. Its VJP sums missing leading and expanded singleton axes back to the original parent shape; it does not select one forward occurrence or preserve the expanded shape.",
-    "Keep fresh intermediate adjoints separate from parameter-only stored gradients. Graph release discards operation edges and saved context after a successful commit, while zero_grad clears a parameter gradient and detach creates a new untracked leaf.",
+    "Keep fresh intermediate adjoints separate from parameter-only stored gradients and from optional trace evidence. Graph release discards operation edges and saved context after a successful commit; trace capture is an independent choice, zero_grad clears a parameter gradient, and detach creates a new untracked leaf.",
     "Do not describe structural operations as zero-copy views: each TensorValue result owns a finite contiguous tensor. Do not imply that ordinary decoder inference runs backward.",
     "The sources support the LLM-training progression and bounded claims, not this implementation's owned tape, saved-context enum, structural VJPs, retain/release policy, f64 checks, API, or error precedence."
   ],
@@ -223,8 +223,8 @@
       "expected": "The eight-node forward graph produces y shape [2] with values [11,18] and has eight ordered operand edges."
     },
     {
-      "input": "backward_with_seed([3,6], Retain) on the worked output",
-      "expected": "Fresh pass-local VJPs produce parameter gradients dx=[4,12,4,12,10,24] and dbias=[16,16,34]."
+      "input": "backward_with_seed_and_trace([3,6], Retain) on the worked output",
+      "expected": "The shared reverse traversal produces parameter gradients dx=[4,12,4,12,10,24] and dbias=[16,16,34], while the explicit trace records its ordered node and edge evidence."
     },
     {
       "input": "run a second retained pass, zero both parameter handles, then run one releasing pass",
@@ -375,19 +375,31 @@ extent. Every forward structural operation materializes an owned contiguous
 result rather than retaining a borrowed view.
 
 `backward()` accepts only a tracked rank-zero output and supplies scalar seed
-one. `backward_with_seed` requires an exactly matching finite seed plus
-`GraphRetention::Retain` or `GraphRetention::Release`. Each call builds one
-node-unique topology, evaluates fresh tensor adjoints in reverse order, validates
-every VJP and prospective parameter sum, and commits all parameter gradients
-together. A retained second pass recomputes fresh intermediates and adds one
-complete pass to storage.
+one; like `backward_with_trace`, it always retains the graph. Releasing a
+rank-zero graph therefore uses `backward_with_seed` or
+`backward_with_seed_and_trace` with a rank-zero seed of one and
+`GraphRetention::Release`. The seeded methods accept any exactly matching finite seed plus
+`GraphRetention::Retain` or `GraphRetention::Release`. These are the ordinary
+execution calls: they build one node-unique topology, keep fresh pass-local
+adjoints, read the forward-saved context needed by each VJP, validate every VJP
+and prospective parameter sum, and commit all parameter gradients together.
+They return no node or edge record.
+
+`backward_with_trace` and `backward_with_seed_and_trace` run that same reverse
+kernel and additionally copy the seed, node adjoints, ordered edge inputs and
+contributions, and each edge's pass-local parent adjoint immediately before and
+after adding that contribution into `TensorBackwardPass`. Its node records also
+contain the validated prospective stored gradient for parameter leaves. Trace
+capture does not change the arithmetic or decide whether the graph is retained.
+A retained second pass recomputes fresh intermediates and adds one complete pass
+to storage.
 
 Release occurs only after a successful commit. It removes reachable operation
 nodes' parent edges and saved context, preserves primal values, committed
-parameter gradients, and already returned pass evidence, and makes a later
-backward pass or differentiable use of the released result fail. `zero_grad`
-writes positive zero through a saved parameter handle. A failed pass changes
-neither gradients nor lifecycle state.
+parameter gradients, and any explicitly requested trace already returned, and
+makes a later backward pass or differentiable use of the released result fail.
+`zero_grad` writes positive zero through a saved parameter handle. A failed pass
+changes neither gradients nor lifecycle state.
 
 Chapter 13 sampled central differences check every supported VJP. A separate
 example sums `p*p + detach(p)*10` for parameter `p=[2,3]`: both branches make
@@ -438,17 +450,17 @@ loss still need their own local VJPs before any parameter update can be formed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English is the canonical semantic source and Russian is the complete translated
-locale for Chapter 15. Any later English change makes the Russian review stale
-until the contract, lesson, diagram labels, accessible names, history claims,
-exercises, and answers are refreshed together from English.
+English revision 5 is the canonical semantic source and Russian is the complete
+translated locale for Chapter 15. Any later English change makes the Russian
+review stale until the contract, lesson, diagram labels, accessible names,
+history claims, exercises, and answers are refreshed together from English.
 
 Keep formula transpose distinct from the forward transpose operation. Explain
 broadcasting as coordinate reuse whose reverse sum restores the parent shape.
-Keep fresh pass-local adjoints distinct from stored parameter gradients, and
-keep release distinct from zeroing and detach. Never call structural results
-zero-copy views or turn the history into programming-language, framework, or
-array-API history.
+Keep fresh pass-local adjoints distinct from stored parameter gradients and
+optional trace evidence. Keep graph retention distinct from trace capture,
+zeroing, and detach. Never call structural results zero-copy views or turn the
+history into programming-language, framework, or array-API history.
 
 <!-- contract-section:acceptance -->
 ## Acceptance examples

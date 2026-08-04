@@ -13296,3 +13296,59 @@ AdamW objectives remain unchanged.
 `20260804T161653Z-restore-site-validation-baseline-01`,
 `separate-sampling-observation`, and
 `20260804T154930Z-separate-sampling-observation-01`.
+
+## 2026-08-04 - Make tensor backward traces explicit evidence
+
+**Status:** Accepted during preflight for
+`separate-tensor-backward-observation` before product files were edited.
+
+**Context:** Every call to `TensorValue::backward` or
+`backward_with_seed` currently returns a `TensorBackwardPass`. Building that
+record clones each edge's forward-saved context, upstream adjoint, local VJP
+contribution, and before/after parent adjoints, then clones pass adjoints,
+parameter results, shapes, and seed into node records. The trainer and most
+model callers discard all of this evidence after every backward pass. Chapters
+15 and 16 intentionally inspect it; Chapters 28-31 inspect it only to verify
+that their worked tape remains finite.
+
+**Decision:** Make `backward` and `backward_with_seed` lean operations returning
+only success or a typed error. Add `backward_with_trace` and
+`backward_with_seed_and_trace` for callers that inspect `TensorBackwardPass`.
+All four public methods use one private generic reverse kernel. Its no-trace
+observer constructs no pass, node, edge, or cloned teaching snapshot; its trace
+observer borrows the already-computed reverse values and alone materializes the
+existing evidence fields in their existing order. Do not keep a default-looking
+traceful compatibility alias.
+
+Preserve the current root and ancestor checks, seed validation and row-major
+non-finite detection, topology and operand order, repeated-parent accumulation,
+VJP arithmetic, error precedence, and transaction boundary. Validate every
+pass-local and prospective parameter adjoint before committing any parameter;
+only after a successful commit may `GraphRetention::Release` clear reachable
+non-leaf parents. Forward `TensorSavedContext`, the topology, pass-adjoint
+workspace, transient VJP contribution, and prospective gradient workspace are
+algorithm state and remain. Their separate copy/access findings belong to F02
+and F03; fallible-allocation policy belongs to F08.
+
+Only evidence consumers move to the explicit trace API: the Chapter 15 and 16
+worked examples, the finite-tape checks in Chapters 28-31, and trace-inspecting
+core tests. Trainer calls and all callers that need only committed gradients
+remain on the lean methods. Advance Chapter 15 from revision 4 to 5 because both
+of its rendered Rust regions and its execution explanation change. Advance
+Chapter 16 from revision 3 to 4 because its rendered worked fixture explicitly
+requests intermediate adjoints. Author English first and refresh Russian
+directly from the exact English revisions. Chapters 28-31 remain at their
+current revisions because the migrated calls are outside their rendered source
+regions and their claims and evidence do not change.
+
+**Consequences:** Ordinary training no longer creates and discards a complete
+teaching trace, while the chapters retain the same node and edge evidence from
+the same reverse traversal. The public return type intentionally becomes lean;
+repository consumers that need evidence say so in their method name. Exact
+gradients, errors, lifecycle, stdout, diagram traces, downstream training
+results, dependencies, routes, styles, and deployment behavior remain fixed.
+
+**Affected build, step, and run:**
+`remediate-rust-runtime-observation-20260804`,
+`separate-tensor-backward-observation`, and
+`20260804T165741Z-separate-tensor-backward-observation-01`.

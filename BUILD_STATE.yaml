@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T15:49:30Z"
+updated_at: "2026-08-04T17:53:27Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -1151,7 +1151,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "No explicit resource budget has been supplied. This is local documentation and cached validation only, with no network or paid service planned."
     completion_criteria:
       - "A root README gives a student a working path from checkout to the localized course and runnable Rust example."
@@ -31125,7 +31125,7 @@ builds:
     budget:
       unit: agent-session
       limit: null
-      spent: 3
+      spent: 4
       notes: "Four medium cached-Docker corrections with focused bilingual chapter revisions and browser checks, plus one small complete-site baseline prerequisite discovered by exact validation. No paid service or generated model work is used; canonical Docker dependency layers may refresh lockfile-pinned artifacts if their cache keys change."
     completion_criteria:
       - "Ordinary BPE encoding, token sampling, tensor backward, and AdamW update paths do not allocate or retain teaching-only trace records."
@@ -31424,24 +31424,128 @@ builds:
       - id: separate-tensor-backward-observation
         objective: "Make ordinary tensor backward propagate adjoints without retaining node and edge teaching snapshots while the trace API observes the same reverse traversal."
         depends_on: [separate-sampling-observation]
-        status: pending
+        status: completed
         inputs:
+          - "User direction to continue and fix the reviewed audit findings"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
           - "audits/2026-08-04-rust-overengineering.md finding F01"
-          - "Committed output of separate-sampling-observation"
-          - "Tensor autodiff implementation, trainer callers, Chapter 15 evidence, and all rendered projections"
+          - "Committed output daebf8e359204e61266b945ee1d1fa12334b0cd3 of separate-sampling-observation"
+          - "Tensor autodiff implementation and model-operation tests; ordinary trainer callers; explicit trace consumers in Chapters 15, 16, and 28-31"
+          - "Chapter 15 and 16 contracts, English/Russian lessons, focused source/browser tests, and frozen downstream reports/diagram traces"
         outputs:
           - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
-          - "Affected trainer callers, chapter contracts/locales, source/browser tests, BUILD_STATE.yaml, and DECISIONS.md resolved during preflight"
+          - "rust/crates/llm-from-scratch/src/autograd/model_ops.rs"
+          - "rust/demos/ch15-tensor-autodiff-core/src/lib.rs"
+          - "rust/demos/ch16-model-autodiff-ops/src/lib.rs"
+          - "rust/demos/ch28-causal-masking/src/lib.rs"
+          - "rust/demos/ch29-rope/src/lib.rs"
+          - "rust/demos/ch30-multi-head-attention/src/lib.rs"
+          - "rust/demos/ch31-decoder-block/src/lib.rs"
+          - "curriculum/chapters/15-tensor-autodiff-core.md"
+          - "curriculum/chapters/16-model-autodiff-ops.md"
+          - "site/src/content/chapters/en/15-tensor-autodiff-core.mdx"
+          - "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx"
+          - "site/src/content/chapters/en/16-model-autodiff-ops.mdx"
+          - "site/src/content/chapters/ru/16-model-autodiff-ops.mdx"
+          - "site/tests/15-tensor-autodiff-core-diagram.test.ts"
+          - "site/tests/16-model-autodiff-ops-diagram.test.ts"
+          - "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts"
+          - "site/tests/e2e/ch16-model-autodiff-ops.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
         acceptance:
-          - "Ordinary backward does not construct TensorBackwardPass, TensorBackwardNode, TensorBackwardEdge, saved-context, contribution, or before/after trace ownership."
-          - "Ordinary and traced backward share one validated reverse traversal and produce identical gradients and graph-lifecycle behavior."
-          - "Chapter 15 exact evidence and all downstream training results remain unchanged."
+          - "Ordinary backward returns no teaching record and constructs no TensorBackwardPass, TensorBackwardNode, TensorBackwardEdge, or cloned saved-context, upstream, contribution, and before/after trace ownership; required forward saved context and transient reverse workspace remain explicit."
+          - "Ordinary and traced entry points use one generic validated reverse kernel and produce bit-identical gradients, error precedence, transactional rollback, repeated accumulation, and Retain/Release graph lifecycle."
+          - "Only callers that inspect node or edge evidence use the explicit trace API; both trainer backward sites and all other ordinary callers remain on the lean API."
+          - "Chapter 15 revision 5 and Chapter 16 revision 4 explain the execution/evidence boundary explicitly; English is canonical and Russian is refreshed naturally from each exact English revision."
+          - "Chapters 15, 16, and 28-31 exact stdout and diagram traces, every downstream training result, and Chapters 28-31 learner content remain unchanged."
         validate:
-          - "Docker Rust formatting, Clippy, complete workspace/doc tests, dependency policy, and deterministic demo replay"
-          - "Focused source and Chromium/Firefox validation for every revised autodiff/training chapter"
-          - "Canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
+          - "Exact staged Docker cargo fmt, Clippy -D warnings, complete locked workspace/doc tests, dependency policy, and deterministic demo replay"
+          - "Focused Chapter 15/16 contract, source/Vitest, localization parity, and Chromium/Firefox desktop/narrow/full-view/formula validation"
+          - "Frozen Chapter 15/16/28/29/30/31 report and diagram-trace hashes plus lean/traced numerical, error, and lifecycle equivalence regressions"
+          - "Manifest-locked official course review, canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
         cost: {class: large, notes: "Core autodiff execution refactor plus broad regression and rendered-projection validation; cached Docker/browser CPU, no paid service or model generation."}
-        runs: []
+        runs:
+          - run_id: 20260804T165741Z-separate-tensor-backward-observation-01
+            started_at: 2026-08-04T16:57:41Z
+            finished_at: 2026-08-04T17:53:27Z
+            status: succeeded
+            input_fingerprint:
+              git: "daebf8e359204e61266b945ee1d1fa12334b0cd3; tree 9a2d581dacbf26a48c104c64094f3992bd422f8f"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                tensor-core: "sha256:b89106db03dfbf882e2f881d3a29ba6977923ddcc70d1d59863637d99d670e75"
+                model-ops: "sha256:65791146e76057d1999f705c39b1d43cee611902a3b05f48ad039e7b9c7bca85"
+                trainer: "sha256:ded8fc44313864e5ec7fed789e42a5566e5f967dc572793cfd1fac86071481e2"
+                chapter-15-demo: "sha256:7f1786bbfda2b671e7b2237ccf50713491b49e49863cbb7312faebf4d130f206"
+                chapter-16-demo: "sha256:7c7621ed4e30e7ed95756e9a3683fcf14fc5ea470eb0678c45de1c6447f85f0d"
+                chapter-15-contract: "sha256:469b6ddc28ec56b73962144ec71e038d8b5e39054c6d481e31fd39903f8d7ed6"
+                chapter-16-contract: "sha256:98bbf833e3e1553ded35b99f81cccbd542a3c663d0fd3874e925bab3e6ada7aa"
+                chapter-15-en: "sha256:9384287454f5c40e8764e87ad5b22930158b53df093e56b3ce3efc3c983ba409"
+                chapter-15-ru: "sha256:69c6c609b186008f6978ba461045e840c66cc6b96256738892e39f3ad416de37"
+                chapter-16-en: "sha256:6a0b93c2c49e92d60f6aefa56b618f46af05ad70c9473e6a96b4609557d643c7"
+                chapter-16-ru: "sha256:af120f80d70849c3a539c7d601b518ec741ed662e732e1e02a09e1fc043f3860"
+                chapter-15-expected: "sha256:564f5a5ab3b0f93bec1411c9ba0ecff7afded974396bb2351226264c254f4e4a"
+                chapter-15-diagram-trace: "sha256:f0c9e058c70429224ec138a41fb739cbe2aa556010d135c862fc96d54c21403c"
+                chapter-16-expected: "sha256:edc12e714293c1e96dbfadbc0e00f49de2865de78560cf7b71f2600d135750be"
+                chapter-16-diagram-trace: "sha256:fa436ad9500a0591c339d7489b6bf34daa54bcb7dae11a1cce3152147f8f5132"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service or generated model work. Product work and validation stayed Docker-only. The initial source and canonical workspace builds refreshed only lockfile-pinned Serde-family Cargo crates and Docker registry metadata; dependency versions and product inputs did not change."
+            staging_dir: ".build/runs/20260804T165741Z-separate-tensor-backward-observation-01/"
+            commands:
+              - "Verify clean commit daebf8e, completed sampling dependency, exact environment continuity, input hashes, frozen evidence, and no overlapping output owner."
+              - "Read the tensor reverse implementation, trainer and evidence call graph, Chapter 15/16 contracts and locale projections, focused tests, audit finding, and protected transaction/lifecycle invariants."
+              - "Complete independent read-only Rust design, learner-projection, and invariant/test preflight reviews; narrow publication to Chapters 15 and 16 while freezing Chapters 28-31 content."
+              - "Implement lean backward and seeded-backward methods, explicit trace methods, one generic reverse observer kernel, caller migrations, and twin-graph numerical/error/lifecycle equivalence tests."
+              - "Author Chapter 15 revision 5 and Chapter 16 revision 4 in English, refresh Russian directly from those exact English revisions under the localization skill, and add focused structural/content assertions."
+              - "Build source image sha256:abe066e2f91b174ad03034cbd71932686cf73dc0db4ec0505869ce9481508472 and run complete Rust plus focused Chapter 15/16 content validation."
+              - "Obtain independent Rust, English-content, and Russian-localization reviews; correct one structured-error comparison weakness, five learner-projection issues, and thirteen Russian naturalness findings without expanding the audit scope."
+              - "Freeze the eighteen product outputs under the run publish tree, preserve the rejected pre-correction manifest, and validate the exact candidate with full Rust, deterministic evidence, site, Chromium, and Firefox gates."
+              - "Correct one stale Chapter 15 cheat-sheet evidence anchor, refresh the frozen manifest and source/browser images, and repeat complete Vitest plus the official manifest-aware staged build."
+              - "Verify canonical byte equality, run canonical ./course check, parse the final ledger in pinned Docker, check exact Git scope and whitespace, and restore the host-artifact boundary before committing."
+            artifacts:
+              - {path: ".build/runs/20260804T165741Z-separate-tensor-backward-observation-01/publish.sha256", sha256: "805e89a4291e4e727b5708a66cf33f3b3c7fa019164be9ad357415081807468e", purpose: "Frozen manifest for the eighteen exact product outputs promoted by this run."}
+              - {path: "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs", sha256: "a08d29d7b5137a8174d4f3718050ce8e273c745093a3e2cf11c26de9b41b3236", purpose: "One lean/traced reverse kernel, zero-sized no-trace observer, explicit trace observer, and exact equivalence regressions."}
+              - {path: "rust/crates/llm-from-scratch/src/autograd/model_ops.rs", sha256: "b1aaee3d3dc7d02289f2c236bbdc43f462912115d05081d8442fce5e719d4ee0", purpose: "Trace-inspecting model-operation tests migrated to the explicit trace API."}
+              - {path: "rust/demos/ch15-tensor-autodiff-core/src/lib.rs", sha256: "80434836c0a5609396ba8b9a7b188c59288d71caeea79144d8b5c2c04806a785", purpose: "Chapter 15 explicitly traces only the pass whose node and edge evidence it renders."}
+              - {path: "rust/demos/ch16-model-autodiff-ops/src/lib.rs", sha256: "61a3183719ccc12fde099e891993baf607eef367e14c53ad35ee336887141ce7", purpose: "Chapter 16 explicitly requests the intermediate-adjoint trace it inspects."}
+              - {path: "rust/demos/ch28-causal-masking/src/lib.rs", sha256: "84cb043ae818ec1067ed2ef7beb9b1ac4be5dbaf712b66667c737a2ff00884b8", purpose: "Finite-tape evidence caller migrated outside the rendered learner region."}
+              - {path: "rust/demos/ch29-rope/src/lib.rs", sha256: "a87158a1acda5d79e49de212b3fc904bdf23133aae270b0ae39d1a4fcf7535e7", purpose: "Finite-tape evidence caller migrated outside the rendered learner region."}
+              - {path: "rust/demos/ch30-multi-head-attention/src/lib.rs", sha256: "66b49c561500cdba31138a3fcc3b2cb62739dc7c78fce13fedceda2fe359f298", purpose: "Finite-tape evidence caller migrated outside the rendered learner region."}
+              - {path: "rust/demos/ch31-decoder-block/src/lib.rs", sha256: "3119aa983d57354aece4179a0ce4e172828e31a3945ab47e878d0c3eda2cbc6e", purpose: "Finite-tape evidence caller migrated outside the rendered learner region."}
+              - {path: "curriculum/chapters/15-tensor-autodiff-core.md", sha256: "c9d0e52cf4763f04cebff5cb9ca66004488c4bdee6eeabe37936a26519e785d7", purpose: "Chapter 15 revision 5 contract and exact English/Russian provenance."}
+              - {path: "curriculum/chapters/16-model-autodiff-ops.md", sha256: "22021266e11deaa18f5a993b8fceea04e57e73527cfdd880ac7ad4954337492e", purpose: "Chapter 16 revision 4 contract and exact English/Russian provenance."}
+              - {path: "site/src/content/chapters/en/15-tensor-autodiff-core.mdx", sha256: "7615b4fef86abe16cbe893b5d1132ab980b2ef41105509c71976023b01a9d8b3", purpose: "Canonical English explanation of lean backward, explicit trace evidence, and retention behavior."}
+              - {path: "site/src/content/chapters/ru/15-tensor-autodiff-core.mdx", sha256: "c80ae3c445369de4f4eea5a588e179ea5d22150f014b2c02ab084880fdce0c15", purpose: "Independently reviewed natural Russian refresh from the exact Chapter 15 English revision."}
+              - {path: "site/src/content/chapters/en/16-model-autodiff-ops.mdx", sha256: "a75c2d77ace3f42d9f05b2b5ed0c48c8d585bd01a6dd71aca1a6ebe918b4ba42", purpose: "Canonical English explanation of ordinary training APIs and opt-in intermediate-adjoint evidence."}
+              - {path: "site/src/content/chapters/ru/16-model-autodiff-ops.mdx", sha256: "d5c095a1cb9c28f9c1f0c6e364afccecfccf9e7ee4efe559f69194a828accb6b", purpose: "Independently reviewed natural Russian refresh from the exact Chapter 16 English revision."}
+              - {path: "site/tests/15-tensor-autodiff-core-diagram.test.ts", sha256: "6f699537c606e8da66056c4cc7630d94fc7cb41813393ef8bd51b855b6502579", purpose: "Chapter 15 API split, rendered regions, revision, and evidence-source assertions."}
+              - {path: "site/tests/16-model-autodiff-ops-diagram.test.ts", sha256: "7682bd0dbefdece5dc56fea8654dfb67993fdc1d1d04480515744c3d6cebf545", purpose: "Chapter 16 API split, caller, revision, and evidence-source assertions."}
+              - {path: "site/tests/e2e/ch15-tensor-autodiff-core.spec.ts", sha256: "905996404816e50141be9e8fb291875ed7532cbfabb6da82e0e21f4ed64e4131", purpose: "Rendered bilingual Chapter 15 execution/evidence distinction checks."}
+              - {path: "site/tests/e2e/ch16-model-autodiff-ops.spec.ts", sha256: "e07a50b0e13870757821374dfc360fd3d89218d3a98f54baead67f87556de42e", purpose: "Rendered bilingual Chapter 16 execution/evidence distinction checks."}
+            validation:
+              - {command: "Repository, dependency, ownership, source, locale, environment, cost, and frozen-evidence preflight", status: passed, notes: "The sampling step is completed and committed at daebf8e; the worktree is clean, all required inputs exist, no output has another running owner, and cost is large cached Docker/browser CPU with no budget limit, paid service, or model generation."}
+              - {command: "Independent tensor call-graph, content-projection, and invariant reviews", status: passed, notes: "Reviews agree on lean backward APIs, explicit trace entry points, one private generic reverse observer kernel, exact error/transaction/lifecycle preservation, Chapter 15 revision 5, Chapter 16 revision 4, and unchanged Chapters 28-31 learner content and frozen evidence."}
+              - {command: "Docker cargo fmt, Clippy --workspace --all-targets -D warnings, complete locked workspace tests, and doctests", status: passed, notes: "The candidate passes every Rust target, all demo packages, 371 shared library tests including new lean/traced twin-graph regressions, and both compile-fail doctests. No host Rust artifact is used or created."}
+              - {command: "Focused Chapter 15/16 source, content-contract, and locale Vitest", status: passed, notes: "The corrected /workspace/site invocation passes 4 files and 101 assertions. An earlier root-working-directory invocation was invalid because these tests intentionally resolve the repository from site/; it made no product change and was rerun correctly."}
+              - {command: "Independent final Rust, English-content, and Russian-localization reviews", status: passed, notes: "The Rust reviewer found only a low-severity Debug-string error comparison; exact variant fields and f64 bit patterns now compare directly. Five English projection findings and thirteen Russian semantic/naturalness findings were corrected, after which all reviewers returned no remaining finding."}
+              - {command: "Initial lightweight offline staged Rust attempt", status: failed, notes: "The source-only image lacked the locked Serde-family Cargo registry cache and stopped before compiling product code. The exact candidate was overlaid onto the recorded workspace cache and repeated without source or dependency changes."}
+              - {command: "Exact staged Rust formatting, Clippy -D warnings, complete locked workspace/doctests, dependency policy, and deterministic replay", status: passed, notes: "Rust image sha256:0edb6695b2b4ac34735e71f392c81eceb3ee0cb27147039d9cedb624ed6b7232 passes every Rust target, all demos, 371 shared library tests, both compile-fail doctests, dependency policy, all 39 chapter reports, and all 34 diagram traces."}
+              - {command: "Frozen Chapter 15/16/28/29/30/31 learner evidence", status: passed, notes: "Expected-report hashes remain 564f5a5, edc12e7, 0e45b6d, d902d02, e1a9e6a, and f626f2d; diagram traces remain f0c9e05, fa436ad, 6d64d5a, 27513fc, 650a589, and 9ef3918. Downstream values, gradients, finite-tape claims, and trace grammars are unchanged."}
+              - {command: "First complete exact-staged Vitest", status: failed, notes: "53/54 files and 961/962 tests passed. One Chapter 15 cheat-sheet evidence assertion exposed a source line break inside its exact grounding phrase. The rejected manifest and lesson copy were preserved; the sentence was joined without changing meaning, then restaged and revalidated."}
+              - {command: "Final exact-staged Vitest, content, parity, Astro, production build, and links", status: passed, notes: "All 54 files and 962 tests pass, as do 80 localized sources, 40 locale sets, 33 catalogs, 42 diagrams, 215 Astro files with zero diagnostics, 85 pages, 2,529 local references, 85 SEO/sitemap/analytics routes, and 164 artifacts."}
+              - {command: "Final exact-staged Chromium and Firefox Chapter 15/16, formula, diagram-style, and full-view matrices", status: passed, notes: "Browser image sha256:b5e0f25f0a76d3fe265817db5e33c0042d0ad04052805af4898245d1ea4e968c passes 186/186 in each browser, including bilingual desktop/narrow pages, formula containment, every registered diagram and full view, no-JavaScript, mobile, forced-colors, and direction-sensitive cases."}
+              - {command: "Manifest-locked ./course review 20260804T165741Z-separate-tensor-backward-observation-01 --check", status: passed, notes: "Official review image sha256:e0bb3d14a0e488f9144e08d774f1596e0368c0ff3c64c4a86578b9cbea301d7e validates the final eighteen-file manifest and renders all four revised Chapter 15/16 locale routes without changing the publish tree."}
+              - {command: "Canonical ./course check", status: passed, notes: "Canonical workspace image sha256:2a3b35459be6363e868acf0d683e6a4f2576392b27c1f5469316e48bb37d0642 passes formatting, every workspace/demo/core/doc test, content/parity, 215-file Astro diagnostics, the 85-page production build, and the 2,529-reference static link check."}
+              - {command: "First final ./course audit-host", status: failed, notes: "The audit found one empty ignored root target/ directory, owned by the container user and created before final validation. Inspection confirmed it contained no files or reusable artifact; rmdir removed only that generated directory."}
+              - {command: "Final manifest, publication, and host-boundary audit", status: passed, notes: "All eighteen canonical product files are byte-identical to their staged counterparts and match manifest sha256:805e89a4291e4e727b5708a66cf33f3b3c7fa019164be9ad357415081807468e. The repeated host audit passes with only the intentional site/dist release exception."}
+              - {command: "Final pinned-Docker scheduler parse, exact scope, and whitespace check", status: passed, notes: "The completed YAML parses, selects separate-adamw-observation as the next eligible step, and contains no running owner. Exactly the eighteen declared products plus BUILD_STATE.yaml and DECISIONS.md change; git diff --check passes."}
+            notes: "Succeeded. Ordinary tensor backward now commits gradients without constructing or returning node/edge teaching snapshots; explicit trace methods observe the same private reverse kernel and preserve exact arithmetic, errors, transaction boundaries, and Retain/Release lifecycle. Chapters 15 and 16 explain the boundary in reviewed English and natural Russian, Chapters 28-31 retain unchanged learner evidence, and complete Docker/static/two-browser validation passes. F02, F03, and F08 remain separate audit work."
 
       - id: separate-adamw-observation
         objective: "Make ordinary AdamW updates retain only committed parameters, moments, and step state while explicit tracing observes the same update kernel."
