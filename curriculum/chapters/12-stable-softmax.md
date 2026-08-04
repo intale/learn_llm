@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "concept_id": "stable-softmax",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 12,
   "objective": {
     "en": "Convert logits into normalized probabilities and log-probabilities and score indexed targets while preventing avoidable overflow and underflow.",
@@ -159,7 +159,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 12 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Chapter 12 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 5 and both lessons publish one same-revision set.",
     "Keep softmax, log-sum-exp, log-softmax, indexed mean NLL, logits, axis numbers, shape arrays, Rust identifiers, trace keywords, formulas, and source URLs as exact technical evidence.",
     "Translate logit as «логит» and explain it as «ненормированная оценка» or «ненормированный логарифм вероятности», never as an ordinary probability. Use «вычитание максимума», «ось классов», «группа нормализации», «логарифм вероятности», «отрицательное логарифмическое правдоподобие (NLL)», and «вычисления в логарифмической шкале» consistently.",
     "Distinguish the exact-arithmetic invariance of softmax from floating-point addition that may already have rounded away a difference. Explain underflow concretely as sufficiently small exponentials rounding to zero, and distinguish unavoidable representability limits from failures avoided by maximum shifting."
@@ -324,11 +324,19 @@ each nonempty group. Softmax divides each shifted exponential by that sum.
 Log-softmax subtracts the logarithm of the sum from the shifted logit, avoiding
 the less stable `logit - log_sum_exp` form. Indexed mean NLL validates one flat
 target per row-major group, checks every target bound before reading logits, and
-uses the fused log-domain expression. It normally sums representable row losses
-and divides once, preserving subnormal mean rounding. In parallel it accumulates
-target-count-scaled nonnegative contributions; if an unscaled row loss or sum
-overflows, that fallback preserves a representable final mean. Natural logarithms
-keep the result consistent with Chapter 7's nats.
+uses the fused log-domain expression. For $T$ targets it maintains two
+accumulators. The ordinary `total` adds each complete nonnegative row loss. If
+every row loss and the running sum remain finite, the function divides `total`
+by $T$ once and returns the mean in nats per target; this single final division
+preserves representable subnormal mean rounding. In parallel, the fallback
+`scaled_mean` adds the two nonnegative parts of each row loss after dividing
+each part by $T$: the target-logit gap $(m-\ell_{t_r})/T$, where $t_r$ is the
+target class for row $r$, and the log-normalizer
+$\ln(1+\mathrm{tail})/T$. If $m-\ell_{t_r}$ itself overflows, the fallback
+computes $m/T-\ell_{t_r}/T$ instead. The function returns `scaled_mean` only
+when a complete row loss or the running value of `total` overflows; otherwise it
+divides `total` by $T$ and returns that quotient. Natural logarithms keep the
+result consistent with Chapter 7's nats.
 
 Finite logits are required. The first NaN, positive infinity, or negative
 infinity in group-major then class-minor order receives a distinct typed error.
@@ -418,7 +426,7 @@ scalar objective before automatic differentiation is introduced.
 Chapter 12 publishes one same-revision English/Russian locale pair. English is
 the sole semantic source; the Russian contract fields, lesson, metadata, diagram
 copy, exercises, answers, SEO, and accessibility labels are translated directly
-from revision 4. Preserve formulae, numbers, shapes, source URLs, Rust identifiers,
+from revision 5. Preserve formulae, numbers, shapes, source URLs, Rust identifiers,
 trace tokens, and the distinction between logits, probabilities,
 log-probabilities, and losses.
 

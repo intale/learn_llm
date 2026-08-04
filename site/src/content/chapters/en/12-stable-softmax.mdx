@@ -2,7 +2,7 @@
 {
   "chapter_id": "12-stable-softmax",
   "locale": "en",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 12,
   "concept_id": "stable-softmax",
   "title": "Turn extreme logits into stable probabilities",
@@ -82,7 +82,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/nn/probability.rs",
       "region": "stable-probability-operations",
-      "purpose": "Apply max-shifted log-sum-exp, probability, log-probability, and target-scaled indexed mean NLL across checked strided groups."
+      "purpose": "Compute max-shifted log-sum-exp, probabilities, log-probabilities, and indexed mean NLL with an ordinary full-loss accumulator and a fallback whose contributions are divided by the target count before addition."
     },
     {
       "path": "rust/demos/ch12-stable-softmax/src/lib.rs",
@@ -326,12 +326,22 @@ and uses `ln_1p(tail)`. That detail preserves a representable subnormal log-doma
 correction that ordinary $\ln(1+\mathrm{tail})$ could round away before the logarithm.
 
 Softmax divides shifted exponentials by $1+\mathrm{tail}$. Log-softmax computes the
-shifted logit minus `ln_1p(tail)`. Fused indexed mean NLL normally sums row
-losses and divides once, preserving subnormal mean rounding. It also accumulates
-target-count-scaled nonnegative contributions; if an unscaled row loss or sum
-overflows, that fallback preserves a representable final mean. Coordinate
-generation inserts each class index into the row-major group coordinate, so any
-logical axis works and output values return to normal row-major positions.
+shifted logit minus `ln_1p(tail)`. For $T$ targets, fused indexed mean NLL keeps
+two accumulators. The ordinary `total` adds each complete nonnegative row loss.
+If every row loss and the running sum remain finite, the function divides
+`total` by $T$ once and returns the mean in nats per target; this single final
+division preserves representable subnormal mean rounding.
+
+In parallel, the fallback `scaled_mean` adds the two nonnegative parts of each
+row loss after dividing each part by $T$: the target-logit gap
+$(m-\ell_{t_r})/T$, where $t_r$ is the target class for row $r$, and the
+log-normalizer $\ln(1+\mathrm{tail})/T$. If $m-\ell_{t_r}$ itself overflows,
+the fallback computes $m/T-\ell_{t_r}/T$ instead. The function returns
+`scaled_mean` only when a complete row loss or the running value of `total`
+overflows; otherwise it divides `total` by $T$ and returns that quotient.
+Coordinate generation inserts each class index into the row-major group
+coordinate, so any logical axis works and output values return to normal
+row-major positions.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/nn/probability.rs"

@@ -12455,6 +12455,43 @@ the existing analytics initializer and this small pre-paint bootstrap together.
 `add-persistent-dark-theme`, and
 `20260803T121222Z-add-persistent-dark-theme-01`.
 
+## 2026-08-04 - Repair explicit-wording findings as five chapter checkpoints
+
+**Status:** Accepted for `repair-explicit-wording-findings-20260804`.
+
+**Context:** The frozen wording audit records six actionable clusters in five
+chapters. The findings do not require new LLM behavior, Rust changes, or a
+cross-cutting presentation system; they require local explanations, exercise
+answers, and figure labels to name the missing referents, mappings, conditions,
+and scope. Combining all repairs would violate the repository rule that each
+completed chapter step remains independently reviewable and committed.
+
+**Decision:** Close the findings in five ordered chapter-owned steps: Chapter 12
+for F01, Chapter 13 for F04, Chapter 22 for F02 and F05 together, Chapter 25 for
+F03, and Chapter 39 for F06. Advance each affected chapter's content revision,
+correct canonical English first, and refresh Russian directly from that exact
+English revision under the localization workflow. Add focused source assertions
+and run localized Chromium and Firefox desktop, narrow, and full-view checks for
+each chapter. Commit every completed chapter before starting the next.
+
+Keep `audits/2026-08-04-explicit-wording.md` unchanged as the historical report
+for commit `d4134e3`; record remediation in the new build and its commits. Do not
+change formulas, numeric fixtures, Rust behavior, routes, dependencies, or
+diagram logic unless validation demonstrates that a changed label cannot fit the
+existing shared presentation safely, in which case record the scope extension
+before editing it.
+
+**Consequences:** Five small prose changes incur medium validation cost because
+every changed Russian page must be reviewed independently and rendered in both
+engines. The resulting history distinguishes audit evidence from later repairs,
+and each correction can be inspected or reverted without coupling unrelated
+chapters.
+
+**Affected build and steps:** `repair-explicit-wording-findings-20260804` and
+`repair-ch12-explicit-mean-nll`, `repair-ch13-explicit-sampler-symbols`,
+`repair-ch22-explicit-adamw-identities`, `repair-ch25-explicit-rmsnorm-stage`,
+and `repair-ch39-explicit-figure-mappings`.
+
 ## 2026-08-04 - Preserve explicit-wording findings as a separate audit result
 
 **Status:** Accepted outcome for `audit-course-explicit-wording`.

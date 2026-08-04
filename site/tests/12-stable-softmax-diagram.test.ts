@@ -27,6 +27,18 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/StableSoftmaxDiagram.astro'),
   'utf8',
 );
+const contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/12-stable-softmax.md'),
+  'utf8',
+);
+const englishLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/12-stable-softmax.mdx'),
+  'utf8',
+);
+const russianLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/12-stable-softmax.mdx'),
+  'utf8',
+);
 
 const labels: StableSoftmaxDiagramLabels = {
   title: 'title',
@@ -72,6 +84,30 @@ const labels: StableSoftmaxDiagramLabels = {
     rejected: 'x',
   },
 };
+
+describe('Chapter 12 explicit indexed mean-NLL explanation', () => {
+  it('names both accumulators, their scaling, and the fallback condition', () => {
+    for (const source of [contract, englishLesson, russianLesson]) {
+      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('`total`');
+      expect(source).toContain('`scaled_mean`');
+      expect(source).toContain('$(m-\\ell_{t_r})/T$');
+      expect(source).toContain('$\\ln(1+\\mathrm{tail})/T$');
+      expect(source).toContain('$m/T-\\ell_{t_r}/T$');
+      expect(source).toContain('$T$');
+    }
+
+    expect(englishLesson).toMatch(
+      /The function returns\s+`scaled_mean` only when a complete row loss or the running value of `total`\s+overflows; otherwise it divides `total` by \$T\$ and returns that quotient\./,
+    );
+    expect(russianLesson).toMatch(
+      /Функция возвращает `scaled_mean` только тогда, когда полная\s+потеря строки или текущее значение `total` переполняется; в остальных случаях\s+она делит `total` на \$T\$ и возвращает полученное частное\./,
+    );
+    expect(englishLesson).not.toContain('target-count-scaled nonnegative contributions');
+    expect(englishLesson).not.toContain('`total / T`');
+    expect(russianLesson).not.toContain('`total / T`');
+  });
+});
 
 describe('Chapter 12 Rust trace parser', () => {
   it('projects all shifts, naive statuses, stable outputs, targets, and errors', () => {

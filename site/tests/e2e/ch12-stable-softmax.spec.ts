@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '12-stable-softmax';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`p_i=\frac{\exp(\ell_i-m)}{\sum_j\exp(\ell_j-m)}, \quad m=\max_j\ell_j`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -40,6 +40,8 @@ interface LocalizedCopy {
   headings: readonly string[];
   historyHeading: string;
   historyClaims: readonly string[];
+  implementationHeading: string;
+  implementationClaims: readonly string[];
   rustCaptions: readonly string[];
   rustLabels: readonly string[];
   diagramTitle: string;
@@ -75,6 +77,13 @@ const copy = {
       "The Transformer reuses softmax for scaled query-key scores inside attention and for next-token predictions. OpenAI's published GPT-2 source shows a stable implementation for attention: subtract the maximum along the last axis before exponentiating, sum the shifted exponentials, and normalize before combining values.",
       "Vaswani et al. define scaled dot-product attention by applying softmax to scaled query-key products before weighting values, and apply a learned linear transform plus softmax to decoder outputs for predicted next-token probabilities. OpenAI's GPT-2 source implements last-axis softmax by subtracting the maximum with retained dimensions, exponentiating, and dividing by the sum with retained dimensions; its attention path applies that helper to scaled masked scores before combining values. The source names those reductions reduce_max and reduce_sum.",
       "In exact arithmetic, adding one constant to every logit leaves softmax unchanged. Maximum shifting preserves that distribution while avoiding raw-exponential failures for the worked rows; log-sum-exp, log-softmax, and fused indexed mean NLL retain training evidence in the log domain when an ordinary probability rounds to zero. This course's arbitrary-axis API, finite-input policy, target layout, allocation rules, and error precedence are local correctness decisions.",
+    ],
+    implementationHeading: 'Implement checked log-domain operations',
+    implementationClaims: [
+      'For T targets, fused indexed mean NLL keeps two accumulators.',
+      'If every row loss and the running sum remain finite, the function divides total by T once and returns the mean in nats per target; this single final division preserves representable subnormal mean rounding.',
+      'In parallel, the fallback scaled_mean adds the two nonnegative parts of each row loss after dividing each part by T:',
+      'The function returns scaled_mean only when a complete row loss or the running value of total overflows; otherwise it divides total by T and returns that quotient.',
     ],
     rustCaptions: [
       'Expose raw-exponential normalization for one ordinary and two extreme finite rows',
@@ -144,6 +153,13 @@ const copy = {
       'В Transformer softmax применяется и к масштабированным оценкам «запрос — ключ» внутри внимания, и при предсказании следующего токена. В опубликованном исходном коде GPT-2 показано устойчивое вычисление для внимания: перед возведением в экспоненту из оценок по последней оси вычитают максимум, затем складывают сдвинутые экспоненты и нормируют их до взвешивания значений.',
       'Васвани и соавторы определяют внимание на основе масштабированного скалярного произведения: к масштабированным произведениям запросов и ключей применяют softmax, после чего полученными весами взвешивают значения. Для получения вероятностей следующего токена к выходам декодера применяют обучаемое линейное преобразование и softmax. В исходном коде GPT-2 от OpenAI softmax по последней оси вычисляется вычитанием максимума с сохранением размерности, возведением в экспоненту и делением на сумму с сохранением размерности; в механизме внимания эта функция применяется к масштабированным и замаскированным оценкам до объединения значений. В коде эти операции обозначены как reduce_max и reduce_sum.',
       'В точной арифметике добавление одной и той же константы ко всем логитам не меняет softmax. Вычитание максимума сохраняет это распределение и устраняет сбои прямого вычисления экспонент для рассматриваемых строк; log-sum-exp, log-softmax и объединённое среднее NLL по индексам целевых классов сохраняют сведения для обучения в логарифмической шкале, даже когда обычная вероятность округляется до нуля. Поддержка произвольной оси, требование конечных входов, расположение целей, правила выделения памяти и порядок ошибок — локальные решения этой реализации.',
+    ],
+    implementationHeading: 'Реализуйте операции с проверкой входных данных в логарифмической шкале',
+    implementationClaims: [
+      'Для T целей объединённое среднее NLL по индексам одновременно ведёт два накопителя.',
+      'Если каждая потеря и текущая сумма остаются конечными, функция один раз делит total на T и возвращает среднее в натах на целевой элемент; одно деление в конце позволяет сохранить представимое субнормальное среднее.',
+      'Параллельно запасной накопитель scaled_mean складывает две части каждой потери после того, как каждая часть поделена на T:',
+      'Функция возвращает scaled_mean только тогда, когда полная потеря строки или текущее значение total переполняется; в остальных случаях она делит total на T и возвращает полученное частное.',
     ],
     rustCaptions: [
       'Показать прямую нормализацию экспонент для одной обычной и двух экстремальных строк с конечными значениями',
@@ -262,6 +278,16 @@ async function expectChapterContent(
   expect(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
+
+  const implementationNodes = page
+    .getByRole('heading', { level: 2, name: localized.implementationHeading, exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.implementationHeading}"]]`,
+    );
+  const implementationText = await readMathAwareText(implementationNodes);
+  for (const claim of localized.implementationClaims) {
+    expect(implementationText).toContain(claim);
+  }
 
   const formula = page
     .locator('.katex-display')
