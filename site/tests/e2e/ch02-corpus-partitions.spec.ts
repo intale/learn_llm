@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '02-corpus-partitions';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const manifest = JSON.parse(
@@ -87,6 +87,12 @@ const copy = {
       test: { title: 'Test', purpose: 'Used once for final evidence' },
     },
     diagramTitle: 'One corpus, three disjoint document sets',
+    fixtureCounts:
+      '8 / 2 / 2 (eight documents in training, two in validation, and two in test)',
+    overlapExplanation:
+      'Different IDs alone do not prove that the underlying text is different.',
+    readingGuide:
+      'Use each region heading to identify its partition, then use the stable ID on each card to verify that every document appears exactly once.',
     documentCountLabel: 'Documents',
     wholeDocument: 'Whole document',
     assignedLabel: 'Assigned documents',
@@ -125,6 +131,12 @@ const copy = {
       test: { title: 'Тестовая', purpose: 'Один раз для итоговой оценки' },
     },
     diagramTitle: 'Один корпус, три непересекающиеся выборки',
+    fixtureCounts:
+      '8 / 2 / 2 (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)',
+    overlapExplanation:
+      'Разные ID сами по себе ещё не означают, что за ними стоит разный текст.',
+    readingGuide:
+      'По заголовку каждой области определите, какая это выборка, а по стабильному ID на каждой карточке проверьте, что каждый документ встречается ровно один раз.',
     documentCountLabel: 'Документов',
     wholeDocument: 'Целый документ',
     assignedLabel: 'Распределено документов',
@@ -160,6 +172,15 @@ async function expectChapterContent(
   for (const heading of Object.values(localized.headings)) {
     await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible();
   }
+  await expect(
+    page.locator('p').filter({ hasText: localized.fixtureCounts }),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('p').filter({ hasText: localized.overlapExplanation }),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('p').filter({ hasText: localized.readingGuide }),
+  ).toHaveCount(1);
 
   const displayedFormula = page.locator('.katex-display');
   await expect(displayedFormula).toHaveCount(1);

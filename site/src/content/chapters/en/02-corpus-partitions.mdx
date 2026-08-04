@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 5,
+  "content_revision": 6,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -156,11 +156,18 @@ validation = [doc-03, doc-04]
 test       = [doc-05, doc-06]
 ```
 
-Now ask a harder question: what is the unit represented by each ID? If two IDs
-name overlapping slices of one source document, distinct labels do not prevent
-shared words or surrounding context from crossing the boundary. This chapter
-therefore assigns the original whole document first. Token units and learning
-windows may be created only afterward and only inside the selected role.
+The repaired lists are safe only if every `doc-*` ID names one complete source
+document. Different IDs alone do not prove that the underlying text is different.
+For example, imagine cutting `north star glows softly` into two windows:
+`window-A = north star glows` and `window-B = star glows softly`. The windows have
+different names, but both contain `star glows`. If the first window is placed in
+training and the second in validation, the two partitions share source text and
+context.
+
+The safe order is therefore: assign the complete source document to exactly one
+partition, tokenize it, and keep every window created from it in that same
+partition. Never create overlapping windows first and distribute them independently,
+because distinct window IDs would hide the shared source context.
 
 The repository fixture contains twelve short UTF-8 documents: English and Russian
 versions of six scenes. A translated pair shares one provenance group and must stay
@@ -207,8 +214,9 @@ those operational properties separately.
 | $a\ne b$ | the intersection condition compares distinct partitions only |
 
 Notice what is absent: there is no required percentage in the formula. The
-appropriate ratio depends on data volume and evaluation goals. Here the invariant
-is exact membership, while `8 / 2 / 2` is merely the checked fixture assignment.
+appropriate ratio depends on data volume and evaluation goals. Here, exact
+membership is the invariant. The `8 / 2 / 2` (eight documents in training, two in
+validation, and two in test) assignment is specific to this teaching example.
 
 > **Key idea:** assign whole source documents before creating token windows; otherwise new IDs can hide shared context across partitions.
 
@@ -315,10 +323,11 @@ nothing.
 ## Verify all twelve assignments at a glance
 
 The three regions below are peer sets, not steps in a left-to-right pipeline.
-Read each card as one indivisible source document. Badges, headings, counts, borders,
-stable IDs, and the summary carry the partition information without relying on
-color. English and Russian partners share a provenance label and appear in the same
-region.
+Read each card as one indivisible source document. Use each region heading to
+identify its partition, then use the stable ID on each card to verify that every
+document appears exactly once. There should be eight training cards, two validation
+cards, and two test cards. English and Russian partners with the same provenance
+label must appear in the same region.
 
 <CorpusPartitionsDiagram labels={diagramLabels} />
 

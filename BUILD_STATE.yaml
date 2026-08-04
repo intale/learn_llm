@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-03T13:26:29Z"
+updated_at: "2026-08-04T07:26:26Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -30090,3 +30090,107 @@ builds:
               - {command: "node scripts/check-course-plan.mjs and ./course audit-host", status: passed, notes: "The plan remains valid with 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39; the host remains free of Rust, Node, Python, browser, and test artifacts except the intentional site/dist release."}
               - {command: "git diff --check and exact staged/canonical scope audit", status: passed, notes: "Whitespace and all 18 product/test checksum pairs pass. The checkpoint contains exactly those outputs plus BUILD_STATE.yaml and DECISIONS.md; dependencies, learner prose, Rust, routes, canonical/alternate links, sitemap membership, analytics, hosting, deployment, and site/dist remain unchanged."}
             notes: "Succeeded. Every localized course page now has one accessible, catalog-driven, persisted light/dark button; the root chooser receives the same pre-paint palette without a second control; system preference remains live until an explicit choice; storage failures are safe; no route or crawl target exists; shared Darcula-inspired surfaces remain readable; and the necessary Chapter 12 full-view evidence reflow satisfies both reading-width and travel budgets."
+
+  - build_id: clarify-ch02-fixture-counts-20260804
+    objective: "Make Chapter 2's fixture counts and diagram-reading guidance explicit and concept-focused in both active locales."
+    status: completed
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 0
+      notes: "One short bilingual content correction with cached Docker content and two-engine rendered checks; no network, paid service, generation service, or dependency change."
+    completion_criteria:
+      - "English and Russian identify the three values as absolute training, validation, and test document counts at the point of use."
+      - "Russian uses natural count wording and no longer calls the fixture assignment a ratio."
+      - "The introductory split example concretely shows how differently named overlapping windows can place shared source context in training and validation, then states the safe document-first order."
+      - "The visualization introduction tells learners how IDs, counts, and provenance demonstrate the partition invariants without discussing color or presentation chrome."
+      - "Contract and both lessons share revision 6; semantic parity, focused regressions, static checks, links, and rendered containment pass."
+      - "The completed correction is persisted in its own commit."
+    steps:
+      - id: clarify-ch02-fixture-counts
+        objective: "Make Chapter 2's 8 / 2 / 2 assignment self-explanatory and replace its UI-oriented color sentence with evidence learners should verify."
+        depends_on: []
+        status: completed
+        inputs:
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "curriculum/README.md"
+          - "curriculum/course-plan.md"
+          - "site/src/i18n/locales.json"
+          - "site/src/i18n/chapter-locales.json"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "rust/data/splits.json"
+          - "rust/data/README.md"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+        outputs:
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "At the symbol-glossary conclusion, 8 / 2 / 2 is immediately expanded in order as eight training documents, two validation documents, and two test documents."
+          - "The English statement remains canonical; Russian is translated directly from revision 6 with natural syntax and uses «распределение», not «соотношение», for these absolute counts."
+          - "The repaired six-ID example explicitly distinguishes IDs from underlying source text with one concrete pair of overlapping windows and explains why whole-document assignment must precede tokenization and window creation."
+          - "The visualization introduction explains how headings, stable IDs, explicit role counts, and provenance labels demonstrate membership, coverage, and paired grouping; it contains no unexplained color or presentation-chrome commentary."
+          - "Outside the three targeted explanatory passages, all numeric values, roles, formula symbols, fixture IDs, pedagogical limits, prose, code, diagrams, and chapter handoffs remain semantically unchanged."
+          - "The exact clarification is asserted in source and rendered output, and both complete pages remain contained at desktop and narrow widths in Chromium and Firefox."
+        validate:
+          - "./course run npm --prefix site run check:contract -- ../curriculum/chapters/02-corpus-partitions.md"
+          - "./course run npm --prefix site run check:chapter -- --locale en --chapter 02-corpus-partitions"
+          - "./course run npm --prefix site run check:chapter -- --locale ru --chapter 02-corpus-partitions"
+          - "./course run npm --prefix site run check:parity -- --chapter 02-corpus-partitions"
+          - "./course run npm --prefix site run test -- --run tests/02-corpus-partitions-diagram.test.ts"
+          - "./course run npm --prefix site run build"
+          - "./course run npm --prefix site run test:links"
+          - "Docker Playwright 1.61.1 Chapter 2 desktop and narrow checks in Chromium and Firefox"
+          - "./course audit-host"
+          - "git diff --check and exact staged/canonical scope audit"
+        cost: {class: medium, notes: "Small prose and regression edit; complete localized rendered review in two cached browser engines uses moderate local CPU, with no network or paid service."}
+        runs:
+          - run_id: 20260804T064856Z-clarify-ch02-fixture-counts-01
+            started_at: 2026-08-04T06:48:56Z
+            finished_at: 2026-08-04T07:26:26Z
+            status: succeeded
+            input_fingerprint:
+              git: 0f86c16370e4e9fa115439cd4b64c65474e2baae
+              files: {AGENTS.md: "sha256:ac255c3e8879d6d3028db88db23c3f2e4238410cb2e3ba6083c99210e8f0fb99", SKILLS.md: "sha256:0fd6f27f0d7b3cc3e606f7dd4365f028df6d1d4b3df14737d73cca0ea1151f84", BUILD_STATE.yaml: "sha256:5814b3d78a5c766ccb3edb4f03fe86bc89a6a6b28eabc2ee091acc1d7ae6ba48", DECISIONS.md: "sha256:89c1d3e0fb1f8b14b769e9d89ce9b85b59d5cac616c1923ffeb8db0725b2fdf6", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", contract: "sha256:fea8f04f51b1853d0301bc777d3cdcea16c982e506faaa31da2a943878b5ee7e", english-lesson: "sha256:6153beeea2ed915ddc59555ae35ad8e60881466b244e3fde94f97ae2823c489f", russian-lesson: "sha256:2a9f4d8d6df8eefc2302adcd578c8f976c3dd608b56bcba401a856236db3754d", source-test: "sha256:59678a434c3b25b6ea96b798f7e6729deb9544165de52e682d12cad81495a94e", browser-test: "sha256:8d931b363699e40da6fa102bb3309823523c8e5c829965898213299149123ab60"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Node 22.12.0/npm 10.9.0 and exact Playwright 1.61.1 remain Docker-only."
+              external: "None; source, localization, static, and rendered checks use committed or cached local inputs."
+            staging_dir: .build/runs/20260804T064856Z-clarify-ch02-fixture-counts-01/
+            commands:
+              - "Verify the clean 0f86c16 checkpoint and inactive scheduler, read the current contract and both revision-5 lessons, trace the counts to the frozen manifest, apply the localization workflow, hash material inputs, create the run staging tree, and claim the correction before product edits."
+              - "Freeze the revision-6 candidate under the run publish tree, validate its manifest, run repeated staged content/parity/type/static/link checks after each user-requested clarity extension, and build exact Node/Playwright staged images."
+              - "Run the focused five-case source suite and the five-case Chapter 2 plus rendered-layout suite concurrently in exact Playwright 1.61.1 Chromium and Firefox."
+              - "Correct the English parenthetical adjacency exposed by the first focused replay, freeze the replacement hashes, pass the staged review again, and rerun the unchanged five-case source and two-engine browser matrices cleanly."
+              - "Publish all five candidate files byte-for-byte with apply_patch, verify each against the frozen manifest, run the complete canonical Docker gate, and replay the focused source and rendered checks in Chromium and Firefox."
+              - "Remove the exact pre-existing ignored root Cargo target cache after verifying that no process used it, then pass the Docker-only host-artifact audit, whitespace check, plan validation, and seven-file checkpoint scope audit."
+            artifacts:
+              - {path: "docker-image:learn-llm-review:20260804t064856z-clarify-ch02-fixture-counts-01", sha256: "c1f3fad490fab6665ef943504f15054a394f389511cc0f5ec000bd6d006dec17", notes: "Final isolated staged static site after localized content, parity, type, build, and link validation."}
+              - {path: "docker-image:learn-llm-ch02:20260804-staged", sha256: "dd64cdd36e8dc791b933dca3c0837caed8a147f279dbb5469555d8be81160c36", notes: "Checksum-frozen staged workspace and static output used by focused source and browser validation."}
+              - {path: "docker-image:learn-llm-ch02-browser:20260804-staged", sha256: "cbbd3a99fa01019ae79e6d4c69306b7a0fabf4e1d08ffeca6b6b7d1053833ecd", notes: "Final staged workspace layered onto exact Playwright 1.61.1 Noble digest sha256:5b8f294a."}
+              - {path: ".build/runs/20260804T064856Z-clarify-ch02-fixture-counts-01/publish.sha256", sha256: "979a8da4bdcfc26b7c2d3af8fa384f00d032aa15bd5d1bdf20123b52caac2b42", notes: "Frozen five-file revision-6 contract, lessons, and regression manifest; canonical outputs match every staged SHA-256."}
+              - {path: ".build/runs/20260804T064856Z-clarify-ch02-fixture-counts-01/validation/localization-review.md", sha256: "1babea8062694a97db9f986935b3167377a3826acf067c9d5f3ab957159b9af9", notes: "Direct-English Russian meaning, terminology, anti-calque, monolingual, accessibility, role-neutrality, and rendered-layout review for all three revised passages."}
+              - {path: ".build/runs/20260804T064856Z-clarify-ch02-fixture-counts-01/validation/ch02-rendered-review.spec.ts", sha256: "b6bd2ac7b7d9929bca7ecf61487cb086ac0aaa031693df74b62b17aa0279a188", notes: "Run-local desktop, narrow, paragraph-containment, diagram-box full-view, Escape, and mobile-fallback browser probe."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "7c4a933a2f3944dc33131b070fb5f16aaa7dfcfa8fd3bad7d6aeae42b166a526", notes: "Post-publication canonical workspace after complete Rust and static-site validation plus the focused source replay."}
+              - {path: "docker-image:learn-llm-ch02-browser:20260804-canonical", sha256: "0e47888273320777a8aaa10c54ccceb289ab5325f7a010fd2727ea28268b1f4d", notes: "Canonical published workspace layered onto exact Playwright 1.61.1 for post-publication Chromium and Firefox replays."}
+            validation:
+              - {command: "Repository, scheduler, source, localization, ownership, and cost preflight", status: passed, notes: "The tree is clean; the prior theme build is completed and committed; no active or running work owns these outputs; the 8 / 2 / 2 values are verified absolute train/validation/test document counts from the twelve-document paired fixture; and cached medium validation fits the unlimited budget without network or paid services."}
+              - {command: "./course review 20260804T064856Z-clarify-ch02-fixture-counts-01 --check", status: passed, notes: "The final role-neutral staged prose passes localized content and parity gates, Astro reports 0 errors/warnings/hints across 215 files, 85 pages build, and 2,447 local references plus SEO/sitemap/analytics artifacts validate."}
+              - {command: "Final staged focused Vitest plus Chromium/Firefox Chapter 2 and rendered review, first attempt", status: failed, notes: "All Russian and shared cases passed, but the English source and rendered assertions correctly rejected an intervening word in `8 / 2 / 2` counts (...), which violated the user's requirement that the explanatory parenthesis follow the notation immediately. No candidate was published or checkpointed complete; the wording and wrap-robust source assertion are being corrected in this same running run."}
+              - {command: "Initial run-local full-view containment probe", status: failed, notes: "The diagnostic incorrectly required every vertically scrollable fullscreen descendant to remain inside the viewport frame. This test-only condition exceeded the diagram contract and implicated no product output; it was replaced with bounded-box content containment and hidden/clip rejection."}
+              - {command: "Corrected run-local Chromium and Firefox rendered review", status: passed, notes: "Both engines pass 2/2 locale cases at 1,280 x 900 and 390 x 844, including exact clarification visibility, paragraph/page containment, every unchanged full-view diagram box, native Escape, and the narrow hidden-control fallback."}
+              - {command: "Final staged focused source regression", status: passed, notes: "All 5 checks pass after the parenthesis-adjacency correction, including exact revision-6 English/Russian meanings, role-neutral overlapping-window order, explicit diagram evidence, frozen fixture data, and rejection of the former implicit/color wording."}
+              - {command: "Final staged Chromium and Firefox Chapter 2 plus rendered-layout matrices", status: passed, notes: "Each engine passes all 5 scenarios: both complete locale pages at desktop and narrow widths, locale/index navigation, exact count/overlap/diagram explanations, formula and Rust evidence, containment, unchanged full-view boxes, Escape, and mobile fallback."}
+              - {command: "Frozen manifest, direct-English localization review, and canonical byte identity", status: passed, notes: "All five staged files pass their manifest hashes, every canonical file is byte-identical, and revision 6 preserves formula, fixture membership, code, diagrams, routes, and handoffs while making only the three declared passages explicit."}
+              - {command: "./course check", status: passed, notes: "The published canonical tree passes Rust formatting and the complete workspace test suite, Astro reports 0 errors/warnings/hints across 215 files, both 80-source content gates pass, 85 pages build, and 2,447 local references plus 85 SEO/sitemap/Analytics routes validate."}
+              - {command: "Canonical focused source plus Chromium and Firefox rendered replays", status: passed, notes: "The canonical source suite passes 5/5 and the two browser engines independently pass 5/5 Chapter 2 and run-local layout scenarios."}
+              - {command: "./course audit-host", status: passed, notes: "After removing the exact rebuildable pre-existing root target cache, the host contains no Rust, Node, Python, browser, or test artifacts; site/dist remains the intentional static-release exception."}
+              - {command: "git diff --check, course-plan validation, and exact checkpoint scope audit", status: passed, notes: "Whitespace and the scheduler ledger validate; the checkpoint contains exactly the contract, both lessons, two focused tests, BUILD_STATE.yaml, and DECISIONS.md. No dependency, Rust, diagram implementation/style, route, SEO, analytics, hosting, deployment, or site/dist output changed."}
+            notes: "Succeeded. Chapter 2 revision 6 now explains the overlapping-window leak with concrete shared text and a role-neutral document-first order, expands 8 / 2 / 2 immediately as training/validation/test document counts, and replaces UI/color commentary with the exact heading, ID, count, and provenance evidence learners should verify. Canonical English and direct-English Russian pass independent content review and complete staged/canonical source and two-engine rendered validation."

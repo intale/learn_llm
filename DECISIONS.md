@@ -12455,6 +12455,98 @@ the existing analytics initializer and this small pre-paint bootstrap together.
 `add-persistent-dark-theme`, and
 `20260803T121222Z-add-persistent-dark-theme-01`.
 
+## 2026-08-04 - Keep Chapter 2 diagram guidance on partition evidence
+
+**Status:** Accepted scope extension for `clarify-ch02-fixture-counts-20260804`.
+
+**Context:** While reviewing the active Chapter 2 correction, the user found a
+visualization introduction that inventories badges, borders, and other chrome
+and says they work “without relying on color.” The diagram does use visual
+accents to distinguish roles, and the sentence originated as accessibility
+guidance, but neither fact helps a learner understand corpus partitions. The
+unexplained reference instead diverts attention to presentation implementation.
+
+**Decision:** In the same unpublished Chapter 2 revision, replace that sentence
+in canonical English with direct reading instructions: use each region heading
+to identify a partition, stable document IDs to verify exact coverage, explicit
+role counts to verify the accepted assignment, and provenance labels to verify
+that paired documents remain together. Translate the current English meaning
+directly into natural Russian. Do not mention color, accessibility machinery,
+or diagram chrome in learner prose; keep the diagram's accessible redundant
+cues unchanged in the implementation.
+
+**Consequences:** The diagram becomes easier to read as evidence for the same
+coverage, disjointness, and provenance invariants. No fixture membership,
+formula, code, diagram component, styling, accessibility behavior, route,
+dependency, build, hosting, or deployment changes. Focused source and rendered
+checks now cover both targeted prose corrections under content revision 6.
+
+**Affected build, step, and run:** `clarify-ch02-fixture-counts-20260804`,
+`clarify-ch02-fixture-counts`, and
+`20260804T064856Z-clarify-ch02-fixture-counts-01`.
+
+## 2026-08-04 - Explain Chapter 2 leakage with one concrete overlap
+
+**Status:** Accepted scope extension for `clarify-ch02-fixture-counts-20260804`.
+
+**Context:** The user also found the introductory question about what “source
+unit” an ID represents too compressed to understand. It asks the learner to
+infer, in one paragraph, that labels and underlying text are different, that
+two separately named excerpts may overlap, that placing those excerpts in
+different roles leaks context, and that document assignment must happen before
+window creation.
+
+**Decision:** Replace the abstract passage in canonical English with a concrete
+overlap cut from `north star glows softly`: two differently named windows both
+contain `star glows`, so placing one in training and one in validation makes the
+roles share source text. Then state the safe order explicitly: assign the whole
+source document to exactly one role, tokenize it, and create all windows only
+inside that role. Translate this current explanation directly into natural
+Russian and add source/rendered regression coverage. Keep the later historical
+Rust contrast because it turns the same idea into executable evidence rather
+than merely repeating prose.
+
+**Consequences:** Learners receive the missing causal bridge from distinct IDs
+to hidden shared context before the formal set invariant. The fixture, role
+membership, formula, code, diagram, historical evidence, routes, dependencies,
+build, hosting, and deployment remain unchanged. Revision 6 now contains three
+related Chapter 2 clarity corrections completed and reviewed together before
+publication.
+
+**Affected build, step, and run:** `clarify-ch02-fixture-counts-20260804`,
+`clarify-ch02-fixture-counts`, and
+`20260804T064856Z-clarify-ch02-fixture-counts-01`.
+
+## 2026-08-04 - Explain Chapter 2 fixture counts at their later point of use
+
+**Status:** Accepted for `clarify-ch02-fixture-counts-20260804`.
+
+**Context:** Chapter 2 first demonstrates partition membership with six neutral
+IDs and later introduces the repository's twelve-document bilingual fixture. In
+the symbol-glossary conclusion, the bare `8 / 2 / 2` notation asks the learner
+to recover both a different example and the train/validation/test order at once.
+The Russian word «соотношение» additionally suggests proportions even though
+the values are absolute document counts.
+
+**Decision:** Advance the Chapter 2 contract and both active locale lessons to
+content revision 6. In canonical English, expand the notation immediately as
+eight documents in training, two in validation, and two in test. Translate that
+current English meaning directly into natural Russian, call it a
+«распределение», and identify the same three choices inside parentheses at the
+same point. Add source and rendered regression assertions for the exact
+clarification.
+
+**Consequences:** The learner no longer has to infer what each position means
+from an earlier paragraph. Formula notation, fixture membership, Rust evidence,
+diagram data and labels, routes, cheat sheets, metadata other than the content
+revision, dependencies, build, hosting, and deployment remain unchanged. Both
+complete locale pages require staged and canonical content checks plus desktop
+and narrow Chromium/Firefox review because the sentence length changes.
+
+**Affected build, step, and run:** `clarify-ch02-fixture-counts-20260804`,
+`clarify-ch02-fixture-counts`, and
+`20260804T064856Z-clarify-ch02-fixture-counts-01`.
+
 ## 2026-08-03 - Theme acceptance includes useful reading width
 
 **Status:** Accepted for `20260803T121222Z-add-persistent-dark-theme-01`.

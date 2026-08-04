@@ -33,6 +33,16 @@ const manifest = JSON.parse(
   validation: string[];
   test: string[];
 };
+const lessonSources = {
+  en: readFileSync(
+    resolve(process.cwd(), 'src/content/chapters/en/02-corpus-partitions.mdx'),
+    'utf8',
+  ),
+  ru: readFileSync(
+    resolve(process.cwd(), 'src/content/chapters/ru/02-corpus-partitions.mdx'),
+    'utf8',
+  ),
+};
 
 function contractVisualizationId(): string {
   const source = readFileSync(
@@ -156,6 +166,42 @@ function blankLabelAt(
 }
 
 describe('corpus-partitions diagram data', () => {
+  it('explains the fixture counts and diagram evidence in every locale', () => {
+    expect(lessonSources.en).toContain('"content_revision": 6');
+    expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
+      '`8 / 2 / 2` (eight documents in training, two in validation, and two in test)',
+    );
+    expect(lessonSources.ru).toContain('"content_revision": 6');
+    expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
+      '`8 / 2 / 2` (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)',
+    );
+    expect(lessonSources.ru).not.toContain('соотношение `8 / 2 / 2`');
+    expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
+      'Use each region heading to identify its partition, then use the stable ID on each card to verify that every document appears exactly once.',
+    );
+    expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
+      'По заголовку каждой области определите, какая это выборка, а по стабильному ID на каждой карточке проверьте, что каждый документ встречается ровно один раз.',
+    );
+    expect(lessonSources.en).not.toContain('without relying on color');
+    expect(lessonSources.ru).not.toContain('без опоры на цвет');
+    expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
+      'Different IDs alone do not prove that the underlying text is different. For example, imagine cutting `north star glows softly` into two windows: `window-A = north star glows` and `window-B = star glows softly`.',
+    );
+    expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
+      'assign the complete source document to exactly one partition, tokenize it, and keep every window created from it in that same partition.',
+    );
+    expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
+      'Разные ID сами по себе ещё не означают, что за ними стоит разный текст. Например, строку `north star glows softly` можно разбить на два окна: `window-A = north star glows` и `window-B = star glows softly`.',
+    );
+    expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
+      'сначала целиком отнести исходный документ ровно к одной выборке, затем токенизировать его, а все созданные из него окна оставить в той же выборке.',
+    );
+    expect(lessonSources.en).not.toContain('learning window');
+    expect(lessonSources.ru).not.toContain('обучающие окна');
+    expect(lessonSources.en).not.toContain('what is the unit represented by each ID?');
+    expect(lessonSources.ru).not.toContain('какую исходную единицу обозначает каждый ID?');
+  });
+
   it('matches the contract and exact frozen Rust fixture', () => {
     expect(corpusPartitionsDiagramId).toBe('corpus-partitions');
     expect(corpusPartitionsDiagramId).toBe(contractVisualizationId());
