@@ -176,7 +176,7 @@ mod tests {
     fn frozen_fixture_retains_its_allowed_provenance() {
         let fixture = frozen_metric_fixture().unwrap();
 
-        assert_eq!(fixture.corpus_checksum(), "fnv1a64:04786e7303f1dfd6");
+        assert_eq!(fixture.corpus_checksum(), "fnv1a64:723b071980ae8a22");
         assert_eq!(fixture.split_strategy(), "fixed-paired-document-holdout-v1");
         assert_eq!(
             fixture

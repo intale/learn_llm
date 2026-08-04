@@ -23,9 +23,9 @@ use llm_from_scratch::training::batch::{
     BatchDocument, BatchError, BatchOrder, MiniBatchConfig, MiniBatchEpoch,
 };
 
-const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
 const SPLIT_MANIFEST_SOURCE: &str = include_str!("../../../data/splits.json");
-const EXPECTED_CORPUS_CHECKSUM: &str = "fnv1a64:04786e7303f1dfd6";
+const EXPECTED_CORPUS_CHECKSUM: &str = "fnv1a64:723b071980ae8a22";
 const TRAIN_DOCUMENT_IDS: [&str; 8] = [
     "en-river-dawn",
     "ru-river-dawn",
@@ -209,7 +209,7 @@ fn build_epoch(
 }
 
 fn prepare_data() -> Result<PreparedData, FixtureError> {
-    let corpus = Corpus::from_utf8(CORPUS_BYTES)?;
+    let corpus = Corpus::from_json(CORPUS_BYTES)?;
     let manifest = SplitManifest::from_json(SPLIT_MANIFEST_SOURCE)?;
     let partitions = manifest.partition(&corpus)?;
     require(

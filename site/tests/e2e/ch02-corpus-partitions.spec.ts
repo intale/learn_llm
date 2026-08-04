@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '02-corpus-partitions';
-const contentRevision = 6;
+const contentRevision = 7;
 const formulaLatex = String.raw`\mathcal{D}=\mathcal{D}_{tr}\mathbin{\dot\cup}\mathcal{D}_{va}\mathbin{\dot\cup}\mathcal{D}_{te},\quad \mathcal{D}_{a}\cap\mathcal{D}_{b}=\varnothing\;(a\ne b)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const manifest = JSON.parse(
@@ -93,6 +93,10 @@ const copy = {
       'Different IDs alone do not prove that the underlying text is different.',
     readingGuide:
       'Use each region heading to identify its partition, then use the stable ID on each card to verify that every document appears exactly once.',
+    formatBoundary:
+      'Because Corpus::from_json receives bytes, it also rejects invalid UTF-8 at this boundary; SplitManifest::from_json receives a Rust string, which is already valid UTF-8.',
+    semanticBoundary:
+      'Those format checks do not validate whether the document assignments satisfy the train/validation/test invariants.',
     documentCountLabel: 'Documents',
     wholeDocument: 'Whole document',
     assignedLabel: 'Assigned documents',
@@ -137,6 +141,10 @@ const copy = {
       'Разные ID сами по себе ещё не означают, что за ними стоит разный текст.',
     readingGuide:
       'По заголовку каждой области определите, какая это выборка, а по стабильному ID на каждой карточке проверьте, что каждый документ встречается ровно один раз.',
+    formatBoundary:
+      'Corpus::from_json получает байты, поэтому на этой границе также отклоняет недопустимую последовательность байтов UTF-8. SplitManifest::from_json получает строку Rust, которая уже содержит корректный UTF-8.',
+    semanticBoundary:
+      'Эти проверки формата не определяют, соблюдены ли инварианты распределения документов между обучающей, валидационной и тестовой выборками.',
     documentCountLabel: 'Документов',
     wholeDocument: 'Целый документ',
     assignedLabel: 'Распределено документов',
@@ -180,6 +188,12 @@ async function expectChapterContent(
   ).toHaveCount(1);
   await expect(
     page.locator('p').filter({ hasText: localized.readingGuide }),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('p').filter({ hasText: localized.formatBoundary }),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('p').filter({ hasText: localized.semanticBoundary }),
   ).toHaveCount(1);
 
   const displayedFormula = page.locator('.katex-display');

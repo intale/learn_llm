@@ -25,7 +25,7 @@ export interface LanguageModelMetricsAggregate {
 }
 
 export interface LanguageModelMetricsProvenance {
-  readonly corpusChecksum: 'fnv1a64:04786e7303f1dfd6';
+  readonly corpusChecksum: 'fnv1a64:723b071980ae8a22';
   readonly splitStrategy: 'fixed-paired-document-holdout-v1';
   readonly tokenizerLayout: LanguageModelMetricsNumericLexeme;
   readonly requestedMerges: LanguageModelMetricsNumericLexeme;
@@ -379,7 +379,7 @@ export function parseLanguageModelMetricsTrace(stdout: string): LanguageModelMet
     provenancePattern,
   );
   const provenanceConstants = [
-    'fnv1a64:04786e7303f1dfd6',
+    'fnv1a64:723b071980ae8a22',
     'fixed-paired-document-holdout-v1',
     '1',
     '8',
@@ -412,7 +412,7 @@ export function parseLanguageModelMetricsTrace(stdout: string): LanguageModelMet
     );
   });
   const provenance: LanguageModelMetricsProvenance = {
-    corpusChecksum: 'fnv1a64:04786e7303f1dfd6',
+    corpusChecksum: 'fnv1a64:723b071980ae8a22',
     splitStrategy: 'fixed-paired-document-holdout-v1',
     tokenizerLayout: integerLexeme(provenanceMatch[3], 6, 'provenance', 'tokenizer_layout'),
     requestedMerges: integerLexeme(provenanceMatch[4], 6, 'provenance', 'requested_merges'),

@@ -1,4 +1,4 @@
-corpus checksum: fnv1a64:04786e7303f1dfd6
+corpus checksum: fnv1a64:723b071980ae8a22
 statistics source: train only
 training documents: ["en-river-dawn", "ru-river-dawn", "en-clock-shop", "ru-clock-shop", "en-rain-library", "ru-rain-library", "en-bee-garden", "ru-bee-garden"]
 held out from trainer: validation=2 test=2

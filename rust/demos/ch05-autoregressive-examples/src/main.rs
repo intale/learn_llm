@@ -7,7 +7,7 @@ use llm_from_scratch::data::{CausalWindowConfig, EncodedCorpusPartitions};
 use llm_from_scratch::tokenizer::bpe::BpeTokenizer;
 use llm_from_scratch::tokenizer::bpe_trainer::BpeTrainer;
 
-const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
 const SPLIT_MANIFEST: &str = include_str!("../../../data/splits.json");
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -62,7 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         short_tail.tokens()
     );
 
-    let corpus = Corpus::from_utf8(CORPUS_BYTES)?;
+    let corpus = Corpus::from_json(CORPUS_BYTES)?;
     let manifest = SplitManifest::from_json(SPLIT_MANIFEST)?;
     let partitions = manifest.partition(&corpus)?;
     let training = BpeTrainer::new(8).train(&partitions)?;

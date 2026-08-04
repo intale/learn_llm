@@ -468,7 +468,7 @@ mod tests {
         let values = Tensor::from_vec(vec![3], vec![0.1, 0.2, 0.3]).unwrap();
         let mean = mean_axis(&values.view(), 0, false).unwrap();
 
-        assert_eq!(mean.shape(), []);
+        assert_eq!(mean.shape(), &[] as &[usize]);
         assert_eq!(mean.len(), 1);
         assert_close(mean.as_slice()[0], 0.2);
         assert_close(

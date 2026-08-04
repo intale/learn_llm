@@ -97,7 +97,7 @@ describe("Chapter 39 Rust trace parser", () => {
   it("preserves every frozen pipeline boundary and final proof", () => {
     const trace = parseEndToEndLlmTrace(fixture);
     expect(trace.data).toEqual({
-      checksum: "fnv1a64:04786e7303f1dfd6",
+      checksum: "fnv1a64:723b071980ae8a22",
       split: "fixed-paired-document-holdout-v1",
       train: "8",
       validation: "2",
@@ -353,7 +353,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-2 English/Russian lesson set", () => {
+  it("publishes one exact revision-3 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -376,14 +376,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 2,
+      content_revision: 3,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first translation of frozen English revision 2",
+      "direct, meaning-first refresh of frozen English revision 3",
     );
 
     const localizedRecords = [
@@ -448,7 +448,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 2,
+      content_revision: 3,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
@@ -458,7 +458,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 2,
+      content_revision: 3,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
@@ -615,10 +615,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the local one-use test gate, and exact replay boundaries."',
       ],
       ru: [
-        'title: "Проследите односторонний путь от текста к генерации"',
+        'title: "Поздние результаты не меняют ранние этапы"',
         'description: "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем."',
         'decodedText: "кириллическая т и два сгенерированных пробела"',
         'spaceMarker: "␠ — сгенерированный пробел."',
+        'evaluationBatches: "Мини-пакеты оценки по выборкам"',
+        'generationWork: "Префиксы / порядок прямых проходов"',
+        'attentionScores: "Ячейки оценок: кэш / полный пересчёт"',
+        'cachedMatch: "решения с кэшем и полным пересчётом префикса совпадают"',
         'pipeline: "Числа задают порядок; двойные рамки — обучение без контрольных выборок, выбор по валидации, однократная оценка и точное воспроизведение."',
       ],
     };

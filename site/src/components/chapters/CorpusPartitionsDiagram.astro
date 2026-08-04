@@ -29,7 +29,7 @@ const repositoryRoot =
     : workingDirectory;
 const dataDirectory = nodePath.join(repositoryRoot, 'rust', 'data');
 const [corpusSource, manifestSource] = await Promise.all([
-  readFile(nodePath.join(dataDirectory, 'tiny-bilingual-corpus.txt'), 'utf8'),
+  readFile(nodePath.join(dataDirectory, 'tiny-bilingual-corpus.json'), 'utf8'),
   readFile(nodePath.join(dataDirectory, 'splits.json'), 'utf8'),
 ]);
 const partitions = createCorpusPartitionsDiagramData(

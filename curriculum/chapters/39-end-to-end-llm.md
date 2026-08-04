@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 39,
   "objective": {
     "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
@@ -122,7 +122,7 @@
       "rust/demos/ch39-end-to-end-llm/src/lib.rs",
       "rust/demos/ch39-end-to-end-llm/src/main.rs"
     ],
-    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:04786e7303f1dfd6 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
+    "expected_output": "chapter=39-end-to-end-llm\ndata=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]\ntokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]\nmodel=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]\ntraining=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true\ntest=access:1 documents:[en-winter-window,ru-winter-window] windows:436 batches:4 targets:1744 fingerprint:fnv1a64:77b836869f848986 decoder:3.866087547 bigram:3.981342714 gap:0.115255167 decoder_wins:true no_grad:true unchanged:true\ncheckpoint=bytes:30994 header:2418 records:34 checksum:fnv1a64:67aeaaea603b291f selected:32 optimizer:32 rng:0x0000000000000026 bytes_roundtrip:true model_bits_exact:true optimizer_bits_exact:true tokenizer_exact:true logit_probe:At logit_probe_ids:[67,118] prompt_logits_bitwise:true\ngeneration=prompt:A prompt_ids:[67] temperature:0.8 top_k:4 seed:38 generated:[260,34,34] text:\"т  \" prefixes:[1,2,3] stop:token-limit prefill:1 decode:2 final_cache:3 cached_scores:6 calculated_complete_prefix_scores:14 rng_initial:0x0000000000000026 rng_final:0xdaa66d2c7ddf7465 tokens_exact:true decisions_bitwise:true rng_exact:true\nhistory=targets:1744 bigram_context:1 decoder_context:4 bigram:3.981342714 decoder:3.866087547 gap:0.115255167\nnext=inspect, modify, test, and extend the complete decoder\n"
   },
   "visualization": {
     "decision": "useful",
@@ -174,19 +174,19 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 2 is a direct, meaning-first translation of frozen English revision 2 with SHA-256 a31f722286c1e922169f6a889aecc939cf4c097aa34d0a6ba1178a721719fc9b; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}.",
+    "Russian revision 3 is a direct, meaning-first refresh of frozen English revision 3 with SHA-256 5f76249f41a75bb529e2cb135b0af45336ce8cefa97182a95b06ab7ada2dc360; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Russian prose and accessibility wording clarify the unchanged English semantics; in the model evidence, only the ordinary JSON corpus path's raw-byte checksum changes.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 2 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 3 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
-      "input": "Parse rust/data/tiny-bilingual-corpus.txt with rust/data/splits.json",
-      "expected": "The checksum is fnv1a64:04786e7303f1dfd6 and the immutable split contains eight training, two validation, and two test documents."
+      "input": "Parse rust/data/tiny-bilingual-corpus.json with rust/data/splits.json",
+      "expected": "The checksum is fnv1a64:723b071980ae8a22 and the immutable split contains eight training, two validation, and two test documents."
     },
     {
       "input": "Learn eight BPE merges and encode every partition",
@@ -381,7 +381,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 2 is the canonical semantic source; Russian revision 2 is
+English revision 3 is the canonical semantic source; Russian revision 3 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.

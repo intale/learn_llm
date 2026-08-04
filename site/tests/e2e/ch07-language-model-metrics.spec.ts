@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '07-language-model-metrics';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`\mathcal{L}=-\frac{1}{N}\sum_{t=1}^{N}\log p_t(z_t), \quad \operatorname{PPL}=\exp(\mathcal{L})`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -357,7 +357,7 @@ async function expectChapterContent(
     ...localized.provenanceLabels,
   ]);
   await expect(diagram.locator('.provenance-facts dd')).toHaveText([
-    'fnv1a64:04786e7303f1dfd6',
+    'fnv1a64:723b071980ae8a22',
     'fixed-paired-document-holdout-v1',
     '1',
     '8',

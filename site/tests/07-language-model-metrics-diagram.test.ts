@@ -186,7 +186,7 @@ describe('language-model-metrics Rust trace parser', () => {
         perplexity: { lexeme: '2.828427124746', value: 2.828427124746 },
       },
       provenance: {
-        corpusChecksum: 'fnv1a64:04786e7303f1dfd6',
+        corpusChecksum: 'fnv1a64:723b071980ae8a22',
         splitStrategy: 'fixed-paired-document-holdout-v1',
         tokenizerLayout: { lexeme: '1', value: 1 },
         requestedMerges: { lexeme: '8', value: 8 },
@@ -490,7 +490,7 @@ describe('language-model-metrics Rust trace parser', () => {
     },
     {
       name: 'corpus checksum',
-      search: 'corpus_checksum=fnv1a64:04786e7303f1dfd6',
+      search: 'corpus_checksum=fnv1a64:723b071980ae8a22',
       replacement: 'corpus_checksum=fnv1a64:14786e7303f1dfd6',
       line: 6,
       expectedRecord: 'provenance',

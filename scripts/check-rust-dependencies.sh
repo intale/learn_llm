@@ -6,7 +6,19 @@ readonly repository_root
 
 # Supporting crates must be listed explicitly after their rationale is recorded
 # in DECISIONS.md. Every transitive package is checked too.
-readonly -a allowed_supporting_crates=()
+readonly -a allowed_supporting_crates=(
+  itoa
+  memchr
+  proc-macro2
+  quote
+  serde
+  serde_core
+  serde_derive
+  serde_json
+  syn
+  unicode-ident
+  zmij
+)
 
 # These crates are called out separately to make a concept-policy violation
 # clearer than a merely undeclared supporting dependency.
@@ -74,4 +86,4 @@ if ((${#undeclared_dependencies[@]} > 0)); then
   exit 1
 fi
 
-printf 'Rust dependency policy passed: workspace packages only; no external crates.\n'
+printf 'Rust dependency policy passed: every external crate is allowlisted; concept denylist clear.\n'

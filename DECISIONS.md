@@ -12784,3 +12784,139 @@ dependency are updated explicitly so no scope or network input is hidden.
 `codify-supporting-library-boundary`,
 `replace-ch02-manifest-parser-with-serde`, and
 `20260804T100409Z-codify-supporting-library-boundary-01`.
+
+## 2026-08-04 - Use serde only for Chapter 2 manifest syntax
+
+**Status:** Accepted for `replace-ch02-manifest-parser-with-serde`.
+
+**Context:** `SplitManifest::from_json` contains about 170 lines of handwritten
+object, array, string, integer, whitespace, field-dispatch, and diagnostic code.
+Those mechanics implement standard JSON rather than the chapter's document-level
+partition concept. The bespoke parser also rejects every JSON escape, creating a
+nonstandard restriction that contributes no useful learner evidence.
+
+**Decision:** Replace only that general JSON machinery with a private
+`Deserialize` wire structure and `serde_json::from_str`. Require all six manifest
+fields, reject unknown and duplicate fields, preserve the public
+`SplitManifest::from_json(&str) -> Result<SplitManifest, CorpusError>` boundary,
+and map deserialization failures to the stable course-owned prefix
+`invalid split manifest JSON:`. Accept standard JSON escapes intentionally and do
+not treat serde_json's complete diagnostic wording as public course behavior.
+
+Keep the `%% document` corpus format and loader explicit. Keep FNV drift
+detection, supported schema and strategy, nonempty roles, known and unique IDs,
+complete coverage, source order, intact provenance groups, borrowed partition
+views, and the training-only handoff explicit in `partition`. These are the
+chapter's taught decisions and invariants, not format plumbing.
+
+Use serde 1.0.229 with its `derive` feature and serde_json 1.0.151. The locked
+transitive graph is serde_core 1.0.229, serde_derive 1.0.229, itoa 1.0.18, memchr
+2.8.3, proc-macro2 1.0.107, quote 1.0.47, syn 3.0.3, unicode-ident 1.0.24, and
+zmij 1.0.23. Allowlist exactly those package names while retaining the
+concept-implementing-crate denylist.
+
+**Consequences:** Standard escaped manifest strings now deserialize and then face
+the same course-owned semantic checks. Malformed syntax, unknown, missing,
+duplicate, mistyped, trailing-comma, and trailing-content inputs still fail.
+Corpus bytes, frozen membership, checksum, demo output, trace, diagram evidence,
+routes, and downstream APIs do not change.
+
+serde_json also provides primitive-to-JSON-value comparison implementations.
+That makes five existing `assert_eq!(shape_or_strides, [])` test expressions
+type-ambiguous even though tensor behavior is unchanged. The migration therefore
+owns those five test-only expressions in `tensor/ops.rs`, `tensor/storage.rs`, and
+`tensor/view.rs` and gives the empty expected slice an explicit `usize` type.
+This necessary integration scope was recorded after the first focused compile and
+before editing those files.
+
+Chapter 2 advances to one same-revision English/Russian pair that states the
+library boundary accurately. English remains canonical; Russian is refreshed
+directly from that exact revision with the localization workflow. The initial
+lock resolution and crate fetch are the run's only network phase; all remaining
+Cargo validation is locked and offline inside Docker.
+
+**Affected build, step, and run:**
+`repair-explicit-wording-findings-20260804`,
+`replace-ch02-manifest-parser-with-serde`, and
+`20260804T101143Z-replace-ch02-manifest-parser-with-serde-01`.
+
+## 2026-08-04 - Supersede the manifest-only migration with ordinary corpus JSON
+
+**Status:** Accepted for `replace-ch02-corpus-json-plumbing-with-serde`; this
+supersedes the scope of “Use serde only for Chapter 2 manifest syntax.” The
+verified dependency graph and manifest-deserializer choices in that earlier
+entry remain reusable, but its decision to keep the `%% document` format and its
+claim that fixture-derived evidence would not change are no longer current.
+
+**Context:** The user's concrete example was the training corpus itself: a custom
+marker format and loader make students inspect repository-specific plumbing that
+is unrelated to implementing an LLM. The interrupted run had instead removed
+only a handwritten parser for `splits.json`, which was already an ordinary JSON
+file. Review caught that mismatch before any staged product file was published or
+committed.
+
+**Decision:** Replace `rust/data/tiny-bilingual-corpus.txt` with a plain JSON
+array at `rust/data/tiny-bilingual-corpus.json`. Each array item carries only
+`id`, `language`, `provenance_group`, and `text`. `Corpus::from_json` will use
+`serde_json` and a private `Deserialize` record with `deny_unknown_fields` for
+standard JSON syntax, UTF-8 decoding, required fields, duplicate field names,
+unknown fields, and value types. `SplitManifest::from_json` will use its own
+private strict record. Neither path will contain a general-purpose lexer or
+parser.
+
+Keep explicit the ML-data decisions that students need to inspect: stable and
+well-formed document identities, nonempty unique decoded text, source order,
+provenance grouping, raw-file drift detection, supported split policy, nonempty
+roles, known and unique assignments, complete coverage, role-local source order,
+and the rule that only training documents supply learned statistics. These are
+validated after deserialization rather than hidden in serde attributes.
+
+Retain FNV-1a as the already-taught, eight-line deterministic drift detector; a
+new hashing dependency would be disproportionate to this migration and would not
+improve the chapter's data-boundary evidence. Because the manifest intentionally
+binds the exact checked-in bytes, changing from markers to formatted JSON changes
+the checksum even though all decoded text and assignments remain identical. Do
+not preserve the old value through a private canonicalization scheme. Recompute
+it from the JSON file and update every current manifest, expected output, trace,
+contract, diagram datum, and test that derives from it. Historical run records
+keep their original paths and hashes.
+
+Rename the public loader rather than retaining a misleading compatibility name:
+`Corpus::from_json(&[u8])` states both the external format and the byte boundary.
+Update every current consumer. The TypeScript diagram path will likewise use the
+platform `JSON.parse` operation and validate only the document fields and domain
+invariants it consumes; it will not keep a second marker parser.
+
+Advance every chapter whose rendered code or evidence changes: Chapter 2 to
+revision 7, Chapters 3–5 to revision 6, Chapter 7 to revision 5, and Chapter 39 to
+revision 3. English remains canonical. Russian is refreshed directly from the
+matching English revision; unchanged prose is still reviewed because the visible
+Rust or checksum evidence changed. Record exact English source hashes and render
+the affected pages in Chromium and Firefox.
+
+The serde/serde_json lock and cached crate archives from the interrupted run may
+be reused only after checksum verification. The official
+`node:22.12.0-bookworm-slim` image was unexpectedly absent and Docker pulled
+digest `sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213`
+for the one read-only raw-byte FNV calculation; this discovered network input is
+recorded rather than hidden. All subsequent replacement-run Cargo and site
+validation is locked, offline, and network-disabled. The exact allowlist and
+concept-library denylist remain in force. The five explicit empty `usize` slice
+assertions and one Chapter 21 empty `Vec<usize>` array remain test-only inference
+accommodations caused by serde_json's primitive `Value` comparisons; they do not
+change tensor or mini-batch behavior. The Chapter 21 expression was declared as
+replacement-step scope after the first full workspace compile exposed it and
+before editing that file.
+
+**Consequences:** Learners see ordinary JSON data and a small deserialization
+boundary instead of repository-specific marker grammar. Document text,
+partition membership, tokenizer statistics, model results, routes, and diagram
+geometry remain the same. The raw-file checksum, fixture path, loader name, and
+the exact evidence that prints or embeds them change together in one atomic step.
+
+**Affected build, steps, and runs:**
+`repair-explicit-wording-findings-20260804`,
+`replace-ch02-manifest-parser-with-serde`,
+`20260804T101143Z-replace-ch02-manifest-parser-with-serde-01`,
+`replace-ch02-corpus-json-plumbing-with-serde`, and
+`20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01`.

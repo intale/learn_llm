@@ -7,7 +7,7 @@ use llm_from_scratch::generation::sampling::GenerationStop;
 use llm_from_scratch::pipeline::{CapstoneConfig, CapstoneRun, PipelineError, run_capstone};
 
 pub const RUNTIME_LIMIT_MS: u128 = 150_000;
-const CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+const CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
 const SPLITS: &str = include_str!("../../../data/splits.json");
 
 #[derive(Clone, Debug, PartialEq, Eq)]

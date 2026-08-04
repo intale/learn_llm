@@ -568,8 +568,8 @@ mod tests {
         let scalar = Tensor::from_vec(vec![], vec![7.0]).unwrap();
         let view = scalar.view();
 
-        assert_eq!(view.shape(), []);
-        assert_eq!(view.strides(), []);
+        assert_eq!(view.shape(), &[] as &[usize]);
+        assert_eq!(view.strides(), &[] as &[usize]);
         assert_eq!(view.len(), 1);
         assert!(view.is_contiguous());
         assert_eq!(view.get(&[]), Ok(&7.0));

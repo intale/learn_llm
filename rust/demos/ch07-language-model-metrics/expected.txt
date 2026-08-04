@@ -11,7 +11,7 @@ weighted documents: targets=4 mean_nll=1.039720770840 perplexity=2.828427124746
 equal document means (wrong): mean_nll=0.693147180560 perplexity=2.000000000000
 same argmax=A target=B: q_nll=1.203972804326 r_nll=1.609437912434 lower=q
 2000 halves: raw_product=0.000e0 log_total_finite=true
-corpus checksum: fnv1a64:04786e7303f1dfd6
+corpus checksum: fnv1a64:723b071980ae8a22
 split strategy: fixed-paired-document-holdout-v1
 tokenizer: layout=1 requested_merges=8 learned_merges=8 vocabulary=266 statistics=train
 model: alpha=1.000000000000 fitted_documents=8 fitted_transitions=1844 source=train

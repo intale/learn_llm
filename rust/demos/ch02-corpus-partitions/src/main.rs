@@ -3,7 +3,7 @@
 use ch02_corpus_partitions::{overlapping_word_windows, shared_words};
 use llm_from_scratch::corpus::{Corpus, Partition, SplitManifest};
 
-const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
 const SPLIT_MANIFEST: &str = include_str!("../../../data/splits.json");
 
 fn print_partition(
@@ -16,7 +16,7 @@ fn print_partition(
 
 // region:chapter-output
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let corpus = Corpus::from_utf8(CORPUS_BYTES)?;
+    let corpus = Corpus::from_json(CORPUS_BYTES)?;
     let manifest = SplitManifest::from_json(SPLIT_MANIFEST)?;
     let partitions = manifest.partition(&corpus)?;
 

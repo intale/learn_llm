@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "ru",
-  "content_revision": 2,
+  "content_revision": 3,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Запустите небольшую LLM целиком",
@@ -84,7 +84,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/pipeline.rs",
       "region": "end-to-end-capstone",
-      "purpose": "Вызвать накопленные API для данных, обучения, итоговой оценки, контрольной точки и генерации в одностороннем порядке сбора свидетельств."
+      "purpose": "Вызвать накопленные API для данных, обучения, итоговой оценки, контрольной точки и генерации так, чтобы поздние результаты не влияли на предыдущие этапы."
     },
     {
       "path": "rust/demos/ch39-end-to-end-llm/src/lib.rs",
@@ -114,7 +114,7 @@ import RustSource from "../../../components/RustSource.astro";
 import EndToEndLlmDiagram from "../../../components/chapters/EndToEndLlmDiagram.astro";
 
 export const diagramLabels = {
-  title: "Проследите односторонний путь от текста к генерации",
+  title: "Поздние результаты не меняют ранние этапы",
   description: "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем.",
   sections: {
     pipeline: "Выполняйте всю программу по порядку",
@@ -137,7 +137,7 @@ export const diagramLabels = {
     windows: "Окна по выборкам",
     updateBatchSize: "Мини-пакет обновления",
     evaluationBatchSize: "Мини-пакет оценки",
-    evaluationBatches: "Мини-пакеты оценки",
+    evaluationBatches: "Мини-пакеты оценки по выборкам",
     parameters: "Обучаемые параметры",
     trainLoss: "обучение",
     validationLoss: "валидация",
@@ -152,8 +152,8 @@ export const diagramLabels = {
     sampling: "Сэмплирование",
     generated: "ID токенов",
     decoded: "Декодированный текст",
-    generationWork: "Префиксы и вызовы",
-    attentionScores: "Ячейки оценок: кэш / полный префикс",
+    generationWork: "Префиксы / порядок прямых проходов",
+    attentionScores: "Ячейки оценок: кэш / полный пересчёт",
   },
   cues: {
     trainingOnly: "слияния видят только обучающую выборку",
@@ -161,7 +161,7 @@ export const diagramLabels = {
     selected: "выбрано по валидации",
     oneTime: "тестовая выборка открывается один раз после выбора состояния",
     exact: "байты и всё состояние восстанавливаются точно; логиты пробы совпадают",
-    cachedMatch: "решения с кэшем и по полному префиксу совпадают",
+    cachedMatch: "решения с кэшем и полным пересчётом префикса совпадают",
     decodedText: "кириллическая т и два сгенерированных пробела",
     spaceMarker: "␠ — сгенерированный пробел.",
   },
@@ -340,7 +340,7 @@ $z_{<t}$ обозначает весь предшествующий префик
 
 ## Соберите готовые API, не копируя алгоритмы
 
-<code>run_capstone</code> сначала разбирает проверенные корпус и схему разбиения.
+<code>run_capstone</code> сначала загружает и проверяет корпус и манифест разбиения.
 Функция обучает BPE по обучающей выборке, кодирует каждый документ отдельно, не
 склеивая их границы, обучает по тем же обучающим токенам биграммную модель со
 сглаживанием $\alpha=1$ и строит отдельные наборы каузальных мини-пакетов для
@@ -362,13 +362,13 @@ $z_{<t}$ обозначает весь предшествующий префик
 восстановленные модель и оптимизатор, ранги BPE-слияний, номер шага и состояние
 генератора псевдослучайных чисел. Для отдельной пробы <code>At</code> все логиты
 тоже должны совпасть побитово. Лишь после этого загруженная модель выполняет
-генерацию с KV-кэшем и по полному префиксу из промпта <code>A</code>, начиная с
-одинакового состояния генератора.
+генерацию из промпта <code>A</code> двумя способами, начиная с одинакового состояния
+генератора: с KV-кэшем и с повторным вычислением всего префикса на каждом шаге.
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/pipeline.rs"
   region="end-to-end-capstone"
-  caption="Вызвать накопленные части полного процесса в одностороннем порядке сбора свидетельств"
+  caption="Вызвать части полного процесса так, чтобы поздние результаты не влияли на предыдущие этапы"
   label="Исходный код на Rust, реализующий полный завершающий пример главы 39"
 />
 
@@ -391,7 +391,7 @@ $z_{<t}$ обозначает весь предшествующий префик
 
 ```text
 chapter=39-end-to-end-llm
-data=checksum:fnv1a64:04786e7303f1dfd6 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]
+data=checksum:fnv1a64:723b071980ae8a22 split:fixed-paired-document-holdout-v1 documents:8/2/2 train_ids:[en-river-dawn,ru-river-dawn,en-clock-shop,ru-clock-shop,en-rain-library,ru-rain-library,en-bee-garden,ru-bee-garden] validation_ids:[en-night-station,ru-night-station] test_ids:[en-winter-window,ru-winter-window]
 tokenizer=layout:1 requested:8 learned:8 training_only:true vocabulary:266 encoded_tokens:[1852,471,444]
 model=layers:1 heads:1 width:4 feed_forward:4 context:4 parameters:1188 update_batch_size:16 evaluation_batch_size:128 windows:[1820,463,436] evaluation_batches:[15,4,4]
 training=updates:32 seed:39 checkpoints:0:5.621745486/5.628342353/candidate;32:3.855502695/3.889531885/selected selected:32 validation:3.889531885 optimizer:32 replay_bitwise:true
@@ -410,7 +410,7 @@ next=inspect, modify, test, and extend the complete decoder
 
 {/* chapter-section:visualization */}
 
-## Проследите односторонний процесс
+## Проследите процесс: поздние результаты не влияют на ранние этапы
 
 В начале схемы зафиксированы роли документов, а токенизатор обучается только по
 обучающей выборке. Затем каузальные окна поступают в декодер; выбранное по

@@ -57,16 +57,27 @@ interface SplitManifestShape {
   test: string[];
 }
 
+interface CorpusDocumentShape {
+  id: string;
+  language: string;
+  provenance_group: string;
+  text: string;
+}
+
 const manifestKeys = [
   'schema_version',
   'corpus_checksum',
   'strategy',
   ...corpusPartitionRoles,
 ] as const;
+const corpusDocumentKeys = [
+  'id',
+  'language',
+  'provenance_group',
+  'text',
+] as const;
 const roleBadges = { train: 'TR', validation: 'VA', test: 'TE' } as const;
 const identifierPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-const documentHeaderPattern =
-  /^%% document ([a-z][a-z0-9]*(?:-[a-z0-9]+)*) ([a-z][a-z0-9]*(?:-[a-z0-9]+)*) ([a-z][a-z0-9]*(?:-[a-z0-9]+)*)$/;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -116,33 +127,65 @@ function parseManifest(value: unknown): SplitManifestShape {
 export function parseCorpusDocumentMetadata(
   source: string,
 ): readonly CorpusDocumentMetadata[] {
-  const documents: CorpusDocumentMetadata[] = [];
-  let openDocument = false;
-
-  for (const [index, line] of source.split(/\r?\n/).entries()) {
-    const header = line.match(documentHeaderPattern);
-    if (header) {
-      if (openDocument) {
-        throw new Error(`Nested corpus document marker at line ${index + 1}.`);
-      }
-      const [, id, language, provenanceGroup] = header;
-      if (documents.some((document) => document.id === id)) {
-        throw new Error(`Duplicate corpus document ID ${id}.`);
-      }
-      documents.push({ id, language, provenanceGroup });
-      openDocument = true;
-    } else if (line === '%% end') {
-      if (!openDocument) {
-        throw new Error(`Unmatched corpus end marker at line ${index + 1}.`);
-      }
-      openDocument = false;
-    } else if (!openDocument && line.trim().length > 0) {
-      throw new Error(`Corpus text outside a document at line ${index + 1}.`);
-    }
+  let value: unknown;
+  try {
+    value = JSON.parse(source) as unknown;
+  } catch (error) {
+    throw new Error(
+      `Corpus must be valid JSON: ${error instanceof Error ? error.message : String(error)}.`,
+    );
   }
+  if (!Array.isArray(value)) {
+    throw new Error('Corpus JSON must be an array of documents.');
+  }
+  if (value.length === 0) throw new Error('Corpus contains no documents.');
 
-  if (openDocument) throw new Error('Corpus ends inside a document.');
-  if (documents.length === 0) throw new Error('Corpus contains no documents.');
+  const documents: CorpusDocumentMetadata[] = [];
+  const texts = new Set<string>();
+  const allowedKeys = new Set<string>(corpusDocumentKeys);
+  for (const [index, document] of value.entries()) {
+    if (!isRecord(document)) {
+      throw new Error(`Corpus document ${index + 1} must be a JSON object.`);
+    }
+    const unknownKeys = Object.keys(document).filter(
+      (key) => !allowedKeys.has(key),
+    );
+    if (unknownKeys.length > 0) {
+      throw new Error(
+        `Corpus document ${index + 1} has unknown fields: ${unknownKeys.join(', ')}.`,
+      );
+    }
+    const missingKeys = corpusDocumentKeys.filter((key) => !(key in document));
+    if (missingKeys.length > 0) {
+      throw new Error(
+        `Corpus document ${index + 1} is missing: ${missingKeys.join(', ')}.`,
+      );
+    }
+    const { id, language, provenance_group: provenanceGroup, text } =
+      document as unknown as CorpusDocumentShape;
+    for (const [label, field] of [
+      ['ID', id],
+      ['language', language],
+      ['provenance group', provenanceGroup],
+    ] as const) {
+      if (typeof field !== 'string' || !identifierPattern.test(field)) {
+        throw new Error(
+          `Corpus document ${index + 1} ${label} must be lowercase ASCII kebab case.`,
+        );
+      }
+    }
+    if (typeof text !== 'string' || text.trim().length === 0) {
+      throw new Error(`Corpus document ${index + 1} text must be nonempty.`);
+    }
+    if (documents.some((candidate) => candidate.id === id)) {
+      throw new Error(`Duplicate corpus document ID ${id}.`);
+    }
+    if (texts.has(text)) {
+      throw new Error('Duplicate corpus document text would leak identical content.');
+    }
+    texts.add(text);
+    documents.push({ id, language, provenanceGroup });
+  }
   return documents;
 }
 

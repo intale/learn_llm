@@ -292,8 +292,8 @@ mod tests {
         let tensor = Tensor::from_vec(vec![], vec![7.0]).unwrap();
 
         assert_eq!(tensor.rank(), 0);
-        assert_eq!(tensor.shape(), []);
-        assert_eq!(tensor.strides(), []);
+        assert_eq!(tensor.shape(), &[] as &[usize]);
+        assert_eq!(tensor.strides(), &[] as &[usize]);
         assert_eq!(tensor.len(), 1);
         assert_eq!(tensor.offset(&[]), Ok(0));
         assert_eq!(tensor.get(&[]), Ok(&7.0));

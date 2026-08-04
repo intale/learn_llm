@@ -23,7 +23,7 @@ const sharedStyles = readFileSync(
   'utf8',
 );
 const corpusSource = readFileSync(
-  resolve(repositoryRoot, 'rust/data/tiny-bilingual-corpus.txt'),
+  resolve(repositoryRoot, 'rust/data/tiny-bilingual-corpus.json'),
   'utf8',
 );
 const manifest = JSON.parse(
@@ -43,17 +43,30 @@ const lessonSources = {
     'utf8',
   ),
 };
+const contractSource = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/02-corpus-partitions.md'),
+  'utf8',
+);
+const rustCorpusSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/corpus.rs'),
+  'utf8',
+);
+
+function contractMetadata() {
+  const frontmatter = contractSource.match(/^---\n(.*?)\n---\n/s);
+  if (!frontmatter) throw new Error('Chapter 2 contract frontmatter is missing.');
+  return JSON.parse(frontmatter[1]) as {
+    content_revision: number;
+    translation_notes: string[];
+    visualization: { id: string };
+  };
+}
 
 function contractVisualizationId(): string {
-  const source = readFileSync(
-    resolve(repositoryRoot, 'curriculum/chapters/02-corpus-partitions.md'),
-    'utf8',
-  );
-  const frontmatter = source.match(/^---\n(.*?)\n---\n/s);
-  if (!frontmatter) throw new Error('Chapter 2 contract frontmatter is missing.');
-  return (JSON.parse(frontmatter[1]) as { visualization: { id: string } })
-    .visualization.id;
+  return contractMetadata().visualization.id;
 }
+
+const normalizeWhitespace = (value: string) => value.replace(/\s+/g, ' ').trim();
 
 const englishLabels: CorpusPartitionsDiagramLabels = {
   title: 'One corpus, three disjoint document sets',
@@ -166,12 +179,74 @@ function blankLabelAt(
 }
 
 describe('corpus-partitions diagram data', () => {
+  it('delegates JSON decoding while keeping document and split invariants explicit', () => {
+    const contract = contractMetadata();
+    expect(contract.content_revision).toBe(7);
+    expect(lessonSources.en).toContain('"content_revision": 7');
+    expect(lessonSources.ru).toContain('"content_revision": 7');
+    expect(normalizeWhitespace(contractSource)).toContain(
+      normalizeWhitespace(
+        '`Corpus::from_json` gives the file bytes to `serde_json`, which deserializes the JSON array into private records with four required fields.',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.en)).toContain(
+      normalizeWhitespace(
+        '`Corpus::from_json` gives the file bytes to `serde_json`, which parses the JSON and deserializes each item\'s four required fields into a private Rust record.',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.en)).toContain(
+      normalizeWhitespace(
+        'Because `Corpus::from_json` receives bytes, it also rejects invalid UTF-8 at this boundary; `SplitManifest::from_json` receives a Rust string, which is already valid UTF-8.',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.en)).toContain(
+      normalizeWhitespace(
+        'the text contains at least one non-whitespace character; IDs and decoded texts do not repeat; and array order is preserved',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.en)).toContain(
+      'Those format checks do not validate whether the document assignments satisfy the train/validation/test invariants.',
+    );
+    expect(normalizeWhitespace(lessonSources.ru)).toContain(
+      normalizeWhitespace(
+        '`Corpus::from_json` передаёт байты файла библиотеке `serde_json`.',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.ru)).toContain(
+      normalizeWhitespace(
+        '`Corpus::from_json` получает байты, поэтому на этой границе также отклоняет недопустимую последовательность байтов UTF-8. `SplitManifest::from_json` получает строку Rust, которая уже содержит корректный UTF-8.',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.ru)).toContain(
+      normalizeWhitespace(
+        'текст содержит хотя бы один непробельный символ; ID и десериализованные тексты не повторяются; порядок элементов массива сохранён',
+      ),
+    );
+    expect(normalizeWhitespace(lessonSources.ru)).toContain(
+      'Эти проверки формата не определяют, соблюдены ли инварианты распределения документов между обучающей, валидационной и тестовой выборками.',
+    );
+    expect(contract.translation_notes.join(' ')).toContain(
+      'SHA-256 f702d228eefbb2a91cd1e1d9611843224431c7104ff1e49e01ab2cdb14ec1f90',
+    );
+    expect(rustCorpusSource).toContain('use serde::Deserialize;');
+    expect(rustCorpusSource).toContain('struct DocumentJson');
+    expect(rustCorpusSource).toContain('struct SplitManifestJson');
+    expect(rustCorpusSource).toContain('#[serde(deny_unknown_fields)]');
+    expect(rustCorpusSource).toContain('serde_json::from_slice(bytes)');
+    expect(rustCorpusSource).toContain('serde_json::from_str(source)');
+    expect(rustCorpusSource).toContain('invalid corpus JSON:');
+    expect(rustCorpusSource).toContain('invalid split manifest JSON:');
+    expect(rustCorpusSource).not.toContain('Corpus::from_utf8');
+    expect(rustCorpusSource).not.toContain('%% document');
+    expect(rustCorpusSource).not.toContain('struct ManifestParser');
+  });
+
   it('explains the fixture counts and diagram evidence in every locale', () => {
-    expect(lessonSources.en).toContain('"content_revision": 6');
+    expect(lessonSources.en).toContain('"content_revision": 7');
     expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
       '`8 / 2 / 2` (eight documents in training, two in validation, and two in test)',
     );
-    expect(lessonSources.ru).toContain('"content_revision": 6');
+    expect(lessonSources.ru).toContain('"content_revision": 7');
     expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
       '`8 / 2 / 2` (восемь документов в обучающей выборке, два — в валидационной и два — в тестовой)',
     );
@@ -185,13 +260,13 @@ describe('corpus-partitions diagram data', () => {
     expect(lessonSources.en).not.toContain('without relying on color');
     expect(lessonSources.ru).not.toContain('без опоры на цвет');
     expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
-      'Different IDs alone do not prove that the underlying text is different. For example, imagine cutting `north star glows softly` into two windows: `window-A = north star glows` and `window-B = star glows softly`.',
+      'Different IDs alone do not prove that the underlying text is different. For example, imagine cutting `north star glows softly` into two windows: call them `window-A` (`north star glows`) and `window-B` (`star glows softly`).',
     );
     expect(lessonSources.en.replace(/\s+/g, ' ')).toContain(
-      'assign the complete source document to exactly one partition, tokenize it, and keep every window created from it in that same partition.',
+      'assign the original whole document first. Place it in exactly one partition, tokenize it, and keep every window created from it in that same partition.',
     );
     expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
-      'Разные ID сами по себе ещё не означают, что за ними стоит разный текст. Например, строку `north star glows softly` можно разбить на два окна: `window-A = north star glows` и `window-B = star glows softly`.',
+      'Разные ID сами по себе ещё не означают, что за ними стоит разный текст. Например, строку `north star glows softly` можно разбить на два окна и назвать их `window-A` (`north star glows`) и `window-B` (`star glows softly`).',
     );
     expect(lessonSources.ru.replace(/\s+/g, ' ')).toContain(
       'сначала целиком отнести исходный документ ровно к одной выборке, затем токенизировать его, а все созданные из него окна оставить в той же выборке.',
@@ -205,7 +280,7 @@ describe('corpus-partitions diagram data', () => {
   it('matches the contract and exact frozen Rust fixture', () => {
     expect(corpusPartitionsDiagramId).toBe('corpus-partitions');
     expect(corpusPartitionsDiagramId).toBe(contractVisualizationId());
-    expect(fnv1a64(corpusSource)).toBe('fnv1a64:04786e7303f1dfd6');
+    expect(fnv1a64(corpusSource)).toBe('fnv1a64:723b071980ae8a22');
 
     const corpusDocuments = parseCorpusDocumentMetadata(corpusSource);
     const partitions = createCorpusPartitionsDiagramData(manifest, corpusSource);
@@ -235,6 +310,31 @@ describe('corpus-partitions diagram data', () => {
       expect(pair).toHaveLength(2);
       expect(new Set(pair.map(({ id }) => rolesById.get(id))).size).toBe(1);
     }
+  });
+
+  it('reads an ordinary JSON document array and rejects invalid document shapes', () => {
+    const decoded = JSON.parse(corpusSource) as Array<Record<string, unknown>>;
+    expect(decoded).toHaveLength(12);
+    expect(decoded[0]).toEqual({
+      id: 'en-river-dawn',
+      language: 'en',
+      provenance_group: 'pair-river-dawn',
+      text:
+        'At dawn, Mira carries a blue notebook to the river. She writes down the wind direction, counts three boats, and circles the quietest bend. Before leaving, she checks every number once more.',
+    });
+    expect(() => parseCorpusDocumentMetadata('{}')).toThrow(/array/);
+    expect(() => parseCorpusDocumentMetadata('not JSON')).toThrow(/valid JSON/);
+    expect(() =>
+      parseCorpusDocumentMetadata(JSON.stringify([{ ...decoded[0], extra: true }])),
+    ).toThrow(/unknown fields/);
+    const missingText = { ...decoded[0] };
+    delete missingText.text;
+    expect(() =>
+      parseCorpusDocumentMetadata(JSON.stringify([missingText])),
+    ).toThrow(/missing: text/);
+    expect(() =>
+      parseCorpusDocumentMetadata(JSON.stringify([decoded[0], decoded[0]])),
+    ).toThrow(/Duplicate corpus document ID/);
   });
 
   it('rejects duplicate, omitted, unknown, empty, reordered, and unknown-role mutations', () => {

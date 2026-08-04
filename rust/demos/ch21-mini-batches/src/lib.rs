@@ -334,7 +334,14 @@ mod tests {
             historical_update_widths(5),
             [vec![1, 1, 1, 1, 1], vec![3, 2], vec![5]]
         );
-        assert_eq!(historical_update_widths(0), [vec![], vec![], vec![]]);
+        assert_eq!(
+            historical_update_widths(0),
+            [
+                Vec::<usize>::new(),
+                Vec::<usize>::new(),
+                Vec::<usize>::new(),
+            ]
+        );
     }
 
     #[test]

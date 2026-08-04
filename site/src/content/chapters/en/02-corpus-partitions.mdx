@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "locale": "en",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 2,
   "concept_id": "document-level-corpus-partitions",
   "title": "Corpus documents and frozen partitions",
@@ -156,18 +156,18 @@ validation = [doc-03, doc-04]
 test       = [doc-05, doc-06]
 ```
 
-The repaired lists are safe only if every `doc-*` ID names one complete source
+The repaired lists are safe only if every ID in them names one complete source
 document. Different IDs alone do not prove that the underlying text is different.
-For example, imagine cutting `north star glows softly` into two windows:
-`window-A = north star glows` and `window-B = star glows softly`. The windows have
-different names, but both contain `star glows`. If the first window is placed in
-training and the second in validation, the two partitions share source text and
-context.
+For example, imagine cutting `north star glows softly` into two windows: call them
+`window-A` (`north star glows`) and `window-B` (`star glows softly`). The windows
+have different names, but both contain `star glows`. If the first window is placed
+in training and the second in validation, the two partitions share source text
+and context.
 
-The safe order is therefore: assign the complete source document to exactly one
-partition, tokenize it, and keep every window created from it in that same
-partition. Never create overlapping windows first and distribute them independently,
-because distinct window IDs would hide the shared source context.
+The safe order is therefore: assign the original whole document first. Place it
+in exactly one partition, tokenize it, and keep every window created from it in
+that same partition. Never create overlapping windows first and distribute them
+independently, because distinct window IDs would hide the shared source context.
 
 The repository fixture contains twelve short UTF-8 documents: English and Russian
 versions of six scenes. A translated pair shares one provenance group and must stay
@@ -261,31 +261,42 @@ The test partition, by contrast, is reserved for final evidence in this course.
 
 ## Enforce the boundary in Rust
 
-`Corpus::from_utf8` accepts bytes rather than a prevalidated string, so invalid
-UTF-8 remains observable. Explicit `%% document` and `%% end` markers preserve the
-unit that will be partitioned. The loader rejects missing boundaries, blank bodies,
-duplicate IDs, and duplicate parsed bodies while retaining source order, language,
-and provenance metadata. Because line endings are normalized during parsing, this
-body comparison is not a claim about original byte identity:
+The corpus file is an ordinary JSON array, with one complete source document in
+each item. `Corpus::from_json` gives the file bytes to `serde_json`, which parses
+the JSON and deserializes each item's four required fields into a private Rust
+record. The method then checks the rules that define a valid document for this
+example: the ID, language, and provenance group begin with a lowercase ASCII
+letter and otherwise contain only lowercase ASCII letters or digits in nonempty
+hyphen-separated segments; the text contains at least one non-whitespace
+character; IDs and decoded texts do not repeat; and array order is preserved:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/corpus.rs"
   region="document-loader"
   caption="Load whole documents before tokenization"
-  label="Rust implementation that parses UTF-8 corpus bytes into stable whole documents"
+  label="Rust implementation that deserializes a JSON array and validates stable whole documents"
 />
 
-The loader computes a deterministic 64-bit FNV-1a checksum of the original bytes.
+The loader computes a deterministic 64-bit FNV-1a checksum of the exact JSON file
+bytes.
 A mismatch from the recorded checksum detects the accidental byte mutations
 exercised by the tests. A match only reports that recomputation produced the
 recorded 64-bit value; because FNV collisions exist, it is not proof of byte
 identity, authorship, licensing, or trustworthy provenance.
 
-The manifest parser handles only this repository's narrow JSON schema. Parsing is
-plumbing; the learning boundary is `partition`. It rejects a wrong schema or
-strategy, checksum drift, unknown or repeated IDs, omissions, empty roles, reordered
-IDs, and a provenance group split between roles. Only after every check succeeds
-does it return borrowed document views:
+`SplitManifest::from_json` uses a separate private Rust record for the manifest's
+six required fields. `serde_json` parses JSON syntax for both files. Because
+`Corpus::from_json` receives bytes, it also rejects invalid UTF-8 at this boundary;
+`SplitManifest::from_json` receives a Rust string, which is already valid UTF-8.
+The derived records require every declared field and its value type, reject
+duplicate fields, and use `deny_unknown_fields` to reject extra fields. Those
+format checks do not validate whether the document assignments satisfy the
+train/validation/test invariants.
+
+`partition` performs the split-specific checks. It rejects an unsupported schema
+version or strategy, checksum drift, unknown or repeated IDs, omissions, empty
+roles, reordered IDs, and a provenance group split between roles. Only after every
+check succeeds does it return borrowed document views:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/corpus.rs"

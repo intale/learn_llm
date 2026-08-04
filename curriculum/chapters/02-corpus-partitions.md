@@ -2,7 +2,7 @@
 {
   "chapter_id": "02-corpus-partitions",
   "concept_id": "document-level-corpus-partitions",
-  "content_revision": 6,
+  "content_revision": 7,
   "order": 2,
   "objective": {
     "en": "Load a frozen corpus split manifest in Rust and verify that every whole document belongs to exactly one nonempty training, validation, or test partition before any tokenizer statistic is learned.",
@@ -85,7 +85,7 @@
       "rust/demos/ch02-corpus-partitions/src/lib.rs",
       "rust/demos/ch02-corpus-partitions/src/main.rs"
     ],
-    "expected_output": "corpus checksum: fnv1a64:04786e7303f1dfd6\ndocuments: 12\ntrain: [\"en-river-dawn\", \"ru-river-dawn\", \"en-clock-shop\", \"ru-clock-shop\", \"en-rain-library\", \"ru-rain-library\", \"en-bee-garden\", \"ru-bee-garden\"]\nvalidation: [\"en-night-station\", \"ru-night-station\"]\ntest: [\"en-winter-window\", \"ru-winter-window\"]\ncomplete: yes\ndisjoint: yes\nprovenance groups intact: yes\nhistorical excerpt A: [\"north\", \"star\", \"glows\"]\nhistorical excerpt B: [\"star\", \"glows\", \"softly\"]\nshared context: [\"star\", \"glows\"]\nsafe split unit: whole source document\nchapter 3 tokenizer input: train only (8 documents)\nheld out: validation=2 test=2\n"
+    "expected_output": "corpus checksum: fnv1a64:723b071980ae8a22\ndocuments: 12\ntrain: [\"en-river-dawn\", \"ru-river-dawn\", \"en-clock-shop\", \"ru-clock-shop\", \"en-rain-library\", \"ru-rain-library\", \"en-bee-garden\", \"ru-bee-garden\"]\nvalidation: [\"en-night-station\", \"ru-night-station\"]\ntest: [\"en-winter-window\", \"ru-winter-window\"]\ncomplete: yes\ndisjoint: yes\nprovenance groups intact: yes\nhistorical excerpt A: [\"north\", \"star\", \"glows\"]\nhistorical excerpt B: [\"star\", \"glows\", \"softly\"]\nshared context: [\"star\", \"glows\"]\nsafe split unit: whole source document\nchapter 3 tokenizer input: train only (8 documents)\nheld out: validation=2 test=2\n"
   },
   "visualization": {
     "decision": "useful",
@@ -152,7 +152,8 @@
     "Validation is not called untouched: it may later guide choices. Only the test partition is reserved for the final report in this course protocol.",
     "Keep document IDs, pair IDs, Rust identifiers, JSON keys, FNV notation, arrays, and deterministic stdout identical in every locale.",
     "State in both lessons that document-level splitting prevents one leakage class but does not prove representativeness or detect unrelated near-duplicates.",
-    "Do not translate the technical suffixes tr, va, and te inside the shared formula; explain them in each localized glossary."
+    "Do not translate the technical suffixes tr, va, and te inside the shared formula; explain them in each localized glossary.",
+    "English revision 7 is the canonical semantic source. Russian revision 7 is translated directly from it with source SHA-256 f702d228eefbb2a91cd1e1d9611843224431c7104ff1e49e01ab2cdb14ec1f90. Keep serde_json, Corpus::from_json, SplitManifest::from_json, partition, and the distinction between format decoding, document invariants, and split invariants explicit in every locale."
   ],
   "acceptance_examples": [
     {
@@ -160,8 +161,8 @@
       "expected": "Validation fails because doc-04 occurs twice and doc-06 is omitted."
     },
     {
-      "input": "rust/data/tiny-bilingual-corpus.txt with rust/data/splits.json",
-      "expected": "The checksum is fnv1a64:04786e7303f1dfd6 and the validated partition counts are train=8, validation=2, test=2 in corpus source order."
+      "input": "rust/data/tiny-bilingual-corpus.json with rust/data/splits.json",
+      "expected": "The checksum is fnv1a64:723b071980ae8a22 and the validated partition counts are train=8, validation=2, test=2 in corpus source order."
     },
     {
       "input": "Move ru-night-station into train while en-night-station remains in validation",
@@ -278,21 +279,33 @@ identity, authorship, or licensing. The separate data README records provenance.
 <!-- contract-section:rust-behavior -->
 ## Rust behavior
 
-`Corpus::from_utf8` accepts bytes so invalid UTF-8 is observable. It parses explicit
-`%% document` / `%% end` markers, rejects empty or duplicate documents, preserves
-body line boundaries and source order, and calculates a deterministic FNV-1a
-checksum of the corpus. FNV is deliberately not described as cryptographic.
+`Corpus::from_json` gives the file bytes to `serde_json`, which deserializes the
+JSON array into private records with four required fields. The method then checks
+the document-specific invariants: each identity field begins with a lowercase
+ASCII letter and otherwise contains only lowercase ASCII letters or digits in
+nonempty hyphen-separated segments; text contains a non-whitespace character;
+IDs and decoded text are unique; and array order is preserved. It calculates a
+deterministic FNV-1a checksum over the exact JSON file bytes; FNV is deliberately
+not described as cryptographic.
 
-`SplitManifest::from_json` reads the narrow checked-in schema without an external
-JSON or machine-learning crate. Its parsing plumbing is not the teaching concept.
-`partition` is the important boundary: it validates schema and strategy, exact
-checksum, known and unique IDs, complete coverage, nonempty roles, source order,
-and unsplit provenance groups before returning borrowed document slices.
+`SplitManifest::from_json` uses a separate private record for the six required
+manifest fields. `serde_json` parses JSON syntax for both files. The byte-taking
+corpus loader also rejects invalid UTF-8 at this boundary; the manifest loader
+receives an already-valid Rust string. The derived records require the declared
+fields and value types, reject duplicate fields, and use `deny_unknown_fields` to
+reject extras. Deserialization does not validate whether document assignments
+satisfy the train/validation/test invariants.
 
-Tests mutate each invariant independently: invalid UTF-8, malformed markers,
-duplicate and unknown IDs, an omission, an empty role, a reordered manifest,
-checksum drift, and a split provenance pair. The historical demo separately proves
-that different excerpt IDs may still contain shared context.
+`partition` performs those split-specific checks. It validates the supported
+schema version and strategy, exact checksum, known and unique IDs, complete
+coverage, nonempty roles, source order, and unsplit provenance groups before
+returning borrowed document slices.
+
+Tests isolate JSON format failures from document and split invariant failures,
+including empty or duplicate text, invalid identity fields, an omission, an empty
+role, a reordered manifest, checksum drift, and a split provenance pair. The
+historical demo separately proves that different excerpt IDs may still contain
+shared context.
 
 <!-- contract-section:visualization -->
 ## Visualization
@@ -331,7 +344,8 @@ provenance, order, representativeness, and final-only test use.
 This chapter contributes `Corpus`, `SplitManifest`, and `CorpusPartitions` to the
 cumulative crate. Chapter 3 receives only `partitions.training_documents()` when
 it counts adjacent byte pairs. It counts inside each training document, never
-across an end marker; validation and test contribute no learned merge statistics.
+across a document boundary; validation and test contribute no learned merge
+statistics.
 
 A candidate tokenizer or model configuration must fit its counts, merge ranks,
 vocabulary, and parameters on training documents. Validation may compare those
@@ -356,7 +370,7 @@ mean representative.
 <!-- contract-section:acceptance -->
 ## Acceptance examples
 
-The canonical corpus checksum is `fnv1a64:04786e7303f1dfd6`. The accepted manifest
+The canonical corpus checksum is `fnv1a64:723b071980ae8a22`. The accepted manifest
 returns `8 / 2 / 2` documents in train/validation/test source order and keeps all
 six provenance groups intact. Moving one translation across roles, repeating an
 ID, omitting an ID, naming an unknown ID, emptying a role, reordering a role, or

@@ -6,7 +6,8 @@
 
 use std::error::Error;
 use std::fmt;
-use std::str;
+
+use serde::Deserialize;
 
 /// Version accepted by [`SplitManifest::from_json`].
 pub const SPLIT_SCHEMA_VERSION: u32 = 1;
@@ -39,7 +40,7 @@ impl Document {
         &self.provenance_group
     }
 
-    /// Returns the exact body text between the document markers.
+    /// Returns the decoded source text.
     pub fn text(&self) -> &str {
         &self.text
     }
@@ -52,98 +53,67 @@ pub struct Corpus {
     checksum: String,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct DocumentJson {
+    id: String,
+    language: String,
+    provenance_group: String,
+    text: String,
+}
+
 impl Corpus {
-    /// Parses the repository's explicit document-boundary format from UTF-8 bytes.
+    /// Deserializes the repository's JSON document array from UTF-8 bytes.
     // region:document-loader
-    pub fn from_utf8(bytes: &[u8]) -> Result<Self, CorpusError> {
-        let source = str::from_utf8(bytes)
-            .map_err(|error| CorpusError::new(format!("corpus is not UTF-8: {error}")))?;
-        let mut documents = Vec::new();
-        let mut current: Option<(String, String, String, Vec<&str>)> = None;
-
-        for (index, line) in source.lines().enumerate() {
-            let line_number = index + 1;
-            match current.as_mut() {
-                None if line.is_empty() => {}
-                None if line.starts_with("%% document ") => {
-                    let fields = line.split_ascii_whitespace().collect::<Vec<_>>();
-                    if fields.len() != 5 || fields[0] != "%%" || fields[1] != "document" {
-                        return Err(CorpusError::at(
-                            line_number,
-                            "expected %% document <id> <language> <provenance-group>",
-                        ));
-                    }
-                    for (value, label) in [
-                        (fields[2], "document ID"),
-                        (fields[3], "language"),
-                        (fields[4], "provenance group"),
-                    ] {
-                        if !is_kebab_identifier(value) {
-                            return Err(CorpusError::at(
-                                line_number,
-                                format!("{label} must be lowercase ASCII kebab case"),
-                            ));
-                        }
-                    }
-                    current = Some((
-                        fields[2].to_owned(),
-                        fields[3].to_owned(),
-                        fields[4].to_owned(),
-                        Vec::new(),
-                    ));
-                }
-                None => {
-                    return Err(CorpusError::at(
-                        line_number,
-                        "text appears outside a document boundary",
-                    ));
-                }
-                Some((id, language, provenance_group, body)) if line == "%% end" => {
-                    let text = body.join("\n");
-                    if text.trim().is_empty() {
-                        return Err(CorpusError::at(line_number, "document body is empty"));
-                    }
-                    if documents
-                        .iter()
-                        .any(|document: &Document| document.id == *id)
-                    {
-                        return Err(CorpusError::at(
-                            line_number,
-                            format!("duplicate document ID {id}"),
-                        ));
-                    }
-                    if documents
-                        .iter()
-                        .any(|document: &Document| document.text == text)
-                    {
-                        return Err(CorpusError::at(
-                            line_number,
-                            "duplicate document body would leak identical text",
-                        ));
-                    }
-                    documents.push(Document {
-                        id: std::mem::take(id),
-                        language: std::mem::take(language),
-                        provenance_group: std::mem::take(provenance_group),
-                        text,
-                    });
-                    current = None;
-                }
-                Some((_, _, _, body)) if line.starts_with("%% ") => {
-                    return Err(CorpusError::at(
-                        line_number,
-                        "reserved %% marker appears inside a document body",
-                    ));
-                }
-                Some((_, _, _, body)) => body.push(line),
-            }
-        }
-
-        if current.is_some() {
-            return Err(CorpusError::new("final document is missing %% end"));
-        }
-        if documents.is_empty() {
+    pub fn from_json(bytes: &[u8]) -> Result<Self, CorpusError> {
+        let decoded: Vec<DocumentJson> = serde_json::from_slice(bytes)
+            .map_err(|error| CorpusError::new(format!("invalid corpus JSON: {error}")))?;
+        if decoded.is_empty() {
             return Err(CorpusError::new("corpus contains no documents"));
+        }
+
+        let mut documents = Vec::with_capacity(decoded.len());
+        for (index, document) in decoded.into_iter().enumerate() {
+            let position = index + 1;
+            for (value, label) in [
+                (&document.id, "document ID"),
+                (&document.language, "language"),
+                (&document.provenance_group, "provenance group"),
+            ] {
+                if !is_kebab_identifier(value) {
+                    return Err(CorpusError::new(format!(
+                        "corpus document {position} {label} must be lowercase ASCII kebab case"
+                    )));
+                }
+            }
+            if document.text.trim().is_empty() {
+                return Err(CorpusError::new(format!(
+                    "corpus document {position} text is empty"
+                )));
+            }
+            if documents
+                .iter()
+                .any(|existing: &Document| existing.id == document.id)
+            {
+                return Err(CorpusError::new(format!(
+                    "duplicate document ID {}",
+                    document.id
+                )));
+            }
+            if documents
+                .iter()
+                .any(|existing: &Document| existing.text == document.text)
+            {
+                return Err(CorpusError::new(
+                    "duplicate document text would leak identical content",
+                ));
+            }
+            documents.push(Document {
+                id: document.id,
+                language: document.language,
+                provenance_group: document.provenance_group,
+                text: document.text,
+            });
         }
 
         Ok(Self {
@@ -199,10 +169,30 @@ pub struct SplitManifest {
     test: Vec<String>,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SplitManifestJson {
+    schema_version: u32,
+    corpus_checksum: String,
+    strategy: String,
+    train: Vec<String>,
+    validation: Vec<String>,
+    test: Vec<String>,
+}
+
 impl SplitManifest {
-    /// Parses the deliberately small JSON schema documented in `rust/data`.
+    /// Deserializes the standard JSON schema documented in `rust/data`.
     pub fn from_json(source: &str) -> Result<Self, CorpusError> {
-        ManifestParser::new(source).parse()
+        let manifest: SplitManifestJson = serde_json::from_str(source)
+            .map_err(|error| CorpusError::new(format!("invalid split manifest JSON: {error}")))?;
+        Ok(Self {
+            schema_version: manifest.schema_version,
+            corpus_checksum: manifest.corpus_checksum,
+            strategy: manifest.strategy,
+            train: manifest.train,
+            validation: manifest.validation,
+            test: manifest.test,
+        })
     }
 
     /// Returns the manifest's recorded corpus checksum.
@@ -369,10 +359,6 @@ impl CorpusError {
         }
     }
 
-    fn at(line: usize, message: impl fmt::Display) -> Self {
-        Self::new(format!("line {line}: {message}"))
-    }
-
     /// Returns the stable diagnostic text.
     pub fn message(&self) -> &str {
         &self.message
@@ -429,195 +415,38 @@ fn validate_source_order(
     Ok(())
 }
 
-struct ManifestParser<'a> {
-    bytes: &'a [u8],
-    offset: usize,
-}
-
-impl<'a> ManifestParser<'a> {
-    fn new(source: &'a str) -> Self {
-        Self {
-            bytes: source.as_bytes(),
-            offset: 0,
-        }
-    }
-
-    fn parse(mut self) -> Result<SplitManifest, CorpusError> {
-        let mut schema_version = None;
-        let mut corpus_checksum = None;
-        let mut strategy = None;
-        let mut train = None;
-        let mut validation = None;
-        let mut test = None;
-
-        self.expect(b'{')?;
-        loop {
-            self.skip_whitespace();
-            if self.take(b'}') {
-                break;
-            }
-            let key = self.string()?;
-            self.expect(b':')?;
-            match key.as_str() {
-                "schema_version" => set_once(&mut schema_version, self.number()?, &key)?,
-                "corpus_checksum" => set_once(&mut corpus_checksum, self.string()?, &key)?,
-                "strategy" => set_once(&mut strategy, self.string()?, &key)?,
-                "train" => set_once(&mut train, self.string_array()?, &key)?,
-                "validation" => set_once(&mut validation, self.string_array()?, &key)?,
-                "test" => set_once(&mut test, self.string_array()?, &key)?,
-                _ => return Err(self.error(format!("unexpected manifest key {key}"))),
-            }
-            self.skip_whitespace();
-            if self.take(b'}') {
-                break;
-            }
-            self.expect(b',')?;
-            self.skip_whitespace();
-            if self.bytes.get(self.offset) == Some(&b'}') {
-                return Err(self.error("trailing comma in manifest object"));
-            }
-        }
-        self.skip_whitespace();
-        if self.offset != self.bytes.len() {
-            return Err(self.error("trailing content after manifest object"));
-        }
-
-        Ok(SplitManifest {
-            schema_version: required(schema_version, "schema_version")?,
-            corpus_checksum: required(corpus_checksum, "corpus_checksum")?,
-            strategy: required(strategy, "strategy")?,
-            train: required(train, "train")?,
-            validation: required(validation, "validation")?,
-            test: required(test, "test")?,
-        })
-    }
-
-    fn string_array(&mut self) -> Result<Vec<String>, CorpusError> {
-        let mut values = Vec::new();
-        self.expect(b'[')?;
-        loop {
-            self.skip_whitespace();
-            if self.take(b']') {
-                return Ok(values);
-            }
-            values.push(self.string()?);
-            self.skip_whitespace();
-            if self.take(b']') {
-                return Ok(values);
-            }
-            self.expect(b',')?;
-            self.skip_whitespace();
-            if self.bytes.get(self.offset) == Some(&b']') {
-                return Err(self.error("trailing comma in manifest array"));
-            }
-        }
-    }
-
-    fn string(&mut self) -> Result<String, CorpusError> {
-        self.skip_whitespace();
-        if !self.take(b'"') {
-            return Err(self.error("expected JSON string"));
-        }
-        let start = self.offset;
-        while let Some(byte) = self.bytes.get(self.offset).copied() {
-            match byte {
-                b'"' => {
-                    let value = str::from_utf8(&self.bytes[start..self.offset])
-                        .map_err(|_| self.error("manifest string is not UTF-8"))?
-                        .to_owned();
-                    self.offset += 1;
-                    return Ok(value);
-                }
-                b'\\' => return Err(self.error("JSON escapes are not allowed in manifest IDs")),
-                0..=31 => return Err(self.error("control byte in JSON string")),
-                _ => self.offset += 1,
-            }
-        }
-        Err(self.error("unterminated JSON string"))
-    }
-
-    fn number(&mut self) -> Result<u32, CorpusError> {
-        self.skip_whitespace();
-        let start = self.offset;
-        while self.bytes.get(self.offset).is_some_and(u8::is_ascii_digit) {
-            self.offset += 1;
-        }
-        if start == self.offset {
-            return Err(self.error("expected unsigned JSON integer"));
-        }
-        if self.offset - start > 1 && self.bytes[start] == b'0' {
-            return Err(self.error("leading zero in JSON integer"));
-        }
-        str::from_utf8(&self.bytes[start..self.offset])
-            .expect("ASCII digits are UTF-8")
-            .parse()
-            .map_err(|_| self.error("manifest integer is outside u32 range"))
-    }
-
-    fn expect(&mut self, expected: u8) -> Result<(), CorpusError> {
-        self.skip_whitespace();
-        if self.take(expected) {
-            Ok(())
-        } else {
-            Err(self.error(format!("expected JSON byte {:?}", char::from(expected))))
-        }
-    }
-
-    fn take(&mut self, expected: u8) -> bool {
-        if self.bytes.get(self.offset) == Some(&expected) {
-            self.offset += 1;
-            true
-        } else {
-            false
-        }
-    }
-
-    fn skip_whitespace(&mut self) {
-        while self
-            .bytes
-            .get(self.offset)
-            .is_some_and(|byte| matches!(*byte, b' ' | b'\t' | b'\r' | b'\n'))
-        {
-            self.offset += 1;
-        }
-    }
-
-    fn error(&self, message: impl fmt::Display) -> CorpusError {
-        CorpusError::new(format!("split manifest byte {}: {message}", self.offset))
-    }
-}
-
-fn set_once<T>(slot: &mut Option<T>, value: T, key: &str) -> Result<(), CorpusError> {
-    if slot.replace(value).is_some() {
-        Err(CorpusError::new(format!("duplicate manifest key {key}")))
-    } else {
-        Ok(())
-    }
-}
-
-fn required<T>(value: Option<T>, key: &str) -> Result<T, CorpusError> {
-    value.ok_or_else(|| CorpusError::new(format!("manifest is missing {key}")))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::collections::BTreeSet;
 
-    const CORPUS: &str = "%% document en-one en pair-one\nOne.\n%% end\n\n%% document ru-one ru pair-one\nОдин.\n%% end\n\n%% document en-two en pair-two\nTwo.\n%% end\n\n%% document ru-two ru pair-two\nДва.\n%% end\n\n%% document en-three en pair-three\nThree.\n%% end\n\n%% document ru-three ru pair-three\nТри.\n%% end\n";
-    const CANONICAL_CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+    const CORPUS: &str = r#"[
+      {"id":"en-one","language":"en","provenance_group":"pair-one","text":"One."},
+      {"id":"ru-one","language":"ru","provenance_group":"pair-one","text":"Один."},
+      {"id":"en-two","language":"en","provenance_group":"pair-two","text":"Two."},
+      {"id":"ru-two","language":"ru","provenance_group":"pair-two","text":"Два."},
+      {"id":"en-three","language":"en","provenance_group":"pair-three","text":"Three."},
+      {"id":"ru-three","language":"ru","provenance_group":"pair-three","text":"Три."}
+    ]"#;
+    const ONE_DOCUMENT: &str =
+        r#"[{"id":"en-one","language":"en","provenance_group":"pair-one","text":"One."}]"#;
+    const CANONICAL_CORPUS: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
     const CANONICAL_MANIFEST: &str = include_str!("../../../data/splits.json");
 
     fn corpus() -> Corpus {
-        Corpus::from_utf8(CORPUS.as_bytes()).unwrap()
+        Corpus::from_json(CORPUS.as_bytes()).unwrap()
     }
 
     fn manifest_json(corpus: &Corpus) -> String {
-        format!(
-            "{{\"schema_version\":1,\"corpus_checksum\":{:?},\"strategy\":{:?},\"train\":[\"en-one\",\"ru-one\"],\"validation\":[\"en-two\",\"ru-two\"],\"test\":[\"en-three\",\"ru-three\"]}}",
-            corpus.checksum(),
-            SPLIT_STRATEGY,
-        )
+        serde_json::json!({
+            "schema_version": SPLIT_SCHEMA_VERSION,
+            "corpus_checksum": corpus.checksum(),
+            "strategy": SPLIT_STRATEGY,
+            "train": ["en-one", "ru-one"],
+            "validation": ["en-two", "ru-two"],
+            "test": ["en-three", "ru-three"],
+        })
+        .to_string()
     }
 
     fn manifest() -> (Corpus, SplitManifest) {
@@ -627,7 +456,7 @@ mod tests {
     }
 
     #[test]
-    fn loads_utf8_documents_with_stable_metadata_and_checksum() {
+    fn loads_json_documents_with_stable_metadata_and_checksum() {
         let corpus = corpus();
         assert_eq!(corpus.documents().len(), 6);
         assert_eq!(corpus.documents()[0].id(), "en-one");
@@ -758,91 +587,120 @@ mod tests {
     }
 
     #[test]
-    fn parses_only_the_documented_strict_json_shape() {
+    fn deserializes_the_documented_json_shape_and_accepts_standard_escapes() {
         let (corpus, _) = manifest();
         let valid = manifest_json(&corpus);
 
-        assert!(
-            SplitManifest::from_json("{}")
-                .unwrap_err()
-                .to_string()
-                .contains("missing")
-        );
-        assert!(
-            SplitManifest::from_json("{\"schema_version\":1,\"schema_version\":1}")
-                .unwrap_err()
-                .to_string()
-                .contains("duplicate manifest key")
-        );
-        assert!(
-            SplitManifest::from_json("{\"extra\":1}")
-                .unwrap_err()
-                .to_string()
-                .contains("unexpected manifest key extra")
-        );
-        assert!(
-            SplitManifest::from_json(
-                &valid.replace("\"schema_version\":1", "\"schema_version\":01")
-            )
-            .unwrap_err()
-            .to_string()
-            .contains("leading zero")
-        );
-        assert!(
-            SplitManifest::from_json(&valid.replacen('}', ",}", 1))
-                .unwrap_err()
-                .to_string()
-                .contains("trailing comma in manifest object")
-        );
-        assert!(
-            SplitManifest::from_json(
-                &valid.replace("\"en-one\",\"ru-one\"]", "\"en-one\",\"ru-one\",]")
-            )
-            .unwrap_err()
-            .to_string()
-            .contains("trailing comma in manifest array")
-        );
-        assert!(
-            SplitManifest::from_json(&(valid + " trailing"))
-                .unwrap_err()
-                .to_string()
-                .contains("trailing content")
-        );
-        assert!(
-            SplitManifest::from_json(&manifest_json(&corpus).replacen('{', "{\u{000b}", 1,))
-                .unwrap_err()
-                .to_string()
-                .contains("expected JSON string")
-        );
+        let missing_test = serde_json::json!({
+            "schema_version": SPLIT_SCHEMA_VERSION,
+            "corpus_checksum": corpus.checksum(),
+            "strategy": SPLIT_STRATEGY,
+            "train": ["en-one", "ru-one"],
+            "validation": ["en-two", "ru-two"],
+        })
+        .to_string();
+        for invalid in [
+            missing_test,
+            valid.replacen('{', "{\"schema_version\":1,", 1),
+            valid.replacen('{', "{\"extra\":true,", 1),
+            valid.replace("\"schema_version\":1", "\"schema_version\":01"),
+            valid.replacen('}', ",}", 1),
+            valid.replace("\"en-one\",\"ru-one\"]", "\"en-one\",\"ru-one\",]"),
+            format!("{valid} trailing"),
+            manifest_json(&corpus).replacen('{', "{\u{000b}", 1),
+            valid.replace("\"schema_version\":1", "\"schema_version\":\"1\""),
+        ] {
+            let error = SplitManifest::from_json(&invalid).unwrap_err();
+            assert!(
+                error.message().starts_with("invalid split manifest JSON:"),
+                "unexpected error boundary: {error}"
+            );
+        }
+
+        let escaped = valid.replace("\"en-one\"", "\"en\\u002done\"");
+        let manifest = SplitManifest::from_json(&escaped).unwrap();
+        assert_eq!(manifest.ids(Partition::Train)[0], "en-one");
+        manifest.partition(&corpus).unwrap();
     }
 
     #[test]
-    fn rejects_invalid_utf8_duplicate_ids_bodies_and_unclosed_documents() {
-        assert!(
-            Corpus::from_utf8(&[0xff])
-                .unwrap_err()
-                .to_string()
-                .contains("not UTF-8")
+    fn corpus_json_rejects_format_failures_and_accepts_standard_escapes() {
+        let invalid_inputs = [
+            vec![0xff],
+            b"[".to_vec(),
+            b"{}".to_vec(),
+            ONE_DOCUMENT
+                .replacen("\"text\":\"One.\"", "\"extra\":true,\"text\":\"One.\"", 1)
+                .into_bytes(),
+            ONE_DOCUMENT
+                .replacen(
+                    "\"id\":\"en-one\"",
+                    "\"id\":\"en-one\",\"id\":\"en-one\"",
+                    1,
+                )
+                .into_bytes(),
+            ONE_DOCUMENT
+                .replacen(",\"text\":\"One.\"", "", 1)
+                .into_bytes(),
+            ONE_DOCUMENT
+                .replacen("\"language\":\"en\"", "\"language\":1", 1)
+                .into_bytes(),
+            format!("{ONE_DOCUMENT} trailing").into_bytes(),
+        ];
+        for invalid in invalid_inputs {
+            let error = Corpus::from_json(&invalid).unwrap_err();
+            assert!(
+                error.message().starts_with("invalid corpus JSON:"),
+                "unexpected error boundary: {error}"
+            );
+        }
+
+        let escaped = ONE_DOCUMENT.replace("en-one", "en\\u002done");
+        let corpus = Corpus::from_json(escaped.as_bytes()).unwrap();
+        assert_eq!(corpus.documents()[0].id(), "en-one");
+    }
+
+    #[test]
+    fn rejects_invalid_document_fields_duplicate_ids_and_duplicate_text() {
+        assert_eq!(
+            Corpus::from_json(b"[]").unwrap_err().to_string(),
+            "corpus contains no documents"
         );
         assert!(
-            Corpus::from_utf8(b"%% document en-one en pair-one\ntext")
+            Corpus::from_json(ONE_DOCUMENT.replace("en-one", "EN-one").as_bytes())
                 .unwrap_err()
                 .to_string()
-                .contains("missing %% end")
+                .contains("document ID")
         );
-        let duplicate = "%% document en-one en pair-one\na\n%% end\n%% document en-one en pair-two\nb\n%% end\n";
         assert!(
-            Corpus::from_utf8(duplicate.as_bytes())
+            Corpus::from_json(ONE_DOCUMENT.replace("One.", "  ").as_bytes())
+                .unwrap_err()
+                .to_string()
+                .contains("text is empty")
+        );
+        let duplicate_id = format!(
+            "[{},{}]",
+            &ONE_DOCUMENT[1..ONE_DOCUMENT.len() - 1],
+            &ONE_DOCUMENT[1..ONE_DOCUMENT.len() - 1].replace("One.", "Two.")
+        );
+        assert!(
+            Corpus::from_json(duplicate_id.as_bytes())
                 .unwrap_err()
                 .to_string()
                 .contains("duplicate document ID")
         );
-        let duplicate_body = "%% document en-one en pair-one\nsame\n%% end\n%% document ru-one ru pair-one\nsame\n%% end\n";
+        let duplicate_text = format!(
+            "[{},{}]",
+            &ONE_DOCUMENT[1..ONE_DOCUMENT.len() - 1],
+            &ONE_DOCUMENT[1..ONE_DOCUMENT.len() - 1]
+                .replace("en-one", "ru-one")
+                .replace("\"en\"", "\"ru\"")
+        );
         assert!(
-            Corpus::from_utf8(duplicate_body.as_bytes())
+            Corpus::from_json(duplicate_text.as_bytes())
                 .unwrap_err()
                 .to_string()
-                .contains("duplicate document body")
+                .contains("duplicate document text")
         );
     }
 
@@ -862,11 +720,11 @@ mod tests {
 
     #[test]
     fn canonical_fixture_and_manifest_are_frozen_together() {
-        let corpus = Corpus::from_utf8(CANONICAL_CORPUS).unwrap();
+        let corpus = Corpus::from_json(CANONICAL_CORPUS).unwrap();
         let manifest = SplitManifest::from_json(CANONICAL_MANIFEST).unwrap();
         let partitions = manifest.partition(&corpus).unwrap();
 
-        assert_eq!(corpus.checksum(), "fnv1a64:04786e7303f1dfd6");
+        assert_eq!(corpus.checksum(), "fnv1a64:723b071980ae8a22");
         assert_eq!(corpus.documents().len(), 12);
         assert_eq!(
             corpus

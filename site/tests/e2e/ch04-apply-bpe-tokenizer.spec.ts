@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '04-apply-bpe-tokenizer';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`\operatorname{decode}_{content}(\operatorname{encode}_{content}(x))=\operatorname{bytes}(x)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 

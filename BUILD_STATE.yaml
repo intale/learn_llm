@@ -6816,6 +6816,7 @@ builds:
           - "curriculum/chapters/09-tensor-views.md"
           - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
           - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/demos/ch21-mini-batches/src/lib.rs"
           - "rust/crates/llm-from-scratch/src/lib.rs"
           - "rust/demos/ch09-tensor-views/"
           - "site/src/content/chapters/en/09-tensor-views.mdx"
@@ -30616,22 +30617,199 @@ builds:
       - id: replace-ch02-manifest-parser-with-serde
         objective: "Replace Chapter 2's handwritten split-manifest JSON parser with serde/serde_json while preserving every course-owned corpus and partition invariant."
         depends_on: [codify-supporting-library-boundary]
-        status: pending
-        inputs: ["Committed codify-supporting-library-boundary checkpoint", "rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts"]
-        outputs: ["rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts", "DECISIONS.md", "BUILD_STATE.yaml"]
+        status: invalidated
+        inputs: ["Committed codify-supporting-library-boundary checkpoint", "rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "rust/crates/llm-from-scratch/src/tensor/ops.rs", "rust/crates/llm-from-scratch/src/tensor/storage.rs", "rust/crates/llm-from-scratch/src/tensor/view.rs", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts"]
+        outputs: ["rust/crates/llm-from-scratch/src/corpus.rs", "rust/crates/llm-from-scratch/Cargo.toml", "rust/crates/llm-from-scratch/src/tensor/ops.rs", "rust/crates/llm-from-scratch/src/tensor/storage.rs", "rust/crates/llm-from-scratch/src/tensor/view.rs", "Cargo.lock", "scripts/check-rust-dependencies.sh", "curriculum/README.md", "curriculum/chapters/02-corpus-partitions.md", "site/src/content/chapters/en/02-corpus-partitions.mdx", "site/src/content/chapters/ru/02-corpus-partitions.mdx", "site/tests/02-corpus-partitions-diagram.test.ts", "site/tests/e2e/ch02-corpus-partitions.spec.ts", "DECISIONS.md", "BUILD_STATE.yaml"]
         acceptance:
           - "A private serde Deserialize wire record with strict required fields and deny_unknown_fields replaces the handwritten general JSON lexer/parser while SplitManifest::from_json keeps its public Result API and a stable invalid-JSON error prefix."
           - "Standard JSON escapes are accepted intentionally; unknown, missing, duplicate, mistyped, malformed, and trailing-content inputs remain rejected without promising serde_json's complete diagnostic wording."
           - "The document corpus format, UTF-8 and marker checks, FNV checksum, schema and strategy policy, partition nonemptiness, coverage, disjointness, order, provenance, borrowed views, and training-only handoff remain explicit course-owned behavior."
           - "serde and serde_json use only required features; the exact locked direct and transitive graph is allowlisted; the concept-library denylist remains active; and no host Rust, Node, Python, browser, or test artifact is produced."
+          - "The five pre-existing empty shape/stride assertions use an explicit empty usize slice so serde_json's primitive comparison implementations cannot make their expected type ambiguous; tensor behavior and coverage do not change."
           - "Chapter 2 advances as one accurate English/Russian revision explaining that serde_json handles format syntax while course Rust enforces the partition semantics; deterministic fixtures, demo stdout, trace, diagram data, and routes remain unchanged."
         validate: ["Docker cargo fmt, focused corpus tests, Clippy, locked workspace tests, dependency policy, and deterministic demos", "Staged Chapter 2 review/content/parity/static/link gate", "Focused Chapter 2 Vitest", "Focused Chromium and Firefox Chapter 2, diagram, full-view, and formula matrix", "./course check", "Canonical focused replay", "git diff --check", "./course audit-host"]
         cost: {class: medium, notes: "One supporting dependency migration plus same-revision bilingual Chapter 2 accuracy update and cached two-engine validation; initial locked crate resolution/download is an explicit Docker network input, with no paid or generation service."}
-        runs: []
+        runs:
+          - run_id: 20260804T101143Z-replace-ch02-manifest-parser-with-serde-01
+            started_at: 2026-08-04T10:11:43Z
+            finished_at: 2026-08-04T10:31:16Z
+            status: interrupted
+            input_fingerprint:
+              git: f4ff5e4d4494d767852d4e1b1a6e6661dbebf1cf
+              files: {corpus.rs: "sha256:208e27d58077a3a04013a7a0607c830b3ba644e4b344afed0815ee3fc597e911", crate-manifest: "sha256:dca25b6010794cc91083d84746a970dd46cc0ae871102b0883a8f00d89f47a1e", tensor-ops-test: "sha256:7d34a8a6c863db63c3bbf24a432ea33dd10f8b313fc5e58053e7b30029e98f9d", tensor-storage-test: "sha256:9721f3b68d43d3b48ff6f2d7e26527f606ac1602bedd7b111e0ad6da01ea7ad2", tensor-view-test: "sha256:098628f3abdec332e8ebf15aefabff21e816c5bd6159dda7dc9a1c7dd2818a66", Cargo.lock: "sha256:55c3289704fde3b45c1ad6cf71dadae1993d71dc8b07db1820534f691d27a491", dependency-policy: "sha256:7ef811fac59a4389222c6a023af755b0d94a400a52dcc50156cf9718583e4d22", curriculum-readme: "sha256:cd0c601e396cc0c4401f5f7f865434491fe622a39f033cf6b46c9f543d34e84f", contract: "sha256:8835e13d1a847f09f3c6c919a88cc646cfb2300dd4dc7866aff4877cfdde645a", english-lesson: "sha256:e104b974ed72bd08fd376bd800bb411fb20b9ae3b2868b14dd8f8497ac518c7a", russian-lesson: "sha256:eeb345721bfc248c4b2d953c856dc6611755f11a13a3032e543ad6a735e4e1c9", source-test: "sha256:e0be5cd9eb773fc522b9b6167b683c08084db23a4979a2b4b60c265bb151c8aa", browser-test: "sha256:9e886e62b18b7f22127b7b7d80accb3c8f3569fa9c69fc0ef0aea9ddb3c68596", AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec", SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", DECISIONS.md: "sha256:a7e4ee33be7c2365e2ced7e28f40c4ea49dd22fc32e773d8dc220ff85e1a049b", BUILD_STATE.yaml: "sha256:e013766a8dff405094ce92c79cf0cc66167f31ca740244bc866d10e74e100fc0"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 remain Docker-only."
+              external: "Initial serde/serde_json resolution and crate download from crates.io are explicit Docker-only network inputs; all subsequent validation will use Cargo.lock and cached or offline dependencies. No paid or generation service is used."
+            staging_dir: .build/runs/20260804T101143Z-replace-ch02-manifest-parser-with-serde-01/
+            commands:
+              - "Verify clean commit f4ff5e4 completed the policy checkpoint; inspect the parser, dependency policy, Chapter 2 accuracy claim, tests, and localization workflow; confirm the medium migration fits the unlimited budget; and claim only the declared outputs before implementation."
+              - "Resolve Cargo.lock and fetch the complete serde/serde_json graph in Docker from the explicit crates.io input; preserve the generated lock in the run publish tree; then switch all remaining Cargo work to locked offline/no-network validation."
+            artifacts:
+              - {path: ".build/runs/20260804T101143Z-replace-ch02-manifest-parser-with-serde-01/publish/Cargo.lock", sha256: "b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1", notes: "Docker-generated version-4 lockfile adding the exact 11-package serde/serde_json direct and transitive graph."}
+              - {path: "docker-image:learn-llm-ch02-serde-lock:20260804", sha256: "66e95f1f88c0eb2ad3a4b317ebfc40395dcd0b5f22ca399d8351315e1ee9ebac", notes: "Rust 1.93.1 workspace with the staged manifest/parser, generated lockfile, and all locked crates fetched for subsequent no-network validation."}
+            validation:
+              - {command: "Repository, dependency, source, localization, ownership, behavior-preservation, network, and cost preflight", status: passed, notes: "The policy commit is complete and the tree is clean; ManifestParser plus its field helpers are incidental JSON plumbing; corpus document parsing and every partition/checksum/order/provenance invariant remain course-owned; the initial Docker-only crates.io input is explicit and the medium step fits the unlimited budget."}
+              - {command: "Initial no-network cargo tree inspection before cargo fetch", status: failed, notes: "Cargo had the resolved lock but not the crate archives, so the deliberately network-disabled container could not download serde_core. No canonical file changed; the already-declared network phase was extended with cargo fetch --locked."}
+              - {command: "Docker cargo generate-lockfile and cargo fetch --locked", status: passed, notes: "Cargo locked and fetched serde 1.0.229, serde_json 1.0.151, serde_core 1.0.229, serde_derive 1.0.229, itoa 1.0.18, memchr 2.8.3, proc-macro2 1.0.107, quote 1.0.47, syn 3.0.3, unicode-ident 1.0.24, and zmij 1.0.23. The generated Cargo.lock is preserved with its checksum; no further network input is required."}
+              - {command: "First focused corpus test compile", status: failed, notes: "serde_json's PartialEq implementations for primitive integers made five unrelated assert_eq!(shape_or_strides, []) expected values type-ambiguous. The required test-only integration scope is now declared; each assertion will compare with an explicit empty usize slice without changing tensor behavior."}
+              - {command: "Corrected user-scope review before publication", status: failed, notes: "The staged subset replaced only the already-JSON split manifest parser, but the user's concrete request is to replace the custom training-corpus format and parser too. Renaming that raw-byte fixture changes its FNV checksum and every current derived evidence surface. Nothing was published or committed; this run is interrupted and superseded by a newly scoped replacement step."}
+            notes: "Interrupted before publication. Its verified serde dependency graph, lockfile, manifest deserializer, and tensor test-only inference fix may be reused by checksum after the replacement run independently validates the complete corpus-JSON migration."
+
+      - id: replace-ch02-corpus-json-plumbing-with-serde
+        objective: "Replace Chapter 2's custom training-corpus format and both handwritten JSON plumbing paths with ordinary JSON deserialization while preserving explicit document, partition, and training-boundary invariants."
+        replaces: [replace-ch02-manifest-parser-with-serde]
+        depends_on: [codify-supporting-library-boundary]
+        status: completed
+        inputs:
+          - "Committed codify-supporting-library-boundary checkpoint"
+          - "The interrupted 20260804T101143Z serde dependency artifacts, reusable only after checksum verification"
+          - "rust/data/tiny-bilingual-corpus.txt"
+          - "rust/data/splits.json"
+          - "rust/crates/llm-from-scratch/src/corpus.rs and all current corpus consumers"
+          - "Current Chapters 2–5, 7, 23, and 39 executable, contract, lesson, diagram, localization, and test surfaces affected by the fixture path, loader API, or raw-byte checksum"
+        outputs:
+          - "Cargo.lock"
+          - "rust/crates/llm-from-scratch/Cargo.toml"
+          - "rust/crates/llm-from-scratch/src/corpus.rs"
+          - "rust/crates/llm-from-scratch/src/bigram.rs"
+          - "rust/crates/llm-from-scratch/src/data.rs"
+          - "rust/crates/llm-from-scratch/src/metrics.rs"
+          - "rust/crates/llm-from-scratch/src/pipeline.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe_trainer.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/ops.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/storage.rs"
+          - "rust/crates/llm-from-scratch/src/tensor/view.rs"
+          - "rust/data/tiny-bilingual-corpus.txt (removed)"
+          - "rust/data/tiny-bilingual-corpus.json"
+          - "rust/data/splits.json"
+          - "rust/data/README.md"
+          - "rust/demos/ch02-corpus-partitions/src/main.rs"
+          - "rust/demos/ch02-corpus-partitions/expected.txt"
+          - "rust/demos/ch03-learn-bpe-merges/src/main.rs"
+          - "rust/demos/ch03-learn-bpe-merges/expected.txt"
+          - "rust/demos/ch04-apply-bpe-tokenizer/src/main.rs"
+          - "rust/demos/ch05-autoregressive-examples/src/main.rs"
+          - "rust/demos/ch07-language-model-metrics/src/lib.rs"
+          - "rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
+          - "rust/demos/ch07-language-model-metrics/expected.txt"
+          - "rust/demos/ch07-language-model-metrics/diagram-trace.txt"
+          - "rust/demos/ch21-mini-batches/src/lib.rs"
+          - "rust/demos/ch23-neural-ngram/src/lib.rs"
+          - "rust/demos/ch39-end-to-end-llm/src/lib.rs"
+          - "rust/demos/ch39-end-to-end-llm/expected.txt"
+          - "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"
+          - "scripts/check-rust-dependencies.sh"
+          - "curriculum/README.md"
+          - "curriculum/chapters/02-corpus-partitions.md"
+          - "curriculum/chapters/03-learn-bpe-merges.md"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "curriculum/chapters/05-autoregressive-examples.md"
+          - "curriculum/chapters/07-language-model-metrics.md"
+          - "curriculum/chapters/39-end-to-end-llm.md"
+          - "site/src/components/chapters/CorpusPartitionsDiagram.astro"
+          - "site/src/lib/corpus-partitions-diagram.ts"
+          - "site/src/lib/language-model-metrics-diagram.ts"
+          - "site/src/content/chapters/en/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/ru/02-corpus-partitions.mdx"
+          - "site/src/content/chapters/en/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/ru/03-learn-bpe-merges.mdx"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/en/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/ru/05-autoregressive-examples.mdx"
+          - "site/src/content/chapters/en/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/ru/07-language-model-metrics.mdx"
+          - "site/src/content/chapters/en/39-end-to-end-llm.mdx"
+          - "site/src/content/chapters/ru/39-end-to-end-llm.mdx"
+          - "site/tests/02-corpus-partitions-diagram.test.ts"
+          - "site/tests/07-language-model-metrics-diagram.test.ts"
+          - "site/tests/39-end-to-end-llm-diagram.test.ts"
+          - "site/tests/e2e/ch02-corpus-partitions.spec.ts"
+          - "site/tests/e2e/ch03-learn-bpe-merges.spec.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "site/tests/e2e/ch05-autoregressive-examples.spec.ts"
+          - "site/tests/e2e/ch07-language-model-metrics.spec.ts"
+          - "site/tests/e2e/ch39-end-to-end-llm.spec.ts"
+          - "DECISIONS.md"
+          - "BUILD_STATE.yaml"
+        acceptance:
+          - "The canonical fixture is a straightforward JSON array in rust/data/tiny-bilingual-corpus.json; no current production source, data file, lesson, or contract reads or teaches the removed marker file or its %% document / %% end syntax. Regression tests may name those markers only to assert their absence."
+          - "Corpus::from_json delegates UTF-8 JSON syntax and typed field decoding to serde_json through a private strict Deserialize record; SplitManifest::from_json uses a separate private strict record; both expose stable course error categories without reproducing a JSON parser."
+          - "Document ID/language/provenance syntax, nonempty and nonduplicate document text, stable source order, raw-file drift checksum, supported split schema and strategy, nonempty partitions, known/unique/complete/in-order IDs, intact provenance groups, borrowed views, and training-only handoffs remain explicit course-owned behavior."
+          - "Malformed, unknown, missing, duplicate, mistyped, trailing-content, and non-UTF-8 JSON fail; otherwise-valid fixtures isolate unknown and duplicate fields; standard JSON escapes succeed and then face the same document or partition invariants."
+          - "The raw-byte checksum is recomputed for the renamed JSON fixture and propagated through every current manifest, demo output, trace, contract, diagram, and test without changing decoded document text, partition membership, tokenization, model evidence, routes, or diagram geometry."
+          - "Chapters whose rendered Rust or evidence changes advance together: Chapter 2 revision 7, Chapters 3–5 revision 6, Chapter 7 revision 5, and Chapter 39 revision 3; English is canonical and each Russian revision is refreshed directly and reviewed under a recorded English source hash."
+          - "serde and serde_json use only required features; the exact locked direct and transitive graph is allowlisted; the concept-library denylist remains active; the six test-only empty usize assertions remain behavior-neutral; and no host Rust, Node, Python, browser, or test artifact is produced."
+        validate:
+          - "docker build --network none --build-context staged=.build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/publish -f .build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/validation/StagedWorkspace.Dockerfile -t learn-llm-ch02-corpus-json:20260804-staged ."
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged cargo fmt --all -- --check"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged cargo clippy --workspace --all-targets --locked --offline -- -D warnings"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged cargo test --workspace --locked --offline"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged ./scripts/check-rust-dependencies.sh"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged ./scripts/check-rust-demos.sh"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged npm --prefix site run check:content"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged npm --prefix site run check"
+          - "docker run --rm --network none learn-llm-ch02-corpus-json:20260804-staged npm --prefix site run test -- --run"
+          - "docker build --network none -f .build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/validation/StagedRelease.Dockerfile -t learn-llm-ch02-corpus-json-release:20260804-staged ."
+          - "docker build --network none -f .build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/validation/StagedBrowser.Dockerfile -t learn-llm-ch02-corpus-json-browser:20260804-staged ."
+          - "docker run --rm --network none --ipc=host -w /workspace/site learn-llm-ch02-corpus-json-browser:20260804-staged npx playwright test --browser=chromium --grep '@chapter:02-corpus-partitions|@chapter:03-learn-bpe-merges|@chapter:04-apply-bpe-tokenizer|@chapter:05-autoregressive-examples|@chapter:07-language-model-metrics|@chapter:39-end-to-end-llm|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "docker run --rm --network none --ipc=host -w /workspace/site learn-llm-ch02-corpus-json-browser:20260804-staged npx playwright test --browser=firefox --grep '@chapter:02-corpus-partitions|@chapter:03-learn-bpe-merges|@chapter:04-apply-bpe-tokenizer|@chapter:05-autoregressive-examples|@chapter:07-language-model-metrics|@chapter:39-end-to-end-llm|@diagram-style|@diagram-full-view|@formula-rendering'"
+          - "./course check"
+          - "./course audit-host"
+          - "git diff --check"
+        cost: {class: large, notes: "One atomic corpus-format migration, exact checksum propagation, six same-revision bilingual surfaces, full locked/offline Rust/site validation, and cached two-engine rendered review. The serde crate fetch is reused by checksum; one official Node image pull used only to compute the staged raw-byte FNV is recorded explicitly. No paid or generation service is used."}
+        runs:
+          - run_id: 20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01
+            started_at: 2026-08-04T10:32:18Z
+            finished_at: 2026-08-04T11:36:50Z
+            status: succeeded
+            input_fingerprint:
+              git: f4ff5e4d4494d767852d4e1b1a6e6661dbebf1cf
+              tree: 692c658424108fb29ecca2bdd460a8dab7c95e1a
+              reusable_lock: "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 remain Docker-only."
+              external: "The verified serde/serde_json archives and exact lock from the interrupted run are local Docker artifacts. Docker pulled the official node:22.12.0-bookworm-slim image at digest sha256:35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213 when it was unexpectedly absent locally; it was used only with a read-only staged mount to calculate the new raw-byte FNV. Staged Rust and browser validation then remained locked, offline, and network-disabled. The repository-owned ./course review and ./course check wrappers later performed Docker registry metadata and locked dependency fetches because those wrappers are not network-isolated; no lockfile, source, staged artifact, or accepted evidence changed."
+            staging_dir: .build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/
+            commands:
+              - "Re-read the corrected user request against corpus.rs, enumerate every custom marker, loader API, fixture-path, checksum, rendered-source, localized-content, and downstream evidence consumer, invalidate the incomplete manifest-only step, and claim the complete atomic output set before editing product files."
+              - "Use official Node 22.12.0 in Docker with a read-only staged mount to calculate the exact FNV-1a value of tiny-bilingual-corpus.json; the daemon pulled the image because the assumed local tag was absent."
+              - "Rebuild the staged workspace image from the named publish build context after final content corrections, then run locked/offline Rust and site validation inside it."
+              - "Freeze the exact 62-file publish tree in publish.sha256, record the direct-English Russian review, and render the immutable staged run with ./course review 20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01 --check."
+              - "Publish the manifest-matched files through apply_patch, remove only rust/data/tiny-bilingual-corpus.txt, and compare every canonical product byte with its staged counterpart before canonical validation."
+              - "Run ./course check against canonical paths, assemble a pinned Playwright image from that validated workspace, and replay the complete 199-test selected matrix independently in Chromium and Firefox."
+              - "Resolve the final host audit's generated root target directory, verify it contained only reproducible Rust build output, remove that cache, and rerun the host, YAML, scope, and diff guards."
+            artifacts:
+              - {path: "docker-image:node:22.12.0-bookworm-slim", sha256: "35531c52ce27b6575d69755c73e65d4468dba93a25644eed56dc12879cae9213", notes: "Official one-shot checksum environment; no package install, writable repository mount, or host Node artifact."}
+              - {path: ".build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/publish.sha256", sha256: "8f5b9c49d5399fd225e0ad1f4a19c95e68427fb5159aeaa770cdba3a8617623d", notes: "Sorted immutable manifest for all 62 staged regular files."}
+              - {path: ".build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/localization-review.md", sha256: "1ce6357c490491ef14219bff3a44e4318c0595132f3d094d0697898fbe43ee28", notes: "Direct-English semantic, terminology, anti-calque, accessibility, exact-evidence, and rendered-layout review for six affected locale pairs."}
+              - {path: ".build/runs/20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01/publish/rust/data/tiny-bilingual-corpus.json", sha256: "8fcb3e8d0109f14b2007cfbeb375db6b7886ada8f7104b1eea53f929f8bcd293", notes: "Ordinary JSON fixture; raw bytes produce fnv1a64:723b071980ae8a22."}
+              - {path: "docker-image:learn-llm-ch02-corpus-json:20260804-staged", sha256: "015da69c400898df3ca876d642f56f5868ba9ec1bf01eb07b3eafdc1e99630fe", notes: "Final locked/offline staged Rust and site validation workspace."}
+              - {path: "docker-image:learn-llm-ch02-corpus-json-release:20260804-staged", sha256: "e965739078876bef32609399fbae54256cc0e5cff671cd15b3f4cec351080851", notes: "Final staged 85-page static release and link-check workspace."}
+              - {path: "docker-image:learn-llm-ch02-corpus-json-browser:20260804-staged", sha256: "811b943cd3caa4e35491df043efaf9e42efb6df4065c7afd74e4614980b2eab6", notes: "Exact final staged Playwright image used for both 199-test browser passes."}
+              - {path: "docker-image:learn-llm-review:20260804t103218z-replace-ch02-corpus-json-plumbing-with-serde-01", sha256: "25304bd64bf19587607a85fea2320a746160b9d2246cfe8093bb3854c6bb399a", notes: "Manifest-verified human-review static image."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "8fa4305f5b55df83e4a45d6cb3b9886f63a0b02af9831296953ff293bd08e715", notes: "Canonical full-check workspace after publication."}
+              - {path: "docker-image:learn-llm-ch02-corpus-json-browser:20260804-canonical", sha256: "09c09cac2259ad3a45cee21681ae37858c11e37d0659abc22473bdfc9cd72f96", notes: "Pinned Playwright image copied from the canonical validated workspace."}
+            validation:
+              - {command: "Corrected scope, dependency, ownership, localization, checksum-propagation, and cost preflight", status: passed, notes: "The prior staged subset was caught before publication. The ordinary corpus JSON conversion requires the declared current surfaces; historical BUILD_STATE/DECISIONS records remain immutable. Decoded texts and split membership stay fixed, while only the raw fixture checksum and direct path/API evidence propagate. The large no-network step fits the unlimited budget and does not require an approval pause."}
+              - {command: "Docker Node raw-byte FNV calculation", status: passed, notes: "The formatted staged JSON fixture hashes to fnv1a64:723b071980ae8a22. Docker pulled the official pinned-by-digest result after the tag was not local; that newly discovered implementation input is explicit. Later network-enabled repository-wrapper observations are recorded separately."}
+              - {command: "First full locked/offline workspace tests and Clippy", status: failed, notes: "Both reached the same pre-existing Chapter 21 assertion and found one additional serde_json-induced empty-Vec expected-type ambiguity: [vec![], vec![], vec![]]. The replacement step now owns that test-only expression and will annotate its empty Vec element type; no mini-batch behavior changes."}
+              - {command: "First final-content staged Docker rebuild", status: failed, notes: "The command omitted the declared named build context, so BuildKit treated staged as a registry image and attempted metadata/auth before failing without changing staged files. The corrected validation command supplies --build-context staged=<run publish directory>; subsequent builds use local inputs with --network none."}
+              - {command: "First final-review Chromium and Firefox selected browser matrix", status: failed, notes: "Chromium passed 198/199 and Firefox passed 197/199. Both exposed one stale Chapter 2 rendered-text locator after the more precise format-boundary paragraph; Firefox also measured 134px rather than at most 92px of full-view vertical travel after the first expanded Russian Chapter 39 accessibility labels. All other selected chapter, formula, diagram-style, desktop, narrow, no-JavaScript, forced-color, RTL, and full-view cases passed. The unpublished assertion now targets the precise UTF-8 boundary, and concise natural Russian labels retain the reviewed meaning while reducing reflow; a fresh exact-image matrix is required."}
+              - {command: "Final staged cargo fmt, Clippy -D warnings, workspace tests, dependency policy, and deterministic demo replay", status: passed, notes: "All work ran in the no-network staged image with Cargo.lock, offline crates, and no host target. The complete workspace and doc tests passed, including 365 core tests; 39 demos were discovered and 34 checked traces replayed exactly."}
+              - {command: "Final staged content, Astro, Vitest, static build, and link/SEO/sitemap/analytics checks", status: passed, notes: "Vitest passed 958 tests in 54 files; content/parity validated 80 localized sources, 40 locale sets, 33 catalog keys, and 42 diagrams; Astro reported 215 files and zero diagnostics; 85 pages, 2447 local references, 85 SEO routes, 85 sitemap URLs, 85 analytics routes, and 163 artifacts passed."}
+              - {command: "Final exact-image staged Chromium and Firefox selected browser matrix", status: passed, notes: "Chromium passed 199/199 and Firefox passed 199/199. Affected chapter slices plus course-wide diagram style, box containment, full view, formulas, desktop, narrow, no-JavaScript, forced colors, focus, and synthetic RTL all passed."}
+              - {command: "Independent code, English-content, Russian-localization, and exact-hash reviews", status: passed, notes: "All three reviewers reported no remaining findings. English hashes were recorded before direct Russian refresh; formulas, code, IDs, values, checksum, causal relationships, natural terminology, standalone labels, and accessibility semantics match."}
+              - {command: "62-entry staged SHA-256 manifest and ./course review 20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01 --check", status: passed, notes: "The manifest listed every staged regular file exactly once and verified every byte. The review helper rebuilt 85 pages and passed content, parity, Astro, and link checks without mutating publish/. It resolved cached nginx registry metadata through Docker's network-enabled wrapper; no product or dependency input drifted."}
+              - {command: "Canonical publication equality and removed-fixture audit", status: passed, notes: "All 62 canonical product files compare byte-for-byte with publish/; rust/data/tiny-bilingual-corpus.txt is absent; only the declared product paths plus BUILD_STATE.yaml and DECISIONS.md are changed."}
+              - {command: "./course check", status: passed, notes: "The canonical Docker workspace passed Rust formatting and the full workspace/doc suite, Astro diagnostics, content/parity, the 85-page build, and link/SEO/sitemap/analytics checks. The network-enabled wrapper fetched only versions fixed by Cargo.lock and package-lock; canonical files did not change."}
+              - {command: "Canonical pinned Chromium and Firefox selected browser matrix", status: passed, notes: "An image copied from canonical learn-llm-workspace:local independently passed 199/199 Chromium tests and 199/199 Firefox tests with the same selected coverage."}
+              - {command: "First final ./course audit-host", status: failed, notes: "A root target/ directory timestamped during the independent final-review interval contained only reproducible Cargo fingerprints and build output. It was ignored and untracked, never staged or published, and was removed after exact inspection."}
+              - {command: "Final ./course audit-host, git diff --check, exact output-scope comparison, and BUILD_STATE.yaml parse", status: passed, notes: "The host is artifact-free apart from the intentional site/dist exception; the diff has no whitespace errors; changed paths exactly equal the 62-file publish set, the old fixture removal, and the two checkpoint records; BUILD_STATE.yaml parses successfully."}
+            notes: "Completed and published atomically at the repository step boundary. The course now uses ordinary JSON plus serde/serde_json for incidental syntax while retaining explicit LLM/data invariants and historical teaching code. Decoded documents, partitions, tokenization, model evidence, routes, and diagram geometry are unchanged; the raw-byte checksum and its exact current evidence changed together."
 
       - id: repair-ch39-explicit-figure-mappings
         objective: "Make every compressed Chapter 39 figure array order and unit understandable inside the figure itself."
-        depends_on: [replace-ch02-manifest-parser-with-serde]
+        depends_on: [replace-ch02-corpus-json-plumbing-with-serde]
         status: pending
         inputs: ["Audit finding F06", "curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"]
         outputs: ["curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]

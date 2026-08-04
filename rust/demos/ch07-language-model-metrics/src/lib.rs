@@ -11,9 +11,9 @@ use llm_from_scratch::data::EncodedCorpusPartitions;
 use llm_from_scratch::tokenizer::bpe::{BpeTokenizer, BpeTokenizerError, TOKENIZER_LAYOUT_VERSION};
 use llm_from_scratch::tokenizer::bpe_trainer::{BpeTrainer, BpeTraining, BpeTrainingError};
 
-const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
 const SPLIT_MANIFEST_SOURCE: &str = include_str!("../../../data/splits.json");
-const EXPECTED_CORPUS_CHECKSUM: &str = "fnv1a64:04786e7303f1dfd6";
+const EXPECTED_CORPUS_CHECKSUM: &str = "fnv1a64:723b071980ae8a22";
 const EXPECTED_SPLIT_STRATEGY: &str = "fixed-paired-document-holdout-v1";
 const EXPECTED_TRAIN_DOCUMENT_IDS: [&str; 8] = [
     "en-river-dawn",
@@ -196,7 +196,7 @@ struct ReconstructedFixture {
 // region:frozen-metric-fixture
 /// Executes the data-to-model path before the frozen identities are checked.
 fn reconstruct_frozen_metric_fixture() -> Result<ReconstructedFixture, FrozenFixtureError> {
-    let corpus = Corpus::from_utf8(CORPUS_BYTES)?;
+    let corpus = Corpus::from_json(CORPUS_BYTES)?;
     let manifest = SplitManifest::from_json(SPLIT_MANIFEST_SOURCE)?;
     let source_partitions = manifest.partition(&corpus)?;
     let training = BpeTrainer::new(EXPECTED_REQUESTED_MERGES).train(&source_partitions)?;

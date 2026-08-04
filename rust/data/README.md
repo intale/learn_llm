@@ -1,6 +1,6 @@
 # Tiny bilingual corpus
 
-`tiny-bilingual-corpus.txt` is an original teaching fixture written for this
+`tiny-bilingual-corpus.json` is an original teaching fixture written for this
 repository on 2026-07-18. It does not copy or derive text from an external
 dataset. Six short scenes are represented as twelve documents: one independently
 reviewed English document and one Russian document share each `pair-*` provenance
@@ -12,18 +12,23 @@ quality.
 
 ## Document format
 
-Every document has an explicit opening marker, UTF-8 body, and closing marker:
+The file is one ordinary JSON array. Each item has four required fields:
 
-```text
-%% document <document-id> <language> <provenance-group>
-<one or more body lines>
-%% end
+```json
+{
+  "id": "en-river-dawn",
+  "language": "en",
+  "provenance_group": "pair-river-dawn",
+  "text": "At dawn, Mira carries a blue notebook to the river."
+}
 ```
 
-IDs, language tags, and provenance groups use lowercase ASCII kebab case. Blank
-lines may occur inside a document, but body lines may not begin with the reserved
-`%% ` prefix. The parser rejects malformed markers, invalid UTF-8, empty bodies,
-and duplicate document IDs. It preserves source order and body line boundaries.
+`serde_json` handles JSON syntax and UTF-8 decoding. The course code separately
+checks the data invariants used by the split: IDs, language tags, and provenance
+groups begin with a lowercase ASCII letter and otherwise contain only lowercase
+ASCII letters or digits in nonempty hyphen-separated segments; text contains at
+least one non-whitespace character; document IDs and decoded text are unique; and
+array order is the canonical source order.
 
 ## Frozen split manifest
 
@@ -39,7 +44,7 @@ corpus document exactly once. It also keeps both translations in a provenance
 group in the same partition, so a translated counterpart cannot leak across the
 holdout boundary.
 
-The manifest records the FNV-1a 64-bit checksum of the exact corpus bytes. FNV is
+The manifest records the FNV-1a 64-bit checksum of the exact JSON file bytes. FNV is
 used only as a small deterministic drift detector; it is not a cryptographic
 integrity guarantee. Any content or line-ending change requires an explicit new
 manifest and content revision rather than silently reusing the old split.

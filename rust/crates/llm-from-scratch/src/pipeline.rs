@@ -601,7 +601,7 @@ fn prepare_data(
     split_source: &str,
     config: CapstoneConfig,
 ) -> Result<PreparedData, PipelineError> {
-    let corpus = map(PipelineStage::Corpus, Corpus::from_utf8(corpus_source))?;
+    let corpus = map(PipelineStage::Corpus, Corpus::from_json(corpus_source))?;
     let manifest = map(PipelineStage::Split, SplitManifest::from_json(split_source))?;
     let source_partitions = map(PipelineStage::Split, manifest.partition(&corpus))?;
     let learned = map(

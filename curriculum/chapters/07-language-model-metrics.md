@@ -2,7 +2,7 @@
 {
   "chapter_id": "07-language-model-metrics",
   "concept_id": "language-model-metrics",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 7,
   "objective": {
     "en": "Compute average negative log-likelihood and perplexity from the probabilities assigned to observed target tokens.",
@@ -76,7 +76,7 @@
       "rust/demos/ch07-language-model-metrics/src/main.rs",
       "rust/demos/ch07-language-model-metrics/src/diagram_trace.rs"
     ],
-    "expected_output": "tiny assigned probabilities: [0.500, 0.250]\ntiny total surprise: 2.079441541680\ntiny target count: 2\ntiny mean NLL: 1.039720770840 nats/target\ntiny perplexity: 2.828427124746\nperfect: mean_nll=0.000000000000 perplexity=1.000000000000\nuniform vocabulary=5: mean_nll=1.609437912434 perplexity=5.000000000000\nimpossible [0.800, 0.000]: mean_nll=inf perplexity=inf\nempty input: error=assigned probabilities must not be empty\nweighted documents: targets=4 mean_nll=1.039720770840 perplexity=2.828427124746\nequal document means (wrong): mean_nll=0.693147180560 perplexity=2.000000000000\nsame argmax=A target=B: q_nll=1.203972804326 r_nll=1.609437912434 lower=q\n2000 halves: raw_product=0.000e0 log_total_finite=true\ncorpus checksum: fnv1a64:04786e7303f1dfd6\nsplit strategy: fixed-paired-document-holdout-v1\ntokenizer: layout=1 requested_merges=8 learned_merges=8 vocabulary=266 statistics=train\nmodel: alpha=1.000000000000 fitted_documents=8 fitted_transitions=1844 source=train\nscored partitions: train,validation (test unavailable)\ntrain documents: [en-river-dawn, ru-river-dawn, en-clock-shop, ru-clock-shop, en-rain-library, ru-rain-library, en-bee-garden, ru-bee-garden]\ntrain: documents=8 targets=1844 total_surprise=7067.943541648752 mean_nll=3.832941183107 perplexity=46.198216022322\nvalidation documents: [en-night-station, ru-night-station]\nvalidation: documents=2 targets=469 total_surprise=1867.529710185699 mean_nll=3.981939680567 perplexity=53.620940919077\ntarget policy: BOS=context-only EOS=target documents=separate\nchapter 8 handoff: flat tensor storage and indexing\n"
+    "expected_output": "tiny assigned probabilities: [0.500, 0.250]\ntiny total surprise: 2.079441541680\ntiny target count: 2\ntiny mean NLL: 1.039720770840 nats/target\ntiny perplexity: 2.828427124746\nperfect: mean_nll=0.000000000000 perplexity=1.000000000000\nuniform vocabulary=5: mean_nll=1.609437912434 perplexity=5.000000000000\nimpossible [0.800, 0.000]: mean_nll=inf perplexity=inf\nempty input: error=assigned probabilities must not be empty\nweighted documents: targets=4 mean_nll=1.039720770840 perplexity=2.828427124746\nequal document means (wrong): mean_nll=0.693147180560 perplexity=2.000000000000\nsame argmax=A target=B: q_nll=1.203972804326 r_nll=1.609437912434 lower=q\n2000 halves: raw_product=0.000e0 log_total_finite=true\ncorpus checksum: fnv1a64:723b071980ae8a22\nsplit strategy: fixed-paired-document-holdout-v1\ntokenizer: layout=1 requested_merges=8 learned_merges=8 vocabulary=266 statistics=train\nmodel: alpha=1.000000000000 fitted_documents=8 fitted_transitions=1844 source=train\nscored partitions: train,validation (test unavailable)\ntrain documents: [en-river-dawn, ru-river-dawn, en-clock-shop, ru-clock-shop, en-rain-library, ru-rain-library, en-bee-garden, ru-bee-garden]\ntrain: documents=8 targets=1844 total_surprise=7067.943541648752 mean_nll=3.832941183107 perplexity=46.198216022322\nvalidation documents: [en-night-station, ru-night-station]\nvalidation: documents=2 targets=469 total_surprise=1867.529710185699 mean_nll=3.981939680567 perplexity=53.620940919077\ntarget policy: BOS=context-only EOS=target documents=separate\nchapter 8 handoff: flat tensor storage and indexing\n"
   },
   "visualization": {
     "decision": "useful",
@@ -147,7 +147,8 @@
     "Distinguish valid p=0 evidence, which produces positive infinity, from malformed input: empty input, NaN, infinite input probabilities, and probabilities outside [0,1]. Add-alpha smoothing makes this fitted bigram's queried probabilities positive but does not change the generic zero rule.",
     "Describe product underflow as values falling below the representable f64 range and rounding to zero. Describe the shared-argmax case only as a teaching contrast; do not invent a chronology in which accuracy was universally replaced by perplexity.",
     "Keep NLL, PPL, BOS, EOS, argmax, f64, Vec<f64>, token IDs, Rust identifiers, trace keywords, numeric values, URLs, paths, formulas, and train/validation trace labels as isolated left-to-right technical evidence. Do not import English word order into the surrounding Russian sentence.",
-    "Make both handoffs explicit: Chapter 8 begins flat Vec<f64> tensor storage and coordinate-to-offset indexing, Chapters 8–22 build the numerical and optimization machinery, and Chapter 34 owns the first test evaluation."
+    "Make both handoffs explicit: Chapter 8 begins flat Vec<f64> tensor storage and coordinate-to-offset indexing, Chapters 8–22 build the numerical and optimization machinery, and Chapter 34 owns the first test evaluation.",
+    "English revision 5 is the canonical semantic source. Russian revision 5 is refreshed directly from it with source SHA-256 9b9ea012a9ce9ea3f0b87ee066d390d237283498ebfade035401ae876df50231. The metric prose and values are unchanged; the visible loader call and corpus provenance checksum follow Chapter 2's ordinary JSON fixture while train/validation scoring remains identical."
   ],
   "acceptance_examples": [
     {
@@ -372,7 +373,7 @@ FIXTURE id=tiny target_count=2
 TARGET index=0 probability=0.500000000000 surprise=0.693147180560
 TARGET index=1 probability=0.250000000000 surprise=1.386294361120
 AGGREGATE id=tiny total_surprise=2.079441541680 target_count=2 mean_nll=1.039720770840 perplexity=2.828427124746
-PROVENANCE corpus_checksum=fnv1a64:04786e7303f1dfd6 split_strategy=fixed-paired-document-holdout-v1 tokenizer_layout=1 requested_merges=8 learned_merges=8 vocabulary=266 alpha=1.000000000000 fitted_partition=train fitted_documents=8 fitted_targets=1844
+PROVENANCE corpus_checksum=fnv1a64:723b071980ae8a22 split_strategy=fixed-paired-document-holdout-v1 tokenizer_layout=1 requested_merges=8 learned_merges=8 vocabulary=266 alpha=1.000000000000 fitted_partition=train fitted_documents=8 fitted_targets=1844
 SCORED partition=train documents=8 targets=1844 total_surprise=7067.943541648752 mean_nll=3.832941183107 perplexity=46.198216022322
 SCORED partition=validation documents=2 targets=469 total_surprise=1867.529710185699 mean_nll=3.981939680567 perplexity=53.620940919077
 BOUNDARY bos_target=no eos_target=yes cross_document=no test_selectable=no

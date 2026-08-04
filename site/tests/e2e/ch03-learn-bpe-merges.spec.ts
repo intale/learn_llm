@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '03-learn-bpe-merges';
-const contentRevision = 5;
+const contentRevision = 6;
 const formulaLatex = String.raw`(a^{*},b^{*})=\arg\max_{(a,b)}\bigl(C(a,b),-a,-b\bigr),\quad m^{*}=a^{*}\Vert b^{*}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 

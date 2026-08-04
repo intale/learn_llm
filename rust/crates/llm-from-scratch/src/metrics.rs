@@ -217,7 +217,7 @@ mod tests {
     use crate::tokenizer::bpe_trainer::BpeTrainer;
 
     const TOLERANCE: f64 = 1.0e-12;
-    const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.txt");
+    const CORPUS_BYTES: &[u8] = include_bytes!("../../../data/tiny-bilingual-corpus.json");
     const SPLIT_MANIFEST: &str = include_str!("../../../data/splits.json");
     const TRAIN_IDS: [&str; 8] = [
         "en-river-dawn",
@@ -239,8 +239,8 @@ mod tests {
     }
 
     fn frozen_model_and_partitions() -> (EncodedCorpusPartitions, BigramModel) {
-        let corpus = Corpus::from_utf8(CORPUS_BYTES).expect("checked-in corpus is valid");
-        assert_eq!(corpus.checksum(), "fnv1a64:04786e7303f1dfd6");
+        let corpus = Corpus::from_json(CORPUS_BYTES).expect("checked-in corpus is valid");
+        assert_eq!(corpus.checksum(), "fnv1a64:723b071980ae8a22");
 
         let manifest = SplitManifest::from_json(SPLIT_MANIFEST).expect("split manifest parses");
         assert_eq!(manifest.corpus_checksum(), corpus.checksum());
