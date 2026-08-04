@@ -30433,7 +30433,7 @@ builds:
       - id: repair-ch13-explicit-sampler-symbols
         objective: "Define every Chapter 13 deterministic sampler symbol, quantity, and index bound where its offset formula is introduced."
         depends_on: [repair-ch12-explicit-mean-nll]
-        status: pending
+        status: completed
         inputs: ["Audit finding F04", "curriculum/chapters/13-gradient-checking.md", "site/src/content/chapters/en/13-gradient-checking.mdx", "site/src/content/chapters/ru/13-gradient-checking.mdx", "site/tests/13-gradient-checking-diagram.test.ts", "site/tests/e2e/ch13-gradient-checking.spec.ts", "rust/crates/llm-from-scratch/src/autograd/gradcheck.rs"]
         outputs: ["curriculum/README.md", "curriculum/chapters/13-gradient-checking.md", "site/src/content/chapters/en/13-gradient-checking.mdx", "site/src/content/chapters/ru/13-gradient-checking.mdx", "site/tests/13-gradient-checking-diagram.test.ts", "site/tests/e2e/ch13-gradient-checking.spec.ts", "BUILD_STATE.yaml"]
         acceptance:
@@ -30443,7 +30443,39 @@ builds:
           - "Focused source and two-engine rendered checks cover the corrected formula explanation and complete localized pages."
         validate: ["Staged Chapter 13 review/content/parity/static/link gate", "Focused Chapter 13 Vitest", "Focused Chromium and Firefox Chapter 13, diagram, full-view, and formula matrix", "./course check", "Canonical focused replay", "git diff --check", "./course audit-host"]
         cost: {class: medium, notes: "Small bilingual prose/revision/test correction with cached staged and canonical two-engine validation; no external service, dependency, Rust, or diagram change."}
-        runs: []
+        runs:
+          - run_id: 20260804T084155Z-repair-ch13-explicit-wording-01
+            started_at: 2026-08-04T08:41:55Z
+            finished_at: 2026-08-04T09:05:02Z
+            status: succeeded
+            input_fingerprint:
+              git: d7e9c96fd8530ccffec986cd25040d7066d0bad1
+              files: {AGENTS.md: "sha256:e4a4f7ffe028f35484a777a65c257fa0e6717839de52c1fdadb5c3f742efd12f", SKILLS.md: "sha256:e6431f4c5501289c21ae2517fd369a57864d8d9b077557b2d3f2f816b12f27c5", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", BUILD_STATE.yaml: "sha256:7029de8aaa39740336bf1dcaba7f588b4399812e85b5168711281dbea7de07a0", DECISIONS.md: "sha256:953bb67293cbf9296bd8689ce912b89b934fe7703643366652bd3f56ba7acb2d", audit: "sha256:298f6d28f2e59550ee3401f162859e53667956b41987b18c766f693be12dc770", curriculum-readme: "sha256:810b4d4e83e2eee5fa2de9099b12662a2aed26570b47fc0f1809c855b3ec23a9", contract: "sha256:2a19744e6e0c4ffbd1637e5dfc6e2446a15f9a6bf59292c5d5dc05baa1eae9e0", english-lesson: "sha256:ca9ebab2f3c8a758203c7a4ba1532e705ef3139d9bec9e5b7f0cc2ea959d1ae8", russian-lesson: "sha256:8353beb3bac64f59f54ad6d453a8c261a149941056ea5a7e23c61475bf60c143", source-test: "sha256:6a979e7ff4f4b2426729a017924b76c4d7223d1fdcca3ff7fa55df661af100c7", browser-test: "sha256:624f73ac7ae716a72e6b542f7e8600349a1048af865d3bef8c24e7c48afee171", rust-evidence: "sha256:5204c780971a02c459f469d8d02ea55c3798f58e96ed11f1bc1f4d959d5c96b4"}
+              tools: "Host Git 2.53.0 and Docker 25.0.2; repository Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 remain Docker-only."
+              external: "None. Frozen audit F04 and the checked-in deterministic sampler are authoritative."
+            staging_dir: .build/runs/20260804T084155Z-repair-ch13-explicit-wording-01/
+            commands:
+              - "Confirm commit d7e9c96 independently completed Chapter 12, verify a clean tree and completed dependency, inspect F04 plus the exact clamped sampler behavior, and claim only the Chapter 13 outputs before product edits."
+              - "Author English revision 5 in the run publish tree, refresh Russian directly from that revision with the localization skill, and add focused source and rendered assertions for definitions, branch bounds, the worked substitution, exercise, and answer."
+              - "Freeze the six-file manifest, pass the staged static and focused unit gates plus pinned Chromium/Firefox matrices, publish byte-identical files with apply_patch, and replay the complete canonical workspace and browser gates."
+            artifacts:
+              - {path: ".build/runs/20260804T084155Z-repair-ch13-explicit-wording-01/publish.sha256", sha256: "bbd3db4da37b08901f8d5262017009bb03ac57ba30b86e5b8ce126477e10695c", notes: "Final six-file staged publication manifest; every canonical file was byte-compared with this tree after publication."}
+              - {path: ".build/runs/20260804T084155Z-repair-ch13-explicit-wording-01/localization-review.md", sha256: "f1b37ecfadd331363fbd421055b40a79d1d00052ac5ebb5eb5a9678284b32c64", notes: "Meaning-lock, semantic, terminology, anti-calque, monolingual, accessibility, independent, and rendered-surface review for direct English-to-Russian revision 5."}
+              - {path: "docker-image:learn-llm-explicit-ch13:20260804-staged", sha256: "4a0d213027558e8139f6d2c443c0a4a8a608c7a7df89b9f4b02138b35318e3c7", notes: "Exact final staged source and static workspace used by the focused regression and browser runtime."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "a03c97b3aa5a95381824743ed8afdd6299b0429cf16962ceab2070c6fd438cf3", notes: "Fully validated canonical Rust, content, parity, Astro, static, link, sitemap, SEO, and analytics workspace."}
+              - {path: "docker-image:learn-llm-explicit-ch13-browser:20260804-canonical", sha256: "0e4829669ab90528f601a6acb60943cb6a8203f8b5840f2167a220e197d253e4", notes: "Pinned Playwright 1.61.1 canonical replay image for Chromium and Firefox."}
+            validation:
+              - {command: "Repository, dependency, audit, locale, source, Rust-evidence, ownership, and cost preflight", status: passed, notes: "Chapter 12 is committed; Chapter 13 is the first eligible pending step; no output overlap exists; the Rust implementation establishes N as element count, S=min(requested,N) as actual selected count, k=0 through S-1, and floor(N/2) for S=1; cached medium validation fits the unlimited budget without external or paid services."}
+              - {command: "Independent Chapter 13 content and localization review", status: failed, notes: "The first candidate left exercise 6 referring to a distant multi-sample formula implicitly and used awkward Russian phrasing. The candidate remained staged and unpublished."}
+              - {command: "Independent Chapter 13 content and localization review after correction", status: passed, notes: "The final candidate maps R to max_samples, defines N, R, S, and k locally, states both branches, works [0,1,3,5], restates the formula in exercise 6, and uses natural semantically equivalent Russian wording with correct math/code markup."}
+              - {command: "./course review 20260804T084155Z-repair-ch13-explicit-wording-01 --check", status: passed, notes: "The final manifest verified; 80 localized sources and 40 locale sets passed content/parity; Astro reported 0 diagnostics; 85 pages and 2,447 local references passed static, SEO, sitemap, and analytics checks."}
+              - {command: "Staged and canonical npm --prefix site run test -- --run tests/13-gradient-checking-diagram.test.ts", status: passed, notes: "Both exact staged and validated canonical images pass all 22 focused tests, including local quantity definitions, both sampler branches, exact exercise formula, revision projection, trace parsing, and figure contracts."}
+              - {command: "Staged pinned Chromium and Firefox selected Chapter 13, diagram-style, full-view, and formula matrices", status: passed, notes: "Each engine passed 183 tests over both locales at desktop and narrow widths, full view, forced colors, no JavaScript, formula containment, diagram-box containment, and localized controls."}
+              - {command: "Localization review artifact", status: passed, notes: "Russian revision 5 was refreshed directly from English revision 5 and passed meaning, terminology, anti-calque, monolingual, accessibility, independent content, and complete rendered-surface review."}
+              - {command: "./course check", status: passed, notes: "The complete canonical Docker workspace passed Rust formatting, every workspace and documentation test including 364 core tests, content/parity, Astro diagnostics, the 85-page static build, and link/SEO/sitemap/analytics validation."}
+              - {command: "Canonical pinned Chromium and Firefox replay of the selected staged matrix", status: passed, notes: "The final canonical Playwright image passed the same 183 tests in Chromium and 183 in Firefox."}
+              - {command: "git diff --check, exact staged/canonical scope audit, and ./course audit-host", status: passed, notes: "Whitespace is clean; only the six declared Chapter 13 outputs plus BUILD_STATE.yaml changed; all six canonical files match the frozen staging tree; Rust, trace, diagram, dependencies, routes, release output, and the frozen audit remain unchanged; the Docker-only host-artifact audit passes."}
+            notes: "Succeeded. Finding F04 is closed at every point of use: revision 5 defines N, R, S, and k; maps R to max_samples; states the S>1 iteration and S=1 midpoint branch; derives offsets [0,1,3,5] for shape [2,3]; and publishes one natural same-revision English/Russian locale pair without changing sampler behavior or evidence."
 
       - id: repair-ch22-explicit-adamw-identities
         objective: "Identify the Chapter 22 AdamW example parameter explicitly and answer the normalization-gain no-decay question causally."

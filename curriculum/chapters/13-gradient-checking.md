@@ -2,7 +2,7 @@
 {
   "chapter_id": "13-gradient-checking",
   "concept_id": "gradient-checking",
-  "content_revision": 4,
+  "content_revision": 5,
   "order": 13,
   "objective": {
     "en": "Approximate derivatives with central differences and compare analytic candidates using scale-aware error.",
@@ -159,7 +159,7 @@
     }
   ],
   "translation_notes": [
-    "Chapter 13 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 4 and both lessons publish one same-revision set.",
+    "Chapter 13 has the exact active locale set {en,ru}; Russian is translated directly from canonical English content revision 5 and both lessons publish one same-revision set.",
     "Keep central difference, analytic gradient, numerical gradient, step size, truncation error, rounding error, scaled error, tensor coordinates, formulas, Rust identifiers, trace keywords, and source URLs as exact technical evidence.",
     "Use «численная проверка градиента», «центральная разностная аппроксимация», «проверяемое аналитическое значение», «численная оценка производной», «погрешность усечения», «погрешность округления», «нормированная погрешность», «детерминированный выбор координат» and «независимый численный эталон» consistently; avoid literal calques such as «чекер», «чекпойнт», «сэмплирование», «пертурбация» and «оракул».",
     "Present a check as independent numerical evidence, not as the training gradient or a proof of the complete gradient. Never imply that finite differences run inside decoder inference or that the cited language models prescribed this course's step, tolerance, sampling, restoration, or error policy."
@@ -179,7 +179,7 @@
     },
     {
       "input": "sample shape [2,3] with max_samples=4",
-      "expected": "The seedless ordered flat offsets are [0,1,3,5], corresponding to coordinates [[0,0],[0,1],[1,0],[1,2]]; repeated calls return the same set."
+      "expected": "N=6 is the tensor element count, R=4 is the requested maximum, S=min(R,N)=4 is the actual selected count, and k=0,1,2,3 gives the seedless ordered flat offsets [0,1,3,5], corresponding to coordinates [[0,0],[0,1],[1,0],[1,2]]; repeated calls return the same set."
     },
     {
       "input": "check indexed mean NLL for logits [0,1,-1,2,0,-2], targets [0,2], and candidate (softmax-one_hot)/2",
@@ -285,12 +285,19 @@ then the plus perturbation, evaluates `f(theta-h)` before `f(theta+h)`, and
 rejects the first non-finite result. `compare_gradients` reports both correct and
 wrong finite candidates instead of treating a mismatch as an API error.
 
-`sample_tensor_coordinates` chooses `min(max_samples,N)` unique row-major flat
-offsets. One sample uses `N/2`; multiple samples use
-`floor(k*(N-1)/(S-1))`, so the ordered set spans both endpoints without a random
-seed. `sampled_tensor_gradient_check` validates every selected parameter and
-candidate before the first objective call, restores after every probe, and
-records each coordinate independently.
+For `sample_tensor_coordinates`, let $N$ be the number of elements in the
+nonempty tensor, let $R$ be the maximum coordinate count requested through
+`max_samples`, and let $S=\min(R,N)$ be the number of coordinates the function
+actually selects. Zero requests and empty tensors are rejected, so $S\geq1$.
+When $S>1$, the function evaluates
+$\left\lfloor k(N-1)/(S-1)\right\rfloor$ for every integer
+$k\in\{0,1,\ldots,S-1\}$; the ordered offsets therefore span both endpoints
+without a random seed. For shape `[2,3]`, $N=6$ and a request of $R=4$ gives
+$S=4$; $k=0,1,2,3$ produces `[0,1,3,5]`. When $S=1$, the denominator in the
+multi-sample formula would be zero, so the separate branch selects
+$\lfloor N/2\rfloor$. `sampled_tensor_gradient_check` validates every selected
+parameter and candidate before the first objective call, restores after every
+probe, and records each coordinate independently.
 
 The worked LLM example reuses Chapter 12 indexed mean NLL for shape `[2,3]`
 logits `[0,1,-1,2,0,-2]` and targets `[0,2]`. Its hand candidate is
@@ -318,7 +325,7 @@ point and function value.
 3. Explain why making `h` smaller is not monotonically better in finite precision.
 4. Classify the large-step error as truncation and the tiny-step error as rounding.
 5. Apply the scale-aware rule to analytic candidates `6` and `5.5`.
-6. Predict the four coordinates selected from shape `[2,3]`, then explain repeatability.
+6. For a tensor with $N=6$ elements, `max_samples` is $R=4$. Compute $S=\min(R,N)$, then evaluate $\left\lfloor k(N-1)/(S-1)\right\rfloor$ for every $k\in\{0,1,2,3\}$ and map the four flat offsets to shape `[2,3]` coordinates.
 7. Diagnose zero step, collapsed perturbation, non-finite evaluation, and shape mismatch.
 8. Misconception check: explain why gradcheck neither computes the training gradient nor belongs in decoder inference.
 
@@ -335,7 +342,7 @@ uses this oracle as evidence before automatic differentiation is trusted.
 ## Localization notes
 
 English and Russian form the complete active locale set for Chapter 13 at
-content revision 4. Russian is translated directly from that frozen English
+content revision 5. Russian is translated directly from that frozen English
 revision. Preserve formulae, numbers, trace keywords, Rust identifiers, source
 URLs, and `f64` lexemes exactly while translating every explanation, diagram
 label, accessible name, exercise, misconception check, history claim, and error

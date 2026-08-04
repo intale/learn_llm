@@ -24,7 +24,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '13-gradient-checking';
-const contentRevision = 4;
+const contentRevision = 5;
 const formulaLatex = String.raw`f'(\theta)\approx\frac{f(\theta+h)-f(\theta-h)}{2h}`;
 const repositoryRoot = resolve(process.cwd(), '..');
 const historySources = [
@@ -40,6 +40,8 @@ interface LocalizedCopy {
   headings: readonly string[];
   historyHeading: string;
   historyClaims: readonly string[];
+  implementationHeading: string;
+  samplerClaims: readonly string[];
   rustCaptions: readonly string[];
   rustLabels: readonly string[];
   diagramTitle: string;
@@ -51,6 +53,8 @@ interface LocalizedCopy {
   >;
   restoredText: string;
   exerciseSummary: string;
+  exerciseSix: string;
+  answerSix: string;
 }
 
 const copy = {
@@ -74,6 +78,13 @@ const copy = {
       "Bengio et al.'s neural language model maximizes next-word log-likelihood with an explicit backward/update phase over output, hidden, and learned word-feature parameters. Those propagated derivatives make repeated training updates practical, but the implemented derivative path is not an independent check of itself.",
       "The Transformer carries gradient-based training into repeated attention and feed-forward layers, using Adam for 100,000 base-model or 300,000 big-model steps. Baydin et al. distinguish numerical differentiation from reverse-mode automatic differentiation: finite differences estimate one local derivative from repeated evaluations, while reverse mode efficiently produces a scalar objective's gradient over many parameters. Here, the independent estimate can reveal a local mistake in a candidate derivative.",
       'This chapter uses central differences only as a slow sampled oracle for analytic candidates, including the Chapter 12 indexed mean NLL derivative, before Chapter 14 builds reverse mode. It does not train or run the decoder; its step size, tolerance, coordinate selection, restoration, finite-input, storage, and error-order rules are course-local.',
+    ],
+    implementationHeading: 'Implement a sampled numerical oracle',
+    samplerClaims: [
+      'Let N be the number of elements in the nonempty tensor, let R be the maximum coordinate count requested by the caller, and let S=\\min(R,N) be the number of coordinates the sampler actually selects.',
+      'When S>1, the sampler evaluates the flat offset \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor for every integer k\\in\\{0,1,\\ldots,S-1\\}.',
+      'For shape [2,3], N=6; with R=4, the actual count is S=4, and k=0,1,2,3 gives [0,1,3,5].',
+      "When S=1, the formula's denominator would be zero, so a separate branch selects \\lfloor N/2\\rfloor; for even N, this is the larger of the two central flat offsets.",
     ],
     rustCaptions: [
       'Define one quadratic prediction and both analytic candidates',
@@ -120,6 +131,10 @@ const copy = {
     },
     restoredText: 'yes, exactly',
     exerciseSummary: 'Check the predictions',
+    exerciseSix:
+      'For a tensor with N=6 elements, max_samples is R=4. Compute S=\\min(R,N), then evaluate \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor for every k\\in\\{0,1,2,3\\} and map the four flat offsets to shape [2,3] coordinates.',
+    answerSix:
+      'Here S=\\min(4,6)=4. For k=0,1,2,3, \\lfloor k(6-1)/(4-1)\\rfloor=\\lfloor 5k/3\\rfloor gives flats [0,1,3,5], hence coordinates [[0,0],[0,1],[1,0],[1,2]].',
   },
   ru: {
     revisionLabel: 'Версия материала',
@@ -142,6 +157,13 @@ const copy = {
       'Нейронная языковая модель Бенжио и соавторов максимизирует логарифмическое правдоподобие следующего слова и явно выполняет этап обратного распространения и обновления параметров выходного и скрытого слоёв, а также обучаемых векторных представлений слов. Передаваемые назад производные позволяют многократно обновлять параметры, но вычисляющий их путь не может независимо проверить сам себя.',
       'Transformer обучает градиентным методом повторяющиеся слои внимания и полносвязные блоки, выполняя 100 000 шагов Adam для базовой модели или 300 000 для большой. Байдин и соавторы различают численное дифференцирование и автоматическое дифференцирование в обратном режиме: конечные разности оценивают одну локальную производную по нескольким вычислениям функции, а обратный режим эффективно получает градиент скалярной цели по множеству параметров. Здесь такая независимая оценка помогает обнаружить локальную ошибку в проверяемой производной.',
       'В этой главе центральные разности служат лишь медленным независимым численным эталоном для выборочной проверки аналитически вычисленных значений, в том числе производной среднего NLL по индексам из главы 12. В главе 14 появится обратный режим. Такая проверка не обучает и не запускает декодер; правила выбора шага, допуска и координат, восстановления значений, конечности входов, хранения и очерёдности проверок относятся к данной реализации курса.',
+    ],
+    implementationHeading: 'Реализуйте выборочную численную проверку',
+    samplerClaims: [
+      'Пусть N — число элементов непустого тензора, R — максимальное запрошенное число координат, а S=\\min(R,N) — фактическое число выбранных координат.',
+      'При S>1 алгоритм вычисляет плоское смещение \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor для каждого целого k\\in\\{0,1,\\ldots,S-1\\}.',
+      'Для формы [2,3] имеем N=6; при R=4 получаем S=4, а k=0,1,2,3 даёт смещения [0,1,3,5].',
+      'При S=1 знаменатель формулы был бы равен нулю, поэтому отдельная ветвь выбирает \\lfloor N/2\\rfloor; для чётного N это большее из двух центральных плоских смещений.',
     ],
     rustCaptions: [
       'Задать квадратичный пример и оба аналитических значения',
@@ -191,6 +213,10 @@ const copy = {
     },
     restoredText: 'да, точно',
     exerciseSummary: 'Проверьте предсказания',
+    exerciseSix:
+      'В тензоре N=6 элементов, а значение max_samples равно R=4. Вычислите S=\\min(R,N), затем для каждого k\\in\\{0,1,2,3\\} найдите плоское смещение \\left\\lfloor k(N-1)/(S-1)\\right\\rfloor и сопоставьте четыре смещения с координатами формы [2,3].',
+    answerSix:
+      'Здесь S=\\min(4,6)=4. Для k=0,1,2,3 выражение \\lfloor k(6-1)/(4-1)\\rfloor=\\lfloor 5k/3\\rfloor даёт плоские смещения [0,1,3,5], то есть координаты [[0,0],[0,1],[1,0],[1,2]].',
   },
 } satisfies Record<ChapterLocale, LocalizedCopy>;
 
@@ -262,6 +288,14 @@ async function expectChapterContent(
   expect(
     await historyLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual(historySources);
+
+  const implementationNodes = page
+    .getByRole('heading', { level: 2, name: localized.implementationHeading, exact: true })
+    .locator(
+      `xpath=following-sibling::*[not(self::h2) and preceding-sibling::h2[1][normalize-space()="${localized.implementationHeading}"]]`,
+    );
+  const implementationText = await readMathAwareText(implementationNodes);
+  for (const claim of localized.samplerClaims) expect(implementationText).toContain(claim);
 
   const formula = page
     .locator('.katex-display')
@@ -523,12 +557,16 @@ async function expectChapterContent(
 
   const exerciseQuestions = page.locator('.lesson-body > ol > li');
   await expect(exerciseQuestions).toHaveCount(8);
+  expect(await readMathAwareText(exerciseQuestions.nth(5))).toBe(localized.exerciseSix);
   const exerciseDetails = page.locator('.lesson-body details');
   await expect(exerciseDetails).toHaveCount(1);
   await expect(exerciseDetails.locator('summary')).toHaveText(localized.exerciseSummary);
   await exerciseDetails.locator('summary').click();
   await expect(exerciseDetails).toHaveAttribute('open', '');
   await expect(exerciseDetails.locator('ol > li')).toHaveCount(8);
+  expect(await readMathAwareText(exerciseDetails.locator('ol > li').nth(5))).toBe(
+    localized.answerSix,
+  );
 
   await expectOrderedChapterNavigation(page, locale, chapterId, chapters);
   await expectNoOverflowOrClientScripts(page);

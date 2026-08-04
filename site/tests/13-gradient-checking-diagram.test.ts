@@ -27,6 +27,18 @@ const component = readFileSync(
   resolve(repositoryRoot, 'site/src/components/chapters/GradientCheckingDiagram.astro'),
   'utf8',
 );
+const contract = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/13-gradient-checking.md'),
+  'utf8',
+);
+const englishLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/en/13-gradient-checking.mdx'),
+  'utf8',
+);
+const russianLesson = readFileSync(
+  resolve(repositoryRoot, 'site/src/content/chapters/ru/13-gradient-checking.mdx'),
+  'utf8',
+);
 
 const labels: GradientCheckingDiagramLabels = {
   title: 'title',
@@ -84,6 +96,40 @@ const labels: GradientCheckingDiagramLabels = {
     rejected: 'X',
   },
 };
+
+describe('Chapter 13 explicit deterministic-sampler explanation', () => {
+  it('defines every quantity, branch, and iteration bound at the formula', () => {
+    for (const source of [contract, englishLesson, russianLesson]) {
+      expect(source).toContain('"content_revision": 5');
+      expect(source).toContain('$S=\\min(R,N)$');
+      expect(source).toContain('$S>1$');
+      expect(source).toContain('$k\\in\\{0,1,\\ldots,S-1\\}$');
+      expect(source).toContain('$\\left\\lfloor k(N-1)/(S-1)\\right\\rfloor$');
+      expect(source).toContain('$S=1$');
+      expect(source).toContain('$\\lfloor N/2\\rfloor$');
+      expect(source).toContain('$k=0,1,2,3$');
+    }
+
+    expect(englishLesson).toMatch(
+      /let \$S=\\min\(R,N\)\$ be the number\s+of coordinates the sampler actually selects/,
+    );
+    expect(russianLesson).toMatch(
+      /\$S=\\min\(R,N\)\$ — фактическое число выбранных координат/,
+    );
+    expect(englishLesson).not.toContain('and four samples use flat offsets');
+    expect(russianLesson).not.toContain('а четыре проверки используют плоские смещения');
+  });
+
+  it('restates the sampler inputs and complete formula in prediction check 6', () => {
+    const predictionChecks = contract.match(
+      /<!-- contract-section:exercises -->([\s\S]*?)<!-- contract-section:decoder-connection -->/,
+    )?.[1];
+
+    expect(predictionChecks).toContain(
+      '6. For a tensor with $N=6$ elements, `max_samples` is $R=4$. Compute $S=\\min(R,N)$, then evaluate $\\left\\lfloor k(N-1)/(S-1)\\right\\rfloor$ for every $k\\in\\{0,1,2,3\\}$ and map the four flat offsets to shape `[2,3]` coordinates.',
+    );
+  });
+});
 
 describe('Chapter 13 Rust trace parser', () => {
   it('projects the quadratic, step scan, tensor samples, restoration, and errors', () => {
