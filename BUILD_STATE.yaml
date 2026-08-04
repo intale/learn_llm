@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T07:42:11Z"
+updated_at: "2026-08-04T08:04:48Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: explicit-wording-course-audit-20260804
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -30197,7 +30197,7 @@ builds:
 
   - build_id: explicit-wording-course-audit-20260804
     objective: "Make explicit explanatory wording a durable chapter-authoring rule, then audit the complete published course against that rule without changing lesson content."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -30274,7 +30274,7 @@ builds:
         objective: "Inspect every published English and Russian lesson and cheat sheet for explanations that require learners to infer an essential referent or operation, quantity or unit, value-to-meaning mapping, order, prerequisite or condition, causal link, or scope."
         depends_on:
           - codify-explicit-wording-rule
-        status: pending
+        status: completed
         inputs:
           - "The committed codify-explicit-wording-rule checkpoint"
           - ".agents/skills/localize-llm-course/SKILL.md"
@@ -30303,4 +30303,36 @@ builds:
           - "git diff --check and exact audit/state/decision scope audit"
           - "./course audit-host"
         cost: {class: large, notes: "Manual wording-only review of 80 local lesson sources, 78 local cheat sheets, and chapter figure copy; substantial reasoning but no network, paid service, generation service, or substantial CPU."}
-        runs: []
+        runs:
+          - run_id: 20260804T074400Z-audit-course-explicit-wording-01
+            started_at: 2026-08-04T07:44:00Z
+            finished_at: 2026-08-04T08:04:48Z
+            status: succeeded
+            input_fingerprint:
+              git: d4134e3196c7aee379e1ef8c6d6984b5879efe15
+              files: {AGENTS.md: "sha256:e4a4f7ffe028f35484a777a65c257fa0e6717839de52c1fdadb5c3f742efd12f", SKILLS.md: "sha256:e6431f4c5501289c21ae2517fd369a57864d8d9b077557b2d3f2f816b12f27c5", BUILD_STATE.yaml: "sha256:3ed7572200b70db34ea553757c096eaa92c4cf3a66fa649cf297e4cb42f8fcbf", DECISIONS.md: "sha256:535d68043c103723bf5e1c2ba59da98a15b2d7e4c8030227289093b9e6d88fa0", localization-skill: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5", locale-policy: "sha256:64126e42e3144f0ab8f2c65d409599773ced9486d9e1a010b6d4e0362a83fc51", lessons-aggregate: "sha256:6e63b8ba9bb81286db9884f31d9e440221c2dd2dc298cedd16487954358cdd64", cheat-sheets-aggregate: "sha256:9dd7da40e9372b08617b0f945150f3e94ead575d8b805fb949342a4d2072169e", chapter-components-aggregate: "sha256:17b1445a18b4ab2073612c54ddd60257c6698207dd97060688ffe72e579db0a3", contracts-aggregate: "sha256:5178648e8df7bbb0d3aa678d9b5b123f2839edf2f097dce7bb66e5fad3b9271d"}
+              tools: "Host Git 2.53.0 and repository text tools only; no product language toolchain or browser is required for the wording-only source audit."
+              external: "None. The audit uses committed local sources only."
+            staging_dir: .build/runs/20260804T074400Z-audit-course-explicit-wording-01/
+            commands:
+              - "Verify clean commit d4134e3, claim the first eligible audit step, count the exact 40 English lessons, 40 Russian lessons, 39 English cheat sheets, and 39 Russian cheat sheets, and fingerprint lessons, sheets, chapter components, contracts, locale policy, authoring rules, and localization workflow."
+              - "Freeze one wording-only rubric, review Chapters 00-13, 14-26, and 27-39 as disjoint read-only assignments, and record every English lesson, Russian lesson, English sheet, and Russian sheet disposition before correlating findings."
+              - "Verify every reported source passage and imported component render site, merge eleven locale-specific lesson dispositions into six issue clusters, write the canonical report, and retain all learner-facing files unchanged."
+              - "Run the exact coverage gate, independent synthesis review, whitespace and scope checks, read-only Docker course-plan validation, and host-artifact audit."
+            artifacts:
+              - {path: "audits/2026-08-04-explicit-wording.md", sha256: "298f6d28f2e59550ee3401f162859e53667956b41987b18c766f693be12dc770", notes: "Canonical complete audit: 40 lesson pairs, 39 cheat-sheet pairs, six prioritized issue clusters, exact anchors, limitations, and no content repairs."}
+              - {path: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/rubric.md", sha256: "f46215aea24f7f2ea1fd0e2b2e098aa0d81b0206baf2e2b20c371f856fcbf51f", notes: "Frozen explicitness rubric and scope boundary used by all reviewers."}
+              - {path: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/reviews/ch00-13.md", sha256: "e6183718b850327448e19b23c89e4c73170c058ae8cb2a4551ca85acb712709f", notes: "Complete four-surface dispositions and findings for Chapters 00-13."}
+              - {path: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/reviews/ch14-26.md", sha256: "0a97315ab5e8f8ff2ced5ec96c1cccdda5a92bede7982fdf611491bd3c0ead04", notes: "Complete four-surface dispositions and findings for Chapters 14-26."}
+              - {path: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/reviews/ch27-39.md", sha256: "d66ff19f04747799ef65042b65685dedf9b5e2a8a9ae88afb1163c103a47382b", notes: "Complete four-surface dispositions and findings for Chapters 27-39."}
+              - {path: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/validation/check-wording-audit-coverage.sh", sha256: "a0b26a6e1ccd6e54f5c8154f76f840fde407b70bed3fd87b59fbe7f43f515d09", notes: "Run-local exact registered-slug and four-disposition coverage assertion."}
+            validation:
+              - {command: "Repository, dependency, source, localization-skill, ownership, cost, and scope preflight", status: passed, notes: "The explicit-wording rule is completed and committed; the audit is the first eligible step; all 158 required lesson/sheet records exist; canonical chapter and component sources are present; the large reasoning cost fits the unlimited budget and uses no network, paid service, generation service, dependency change, product build, or content mutation."}
+              - {command: "Three disjoint independent wording-only source reviews", status: passed, notes: "Chapters 00-13, 14-26, and 27-39 each have complete English lesson, Russian lesson, English sheet, and Russian sheet dispositions; imported human-language figure copy was followed, and locale results were recorded independently before correlation."}
+              - {command: "First independent canonical-report synthesis review", status: failed, notes: "The reviewer found one incomplete render-site anchor: the Russian Chapter 39 windows label at lesson line 137 renders through EndToEndLlmDiagram.astro lines 92-93. The report was corrected before completion; no learner source changed."}
+              - {command: "Final independent canonical-report synthesis review", status: passed, notes: "After adding the missing Chapter 39 component anchor, the report exactly preserves the range reviews, counts, severities, correlations, source anchors, learner consequences, rewrite directions, and wording-only boundary with no remaining concrete synthesis issue."}
+              - {command: ".build/runs/20260804T074400Z-audit-course-explicit-wording-01/validation/check-wording-audit-coverage.sh audits/2026-08-04-explicit-wording.md", status: passed, notes: "The canonical matrix contains exactly one row for each of 40 registered lesson pairs and valid dispositions for all 39 registered cheat-sheet pairs; Chapter 0 sheets are explicitly N/A."}
+              - {command: "docker run --rm --network none --mount type=bind,src=/home/int/Dropbox/learn_llm,dst=/workspace,readonly -w /workspace node:22.12.0-bookworm node scripts/check-course-plan.mjs", status: passed, notes: "The read-only no-network pinned Node container validates 40 chapters, 111 scheduled steps, and 40 implemented contracts through Chapter 39."}
+              - {command: "./course audit-host", status: passed, notes: "The host remains free of Rust, Node, Python, browser, and test artifacts; site/dist is the intentional static-release exception."}
+              - {command: "git diff --check and exact audit/state/decision scope audit", status: passed, notes: "Whitespace passes and the checkpoint contains only the canonical audit report, BUILD_STATE.yaml, and DECISIONS.md. No learner content, contract, code, test, dependency, release, route, or deployment file changed."}
+            notes: "Succeeded. Every active lesson and cheat sheet was inspected independently by locale under the explicit-wording rule. The canonical report records six issue clusters across five chapters—three medium and three low, with no high finding—and all 78 cheat sheets pass. The audit leaves learner content unchanged so each accepted repair can be separately scheduled, validated, and committed."

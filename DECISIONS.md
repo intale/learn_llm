@@ -12455,6 +12455,77 @@ the existing analytics initializer and this small pre-paint bootstrap together.
 `add-persistent-dark-theme`, and
 `20260803T121222Z-add-persistent-dark-theme-01`.
 
+## 2026-08-04 - Preserve explicit-wording findings as a separate audit result
+
+**Status:** Accepted outcome for `audit-course-explicit-wording`.
+
+**Context:** Independent wording-only readings of the frozen `d4134e3` course
+found six actionable issue clusters across five chapters. Five clusters occur
+in both locale lessons and one occurs only in English; all 78 cheat sheets pass
+this axis. The audit step is intended to establish complete evidence and
+priorities, not to mix multiple chapter repairs into one checkpoint.
+
+**Decision:** Publish `audits/2026-08-04-explicit-wording.md` with three medium
+findings covering Chapter 12's overflow-safe mean-NLL accumulators, Chapter 22's
+example parameter identity, and Chapter 25's compared RMSNorm stage, plus three
+low findings covering Chapter 13's sampler symbols, Chapter 22's no-decay
+exercise answer, and Chapter 39's figure value mappings. Record passes for every
+other lesson surface and every cheat sheet. Leave learner content unchanged;
+any accepted repair must be scheduled, localized where applicable, validated,
+and committed as later chapter-specific work.
+
+**Consequences:** The audit completes with findings rather than claiming the
+course is defect-free. Its report is the canonical remediation input and keeps
+the six clusters, eleven locale-specific lesson dispositions, severities, exact
+anchors, learner consequences, and rewrite directions independently
+inspectable. No contract, lesson, code, test, dependency, generated release,
+route, or deployment surface changes in this checkpoint.
+
+**Affected build, step, and run:** `explicit-wording-course-audit-20260804`,
+`audit-course-explicit-wording`, and
+`20260804T074400Z-audit-course-explicit-wording-01`.
+
+## 2026-08-04 - Audit explicit wording without repairing content
+
+**Status:** Accepted for `audit-course-explicit-wording`.
+
+**Context:** The newly committed rule applies to all learner-facing chapter
+explanations. Demonstrating whole-course coverage requires a manual reading of
+80 localized lessons, 78 localized cheat sheets, and the human-language copy in
+chapter figures. Automated searches can locate risky pronouns or shorthand but
+cannot prove whether a prepared learner has one unmistakable interpretation.
+The work is therefore a large reasoning task even though it requires no product
+build or external research.
+
+**Decision:** Audit the frozen `d4134e3` source revision without modifying any
+learner-facing file. Read English and Russian surfaces independently using one
+rubric: local referents and operations; quantities, units, and value mappings;
+orders, prerequisites, and conditions; causal links; scope; exact attachment of
+evidence; and concept-first wording. Use the localization workflow for the
+Russian reading while expressly excluding translation quality and parity.
+Correlate the independently recorded findings only afterward to classify them as
+source-wide or locale-only.
+
+Divide the read-only review into disjoint chapter ranges for parallel attention,
+then have the owning agent verify coverage, resolve duplicate or conflicting
+findings, and publish one canonical report. Flag a passage only when a learner
+prepared by preceding chapters could plausibly choose two meanings, cannot
+identify a required link without reconstructing another artifact, or could
+understand or implement the mechanism incorrectly. Do not flag every pronoun or
+repeat a definition whose antecedent is already local and unambiguous.
+
+**Consequences:** The audit report records a disposition for all 158 lesson and
+sheet records and covers visible figure and formula-explanation wording. It may
+succeed with findings; success proves complete inspection and classification,
+not defect-free content. Course repairs, if any, remain future separately
+scheduled and committed steps. The audit uses local text only, no network, paid
+service, generation service, dependency change, Docker product toolchain, or
+browser run.
+
+**Affected build, step, and run:** `explicit-wording-course-audit-20260804`,
+`audit-course-explicit-wording`, and
+`20260804T074400Z-audit-course-explicit-wording-01`.
+
 ## 2026-08-04 - Require explicit explanatory wording at the point of use
 
 **Status:** Accepted for `explicit-wording-course-audit-20260804`.
