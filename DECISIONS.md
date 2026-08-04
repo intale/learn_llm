@@ -13057,3 +13057,72 @@ cached canonical run.
 `simplify-rust-input-boundaries-20260804`,
 `simplify-corpus-json-string-boundary`, and
 `20260804T133445Z-simplify-corpus-json-string-boundary-01`.
+
+## 2026-08-04 - Separate learner evidence from cumulative Rust execution costs
+
+**Status:** Accepted audit outcome for `audit-rust-overengineering`. This entry
+classifies and prioritizes follow-up work; it changes no Rust behavior and
+supersedes no existing chapter decision by itself.
+
+**Context:** The corpus string-boundary correction exposed a broader design
+question: supporting code should not be custom merely because the LLM concepts
+are implemented from scratch. The cumulative course must remain inspectable, but
+it is also a trampoline toward a useful implementation. A disjoint three-part
+review therefore inspected all 181 tracked Rust sources at commit `7ffd6bb` and
+correlated evidence without compiling, generating, or changing product code.
+
+The review found thirteen issue clusters. The highest-priority problems are that
+ordinary backward, optimizer, BPE, and sampling calls construct detailed
+teaching evidence even when callers discard it; tensor access and trainer
+transactionality deep-copy parameter-sized buffers; tensor kernels allocate and
+validate coordinates inside scalar loops; checkpoint encoding repeatedly
+reconstructs and copies complete state; and the public checkpoint-tokenizer enum
+allows callers to bypass validation. Medium findings cover trusted-boundary
+revalidation and recomputation, custom diagram-evidence grammars, a partial
+fallible-allocation policy, avoidable batch/capstone copies, and custom temporary
+fixture paths. Mechanical error traits, quadratic duplicate searches, and
+conditional `u32 -> usize` failure branches are lower priority.
+
+**Decision:** Publish the evidence, severity, protected-candidate analysis, exact
+coverage, and bounded recommendations in
+`audits/2026-08-04-rust-overengineering.md`. Treat the report as a reviewed work
+queue, not authorization to combine refactors. Each selected correction needs a
+new narrow checkpoint, equivalence evidence, and its own commit.
+
+Keep one mathematical implementation while separating normal execution from
+optional observation. Chapter demos may request detailed evidence from the same
+kernel; the normal path need not construct and discard that evidence. Supporting
+transport and fixture infrastructure may use proportionate mature libraries
+under the existing locked-dependency review and allowlist policy. This permits a
+future chapter-by-chapter move from handwritten trace grammars to typed
+Serde/JSON records and permits `tempfile` or `thiserror` where their bounded roles
+are recorded. It does not permit delegating tensor, autodiff, optimizer,
+attention, sampling, or other taught LLM mechanics to a concept library.
+
+Existing accepted decisions remain current until explicitly superseded. In
+particular, changing Chapter 22's normal whole-set fresh-leaf replacement policy
+requires a new durable decision and matching evidence revision; changing a
+chapter's frozen trace grammar must supersede only the machine-transport choice
+while preserving Rust ownership of every calculation and deterministic datum.
+Chapter 35's taught checkpoint wire format, checksum, canonical encoding, parser
+limits, and atomic publication remain course-owned. Sampling pre-draw allocation,
+incremental-attention pre-commit allocation, and fixed-capacity cache reuse also
+remain transaction boundaries even if their recoverable allocation-error surface
+is simplified.
+
+Performance consequences in the report are scaling inferences from concrete
+per-element, per-token, per-parameter, and per-step work, not benchmark results.
+An optimization checkpoint must measure or otherwise prove its claimed benefit
+and retain frozen numerical/provenance behavior unless a chapter contract is
+intentionally revised.
+
+**Consequences:** The repository now has a complete, independently reviewed
+inventory of incidental Rust complexity and an order for addressing it without
+mislabeling current or historical LLM teaching code as overengineering. This
+audit adds only the report and checkpoint records. Rust sources, Cargo manifests,
+dependencies, lessons, traces, diagrams, fixtures, generated outputs, and runtime
+behavior are unchanged.
+
+**Affected build, step, and run:**
+`simplify-rust-input-boundaries-20260804`, `audit-rust-overengineering`, and
+`20260804T142323Z-audit-rust-overengineering-01`.

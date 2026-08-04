@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T14:20:23Z"
+updated_at: "2026-08-04T15:01:33Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: simplify-rust-input-boundaries-20260804
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -30884,7 +30884,7 @@ builds:
 
   - build_id: simplify-rust-input-boundaries-20260804
     objective: "Use a trusted Rust string at the corpus JSON boundary, then audit the complete Rust implementation for similar non-LLM overengineering without silently expanding the refactor."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -31054,7 +31054,7 @@ builds:
       - id: audit-rust-overengineering
         objective: "Detect non-LLM complexity across the complete checked-in Rust implementation and demos, with evidence and actionable recommendations but no product refactor."
         depends_on: [simplify-corpus-json-string-boundary]
-        status: pending
+        status: completed
         inputs:
           - "User request to detect similar overengineered places"
           - "AGENTS.md"
@@ -31079,4 +31079,42 @@ builds:
         cost:
           class: large
           notes: "Exhaustive local source review and correlation over the full Rust implementation; substantial reasoning only, no compilation, browser run, network, paid service, or product mutation."
-        runs: []
+        runs:
+          - run_id: 20260804T142323Z-audit-rust-overengineering-01
+            started_at: 2026-08-04T14:23:23Z
+            finished_at: 2026-08-04T15:01:33Z
+            status: succeeded
+            input_fingerprint:
+              git: "7ffd6bb4106e4b5f57e925bac5e12deeabe2afed; tree d05d5b1e8189eddb3b0043b44e3d5105d02cd4b8"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                Cargo.toml: "sha256:e30b38f0e40df2181bab5e8d07c959ec895e0928cf8bfae7f2816c86ccbd55e1"
+                Cargo.lock: "sha256:b9491c2c89096a48ea62c98f79b5851272df4cb3afca09d41b80ed679b5a7fe1"
+                dependency-policy: "sha256:fed99bf5391d6c61b222e06888feec0dff09a94c3c02c42385c58f9311af87b6"
+                rust-inventory: "181 tracked .rs files at commit 7ffd6bb"
+              tools: {git: "2.53.0", rg: "14.1.1"}
+              external: "None. Exhaustive local source review and correlation only; no build, browser, network, paid service, or model generation."
+            staging_dir: ".build/runs/20260804T142323Z-audit-rust-overengineering-01/"
+            commands:
+              - "Confirm clean committed API checkpoint 7ffd6bb, completed dependency, exact environment continuity, and no overlapping output owner."
+              - "Freeze the 181-file tracked Rust inventory and divide it into disjoint core/data, tensor/autodiff/training, and model/inference/demo reviews."
+              - "Read all 27 core/data/early-demo files, all 78 tensor/autodiff/training/NN files, and all 76 attention/model/generation/integration/later-demo files in three disjoint read-only reviews."
+              - "Re-open and correlate every high-severity call path plus repository-wide trace-grammar, allocation, error-trait, conversion, and exact-coverage searches."
+              - "Draft the report in the run-specific publish directory, correct six API-scope review findings, four tensor/training review findings, and three integration review findings, then obtain final PASS results from all three reviewers."
+              - "Promote the reviewed report to audits/2026-08-04-rust-overengineering.md through apply_patch and append its durable classification and follow-up boundary to DECISIONS.md."
+              - "Verify the pinned git ls-tree inventory, six-group 8/18/14/19/60/62 partition, report counts, exact source-statistic claims, whitespace, and three-path Git scope."
+              - "Parse the running and final BUILD_STATE.yaml with the pinned network-disabled Docker workspace, then run ./course audit-host."
+              - "Inspect and remove the ignored 247 MB target/ Cargo artifact tree discovered by the first final host audit, then repeat the host-boundary check."
+            artifacts:
+              - {path: "audits/2026-08-04-rust-overengineering.md", sha256: "91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf", purpose: "Canonical independently reviewed 181-file Rust overengineering audit with exact coverage, thirteen prioritized findings, protected implementations, and bounded follow-up order."}
+            validation:
+              - {command: "Repository, dependency, ownership, inventory, environment, and cost preflight", status: passed, notes: "The corpus string-boundary step is completed and committed; the worktree is clean. Exactly 181 tracked Rust source files form the audit universe. The single canonical report plus ledger/decision records do not overlap another running step. Cost is large local reasoning with no compilation, browser, network, paid service, or product mutation."}
+              - {command: "Three disjoint independent source reviews", status: passed, notes: "Reviews covered exact scopes A+D=27, B+E=78, and C+F=76. Their union is all 181 tracked Rust files and their intersection is empty. Each returned concrete evidence, rejected candidates, and no product edit."}
+              - {command: "Final evidence, severity, scope, and decision-compatibility synthesis", status: passed, notes: "All three reviewers passed the corrected report. It contains thirteen supported clusters—five high, five medium, and three low—separates direct evidence from scaling inference, protects LLM/historical algorithms and real boundaries, and requires explicit supersession before changing accepted Chapter 22 transaction or per-chapter trace-transport decisions."}
+              - {command: "Pinned git ls-tree inventory and six-group classifier", status: passed, notes: "The audited commit contains exactly 181 Rust sources: 40 shared and 141 demo files. The exact coverage partition is A=8, B=18, C=14, D=19, E=60, F=62, total=181, with zero unassigned or multiply assigned path."}
+              - {command: "Repository-wide report-statistic correlation", status: passed, notes: "Exact searches confirm 13 finding headings, 62 tracked diagram_trace.rs files, 39 diagram parser modules of which 36 use custom split/regex parsing, 43/18 shared/demo Error implementations, 53/75 shared/demo From implementations, 63 try_reserve_exact calls, and 104 AllocationFailed occurrences. The report states where counts are audit boundaries rather than universal defects."}
+              - {command: "Canonical report checksum and whitespace", status: passed, notes: "The published report is sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf and git diff --check reports no whitespace error."}
+              - {command: "First final ./course audit-host", status: failed, notes: "The audit found an ignored root target/ directory containing 247 MB and 2,133 Cargo build/cache files timestamped after the API checkpoint. It was not tracked, staged, published, or used as audit evidence. The exact generated directory was inspected and removed to restore the Docker-only host invariant."}
+              - {command: "Final exact three-path scope, BUILD_STATE.yaml parse, git diff --check, and ./course audit-host", status: passed, notes: "Only audits/2026-08-04-rust-overengineering.md, BUILD_STATE.yaml, and DECISIONS.md change. The completed ledger parses in the pinned network-disabled Docker workspace, whitespace is clean, no Rust product or dependency file changed, target/ is absent, and the host audit passes with only the intentional site/dist release exception."}
+            notes: "Succeeded read-only. The canonical report covers every tracked Rust source and records thirteen actionable clusters without changing Rust. It prioritizes opt-in observation, non-copying tensor access, efficient validated kernels, checkpoint copy removal, and sealed checkpoint tokenizer state while preserving one mathematical implementation, deterministic evidence, existing chapter decisions until explicitly superseded, current/historical LLM algorithms, and real public or untrusted-input checks."
