@@ -69,13 +69,18 @@ const labels: EndToEndLlmDiagramLabels = {
     gap: "gap",
     bytes: "bytes",
     records: "records",
-    logitProbe: "logit probe",
+    logitProbeText: "logit probe text",
+    logitProbeTokenIds: "logit probe token IDs",
     prompt: "prompt",
     sampling: "sampling",
     generated: "generated",
     decoded: "decoded",
-    generationWork: "generation work",
-    attentionScores: "attention scores",
+    retainedPrefixLengths: "retained prefix lengths",
+    cachePrefillPromptTokens: "cache prefill prompt tokens",
+    oneTokenDecodeInputTokens: "one-token decode input tokens",
+    cachedAttentionScoreCells: "cached attention score cells",
+    completePrefixAttentionScoreCells:
+      "complete-prefix attention score cells",
   },
   cues: {
     trainingOnly: "training only",
@@ -329,8 +334,26 @@ describe("Chapter 39 diagram labels and component contract", () => {
     expect(component).toContain("course-diagram__card-heading");
     expect(component.match(/data-diagram-card/g)).toHaveLength(8);
     expect(component.match(/data-stage-index=/g)).toHaveLength(8);
+    expect(component.match(/data-evidence="/g)).toHaveLength(10);
+    for (const evidence of [
+      "encoded-token-counts",
+      "window-counts",
+      "evaluation-batch-counts",
+      "reload-probe-text",
+      "reload-probe-token-ids",
+      "retained-prefix-lengths",
+      "cache-prefill-prompt-tokens",
+      "one-token-decode-input-tokens",
+      "cached-attention-score-cells",
+      "complete-prefix-attention-score-cells",
+    ]) {
+      expect(component.match(new RegExp(`data-evidence="${evidence}"`, "g"))).toHaveLength(1);
+    }
     expect(component).toContain("parseEndToEndLlmTrace(traceSource)");
     expect(component).toContain("validateEndToEndLlmDiagramLabels(labels)");
+    expect(component).not.toContain("prefixes=[");
+    expect(component).not.toContain("prefill={");
+    expect(component).not.toContain("decode={");
   });
 
   it("keeps every shared stage card visible and marked", () => {
@@ -353,7 +376,7 @@ describe("Chapter 39 diagram labels and component contract", () => {
 });
 
 describe("Chapter 39 bilingual lesson and evidence contract", () => {
-  it("publishes one exact revision-3 English/Russian lesson set", () => {
+  it("publishes one exact revision-4 English/Russian lesson set", () => {
     const contract = frontmatter(contractSource);
     const lessons = {
       en: frontmatter(englishLessonSource),
@@ -376,14 +399,14 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(contract).toMatchObject({
       chapter_id: "39-end-to-end-llm",
       concept_id: "end-to-end-llm",
-      content_revision: 3,
+      content_revision: 4,
       order: 39,
     });
     expect(contract.translation_notes.join(" ")).toContain(
       "exact active locale set is {en, ru}",
     );
     expect(contract.translation_notes.join(" ")).toContain(
-      "direct, meaning-first refresh of frozen English revision 3",
+      "direct, meaning-first refresh of frozen English revision 4",
     );
 
     const localizedRecords = [
@@ -448,7 +471,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.en).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "en",
-      content_revision: 3,
+      content_revision: 4,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Run the whole tiny LLM",
@@ -458,7 +481,7 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(lessons.ru).toMatchObject({
       chapter_id: contract.chapter_id,
       locale: "ru",
-      content_revision: 3,
+      content_revision: 4,
       order: contract.order,
       concept_id: contract.concept_id,
       title: "Запустите небольшую LLM целиком",
@@ -612,6 +635,16 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'description: "Follow frozen Rust evidence through training-only BPE, selection, test, exact reload, and cached generation."',
         'decodedText: "Cyrillic т followed by two generated spaces"',
         'spaceMarker: "Each ␠ marks one generated space."',
+        'encodedTokens: "Encoded token counts — train / validation / test"',
+        'windows: "Causal-window counts — train / validation / test"',
+        'evaluationBatches: "Evaluation mini-batch counts — train / validation / test"',
+        'logitProbeText: "Reload probe text"',
+        'logitProbeTokenIds: "Token IDs encoding the reload probe"',
+        'retainedPrefixLengths: "Retained prefix lengths in tokens before successive token choices"',
+        'cachePrefillPromptTokens: "Prompt tokens processed during cache prefill"',
+        'oneTokenDecodeInputTokens: "Earlier generated tokens processed one at a time by decode calls to obtain later logits"',
+        'cachedAttentionScoreCells: "Cached attention-score cells"',
+        'completePrefixAttentionScoreCells: "Calculated complete-prefix attention-score cells"',
         'pipeline: "Numbers give executable order. Double borders mark training-only input, validation selection, the local one-use test gate, and exact replay boundaries."',
       ],
       ru: [
@@ -619,9 +652,16 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
         'description: "Проследите в программе на Rust обучение BPE только по обучающей выборке, выбор состояния, итоговую оценку, точное восстановление и генерацию с кэшем."',
         'decodedText: "кириллическая т и два сгенерированных пробела"',
         'spaceMarker: "␠ — сгенерированный пробел."',
-        'evaluationBatches: "Мини-пакеты оценки по выборкам"',
-        'generationWork: "Префиксы / порядок прямых проходов"',
-        'attentionScores: "Ячейки оценок: кэш / полный пересчёт"',
+        'encodedTokens: "Число токенов после кодирования — обучение / валидация / тест"',
+        'windows: "Число каузальных окон — обучение / валидация / тест"',
+        'evaluationBatches: "Число мини-пакетов оценки — обучение / валидация / тест"',
+        'logitProbeText: "Текст пробы для проверки логитов после восстановления"',
+        'logitProbeTokenIds: "ID токенов, которыми закодирована проба"',
+        'retainedPrefixLengths: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)"',
+        'cachePrefillPromptTokens: "Число токенов промпта, обработанных при заполнении KV-кэша"',
+        'oneTokenDecodeInputTokens: "Число сгенерированных токенов, по одному поданных декодеру для следующих логитов"',
+        'cachedAttentionScoreCells: "Число оценок внимания при работе с KV-кэшем"',
+        'completePrefixAttentionScoreCells: "Число оценок внимания при эталонном расчёте по полному префиксу"',
         'cachedMatch: "решения с кэшем и полным пересчётом префикса совпадают"',
         'pipeline: "Числа задают порядок; двойные рамки — обучение без контрольных выборок, выбор по валидации, однократная оценка и точное воспроизведение."',
       ],
@@ -664,6 +704,15 @@ describe("Chapter 39 bilingual lesson and evidence contract", () => {
     expect(component).toContain("aria-label={labels.cues.decodedText}");
     expect(component).toContain("{labels.cues.spaceMarker}");
     expect(component).toContain("trace.generation.text.replaceAll(' ', '␠')");
+    expect(englishLessonSource).not.toContain(
+      'encodedTokens: "Encoded tokens by partition"',
+    );
+    expect(englishLessonSource).not.toContain(
+      'evaluationBatches: "Evaluation mini-batches by partition"',
+    );
+    expect(russianLessonSource).not.toContain(
+      'windows: "Окна по выборкам"',
+    );
   });
 
   it("rejects literal Russian calques, authoring leakage, and mojibake", () => {

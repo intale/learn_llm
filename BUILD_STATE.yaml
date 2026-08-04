@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T08:11:44Z"
+updated_at: "2026-08-04T12:53:51Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: repair-explicit-wording-findings-20260804
+active_build: null
 
 builds:
   - build_id: bootstrap-course
@@ -30340,7 +30340,7 @@ builds:
 
   - build_id: repair-explicit-wording-findings-20260804
     objective: "Close all six actionable clusters in the frozen explicit-wording audit, then align Chapter 2's incidental JSON plumbing with the course's supporting-library boundary through independently validated and committed checkpoints."
-    status: active
+    status: completed
     budget:
       unit: agent-session
       limit: null
@@ -30351,7 +30351,7 @@ builds:
       - "Canonical English is revised first and every affected Russian surface is refreshed directly from that exact English revision with meaning, terminology, anti-calque, monolingual, accessibility, and rendered-layout review."
       - "Each corrected chapter advances as one same-revision locale set with focused source and rendered regression coverage."
       - "Authoring rules distinguish mature supporting libraries for incidental general-purpose plumbing from current and historical LLM mechanisms, invariants, and decisions that remain course-owned learner evidence."
-      - "Chapter 2 uses serde/serde_json only for standard split-manifest JSON decoding while preserving its public API, corpus bytes, partition semantics, deterministic evidence, and course-owned validation."
+      - "Chapter 2 uses ordinary corpus JSON plus serde/serde_json only for standard corpus and split-manifest syntax while preserving explicit partition semantics, course-owned data validation, and a checksum over the exact checked-in corpus bytes."
       - "The historical audit remains an immutable report of revision d4134e3; completion is recorded in this replacement build and its chapter checkpoints."
       - "Each chapter correction and each added supporting-library checkpoint is persisted in its own Git commit before the next step starts."
     steps:
@@ -30810,9 +30810,9 @@ builds:
       - id: repair-ch39-explicit-figure-mappings
         objective: "Make every compressed Chapter 39 figure array order and unit understandable inside the figure itself."
         depends_on: [replace-ch02-corpus-json-plumbing-with-serde]
-        status: pending
-        inputs: ["Audit finding F06", "curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"]
-        outputs: ["curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
+        status: completed
+        inputs: ["Audit finding F06", "curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/src/lib/end-to-end-llm-diagram.ts", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "rust/demos/ch39-end-to-end-llm/diagram-trace.txt"]
+        outputs: ["curriculum/chapters/39-end-to-end-llm.md", "site/src/content/chapters/en/39-end-to-end-llm.mdx", "site/src/content/chapters/ru/39-end-to-end-llm.mdx", "site/src/components/chapters/EndToEndLlmDiagram.astro", "site/src/lib/end-to-end-llm-diagram.ts", "site/tests/39-end-to-end-llm-diagram.test.ts", "site/tests/e2e/ch39-end-to-end-llm.spec.ts", "BUILD_STATE.yaml", "DECISIONS.md"]
         acceptance:
           - "Local figure labels identify train/validation/test order for every partition array, identify the reload-probe values as token IDs encoding At, identify [1,2,3] as prefix lengths before successive token choices, identify prefill=1 as one prompt token processed during cache prefill, and identify decode=2 as two generated tokens processed one at a time to obtain later logits."
           - "English labels are corrected first and Russian labels are refreshed directly from them as concise natural standalone diagram language."
@@ -30820,4 +30820,64 @@ builds:
           - "The same-revision contract, lessons, label assertions, and Chromium/Firefox inline/full-view pages close F06 without box overflow or excessive scrolling."
         validate: ["Staged Chapter 39 review/content/parity/static/link gate", "Focused Chapter 39 Vitest", "Focused Chromium and Firefox Chapter 39, diagram, full-view, and formula matrix", "./course check", "Canonical focused replay", "git diff --check", "./course audit-host"]
         cost: {class: medium, notes: "Concise bilingual figure-label, semantic-row, revision, and test correction with cached staged and canonical two-engine containment validation; no external service, dependency, Rust, trace, or parser change."}
-        runs: []
+        runs:
+          - run_id: 20260804T114448Z-repair-ch39-explicit-figure-mappings-01
+            started_at: 2026-08-04T11:44:48Z
+            finished_at: 2026-08-04T12:53:51Z
+            status: succeeded
+            input_fingerprint:
+              git: "d8c1e1adb73df7a614bc5841c31b90992c7d7f3f; tree 9cd17c11695a6f45f995f20123c5566619b7f6c6"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                .agents/skills/localize-llm-course/SKILL.md: "sha256:838f5ceb1a148d00a5512893eae2fa2028a58ce20f67986f85812c00edb74ec5"
+                audits/2026-08-04-explicit-wording.md: "sha256:298f6d28f2e59550ee3401f162859e53667956b41987b18c766f693be12dc770"
+                curriculum/chapters/39-end-to-end-llm.md: "sha256:5fa136f21f29443a67f76d80732ac883d438ce99b0064349e4d945074640ff3c"
+                site/src/content/chapters/en/39-end-to-end-llm.mdx: "sha256:5f76249f41a75bb529e2cb135b0af45336ce8cefa97182a95b06ab7ada2dc360"
+                site/src/content/chapters/ru/39-end-to-end-llm.mdx: "sha256:623f225ecab7ba2d8de2891d7010bdc778408f0367335491bd63778c75275b4e"
+                site/src/components/chapters/EndToEndLlmDiagram.astro: "sha256:3d1131f5941706caf1dc1fa997c6b46b09ffcbf8e43f2c7d1e039145ee90b1c1"
+                site/src/lib/end-to-end-llm-diagram.ts: "sha256:ef24efce50c755768bc969ba4e375531a19e406e38a3e74c404cdb8f3fecfde3"
+                site/tests/39-end-to-end-llm-diagram.test.ts: "sha256:7503836dc0b63b620307dd53a1bb4cfb569f97eec1ba9e34977e0bde28dc79f7"
+                site/tests/e2e/ch39-end-to-end-llm.spec.ts: "sha256:0f380254b1e265576083c52538e2a1a576ca359b7b01cce53f2ffe4474faf7e4"
+                rust/demos/ch39-end-to-end-llm/diagram-trace.txt: "sha256:e10f7f20535295a9f6005a7cf69e4a97e1329268d8b1f9c1f58527191ce9719e"
+                BUILD_STATE.yaml: "sha256:275f1f92f198de711b10d8aed040cdd602ba372d5888cd67734b4a3f82a09dff"
+                DECISIONS.md: "sha256:d815232270faccaf2445de2d2f6c241d74dc66e7fe253aa4656ed5fb4f26849b"
+              tools: {git: "2.53.0", docker: "25.0.2"}
+            staging_dir: ".build/runs/20260804T114448Z-repair-ch39-explicit-figure-mappings-01/"
+            commands:
+              - "git status --short; git rev-parse HEAD; git rev-parse HEAD^{tree}; git log -1 --oneline"
+              - "Read the complete required workflow, localization skill, active build, latest run, Chapter 39 contract/locales/component/tests, audit finding F06, and immutable trace."
+              - "Author canonical English revision 4, refresh Russian directly from that exact revision, split compressed trace evidence into ten semantic rows, and add focused source and rendered assertions in the run publication tree."
+              - "Iterate the wide full-view geometry from measured Chromium and Firefox containment results, settle on stable data-evidence selectors and a six-track 3+2 layout, then freeze the exact seven-file SHA-256 manifest."
+              - "Run the manifest-locked staged review, focused Vitest, and 182-case Chromium and Firefox matrices; publish all seven files byte-for-byte; run ./course check and repeat focused canonical validation."
+              - "Inspect and remove the generated root target/ cache, then run ./course audit-host, git diff --check, manifest equality, exact output-scope, Docker image-ID, and YAML-structure checks."
+            artifacts:
+              - {path: ".build/runs/20260804T114448Z-repair-ch39-explicit-figure-mappings-01/publish.sha256", sha256: "448378fbc04dbf30147b2550f5df60a15b60cda0bc193f0033496ee65fede21e", notes: "Final frozen seven-file publication manifest; the English revision-4 lesson remains sha256:de48fd69bc609132c803cd9b61a749637372c7d379443a6b6fa3faef4fe6b37e for direct Russian provenance."}
+              - {path: "docker-image:learn-llm-review-workspace:ch39-f06", sha256: "b73d8b969cfd7a1f65357ef6259b66fa7a59b1b91bad19bf5250544c806cf8f1", notes: "Final manifest-equivalent staged workspace after the source-only count correction."}
+              - {path: "docker-image:learn-llm-ch39-f06-browser:staged", sha256: "ee9c16fd46b3cac8bfb41dd5f095644f647bce133a01d840bc0c1d53b7158c2c", notes: "Pinned Playwright 1.61.1 image containing the exact final staged workspace; its browser-relevant product and E2E inputs are byte-identical to the clean 182/182 two-engine candidate."}
+              - {path: "docker-image:learn-llm-review:20260804t114448z-repair-ch39-explicit-figure-mappings-01", sha256: "c1dcd6f697cb61c520c3b253428cb750af95ba4b3e987c6c03f144aade78423e", notes: "Final manifest-locked rendered staged review image."}
+              - {path: "docker-image:learn-llm-workspace:local", sha256: "523f93d732288a41440d7dc598ff467eec0770a37dcbcca3328baab247887891", notes: "Canonical full-check workspace after byte-identical publication."}
+              - {path: "docker-image:learn-llm-ch39-f06-browser:canonical", sha256: "62222478c9df49f129407d84468d9ac63f89ea6c48e160bc27b37a4771f5c171", notes: "Pinned Playwright image copied from the canonical validated workspace for the 182/182 two-engine replay."}
+            validation:
+              - {command: "Preflight dependency, ownership, input-hash, environment, and cost audit", status: passed, notes: "The dependency checkpoint is completed at d8c1e1a; the tree was clean; required inputs exist; cost is medium with cached Docker CPU and no network or paid service. The shared typed-label library is now declared because semantic rows require matching interface and validator keys."}
+              - {command: "./course review 20260804T114448Z-repair-ch39-explicit-figure-mappings-01 --check", status: passed, notes: "The staged revision passes content and locale parity for 80 sources and 40 locale sets, zero-diagnostic Astro checking across 215 files, an 85-page static build, and link/SEO/sitemap/analytics validation across 2,447 local references."}
+              - {command: "Staged npm --prefix site run test -- --run tests/39-end-to-end-llm-diagram.test.ts", status: passed, notes: "All 27 focused source, trace, contract, label-schema, static-component, formula, and localization checks passed inside the no-network staged workspace image."}
+              - {command: "Staged Chromium @chapter:39-end-to-end-llm|@diagram-style|@diagram-full-view|@formula-rendering matrix, attempt 1", status: failed, notes: "181/182 passed. Chapter 39 full view measured 197px vertical travel against the 108px limit after the new explicit fact rows; every other selected Chapter 39 desktop, narrow, no-JavaScript, forced-color, RTL, formula, diagram-style, box-containment, and course-wide full-view check passed. The unpublished component geometry must be reorganized and the complete exact-image matrix rerun."}
+              - {command: "Staged Chromium Chapter 39 full-view focused check, attempt 2", status: failed, notes: "The English-first fact-row reflow, horizontal fullscreen caption, and reviewed concise Russian labels reduced the failing Russian travel from 197px to 116px without shrinking or clipping text; the contractual limit is 108px. A final natural label reflow is required before the complete matrix is repeated."}
+              - {command: "Staged Firefox @chapter:39-end-to-end-llm|@diagram-style|@diagram-full-view|@formula-rendering matrix, attempt 1", status: failed, notes: "181/182 passed. The exact candidate that passed 182/182 in Chromium leaves 108px of English Chapter 39 full-view vertical travel against Firefox's 92px limit, so the locale loop stops before its Russian assertion; every other selected Chapter 39, shared diagram, formula, containment, desktop, narrow, no-JavaScript, forced-color, RTL, and full-view case passed. A read-only diagnostic then measured 158px for Russian. The unpublished layout needs one further natural reflow and both complete engine matrices must then be repeated."}
+              - {command: "Run-local Firefox per-card geometry diagnostics and CSS reflow experiments", status: passed, notes: "Measurements traced the excess to stacked batch/checkpoint facts, five explicit generation facts, and a serial section introduction—not to clipped text or a bounded-box escape. The first equal-column experiment proved that reflow could meet the 92px travel limit at the same font size, then the following containment gate rejected its narrow formula cells. Those measurements led to the final six-track 3+2 topology."}
+              - {command: "First refreshed staged workspace tag with Docker build --network none", status: failed, notes: "The review gate itself had already rebuilt and passed, but the separate tag command selected an uncached source-stage key under Docker's distinct no-network build mode and could not resolve Debian metadata. No staged or canonical file changed. The corrected tag build reuses the just-validated ordinary Docker cache key; browser execution remains network-disabled."}
+              - {command: "Staged Firefox Chapter 39 full-view focused check, attempt 3", status: failed, notes: "The first measured five-column candidate met the vertical-travel budget but the strengthened painted-content gate correctly found that the widest attention formula crossed the generation card's inner border. The candidate remains unpublished. Preserve the compact two-row layout while giving the two formula facts half-width columns, then repeat containment and travel checks."}
+              - {command: "Final staged content, parity, Astro, static-build, and link gate after measured reflow", status: passed, notes: "The exact six-track 3+2 evidence layout passes 80-source/40-locale content and parity checks, zero-diagnostic Astro checking over 215 files, an 85-page static build, and link/SEO/sitemap/analytics validation over 2,529 local references and 164 artifacts."}
+              - {command: "Final staged focused Chapter 39 Vitest", status: passed, notes: "All 27 source, trace, contract, exact-label-schema, semantic-row, formula, static-component, revision, and localization tests passed in the rebuilt staged workspace image."}
+              - {command: "Final staged pinned Chromium and Firefox selected Chapter 39, diagram-style, full-view, and formula matrices", status: passed, notes: "Each engine passed all 182 cases. Both locales preserve their ten exact semantic rows at desktop, narrow, no-JavaScript, forced-color, RTL, and full-view surfaces; every bounded box and painted text/formula remains contained, horizontal travel is zero, and the wide full view remains within its vertical-travel budget without shrinking or clipping text."}
+              - {command: "Seven-entry SHA-256 manifest and final ./course review 20260804T114448Z-repair-ch39-explicit-figure-mappings-01 --check", status: passed, notes: "The review helper verified every staged regular file exactly once before and after building, then repeated content/parity, zero-diagnostic Astro, 85-page static-build, and 2,529-reference link/SEO/sitemap/analytics checks without mutating publish/."}
+              - {command: "Focused Chapter 39 Vitest after stable data-evidence CSS selectors", status: failed, notes: "26/27 passed. A source-only count matched the ten markup attributes plus eleven new CSS-selector references, even though the browser matrices had already confirmed exactly ten semantic rows in the DOM. Narrow the assertion to double-quoted markup attributes and rerun; product content and rendering are not implicated."}
+              - {command: "Corrected final focused Chapter 39 Vitest and exact publication equality", status: passed, notes: "All 27 focused tests pass after the source assertion counts only double-quoted DOM attributes. Each of the seven canonical product files is byte-for-byte identical to its manifest-verified staged source; changed paths remain exactly those seven outputs plus BUILD_STATE.yaml and DECISIONS.md."}
+              - {command: "Independent English, Russian-localization, and final component reviews", status: passed, notes: "The English review found no content issue; the direct Russian review found all standalone mappings natural and exact; the final component review confirmed semantic order, stable data-evidence targeting, shared spacing ownership, accessibility, zero horizontal travel, and bounded full-view travel in both engines without clipping, shrinking, duplicate trees, or private scrolling."}
+              - {command: "./course check", status: passed, notes: "The canonical Docker workspace passed Rust formatting, the complete locked workspace and doc-test suite including 365 core tests, zero-diagnostic Astro checking, content/parity, the 85-page static build, and 2,529-reference link/SEO/sitemap/analytics validation."}
+              - {command: "Canonical focused Vitest plus pinned Chromium and Firefox selected matrices", status: passed, notes: "The canonical image passes all 27 focused source tests and each browser engine independently passes all 182 Chapter 39, diagram-style, full-view, and formula cases over desktop, narrow, no-JavaScript, forced-color, RTL, focus, box-containment, and localized surfaces."}
+              - {command: "First final ./course audit-host", status: failed, notes: "An ignored root target/ directory timestamped during the validation interval contained 247 MB only of Cargo cache/build output. It was never staged or published, was inspected exactly, and was removed to restore the Docker-only host invariant."}
+              - {command: "Final ./course audit-host and git diff --check", status: passed, notes: "The host is artifact-free apart from the intentional site/dist exception, the inspected generated target/ directory is absent, and the canonical diff has no whitespace errors."}
+              - {command: "Final manifest equality, exact nine-path scope, Docker artifact-ID verification, and BUILD_STATE.yaml structural parse", status: passed, notes: "All seven canonical product outputs match the frozen manifest; only those outputs plus BUILD_STATE.yaml and DECISIONS.md changed; every recorded reusable image exists with its exact ID; the completed build has no pending or running step and the ledger parses as valid YAML."}
+            notes: "Succeeded. Revision 4 gives each of the ten compressed Chapter 39 values one local semantic label in both locales, while the shared component keeps a single accessible semantic tree and reflows it into a measured six-track 3+2 full-view layout. The active build's stale manifest-only completion criterion is corrected to the already-completed ordinary corpus JSON migration. Rust, trace values, parser decisions, formulas, model behavior, dependencies, and routes remain unchanged."

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   chapterPath,
@@ -88,6 +88,32 @@ const copy = {
     fullViewCloseLabel: "Выйти из полноэкранного режима",
   },
 } as const;
+const evidenceCopy = {
+  en: [
+    { id: "encoded-token-counts", label: "Encoded token counts — train / validation / test", value: "[1852,471,444]" },
+    { id: "window-counts", label: "Causal-window counts — train / validation / test", value: "[1820,463,436]" },
+    { id: "evaluation-batch-counts", label: "Evaluation mini-batch counts — train / validation / test", value: "[15,4,4]" },
+    { id: "reload-probe-text", label: "Reload probe text", value: "At" },
+    { id: "reload-probe-token-ids", label: "Token IDs encoding the reload probe At", value: "[67,118]" },
+    { id: "retained-prefix-lengths", label: "Retained prefix lengths in tokens before successive token choices", value: "[1,2,3]" },
+    { id: "cache-prefill-prompt-tokens", label: "Prompt tokens processed during cache prefill", value: "1" },
+    { id: "one-token-decode-input-tokens", label: "Earlier generated tokens processed one at a time by decode calls to obtain later logits", value: "2" },
+    { id: "cached-attention-score-cells", label: "Cached attention-score cells", value: "1+2+3=6", formula: true },
+    { id: "complete-prefix-attention-score-cells", label: "Calculated complete-prefix attention-score cells", value: "1^2+2^2+3^2=14", formula: true },
+  ],
+  ru: [
+    { id: "encoded-token-counts", label: "Число токенов после кодирования — обучение / валидация / тест", value: "[1852,471,444]" },
+    { id: "window-counts", label: "Число каузальных окон — обучение / валидация / тест", value: "[1820,463,436]" },
+    { id: "evaluation-batch-counts", label: "Число мини-пакетов оценки — обучение / валидация / тест", value: "[15,4,4]" },
+    { id: "reload-probe-text", label: "Текст пробы для проверки логитов после восстановления", value: "At" },
+    { id: "reload-probe-token-ids", label: "ID токенов, которыми закодирована проба At", value: "[67,118]" },
+    { id: "retained-prefix-lengths", label: "Длины сохранённых префиксов перед каждым выбором токена (в токенах)", value: "[1,2,3]" },
+    { id: "cache-prefill-prompt-tokens", label: "Число токенов промпта, обработанных при заполнении KV-кэша", value: "1" },
+    { id: "one-token-decode-input-tokens", label: "Число сгенерированных токенов, по одному поданных декодеру для следующих логитов", value: "2" },
+    { id: "cached-attention-score-cells", label: "Число оценок внимания при работе с KV-кэшем", value: "1+2+3=6", formula: true },
+    { id: "complete-prefix-attention-score-cells", label: "Число оценок внимания при эталонном расчёте по полному префиксу", value: "1^2+2^2+3^2=14", formula: true },
+  ],
+} as const;
 const stageOrder = [
   "data",
   "tokenizer",
@@ -100,6 +126,25 @@ const stageOrder = [
 ] as const;
 
 const normalizeMath = (value: string) => value.replace(/\s+/g, "");
+
+async function expectExplicitEvidence(
+  diagram: Locator,
+  locale: ChapterLocale,
+) {
+  await expect(diagram.locator("[data-evidence]")).toHaveCount(10);
+  for (const expected of evidenceCopy[locale]) {
+    const row = diagram.locator(`[data-evidence="${expected.id}"]`);
+    await expect(row).toHaveCount(1);
+    await expect(row.locator("dt")).toHaveText(expected.label);
+    if ("formula" in expected) {
+      await expect(
+        row.locator('annotation[encoding="application/x-tex"]'),
+      ).toHaveText(expected.value);
+    } else {
+      await expect(row.locator("dd")).toHaveText(expected.value);
+    }
+  }
+}
 
 async function expectFormulaMarkup(page: Page) {
   await page.evaluate(() => document.fonts.ready);
@@ -331,7 +376,7 @@ async function expectChapterContent(
     chapterId,
     locale,
     order: 39,
-    revision: 3,
+    revision: 4,
     revisionLabel: localized.revisionLabel,
     title: localized.title,
     equivalentLocales: ["en", "ru"],
@@ -399,6 +444,7 @@ async function expectChapterContent(
   await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
   await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
   await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
+  await expectExplicitEvidence(diagram, locale);
   expect(
     await diagram.locator("[data-stage]").evaluateAll((cards) =>
       cards.map((card) => card.getAttribute("data-stage")),
@@ -419,17 +465,8 @@ async function expectChapterContent(
   await expect(diagram.locator('[data-stage="tokenizer"]')).toContainText(
     "266",
   );
-  await expect(diagram.locator('[data-stage="tokenizer"]')).toContainText(
-    "[1852,471,444]",
-  );
-  await expect(diagram.locator('[data-stage="batches"]')).toContainText(
-    "[1820,463,436]",
-  );
   await expect(diagram.locator('[data-stage="batches"]')).toContainText(
     "16/128",
-  );
-  await expect(diagram.locator('[data-stage="batches"]')).toContainText(
-    "[15,4,4]",
   );
   await expect(diagram.locator('[data-stage="model"]')).toContainText("1188");
   await expect(
@@ -467,9 +504,6 @@ async function expectChapterContent(
     "34",
   );
   await expect(
-    diagram.locator('[data-stage="checkpoint"] code').last(),
-  ).toHaveText("At [67,118]");
-  await expect(
     diagram.locator('[data-stage="generation"] code').first(),
   ).toHaveText("A [67]");
   await expect(
@@ -491,9 +525,6 @@ async function expectChapterContent(
   await expect(
     diagram.locator('[data-stage="generation"] small'),
   ).toHaveText(localized.spaceMarker);
-  await expect(diagram.locator('[data-stage="generation"]')).toContainText(
-    "prefixes=[1,2,3] prefill=1 decode=2",
-  );
   await expect(
     diagram.locator(
       '[data-stage="generation"] annotation[encoding="application/x-tex"]',
@@ -615,9 +646,7 @@ test.describe(
         await expect(diagram.locator("[data-diagram-card]")).toHaveCount(8);
         await expect(diagram.locator("[data-diagram-box]")).toHaveCount(8);
         await expect(diagram.locator("[data-diagram-scroll]")).toHaveCount(0);
-        await expect(
-          diagram.locator('[data-stage="checkpoint"] code').last(),
-        ).toHaveText("At [67,118]");
+        await expectExplicitEvidence(diagram, locale);
         await expect(
           diagram.locator('[data-stage="generation"] code').first(),
         ).toHaveText("A [67]");
@@ -736,15 +765,16 @@ test.describe(
         await expect(
           page.locator("[data-diagram-full-view-toggle]"),
         ).toHaveCount(0);
+        await expectExplicitEvidence(
+          page.locator('figure[data-visualization-id="end-to-end-llm"]'),
+          locale,
+        );
         await expect(page.locator('[data-stage="test"]')).toContainText(
           "1744",
         );
         await expect(page.locator('[data-stage="test"]')).toContainText(
           "0.115255167",
         );
-        await expect(
-          page.locator('[data-stage="checkpoint"] code').last(),
-        ).toHaveText("At [67,118]");
         await expect(
           page.locator('[data-stage="generation"] code').first(),
         ).toHaveText("A [67]");

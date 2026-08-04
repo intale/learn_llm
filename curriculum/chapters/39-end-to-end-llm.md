@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "concept_id": "end-to-end-llm",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 39,
   "objective": {
     "en": "Run one deterministic bilingual decoder-only LLM from frozen document partitions through training-only BPE, validation selection, one local final test evaluation, exact checkpoint reload, and cached text generation.",
@@ -128,8 +128,8 @@
     "decision": "useful",
     "id": "end-to-end-llm",
     "rationale": {
-      "en": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation.",
-      "ru": "Один нумерованный процесс слева направо делает информационную границу явной: тестовые мини-пакеты формируются только после обучения и выбора по валидации, затем точное восстановление из контрольной точки предшествует генерации с кэшем."
+      "en": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation. Local labels state training/validation/test order for every partition count and separately bind the reload-probe text, its token IDs, retained prefix lengths, the prompt-token cache-prefill count, and the one-token decode input count to their values.",
+      "ru": "Один нумерованный процесс слева направо делает информационную границу явной: тестовые мини-пакеты формируются только после обучения и выбора по валидации, затем точное восстановление из контрольной точки предшествует генерации с кэшем. Каждая подпись объясняет стоящее рядом число или список. Для данных по выборкам она указывает порядок «обучение / валидация / тест». Отдельные строки связывают со значениями текст пробы для проверки восстановления, ID токенов, которыми он закодирован, длины сохранённых префиксов, число токенов промпта при заполнении KV-кэша и число сгенерированных токенов, по одному поданных декодеру."
     }
   },
   "decoder_connection": {
@@ -174,14 +174,14 @@
     }
   ],
   "translation_notes": [
-    "Russian revision 3 is a direct, meaning-first refresh of frozen English revision 3 with SHA-256 5f76249f41a75bb529e2cb135b0af45336ce8cefa97182a95b06ab7ada2dc360; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Russian prose and accessibility wording clarify the unchanged English semantics; in the model evidence, only the ordinary JSON corpus path's raw-byte checksum changes.",
+    "Russian revision 4 is a direct, meaning-first refresh of frozen English revision 4 with SHA-256 de48fd69bc609132c803cd9b61a749637372c7d379443a6b6fa3faef4fe6b37e; no pivot locale or external translation service was used, and the exact active locale set is {en, ru}. Revision 4 makes every affected figure mapping local and explicit while preserving the Rust trace and computation unchanged.",
     "Preserve BPE, LLM, AdamW, BOS, EOS, KV, RNG, token IDs, hashes, tensor shapes, exact losses, source titles, formulas, links, and trace grammar.",
     "Keep the general autoregressive factorization distinct from this retained four-token context C=4 and keep the local selection-isolated test boundary distinct from a global claim that test data has never been read anywhere.",
     "The checkpoint claim covers byte-for-byte re-encoding and exact model, optimizer, tokenizer, step, and RNG state; the separate At probe must not be confused with generation from prompt A.",
     "The generated learner-visible output is Cyrillic т followed by two spaces, rendered as т␠␠ where the spaces must be visible; it demonstrates shared byte-tokenizer decoding, not translation quality.",
     "Keep the history on the path from count n-gram language models through learned distributed representations and masked self-attention to scaled autoregressive LLMs; scope paper claims to their sources and local evidence policies to this implementation.",
     "Prefer natural Russian mathematical and technical prose, including полный цикл работы LLM, состояние, выбранное по валидации, зафиксированная биграммная базовая модель, and продолжение с KV-кэшем; reject literal calques and mixed-language learner prose.",
-    "Any later semantic or presentation change to English revision 3 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
+    "Any later semantic or presentation change to English revision 4 makes this Russian review stale until it is refreshed directly from the new English source and revalidated in both browsers."
   ],
   "acceptance_examples": [
     {
@@ -190,7 +190,7 @@
     },
     {
       "input": "Learn eight BPE merges and encode every partition",
-      "expected": "Only the eight training document IDs supply pair counts; vocabulary size is 266 and encoded token counts are 1852, 471, and 444."
+      "expected": "Only the eight training document IDs supply pair counts. In training/validation/test order, encoded token counts are 1852, 471, and 444; causal-window counts are 1820, 463, and 436; and evaluation mini-batch counts are 15, 4, and 4. Vocabulary size is 266."
     },
     {
       "input": "Run both seed-39 training replays",
@@ -202,11 +202,11 @@
     },
     {
       "input": "Save and reload the selected state",
-      "expected": "The 30,994-byte, 34-record checkpoint re-encodes byte for byte; model, optimizer, BPE tokenizer, selected step, and RNG state are exact, while logits for probe At with IDs [67,118] agree bit for bit."
+      "expected": "The 30,994-byte, 34-record checkpoint re-encodes byte for byte; model, optimizer, BPE tokenizer, selected step, and RNG state are exact, while logits for probe text At, encoded as token IDs [67,118], agree bit for bit."
     },
     {
       "input": "Generate three tokens from prompt A with temperature 0.8, top-k four, and seed 38",
-      "expected": "Cached and complete-prefix paths both use prefix lengths [1,2,3], select [260,34,34], decode т followed by two spaces, stop at the token limit after two decode forwards, and finish with equal decisions and RNG state; cached work records 6 score cells and the prefix schedule calculates 14 for the dense reference."
+      "expected": "Both paths make the three choices from prefixes of lengths [1,2,3]. Cache prefill processes the one-token prompt to obtain logits for the first choice; two one-token decode calls process the first two generated tokens to obtain logits for the second and third choices. Both paths select [260,34,34], decode т followed by two spaces, stop at the token limit, and finish with equal decisions and RNG state; cached work records 6 attention-score cells and the calculated complete-prefix reference records 14."
     },
     {
       "input": "cargo run --quiet --locked -p ch39-end-to-end-llm",
@@ -239,7 +239,7 @@ training documents, two validation documents, and two test documents. BPE sees
 only training text and produces a 266-token vocabulary. Four-token causal
 windows yield 1,820 training, 463 validation, and 436 test windows. Updates use
 mini-batches of 16 windows; evaluation mini-batches hold at most 128 windows and
-therefore number 15, 4, and 4 by partition.
+therefore number 15, 4, and 4 in training, validation, and test order.
 
 Seed 39 initializes and orders two complete training replays. Both select step
 32 at validation loss 3.889531885. Only then does the run materialize test
@@ -254,7 +254,11 @@ and the separate probe `At`, encoded as `[67,118]`, reproduces every logit bit.
 Generation prompt `A` encodes as token 67. Sampling with $\tau=0.8$, $k=4$, and
 seed 38 selects tokens 260, 34, and 34. The tokenizer decodes them as Cyrillic т
 followed by two spaces, and cached and complete-prefix generation agree on every
-decision and final random state.
+decision and final random state. Both paths make those three choices from
+prefixes of lengths one, two, and three tokens. Cache prefill processes the
+one-token prompt to obtain logits for the first choice; two one-token decode
+calls process the first two generated tokens to obtain logits for the second
+and third choices.
 
 <!-- contract-section:formula -->
 ## Formula and symbols
@@ -340,6 +344,13 @@ round-trip plus cached/reference decisions. The process reflows into stacked
 stages at narrow widths; no arrows are needed because every stage already has a
 unique number and fixed document order.
 
+Every partition-count row states training, validation, and test order. The
+checkpoint card binds probe text `At` to token IDs `[67,118]` in separate rows.
+The generation card separately labels retained prefix lengths `[1,2,3]`, the one
+prompt token processed during cache prefill, and the two earlier generated tokens
+processed one at a time by decode calls to obtain later logits. Cached and
+calculated complete-prefix attention-score counts also have separate labels.
+
 <!-- contract-section:exercises -->
 ## Prediction checks
 
@@ -381,7 +392,7 @@ contract changed.
 <!-- contract-section:localization -->
 ## Localization notes
 
-English revision 3 is the canonical semantic source; Russian revision 3 is
+English revision 4 is the canonical semantic source; Russian revision 4 is
 published as its direct meaning-first translation. Preserve source titles, BPE
 and model abbreviations, symbols, hashes, token IDs, exact losses, formulas,
 links, and trace grammar. Keep probe `At` distinct from generation prompt `A`.

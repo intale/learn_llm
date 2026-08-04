@@ -2,7 +2,7 @@
 {
   "chapter_id": "39-end-to-end-llm",
   "locale": "en",
-  "content_revision": 3,
+  "content_revision": 4,
   "order": 39,
   "concept_id": "end-to-end-llm",
   "title": "Run the whole tiny LLM",
@@ -104,7 +104,7 @@
   "visualization": {
     "decision": "useful",
     "id": "end-to-end-llm",
-    "rationale": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation."
+    "rationale": "One numbered left-to-right process makes the information boundary visible: the run materializes test batches only after training and validation selection, then exact checkpoint round-trip precedes cached generation. Local labels state training/validation/test order for every partition count and separately bind the reload-probe text, its token IDs, retained prefix lengths, the prompt-token cache-prefill count, and the one-token decode input count to their values."
   },
   "decoder_connection": "Every course component now participates in one functional program: frozen bilingual data becomes BPE tokens and causal batches, validation selects the decoder before the local final evaluator receives test batches, checkpoint bytes and state round-trip exactly, the separate At probe reproduces logits bit for bit, and cached generation from A returns decoded text."
 }
@@ -130,14 +130,14 @@ export const diagramLabels = {
     generation: "Generate with the KV cache",
   },
   fields: {
-    documents: "Train / validation / test documents",
+    documents: "Document counts — train / validation / test",
     vocabulary: "Vocabulary size",
-    encodedTokens: "Encoded tokens by partition",
+    encodedTokens: "Encoded token counts — train / validation / test",
     context: "Causal context",
-    windows: "Train / validation / test windows",
+    windows: "Causal-window counts — train / validation / test",
     updateBatchSize: "Update mini-batch size",
     evaluationBatchSize: "Evaluation mini-batch size",
-    evaluationBatches: "Evaluation mini-batches by partition",
+    evaluationBatches: "Evaluation mini-batch counts — train / validation / test",
     parameters: "Learned parameters",
     trainLoss: "train",
     validationLoss: "validation",
@@ -147,13 +147,17 @@ export const diagramLabels = {
     gap: "Loss advantage",
     bytes: "Checkpoint bytes",
     records: "Tensor records",
-    logitProbe: "Reload logit probe",
+    logitProbeText: "Reload probe text",
+    logitProbeTokenIds: "Token IDs encoding the reload probe",
     prompt: "Prompt and token ID",
     sampling: "Sampling configuration",
     generated: "Generated token IDs",
     decoded: "Decoded text",
-    generationWork: "Prefix / forward schedule",
-    attentionScores: "Cached / calculated complete-prefix score cells",
+    retainedPrefixLengths: "Retained prefix lengths in tokens before successive token choices",
+    cachePrefillPromptTokens: "Prompt tokens processed during cache prefill",
+    oneTokenDecodeInputTokens: "Earlier generated tokens processed one at a time by decode calls to obtain later logits",
+    cachedAttentionScoreCells: "Cached attention-score cells",
+    completePrefixAttentionScoreCells: "Calculated complete-prefix attention-score cells",
   },
   cues: {
     trainingOnly: "no validation or test text contributes a merge",
@@ -383,9 +387,13 @@ update or selection in this run.
 The last two stages ask different equality questions. Checkpoint reload preserves
 saved bytes plus model, optimizer, tokenizer, step, and RNG state exactly; logits
 for probe <code>At</code> agree bit for bit. Cached generation from prompt
-<code>A</code> preserves the complete-prefix token decisions and RNG state. Its
+<code>A</code> preserves the complete-prefix token decisions and RNG state.
+Before the three token choices, the retained prefixes have lengths $1$, $2$,
+and $3$ tokens. Cache prefill processes the one-token prompt to produce logits
+for the first choice; two one-token decode calls then process the first two
+generated tokens to produce logits for the next two choices. The cached path's
 instrumented attention work contains $1+2+3=6$ score cells; the same prefix
-schedule gives the calculated dense reference count
+schedule gives the calculated complete-prefix reference count
 $1^2+2^2+3^2=14$.
 
 <EndToEndLlmDiagram labels={diagramLabels} />

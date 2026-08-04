@@ -32,13 +32,17 @@ export interface EndToEndLlmDiagramLabels {
     gap: string;
     bytes: string;
     records: string;
-    logitProbe: string;
+    logitProbeText: string;
+    logitProbeTokenIds: string;
     prompt: string;
     sampling: string;
     generated: string;
     decoded: string;
-    generationWork: string;
-    attentionScores: string;
+    retainedPrefixLengths: string;
+    cachePrefillPromptTokens: string;
+    oneTokenDecodeInputTokens: string;
+    cachedAttentionScoreCells: string;
+    completePrefixAttentionScoreCells: string;
   };
   cues: {
     trainingOnly: string;
@@ -714,13 +718,17 @@ export const validateEndToEndLlmDiagramLabels = (
       "gap",
       "bytes",
       "records",
-      "logitProbe",
+      "logitProbeText",
+      "logitProbeTokenIds",
       "prompt",
       "sampling",
       "generated",
       "decoded",
-      "generationWork",
-      "attentionScores",
+      "retainedPrefixLengths",
+      "cachePrefillPromptTokens",
+      "oneTokenDecodeInputTokens",
+      "cachedAttentionScoreCells",
+      "completePrefixAttentionScoreCells",
     ],
     cues: [
       "trainingOnly",

@@ -12920,3 +12920,58 @@ the exact evidence that prints or embeds them change together in one atomic step
 `20260804T101143Z-replace-ch02-manifest-parser-with-serde-01`,
 `replace-ch02-corpus-json-plumbing-with-serde`, and
 `20260804T103218Z-replace-ch02-corpus-json-plumbing-with-serde-01`.
+
+## 2026-08-04 - Give each Chapter 39 compressed value one local semantic label
+
+**Status:** Accepted for `repair-ch39-explicit-figure-mappings`.
+
+**Context:** Audit finding F06 identified that the Chapter 39 end-to-end figure
+compresses several different meanings into values such as `[1852,471,444]`,
+`At [67,118]`, and `prefixes=[1,2,3] prefill=1 decode=2`. Nearby chapter prose
+can help a reader reconstruct those meanings, but the figure is also a semantic
+surface used inline, in full view, by assistive technology, and during review.
+Its labels therefore need to state array order, units, and value-to-concept
+mappings at the point where each value appears.
+
+**Decision:** Keep the immutable Chapter 39 trace and computational behavior,
+but replace each affected compressed row with independently labelled evidence.
+Every partition array names train, validation, and test order. The reload probe
+separates its text from the token IDs that encode that text. Generation separates
+retained prefix lengths, prompt tokens processed during cache prefill, and
+generated tokens processed one at a time by subsequent decode calls. The
+cached and complete-prefix attention-score counts likewise receive separate local
+labels. Values remain plain trace evidence rather than being duplicated or
+recomputed in presentation code.
+
+The typed label interface and its exact-key validator at
+`site/src/lib/end-to-end-llm-diagram.ts` are necessary shared integration scope,
+so they are added to the step's declared inputs and outputs before product edits.
+English remains canonical and advances first; Russian is then refreshed directly
+from the exact English revision with concise natural standalone labels and the
+full localization review. The contract and both lessons advance together, and
+source plus Chromium/Firefox tests assert meanings and layout rather than only
+the presence of numeric strings.
+
+On wide native full-view surfaces, the existing semantic tree is reflowed rather
+than duplicated: the section heading shares a rail with its explanation,
+batch/checkpoint pairs use two columns, and generation uses a six-track grid with
+three count rows followed by two wider formula rows. The rules target stable
+`data-evidence` identities, not child positions, and consume the shared diagram
+gap token. Inline, narrow, mobile, and no-JavaScript presentations keep their
+existing order and fallback layout.
+
+The active build's completion criterion that still described the superseded
+manifest-only serde migration is corrected to the ordinary corpus JSON result
+already completed by the preceding checkpoint. This state correction changes no
+new product scope.
+
+**Consequences:** A reader no longer has to infer order or units by scanning
+surrounding prose. More evidence rows can increase card height, so inline and
+full-view containment, scrolling, and both locale layouts must pass in Chromium
+and Firefox at desktop and narrow widths. No Rust source, trace datum, formula,
+model result, dependency, route, or generation algorithm changes.
+
+**Affected build, step, and run:**
+`repair-explicit-wording-findings-20260804`,
+`repair-ch39-explicit-figure-mappings`, and
+`20260804T114448Z-repair-ch39-explicit-figure-mappings-01`.

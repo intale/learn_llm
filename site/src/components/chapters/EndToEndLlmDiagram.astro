@@ -70,10 +70,12 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
           <strong>{labels.fields.vocabulary}:</strong>
           <code><bdi dir="ltr">{trace.tokenizer.vocabulary}</bdi></code>
         </p>
-        <p>
-          <strong>{labels.fields.encodedTokens}:</strong>
-          <code><bdi dir="ltr">[{trace.tokenizer.encoded.join(',')}]</bdi></code>
-        </p>
+        <dl class="stage-facts course-diagram__grid">
+          <div data-evidence="encoded-token-counts">
+            <dt>{labels.fields.encodedTokens}</dt>
+            <dd><code><bdi dir="ltr">[{trace.tokenizer.encoded.join(',')}]</bdi></code></dd>
+          </div>
+        </dl>
       </li>
 
       <li
@@ -89,17 +91,19 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
           <InlineMath latex={'C=' + trace.batches.context} />
         </p>
         <p>
-          <strong>{labels.fields.windows}:</strong>
-          <code><bdi dir="ltr">[{trace.batches.windows.join(',')}]</bdi></code>
-        </p>
-        <p>
           <strong>{labels.fields.updateBatchSize} / {labels.fields.evaluationBatchSize}:</strong>
           <code><bdi dir="ltr">{trace.batches.update_batch_size}/{trace.batches.evaluation_batch_size}</bdi></code>
         </p>
-        <p>
-          <strong>{labels.fields.evaluationBatches}:</strong>
-          <code><bdi dir="ltr">[{trace.batches.evaluation_batches.join(',')}]</bdi></code>
-        </p>
+        <dl class="stage-facts course-diagram__grid">
+          <div data-evidence="window-counts">
+            <dt>{labels.fields.windows}</dt>
+            <dd><code><bdi dir="ltr">[{trace.batches.windows.join(',')}]</bdi></code></dd>
+          </div>
+          <div data-evidence="evaluation-batch-counts">
+            <dt>{labels.fields.evaluationBatches}</dt>
+            <dd><code><bdi dir="ltr">[{trace.batches.evaluation_batches.join(',')}]</bdi></code></dd>
+          </div>
+        </dl>
       </li>
 
       <li
@@ -193,10 +197,16 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
           <strong>{labels.fields.records}:</strong>
           <code><bdi dir="ltr">{trace.checkpoint.records}</bdi></code>
         </p>
-        <p>
-          <strong>{labels.fields.logitProbe}:</strong>
-          <code><bdi dir="ltr">{trace.checkpoint.logit_probe} [{trace.checkpoint.logit_probe_ids.join(',')}]</bdi></code>
-        </p>
+        <dl class="stage-facts course-diagram__grid">
+          <div data-evidence="reload-probe-text">
+            <dt>{labels.fields.logitProbeText}</dt>
+            <dd><code><bdi dir="ltr">{trace.checkpoint.logit_probe}</bdi></code></dd>
+          </div>
+          <div data-evidence="reload-probe-token-ids">
+            <dt>{labels.fields.logitProbeTokenIds} <code><bdi dir="ltr">{trace.checkpoint.logit_probe}</bdi></code></dt>
+            <dd><code><bdi dir="ltr">[{trace.checkpoint.logit_probe_ids.join(',')}]</bdi></code></dd>
+          </div>
+        </dl>
       </li>
 
       <li
@@ -227,15 +237,28 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
           <q aria-label={labels.cues.decodedText}><bdi dir="auto">{visibleGeneratedText}</bdi></q>
           <small>{labels.cues.spaceMarker}</small>
         </p>
-        <p>
-          <strong>{labels.fields.generationWork}:</strong>
-          <code><bdi dir="ltr">prefixes=[{trace.generation.prefixes.join(',')}] prefill={trace.generation.prefill} decode={trace.generation.decode}</bdi></code>
-        </p>
-        <p>
-          <strong>{labels.fields.attentionScores}:</strong>
-          <InlineMath latex={`1+2+3=${trace.generation.cached_scores}`} /> /
-          <InlineMath latex={`1^2+2^2+3^2=${trace.generation.calculated_complete_prefix_scores}`} />
-        </p>
+        <dl class="stage-facts generation-facts course-diagram__grid">
+          <div data-evidence="retained-prefix-lengths">
+            <dt>{labels.fields.retainedPrefixLengths}</dt>
+            <dd><code><bdi dir="ltr">[{trace.generation.prefixes.join(',')}]</bdi></code></dd>
+          </div>
+          <div data-evidence="cache-prefill-prompt-tokens">
+            <dt>{labels.fields.cachePrefillPromptTokens}</dt>
+            <dd><code><bdi dir="ltr">{trace.generation.prefill}</bdi></code></dd>
+          </div>
+          <div data-evidence="one-token-decode-input-tokens">
+            <dt>{labels.fields.oneTokenDecodeInputTokens}</dt>
+            <dd><code><bdi dir="ltr">{trace.generation.decode}</bdi></code></dd>
+          </div>
+          <div data-evidence="cached-attention-score-cells">
+            <dt>{labels.fields.cachedAttentionScoreCells}</dt>
+            <dd><InlineMath latex={`1+2+3=${trace.generation.cached_scores}`} /></dd>
+          </div>
+          <div data-evidence="complete-prefix-attention-score-cells">
+            <dt>{labels.fields.completePrefixAttentionScoreCells}</dt>
+            <dd><InlineMath latex={`1^2+2^2+3^2=${trace.generation.calculated_complete_prefix_scores}`} /></dd>
+          </div>
+        </dl>
       </li>
       </ol>
     </div>
@@ -256,6 +279,40 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     place-items: center;
   }
 
+  .stage-facts {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  }
+
+  .stage-facts > div {
+    min-inline-size: 0;
+  }
+
+  .generation-facts {
+    grid-column: 1 / -1;
+  }
+
+  .generation-facts
+    > :is(
+      [data-evidence='retained-prefix-lengths'],
+      [data-evidence='cache-prefill-prompt-tokens'],
+      [data-evidence='one-token-decode-input-tokens']
+    ) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--diagram-gap);
+  }
+
+  .generation-facts
+    > :is(
+      [data-evidence='retained-prefix-lengths'],
+      [data-evidence='cache-prefill-prompt-tokens'],
+      [data-evidence='one-token-decode-input-tokens']
+    )
+    > dd {
+    margin: 0;
+  }
+
   .selection-card dd {
     display: grid;
     gap: 0.2rem;
@@ -269,6 +326,42 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
   }
 
   @container course-diagram (min-width: 68rem) {
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > .course-diagram__caption {
+      grid-template-columns: minmax(14rem, 0.45fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > section {
+      display: grid;
+      grid-template-columns: minmax(14rem, 0.35fr) minmax(0, 1fr);
+      gap: var(--diagram-gap);
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > section > h4 {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > section > .course-diagram__card-stack {
+      display: contents;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > section > .course-diagram__card-stack > p {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      > section > .course-diagram__card-stack > .pipeline {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
     figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']
       .pipeline.course-diagram__grid {
       display: flex;
@@ -303,6 +396,36 @@ const visibleGeneratedText = trace.generation.text.replaceAll(' ', '␠');
     .stage-card[data-stage='generation'] {
       flex: 1 0 45%;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      :is([data-stage='batches'], [data-stage='checkpoint'])
+      .stage-facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .generation-facts {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .generation-facts
+      > :is(
+        [data-evidence='retained-prefix-lengths'],
+        [data-evidence='cache-prefill-prompt-tokens'],
+        [data-evidence='one-token-decode-input-tokens']
+      ) {
+      grid-column: span 2;
+    }
+
+    figure.course-diagram.end-to-end-llm-diagram[data-diagram-style='course-v1']:fullscreen
+      .generation-facts
+      > :is(
+        [data-evidence='cached-attention-score-cells'],
+        [data-evidence='complete-prefix-attention-score-cells']
+      ) {
+      grid-column: span 3;
     }
 
   }
