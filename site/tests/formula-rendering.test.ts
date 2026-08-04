@@ -207,6 +207,14 @@ const documentedLiteralData = [
       /^(?=.{5,}$)(?:[A-Za-z][A-Za-z0-9]*(?:::|\.))?(?:[A-Za-z][A-Za-z0-9]*_)+[A-Za-z][A-Za-z0-9]*(?:\([^\r\n]*\))?$/,
   },
   {
+    name: "literal serde_json decoding API",
+    pattern: /^serde_json::from_str$/,
+  },
+  {
+    name: "concrete Rust macro identifiers",
+    pattern: /^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z][A-Za-z0-9]*)+!$/,
+  },
+  {
     name: "literal token-transition records",
     pattern: /^[A-Z]+(?:\(\d+\))?→[A-Z]+(?:\(\d+\))?$/,
   },

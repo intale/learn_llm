@@ -13182,3 +13182,117 @@ especially the required chapter-by-chapter F07 migration.
 `remediate-rust-runtime-observation-20260804`,
 `separate-bpe-encoding-observation`, and
 `20260804T151403Z-separate-bpe-encoding-observation-01`.
+
+## 2026-08-04 - Make full sampling distributions explicit evidence
+
+**Status:** Accepted during preflight for `separate-sampling-observation` before
+sampling product files were edited.
+
+**Context:** `sample_next_token` currently returns `SamplingDecision`, which owns
+the complete token-ID-ordered candidate distribution and rank-ordered survivor
+list. Ordinary cached and uncached generation read only the chosen token, optional
+unit draw, and half-open interval, then discard the vocabulary-sized evidence on
+every generated token. Chapter 36 intentionally needs that complete distribution;
+Chapters 38 and 39 need only compact selection evidence.
+
+**Decision:** Make `sample_next_token` the ordinary result-only API and return a
+new compact `SampledToken` carrying token ID, optional unit draw, interval start,
+and interval end. Add `sample_next_token_with_trace`, returning the existing
+inspectable `SamplingDecision`, for Chapter 36 evidence. Keep
+`sampling_distribution` as the no-draw distribution inspection API. Do not retain
+the old traceful `sample_next_token` as a compatibility alias: doing so would
+leave the default-looking operation with the exact hidden cost this checkpoint
+removes. Existing scalar accessor names remain the same, so cached and uncached
+generation source can continue to call `sample_next_token` without a private
+adapter.
+
+Factor validation, stable ranking, temperature scaling, compensated
+normalization, and retained probabilities into one private fallible preparation.
+Factor ascending-token-ID half-open interval traversal into one private
+allocation-free selection. Both public sampling calls use those same functions;
+the traced call alone materializes rank-by-token, `SamplingCandidate`, and
+survivor evidence from the prepared values. Every algorithm allocation and every
+optional trace allocation must finish before the stochastic draw. Necessary
+private ranking and probability workspace is algorithm state, not teaching
+evidence, and remains allowed in the ordinary path.
+
+Preserve the current error precedence, numerical operation and summation order,
+stable ties, removed-token positive zeroes, probability tolerance, final positive
+interval ending at one, and all random-stream rules. Greedy consumes no draw;
+every valid stochastic call, including top-k one, consumes exactly one draw;
+rejection consumes none. This checkpoint does not change the F08 allocation-error
+policy: existing fallible reservations remain at the same pre-draw transaction
+boundary.
+
+Advance only Chapter 36 to content revision 4 because its `sampling-policy`
+projection and intentional learner-evidence calls change. Author English first,
+refresh Russian directly from that exact English revision, and explain the
+ordinary/trace distinction without implying that selection needs no ranking or
+probability workspace. Keep Chapters 38 and 39 at revisions 2 and 5: their
+compact evidence claims and rendered code remain semantically and textually
+unchanged. Treat their reports, diagram traces, sampled bits, cached/uncached
+equivalence, stops, and final RNG states as frozen regression evidence.
+
+**Consequences:** Ordinary generation no longer constructs complete candidate,
+rank-map, or survivor records per token, while Chapter 36 retains the same exact
+inspectable distribution through an explicitly named trace call. The public
+return type of `sample_next_token` intentionally becomes compact; repository
+callers that require `SamplingDecision` move to `sample_next_token_with_trace`.
+No sampling formula, random choice, trace grammar, demo output, diagram datum,
+dependency, route, style, build, hosting, or deployment behavior changes.
+
+**Affected build, step, and run:**
+`remediate-rust-runtime-observation-20260804`,
+`separate-sampling-observation`, and
+`20260804T154930Z-separate-sampling-observation-01`.
+
+## 2026-08-04 - Restore the complete site gate before resuming sampling
+
+**Status:** Accepted after exact-staged validation exposed a prerequisite for
+`separate-sampling-observation`.
+
+**Context:** The frozen sampling candidate passes its complete Rust matrix,
+deterministic replay, Chapter 36 contract and localization checks, and focused
+source tests. Its first complete site matrix then exposed two failures in files
+that are byte-identical to committed baseline `4ddbd1b`: Chapter 39's component
+CSS repeats the shared `course-diagram__caption` role token that the diagram
+contract requires exactly once in semantic markup, and Chapter 2 now presents
+the concrete Rust API `serde_json::from_str` without a matching narrow literal
+allowance in the formula-rendering test. Once that first rejected span was
+recognized, the focused test exposed `include_str!`, a concrete snake-case Rust
+macro name added by the same Chapter 2 corpus revision and rejected for the same
+underscore heuristic. Neither failure was introduced by the sampling outputs,
+but a sampling checkpoint cannot claim the required complete site gate while
+they remain.
+
+**Decision:** Interrupt the first sampling run, retain its exact seven-file
+manifest and verified artifacts, and insert `restore-site-validation-baseline`
+as a prerequisite. Repair the diagram source by changing only the private
+fullscreen geometry selector; do not add, remove, or rename semantic diagram
+roles or change the shared presentation module. Repair the formula contract by
+recognizing `serde_json::from_str` as one exact concrete Rust API literal and
+snake-case Rust macro names as one bounded program-identifier category. A full
+Chapter 1-7 inline-code audit must show that these cover the remaining concrete
+program literals; do not exempt arbitrary namespace paths or weaken raw
+mathematics detection. The two file corrections form one baseline-restoration
+step because neither alone restores the complete site validation gate, and
+neither changes learner-facing content or Rust behavior.
+
+Commit that prerequisite independently. Then start a new sampling run from the
+new commit, verify every frozen candidate checksum before reuse, and repeat the
+complete sampling acceptance matrix. Do not relabel or overwrite the interrupted
+run, and do not include either baseline repair in the sampling commit.
+
+**Consequences:** Completed audit corrections continue to have one coherent
+commit each, while pre-existing test debt cannot be hidden inside an unrelated
+Rust refactor. Chapter 2 prose, Chapter 39 evidence and geometry, routes,
+dependencies, static output, and runtime behavior remain unchanged. The active
+build gains one small local prerequisite; its sampling, tensor-backward, and
+AdamW objectives remain unchanged.
+
+**Affected build, steps, and runs:**
+`remediate-rust-runtime-observation-20260804`,
+`restore-site-validation-baseline`,
+`20260804T161653Z-restore-site-validation-baseline-01`,
+`separate-sampling-observation`, and
+`20260804T154930Z-separate-sampling-observation-01`.
