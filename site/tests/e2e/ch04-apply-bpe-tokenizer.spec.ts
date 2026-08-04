@@ -22,7 +22,7 @@ import {
 declare const process: { cwd(): string };
 
 const chapterId = '04-apply-bpe-tokenizer';
-const contentRevision = 7;
+const contentRevision = 8;
 const formulaLatex = String.raw`\operatorname{decode}_{content}(\operatorname{encode}_{content}(x))=\operatorname{bytes}(x)`;
 const repositoryRoot = resolve(process.cwd(), '..');
 
@@ -88,6 +88,7 @@ const copy = {
     ],
     exerciseSummary: 'Check your predictions',
     exerciseAnswer: 'IDs [257,256] recover bytes ff fe exactly',
+    observation: 'The ordinary and traced methods call the same ranked-merge loop.',
   },
   ru: {
     indexTitle: 'От текста к небольшой языковой модели',
@@ -124,6 +125,7 @@ const copy = {
     ],
     exerciseSummary: 'Проверьте ответы',
     exerciseAnswer: 'ID [257,256] точно восстанавливают ff fe',
+    observation: 'Обычный метод и метод с трассировкой используют один и тот же цикл: он перебирает правила в порядке рангов и выполняет слияния.',
   },
 } as const satisfies Record<ChapterLocale, unknown>;
 
@@ -146,6 +148,11 @@ async function expectChapterContent(
   for (const heading of Object.values(localized.headings)) {
     await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible();
   }
+  const observation = page.locator('.lesson-body p').filter({
+    hasText: localized.observation,
+  });
+  await expect(observation).toHaveCount(1);
+  await expect(observation).toBeVisible();
   const displayedFormula = page.locator('.katex-display');
   await expect(displayedFormula).toHaveCount(1);
   await expect(displayedFormula).toHaveCSS('direction', 'ltr');

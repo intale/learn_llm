@@ -177,10 +177,6 @@ impl BpeEncodingTrace {
     pub fn content_tokens(&self) -> &[u32] {
         &self.content_tokens
     }
-
-    fn into_content_tokens(self) -> Vec<u32> {
-        self.content_tokens
-    }
 }
 
 /// An owned, deterministic byte-level BPE tokenizer.
@@ -338,29 +334,45 @@ impl BpeTokenizer {
     }
 
     // region:ranked-content-encoding
-    /// Encodes bytes and records every rank that changed the sequence.
-    pub fn encode_content_with_trace(&self, bytes: &[u8]) -> BpeEncodingTrace {
-        let initial_tokens = bytes
+    fn initial_content_tokens(&self, bytes: &[u8]) -> Vec<u32> {
+        bytes
             .iter()
             .map(|byte| self.layout.byte_token_id(*byte))
-            .collect::<Vec<_>>();
-        let mut content_tokens = initial_tokens.clone();
-        let mut applications = Vec::new();
+            .collect()
+    }
 
+    fn apply_ranked_merges(
+        &self,
+        mut content_tokens: Vec<u32>,
+        mut observe: impl FnMut(&BpeMergeRule, usize, &[u32], &[u32]),
+    ) -> Vec<u32> {
         for rule in &self.merge_rules {
             let before = content_tokens;
             let (after, replacements) =
                 replace_pair_left_to_right(&before, rule.content_pair, rule.content_token_id);
             if replacements > 0 {
-                applications.push(BpeMergeApplication {
-                    rank: rule.rank,
-                    replacements,
-                    before: before.clone(),
-                    after: after.clone(),
-                });
+                observe(rule, replacements, &before, &after);
             }
             content_tokens = after;
         }
+        content_tokens
+    }
+
+    /// Encodes bytes and records every rank that changed the sequence.
+    pub fn encode_content_with_trace(&self, bytes: &[u8]) -> BpeEncodingTrace {
+        let initial_tokens = self.initial_content_tokens(bytes);
+        let mut applications = Vec::new();
+        let content_tokens = self.apply_ranked_merges(
+            initial_tokens.clone(),
+            |rule, replacements, before, after| {
+                applications.push(BpeMergeApplication {
+                    rank: rule.rank,
+                    replacements,
+                    before: before.to_vec(),
+                    after: after.to_vec(),
+                });
+            },
+        );
 
         BpeEncodingTrace {
             initial_tokens,
@@ -371,7 +383,8 @@ impl BpeTokenizer {
 
     /// Encodes arbitrary bytes into the canonical rank-ordered content sequence.
     pub fn encode_content(&self, bytes: &[u8]) -> Vec<u32> {
-        self.encode_content_with_trace(bytes).into_content_tokens()
+        let initial_tokens = self.initial_content_tokens(bytes);
+        self.apply_ranked_merges(initial_tokens, |_, _, _, _| {})
     }
 
     /// Encodes a valid UTF-8 string through the same byte boundary.
@@ -647,6 +660,43 @@ mod tests {
             tokenizer.decode_content(trace.content_tokens()),
             Ok(b"abc".to_vec())
         );
+    }
+
+    #[test]
+    fn lean_and_traced_encoding_return_the_same_tokens() {
+        fn assert_equivalent(tokenizer: &BpeTokenizer, inputs: &[&[u8]]) {
+            for input in inputs {
+                assert_eq!(
+                    tokenizer.encode_content(input),
+                    tokenizer.encode_content_with_trace(input).content_tokens(),
+                    "lean and traced encoding differ for bytes {input:?}"
+                );
+            }
+        }
+
+        let canonical = canonical_tokenizer();
+        assert_equivalent(
+            &canonical,
+            &[
+                b"",
+                b"z",
+                " а bee ".as_bytes(),
+                b"aaaaa",
+                &[0xff, 0xfe, 0x00, 0xe2, 0x82],
+            ],
+        );
+
+        let chained =
+            BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 98), TokenPair::new(256, 99)])
+                .expect("valid chained ranks");
+        assert_equivalent(&chained, &[b"abc", b"zabcabc"]);
+
+        let repeated =
+            BpeTokenizer::from_merge_pairs(&[TokenPair::new(97, 97)]).expect("valid repeated pair");
+        assert_equivalent(&repeated, &[b"aaaaa", b"baaaab"]);
+
+        let byte_only = BpeTokenizer::from_merge_pairs(&[]).expect("zero ranks are valid");
+        assert_equivalent(&byte_only, &[b"", b"ASCII", &[0, 255]]);
     }
 
     #[test]

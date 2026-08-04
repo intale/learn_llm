@@ -23,15 +23,31 @@ const fixture = readFileSync(
   resolve(repositoryRoot, 'rust/demos/ch04-apply-bpe-tokenizer/expected.txt'),
   'utf8',
 );
+const bpeSource = readFileSync(
+  resolve(repositoryRoot, 'rust/crates/llm-from-scratch/src/tokenizer/bpe.rs'),
+  'utf8',
+);
+const contractSource = readFileSync(
+  resolve(repositoryRoot, 'curriculum/chapters/04-apply-bpe-tokenizer.md'),
+  'utf8',
+);
+const englishChapterSource = readFileSync(
+  resolve(process.cwd(), 'src/content/chapters/en/04-apply-bpe-tokenizer.mdx'),
+  'utf8',
+);
+const russianChapterSource = readFileSync(
+  resolve(process.cwd(), 'src/content/chapters/ru/04-apply-bpe-tokenizer.mdx'),
+  'utf8',
+);
+
+function frontmatter(source: string): Record<string, unknown> {
+  const match = source.match(/^---\n(.*?)\n---\n/s);
+  if (!match) throw new Error('Chapter 4 frontmatter is missing.');
+  return JSON.parse(match[1]) as Record<string, unknown>;
+}
 
 function contractVisualizationId(): string {
-  const source = readFileSync(
-    resolve(repositoryRoot, 'curriculum/chapters/04-apply-bpe-tokenizer.md'),
-    'utf8',
-  );
-  const frontmatter = source.match(/^---\n(.*?)\n---\n/s);
-  if (!frontmatter) throw new Error('Chapter 4 contract frontmatter is missing.');
-  return (JSON.parse(frontmatter[1]) as { visualization: { id: string } }).visualization.id;
+  return (frontmatter(contractSource) as { visualization: { id: string } }).visualization.id;
 }
 
 const englishLabels: ApplyBpeTokenizerDiagramLabels = {
@@ -138,6 +154,43 @@ function blankLabelAt(
 }
 
 describe('apply-BPE-tokenizer trace parser', () => {
+  it('keeps ordinary encoding lean while both APIs share one merge loop', () => {
+    const leanStart = bpeSource.indexOf('    pub fn encode_content(&self, bytes: &[u8])');
+    const leanEnd = bpeSource.indexOf('    /// Encodes a valid UTF-8 string', leanStart);
+    const tracedStart = bpeSource.indexOf(
+      '    pub fn encode_content_with_trace(&self, bytes: &[u8])',
+    );
+    const tracedEnd = bpeSource.indexOf(
+      '    /// Encodes arbitrary bytes into the canonical rank-ordered content sequence.',
+      tracedStart,
+    );
+    expect(leanStart).toBeGreaterThan(-1);
+    expect(leanEnd).toBeGreaterThan(leanStart);
+    expect(tracedStart).toBeGreaterThan(-1);
+    expect(tracedEnd).toBeGreaterThan(tracedStart);
+
+    const leanBody = bpeSource.slice(leanStart, leanEnd);
+    const tracedBody = bpeSource.slice(tracedStart, tracedEnd);
+    expect(leanBody).toContain('self.initial_content_tokens(bytes)');
+    expect(leanBody).toContain('self.apply_ranked_merges');
+    expect(leanBody).not.toContain('encode_content_with_trace');
+    expect(leanBody).not.toContain('BpeEncodingTrace');
+    expect(leanBody).not.toContain('BpeMergeApplication');
+    expect(tracedBody).toContain('self.apply_ranked_merges');
+    expect(tracedBody).toContain('BpeMergeApplication');
+    expect(bpeSource.match(/for rule in &self\.merge_rules/g)).toHaveLength(1);
+
+    for (const source of [contractSource, englishChapterSource, russianChapterSource]) {
+      expect(frontmatter(source).content_revision).toBe(8);
+    }
+    expect(englishChapterSource).toContain(
+      'The ordinary and traced methods call the same ranked-merge loop.',
+    );
+    expect(russianChapterSource).toContain(
+      'Обычный метод и метод с трассировкой используют один и тот же цикл',
+    );
+  });
+
   it('matches the contract and exact Rust-authored pipelines', () => {
     expect(applyBpeTokenizerDiagramId).toBe('apply-bpe-tokenizer');
     expect(applyBpeTokenizerDiagramId).toBe(contractVisualizationId());

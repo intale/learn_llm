@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "locale": "en",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 4,
   "concept_id": "reversible-byte-bpe-tokenizer",
   "title": "Applying and reversing a BPE tokenizer",
@@ -49,7 +49,7 @@
     {
       "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
       "region": "ranked-content-encoding",
-      "purpose": "Map bytes through the content offset and replay frozen ranks in order."
+      "purpose": "Replay frozen ranks through one merge loop, storing before-and-after snapshots only when explicit trace evidence is requested."
     },
     {
       "path": "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs",
@@ -263,9 +263,14 @@ invariant: at rank $r$, both operands must already exist, and a pair cannot be
 repeated.
 
 Encoding takes `&[u8]` as the fundamental input. The `&str` helper simply exposes
-its UTF-8 bytes. Each rule is shifted by $2$ and applied once in ascending
-rank order with Chapter 3's left-to-right replacement. The optional trace records
-only ranks that changed this particular input; it never changes the result:
+its UTF-8 bytes. Each rule is shifted by $2$ and applied once in ascending rank
+order with Chapter 3's left-to-right replacement.
+
+The ordinary and traced methods call the same ranked-merge loop. The ordinary
+method does not store before-and-after snapshots; it returns only the final token
+IDs. The traced method additionally copies the sequence before and after each
+rank that changed this input. Requesting those snapshots changes what the caller
+can inspect, not the encoded result:
 
 <RustSource
   path="rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"

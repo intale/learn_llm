@@ -13126,3 +13126,59 @@ behavior are unchanged.
 **Affected build, step, and run:**
 `simplify-rust-input-boundaries-20260804`, `audit-rust-overengineering`, and
 `20260804T142323Z-audit-rust-overengineering-01`.
+
+## 2026-08-04 - Remediate audit findings as ordered execution and support phases
+
+**Status:** Accepted for `remediate-rust-runtime-observation-20260804` and its
+follow-up builds.
+
+**Context:** The reviewed Rust audit records thirteen findings with different
+dependency, chapter, and compatibility boundaries. Combining them into one
+refactor would make numerical equivalence, learner-facing revisions, and commit
+ownership difficult to verify. In particular, F01 can remove a large ordinary
+runtime cost without changing formulas, while F02 changes the protected Chapter
+22 transaction policy, F07 intentionally changes many frozen build-transport
+grammars one chapter at a time, and F08 requires a repository allocation policy
+before individual error variants can be retired.
+
+**Decision:** Execute the audit queue in phases while preserving the report's
+dependency order. The first active build addresses F01 in four standalone
+commits: BPE encoding, sampling, tensor backward, and AdamW/trainer integration.
+After that build, use separate builds for borrowed tensor access and trainer
+ownership (F02), validated internal tensor iteration (F03), sealed checkpoint
+tokenizer state before checkpoint streaming (F05 then F04), trusted-boundary
+and batch/capstone work (F06 then F09), typed JSON/JSONL evidence transport one
+chapter per commit (F07), and the allocation/supporting-plumbing findings
+(F08, then F10-F13). This is scheduling, not a scope reduction: findings remain
+open until their correcting checkpoint is committed or a later durable decision
+records evidence for retaining the existing design.
+
+Each execution/observation repair keeps one mathematical kernel. The ordinary
+API requests no teaching evidence; the explicit trace API observes that same
+kernel and preserves every deterministic field and fixture. Never use a second
+reference implementation merely to preserve chapter output. English remains the
+canonical learner-facing source and every affected Russian page is refreshed
+directly from its current English revision under the localization workflow.
+
+For the first BPE step, factor byte initialization and the ascending-rank merge
+loop into private shared helpers. `encode_content` supplies no observer and
+keeps only the final content IDs. `encode_content_with_trace` supplies an
+observer that records before/after snapshots only for ranks that make a
+replacement. Keep `replace_pair_left_to_right` as the sole non-overlapping pair
+replacement implementation. Advance Chapter 4 from revision 7 to 8 because the
+rendered `ranked-content-encoding` region changes, and state explicitly that the
+normal and traced calls share the loop while only the latter allocates snapshots.
+Do not change the trace grammar, demo stdout, diagram data, token IDs, or any
+downstream result.
+
+**Consequences:** Each completed correction has a narrow equivalence proof and
+its own checkpoint commit. The active build can close the most immediate F01
+cost without silently changing Chapter 22 rollback semantics, Chapter 35's
+checkpoint format, sampling's pre-draw allocation boundary, or any historical
+implementation. The full remediation spans multiple builds and many commits,
+especially the required chapter-by-chapter F07 migration.
+
+**Affected build, step, and run:**
+`remediate-rust-runtime-observation-20260804`,
+`separate-bpe-encoding-observation`, and
+`20260804T151403Z-separate-bpe-encoding-observation-01`.

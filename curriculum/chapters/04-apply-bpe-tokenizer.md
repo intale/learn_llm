@@ -2,7 +2,7 @@
 {
   "chapter_id": "04-apply-bpe-tokenizer",
   "concept_id": "reversible-byte-bpe-tokenizer",
-  "content_revision": 7,
+  "content_revision": 8,
   "order": 4,
   "objective": {
     "en": "Apply frozen byte-pair ranks to arbitrary UTF-8, wrap documents with reserved control IDs, and recover the exact content bytes.",
@@ -119,7 +119,7 @@
     "Describe the lack of PAD as this course's fixed-window scope choice, not a claim that production serving never needs padding.",
     "The GPT-2 source supports the 256-byte base and coverage tradeoff, but its category-boundary policy differs from this course's document-barrier-only variant.",
     "Use пары «вход — цель» for Chapter 5 input–target pairs; do not rename the input as «контекст» in this handoff.",
-    "English revision 7 is the canonical semantic source. Russian revision 7 is refreshed directly from it with source SHA-256 0a501a522cd90635fcb542b0a530322ade7084375a26621b6ba53b317f94698f. The prose and tokenizer evidence are unchanged; the visible Rust loader call now receives Chapter 2's ordinary JSON corpus as &str."
+    "English revision 8 is the canonical semantic source. Russian revision 8 is refreshed directly from it with source SHA-256 11036f2b64b7fe21e391deb414a4ecf099566683d54ba5e999cf4b43504f614f. Both locales explicitly state that ordinary encoding does not store before-and-after snapshots, while opt-in tracing captures them through the same ranked-merge loop; tokenizer evidence and encoded results are unchanged."
   ],
   "acceptance_examples": [
     {
@@ -220,7 +220,11 @@ expansions. Layout version 1 fixes BOS `0`, EOS `1`, byte IDs `2..=257`, and ran
 and later checkpoint loading without retaining a trainer object.
 
 `encode_content` accepts `&[u8]`, maps bytes through `+2`, and applies each mapped
-pair once in rank order. `encode_document` adds controls only after merging.
+pair once in rank order. The ordinary and traced methods share that private merge
+loop: the ordinary method does not store before-and-after snapshots and returns
+only the final IDs, while the explicit trace method records those snapshots for
+ranks that changed the input.
+`encode_document` adds controls only after merging.
 `decode_content` rejects controls and unknown IDs; `decode_document` additionally
 requires endpoint controls and rejects either control inside. Strict UTF-8 helpers
 run only after byte-exact decoding.

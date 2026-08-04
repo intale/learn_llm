@@ -1,5 +1,5 @@
 schema_version: 1
-updated_at: "2026-08-04T15:01:33Z"
+updated_at: "2026-08-04T15:43:11Z"
 
 environment:
   os: "Linux x86_64 host with Linux x86_64 product and browser containers"
@@ -13,7 +13,7 @@ environment:
   git: "2.53.0"
   notes: "Current Linux/Dropbox orchestration environment recorded on 2026-08-02 after the full-course audit ran from the Windows host. Repository-defined Rust 1.93.1, Node 22.12.0/npm 10.9.0, and Playwright 1.61.1 pins remain unchanged in Linux product and browser images; host Rust, Node, npm, and Python remain unused."
 
-active_build: null
+active_build: remediate-rust-runtime-observation-20260804
 
 builds:
   - build_id: bootstrap-course
@@ -31118,3 +31118,172 @@ builds:
               - {command: "First final ./course audit-host", status: failed, notes: "The audit found an ignored root target/ directory containing 247 MB and 2,133 Cargo build/cache files timestamped after the API checkpoint. It was not tracked, staged, published, or used as audit evidence. The exact generated directory was inspected and removed to restore the Docker-only host invariant."}
               - {command: "Final exact three-path scope, BUILD_STATE.yaml parse, git diff --check, and ./course audit-host", status: passed, notes: "Only audits/2026-08-04-rust-overengineering.md, BUILD_STATE.yaml, and DECISIONS.md change. The completed ledger parses in the pinned network-disabled Docker workspace, whitespace is clean, no Rust product or dependency file changed, target/ is absent, and the host audit passes with only the intentional site/dist release exception."}
             notes: "Succeeded read-only. The canonical report covers every tracked Rust source and records thirteen actionable clusters without changing Rust. It prioritizes opt-in observation, non-copying tensor access, efficient validated kernels, checkpoint copy removal, and sealed checkpoint tokenizer state while preserving one mathematical implementation, deterministic evidence, existing chapter decisions until explicitly superseded, current/historical LLM algorithms, and real public or untrusted-input checks."
+
+  - build_id: remediate-rust-runtime-observation-20260804
+    objective: "Remove teaching-only evidence construction from ordinary BPE, sampling, autodiff, and AdamW execution while preserving one mathematical implementation and every explicit chapter trace."
+    status: active
+    budget:
+      unit: agent-session
+      limit: null
+      spent: 1
+      notes: "Four medium cached-Docker corrections with focused bilingual chapter revisions and browser checks. No paid service or generated model work is used; canonical Docker dependency layers may refresh lockfile-pinned artifacts if their cache keys change."
+    completion_criteria:
+      - "Ordinary BPE encoding, token sampling, tensor backward, and AdamW update paths do not allocate or retain teaching-only trace records."
+      - "Each explicit trace entry point observes the same mathematical kernel used by its lean counterpart; no algorithm, ordering, random draw, gradient, parameter value, token ID, or deterministic fixture changes."
+      - "Every rendered Rust projection advances English first and is refreshed directly into Russian with source, content, parity, Chromium, and Firefox validation."
+      - "Each correction is independently validated and persisted in its own Git commit before the next step starts."
+      - "The remaining F02-F13 findings stay in the reviewed audit queue and receive separate builds after this F01 execution-path phase."
+    steps:
+      - id: separate-bpe-encoding-observation
+        objective: "Make ordinary BPE encoding retain only final token IDs while explicit tracing observes the same ranked-merge loop."
+        depends_on: []
+        status: completed
+        inputs:
+          - "User direction to continue and fix the reviewed audit findings"
+          - "AGENTS.md"
+          - "SKILLS.md"
+          - ".agents/skills/localize-llm-course/SKILL.md"
+          - "audits/2026-08-04-rust-overengineering.md finding F01"
+          - "Commit 445529471dab4c590681f63af320a0e4a8ddc8ea"
+          - "Current BPE implementation, Chapter 4 contract/locales, and focused source/browser tests"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs"
+          - "curriculum/chapters/04-apply-bpe-tokenizer.md"
+          - "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx"
+          - "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx"
+          - "site/tests/04-apply-bpe-tokenizer-diagram.test.ts"
+          - "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts"
+          - "BUILD_STATE.yaml"
+          - "DECISIONS.md"
+        acceptance:
+          - "encode_content neither calls encode_content_with_trace nor constructs BpeEncodingTrace or BpeMergeApplication records."
+          - "Lean and traced encoding use one byte-initialization path, one ascending-rank merge loop, and one left-to-right non-overlapping pair replacement implementation."
+          - "Lean and traced encoding return identical final token IDs for empty, unchanged, chained, repeated, bilingual, and arbitrary-byte inputs while existing exact trace assertions remain unchanged."
+          - "Public API signatures, learned token IDs, decoded bytes, trace grammar, demo stdout, diagrams, and downstream model results remain unchanged."
+          - "Chapter 4 revision 8 explicitly distinguishes the normal result-only call from opt-in evidence capture; English is canonical and Russian is refreshed naturally from that exact revision."
+        validate:
+          - "Staged cargo fmt, Clippy -D warnings, complete locked workspace/doc tests, dependency policy, and deterministic demo replay in Docker"
+          - "Manifest-locked ./course review 20260804T151403Z-separate-bpe-encoding-observation-01 --check"
+          - "Focused Chapter 4 Vitest plus pinned Chromium and Firefox Chapter 4, formula, diagram-style, and full-view checks"
+          - "Canonical ./course check and focused replay"
+          - "git diff --check, exact publication/scope equality, BUILD_STATE.yaml parse, and ./course audit-host"
+        cost:
+          class: medium
+          notes: "Small Rust kernel refactor plus one bilingual rendered-code revision; substantial cached Docker compilation, static build, and two-browser CPU. No paid service or model generation."
+        runs:
+          - run_id: 20260804T151403Z-separate-bpe-encoding-observation-01
+            started_at: 2026-08-04T15:14:03Z
+            finished_at: 2026-08-04T15:43:11Z
+            status: succeeded
+            input_fingerprint:
+              git: "445529471dab4c590681f63af320a0e4a8ddc8ea; tree 3bfdd2430fc24708a9d8085e35dc73232f945ec8"
+              files:
+                AGENTS.md: "sha256:f00c75f230923262452b28c0950bb22af20402e5bdc41409691fdfbf2b985dec"
+                SKILLS.md: "sha256:527791ef26a87067b09d42d17571947df1d235e00a11b02ac04800638b607c84"
+                audit: "sha256:91b61fa02779023311772c8a7956b24dfa8058e08ddb2f56cda2861fe41cb2cf"
+                bpe.rs: "sha256:027ff6cc3d362ed825ba5f9252f512be9d4a51e61daea4211ffe407bd9580efc"
+                chapter-04-contract: "sha256:d154f12f01ed44e27d4bf959ee776241d2c4c5e0c2bdf7db798b0191f39e4397"
+                chapter-04-en: "sha256:0a501a522cd90635fcb542b0a530322ade7084375a26621b6ba53b317f94698f"
+                chapter-04-ru: "sha256:1a8eaa8c19ca20d302a33c7c11519461ae7215a1debbd2796f3e0f6c56eba097"
+                chapter-04-source-test: "sha256:fa6532a72b8b51773819be896a7f0e38ec4af7009aa50994a89a71702b6329da"
+                chapter-04-browser-test: "sha256:af384e86ad1c8ed4781b724c35f515a3b76b907842500b9e5b97394954abb86f"
+              tools: {git: "2.53.0", docker: "25.0.2", rustc: "1.93.1", cargo: "1.93.1", node: "22.12.0", npm: "10.9.0", playwright: "1.61.1"}
+              external: "No paid service or generated model work. Product work stayed Docker-only. The manifest-locked review contacted Docker registry metadata/auth for the pinned nginx image, and the canonical check refreshed only lockfile-pinned npm/Cargo cache layers; package versions and product inputs did not change."
+            staging_dir: ".build/runs/20260804T151403Z-separate-bpe-encoding-observation-01/"
+            commands:
+              - "Confirm clean committed audit checkpoint, no active/running owner, exact environment continuity, input hashes, chapter projection scope, and medium cached-Docker cost."
+              - "Read AGENTS.md, SKILLS.md, the localization skill, current locale policy, audit F01, Chapter 4 contract/locales, BPE implementation, and focused tests before claiming outputs."
+              - "Stage one initial-token constructor and one observer-parameterized ascending-rank merge loop; route result-only and traced BPE entry points through it and add lean/traced equivalence coverage."
+              - "Author Chapter 4 revision 8 in English, refresh Russian directly from that exact English revision, and update focused source and browser assertions."
+              - "Obtain independent Rust, English-content, and Russian-localization reviews; correct an English retention overclaim and the corresponding natural Russian wording before freezing the candidate."
+              - "Validate the exact staged candidate with offline Rust formatting, Clippy, complete workspace/doc tests, dependency policy, deterministic demo replay, focused Vitest, and full Chromium/Firefox page, formula, diagram, and full-view matrices."
+              - "Freeze the six-product-file publish manifest, run the manifest-locked official review, promote the exact bytes, and verify canonical/staged equality."
+              - "Run canonical ./course check, focused canonical Vitest and Chapter 4 Chromium/Firefox replay, exact scope/hash/whitespace checks, and ./course audit-host."
+            artifacts:
+              - {path: ".build/runs/20260804T151403Z-separate-bpe-encoding-observation-01/publish.sha256", sha256: "eb2504fa496744873ab45f39eba7caeea7a609b0288bbe03c0c252945e9f093f", purpose: "Frozen manifest for the six exact product outputs promoted by this run."}
+              - {path: "rust/crates/llm-from-scratch/src/tokenizer/bpe.rs", sha256: "c6e59406a2b59a038a3d04eb5347d04d9a29847be87f99bbf9c066bb5581083d", purpose: "Shared result-only/traced BPE kernel and equivalence tests."}
+              - {path: "curriculum/chapters/04-apply-bpe-tokenizer.md", sha256: "9d6e9163ff93f4c78041a458b77d211c5b958f94806b207302a9a8a826e9fb02", purpose: "Chapter 4 revision 8 contract and exact localization provenance."}
+              - {path: "site/src/content/chapters/en/04-apply-bpe-tokenizer.mdx", sha256: "11036f2b64b7fe21e391deb414a4ecf099566683d54ba5e999cf4b43504f614f", purpose: "Canonical English explanation of result-only versus opt-in tracing."}
+              - {path: "site/src/content/chapters/ru/04-apply-bpe-tokenizer.mdx", sha256: "e00da437469749b72e905fe8320de5d61c3b8c2113751433c6d608ecf3578176", purpose: "Reviewed natural Russian refresh from the exact English revision."}
+              - {path: "site/tests/04-apply-bpe-tokenizer-diagram.test.ts", sha256: "526b35d239ac5c18302bcfa28032c8766c0201cec4b80f7b12e14baaf63e9bc4", purpose: "Static single-kernel and revision assertions."}
+              - {path: "site/tests/e2e/ch04-apply-bpe-tokenizer.spec.ts", sha256: "6365aff2bdc96a282453890b71b2e89e6e8e52dcdfd5b1b805eb6e3b56afbb85", purpose: "Rendered bilingual distinction checks."}
+            validation:
+              - {command: "Repository, dependency, ownership, source, locale, environment, and cost preflight", status: passed, notes: "The audit build is completed and committed at 4455294; the tree is clean, required inputs exist, and no output is owned by another step. Chapter 4 is active in English and Russian, so revision 8 will be authored English-first and refreshed directly into Russian. Cost is medium Docker CPU with no paid service or model generation."}
+              - {command: "Independent Rust implementation review", status: passed, notes: "Exactly one ascending-rank rule loop and one left-to-right replacement implementation remain. encode_content constructs no trace or merge-application record, while both entry points preserve public signatures and final-token semantics."}
+              - {command: "Independent English and Russian learner-content reviews", status: passed, notes: "The corrected English avoids claiming that the algorithm allocates no temporary vectors and precisely limits the distinction to stored teaching snapshots. Russian was refreshed from English hash 11036f2b64b7fe21e391deb414a4ecf099566683d54ba5e999cf4b43504f614f and passed semantic, terminology, anti-calque, monolingual, accessibility, and naturalness review."}
+              - {command: "Initial exact staged cargo fmt", status: failed, notes: "Rustfmt found only one blank-line/wrapping difference. The candidate was mechanically formatted and all later exact staged and canonical checks used the corrected bytes."}
+              - {command: "First offline staged Rust image attempt", status: failed, notes: "The site-only base image lacked the locked serde_json Cargo registry cache and failed before compilation. The exact source overlay was rebuilt on the recorded canonical workspace cache; no source or dependency changed."}
+              - {command: "Exact staged Rust fmt, Clippy -D warnings, locked offline workspace/doc tests, dependency policy, and deterministic demo replay", status: passed, notes: "Image sha256:22540d7376bbe7337d21353c6858369a8ad330ff3e1de80790c04d596e6d209f passed every Rust gate, 366 shared-core tests plus all workspace/demo/doc targets, 39 demo replays, and 34 diagram traces; the new lean/traced BPE cases pass."}
+              - {command: "Exact staged content, parity, Astro, static, link, SEO, sitemap, analytics, and focused Vitest validation", status: passed, notes: "All 80 localized sources, 40 locale sets, 33 catalogs, 42 diagrams, 215 Astro source files, 85 routes, 2,529 local references, 85 sitemap URLs, and 164 artifacts pass; focused Chapter 4 Vitest is 9/9."}
+              - {command: "First exact staged Chromium matrix", status: failed, notes: "177/179 checks passed; only the new English/Russian assertions incorrectly required the target sentence to be the whole paragraph. The locator was narrowed to the paragraph containing the sentence without changing learner content."}
+              - {command: "Final exact staged Chromium and Firefox matrices", status: passed, notes: "Both browsers pass 179/179, including Chapter 4, all active formula pages, diagram style/containment at desktop and narrow widths, every full-view case, no-JavaScript, mobile, forced-colors, and direction-sensitive coverage."}
+              - {command: "Manifest-locked ./course review 20260804T151403Z-separate-bpe-encoding-observation-01 --check", status: passed, notes: "Official review image sha256:64edf746c5b1cd0660dbeba6dba6c6efdabb4a83d4259aa508faa28477fc9a05 validated the frozen six-file manifest."}
+              - {command: "Canonical ./course check and focused canonical replay", status: passed, notes: "Workspace image sha256:19ffaeec346adabb8e0ca94877dae49ce4677d7d2332d0d4b85fbd8d28fed05f passed the full Rust/site pipeline after refreshing only lockfile-pinned Docker caches. Focused Vitest is 9/9 and canonical-equal Chapter 4 Chromium/Firefox replays are 3/3 each."}
+              - {command: "Final publication, manifest, scheduler, scope, whitespace, and host-boundary audit", status: passed, notes: "All six canonical product files are byte-identical to their staged counterparts and match the frozen manifest. The complete pinned-Docker YAML parse selects this active build, records this step completed/run succeeded, leaves sampling as the next pending dependency, and finds no running step. Exactly the six products plus BUILD_STATE.yaml and DECISIONS.md change; git diff --check passes and ./course audit-host reports only the intentional site/dist exception."}
+            notes: "Succeeded. Ordinary BPE encoding now returns final IDs without retaining per-rule teaching snapshots; explicit tracing observes the same initialization, rank loop, and replacement kernel and preserves exact evidence. Chapter 4 revision 8 explains the boundary accurately in reviewed English and natural Russian, and complete Docker/browser validation passes."
+
+      - id: separate-sampling-observation
+        objective: "Make ordinary token sampling retain only the chosen token and boundary evidence while explicit tracing observes the same filtering and draw kernel."
+        depends_on: [separate-bpe-encoding-observation]
+        status: pending
+        inputs:
+          - "audits/2026-08-04-rust-overengineering.md finding F01"
+          - "Committed output of separate-bpe-encoding-observation"
+          - "Sampling implementation and every rendered Chapter 36, 38, and 39 projection"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/generation/sampling.rs"
+          - "Affected sampling callers, chapter contracts/locales, source/browser tests, BUILD_STATE.yaml, and DECISIONS.md resolved during preflight"
+        acceptance:
+          - "The normal sampler does not construct ranked-candidate, survivor, probability, or rank-mapping trace vectors."
+          - "Normal and traced calls share one filtering and selection kernel and consume the same single random draw for identical inputs and RNG state."
+          - "All cached/uncached generation results and deterministic evidence remain exact."
+        validate:
+          - "Docker Rust formatting, Clippy, complete workspace/doc tests, dependency policy, and deterministic demo replay"
+          - "Focused source and Chromium/Firefox validation for every revised sampling chapter"
+          - "Canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
+        cost: {class: medium, notes: "Cross-call-path Rust refactor and localized rendered projections with cached Docker/browser CPU; no paid service or model generation."}
+        runs: []
+
+      - id: separate-tensor-backward-observation
+        objective: "Make ordinary tensor backward propagate adjoints without retaining node and edge teaching snapshots while the trace API observes the same reverse traversal."
+        depends_on: [separate-sampling-observation]
+        status: pending
+        inputs:
+          - "audits/2026-08-04-rust-overengineering.md finding F01"
+          - "Committed output of separate-sampling-observation"
+          - "Tensor autodiff implementation, trainer callers, Chapter 15 evidence, and all rendered projections"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/autograd/tensor_core.rs"
+          - "Affected trainer callers, chapter contracts/locales, source/browser tests, BUILD_STATE.yaml, and DECISIONS.md resolved during preflight"
+        acceptance:
+          - "Ordinary backward does not construct TensorBackwardPass, TensorBackwardNode, TensorBackwardEdge, saved-context, contribution, or before/after trace ownership."
+          - "Ordinary and traced backward share one validated reverse traversal and produce identical gradients and graph-lifecycle behavior."
+          - "Chapter 15 exact evidence and all downstream training results remain unchanged."
+        validate:
+          - "Docker Rust formatting, Clippy, complete workspace/doc tests, dependency policy, and deterministic demo replay"
+          - "Focused source and Chromium/Firefox validation for every revised autodiff/training chapter"
+          - "Canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
+        cost: {class: large, notes: "Core autodiff execution refactor plus broad regression and rendered-projection validation; cached Docker/browser CPU, no paid service or model generation."}
+        runs: []
+
+      - id: separate-adamw-observation
+        objective: "Make ordinary AdamW updates retain only committed parameters, moments, and step state while explicit tracing observes the same update kernel."
+        depends_on: [separate-tensor-backward-observation]
+        status: pending
+        inputs:
+          - "audits/2026-08-04-rust-overengineering.md finding F01"
+          - "Committed output of separate-tensor-backward-observation"
+          - "AdamW implementation, trainer callers, Chapter 22 evidence, and all rendered projections"
+        outputs:
+          - "rust/crates/llm-from-scratch/src/training/adamw.rs"
+          - "Affected trainer callers, chapter contracts/locales, source/browser tests, BUILD_STATE.yaml, and DECISIONS.md resolved during preflight"
+        acceptance:
+          - "Ordinary AdamW update does not retain parameter, gradient, moment, corrected-moment, direction, or delta teaching snapshots."
+          - "Ordinary and traced updates share one prepare/commit calculation and produce bit-identical parameters, moments, step numbers, and rollback behavior."
+          - "Chapter 22 exact evidence and all downstream training/checkpoint results remain unchanged."
+        validate:
+          - "Docker Rust formatting, Clippy, complete workspace/doc tests, dependency policy, and deterministic demo replay"
+          - "Focused source and Chromium/Firefox validation for every revised optimizer/training chapter"
+          - "Canonical ./course check, exact scope/YAML/whitespace checks, and ./course audit-host"
+        cost: {class: large, notes: "Optimizer/trainer execution refactor plus broad deterministic and localized chapter validation; cached Docker/browser CPU, no paid service or model generation."}
+        runs: []
